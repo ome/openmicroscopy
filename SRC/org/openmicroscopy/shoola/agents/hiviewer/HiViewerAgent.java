@@ -43,22 +43,14 @@ import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
 import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ClassifyImage;
 import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategory;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategoryGroup;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseDataset;
-import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseProject;
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -103,10 +95,7 @@ public class HiViewerAgent
         registry = ctx;
         control = new HiViewerCtrl(this);
         EventBus bus = registry.getEventBus();
-        bus.register(this, BrowseProject.class);
-        bus.register(this, BrowseDataset.class);
-        bus.register(this, BrowseCategory.class);
-        bus.register(this, BrowseCategoryGroup.class);
+        bus.register(this, Browse.class);
     }
 
     /** Implemented as specified by {@link Agent}. */
@@ -120,50 +109,15 @@ public class HiViewerAgent
      */
     public void eventFired(AgentEvent e)
     {
-        if (e instanceof BrowseProject)
-            handleBrowseProject((BrowseProject) e);
-        else if (e instanceof BrowseDataset)
-            handleBrowseDataset((BrowseDataset) e);
-        else if (e instanceof BrowseCategoryGroup)
-            handleBrowseCategoryGroup((BrowseCategoryGroup) e);
-        else if (e instanceof BrowseCategory)
-            handleBrowseCategory((BrowseCategory) e);
+        if (e instanceof Browse)
+            handleBrowse((Browse) e);
     }
     
     /** Handle browse project event. */
-    private void handleBrowseProject(BrowseProject evt)
+    private void handleBrowse(Browse evt)
     {
         if (evt == null) return;
-        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-        HiViewer hiViewer = presentation.createHiViewer();
-        ProjectLoader loader = new ProjectLoader(this, hiViewer, 
-                                                 evt.getProjectID());
-        loader.load();
-    }
-
-    /** Handle browse dataset event. */
-    private void handleBrowseDataset(BrowseDataset evt)
-    {
-        if (evt == null) return;
-        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-        HiViewer hiViewer = presentation.createHiViewer();
-        DatasetLoader loader = new DatasetLoader(this, hiViewer, 
-                                                 evt.getDatasetID());
-        loader.load();
-    }
-    
-    /** Handle browse categoryGroup event. */
-    private void handleBrowseCategoryGroup(BrowseCategoryGroup response)
-    {
-        if (response == null) return;
-        browseCategoryGroup(response.getHierarchyObject());
-    }
-    
-    /** Handle browse category event. */
-    private void handleBrowseCategory(BrowseCategory response)
-    {
-        if (response == null) return;
-        browseCategory(response.getHierarchyObject());
+        browse(evt.getEventIndex(), evt.getHierarchyObjectID());
     }
 
     Registry getRegistry() { return registry; }
@@ -198,59 +152,35 @@ public class HiViewerAgent
     }
     
     /** 
-     * Browse the specified dataset. This method is called when a view action
-     * is posted by the HiViewer.
+     * Browse the specified element.
      * 
-     * @param target    The selected dataset.
+     * @param eventIndex one of the constant defined by the {@link Browser}
+     * class event.
+     * 
+     * @param id    id of the dataObject to browse.
      */
-    void browseDataset(DatasetSummaryLinked target)
+    void browse(int eventIndex, int id)
     {
-        Set topNodes = HiTranslator.transform(target);
         HiViewerUIF presentation = HiViewerUIF.getInstance(control);
         HiViewer hiViewer = presentation.createHiViewer();
-        presentation.createBrowserFor(topNodes, hiViewer);
+        HiLoader loader = null;
+        switch (eventIndex) {
+            case Browse.PROJECT:
+                loader = new ProjectLoader(this, hiViewer, id);
+                break;
+            case Browse.DATASET:
+                loader = new DatasetLoader(this, hiViewer, id);
+                break;
+            case Browse.CATEGORY_GROUP:
+                loader = new ProjectLoader(this, hiViewer, id);
+                break;
+            case Browse.CATEGORY:
+                loader = new ProjectLoader(this, hiViewer, id);
+                break;             
+        }
+        if (loader != null) loader.load();
     }
-    
-    /** 
-     * Browse the specified project. This method is called when a view action
-     * is posted by the HiViewer.
-     * 
-     * @param target    The selected project.
-     */
-    void browseProject(ProjectSummary target)
-    {
-        Set topNodes = HiTranslator.transform(target);
-        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-        HiViewer hiViewer = presentation.createHiViewer();
-        presentation.createBrowserFor(topNodes, hiViewer);
-    }
-    
-    /** 
-     * Browse the specified category
-     * 
-     * @param target    The selected category.
-     */
-    void browseCategory(CategoryData target)
-    {
-        Set topNodes = HiTranslator.transform(target);
-        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-        HiViewer hiViewer = presentation.createHiViewer();
-        presentation.createBrowserFor(topNodes, hiViewer);
-    }
-    
-    /** 
-     * Browse the specified categoryGroup
-     * 
-     * @param target    The selected categoryGroup.
-     */
-    void browseCategoryGroup(CategoryGroupData target)
-    {
-        Set topNodes = HiTranslator.transform(target);
-        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-        HiViewer hiViewer = presentation.createHiViewer();
-        Browser brw = presentation.createBrowserFor(topNodes, hiViewer);
-    }
-    
+  
     /** Post an event to bring up the viewer. */
     void viewImage(ImageSummary target)
     {
@@ -262,30 +192,26 @@ public class HiViewerAgent
     
     /** 
      * Retrieve how the set of images is organized 
-     * in the CategoryGroup-Category-Images hierarchy
+     * 1.   In the CategoryGroup/Category/Images hierarchy 
+     *      if index = HiViewerCtrl.VIEW_IN_CGI.
+     * 2.   in the Project/Dataset/Images hierarchy 
+     *      if index = HiViewerCtrl.VIEW_IN_PDI.
      * 
      * @param images    set of images.
+     * @param index     hierarch index.
      */
-    void viewInCGCI(Set images)
+    void viewHierarchy(Set images, int index)
     {
         HiViewerUIF presentation = HiViewerUIF.getInstance(control);
         HiViewer hiViewer = presentation.createHiViewer();
-        CGCILoader loader = new CGCILoader(this, hiViewer, images);
-        loader.load();
-    }
-    
-    /** 
-     * Retrieve how the set of images is organized 
-     * in the Project-Dataset-Images hierarchy
-     * 
-     * @param images    set of images.
-     */
-    void viewInPDI(Set images)
-    {
-        HiViewerUIF presentation = HiViewerUIF.getInstance(control);
-        HiViewer hiViewer = presentation.createHiViewer();
-        PDILoader loader = new PDILoader(this, hiViewer, images);
-        loader.load();
+        HiLoader loader = null;
+        switch (index) {
+            case HiViewerCtrl.VIEW_IN_PDI:
+                loader = new CGCILoader(this, hiViewer, images); break;
+            case HiViewerCtrl.VIEW_IN_CGCI:
+                loader = new PDILoader(this, hiViewer, images);
+        }
+        if (loader != null) loader.load();
     }
 
 }

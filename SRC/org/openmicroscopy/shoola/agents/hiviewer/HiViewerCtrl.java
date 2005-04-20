@@ -33,16 +33,16 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
-import java.util.Set;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExTitleVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.RegExFinder;
@@ -116,20 +116,26 @@ public class HiViewerCtrl
     }
     
     /**
-     * View or browse the specified target.
+     * View or browse the specified hierarchyObject.
+     * 
      * Forward action to the {@link HiViewerAgent abstraction}.
-     * @param target
+     * 
+     * @param target hierarchyObject.
      */
     public void view(Object target)
     {
         if (target instanceof DatasetSummary)
-            abstraction.browseDataset(((DatasetSummaryLinked) target));
+            abstraction.browse(Browse.DATASET, 
+                    ((DatasetSummaryLinked) target).getID());
         else if (target instanceof ProjectSummary)
-            abstraction.browseProject(((ProjectSummary) target));
+            abstraction.browse(Browse.PROJECT, 
+                    ((ProjectSummary) target).getID());
         else if (target instanceof CategoryGroupData)
-            abstraction.browseCategoryGroup(((CategoryGroupData) target));
+            abstraction.browse(Browse.CATEGORY_GROUP, 
+                    ((CategoryGroupData) target).getID());
         else if (target instanceof CategoryData)
-            abstraction.browseCategory(((CategoryData) target));
+            abstraction.browse(Browse.CATEGORY, 
+                    ((CategoryData) target).getID());
         else if (target instanceof ImageSummary)
             abstraction.viewImage(((ImageSummary) target));
     }
@@ -172,13 +178,7 @@ public class HiViewerCtrl
     {
         if (action == null) return;
         Browser browser = action.getBrowser();
-        Set set = browser.getImages();
-        switch (index) {
-            case VIEW_IN_PDI:
-                abstraction.viewInPDI(set); break;
-            case VIEW_IN_CGCI:
-                abstraction.viewInCGCI(set); break;
-        }
+        abstraction.viewHierarchy( browser.getImages(), index);
     }
     
     /** Handle the FindAnnotatedAction. */
