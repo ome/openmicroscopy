@@ -721,7 +721,7 @@ public class DataManager
         int sizeY = THUMBNAIL_SIZE;
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
-        else if (ratio > 1) sizeY *= ratio;
+        else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         try {
             Pixels pix = pxd.getPixels();
             thumbnail = ps.getThumbnail(pix, sizeX, sizeY);
