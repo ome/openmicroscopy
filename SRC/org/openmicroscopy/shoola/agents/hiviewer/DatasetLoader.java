@@ -125,7 +125,7 @@ class DatasetLoader
             
             //Create browser so that we can start displaying the vis tree.
             DatasetSummaryLinked ds = (DatasetSummaryLinked) result; 
-            Set topNodes = HiTranslator.transformDataset(ds);
+            Set topNodes = HiTranslator.transform(ds);
             HiViewerUIF presentation = HiViewerUIF.getInstance(
                                                     abstraction.getControl());
             Browser brw = presentation.createBrowserFor(topNodes, view);
@@ -134,9 +134,11 @@ class DatasetLoader
             //so that we can then connect (see update) a thumb to an image node.
             Set imgs = new HashSet();
             Iterator i = brw.getImageNodes().iterator();
+            ImageNode node;
+            ImageSummary is;
             while (i.hasNext()) {
-                ImageNode node = (ImageNode) i.next();
-                ImageSummary is = (ImageSummary) node.getHierarchyObject();
+                node = (ImageNode) i.next();
+                is = (ImageSummary) node.getHierarchyObject();
                 imgs.add(is);
                 thumbProviders.put(new Integer(is.getID()), 
                                    node.getThumbnail());

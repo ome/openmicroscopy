@@ -135,9 +135,11 @@ class CGCILoader
             //so that we can then connect (see update) a thumb to an image node.
             Set imgs = new HashSet();
             Iterator i = brw.getImageNodes().iterator();
+            ImageNode node;
+            ImageSummary is;
             while (i.hasNext()) {
-                ImageNode node = (ImageNode) i.next();
-                ImageSummary is = (ImageSummary) node.getHierarchyObject();
+                node = (ImageNode) i.next();
+                is = (ImageSummary) node.getHierarchyObject();
                 imgs.add(is);
                 thumbProviders.put(new Integer(is.getID()), 
                                    node.getThumbnail());

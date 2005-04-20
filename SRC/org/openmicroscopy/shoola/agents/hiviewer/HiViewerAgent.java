@@ -47,13 +47,10 @@ import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategory;
 import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseCategoryGroup;
 import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseDataset;
 import org.openmicroscopy.shoola.agents.events.hiviewer.BrowseProject;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
@@ -61,6 +58,7 @@ import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -207,7 +205,7 @@ public class HiViewerAgent
      */
     void browseDataset(DatasetSummaryLinked target)
     {
-        Set topNodes = HiTranslator.transformDataset(target);
+        Set topNodes = HiTranslator.transform(target);
         HiViewerUIF presentation = HiViewerUIF.getInstance(control);
         HiViewer hiViewer = presentation.createHiViewer();
         presentation.createBrowserFor(topNodes, hiViewer);
@@ -221,7 +219,7 @@ public class HiViewerAgent
      */
     void browseProject(ProjectSummary target)
     {
-        Set topNodes = HiTranslator.transformProject(target);
+        Set topNodes = HiTranslator.transform(target);
         HiViewerUIF presentation = HiViewerUIF.getInstance(control);
         HiViewer hiViewer = presentation.createHiViewer();
         presentation.createBrowserFor(topNodes, hiViewer);
@@ -234,7 +232,7 @@ public class HiViewerAgent
      */
     void browseCategory(CategoryData target)
     {
-        Set topNodes = HiTranslator.transformCategory(target);
+        Set topNodes = HiTranslator.transform(target);
         HiViewerUIF presentation = HiViewerUIF.getInstance(control);
         HiViewer hiViewer = presentation.createHiViewer();
         presentation.createBrowserFor(topNodes, hiViewer);
@@ -247,10 +245,10 @@ public class HiViewerAgent
      */
     void browseCategoryGroup(CategoryGroupData target)
     {
-        Set topNodes = HiTranslator.transformCategoryGroup(target);
+        Set topNodes = HiTranslator.transform(target);
         HiViewerUIF presentation = HiViewerUIF.getInstance(control);
         HiViewer hiViewer = presentation.createHiViewer();
-        presentation.createBrowserFor(topNodes, hiViewer);
+        Browser brw = presentation.createBrowserFor(topNodes, hiViewer);
     }
     
     /** Post an event to bring up the viewer. */

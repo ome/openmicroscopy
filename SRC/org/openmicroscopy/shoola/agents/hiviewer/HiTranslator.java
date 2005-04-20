@@ -153,47 +153,7 @@ public class HiTranslator
         }
         return node;
     }
-    
-    /** 
-     * Transforms a list of DataObjects into theirs corresponding visualization
-     * object. The elements of the list can be either 
-     * {@link ProjectSummary}, {@link DatasetSummaryLinked} or 
-     * {@link ImageSummary}.
-     * The {@link ImageSummary}s are added to an unclassified {@link ImageSet}.
-     * 
-     * @param dataObjects   List of dataObjects to transform.
-     * @return See above.
-     */
-    public static Set transformHierarchy(List dataObjects)
-    {
-        if (dataObjects == null) throw new NullPointerException("No objects.");
-        Set results = new HashSet();
-        Iterator i = dataObjects.iterator();
-        DataObject ho;
-        ImageSet unclassified = null;
-        while (i.hasNext()) {
-            ho = (DataObject) i.next();
-            if (ho instanceof ProjectSummary)
-                results.add(getFirstElement(transformProject(ho)));
-            else if (ho instanceof DatasetSummaryLinked)
-                results.add(getFirstElement(transformDataset(ho)));
-            else if (ho instanceof CategoryGroupData)
-                results.add(getFirstElement(
-                        transformCategoryGroup((CategoryGroupData) ho)));
-            else if (ho instanceof CategoryData)
-                results.add(getFirstElement(
-                        transformCategory((CategoryData) ho)));
-            else if (ho instanceof ImageSummary) {
-                if (unclassified == null) {
-                    unclassified = new ImageSet(UNCLASSIFIED, new Object());
-                    formatToolTipFor(unclassified, null);
-                }
-                linkImageTo((ImageSummary) ho, unclassified);
-            }
-        }
-        if (unclassified != null) results.add(unclassified);
-        return results;
-    }
+ 
     /** 
      * Return the first element in the specified set. 
      * Return <code>null</code> if the set is empty.
@@ -213,6 +173,7 @@ public class HiTranslator
         return display;
         
     }
+    
     /**
      * Transforms a Projects/Datasets/Images hierarchy into a visualisation
      * tree. 
@@ -253,11 +214,8 @@ public class HiTranslator
      *                  <code>ProjectSummary</code> or <code>ProjectData</code>.
      * @return See below.
      */
-    public static Set transformProject(DataObject project)
+    private static Set transformProject(DataObject project)
     {
-        if (project == null) throw new NullPointerException("No project.");
-        if (!(project instanceof ProjectSummary))
-            throw new IllegalArgumentException("No proper DataObject type.");
         List l = new ArrayList();
         l.add(project);
         return transformProjects(l);
@@ -270,7 +228,7 @@ public class HiTranslator
      * @param projects  List of datasets to transform.
      * @return List of corresponding ImageSet.
      */
-    public static Set transformDatasets(List datasets)
+    private static Set transformDatasets(List datasets)
     {
         if (datasets == null) throw new NullPointerException("No datasets.");
         Set results = new HashSet();
@@ -289,11 +247,8 @@ public class HiTranslator
      *                  <code>DatasetData</code>.
      * @return See below.
      */
-    public static Set transformDataset(DataObject dataset)
+    private static Set transformDataset(DataObject dataset)
     {
-        if (dataset == null) throw new NullPointerException("No dataset.");
-        if (!(dataset instanceof DatasetSummaryLinked))
-            throw new IllegalArgumentException("No proper DataObject type.");
         List l = new ArrayList();
         l.add(dataset);
         return transformDatasets(l);
@@ -306,7 +261,7 @@ public class HiTranslator
      * @param groups  List of groups to transform.
      * @return List of corresponding ImageSet.
      */
-    public static Set transformCategoryGroups(List groups)
+    private static Set transformCategoryGroups(List groups)
     {
         if (groups == null) throw new NullPointerException("No groups.");
         Set results = new HashSet();
@@ -338,9 +293,8 @@ public class HiTranslator
      * @param data      CategoryGroupData to transform.
      * @return See below.
      */
-    public static Set transformCategoryGroup(CategoryGroupData data)
+    private static Set transformCategoryGroup(CategoryGroupData data)
     {
-        if (data == null) throw new NullPointerException("No dataset.");
         List l = new ArrayList();
         l.add(data);
         return transformCategoryGroups(l);
@@ -353,7 +307,7 @@ public class HiTranslator
      * @param groups  List of categories to transform.
      * @return List of corresponding ImageSet.
      */
-    public static Set transformCategories(List categories)
+    private static Set transformCategories(List categories)
     {
         if (categories == null) 
             throw new NullPointerException("No categories.");
@@ -378,12 +332,72 @@ public class HiTranslator
      * @param data      CategoryData to transform.
      * @return See below.
      */
-    public static Set transformCategory(CategoryData data)
+    private static Set transformCategory(CategoryData data)
     {
-        if (data == null) throw new NullPointerException("No dataset.");
         List l = new ArrayList();
         l.add(data);
         return transformCategories(l);
     }
     
+    /** 
+     * Transforms a list of {@link DataObject}s into theirs corresponding 
+     * visualization object. The elements of the list can be either 
+     * {@link ProjectSummary}, {@link DatasetSummaryLinked},
+     * {@link CategoryGroupData}, {@link CategoryData} or 
+     * {@link ImageSummary}.
+     * The {@link ImageSummary}s are added to an unclassified {@link ImageSet}.
+     * 
+     * @param dataObjects   List of dataObjects to transform.
+     * @return See above.
+     */
+    public static Set transformHierarchy(List dataObjects)
+    {
+        if (dataObjects == null) throw new NullPointerException("No objects.");
+        Set results = new HashSet();
+        Iterator i = dataObjects.iterator();
+        DataObject ho;
+        ImageSet unclassified = null;
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (ho instanceof ProjectSummary)
+                results.add(getFirstElement(transformProject(ho)));
+            else if (ho instanceof DatasetSummaryLinked)
+                results.add(getFirstElement(transformDataset(ho)));
+            else if (ho instanceof CategoryGroupData)
+                results.add(getFirstElement(
+                        transformCategoryGroup((CategoryGroupData) ho)));
+            else if (ho instanceof CategoryData)
+                results.add(getFirstElement(
+                        transformCategory((CategoryData) ho)));
+            else if (ho instanceof ImageSummary) {
+                if (unclassified == null) {
+                    unclassified = new ImageSet(UNCLASSIFIED, new Object());
+                    formatToolTipFor(unclassified, null);
+                }
+                linkImageTo((ImageSummary) ho, unclassified);
+            }
+        }
+        if (unclassified != null) results.add(unclassified);
+        return results;
+    }
+    
+    /** 
+     * Transforms a {@link DataObject} into its corresponding visualization
+     * object. The object can be either 
+     * {@link ProjectSummary}, {@link DatasetSummaryLinked},
+     * {@link CategoryGroupData}, {@link CategoryData} or 
+     * {@link ImageSummary}.
+     * The {@link ImageSummary}s are added to an unclassified {@link ImageSet}.
+     * 
+     * @param dataObjects   List of dataObjects to transform.
+     * @return See above.
+     */
+    public static Set transform(DataObject ho)
+    {
+        if (ho == null) throw new NullPointerException("No objects.");
+        List l = new ArrayList();
+        l.add(ho);
+        return transformHierarchy(l);
+    }
+   
 }

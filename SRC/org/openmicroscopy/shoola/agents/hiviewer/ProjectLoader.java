@@ -125,7 +125,7 @@ class ProjectLoader
             
             //Create browser so that we can start displaying the vis tree.
             ProjectSummary ps = (ProjectSummary) result; 
-            Set topNodes = HiTranslator.transformProject(ps);
+            Set topNodes = HiTranslator.transform(ps);
             HiViewerUIF presentation = HiViewerUIF.getInstance(
                                                     abstraction.getControl());
             Browser brw = presentation.createBrowserFor(topNodes, view);
@@ -134,9 +134,11 @@ class ProjectLoader
             //so that we can then connect (see update) a thumb to an image node.
             Set imgs = new HashSet();
             Iterator i = brw.getImageNodes().iterator();
+            ImageNode node;
+            ImageSummary is;
             while (i.hasNext()) {
-                ImageNode node = (ImageNode) i.next();
-                ImageSummary is = (ImageSummary) node.getHierarchyObject();
+                node = (ImageNode) i.next();
+                is = (ImageSummary) node.getHierarchyObject();
                 imgs.add(is);
                 thumbProviders.put(new Integer(is.getID()), 
                                    node.getThumbnail());
