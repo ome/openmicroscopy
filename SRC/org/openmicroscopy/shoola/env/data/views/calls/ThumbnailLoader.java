@@ -97,7 +97,7 @@ public class ThumbnailLoader
         int sizeX = maxWidth, sizeY = maxHeight;
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
-        else if (ratio > 1) sizeY *= ratio;
+        else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         BufferedImage thumbPix = context.getPixelsService().getThumbnail(
                                                 pxd.getPixels(), sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getID(), thumbPix);
