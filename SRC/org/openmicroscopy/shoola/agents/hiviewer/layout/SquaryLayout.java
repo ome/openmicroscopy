@@ -128,6 +128,12 @@ class SquaryLayout
         //Then figure out the number of columns, which is the same as the
         //number of rows.
         int n = node.getChildrenDisplay().size();
+        if (n == 0) {   //node with no child
+            node.getInternalDesktop().setPreferredSize(
+                    node.getTitleMinimumSize());
+            node.setVisible(true);
+            return;
+        }
         n = (int) Math.floor(Math.sqrt(n)) + 1;  //See note.
         
         //Finally do layout.
