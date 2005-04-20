@@ -215,11 +215,20 @@ public class HiViewerUIF
     Browser createBrowserFor(Set topNodes, HiViewer hiViewer)
     {
         Browser browser = BrowserFactory.createBrowser(topNodes);
+        
+        //Do layout.
         Layout squary = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
         browser.accept(squary);
+        
+        //Connect the action controllers.
         hiViewer.linkActionsTo(browser);
+        
+        //Add the browser's View to the HiViewer component's View.
         hiViewer.setBrowserView(browser.getUI());
+        
+        //Register this component.
         browsers.put(browser, hiViewer);
+        
         return browser;
     }
     
