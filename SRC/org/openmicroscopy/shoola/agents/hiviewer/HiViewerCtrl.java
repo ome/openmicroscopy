@@ -41,8 +41,11 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ZoomVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.RegExFinder;
@@ -82,9 +85,15 @@ public class HiViewerCtrl
     
     private HiViewerAgent abstraction;
     
+    //TODO: This factor should be stored in the model
+    //kept here for the time being
+    private double zoomFactor;
+    private static final double INCREMENT = 0.25;
+    
     HiViewerCtrl(HiViewerAgent abstraction)
     {
         this.abstraction = abstraction;
+        zoomFactor = ThumbnailProvider.SCALING_FACTOR;
     }
     
     public Registry getRegistry() { return abstraction.getRegistry(); }
@@ -105,14 +114,36 @@ public class HiViewerCtrl
         abstraction.classify(target);
     }
     
-    public void zoomIn(Object target, Browser browser)
+    /** Zoom out all imageNodes within the selected container. */
+    public void zoomIn(Browser browser)
     {
-        
+        if (zoomFactor >= ThumbnailProvider.MAX_SCALING_FACTOR) return;
+        zoomFactor += INCREMENT;
+        browser.accept(new ZoomVisitor(zoomFactor)); //TODO:To be removed
+        ImageDisplay display = browser.getSelectedDisplay();
+        if (display != null && !(display instanceof ImageNode))
+            browser.accept(new ZoomVisitor(zoomFactor));
     }
     
-    public void zoomOut(Object target, Browser browser)
+    /** Zoom out all imageNodes within the selected container. */
+    public void zoomOut(Browser browser)
     {
-        
+        if (zoomFactor <= ThumbnailProvider.MIN_SCALING_FACTOR) return;
+        zoomFactor -= INCREMENT;
+        browser.accept(new ZoomVisitor(zoomFactor));//TODO:To be removed
+        ImageDisplay display = browser.getSelectedDisplay();
+        if (display != null && !(display instanceof ImageNode))
+            browser.accept(new ZoomVisitor(zoomFactor));
+    }
+    
+    /** Reset the size all imageNodes within the selected container. */
+    public void zoomFit(Browser browser)
+    {
+        zoomFactor = ThumbnailProvider.SCALING_FACTOR;
+        browser.accept(new ZoomVisitor(zoomFactor)); //TODO:To be removed
+        ImageDisplay display = browser.getSelectedDisplay();
+        if (display != null && !(display instanceof ImageNode))
+            browser.accept(new ZoomVisitor(zoomFactor));
     }
     
     /**
@@ -178,7 +209,7 @@ public class HiViewerCtrl
     {
         if (action == null) return;
         Browser browser = action.getBrowser();
-        abstraction.viewHierarchy( browser.getImages(), index);
+        abstraction.viewHierarchy(browser.getImages(), index);
     }
     
     /** Handle the FindAnnotatedAction. */
