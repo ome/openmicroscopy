@@ -66,7 +66,7 @@ public class ViewPDIAction
 
     private static final String NAME = "View in P/D/I";
     
-    private static final String DESCRIPTION = "View the images on screen" +
+    private static final String DESCRIPTION = "View the images on screen " +
         "in a Project-Dataset-Images hierarchy.";
     
     public ViewPDIAction(HiViewerCtrl agentCtrl)

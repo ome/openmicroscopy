@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ *  
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,7 +65,7 @@ public class ViewCGCIAction
 
     private static final String NAME = "View in CG/C/I";
     
-    private static final String DESCRIPTION = "View the images on screen" +
+    private static final String DESCRIPTION = "View the images on screen " +
             "in a CategoryGroup-Category-Images hierarchy.";
     
     public ViewCGCIAction(HiViewerCtrl agentCtrl)

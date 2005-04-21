@@ -62,7 +62,7 @@ public class ClearAction
     
     private static final String NAME = "Clear";
     
-    private static final String DESCRIPTION = "Close the window.";
+    private static final String DESCRIPTION = "Clear previous search.";
 
     public ClearAction(HiViewerCtrl agentCtrl)
     {
