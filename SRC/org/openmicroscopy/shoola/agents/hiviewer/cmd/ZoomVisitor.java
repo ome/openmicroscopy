@@ -63,6 +63,8 @@ public class ZoomVisitor
     implements ImageDisplayVisitor
 {
 
+    private static final double EPSILON = 0.1;
+    
     /** The specified scaling factor. */
     private double          factor;
     
@@ -83,7 +85,9 @@ public class ZoomVisitor
         double sf = th.getScalingFactor();
         if (sf != factor) {
             th.scale(factor);
-            node.setLocation((int) (r.x*factor/sf), (int) (r.y*factor/sf));
+            double ratio = factor/sf;
+            if (ratio < 1) ratio += EPSILON;
+            node.setLocation((int) (r.x*ratio), (int) (r.y*ratio));
         }
     }
 
