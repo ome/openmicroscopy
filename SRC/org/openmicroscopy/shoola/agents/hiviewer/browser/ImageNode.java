@@ -85,6 +85,7 @@ public class ImageNode
     public ImageNode(String title, Object hierarchyObject, Thumbnail t)
     {
         super(title, hierarchyObject);
+        setResizable(false);
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
         ThumbnailCanvas img = new ThumbnailCanvas(this);
@@ -111,5 +112,15 @@ public class ImageNode
     public boolean containsImages() { return false; }
 
     public Thumbnail getThumbnail() { return thumbnail; }
+    
+    /** 
+     * Overrides the #setSize(int, int) method, otherwise
+     * after collapsing the node, we can resize the imageNode
+     */
+    public void setSize(int w, int h)
+    {
+        super.setSize(w, h);
+        setResizable(false);
+    }
     
 }
