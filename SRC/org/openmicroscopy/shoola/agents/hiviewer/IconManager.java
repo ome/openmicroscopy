@@ -95,41 +95,44 @@ public class IconManager
     /** ID of the zoomOut icon used by the popup menu. */
     public static final int     ZOOM_OUT = 10;
     
+    /** ID of the zoomOut icon used by the popup menu. */
+    public static final int     ZOOM_FIT = 11;
+    
     /** ID of the exit icon. */
-    public static final int     EXIT = 11;
+    public static final int     EXIT = 12;
     
     /** ID of the save icon. */
-    public static final int     SAVE = 12;
+    public static final int     SAVE = 13;
     
     /** ID of the save icon. */
-    public static final int     ANNOTATED = 13;
+    public static final int     ANNOTATED = 14;
     
     /** ID of the save icon. */
-    public static final int     CLEAR = 14;
+    public static final int     CLEAR = 15;
     
     /** ID of the save icon. */
-    public static final int     CLASSIFY = 15;
+    public static final int     CLASSIFY = 16;
     
     /** ID of the save icon. */
-    public static final int     FILTER_W_ANNOTATION = 16;
+    public static final int     FILTER_W_ANNOTATION = 17;
     
     /** ID of the save icon. */
-    public static final int     FILTER_W_TITLE = 17;
+    public static final int     FILTER_W_TITLE = 18;
     
     /** ID of the save icon. */
-    public static final int     SQUARY_LAYOUT = 18;
+    public static final int     SQUARY_LAYOUT = 19;
     
     /** ID of the save icon. */
-    public static final int     TREE_LAYOUT = 19;
+    public static final int     TREE_LAYOUT = 20;
     
     /** ID of the save icon. */
-    public static final int     STATUS_INFO = 20;
+    public static final int     STATUS_INFO = 21;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 20;
+    private static int          MAX_ID = 21;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -145,6 +148,7 @@ public class IconManager
         relPaths[ANNOTATE] = "nuvola_kwrite16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
+        relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[EXIT] = "OpenOffice_stock_exit-16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
         relPaths[ANNOTATED] = "annotated_image16.png";
