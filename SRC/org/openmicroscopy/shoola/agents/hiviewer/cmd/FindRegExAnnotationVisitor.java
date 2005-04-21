@@ -32,15 +32,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Java imports
 import java.awt.Color;
-import java.util.regex.Pattern;
-
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
@@ -58,36 +56,51 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * @since OME2.2
  */
 public class FindRegExAnnotationVisitor
-    implements ImageDisplayVisitor
+    extends FindRegExVisitor
 {
 
     /** The color in which the title bar will be highlighted. */
     private static final Color HIGH_LIGHT_COLOR = Color.YELLOW;
     
-    /** The pattern object created from the specified regular expression. */
-    private Pattern pattern;
-    
-    public FindRegExAnnotationVisitor(String regEx)
+    public FindRegExAnnotationVisitor(String regEx, int index)
     {
-        pattern = RegExFactory.createCaseInsensitivePattern(regEx);
+        super(regEx, index);
     }
     
     /** 
-     * Highlight the image titleBar if the title contains the specified regular
-     * expression.
+     * Highlight the titleBar of the imageNode 
+     * if the annotation contains the specified regular expression.
      */
     public void visit(ImageNode node)
     {
-        AnnotationData data = 
-            ((ImageSummary) node.getHierarchyObject()).getAnnotation();
-        if (data != null) {
-            boolean b = RegExFactory.find(pattern, data.getAnnotation());
-            if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+        if (!(levelIndex == FindRegExVisitor.CONTAINER_LEVEL)) {
+            AnnotationData data = 
+                ((ImageSummary) node.getHierarchyObject()).getAnnotation();
+            if (data != null) {
+                boolean b = RegExFactory.find(pattern, data.getAnnotation());
+                if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+            }
         }
     }
 
-    /** For now, we don't check the title of the container node. */
-    public void visit(ImageSet node) {}
+    /** 
+     * Highlight the titleBar of the container 
+     * if the annotation contains the specified regular expression.
+     */
+    public void visit(ImageSet node)
+    {
+        if (!(levelIndex == FindRegExVisitor.IMAGE_LEVEL)) {
+            Object ho = node.getHierarchyObject();
+            if (ho instanceof DatasetSummaryLinked) {
+                AnnotationData 
+                    data = ((DatasetSummaryLinked) ho).getAnnotation();
+                if (data != null) {
+                    boolean b = RegExFactory.find(pattern, data.getAnnotation());
+                    if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+                }
+            }
+        }
+    }
 
 }
 

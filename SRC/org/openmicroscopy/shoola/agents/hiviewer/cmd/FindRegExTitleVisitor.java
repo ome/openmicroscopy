@@ -34,12 +34,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Java imports
 import java.awt.Color;
-import java.util.regex.Pattern;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
@@ -58,31 +56,39 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  * @since OME2.2
  */
 public class FindRegExTitleVisitor
-    implements ImageDisplayVisitor
+    extends FindRegExVisitor
 {
 
     /** The color in which the title bar will be highlighted. */
     private static final Color HIGH_LIGHT_COLOR = Color.PINK;
-    
-    /** The pattern object created from the specified regular expression. */
-    private Pattern pattern;
-    
-    public FindRegExTitleVisitor(String regEx)
+
+    public FindRegExTitleVisitor(String regEx, int index)
     {
-        pattern = RegExFactory.createCaseInsensitivePattern(regEx);
+        super(regEx, index);
     }
     
     /** 
-     * Highlight the image titleBar if the title contains the specified regular
-     * expression.
+     * Highlight the titleBar of the imageNode 
+     * if the title contains the specified regular expression.
      */
     public void visit(ImageNode node)
     {
-        boolean b = RegExFactory.find(pattern, node.getTitle());
-        if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+        if (!(levelIndex == FindRegExVisitor.CONTAINER_LEVEL)) {
+            boolean b = RegExFactory.find(pattern, node.getTitle());
+            if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+        }
     }
 
-    /** For now, we don't check the title of the container node. */
-    public void visit(ImageSet node) {}
+    /** 
+     * Highlight the titleBar of the container 
+     * if the title contains the specified regular expression.
+     */
+    public void visit(ImageSet node)
+    {
+        if (!(levelIndex == FindRegExVisitor.IMAGE_LEVEL)) {
+            boolean b = RegExFactory.find(pattern, node.getTitle());
+            if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+        }
+    }
 
 }
