@@ -88,22 +88,23 @@ public class ThumbnailProvider
         height = sizeY;
     }
     
-    /** Scale down the original thumbnail. */
-    private BufferedImage buildDisplayImage(BufferedImage image)
-    {
-        AffineTransform at = new AffineTransform();
-        at.scale(SCALING_FACTOR, SCALING_FACTOR);
-        BufferedImage 
-            displayImage= Factory.magnifyImage(image, SCALING_FACTOR, at, 0);
-        return displayImage;
-    }
-    
     void setFullScaleThumb(BufferedImage t)
     {
         fullScaleThumb = t;
         //Scale down to 48x48.
-        displayThumb = buildDisplayImage(t);
+        displayThumb = scale(SCALING_FACTOR);
         if (display != null) display.repaint();
+    }
+    
+    /** Scale the original thumbnail. */
+    public BufferedImage scale(double f)
+    {
+        if (fullScaleThumb == null) return null;
+        AffineTransform at = new AffineTransform();
+        at.scale(f, f);
+        BufferedImage 
+            displayImage= Factory.magnifyImage(fullScaleThumb, f, at, 0);
+        return displayImage;
     }
     
     public ThumbnailProvider(ImageSummary is)

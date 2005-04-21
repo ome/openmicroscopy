@@ -76,7 +76,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class HiTranslator
 {
     
-    private static final String UNCLASSIFIED = "Wild and free images.";
+    private static final String UNCLASSIFIED = "Wild at heart and free images.";
     
     /** Format the toolTip of the specified node. */
     private static void formatToolTipFor(ImageDisplay node, 
