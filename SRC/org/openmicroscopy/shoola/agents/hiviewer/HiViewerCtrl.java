@@ -122,7 +122,7 @@ public class HiViewerCtrl
         browser.accept(new ZoomVisitor(zoomFactor)); //TODO:To be removed
         ImageDisplay display = browser.getSelectedDisplay();
         if (display != null && !(display instanceof ImageNode))
-            browser.accept(new ZoomVisitor(zoomFactor));
+            display.accept(new ZoomVisitor(zoomFactor));
     }
     
     /** Zoom out all imageNodes within the selected container. */
@@ -133,7 +133,7 @@ public class HiViewerCtrl
         browser.accept(new ZoomVisitor(zoomFactor));//TODO:To be removed
         ImageDisplay display = browser.getSelectedDisplay();
         if (display != null && !(display instanceof ImageNode))
-            browser.accept(new ZoomVisitor(zoomFactor));
+            display.accept(new ZoomVisitor(zoomFactor));
     }
     
     /** Reset the size all imageNodes within the selected container. */
@@ -143,7 +143,7 @@ public class HiViewerCtrl
         browser.accept(new ZoomVisitor(zoomFactor)); //TODO:To be removed
         ImageDisplay display = browser.getSelectedDisplay();
         if (display != null && !(display instanceof ImageNode))
-            browser.accept(new ZoomVisitor(zoomFactor));
+            display.accept(new ZoomVisitor(zoomFactor));
     }
     
     /**
