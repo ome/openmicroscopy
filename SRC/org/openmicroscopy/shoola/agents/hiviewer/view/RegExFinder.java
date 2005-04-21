@@ -39,12 +39,11 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,11 +53,7 @@ import javax.swing.border.EtchedBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExAnnotationVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExTitleVisitor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -78,52 +73,69 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class RegExFinder
     extends JDialog
-    implements ActionListener
 {
 
-    public static final int         FOR_TITLE = 0;
-    
-    public static final int         FOR_ANNOTATION = 1;
-    
-    public static final Dimension   HBOX = new Dimension(10, 0);
-    
-    /** Action command ID for the Find button. */
-    private static final int        FIND = 0;
-    
-    /** Action command ID for the Cancel button. */
-    private static final int        CANCEL = 1;
-    
     private static final String     TITLE = "Find in ";
     
     private static final String     CONTAIN = "contains: ";
     
     private static final int        TEXT_WIDTH = 15;
     
-    private Browser     browser;
+    private static final int        MAX_ID = 2;
     
-    private int         index;
+    static final int                IMG_ONLY = 0;
     
-    private JButton     find, cancel;
+    static final int                CONTAINER_ONLY = 1;
     
-    private JTextField  regExField;
+    static final int                BOTH = 2;
+    
+    public static final int         FOR_TITLE = 0;
+    
+    public static final int         FOR_ANNOTATION = 1;
+    
+    private static final Dimension  HBOX = new Dimension(10, 0);
+
+    /** Horizontal space between the cells in the grid. */
+    private static final int        H_SPACE = 10;
+    
+    private static final String[]   selection;
     
     /** Width of a character. */
     private int         txtWidth;
     
+    /** find and cancel button. */
+    JButton             find, cancel;
+    
+    /** Textfield containing the regular expression. */
+    JTextField          regExField;
+    
+    /** 
+     * Levels of selection: i.e. at image's level, container's 
+     * level or both.
+     */
+    JComboBox           levels;
+    
+    static {
+        selection = new String[MAX_ID+1];
+        selection[IMG_ONLY] = "Images only";
+        selection[CONTAINER_ONLY] = "Containers only";
+        selection[BOTH] = "Both";
+    }
+    
     public RegExFinder(int index, Browser browser, Frame owner)
     {
         super(owner);
-        this.browser = browser;
-        this.index = index;
+        initComponents();
+        new RegExFinderMng(this, browser, index);
         txtWidth = getFontMetrics(getFont()).charWidth('m');
-        String title = getType();
+        String title = getType(index);
         setTitle(TITLE+""+title);
         setModal(true);
-        initComponents();
         buildUI(title+" "+CONTAIN);
     }
     
-    String getType()
+    /** Get the title. */
+    String getType(int index)
     {
         String s = "";
         switch (index) {
@@ -138,6 +150,7 @@ public class RegExFinder
     /** Initializes the component. */
     private void initComponents()
     {
+        levels = new JComboBox(selection);
         regExField = new JTextField();
         find = new JButton("Find");
         find.setToolTipText(
@@ -146,8 +159,6 @@ public class RegExFinder
         cancel = new JButton("Cancel");
         cancel.setToolTipText(
                 UIUtilities.formatToolTipText("Close the window"));
-        attachButtonListeners(find, FIND);
-        attachButtonListeners(cancel, CANCEL);
     }
     
     /** Display the different filters in a JPanel. */
@@ -158,7 +169,7 @@ public class RegExFinder
         p.setLayout(gridbag);
         GridBagConstraints c = new GridBagConstraints();
         JLabel label = new JLabel(name);
-        c.ipadx = DataManagerUIF.H_SPACE;
+        c.ipadx = H_SPACE;
         c.weightx = 0.5;
         c.gridx = 0;
         c.gridy = 0;
@@ -170,9 +181,19 @@ public class RegExFinder
         JPanel containPanel = regExPanel();
         gridbag.setConstraints(containPanel, c);
         p.add(containPanel);
+        c.gridx = 0;
+        c.gridy = 1;
+        label = new JLabel("Check for:");
+        gridbag.setConstraints(label, c);
+        p.add(label);
+        c.gridx = 1;
+        containPanel = UIUtilities.buildComponentPanel(levels);
+        gridbag.setConstraints(containPanel, c);
+        p.add(containPanel);
         return p;
     }
     
+    /** Display the regExfield in a JPanel. */
     private JPanel regExPanel()
     {
         JPanel p = new JPanel();
@@ -223,52 +244,5 @@ public class RegExFinder
         getContentPane().add(buildMain(name), BorderLayout.CENTER);
         pack();
     }
-
-    /** Attach an {@link ActionListener} to an {@link JButton}. */
-    private void attachButtonListeners(JButton button, int id)
-    {
-        button.addActionListener(this);
-        button.setActionCommand(""+id);
-    }
-
-    /** Find the specified regular expression. */
-    private void findRegEx()
-    {
-        String regEx = regExField.getText();
-        cancel();
-        //Need to check the expression.
-        ImageDisplayVisitor visitor = null;
-        switch (index) {
-            case FOR_TITLE:
-                visitor = new FindRegExTitleVisitor(regEx);
-                break;
-            case FOR_ANNOTATION:
-                visitor = new FindRegExAnnotationVisitor(regEx);
-        }
-        if (visitor != null) browser.accept(visitor);
-    }
-    
-    /** Close and dispose. */
-    private void cancel()
-    {
-        setVisible(false);
-        dispose();
-    }
-    
-    /** Handle event fired by JButton. */
-    public void actionPerformed(ActionEvent e)
-    {
-        try {
-            int index = Integer.parseInt(e.getActionCommand());
-            switch (index) { 
-                case FIND:
-                    findRegEx(); break;
-                case CANCEL:
-                    cancel();  
-            }
-        } catch(NumberFormatException nfe) {
-            throw new Error("Invalid Action ID "+e.getActionCommand(), nfe);
-        } 
-    }
-    
+  
 }
