@@ -61,6 +61,7 @@ public class ImageNode
     /** The thumbnail this node is going to display. */
     private Thumbnail   thumbnail;
     
+    private ThumbnailCanvas img;
     
     /**
      * Implemented as specified by superclass.
@@ -88,11 +89,11 @@ public class ImageNode
         setResizable(false);
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
-        ThumbnailCanvas img = new ThumbnailCanvas(this);
+        img = new ThumbnailCanvas(this);
         desktopPane.add(img);
         int w = t.getWidth(), h = t.getHeight();
-        img.setBounds(0, 0, w, h);
-        desktopPane.setPreferredSize(new Dimension(w, h));
+        setCanvasSize(w, h);
+       
     }
     
     /**
@@ -121,6 +122,18 @@ public class ImageNode
     {
         super.setSize(w, h);
         setResizable(false);
+    }
+    
+    /** 
+     * Set the size of the ThumbnailCanvas and the preferredSize of the
+     * internal desktop.
+     * @param w width.
+     * @param h height.
+     */
+    public void setCanvasSize(int w, int h)
+    {
+        img.setBounds(0, 0, w, h);
+        desktopPane.setPreferredSize(new Dimension(w, h));
     }
     
 }
