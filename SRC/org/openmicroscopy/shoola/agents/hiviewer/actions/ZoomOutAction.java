@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -44,12 +42,11 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Zoom out all imageNodes within the selected container.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,12 +65,13 @@ public class ZoomOutAction
 
     private static final String NAME = "Zoom out";
     
-    private static final String DESCRIPTION = "Zoom out";
+    private static final String DESCRIPTION = "Zoom out all imageNodes " +
+            "within the selected container.";
     
     public ZoomOutAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        setEnabled(false);
+        //setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -84,9 +82,7 @@ public class ZoomOutAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay() == null) return;
-        Object ho = browser.getSelectedDisplay().getHierarchyObject();
-        agentCtrl.zoomOut(ho, browser);
+        if (browser != null) agentCtrl.zoomOut(browser);
     }
 
     /* (non-Javadoc)
@@ -97,9 +93,8 @@ public class ZoomOutAction
         if (selectedDisplay == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
-            if ((ho instanceof CategoryData) || 
-                    (ho instanceof DatasetSummary)) setEnabled(true);
-            else setEnabled(false);
+            if (ho instanceof ImageSummary) setEnabled(false);
+            else setEnabled(true);
         }
     }
 
