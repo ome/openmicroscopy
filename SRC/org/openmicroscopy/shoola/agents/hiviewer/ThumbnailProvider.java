@@ -64,7 +64,10 @@ public class ThumbnailProvider
     static final int            THUMB_MAX_WIDTH = 96; 
     static final int            THUMB_MAX_HEIGHT = 96;
     
-    private static final double SCALING_FACTOR = 0.5;
+    static final double         SCALING_FACTOR = 0.5;
+    
+    public static final double  MAX_SCALING_FACTOR = 1;
+    public static final double  MIN_SCALING_FACTOR = 0.25;
     
     private ImageSummary    imgInfo;
     private int             width;  //of displayThumb. 
@@ -72,6 +75,7 @@ public class ThumbnailProvider
     private BufferedImage   fullScaleThumb;
     private BufferedImage   displayThumb;
     private ImageNode       display;
+    private double          scalingFactor;
     
     //TODO: this duplicates code in env.data.views.calls.ThumbnailLoader,
     //but we need size b/f img is retrieved -- b/c we vis tree need to be
@@ -92,14 +96,15 @@ public class ThumbnailProvider
     {
         fullScaleThumb = t;
         //Scale down to 48x48.
-        displayThumb = scale(SCALING_FACTOR);
+        displayThumb = magnifyImage(SCALING_FACTOR, fullScaleThumb);
         if (display != null) display.repaint();
     }
     
     /** Scale the original thumbnail. */
-    public BufferedImage scale(double f)
+    private BufferedImage magnifyImage(double f, BufferedImage img)
     {
-        if (fullScaleThumb == null) return null;
+        if (img == null) return null;
+        scalingFactor = f;
         AffineTransform at = new AffineTransform();
         at.scale(f, f);
         BufferedImage 
@@ -123,4 +128,19 @@ public class ThumbnailProvider
         return displayThumb; 
     }
 
+    public void scale(double f)
+    {
+        if (fullScaleThumb == null) return;
+        if (f < MIN_SCALING_FACTOR || f > MAX_SCALING_FACTOR) return;
+        displayThumb = magnifyImage(f, fullScaleThumb);
+        if (display != null) {
+            int w = displayThumb.getWidth();
+            int h = displayThumb.getHeight();
+            display.setCanvasSize(w, h);
+            display.pack();
+        }
+    }
+    
+    public double getScalingFactor() { return scalingFactor; }
+    
 }
