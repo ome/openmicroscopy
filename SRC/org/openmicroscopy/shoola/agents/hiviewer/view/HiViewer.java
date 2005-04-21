@@ -178,6 +178,7 @@ public class HiViewer
         menu.add(new JMenuItem(actions[HiViewerUIF.VIEW]));
         menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_IN]));
         menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_OUT]));
+        menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_FIT]));
         return menu;
     }
 
