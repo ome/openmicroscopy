@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -59,9 +60,11 @@ public class ImageNode
 {
 
     /** The thumbnail this node is going to display. */
-    private Thumbnail   thumbnail;
+    private Thumbnail       thumbnail;
     
-    private ThumbnailCanvas img;
+    /** The component on which the thumbnail is painted. */
+    private ThumbnailCanvas canvas;
+    
     
     /**
      * Implemented as specified by superclass.
@@ -71,6 +74,13 @@ public class ImageNode
     {
         visitor.visit(this);
     }
+    
+    /**
+     * Returns the component on which the thumbnail is painted.
+     * 
+     * @return See above.
+     */
+    JComponent getCanvas() { return canvas; }
     
     /**
      * Creates a new leaf node.
@@ -89,11 +99,10 @@ public class ImageNode
         setResizable(false);
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
-        img = new ThumbnailCanvas(this);
-        desktopPane.add(img);
+        canvas = new ThumbnailCanvas(this);
+        desktopPane.add(canvas);
         int w = t.getWidth(), h = t.getHeight();
         setCanvasSize(w, h);
-       
     }
     
     /**
@@ -132,7 +141,7 @@ public class ImageNode
      */
     public void setCanvasSize(int w, int h)
     {
-        img.setBounds(0, 0, w, h);
+        canvas.setBounds(0, 0, w, h);
         desktopPane.setPreferredSize(new Dimension(w, h));
     }
     
