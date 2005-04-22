@@ -225,8 +225,8 @@ public class HiViewerUIF
         Layout squary = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
         browser.accept(squary);
         
-        //Connect the action controllers.
-        hiViewer.linkActionsTo(browser);
+        //Connect the HiViewer's Controller.
+        hiViewer.getController().initialize(hiViewer, browser);
         
         //Add the browser's View to the HiViewer component's View.
         hiViewer.setBrowserView(browser.getUI());
