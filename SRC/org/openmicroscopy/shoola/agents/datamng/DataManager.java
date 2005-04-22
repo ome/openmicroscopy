@@ -186,6 +186,7 @@ public class DataManager
         //For now we bring the dataManager, no the best strategy.
         if (presentation == null) 
             presentation = new DataManagerUIF(control, registry);
+        presentation.setFocusableWindowState(true);
         presentation.deIconify();
         control.showComponent(null, DataManagerCtrl.FOR_CLASSIFICATION);
     }
@@ -193,6 +194,11 @@ public class DataManager
     /** Handle the show properties event. */
     private void handleShowProperties(ShowProperties response)
     {
+        if (response == null) return;
+        if (presentation != null) {
+            presentation.setFocusableWindowState(true);
+            presentation.deIconify();
+        }
         control.showProperties(response.getUserObject(), response.getParent());
     }
     
