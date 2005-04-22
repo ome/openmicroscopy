@@ -35,6 +35,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -43,7 +44,7 @@ import javax.swing.border.BevelBorder;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerUIF;
 
 /** 
- * 
+ * Pop-up menu for nodes in the browser display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,45 +62,44 @@ class PopupMenu
 {
     
     /** 
-     * Button to bring up the property sheet of an object (project, dataset,
-     * categoryGroup, category or image).
+     * Button to bring up the property sheet of a hierarchy object &#151; 
+     * project, dataset, category group, category, or image.
      */
-    JMenuItem                       properties;
+    private JMenuItem   properties;
     
-    /** Button to view a project, dataset, categoryGroup, category or image. */
-    JMenuItem                       view;
-
-    /** Button to annotate a dataset or an image. */
-    JMenuItem                       annotate;
+    /** Button to bring up the widget to annotate a dataset or an image. */
+    private JMenuItem   annotate;
     
-    /** Zoom in a container with leaves as children. */
-    JMenuItem                       zoomIn;
+    /** Button to bring up the widget to classify an image. */
+    private JMenuItem   classify;
     
-    /** Zoom out a container with leaves as children. */
-    JMenuItem                       zoomOut;
+    /** Button to browse a container or bring up the Viewer for an image. */
+    private JMenuItem   view;
     
-    /** Zoom out a container with leaves as children. */
-    JMenuItem                       classify;
+    /** Button to zoom in all leaf nodes in a container. */
+    private JMenuItem   zoomIn;
     
-    /** 
-     * Creates a new instance.
-     *
-     * @param agentCtrl   The agent's control component.
+    /** Button to zoom out all leaf nodes in a container. */
+    private JMenuItem   zoomOut;
+    
+    /** Button to resize all leaf nodes in a container. */
+    private JMenuItem   zoomFit;
+    
+    
+    /**
+     * Creates the menu items with the given actions.
+     * 
+     * @param actions The actions to build the menu items.
      */
-    PopupMenu(Action[] actions) 
+    private void createMenuItems(Action[] actions)
     {
-        initMenuItems(actions);
-        buildGUI() ;
-    }
-    
-    private void initMenuItems(Action[] actions)
-    {
-        view  = new JMenuItem(actions[HiViewerUIF.VIEW]);
         properties = new JMenuItem(actions[HiViewerUIF.PROPERTIES]);
         annotate = new JMenuItem(actions[HiViewerUIF.ANNOTATE]);
         classify = new JMenuItem(actions[HiViewerUIF.CLASSIFY]);
+        view = new JMenuItem(actions[HiViewerUIF.VIEW]);
         zoomIn = new JMenuItem(actions[HiViewerUIF.ZOOM_IN]);
         zoomOut = new JMenuItem(actions[HiViewerUIF.ZOOM_OUT]);
+        zoomFit = new JMenuItem(actions[HiViewerUIF.ZOOM_FIT]);
     }
 
     /** Builds and lays out the GUI. */
@@ -107,11 +107,24 @@ class PopupMenu
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(properties);
-        add(classify);
         add(annotate);
+        add(classify);
+        add(new JSeparator());
         add(view);
         add(zoomIn);
         add(zoomOut);
+        add(zoomFit);
+    }
+    
+    /** 
+     * Creates a new instance.
+     *
+     * @param actions The actions to build the menu items.
+     */
+    PopupMenu(Action[] actions) 
+    {
+        createMenuItems(actions);
+        buildGUI() ;
     }
     
 }
