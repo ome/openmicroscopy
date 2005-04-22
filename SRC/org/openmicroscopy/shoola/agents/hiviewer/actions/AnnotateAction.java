@@ -71,7 +71,7 @@ public class AnnotateAction
     public AnnotateAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
+        setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -82,17 +82,16 @@ public class AnnotateAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay() == null) return;
+        if (browser.getSelectedDisplay().getParentDisplay() == null)
+            return;
         Object ho = browser.getSelectedDisplay().getHierarchyObject();
         agentCtrl.annotate(ho);
     }
 
-    /* (non-Javadoc)
-     * @see BrowserAction#onDisplayChange(ImageDisplay)
-     */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay.getParentDisplay() == null) 
+            setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
             if ((ho instanceof ImageSummary) || (ho instanceof DatasetSummary))

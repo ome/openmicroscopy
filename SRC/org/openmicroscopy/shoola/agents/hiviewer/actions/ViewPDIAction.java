@@ -31,9 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -72,16 +69,12 @@ public class ViewPDIAction
     public ViewPDIAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);  
-        //TODO: restore the above.  This is just a TMP hack b/c browser is
-        //not firing selectedDisplay change events.
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));
-    }
-    
+    }   
 
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
@@ -90,14 +83,6 @@ public class ViewPDIAction
             agentCtrl.viewHierarchy(HiViewerCtrl.VIEW_IN_PDI, this);
     }
 
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay == null) setEnabled(false);
-        else setEnabled(true);
-    }
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
 
 }

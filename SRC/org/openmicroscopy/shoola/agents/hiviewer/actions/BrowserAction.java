@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -43,6 +44,7 @@ import javax.swing.AbstractAction;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
@@ -101,7 +103,24 @@ public abstract class BrowserAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
+        //Highlight the selected node.
+        ImageDisplay oldNode, newNode;
+        if (evt.getNewValue() != null) {
+            newNode = (ImageDisplay) evt.getNewValue();
+            newNode.setHighlight(Colors.DEFAULT_TITLEBAR);
+            if (evt.getOldValue() != null) {
+                oldNode = (ImageDisplay) evt.getOldValue();
+                oldNode.setHighlight(getHighlightColor(oldNode));
+            }
+        }
         onDisplayChange(browser.getSelectedDisplay());
+    }
+    
+    private Color getHighlightColor(ImageDisplay node)
+    {
+        Color c = null;
+        if (node.getParentDisplay() == null) c = Colors.DEFAULT_TITLEBAR;
+        return c;
     }
 
 }

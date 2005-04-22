@@ -67,7 +67,6 @@ public class TreeLayoutAction
     public TreeLayoutAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
         putValue(Action.NAME, NAME);
         Layout layout = LayoutFactory.createLayout(LayoutFactory.TREE_LAYOUT);
         String description = layout.getDescription();
@@ -83,14 +82,7 @@ public class TreeLayoutAction
     {
         agentCtrl.doLayout(HiViewerCtrl.TREE_LAYOUT, browser);
     }
-    
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay == null) setEnabled(false);
-        else setEnabled(true);
-    }
+
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
 
 }

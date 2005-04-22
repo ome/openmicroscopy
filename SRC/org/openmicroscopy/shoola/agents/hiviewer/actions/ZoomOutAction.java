@@ -71,7 +71,7 @@ public class ZoomOutAction
     public ZoomOutAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
+        setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -85,12 +85,9 @@ public class ZoomOutAction
         if (browser != null) agentCtrl.zoomOut(browser);
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
             if (ho instanceof ImageSummary) setEnabled(false);

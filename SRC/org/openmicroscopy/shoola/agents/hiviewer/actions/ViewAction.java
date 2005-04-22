@@ -41,6 +41,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,7 +62,9 @@ public class ViewAction
     extends BrowserAction
 {
 
-    private static final String NAME = "View";
+    private static final String VIEW = "View";
+    
+    private static final String BROWSE = "Browse";
     
     private static final String DESCRIPTION = "View the selected image or" +
             "browse the selected project, dataset, categoryGroup or category";
@@ -69,8 +72,8 @@ public class ViewAction
     public ViewAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
-        putValue(Action.NAME, NAME);
+        setEnabled(false);
+        putValue(Action.NAME, VIEW);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
@@ -85,13 +88,16 @@ public class ViewAction
         agentCtrl.view(ho);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
-        else setEnabled(true);
+        if (selectedDisplay.getParentDisplay() == null) 
+            setEnabled(false);
+        else {
+            Object ho = selectedDisplay.getHierarchyObject();
+            if ((ho instanceof ImageSummary)) putValue(Action.NAME, VIEW);   
+            else putValue(Action.NAME, BROWSE);
+            setEnabled(true);
+        }
     }
 
 }

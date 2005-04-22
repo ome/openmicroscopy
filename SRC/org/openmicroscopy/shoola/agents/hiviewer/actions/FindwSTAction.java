@@ -71,7 +71,6 @@ public class FindwSTAction
     public FindwSTAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -86,13 +85,6 @@ public class FindwSTAction
         if (browser != null) agentCtrl.findWithST(this);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay == null) setEnabled(false);
-        else setEnabled(true);
-    }
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
     
 }

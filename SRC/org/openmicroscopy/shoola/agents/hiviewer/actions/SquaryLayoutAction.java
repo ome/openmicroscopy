@@ -69,7 +69,6 @@ public class SquaryLayoutAction
     public SquaryLayoutAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
         putValue(Action.NAME, NAME);
         Layout layout = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
         String description = layout.getDescription();
@@ -86,13 +85,6 @@ public class SquaryLayoutAction
         agentCtrl.doLayout(HiViewerCtrl.SQUARY_LAYOUT, browser);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay == null) setEnabled(false);
-        else setEnabled(true);
-    }
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
 
 }

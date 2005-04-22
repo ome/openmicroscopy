@@ -77,7 +77,6 @@ public class ExitAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT));
     }
     
-
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {

@@ -71,7 +71,7 @@ public class PropertiesAction
     public PropertiesAction(HiViewerCtrl agentCtrl)
     {
         super(agentCtrl);
-        //setEnabled(false);
+        setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -82,17 +82,16 @@ public class PropertiesAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay() == null) return;
+        if (browser.getSelectedDisplay().getParentDisplay() == null) 
+            return;
         Object ho = browser.getSelectedDisplay().getHierarchyObject();
         agentCtrl.showProperties(ho, browser);
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction#onDisplayChange(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay)
-     */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay.getParentDisplay() == null) 
+            setEnabled(false);
         else setEnabled(true);
     }
 
