@@ -196,7 +196,7 @@ public class UIUtilities
             buf.append(s);
             buf.append("<td><b>");
             buf.append(title);
-            buf.append("</b></td></tr><tr><td with = 100>");
+            buf.append("</b><hr size=1>");
             buf.append("<font face=Arial size=2>"); 
             buf.append(body);
             buf.append("</font>");
