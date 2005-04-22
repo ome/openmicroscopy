@@ -119,7 +119,7 @@ public class HiViewerCtrl
     {
         if (zoomFactor >= ThumbnailProvider.MAX_SCALING_FACTOR) return;
         zoomFactor += INCREMENT;
-        browser.accept(new ZoomVisitor(zoomFactor)); //TODO:To be removed
+        //browser.accept(new ZoomVisitor(zoomFactor)); 
         ImageDisplay display = browser.getSelectedDisplay();
         if (display != null && !(display instanceof ImageNode))
             display.accept(new ZoomVisitor(zoomFactor));
@@ -130,7 +130,7 @@ public class HiViewerCtrl
     {
         if (zoomFactor <= ThumbnailProvider.MIN_SCALING_FACTOR) return;
         zoomFactor -= INCREMENT;
-        browser.accept(new ZoomVisitor(zoomFactor));//TODO:To be removed
+        //browser.accept(new ZoomVisitor(zoomFactor));
         ImageDisplay display = browser.getSelectedDisplay();
         if (display != null && !(display instanceof ImageNode))
             display.accept(new ZoomVisitor(zoomFactor));
@@ -140,7 +140,7 @@ public class HiViewerCtrl
     public void zoomFit(Browser browser)
     {
         zoomFactor = ThumbnailProvider.SCALING_FACTOR;
-        browser.accept(new ZoomVisitor(zoomFactor)); //TODO:To be removed
+        //browser.accept(new ZoomVisitor(zoomFactor)); 
         ImageDisplay display = browser.getSelectedDisplay();
         if (display != null && !(display instanceof ImageNode))
             display.accept(new ZoomVisitor(zoomFactor));
