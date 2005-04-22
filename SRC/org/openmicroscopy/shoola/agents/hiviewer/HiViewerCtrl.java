@@ -220,7 +220,7 @@ public class HiViewerCtrl
         clear(action);
         //Then apply visitor
         Browser browser = action.getBrowser();
-        browser.accept(new FindAnnotatedVisitor());
+        browser.accept(new FindAnnotatedVisitor(browser));
     }
     
     /** Handle the FindAnnotatedAction. */
@@ -261,7 +261,7 @@ public class HiViewerCtrl
     {
         if (action == null) return;
         Browser browser = action.getBrowser();
-        browser.accept(new ClearVisitor());
+        browser.accept(new ClearVisitor(browser));
     }
     
 }

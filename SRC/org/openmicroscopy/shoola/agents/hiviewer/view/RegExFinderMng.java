@@ -107,10 +107,12 @@ class RegExFinderMng
         ImageDisplayVisitor visitor = null;
         switch (index) {
             case RegExFinder.FOR_TITLE:
-                visitor = new FindRegExTitleVisitor(regEx, regExIndex);
+                visitor = new FindRegExTitleVisitor(browser, regEx,
+                            regExIndex);
                 break;
             case RegExFinder.FOR_ANNOTATION:
-                visitor = new FindRegExAnnotationVisitor(regEx, regExIndex);
+                visitor = new FindRegExAnnotationVisitor(browser, regEx,
+                            regExIndex);
         }
         if (visitor != null) browser.accept(visitor);
     }
