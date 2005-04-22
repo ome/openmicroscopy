@@ -36,15 +36,12 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
@@ -155,6 +152,13 @@ public class TinyFrameUI
     }
     
     /**
+     * Returns the title bar component.
+     * 
+     * @return See above.
+     */
+    JComponent getTitleBar() { return titleBar; }
+    
+    /**
      * Attaches the <code>controller</code> to the sizing button.
      * 
      * @param controller An instance of {@link FrameControl}.
@@ -162,32 +166,6 @@ public class TinyFrameUI
     void attachActionListener(ActionListener controller)
     {
         titleBar.sizeButton.addActionListener(controller);
-    }
-    
-    /**
-     * Sets the title bar's tooltip.
-     * 
-     * @param tp The tooltip to set.
-     */
-    void setTitleBarToolTip(String tp) { titleBar.setToolTipText(tp); }
-    
-    /**
-     * Tells if the specified point falls within the bounds of the title bar.
-     * 
-     * @param p The point to test; its coordinates are relative to the frame's.
-     *          Never pass <code>null</code>.
-     * @return <code>true</code> if the <code>p</code> falls within the title
-     *         bar bounds, <code>false</code> otherwise.
-     */
-    boolean isPointOverTitleBar(Point p)
-    {
-        SwingUtilities.convertPointToScreen(p, frame);
-        Rectangle bounds = titleBar.getBounds();
-        Point barAbsLocation = new Point(bounds.x, bounds.y);
-        SwingUtilities.convertPointToScreen(barAbsLocation, titleBar);
-        bounds = new Rectangle(barAbsLocation.x, barAbsLocation.y, 
-                                bounds.width, bounds.height);
-        return bounds.contains(p);
     }
     
     /**

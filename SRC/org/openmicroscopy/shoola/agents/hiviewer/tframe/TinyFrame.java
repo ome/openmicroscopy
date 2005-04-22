@@ -36,8 +36,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.plaf.InternalFrameUI;
@@ -212,15 +212,12 @@ public class TinyFrame
         firePropertyChange(HIGHLIGHT_PROPERTY, oldValue, highlight);
     }
     
-    /** 
-     * Returns the minimunSize of the TitleBar. 
+    /**
+     * Returns the component that serves as title bar for this frame.
      * 
      * @return See above.
-     * */
-    public Dimension getTitleBarMinimumSize()
-    {
-        return uiDelegate.titleBar.getMinimumSize();
-    }
+     */
+    public JComponent getTitleBar() { return uiDelegate.getTitleBar(); }
     
     /**
      * Returns the size this frame should have to fully display the internal
@@ -250,30 +247,6 @@ public class TinyFrame
             br_y = Math.max(br_y, bounds.y+bounds.height);
         }
         return new Rectangle(x, y, br_x-x, br_y-y);
-    }
-    
-    /**
-     * Sets the title bar's tooltip.
-     * 
-     * @param tp The tooltip to set.
-     */
-    public void setTitleBarToolTip(String tp)
-    {
-        uiDelegate.setTitleBarToolTip(tp);
-    }
-    
-    /**
-     * Tells if the specified point falls within the bounds of the title bar.
-     * 
-     * @param p The point to test; its coordinates are relative to the frame's.
-     *          Never pass <code>null</code>.
-     * @return <code>true</code> if the <code>p</code> falls within the title
-     *         bar bounds, <code>false</code> otherwise.
-     */
-    public boolean isPointOverTitleBar(Point p)
-    {
-        if (p == null) throw new NullPointerException("no point.");
-        return uiDelegate.isPointOverTitleBar(p);
     }
     
     /**

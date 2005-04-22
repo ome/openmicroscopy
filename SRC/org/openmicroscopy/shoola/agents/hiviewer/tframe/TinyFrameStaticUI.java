@@ -73,10 +73,14 @@ public class TinyFrameStaticUI
     }
     
     /** Overridden so we don't respond to resize, move, etc. events. */
-    //protected MouseInputAdapter createBorderListener(JInternalFrame frame)
-    //{
-        //return new MouseInputAdapter() {};
-    //}  TODO: restore! But b/f understand why this interfers w/ inner frames.
+    protected MouseInputAdapter createBorderListener(JInternalFrame frame)
+    {
+        return new MouseInputAdapter() {};
+    }  
+    //TODO: Why is this making us lose mouse clicks on inner nodes?
+    //TODO: We also lose the resize cursor on inner nodes.  The user has to
+    //click on the border to resize and the area that is sensible to this
+    //appears to be just one pixel wide.  (Note that the border is 3px.)
     
     /**
      * Creates a new UI delegate for the specified <code>frame</code>.
