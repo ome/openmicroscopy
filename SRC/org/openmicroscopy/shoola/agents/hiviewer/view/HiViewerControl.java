@@ -42,6 +42,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 
 /** 
  * The HiViewer's Controller.
@@ -75,6 +76,8 @@ public class HiViewerControl
         for (int i = 0; i < actions.length; i++)
             ((BrowserAction) actions[i]).setBrowser(browser);
         browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, this);
+        browser.addPropertyChangeListener(Browser.THUMB_SELECTED_PROPERTY, 
+                                          this);
     }
 
     /* (non-Javadoc)
@@ -83,8 +86,12 @@ public class HiViewerControl
     public void propertyChange(PropertyChangeEvent pce)
     {
         ImageDisplay d = browser.getSelectedDisplay();
-        Point p = browser.getPopupPoint();
-        if (d != null && p != null) view.getPopupMenu().show(d, p.x, p.y);
+        if (Browser.POPUP_POINT_PROPERTY.equals(pce.getPropertyName())) {
+            Point p = browser.getPopupPoint();
+            if (d != null && p != null) view.getPopupMenu().show(d, p.x, p.y);
+        } else {  //THUMB_SELECTED_PROPERTY
+            TWinManager.display((ImageNode) d);
+        }
     }
     
 }
