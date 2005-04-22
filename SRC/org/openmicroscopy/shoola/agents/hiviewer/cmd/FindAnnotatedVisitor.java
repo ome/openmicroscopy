@@ -38,7 +38,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
@@ -59,16 +59,23 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * @since OME2.2
  */
 public class FindAnnotatedVisitor
-    implements ImageDisplayVisitor
+    extends BrowserVisitor
 {
     
+    public FindAnnotatedVisitor(Browser browser)
+    {
+        super(browser);
+    }
+
     /** Highlight the annotated image.*/
     public void visit(ImageNode node)
     {
         Object ho = node.getHierarchyObject();
         if (ho instanceof ImageSummary) {
             if (((ImageSummary) ho).getAnnotation() != null) {
-               node.setHighlight(Colors.ANNOTATED);
+               if (node.equals(browser.getSelectedDisplay()))
+                   node.setHighlight(Colors.ANNOTATED);
+               else node.setHighlight(Colors.ANNOTATED_LIGHT);
             }
         }
     }
@@ -79,7 +86,9 @@ public class FindAnnotatedVisitor
         Object ho = node.getHierarchyObject();
         if (ho instanceof DatasetSummary) {
             if (((DatasetSummary) ho).getAnnotation() != null) 
-                node.setHighlight(Colors.ANNOTATED);
+                if (node.equals(browser.getSelectedDisplay()))
+                    node.setHighlight(Colors.ANNOTATED);
+                else node.setHighlight(Colors.ANNOTATED_LIGHT);
         }
     }
     

@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
@@ -59,9 +60,9 @@ public class FindRegExTitleVisitor
     extends FindRegExVisitor
 {
 
-    public FindRegExTitleVisitor(String regEx, int index)
+    public FindRegExTitleVisitor(Browser browser, String regEx, int index)
     {
-        super(regEx, index);
+        super(browser, regEx, index);
     }
     
     /** 
@@ -72,7 +73,11 @@ public class FindRegExTitleVisitor
     {
         if (!(levelIndex == FindRegExVisitor.CONTAINER_LEVEL)) {
             boolean b = RegExFactory.find(pattern, node.getTitle());
-            if (b) node.setHighlight(Colors.REGEX_TITLE);
+            if (b) {
+                if (node.equals(browser.getSelectedDisplay()))
+                    node.setHighlight(Colors.REGEX_TITLE);
+                else node.setHighlight(Colors.REGEX_TITLE_LIGHT);
+            }
         }
     }
 
@@ -84,7 +89,11 @@ public class FindRegExTitleVisitor
     {
         if (!(levelIndex == FindRegExVisitor.IMAGE_LEVEL)) {
             boolean b = RegExFactory.find(pattern, node.getTitle());
-            if (b) node.setHighlight(Colors.REGEX_TITLE);
+            if (b) {
+                if (node.equals(browser.getSelectedDisplay()))
+                    node.setHighlight(Colors.REGEX_TITLE);
+                else node.setHighlight(Colors.REGEX_TITLE_LIGHT);
+            }
         }
     }
 

@@ -35,7 +35,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
@@ -55,22 +56,29 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  * @since OME2.2
  */
 public class ClearVisitor
-    implements ImageDisplayVisitor
+    extends BrowserVisitor
 {
     
+    public ClearVisitor(Browser browser)
+    {
+        super(browser);
+    }
+
     /** Set the highlight color to null. */
     public void visit(ImageNode node)
     { 
-        if (node.isSelected()) return;
-        node.setHighlight(null);
+        if (node.equals(browser.getSelectedDisplay()))
+            node.setHighlight(Colors.DEFAULT_TITLEBAR);
+        else node.setHighlight(null);
     }
 
     /** Set the highlight color to null. */
     public void visit(ImageSet node)
     {
         if (node.getParentDisplay() != null) {
-            if (node.isSelected()) return;
-            node.setHighlight(null);
+            if (node.equals(browser.getSelectedDisplay())) 
+                node.setHighlight(Colors.DEFAULT_TITLEBAR);
+            else node.setHighlight(null);
         }
     }
 

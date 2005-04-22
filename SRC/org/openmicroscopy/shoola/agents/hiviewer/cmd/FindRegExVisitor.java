@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  * @since OME2.2
  */
 public class FindRegExVisitor
-    implements ImageDisplayVisitor
+    extends BrowserVisitor
 {
 
     /** Find at the level of an image only. */
@@ -73,8 +73,8 @@ public class FindRegExVisitor
     /** Level index. Must be one of the constant defined above. */
     protected int       levelIndex;
     
-    public FindRegExVisitor(String regEx, int index) {
-        
+    public FindRegExVisitor(Browser browser, String regEx, int index) {
+        super(browser);
         if (!checkIndex(index)) 
             throw new IllegalArgumentException("index not valid");
         levelIndex = index;

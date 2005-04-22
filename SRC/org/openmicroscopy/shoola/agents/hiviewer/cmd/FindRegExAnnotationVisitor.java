@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
@@ -60,9 +61,9 @@ public class FindRegExAnnotationVisitor
     extends FindRegExVisitor
 {
 
-    public FindRegExAnnotationVisitor(String regEx, int index)
+    public FindRegExAnnotationVisitor(Browser browser, String regEx, int index)
     {
-        super(regEx, index);
+        super(browser, regEx, index);
     }
     
     /** 
@@ -76,7 +77,11 @@ public class FindRegExAnnotationVisitor
                 ((ImageSummary) node.getHierarchyObject()).getAnnotation();
             if (data != null) {
                 boolean b = RegExFactory.find(pattern, data.getAnnotation());
-                if (b) node.setHighlight(Colors.REGEX_ANNOTATION);
+                if (b) {
+                    if (node.equals(browser.getSelectedDisplay())) 
+                        node.setHighlight(Colors.REGEX_ANNOTATION);
+                    else node.setHighlight(Colors.REGEX_ANNOTATION_LIGHT);
+                }
             }
         }
     }
@@ -95,7 +100,11 @@ public class FindRegExAnnotationVisitor
                 if (data != null) {
                     boolean b = RegExFactory.find(pattern, 
                             data.getAnnotation());
-                    if (b) node.setHighlight(Colors.REGEX_ANNOTATION);
+                    if (b) {
+                        if (node.equals(browser.getSelectedDisplay()))
+                            node.setHighlight(Colors.REGEX_ANNOTATION);
+                        else node.setHighlight(Colors.REGEX_ANNOTATION_LIGHT);
+                    }
                 }
             }
         }
