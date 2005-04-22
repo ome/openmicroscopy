@@ -35,9 +35,7 @@ import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Set;
-
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 
 //Third-party libraries
 
@@ -166,7 +164,6 @@ class BrowserModel
     public void setPopupPoint(Point p)
     {
         thumbSelected = false;
-        SwingUtilities.convertPointToScreen(p, selectedDisplay);
         Object oldValue = popupPoint;
         popupPoint = p;
         firePropertyChange(POPUP_POINT_PROPERTY, oldValue, p);
