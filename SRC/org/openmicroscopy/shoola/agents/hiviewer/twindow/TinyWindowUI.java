@@ -242,8 +242,10 @@ class TinyWindowUI
     {
         if (window.isCollapsed()) {
             removeComponent(canvas);
-            window.setSize(window.getWidth(), 
-                    TitleBar.HEIGHT+2*BORDER_THICKNESS);  
+            Dimension d = new Dimension(window.getWidth(), 
+                    TitleBar.HEIGHT+2*BORDER_THICKNESS);
+            titleBar.setPreferredSize(d);
+            window.pack();
             titleBar.sizeButton.setActionType(SizeButton.EXPAND);
         } else {
             addComponent(canvas);
