@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -73,10 +72,14 @@ public interface Browser
     public static final String SELECTED_DISPLAY_PROPERTY = "selectedDisplay";
     
     /** 
-     * Bound property name indicating a click occurred at a given point within
-     * the browser component.
+     * Bound property name indicating a {@link Thumbnail} has been selected
+     * within an {@link ImageNode}.
+     * The associated property change event is always dispatched <i>after</i>
+     * dispatching the one for the {@link #SELECTED_DISPLAY_PROPERTY}.  This
+     * latter property will be set to the {@link ImageNode} the 
+     * {@link Thumbnail} belong in.
      */
-    public static final String CLICK_POINT_PROPERTY = "clickPoint";
+    public static final String THUMB_SELECTED_PROPERTY = "thumbSelected";
     
     /** 
      * Bound property name indicating a pop-up trigger event occurred at a 
@@ -95,7 +98,65 @@ public interface Browser
     public void setSelectedDisplay(ImageDisplay node);
     
     /**
-     * Returns all the hierarchy objects that are linked to the any of the
+     * Returns the node, if any, that is currently selected in the 
+     * visualization tree.
+     * 
+     * @return The currently selected node or <code>null</code> if no node
+     *          is currently selected.
+     */
+    public ImageDisplay getSelectedDisplay();
+    
+    /**
+     * Sets a flag to indicate if a {@link Thumbnail} has been selected
+     * within an {@link ImageNode}.
+     * 
+     * @param selected Pass <code>true</code> if the currently selected display
+     *                 is an {@link ImageNode} and its {@link Thumbnail} has
+     *                 been selected.  Pass <code>false</code> in any other
+     *                 case.
+     * @throws IllegalArgumentException If you pass <code>true</code> but the
+     *         currently selected display is <i>not</i> an {@link ImageNode}.
+     */
+    public void setThumbSelected(boolean selected);
+    
+    /**
+     * Tells if a {@link Thumbnail} has been selected within an 
+     * {@link ImageNode}.
+     * The only case in which this method will return <code>true</code> is
+     * when the currently selected display is an {@link ImageNode} and its
+     * {@link Thumbnail} has been selected.  In particular, the returned
+     * value will <i>always</i> be <code>false</code> if the currently selected
+     * display is <i>not</i> an {@link ImageNode}.
+     * 
+     * @return <code>true</code> if currently selected display is an 
+     *         {@link ImageNode} and its {@link Thumbnail} has been selected;
+     *         <code>false</code> in all other cases.
+     */
+    public boolean isThumbSelected();
+    
+    /**
+     * Sets the point at which the last pop-up trigger event occurred within 
+     * the browser component.
+     * 
+     * @param p The point at which the event occurred, <i>relative</i> to the 
+     *          cooordinates of the currently selected display.
+     */
+    public void setPopupPoint(Point p);
+    
+    /**
+     * Returns the point at which the last pop-up trigger event occurred within 
+     * the browser component.
+     * This method may return <code>null</code>, for example if no such an
+     * event has occurred yet or if a thumbnail has been selected &#151; these
+     * two events are mutually exclusive.
+     * 
+     * @return The point at which the event occurred, in <i>screen</i> 
+     *         coordinates.
+     */
+    public Point getPopupPoint();
+    
+    /**
+     * Returns all the hierarchy objects that are linked to any of the
      * {@link ImageNode}s in the visualization trees hosted by the browser.
      * 
      * @return A set of <code>Object</code>s.
@@ -109,51 +170,6 @@ public interface Browser
      * @return A set of {@link ImageNode} objects.
      */
     public Set getImageNodes();
-    
-    /**
-     * Returns the node, if any, that is currently selected in the 
-     * visualization tree.
-     * 
-     * @return The currently selected node or <code>null</code> if no node
-     *          is currently selected.
-     */
-    public ImageDisplay getSelectedDisplay();
-    
-    /**
-     * Sets the point at which the last click occurred within the browser
-     * component.
-     * 
-     * @param p The point at which the event occurred.
-     */
-    public void setClickPoint(Point p);
-    
-    /**
-     * Returns the point at which the last click occurred within the browser
-     * component.
-     * This method may return <code>null</code>, for example if no click has
-     * occurred yet.
-     * 
-     * @return The point at which the event occurred.
-     */
-    public Point getClickPoint();
-    
-    /**
-     * Sets the point at which the last pop-up trigger event occurred within 
-     * the browser component.
-     * 
-     * @param p The point at which the event occurred.
-     */
-    public void setPopupPoint(Point p);
-    
-    /**
-     * Returns the point at which the last pop-up trigger event occurred within 
-     * the browser component.
-     * This method may return <code>null</code>, for example if no such an
-     * event has occurred yet.
-     * 
-     * @return The point at which the event occurred.
-     */
-    public Point getPopupPoint();
     
     /**
      * Has the specified object visit all the visualization trees hosted by
