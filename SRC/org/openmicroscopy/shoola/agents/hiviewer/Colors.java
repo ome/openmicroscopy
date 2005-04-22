@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 import java.awt.Color;
 
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+
 
 //Java imports
 
@@ -58,9 +60,15 @@ public class Colors
     /** List of colors to highlight the titleBar. */
     public static final Color REGEX_ANNOTATION = Color.YELLOW;
     
+    public static final Color REGEX_ANNOTATION_LIGHT = new Color(255, 255, 102);
+    
     public static final Color REGEX_TITLE = Color.PINK;
     
-    public static final Color ANNOTATED = Color.ORANGE;
+    public static final Color REGEX_TITLE_LIGHT = new Color(255, 102, 255);
+    
+    public static final Color ANNOTATED = Color.GREEN;
+    
+    public static final Color ANNOTATED_LIGHT = new Color(102, 255, 102);
     
     /** 
      * The color in which the title bar will be highlighted.
@@ -72,5 +80,29 @@ public class Colors
     public static final Color   DEFAULT_TITLEBAR_ANNOTATED = 
                                                     new Color(210, 240, 230);
     
+    /** Reset the default highligthColor when the node is deselected. */
+    public static Color getDeselectedHighLight(ImageDisplay node)
+    {
+        if (node.getParentDisplay() == null) return DEFAULT_TITLEBAR;
+        Color c = node.getHighlight();
+        if (c == null) return null;
+        if (c.equals(DEFAULT_TITLEBAR)) c = null;
+        else if (c.equals(ANNOTATED)) c = ANNOTATED_LIGHT;
+        else if (c.equals(REGEX_TITLE)) c = REGEX_TITLE_LIGHT;
+        else if (c.equals(REGEX_ANNOTATION)) c = REGEX_ANNOTATION_LIGHT;
+        return c;
+    }
+    
+    /** Reset the default highligthColor when the node is deselected. */
+    public static Color getSelectedHighLight(ImageDisplay node)
+    {
+        if (node.getParentDisplay() == null ||
+            node.getHighlight() == null) return Colors.DEFAULT_TITLEBAR;
+        Color c = node.getHighlight();
+        if (c.equals(ANNOTATED_LIGHT)) c = ANNOTATED;
+        else if (c.equals(REGEX_TITLE_LIGHT)) c = REGEX_TITLE;
+        else if (c.equals(REGEX_ANNOTATION_LIGHT)) c = REGEX_ANNOTATION;
+        return c;
+    }
     
 }
