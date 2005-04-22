@@ -87,7 +87,7 @@ public class HiTranslator
             toolTip = UIUtilities.makeParagraph(node.getTitle(), 
                     data.getAnnotation(), UIUtilities.TABLE_WIDTH);
         else toolTip = UIUtilities.formatToolTipText(node.getTitle());  
-        node.setTitleBarToolTip(toolTip);
+        node.getTitleBar().setToolTipText(toolTip);
     }
     
     /** 
