@@ -150,8 +150,8 @@ public interface Browser
      * event has occurred yet or if a thumbnail has been selected &#151; these
      * two events are mutually exclusive.
      * 
-     * @return The point at which the event occurred, in <i>screen</i> 
-     *         coordinates.
+     * @return The point at which the event occurred, <i>relative</i> to the 
+     *         cooordinates of the currently selected display.
      */
     public Point getPopupPoint();
     
