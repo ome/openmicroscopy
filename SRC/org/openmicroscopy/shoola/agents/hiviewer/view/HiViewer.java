@@ -48,8 +48,6 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerUIF;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.BrowserAction;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -73,22 +71,14 @@ public class HiViewer
 {
 
     /** Reference to the statusBar. */
-    private StatusBar   statusBar;
+    private StatusBar       statusBar;
     
-    private PopupMenu   popupMenu;
+    private PopupMenu       popupMenu;
     
-    private Action[]    actions;
+    private Action[]        actions;
     
-    public HiViewer(Action[] actions, Registry reg)
-    {
-        super("Hierarchy Viewer", reg.getTaskBar());
-        this.actions = actions;
-        IconManager iconMng = IconManager.getInstance();
-        statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
-        popupMenu = new PopupMenu(actions);
-        setJMenuBar(createMenuBar());
-        buildUI();
-    }
+    private HiViewerControl controller;
+    
     
     /** Build and lay out the GUI. */
     private void buildUI()
@@ -181,25 +171,23 @@ public class HiViewer
         menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_FIT]));
         return menu;
     }
+    
+    Action[] getActions() { return actions; }
+    
+    PopupMenu getPopupMenu() { return popupMenu; }
+    
+    public HiViewer(Action[] actions, Registry reg)
+    {
+        super("Hierarchy Viewer", reg.getTaskBar());
+        this.actions = actions;
+        IconManager iconMng = IconManager.getInstance();
+        statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
+        popupMenu = new PopupMenu(actions);
+        setJMenuBar(createMenuBar());
+        buildUI();
+        controller = new HiViewerControl();
+    }
 
-    /** Closes the widget. */
-    public void closeViewer()
-    {
-        setVisible(false);
-        dispose();
-    }
-    
-    /** 
-     * Link each action to the specified browser.
-     * 
-     * @param browser   the specified browser.
-     */
-    public void linkActionsTo(Browser browser)
-    {
-        for (int i = 0; i < actions.length; i++)
-           ((BrowserAction) actions[i]).setBrowser(browser);
-    }
-    
     /** Set the browser view. */
     public void setBrowserView(JComponent browserView)
     {
@@ -207,6 +195,15 @@ public class HiViewer
         container.removeAll();
         container.add(browserView, BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH); 
+    }
+    
+    public HiViewerControl getController() { return controller; }
+    
+    /** Closes the widget. */
+    public void closeViewer()
+    {
+        setVisible(false);
+        dispose();
     }
     
     /** Overrides the {@link #setOnScreen()} method. */
