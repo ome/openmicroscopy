@@ -107,20 +107,13 @@ public abstract class BrowserAction
         ImageDisplay oldNode, newNode;
         if (evt.getNewValue() != null) {
             newNode = (ImageDisplay) evt.getNewValue();
-            newNode.setHighlight(Colors.DEFAULT_TITLEBAR);
+            newNode.setHighlight(Colors.getSelectedHighLight(newNode));
             if (evt.getOldValue() != null) {
                 oldNode = (ImageDisplay) evt.getOldValue();
-                oldNode.setHighlight(getHighlightColor(oldNode));
+                oldNode.setHighlight(Colors.getDeselectedHighLight(oldNode));
             }
         }
         onDisplayChange(browser.getSelectedDisplay());
-    }
-    
-    private Color getHighlightColor(ImageDisplay node)
-    {
-        Color c = null;
-        if (node.getParentDisplay() == null) c = Colors.DEFAULT_TITLEBAR;
-        return c;
     }
 
 }
