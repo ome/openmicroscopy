@@ -143,4 +143,6 @@ public class ThumbnailProvider
     
     public double getScalingFactor() { return scalingFactor; }
     
+    public BufferedImage getFullScaleThumb() { return fullScaleThumb; }
+    
 }
