@@ -31,10 +31,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
-import java.awt.Color;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
@@ -59,9 +60,6 @@ public class FindRegExAnnotationVisitor
     extends FindRegExVisitor
 {
 
-    /** The color in which the title bar will be highlighted. */
-    private static final Color HIGH_LIGHT_COLOR = Color.YELLOW;
-    
     public FindRegExAnnotationVisitor(String regEx, int index)
     {
         super(regEx, index);
@@ -78,7 +76,7 @@ public class FindRegExAnnotationVisitor
                 ((ImageSummary) node.getHierarchyObject()).getAnnotation();
             if (data != null) {
                 boolean b = RegExFactory.find(pattern, data.getAnnotation());
-                if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+                if (b) node.setHighlight(Colors.REGEX_ANNOTATION);
             }
         }
     }
@@ -95,8 +93,9 @@ public class FindRegExAnnotationVisitor
                 AnnotationData 
                     data = ((DatasetSummaryLinked) ho).getAnnotation();
                 if (data != null) {
-                    boolean b = RegExFactory.find(pattern, data.getAnnotation());
-                    if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+                    boolean b = RegExFactory.find(pattern, 
+                            data.getAnnotation());
+                    if (b) node.setHighlight(Colors.REGEX_ANNOTATION);
                 }
             }
         }

@@ -33,11 +33,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
@@ -61,17 +61,15 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 public class FindAnnotatedVisitor
     implements ImageDisplayVisitor
 {
-
-    /** The color in which the title bar will be highlighted. */
-    private static final Color HIGH_LIGHT_COLOR = Color.ORANGE;
     
     /** Highlight the annotated image.*/
     public void visit(ImageNode node)
     {
         Object ho = node.getHierarchyObject();
         if (ho instanceof ImageSummary) {
-            if (((ImageSummary) ho).getAnnotation() != null) 
-                node.setHighlight(HIGH_LIGHT_COLOR);
+            if (((ImageSummary) ho).getAnnotation() != null) {
+               node.setHighlight(Colors.ANNOTATED);
+            }
         }
     }
 
@@ -81,7 +79,7 @@ public class FindAnnotatedVisitor
         Object ho = node.getHierarchyObject();
         if (ho instanceof DatasetSummary) {
             if (((DatasetSummary) ho).getAnnotation() != null) 
-                node.setHighlight(HIGH_LIGHT_COLOR);
+                node.setHighlight(Colors.ANNOTATED);
         }
     }
     

@@ -33,11 +33,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
@@ -59,9 +59,6 @@ public class FindRegExTitleVisitor
     extends FindRegExVisitor
 {
 
-    /** The color in which the title bar will be highlighted. */
-    private static final Color HIGH_LIGHT_COLOR = Color.PINK;
-
     public FindRegExTitleVisitor(String regEx, int index)
     {
         super(regEx, index);
@@ -75,7 +72,7 @@ public class FindRegExTitleVisitor
     {
         if (!(levelIndex == FindRegExVisitor.CONTAINER_LEVEL)) {
             boolean b = RegExFactory.find(pattern, node.getTitle());
-            if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+            if (b) node.setHighlight(Colors.REGEX_TITLE);
         }
     }
 
@@ -87,7 +84,7 @@ public class FindRegExTitleVisitor
     {
         if (!(levelIndex == FindRegExVisitor.IMAGE_LEVEL)) {
             boolean b = RegExFactory.find(pattern, node.getTitle());
-            if (b) node.setHighlight(HIGH_LIGHT_COLOR);
+            if (b) node.setHighlight(Colors.REGEX_TITLE);
         }
     }
 

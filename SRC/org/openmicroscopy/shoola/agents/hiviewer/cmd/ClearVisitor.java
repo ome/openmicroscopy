@@ -59,12 +59,19 @@ public class ClearVisitor
 {
     
     /** Set the highlight color to null. */
-    public void visit(ImageNode node) { node.setHighlight(null); }
+    public void visit(ImageNode node)
+    { 
+        if (node.isSelected()) return;
+        node.setHighlight(null);
+    }
 
     /** Set the highlight color to null. */
     public void visit(ImageSet node)
     {
-        if (node.getParentDisplay() != null) node.setHighlight(null);
+        if (node.getParentDisplay() != null) {
+            if (node.isSelected()) return;
+            node.setHighlight(null);
+        }
     }
 
 }
