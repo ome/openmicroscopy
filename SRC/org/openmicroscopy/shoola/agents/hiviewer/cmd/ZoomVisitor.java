@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Rectangle;
 
 //Third-party libraries
@@ -92,6 +93,12 @@ public class ZoomVisitor
     }
 
     /** Required by I/F, no-op performed in this case. */
-    public void visit(ImageSet node) {}
+    public void visit(ImageSet node)
+    {
+        //Trick to have the scrollBar on screen
+        Dimension d = node.getSize();
+        node.setSize((int) (d.getWidth()+10*EPSILON), 
+                    (int) (d.getHeight()+10*EPSILON));
+    }
 
 }
