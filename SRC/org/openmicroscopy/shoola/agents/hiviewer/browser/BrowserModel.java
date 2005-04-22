@@ -117,6 +117,27 @@ class BrowserModel
     }
     
     /**
+     * String-ifies the path from the {@link #selectedDisplay} to the
+     * {@link #rootDisplay}.
+     * 
+     * @return The above described string.
+     */
+    String currentPathString()
+    {
+        StringBuffer buf = new StringBuffer();
+        String title;
+        ImageDisplay parent = selectedDisplay;
+        while (parent != null && !(parent instanceof RootDisplay)) {
+            title = parent.getTitle();
+            if (title == null || title.length() == 0) title = "[..]";
+            buf.insert(0, " > ");
+            buf.insert(0, title);
+            parent = parent.getParentDisplay();
+        }
+        return buf.toString();
+    }
+    
+    /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setSelectedDisplay(ImageDisplay)
      */

@@ -142,6 +142,7 @@ class BrowserControl
     {
         ImageDisplay d = findParentDisplay(me.getSource());
         model.setSelectedDisplay(d);
+        view.setTitle(model.currentPathString());
     }
 
     /**
