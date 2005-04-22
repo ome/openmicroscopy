@@ -141,8 +141,8 @@ public class IconManager
         relPaths[MINUS_OVER] = "minus_over.png";
         relPaths[PLUS] = "plus.png";
         relPaths[PLUS_OVER] = "plus_over.png";
-        relPaths[CLOSE] = "plus_over.png";
-        relPaths[CLOSE_OVER] = "plus_over.png";
+        relPaths[CLOSE] = "cross.png";
+        relPaths[CLOSE_OVER] = "cross_over.png";
         relPaths[PROPERTIES] = "nuvola_kate16.png";
         relPaths[VIEWER] = "viewer16.png";
         relPaths[ANNOTATE] = "nuvola_kwrite16.png";
