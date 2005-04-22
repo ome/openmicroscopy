@@ -37,6 +37,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 
@@ -70,8 +71,11 @@ class BrowserModel
     /** The currently selected node in the visualization tree. */
     private ImageDisplay    selectedDisplay;
     
-    /** Position of the last mouse click within the browser. */
-    private Point           clickPoint;
+    /** 
+     * Tells if a thumbnail has been selected in the case the 
+     * {@link #selectedDisplay} is an {@link ImageNode}. 
+     */
+    private boolean         thumbSelected;
     
     /** Position of the last pop-up trigger within the browser. */
     private Point           popupPoint;
@@ -120,10 +124,59 @@ class BrowserModel
      */
     public void setSelectedDisplay(ImageDisplay node)
     {
+        thumbSelected = false;
+        popupPoint = null;
         Object oldValue = selectedDisplay;
         selectedDisplay = node;
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
     }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedDisplay()
+     */
+    public ImageDisplay getSelectedDisplay() { return selectedDisplay; }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setThumbSelected(boolean)
+     */
+    public void setThumbSelected(boolean selected)
+    {
+        if (!(selectedDisplay instanceof ImageNode) && selected)
+            throw new IllegalArgumentException(
+                "Can only select a thumbnail on an ImageNode.");
+        popupPoint = null;
+        Boolean oldVal = thumbSelected ? Boolean.TRUE : Boolean.FALSE,
+                newVal = selected ? Boolean.TRUE : Boolean.FALSE;
+        thumbSelected = selected;
+        firePropertyChange(THUMB_SELECTED_PROPERTY, oldVal, newVal);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isThumbSelected()
+     */
+    public boolean isThumbSelected() { return thumbSelected; }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setPopupPoint(java.awt.Point)
+     */
+    public void setPopupPoint(Point p)
+    {
+        thumbSelected = false;
+        SwingUtilities.convertPointToScreen(p, selectedDisplay);
+        Object oldValue = popupPoint;
+        popupPoint = p;
+        firePropertyChange(POPUP_POINT_PROPERTY, oldValue, p);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getPopupPoint()
+     */
+    public Point getPopupPoint() { return popupPoint; }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -147,46 +200,6 @@ class BrowserModel
         return finder.getImageNodes(); 
     }
     
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getSelectedDisplay()
-     */
-    public ImageDisplay getSelectedDisplay() { return selectedDisplay; }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setClickPoint(java.awt.Point)
-     */
-    public void setClickPoint(Point p)
-    {
-        Object oldValue = clickPoint;
-        clickPoint = p;
-        firePropertyChange(CLICK_POINT_PROPERTY, oldValue, p);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getClickPoint()
-     */
-    public Point getClickPoint() { return clickPoint; }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setPopupPoint(java.awt.Point)
-     */
-    public void setPopupPoint(Point p)
-    {
-        Object oldValue = popupPoint;
-        popupPoint = p;
-        firePropertyChange(POPUP_POINT_PROPERTY, oldValue, p);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getPopupPoint()
-     */
-    public Point getPopupPoint() { return popupPoint; }
-
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see oBrowser#accept(ImageDisplayVisitor)
