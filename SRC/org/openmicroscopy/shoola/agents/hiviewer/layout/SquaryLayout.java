@@ -147,7 +147,7 @@ class SquaryLayout
                         return;  //Go to finally.
                     child = (ImageDisplay) children.next();
                     d = child.getPreferredSize();
-                    child.setBounds(i*maxDim.width, j*maxDim.height,
+                    child.setBounds(j*maxDim.width, i*maxDim.height,
                                     d.width, d.height);
                     child.setVisible(true);
                 }
