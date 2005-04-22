@@ -31,9 +31,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -74,6 +74,24 @@ class BrowserControl
     
     
     /**
+     * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
+     * hierarchy.
+     * 
+     * @param x A component.
+     * @return The parent {@link ImageDisplay} or <code>null</code> if none
+     *         was found.
+     */
+    private ImageDisplay findParentDisplay(Object x)
+    {
+        while (true) {
+            if (x instanceof ImageDisplay) return (ImageDisplay) x;
+            if (x instanceof JComponent) x = ((JComponent) x).getParent();
+            else break;
+        }
+        return null;
+    }
+    
+    /**
      * Creates a new Controller for the specified <code>model</code> and
      * <code>view</code>.
      * You need to call the {@link #initialize() initialize} method after
@@ -102,8 +120,8 @@ class BrowserControl
      */
     public void visit(ImageNode node) 
     { 
-        //node.addMouseListener(this);  TODO: restore!
-        node.getGlassPane().addMouseListener(this); 
+        node.getTitleBar().addMouseListener(this);
+        node.getCanvas().addMouseListener(this);
     }
 
     /**
@@ -112,44 +130,42 @@ class BrowserControl
      */
     public void visit(ImageSet node) 
     {
-        //node.addMouseListener(this);  TODO: restore!
-        node.getGlassPane().addMouseListener(this); 
+        node.getTitleBar().addMouseListener(this);
+        node.getInternalDesktop().addMouseListener(this);
     }
     
-    /* (non-Javadoc)
+    /**
+     * Sets the currently selected display.
      * @see MouseListener#mousePressed(java.awt.event.MouseEvent)
      */
     public void mousePressed(MouseEvent me)
     {
-        //TODO: sort out!!!
-        System.out.println("-----------------> MOUSE PRESSED");
-        Component src = (Component) me.getSource();
-        //ImageDisplay src = (ImageDisplay) me.getSource();
-        ImageDisplay node = (ImageDisplay) src.getParent().getParent();
-        
-        System.out.println("Title: "+node.getTitle());
-        System.out.println("Is Over Title: "+
-                node.isPointOverTitleBar(me.getPoint()));
-        System.out.println("Is Pop-up: "+me.isPopupTrigger());
-    }
-    
-    /* (non-Javadoc)
-     * @see MouseListener#mouseClicked(java.awt.event.MouseEvent)
-     */
-    public void mouseClicked(MouseEvent me)
-    {
-        //TODO: sort out!!!
-        System.out.println("-----------------> MOUSE CLICKED");
-        Component src = (Component) me.getSource();
-        //ImageDisplay src = (ImageDisplay) me.getSource();
-        ImageDisplay node = (ImageDisplay) src.getParent().getParent();
-        
-        System.out.println("Title: "+node.getTitle());
-        System.out.println("Is Over Title: "+
-                node.isPointOverTitleBar(me.getPoint()));
-        System.out.println("Is Pop-up: "+me.isPopupTrigger());
+        ImageDisplay d = findParentDisplay(me.getSource());
+        model.setSelectedDisplay(d);
     }
 
+    /**
+     * Tells the model that either a popup point or a thumbnail selection
+     * was detected.
+     * @see MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
+    public void mouseReleased(MouseEvent me) 
+    {
+        if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
+        else {
+            Object src = me.getSource();
+            ImageDisplay d = findParentDisplay(src);
+            if (d instanceof ImageNode && !(d.getTitleBar() == src))
+                model.setThumbSelected(true);
+        }
+    }
+    
+    /**
+     * No-op implementation.
+     * @see MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
+    public void mouseClicked(MouseEvent me) {}
+    
     /**
      * No-op implementation.
      * @see MouseListener#mouseEntered(java.awt.event.MouseEvent)
@@ -161,11 +177,5 @@ class BrowserControl
      * @see MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     public void mouseExited(MouseEvent me) {}
-    
-    /**
-     * No-op implementation.
-     * @see MouseListener#mouseReleased(java.awt.event.MouseEvent)
-     */
-    public void mouseReleased(MouseEvent me) {}
 
 }
