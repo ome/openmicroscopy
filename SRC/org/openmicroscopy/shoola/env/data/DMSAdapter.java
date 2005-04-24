@@ -125,7 +125,7 @@ class DMSAdapter
     private List getDatasetAnnotations(List ids, int uID)
         throws DSOutOfServiceException, DSAccessException
     {
-        if (ids.size() == 0) return null;
+        if (ids!= null && ids.size() == 0) return null;
         Criteria c = AnnotationMapper.buildDatasetAnnotationCriteria(ids, uID);
         return (List) gateway.retrieveListSTSData("DatasetAnnotation", c);
     }
