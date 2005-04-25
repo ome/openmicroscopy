@@ -115,6 +115,7 @@ abstract class Entry
         contentHandlers.put("OMEIS", OMEISEntry.class);
         contentHandlers.put("OMEDS", OMEDSEntry.class);
         contentHandlers.put("font", FontEntry.class);
+        contentHandlers.put("color", ColorEntry.class);
         contentHandlers.put("icons", IconFactoryEntry.class);
         contentHandlers.put("agents", AgentsEntry.class);
     }
