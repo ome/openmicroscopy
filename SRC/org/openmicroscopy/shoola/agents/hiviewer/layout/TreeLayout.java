@@ -35,6 +35,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Dimension;
+import java.awt.Rectangle;
+
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
@@ -58,30 +63,73 @@ class TreeLayout
 {  //TODO: Implement layout algo!
 
     /** Textual description of this layout. */
-    static final String DESCRIPTION = "Lays out all the container nodes in "+
-                                      "a tree. Node containing images are "+
-                                      "collapsed, so images are not showing.";
+    static final String         DESCRIPTION = "Lays out all the container " +
+                                                "nodes in a tree. Node " +
+                                                "containing images are "+
+                                                "collapsed, so images are " +
+                                                "not showing.";
+
+    private static final int    HSPACE = 10;
     
+    private void visitContainerNode(ImageSet node)
+    {
+        //Then figure out the number of columns, which is the same as the
+        //number of rows.
+        int n = node.getChildrenDisplay().size();        
+        if (n == 0) {   //node with no child
+            node.getInternalDesktop().setPreferredSize(
+                    node.getTitleBar().getMinimumSize());
+            node.setVisible(true);
+            return;
+        }
+        Dimension d;
+        Object[] children = LayoutFactory.orderedChildrenbyWidth(node);
+        ImageDisplay child;
+        int y = 0, x = HSPACE;
+        int h;
+        if (node.getParentDisplay() == null) x = 0;
+        for (int i = 0; i < children.length; i++) {
+            child = (ImageDisplay) children[i];
+            child.setVisible(true);
+            child.setCollapsed(true);
+            d = child.getPreferredSize();
+            h = (int) child.getSize().getHeight();
+            child.setBounds(x, y, d.width, h);
+            y += h; 
+        }
+        Rectangle bounds = node.getContentsBounds();
+        d = bounds.getSize();
+        node.getInternalDesktop().setPreferredSize(d);
+        node.setVisible(true);
+        if (node.getParentDisplay() != null) node.setCollapsed(true);
+    }
+    
+    /**
+     * Lays out the current container display.
+     * @see ImageDisplayVisitor#visit(ImageSet)
+     */
+    public void visit(ImageSet node)
+    {
+        if (node.getChildrenDisplay().size() == 0) {   //node with no child
+            node.getInternalDesktop().setPreferredSize(
+                    node.getTitleBar().getMinimumSize());
+            node.setVisible(true);
+            return;
+        }
+        if (node.containsImages()) LayoutFactory.visitNodeWithLeaves(node);
+        else visitContainerNode(node);
+    }
+
+    /**
+     * No-op implementation, as we only layout container displays.
+     * @see ImageDisplayVisitor#visit(ImageNode)
+     */
+    public void visit(ImageNode node) {}
+
     /**
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#getDescription()
      */
     public String getDescription() { return DESCRIPTION; }
-
-    /* (non-Javadoc)
-     * @see ImageDisplayVisitor#visit(ImageNode)
-     */
-    public void visit(ImageNode node)
-    {
-
-    }
-
-    /* (non-Javadoc)
-     * @see ImageDisplayVisitor#visit(ImageSet)
-     */
-    public void visit(ImageSet node)
-    {
-
-    }
-
+    
 }
