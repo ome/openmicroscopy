@@ -297,7 +297,7 @@ public class ModulePaletteCanvas extends BufferedCanvas implements
 	 * @param name
 	 */
 	private void displayCategoryName(CategoryBox box,String name) {
-		if (name.compareTo("") !=0) {// if there is a name
+		if (name != null && name.compareTo("") !=0) {// if there is a name
 			PText nameText = new PText(name);
 			nameText.setFont(Constants.CATEGORY_FONT);
 			nameText.setPickable(false);
