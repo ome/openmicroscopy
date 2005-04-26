@@ -94,20 +94,20 @@ public class ZoomCmd
     }
     
     /** Calculate the zoomFactor according to the index. */
-    static double calculateFactor(double f)
+    static double calculateFactor(double currentScale)
     {
-        double factor = ThumbnailProvider.SCALING_FACTOR;
+        double factor = currentScale;
         switch (index) {
             case ZOOM_IN:
-                factor =  f;
-                if (f >= ThumbnailProvider.MAX_SCALING_FACTOR) 
+                if (currentScale >= ThumbnailProvider.MAX_SCALING_FACTOR) 
                     factor = ThumbnailProvider.MAX_SCALING_FACTOR;
-                else f += INCREMENT;
+                else factor += INCREMENT;
+                break;
             case ZOOM_OUT:
-                if (f <= ThumbnailProvider.MIN_SCALING_FACTOR) 
+                if (currentScale <= ThumbnailProvider.MIN_SCALING_FACTOR) 
                     factor = ThumbnailProvider.MIN_SCALING_FACTOR;
-                else f -= INCREMENT;
-                factor = f;
+                else factor -= INCREMENT;
+                break;
             case ZOOM_FIT:
                 factor = ThumbnailProvider.SCALING_FACTOR;    
         }
