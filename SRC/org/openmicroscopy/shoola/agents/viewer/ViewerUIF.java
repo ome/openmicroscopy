@@ -159,7 +159,7 @@ public class ViewerUIF
     ViewerUIF(ViewerCtrl control, Registry registry, PixelsDimensions pxsDims, 
                 int defaultT, int defaultZ)
     {
-        super("", registry.getTaskBar());
+        super("");
         this.control = control;
         im = IconManager.getInstance(registry);
         windowWidth = DEFAULT_WINDOW_SIZE;
