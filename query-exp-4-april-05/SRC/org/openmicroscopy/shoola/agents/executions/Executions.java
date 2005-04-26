@@ -62,6 +62,8 @@ public class Executions
 	implements Agent
 {
 	
+	public static boolean DEBUG_TIMING = true;
+	public static int DEBUG_LEVEL =0;
 	/** 
 	 * Holds the agent's configuration and lets the agent access all services.
 	 */
@@ -95,5 +97,10 @@ public class Executions
 	public void terminate() 
 	{
 		uiManager.disposeUI();  //Release native resources to exit gracefully.
+	}
+	
+	public static void debug(String s,int level) {
+		if (DEBUG_LEVEL >= level)
+			System.err.println(s);
 	}
 }

@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.events.MouseOverDataset;
 import org.openmicroscopy.shoola.agents.events.MouseOverAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectAnalysisChain;
 import org.openmicroscopy.shoola.agents.events.SelectDataset;
+import org.openmicroscopy.shoola.agents.executions.Executions;
 import org.openmicroscopy.shoola.agents.executions.data.ExecutionsDataManager;
 import org.openmicroscopy.shoola.agents.executions.data.ExecutionsLoader;
 import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
@@ -249,10 +250,14 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 		}
 	}
 	
+	long start =0;
+	
 	public void preHandleDisplay(TopWindowManager manager) {
 		if (dataState == NOT_LOADED) {
 			topWindowManager = manager;
 			ContentGroup group  = new ContentGroup(this);
+			if (Executions.DEBUG_TIMING) 
+				start=System.currentTimeMillis();
 			new ExecutionsLoader(dataManager,group);
 			group.setAllLoadersAdded();
 			dataState = LOADING;
@@ -264,10 +269,21 @@ public class ExecutionsWindow extends TopWindow implements AgentEventListener,
 	
 	public void contentComplete() {
 		if (dataManager.getChainExecutions() != null) {
+			if (Executions.DEBUG_TIMING) {
+				long end = System.currentTimeMillis()-start;
+				System.err.println("Time to load executions: "+end);
+				start=System.currentTimeMillis();
+			}
 			ExecutionsData execs = dataManager.getChainExecutions();
 			execsModel = new ExecutionsModel(execs);
 			if (execsModel.size() >0)
 				buildGUI();
+			if (Executions.DEBUG_TIMING) {
+				long end = System.currentTimeMillis()-start;
+				System.err.println("Time to build gui: "+end);
+				start=System.currentTimeMillis();
+			}
+		
 			dataState =LOADED;
 		}
 	}
