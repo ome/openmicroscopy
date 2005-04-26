@@ -40,7 +40,6 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Implements the {@link HiViewer} interface to provide the functionality
@@ -134,7 +133,7 @@ class HiViewerComponent
         switch (state) {
             case NEW:
                 model.fireHierarchyLoading();
-                UIUtilities.centerAndShow(view);
+                view.setOnScreen();
                 fireStateChange();
                 break;
             case DISCARDED:

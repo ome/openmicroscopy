@@ -48,7 +48,6 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -203,7 +202,7 @@ class HiViewerWin
      */
     HiViewerWin() 
     {
-        super("Hierarchy Viewer", HiViewerAgent.getRegistry().getTaskBar());
+        super("Hierarchy Viewer");
         IconManager iconMng = IconManager.getInstance();
         statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
     }

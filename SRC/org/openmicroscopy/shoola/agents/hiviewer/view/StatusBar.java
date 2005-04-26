@@ -80,6 +80,7 @@ public class StatusBar
         progressBar.setVisible(!hide);
         if (perc < 0) progressBar.setIndeterminate(true);
         else {
+            progressBar.setStringPainted(true);
             progressBar.setIndeterminate(false);
             progressBar.setValue(perc);
         }
@@ -89,8 +90,6 @@ public class StatusBar
     private void initComponents(Icon statusIcon)
     {
         progressBar = new JProgressBar();
-        progressBar.setValue(0);
-        progressBar.setStringPainted(true);
         status = new JLabel(statusIcon);
     }
     
