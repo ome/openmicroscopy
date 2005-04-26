@@ -83,15 +83,16 @@ public interface Thumbnail
     public BufferedImage getImageFor(ImageNode node);
    
     /** 
-     * Scale the thumbnail.
+     * Scales the thumbnail.
      * 
      * @param f scaling factor. Must be a value strictly positive and <=1.
      */
     public void scale(double f);
     
-    /** Return the current scaling factor. */
+    /** Returns the current scaling factor. */
     public double getScalingFactor();
     
+    /** Returns the original thumbnail. */
     public BufferedImage getFullScaleThumb();
     
 }

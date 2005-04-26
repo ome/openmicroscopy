@@ -37,7 +37,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
-import javax.swing.border.Border;
+import javax.swing.border.AbstractBorder;
 
 //Third-party libraries
 
@@ -61,7 +61,7 @@ import javax.swing.border.Border;
  * @since OME2.2
  */
 class FrameBorder
-    implements Border
+    extends AbstractBorder
 {
 
     /** Default color for the margin. */
@@ -115,13 +115,6 @@ class FrameBorder
         this.margin = margin;
     }
     
-    /**
-     * Returns <code>false</code>, as this border cleans the background.
-     * 
-     * @return See above.
-     */
-    public boolean isBorderOpaque() { return false; }
-
     /**
      * Paints the border for the specified component with the 
      * specified position and size.

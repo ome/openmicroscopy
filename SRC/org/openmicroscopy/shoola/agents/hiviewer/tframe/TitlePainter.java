@@ -118,8 +118,9 @@ class TitlePainter
     {
         FontMetrics fm = g2D.getFontMetrics();
         int len = title.length(), i;
+        Rectangle2D bounds;
         for (i = 0; i < len; ++i) {
-            Rectangle2D bounds = fm.getStringBounds(title.substring(0, i), g2D);
+            bounds = fm.getStringBounds(title.substring(0, i), g2D);
             if (availWidth < bounds.getWidth()) break;
         }
         if (i == len) return title;  //It all fits. ("" is irrelevant.)

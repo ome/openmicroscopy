@@ -169,18 +169,6 @@ public class TinyWindow
     public void setCollapsed(boolean b)
     {
         if (b == collapsed) return;  //We're already in the requested state.
-        
-        //What state are we going to transition to?
-        //Display the contents.
-        /*
-        if (collapsed) {  //We're going to expand.
-            setResizable(true);  //Allow to resize when expanded.
-        } else {  //We're going to collapse.
-            //Remember current size, so it can be restored later.
-            restoreSize = new Dimension(getWidth(), getHeight());
-            setResizable(false);  //Disallow resizing when collapsed.
-        }
-        */
         //Fire the state change.
         Boolean oldValue = collapsed ? Boolean.TRUE : Boolean.FALSE,
                 newValue = b ? Boolean.TRUE : Boolean.FALSE;

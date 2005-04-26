@@ -34,7 +34,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -55,7 +55,7 @@ import javax.swing.JComponent;
  * @since OME2.2
  */
 class ThumbnailCanvas
-    extends JComponent
+    extends JPanel
 {
 
     /** The node for which we're painting the image. */
@@ -71,12 +71,13 @@ class ThumbnailCanvas
     {
         if (node == null) throw new NullPointerException("No image node.");
         imageFrame = node;
-        setOpaque(false);
+        setDoubleBuffered(true);
     }
     
     /** Overridden to paint the image. */
     public void paintComponent(Graphics g)
     {
+        super.paintComponent(g);
         Thumbnail thumb = imageFrame.getThumbnail();
         BufferedImage img = thumb.getImageFor(imageFrame);
         if (img == null) return;

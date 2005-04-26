@@ -141,6 +141,7 @@ class BrowserControl
     public void mousePressed(MouseEvent me)
     {
         ImageDisplay d = findParentDisplay(me.getSource());
+        d.moveToFront();
         model.setSelectedDisplay(d);
         view.setTitle(model.currentPathString());
     }

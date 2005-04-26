@@ -76,7 +76,7 @@ class SquaryLayout
                                       "container.";
     
     
-    /** Window with. */
+    /** Maximum width used to displayed the thumbnail. */
     private int browserW;
     
     /** Maximum width of the BrowserView.*/
@@ -85,8 +85,7 @@ class SquaryLayout
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         browserW = 7*(screenSize.width/10);
     }
-
-    
+  
     /** Visit an ImageSet node that contains imageSet nodes. */
     private void visitContainerNode(ImageSet node)
     {
@@ -127,9 +126,7 @@ class SquaryLayout
         node.setCollapsed(false);
         node.setVisible(true);
     }
-    
-    
-    
+
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.

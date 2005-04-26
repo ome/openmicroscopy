@@ -29,21 +29,19 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
+
+//Java imports
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 
 /** 
  * A factory to create {@link Layout} objects.
@@ -215,7 +213,7 @@ public class LayoutFactory
      * 
      * @return See above.
      */
-    public static Layout getDefaultLayout() 
+    public static Layout getDefaultLayout()
     { 
         return createLayout(SQUARY_LAYOUT); 
     }

@@ -245,13 +245,12 @@ class TinyWindowUI
             Dimension d = new Dimension(window.getWidth(), 
                     TitleBar.HEIGHT+2*BORDER_THICKNESS);
             titleBar.setPreferredSize(d);
-            window.pack();
             titleBar.sizeButton.setActionType(SizeButton.EXPAND);
         } else {
             addComponent(canvas);
-            window.pack();
             titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
         }
+        window.pack();
     }
 
     /** 

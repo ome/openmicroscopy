@@ -29,18 +29,20 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
-import java.util.HashSet;
-import java.util.Set;
+
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Initializes two set: one containing the imageNodes displayed
+ * and a second containing the corresponding <code>DataObject</code>s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,35 +59,33 @@ class ImageFinder
     implements ImageDisplayVisitor
 {
 
-    private Set imageNodes, images;
+    /** Set of <code>ImageNode</code>s */
+    private Set imageNodes;
     
+    /** Set of corresponding <code>DataObject</code>s */
+    private Set images;
+    
+    /** Creates a new instance. */
     ImageFinder()
     {
         images = new HashSet();
         imageNodes = new HashSet();
     }
     
+    /** Returns the set of {@link ImageNode}s displayed. */
     Set getImageNodes() { return imageNodes; }
     
+    /** Returns the set of corresponding <code>DataObject</code>s. */
     Set getImages() { return images; }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor#visit(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode)
-     */
+    /** Implemented as specified by {@link ImageDisplayVisitor}. */
     public void visit(ImageNode node)
     {
-        Object ho = node.getHierarchyObject();
         imageNodes.add(node);
-        images.add(ho);
+        images.add(node.getHierarchyObject());
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor#visit(org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet)
-     */
-    public void visit(ImageSet node)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+    /** Implemented as specified by {@link ImageDisplayVisitor}. */
+    public void visit(ImageSet node) {}
 
 }

@@ -31,11 +31,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrameStaticUI;
 import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrameUI;
 
@@ -70,14 +70,6 @@ class RootDisplay
      */
     static final Object FAKE_HIERARCHY_OBJECT = new Object();
     
-    /** 
-     * The color in which the title bar will be highlighted.
-     * By default we display the title bar in highlighted mode using this
-     * color. 
-     */
-    static final Color   DEFAULT_TITLEBAR_COLOR = new Color(189, 210, 230);
-    
-    
     /**
      * Creates the View to use as UI delegate for this component.
      * 
@@ -94,7 +86,8 @@ class RootDisplay
     RootDisplay()  
     {
         super("", FAKE_HIERARCHY_OBJECT);
-        setHighlight(DEFAULT_TITLEBAR_COLOR);
+        Colors colors = Colors.getInstance();
+        setHighlight(colors.getColor(Colors.TITLE_BAR));
     }
     
 }

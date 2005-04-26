@@ -99,12 +99,13 @@ public class ImageCanvas
     
     private LensCanvas                  lensCanvas;
     
-    public ImageCanvas(ViewerUIF view, ViewerCtrl control, LensCanvas lensCanvas)
+    public ImageCanvas(ViewerUIF view, ViewerCtrl control, 
+                        LensCanvas lensCanvas)
     {
         this.view = view;
         this.control = control;
         this.lensCanvas = lensCanvas;
-        initTxtWidth();
+        txtWidth = getFontMetrics(getFont()).charWidth('m');
         manager = new ImageCanvasMng(this, control);
         itMng = new ImageTransformMng();
         setBackground(ViewerUIF.BACKGROUND_COLOR); 
@@ -325,7 +326,7 @@ public class ImageCanvas
         return results;
     }
     
-    /** Overrides the {@link #paint(Graphics)} method. */
+    /** Overrides the {@link #paintComponent(Graphics)} method. */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -460,12 +461,6 @@ public class ImageCanvas
         if (x < 0) x = 0;
         if (y < 0) y = 0;
         setBounds(x, y, w, h);
-    }
-    
-    /** Initializes the width of the text. */
-    private void initTxtWidth()
-    {
-        txtWidth = getFontMetrics(getFont()).charWidth('m');
     }
     
 }

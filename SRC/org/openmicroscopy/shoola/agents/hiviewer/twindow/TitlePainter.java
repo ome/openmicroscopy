@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.twindow;
 
 
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.Font;

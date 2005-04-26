@@ -31,13 +31,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.Rectangle;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.Dimension;
-import java.awt.Rectangle;
-
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
@@ -60,7 +59,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  */
 class TreeLayout
     implements Layout
-{  //TODO: Implement layout algo!
+{
 
     /** Textual description of this layout. */
     static final String         DESCRIPTION = "Lays out all the container " +
