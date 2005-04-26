@@ -63,6 +63,15 @@ public class PropertiesCmd
 {
     
     private HiViewer    model;
+    private DataObject  hierarchyObject;
+    
+    
+    public PropertiesCmd(DataObject hierarchyObject)
+    {
+        if (hierarchyObject == null)
+            throw new NullPointerException("No hierarchy object.");
+        this.hierarchyObject = hierarchyObject;
+    }
     
     /** Creates a new instance.*/
     public PropertiesCmd(HiViewer model)
@@ -75,12 +84,15 @@ public class PropertiesCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay selectedDisplay = model.getBrowser().getSelectedDisplay();
-        Object hierarchyObject = selectedDisplay.getHierarchyObject();
+        if (model != null) {
+            ImageDisplay selectedDisplay = model.getBrowser().
+                                                    getSelectedDisplay();
+            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+        }
         if (hierarchyObject == null) return;
-        //post an Annotate event.
+        //post a show properties event.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-        eventBus.post(new ShowProperties((DataObject) hierarchyObject, null)); 
+        eventBus.post(new ShowProperties(hierarchyObject, null)); 
     }
 
 }

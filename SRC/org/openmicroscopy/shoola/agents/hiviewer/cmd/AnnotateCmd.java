@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -63,6 +64,15 @@ public class AnnotateCmd
 {
     
     private HiViewer    model;
+    private DataObject  hierarchyObject;
+    
+    
+    public AnnotateCmd(DataObject hierarchyObject)
+    {
+        if (hierarchyObject == null)
+            throw new NullPointerException("No hierarchy object.");
+        this.hierarchyObject = hierarchyObject;
+    }
     
     /** Creates a new instance.*/
     public AnnotateCmd(HiViewer model)
@@ -75,8 +85,11 @@ public class AnnotateCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay selectedDisplay = model.getBrowser().getSelectedDisplay();
-        Object hierarchyObject = selectedDisplay.getHierarchyObject();
+        if (model != null) {
+            ImageDisplay selectedDisplay = model.getBrowser().
+                                                    getSelectedDisplay();
+            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+        }
         if (hierarchyObject == null) return;
         //post an Annotate event.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();

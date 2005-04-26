@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.events.datamng.ClassifyImage;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
@@ -63,6 +64,15 @@ public class ClassifyCmd
 {
     
     private HiViewer    model;
+    private DataObject  hierarchyObject;
+    
+    
+    public ClassifyCmd(DataObject hierarchyObject)
+    {
+        if (hierarchyObject == null)
+            throw new NullPointerException("No hierarchy object.");
+        this.hierarchyObject = hierarchyObject;
+    }
     
     /** Creates a new instance.*/
     public ClassifyCmd(HiViewer model)
@@ -75,8 +85,11 @@ public class ClassifyCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay selectedDisplay = model.getBrowser().getSelectedDisplay();
-        Object hierarchyObject = selectedDisplay.getHierarchyObject();
+        if (model != null) {
+            ImageDisplay selectedDisplay = model.getBrowser().
+                                                    getSelectedDisplay();
+            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+        }
         if (hierarchyObject == null) return;
         if (hierarchyObject instanceof ImageSummary) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();

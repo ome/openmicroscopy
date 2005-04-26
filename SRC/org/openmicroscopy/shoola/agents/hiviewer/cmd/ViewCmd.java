@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -69,6 +70,15 @@ public class ViewCmd
 {
     
     private HiViewer    model;
+    private DataObject  hierarchyObject;
+    
+    
+    public ViewCmd(DataObject hierarchyObject)
+    {
+        if (hierarchyObject == null)
+            throw new NullPointerException("No hierarchy object.");
+        this.hierarchyObject = hierarchyObject;
+    }
     
     /** Creates a new instance.*/
     public ViewCmd(HiViewer model)
@@ -81,8 +91,11 @@ public class ViewCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay selectedDisplay = model.getBrowser().getSelectedDisplay();
-        Object hierarchyObject = selectedDisplay.getHierarchyObject();
+        if (model != null) {
+            ImageDisplay selectedDisplay = model.getBrowser().
+                                                    getSelectedDisplay();
+            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+        }
         if (hierarchyObject == null) return;
         if (hierarchyObject instanceof DatasetSummary)
             HiViewerAgent.browse(Browse.DATASET, 
