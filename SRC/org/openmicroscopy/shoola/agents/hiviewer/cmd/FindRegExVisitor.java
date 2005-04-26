@@ -36,9 +36,9 @@ import java.util.regex.Pattern;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
  * 
@@ -54,44 +54,17 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  * </small>
  * @since OME2.2
  */
-public class FindRegExVisitor
-    extends BrowserVisitor
+class FindRegExVisitor
+    extends HiViewerVisitor
 {
-
-    /** Find at the level of an image only. */
-    public static final int     IMAGE_LEVEL = 0;
-    
-    /** Find at the level of a container only. */
-    public static final int     CONTAINER_LEVEL = 1;
-    
-    /** Find at all levels. */
-    public static final int     IMAGE_AND_CONTAINER_LEVEL = 2;
     
     /** The pattern object created from the specified regular expression. */
     protected Pattern   pattern;
     
-    /** Level index. Must be one of the constant defined above. */
-    protected int       levelIndex;
-    
-    public FindRegExVisitor(Browser browser, String regEx, int index) {
-        super(browser);
-        if (!checkIndex(index)) 
-            throw new IllegalArgumentException("index not valid");
-        levelIndex = index;
-        pattern = RegExFactory.createCaseInsensitivePattern(regEx);
-    }
-    
-    /** Check if the levelIndex is one of the constants defined above. */
-    private boolean checkIndex(int i)
+    FindRegExVisitor(HiViewer viewer, String regEx)
     {
-        boolean b = false;
-        switch (i) {
-            case IMAGE_LEVEL:
-            case CONTAINER_LEVEL:
-            case IMAGE_AND_CONTAINER_LEVEL:
-                b = true; break;
-        }
-        return b;
+        super(viewer);
+        pattern = RegExFactory.createCaseInsensitivePattern(regEx);
     }
     
     /** Required by the I/F. */

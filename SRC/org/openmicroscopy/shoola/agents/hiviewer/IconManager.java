@@ -165,20 +165,13 @@ public class IconManager
     private static IconManager  singleton;
     
     
-    /**
-     * Creates the singleton.
-     * This method has to be called by the agent <i>before</i> any other
-     * class tries to access {@link #getInstance()}.
-     * 
-     * @param registry This agent's registry.
-     */
-    static void intializeSingleton(Registry registry)
-    {
-        singleton = new IconManager(registry);
-    }
-    
     /** Returns the <code>IconManager</code> object. */
-    public static IconManager getInstance() { return singleton; }
+    public static IconManager getInstance() 
+    { 
+        if (singleton == null) 
+            singleton = new IconManager(HiViewerAgent.getRegistry());
+        return singleton; 
+    }
     
     /**
      * Creates a new instance and configures the parameters.

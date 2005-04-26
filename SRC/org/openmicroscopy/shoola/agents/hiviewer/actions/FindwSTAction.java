@@ -29,21 +29,17 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -60,7 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class FindwSTAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "With ST...";
@@ -68,9 +64,10 @@ public class FindwSTAction
     private static final String DESCRIPTION = "Find a regular expression " +
             "in the specified ST.";
 
-    public FindwSTAction(HiViewerCtrl agentCtrl)
+    
+    public FindwSTAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -82,9 +79,12 @@ public class FindwSTAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser != null) agentCtrl.findWithST(this);
+        //TODO: implement action cmd
     }
     
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
     
 }

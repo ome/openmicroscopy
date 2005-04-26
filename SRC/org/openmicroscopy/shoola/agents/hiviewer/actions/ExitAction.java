@@ -36,9 +36,9 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -56,32 +56,26 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ExitAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Exit";
     
     private static final String DESCRIPTION = "Close the window.";
     
-    private HiViewerCtrl agentCtrl;
-    
-    public ExitAction(HiViewerCtrl agentCtrl)
+    public ExitAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         setEnabled(true);
-        this.agentCtrl = agentCtrl;
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT));
     }
-    
+
     /** Handle the action. */
-    public void actionPerformed(ActionEvent e)
-    {
-        agentCtrl.exit(browser);
-    }
+    public void actionPerformed(ActionEvent e) { model.discard(); }
 
     protected void onDisplayChange(ImageDisplay selectedDisplay) {}
 

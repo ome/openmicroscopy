@@ -38,11 +38,10 @@ import java.awt.Rectangle;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailProvider;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 
 /** 
@@ -60,22 +59,16 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
  * </small>
  * @since OME2.2
  */
-public class ZoomVisitor
-    implements ImageDisplayVisitor
+class ZoomVisitor
+    extends HiViewerVisitor
 {
 
     private static final double EPSILON = 0.1;
     
-    /** The specified scaling factor. */
-    private double          factor;
-    
     /** Creates a new instance. */
-    public ZoomVisitor(double factor)
+    ZoomVisitor(HiViewer model)
     {
-        if (factor > ThumbnailProvider.MAX_SCALING_FACTOR || 
-                factor < ThumbnailProvider.MIN_SCALING_FACTOR) 
-            throw new IllegalArgumentException("factor must be >0 and <= 1.");
-        this.factor = factor;
+        super(model);
     }
     
     /** Scale the imageNode iff the specified scaling factor is different. */
@@ -84,6 +77,7 @@ public class ZoomVisitor
         Rectangle r = node.getBounds();
         Thumbnail th = node.getThumbnail();
         double sf = th.getScalingFactor();
+        double factor = ZoomCmd.calculateFactor(sf);
         if (sf != factor) {
             th.scale(factor);
             double ratio = factor/sf;
@@ -95,7 +89,7 @@ public class ZoomVisitor
     /** Required by I/F, no-op performed in this case. */
     public void visit(ImageSet node)
     {
-        //Trick to have the scrollBar on screen
+        //Trick to show the scrollBar on screen
         Dimension d = node.getSize();
         node.setSize((int) (d.getWidth()+10*EPSILON), 
                     (int) (d.getHeight()+10*EPSILON));

@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 //Java imports
 import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 
 //Third-party libraries
 
@@ -41,7 +43,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * 
@@ -64,7 +65,7 @@ public class ThumbnailProvider
     static final int            THUMB_MAX_WIDTH = 96; 
     static final int            THUMB_MAX_HEIGHT = 96;
     
-    static final double         SCALING_FACTOR = 0.5;
+    public static final double  SCALING_FACTOR = 0.5;
     
     public static final double  MAX_SCALING_FACTOR = 1;
     public static final double  MIN_SCALING_FACTOR = 0.25;
@@ -92,8 +93,9 @@ public class ThumbnailProvider
         height = sizeY;
     }
     
-    void setFullScaleThumb(BufferedImage t)
+    public void setFullScaleThumb(BufferedImage t)
     {
+        if (t == null) throw new NullPointerException("No thumbnail.");
         fullScaleThumb = t;
         //Scale down to 48x48.
         displayThumb = magnifyImage(SCALING_FACTOR, fullScaleThumb);
@@ -105,11 +107,15 @@ public class ThumbnailProvider
     {
         if (img == null) return null;
         scalingFactor = f;
+        int width = img.getWidth(), height = img.getHeight();
         AffineTransform at = new AffineTransform();
         at.scale(f, f);
-        BufferedImage 
-            displayImage= Factory.magnifyImage(fullScaleThumb, f, at, 0);
-        return displayImage;
+        BufferedImageOp biop = new AffineTransformOp(at, 
+            AffineTransformOp.TYPE_BILINEAR); 
+        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
+                        (int) (height*f), img.getType());
+        biop.filter(img, rescaleBuff);
+        return rescaleBuff;
     }
     
     public ThumbnailProvider(ImageSummary is)

@@ -31,17 +31,22 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads a Category Group/Category/Image hierarchy rooted by a given Category 
+ * Group.
+ * This class calls the <code>loadHierarchy</code> method in the
+ * <code>HierarchyBrowsingView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,29 +59,61 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
  * </small>
  * @since OME2.2
  */
-class CategoryGroupLoader
-    extends HiLoader
+public class CategoryGroupLoader
+    extends DataLoader
 {
 
-    private int     cgID;
+    /** The id of the root Category Group. */
+    private int         cgID;
+    
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  handle;
     
     
-    protected void loadHierarchies(HierarchyBrowsingView hbw)
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param cgID  The id of the root Category Group.
+     */
+    public CategoryGroupLoader(HiViewer viewer, int cgID)
     {
-        hbw.loadHierarchy(CategoryGroupData.class, cgID, this);
-    }
-    
-    protected Set getVisRootNodes(Object result)
-    {
-        CategoryGroupData cg = (CategoryGroupData) result; 
-        Set roots = HiTranslator.transform(cg);
-        return roots;
-    }
-    
-    CategoryGroupLoader(HiViewerAgent abstraction, HiViewer view, int cgID)
-    {
-        super(abstraction, view);
+        super(viewer);
         this.cgID = cgID;
+    }
+    
+    /**
+     * Retrieves the Category Group tree.
+     * @see DataLoader#load()
+     */
+    public void load()
+    {
+        handle = hiBrwView.loadHierarchy(CategoryGroupData.class, cgID, this);
+    }
+    
+    /** Cancels the data loading. */
+    public void cancel() { handle.cancel(); }
+    
+    /** Notifies the viewer of progress. */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        String status = fe.getStatus();
+        int percDone = fe.getPercentDone();
+        if (status == null) 
+            status = (percDone == 100) ? "Done" :  //Else
+                                       ""; //Description wasn't available.   
+        if (percDone != 100) //We've only got one call and don't know how long
+            percDone = -1;   //it'll take.  Set to indeterminate.
+        viewer.setStatus(status, percDone);
+    }
+    
+    /** Feeds the result back to the viewer. */
+    public void handleResult(Object result)
+    {
+        Set roots = new HashSet();
+        roots.add(result);
+        viewer.setHierarchyRoots(roots);
     }
     
 }

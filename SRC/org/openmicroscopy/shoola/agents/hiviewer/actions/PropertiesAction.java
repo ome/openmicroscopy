@@ -41,9 +41,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,17 +62,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class PropertiesAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Properties";
     
     private static final String DESCRIPTION = "Close the window.";
 
-    public PropertiesAction(HiViewerCtrl agentCtrl)
+    
+    public PropertiesAction(HiViewer model)
     {
-        super(agentCtrl);
-        setEnabled(false);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -82,10 +83,8 @@ public class PropertiesAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay().getParentDisplay() == null) 
-            return;
-        Object ho = browser.getSelectedDisplay().getHierarchyObject();
-        agentCtrl.showProperties(ho, browser);
+       PropertiesCmd cmd = new PropertiesCmd(model);
+       cmd.execute();
     }
     
     protected void onDisplayChange(ImageDisplay selectedDisplay)

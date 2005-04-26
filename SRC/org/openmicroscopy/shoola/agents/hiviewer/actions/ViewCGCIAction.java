@@ -36,13 +36,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewHierarchyCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -60,7 +62,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ViewCGCIAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "View in CG/C/I";
@@ -68,9 +70,10 @@ public class ViewCGCIAction
     private static final String DESCRIPTION = "View the images on screen " +
             "in a CategoryGroup-Category-Images hierarchy.";
     
-    public ViewCGCIAction(HiViewerCtrl agentCtrl)
+    
+    public ViewCGCIAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -81,10 +84,25 @@ public class ViewCGCIAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser != null)
-            agentCtrl.viewHierarchy(HiViewerCtrl.VIEW_IN_CGCI, this);
+        ViewHierarchyCmd cmd = new ViewHierarchyCmd(model, 
+                                ViewHierarchyCmd.IN_CGCI);
+        cmd.execute();
     }
 
     protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    
+    /** Overrides the method. */
+    public void stateChanged(ChangeEvent e)
+    {
+        super.stateChanged(e);
+        if (model.getState() == HiViewer.LOADING_THUMBNAILS) {
+            switch (model.getHierarchyType()) {
+                case HiViewer.PDI_HIERARCHY:
+                case HiViewer.PROJECT_HIERARCHY:
+                case HiViewer.DATASET_HIERARCHY:
+                    setEnabled(true);
+            }
+        } 
+    }
 
 }

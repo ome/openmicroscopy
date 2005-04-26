@@ -36,13 +36,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * Visitor that reset the default color of the node titleBar.
- * The highlight color is set to null.
+ * Reset the default color of the titleBar.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,31 +55,31 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  * </small>
  * @since OME2.2
  */
-public class ClearVisitor
-    extends BrowserVisitor
+class ClearVisitor
+    extends HiViewerVisitor
 {
     
-    public ClearVisitor(Browser browser)
+    ClearVisitor(HiViewer viewer)
     {
-        super(browser);
+        super(viewer);
     }
 
     /** Set the highlight color to null. */
-    public void visit(ImageNode node)
-    { 
-        if (node.equals(browser.getSelectedDisplay()))
-            node.setHighlight(Colors.DEFAULT_TITLEBAR);
-        else node.setHighlight(null);
-    }
+    public void visit(ImageNode node) { setHighlight(node); }
 
     /** Set the highlight color to null. */
     public void visit(ImageSet node)
     {
-        if (node.getParentDisplay() != null) {
-            if (node.equals(browser.getSelectedDisplay())) 
-                node.setHighlight(Colors.DEFAULT_TITLEBAR);
-            else node.setHighlight(null);
-        }
-    }
+        if (node.getParentDisplay() != null) setHighlight(node);
+    } 
 
+    /** Highlight the titleBar of the specified node. */
+    private void setHighlight(ImageDisplay node)
+    {
+        if (node.equals(model.getBrowser().getSelectedDisplay())) {
+            Colors colors = Colors.getInstance();
+            node.setHighlight(colors.getColor(Colors.TITLE_BAR_HIGHLIGHT));
+        } else node.setHighlight(null);
+    }
+    
 }

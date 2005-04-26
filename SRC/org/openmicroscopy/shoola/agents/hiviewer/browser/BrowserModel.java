@@ -32,14 +32,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Point;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Set;
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
 
 /** 
  * Implements {@link Browser} to maintain presentation state, thus acting
@@ -60,11 +59,9 @@ import javax.swing.JComponent;
  * @since OME2.2
  */
 class BrowserModel
+    extends AbstractComponent
     implements Browser
 {
-
-    /** Change notification table. */
-    private PropertyChangeSupport   changeListeners;
     
     /** The currently selected node in the visualization tree. */
     private ImageDisplay    selectedDisplay;
@@ -83,24 +80,6 @@ class BrowserModel
     
     
     /**
-     * Supports reporting bound property changes.
-     * Listeners will be notified only if <code>newValue</code> is not the
-     * same as <code>oldValue</code>.
-     * 
-     * @param propertyName  The property that has been set.
-     * @param oldValue      The previous value of the property.
-     * @param newValue      The value that has just been set.
-     */
-    private void firePropertyChange(String propertyName, 
-                                    Object oldValue, Object newValue) 
-    {
-        if (oldValue == null && newValue == null) return;
-        if (oldValue != null && newValue != null && oldValue.equals(newValue))
-            return;
-        changeListeners.firePropertyChange(propertyName, oldValue, newValue);
-    }
-    
-    /**
      * Creates a new instance.
      * You then need to {@link #setController(BrowserControl) specify}
      * the controller component.
@@ -111,8 +90,8 @@ class BrowserModel
      */
     BrowserModel(RootDisplay view)
     {
+        super();
         if (view == null) throw new NullPointerException("No view.");
-        changeListeners = new PropertyChangeSupport(this);
         rootDisplay = view;
     }
     
@@ -232,51 +211,5 @@ class BrowserModel
      * @see Browser#getUI()
      */
     public JComponent getUI() { return rootDisplay; }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addPropertyChangeListener(PropertyChangeListener)
-     */
-    public void addPropertyChangeListener(PropertyChangeListener observer)
-    {
-        if (observer == null) throw new NullPointerException("No observer.");
-        changeListeners.addPropertyChangeListener(observer);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#removePropertyChangeListener(PropertyChangeListener)
-     */
-    public void removePropertyChangeListener(PropertyChangeListener observer)
-    {
-        if (observer == null) throw new NullPointerException("No observer.");
-        changeListeners.removePropertyChangeListener(observer);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addPropertyChangeListener(String, PropertyChangeListener)
-     */
-    public void addPropertyChangeListener(String propertyName, 
-                                          PropertyChangeListener observer)
-    {
-        if (propertyName == null) 
-            throw new NullPointerException("No property name.");
-        if (observer == null) throw new NullPointerException("No observer.");
-        changeListeners.addPropertyChangeListener(propertyName, observer);
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#removePropertyChangeListener(String, PropertyChangeListener)
-     */
-    public void removePropertyChangeListener(String propertyName, 
-                                             PropertyChangeListener observer)
-    {
-        if (propertyName == null) 
-            throw new NullPointerException("No property name.");
-        if (observer == null) throw new NullPointerException("No observer.");
-        changeListeners.removePropertyChangeListener(propertyName, observer);
-    }
 
 }

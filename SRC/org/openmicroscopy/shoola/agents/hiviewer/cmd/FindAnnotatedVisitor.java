@@ -38,14 +38,16 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
- * Visitor that highligths nodes representing annotated images and datasets.  
+ * Highlights all annotated DataObject i.e. <code>ImageSummary</code> object or
+ * <code>DatasetSummaryLinked</code> object.  
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,38 +60,43 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * </small>
  * @since OME2.2
  */
-public class FindAnnotatedVisitor
-    extends BrowserVisitor
+class FindAnnotatedVisitor
+    extends HiViewerVisitor
 {
     
-    public FindAnnotatedVisitor(Browser browser)
+    private Colors colors;
+    
+    FindAnnotatedVisitor(HiViewer viewer)
     {
-        super(browser);
+        super(viewer);
+        colors = Colors.getInstance();
     }
 
     /** Highlight the annotated image.*/
     public void visit(ImageNode node)
     {
         Object ho = node.getHierarchyObject();
-        if (ho instanceof ImageSummary) {
-            if (((ImageSummary) ho).getAnnotation() != null) {
-               if (node.equals(browser.getSelectedDisplay()))
-                   node.setHighlight(Colors.ANNOTATED);
-               else node.setHighlight(Colors.ANNOTATED_LIGHT);
-            }
-        }
+        if (ho instanceof ImageSummary && 
+                ((ImageSummary) ho).getAnnotation() != null)
+            setHighlight(node);
     }
 
     /** Highlight the annotated dataset.*/
     public void visit(ImageSet node)
     {
         Object ho = node.getHierarchyObject();
-        if (ho instanceof DatasetSummary) {
-            if (((DatasetSummary) ho).getAnnotation() != null) 
-                if (node.equals(browser.getSelectedDisplay()))
-                    node.setHighlight(Colors.ANNOTATED);
-                else node.setHighlight(Colors.ANNOTATED_LIGHT);
-        }
+        if (ho instanceof DatasetSummary && 
+                ((DatasetSummary) ho).getAnnotation() != null) 
+                setHighlight(node);
+    }
+    
+    /** Set the color of the titleBar of the specified node. */
+    private void setHighlight(ImageDisplay node)
+    {
+        if (node.equals(model.getBrowser().getSelectedDisplay()))
+            node.setHighlight(
+                    colors.getColor(Colors.ANNOTATED_HIGHLIGHT));
+        else node.setHighlight(colors.getColor(Colors.ANNOTATED));
     }
     
 }

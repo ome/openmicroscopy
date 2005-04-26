@@ -32,13 +32,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Point;
-import java.beans.PropertyChangeListener;
 import java.util.Set;
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.ObservableComponent;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -63,6 +63,7 @@ import javax.swing.JComponent;
  * @since OME2.2
  */
 public interface Browser
+    extends ObservableComponent
 {
 
     /** 
@@ -187,59 +188,5 @@ public interface Browser
      * @return The browser widget.
      */
     public JComponent getUI();
-    
-    /**
-     * Registers an observer with the browser component.
-     * The observer will be notified of every bound property change.
-     * 
-     * @param observer The observer to register.
-     * @throws NullPointerException If <code>observer</code> is 
-     *                              <code>null</code>.
-     * @see #removePropertyChangeListener(PropertyChangeListener)
-     */
-    public void addPropertyChangeListener(PropertyChangeListener observer);
-    
-    /**
-     * Removes an observer from the change notification list.
-     * 
-     * @param observer The observer to remove.
-     * @throws NullPointerException If <code>observer</code> is 
-     *                              <code>null</code>.
-     * @see #addPropertyChangeListener(PropertyChangeListener)
-     */
-    public void removePropertyChangeListener(PropertyChangeListener observer);
-    
-    /**
-     * Registers an observer with the browser component.
-     * The observer will be notified of every change to the specified
-     * bound property.
-     * 
-     * @param propertyName One of the property strings defined by this 
-     *                      interface.
-     * @param observer The observer to register.
-     * @throws NullPointerException If <code>propertyName</code> or 
-     *                              <code>observer</code> is 
-     *                              <code>null</code>.
-     * @see #removePropertyChangeListener(String, PropertyChangeListener)
-     */
-    public void addPropertyChangeListener(String propertyName,
-                                          PropertyChangeListener observer);
-    
-    /**
-     * Removes an observer from the change notification list for the specified
-     * bound property.
-     * Note that the observer will still receive notification of other property
-     * changes if it has registered for other properties.
-     * 
-     * @param propertyName One of the property strings defined by this 
-     *                      interface.
-     * @param observer The observer to remove.
-     * @throws NullPointerException If <code>propertyName</code> or 
-     *                              <code>observer</code> is 
-     *                              <code>null</code>.
-     * @see #addPropertyChangeListener(String, PropertyChangeListener)
-     */
-    public void removePropertyChangeListener(String propertyName,
-                                             PropertyChangeListener observer);
     
 }

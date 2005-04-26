@@ -78,7 +78,11 @@ public class StatusBar
     public void setProgress(boolean hide, int perc)
     {
         progressBar.setVisible(!hide);
-        progressBar.setValue(perc);
+        if (perc < 0) progressBar.setIndeterminate(true);
+        else {
+            progressBar.setIndeterminate(false);
+            progressBar.setValue(perc);
+        }
     }
     
     /** Initializes the components. */

@@ -37,9 +37,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -57,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class FindAnnotatedAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Annotated";
@@ -65,9 +66,10 @@ public class FindAnnotatedAction
     private static final String DESCRIPTION = "Find annotated images and/or" +
             " datasets.";
 
-    public FindAnnotatedAction(HiViewerCtrl agentCtrl)
+    
+    public FindAnnotatedAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -75,13 +77,16 @@ public class FindAnnotatedAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATED));
     }
 
-
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser != null) agentCtrl.findAnnotated(this);
+        FindAnnotatedCmd cmd = new FindAnnotatedCmd(model);
+        cmd.execute();
     }
     
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
 
 }

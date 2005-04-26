@@ -38,11 +38,7 @@ import javax.swing.JButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExAnnotationVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExTitleVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
 
 /** 
  * Control of the {@link RegExFinder} view.
@@ -70,14 +66,14 @@ class RegExFinderMng
     
     private RegExFinder view;
 
-    private Browser     browser;
+    private HiViewer    model;
     
     private int         index;
     
-    RegExFinderMng(RegExFinder view, Browser browser, int index)
+    RegExFinderMng(RegExFinder view, HiViewer model, int index)
     {
         this.view = view;
-        this.browser = browser;
+        this.model = model;
         this.index = index;
         attachListeners();
     }
@@ -100,21 +96,9 @@ class RegExFinderMng
     private void findRegEx()
     {
         String regEx = view.regExField.getText();
-        int regExIndex = getLevelIndex();
         cancel();
-        if (regExIndex == -1) return;
-        //Need to check the expression.
-        ImageDisplayVisitor visitor = null;
-        switch (index) {
-            case RegExFinder.FOR_TITLE:
-                visitor = new FindRegExTitleVisitor(browser, regEx,
-                            regExIndex);
-                break;
-            case RegExFinder.FOR_ANNOTATION:
-                visitor = new FindRegExAnnotationVisitor(browser, regEx,
-                            regExIndex);
-        }
-        if (visitor != null) browser.accept(visitor);
+        FindRegExCmd cmd = new FindRegExCmd(model, regEx, index);
+        cmd.execute();
     }
     
     /** Close and dispose. */
@@ -125,6 +109,7 @@ class RegExFinderMng
     }
     
     /** Return the index of the level selected. */
+    /*
     private int getLevelIndex()
     {
         int i = view.levels.getSelectedIndex();
@@ -142,6 +127,7 @@ class RegExFinderMng
         }
         return index;
     }
+    */
     
     /** Handle event fired by JButton. */
     public void actionPerformed(ActionEvent e)

@@ -37,10 +37,14 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads the data trees in the Project/Dataset/Image hierarchy that 
+ * contain the specified images.
+ * This class calls the <code>findPDIHierarchies</code> method in the
+ * <code>HierarchyBrowsingView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,28 +57,63 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
  * </small>
  * @since OME2.2
  */
-class PDILoader
-    extends HiLoader
+public class PDILoader
+    extends DataLoader
 {
-
-    private Set             images;
+    
+    /** 
+     * The <code>ImageSummary</code> objects for the images that are at the 
+     * bottom of the tree. 
+     */
+    private Set         images;
+    
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  handle;
     
     
-    protected void loadHierarchies(HierarchyBrowsingView hbw)
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param images The <code>ImageSummary</code> objects for the images that 
+     *               are at the bottom of the tree. 
+     */
+    public PDILoader(HiViewer viewer, Set images)
     {
-        hbw.findPDIHierarchies(images, this);
-    }
-    
-    protected Set getVisRootNodes(Object result)
-    {
-        Set roots = HiTranslator.transformHierarchy((Set) result);
-        return roots;
-    }
-    
-    PDILoader(HiViewerAgent abstraction, HiViewer view, Set images)
-    {
-        super(abstraction, view);
+        super(viewer);
         this.images = images;
+    }
+    
+    /**
+     * Retrieves the tree.
+     * @see DataLoader#load()
+     */
+    public void load()
+    {
+        handle = hiBrwView.findPDIHierarchies(images, this);
+    }
+    
+    /** Cancels the data loading. */
+    public void cancel() { handle.cancel(); }
+    
+    /** Notifies the viewer of progress. */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        String status = fe.getStatus();
+        int percDone = fe.getPercentDone();
+        if (status == null) 
+            status = (percDone == 100) ? "Done" :  //Else
+                                       ""; //Description wasn't available.   
+        if (percDone != 100) //We've only got one call and don't know how long
+            percDone = -1;   //it'll take.  Set to indeterminate.
+        viewer.setStatus(status, percDone);
+    }
+    
+    /** Feeds the result back to the viewer. */
+    public void handleResult(Object result)
+    {
+        viewer.setHierarchyRoots((Set) result);
     }
     
 }

@@ -92,4 +92,6 @@ public interface Thumbnail
     /** Return the current scaling factor. */
     public double getScalingFactor();
     
+    public BufferedImage getFullScaleThumb();
+    
 }

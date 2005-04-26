@@ -36,9 +36,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -57,17 +58,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ClassifyAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Classify";
     
     private static final String DESCRIPTION = "Classify the selected image.";
     
-    public ClassifyAction(HiViewerCtrl agentCtrl)
+    
+    public ClassifyAction(HiViewer model)
     {
-        super(agentCtrl);
-        setEnabled(false);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -78,11 +79,8 @@ public class ClassifyAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay().getParentDisplay() == null) 
-            return;
-        Object ho = browser.getSelectedDisplay().getHierarchyObject();
-        if (ho instanceof ImageSummary)
-            agentCtrl.classify((ImageSummary) ho);
+       ClassifyCmd cmd = new ClassifyCmd(model);
+       cmd.execute();
     }
     
     protected void onDisplayChange(ImageDisplay selectedDisplay)

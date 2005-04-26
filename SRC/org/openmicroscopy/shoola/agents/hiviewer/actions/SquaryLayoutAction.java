@@ -39,11 +39,12 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,14 +62,15 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class SquaryLayoutAction
-    extends BrowserAction
+    extends HiViewerAction
 {
     
     private static final String NAME = "Squary";
 
-    public SquaryLayoutAction(HiViewerCtrl agentCtrl)
+    
+    public SquaryLayoutAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         Layout layout = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
         String description = layout.getDescription();
@@ -82,9 +84,13 @@ public class SquaryLayoutAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        agentCtrl.doLayout(HiViewerCtrl.SQUARY_LAYOUT, browser);
+        LayoutCmd cmd = new LayoutCmd(model, LayoutFactory.SQUARY_LAYOUT);
+        cmd.execute();
     }
     
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
 
 }

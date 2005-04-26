@@ -37,9 +37,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ZoomCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -58,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ZoomInAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Zoom in";
@@ -66,10 +67,10 @@ public class ZoomInAction
     private static final String DESCRIPTION = "Zoom in all imageNodes" +
             " within the selected container.";
     
-    public ZoomInAction(HiViewerCtrl agentCtrl)
+    
+    public ZoomInAction(HiViewer model)
     {
-        super(agentCtrl);
-        setEnabled(false);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -80,7 +81,8 @@ public class ZoomInAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser != null) agentCtrl.zoomIn(browser);
+        ZoomCmd cmd = new ZoomCmd(model, ZoomCmd.ZOOM_IN);
+        cmd.execute();
     }
 
     protected void onDisplayChange(ImageDisplay selectedDisplay)

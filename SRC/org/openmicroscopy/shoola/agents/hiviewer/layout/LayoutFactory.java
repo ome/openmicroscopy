@@ -210,4 +210,14 @@ public class LayoutFactory
         }
     }
     
+    /**
+     * Returns the default layout.
+     * 
+     * @return See above.
+     */
+    public static Layout getDefaultLayout() 
+    { 
+        return createLayout(SQUARY_LAYOUT); 
+    }
+    
 }

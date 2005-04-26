@@ -38,12 +38,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- *  
+ *  Finds a regular expression in the title.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,45 +57,38 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
  * </small>
  * @since OME2.2
  */
-public class FindRegExTitleVisitor
+class FindRegExTitleVisitor
     extends FindRegExVisitor
 {
 
-    public FindRegExTitleVisitor(Browser browser, String regEx, int index)
+    private Colors colors;
+    
+    FindRegExTitleVisitor(HiViewer viewer, String regEx)
     {
-        super(browser, regEx, index);
+        super(viewer, regEx);
+        colors = Colors.getInstance();
     }
     
     /** 
      * Highlight the titleBar of the imageNode 
      * if the title contains the specified regular expression.
      */
-    public void visit(ImageNode node)
-    {
-        if (!(levelIndex == FindRegExVisitor.CONTAINER_LEVEL)) {
-            boolean b = RegExFactory.find(pattern, node.getTitle());
-            if (b) {
-                if (node.equals(browser.getSelectedDisplay()))
-                    node.setHighlight(Colors.REGEX_TITLE);
-                else node.setHighlight(Colors.REGEX_TITLE_LIGHT);
-            }
-        }
-    }
+    public void visit(ImageNode node) { setHighlight(node); }
 
     /** 
      * Highlight the titleBar of the container 
      * if the title contains the specified regular expression.
      */
-    public void visit(ImageSet node)
-    {
-        if (!(levelIndex == FindRegExVisitor.IMAGE_LEVEL)) {
-            boolean b = RegExFactory.find(pattern, node.getTitle());
-            if (b) {
-                if (node.equals(browser.getSelectedDisplay()))
-                    node.setHighlight(Colors.REGEX_TITLE);
-                else node.setHighlight(Colors.REGEX_TITLE_LIGHT);
-            }
-        }
-    }
+    public void visit(ImageSet node) { setHighlight(node); }
 
+    /** Set the color of the titleBar of the specified node. */
+    private void setHighlight(ImageDisplay node)
+    {
+        if (!RegExFactory.find(pattern, node.getTitle())) return;
+        if (node.equals(model.getBrowser().getSelectedDisplay()))
+            node.setHighlight(
+                    colors.getColor(Colors.REGEX_TITLE_HIGHLIGHT));
+        else node.setHighlight(colors.getColor(Colors.REGEX_TITLE));
+    }
+    
 }

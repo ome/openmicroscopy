@@ -31,30 +31,46 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
+import java.awt.image.BufferedImage;
+import java.util.Set;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerUIF;
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.hiviewer.ObservableComponent;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 
 /** 
- * 
+ * Defines the interface provided by the hierarchy viewer component.
+ * The hierarchy viewer provides a top-level window to host a hierarchy display
+ * and let the user interact with it.  A hierarchy display is a screen with
+ * one or more visualization trees, all of the same kind.  A visualization tree
+ * is a graphical tree that represents objects in a given <i>OME</i> hierarchy,
+ * like Project/Dataset/Image or Category Group/Category/Image.  Two such trees
+ * are said to be of the same kind if they represent objects which belong in 
+ * the same logical hierarchy.
+ * <p>The typical life-cycle of a hierarchy viewer is as follows.  The object
+ * is first created using the {@link HiViewerFactory} and specifying what kind
+ * of hierarchy the viewer is for along with the root nodes to load.  After
+ * creation the object is in the {@link #NEW} state and is waiting for the
+ * {@link #activate() activate} method to be called.  Such a call triggers the
+ * retrieval of all the <i>OME</i> objects of the specified hierarchy kind that
+ * are rooted by the specified nodes.  The object is now in the 
+ * {@link #LOADING_HIERARCHY} state.  After all the nodes have been retrieved,
+ * the hierarchy display is built and set on screen and the object automatically 
+ * starts loading the thumbnails for all the images in the display, which makes
+ * it transition to the {@link #LOADING_THUMBNAILS} state.  When all thumbnails
+ * have been downloaded, the object is {@link #READY} for interacting with the
+ * user.  (The viewer allows the user to interact with it even before the
+ * {@link #READY} state is reached, as long as the data required for the
+ * interaction is already in memory.)  When the user quits the window, the
+ * {@link #discard() discard} method is invoked and the object transitions to
+ * the {@link #DISCARDED} state.  At which point, all clients should 
+ * de-reference the component to allow for garbage collection.</p>
  *
+ * @see Browser
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,161 +82,134 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-public class HiViewer
-    extends TopWindow
+public interface HiViewer
+    extends ObservableComponent
 {
-
-    /** Reference to the statusBar. */
-    private StatusBar       statusBar;
     
-    private PopupMenu       popupMenu;
+    /** Flag to denote the <i>New</i> state. */
+    public static final int     NEW = 1;
     
-    private Action[]        actions;
+    /** Flag to denote the <i>Loading Hierarchy</i> state. */
+    public static final int     LOADING_HIERARCHY = 2;
     
-    private HiViewerControl controller;
+    /** Flag to denote the <i>Loading Thumbnails</i> state. */
+    public static final int     LOADING_THUMBNAILS = 3;
     
+    /** Flag to denote the <i>Ready</i> state. */
+    public static final int     READY = 4;
     
-    /** Build and lay out the GUI. */
-    private void buildUI()
-    {
-        JPanel p = new JPanel();
-        p.setBackground(HiViewerUIF.BACKGROUND);
-        Container container = getContentPane();
-        container.setLayout(new BorderLayout(0, 0));
-        container.add(p, BorderLayout.CENTER);
-        container.add(statusBar, BorderLayout.SOUTH);
-    }
+    /** Flag to denote the <i>Discarded</i> state. */
+    public static final int     DISCARDED = 5;
     
-    /** Create the menu bar. */
-    private JMenuBar createMenuBar()
-    {
-        JMenuBar menuBar = new JMenuBar(); 
-        menuBar.add(createHierarchyMenu());
-        menuBar.add(createFindMenu());
-        menuBar.add(createLayoutMenu());
-        menuBar.add(createActionsMenu());
-        return menuBar;
-    }
+    /** 
+     * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
+     * Project. 
+     */
+    public static final int     PROJECT_HIERARCHY = 101;
+    
+    /** 
+     * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
+     * Dataset. 
+     */
+    public static final int     DATASET_HIERARCHY = 102;
+    
+    /** 
+     * Flag to denote a Category Group/Category/Image hierarchy rooted by a 
+     * given Category Group. 
+     */
+    public static final int     CATEGORY_GROUP_HIERARCHY = 103;
+    
+    /** 
+     * Flag to denote a Category Group/Category/Image hierarchy rooted by a 
+     * given Category. 
+     */
+    public static final int     CATEGORY_HIERARCHY = 104;
+    
+    /** 
+     * Flag to denote a Project/Dataset/Image hierarchy which contains a
+     * given set of images. 
+     */
+    public static final int     PDI_HIERARCHY = 105;
+    
+    /** 
+     * Flag to denote a Category Group/Category/Image hierarchy which contains
+     * a given set of images. 
+     */
+    public static final int     CGCI_HIERARCHY = 106;
     
     /**
-     * Helper method to create the Hierarchy menu.
+     * Queries the current state.
      * 
-     * @return  The Hierarchy menu.
+     * @return One of the state flags defined by this interface.
      */
-    private JMenu createHierarchyMenu()
-    {
-        JMenu menu = new JMenu("Hierarchy");
-        menu.setMnemonic(KeyEvent.VK_H);
-        menu.add(new JMenuItem(actions[HiViewerUIF.VIEW_PDI]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.VIEW_CGCI]));
-        menu.addSeparator();
-        menu.add(new JMenuItem(actions[HiViewerUIF.EXIT]));
-        return menu;
-    }
+    public int getState();
     
     /**
-     * Helper method to create the Find menu.
+     * Indicates what kind of hierarchy the viewer is displaying.
      * 
-     * @return  The Find menu.
+     * @return One of the hierarchy flags defined by this interface.
      */
-    private JMenu createFindMenu()
-    {
-        JMenu menu = new JMenu("Find");
-        menu.setMnemonic(KeyEvent.VK_F);
-        menu.add(new JMenuItem(actions[HiViewerUIF.FIND_ANNOTATED]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.FIND_W_TITLE]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.FIND_W_ANNOTATION]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.FIND_W_ST]));
-        menu.addSeparator();
-        menu.add(new JMenuItem(actions[HiViewerUIF.CLEAR]));
-        return menu;
-    }
+    public int getHierarchyType();
     
     /**
-     * Helper method to create the Layout menu.
+     * Starts the data loading process when the current state is {@link #NEW} 
+     * and puts the window on screen.
+     * If the state is not {@link #NEW}, then this method simply moves the
+     * window to front.
      * 
-     * @return  The Layout menu.
+     * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
      */
-    private JMenu createLayoutMenu()
-    {
-        JMenu menu = new JMenu("Layout");
-        menu.setMnemonic(KeyEvent.VK_L);
-        menu.add(new JMenuItem(actions[HiViewerUIF.SQUARY]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.TREE]));
-        menu.addSeparator();
-        menu.add(new JMenuItem(actions[HiViewerUIF.SAVE]));
-        return menu;
-    }
+    public void activate();
     
     /**
-     * Helper method to create the Actions menu.
+     * Callback used by a data loader to set the root nodes of the retrieved 
+     * hierarchy.
      * 
-     * @return  The Actions menu.
+     * @param roots The root nodes.
+     * @throws IllegalStateException If the current state is not
+     *                               {@link #LOADING_HIERARCHY}.
+     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
-    private JMenu createActionsMenu()
-    {
-        JMenu menu = new JMenu("Actions");
-        menu.setMnemonic(KeyEvent.VK_A);
-        menu.add(new JMenuItem(actions[HiViewerUIF.PROPERTIES]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.ANNOTATE]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.CLASSIFY]));
-        menu.addSeparator();
-        menu.add(new JMenuItem(actions[HiViewerUIF.VIEW]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_IN]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_OUT]));
-        menu.add(new JMenuItem(actions[HiViewerUIF.ZOOM_FIT]));
-        return menu;
-    }
+    public void setHierarchyRoots(Set roots);
     
-    Action[] getActions() { return actions; }
+    /**
+     * Callback used by a data loader to set thumbnails as they are retrieved.
+     * 
+     * @param imageID The id of the image to which the thumbnail belongs.
+     * @param thumb The thumbnail pixels.
+     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
+     */
+    public void setThumbnail(int imageID, BufferedImage thumb);
     
-    PopupMenu getPopupMenu() { return popupMenu; }
+    /**
+     * Callback used by data loaders to provide the viewer with feedback about
+     * the data retrieval.
+     * 
+     * @param description Textual description of the ongoing operation.
+     * @param perc Percentage of the total work done.  If negative, it is
+     *             interpreted as not available.
+     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
+     */
+    public void setStatus(String description, int perc);
     
-    public HiViewer(Action[] actions, Registry reg)
-    {
-        super("Hierarchy Viewer", reg.getTaskBar());
-        this.actions = actions;
-        IconManager iconMng = IconManager.getInstance();
-        statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
-        popupMenu = new PopupMenu(actions);
-        setJMenuBar(createMenuBar());
-        buildUI();
-        controller = new HiViewerControl();
-    }
-
-    /** Set the browser view. */
-    public void setBrowserView(JComponent browserView)
-    {
-        Container container = getContentPane();
-        container.removeAll();
-        container.add(browserView, BorderLayout.CENTER);
-        container.add(statusBar, BorderLayout.SOUTH); 
-    }
+    /**
+     * Returns the {@link Browser} component that the viewer embeds to
+     * display visualization trees.
+     * 
+     * @return See above.
+     * @throws IllegalStateException If the current state is not
+     *                               {@link #LOADING_THUMBNAILS} nor 
+     *                               {@link #READY}.
+     */
+    public Browser getBrowser();
     
-    public HiViewerControl getController() { return controller; }
+    /**
+     * Transitions the viewer to the {@link #DISCARDED} state.
+     * Any ongoing data loading is cancelled.
+     */
+    public void discard();
     
-    /** Closes the widget. */
-    public void closeViewer()
-    {
-        setVisible(false);
-        dispose();
-    }
-    
-    /** Overrides the {@link #setOnScreen()} method. */
-    public void setOnScreen()
-    {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width= 8*(screenSize.width/10);
-        int height = 8*(screenSize.height/10);
-        setSize(width, height); 
-        UIUtilities.centerAndShow(this);
-    }
-    
-    public void setStatus(String status, boolean hideProgressBar, 
-                            int progressPerc)
-    {
-        statusBar.setStatus(status);
-        statusBar.setProgress(hideProgressBar, progressPerc);
-    }
+    /** Returns the UI component. */
+    public JFrame getUI();
     
 }

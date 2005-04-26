@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -41,7 +40,6 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerUIF;
 
 /** 
  * Pop-up menu for nodes in the browser display.
@@ -89,17 +87,20 @@ class PopupMenu
     /**
      * Creates the menu items with the given actions.
      * 
-     * @param actions The actions to build the menu items.
+     * @param controller The Controller.
      */
-    private void createMenuItems(Action[] actions)
+    private void createMenuItems(HiViewerControl controller)
     {
-        properties = new JMenuItem(actions[HiViewerUIF.PROPERTIES]);
-        annotate = new JMenuItem(actions[HiViewerUIF.ANNOTATE]);
-        classify = new JMenuItem(actions[HiViewerUIF.CLASSIFY]);
-        view = new JMenuItem(actions[HiViewerUIF.VIEW]);
-        zoomIn = new JMenuItem(actions[HiViewerUIF.ZOOM_IN]);
-        zoomOut = new JMenuItem(actions[HiViewerUIF.ZOOM_OUT]);
-        zoomFit = new JMenuItem(actions[HiViewerUIF.ZOOM_FIT]);
+        properties = new JMenuItem(
+                controller.getAction(HiViewerControl.PROPERTIES));
+        annotate = new JMenuItem(
+                controller.getAction(HiViewerControl.ANNOTATE));
+        classify = new JMenuItem(
+                controller.getAction(HiViewerControl.CLASSIFY));
+        view = new JMenuItem(controller.getAction(HiViewerControl.VIEW));
+        zoomIn = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN));
+        zoomOut = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
+        zoomFit = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
     }
 
     /** Builds and lays out the GUI. */
@@ -119,11 +120,11 @@ class PopupMenu
     /** 
      * Creates a new instance.
      *
-     * @param actions The actions to build the menu items.
+     * @param controller The Controller.
      */
-    PopupMenu(Action[] actions) 
+    PopupMenu(HiViewerControl controller) 
     {
-        createMenuItems(actions);
+        createMenuItems(controller);
         buildGUI() ;
     }
     

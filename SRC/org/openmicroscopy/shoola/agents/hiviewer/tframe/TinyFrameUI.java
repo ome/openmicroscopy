@@ -191,6 +191,7 @@ public class TinyFrameUI
             //px line of the title bar won't show.)
             titleBar.sizeButton.setActionType(SizeButton.EXPAND);
         } else {
+            frame.moveToFront();
             frame.setSize(frame.getRestoreSize());
             titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
         }

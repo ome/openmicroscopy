@@ -43,8 +43,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * Brings {@link TinyWindow}s on screen to display full-scale thumbnails.
  * Windows that are already on screen for a thumbnail of a given image are
  * recycled, even if the window was originally brought up for a node in
- * another {@link HiViewer}.
+ * another {@link HiViewerWin}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -86,15 +86,13 @@ class TWinManager
         final Integer id = new Integer(ho.getID());
         TinyWindow w = (TinyWindow) windows.get(id);
         if (w == null) {
-            ThumbnailProvider prv = (ThumbnailProvider) node.getThumbnail();
+            Thumbnail prv = node.getThumbnail();
             BufferedImage full = prv.getFullScaleThumb();
             if (full != null) {
                 //NOTE: Right now we pre-fetch all images so full != null 
                 //unless they click on node at init time, when the thumbs
                 //are being loaded.
                 w = new TinyWindow((JFrame) node.getTopLevelAncestor(), full);
-            //TODO: getFullScaleThumb should probably be in the Thumbnail I/F,
-            //so we won't have to cast.
             //TODO: We assume getFullScaleThumb returns a *pre-fetched* image.
             //If this is not the case and we load async, then we need a
             //callback handler.

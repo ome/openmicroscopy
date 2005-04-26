@@ -38,9 +38,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -59,7 +60,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ViewAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String VIEW = "View";
@@ -69,23 +70,22 @@ public class ViewAction
     private static final String DESCRIPTION = "View the selected image or" +
             "browse the selected project, dataset, categoryGroup or category";
 
-    public ViewAction(HiViewerCtrl agentCtrl)
+    
+    public ViewAction(HiViewer model)
     {
-        super(agentCtrl);
-        setEnabled(false);
+        super(model);
         putValue(Action.NAME, VIEW);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));   
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER)); 
     }
  
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay() == null) return;
-        Object ho = browser.getSelectedDisplay().getHierarchyObject();
-        agentCtrl.view(ho);
+       ViewCmd cmd = new ViewCmd(model);
+       cmd.execute();
     }
     
     protected void onDisplayChange(ImageDisplay selectedDisplay)

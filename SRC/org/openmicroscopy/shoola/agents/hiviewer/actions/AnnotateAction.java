@@ -38,15 +38,16 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Action to bring up the annotator Agent.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +61,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class AnnotateAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Annotate";
@@ -68,10 +69,10 @@ public class AnnotateAction
     private static final String DESCRIPTION = "Annotate the selected image " +
                                                 "or dataset.";
     
-    public AnnotateAction(HiViewerCtrl agentCtrl)
+    
+    public AnnotateAction(HiViewer model)
     {
-        super(agentCtrl);
-        setEnabled(false);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -82,10 +83,8 @@ public class AnnotateAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser.getSelectedDisplay().getParentDisplay() == null)
-            return;
-        Object ho = browser.getSelectedDisplay().getHierarchyObject();
-        agentCtrl.annotate(ho);
+        AnnotateCmd cmd = new AnnotateCmd(model);
+        cmd.execute();
     }
 
     protected void onDisplayChange(ImageDisplay selectedDisplay)

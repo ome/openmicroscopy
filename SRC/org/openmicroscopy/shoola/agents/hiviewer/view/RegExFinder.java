@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -43,7 +42,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,7 +51,7 @@ import javax.swing.border.EtchedBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -81,6 +79,7 @@ public class RegExFinder
     
     private static final int        TEXT_WIDTH = 15;
     
+    /*
     private static final int        MAX_ID = 2;
     
     static final int                IMG_ONLY = 0;
@@ -88,17 +87,14 @@ public class RegExFinder
     static final int                CONTAINER_ONLY = 1;
     
     static final int                BOTH = 2;
-    
-    public static final int         FOR_TITLE = 0;
-    
-    public static final int         FOR_ANNOTATION = 1;
+    */
     
     private static final Dimension  HBOX = new Dimension(10, 0);
 
     /** Horizontal space between the cells in the grid. */
     private static final int        H_SPACE = 10;
     
-    private static final String[]   selection;
+    //private static final String[]   selection;
     
     /** Width of a character. */
     private int         txtWidth;
@@ -113,20 +109,23 @@ public class RegExFinder
      * Levels of selection: i.e. at image's level, container's 
      * level or both.
      */
-    JComboBox           levels;
+    //JComboBox           levels;
     
+    /*
     static {
         selection = new String[MAX_ID+1];
         selection[IMG_ONLY] = "Images only";
         selection[CONTAINER_ONLY] = "Containers only";
         selection[BOTH] = "Both";
     }
+    */
     
-    public RegExFinder(int index, Browser browser, Frame owner)
+    /** Creates a new instance. */
+    public RegExFinder(HiViewer model, int index)
     {
-        super(owner);
+        super(model.getUI());
         initComponents();
-        new RegExFinderMng(this, browser, index);
+        new RegExFinderMng(this, model, index);
         txtWidth = getFontMetrics(getFont()).charWidth('m');
         String title = getType(index);
         setTitle(TITLE+""+title);
@@ -134,15 +133,15 @@ public class RegExFinder
         buildUI(title+" "+CONTAIN);
     }
     
-    /** Get the title. */
-    String getType(int index)
+    /** Returns the title according to the index. */
+    private String getType(int index)
     {
         String s = "";
         switch (index) {
-            case FOR_TITLE:
+            case FindRegExCmd.IN_TITLE:
                 s = "Title"; break;
-            case FOR_ANNOTATION:
-                s = "Annotation"; break;
+            case FindRegExCmd.IN_ANNOTATION:
+                s = "Annotation";
         }
         return s;
     }
@@ -150,7 +149,7 @@ public class RegExFinder
     /** Initializes the component. */
     private void initComponents()
     {
-        levels = new JComboBox(selection);
+        //levels = new JComboBox(selection);
         regExField = new JTextField();
         find = new JButton("Find");
         find.setToolTipText(
@@ -181,6 +180,7 @@ public class RegExFinder
         JPanel containPanel = regExPanel();
         gridbag.setConstraints(containPanel, c);
         p.add(containPanel);
+        /**
         c.gridx = 0;
         c.gridy = 1;
         label = new JLabel("Check for:");
@@ -190,6 +190,7 @@ public class RegExFinder
         containPanel = UIUtilities.buildComponentPanel(levels);
         gridbag.setConstraints(containPanel, c);
         p.add(containPanel);
+        */
         return p;
     }
     

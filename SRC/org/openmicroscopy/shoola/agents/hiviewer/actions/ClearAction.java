@@ -37,9 +37,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -57,30 +58,34 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ClearAction
-    extends BrowserAction
+    extends HiViewerAction
 {
     
     private static final String NAME = "Clear";
     
     private static final String DESCRIPTION = "Clear previous search.";
 
-    public ClearAction(HiViewerCtrl agentCtrl)
+    
+    public ClearAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLEAR));
     }
-
+    
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser != null) 
-            agentCtrl.clear(this);
+       ClearCmd cmd = new ClearCmd(model);
+       cmd.execute();
     }
     
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
 
 }

@@ -37,9 +37,11 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.agents.hiviewer.view.RegExFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -57,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class FindWithTitleAction
-    extends BrowserAction
+    extends HiViewerAction
 {
     
     private static final String NAME = "With Title...";
@@ -65,9 +67,10 @@ public class FindWithTitleAction
     private static final String DESCRIPTION = "Find a regular expression " +
                             "in the title.";
     
-    public FindWithTitleAction(HiViewerCtrl agentCtrl)
+    
+    public FindWithTitleAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
@@ -78,9 +81,13 @@ public class FindWithTitleAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        if (browser != null) agentCtrl.findWithTitle(this);
+        UIUtilities.centerAndShow(new RegExFinder(model, 
+                                FindRegExCmd.IN_TITLE));
     }
     
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
 
 }

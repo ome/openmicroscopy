@@ -37,11 +37,12 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerCtrl;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -59,14 +60,15 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class TreeLayoutAction
-    extends BrowserAction
+    extends HiViewerAction
 {
 
     private static final String NAME = "Tree";
 
-    public TreeLayoutAction(HiViewerCtrl agentCtrl)
+    
+    public TreeLayoutAction(HiViewer model)
     {
-        super(agentCtrl);
+        super(model);
         putValue(Action.NAME, NAME);
         Layout layout = LayoutFactory.createLayout(LayoutFactory.TREE_LAYOUT);
         String description = layout.getDescription();
@@ -80,9 +82,13 @@ public class TreeLayoutAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-        agentCtrl.doLayout(HiViewerCtrl.TREE_LAYOUT, browser);
+        LayoutCmd cmd = new LayoutCmd(model, LayoutFactory.TREE_LAYOUT);
+        cmd.execute();
     }
 
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
 
 }
