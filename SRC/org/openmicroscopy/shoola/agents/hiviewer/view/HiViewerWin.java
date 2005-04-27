@@ -44,6 +44,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -131,7 +133,7 @@ class HiViewerWin
                 controller.getAction(HiViewerControl.VIEW_PDI)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.VIEW_CGCI)));
-        menu.addSeparator();
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));;
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.EXIT)));
         return menu;
     }
@@ -153,7 +155,7 @@ class HiViewerWin
                 controller.getAction(HiViewerControl.FIND_W_ANNOTATION)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.FIND_W_ST)));
-        menu.addSeparator();
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.CLEAR)));
         return menu;
     }
@@ -169,7 +171,7 @@ class HiViewerWin
         menu.setMnemonic(KeyEvent.VK_L);
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.TREE)));
-        menu.addSeparator();
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.SAVE)));
         return menu;
     }
@@ -187,7 +189,7 @@ class HiViewerWin
                 controller.getAction(HiViewerControl.PROPERTIES)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.CLASSIFY)));
-        menu.addSeparator();
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));

@@ -35,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -110,7 +111,7 @@ class PopupMenu
         add(properties);
         add(annotate);
         add(classify);
-        add(new JSeparator());
+        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
         add(zoomIn);
         add(zoomOut);
