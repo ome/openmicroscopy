@@ -84,6 +84,7 @@ class ThumbWin
         super(parent, fullScaleThumb);
         if (image == null) throw new NullPointerException("No image.");
         dataObject = image;
+        uiDelegate.attachMouseListener(this);
         addMouseListener(this);
     }
     
@@ -114,6 +115,9 @@ class ThumbWin
         }
     }
     
+    /** Hides the menu when a mousePressed event occurs. */
+    public void mousePressed(MouseEvent me) { ThumbWinPopupMenu.hideMenu(); }
+    
     /**
      * No-op implementation.
      */
@@ -128,10 +132,5 @@ class ThumbWin
      * No-op implementation.
      */
     public void mouseExited(MouseEvent me) {}
-
-    /**
-     * No-op implementation.
-     */
-    public void mousePressed(MouseEvent me) {}
     
 }

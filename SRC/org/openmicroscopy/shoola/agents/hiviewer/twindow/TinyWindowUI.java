@@ -71,7 +71,7 @@ import javax.swing.border.BevelBorder;
  * </small>
  * @since OME2.2
  */
-class TinyWindowUI
+public class TinyWindowUI
 {
     
     /** The thickness of the frame's border. */
@@ -187,7 +187,7 @@ class TinyWindowUI
      * @param image     The bufferedImage to display. 
      *                  Mustn't be <code>null</code>.
      */
-    TinyWindowUI(TinyWindow window, BufferedImage image)
+    public TinyWindowUI(TinyWindow window, BufferedImage image)
     {
         if (window == null) throw new NullPointerException("No window.");
         this.window = window;
@@ -226,7 +226,7 @@ class TinyWindowUI
      * 
      * @param controller An instance of {@link WindowControl}.
      */
-    void attachMouseListener(MouseListener controller)
+    public void attachMouseListener(MouseListener controller)
     {
         titleBar.addMouseListener(controller);
     }

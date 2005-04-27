@@ -72,7 +72,7 @@ public class TinyWindow
     public final static String TITLE_PROPERTY = "title";
     
     /** The View component that renders this frame. */
-    private TinyWindowUI    uiDelegate;
+    protected TinyWindowUI    uiDelegate;
     
     /** Tells if this window is expanded or collapsed. */
     private boolean         collapsed;

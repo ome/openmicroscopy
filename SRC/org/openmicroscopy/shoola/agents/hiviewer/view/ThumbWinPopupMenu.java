@@ -34,11 +34,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
@@ -89,6 +89,8 @@ class ThumbWinPopupMenu
         singleton.showMenu();
     }
     
+    /** Hides the popup menu. */
+    public static void hideMenu() { singleton.setVisible(false); }
     
     /** The window that is currently requesting the menu. */
     private ThumbWin    currentWin;
@@ -145,7 +147,8 @@ class ThumbWinPopupMenu
     private void showMenu()
     {
         Point p = currentWin.getPopupPoint();
-        show(currentWin, p.x, p.y);
+        Point pNew = SwingUtilities.convertPoint(currentWin, p.x, p.y, null); 
+        show(currentWin.getParent(), pNew.x, pNew.y);
     }
     
 }
