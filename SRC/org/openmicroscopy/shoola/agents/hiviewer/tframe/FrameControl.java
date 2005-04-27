@@ -144,7 +144,7 @@ class FrameControl
      * No-op implementation.
      * Required by {@link ComponentListener}, but not needed here.
      */
-    public void componentMoved(ComponentEvent ce) {}
+    public void componentMoved(ComponentEvent ce) { model.repaint(); }
 
     /** 
      * No-op implementation.
