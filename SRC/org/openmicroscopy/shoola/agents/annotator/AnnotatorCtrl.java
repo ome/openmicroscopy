@@ -80,10 +80,7 @@ public class AnnotatorCtrl
     /** Forward event to the {@link Annotator abstraction}. */
     public void close() { abstraction.close(); }
 
-    public void saveEnabled(boolean b)
-    {
-        presentation.bar.saveEnabled(b);
-    }
+    public void saveEnabled(boolean b) { presentation.bar.saveEnabled(b); }
 
     public void buttonsEnabled(boolean b)
     {
