@@ -73,6 +73,7 @@ public class ThumbnailProvider
     private ImageSummary    imgInfo;
     private int             width;  //of displayThumb. 
     private int             height; //of displayThumb.
+    private int             originalWidth, originalHeight;
     private BufferedImage   fullScaleThumb;
     private BufferedImage   displayThumb;
     private ImageNode       display;
@@ -86,27 +87,30 @@ public class ThumbnailProvider
         PixelsDescription pxd = imgInfo.getDefaultPixels();
         int sizeX = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
         int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+        originalWidth = THUMB_MAX_WIDTH;
+        originalHeight = THUMB_MAX_HEIGHT;
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-        if (ratio < 1) sizeX *= ratio;
-        else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+        if (ratio < 1) {
+            sizeX *= ratio;
+            originalWidth *= ratio;
+        } else if (ratio > 1 && ratio != 0) {
+            sizeY *= 1/ratio;
+            originalHeight *= 1/ratio;
+        }
         width = sizeX;
         height = sizeY;
     }
-    
-    public void setFullScaleThumb(BufferedImage t)
-    {
-        if (t == null) throw new NullPointerException("No thumbnail.");
-        fullScaleThumb = t;
-        //Scale down to 48x48.
-        displayThumb = magnifyImage(SCALING_FACTOR, fullScaleThumb);
-        if (display != null) display.repaint();
-    }
-    
-    /** Scale the original thumbnail. */
+
+    /** 
+     * Scale the specified bufferedImage.
+     * @param f scaling factor.
+     * @param img Image to scale.
+     * 
+     * @return The scaled bufferedImage.
+     */
     private BufferedImage magnifyImage(double f, BufferedImage img)
     {
         if (img == null) return null;
-        scalingFactor = f;
         int width = img.getWidth(), height = img.getHeight();
         AffineTransform at = new AffineTransform();
         at.scale(f, f);
@@ -121,7 +125,16 @@ public class ThumbnailProvider
     public ThumbnailProvider(ImageSummary is)
     {
         imgInfo = is;
+        scalingFactor = SCALING_FACTOR;
         computeDims();
+    }
+    
+    /** Set the thumbnail retrieved from the server. */
+    public void setFullScaleThumb(BufferedImage t)
+    {
+        if (t == null) throw new NullPointerException("No thumbnail.");
+        fullScaleThumb = t;
+        scale(scalingFactor);
     }
     
     public int getWidth() { return width; }
@@ -134,14 +147,22 @@ public class ThumbnailProvider
         return displayThumb; 
     }
 
+    /** 
+     * Scales the original image. 
+     * 
+     * @param f scaling factor.
+     */
     public void scale(double f)
     {
-        if (fullScaleThumb == null) return;
         if (f < MIN_SCALING_FACTOR || f > MAX_SCALING_FACTOR) return;
-        displayThumb = magnifyImage(f, fullScaleThumb);
+        scalingFactor = f;
+        int w = (int) (originalWidth*f), h = (int) (originalHeight*f);
+        if (fullScaleThumb != null) {
+            displayThumb = magnifyImage(f, fullScaleThumb);
+            w = displayThumb.getWidth();
+            h = displayThumb.getHeight();
+        }  
         if (display != null) {
-            int w = displayThumb.getWidth();
-            int h = displayThumb.getHeight();
             display.setCanvasSize(w, h);
             display.pack();
         }
