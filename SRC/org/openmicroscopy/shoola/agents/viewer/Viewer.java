@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.agents.viewer;
 
 //Java imports
-import java.awt.Frame;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
