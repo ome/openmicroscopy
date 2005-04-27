@@ -150,7 +150,7 @@ public class ViewerUIF
     
     private JScrollPane             scrollPane;
     
-    private boolean                 active;
+    private boolean                 imageDisplay;
 
     private JLayeredPane            layer;
     
@@ -164,7 +164,7 @@ public class ViewerUIF
         im = IconManager.getInstance(registry);
         windowWidth = DEFAULT_WINDOW_SIZE;
         windowHeight = DEFAULT_WINDOW_SIZE;
-        active = false;
+        imageDisplay = false;
         int maxT = pxsDims.sizeT-1, maxZ = pxsDims.sizeZ-1;
         setJMenuBar(createMenuBar(maxZ, maxT));
         initBars(registry, maxT, defaultT, maxZ, defaultZ);
@@ -189,8 +189,10 @@ public class ViewerUIF
     
     public BottomBar getBottomBar() { return bottomBar; } 
    
-    void setActive(boolean b) { active = b; }
+    void setImageDisplay(boolean b) { imageDisplay = b; }
 
+    boolean isImageDisplay() { return imageDisplay; }
+    
     /** Remove the lens if any pin. */
     void resetLens() { canvas.resetLens(); }
     
@@ -232,7 +234,7 @@ public class ViewerUIF
      */
      void setImage(BufferedImage img)
      {
-        if (!active) { 
+        if (!imageDisplay) { 
             int w = img.getWidth()+2*START, h = img.getHeight()+2*START;
             setSizePaintedComponents(new Dimension(w, h));
             w += 2*START;
@@ -240,7 +242,7 @@ public class ViewerUIF
             setWindowSize(w, h);
         }
         canvas.paintImage(img);
-        active = true; 
+        setImageDisplay(true);
     }
 
     void setUnitBarSize(double x) { canvas.setUnitBarSize(x); }
@@ -350,22 +352,7 @@ public class ViewerUIF
         if (maxT == 0 && maxZ == 0) movieItem.setEnabled(false);
         return menu;
     }
-        
-    /**
-     * Specifies icons, text, and tooltips for the display buttons in the
-     * TaskBar.
-     * Those buttons are managed by the superclass, we only have to specify
-     * what they should look like.
-     */
-    /*
-    private void configureDisplayButtons()
-    {
-        configureQuickLaunchBtn(im.getIcon(IconManager.VIEWER), 
-                                                "Bring up the Viewer.");
-        configureWinMenuEntry("Viewer ", 
-                            im.getIcon(IconManager.VIEWER));
-    }
-    */
+
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
@@ -374,8 +361,6 @@ public class ViewerUIF
         container.add(buildMain(), BorderLayout.WEST);
         container.add(scrollPane, BorderLayout.CENTER);
         container.add(bottomBar, BorderLayout.SOUTH);
-        //Configure the display buttons in the TaskBar.
-        //configureDisplayButtons();
     }
     
     /** Build and lay out a panel with slider and scrollpane. */

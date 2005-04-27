@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.rnd.events.ImageRendered;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -269,37 +270,37 @@ public class Viewer
     {
         LoadImage request = (LoadImage) response.getACT();
         renderingControl = response.getProxy();
-        PixelsDimensions pxsDims = renderingControl.getPixelsDims();
         //TODO: REMOVE COMMENTS
         //control.removeProgressNotifier();
-        if (curImageID != request.getImageID()) {  
-            if (presentation == null) buildPresentation(pxsDims);
+        if (curImageID != request.getImageID()) { 
+            presentationDispose();
+            PixelsDimensions pxsDims = renderingControl.getPixelsDims();
+            buildPresentation(pxsDims);
             initPresentation(request.getImageName(), pxsDims, false);
             curImageID = request.getImageID();
             curPixelsID = request.getPixelsID();
             registry.getEventBus().post(new RenderImage(curPixelsID));
-            // have to dispose all windows linked 
-            control.disposeDialogs();
-        } showPresentation();
+        } else presentation.deIconify();//showPresentation();
     }
     
     /** Handle event @see ImageRendered. */
     private void handleImageRendered(ImageRendered response)
     {
-        curImage = null;
         curImage = response.getRenderedImage();
+        boolean display = presentation.isImageDisplay();
         presentation.setImage(curImage);
+        if (!display) presentation.setOnScreen();
     }
     
     /** Set the default. */
     private void initPresentation(String imageName, PixelsDimensions pxsDims, 
-                            boolean active)
+                            boolean b)
     {
         curImageName = imageName;
         presentation.setDefaultZT(getDefaultT(), getDefaultZ(), 
                                     pxsDims.sizeT, pxsDims.sizeZ);
         presentation.setImageName(imageName);
-        presentation.setActive(active);
+        presentation.setImageDisplay(b);
         presentation.resetMagFactor();
         presentation.setUnitBarSize(pxsDims.pixelSizeX);
     }
@@ -312,12 +313,15 @@ public class Viewer
         control.setPresentation(presentation);
         control.attachListener();   
     }
-    
-    private void showPresentation()
-    {
-        if (presentation.getExtendedState() == Frame.ICONIFIED)
-            presentation.setExtendedState(Frame.NORMAL);
-        presentation.setVisible(true);
-    }
 
+    private void presentationDispose()
+    {
+        if (presentation != null) {
+            // have to dispose all windows linked 
+            control.disposeDialogs();
+            presentation.setVisible(false);
+            presentation = null;
+        }
+    }
+    
 }
