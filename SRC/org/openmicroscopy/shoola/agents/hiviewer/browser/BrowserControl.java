@@ -144,6 +144,7 @@ class BrowserControl
         d.moveToFront();
         model.setSelectedDisplay(d);
         view.setTitle(model.currentPathString());
+        if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
     }
 
     /**

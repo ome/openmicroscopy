@@ -107,7 +107,7 @@ class ThumbWin
      * If the mouse event is a popup trigger, then we register the popup point
      * and display the popup menu.
      */
-    public void mouseReleased(MouseEvent me)
+    private void onClick(MouseEvent me)
     {
         if (me.isPopupTrigger()) {
             popupPoint = me.getPoint();
@@ -115,8 +115,19 @@ class ThumbWin
         }
     }
     
+    /**
+     * Intercepts popup triggers on this window.
+     * If the mouse event is a popup trigger, then we register the popup point
+     * and display the popup menu.
+     */
+    public void mouseReleased(MouseEvent me) { onClick(me); }
+    
     /** Hides the menu when a mousePressed event occurs. */
-    public void mousePressed(MouseEvent me) { ThumbWinPopupMenu.hideMenu(); }
+    public void mousePressed(MouseEvent me)
+    { 
+        ThumbWinPopupMenu.hideMenu();
+        onClick(me); //needed for Mac
+    }
     
     /**
      * No-op implementation.
