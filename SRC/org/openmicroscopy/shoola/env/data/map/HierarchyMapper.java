@@ -48,6 +48,7 @@ import org.openmicroscopy.ds.st.Category;
 import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.ds.st.Classification;
 import org.openmicroscopy.ds.st.DatasetAnnotation;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ClassificationData;
@@ -136,6 +137,7 @@ public class HierarchyMapper
         Integer dID, pID;
         List listImages, listDatasets, listProjects;
         listProjects = new ArrayList();
+        AnnotationData ad;
         while (i.hasNext()) {
             image = (Image) i.next();
             is = (ImageSummary) mapIS.get(new Integer(image.getID()));
@@ -148,37 +150,41 @@ public class HierarchyMapper
                     //for each dataset
                     while (j.hasNext()) {
                         dataset = (Dataset) j.next();
-                        dID = new Integer(dataset.getID());
-                        ds = (DatasetSummaryLinked) datasetsMap.get(dID);
-                        if (ds == null) {
-                            ds = createDSL(dataset);
-                            ds.setAnnotation(
-                                    AnnotationMapper.fillDatasetAnnotation(
-                                    (DatasetAnnotation) dAnnotated.get(dID)));
-                            datasetsMap.put(dID, ds);
-                        }
-                        listImages = ds.getImages();
-                        if (!listImages.contains(is)) listImages.add(is);
-                        //for eachProject
-                        pl = dataset.getProjects();
-                        if (pl.size() == 0) { //orphan datasets
-                            orphanDatasets.add(ds);
-                        } else {
-                            k = pl.iterator();
-                            while (k.hasNext()) {
-                                project = (Project) k.next();
-                                pID = new Integer(project.getID());
-                                ps = (ProjectSummary) projectsMap.get(pID);
-                                if (ps == null) {
-                                    ps = createPS(project);
-                                    projectsMap.put(pID, ps);
-                                }
-                                listDatasets = ps.getDatasets();
-                                if (!listDatasets.contains(ds)) 
-                                    listDatasets.add(ds);
-                                if (!listProjects.contains(ps)) 
-                                    listProjects.add(ps);
+                        //TODO: B/c cannot filter before and 
+                        //b/c of server implementation
+                        if (!(dataset.getName().equals("ImportSet"))) {
+                            dID = new Integer(dataset.getID());
+                            ds = (DatasetSummaryLinked) datasetsMap.get(dID);
+                            if (ds == null) {
+                                ds = createDSL(dataset);
+                                ad =  AnnotationMapper.fillDatasetAnnotation(
+                                     (DatasetAnnotation) dAnnotated.get(dID));
+                                ds.setAnnotation(ad);
+                                datasetsMap.put(dID, ds);
                             }
+                            listImages = ds.getImages();
+                            if (!listImages.contains(is)) listImages.add(is);
+                            //for eachProject
+                            pl = dataset.getProjects();
+                            if (pl.size() == 0) { //orphan datasets
+                                orphanDatasets.add(ds);
+                            } else {
+                                k = pl.iterator();
+                                while (k.hasNext()) {
+                                    project = (Project) k.next();
+                                    pID = new Integer(project.getID());
+                                    ps = (ProjectSummary) projectsMap.get(pID);
+                                    if (ps == null) {
+                                        ps = createPS(project);
+                                        projectsMap.put(pID, ps);
+                                    }
+                                    listDatasets = ps.getDatasets();
+                                    if (!listDatasets.contains(ds)) 
+                                        listDatasets.add(ds);
+                                    if (!listProjects.contains(ps)) 
+                                        listProjects.add(ps);
+                                }
+                            }  
                         } 
                     }  
                 }
