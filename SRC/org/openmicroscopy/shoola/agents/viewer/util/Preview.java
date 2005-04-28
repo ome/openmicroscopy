@@ -163,6 +163,7 @@ class Preview
     /** Set the {@link BufferedImage} to save in the canvas. */
     void setImage(BufferedImage img)
     { 
+        if (img == null) return;    //should happen
         int w = img.getWidth()+3*ViewerUIF.START;
         int h = img.getHeight()+2*ViewerUIF.START;
         setContainerSize(new Dimension(w, h));
@@ -175,6 +176,7 @@ class Preview
     /** Set the {@link BufferedImage}s to save in the canvas. */
     void setImages(BufferedImage img, BufferedImage lensImage)
     { 
+        if (img == null || lensImage == null) return; //should happen
         int w = img.getWidth()+lensImage.getWidth()+3*ViewerUIF.START;
         int h = img.getHeight()+lensImage.getHeight()+2*ViewerUIF.START;
         setContainerSize(new Dimension(w, h));

@@ -248,6 +248,12 @@ class ImageSaverMng
         image = control.getImageAndROIs();
         lensImage = null;
         saveMessage = MAIN_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -258,6 +264,12 @@ class ImageSaverMng
         image = control.getDisplayImage();
         lensImage = null;
         saveMessage = MAIN_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -268,6 +280,12 @@ class ImageSaverMng
         image = control.getPinImage();
         lensImage = null;
         saveMessage = PIN_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -282,6 +300,12 @@ class ImageSaverMng
         } else image = control.getDisplayImage();
         saveMessage = BOTH_MSG;
         lensImage = control.getPinImage();
+        if (image == null || lensImage == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImages(image, lensImage);
         UIUtilities.centerAndShow(preview);
     }
@@ -292,6 +316,12 @@ class ImageSaverMng
         image = control.getPinOnImage();
         saveMessage = BOTH_MSG;
         lensImage = null;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -311,6 +341,12 @@ class ImageSaverMng
         image = control.getPinOnSideTopLeft(box.isSelected(), c);   
         lensImage = null;
         saveMessage = BOTH_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -330,6 +366,12 @@ class ImageSaverMng
         image = control.getPinOnSideTopRight(box.isSelected(), c);   
         lensImage = null;
         saveMessage = BOTH_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -349,6 +391,12 @@ class ImageSaverMng
         image = control.getPinOnSideBottomLeft(box.isSelected(), c);   
         lensImage = null;
         saveMessage = BOTH_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
@@ -368,6 +416,12 @@ class ImageSaverMng
         image = control.getPinOnSideBottomRight(box.isSelected(), c);   
         lensImage = null;
         saveMessage = BOTH_MSG;
+        if (image == null) {
+            UserNotifier un = control.getRegistry().getUserNotifier();
+            un.notifyInfo("Save image", saveMessage);
+            cancelPreviewSaveImage();
+            return;
+        }
         preview.setImage(image);
         UIUtilities.centerAndShow(preview);
     }
