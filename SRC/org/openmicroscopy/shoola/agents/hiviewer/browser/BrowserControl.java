@@ -72,6 +72,7 @@ class BrowserControl
     /** The View controlled by this Controller.*/
     private RootDisplay     view;
     
+    private boolean         popupTrigger;
     
     /**
      * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
@@ -106,6 +107,7 @@ class BrowserControl
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
+        popupTrigger = false;
     }
     
     /**
@@ -144,7 +146,7 @@ class BrowserControl
         d.moveToFront();
         model.setSelectedDisplay(d);
         view.setTitle(model.currentPathString());
-        if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
+        if (me.isPopupTrigger()) popupTrigger = true;
     }
 
     /**
@@ -154,13 +156,15 @@ class BrowserControl
      */
     public void mouseReleased(MouseEvent me) 
     {
-        if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
+        if (popupTrigger || me.isPopupTrigger())
+                model.setPopupPoint(me.getPoint());
         else {
             Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
             if (d instanceof ImageNode && !(d.getTitleBar() == src))
-                model.setThumbSelected(true);
+                model.setThumbSelected(true);   
         }
+        popupTrigger = false; 
     }
     
     /**
