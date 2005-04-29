@@ -63,9 +63,10 @@ public class AnnotateCmd
     implements ActionCmd
 {
     
+    /** Reference to the model. */
     private HiViewer    model;
-    private DataObject  hierarchyObject;
     
+    private DataObject  hierarchyObject;
     
     public AnnotateCmd(DataObject hierarchyObject)
     {

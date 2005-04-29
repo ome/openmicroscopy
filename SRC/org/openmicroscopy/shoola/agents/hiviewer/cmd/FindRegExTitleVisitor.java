@@ -69,6 +69,17 @@ class FindRegExTitleVisitor
         colors = Colors.getInstance();
     }
     
+    /** Set the color of the titleBar of the specified node. */
+    private void setHighlight(ImageDisplay node)
+    {
+        if (!RegExFactory.find(pattern, node.getTitle())) return;
+        foundNodes.add(node);
+        if (node.equals(model.getBrowser().getSelectedDisplay()))
+            node.setHighlight(
+                    colors.getColor(Colors.REGEX_TITLE_HIGHLIGHT));
+        else node.setHighlight(colors.getColor(Colors.REGEX_TITLE));
+    }
+    
     /** 
      * Highlight the titleBar of the imageNode 
      * if the title contains the specified regular expression.
@@ -81,14 +92,6 @@ class FindRegExTitleVisitor
      */
     public void visit(ImageSet node) { setHighlight(node); }
 
-    /** Set the color of the titleBar of the specified node. */
-    private void setHighlight(ImageDisplay node)
-    {
-        if (!RegExFactory.find(pattern, node.getTitle())) return;
-        if (node.equals(model.getBrowser().getSelectedDisplay()))
-            node.setHighlight(
-                    colors.getColor(Colors.REGEX_TITLE_HIGHLIGHT));
-        else node.setHighlight(colors.getColor(Colors.REGEX_TITLE));
-    }
+
     
 }

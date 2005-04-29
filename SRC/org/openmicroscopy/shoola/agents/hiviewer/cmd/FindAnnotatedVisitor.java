@@ -37,6 +37,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
@@ -66,12 +69,29 @@ class FindAnnotatedVisitor
     
     private Colors colors;
     
+    /** Set containing the nodes found. */
+    private Set         foundNodes;
+    
     FindAnnotatedVisitor(HiViewer viewer)
     {
         super(viewer);
         colors = Colors.getInstance();
+        foundNodes = new HashSet();
     }
 
+    /** Set the color of the titleBar of the specified node. */
+    private void setHighlight(ImageDisplay node)
+    {
+        foundNodes.add(node);
+        if (node.equals(model.getBrowser().getSelectedDisplay()))
+            node.setHighlight(
+                    colors.getColor(Colors.ANNOTATED_HIGHLIGHT));
+        else node.setHighlight(colors.getColor(Colors.ANNOTATED));
+    }
+    
+    /** Returns the set of nodes found. */
+    public Set getFoundNodes() { return foundNodes; }
+    
     /** Highlight the annotated image.*/
     public void visit(ImageNode node)
     {
@@ -90,13 +110,6 @@ class FindAnnotatedVisitor
                 setHighlight(node);
     }
     
-    /** Set the color of the titleBar of the specified node. */
-    private void setHighlight(ImageDisplay node)
-    {
-        if (node.equals(model.getBrowser().getSelectedDisplay()))
-            node.setHighlight(
-                    colors.getColor(Colors.ANNOTATED_HIGHLIGHT));
-        else node.setHighlight(colors.getColor(Colors.ANNOTATED));
-    }
+
     
 }

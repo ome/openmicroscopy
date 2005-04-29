@@ -37,8 +37,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.search.SearchExplorer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -84,12 +85,15 @@ public class FindRegExCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplayVisitor visitor = null;
+        FindRegExVisitor visitor = null;
+        String title = "";
         switch (index) {
             case IN_TITLE:
+                title = "With title";
                 visitor = new FindRegExTitleVisitor(model, regEx);
                 break;
             case IN_ANNOTATION:
+                title = "With annotation";
                 visitor = new FindRegExAnnotationVisitor(model, regEx);
         }
         if (visitor == null) return;
@@ -101,6 +105,9 @@ public class FindRegExCmd
         if (selectedDisplay.getParentDisplay() == null) //root
             browser.accept(visitor);
         else selectedDisplay.accept(visitor);
+        SearchExplorer explorer = new SearchExplorer(model.getUI(), title, 
+                visitor.getFoundNodes());
+        UIUtilities.centerAndShow(explorer);
     }
 
 }

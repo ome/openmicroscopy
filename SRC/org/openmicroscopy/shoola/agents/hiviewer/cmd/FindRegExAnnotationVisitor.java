@@ -70,6 +70,17 @@ class FindRegExAnnotationVisitor
         colors = Colors.getInstance();
     }
     
+    /** Set the color of the titleBar of the specified node. */
+    private void setHighlight(ImageDisplay node, AnnotationData data)
+    {
+        if (!RegExFactory.find(pattern, data.getAnnotation())) return;
+        foundNodes.add(node);
+        if (node.equals(model.getBrowser().getSelectedDisplay()))
+            node.setHighlight(
+                    colors.getColor(Colors.REGEX_ANNOTATION_HIGHLIGHT));
+        else node.setHighlight(colors.getColor(Colors.REGEX_ANNOTATION));
+    }
+    
     /** 
      * Highlight the titleBar of the imageNode 
      * if the annotation contains the specified regular expression.
@@ -93,16 +104,6 @@ class FindRegExAnnotationVisitor
                 data = ((DatasetSummaryLinked) ho).getAnnotation();
             if (data != null) setHighlight(node, data);
         }
-    }
-    
-    /** Set the color of the titleBar of the specified node. */
-    private void setHighlight(ImageDisplay node, AnnotationData data)
-    {
-        if (!RegExFactory.find(pattern, data.getAnnotation())) return;
-        if (node.equals(model.getBrowser().getSelectedDisplay()))
-            node.setHighlight(
-                    colors.getColor(Colors.REGEX_ANNOTATION_HIGHLIGHT));
-        else node.setHighlight(colors.getColor(Colors.REGEX_ANNOTATION));
     }
 
 }

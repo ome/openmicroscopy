@@ -37,7 +37,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.search.SearchExplorer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * 
  *
@@ -56,8 +58,10 @@ public class FindAnnotatedCmd
     implements ActionCmd
 {
     
+    private static final String     TITLE = "Annotated";
+    
     /** Reference to the model. */
-    private HiViewer    model;
+    private HiViewer                model;
     
     /** Creates a new instance.*/
     public FindAnnotatedCmd(HiViewer model)
@@ -79,6 +83,9 @@ public class FindAnnotatedCmd
         if (selectedDisplay.getParentDisplay() == null) //root
             browser.accept(visitor);
         else selectedDisplay.accept(visitor);
+        SearchExplorer explorer = new SearchExplorer(model.getUI(), TITLE, 
+                visitor.getFoundNodes());
+        UIUtilities.centerAndShow(explorer);
     }
 
 }

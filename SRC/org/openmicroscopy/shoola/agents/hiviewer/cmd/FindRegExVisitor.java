@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 //Third-party libraries
@@ -58,6 +60,8 @@ class FindRegExVisitor
     extends HiViewerVisitor
 {
     
+    protected Set       foundNodes;
+    
     /** The pattern object created from the specified regular expression. */
     protected Pattern   pattern;
     
@@ -65,7 +69,11 @@ class FindRegExVisitor
     {
         super(viewer);
         pattern = RegExFactory.createCaseInsensitivePattern(regEx);
+        foundNodes = new HashSet();
     }
+    
+    /** Set containing the nodes found. */
+    public Set getFoundNodes() { return foundNodes; }
     
     /** Required by the I/F. */
     public void visit(ImageNode node) {}
