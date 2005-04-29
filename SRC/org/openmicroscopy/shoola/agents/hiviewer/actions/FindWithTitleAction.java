@@ -40,8 +40,8 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.search.RegExFinder;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.agents.hiviewer.view.RegExFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
