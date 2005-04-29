@@ -95,6 +95,9 @@ class BrowserModel
         rootDisplay = view;
     }
     
+    /** Returns the set with all the children of the root node. */
+    public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
+    
     /**
      * String-ifies the path from the {@link #selectedDisplay} to the
      * {@link #rootDisplay}.

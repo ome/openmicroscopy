@@ -172,6 +172,8 @@ public interface Browser
      */
     public Set getImageNodes();
     
+    public Set getRootNodes();
+    
     /**
      * Has the specified object visit all the visualization trees hosted by
      * the browser.
