@@ -37,15 +37,24 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.Action;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MenuListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClearAction;
@@ -178,17 +187,74 @@ class HiViewerControl
         actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
         actionsMap.put(FIND_W_ST, new FindwSTAction(model));
     }
+  
+    /** Creates the windowsMenuItems. */
+    private void createWindowsMenuItems()
+    {
+        Set viewers = HiViewerFactory.getViewers();
+        Iterator i = viewers.iterator();
+        JMenu menu = view.getWindowsMenu();
+        menu.removeAll();
+        HiViewer viewer;
+        while (i.hasNext()) {
+            viewer = (HiViewer) i.next();
+            if (!(viewer.getUI().equals(view))) {
+                menu.add(new JMenuItem(new ActivationAction(viewer)));
+            }
+        }
+    }
     
     /** 
      * Attaches a window listener to the view to discard the model when 
-     * the user closes the window.
+     * the user closes the window. Attaches a menu listener to the window menu.
      */
-    private void attachWinListener()
+    private void attachListeners()
     {
+        JMenu menu = view.getWindowsMenu();
+        menu.addMenuListener(new MenuListener() {
+
+            public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }
+            
+            /** 
+             * Required but not actually needed in our case, 
+             * no op implementation.
+             */ 
+            public void menuCanceled(MenuEvent e) {}
+
+            /** 
+             * Required but not actually needed in our case, 
+             * no op implementation.
+             */ 
+            public void menuDeselected(MenuEvent e) {}
+        });
+        
+        //Listen to keyboard selection
+        menu.addMenuKeyListener(new MenuKeyListener() {
+
+            
+            public void menuKeyReleased(MenuKeyEvent e)
+            {
+                createWindowsMenuItems();
+            }
+            
+            /** 
+             * Required but not actually needed in our case, 
+             * no op implementation.
+             */
+            public void menuKeyPressed(MenuKeyEvent e) {}
+  
+            /** 
+             * Required but not actually needed in our case, 
+             * no op implementation.
+             */ 
+            public void menuKeyTyped(MenuKeyEvent e) {}
+        });
+        
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.discard(); }
         });
+        
     }
     
     /**
@@ -215,7 +281,7 @@ class HiViewerControl
         actionsMap = new HashMap();
         createActions();
         model.addChangeListener(this);   
-        attachWinListener();
+        attachListeners();
     }
     
     /**
@@ -240,6 +306,7 @@ class HiViewerControl
                 browser.addPropertyChangeListener(
                         Browser.THUMB_SELECTED_PROPERTY, this); 
                 view.setBrowserView(browser.getUI());
+                view.setViewTitle();
                 break;
             case HiViewer.DISCARDED:
                 view.setVisible(false);

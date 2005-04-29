@@ -39,6 +39,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.util.Iterator;
+import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -51,6 +53,7 @@ import javax.swing.SwingConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -83,6 +86,10 @@ class HiViewerWin
     /** Default background color. */
     public static final Color   BACKGROUND = new Color(250, 253, 255);
     
+    /** The maximum length of the title. */
+    private static final int    TITLE_MAX_LENGTH = 50;
+    
+    private static final String DEFAULT_TITLE = "Hierarchy Viewer";
     
     /** The status bar. */
     private StatusBar       statusBar;
@@ -90,9 +97,14 @@ class HiViewerWin
     /** The popup menu. */
     private PopupMenu       popupMenu;
     
+    /** The windows menu. */
+    private JMenu           windowsMenu;
+    
     /** The Controller. */
     private HiViewerControl controller;
     
+    /** The model. */
+    private HiViewerModel   model;
     
     /** Builds and lays out the GUI. */
     private void buildUI()
@@ -117,6 +129,7 @@ class HiViewerWin
         menuBar.add(createFindMenu());
         menuBar.add(createLayoutMenu());
         menuBar.add(createActionsMenu());
+        menuBar.add(windowsMenu);
         return menuBar;
     }
     
@@ -196,6 +209,13 @@ class HiViewerWin
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT)));
         return menu;
     }
+
+    /** Helper method to create the Windows menu. */
+    private void createWindowsMenu()
+    {
+        windowsMenu = new JMenu("Windows");
+        windowsMenu.setMnemonic(KeyEvent.VK_W);
+    }
     
     /**
      * Creates a new instance.
@@ -204,24 +224,30 @@ class HiViewerWin
      */
     HiViewerWin() 
     {
-        super("Hierarchy Viewer");
+        super(DEFAULT_TITLE);
         IconManager iconMng = IconManager.getInstance();
         statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
+        createWindowsMenu();
     }
+
     
     /**
      * Links this View to its Controller.
      * 
      * @param controller The Controller.
      */
-    void initialize(HiViewerControl controller)
+    void initialize(HiViewerControl controller, HiViewerModel model)
     {
         this.controller = controller;
+        this.model = model;
         popupMenu = new PopupMenu(controller);
         setJMenuBar(createMenuBar());
         buildUI();
     }
 
+    /** Returns the windows menu. */
+    JMenu getWindowsMenu() { return windowsMenu; }
+    
     /** 
      * Sets the <code>Browser</code>'s UI into the display panel.
      * 
@@ -269,6 +295,34 @@ class HiViewerWin
     {
         setVisible(false);
         dispose();
+    }
+    
+    /** Set the title of the viewer. */
+    void setViewTitle()
+    {
+        String title = DEFAULT_TITLE+": ";
+        title += getViewTitle();
+        setTitle(title);
+    }
+    
+    /** Returns the title of the HiViewer. */
+    public String getViewTitle()
+    {
+        Set roots = model.getBrowser().getRootNodes();
+        Iterator i = roots.iterator();
+        StringBuffer buf = new StringBuffer();
+        String title = "";
+        System.out.println(roots.size());
+        while (i.hasNext()) {
+            title += ((ImageDisplay) i.next()).getTitle();
+            if (title.length() > TITLE_MAX_LENGTH) {
+                title.substring(0, 47);
+                title += "...";
+                break;
+            }
+        }
+        buf.insert(0, title);
+        return buf.toString();
     }
     
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */

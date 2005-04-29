@@ -212,4 +212,7 @@ public interface HiViewer
     /** Returns the UI component. */
     public JFrame getUI();
     
+    /** Returns the title of the hiViewer. */
+    public String getViewTitle();
+    
 }

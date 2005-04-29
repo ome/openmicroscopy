@@ -149,6 +149,8 @@ public class HiViewerFactory
         return singleton.getViewer(model);
     }
     
+    /** Returns the set of tracked components. */
+    static Set getViewers() { return singleton.viewers; }
     
     /** All the tracked components. */
     private Set     viewers;

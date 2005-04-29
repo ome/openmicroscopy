@@ -101,7 +101,7 @@ class HiViewerComponent
     {
         model.initialize(this);
         controller.initialize(this, view);
-        view.initialize(controller);
+        view.initialize(controller, model);
     }
     
     /**
@@ -234,6 +234,25 @@ class HiViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
         return view;
+    }
+    
+    
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getViewTitle()
+     */
+    public String getViewTitle()
+    {
+        int state = model.getState();
+        switch (state) {
+            case LOADING_THUMBNAILS:
+            case READY:
+                return view.getViewTitle();
+            default:
+                throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        }       
     }
 
 }
