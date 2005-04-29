@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.ome.hibernate.model.CategoryGroup" 
+    table="category_groups"
+>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        length="-1"
+    />
+    <property
+        name="description"
+        type="java.lang.String"
+        column="description"
+        length="-1"
+    />
+
+    <!-- Associations -->
+  
+
+</class>
+</hibernate-mapping>

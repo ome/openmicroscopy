@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.ome.hibernate.model.DatasetAnnotation" 
+    table="dataset_annotations"
+>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="content"
+        type="java.lang.String"
+        column="content"
+        length="-1"
+    />
+    <property
+        name="valid"
+        type="java.lang.Boolean"
+        column="valid"
+        length="1"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Dataset -->
+    <many-to-one
+        name="dataset"
+        class="org.ome.hibernate.model.Dataset"
+        not-null="true"
+    >
+        <column name="dataset_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>

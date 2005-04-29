@@ -10,8 +10,8 @@
 		<property name="beanNames"><value>*Service</value></property>
 		<property name="interceptorNames">
 		<list>
-			<value>serviceSecurity</value>
-<!--			<value>serviceTransactions</value> -->
+<!--			<value>serviceSecurity</value>
+			<value>serviceTransactions</value> -->
 		</list>
 		</property>
 	</bean>
@@ -103,4 +103,42 @@
 	</bean>
 -->
 
+   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+       <property name="mappingResources">
+           <list>
+<!--               <value>org/ome/hibernate/User.hbm.xml</value>
+               <value>org/ome/hibernate/Container.hbm.xml</value>
+             <value>org/ome/hibernate/old/Project.hbm.xml</value>
+               <value>org/ome/hibernate/old/Dataset.hbm.xml</value>
+               <value>org/ome/hibernate/old/Image.hbm.xml</value>			   			   			   			   
+-->               <value>org/ome/hibernate/model/Image.hbm.xml</value>			   			   			   			   
+               <value>org/ome/hibernate/model/Project.hbm.xml</value>
+               <value>org/ome/hibernate/model/Category.hbm.xml</value>
+               <value>org/ome/hibernate/model/DisplayRoi.hbm.xml</value>
+               <value>org/ome/hibernate/model/ImageInfo.hbm.xml</value>
+               <value>org/ome/hibernate/model/Dataset.hbm.xml</value>
+               <value>org/ome/hibernate/model/ImagePlate.hbm.xml</value>
+               <value>org/ome/hibernate/model/ImagePixel.hbm.xml</value>
+               <value>org/ome/hibernate/model/Group.hbm.xml</value>
+               <value>org/ome/hibernate/model/Experimenter.hbm.xml</value>
+               <value>org/ome/hibernate/model/Feature.hbm.xml</value>
+               <value>org/ome/hibernate/model/CategoryGroup.hbm.xml</value>
+               <value>org/ome/hibernate/model/ImageAnnotation.hbm.xml</value>
+               <value>org/ome/hibernate/model/ImageDimension.hbm.xml</value>
+               <value>org/ome/hibernate/model/DatasetAnnotation.hbm.xml</value>
+               <value>org/ome/hibernate/model/DisplayOption.hbm.xml</value>
+               <value>org/ome/hibernate/model/ChannelComponent.hbm.xml</value>
+               <value>org/ome/hibernate/model/Thumbnail.hbm.xml</value>
+           </list>
+       </property>
+       <property name="hibernateProperties">
+           <props>
+               <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+			   <prop key="hibernate.show_sql">true</prop>
+           </props>
+       </property>
+       <property name="dataSource">
+           <ref bean="dataSource"/>
+       </property>
+   </bean>
 </beans>

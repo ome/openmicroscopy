@@ -14,17 +14,17 @@
 	</bean>
 
 <!-- for rmi: <property name="serviceUrl"><value>rmi://localhost:1099/ContainerService</value></property> -->
-	<bean id="administrationFacade" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+	<bean id="administrationFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://localhost:${port}/ome3-srv/AdministrationFacade</value></property>
 	    <property name="serviceInterface"><value>org.ome.interfaces.AdministrationService</value></property>
 	</bean>
 
-	<bean id="containerFacade" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+	<bean id="containerFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://localhost:${port}/ome3-srv/ContainerFacade</value></property>
 	    <property name="serviceInterface"><value>org.ome.interfaces.ContainerService</value></property>
 	</bean>
 
-	<bean id="imageFacade" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+	<bean id="imageFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://localhost:${port}/ome3-srv/ImageFacade</value></property>
 	    <property name="serviceInterface"><value>org.ome.interfaces.ImageService</value></property>
 	</bean>

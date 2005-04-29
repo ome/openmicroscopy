@@ -13,11 +13,12 @@ import java.net.URISyntaxException;
  */
 public class LSID implements Serializable {
 
-	protected URI uri;
+	protected String uri; //URI uri;
 	
 	/** create an LSID based on a String version of URI. While creating the java.net.URI an exception may be thrown. */
 	public LSID(String uri) throws URISyntaxException{
-		this.uri = new URI(uri);
+		this.uri = uri ; //new URI(uri); FIXME
+	    
 	}
 
 	/**

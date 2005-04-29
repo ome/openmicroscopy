@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.ome.hibernate.model.Experimenter" 
+    table="experimenters"
+>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="omeName"
+        type="java.lang.String"
+        column="ome_name"
+        unique="true"
+        length="30"
+    />
+    <property
+        name="email"
+        type="java.lang.String"
+        column="email"
+        length="50"
+    />
+    <property
+        name="firstname"
+        type="java.lang.String"
+        column="firstname"
+        length="30"
+    />
+    <property
+        name="password"
+        type="java.lang.String"
+        column="password"
+        length="64"
+    />
+    <property
+        name="groupId"
+        type="java.lang.Integer"
+        column="group_id"
+        length="4"
+    />
+    <property
+        name="dataDir"
+        type="java.lang.String"
+        column="data_dir"
+        length="256"
+    />
+    <property
+        name="moduleExecutionId"
+        type="java.lang.Integer"
+        column="module_execution_id"
+        length="4"
+    />
+    <property
+        name="lastname"
+        type="java.lang.String"
+        column="lastname"
+        length="30"
+    />
+    <property
+        name="institution"
+        type="java.lang.String"
+        column="institution"
+        length="256"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-many association to Dataset -->
+    <set
+        name="datasets"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="owner_id" />
+        </key>
+        <one-to-many 
+            class="org.ome.hibernate.model.Dataset"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Group -->
+    <set
+        name="groupsByLeader"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="leader" />
+        </key>
+        <one-to-many 
+            class="org.ome.hibernate.model.Group"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Group -->
+    <set
+        name="groupsByContact"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="contact" />
+        </key>
+        <one-to-many 
+            class="org.ome.hibernate.model.Group"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Image -->
+    <set
+        name="images"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="experimenter_id" />
+        </key>
+        <one-to-many 
+            class="org.ome.hibernate.model.Image"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Project -->
+    <set
+        name="projects"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="owner_id" />
+        </key>
+        <one-to-many 
+            class="org.ome.hibernate.model.Project"
+        />
+    </set>
+    <!-- bi-directional many-to-many association to Group -->
+    <set
+        name="groups"
+        lazy="true"
+		cascade="all"
+        table="experimenter_group_map"
+    >
+        <key>
+            <column name="experimenter_id" />
+        </key>
+        <many-to-many
+            class="org.ome.hibernate.model.Group"
+        >
+            <column name="group_id" />
+        </many-to-many>
+    </set>
+
+</class>
+</hibernate-mapping>

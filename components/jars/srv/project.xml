@@ -29,7 +29,7 @@
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
-      <version>1.1.5</version>
+      <version>1.2-rc2</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -38,25 +38,81 @@
     <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-      <version>0.8.1-SNAPSHOT</version>
+      <version>0.8.2</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>hessian</groupId>
+      <artifactId>hessian</artifactId>
+      <version>2.1.12</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <!-- HIBERNATE -->
+    <dependency>
+      <groupId>hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.0</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>hibernate</groupId>
+      <artifactId>jta</artifactId>
+      <version>hibernate</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>9Y
+      <groupId>hibernate</groupId>
+      <artifactId>asm</artifactId>
+      <version>hibernate</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>1.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>2.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <!-- OTHER -->
     <dependency>
       <groupId>velocity</groupId>
       <artifactId>velocity</artifactId>
       <version>1.4</version>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>aopalliance</groupId>
-      <artifactId>aopalliance</artifactId>
-      <version>1.0</version>
-      <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -379,6 +435,13 @@
           <include>*.properties</include>
         </includes>
         <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src/middlegen</directory>
+        <includes>
+          <include>org/**/*.java</include>
+          <include>org/**/*.hbm.xml</include>
+        </includes>
       </resource>
     </resources>
   </build>
