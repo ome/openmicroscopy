@@ -312,7 +312,6 @@ class HiViewerWin
         Iterator i = roots.iterator();
         StringBuffer buf = new StringBuffer();
         String title = "";
-        System.out.println(roots.size());
         while (i.hasNext()) {
             title += ((ImageDisplay) i.next()).getTitle();
             if (title.length() > TITLE_MAX_LENGTH) {
