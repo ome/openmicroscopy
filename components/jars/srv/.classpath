@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="src/webapp/WEB-INF"/>
+	<classpathentry excluding="WEB-INF/|WEB-INF/" kind="src" path="src/webapp"/>
+	<classpathentry kind="src" path="src/conf"/>
+	<classpathentry output="target/test-classes" kind="src" path="src/test"/>
+	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry sourcepath="OMERO_HOME/components/jars/model/src/java" kind="var" path="MAVEN_REPO/omero/jars/omero-model-1.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/opensymphony/jars/oscache-2.0.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/mysql/jars/mysql-connector-java-3.0.8-stable-bin.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-pool/jars/commons-pool-1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-dbcp/jars/commons-dbcp-1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
+	<classpathentry sourcepath="HOME/lib/spring-framework-1.2-rc2/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2-rc2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/acegisecurity/jars/acegi-security-0.8.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/GroboUtils-5-core.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/GroboUtils-5-utests.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.3.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/jta-hibernate.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/asm-hibernate.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/cglib/jars/cglib-2.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.5H3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-2.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-dbcp-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/odmg-3.0.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

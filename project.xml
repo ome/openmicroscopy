@@ -6,9 +6,9 @@
   <pomVersion>3</pomVersion>
   <!-- a unique name for this project -->
 
-  <id>ome3</id>
-  <groupId>ome3</groupId>
-  <name>Open Microscopy Environment v3</name>
+  <id>omero</id>
+  <groupId>omero</groupId>
+  <name>Open Microscopy Environment Read-Only</name>
   <currentVersion>1.0</currentVersion>
 
   <organization>
@@ -32,7 +32,7 @@
        the connection element has the form:
        scm:<system>:<system specific connection string> -->
   <repository>
-    <connection>scm:svn:svn+ssh://cvs.openmicroscopy.org.uk/home/svn/josh/trunk</connection>
+    <connection>scm:svn:svn+ssh://cvs.openmicroscopy.org.uk/home/svn/josh/trunk/omero</connection>
   </repository>
   <mailingLists/>
   <developers/>

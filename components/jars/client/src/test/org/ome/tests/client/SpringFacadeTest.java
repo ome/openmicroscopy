@@ -3,15 +3,9 @@
 */
 package org.ome.tests.client;
 
-import java.net.URISyntaxException;
-import java.rmi.RemoteException;
-import java.util.List;
+import java.util.HashSet;
 
-import org.ome.interfaces.AdministrationService;
-import org.ome.interfaces.ContainerService;
-import org.ome.interfaces.ImageService;
-import org.ome.model.LSID;
-import org.ome.model.Vocabulary;
+import org.ome.omero.interfaces.HierarchyBrowsing;
 
 import junit.framework.TestCase;
 
@@ -20,9 +14,7 @@ import junit.framework.TestCase;
  */
 public class SpringFacadeTest extends TestCase {
 
-    AdministrationService as;
-    ContainerService cs;
-    ImageService is;
+    HierarchyBrowsing srv;
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SpringFacadeTest.class);
@@ -33,20 +25,16 @@ public class SpringFacadeTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        as = (AdministrationService) SpringTestHarness.ctx.getBean("administrationFacade");
-        cs = (ContainerService) SpringTestHarness.ctx.getBean("containerFacade");
-        is = (ImageService) SpringTestHarness.ctx.getBean("imageFacade");
+        srv = (HierarchyBrowsing) SpringTestHarness.ctx.getBean("hierarchyBrowsingFacade");
     }
 
-    public void testCS() throws RemoteException, URISyntaxException{
-        LSID lsid = new LSID(Vocabulary.NS+"Josh");
-        List l = cs.retrieveProjectsByExperimenter(lsid);
-        System.out.println(l.get(0));
-        
-        l = is.queryImagesByProject(null);
-        System.out.println(l.get(0));
-        
-        /*as.createExperimenter();*/
+    public void test1() {
+        try {
+            srv.findPDIHierarchies(new HashSet());
+        } catch (Throwable t){
+            t.printStackTrace();
+            throw new RuntimeException(t);
+        }
         
     }
     

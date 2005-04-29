@@ -4,16 +4,11 @@
    xmlns:maven="jelly:maven" 
 >
   <preGoal name="java:compile">
-    <ant:path
-      id="generated.src"
-      location="${basedir}/src/generated"/>
-    <maven:addPath
-      id="maven.compile.src.set"
-      refid="generated.src"/>
+    <ant:echo message="Need to middlegen"/>
   </preGoal>
 
   <postGoal name="clean:clean">
-    <ant:delete dir="${basedir}/src/generated"/>
+    <ant:delete dir="${basedir}/src/java/org/ome/omero/model"/>
   </postGoal>
   
 </project>

@@ -6,13 +6,13 @@
   <id>${pom.groupId}-model</id>
   <name>OME Model Objects</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.ome.model</package>
-  <description>Model code generated from owl</description>
+  <package>org.ome.omero.model</package>
+  <description>Model code generated from middlegen</description>
   <dependencies>
     <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-gen</artifactId>
-      <version>1.0</version>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
     </dependency>
   </dependencies>
 

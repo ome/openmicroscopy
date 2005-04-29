@@ -10,15 +10,6 @@
   <dependencies>
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-utils</artifactId>
-      <version>1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
       <artifactId>${pom.groupId}-model</artifactId>
       <version>1.0</version>
       <type>jar</type>
@@ -108,6 +99,15 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>2.7.5H3</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
     <!-- OTHER -->
     <dependency>
       <groupId>velocity</groupId>
@@ -186,235 +186,15 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    <!-- JENA NEEDS -->
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>antlr</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>concurrent</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>jakarta-oro</artifactId>
-      <version>2.0.5</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>jena</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>junit</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.7</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome-jena</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>ome</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <!-- KOWARI NEEDS -->
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>driver</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>itql</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <!--
-    <dependency>
-      <groupId>jboss</groupId>
-      <artifactId>jboss-j2ee</artifactId>
-      <version>3.2.3</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>jotm</groupId>
-      <artifactId>jotm</artifactId>
-      <version>1.5.3</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>jotm</groupId>
-      <artifactId>jotm-carol</artifactId>
-      <version>1.5.3</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.0.2</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>castor</groupId>
-      <artifactId>castor</artifactId>
-      <version>0.9.5-xml</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>query-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>server-local-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>jena-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>client-jena-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>util-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>resolver-spi-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>ome3</groupId>
-      <artifactId>resolver-base</artifactId>
-      <version>1.1.0</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    -->
     <!-- TESTING NEEDS -->
     <dependency>
-      <groupId>ome3</groupId>
+      <groupId>omero</groupId>
       <artifactId>GroboUtils</artifactId>
       <version>5-core</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>ome3</groupId>
+      <groupId>omero</groupId>
       <artifactId>GroboUtils</artifactId>
       <version>5-utests</version>
       <type>jar</type>
@@ -435,13 +215,6 @@
           <include>*.properties</include>
         </includes>
         <filtering>false</filtering>
-      </resource>
-      <resource>
-        <directory>src/middlegen</directory>
-        <includes>
-          <include>org/**/*.java</include>
-          <include>org/**/*.hbm.xml</include>
-        </includes>
       </resource>
     </resources>
   </build>
