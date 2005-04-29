@@ -104,35 +104,53 @@ public class IconManager
     /** ID of the save icon. */
     public static final int     SAVE = 13;
     
-    /** ID of the save icon. */
+    /** ID of the find annotated icon. */
     public static final int     ANNOTATED = 14;
     
-    /** ID of the save icon. */
+    /** ID of the clear icon. */
     public static final int     CLEAR = 15;
     
-    /** ID of the save icon. */
+    /** ID of the classify icon. */
     public static final int     CLASSIFY = 16;
     
-    /** ID of the save icon. */
+    /** ID of the find with annotation icon. */
     public static final int     FILTER_W_ANNOTATION = 17;
     
-    /** ID of the save icon. */
+    /** ID of the find with title icon. */
     public static final int     FILTER_W_TITLE = 18;
     
-    /** ID of the save icon. */
+    /** ID of the squary layout icon. */
     public static final int     SQUARY_LAYOUT = 19;
     
-    /** ID of the save icon. */
+    /** ID of the tree layout icon. */
     public static final int     TREE_LAYOUT = 20;
     
-    /** ID of the save icon. */
+    /** ID of the status icon. */
     public static final int     STATUS_INFO = 21;
+    
+    /** ID of the root icon. */
+    public static final int     ROOT = 22;
+    
+    /** ID of the project icon. */
+    public static final int     PROJECT = 23;
+    
+    /** ID of the dataset icon. */
+    public static final int     DATASET = 24;
+    
+    /** ID of the category group icon. */
+    public static final int     CATEGORY_GROUP = 25;
+    
+    /** ID of the category icon. */
+    public static final int     CATEGORY = 26;
+    
+    /** ID of the image icon. */
+    public static final int     IMAGE = 27;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 21;
+    private static int          MAX_ID = 27;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -159,6 +177,12 @@ public class IconManager
         relPaths[SQUARY_LAYOUT] = "OpenOffice_stock_3d-texture-16.png";
         relPaths[TREE_LAYOUT] = "eclipse_hierarchy_co16.png";
         relPaths[STATUS_INFO] = "nuvola_hwinfo16.png";
+        relPaths[ROOT] = "nuvola_trashcan_empty16.png";
+        relPaths[PROJECT] = "nuvola_document16.png";
+        relPaths[DATASET] = "nuvola_folder_image16.png";
+        relPaths[CATEGORY_GROUP] = "category_group16.png";
+        relPaths[CATEGORY] = "category16.png";
+        relPaths[IMAGE] = "nuvola_image16.png";
     }
     
     /** The sole instance. */
