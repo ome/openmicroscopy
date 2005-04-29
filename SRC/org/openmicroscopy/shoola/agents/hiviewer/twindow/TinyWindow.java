@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.twindow;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JComponent;
 import javax.swing.JWindow;
 
 //Third-party libraries
@@ -105,12 +107,36 @@ public class TinyWindow
     public TinyWindow(Frame owner, BufferedImage image, String title)
     {
         super(owner);
-        
         if (owner == null) throw new NullPointerException("No owner.");
         if (image == null) throw new NullPointerException("No image.");
         this.title = title;
         //Create the View and the Controller.
         uiDelegate = new TinyWindowUI(this, image);
+        new WindowControl(this, uiDelegate);
+    }
+    
+    public TinyWindow(Frame owner, JComponent c)
+    {
+        this(owner, c, null);
+    }
+    
+    public TinyWindow(Frame owner, JComponent c, String title)
+    {
+        super(owner);
+        if (owner == null) throw new NullPointerException("No owner.");
+        this.title = title;
+        //Create the View and the Controller.
+        if (c == null) uiDelegate = new TinyWindowUI(this);
+        else uiDelegate = new TinyWindowUI(this, c);
+        new WindowControl(this, uiDelegate);
+    }
+    
+    public TinyWindow(Frame owner, String title)
+    {
+        super(owner);
+        this.title = title;
+        if (owner == null) throw new NullPointerException("No owner.");
+        uiDelegate = new TinyWindowUI(this);
         new WindowControl(this, uiDelegate);
     }
     

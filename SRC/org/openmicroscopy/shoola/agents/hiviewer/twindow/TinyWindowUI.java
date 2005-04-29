@@ -101,7 +101,7 @@ public class TinyWindowUI
     private TitleBar        titleBar;  
     
     /** The component that displays the image. */
-    private ThumbnailCanvas canvas;
+    private JComponent      canvas;
     
     /**
      * Creates and sets the window and its content's borders.
@@ -110,15 +110,18 @@ public class TinyWindowUI
     {
         JRootPane rootPane = window.getRootPane();
         rootPane.setBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICKNESS));
-        canvas.setBorder(BorderFactory.createBevelBorder(
-                BevelBorder.LOWERED, INNER_BORDER_HIGHLIGHT, 
-                INNER_BORDER_SHADOW)); 
+               BorderFactory.createLineBorder(BORDER_COLOR, BORDER_THICKNESS));
+        if (canvas != null) {
+            canvas.setBorder(BorderFactory.createBevelBorder(
+                    BevelBorder.LOWERED, INNER_BORDER_HIGHLIGHT, 
+                    INNER_BORDER_SHADOW)); 
+        }
     }
     
     /** Set the size to the content. */
     private void makeComponentsSize(BufferedImage image)
     {
+        if (canvas == null) return;
         Insets i = canvas.getInsets();
         int width = image.getWidth()+i.right+i.left;
         int height = image.getHeight()+i.top+i.bottom;
@@ -132,18 +135,7 @@ public class TinyWindowUI
     {
         Container container = window.getContentPane();
         container.add(titleBar, BorderLayout.NORTH);
-        container.add(canvas, BorderLayout.CENTER);
-    }
-    
-    /** 
-     * Removes the specified component from the container.
-     * 
-     * @param c The component to remove.
-     */
-    private void removeComponent(JComponent c)
-    {
-        window.getContentPane().remove(c);
-        window.repaint();
+        if (canvas != null) container.add(canvas, BorderLayout.CENTER);
     }
     
     /** Adds the specified component to the container. */
@@ -159,9 +151,20 @@ public class TinyWindowUI
             }
         } 
         if (!in) {
-            container.add(c);
+            container.add(c, BorderLayout.CENTER);
             window.repaint();
         }
+    }
+    
+    /** 
+     * Removes the specified component from the container.
+     * 
+     * @param c The component to remove.
+     */
+    private void removeComponent(JComponent c)
+    {
+        window.getContentPane().remove(c);
+        window.repaint();
     }
 
     /** 
@@ -179,6 +182,14 @@ public class TinyWindowUI
         b.setActionCommand(""+id);
     }
     
+    /** Set the window and initializes the TitleBar. */
+    private void initialize(TinyWindow window)
+    {
+        if (window == null) throw new NullPointerException("No window.");
+        this.window = window;
+        titleBar = new TitleBar(window.getTitle());
+    }
+    
     /**
      * Creates a new UI delegate for the specified <code>window</code>.
      * 
@@ -187,14 +198,36 @@ public class TinyWindowUI
      * @param image     The bufferedImage to display. 
      *                  Mustn't be <code>null</code>.
      */
-    public TinyWindowUI(TinyWindow window, BufferedImage image)
+    TinyWindowUI(TinyWindow window, BufferedImage image)
     {
-        if (window == null) throw new NullPointerException("No window.");
-        this.window = window;
-        titleBar = new TitleBar(window.getTitle());
+        initialize(window);
         canvas = new ThumbnailCanvas(image);
+        makeComponentsSize(image); 
         makeBorders();
-        makeComponentsSize(image);
+        buildUI();
+    }
+    
+    /**
+     * Creates a new UI delegate for the specified <code>window</code>.
+     * 
+     * @param window    The window that will own this UI delegate. 
+     *                  Mustn't be <code>null</code>.
+     * @param c         The component to display. 
+     *                  Mustn't be <code>null</code>.
+     */
+    TinyWindowUI(TinyWindow window, JComponent c)
+    {
+        if (c == null) throw new NullPointerException("No component.");
+        initialize(window);
+        canvas = c;
+        makeBorders();
+        buildUI();
+    }
+    
+    TinyWindowUI(TinyWindow window)
+    {
+        initialize(window);
+        makeBorders();
         buildUI();
     }
     
@@ -219,16 +252,6 @@ public class TinyWindowUI
     void attachMouseMotionListener(MouseMotionListener controller)
     {
         titleBar.addMouseMotionListener(controller);
-    }
-    
-    /**
-     * Attaches the <code>controller</code> to the buttons of the titleBar.
-     * 
-     * @param controller An instance of {@link WindowControl}.
-     */
-    public void attachMouseListener(MouseListener controller)
-    {
-        titleBar.addMouseListener(controller);
     }
     
     /** Updates and repaints the title bar. */
@@ -263,6 +286,23 @@ public class TinyWindowUI
             window.setVisible(false);
             window.dispose();
         }
+    }
+     
+    /** Set the canvas. */
+    public void setCanvas(JComponent c)
+    { 
+        canvas = c;
+        addComponent(canvas);
+    }
+    
+    /**
+     * Attaches the <code>controller</code> to the buttons of the titleBar.
+     * 
+     * @param controller An instance of {@link WindowControl}.
+     */
+    public void attachMouseListener(MouseListener controller)
+    {
+        titleBar.addMouseListener(controller);
     }
     
 }
