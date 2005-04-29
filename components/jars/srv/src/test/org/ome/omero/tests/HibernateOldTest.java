@@ -1,7 +1,7 @@
 /*
  * Created on Apr 17, 2005
  */
-package org.ome.tests.hibernate;
+package org.ome.omero.tests;
 
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +14,6 @@ import org.ome.hibernate.User;
 import org.ome.hibernate.old.Dataset;
 import org.ome.hibernate.old.Image;
 import org.ome.hibernate.old.Project;
-import org.ome.tests.srv.SpringTestHarness;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;

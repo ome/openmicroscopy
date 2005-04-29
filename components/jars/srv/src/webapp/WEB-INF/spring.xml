@@ -16,56 +16,9 @@
 		</property>
 	</bean>
 	
-	<bean id="administrationService" class="org.ome.srv.logic.AdministrationServiceImpl">
-	    <property name="cache"><ref local="cache"/></property>
-	    <property name="store"><ref local="store"/></property>
-	    <property name="versionService"><ref local="versionService"/></property>
-	</bean>
-
-	<bean id="containerService" class="org.ome.srv.logic.ContainerServiceImpl">
-	    <property name="cache"><ref local="cache"/></property>
-	    <property name="store"><ref local="store"/></property>
-   	    <property name="versionService"><ref local="versionService"/></property>
-	</bean>
-
-	<bean id="imageService" class="org.ome.srv.logic.ImageServiceImpl">
-	    <property name="cache"><ref local="cache"/></property>
-	    <property name="store"><ref local="store"/></property>
-	    <property name="versionService"><ref local="versionService"/></property>
-	</bean>
-
-	<!-- not the most performant (less so than cache) but works for now -->
-	<bean id="versionService" class="org.ome.srv.logic.VersionServiceImpl">
-		<property name="store"><ref local="store"/></property>
-	</bean>
+	<bean id="hierarchyBrowsingService" class="org.ome.omero.logic.HierarchyBrowsingImpl"/>
 
 	<!-- ### Data ####################################################### -->
-
-	<bean id="cache" class="org.ome.cache.oscache.OSCache"/>
-	<bean id="store" class="org.ome.srv.db.jena.JenaGenericStore">
-	    <property name="pool"><ref bean="modelPool"/></property>
-   	    <property name="defaultModelName"><value>${jena.model.name.default}</value></property>
-	</bean>
-
-	<bean name="modelPool" class="org.apache.commons.pool.impl.StackKeyedObjectPool">
-		<property name="factory"><ref bean="modelFactory"/></property>
-	</bean>
-
-	<bean id="modelFactory" class="org.ome.srv.db.jena.JenaModelFactory">
-	    <property name="dataSource"><ref bean="dataSource"/></property>
-  	    <property name="databaseType"><value>${jena.db.type}</value></property>
-	</bean>
-<!--
-	<bean id="modelFactory" class="org.ome.srv.db.jena.JenaKowariModelFactory">
-	    <property name="serverUri">
-	    	<bean class="java.net.URI">
-	    		<constructor-arg>
-		    	<value>rmi://localhost/server1</value>
-		    	</constructor-arg>
-		   	</bean>
-	    </property>
-	</bean>
--->
 
 	<bean id="transactionManager" 
     	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -79,19 +32,18 @@
         </property>
         <property name="transactionAttributeSource">
             <value>
-                org.ome.interfaces.ImageService.retrieve*=PROPAGATION_REQUIRED
-                org.ome.interfaces.ImageService.update*=PROPAGATION_REQUIRED
+                org.ome.omero.interfaces.HierarchyBrowsing.find*=PROPAGATION_REQUIRED
+                org.ome.omero.interfaces.HierarchyBrowsing.load*=PROPAGATION_REQUIRED
             </value>
         </property>
     </bean>
 
-
 	<bean id="dataSource" 
     	class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-	    <property name="driverClassName"><value>${jena.db.driver}</value></property>
-    	<property name="url"><value>${jena.db.url}</value></property>
-	    <property name="username"><value>${jena.db.user}</value></property>
-	    <property name="password"><value>${jena.db.password}</value></property>
+	    <property name="driverClassName"><value>${db.driver}</value></property>
+    	<property name="url"><value>${db.url}</value></property>
+	    <property name="username"><value>${db.user}</value></property>
+	    <property name="password"><value>${db.password}</value></property>
 	</bean>
 
 <!--
@@ -111,29 +63,29 @@
              <value>org/ome/hibernate/old/Project.hbm.xml</value>
                <value>org/ome/hibernate/old/Dataset.hbm.xml</value>
                <value>org/ome/hibernate/old/Image.hbm.xml</value>			   			   			   			   
--->               <value>org/ome/hibernate/model/Image.hbm.xml</value>			   			   			   			   
-               <value>org/ome/hibernate/model/Project.hbm.xml</value>
-               <value>org/ome/hibernate/model/Category.hbm.xml</value>
-               <value>org/ome/hibernate/model/DisplayRoi.hbm.xml</value>
-               <value>org/ome/hibernate/model/ImageInfo.hbm.xml</value>
-               <value>org/ome/hibernate/model/Dataset.hbm.xml</value>
-               <value>org/ome/hibernate/model/ImagePlate.hbm.xml</value>
-               <value>org/ome/hibernate/model/ImagePixel.hbm.xml</value>
-               <value>org/ome/hibernate/model/Group.hbm.xml</value>
-               <value>org/ome/hibernate/model/Experimenter.hbm.xml</value>
-               <value>org/ome/hibernate/model/Feature.hbm.xml</value>
-               <value>org/ome/hibernate/model/CategoryGroup.hbm.xml</value>
-               <value>org/ome/hibernate/model/ImageAnnotation.hbm.xml</value>
-               <value>org/ome/hibernate/model/ImageDimension.hbm.xml</value>
-               <value>org/ome/hibernate/model/DatasetAnnotation.hbm.xml</value>
-               <value>org/ome/hibernate/model/DisplayOption.hbm.xml</value>
-               <value>org/ome/hibernate/model/ChannelComponent.hbm.xml</value>
-               <value>org/ome/hibernate/model/Thumbnail.hbm.xml</value>
+-->            <value>org/ome/omero/model/Image.hbm.xml</value>			   			   			   			   
+               <value>org/ome/omero/model/Project.hbm.xml</value>
+               <value>org/ome/omero/model/Category.hbm.xml</value>
+               <value>org/ome/omero/model/DisplayRoi.hbm.xml</value>
+               <value>org/ome/omero/model/ImageInfo.hbm.xml</value>
+               <value>org/ome/omero/model/Dataset.hbm.xml</value>
+               <value>org/ome/omero/model/ImagePlate.hbm.xml</value>
+               <value>org/ome/omero/model/ImagePixel.hbm.xml</value>
+               <value>org/ome/omero/model/Group.hbm.xml</value>
+               <value>org/ome/omero/model/Experimenter.hbm.xml</value>
+               <value>org/ome/omero/model/Feature.hbm.xml</value>
+               <value>org/ome/omero/model/CategoryGroup.hbm.xml</value>
+               <value>org/ome/omero/model/ImageAnnotation.hbm.xml</value>
+               <value>org/ome/omero/model/ImageDimension.hbm.xml</value>
+               <value>org/ome/omero/model/DatasetAnnotation.hbm.xml</value>
+               <value>org/ome/omero/model/DisplayOption.hbm.xml</value>
+               <value>org/ome/omero/model/ChannelComponent.hbm.xml</value>
+               <value>org/ome/omero/model/Thumbnail.hbm.xml</value>
            </list>
        </property>
        <property name="hibernateProperties">
            <props>
-               <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+               <prop key="hibernate.dialect">${db.dialect}</prop>
 			   <prop key="hibernate.show_sql">true</prop>
            </props>
        </property>

@@ -13,35 +13,9 @@
 	   </property>
    </bean>
 
-	<!-- MultiActionController that defines user interface actions as separate methods -->
-	<bean name="/Image" class="org.ome.srv.net.ImageController">
-		<property name="methodNameResolver">
-			<bean class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
-				<property name="mappings">
-					<props>
-						<prop key="/Image*">retrieveImage</prop>
-					</props>
-				</property>
-			</bean>
-		</property>
-		<property name="imageService"><ref bean="imageService"/></property>
+	<bean name="/HierarchyBrowsing" class="org.springframework.remoting.caucho.HessianServiceExporter">
+	    <property name="service"><ref bean="hierarchyBrowsingService"/></property> 
+	    <property name="serviceInterface"><value>org.ome.omero.interfaces.HierarchyBrowsing</value></property>
 	</bean>
-
-
-	<bean name="/AdministrationFacade" class="org.springframework.remoting.caucho.HessianServiceExporter">
-	    <property name="service"><ref bean="administrationService"/></property>
-	    <property name="serviceInterface"><value>org.ome.interfaces.AdministrationService</value></property>
-	</bean>
-
-	<bean name="/ContainerFacade" class="org.springframework.remoting.caucho.HessianServiceExporter">
-	    <property name="service"><ref bean="containerService"/></property>
-	    <property name="serviceInterface"><value>org.ome.interfaces.ContainerService</value></property>
-	</bean>
-
-	<bean name="/ImageFacade" class="org.springframework.remoting.caucho.HessianServiceExporter">
-	    <property name="service"><ref bean="imageService"/></property>
-	    <property name="serviceInterface"><value>org.ome.interfaces.ImageService</value></property>
-	</bean>
-
 	
 </beans>

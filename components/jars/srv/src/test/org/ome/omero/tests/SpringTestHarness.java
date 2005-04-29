@@ -1,7 +1,7 @@
 /*
  * Created on Jul 21, 2004
  */
-package org.ome.tests.srv;
+package org.ome.omero.tests;
 
 import java.net.URL;
 
@@ -20,7 +20,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class SpringTestHarness {
 
-    private final static String[] springConfFiles = new String[]{"config-test.xml","spring.xml","security.xml"};
+    private final static String[] springConfFiles = new String[]{"config-test.xml","spring.xml"};//TODO,"security.xml"};
     private static URL[] ctxURLs = new URL[springConfFiles.length];
     private static String[] ctxPaths = new String[springConfFiles.length];
     

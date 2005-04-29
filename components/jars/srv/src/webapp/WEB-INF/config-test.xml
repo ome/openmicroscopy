@@ -8,7 +8,7 @@
       class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 		<list>
-			<value>target/classes/jena.properties</value>
+			<value>target/classes/spring.properties</value>
 		</list>
 		</property>
 	</bean>
