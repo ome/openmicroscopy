@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.env.data.model.FormalOutputData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 
 /** 
- * Mapper for module catgegories
+ * Mapper for modules
  *  
  * @author  Harry Hochheiser &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:hsh@nih.gov">hsh@nih.gov</a>
@@ -89,7 +89,6 @@ public class ModuleMapper
 	
 		//Specify which fields we want for the datasets.
 		criteria.addWantedField("category", "id");
-		criteria.addWantedField("category", "name");
 		// what do we want about inputs and outputs 
 		criteria.addWantedField("inputs","id");
 		criteria.addWantedField("inputs","name");
@@ -156,62 +155,66 @@ public class ModuleMapper
 			if (mc != null) {
 				mcd = (ModuleCategoryData) mcProto.makeNew();
 				mcd.setID(mc.getID());
-				mcd.setName(mc.getName());
+		//		mcd.setName(mc.getName());
 				mod.setModuleCategory(mcd);
 			}
 				
 			// inputs
 			
-			j = m.getFormalInputs().iterator();
-			params = new ArrayList();
-			while (j.hasNext()) {
-				fin  = (FormalInput) j.next();
-				int id = fin.getID();
-				
-				//Make a new DataObject and fill it up.
-				finData = (FormalInputData) finProto.makeNew();
-				finData.setFormalInputDTO(fin);
-				finData.setID(id);
-				finData.setName(fin.getName());
-		
-				// semantic type for the parameter.
-				st = fin.getSemanticType();
-				if (st != null) {
-					std = getSemanticTypeData(st,stProto,stMap);
-					finData.setSemanticType(std);
-				} 
-				//Add the input to this module's list.
-				params.add(finData);	
-			}
 			
-			//Link the inputs to this module.
-			mod.setFormalInputs(params);
+			if (m.getFormalInputs() != null ) {
+				j = m.getFormalInputs().iterator();
+				params = new ArrayList();
+				while (j.hasNext()) {
+					fin  = (FormalInput) j.next();
+					int id = fin.getID();
+					
+					//Make a new DataObject and fill it up.
+					finData = (FormalInputData) finProto.makeNew();
+					finData.setFormalInputDTO(fin);
+					finData.setID(id);
+					finData.setName(fin.getName());
 			
-			// outputs
-			
-			j = m.getFormalOutputs().iterator();
-			params = new ArrayList();
-			while (j.hasNext()) {
-				fout  = (FormalOutput) j.next();
-				int id = fout.getID();
+					// semantic type for the parameter.
+					st = fin.getSemanticType();
+					if (st != null) {
+						std = getSemanticTypeData(st,stProto,stMap);
+						finData.setSemanticType(std);
+					} 
+					//Add the input to this module's list.
+					params.add(finData);	
+				}
 				
-				foutData = (FormalOutputData) foutProto.makeNew();
-				foutData.setFormalOutputDTO(fout);
-				foutData.setID(id);
-				foutData.setName(fout.getName());
-				
-				//	semantic type for the parameter.
-				 st = fout.getSemanticType();
-				 if (st != null) {
-				 	std = getSemanticTypeData(st,stProto,stMap);
-				 	foutData.setSemanticType(std);
-				 } 
-				//Add the input to this module's list.
-				params.add(foutData);	
+				//Link the inputs to this module.
+				mod.setFormalInputs(params);
 			}
 
-			//Link the inputs to this module.
-			mod.setFormalOutputs(params);
+			// outputs
+			if (m.getFormalOutputs() != null) {
+				j = m.getFormalOutputs().iterator();
+				params = new ArrayList();
+				while (j.hasNext()) {
+					fout  = (FormalOutput) j.next();
+					int id = fout.getID();
+					
+					foutData = (FormalOutputData) foutProto.makeNew();
+					foutData.setFormalOutputDTO(fout);
+					foutData.setID(id);
+					foutData.setName(fout.getName());
+					
+					//	semantic type for the parameter.
+					 st = fout.getSemanticType();
+					 if (st != null) {
+					 	std = getSemanticTypeData(st,stProto,stMap);
+					 	foutData.setSemanticType(std);
+					 } 
+					//Add the input to this module's list.
+					params.add(foutData);	
+				}
+
+				//Link the inputs to this module.
+				mod.setFormalOutputs(params);
+			}
 			
 			//Add the module to the list of returned modules;.
 			modList.add(mod);
