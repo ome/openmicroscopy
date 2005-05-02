@@ -256,16 +256,14 @@ public class TinyFrameUI
     protected JComponent createNorthPane(JInternalFrame f) { return titleBar; }
     
     /**
-     * Overridden to create a mananger that returns the correct minimum size.
+     * Overridden to create a manager that returns the correct minimum size.
      */
     protected LayoutManager createLayoutManager()
     {
         return new InternalFrameLayout() {
             public Dimension minimumLayoutSize(Container c) 
             {
-                Dimension d = new Dimension(0, 0);
-                if (titleBar.isVisible()) d = titleBar.getMinimumSize();
-                //Dimension d = titleBar.getMinimumSize();
+                Dimension d = titleBar.getMinimumSize();
                 Insets i = frame.getInsets();
                 d.width += i.left+i.right;
                 d.height += i.top+i.bottom;
