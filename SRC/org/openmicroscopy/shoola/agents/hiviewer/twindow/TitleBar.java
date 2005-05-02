@@ -130,11 +130,8 @@ class TitleBar
     TitleBar(String title) 
     {
         setBorder(BorderFactory.createEmptyBorder());
-        
         titlePainter = new TitlePainter(new Font("SansSerif", Font.PLAIN, 16));
-        
         update(title);
-        
         //create buttons
         sizeButton = new SizeButton();
         sizeButton.setActionType(SizeButton.COLLAPSE);
@@ -160,9 +157,6 @@ class TitleBar
     {
         setToolTipText(t);
         titlePainter.setTitle(t);
-        //if (highlightColor == null)  //No highlighting required, normal mode.
-        //    bgPainter = NORMAL_PAINTER;
-        //else bgPainter = new HiBgPainter(highlightColor);  //Highlight bg.
         repaint();
     }
 

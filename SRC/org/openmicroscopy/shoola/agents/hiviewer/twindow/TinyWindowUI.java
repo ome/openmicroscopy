@@ -224,6 +224,12 @@ public class TinyWindowUI
         buildUI();
     }
     
+    /**
+     * Creates a new UI delegate for the specified <code>window</code>.
+     * 
+     * @param window    The window that will own this UI delegate. 
+     *                  Mustn't be <code>null</code>.
+     */
     TinyWindowUI(TinyWindow window)
     {
         initialize(window);
