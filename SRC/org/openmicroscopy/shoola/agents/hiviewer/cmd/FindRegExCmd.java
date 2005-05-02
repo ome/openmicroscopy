@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.search.SearchExplorer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -104,7 +105,11 @@ public class FindRegExCmd
         ImageDisplay selectedDisplay = browser.getSelectedDisplay();
         if (selectedDisplay.getParentDisplay() == null) //root
             browser.accept(visitor);
-        else selectedDisplay.accept(visitor);
+        else {
+            if (selectedDisplay instanceof ImageNode)
+                selectedDisplay.getParentDisplay().accept(visitor);
+            else selectedDisplay.accept(visitor);
+        }
         SearchExplorer explorer = new SearchExplorer(model.getUI(), title, 
                 visitor.getFoundNodes());
         UIUtilities.centerAndShow(explorer);

@@ -215,4 +215,8 @@ public interface HiViewer
     /** Returns the title of the hiViewer. */
     public String getViewTitle();
     
+    public void setTitleBarVisible(boolean b);
+    
+    public boolean isTitleBarVisible();
+    
 }

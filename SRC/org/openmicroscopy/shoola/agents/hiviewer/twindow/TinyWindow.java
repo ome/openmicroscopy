@@ -232,5 +232,7 @@ public class TinyWindow
      * @return <code>true</code> if closed, <code>false</code> otherwise. 
      */
     public boolean isClosed() { return closed; }
+    
+    public void closeWindow() { uiDelegate.updateClosedState(); }
 
 }

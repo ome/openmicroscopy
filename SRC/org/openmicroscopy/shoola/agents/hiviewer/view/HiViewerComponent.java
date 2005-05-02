@@ -235,8 +235,7 @@ class HiViewerComponent
                     "This method cannot be invoked in the DISCARDED state.");
         return view;
     }
-    
-    
+     
     /**
      * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#getViewTitle()
@@ -255,4 +254,41 @@ class HiViewerComponent
         }       
     }
 
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setTitleBarVisible(boolean)
+     */
+    public void setTitleBarVisible(boolean b)
+    {
+        int state = model.getState();
+        switch (state) {
+            case LOADING_THUMBNAILS:
+            case READY:
+                view.setTitleBarVisible(b);
+                break;
+            default:
+                throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        }      
+    }
+    
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#isTitleBarVisible()
+     */
+    public boolean isTitleBarVisible()
+    {
+        int state = model.getState();
+        switch (state) {
+            case LOADING_THUMBNAILS:
+            case READY:
+                return view.isTitleBarVisible();
+            default:
+                throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        }      
+    }
+    
 }

@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithTitleAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewAction;
@@ -125,29 +126,32 @@ class HiViewerControl
     /** Identifies the tree layout action within layout menu. */
     public static final Integer     TREE = new Integer(9);
     
+    /** Identifies the titleBar action within layout menu. */
+    public static final Integer     TITLEBAR = new Integer(10);
+    
     /** Identifies the save layout action within layout menu. */
-    public static final Integer     SAVE = new Integer(10);
+    public static final Integer     SAVE = new Integer(11);
     
     /** Identifies the properties action within actions menu. */
-    public static final Integer     PROPERTIES = new Integer(11);
+    public static final Integer     PROPERTIES = new Integer(12);
     
     /** Identifies the annotate action within actions menu. */
-    public static final Integer     ANNOTATE = new Integer(12);
+    public static final Integer     ANNOTATE = new Integer(13);
     
     /** Identifies the classify action within actions menu. */
-    public static final Integer     CLASSIFY = new Integer(13);
+    public static final Integer     CLASSIFY = new Integer(14);
     
     /** Identifies the view action within actions menu. */
-    public static final Integer     VIEW = new Integer(14);
+    public static final Integer     VIEW = new Integer(15);
     
     /** Identifies the zoom in action within actions menu. */
-    public static final Integer     ZOOM_IN = new Integer(15);
+    public static final Integer     ZOOM_IN = new Integer(16);
     
     /** Identifies the zoom out action within actions menu. */
-    public static final Integer     ZOOM_OUT = new Integer(16);
+    public static final Integer     ZOOM_OUT = new Integer(17);
     
     /** Identifies the zoom fit action within actions menu. */
-    public static final Integer     ZOOM_FIT = new Integer(17);
+    public static final Integer     ZOOM_FIT = new Integer(18);
     
     
     /** 
@@ -177,6 +181,7 @@ class HiViewerControl
         actionsMap.put(CLEAR, new ClearAction(model));
         actionsMap.put(SQUARY, new SquaryLayoutAction(model));
         actionsMap.put(TREE, new TreeLayoutAction(model));
+        actionsMap.put(TITLEBAR, new ShowTitleBarAction(model));
         actionsMap.put(SAVE, new SaveLayoutAction(model));
         actionsMap.put(PROPERTIES, new PropertiesAction(model));
         actionsMap.put(ANNOTATE, new AnnotateAction(model));

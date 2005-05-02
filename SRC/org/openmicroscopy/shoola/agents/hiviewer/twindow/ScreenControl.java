@@ -107,7 +107,7 @@ class ScreenControl
     void  mouseReleased(MouseEvent e)
     {
         if (dragging) {
-            //moveFrame(e);
+            moveFrame(e);
             setCursor(initialCursor);
             dragging = false;
         }

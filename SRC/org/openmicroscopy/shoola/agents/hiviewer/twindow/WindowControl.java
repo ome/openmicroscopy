@@ -110,7 +110,9 @@ class WindowControl
         if (TinyWindow.TITLE_PROPERTY.equals(propChanged))
             view.updateTitleBar();
         else if (TinyWindow.CLOSED_PROPERTY.equals(propChanged))
-            view.updateClosedState();
+            //Does it this way b/c we may need to override the closeWindow()
+            //method.
+            model.closeWindow();
         else if (TinyWindow.COLLAPSED_PROPERTY.equals(propChanged)) 
             //The size button has been pressed. The frame state changed
             //and we're getting notified.

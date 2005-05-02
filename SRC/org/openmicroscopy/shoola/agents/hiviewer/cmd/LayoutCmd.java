@@ -96,6 +96,7 @@ public class LayoutCmd
         else {
             if (selectedDisplay instanceof ImageSet)
                 selectedDisplay.accept(visitor);
+            else selectedDisplay.getParentDisplay().accept(visitor);
         }
     }
 
