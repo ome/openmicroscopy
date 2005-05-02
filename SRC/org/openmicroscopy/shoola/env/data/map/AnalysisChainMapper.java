@@ -78,6 +78,9 @@ public class AnalysisChainMapper
 	 * Create the criteria by which the object graph is pulled out.
 	 * Criteria built for retrieving modules
 	 * 
+	 * NOTE (3/31/05) - addition of retrieveChains in DMSAdapter may have made 
+	 * these methods irrelevant. Deprecate/remove?
+	 * 
 	 */
 	
 	public static Criteria buildChainsCriteria(int uid) {
@@ -150,11 +153,13 @@ public class AnalysisChainMapper
 		Experimenter exp;
 		chain.setID(c.getID());
 		chain.setName(c.getName());
-		chain.setDescription(c.getDescription());
+		if (c.getDescription() != null)
+			chain.setDescription(c.getDescription());
 		chain.setIsLocked(c.isLocked().booleanValue());
 		
 		exp = c.getOwner();
-		chain.setOwner(exp.getFirstName()+" "+exp.getLastName());
+		if (exp != null) 
+		    chain.setOwner(exp.getFirstName()+" "+exp.getLastName());
 		getNodes(chain,c,anProto,mdProto);
 		getLinks(chain,c,anProto,alProto,finProto,foutProto,stProto);
 		
