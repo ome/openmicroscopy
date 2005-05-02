@@ -217,7 +217,7 @@ public class TinyFrame
      * 
      * @return See above.
      */
-    public JComponent getTitleBar() { return uiDelegate.getTitleBar(); }
+    public JComponent getTitleBar() { return uiDelegate.titleBar; }
     
     /**
      * Returns the size this frame should have to fully display the internal
@@ -250,7 +250,7 @@ public class TinyFrame
     }
     
     /**
-     * Returns the intrnal desktop, which serves as the content pane for
+     * Returns the internal desktop, which serves as the content pane for
      * this frame.
      * 
      * @return See above.
@@ -273,5 +273,8 @@ public class TinyFrame
      * Overridden to avoid a L&F switch changing the {@link #uiDelegate}.
      */
     public void setUI(InternalFrameUI ui) { super.setUI(uiDelegate); }
+    
+    /** Shows the titleBar. */
+    public void showTitleBar(boolean b) { uiDelegate.showTitleBar(b); }
     
 }

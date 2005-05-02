@@ -101,14 +101,16 @@ public class TinyFrameUI
   
     
     /** The scroll pane that contains the internal desktop. */
-    private JScrollPane dskDecorator;
+    private JScrollPane     dskDecorator;
 
     /** The frame that owns this UI delegate. */
-    protected TinyFrame frame;
+    protected TinyFrame     frame;
     
     /** The component that draws the frame's title bar. */
-    protected TitleBar  titleBar;
+    protected TitleBar      titleBar;
     
+    /** The component that draws the frame's border. */
+    protected FrameBorder   border;
     
     /**
      * Creates a new UI delegate for the specified <code>frame</code>.
@@ -122,6 +124,7 @@ public class TinyFrameUI
         if (frame == null) throw new NullPointerException("No frame.");
         this.frame = frame;
         titleBar = new TitleBar(frame.getTitle());
+        border = new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, BORDER_MARGIN);
         makeBorders();
         frame.setOpaque(false);
     }
@@ -168,12 +171,16 @@ public class TinyFrameUI
         titleBar.sizeButton.addActionListener(controller);
     }
     
-    /**
-     * Updates and repaints the title bar.
-     */
+    /** Updates and repaints the title bar. */
     void updateTitleBar() 
     { 
         titleBar.update(frame.getTitle(), frame.getHighlight()); 
+    }
+    
+    /** Repaints the border. */
+    void updateBorder()
+    {
+        border.setBackgroundColor(frame.getHighlight());
     }
     
     /**
@@ -183,7 +190,8 @@ public class TinyFrameUI
     void updateCollapsedState()
     {
         if (frame.isCollapsed()) {
-            frame.setSize(frame.getWidth(), TitleBar.HEIGHT+
+            int h = titleBar.getPreferredSize().height;
+            frame.setSize(frame.getWidth(), h+ 
                     2*(BORDER_THICKNESS+BORDER_MARGIN));  
             //For example, if BORDER_THICKNESS=1, then +2 will make the border 
             //bottom show as the border thickness is 1, so we need 1px at the 
@@ -206,21 +214,31 @@ public class TinyFrameUI
     Dimension getIdealSize()
     {
         Dimension sz = new Dimension();
+        int h = titleBar.getPreferredSize().height;
         Dimension internalDesktopSz = frame.getContentPane().getPreferredSize();
         Insets scrollPaneInsets = dskDecorator.getInsets(),
                 frameInsets = frame.getInsets();
         sz.width = frameInsets.left + scrollPaneInsets.left + 
                     internalDesktopSz.width + 
                     scrollPaneInsets.right + frameInsets.right;
-        sz.height = frameInsets.top + 
-                    TitleBar.HEIGHT + 
+        sz.height = frameInsets.top +  
                     scrollPaneInsets.top +
                     internalDesktopSz.height + 
                     scrollPaneInsets.bottom +
-                    frameInsets.bottom;
+                    frameInsets.bottom +
+                    h;
         return sz;
     }
  
+    /** Shows or not the titleBar.*/
+    void showTitleBar(boolean b)
+    {
+        Dimension d = new Dimension(titleBar.getWidth(), 0);
+        if (b) d = new Dimension(titleBar.getWidth(), TitleBar.HEIGHT);
+        titleBar.setPreferredSize(d);
+        frame.pack();
+    }
+    
     /**
      * Creates and sets the frame and its content's borders.
      */
@@ -229,8 +247,7 @@ public class TinyFrameUI
         Object x = frame.getContentPane();
         if (x instanceof JComponent)
             ((JComponent) x).setBorder(BorderFactory.createEmptyBorder());
-        frame.setBorder(new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, 
-                                        BORDER_MARGIN));
+        frame.setBorder(border);
     }
     
     /**
@@ -246,7 +263,9 @@ public class TinyFrameUI
         return new InternalFrameLayout() {
             public Dimension minimumLayoutSize(Container c) 
             {
-                Dimension d = titleBar.getMinimumSize();
+                Dimension d = new Dimension(0, 0);
+                if (titleBar.isVisible()) d = titleBar.getMinimumSize();
+                //Dimension d = titleBar.getMinimumSize();
                 Insets i = frame.getInsets();
                 d.width += i.left+i.right;
                 d.height += i.top+i.bottom;

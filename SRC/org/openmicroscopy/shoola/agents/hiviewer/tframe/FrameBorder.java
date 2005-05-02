@@ -179,4 +179,16 @@ class FrameBorder
      */
     public int getMargin() { return margin; }
     
+    /**
+     * Sets the color of the background. if <code>null</code>, the default color
+     * is then set.
+     * 
+     * @param c
+     */
+    public void setBackgroundColor(Color c)
+    {
+        if (c == null) backgroundColor = DEFAULT_COLOR;
+        else backgroundColor = c;
+    }
+    
 }

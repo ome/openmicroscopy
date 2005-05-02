@@ -98,10 +98,13 @@ class FrameControl
     {
         String propChanged = pce.getPropertyName();
         if (TinyFrame.IS_SELECTED_PROPERTY.equals(propChanged) ||
-                TinyFrame.TITLE_PROPERTY.equals(propChanged))
+                TinyFrame.TITLE_PROPERTY.equals(propChanged)) {
             view.updateTitleBar();
-        else if (TinyFrame.HIGHLIGHT_PROPERTY.equals(propChanged)) {
+            //view.updateBorder();
+            //model.moveToFront();
+        } else if (TinyFrame.HIGHLIGHT_PROPERTY.equals(propChanged)) {
             view.updateTitleBar();
+            view.updateBorder();
             model.moveToFront();
         } else if (TinyFrame.COLLAPSED_PROPERTY.equals(propChanged)) 
             //The size button has been pressed. The frame state changed
