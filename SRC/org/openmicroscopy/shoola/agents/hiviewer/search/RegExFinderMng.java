@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.view.RegExFinderMng
+ * org.openmicroscopy.shoola.agents.hiviewer.search.RegExFinderMng
  *
  *------------------------------------------------------------------------------
  *

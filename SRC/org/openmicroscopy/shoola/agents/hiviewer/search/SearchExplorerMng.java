@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.search;
 
 
 //Java imports
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,6 +77,31 @@ class SearchExplorerMng
     {
         this.view = view;
         identityMap = new HashMap();
+        initListeners();
+    }
+    
+    /** 
+     * Attach a mouse adapter to the tree in the view to get notified 
+     * of mouse events on the tree.
+     */
+    private void initListeners()
+    {
+        view.tree.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) { onClick(e); }
+            public void mouseReleased(MouseEvent e) { onClick(e); }
+        });
+    }
+    
+    /** Handles mouse click events. */
+    private void onClick(MouseEvent me)
+    {
+        int row = view.tree.getRowForLocation(me.getX(), me.getY());
+        if (row != -1) {
+            view.tree.setSelectionRow(row);
+            if (me.isPopupTrigger() && view.getDataObject() != null)
+                view.showMenu(me.getPoint());
+            else view.hideMenu();
+        }
     }
     
     /** 
@@ -138,10 +165,17 @@ class SearchExplorerMng
     /** Builds the results tree. */
     void buildTree(Set nodes)
     {
-        Iterator i = nodes.iterator();
-        while (i.hasNext())
-            buildTreeNode((ImageDisplay) i.next());
+        if (nodes.size() == 0) {
+            getTreeModel();
+            DefaultMutableTreeNode childNode = 
+                new DefaultMutableTreeNode("Empty");
+            DefaultTreeModel tm= (DefaultTreeModel) view.tree.getModel();
+            tm.insertNodeInto(childNode, root, root.getChildCount());
+        } else {
+            Iterator i = nodes.iterator();
+            while (i.hasNext())
+                buildTreeNode((ImageDisplay) i.next());
+        }
     }
-
-    
+   
 }

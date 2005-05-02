@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.search;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Point;
 import java.util.Set;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -47,6 +48,10 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 /** 
  * 
@@ -68,6 +73,10 @@ public class SearchExplorer
     
     private static final Dimension DEFAULT_DIMENSION = new Dimension(150, 150);
     
+    /** The point at which the last popup event occurred. */
+    private Point               popupPoint;
+    
+    /** Reference to this component manager. */
     private SearchExplorerMng   manager;
     
     /** The tree used to display the results. */
@@ -108,6 +117,58 @@ public class SearchExplorer
         tree.setModel(dtm);
         tree.setShowsRootHandles(true);
         tree.expandPath(new TreePath(root.getPath()));
+    }
+    
+    /**
+     * Returns the selected data object.
+     * @return See above.
+     */
+    DataObject getDataObject()
+    {
+        DataObject target = null;
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                                            tree.getLastSelectedPathComponent();
+        if (node != null) {
+            Object  usrObj = node.getUserObject();
+            if (usrObj instanceof ProjectSummary || 
+                usrObj instanceof DatasetSummary ||
+                usrObj instanceof ImageSummary)
+                target = (DataObject) usrObj;
+        }
+        return target;
+    }
+    
+    /**
+     * The point at which the last popup event occurred.
+     * 
+     * @return See above.
+     */
+    Point getPopupPoint() { return popupPoint; }
+    
+    /** Brings up the menu for the current window. */
+    void showMenu(Point p)
+    {
+        popupPoint = p;
+        DataObject target = getDataObject();
+        String txt = SearchExplorerPopupMenu.BROWSE;
+        boolean b = false;
+        if (target instanceof ImageSummary) {
+            txt = SearchExplorerPopupMenu.VIEW;
+            b = true;
+        }
+        SearchExplorerPopupMenu.setViewText(txt);
+        SearchExplorerPopupMenu.setClassifyEnabled(b);
+        SearchExplorerPopupMenu.showMenuFor(this);
+    }
+    
+    /** Hides the popup menu. */
+    void hideMenu() { SearchExplorerPopupMenu.hideMenu(); }
+    
+    /** Overrides the {@link #closeWindow()} method. */
+    public void closeWindow()
+    {
+        super.closeWindow();
+        hideMenu();
     }
     
 }
