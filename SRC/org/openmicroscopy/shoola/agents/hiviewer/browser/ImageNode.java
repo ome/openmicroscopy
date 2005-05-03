@@ -100,7 +100,7 @@ public class ImageNode
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
         canvas = new ThumbnailCanvas(this);
-        desktopPane.add(canvas);
+        getInternalDesktop().add(canvas);
         int w = t.getWidth(), h = t.getHeight();
         setCanvasSize(w, h);
     }
@@ -142,7 +142,7 @@ public class ImageNode
     public void setCanvasSize(int w, int h)
     {
         canvas.setBounds(0, 0, w, h);
-        desktopPane.setPreferredSize(new Dimension(w, h));
+        getInternalDesktop().setPreferredSize(new Dimension(w, h));
     }
     
 }

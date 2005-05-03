@@ -178,7 +178,7 @@ public abstract class ImageDisplay
             child.parentDisplay.removeChildDisplay(child);
         child.parentDisplay = this;
         childrenDisplay.add(child);
-        desktopPane.add(child);
+        getInternalDesktop().add(child);
     }
     
     /**
@@ -198,7 +198,7 @@ public abstract class ImageDisplay
             //NOTE: parentDisplay != null b/c child has been added through
             //the add method.
             child.parentDisplay.childrenDisplay.remove(child);
-            child.parentDisplay.desktopPane.remove(child);
+            child.parentDisplay.getInternalDesktop().remove(child);
             child.parentDisplay = null;
         }
     }
