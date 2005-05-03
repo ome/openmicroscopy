@@ -155,8 +155,13 @@ abstract class HiViewerModel
      */
     void fireThumbnailLoading()
     {
+        Set images = browser.getImages();
+        if (images.size() == 0) {
+            state = HiViewer.READY;
+            return;
+        }
         state = HiViewer.LOADING_THUMBNAILS;
-        currentLoader = new ThumbnailLoader(component, browser.getImages());
+        currentLoader = new ThumbnailLoader(component, images);
         currentLoader.load();
     }
     

@@ -158,14 +158,16 @@ class HiViewerControl
      * Reference to the {@link HiViewer} component, which, in this context,
      * is regarded as the Model.
      */
-    private HiViewer       model;
+    private HiViewer        model;
     
     /** Reference to the View. */
-    private HiViewerWin    view;
+    private HiViewerWin     view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map            actionsMap;
+    private Map             actionsMap;
     
+    /** Keep track of the old state.*/
+    private int             historyState;
     
     /**
      * Helper method to create all the UI actions.
@@ -262,6 +264,18 @@ class HiViewerControl
         
     }
     
+    /** Sets the browser UI and attach listeners. */
+    private void setBrowserView()
+    {
+        Browser browser = model.getBrowser();
+        browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, 
+                                      this);
+        browser.addPropertyChangeListener(
+                Browser.THUMB_SELECTED_PROPERTY, this); 
+        view.setBrowserView(browser.getUI());
+        view.setViewTitle();
+    }
+    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -283,6 +297,7 @@ class HiViewerControl
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
+        historyState = -1;
         actionsMap = new HashMap();
         createActions();
         model.addChangeListener(this);   
@@ -305,19 +320,18 @@ class HiViewerControl
         int state = model.getState();
         switch (state) {
             case HiViewer.LOADING_THUMBNAILS:
-                Browser browser = model.getBrowser();
-                browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, 
-                                              this);
-                browser.addPropertyChangeListener(
-                        Browser.THUMB_SELECTED_PROPERTY, this); 
-                view.setBrowserView(browser.getUI());
-                view.setViewTitle();
+                setBrowserView();
+                break;
+            case HiViewer.READY:
+                if (historyState == HiViewer.LOADING_HIERARCHY)
+                    setBrowserView();
                 break;
             case HiViewer.DISCARDED:
                 view.setVisible(false);
                 view.dispose();
                 break;
         }
+        historyState = state;
     }
     
     /** Reacts to property changes in the {@link Browser}. */

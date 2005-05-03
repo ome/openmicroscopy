@@ -156,6 +156,9 @@ class HiViewerComponent
                     "state.");
         model.createBrowser(roots);
         model.fireThumbnailLoading();
+        //b/c fireThumbnailLoading() sets the state to READY if there is no
+        //image.
+        setStatus(null, -1);
         fireStateChange();
     }
 
