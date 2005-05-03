@@ -398,9 +398,9 @@ public class NullDataManagementService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveModuleCategories(org.openmicroscopy.shoola.env.data.model.ModuleCategoryData, org.openmicroscopy.shoola.env.data.model.ModuleData)
+     * @see org.openmicroscopy.shoola.env.data.DataManagementService#retrieveModuleCategories(org.openmicroscopy.shoola.env.data.model.ModuleCategoryData)
      */
-    public List retrieveModuleCategories(ModuleCategoryData mcProto, ModuleData mProto)
+    public List retrieveModuleCategories(ModuleCategoryData mcProto)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
