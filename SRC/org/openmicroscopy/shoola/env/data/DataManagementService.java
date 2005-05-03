@@ -582,18 +582,16 @@ public interface DataManagementService
 	 * Retrieve all of the system's analysis modules categories
 	 * Create a list of module category data DataObjects filled up with 
 	 * data retrieved from OMEDS module objects.
-	 * Each module category object is linked to a lists of modules
+	 * Each module category object is linked to a lists of module ids
 	 *
 	 * @param mcProto	module category proto. 
-	 * @param mProto	module proto.
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMEDS service.
 	 */
-	public List retrieveModuleCategories(ModuleCategoryData mcProto,
-					ModuleData mProto)
+	public List retrieveModuleCategories(ModuleCategoryData mcProto)
 		throws DSOutOfServiceException, DSAccessException;
 								
 	/**
@@ -940,5 +938,4 @@ public interface DataManagementService
      */
     public List getChainExecutionHistory(int mexID) 
 		throws DSOutOfServiceException, DSAccessException;
-    
 }

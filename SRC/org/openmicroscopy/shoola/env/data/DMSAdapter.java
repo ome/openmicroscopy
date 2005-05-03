@@ -47,7 +47,6 @@ import org.openmicroscopy.ds.dto.AnalysisNode;
 import org.openmicroscopy.ds.dto.ChainExecution;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
-import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.Dimensions;
@@ -773,7 +772,7 @@ class DMSAdapter
 		Criteria c = ModuleMapper.buildModulesCriteria();
 		
 		// Load the graph defined by the criteria
-		List modules = (List) gateway.retrieveListData(Module.class, c);
+		List modules = gateway.retrieveModules();
 		
 		List moduleDS = null;
 		if (modules != null) 
@@ -790,12 +789,10 @@ class DMSAdapter
 	}
 	
 	/** Implemented as specified in {@link DataManagementService}. */
-	public List retrieveModuleCategories(ModuleCategoryData mcProto,
-					ModuleData mProto)
+	public List retrieveModuleCategories(ModuleCategoryData mcProto)
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (mcProto == null)   mcProto = new ModuleCategoryData();
-		if (mProto == null)    mProto = new ModuleData();
 				
 		//Define the criteria by which the object graph is pulled out
 		Criteria c = ModuleCategoryMapper.buildModuleCategoriesCriteria();
@@ -807,8 +804,7 @@ class DMSAdapter
 		List categoryDS = null;
 		if (categories != null) 
 			categoryDS = 
-				ModuleCategoryMapper.fillModuleCategories(categories, mcProto, 
-                                                        mProto);
+				ModuleCategoryMapper.fillModuleCategories(categories, mcProto);
 		return categoryDS;
 	}
 
@@ -816,7 +812,7 @@ class DMSAdapter
 	public List retrieveModuleCategories()
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		return retrieveModuleCategories(null,null);
+		return retrieveModuleCategories(null);
 	}
 
 	/** Implemented as specified in {@link DataManagementService}. */
@@ -834,11 +830,9 @@ class DMSAdapter
 		if (foutProto == null)  foutProto = new FormalOutputData();
 		if (stProto == null)    stProto = new SemanticTypeData();
 
-		//Define the criteria by which the object graph is pulled out
-		Criteria c = AnalysisChainMapper.buildChainsCriteria();
 	
 		// Load the graph defined by the criteria
-		List chains = (List) gateway.retrieveListData(AnalysisChain.class, c);
+		List chains = gateway.retrieveChains();
 	
 		List chainsDS = null;
 		if (chains != null) 

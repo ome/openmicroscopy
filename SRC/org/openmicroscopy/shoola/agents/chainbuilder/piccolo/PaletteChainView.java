@@ -104,14 +104,9 @@ public class PaletteChainView extends ChainView {
 	}
 	
 	protected ModuleView getModuleView(AnalysisNodeData node) {
-		/*Collection nexes = null;
-		if (executions != null)
-			nexes = executions.getNexes(node)*/
 		PaletteModuleView moduleView = new PaletteModuleView(node);
-		//find the execution here..
 		return moduleView;
 	}
-	
 
 	
 	protected ParamLink getParamLink(FormalInput inputPNode,

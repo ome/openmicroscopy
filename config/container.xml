@@ -2,10 +2,10 @@
 <container>
    <services>
      <structuredEntry name="/services/OMEIS" type = "OMEIS">
-      <url>http://yourhost/cgi-bin/omeis/</url> 
+      <url>http://hsh-tibook.local/cgi-bin/omeis/</url> 
      </structuredEntry>
      <structuredEntry name="/services/OMEDS" type = "OMEDS">
-      <url>http://yourhost/shoola/"</url>
+      <url>http://hsh-tibook.local/shoola/"</url>
       </structuredEntry>
      
      <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.

@@ -51,6 +51,8 @@ import org.openmicroscopy.ds.dto.DataInterface;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.UserState;
 import org.openmicroscopy.ds.managers.AnnotationManager;
+import org.openmicroscopy.ds.managers.ChainRetrievalManager;
+import org.openmicroscopy.ds.managers.ModuleRetrievalManager;
 import org.openmicroscopy.ds.managers.DatasetManager;
 import org.openmicroscopy.ds.managers.HistoryManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
@@ -253,6 +255,16 @@ class OMEDSGateway
 		return (HistoryManager) proxiesFactory.getService(
 													HistoryManager.class);
 	}
+	
+	private ChainRetrievalManager getChainRetrievalManager() {
+		return (ChainRetrievalManager) proxiesFactory.getService(
+								ChainRetrievalManager.class);
+	}
+	
+	private ModuleRetrievalManager getModuleRetrievalManager() {
+		return (ModuleRetrievalManager) proxiesFactory.getService(
+				ModuleRetrievalManager.class);
+	}
 
 	/** Retrieve the current experimenter. */
 	Experimenter getCurrentUser(Criteria c)
@@ -331,6 +343,7 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().retrieveList(dto, c);
 		} catch (Exception e) {
+		    e.printStackTrace();
 			handleException(e, "Can't retrieve list. Type: "+dto+", Criteria: "+
 								c+".");
 		}
@@ -528,6 +541,7 @@ class OMEDSGateway
 		return null;
 	}
 	
+	/** Get a list of module executions that is the history of an chain execution */	
 	List getChainExecutionHistory(int chexID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -541,6 +555,38 @@ class OMEDSGateway
 		}
 		return null;
 	}
+	
+	/** retrieve all chains */
+	List retrieveChains() 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			List result = getChainRetrievalManager().retrieveChains();
+			return result;
+		} catch (Exception e) {
+			handleException(e,"Can't retrieve chains");
+		}
+		return null;
+	}
+	
+	/**
+	 * Retrieve all of the modules in the database
+	 * @param attributes
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	List retrieveModules() 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			List result = getModuleRetrievalManager().retrieveModules();
+				return result;
+		} catch (Exception e) {
+			handleException(e,"Can't retrieve modules");
+		}
+		return null;
+	}
+	
 	/** 
 	 * Annotate. Each attribute in the list must be a newly-created
      * attribute; otherwise, call updateAttributes() with that attribute
