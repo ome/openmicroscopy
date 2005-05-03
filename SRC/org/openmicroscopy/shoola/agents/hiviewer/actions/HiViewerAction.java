@@ -79,10 +79,9 @@ public abstract class HiViewerAction
     }
 
     protected abstract void onDisplayChange(ImageDisplay selectedDisplay);
-    
-    
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+      
+    /** 
+     * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
 
@@ -108,10 +107,7 @@ public abstract class HiViewerAction
         onDisplayChange(model.getBrowser().getSelectedDisplay());
     }
 
-
-    /* (non-Javadoc)
-     * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-     */
+    /** Listen to change events. */
     public void stateChanged(ChangeEvent e)
     {
         if (model.getState() == HiViewer.LOADING_THUMBNAILS) {

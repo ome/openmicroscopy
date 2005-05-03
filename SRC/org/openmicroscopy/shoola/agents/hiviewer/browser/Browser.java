@@ -172,6 +172,11 @@ public interface Browser
      */
     public Set getImageNodes();
     
+    /**
+     * Returns all the {@link ImageDisplay} objects that are children
+     * of the {@link RootDisplay} node.
+     * @return A set of {@link ImageDisplay} objects.
+     */
     public Set getRootNodes();
     
     /**
