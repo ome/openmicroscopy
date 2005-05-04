@@ -96,13 +96,6 @@ public interface SplashScreen
 	 */
 	
 	public void updateProgress(String task);
-	
-	/**
-	 * Clears the screen after an  unsuccesful login
-	 */
-	public void clear();
-	
-	
 	/**
 	 * Returns the login credentials of the user.
 	 * Blocks the caller until the credentials have been entered.

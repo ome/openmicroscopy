@@ -36,11 +36,12 @@ package org.openmicroscopy.shoola.env.init;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
 import org.openmicroscopy.shoola.env.ui.UserCredentials;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Does some configuration required for the initialization process to run.
@@ -146,32 +147,25 @@ public final class SplashScreenInit
 		splashScreen.updateProgress("");
 		
 		// Keep trying to login until it works.
-		while (true) {
-			//Wait until the user enters their credentials for logging into OME.
-			UserCredentials uc = splashScreen.getUserCredentials();
+		//while (true) {
+		//Wait until the user enters their credentials for logging into OME.
+		UserCredentials uc = splashScreen.getUserCredentials();
 		
-			//Add credentials to the registry.
-			Registry reg = container.getRegistry();
-			reg.bind(LookupNames.USER_CREDENTIALS, uc);
+		//Add credentials to the registry.
+		Registry reg = container.getRegistry();
+		reg.bind(LookupNames.USER_CREDENTIALS, uc);
 			
-			//Now try to connect to OMEDS.
-			//Ignore exceptions, the user will be prompted to log in when they try
-			//to access their data.
-			try {
-				DataServicesFactory factory = 
-										DataServicesFactory.getInstance(container);
-				factory.connect();
-				splashScreen.close();
-				return;
-			} catch (Exception e) {
-				// If it fails, display an error, clear the screen,
-				// and start over
-				UserNotifier un = UIFactory.makeUserNotifier();
-				un.notifyWarning("Login Unsuccessful",
-				   "The username and/or password was incorrect. Please try again.");
-				splashScreen.clear();
-			}
-		}		
+		//Now try to connect to OMEDS.
+		//Ignore exceptions, the user will be prompted to log in when they try
+		//to access their data.
+		try {
+		    DataServicesFactory factory = 
+		        DataServicesFactory.getInstance(container);
+			factory.connect();
+        } catch (DSOutOfServiceException e) {  
+        } catch (DSAccessException e) {} 
+	
+        splashScreen.close();
 	}
 
 }

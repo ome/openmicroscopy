@@ -55,7 +55,6 @@ import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.ds.st.ImageAnnotation;
 import org.openmicroscopy.ds.st.LogicalChannel;
 import org.openmicroscopy.ds.st.RenderingSettings;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.map.AnnotationMapper;
 import org.openmicroscopy.shoola.env.data.map.CategoryMapper;
@@ -72,10 +71,10 @@ import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.data.model.ClassificationData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
-import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  *  @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -250,8 +249,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException 
     {
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(group.getID(), 
                                         uc.getUserID());
         CategoryGroup cg = (CategoryGroup)
@@ -581,8 +579,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1, 
                                         uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
@@ -650,8 +647,7 @@ class STSAdapter
             Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
-        UserCredentials uc = (UserCredentials)
-        registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID, 
                                     uc.getUserID());
         CategoryGroup group = 
@@ -815,8 +811,7 @@ class STSAdapter
         if (group == null)
             throw new IllegalArgumentException("CategoryGroupData cannot" +
                     "be null");
-        UserCredentials uc = (UserCredentials)
-            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
                         group.getID(), uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
@@ -846,8 +841,7 @@ class STSAdapter
         CategoryGroup cg;
         List newAttributes = new ArrayList(), oldAttributes = new ArrayList();
         //Retrieve the CategoryGroup object.
-        UserCredentials 
-        uc = (UserCredentials) registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildBasicCategoryGroupCriteria(
                 parent.getID(), uc.getUserID());
         cg = (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
@@ -894,8 +888,7 @@ class STSAdapter
     public void updateCategoryGroup(CategoryGroupData data, List toAdd)
         throws DSOutOfServiceException, DSAccessException
     {
-        UserCredentials uc = (UserCredentials)
-        registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildBasicCriteria(data.getID(), 
                                             uc.getUserID());
         CategoryGroup cg = 
@@ -933,8 +926,7 @@ class STSAdapter
                                 List imgsToAdd)
         throws DSOutOfServiceException, DSAccessException
     {
-        UserCredentials uc = (UserCredentials)
-        registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildBasicCriteria(data.getID(), 
                                                     uc.getUserID());
         Category category = 
@@ -1013,8 +1005,7 @@ class STSAdapter
             map.put(id, is);
             ids.add(id);
         }
-        UserCredentials uc = (UserCredentials)
-            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         //TODO
         //if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
         Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
@@ -1033,8 +1024,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, 
                                         uc.getUserID());
         CategoryGroup cg = 
@@ -1063,8 +1053,7 @@ class STSAdapter
     public CategoryData retrieveCategoryTree(int cID, boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryCriteria(cID, uc.getUserID());
         Category cat = (Category) gateway.retrieveSTSData("Category", c);
         if (!annotated) 
@@ -1134,8 +1123,7 @@ class STSAdapter
     {
         RenderingDef displayOptions = null;
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         
         Criteria c = ImageMapper.buildRenderingSettingsCriteria(
                         STSMapper.IMAGE_GRANULARITY, imageID);
@@ -1157,8 +1145,7 @@ class STSAdapter
         List rsList = 
             (List) gateway.retrieveListSTSData("RenderingSettings", c);
         
-        UserCredentials uc = (UserCredentials)
-                registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
         //List of renderingSettings to save in DB.  
         List l = new ArrayList();
         if (rsList != null) {

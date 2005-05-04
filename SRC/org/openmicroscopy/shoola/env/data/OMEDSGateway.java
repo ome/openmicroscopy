@@ -186,8 +186,10 @@ class OMEDSGateway
             serverVersionCheck();
 			connected = true;
 		} catch (RemoteConnectionException rce) {
+            connected = false;
 			throw new DSOutOfServiceException("Can't connect to OMEDS.", rce);
 		} catch (RemoteAuthenticationException rae) {
+            connected = false;
 			throw new DSOutOfServiceException("Failed to log in.", rae);
 		}
 	}
@@ -274,6 +276,13 @@ class OMEDSGateway
 		try {
 			us = getDataFactory().getUserState(c);
 		} catch (Exception e) {
+            if (e instanceof IllegalArgumentException) { 
+                //needed b/c of ome-java and in handleException
+                //we throw a DSAccessException but in this case
+                //we must throw a DSOutOfServiceException.
+                connected = false;
+                throw new DSOutOfServiceException("Failed to log in.", e);
+            }
 			handleException(e, "Can't retrieve the user state.");
 		} 
 		return us.getExperimenter();

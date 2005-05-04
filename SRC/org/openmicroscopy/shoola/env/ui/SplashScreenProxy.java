@@ -225,27 +225,7 @@ class SplashScreenProxy
 		//Schedule execution within Swing dispatching thread.
 		SwingUtilities.invokeLater(doUpdateProgress);
 	}
-	
-	/**
-	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#clear()
-	 */
-	public void clear() 
-	{
-		if (!isValid)  return; //Somebody's already called close()
-		
-		//	Construct request of mehtod execution.
-		Runnable doUpdateProgress = new Runnable() {
-			public void run()
-			{
-				servant.clear();
-			}
-		};
 
-		//Schedule execution within Swing dispatching thread.
-		SwingUtilities.invokeLater(doUpdateProgress);
-	}
-	
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#getUserCredentials()

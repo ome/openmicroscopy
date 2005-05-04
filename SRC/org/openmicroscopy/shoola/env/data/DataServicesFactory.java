@@ -131,9 +131,10 @@ public class DataServicesFactory
 		UserCredentials uc = (UserCredentials)
 								registry.lookup(LookupNames.USER_CREDENTIALS);
 		//uc can't be null b/c there's no way to call this method b/f init.
-		gateway.login(uc.getUserName(), uc.getPassword());
+        gateway.login(uc.getUserName(), uc.getPassword());
 		//retrieve the user's ID and store it in the UserCredentials.
-		uc.setUserID(dms.getUserDetails().getUserID());
+        dms.getUserDetails();
+		//uc.setUserID(dms.getUserDetails().getUserID());
 	}
 	
 	/**

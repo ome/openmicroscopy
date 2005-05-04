@@ -153,6 +153,9 @@ class DMSAdapter
             ud = new UserDetails(exp.getID(), exp.getFirstName(), 
                                 exp.getLastName(), groups);
             registry.bind(LookupNames.USER_DETAILS, ud);
+            UserCredentials uc = (UserCredentials)
+                registry.lookup(LookupNames.USER_CREDENTIALS);
+            uc.setUserID(ud.getUserID());
         }
         return ud;
     }
@@ -171,9 +174,11 @@ class DMSAdapter
 		if (dProto == null) dProto = new DatasetSummary();
 		
 		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-
+		//UserCredentials uc = (UserCredentials)
+		//					registry.lookup(LookupNames.USER_CREDENTIALS);
+		
+        UserDetails uc = getUserDetails();
+        
 		//Define the criteria by which the object graph is pulled out.
 		Criteria c = ProjectMapper.buildUserProjectsCriteria(uc.getUserID());
 
@@ -207,9 +212,9 @@ class DMSAdapter
 		if (dProto == null) dProto = new DatasetData();
 		
 		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-
+		//UserCredentials uc = (UserCredentials)
+		//					registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
 		//Define the criteria by which the object graph is pulled out.
 		Criteria c = ProjectMapper.buildUserProjectsCriteria(uc.getUserID());
 
@@ -245,9 +250,9 @@ class DMSAdapter
         if (dProto == null) dProto = new DatasetSummary();
         
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
-
+        //UserCredentials uc = (UserCredentials)
+        //                   registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
         //Define the criteria by which the object graph is pulled out.
         Criteria c = ProjectMapper.buildUserProjectsCriteria(uc.getUserID());
 
@@ -276,9 +281,9 @@ class DMSAdapter
 		if (dProto == null) dProto = new DatasetSummary();
 		
 		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-
+		//UserCredentials uc = (UserCredentials)
+		//					registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
 		//Define the criteria by which the object graph is pulled out.
 		Criteria c = DatasetMapper.buildUserDatasetsCriteria(uc.getUserID());
 
@@ -306,9 +311,9 @@ class DMSAdapter
 		if (iProto == null) iProto = new ImageSummary();
 		
 		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-
+		//UserCredentials uc = (UserCredentials)
+		//					registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
 		//Define the criteria by which the object graph is pulled out.
 		Criteria c = 
 			DatasetMapper.buildFullUserDatasetsCriteria(uc.getUserID());
@@ -336,9 +341,9 @@ class DMSAdapter
         if (iProto == null) iProto = new ImageSummary();
         
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
-
+        //UserCredentials uc = (UserCredentials)
+        //                    registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
         //Define the criteria by which the object graph is pulled out.
         Criteria c = ImageMapper.buildUserImagesCriteria(uc.getUserID(), 
                             filters, complexFilters);
@@ -392,8 +397,9 @@ class DMSAdapter
         if (iProto == null) iProto = new ImageSummary();
 
         //Define the criteria by which the object graph is pulled out.
+        UserDetails uc = getUserDetails();
         Criteria c = ImageMapper.buildUserImagesCriteria(
-                    getUserDetails().getGroupIDs(), filters, complexFilters);
+                    uc.getGroupIDs(), filters, complexFilters);
 
         //Load the graph defined by criteria.
         List images = (List) gateway.retrieveListData(Image.class, c);
@@ -407,8 +413,6 @@ class DMSAdapter
             List ids = new ArrayList();
             Iterator i = images.iterator();
             //Retrieve the user ID.
-            UserCredentials uc = (UserCredentials)
-                                registry.lookup(LookupNames.USER_CREDENTIALS);
             while (i.hasNext()) 
                 ids.add(new Integer(((Image) i.next()).getID()));
             List imgAnnotations = getImageAnnotations(ids, uc.getUserID());
@@ -472,8 +476,7 @@ class DMSAdapter
             b = (Boolean) filters.get(DataManagementService.FILTER_ANNOTATED);
         
         if (b != null && b.booleanValue()) {
-            UserCredentials uc = (UserCredentials)
-            registry.lookup(LookupNames.USER_CREDENTIALS);
+            UserDetails uc = getUserDetails();
             List ids = DatasetMapper.prepareListImagesID(datasets);
             List l = getImageAnnotations(ids, uc.getUserID());     
             return DatasetMapper.fillImagesInUserDatasets(datasets, iProto, l, 
@@ -572,8 +575,7 @@ class DMSAdapter
             List ids = new ArrayList();
             Iterator i = images.iterator();
             //Retrieve the user ID.
-            UserCredentials uc = (UserCredentials)
-                                registry.lookup(LookupNames.USER_CREDENTIALS);
+            UserDetails uc = getUserDetails();
             while (i.hasNext()) 
                 ids.add(new Integer(((Image) i.next()).getID()));
             if (ids.size() > LIMIT_FOR_IN) ids = null;
@@ -768,9 +770,6 @@ class DMSAdapter
 		if (foutProto == null) foutProto = new FormalOutputData();
 		if (stProto == null)   stProto = new SemanticTypeData();
 		
-		// Define the criteria by which the object graph is pulled out
-		Criteria c = ModuleMapper.buildModulesCriteria();
-		
 		// Load the graph defined by the criteria
 		List modules = gateway.retrieveModules();
 		
@@ -898,8 +897,7 @@ class DMSAdapter
 		if (meProto == null)    meProto = new ModuleExecutionData();
 		
 		//Retrieve the user ID.
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
+		UserDetails uc = getUserDetails();
 		//Define the criteria by which the object graph is pulled out
 		Criteria c = ChainExecutionMapper.
 			buildChainExecutionCriteria(uc.getUserID());
@@ -1152,8 +1150,7 @@ class DMSAdapter
         if (!annotated)
             return HierarchyMapper.fillIDPHierarchy(images, map, null);
         
-        UserCredentials uc = (UserCredentials)
-        registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
         List dsAnnotations = getDatasetAnnotations(null, uc.getUserID());
         return HierarchyMapper.fillIDPHierarchy(images, map, dsAnnotations);
     }
@@ -1180,8 +1177,7 @@ class DMSAdapter
             return results;
         }
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
         int uID = uc.getUserID();
        
         List datasetIDs = ProjectMapper.prepareListDatasetsID(projects);
@@ -1231,8 +1227,7 @@ class DMSAdapter
             return results;
         }
         //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
+        UserDetails uc = getUserDetails();
         int uID = uc.getUserID();
         List ids = DatasetMapper.prepareListImagesID(datasets);
         List isAnnotations = getImageAnnotations(ids, uID);

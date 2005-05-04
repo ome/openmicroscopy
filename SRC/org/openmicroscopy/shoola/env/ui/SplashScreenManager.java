@@ -152,19 +152,6 @@ class SplashScreenManager
 		if (doneTasks == totalTasks) view.progressBar.setVisible(false);
 	}
 	
-	/**
-	 * Implemented as specified by {@link SplashScreen}
-	 * @see SplashScreen#clear()
-	 */
-	public void clear() {
-		if (!isOpen) return;
-		
-		userCredentials.clear();
-		view.user.setEnabled(true);
-		view.pass.setEnabled(true);
-		view.login.setEnabled(true);
-	}
-	
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and

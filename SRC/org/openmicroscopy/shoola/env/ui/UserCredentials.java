@@ -87,17 +87,7 @@ public class UserCredentials
 		isFilledIn = true;
 		notify();
 	}
-	
-	/**
-	 * Clears out the credentials and make sure that they're not filled in.
-	 * 
-	 */
-	synchronized void clear() {
-		this.userName= null;
-		this.password = null;
-		isFilledIn = false;
-	}
-	
+
 	/**
 	 * Waits until the user's credentials have been filled in and then
 	 * returns this object.
