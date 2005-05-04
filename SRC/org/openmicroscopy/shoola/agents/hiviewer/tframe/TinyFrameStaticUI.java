@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.tframe;
 
 
 //Java imports
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.event.MouseInputAdapter;
 
@@ -61,15 +59,10 @@ public class TinyFrameStaticUI
     extends TinyFrameUI
 {
 
-    /**
-     * Creates and sets the frame and its content's borders.
-     */
-    protected void makeBorders()
+    /** Overridden to return a better border for this UI delegate. */
+    protected FrameBorder makeBorder()
     {
-        Object x = frame.getContentPane();
-        if (x instanceof JComponent)
-            ((JComponent) x).setBorder(BorderFactory.createEmptyBorder());
-        frame.setBorder(new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, 0));
+        return new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, 0);
     }
     
     /** Overridden so we don't respond to resize, move, etc. events. */
@@ -91,7 +84,6 @@ public class TinyFrameStaticUI
     public TinyFrameStaticUI(TinyFrame frame)
     {
         super(frame);
-        titleBar.sizeButton.setVisible(false);
     }
     
 }
