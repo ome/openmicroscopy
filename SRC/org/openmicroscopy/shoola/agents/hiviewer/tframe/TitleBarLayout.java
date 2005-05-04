@@ -43,12 +43,20 @@ import java.awt.LayoutManager;
 /** 
  * The {@link TitleBar}'s layout manager.
  * This class makes sure the minimum dimension of the title bar is always
- * {@link TitleBar.MIN_WIDTH}x{@link TitleBar.HEIGHT}.
+ * {@link TitleBar#MIN_WIDTH}x{@link TitleBar#getFixedHeight()}.
  * This is possible because the title bar has a <code>null</code> UI delegate
  * and its dimensions are never set.  So every call to a <code>getXXXSize</code>
  * method will eventually be answered by this class' 
  * {@link #minimumLayoutSize(Container) minimumLayoutSize} method.
- * The layout assumes the title bar has no borders.
+ * This class lays out all the components found in the {@link TitleBar} from
+ * left to right, leaving {@link TitleBar#H_SPACING} pixels between them and
+ * centering them along the <code>y</code> axis.  Every component is sized to
+ * its preferred dimensions, unless its height exceeds the title bar's fixed 
+ * height less <code>2</code> pixels; in this case the latter value is used
+ * instead.  If a {@link TinyFrameTitle} component is found, then it receives
+ * a special treatment: it's given all available width in the bar after all
+ * other components have been laid out.  The layout assumes the title bar has
+ * no borders.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -77,13 +85,15 @@ class TitleBarLayout
 
     /**
      * Returns the {@link TitleBar}'s minimum layout size according to the
-     * {@link TitleBar.MIN_WIDTH} and {@link TitleBar.HEIGHT} constants.
+     * {@link TitleBar#MIN_WIDTH} constant and the value returned by the
+     * {@link TitleBar#getFixedHeight() getFixedHeight} method.
      * 
      * @return See above.
      */
     public Dimension minimumLayoutSize(Container c) 
     {
-        return new Dimension(TitleBar.MIN_WIDTH, TitleBar.HEIGHT);
+        TitleBar titleBar = (TitleBar) c;
+        return new Dimension(TitleBar.MIN_WIDTH, titleBar.getFixedHeight());
     }
 
     /**
@@ -92,11 +102,30 @@ class TitleBarLayout
     public void layoutContainer(Container c) 
     {
         TitleBar titleBar = (TitleBar) c;
-        titleBar.sizeButton.setBounds(
-                TitleBar.H_SPACING,  //x, space from the left edge. 
-                (TitleBar.HEIGHT-TitleBar.SIZE_BUTTON_DIM)/2, //y, centered.
-                TitleBar.SIZE_BUTTON_DIM, //w=h, it must be a square.
-                TitleBar.SIZE_BUTTON_DIM);
+        Component[] comp = titleBar.getComponents();
+        TinyFrameTitle title = null;
+        int nextX = TitleBar.H_SPACING,  //x of the next comp to lay out.
+            barH = titleBar.getFixedHeight(),
+            maxH = 0 < barH-2 ? barH-2 : 0;  
+        //NOTE: maxH is the maximum height that we allow for a component.
+        //This accounts for the fact that we always want to leave at least
+        //1px between the bottom egde of the bar and the bottom of the
+        //component and 1px between the top edge of the bar and the top edge
+        //of the component.
+        Dimension d;
+        for (int i = 0, h = 0; i < comp.length; ++i) {
+            if (comp[i] instanceof TinyFrameTitle) {
+                title = (TinyFrameTitle) comp[i];  //We'll deal w/ it later.
+            } else {
+                d = comp[i].getPreferredSize();
+                h = Math.min(maxH, d.height);
+                comp[i].setBounds(nextX, (barH-h)/2, d.width, h);
+                nextX += d.width+TitleBar.H_SPACING;
+            }
+        }
+        if (title != null)  //Then give it all the space that is left.
+            title.setBounds(nextX+4, 0, //(barH-maxH)/2, 
+                            titleBar.getWidth()-nextX-4, barH); //maxH);
     }
     
     /**
