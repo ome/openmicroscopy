@@ -36,7 +36,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.event.ActionListener;
+import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -69,6 +73,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
  */
 public class TinyFrameUI
     extends BasicInternalFrameUI
+    implements PropertyChangeListener, ComponentListener
 {
     
     /** The margin of the frame's border. */
@@ -101,16 +106,37 @@ public class TinyFrameUI
   
     
     /** The scroll pane that contains the internal desktop. */
-    private JScrollPane     dskDecorator;
+    private JScrollPane   dskDecorator;
 
     /** The frame that owns this UI delegate. */
-    protected TinyFrame     frame;
+    private TinyFrame     frame;
     
     /** The component that draws the frame's title bar. */
-    protected TitleBar      titleBar;
+    private TitleBar      titleBar;
     
     /** The component that draws the frame's border. */
-    protected FrameBorder   border;
+    private FrameBorder   border;
+    
+    
+    /**
+     * Repaints the frame according to whether the frame is currently 
+     * collapsed or expanded.
+     */
+    private void updateCollapsedState()
+    {
+        if (frame.isCollapsed()) {
+            int h = titleBar.getPreferredSize().height;
+            frame.setSize(frame.getWidth(), h+ 
+                    2*(BORDER_THICKNESS+BORDER_MARGIN));  
+            //For example, if BORDER_THICKNESS=1, then +2 will make the border 
+            //bottom show as the border thickness is 1, so we need 1px at the 
+            //top and 1px at the bottom.  (Otherwise the border and the last 
+            //px line of the title bar won't show.)
+        } else {
+            frame.moveToFront();
+            frame.setSize(frame.getRestoreSize());
+        }
+    }
     
     /**
      * Creates a new UI delegate for the specified <code>frame</code>.
@@ -123,10 +149,17 @@ public class TinyFrameUI
         super(frame);
         if (frame == null) throw new NullPointerException("No frame.");
         this.frame = frame;
-        titleBar = new TitleBar(frame.getTitle());
-        border = new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, BORDER_MARGIN);
-        makeBorders();
+        titleBar = new TitleBar(frame);
+        
+        border = makeBorder();
+        frame.setBorder(border);
+        Object x = frame.getContentPane();
+        if (x instanceof JComponent)
+            ((JComponent) x).setBorder(BorderFactory.createEmptyBorder());
         frame.setOpaque(false);
+        
+        frame.addPropertyChangeListener(this);
+        frame.addComponentListener(this);
     }
     
     /**
@@ -162,50 +195,6 @@ public class TinyFrameUI
     JComponent getTitleBar() { return titleBar; }
     
     /**
-     * Attaches the <code>controller</code> to the sizing button.
-     * 
-     * @param controller An instance of {@link FrameControl}.
-     */
-    void attachActionListener(ActionListener controller)
-    {
-        titleBar.sizeButton.addActionListener(controller);
-    }
-    
-    /** Updates and repaints the title bar. */
-    void updateTitleBar() 
-    { 
-        titleBar.update(frame.getTitle(), frame.getHighlight()); 
-    }
-    
-    /** Repaints the border. */
-    void updateBorder()
-    {
-        border.setBackgroundColor(frame.getHighlight());
-    }
-    
-    /**
-     * Repaints the frame according to whether the frame is currently 
-     * collapsed or expanded.
-     */
-    void updateCollapsedState()
-    {
-        if (frame.isCollapsed()) {
-            int h = titleBar.getPreferredSize().height;
-            frame.setSize(frame.getWidth(), h+ 
-                    2*(BORDER_THICKNESS+BORDER_MARGIN));  
-            //For example, if BORDER_THICKNESS=1, then +2 will make the border 
-            //bottom show as the border thickness is 1, so we need 1px at the 
-            //top and 1px at the bottom.  (Otherwise the border and the last 
-            //px line of the title bar won't show.)
-            titleBar.sizeButton.setActionType(SizeButton.EXPAND);
-        } else {
-            frame.moveToFront();
-            frame.setSize(frame.getRestoreSize());
-            titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
-        }
-    }
-    
-    /**
      * Returns the size this widget should have to fully display the internal
      * desktop at its preferred size.
      * 
@@ -229,25 +218,15 @@ public class TinyFrameUI
                     h;
         return sz;
     }
- 
-    /** Shows or not the titleBar.*/
-    void showTitleBar(boolean b)
-    {
-        Dimension d = new Dimension(titleBar.getWidth(), 0);
-        if (b) d = new Dimension(titleBar.getWidth(), TitleBar.HEIGHT);
-        titleBar.setPreferredSize(d);
-        frame.pack();
-    }
     
     /**
-     * Creates and sets the frame and its content's borders.
+     * Creates the frame's border.
+     * 
+     * @return The border to use with this frame.
      */
-    protected void makeBorders()
+    protected FrameBorder makeBorder()
     {
-        Object x = frame.getContentPane();
-        if (x instanceof JComponent)
-            ((JComponent) x).setBorder(BorderFactory.createEmptyBorder());
-        frame.setBorder(border);
+        return new FrameBorder(BORDER_COLOR, DESKTOP_COLOR, BORDER_MARGIN);
     }
     
     /**
@@ -273,5 +252,59 @@ public class TinyFrameUI
     }
     //NOTE: InternalFrameLayout returns the correct size only if the title bar
     //is an instance of BasicInternalFrameTitlePane -- see code in superclass.
+    
+    /**
+     * Monitors frame's state changes and updates the UI accordingly.
+     */
+    public void propertyChange(PropertyChangeEvent pce)
+    {
+        String propChanged = pce.getPropertyName();
+        if (TinyFrame.HIGHLIGHT_PROPERTY.equals(propChanged)) {
+            border.setBackgroundColor((Color) pce.getNewValue());
+            frame.moveToFront();
+        } else if (TinyFrame.COLLAPSED_PROPERTY.equals(propChanged)) { 
+            updateCollapsedState();
+        } else if (TinyFrame.TITLEBAR_TYPE_PROPERTY.equals(propChanged)) {
+            frame.setSize(frame.getPreferredSize());
+            if (frame.getWidth() < TitleBar.MIN_WIDTH)
+                frame.setSize(TitleBar.MIN_WIDTH, frame.getHeight());
+        }
+    }
+    
+    /**
+     * Resets the inner desktop preferred size so to make sure every
+     * contained component will still be reachable after resizing.
+     * 
+     * @see ComponentListener#componentResized(java.awt.event.ComponentEvent)
+     */
+    public void componentResized(ComponentEvent ce)
+    {
+        Rectangle b = frame.getContentsBounds();
+        Dimension d = new Dimension(b.width, b.height);
+        if (b.x < 0) d.width += b.x;
+        if (b.y < 0) d.height += b.y;
+        frame.getInternalDesktop().setPreferredSize(d);
+    }
+    
+    /** 
+     * Repaints the frame whenever it is moved.
+     * This is so because the frame doesn't get repainted when is dragged
+     * out of the bounds of a desktop.
+     * 
+     * @see ComponentListener#componentMoved(java.awt.event.ComponentEvent)
+     */
+    public void componentMoved(ComponentEvent ce) { frame.repaint(); }
+    
+    /** 
+     * No-op implementation.
+     * Required by {@link ComponentListener}, but not needed here.
+     */
+    public void componentHidden(ComponentEvent ce) {}
+
+    /** 
+     * No-op implementation.
+     * Required by {@link ComponentListener}, but not needed here.
+     */
+    public void componentShown(ComponentEvent ce) {}
     
 }
