@@ -94,8 +94,7 @@ class ExplorerPane
 		tree = new JTree();
         rightPane  = new JScrollPane();
 		manager = new ExplorerPaneManager(this, agentCtrl);
-		DefaultMutableTreeNode r = manager.getUserTreeModel(
-                agentCtrl.getUserName());
+		DefaultMutableTreeNode r = manager.getUserTreeModel();
 		DefaultTreeModel dtm = new DefaultTreeModel(r);
 		tree.setModel(dtm);
 		tree.setShowsRootHandles(true);

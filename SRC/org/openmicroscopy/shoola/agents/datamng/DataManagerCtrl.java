@@ -626,9 +626,6 @@ public class DataManagerCtrl
         } 
     }
     
-    /** Forward to the {@link DataManager abstraction}. */
-    String getUserName() { return abstraction.getUserName(); }
-
     //Category manager
     /** 
      * Set the ID of the selected categoryGroup. 

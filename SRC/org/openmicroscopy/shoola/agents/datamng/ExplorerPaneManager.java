@@ -74,6 +74,8 @@ class ExplorerPaneManager
     
     private static final String     EMPTY = "Empty";
     
+    private static final String     TITLE = "Project/Dataset/Image";
+    
     /** This UI component's view. */
     private ExplorerPane            view; 
     
@@ -122,12 +124,11 @@ class ExplorerPaneManager
      * Builds the tree model to represent the project-dataset
      * hierarchy.
      *
-     * @param name      user's First and Last name.
      * @return  A tree model containing the project-dataset hierarchy.
      */
-    DefaultMutableTreeNode getUserTreeModel(String name)
+    DefaultMutableTreeNode getUserTreeModel()
     {
-        root = new DefaultMutableTreeNode(name+"'s OME");
+        root = new DefaultMutableTreeNode(TITLE);
         DefaultMutableTreeNode childNode = 
                                 new DefaultMutableTreeNode("");
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();

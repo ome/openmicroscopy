@@ -75,6 +75,8 @@ public class ClassifierPaneManager
     
     private static final String         EMPTY = "Empty";
     
+    private static final String         TITLE = "CategoryGroup/Category/Image";
+    
     /** This UI component's view. */
     private ClassifierPane              view; 
     
@@ -116,11 +118,11 @@ public class ClassifierPaneManager
      * hierarchy.
      *
      * @param name      user's last name.
-     * @return  A tree model containing the project-dataset hierarchy.
+     * @return  A tree model containing the categoryGroup/category hierarchy.
      */
     DefaultMutableTreeNode getTreeModel()
     {
-        root = new DefaultMutableTreeNode("All Classifications");
+        root = new DefaultMutableTreeNode(TITLE);
         DefaultMutableTreeNode childNode = 
                                 new DefaultMutableTreeNode("");
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();

@@ -69,7 +69,6 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -930,28 +929,7 @@ public class DataManager
 			registry.getEventBus().post(request);
 		} 	
 	}
-	
-    /** Retrieve the current user last name. */
-    String getUserName()
-    {
-        String name = "";
-        try { 
-            DataManagementService dms = registry.getDataManagementService();
-            UserDetails details = dms.getUserDetails();
-            name = details.getUserFirstName()+" "+details.getUserLastName();
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve user details.";
-            registry.getLogger().error(this, s+" Error: "+dsae);
-            registry.getUserNotifier().notifyError("Data Retrieval Failure", s,
-                                                    dsae);
-        } catch(DSOutOfServiceException dsose) {    
-            ServiceActivationRequest request = new ServiceActivationRequest(
-                                        ServiceActivationRequest.DATA_SERVICES);
-            registry.getEventBus().post(request);
-        }  
-        return name;
-    }
-	
+
     /** 
      * Post an event to browse the specified dataset.
      * 
