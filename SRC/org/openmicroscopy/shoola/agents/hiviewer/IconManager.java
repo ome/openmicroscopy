@@ -146,11 +146,26 @@ public class IconManager
     /** ID of the image icon. */
     public static final int     IMAGE = 27;
     
+    /** ID of the single-view icon in the browser's internal frame. */
+    public static final int     SINGLE_VIEW_MODE = 28;
+    
+    /** ID of the single-view over icon in the browser's internal frame. */
+    public static final int     SINGLE_VIEW_MODE_OVER = 29;
+
+    /** ID of the multi-view icon in the browser's internal frame. */
+    public static final int     MULTI_VIEW_MODE = 30;
+    
+    /** ID of the views list icon in the browser's internal frame. */
+    public static final int     VIEWS_LIST = 31;
+    
+    /** ID of the views list over icon in the browser's internal frame. */
+    public static final int     VIEWS_LIST_OVER = 32;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 27;
+    private static int          MAX_ID = 32;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -174,8 +189,8 @@ public class IconManager
         relPaths[CLASSIFY] = "category16.png";
         relPaths[FILTER_W_ANNOTATION] = "eclipse_filter_ps16.png";
         relPaths[FILTER_W_TITLE] = "eclipse_filter_ps16.png";
-        relPaths[SQUARY_LAYOUT] = "OpenOffice_stock_3d-texture-16.png";
-        relPaths[TREE_LAYOUT] = "eclipse_hierarchy_co16.png";
+        relPaths[SQUARY_LAYOUT] = "nuvola_view_multicolumn16.png";
+        relPaths[TREE_LAYOUT] = "nuvola_view_tree16.png";
         relPaths[STATUS_INFO] = "nuvola_hwinfo16.png";
         relPaths[ROOT] = "nuvola_trashcan_empty16.png";
         relPaths[PROJECT] = "nuvola_document16.png";
@@ -183,6 +198,11 @@ public class IconManager
         relPaths[CATEGORY_GROUP] = "category_group16.png";
         relPaths[CATEGORY] = "category16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
+        relPaths[SINGLE_VIEW_MODE] = "sinlge_view_mode.png";
+        relPaths[SINGLE_VIEW_MODE_OVER] = "sinlge_view_mode_over.png";
+        relPaths[MULTI_VIEW_MODE] = "nuvola_view_multicolumn16.png";
+        relPaths[VIEWS_LIST] = "frame_list.png";
+        relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
     }
     
     /** The sole instance. */
