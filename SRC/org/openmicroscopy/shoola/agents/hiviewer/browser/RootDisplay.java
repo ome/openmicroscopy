@@ -88,6 +88,7 @@ class RootDisplay
         super("", FAKE_HIERARCHY_OBJECT);
         Colors colors = Colors.getInstance();
         setHighlight(colors.getColor(Colors.TITLE_BAR));
+        setTitleBarType(STATIC_BAR);
     }
     
 }

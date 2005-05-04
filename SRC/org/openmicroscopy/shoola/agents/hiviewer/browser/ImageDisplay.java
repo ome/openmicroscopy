@@ -132,6 +132,7 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet();
+        setFrameIcon(null);  //Get rid of default Java ugly icon.
     }
     
     /**
