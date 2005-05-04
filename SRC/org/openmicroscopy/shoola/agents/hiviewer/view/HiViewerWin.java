@@ -41,8 +41,6 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -91,7 +89,9 @@ class HiViewerWin
     /** The maximum length of the title. */
     private static final int    TITLE_MAX_LENGTH = 50;
     
+    /** The default title of the window. */
     private static final String DEFAULT_TITLE = "Hierarchy Viewer";
+    
     
     /** The status bar. */
     private StatusBar           statusBar;
@@ -102,15 +102,12 @@ class HiViewerWin
     /** The windows menu. */
     private JMenu               windowsMenu;
     
-    private JCheckBoxMenuItem   tbvItem;
-    
     /** The Controller. */
     private HiViewerControl     controller;
     
-    /** The model. */
+    /** The Model. */
     private HiViewerModel       model;
     
-    private boolean             titleBarVisible;
     
     /** Builds and lays out the GUI. */
     private void buildUI()
@@ -188,12 +185,12 @@ class HiViewerWin
     {
         JMenu menu = new JMenu("Layout");
         menu.setMnemonic(KeyEvent.VK_L);
-        tbvItem = new JCheckBoxMenuItem(
-                controller.getAction(HiViewerControl.TITLEBAR));
-        tbvItem.setSelected(isTitleBarVisible());
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.TREE)));
-        menu.add(tbvItem);
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.SHOW_TITLEBAR)));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.HIDE_TITLEBAR)));
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.SAVE)));
         return menu;
@@ -250,7 +247,6 @@ class HiViewerWin
     {
         this.controller = controller;
         this.model = model;
-        titleBarVisible = true;
         popupMenu = new PopupMenu(controller);
         setJMenuBar(createMenuBar());
         buildUI();
@@ -334,14 +330,6 @@ class HiViewerWin
         buf.insert(0, title);
         return buf.toString();
     }
-    
-    public void setTitleBarVisible(boolean b)
-    {
-        titleBarVisible = b;
-        tbvItem.setSelected(b);
-    }
-    
-    public boolean isTitleBarVisible() { return titleBarVisible; }
     
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()

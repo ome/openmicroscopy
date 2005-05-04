@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAnnotatedAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithAnnotationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithTitleAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.HideTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
@@ -96,62 +97,65 @@ class HiViewerControl
     implements ChangeListener, PropertyChangeListener
 {
     
-    /** Identifies the exit action within hierarchy menu. */
+    /** Identifies the Exit action in the Hierarchy menu. */
     public static final Integer     EXIT = new Integer(0);
     
-    /** Identifies the view P/D/I action within hierarchy menu. */
+    /** Identifies the View P/D/I action in the Hierarchy menu. */
     public static final Integer     VIEW_PDI = new Integer(1);
     
-    /** Identifies the view CG/C/I action within hierarchy menu. */
+    /** Identifies the View CG/C/I action in the hierarchy menu. */
     public static final Integer     VIEW_CGCI = new Integer(2);
     
-    /** Identifies the find Annotated action within find menu. */
+    /** Identifies the Find Annotated action in the Find menu. */
     public static final Integer     FIND_ANNOTATED = new Integer(3);
     
-    /** Identifies the find with title action within find menu. */
+    /** Identifies the Find With Title action in the Find menu. */
     public static final Integer     FIND_W_TITLE = new Integer(4);
     
-    /** Identifies the find with annotation action within find menu. */
+    /** Identifies the Find With Annotation action in the Find menu. */
     public static final Integer     FIND_W_ANNOTATION = new Integer(5);
     
-    /** Identifies the find with ST action within find menu. */
+    /** Identifies the Find With ST action in the Find menu. */
     public static final Integer     FIND_W_ST = new Integer(6);
     
-    /** Identifies the clear action within find menu. */
+    /** Identifies the Clear action in the Find menu. */
     public static final Integer     CLEAR = new Integer(7);
     
-    /** Identifies the squary layout action within layout menu. */
+    /** Identifies the Squary Layout action in the Layout menu. */
     public static final Integer     SQUARY = new Integer(8);
     
-    /** Identifies the tree layout action within layout menu. */
+    /** Identifies the Tree Layout action in the Layout menu. */
     public static final Integer     TREE = new Integer(9);
     
-    /** Identifies the titleBar action within layout menu. */
-    public static final Integer     TITLEBAR = new Integer(10);
+    /** Identifies the Show Title Bar action in the Layout menu. */
+    public static final Integer     SHOW_TITLEBAR = new Integer(10);
     
-    /** Identifies the save layout action within layout menu. */
-    public static final Integer     SAVE = new Integer(11);
+    /** Identifies the Hide Title Bar action in the Layout menu. */
+    public static final Integer     HIDE_TITLEBAR = new Integer(11);
     
-    /** Identifies the properties action within actions menu. */
-    public static final Integer     PROPERTIES = new Integer(12);
+    /** Identifies the Save Layout action in the Layout menu. */
+    public static final Integer     SAVE = new Integer(12);
     
-    /** Identifies the annotate action within actions menu. */
-    public static final Integer     ANNOTATE = new Integer(13);
+    /** Identifies the Properties action in the Actions menu. */
+    public static final Integer     PROPERTIES = new Integer(13);
     
-    /** Identifies the classify action within actions menu. */
-    public static final Integer     CLASSIFY = new Integer(14);
+    /** Identifies the Annotate action in the Actions menu. */
+    public static final Integer     ANNOTATE = new Integer(14);
     
-    /** Identifies the view action within actions menu. */
-    public static final Integer     VIEW = new Integer(15);
+    /** Identifies the Classify action in the Actions menu. */
+    public static final Integer     CLASSIFY = new Integer(15);
     
-    /** Identifies the zoom in action within actions menu. */
-    public static final Integer     ZOOM_IN = new Integer(16);
+    /** Identifies the View action in the Actions menu. */
+    public static final Integer     VIEW = new Integer(16);
     
-    /** Identifies the zoom out action within actions menu. */
-    public static final Integer     ZOOM_OUT = new Integer(17);
+    /** Identifies the Zoom In action in the Actions menu. */
+    public static final Integer     ZOOM_IN = new Integer(17);
     
-    /** Identifies the zoom fit action within actions menu. */
-    public static final Integer     ZOOM_FIT = new Integer(18);
+    /** Identifies the Zoom Out action in the Actions menu. */
+    public static final Integer     ZOOM_OUT = new Integer(18);
+    
+    /** Identifies the Zoom Fit action in the Actions menu. */
+    public static final Integer     ZOOM_FIT = new Integer(19);
     
     
     /** 
@@ -183,7 +187,8 @@ class HiViewerControl
         actionsMap.put(CLEAR, new ClearAction(model));
         actionsMap.put(SQUARY, new SquaryLayoutAction(model));
         actionsMap.put(TREE, new TreeLayoutAction(model));
-        actionsMap.put(TITLEBAR, new ShowTitleBarAction(model));
+        actionsMap.put(SHOW_TITLEBAR, new ShowTitleBarAction(model));
+        actionsMap.put(HIDE_TITLEBAR, new HideTitleBarAction(model));
         actionsMap.put(SAVE, new SaveLayoutAction(model));
         actionsMap.put(PROPERTIES, new PropertiesAction(model));
         actionsMap.put(ANNOTATE, new AnnotateAction(model));
