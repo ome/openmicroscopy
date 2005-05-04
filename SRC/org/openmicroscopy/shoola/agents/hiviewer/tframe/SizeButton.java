@@ -32,6 +32,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.tframe;
 
 //Java imports
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
@@ -42,6 +46,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
  * The sizing button in the {@link TitleBar}.
+ * This is a small MVC component that is aggregated into the bigger MVC set
+ * of the {@link TinyFrame}.  The MVC parts of this button are all collapsed
+ * in this class.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,19 +63,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
  */
 class SizeButton
     extends JButton
+    implements TinyFrameObserver, PropertyChangeListener, ActionListener
 {
-        
-    /** 
-     * Identifies the collapse action.
-     * @see #setActionType(int) 
-     */
-    static final int    COLLAPSE = 1;
-    
-    /** 
-     * Identifies the expand action.
-     * @see #setActionType(int) 
-     */
-    static final int    EXPAND = 2;
     
     /** Tooltip text when the button repsents the collapse action. */
     static final String COLLAPSE_TOOLTIP = "Collapse";
@@ -77,43 +73,81 @@ class SizeButton
     static final String EXPAND_TOOLTIP = "Expand";
     
     
+    /** The Model this button is working with. */
+    private TinyFrame   model;
+    
+    
     /**
      * Creates a new instance.
+     * 
+     * @param model The Model this button will be working with.
+     *              Mustn't be <code>null</code>.
      */
-    SizeButton() 
+    SizeButton(TinyFrame model) 
     {
+        if (model == null) throw new NullPointerException("No model.");
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
         setMargin(new Insets(0,0,0,0));  //Just to make sure button sz=icon sz.
         setOpaque(false);  //B/c button=icon.
         setFocusPainted(false);  //Don't paint focus box on top of icon.
         setRolloverEnabled(true);
+        this.model = model;
     }
     
     /**
-     * Sets the button to represent the specified action.
-     * 
-     * @param type One of the constants defined by this class.
+     * Registers this button with the Model.
+     * @see TinyFrameObserver#attach()
      */
-    void setActionType(int type)
+    public void attach() 
+    { 
+        addActionListener(this);
+        model.addPropertyChangeListener(TinyFrame.COLLAPSED_PROPERTY, this);
+        propertyChange(null);  //Synch button w/ current state.
+    }
+
+    /**
+     * Detaches this button from the Model's change notification registry.
+     * @see TinyFrameObserver#detach()
+     */
+    public void detach() 
+    { 
+        model.removePropertyChangeListener(TinyFrame.COLLAPSED_PROPERTY, this); 
+    }
+    
+    /**
+     * Sets the button appearence according to the collapsed state of the Model.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent pce)
     {
+        //NOTE: We can only receive COLLAPSED_PROPERTY changes, see attach().
         IconManager icons = IconManager.getInstance();
-        switch (type) {
-            case COLLAPSE:
-                setIcon(icons.getIcon(IconManager.MINUS));
-                setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));
-                setToolTipText(COLLAPSE_TOOLTIP);
-                break;
-            case EXPAND:
-                setIcon(icons.getIcon(IconManager.PLUS));
-                setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
-                setToolTipText(EXPAND_TOOLTIP);
+        if (model.isCollapsed()) {
+            setIcon(icons.getIcon(IconManager.PLUS));
+            setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));    
+            setToolTipText(EXPAND_TOOLTIP);
+        } else {
+            setIcon(icons.getIcon(IconManager.MINUS));
+            setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));   
+            setToolTipText(COLLAPSE_TOOLTIP);
         }
     }
     
     /** Overridden to make sure no focus is painted on top of the icon. */
-    public boolean isFocusTraversable() { return false; }
+    public boolean isFocusable() { return false; }
     
     /** Overridden to make sure no focus is painted on top of the icon. */
     public void requestFocus() {}
+
+    /**
+     * Expands or collapses the frame depending on the current state of the
+     * frame.
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent ae)
+    {
+        boolean b = !model.isCollapsed();
+        model.setCollapsed(b);
+    }
     
 }
