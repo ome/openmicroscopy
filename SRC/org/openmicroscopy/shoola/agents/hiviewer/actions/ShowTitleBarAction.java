@@ -37,13 +37,16 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ShowTitleBarCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Shows the title bar of all <code>ImageNode</code>s below the 
+ * {@link Browser}'s currently selected display.
+ * This action is enabled on all display nodes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,11 +63,30 @@ public class ShowTitleBarAction
     extends HiViewerAction
 {
 
-    private static final String NAME = "Show Title bar";
+    /** The text used for the button. */
+    private static final String NAME = "Show Title Bars";
     
-    private static final String DESCRIPTION = "Show the image's title Bar.";
+    /** The text used for the tooltip. */
+    private static final String DESCRIPTION = "Show the title bar of every "+
+                                    "image below the currently selected node.";
 
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model.  Mustn't be <code>null</code>.
+     */
     public ShowTitleBarAction(HiViewer model)
     {
         super(model);
@@ -73,16 +95,11 @@ public class ShowTitleBarAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
 
-    /** Handle the action. */
+    /** Creates a {@link ShowTitleBarCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
-        ShowTitleBarCmd cmd = new ShowTitleBarCmd(model);
+        ShowTitleBarCmd cmd = new ShowTitleBarCmd(model, true);
         cmd.execute();
-    }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay != null) setEnabled(true);
     }
 
 }

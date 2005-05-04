@@ -40,7 +40,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * 
+ * Visits the browser's display to show or hide the title bar of all
+ * {@link ImageNode}s below a given node in the display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,18 +58,33 @@ class ShowTitleBarVisitor
     extends HiViewerVisitor
 {
 
-    /**
-     * @param model
+    /** 
+     * Tells whether to show (<code>true</code>) or hide (<code>false</code>). 
      */
-    ShowTitleBarVisitor(HiViewer model)
+    private boolean     show;
+    
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model.  Mustn't be <code>null</code>.
+     * @param show  Tells whether to show (<code>true</code>) or hide 
+     *              (<code>false</code>).
+     */
+    ShowTitleBarVisitor(HiViewer model, boolean show)
     {
         super(model);
+        this.show = show;
     }
     
-    /** Set the highlight color to null. */
+    /** 
+     * Sets the title bar to be the small bar (if we're showing the bar) or
+     * the header bar (if hiding). 
+     */
     public void visit(ImageNode node)
     { 
-        node.showTitleBar(model.isTitleBarVisible());
+        if (show) node.setTitleBarType(ImageNode.SMALL_BAR);
+        else node.setTitleBarType(ImageNode.HEADER_BAR);
     }
 
     /** Does nothing. */
