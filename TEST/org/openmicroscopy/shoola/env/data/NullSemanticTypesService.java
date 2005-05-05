@@ -552,5 +552,15 @@ public class NullSemanticTypesService
         // TODO Auto-generated method stub
         return null;
     }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroupsWithoutImages()
+     */
+    public List retrieveCategoryGroupsWithoutImages()
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
 }
