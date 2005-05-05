@@ -100,17 +100,16 @@ class SquaryLayout
         }
 
         //Finally do layout.
-        Object[] children = LayoutFactory.orderedChildrenbyWidth(node);
-        ImageDisplay child;
+        ImageDisplay[] children = 
+            LayoutUtils.sortChildrenByPrefWidth(node, false);
         Dimension d;
         int maxY = 0;
         int x = 0, y = 0;
         for (int i = 0; i < children.length; i++) {
-            child = (ImageDisplay) children[i];
-            d = child.getPreferredSize();
-            child.setBounds(x, y, d.width, d.height);
-            child.setVisible(true);
-            child.setCollapsed(false);
+            d = children[i].getPreferredSize();
+            children[i].setBounds(x, y, d.width, d.height);
+            children[i].setVisible(true);
+            children[i].setCollapsed(false);
             if (x+d.width <= browserW) {
                 x += d.width;
                 maxY = Math.max(maxY, d.height); 
@@ -142,13 +141,14 @@ class SquaryLayout
      */
     public void visit(ImageSet node)
     {
+        if (node.isSingleViewMode()) return;
         if (node.getChildrenDisplay().size() == 0) {   //node with no child
             node.getInternalDesktop().setPreferredSize(
                     node.getTitleBar().getMinimumSize());
             node.setVisible(true);
             return;
         }
-        if (node.containsImages()) LayoutFactory.visitNodeWithLeaves(node);
+        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node);
         else visitContainerNode(node);
     }
 

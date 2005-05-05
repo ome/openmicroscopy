@@ -82,18 +82,17 @@ class TreeLayout
             return;
         }
         Dimension d;
-        Object[] children = LayoutFactory.orderedChildrenbyWidth(node);
-        ImageDisplay child;
+        ImageDisplay[] children = 
+            LayoutUtils.sortChildrenByPrefWidth(node, false);
         int y = 0, x = HSPACE;
         int h;
         if (node.getParentDisplay() == null) x = 0;
         for (int i = 0; i < children.length; i++) {
-            child = (ImageDisplay) children[i];
-            child.setVisible(true);
-            child.setCollapsed(true);
-            d = child.getPreferredSize();
-            h = (int) child.getSize().getHeight();
-            child.setBounds(x, y, d.width, h);
+            children[i].setVisible(true);
+            children[i].setCollapsed(true);
+            d = children[i].getPreferredSize();
+            h = children[i].getSize().height;
+            children[i].setBounds(x, y, d.width, h);
             y += h; 
         }
         Rectangle bounds = node.getContentsBounds();
@@ -109,13 +108,14 @@ class TreeLayout
      */
     public void visit(ImageSet node)
     {
+        if (node.isSingleViewMode()) return;
         if (node.getChildrenDisplay().size() == 0) {   //node with no child
             node.getInternalDesktop().setPreferredSize(
                     node.getTitleBar().getMinimumSize());
             node.setVisible(true);
             return;
         }
-        if (node.containsImages()) LayoutFactory.visitNodeWithLeaves(node);
+        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node);
         else visitContainerNode(node);
     }
 
