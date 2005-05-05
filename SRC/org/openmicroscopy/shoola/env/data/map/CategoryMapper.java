@@ -100,10 +100,33 @@ public class CategoryMapper
     }
     
     /** 
-     * Fill up a {@link CategoryData} object. 
+     * Fill up a {@link CategoryData} object given a {@link Category} object. 
      * 
-     * @param c         original category object.
-     * @param model     data object to fill up.     
+     * @param gData         The Data object containing the {@link CategoryData}. 
+     * @param proto         The Data object to fill up.     
+     * @param c             The remote object.
+     * @return See above.
+     */
+    private static CategoryData fillSimpleCategory(CategoryGroupData gData, 
+                            CategoryData proto, Category c)
+    {
+        CategoryData model = (CategoryData) proto.makeNew();
+        model.setID(c.getID());
+        model.setName(c.getName());
+        model.setDescription(c.getDescription());
+        model.setCategoryGroup(gData);
+        model.setClassifications(new HashMap());
+        return model;
+    }
+
+    /** 
+     * Fill up a {@link CategoryData} object given a {@link Category} object. 
+     * 
+     * @param gData         The Data object containing the {@link CategoryData}. 
+     * @param proto         The Data object to fill up.     
+     * @param c             The remote object.
+     * @param annotations   The map with the image Annotations.
+     * @return See above.
      */
     private static CategoryData fillCategory(CategoryGroupData gData, 
                             CategoryData proto, Category c, Map annotations)
@@ -136,7 +159,7 @@ public class CategoryMapper
         model.setClassifications(map);
         return model;
     }
-
+    
     /**
      * Build a basic criteria for {@link Category} or {@link CategoryGroup}.
      * 
@@ -162,11 +185,13 @@ public class CategoryMapper
     }
     
     /**
-     * Build a criteria to retrieve {@link CategoryGroup} objects.
      * 
-     * @return Corresponding criteria.
+     * @param groupID
+     * @param userID
+     * @return
      */
-    public static Criteria buildCategoryGroupCriteria(int groupID, int userID)
+    public static Criteria buildSimpleCategoryGroupCriteria(int groupID, 
+            int userID)
     {
         Criteria c = new Criteria();
         c.addWantedField("Name");
@@ -176,11 +201,29 @@ public class CategoryMapper
         //wanted fields for CategoryList
         c.addWantedField("CategoryList", "Name");
         c.addWantedField("CategoryList", "Description");
-        c.addWantedField("CategoryList", "ClassificationList");
         c.addWantedField("CategoryList", "module_execution");
+        //May add filter
+        c.addWantedField("CategoryList.module_execution", "experimenter");      
+        if (groupID != -1) c.addFilter("id", new Integer(groupID));
+        if (userID != -1) 
+          c.addFilter("module_execution.experimenter_id", new Integer(userID));
+        return c;
+    }
+    
+    /**
+     * Build a criteria to retrieve {@link CategoryGroup} objects.
+     * 
+     * @return Corresponding criteria.
+     */
+    public static Criteria buildCategoryGroupCriteria(int groupID, int userID)
+    {
+        Criteria c = buildSimpleCategoryGroupCriteria(groupID, userID);
+        
         //May add filter
         c.addWantedField("CategoryList.module_execution", "experimenter");
         
+        //wanted fields for CategoryList
+        c.addWantedField("CategoryList", "ClassificationList");
         //wanted fields for ClassificationList
         c.addWantedField("CategoryList.ClassificationList", "Valid");
         
@@ -199,10 +242,6 @@ public class CategoryMapper
                     "default_pixels");
         PixelsMapper.fieldsForPixels(c, 
                 "CategoryList.ClassificationList.image.default_pixels");          
-        if (groupID != -1) c.addFilter("id", new Integer(groupID));
-        if (userID != -1) 
-            c.addFilter("module_execution.experimenter_id", 
-                    new Integer(userID));
         return c;
     }
     
@@ -356,6 +395,53 @@ public class CategoryMapper
     }
     
     /**
+     * Given a list of {@link CategoryGroup} build the corresponding list of
+     * {@link CategoryGroupData} objects
+     * 
+     * @param l         list of {@link CategoryGroup}s.
+     * @param result    list of {@link CategoryGroupData}s.
+     * @param userID    ID of the current user.
+     */
+    public static List fillSimpleCategoryGroup(CategoryGroupData gProto, 
+            CategoryData cProto, List l, int userID)
+    {
+        List results = new ArrayList();
+        Map cMap = new HashMap();
+        Iterator i = l.iterator(), j;
+        CategoryGroup cg;
+        Category c;
+        CategoryGroupData cgd;
+        CategoryData data;
+        List categories; 
+        Integer id;
+        while (i.hasNext()) {
+            cg = (CategoryGroup) i.next();
+            cgd = buildCategoryGroup(gProto, cg);
+            categories = new ArrayList();
+            if (cg.getCategoryList() != null) {
+                j = cg.getCategoryList().iterator();
+                while (j.hasNext()) {
+                    c = (Category) j.next();
+                    if (c.getModuleExecution().getExperimenter().getID() 
+                            == userID) {
+                        id = new Integer(c.getID());
+                        data = (CategoryData) cMap.get(id);
+                        if (data == null) {
+                            data = fillSimpleCategory(cgd, cProto, c);
+                            cMap.put(id, data);
+                        }
+                        //Add the categories to the list
+                        categories.add(data);
+                    }
+                }
+            }
+            cgd.setCategories(categories);
+            results.add(cgd);
+        }
+        return results;
+    }
+    
+    /**
      * 
      * @param gProto
      * @param cProto
@@ -442,9 +528,11 @@ public class CategoryMapper
     }
 
     /**
+     * Builds a {@link ClassficationData} object given a 
+     * {@link Classfication} object.
      * 
-     * @param c
-     * @return
+     * @param c The remote object.
+     * @return See above.
      */
     public static ClassificationData buildClassificationData(Classification c)
     {
@@ -455,9 +543,11 @@ public class CategoryMapper
     }
     
     /** 
-     * Fill up a {@link CategoryGroupData} object. 
+     * Fill up a {@link CategoryGroupData} object given a 
+     * {@link CategoryGroup} object.  
      * 
-     * @param group        original {@link CategoryGroup} object.    
+     * @param group The remote {@link CategoryGroup} object.  
+     * @return See above.  
      */
      public static CategoryGroupData buildCategoryGroup(
             CategoryGroupData gProto, CategoryGroup group)
@@ -472,11 +562,14 @@ public class CategoryMapper
     }
     
      /**
-      * 
-      * @param cProto
-      * @param category
-      * @param gModel
-      * @return
+      * Fill up {@link CategoryData} object given a 
+      * {@link Category} object.  
+      *  
+      * @param cProto   The {@link CategoryData} to fill up.
+      * @param category The remote object.
+      * @param gModel   The {@link CategoryGroupData} object containing the 
+      *                 {@link CategoryData}.
+      * @return See above.
       */
      public static CategoryData buildCategoryData(CategoryData cProto, 
                              Category category, CategoryGroupData gModel)
