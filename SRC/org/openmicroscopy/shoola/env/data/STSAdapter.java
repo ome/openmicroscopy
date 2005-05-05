@@ -575,6 +575,21 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveCategoryGroupsWithoutImages()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Retrieve the user ID.
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        int id = uc.getUserID();
+        Criteria c = CategoryMapper.buildSimpleCategoryGroupCriteria(-1, id);
+        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
+        if (l == null || l.size() == 0) return new ArrayList();
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        return CategoryMapper.fillSimpleCategoryGroup(gProto, cProto, l, id);
+    }
+    
+    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveCategoryGroups(boolean annotated)
         throws DSOutOfServiceException, DSAccessException
     {

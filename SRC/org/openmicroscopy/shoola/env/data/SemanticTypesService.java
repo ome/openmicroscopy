@@ -312,11 +312,23 @@ public interface SemanticTypesService
     /** 
      * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
      * Retrieve all category groups.
-     * Each CategoryGroup object contains a list of CategorieSummary objects .
+     * Each {@link CategoryGroupData} object contains a list of 
+     * {@link CategoryData} objects. Each {@link CategoryData} object has a map
+     * of {@link ClassificationData}.
      */
     public List retrieveCategoryGroups(boolean annotated)
         throws DSOutOfServiceException, DSAccessException;  
 
+    /** 
+     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
+     * Retrieve all category groups.
+     * Each {@link CategoryGroupData} object contains a list of 
+     * {@link CategoryData} objects. Each {@link CategoryData} object has an 
+     * empty map.
+     */
+    public List retrieveCategoryGroupsWithoutImages()
+        throws DSOutOfServiceException, DSAccessException;  
+    
     /** 
      * Retrieve the categories not contained in the specified group, and 
      * containing images which aren't in the categories linked to the group.
