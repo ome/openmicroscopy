@@ -48,6 +48,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
+import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindowUI;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -71,7 +72,7 @@ public class SearchExplorer
     extends TinyWindow
 {
     
-    private static final Dimension DEFAULT_DIMENSION = new Dimension(150, 150);
+    private static final int    DEFAULT_WIDTH = 150;
     
     /** The point at which the last popup event occurred. */
     private Point               popupPoint;
@@ -95,7 +96,13 @@ public class SearchExplorer
     private void buildUI()
     {
         uiDelegate.setCanvas(buildTreeUI());
-        setSize(DEFAULT_DIMENSION);
+        Dimension d = tree.getPreferredScrollableViewportSize();
+        Dimension dC = getContentPane().getPreferredSize();
+        int w = dC.width, h = d.height;
+        if (w > TinyWindowUI.MAX_WIDTH) w = TinyWindowUI.MAX_WIDTH;
+        if (w < DEFAULT_WIDTH) w = DEFAULT_WIDTH;
+        if (h > TinyWindowUI.MAX_HEIGHT) h = TinyWindowUI.MAX_HEIGHT;
+        setSize(w, h);
     }
     
     /** Display the Tree in a JScrollPane. */

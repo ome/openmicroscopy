@@ -74,6 +74,10 @@ import javax.swing.border.BevelBorder;
 public class TinyWindowUI
 {
     
+    public static final int MAX_WIDTH = 300;
+    
+    public static final int MAX_HEIGHT = 300;
+    
     /** The thickness of the frame's border. */
     static final int    BORDER_THICKNESS = 1;
 
@@ -164,7 +168,7 @@ public class TinyWindowUI
     private void removeComponent(JComponent c)
     {
         window.getContentPane().remove(c);
-        window.repaint();
+        //window.repaint();
     }
 
     /** 
@@ -279,7 +283,13 @@ public class TinyWindowUI
             addComponent(canvas);
             titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
         }
-        window.pack();
+        Dimension d = window.getContentPane().getPreferredSize();
+        Dimension dT = titleBar.getPreferredSize();
+        int h = d.height;
+        if (h > MAX_HEIGHT) h = MAX_HEIGHT;
+        window.setSize(dT.width, h);
+        window.validate();
+        window.repaint();
     }
 
     /** 
