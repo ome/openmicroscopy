@@ -36,7 +36,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -61,9 +60,12 @@ public class ClassifyAction
     extends HiViewerAction
 {
 
-    private static final String NAME = "Classify";
+    /** Name of the action. */
+    private static final String NAME = "Add to category";
     
-    private static final String DESCRIPTION = "Classify the selected image.";
+    /** Description of the action. */
+    private static final String DESCRIPTION = "Classify the selected image" +
+            "in a category.";
     
     
     public ClassifyAction(HiViewer model)
@@ -72,14 +74,14 @@ public class ClassifyAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
+        //IconManager im = IconManager.getInstance();
+        //putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
     }
 
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-       ClassifyCmd cmd = new ClassifyCmd(model);
+       ClassifyCmd cmd = new ClassifyCmd(model, true);
        cmd.execute();
     }
     
