@@ -334,16 +334,6 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveICGHierarchy(java.util.List)
-     */
-    public List retrieveCGCIHierarchy(List imageSummaries)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoriesNotInGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData)
      */
     public List retrieveCategoriesNotInGroup(CategoryGroupData group)
@@ -524,16 +514,6 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroups(boolean)
-     */
-    public List retrieveCategoryGroups(boolean annotated)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroupTree(int, boolean)
      */
     public CategoryGroupData retrieveCategoryGroupTree(int cgID, boolean annotated)
@@ -554,9 +534,19 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroupsWithoutImages()
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCGCIHierarchy(java.util.List, boolean)
      */
-    public List retrieveCategoryGroupsWithoutImages()
+    public List retrieveCGCIHierarchy(List imageSummaries, boolean in)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroups(boolean, boolean)
+     */
+    public List retrieveCategoryGroups(boolean annotated, boolean in)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
