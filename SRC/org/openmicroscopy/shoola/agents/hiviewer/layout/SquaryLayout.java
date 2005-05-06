@@ -83,7 +83,8 @@ class SquaryLayout
     private void setBrowserSize()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        browserW = 7*(screenSize.width/10);
+        browserW = 8*(screenSize.width/10);
+        System.out.println("browser: "+browserW);
     }
   
     /** Visit an ImageSet node that contains imageSet nodes. */
@@ -115,7 +116,9 @@ class SquaryLayout
                 maxY = Math.max(maxY, d.height); 
             } else {
                 x = 0;
-                y += maxY;
+                //we didn't enter the previous.
+                if (maxY == 0) y += d.height; 
+                else y += maxY;
                 maxY = 0;
             } 
         }
