@@ -38,6 +38,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassifierLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
@@ -72,8 +73,7 @@ class HierarchyBrowsingViewImpl
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodeID);
-        CallHandle handle = cmd.exec(observer);
-        return handle;
+        return cmd.exec(observer);
     }
     
     /**
@@ -87,8 +87,7 @@ class HierarchyBrowsingViewImpl
     {
         BatchCallTree cmd = 
                         new ThumbnailLoader(imgSummaries, maxWidth, maxHeight);
-        CallHandle handle = cmd.exec(observer);
-        return handle;
+        return cmd.exec(observer);
     }
 
     /**
@@ -100,8 +99,7 @@ class HierarchyBrowsingViewImpl
     {
         BatchCallTree cmd = 
                         new HierarchyFinder(ProjectSummary.class, imgSummaries);
-        CallHandle handle = cmd.exec(observer);
-        return handle;
+        return cmd.exec(observer);
     }
 
     /**
@@ -113,8 +111,19 @@ class HierarchyBrowsingViewImpl
     {
         BatchCallTree cmd = 
                     new HierarchyFinder(CategoryGroupData.class, imgSummaries);
-        CallHandle handle = cmd.exec(observer);
-        return handle;
+        return cmd.exec(observer);
     }
 
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#loadClassificationPaths(int, 
+     *                                  AgentEventListener)
+     */
+    public CallHandle loadClassificationPaths(int imageID, 
+            AgentEventListener observer)
+    {
+        BatchCallTree cmd  = new ClassifierLoader(imageID);
+        return cmd.exec(observer);
+    }
+    
 }

@@ -168,4 +168,13 @@ public interface HierarchyBrowsingView
                                      int maxWidth, int maxHeight,
                                      AgentEventListener observer);
     
+    /**
+     * 
+     * @param imageID
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadClassificationPaths(int imageID, 
+                            AgentEventListener observer);
+    
 }
