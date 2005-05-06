@@ -259,8 +259,19 @@ class CategoryEditorManager
 	{
 		model.setDescription(view.getDescriptionArea().getText());
 		model.setName(view.getNameField().getText());
-		agentCtrl.updateCategory(model, imagesToRemove, imagesToAdd, 
-                                nameChange);
+        Iterator i = imagesToRemove.iterator();
+        ArrayList declassify = new ArrayList(), classify = new ArrayList();
+        ImageSummary is;
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            declassify.add(new Integer(is.getID()));
+        }
+        i = imagesToAdd.iterator();
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            classify.add(new Integer(is.getID()));
+        }
+		agentCtrl.updateCategory(model, declassify, classify, nameChange);
 	}
 	
 	/** Select All images.*/

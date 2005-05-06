@@ -1384,7 +1384,14 @@ public class DataManager
         }
     }
     
-    /**Update an existing category group. */
+    /**
+     * Update the specified category.
+     * 
+     * @param data          The DataObject to update
+     * @param imgsToRemove  List of image's ID to declassify.
+     * @param imgsToAdd     List of image's ID to declassify.
+     * @param nameChange
+     */
     void updateCategory(CategoryData data, List imgsToRemove, List imgsToAdd, 
                         boolean nameChange)
     {
