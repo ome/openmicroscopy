@@ -87,7 +87,7 @@ public class ProjectEditor
 		generalPane = new ProjectGeneralPane(manager);
 		datasetsPane = new ProjectDatasetsPane(manager);
 		ownerPane = new ProjectOwnerPane(manager);
-		bar = new ProjectEditorBar(agentCtrl.getRegistry());
+		bar = new ProjectEditorBar();
 		buildGUI();
 		manager.initListeners();
 	}

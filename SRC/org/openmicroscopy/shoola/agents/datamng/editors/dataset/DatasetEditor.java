@@ -86,7 +86,7 @@ public class DatasetEditor
 		generalPane = new DatasetGeneralPane(manager);
 		imagesPane = new DatasetImagesPane(manager);
 		ownerPane = new DatasetOwnerPane(manager);
-		bar = new DatasetEditorBar(agentCtrl.getRegistry());
+		bar = new DatasetEditorBar();
 		buildGUI();
 		manager.initListeners();
 	}

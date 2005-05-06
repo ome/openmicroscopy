@@ -88,7 +88,7 @@ public class GroupEditor
         manager = new GroupEditorManager(this, agentCtrl, model);
         generalPane = new GroupPane(manager);
         categoriesPane = new GroupCategoriesPane(manager);
-        bar = new GroupEditorBar(agentCtrl.getRegistry());
+        bar = new GroupEditorBar();
         buildGUI();
         manager.initListeners();
     }
