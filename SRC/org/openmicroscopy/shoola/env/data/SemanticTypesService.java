@@ -529,8 +529,8 @@ public interface SemanticTypesService
      * Update an existing Category.
      * 
      * @param data  {@link CategoryData} object. 
-     * @param imgsToRemove List of images to declassify.
-     * @param imgsToAdd List of images to classify.
+     * @param imgsToRemove List of image's ids to declassify.
+     * @param imgsToAdd List of image's ids to classify.
      * 
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 

@@ -685,6 +685,8 @@ class STSAdapter
     public boolean updateImageAnnotation(AnnotationData data, int imgID)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (data == null)
+            throw new IllegalArgumentException("no annotation");
         if (!removeImageAnnotation(data)) return false;
         createImageAnnotation(imgID, data.getAnnotation(), data.getTheZ(), 
                             data.getTheT()); 
@@ -695,6 +697,8 @@ class STSAdapter
     public boolean updateDatasetAnnotation(AnnotationData data, int datasetID)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (data == null)
+            throw new IllegalArgumentException("no annotation");
         if (!removeDatasetAnnotation(data)) return false;
         createDatasetAnnotation(datasetID, data.getAnnotation());
         return true;
@@ -704,6 +708,8 @@ class STSAdapter
     public boolean removeImageAnnotation(AnnotationData data)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (data == null)
+            throw new IllegalArgumentException("no annotation");
         Criteria c = AnnotationMapper.buildBasicCriteria(data.getID());
         ImageAnnotation ia = 
             (ImageAnnotation) gateway.retrieveSTSData("ImageAnnotation", c);
@@ -719,6 +725,8 @@ class STSAdapter
     public boolean removeDatasetAnnotation(AnnotationData data)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (data == null)
+            throw new IllegalArgumentException("no annotation");
         Criteria c = AnnotationMapper.buildBasicCriteria(data.getID());
         DatasetAnnotation da = 
             (DatasetAnnotation) gateway.retrieveSTSData("DatasetAnnotation", c);
@@ -789,6 +797,8 @@ class STSAdapter
                 Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (group == null)
+            throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
         CategoryData data;
@@ -823,6 +833,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         UserDetails uc = registry.getDataManagementService().getUserDetails();
+     
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID, 
                                     uc.getUserID(), true);
         CategoryGroup group = 
@@ -906,6 +917,8 @@ class STSAdapter
             Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (group == null)
+            throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
         CategoryData data;
@@ -952,6 +965,8 @@ class STSAdapter
             CategoryGroupData group, Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException 
     {
+        if (group == null)
+            throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
         CategoryData data;
@@ -984,8 +999,7 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         if (group == null)
-            throw new IllegalArgumentException("CategoryGroupData cannot" +
-                    "be null");
+            throw new IllegalArgumentException("no CategoryGroup");
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
                         group.getID(), uc.getUserID());
@@ -1000,6 +1014,7 @@ class STSAdapter
     public CategoryGroupData createCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException 
     {
+        if (data == null) throw new NullPointerException("no CategoryGroup");
         List l = new ArrayList();
         CategoryGroup group = buildCategoryGroup(data);
         l.add(group); // Build a CategoryGroup object.
@@ -1011,8 +1026,15 @@ class STSAdapter
     public CategoryData createCategory(CategoryData data, List images)
         throws DSOutOfServiceException, DSAccessException 
     {
+        if (data == null) throw new NullPointerException("no category");
         CategoryGroupData parent = data.getCategoryGroup();
-        if (parent == null) return null;
+        if (parent == null) throw new NullPointerException("no CategoryGroup");
+        try {
+            images.toArray(new ImageSummary[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException(
+                    "images can only contain ImageSummary objects.");
+        }
         CategoryGroup cg;
         List newAttributes = new ArrayList(), oldAttributes = new ArrayList();
         //Retrieve the CategoryGroup object.
@@ -1034,7 +1056,6 @@ class STSAdapter
         Map map = new HashMap();
         ClassificationData cData;
         while (j.hasNext()) {
-            //Build/Retrieve a Classification object
             is = (ImageSummary) j.next();
             results = buildClassification(category, is.getID());
             classification = (Classification) results[1];
@@ -1102,35 +1123,27 @@ class STSAdapter
         throws DSOutOfServiceException, DSAccessException
     {
         UserDetails uc = registry.getDataManagementService().getUserDetails();
-        Criteria c = CategoryMapper.buildBasicCriteria(data.getID(), 
-                                                    uc.getUserID());
-        Category category = 
-            (Category) gateway.retrieveSTSData("Category", c);
+        int id = data.getID();
+        Criteria c = CategoryMapper.buildBasicCriteria(id, uc.getUserID());
+        Category category = (Category) gateway.retrieveSTSData("Category", c);
         category.setName(data.getName());
         category.setDescription(data.getDescription());
         List toUpdate = new ArrayList(), newAttributes = new ArrayList();
-        toUpdate.add(category);
-        //Map classifications = data.getClassifications();    
-        Map classifications = data.getImageClassifications();
-        ClassificationData cData;
+        toUpdate.add(category); 
         Classification classification;
         //Images to declassify
         if (imgsToRemove != null) {
-            Iterator i = imgsToRemove.iterator();
+            Iterator i = imgsToRemove.iterator(), k;
             List l;
-            Iterator k;
-            ImageSummary is;
+            int imgID;
             while (i.hasNext()) {
-                is = (ImageSummary) i.next();
-                l = (List) classifications.get(new Integer(is.getID()));
+                imgID = ((Integer) i.next()).intValue();
+                c = CategoryMapper.buildClassificationCriteria(imgID, id);
+                l = (List) gateway.retrieveListSTSData("Classification", c);
                 if (l != null) {
                     k = l.iterator();
-                    while(k.hasNext()) {
-                        cData = (ClassificationData) k.next();
-                        c = CategoryMapper.buildBasicClassificationCriteria(
-                                cData.getID());
-                        classification = (Classification) 
-                            gateway.retrieveSTSData("Classification", c);
+                    while (k.hasNext()) {
+                        classification = (Classification) k.next();
                         classification.setValid(Boolean.FALSE);
                         toUpdate.add(classification);
                     }
@@ -1144,7 +1157,7 @@ class STSAdapter
             Object[] results;
             while (j.hasNext()) {
                 results = buildClassification(category, 
-                        ((ImageSummary) j.next()).getID());
+                        ((Integer) j.next()).intValue());
                 classification = (Classification) results[1];
                 if (((Boolean) results[0]).booleanValue()) {
                     newAttributes.add(classification);
@@ -1154,7 +1167,7 @@ class STSAdapter
                 else toUpdate.add(classification);
             }  
         }
-        if (newAttributes.size() != 0) //to have a mex
+        if (newAttributes.size() != 0) 
             gateway.annotateAttributesData(newAttributes);
         gateway.updateAttributes(toUpdate);
     }
@@ -1180,8 +1193,8 @@ class STSAdapter
     {
         //Retrieve the user ID.
         UserDetails uc = registry.getDataManagementService().getUserDetails();
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, 
-                                        uc.getUserID(), true);
+        int uID = uc.getUserID();
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, uID, true);
         CategoryGroup cg = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         if (cg == null) return null;
@@ -1191,17 +1204,16 @@ class STSAdapter
         l.add(cg);
         if (!annotated) {
             List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
-                    uc.getUserID(), null);
+                            uID, null);
             if (results.size() == 0) return null;
             return (CategoryGroupData) results.get(0);
         }
         List imageIDs = CategoryMapper.prepareListImagesID(cg);
-        List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
+        List isAnnotations = getImageAnnotations(imageIDs, uID);
         List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
-                uc.getUserID(), isAnnotations);
+                                uID, isAnnotations);
         if (results.size() == 0) return null;
         return (CategoryGroupData) results.get(0);
-        
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
