@@ -123,7 +123,7 @@ public class HierarchyFinder
             {
                 SemanticTypesService sts = context.getSemanticTypesService();
                 ArrayList list = new ArrayList(imgSummaries);
-                List nodes = sts.retrieveCGCIHierarchy(list);
+                List nodes = sts.retrieveCGCIHierarchy(list, true);
                 rootNodes = new HashSet(nodes);
             }
         };
