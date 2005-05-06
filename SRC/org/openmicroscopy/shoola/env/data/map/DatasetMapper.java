@@ -353,19 +353,17 @@ public class DatasetMapper
                     image = (Image) i.next();
                     imageID = new Integer(image.getID());
                     annotation = (ImageAnnotation) ids.get(imageID);
-                    if (annotation != null) {
-                        is = (ImageSummary) map.get(imageID);
-                        if (is == null) {
-                            //Make a new DataObject and fill it up.
-                            is = (ImageSummary) iProto.makeNew();
-                            ImageMapper.buildImageSummary(image, is);
-                            is.setAnnotation(
-                                    AnnotationMapper.fillImageAnnotation(
-                                            annotation));
-                            //Add the image summary object to the list.
-                            images.add(is);
-                            map.put(imageID, is);
-                        }
+                    is = (ImageSummary) map.get(imageID);
+                    if (is == null) {
+                        //Make a new DataObject and fill it up.
+                        is = (ImageSummary) iProto.makeNew();
+                        ImageMapper.buildImageSummary(image, is);
+                        is.setAnnotation(
+                                AnnotationMapper.fillImageAnnotation(
+                                        annotation));
+                        //Add the image summary object to the list.
+                        images.add(is);
+                        map.put(imageID, is);
                     }
                 }
             }

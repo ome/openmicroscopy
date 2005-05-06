@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.ClassificationData;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
- * 
+ * Utility class. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,6 +72,10 @@ public class CategoryMapper
     
     public static final Float    CONFIDENCE_OBJ = new Float(1.0f);
     
+    /**
+     * Fields required for Category
+     * @param c existing criteria.
+     */
     private static void fieldsForCategory(Criteria c)
     {
         c.addWantedField("Name");
@@ -175,7 +179,6 @@ public class CategoryMapper
         c.addWantedField("Description");
         c.addWantedField("module_execution");
         c.addWantedField("module_execution", "experimenter");
-        //Specify which fields we want for the owner.
         c.addWantedField("module_execution.experimenter", "id");
         if (id != -1) c.addFilter("id", new Integer(id));
         if (userID != -1) 
@@ -185,13 +188,12 @@ public class CategoryMapper
     }
     
     /**
+     * Build a criteria to retrieve {@link CategoryGroup} objects.
      * 
-     * @param groupID
-     * @param userID
-     * @return
+     * @return Corresponding criteria.
      */
-    public static Criteria buildSimpleCategoryGroupCriteria(int groupID, 
-            int userID)
+    public static Criteria buildCategoryGroupCriteria(int groupID, int userID, 
+            boolean withImages)
     {
         Criteria c = new Criteria();
         c.addWantedField("Name");
@@ -204,23 +206,6 @@ public class CategoryMapper
         c.addWantedField("CategoryList", "module_execution");
         //May add filter
         c.addWantedField("CategoryList.module_execution", "experimenter");      
-        if (groupID != -1) c.addFilter("id", new Integer(groupID));
-        if (userID != -1) 
-          c.addFilter("module_execution.experimenter_id", new Integer(userID));
-        return c;
-    }
-    
-    /**
-     * Build a criteria to retrieve {@link CategoryGroup} objects.
-     * 
-     * @return Corresponding criteria.
-     */
-    public static Criteria buildCategoryGroupCriteria(int groupID, int userID)
-    {
-        Criteria c = buildSimpleCategoryGroupCriteria(groupID, userID);
-        
-        //May add filter
-        c.addWantedField("CategoryList.module_execution", "experimenter");
         
         //wanted fields for CategoryList
         c.addWantedField("CategoryList", "ClassificationList");
@@ -228,20 +213,24 @@ public class CategoryMapper
         c.addWantedField("CategoryList.ClassificationList", "Valid");
         
         c.addWantedField("CategoryList.ClassificationList", "Confidence");
-        c.addWantedField("CategoryList.ClassificationList", "image");
-        
-        //May add filtering
+
         c.addWantedField("CategoryList.ClassificationList", "module_execution");
         c.addWantedField("CategoryList.ClassificationList.module_execution", 
                             "experimenter");
 
         //wanted fields for images
-        c.addWantedField("CategoryList.ClassificationList.image", "name");
-        c.addWantedField("CategoryList.ClassificationList.image", "created");
-        c.addWantedField("CategoryList.ClassificationList.image", 
-                    "default_pixels");
-        PixelsMapper.fieldsForPixels(c, 
-                "CategoryList.ClassificationList.image.default_pixels");          
+        if (withImages) {
+            c.addWantedField("CategoryList.ClassificationList", "image");
+            c.addWantedField("CategoryList.ClassificationList.image", "name");
+            c.addWantedField("CategoryList.ClassificationList.image", "created");
+            c.addWantedField("CategoryList.ClassificationList.image", 
+                        "default_pixels");
+            PixelsMapper.fieldsForPixels(c, 
+                    "CategoryList.ClassificationList.image.default_pixels"); 
+        }
+        if (groupID != -1) c.addFilter("id", new Integer(groupID));
+        if (userID != -1) 
+          c.addFilter("module_execution.experimenter_id", new Integer(userID));
         return c;
     }
     
@@ -254,11 +243,9 @@ public class CategoryMapper
     {
         Criteria c = new Criteria();
         fieldsForCategory(c);   
-        if (categoryID != -1) 
-            c.addFilter("id", new Integer(categoryID));
-        if (userID != -1) 
-            c.addFilter("module_execution.experimenter_id", 
-                    new Integer(userID));
+        if (categoryID != -1) c.addFilter("id", new Integer(categoryID));
+        if (userID != -1) c.addFilter("module_execution.experimenter_id", 
+                                    new Integer(userID));
         return c;
     }
     
@@ -270,9 +257,8 @@ public class CategoryMapper
         c.addWantedField("Name");
         c.addWantedField("Description");
         if (groupID != -1) c.addFilter("id", new Integer(groupID));
-        if (userID != -1) 
-            c.addFilter("module_execution.experimenter_id", 
-                    new Integer(userID));
+        if (userID != -1) c.addFilter("module_execution.experimenter_id", 
+                                    new Integer(userID));
         return c;
     }
     
@@ -284,9 +270,8 @@ public class CategoryMapper
         fieldsForCategory(c);
         if (groupID != -1) 
             c.addFilter("CategoryGroup", "!=", new Integer(groupID));
-        if (userID != -1) 
-            c.addFilter("module_execution.experimenter_id", 
-                    new Integer(userID));
+        if (userID != -1) c.addFilter("module_execution.experimenter_id", 
+                                new Integer(userID));
         return c;
     }
     
@@ -402,6 +387,53 @@ public class CategoryMapper
      * @param result    list of {@link CategoryGroupData}s.
      * @param userID    ID of the current user.
      */
+    public static List fillCategoryGroup(CategoryGroupData gProto, 
+            CategoryData cProto, List l, int userID)
+    {
+        List results = new ArrayList();
+        Map cMap = new HashMap();
+        Iterator i = l.iterator(), j;
+        CategoryGroup cg;
+        Category c;
+        CategoryGroupData cgd;
+        CategoryData data;
+        List categories; 
+        Integer id;
+        while (i.hasNext()) {
+            cg = (CategoryGroup) i.next();
+            cgd = buildCategoryGroup(gProto, cg);
+            categories = new ArrayList();
+            if (cg.getCategoryList() != null) {
+                j = cg.getCategoryList().iterator();
+                while (j.hasNext()) {
+                    c = (Category) j.next();
+                    if (c.getModuleExecution().getExperimenter().getID() 
+                            == userID) {
+                        id = new Integer(c.getID());
+                        data = (CategoryData) cMap.get(id);
+                        if (data == null) {
+                            data = buildCategoryData(cProto, c, cgd);
+                            cMap.put(id, data);
+                        }
+                        //Add the categories to the list
+                        categories.add(data);
+                    }
+                }
+            }
+            cgd.setCategories(categories);
+            results.add(cgd);
+        }
+        return results;
+    }
+    
+    /**
+     * Given a list of {@link CategoryGroup} build the corresponding list of
+     * {@link CategoryGroupData} objects
+     * 
+     * @param l         list of {@link CategoryGroup}s.
+     * @param result    list of {@link CategoryGroupData}s.
+     * @param userID    ID of the current user.
+     */
     public static List fillSimpleCategoryGroup(CategoryGroupData gProto, 
             CategoryData cProto, List l, int userID)
     {
@@ -442,42 +474,43 @@ public class CategoryMapper
     }
     
     /**
+     * Fill up a {@link CategoryGroupData} object.
      * 
-     * @param gProto
-     * @param cProto
-     * @param group
-     * @param userID
-     * @param isAnnotaions list of {@link ImageAnnotation}s.
-     * @return
+     * @param gProto        The {@link CategoryGroupData} prototype.
+     * @param cProto        The {@link CategoryData} prototype.
+     * @param group         The remote {@link CategoryGroup} object.
+     * @param userID        The user's id.
+     * @param annotation    List of {@link ImageAnnotation}s.
+     * @return See above.
      */
     public static CategoryGroupData fillCategoryGroup(CategoryGroupData gProto, 
             CategoryData cProto, CategoryGroup group, int userID, 
-            List isAnnotations)
+            List annotation)
     {
         if (group == null) return null;
         List l = new ArrayList();
         l.add(group);
-        List results = fillCategoryGroup(gProto, cProto, l, userID, 
-                        isAnnotations);
+        List results = fillCategoryGroup(gProto, cProto, l, userID, annotation);
         if (results.size() == 0) return null;
         return (CategoryGroupData) results.get(0);
     }
     
     /**
+     * Fill up the {@link CategoryData}.
      * 
-     * @param category
-     * @param userID
-     * @param isAnnotations
+     * @param category      The remote {@link Category} object.
+     * @param userID        The user's id.
+     * @param annotation    List of {@link ImageAnnotation}s.
      * @return
      */
     public static CategoryData fillCategoryTree(Category category, 
-            List isAnnotations)
+            List annotation)
     {
         if (category == null) return null;
         Map imgAnnotated = 
-            AnnotationMapper.reverseListImageAnnotations(isAnnotations);
-        CategoryGroup cg = category.getCategoryGroup();
-        CategoryGroupData cgd = buildCategoryGroup(new CategoryGroupData(), cg);
+            AnnotationMapper.reverseListImageAnnotations(annotation);
+        CategoryGroupData cgd = buildCategoryGroup(new CategoryGroupData(), 
+                            category.getCategoryGroup());
         return fillCategory(cgd, new CategoryData(), category, imgAnnotated);
     }
     
@@ -485,15 +518,17 @@ public class CategoryMapper
      * Given a list of {@link Category} build the corresponding list of
      * {@link CategoryData} objects.
      * 
-     * @param l         list of {@link Category}s.
-     * @param userID    ID of the current user.
+     * @param gData         The {@link CategoryGroupData} prototype.
+     * @param cProto        The {@link CategoryData} prototype.
+     * @param l             List of {@link Category}s.
+     * @param annotation    List of {@link ImageAnnotation}s.
      */
     public static List fillCategoryWithClassifications(CategoryGroupData gData,
-                CategoryData cProto, List l, List isAnnotations)
+                CategoryData cProto, List l, List annotation)
     {
         List results = new ArrayList();
         Map imgAnnotated = 
-            AnnotationMapper.reverseListImageAnnotations(isAnnotations);
+            AnnotationMapper.reverseListImageAnnotations(annotation);
         //Map of ID of the images contained in the group.
         Map ids = new HashMap(); 
         CategoryData data;
@@ -531,14 +566,13 @@ public class CategoryMapper
      * Builds a {@link ClassficationData} object given a 
      * {@link Classfication} object.
      * 
-     * @param c The remote object.
+     * @param c The remote {@link Classfication} object.
      * @return See above.
      */
     public static ClassificationData buildClassificationData(Classification c)
     {
         float f = CONFIDENCE;
-        if (c.getConfidence() != null)
-            f = c.getConfidence().floatValue();
+        if (c.getConfidence() != null) f = c.getConfidence().floatValue();
         return new ClassificationData(c.getID(), f);
     }
     
@@ -546,6 +580,7 @@ public class CategoryMapper
      * Fill up a {@link CategoryGroupData} object given a 
      * {@link CategoryGroup} object.  
      * 
+     * @param gData The {@link CategoryGroupData} prototype.
      * @param group The remote {@link CategoryGroup} object.  
      * @return See above.  
      */
@@ -585,12 +620,11 @@ public class CategoryMapper
      }
      
     /**
-     * Link the {@link ImageSummary} objects (keys of the map) to the
+     * Link the {@link ImageSummary} objects (keys) to the
      * corresponding annotation.
      * 
-     * @param map           classifications map.
-     * @param annotations   list of annotations.
-     * @param userID        id of the current user.
+     * @param map           The classifications map.
+     * @param annotations   List of image annotations.
      */
     public static void fillImageAnnotationInCategory(Map map, List annotations)
     {
@@ -604,7 +638,13 @@ public class CategoryMapper
         }
     }
     
-    /** Return List of Image ID. */
+    /**
+     * Given a list of categoryGroups, builds a list of image's IDs.
+     * The images have been classified in the specified categoryGroups.
+     * 
+     * @param categoryGroups    List of {@link CategoryGroup} objects.
+     * @return See above
+     */
     public static List prepareListImagesID(List categoryGroups)
     {
         Map map = new HashMap();
@@ -635,7 +675,13 @@ public class CategoryMapper
         return ids;
     }
 
-    /** Return List of Image ID. */
+    /**
+     * Given a {@link CategoryGroup} object, builds a list of image's IDs.
+     * The images have been classified in the specified categoryGroup.
+     * 
+     * @param group    The {@link CategoryGroup} objects.
+     * @return See above
+     */
     public static List prepareListImagesID(CategoryGroup group)
     {
         List l = new ArrayList();
@@ -643,7 +689,13 @@ public class CategoryMapper
         return prepareListImagesID(l);
     }
     
-    /** Return List of Image ID. */
+    /**
+     * Given a {@link Category} object, builds a list of image's IDs.
+     * The images have been classified in the specified category.
+     * 
+     * @param group    The {@link CategoryGroup} objects.
+     * @return See above
+     */
     public static List prepareListImagesID(Category category)
     {
         Map map = new HashMap();

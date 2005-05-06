@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 
 /** 
- * 
+ * Utility class. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,6 +73,45 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class HierarchyMapper
 {
 
+    
+    /** 
+     * Fill in a {@link DatasetSummaryLinked} given a 
+     * remote {@link Dataset}.
+     * 
+     * @param dataset   The remote objet.
+     * @return See above.
+     */
+    private static DatasetSummaryLinked createDSL(Dataset dataset)
+    {
+        DatasetSummaryLinked ds = new DatasetSummaryLinked();
+        ds.setID(dataset.getID());
+        ds.setName(dataset.getName());
+        ds.setImages(new ArrayList());
+        return ds;
+    }
+    
+    /** 
+     * Fill in a {@link ProjectSummary} given a 
+     * remote {@link Project}.
+     * 
+     * @param dataset   The remote objet.
+     * @return See above.
+     */
+    private static ProjectSummary createPS(Project project)
+    {
+        ProjectSummary ps = new ProjectSummary();
+        ps.setID(project.getID());
+        ps.setName(project.getName());
+        ps.setDatasets(new ArrayList());
+        return ps;
+    }
+    
+    /**
+     * Builds the criteria to retrieve the Project-dataset-Image hierarchy.
+     * 
+     * @param ids   List of image ID.
+     * @return See above.
+     */
     public static Criteria buildIDPHierarchyCriteria(List ids)
     {
         Criteria c = new Criteria();
@@ -89,6 +128,14 @@ public class HierarchyMapper
         return c;
     }
 
+    /**
+     * Builds the criteria to retrieve the CategoryGroup-Category-Images
+     * hierarchy.
+     * 
+     * @param imageIDs  List of image ids.
+     * @param userID    user ID.
+     * @return See above.
+     */
     public static Criteria buildICGHierarchyCriteria(List imageIDs, int userID)
     {
         Criteria c = new Criteria();
@@ -113,8 +160,10 @@ public class HierarchyMapper
     /** 
      * Fill in a Project-Dataset-Image hierarchy.
      * 
-     * @param images list of {@link org.openmicroscopy.ds.dto.Image Image} 
-     * objects.
+     * @param images        List of {@link Image} objects.
+     * @param mapIS         map of imageID, ImageSummary objects.
+     * @param dsAnnotations List of {@link DatasetAnnotation} objects.
+     * @return  List of {@link DataObject}s.
      */
     public static List fillIDPHierarchy(List images, Map mapIS, 
                                     List dsAnnotations)
@@ -143,12 +192,11 @@ public class HierarchyMapper
             is = (ImageSummary) mapIS.get(new Integer(image.getID()));
             if (is != null) {
                 dl = image.getDatasets();
-                if (dl.size() == 0) //unorderedImage
-                    unOrderedImages.add(is);
+                //unorderedImage
+                if (dl.size() == 0) unOrderedImages.add(is);
                 else {
                     j = dl.iterator();
-                    //for each dataset
-                    while (j.hasNext()) {
+                    while (j.hasNext()) { //for each dataset
                         dataset = (Dataset) j.next();
                         //TODO: B/c cannot filter before and 
                         //b/c of server implementation
@@ -199,10 +247,11 @@ public class HierarchyMapper
     /** 
      * Fill in a Image-Category-CategoryGroup hierarchy.
      * 
-     * @param classifications list of 
-     * {@link org.openmicroscopy.ds.st.Classification Classification} objects.
+     * @param classifications List of  remote {@link Classification} objects.
+     * @param mapIS           Map of imageID, ImageSummary objects.
+     * @return List of {@link DataObject}.
      */
-    public static List fillICGHierarchy(List classifications, Map mapIS)
+    public static List fillICGHierarchyIn(List classifications, Map mapIS)
     {
         List results = new ArrayList();
         //OME-JAVA object.
@@ -283,35 +332,73 @@ public class HierarchyMapper
     }
     
     /** 
-     * Fill in a {@link DatasetSummaryLinked} given a 
-     * remote {@link Dataset}.
+     * Fill in a Image-Category-CategoryGroup hierarchy.
      * 
-     * @param dataset   remote objet.
-     * @return See above.
+     * @param classifications List of  remote {@link Classification} objects.
+     * @param mapIS           Map of imageID, ImageSummary objects.
+     * @return List of {@link DataObject}.
      */
-    private static DatasetSummaryLinked createDSL(Dataset dataset)
+    public static List fillICGHierarchyOut(List classifications, Map mapIS)
     {
-        DatasetSummaryLinked ds = new DatasetSummaryLinked();
-        ds.setID(dataset.getID());
-        ds.setName(dataset.getName());
-        ds.setImages(new ArrayList());
-        return ds;
+        List results = new ArrayList();
+        //OME-JAVA object.
+        Classification classification;
+        Category category;
+        CategoryGroup group;
+        //Shoola object.
+        CategoryData cModel;
+        CategoryGroupData gModel;
+        ImageSummary is;
+        Map categoryMap = new HashMap(), groupMap = new HashMap(), 
+            orphanMap = new HashMap();
+        Integer categoryID, groupID;
+        List categoriesList;
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        Iterator i = classifications.iterator();
+        while (i.hasNext()) {
+            classification = (Classification) i.next();
+            is = (ImageSummary) mapIS.get(
+                    new Integer(classification.getImage().getID()));
+            if (is == null) {
+                category = classification.getCategory();
+                group = category.getCategoryGroup();
+                categoryID = new Integer(category.getID());
+                if (group == null) {//Orphan category.
+                    cModel = (CategoryData) orphanMap.get(categoryID);
+                    if (cModel == null) {
+                        cModel = CategoryMapper.buildCategoryData(cProto, 
+                                    category, null);
+                        cModel.setClassifications(new HashMap());
+                        orphanMap.put(categoryID, cModel);
+                    }
+                } else {
+                    groupID = new Integer(group.getID());
+                    gModel = (CategoryGroupData) groupMap.get(groupID);
+                    //Create CategoryGroupData
+                    if (gModel == null) {
+                        gModel = CategoryMapper.buildCategoryGroup(gProto, 
+                                        group);
+                        gModel.setCategories(new ArrayList());
+                        groupMap.put(groupID, gModel);
+                    }
+                    cModel = (CategoryData) categoryMap.get(categoryID);
+                    //Create CategoryData
+                    if (cModel == null) {
+                        cModel = CategoryMapper.buildCategoryData(cProto, 
+                                category, gModel);
+                        cModel.setClassifications(new HashMap());
+                        categoryMap.put(categoryID, cModel);
+                    }  
+                    categoriesList = gModel.getCategories();
+                    if (!categoriesList.contains(cModel))
+                        categoriesList.add(cModel);
+                }
+            }
+        }
+        results.addAll(groupMap.values());
+        results.addAll(orphanMap.values());
+        return results;
     }
-    
-    /** 
-     * Fill in a {@link ProjectSummary} given a 
-     * remote {@link Project}.
-     * 
-     * @param dataset   remote objet.
-     * @return See above.
-     */
-    private static ProjectSummary createPS(Project project)
-    {
-        ProjectSummary ps = new ProjectSummary();
-        ps.setID(project.getID());
-        ps.setName(project.getName());
-        ps.setDatasets(new ArrayList());
-        return ps;
-    }
-    
+ 
 }
