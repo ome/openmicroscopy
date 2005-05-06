@@ -66,25 +66,29 @@ public class ClassifyCmd
     private HiViewer    model;
     private DataObject  hierarchyObject;
     
+    private boolean     classify;
     
-    public ClassifyCmd(DataObject hierarchyObject)
+    public ClassifyCmd(DataObject hierarchyObject, boolean classify)
     {
         if (hierarchyObject == null)
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
+        this.classify = classify;
     }
     
     /** Creates a new instance.*/
-    public ClassifyCmd(HiViewer model)
+    public ClassifyCmd(HiViewer model, boolean classify)
     {
         if (model == null)
             throw new IllegalArgumentException("no model");
         this.model = model;
+        this.classify = classify;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
+        /*
         if (model != null) {
             ImageDisplay selectedDisplay = model.getBrowser().
                                                     getSelectedDisplay();
@@ -95,6 +99,7 @@ public class ClassifyCmd
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
             eventBus.post(new ClassifyImage((ImageSummary) hierarchyObject));
         }
+        */
     }
 
 }
