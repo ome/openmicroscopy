@@ -299,14 +299,22 @@ public interface SemanticTypesService
      * {@link ImageSummary} objects.
      * B/c of the actual implementation, we have to return a list of 
      * {@link DataObject}, either {@link CategoryGroupData},
-     * {@link CategoryData} or {@link ImageSummary}
+     * {@link CategoryData} or {@link ImageSummary}.
      * 
-     * @return See above
+     * @param  List of {@link ImageSummary} objects.
+     * @param  existing. If <code>true</code>, we retrieve the 
+     *         {@link CategoryGroupData}-{@link CategoryData} hierarchy where
+     *         the corresponding Categories contain the images.
+     *         If <code>false</code>, we retrieve the 
+     *         {@link CategoryGroupData}-{@link CategoryData} hierarchy where
+     *         the corresponding Categories don't contain the images. 
+     *         
+     * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    public List retrieveCGCIHierarchy(List imageSummaries)
+    public List retrieveCGCIHierarchy(List imageSummaries, boolean existing)
         throws DSOutOfServiceException, DSAccessException;
     
     /** 
@@ -315,18 +323,18 @@ public interface SemanticTypesService
      * Each {@link CategoryGroupData} object contains a list of 
      * {@link CategoryData} objects. Each {@link CategoryData} object has a map
      * of {@link ClassificationData}.
+     * 
+     * @param annotated If <code>true</code>, the image Annotations are 
+     *          retrieved
+     * @param in        If <code>true</code>, the images contained in the 
+     *                  categories are also retrieved.
+     * @return list of {@link CategoryGroupData}s.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
-    public List retrieveCategoryGroups(boolean annotated)
-        throws DSOutOfServiceException, DSAccessException;  
-
-    /** 
-     * NOTE: DON'T CODE AGAINST IT, SHOULD BE MODIFIED
-     * Retrieve all category groups.
-     * Each {@link CategoryGroupData} object contains a list of 
-     * {@link CategoryData} objects. Each {@link CategoryData} object has an 
-     * empty map.
-     */
-    public List retrieveCategoryGroupsWithoutImages()
+    public List retrieveCategoryGroups(boolean annotated, boolean in)
         throws DSOutOfServiceException, DSAccessException;  
     
     /** 

@@ -107,7 +107,16 @@ class STSAdapter
         this.registry = registry;
     }
 
-    /** Retrieve list of imageAnnotations. */
+    /**
+     * Retrieve a list of ImageAnnotation done by the specified user.
+     * 
+     * @param ids   List of image ids.
+     * @param uID   User id.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private List getImageAnnotations(List ids, int uID)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -117,7 +126,17 @@ class STSAdapter
             (List) gateway.retrieveListSTSData("ImageAnnotation", c);
     }
     
-    /** Save the renderingSettings for the very first time. */
+    /**
+     * Create a remote {@link RenderingSettings} object when
+     * we have to savethe rendering settings for the first time.
+     * 
+     * @param imageID   imageID. 
+     * @param rDef      The Data object.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private List saveRSFirstTime(int imageID, RenderingDef rDef)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -148,7 +167,16 @@ class STSAdapter
         return l;
     }
 
-    /** Save the renderingSettings. */
+    /**
+     * Retrieve the existing remote {@link RenderingSettings} objects and fill
+     * them up.
+     *  
+     * @param rDef
+     * @param rsList
+     * @return See above.
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private List saveRS(RenderingDef rDef, List rsList)
         throws DSAccessException
     {
@@ -175,7 +203,18 @@ class STSAdapter
         return l;
     }
 
-    /** Create a basic attribute. */
+    /**
+     * Create a simple remote {@link Attribute}.
+     * 
+     * @param typeName  Type of {@link Attribute} to create.
+     * @param c         Criteria used to retrieve the remote Data accoring
+     *                  to the granularity associated to the newly created 
+     *                  {@link Attribute}.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private Attribute createBasicAttribute(String typeName, Criteria c)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -191,7 +230,17 @@ class STSAdapter
         return retVal; 
     }
 
-    /** Create a {@link Classification} attribute. */
+    /**
+     * Create a remote {@link Classification} object given a {@link  Category}
+     * and imageID.
+     * 
+     * @param category
+     * @param imgID
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private Object[] buildClassification(Category category, int imgID)
         throws DSOutOfServiceException, DSAccessException 
     {
@@ -214,7 +263,16 @@ class STSAdapter
         return results;
     }
 
-    /** Create a CategoryGroup attribute. */
+    /**
+     * Create a remote {@link CategoryGroup} object from a 
+     * {@link CategoryGroupData}.
+     * 
+     * @param data  The Data object.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private CategoryGroup buildCategoryGroup(CategoryGroupData data)
         throws DSOutOfServiceException, DSAccessException 
     {
@@ -225,7 +283,17 @@ class STSAdapter
         return cg;
     }
     
-    /** Create a Category attribute. */
+    /**
+     * Create a remote {@link Category} object from a {@link CategoryData}.
+     * 
+     * @param data  The Data object.
+     * @param group The {@link CategoryGroup} containing the newly created
+     *              {@link Category}.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
     private Category buildCategory(CategoryData data, CategoryGroup group)
         throws DSOutOfServiceException, DSAccessException 
     {
@@ -237,13 +305,14 @@ class STSAdapter
     }
     
     /** 
-     * Build a CategoryGroupData object. This method is invoked when a new 
-     * CategoryGroup is created.
+     * Build a {@link CategoryGroupData} object. This method is invoked 
+     * when a new CategoryGroup is created.
      * 
-     * @param group
-     * @return
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @param group         The remote DataObject.
+     * @return See above
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
      */
     private CategoryGroupData buildCategoryGroupData(CategoryGroup group)
         throws DSOutOfServiceException, DSAccessException 
@@ -251,7 +320,7 @@ class STSAdapter
         //Retrieve the user ID.
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(group.getID(), 
-                                        uc.getUserID());
+                                        uc.getUserID(), true);
         CategoryGroup cg = (CategoryGroup)
             gateway.retrieveSTSData("CategoryGroup", c);
         if (cg == null) return null;
@@ -263,6 +332,125 @@ class STSAdapter
                 uc.getUserID(), null);
         if (results.size() == 0) return null;
         return (CategoryGroupData) results.get(0);
+    }
+    
+    /**
+     * Retrieve the {@link CategoryGroupData}/{@link CategoryData} hierarchy
+     * where the {@link CategoryData} object contain the specified images.
+     * 
+     * @param imageSummaries    The list of DataObject.
+     * @return List of {@link DataObject}.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    private List retrieveCGCIHierarchyExisting(List imageSummaries)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator i = imageSummaries.iterator();
+        ImageSummary is;
+        Map map = new HashMap();
+        List ids = new ArrayList();
+        Integer id;
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            id = new Integer(is.getID());
+            map.put(id, is);
+            ids.add(id);
+        }
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        //TODO
+        //if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
+        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
+                                        uc.getUserID());
+        List classifications = 
+            (List) gateway.retrieveListSTSData("Classification", c);
+        
+        if (classifications == null) return new ArrayList();
+    
+        return HierarchyMapper.fillICGHierarchyIn(classifications, map);    
+    }
+
+    /**
+     * Retrieve the {@link CategoryGroupData}/{@link CategoryData} hierarchy
+     * where the {@link CategoryData} object don't contain the specified images.
+     * 
+     * @param imageSummaries    The list of DataObject.
+     * @return List of {@link DataObject}.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
+     */
+    private List retrieveCGCIHierarchyAvailable(List imageSummaries)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator i = imageSummaries.iterator();
+        ImageSummary is;
+        Map map = new HashMap();
+        List ids = new ArrayList();
+        Integer id;
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            id = new Integer(is.getID());
+            map.put(id, is);
+            ids.add(id);
+        }
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        //TODO
+        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(null, 
+                                        uc.getUserID());
+        List classifications = 
+            (List) gateway.retrieveListSTSData("Classification", c);
+        
+        if (classifications == null) return new ArrayList();
+    
+        return HierarchyMapper.fillICGHierarchyOut(classifications, map);    
+    }
+
+    /**
+     * 
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    private List retrieveCategoryGroups()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Retrieve the user ID.
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        int id = uc.getUserID();
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1, id, false);
+        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
+        if (l == null || l.size() == 0) return new ArrayList();
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        return CategoryMapper.fillCategoryGroup(gProto, cProto, l, id);
+    }
+   
+    /**
+     * 
+     * @return
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    private List retrieveCategoryGroupsIn(boolean annotated)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        //Retrieve the user ID.
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1, 
+                                        uc.getUserID(), true);
+        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
+        if (l == null || l.size() == 0) return new ArrayList();
+        CategoryGroupData gProto = new CategoryGroupData();
+        CategoryData cProto = new CategoryData();
+        if (!annotated)
+            return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                                                    uc.getUserID(), null);
+        List imageIDs = CategoryMapper.prepareListImagesID(l);
+        List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
+        return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+                uc.getUserID(), isAnnotations);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -575,39 +763,11 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoryGroupsWithoutImages()
+    public List retrieveCategoryGroups(boolean annotated, boolean in)
         throws DSOutOfServiceException, DSAccessException
     {
-        //Retrieve the user ID.
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        int id = uc.getUserID();
-        Criteria c = CategoryMapper.buildSimpleCategoryGroupCriteria(-1, id);
-        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
-        if (l == null || l.size() == 0) return new ArrayList();
-        CategoryGroupData gProto = new CategoryGroupData();
-        CategoryData cProto = new CategoryData();
-        return CategoryMapper.fillSimpleCategoryGroup(gProto, cProto, l, id);
-    }
-    
-    /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoryGroups(boolean annotated)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        //Retrieve the user ID.
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        Criteria c = CategoryMapper.buildCategoryGroupCriteria(-1, 
-                                        uc.getUserID());
-        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
-        if (l == null || l.size() == 0) return new ArrayList();
-        CategoryGroupData gProto = new CategoryGroupData();
-        CategoryData cProto = new CategoryData();
-        if (!annotated)
-            return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
-                                                    uc.getUserID(), null);
-        List imageIDs = CategoryMapper.prepareListImagesID(l);
-        List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
-        return CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
-                uc.getUserID(), isAnnotations);
+        if (in) return retrieveCategoryGroupsIn(annotated);
+        return retrieveCategoryGroups();
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -664,7 +824,7 @@ class STSAdapter
     {
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(catGroupID, 
-                                    uc.getUserID());
+                                    uc.getUserID(), true);
         CategoryGroup group = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         if (group == null) return new ArrayList();
@@ -1000,7 +1160,7 @@ class STSAdapter
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCGCIHierarchy(List imageSummaries)
+    public List retrieveCGCIHierarchy(List imageSummaries, boolean existing)
         throws DSOutOfServiceException, DSAccessException
     {
         if (imageSummaries == null)
@@ -1009,28 +1169,8 @@ class STSAdapter
         if (imageSummaries.size() == 0)
             throw new IllegalArgumentException("List of imageSummaries " +
                     "cannot be of length 0");
-        Iterator i = imageSummaries.iterator();
-        ImageSummary is;
-        Map map = new HashMap();
-        List ids = new ArrayList();
-        Integer id;
-        while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            id = new Integer(is.getID());
-            map.put(id, is);
-            ids.add(id);
-        }
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        //TODO
-        //if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
-        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
-                                        uc.getUserID());
-        List classifications = 
-            (List) gateway.retrieveListSTSData("Classification", c);
-        
-        if (classifications == null) return new ArrayList();
-
-        return HierarchyMapper.fillICGHierarchy(classifications, map);                            
+         if (existing) return retrieveCGCIHierarchyExisting(imageSummaries); 
+         return retrieveCGCIHierarchyAvailable(imageSummaries);  
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -1041,7 +1181,7 @@ class STSAdapter
         //Retrieve the user ID.
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, 
-                                        uc.getUserID());
+                                        uc.getUserID(), true);
         CategoryGroup cg = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         if (cg == null) return null;
