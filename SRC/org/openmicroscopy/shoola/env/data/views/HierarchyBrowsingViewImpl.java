@@ -36,9 +36,11 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassifierLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
@@ -119,10 +121,34 @@ class HierarchyBrowsingViewImpl
      * @see HierarchyBrowsingView#loadClassificationPaths(int, 
      *                                  AgentEventListener)
      */
-    public CallHandle loadClassificationPaths(int imageID, 
+    public CallHandle loadClassificationPaths(int imageID, boolean classsified,
             AgentEventListener observer)
     {
-        BatchCallTree cmd  = new ClassifierLoader(imageID);
+        BatchCallTree cmd  = new ClassificationLoader(imageID, classsified);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#classify(CategoryData, imgIDs,
+     *                                      AgentEventListener)
+     */
+    public CallHandle classify(CategoryData data, Set imgIDs, 
+                        AgentEventListener observer)
+    {
+        BatchCallTree cmd  = new ClassificationSaver(data, imgIDs, true);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#declassify(CategoryData, imgIDs,
+     *                                      AgentEventListener)
+     */
+    public CallHandle declassify(CategoryData data, Set imgIDs, 
+                                AgentEventListener observer)
+    {
+        BatchCallTree cmd  = new ClassificationSaver(data, imgIDs, false);
         return cmd.exec(observer);
     }
     

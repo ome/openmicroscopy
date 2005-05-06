@@ -36,6 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
@@ -170,11 +171,34 @@ public interface HierarchyBrowsingView
     
     /**
      * 
-     * @param imageID
-     * @param observer Callback handler.
+     * @param imageID   image's ID.
+     * @param observer  Callback handler.
+     * @param classified
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadClassificationPaths(int imageID, 
+    public CallHandle loadClassificationPaths(int imageID, boolean classified,
                             AgentEventListener observer);
+    
+    /**
+     * Classifies the specified images into the specified Category.
+     * 
+     * @param data      The DataObject.
+     * @param imgIDs    Set of image's id to classify.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle classify(CategoryData data, Set imgIDs, 
+                    AgentEventListener observer);
+    
+    /**
+     * Classifies the specified images from the specified Category.
+     * 
+     * @param data      The DataObject.
+     * @param imgIDs    Set of image's id to declassify.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle declassify(CategoryData data, Set imgIDs, 
+            AgentEventListener observer);
     
 }
