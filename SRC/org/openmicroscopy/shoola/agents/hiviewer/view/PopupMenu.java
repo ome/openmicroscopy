@@ -31,12 +31,17 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.awt.event.KeyEvent;
+
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 //Third-party libraries
 
@@ -72,6 +77,9 @@ class PopupMenu
     /** Button to bring up the widget to classify an image. */
     private JMenuItem   classify;
     
+    /** Button to bring up the widget to de classify an image. */
+    private JMenuItem   declassify;
+    
     /** Button to browse a container or bring up the Viewer for an image. */
     private JMenuItem   view;
     
@@ -98,19 +106,37 @@ class PopupMenu
                 controller.getAction(HiViewerControl.ANNOTATE));
         classify = new JMenuItem(
                 controller.getAction(HiViewerControl.CLASSIFY));
+        declassify = new JMenuItem(
+                controller.getAction(HiViewerControl.DECLASSIFY));
         view = new JMenuItem(controller.getAction(HiViewerControl.VIEW));
         zoomIn = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN));
         zoomOut = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
         zoomFit = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
     }
 
+    /**
+     * Helper method to create the Classify submenu.
+     * 
+     * @return  The Classify submenu.
+     */
+    private JMenu createClassifySubMenu()
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Classify");
+        menu.setMnemonic(KeyEvent.VK_C);
+        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
+        menu.add(classify);
+        menu.add(declassify);
+        return menu;
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI() 
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(properties);
         add(annotate);
-        add(classify);
+        add(createClassifySubMenu());
         add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
         add(zoomIn);

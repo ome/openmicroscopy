@@ -34,7 +34,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -98,6 +101,23 @@ class ThumbWinPopupMenu
     
     
     /**
+     * Helper method to create the Classify submenu.
+     * 
+     * @return  The Classify submenu.
+     */
+    private JMenu createClassifySubMenu(JMenuItem classify, 
+                JMenuItem declassify)
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Classify");
+        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
+        menu.setMnemonic(KeyEvent.VK_C);
+        menu.add(classify);
+        menu.add(declassify);
+        return menu;
+    }
+    
+    /**
      * Creates a new instance.
      */
     private ThumbWinPopupMenu()
@@ -107,13 +127,13 @@ class ThumbWinPopupMenu
                                   im.getIcon(IconManager.PROPERTIES)),
                   annotate = new JMenuItem("Annotate", 
                                   im.getIcon(IconManager.ANNOTATE)),
-                  classify = new JMenuItem("Classify", 
-                                  im.getIcon(IconManager.CLASSIFY)),
+                  classify = new JMenuItem("Add to category"),
+                  declassify = new JMenuItem("Remove from category"),
                   view = new JMenuItem("View", im.getIcon(IconManager.VIEWER));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(properties);
         add(annotate);
-        add(classify);
+        add(createClassifySubMenu(classify, declassify));
         add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
         properties.addActionListener(new ActionListener() {
@@ -131,7 +151,13 @@ class ThumbWinPopupMenu
         classify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                new ClassifyCmd(currentWin.getDataObject()).execute();
+                new ClassifyCmd(currentWin.getDataObject(), true).execute();
+            }
+        });
+        declassify.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae)
+            {
+                new ClassifyCmd(currentWin.getDataObject(), false).execute();
             }
         });
         view.addActionListener(new ActionListener() {

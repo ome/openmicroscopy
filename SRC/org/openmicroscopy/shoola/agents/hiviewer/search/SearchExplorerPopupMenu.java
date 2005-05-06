@@ -34,7 +34,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.search;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -105,12 +107,29 @@ public class SearchExplorerPopupMenu
     public static void setClassifyEnabled(boolean b)
     {
         singleton.classify.setEnabled(b);
+        singleton.declassify.setEnabled(b);
     }
     
     /** The window that is currently requesting the menu. */
     private SearchExplorer      currentWin;
     
-    private JMenuItem           view, classify;
+    private JMenuItem           view, classify, declassify;  
+    
+    /**
+     * Helper method to create the Classify submenu.
+     * 
+     * @return  The Classify submenu.
+     */
+    private JMenu createClassifySubMenu()
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Classify");
+        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
+        menu.setMnemonic(KeyEvent.VK_C);
+        menu.add(classify);
+        menu.add(declassify);
+        return menu;
+    }
     
     /**
      * Creates a new instance.
@@ -122,12 +141,13 @@ public class SearchExplorerPopupMenu
                                   im.getIcon(IconManager.PROPERTIES)),
                   annotate = new JMenuItem("Annotate", 
                                   im.getIcon(IconManager.ANNOTATE));
-        classify = new JMenuItem("Classify", im.getIcon(IconManager.CLASSIFY));
+        classify = new JMenuItem("Add to category");
+        declassify = new JMenuItem("Remove from category");
         view = new JMenuItem(VIEW, im.getIcon(IconManager.VIEWER));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(properties);
         add(annotate);
-        add(classify);
+        add(createClassifySubMenu());
         add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
         properties.addActionListener(new ActionListener() {
@@ -148,7 +168,14 @@ public class SearchExplorerPopupMenu
             public void actionPerformed(ActionEvent ae)
             {
                 DataObject object = currentWin.getDataObject();
-                if (object != null) new ClassifyCmd(object).execute();
+                if (object != null) new ClassifyCmd(object, true).execute();
+            }
+        });
+        declassify.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae)
+            {
+                DataObject object = currentWin.getDataObject();
+                if (object != null) new ClassifyCmd(object, false).execute();
             }
         });
         view.addActionListener(new ActionListener() {

@@ -137,6 +137,24 @@ class HiViewerWin
     }
     
     /**
+     * Helper method to create the Classify submenu.
+     * 
+     * @return  The Classify submenu.
+     */
+    private JMenu createClassifySubMenu()
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Classify");
+        menu.setMnemonic(KeyEvent.VK_C);
+        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.CLASSIFY)));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.DECLASSIFY)));
+        return menu;
+    }
+    
+    /**
      * Helper method to create the Hierarchy menu.
      * 
      * @return  The Hierarchy menu.
@@ -208,7 +226,7 @@ class HiViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.PROPERTIES)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.CLASSIFY)));
+        menu.add(createClassifySubMenu());
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));

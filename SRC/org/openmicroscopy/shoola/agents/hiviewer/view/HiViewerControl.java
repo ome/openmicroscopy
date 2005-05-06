@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClearAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAnnotatedAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithAnnotationAction;
@@ -145,17 +146,20 @@ class HiViewerControl
     /** Identifies the Classify action in the Actions menu. */
     public static final Integer     CLASSIFY = new Integer(15);
     
+    /** Identifies the Declassify action in the Actions menu. */
+    public static final Integer     DECLASSIFY = new Integer(16);
+    
     /** Identifies the View action in the Actions menu. */
-    public static final Integer     VIEW = new Integer(16);
+    public static final Integer     VIEW = new Integer(17);
     
     /** Identifies the Zoom In action in the Actions menu. */
-    public static final Integer     ZOOM_IN = new Integer(17);
+    public static final Integer     ZOOM_IN = new Integer(18);
     
     /** Identifies the Zoom Out action in the Actions menu. */
-    public static final Integer     ZOOM_OUT = new Integer(18);
+    public static final Integer     ZOOM_OUT = new Integer(19);
     
     /** Identifies the Zoom Fit action in the Actions menu. */
-    public static final Integer     ZOOM_FIT = new Integer(19);
+    public static final Integer     ZOOM_FIT = new Integer(20);
     
     
     /** 
@@ -193,6 +197,7 @@ class HiViewerControl
         actionsMap.put(PROPERTIES, new PropertiesAction(model));
         actionsMap.put(ANNOTATE, new AnnotateAction(model));
         actionsMap.put(CLASSIFY, new ClassifyAction(model));
+        actionsMap.put(DECLASSIFY, new DeclassifyAction(model));
         actionsMap.put(VIEW, new ViewAction(model));
         actionsMap.put(ZOOM_IN, new ZoomInAction(model));
         actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
