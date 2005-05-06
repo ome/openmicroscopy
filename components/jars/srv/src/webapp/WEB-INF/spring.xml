@@ -16,7 +16,9 @@
 		</property>
 	</bean>
 	
-	<bean id="hierarchyBrowsingService" class="org.ome.omero.logic.HierarchyBrowsingImpl"/>
+	<bean id="hierarchyBrowsingService" class="org.ome.omero.logic.HierarchyBrowsingImpl">
+		<property name="sessions"><ref bean="sessionFactory"/></property>
+	</bean>		
 
 	<!-- ### Data ####################################################### -->
 
@@ -63,7 +65,9 @@
              <value>org/ome/hibernate/old/Project.hbm.xml</value>
                <value>org/ome/hibernate/old/Dataset.hbm.xml</value>
                <value>org/ome/hibernate/old/Image.hbm.xml</value>			   			   			   			   
--->            <value>org/ome/omero/model/Image.hbm.xml</value>			   			   			   			   
+<value>pojos/queries.hbm.xml</value> -->            
+			   <value>org/ome/omero/logic/queries.hbm.xml</value>
+			   <value>org/ome/omero/model/Image.hbm.xml</value>			   			   			   			   
                <value>org/ome/omero/model/Project.hbm.xml</value>
                <value>org/ome/omero/model/Category.hbm.xml</value>
                <value>org/ome/omero/model/DisplayRoi.hbm.xml</value>
@@ -81,6 +85,9 @@
                <value>org/ome/omero/model/DisplayOption.hbm.xml</value>
                <value>org/ome/omero/model/ChannelComponent.hbm.xml</value>
                <value>org/ome/omero/model/Thumbnail.hbm.xml</value>
+			   <value>org/ome/omero/model/Classification.hbm.xml</value>
+			   <value>org/ome/omero/model/ModuleExecution.hbm.xml</value>			   
+			   <value>org/ome/omero/model/Repository.hbm.xml</value>
            </list>
        </property>
        <property name="hibernateProperties">

@@ -180,12 +180,40 @@
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
-      <version>1.1</version>
+      <version>1.2.1</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>odmg</groupId>
+      <artifactId>odmg</artifactId>
+      <version>3.0</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+
     <!-- TESTING NEEDS -->
     <dependency>
       <groupId>omero</groupId>

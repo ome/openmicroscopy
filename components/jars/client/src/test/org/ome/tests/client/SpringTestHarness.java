@@ -24,9 +24,6 @@ public class SpringTestHarness {
             throw new RuntimeException("Can't find spring conf file:" +springConfFile);
         }
         ctx = new FileSystemXmlApplicationContext(path.toString());
-
-        //TODO can possibly create the database here!
-        
     }
 	
     
