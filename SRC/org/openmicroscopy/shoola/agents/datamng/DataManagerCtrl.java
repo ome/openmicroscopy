@@ -375,8 +375,10 @@ public class DataManagerCtrl
                 showComponent(new GroupEditor(this, (CategoryGroupData) target),
                                                 index);
             } else if (target instanceof CategoryData) {
-                showComponent(new CategoryEditor(this, (CategoryData) target), 
-                        index);
+                CategoryData data = (CategoryData) target;
+                if (data.getClassifications() == null)
+                    data = getImagesInCategory(data);
+                showComponent(new CategoryEditor(this, data), index);
             }
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve the specified target.";
@@ -664,7 +666,7 @@ public class DataManagerCtrl
     }
 
     /** Retrieve all categoryGroups. */
-    public List getCategoryGroups() 
+    List getCategoryGroups() 
     {
         try {
             return abstraction.getCategoryGroups();
@@ -677,6 +679,21 @@ public class DataManagerCtrl
         return new ArrayList();
     }
 
+    CategoryData getImagesInCategory(CategoryData data)
+    {
+        try {
+            CategoryData cd = abstraction.getImagesInCategory(data);
+            data.setClassifications(cd.getClassifications());
+            return data; 
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve the category.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae); 
+        } 
+        return data;
+    }
+    
     /** 
      * List of existing categories not in the current group. 
      * Only, the categories containing images not already in the group

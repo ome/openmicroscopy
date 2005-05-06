@@ -84,7 +84,7 @@ public class CategoryEditor
 		manager = new CategoryEditorManager(this, agentCtrl, model);
 		categoryPane = new CategoryPane(manager);
 		imagesPane = new CategoryImagesPane(manager);
-		bar = new CategoryEditorBar(agentCtrl.getRegistry());
+		bar = new CategoryEditorBar();
 		buildGUI();
 		manager.initListeners();
 	}

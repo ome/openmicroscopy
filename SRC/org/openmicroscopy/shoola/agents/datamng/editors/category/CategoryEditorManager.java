@@ -231,8 +231,7 @@ class CategoryEditorManager
 	 */
 	void setToAddToRemove(boolean value, ImageSummary is) 
 	{
-		if (value)
-				imagesToAddToRemove.add(is); 
+		if (value) imagesToAddToRemove.add(is); 
 		else {
 			if (imagesToAddToRemove.contains(is))
                 imagesToAddToRemove.remove(is);

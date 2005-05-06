@@ -1032,7 +1032,7 @@ public class DataManager
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveCategoryGroups(true);  
+            return sts.retrieveCategoryGroups(true, true);  
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(
@@ -1040,6 +1040,30 @@ public class DataManager
             registry.getEventBus().post(request);
         }
         return new ArrayList();
+    }
+    
+    /**
+     * Retrieve the images classified in the specified category. 
+     * 
+     * @param data      The {@link CategoryData} object.
+     * @return List     
+     * @throws DSAccessException
+     */
+    CategoryData getImagesInCategory(CategoryData data)
+        throws DSAccessException
+    {
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            CategoryData cd = sts.retrieveCategoryTree(data.getID(), true);
+            data.setClassifications(cd.getClassifications());
+            return data;    
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return data;
     }
 
     /** 

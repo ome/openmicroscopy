@@ -45,8 +45,6 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -69,15 +67,15 @@ class CategoryEditorBar
 
 	JButton					saveButton, addButton, viewButton;
 	
-	CategoryEditorBar(Registry registry)
+	CategoryEditorBar()
 	{
-		initButtons(registry);
+		initButtons();
 		buildGUI();
 		setFloatable(false);
 	}
 	
 	/** Initializes the buttons. */
-	private void initButtons(Registry registry)
+	private void initButtons()
 	{
 		saveButton = new JButton("Save");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
@@ -88,9 +86,9 @@ class CategoryEditorBar
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		addButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add images to the category."));	
-        IconManager im = IconManager.getInstance(registry);
-        viewButton = new JButton(im.getIcon(IconManager.VIEWER));
-        viewButton.setToolTipText(UIUtilities.formatToolTipText("View."));
+        viewButton = new JButton("Browse");
+        viewButton.setToolTipText(UIUtilities.formatToolTipText("Browse the" +
+                " category."));
 	}
 	
 	/** Build and lay out the GUI. */

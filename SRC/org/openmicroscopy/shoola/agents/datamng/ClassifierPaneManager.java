@@ -363,6 +363,7 @@ public class ClassifierPaneManager
         DataManagerUIF presentation = 
             agentCtrl.getAbstraction().getPresentation();
         TreePopupMenu popup = presentation.getPopupMenu();
+        popup.setIndex(DataManagerCtrl.FOR_CLASSIFICATION);
         popup.setTarget(target);  
         popup.show(view.tree, e.getX(), e.getY());
     }
@@ -467,7 +468,10 @@ public class ClassifierPaneManager
         Integer id = new Integer(data.getID());
         node.removeAllChildren();
         if (isExpanding) {
-            List list = data.getImages();
+            List list;
+            if (data.getClassifications() == null) 
+                list = agentCtrl.getImagesInCategory(data).getImages();
+            else list = data.getImages();
            
             //TODO: loading will never be displayed b/c we are in the
             // same thread.
