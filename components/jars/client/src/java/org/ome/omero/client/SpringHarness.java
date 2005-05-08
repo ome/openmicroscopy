@@ -21,7 +21,7 @@ public class SpringHarness {
     static {
         path = SpringHarness.class.getClassLoader().getResource(springConfFile);
         if (path==null){
-            throw new RuntimeException("Can't find spring conf file:" +springConfFile);
+            throw new RuntimeException(Properties.getString("confError") +springConfFile);
         }
         ctx = new FileSystemXmlApplicationContext(path.toString());
     }

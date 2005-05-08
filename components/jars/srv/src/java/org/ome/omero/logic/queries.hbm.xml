@@ -56,4 +56,35 @@
 	and ann.moduleExecution.experimenter = :expId
   ]]></query>
   
+  <!--  
+	from A a left join fetch a.bs
+from C c left join fetch c.ds where c.id in (:cids)
+from D d left join fetch d.es where d.id in (:dids)
+
+Or maybe:
+
+from A a
+left join fetch a.bs
+where a.xyz = 'foo'
+
+from A a
+left join a.bs b
+left join b.c c
+left join fetch c.ds
+where a.xyz = 'foo'
+
+from A a
+left join a.bs b
+left join b.c c
+left join c.ds d
+left join fetch d.es
+where a.xyz = 'foo' 
+
+from Image i left join fetch i.datasets
+from Image i left join i.datsets as d left join fetch d.projects
+
+	-->
+	
+  
+  
 </hibernate-mapping>

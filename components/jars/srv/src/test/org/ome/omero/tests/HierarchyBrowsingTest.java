@@ -8,9 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.IterableMap;
 import org.ome.omero.interfaces.HierarchyBrowsing;
-import org.ome.omero.model.Dataset;
 
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -29,13 +27,16 @@ public class HierarchyBrowsingTest extends TestCase {
     HierarchyBrowsing hb = (HierarchyBrowsing) SpringTestHarness.ctx
             .getBean("hierarchyBrowsingService");
 
+    String nullObj = "This should get us nothing.";
+    String emptyColl = "This collection should be empty.";
+    String nonNull = "We should get something back";
+
+    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HierarchyBrowsingTest.class);
     }
 
     public void testNulls(){
-        String nullObj = "This should get us nothing.";
-        String emptyColl = "This collection should be empty.";
         // Each method should return a null or an empty set as appropriate
         //TODO hb.findCGCIHierarchies(	);
         
@@ -68,7 +69,7 @@ public class HierarchyBrowsingTest extends TestCase {
     public void testLoadPDIHierarchy() {
         System.out.println(" ***** HierarchyBrowsingTest.testLoadPDIHierarchy()");
         DataObject dobj = hb.loadPDIHierarchy(DatasetData.class, 10);
-        assertTrue("We should get something back", dobj != null);
+        assertTrue(nonNull, dobj != null);
 
     }
 
@@ -84,7 +85,7 @@ public class HierarchyBrowsingTest extends TestCase {
         
         // Something
         Set result = hb.findPDIHierarchies(ids);
-        assertTrue("We should get something back", result != null && result.size() != 0);
+        assertTrue(nonNull, result != null && result.size() != 0);
         // Not to much
         Set test = new HashSet();
         Iterator i = result.iterator();
@@ -122,7 +123,7 @@ public class HierarchyBrowsingTest extends TestCase {
         ids.add(new Integer(11));
         ids.add(new Integer(13));
         Map map = hb.findImageAnnotations(ids);
-        assertTrue("We should get something back", map != null && map.size() != 0);
+        assertTrue(nonNull, map != null && map.size() != 0);
     }
 
     /*
@@ -134,7 +135,7 @@ public class HierarchyBrowsingTest extends TestCase {
         ids.add(new Integer(11));
         ids.add(new Integer(13));
         Map map = hb.findImageAnnotations(ids,5);
-        assertTrue("We should get something back", map != null && map.size() != 0);
+        assertTrue(nonNull, map != null && map.size() != 0);
     }
 
     /*
