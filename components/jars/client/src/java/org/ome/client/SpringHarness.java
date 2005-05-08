@@ -1,7 +1,7 @@
 /*
  * Created on Jul 21, 2004
  */
-package org.ome.tests.client;
+package org.ome.omero.client;
 
 import java.net.URL;
 
@@ -12,14 +12,14 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  * within the Spring Framework.
  * @author moore
  */
-public class SpringTestHarness {
+public class SpringHarness {
 
     private final static String springConfFile = "spring.xml";
     public static URL path;
     public static ApplicationContext ctx;
     
     static {
-        path = SpringTestHarness.class.getClassLoader().getResource(springConfFile);
+        path = SpringHarness.class.getClassLoader().getResource(springConfFile);
         if (path==null){
             throw new RuntimeException("Can't find spring conf file:" +springConfFile);
         }
