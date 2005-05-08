@@ -3,13 +3,29 @@
    xmlns:j="jelly:core" 
    xmlns:maven="jelly:maven" 
 >
-  <preGoal name="java:compile">
-    <ant:echo message="Need to middlegen"/>
-  </preGoal>
-
+  
   <postGoal name="clean:clean">
     <ant:delete dir="${basedir}/src/java/org/ome/omero/model"/>
   </postGoal>
-  
+
+  <goal name="middlegen">
+    <ant:uptodate property="middlegen.not.required" targetfile="${basedir}/src/java/org/ome/omero/model/" >
+        <ant:srcfiles dir= "${basedir}/src/middlegen" includes="*.xml"/>
+    </ant:uptodate>
+
+    <ant:ant
+         antfile="${basedir}/src/middlegen/middlegen-build.xml"
+         dir="${basedir}"
+         target="gen-java"
+         inheritAll="true"
+         inheritRefs="false"
+       />
+
+  </goal>
+
+  <preGoal name="java:compile">
+    <attainGoal name="middlegen"/> 
+  </preGoal>
+
 </project>
 

@@ -6,23 +6,26 @@
   MiddlegenIDE: http://ultimania.org/middlegenide/
 -->
 
-<project name="Middlegen Hibernate" default="compile" basedir=".">
+<project name="Middlegen Hibernate" default="gen-java" basedir=".">
    <property file="./build.properties"/>
    <property name="hibernate.cascade"    value="all" />
    <property name="package"              value="org.ome.omero.model" />
    <property name="gen.xdoclet-tag"      value="false" />
    <property name="gui"                  value="false" />
-   <property name="jdbc.jar"             value="/usr/share/java/postgresql.jar" />
+   <property name="lib.dir"              value="${basedir}/lib/middlegen/" />
+   <!--
+   <property name="lib.dir.old"          value="/home/josh/.eclipse/eclipse/plugins/net.sf.middlegen_2.1.1/lib/" />
+   <property name="jdbc.jar.old"         value="/usr/share/java/postgresql.jar" />
    <property name="database.driver"      value="org.postgresql.Driver" />
-   <property name="lib.dir"              value="/home/josh/.eclipse/eclipse/plugins/net.sf.middlegen_2.1.1/lib/" />
    <property name="database.url"         value="jdbc:postgresql://localhost/ome" />
    <property name="database.userid"      value="josh" />
    <property name="database.password"    value="" />
    <property name="database.schema"      value="public" />
    <property name="database.catalog"     value="" />
-   <property name="dest.dir"             value="../java" />
+   -->
+   <property name="dest.dir"             value="${basedir}/src/java" />
 
-   <target name="init" depends="prepare,fail-if-no-middlegen,fail-if-no-hibernate,fail-if-no-hibernate-ext">
+   <target name="init" depends="prepare,fail-if-no-middlegen,fail-if-no-hibernate,fail-if-no-hibernate-ext" >
 
      <taskdef
         name="middlegen"
@@ -40,7 +43,7 @@
    
    </target>
 
-   <target name="prepare">
+   <target name="prepare" >
 
      <path id="middlegen.classpath">
         <pathelement path="${jdbc.jar}"/>
@@ -76,11 +79,11 @@
       </fail>
    </target>
     
-   <target name="gen-hbm" depends="init">
+   <target name="gen-hbm" depends="init" unless="middlegen.not.required">
 
     <middlegen
-         appname="org.ome.hibernate.model"
-         prefsdir="."
+         appname="${package}"
+         prefsdir="${basedir}/src/middlegen/"
          gui="${gui}"
          databaseurl="${database.url}"
          driver="${database.driver}"
@@ -132,7 +135,7 @@
     </middlegen>
   </target>
 
-  <target name="gen-java" depends="gen-hbm">
+  <target name="gen-java" depends="gen-hbm" unless="middlegen.not.required">
     <hbm2java output="${dest.dir}">
       <fileset dir="${dest.dir}">
         <include name="**/*.hbm.xml" />
@@ -140,7 +143,5 @@
     </hbm2java>
   </target>
 
-  <target name="compile" depends="gen-java">
-  </target>
 
 </project>
