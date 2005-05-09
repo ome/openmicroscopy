@@ -161,11 +161,14 @@ public class IconManager
     /** ID of the views list over icon in the browser's internal frame. */
     public static final int     VIEWS_LIST_OVER = 32;
     
+    /** ID of the category icon. */
+    public static final int     CATEGORY_BIG = 33;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 32;
+    private static int          MAX_ID = 33;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -203,6 +206,7 @@ public class IconManager
         relPaths[MULTI_VIEW_MODE] = "nuvola_view_multicolumn16.png";
         relPaths[VIEWS_LIST] = "frame_list.png";
         relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
+        relPaths[CATEGORY_BIG] = "category48.png";
     }
     
     /** The sole instance. */
