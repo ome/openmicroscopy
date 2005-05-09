@@ -94,7 +94,7 @@ class TinyFrameModel
     /** Substitutes the original content pane, all contents are added here. */
     private JDesktopPane    desktopPane;
     
-    /** Tells if the frame is in sinlge or multi-view mode. */
+    /** Tells if the frame is in single or multi-view mode. */
     private boolean         singleViewMode;
     
     /** Replaces the {@link #desktopPane} when we're in single-view mode. */
@@ -169,6 +169,31 @@ class TinyFrameModel
             if (0 < comp.length) child = comp[0];
         }
         return child;
+    }
+    
+    /** 
+     * Sets the size of the container when we display
+     * a child in single view mode.
+     */
+    private void setParentSizeForSingleView(Container parent)
+    {
+        if (parent instanceof TinyFrame) {
+            
+            Dimension d = ((TinyFrame) parent).getTitleBar().getPreferredSize();
+            Dimension dDesktop = singleViewDesktop.getPreferredSize();
+            parent.setSize(d.width+dDesktop.width, d.height+dDesktop.height+4);
+        } else setParentSizeForSingleView(parent.getParent());
+    }
+    
+    /** 
+     * Sets the size of the container when we display
+     * the children in multi-view mode.
+     */
+    private void setParentSizeForMultiView(Container parent)
+    {
+        if (parent instanceof TinyFrame)  
+            parent.setSize(parent.getPreferredSize());
+        else setParentSizeForMultiView(parent.getParent());
     }
     
     /**
@@ -277,6 +302,7 @@ class TinyFrameModel
                 TinyFrame tf = (TinyFrame) oldChild;
                 tf.setTitleBarType(childViewTitleBarType);
                 tf.setCollapsed(childViewCollapsed);
+                if (child == null) setParentSizeForMultiView(tf.getParent());
             }
         }
         if (isChild(child)) {  //We've got a new child to display.
@@ -295,12 +321,14 @@ class TinyFrameModel
                 childViewCollapsed = tf.isCollapsed();
                 tf.setTitleBarType(TinyFrame.HEADER_BAR);
                 tf.setCollapsed(false);
+                setParentSizeForSingleView(tf.getParent());
             }
         }
         contentPane.validate();
         contentPane.repaint();
     }
     
+
     /** 
      * Returns the title bar type.
      * 

@@ -177,10 +177,10 @@ public class TinyFrameUI
                 BevelBorder.LOWERED,
                 INNER_BORDER_HIGHLIGHT, INNER_BORDER_SHADOW)); 
         
-        dskDecorator.getHorizontalScrollBar().setPreferredSize(
-                new Dimension(100, SCROLLBAR_THICKNESS));
-        dskDecorator.getVerticalScrollBar().setPreferredSize(
-                new Dimension(SCROLLBAR_THICKNESS, 100));
+        //dskDecorator.getHorizontalScrollBar().setPreferredSize(
+        //        new Dimension(100, SCROLLBAR_THICKNESS));
+        //dskDecorator.getVerticalScrollBar().setPreferredSize(
+        //        new Dimension(SCROLLBAR_THICKNESS, 100));
         //NOTE: Makes the scrollars tiny.  100 is arbitrary and shouldn't 
         //matter in the end.  SCROLLBAR_THICKNESS should be respected though.
         
