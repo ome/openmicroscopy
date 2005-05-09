@@ -41,10 +41,16 @@ import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 //Third-party libraries
 
@@ -160,26 +166,64 @@ class ViewModeButton
         //is showing in the tmp single-view desktop.
         Component[] comp = model.getInternalDesktop().getComponents();
         if (0 < comp.length) {
+            String[] items = new String[comp.length];
             dropDownMenu.add(new JSeparator(SwingConstants.HORIZONTAL));
             for (int i = 0; i < comp.length; ++i) {
                 final Component child = comp[i];
                 title = child.getName();
                 if (child instanceof TinyFrame) 
                     title = ((TinyFrame) child).getTitle();
-                JMenuItem ci = new JMenuItem(title);
-                ci.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        model.setChildView(child);
-                    }
-                });
-                dropDownMenu.add(ci);
+                items[i] = title;   
             }
+            
+            JList list = new JList(items);
+            list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+            list.getSelectionModel().addListSelectionListener(
+                    new ListListener(list));
+            
+            list.setLayoutOrientation(JList.VERTICAL);
+            JScrollPane sp = new JScrollPane(list);
+            JMenu selectMenu = new JMenu("Select");
+            selectMenu.add(sp);
+            //Add menu to the dropDownMenu
+            dropDownMenu.add(selectMenu);
         }
         
         //Finally bring the menu on screen.
         Dimension d = getPreferredSize();
         dropDownMenu.show(this, 0, d.height);
+    }
+    
+    /** Utility class.  */
+    private class ListListener implements ListSelectionListener
+    {
+
+        /**
+         * Reference to the JList the listener is attached to via the 
+         * selectionModel.
+         */
+        private JList list;
+        
+        /** Creates a new intance. */
+        ListListener(JList list) {
+            if (list == null)
+                throw new IllegalArgumentException("no list specified");
+            this.list = list;
+        }
+
+        /**
+         * Listen to the List selection
+         */
+        public void valueChanged(ListSelectionEvent e)
+        {
+            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+            if (lsm.isSelectionEmpty()) return;
+            int index = list.getSelectedIndex();
+            Component child = model.getInternalDesktop().getComponent(index);
+            model.setChildView(child); 
+            dropDownMenu.setVisible(false);
+        }
+        
     }
     
     /**
