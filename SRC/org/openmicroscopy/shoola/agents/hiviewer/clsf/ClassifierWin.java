@@ -30,22 +30,28 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 
+
+
 //Java imports
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * The {@link Classifier}'s View.
- * Embeds the classification panel that lets the user classify/declassify an 
- * Image and provides a status bar.  After creation this dialog will display
- * an empty panel as a placeholder for the classification panel.  When said
- * UI is ready, the Controller calls the 
- * {@link #setBrowserView(JComponent) setBrowserView} method to have the View
- * display it.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,13 +64,84 @@ import javax.swing.JDialog;
  * </small>
  * @since OME2.2
  */
-class ClassifierWin
+abstract class ClassifierWin
     extends JDialog
 {
-
-    void setClassificationPanel(ClassificationPanel cp)
+    
+    private static final Dimension  WIN_DIMENSION = new Dimension(300, 300);
+    
+    /** Horizontal space between the cells in the grid. */
+    static final int                H_SPACE = 10;
+    
+    /** 
+     * The selected category to classify the image into or to remove the
+     * classification from.
+     */
+    private CategoryData     selectedPath;
+    
+    /**
+     * All the paths in the Category Group trees that
+     * are available for classification/declassification.
+     */
+    protected Set           availablePaths;
+    
+    /** Builds and lays out the GUI. */
+    private void buildGUI() 
     {
-        
+        IconManager icons = IconManager.getInstance();
+        TitlePanel tp = new TitlePanel("Classification", getWinTitle(), 
+                getWinNote(), icons.getIcon(IconManager.CATEGORY_BIG));
+        //Set layout and add components
+        setLayout(new BorderLayout(0, 0));
+        add(tp, BorderLayout.NORTH);
+        add(getClassifPanel(), BorderLayout.CENTER);
+    }
+    
+    /** Fires a property change event and closes the window. */ 
+    private void setClosed()
+    {
+        //firePropertyChange(ClassifierControl.CLOSED_PROPERTY, 
+        //        Boolean.TRUE, Boolean.FALSE);
+        setVisible(false);
+        dispose();
+    }
+    
+    /** Create a new instance. */
+    ClassifierWin(Set availablePaths)
+    {
+        super();
+        if (availablePaths == null)
+            throw new IllegalArgumentException("no paths");
+        setModal(true);
+        //AttachWindow Listener
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { setClosed(); }
+        });
+        buildGUI();
+    }
+    
+    /** Returns the title. */
+    protected abstract String getWinTitle();
+    
+    /** Returns the note displayed in the title. */
+    protected abstract String getWinNote();
+    
+    protected abstract JComponent getClassifPanel();
+    
+    void setSelectedCategory(CategoryData category)
+    {
+        Object oldValue = selectedPath;
+        selectedPath = category;
+        //firePropertyChange(ClassifierControl.SELECTED_CATEGORY_PROPERTY, 
+        //oldValue, category);
+        setClosed();
+    }
+    
+    /** Brings up the window on screen and centers it. */
+    void setOnScreen()
+    {
+        setSize(WIN_DIMENSION);
+        UIUtilities.centerAndShow(this);
     }
     
 }
