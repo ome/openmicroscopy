@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 //Java imports
 import java.util.Set;
-import javax.swing.JDialog;
 
 //Third-party libraries
 
@@ -94,7 +93,27 @@ public interface Classifier
     
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int     DISCARDED = 4;
-  
+
+    /** 
+     * Flag to denote that a {@link Classifier} was created to classify an
+     * Image.
+     */
+    public static final int     CLASSIFICATION_MODE = 100;
+    
+    /** 
+     * Flag to denote that a {@link Classifier} was created to declassify an
+     * Image.
+     */
+    public static final int     DECLASSIFICATION_MODE = 101;
+    
+    
+    /**
+     * Tells whether this component was created to classify or declassify
+     * an Image.
+     * 
+     * @return One of the mode constants defined by this interface.
+     */
+    public int getMode();
     
     /**
      * Queries the current state.
@@ -119,7 +138,7 @@ public interface Classifier
     public void activate();
     
     /**
-     * Callback used by a data loader to retrieve the metadata needed to 
+     * Callback used by a data loader to store the metadata needed to 
      * classify/declassify the Image this component is working with.
      * The loader will set all the paths in the Category Group trees that
      * contain the Image this component is working with, and so can be used
@@ -129,7 +148,9 @@ public interface Classifier
      * 
      * @param availablePaths All the paths in the Category Group trees that
      *                       are available for classification/declassification.
-     *                       Every path is rooted by a Category Group object. 
+     *                       This is a set of <code>CategoryGroup/CategoryData
+     *                       </code> objects that represent those mentioned 
+     *                       paths.
      * @throws IllegalStateException If the current state is not
      *                               {@link #LOADING_METADATA}.
      * @see org.openmicroscopy.shoola.agents.hiviewer.clsf.ClassifPathsLoader
@@ -137,13 +158,16 @@ public interface Classifier
      */
     public void setMetadata(Set availablePaths);
     
-    /** 
-     * Returns the UI of this component.
+    /**
+     * All the paths in the Category Group trees that this Model is working
+     * with.
      * 
-     * @return See above.
-     * @throws IllegalStateException If the current state is {@link #DISCARDED}. 
+     * @return A set of <code>CategoryGroup/CategoryData</code> objects that
+     *         represent the above mentioned paths.
+     * @throws IllegalStateException If the current state is not {@link #READY}.
+     * @see #setMetadata(Set)
      */
-    public JDialog getUI();
+    public Set getMetadata();
     
     /**
      * Transitions the classifier to the {@link #DISCARDED} state.
