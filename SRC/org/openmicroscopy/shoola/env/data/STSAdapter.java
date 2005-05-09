@@ -344,31 +344,14 @@ class STSAdapter
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    private List retrieveCGCIHierarchyExisting(List imageSummaries)
+    private List retrieveCGCIHierarchyExisting(List imgIds, Map map, int userID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Iterator i = imageSummaries.iterator();
-        ImageSummary is;
-        Map map = new HashMap();
-        List ids = new ArrayList();
-        Integer id;
-        while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            id = new Integer(is.getID());
-            map.put(id, is);
-            ids.add(id);
-        }
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        //TODO
-        //if (ids.size() > DMSAdapter.LIMIT_FOR_IN) ids = null;
-        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(ids, 
-                                        uc.getUserID());
-        List classifications = 
-            (List) gateway.retrieveListSTSData("Classification", c);
         
-        if (classifications == null) return new ArrayList();
-    
-        return HierarchyMapper.fillICGHierarchyIn(classifications, map);    
+        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(imgIds, userID);
+        List classif = (List) gateway.retrieveListSTSData("Classification", c);
+        if (classif == null) return new ArrayList();
+        return HierarchyMapper.fillICGHierarchyExisting(classif, map);    
     }
 
     /**
@@ -381,30 +364,13 @@ class STSAdapter
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    private List retrieveCGCIHierarchyAvailable(List imageSummaries)
+    private List retrieveCGCIHierarchyAvailable(Map map, int userID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Iterator i = imageSummaries.iterator();
-        ImageSummary is;
-        Map map = new HashMap();
-        List ids = new ArrayList();
-        Integer id;
-        while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            id = new Integer(is.getID());
-            map.put(id, is);
-            ids.add(id);
-        }
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        //TODO
-        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(null, 
-                                        uc.getUserID());
-        List classifications = 
-            (List) gateway.retrieveListSTSData("Classification", c);
-        
-        if (classifications == null) return new ArrayList();
-    
-        return HierarchyMapper.fillICGHierarchyOut(classifications, map);    
+        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(null, userID);
+        List classif = (List) gateway.retrieveListSTSData("Classification", c);
+        if (classif == null) return new ArrayList();
+        return HierarchyMapper.fillICGHierarchyAvailable(classif, map);    
     }
 
     /**
@@ -1173,7 +1139,7 @@ class STSAdapter
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCGCIHierarchy(List imageSummaries, boolean existing)
+    public List retrieveCGCIHierarchy(List imageSummaries, boolean classified)
         throws DSOutOfServiceException, DSAccessException
     {
         if (imageSummaries == null)
@@ -1182,8 +1148,21 @@ class STSAdapter
         if (imageSummaries.size() == 0)
             throw new IllegalArgumentException("List of imageSummaries " +
                     "cannot be of length 0");
-         if (existing) return retrieveCGCIHierarchyExisting(imageSummaries); 
-         return retrieveCGCIHierarchyAvailable(imageSummaries);  
+        Iterator i = imageSummaries.iterator();
+        ImageSummary is;
+        Map map = new HashMap();
+        List ids = new ArrayList();
+        Integer id;
+        while (i.hasNext()) {
+            is = (ImageSummary) i.next();
+            id = new Integer(is.getID());
+            map.put(id, is);
+            ids.add(id);
+        }
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        int userID = uc.getUserID();
+        if (classified) return retrieveCGCIHierarchyExisting(ids, map, userID); 
+        return retrieveCGCIHierarchyAvailable(map, userID);  
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */

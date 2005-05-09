@@ -251,7 +251,7 @@ public class HierarchyMapper
      * @param mapIS           Map of imageID, ImageSummary objects.
      * @return List of {@link DataObject}.
      */
-    public static List fillICGHierarchyIn(List classifications, Map mapIS)
+    public static List fillICGHierarchyExisting(List classifications, Map mapIS)
     {
         List results = new ArrayList();
         //OME-JAVA object.
@@ -338,7 +338,8 @@ public class HierarchyMapper
      * @param mapIS           Map of imageID, ImageSummary objects.
      * @return List of {@link DataObject}.
      */
-    public static List fillICGHierarchyOut(List classifications, Map mapIS)
+    public static List fillICGHierarchyAvailable(List classifications, 
+                                            Map mapIS)
     {
         List results = new ArrayList();
         //OME-JAVA object.
