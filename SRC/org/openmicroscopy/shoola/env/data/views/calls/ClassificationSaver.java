@@ -43,7 +43,11 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Command to classify or declassify Images.
+ * This command can be created to either add Images to a given Category or
+ * remove them.  The object returned in the <code>DSCallOutcomeEvent</code>
+ * will be <code>null</code>, as the type of the underlying calls is
+ * <code>void</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,15 +64,19 @@ public class ClassificationSaver
     extends BatchCallTree
 {
 
+    /** The ids of the Images to classify/declassify. */
     private Set             imgIDs;
     
-    private CategoryData    data;
+    /** The Category this command is for. */
+    private CategoryData    category;
     
-    /** Searches the specified hierarchy. */
+    /** Classify/declassify call. */
     private BatchCall       saveCall;
     
+    
     /**
-     * Classifies the specified images into the Category.
+     * Creates a {@link BatchCall} to add the specified Images to the
+     * given Category.
      * 
      * @return The {@link BatchCall}.
      */
@@ -79,13 +87,14 @@ public class ClassificationSaver
             {
                 SemanticTypesService sts = context.getSemanticTypesService();
                 ArrayList list = new ArrayList(imgIDs);
-                sts.updateCategory(data, null, list);
+                sts.updateCategory(category, null, list);
             }
         };
     }
     
     /**
-     * Delassifies the specified images from the Category.
+     * Creates a {@link BatchCall} to remove the specified Images from the
+     * given Category.
      * 
      * @return The {@link BatchCall}.
      */
@@ -96,28 +105,38 @@ public class ClassificationSaver
             {
                 SemanticTypesService sts = context.getSemanticTypesService();
                 ArrayList list = new ArrayList(imgIDs);
-                sts.updateCategory(data, list, null);
+                sts.updateCategory(category, list, null);
             }
         };
     }
     
     /**
-     * Adds the {@link #findCall} to the computation tree.
-     * 
+     * Adds the {@link #saveCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(saveCall); }
 
     /**
-     * Returns the root node of the found trees.
-     * 
+     * Returns <code>null</code>, as the return type of the underlying call
+     * <code>void</code>.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return Boolean.TRUE; }
+    protected Object getResult() { return null; }
 
-    public ClassificationSaver(CategoryData data, Set imgIDs, boolean classify)
+    /**
+     * Creates a new instance to classify or declassify the given Images.
+     * 
+     * @param category The Category to/from which the given Images should be
+     *                 added/removed.
+     * @param imgIDs   The ids of the Images to add/remove.
+     * @param classify Pass <code>true</code> to add the given Images to
+     *                 <code>category</code> or <code>false</code> to remove
+     *                 them from <code>category</code>.
+     */
+    public ClassificationSaver(CategoryData category, Set imgIDs, 
+                               boolean classify)
     {
-        if (data == null) 
+        if (category == null) 
             throw new NullPointerException("No category.");
         if (imgIDs == null)
             throw new NullPointerException("No image ids.");
@@ -127,7 +146,7 @@ public class ClassificationSaver
             throw new IllegalArgumentException(
                     "imgIDs can only contain Integer objects.");
         }
-        this.data = data;
+        this.category = category;
         this.imgIDs = imgIDs;
         if (classify) saveCall = classify();
         else saveCall = declassify();

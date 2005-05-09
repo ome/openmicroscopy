@@ -113,16 +113,16 @@ public interface HierarchyBrowsingView
      * </code> objects you passed in to this method &#151; <code>p1, d1, d2, d3
      * </code> will obvioulsy be new objects though.</p>
      * <p>Finally, this method will <i>only</i> retrieve the nodes that are 
-     * connected in a tree to the specified leaf image nodes.  Back to the
-     * previous example, if <code>d1</code> contained image <code>img500</code>,
+     * connected in a tree to the specified leaf Image nodes.  Back to the
+     * previous example, if <code>d1</code> contained Image <code>img500</code>,
      * then the returned object would <i>not</i> contain <code>img500</code>.
      * In a similar way, if <code>p1</code> contained <code>ds300</code> and 
      * this dataset weren't linked to any of the <code>i1, i2, i3, i4, i5, i6
-     * </code> images, then <code>ds300</code> would <i>not</i> be part of the
+     * </code> Images, then <code>ds300</code> would <i>not</i> be part of the
      * returned tree rooted by <code>p1</code>.</p>
      * 
      * @param imgSummaries Contains <code>ImageSummary</code> objects, one
-     *                     for each leaf image node.
+     *                     for each leaf Image node.
      * @param observer     Callback handler.
      * @return A handle that can be used to cancel the call.
      */
@@ -136,7 +136,9 @@ public interface HierarchyBrowsingView
      * {@link #findPDIHierarchies(Set, AgentEventListener) findPDIHierarchies}
      * method for the Category Group/Category/Image hierarchy.  The semantics
      * is exaclty the same, so refer to that method's documentation for the
-     * gory details.
+     * gory details.  (Obviously, a Category Group will be represented by a
+     * <code>CategoryGroupData</code> object and a Category by a <code> 
+     * CategoryData</code> object.)
      * 
      * @param imgSummaries Contains <code>ImageSummary</code> objects, one
      *                     for each leaf image node.
@@ -170,35 +172,70 @@ public interface HierarchyBrowsingView
                                      AgentEventListener observer);
     
     /**
+     * Loads all Category Group/Category paths that end or don't end with the 
+     * specified Image, depending on the value of the <code>classified</code>
+     * argument.
+     * <p>If the <code>classified</code> argument is <code>true</code>, this 
+     * method loads all the Category nodes under which was classified the Image
+     * whose id is <code>imageID</code>, and then all the Category Group nodes
+     * that contain those Categories.  If <code>false</code>, then it does the
+     * opposite: it loads all the Categories the given Image doesn't belong in,
+     * and then all the Category Groups that contain those Categories.
+     * This method returns all the matching Category Groups (as <code>
+     * CategoryGroupData</code> objects) in a <code>Set</code>, which is the
+     * result object of the <code>DSCallOutcomeEvent</code>.
+     * Those objects will also be linked to the matching Categories (represented
+     * by <code>CategoryData</code> objects).  For example, assume the CG/C/I 
+     * hierarchy in the DB looks like this:</p>
+     * <pre>        
+     *           cg1       cg2
+     *             \      /   \    
+     *             c1    c2    c3      
+     *               \  /  \    \
+     *                i1    i2   i3    
+     * </pre>
+     * <p>Then if you specify the id of Image <code>i1</code> and pass 
+     * <code>true</code> for <code>classified</code> to this method, the 
+     * returned set will contain <code>cg1, cg2</code>.  Moreover, <code>cg1
+     * </code> will be linked to <code>c1</code> and <code>cg2</code> to <code>
+     * c2</code>.  If you specify <code>false</code> for <code>classified</code>
+     * (and again the id of Image <code>i1</code>), then you will get <code>
+     * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
-     * @param imageID   image's ID.
+     * @param imageID   The id of the Image.
+     * @param classified Whether to retrieve CG/C paths leading to the given
+     *                   Image (<code>true</code>) or not leading to the given
+     *                   Image (<code>false</code>).
      * @param observer  Callback handler.
-     * @param classified
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadClassificationPaths(int imageID, boolean classified,
-                            AgentEventListener observer);
+                                              AgentEventListener observer);
     
     /**
-     * Classifies the specified images into the specified Category.
+     * Classifies the specified Images under the given Category.
+     * This method has no return value, so the result object of the <code>
+     * DSCallOutcomeEvent</code> will be <code>null</code>.
      * 
-     * @param data      The DataObject.
-     * @param imgIDs    Set of image's id to classify.
+     * @param category  The data object that represents the Category.
+     * @param imgIDs    The ids of the Images to classify.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle classify(CategoryData data, Set imgIDs, 
-                    AgentEventListener observer);
+    public CallHandle classify(CategoryData category, Set imgIDs, 
+                               AgentEventListener observer);
     
     /**
-     * Classifies the specified images from the specified Category.
+     * Removes the specified Images from the specified Category.
+     * This method has no return value, so the result object of the <code>
+     * DSCallOutcomeEvent</code> will be <code>null</code>.
      * 
-     * @param data      The DataObject.
-     * @param imgIDs    Set of image's id to declassify.
+     * @param category  The data object that represents the Category.
+     * @param imgIDs    The ids of the Images to declassify.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle declassify(CategoryData data, Set imgIDs, 
-            AgentEventListener observer);
+                                 AgentEventListener observer);
     
 }

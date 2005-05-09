@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 
-
-
 //Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,23 +45,16 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * Command to find the data trees of a given <i>OME</i> hierarchy type 
- * containing some given images.
- * <p>The hierarchy that will be searched is Category Group/Category/Image 
- * (CG/C/I). All root nodes in the
- * specified hierarchy will be loaded that have at least one of the given 
- * images among their leaves. A node <code>n</code> is retrieved <i>only</i>
- * if there's a path among the root node and one of the specified images that
- * contains <code>n</code>.</p>
+ * Command to find the Category Group/Category paths that end or don't end with
+ * a specified Image.
+ * <p>This command can be created to load either all the Categories under which
+ * a given Image was classified and all enclosing Category Groups or to do the
+ * opposite &#151; to load all the Categories the given Image doesn't belong in,
+ * and then all the Category Groups that contain those Categories.</p>
  * <p>The object returned in the <code>DSCallOutcomeEvent</code> will be a
- * <code>Set</code> with all root nodes that were found. Every root node is
- * linked to the found objects and so on until the leaf nodes, which are the
- * <i>passed in</i> <code>ImageSummary</code>s.</p>
- * <p>The type of the returned objects are <code>CategoryGroupData, 
- * CategoryData, ImageSummary</code> for a CG/C/I hierarchy.</p>
- * Two types of hierarchy are retrieved. The <code>in</code> type corresponds
- * to the hierarchy the image is classified into, the <code>out</code> type
- * otherwise.
+ * <code>Set</code> with all Category Group nodes (as <code>CategoryGroupData
+ * </code> objects) that were found.  Those objects will also be linked to the 
+ * matching Categories (represented by <code>CategoryData</code> objects).</p>
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -83,13 +74,16 @@ public class ClassificationLoader
     /** The root nodes of the found trees. */
     private Set         rootNodes;
     
-    /** Searches the specified hierarchy. */
+    /** Searches the CG/C/I hierarchy. */
     private BatchCall   loadCall;
     
+    
     /** 
-     * Utility method to create a list with one element.
-     * @param imgID image's id to add.
-     * @return See above;
+     * Utility method to create a list with one <code>Integer</code> element.
+     * 
+     * @param imgID The Image id to add.
+     * @return A list containing an <code>Integer</code> object to wrap
+     *         <code>imgID</code>.
      */
     private List prepareList(int imgID)
     {
@@ -101,9 +95,10 @@ public class ClassificationLoader
     }
     
     /**
-     * Creates a {@link BatchCall} to search the CG/C hierarchy.
-     * This call only retrieves the Categories which contain the specified
-     * <code>ImageSummary</code>.
+     * Creates a {@link BatchCall} to load all Category Group/Category paths
+     * that end with the specified Image.
+     * 
+     * @param id The Image id.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeClassificationIn(final int id)
@@ -119,9 +114,10 @@ public class ClassificationLoader
     }
     
     /**
-     * Creates a {@link BatchCall} to search the CG/C hierarchy.
-     * This call only retrieves the Categories which don't contain the specified
-     * <code>ImageSummary</code>.
+     * Creates a {@link BatchCall} to load all Category Group/Category paths
+     * that don't end with the specified Image.
+     * 
+     * @param id The Image id.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeClassificationOut(final int id)
@@ -138,26 +134,27 @@ public class ClassificationLoader
     }
     
     /**
-     * Adds the {@link #inCall} and {@link #outCall} to the computation tree.
-     * 
+     * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
 
     /**
-     * 
+     * Returns, in a <code>Set</code>, the root nodes of the found trees.
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return rootNodes; }
 
     /**
-     * Creates a new instance to search the specified classification hierarchy 
-     * for trees containing the specified image.
+     * Creates a new instance to find the Category Group/Category paths that 
+     * end or don't end with the specified Image.
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imageID 
-     * @param classified
+     * @param imageID   The id of the Image.
+     * @param classified Whether to retrieve CG/C paths leading to the given
+     *                   Image (<code>true</code>) or not leading to the given
+     *                   Image (<code>false</code>).
      */
     public ClassificationLoader(int imageID, boolean classified)
     {
