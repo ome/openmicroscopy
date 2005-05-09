@@ -84,7 +84,6 @@ class SquaryLayout
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         browserW = 8*(screenSize.width/10);
-        System.out.println("browser: "+browserW);
     }
   
     /** Visit an ImageSet node that contains imageSet nodes. */
