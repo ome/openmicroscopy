@@ -49,6 +49,7 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
 import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindowUI;
+import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
