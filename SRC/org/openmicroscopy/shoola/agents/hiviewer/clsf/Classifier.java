@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 //Java imports
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -168,6 +170,22 @@ public interface Classifier
      * @see #setMetadata(Set)
      */
     public Set getMetadata();
+    
+    /**
+     * Saves the classification state back to the DB.
+     * If this component is in classification mode, then the Image this
+     * component is working with will be classified under the specified
+     * <code>category</code>.  If this component was created to declassify
+     * instead, then the Image will be removed from the specified <code>
+     * category</code>.
+     *
+     * @param category The data object that represents the Category to/from
+     *                 which this Model's Image should be added/removed.
+     *                 Mustn't be <code>null</code> and should come from one
+     *                 of the {@link #getMetadata() available} paths.
+     * @throws IllegalStateException If the current state is not {@link #READY}.
+     */
+    public void save(CategoryData category);
     
     /**
      * Transitions the classifier to the {@link #DISCARDED} state.

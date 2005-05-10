@@ -37,6 +37,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 
 /** 
  * Implements the {@link Classifier} interface to provide the functionality
@@ -154,6 +155,18 @@ class ClassifierComponent
             throw new IllegalStateException(
                     "This method can only be invoked in the READY state.");
         return model.getMetadata();
+    }
+    
+    /**
+     * Implemented as specified by the {@link Classifier} interface.
+     * @see Classifier#save(CategoryData)
+     */
+    public void save(CategoryData category)
+    {
+        if (model.getState() != READY)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the READY state.");
+        model.save(category);
     }
 
     /**
