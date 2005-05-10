@@ -34,9 +34,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.search;
 
 //Java imports
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Point;
 import java.util.Set;
+import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -84,9 +84,12 @@ public class SearchExplorer
     /** The tree used to display the results. */
     JTree                       tree;
     
-    public SearchExplorer(Frame owner, String title, Set nodes)
+    JFrame                      owner;
+    
+    public SearchExplorer(JFrame owner, String title, Set nodes)
     {
         super(owner, title);
+        this.owner = owner;
         tree = new JTree();
         manager = new SearchExplorerMng(this);
         manager.buildTree(nodes);

@@ -48,11 +48,13 @@ import javax.swing.border.BevelBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
  * 
@@ -168,9 +170,9 @@ public class SearchExplorerPopupMenu
             public void actionPerformed(ActionEvent ae)
             {
                 DataObject object = currentWin.getDataObject();
-                if (object != null) {
-                    ClassifyCmd cmd = new ClassifyCmd(object, 
-                            ClassifyCmd.CLASSIFICATION_MODE);
+                if (object instanceof ImageSummary) {
+                    ClassifyCmd cmd = new ClassifyCmd((ImageSummary) object, 
+                            Classifier.CLASSIFICATION_MODE, currentWin.owner);
                     cmd.execute();
                 }
             }
@@ -179,9 +181,9 @@ public class SearchExplorerPopupMenu
             public void actionPerformed(ActionEvent ae)
             {
                 DataObject object = currentWin.getDataObject();
-                if (object != null) {
-                    ClassifyCmd cmd = new ClassifyCmd(object, 
-                            ClassifyCmd.DECLASSIFICATION_MODE);
+                if (object instanceof ImageSummary) {
+                    ClassifyCmd cmd = new ClassifyCmd((ImageSummary) object, 
+                            Classifier.DECLASSIFICATION_MODE, currentWin.owner);
                     cmd.execute();
                 }
             }
