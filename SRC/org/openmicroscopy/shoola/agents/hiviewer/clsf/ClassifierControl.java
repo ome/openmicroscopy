@@ -90,6 +90,7 @@ class ClassifierControl
      */
     private void discardLoadingWin()
     {
+        if (loadingWin == null) return;
         loadingWin.removePropertyChangeListener(LoadingWin.CLOSED_PROPERTY, 
                                                 this);
         loadingWin.setClosed(true);  //We won't get this notification.
@@ -172,6 +173,9 @@ class ClassifierControl
             case Classifier.READY:
                 discardLoadingWin();
                 createClassifWin();
+            case Classifier.DISCARDED:
+                //An error occurred while loading the metadata.
+                discardLoadingWin();
         }
     }
     
