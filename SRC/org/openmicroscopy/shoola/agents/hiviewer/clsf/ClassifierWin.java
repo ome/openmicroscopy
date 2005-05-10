@@ -68,6 +68,16 @@ abstract class ClassifierWin
     extends JDialog
 {
     
+    /** 
+     * Bound property name indicating that a new category has 
+     * been selected.
+     */
+    public final static String      SELECTED_CATEGORY_PROPERTY = 
+                                    "selected_category";
+    
+    /** Bound property name indicating if the window is closed. */
+    public final static String      CLOSED_PROPERTY = "closed";
+    
     private static final Dimension  WIN_DIMENSION = new Dimension(300, 300);
     
     /** Horizontal space between the cells in the grid. */
@@ -77,13 +87,13 @@ abstract class ClassifierWin
      * The selected category to classify the image into or to remove the
      * classification from.
      */
-    private CategoryData     selectedPath;
+    private CategoryData            selected_category;
     
     /**
      * All the paths in the Category Group trees that
      * are available for classification/declassification.
      */
-    protected Set           availablePaths;
+    protected Set                   availablePaths;
     
     /** Builds and lays out the GUI. */
     private void buildGUI() 
@@ -100,8 +110,7 @@ abstract class ClassifierWin
     /** Fires a property change event and closes the window. */ 
     private void setClosed()
     {
-        //firePropertyChange(ClassifierControl.CLOSED_PROPERTY, 
-        //        Boolean.TRUE, Boolean.FALSE);
+        firePropertyChange(CLOSED_PROPERTY, Boolean.TRUE, Boolean.FALSE);
         setVisible(false);
         dispose();
     }
@@ -113,6 +122,8 @@ abstract class ClassifierWin
         if (availablePaths == null)
             throw new IllegalArgumentException("no paths");
         setModal(true);
+        setTitle("Classification");
+        
         //AttachWindow Listener
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) { setClosed(); }
@@ -130,10 +141,9 @@ abstract class ClassifierWin
     
     void setSelectedCategory(CategoryData category)
     {
-        Object oldValue = selectedPath;
-        selectedPath = category;
-        //firePropertyChange(ClassifierControl.SELECTED_CATEGORY_PROPERTY, 
-        //oldValue, category);
+        Object oldValue = selected_category;
+        selected_category = category;
+        firePropertyChange(SELECTED_CATEGORY_PROPERTY, oldValue, category);
         setClosed();
     }
     
