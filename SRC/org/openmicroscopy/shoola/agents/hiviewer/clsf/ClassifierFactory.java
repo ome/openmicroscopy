@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 
 //Java imports
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -58,13 +59,15 @@ public class ClassifierFactory
      * Image.
      * 
      * @param imageID The id of the Image to classify.
+     * @param owner The window from which the component is invoked.
+     *              Mustn't be <code>null</code>.
      * @return A {@link Classifier} to classify the given Image.
      */
-    public static Classifier createClassifComponent(int imageID)
+    public static Classifier createClassifComponent(int imageID, JFrame owner)
     {
         AddModel model = new AddModel(imageID);
         ClassifierComponent comp = new ClassifierComponent(model);
-        comp.initialize();
+        comp.initialize(owner);
         return comp;
     }
     
@@ -73,14 +76,42 @@ public class ClassifierFactory
      * Image.
      * 
      * @param imageID The id of the Image to declassify.
+     * @param owner The window from which the component is invoked.
+     *              Mustn't be <code>null</code>.
      * @return A {@link Classifier} to declassify the given Image.
      */
-    public static Classifier createDeclassifComponent(int imageID)
+    public static Classifier createDeclassifComponent(int imageID, JFrame owner)
     {
         RemoveModel model = new RemoveModel(imageID);
         ClassifierComponent comp = new ClassifierComponent(model);
-        comp.initialize();
+        comp.initialize(owner);
         return comp;
+    }
+    
+    /**
+     * Creates a {@link Classifier} component to classify/declassify the
+     * specified Image, depending on <code>mode</code>.
+     * 
+     * @param mode One of the classification mode constants defined by the 
+     *             {@link Classifier} interface.
+     * @param imageID The id of the Image to declassify.
+     * @param owner The window from which the component is invoked.
+     *              Mustn't be <code>null</code>.
+     * @return A {@link Classifier} to classify or declassify the given Image,
+     *         depending on the value of the <code>mode</code> constant.
+     */
+    public static Classifier createComponent(int mode, int imageID,
+                                             JFrame owner)
+    {
+        switch(mode) {
+            case Classifier.CLASSIFICATION_MODE:
+                return createClassifComponent(imageID, owner);
+            case Classifier.DECLASSIFICATION_MODE:
+                return createDeclassifComponent(imageID, owner);
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported classification mode: "+mode+".");
+        }
     }
     
 }

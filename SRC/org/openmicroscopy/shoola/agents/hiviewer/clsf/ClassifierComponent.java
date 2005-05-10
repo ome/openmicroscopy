@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 //Java imports
 import java.util.Set;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -90,11 +91,14 @@ class ClassifierComponent
     
     /**
      * Links up the MVC triad.
+     * 
+     * @param owner The window from which the component is invoked.
+     *              Mustn't be <code>null</code>.
      */
-    void initialize()
+    void initialize(JFrame owner)
     {
         model.initialize(this);
-        controller.initialize(this);
+        controller.initialize(this, owner);
     }
     
     /**

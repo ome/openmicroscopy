@@ -36,6 +36,7 @@ import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -77,9 +78,10 @@ class AddWin
     
     private JTree                   tree;
     
-    AddWin(Set availablePaths)
+    
+    AddWin(Set availablePaths, JFrame owner)
     {
-        super(availablePaths);
+        super(availablePaths, owner);
         initTree();
         buildTreeNodes();
         buildGUI();

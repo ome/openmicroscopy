@@ -43,6 +43,7 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -73,9 +74,9 @@ class RemoveWin
     extends ClassifierWin
 {
 
-    RemoveWin(Set availablePaths)
+    RemoveWin(Set availablePaths, JFrame owner)
     {
-        super(availablePaths);
+        super(availablePaths, owner);
         buildGUI();
     }
 

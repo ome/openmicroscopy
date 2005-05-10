@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JFrame;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -72,6 +73,9 @@ class ClassifierControl
     
     /** The dialog that lets the user classify/declassify. */
     private ClassifierWin           classifWin;
+    
+    /** The window from which the component is invoked. */
+    private JFrame                  owner;
      
     
     /**
@@ -104,9 +108,9 @@ class ClassifierControl
     private void createClassifWin()
     {
         if (model.getMode() == Classifier.CLASSIFICATION_MODE)
-            classifWin = new AddWin(model.getMetadata());
+            classifWin = new AddWin(model.getMetadata(), owner);
         else  //Declassification mode.
-            classifWin = new RemoveWin(model.getMetadata());
+            classifWin = new RemoveWin(model.getMetadata(), owner);
         classifWin.addPropertyChangeListener(
                 ClassifierWin.SELECTED_CATEGORY_PROPERTY, this);
         classifWin.addPropertyChangeListener(
@@ -116,7 +120,7 @@ class ClassifierControl
     
     /**
      * Creates a new instance.
-     * The {@link #initialize() initialize} method should be called straigh 
+     * The {@link #initialize() initialize} method should be called straight 
      * after to link this Controller to the other MVC components.
      */
     ClassifierControl() {}
@@ -127,11 +131,18 @@ class ClassifierControl
      * @param model  Reference to the {@link ClassifierComponent} component,
      *               which, in this context, is regarded as the Model.
      *               Mustn't be <code>null</code>.
+     * @param owner The window from which the component is invoked.
+     *              Mustn't be <code>null</code>.
      */
-    void initialize(ClassifierComponent model) 
+    void initialize(ClassifierComponent model, JFrame owner) 
     { 
+        if (model == null)
+            throw new NullPointerException("No model.");
+        if (owner == null)
+            throw new NullPointerException("No owner.");
         this.model = model;
         model.addChangeListener(this);
+        this.owner = owner;
     }
 
     /**

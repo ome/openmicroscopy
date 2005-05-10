@@ -41,7 +41,7 @@ import java.awt.event.WindowEvent;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -74,7 +74,7 @@ abstract class ClassifierWin
      * been selected.
      */
     public final static String      SELECTED_CATEGORY_PROPERTY = 
-                                    "selected_category";
+                                                            "selectedCategory";
     
     /** Bound property name indicating if the window is closed. */
     public final static String      CLOSED_PROPERTY = "closed";
@@ -84,11 +84,12 @@ abstract class ClassifierWin
     /** Horizontal space between the cells in the grid. */
     static final int                H_SPACE = 5;
     
+    
     /** 
      * The selected category to classify the image into or to remove the
      * classification from.
      */
-    private CategoryData            selected_category;
+    private CategoryData            selectedCategory;
     
     /**
      * All the paths in the Category Group trees that
@@ -106,9 +107,9 @@ abstract class ClassifierWin
     }
     
     /** Create a new instance. */
-    ClassifierWin(Set availablePaths)
+    ClassifierWin(Set availablePaths, JFrame owner)
     {
-        super();
+        super(owner);
         if (availablePaths == null)
             throw new IllegalArgumentException("no paths");
         this.availablePaths = availablePaths;
@@ -144,10 +145,10 @@ abstract class ClassifierWin
     
     void setSelectedCategory(CategoryData category)
     {
-        Object oldValue = selected_category;
-        selected_category = category;
+        Object oldValue = selectedCategory;
+        selectedCategory = category;
         firePropertyChange(SELECTED_CATEGORY_PROPERTY, oldValue, 
-                    selected_category);
+                    selectedCategory);
         setClosed();
     }
     
