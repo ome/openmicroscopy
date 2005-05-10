@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -39,11 +40,10 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
- * 
+ * Command to classify/declassify a given Image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,79 +60,91 @@ public class ClassifyCmd
     implements ActionCmd
 {
     
-    /** 
-     * Flag to denote that a {@link Classifier} has to be created to classify an
-     * Image.
+    /**
+     * Utility method to get an {@link ImageSummary} from the 
+     * <code>model</code>.
+     * 
+     * @param model The Model from which to extract the Image.
+     * @return The {@link ImageSummary} hierarchy object in the browser's
+     *         current Image node or <code>null</code> if the browser's
+     *         current display is not an Image node. 
      */
-    public static final int     CLASSIFICATION_MODE = 100;
-    
-    /** 
-     * Flag to denote that a {@link Classifier} has to be created to declassify
-     * an Image.
-     */
-    public static final int     DECLASSIFICATION_MODE = 101;
-    
-    /** Classification mode, one of the constant defined above. */
-    private int                 mode;
-    
-    private HiViewer            model;
-    
-    private DataObject          hierarchyObject;
-    
-    /** Check if the classification mode is supported. */
-    private boolean checkMode(int m)
+    private static ImageSummary getImage(HiViewer model)
     {
-        boolean b = false;
-        switch (m) {
-            case CLASSIFICATION_MODE:
-            case DECLASSIFICATION_MODE:
-                b = true;
-                break;
+        ImageSummary img = null;
+        if (model != null) {
+            ImageDisplay selDispl = model.getBrowser().getSelectedDisplay();
+            Object x = selDispl.getHierarchyObject();
+            if (x instanceof ImageSummary) img = (ImageSummary) x;
         }
-        return b;
+        return img;
     }
     
-    public ClassifyCmd(DataObject hierarchyObject, int mode)
+    
+    /** 
+     * The classification mode.
+     * This is one of the constants defined by the {@link Classifier} interface
+     * and tells whether we're classifying or declassifying.
+     */
+    private int                 mode;
+    
+    /** 
+     * Represents the Image to classify/declassify.
+     * If <code>null</code>, no acion is taken.
+     */
+    private ImageSummary        img;
+    
+    /** The window from which this command was invoked. */
+    private JFrame              owner;
+    
+    
+    /**
+     * Creates a new command to classify/declassify the specified Image.
+     * 
+     * @param img   Represents the Image to classify/declassify.
+     *              If <code>null</code>, no acion is taken.
+     * @param mode  The classification mode.  This is one of the constants 
+     *              defined by the {@link Classifier} interface and tells 
+     *              whether we're classifying or declassifying.
+     * @param owner The window from which this command was invoked.
+     *              Mustn't be <code>null</code>.
+     */
+    public ClassifyCmd(ImageSummary img, int mode, JFrame owner)
     {
-        if (hierarchyObject == null)
-            throw new IllegalArgumentException("No hierarchy object.");
-        if (!(checkMode(mode))) 
-            throw new IllegalArgumentException("Not supported mode.");
-        this.hierarchyObject = hierarchyObject;
+        if (owner == null)
+            throw new NullPointerException("No owner.");
+        this.img = img;
         this.mode = mode;
     }
      
-    /** Creates a new instance.*/
-    public ClassifyCmd(HiViewer model, int mode)
-    {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
-        if (!(checkMode(mode))) 
-            throw new IllegalArgumentException("Not supported mode.");
-        this.model = model;
-        this.mode = mode;
+    /**
+     * Creates a new command to classify/declassify the Image in the browser's
+     * currently selected node, if the node is an Image node.
+     * If the node is not an Image node, no action is taken.
+     * 
+     * @param model The Model which has a reference to the browser.
+     *              Mustn't be <code>null</code>.
+     * @param mode  The classification mode.  This is one of the constants 
+     *              defined by the {@link Classifier} interface and tells 
+     *              whether we're classifying or declassifying.
+     */
+    public ClassifyCmd(HiViewer model, int mode) 
+    { 
+        this(getImage(model), mode, model.getUI()); 
     }
     
-    /** Implemented as specified by {@link ActionCmd}. */
+    /** 
+     * Classifies or declassifies the Image given to this command.
+     * 
+     * @see ActionCmd#execute() 
+     */
     public void execute()
     {
-        if (model != null) {
-            ImageDisplay selectedDisplay = 
-                model.getBrowser().getSelectedDisplay();
-            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
-        }
-        if (hierarchyObject == null || 
-                !(hierarchyObject instanceof ImageSummary) ) return;
-        int imgID = ((ImageSummary) hierarchyObject).getID();
-        Classifier classifier = null;
-        switch (mode) {
-            case CLASSIFICATION_MODE:
-                classifier = ClassifierFactory.createClassifComponent(imgID);
-                break;
-            case DECLASSIFICATION_MODE:
-                classifier = ClassifierFactory.createDeclassifComponent(imgID);
-        }
-        if (classifier != null) classifier.activate();
+        if (img == null) return;
+        Classifier classifier = ClassifierFactory.createComponent(
+                                                    mode, img.getID(),
+                                                    owner);
+        classifier.activate();
     }
 
 }
