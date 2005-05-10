@@ -124,7 +124,7 @@ class HierarchyBrowsingViewImpl
     public CallHandle loadClassificationPaths(int imageID, boolean classsified,
             AgentEventListener observer)
     {
-        BatchCallTree cmd  = new ClassificationLoader(imageID, classsified);
+        BatchCallTree cmd = new ClassificationLoader(imageID, classsified);
         return cmd.exec(observer);
     }
 
@@ -136,7 +136,7 @@ class HierarchyBrowsingViewImpl
     public CallHandle classify(CategoryData data, Set imgIDs, 
                         AgentEventListener observer)
     {
-        BatchCallTree cmd  = new ClassificationSaver(data, imgIDs, true);
+        BatchCallTree cmd = new ClassificationSaver(data, imgIDs, true);
         return cmd.exec(observer);
     }
 
@@ -148,7 +148,7 @@ class HierarchyBrowsingViewImpl
     public CallHandle declassify(CategoryData data, Set imgIDs, 
                                 AgentEventListener observer)
     {
-        BatchCallTree cmd  = new ClassificationSaver(data, imgIDs, false);
+        BatchCallTree cmd = new ClassificationSaver(data, imgIDs, false);
         return cmd.exec(observer);
     }
     

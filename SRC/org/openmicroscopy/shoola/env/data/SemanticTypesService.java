@@ -326,15 +326,15 @@ public interface SemanticTypesService
      * 
      * @param annotated If <code>true</code>, the image Annotations are 
      *          retrieved
-     * @param in        If <code>true</code>, the images contained in the 
-     *                  categories are also retrieved.
+     * @param withImages    If <code>true</code>, the images contained in the 
+     *                      categories are also retrieved.
      * @return list of {@link CategoryGroupData}s.
      * 
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service. 
      */
-    public List retrieveCategoryGroups(boolean annotated, boolean in)
+    public List retrieveCategoryGroups(boolean annotated, boolean withImages)
         throws DSOutOfServiceException, DSAccessException;  
     
     /** 
