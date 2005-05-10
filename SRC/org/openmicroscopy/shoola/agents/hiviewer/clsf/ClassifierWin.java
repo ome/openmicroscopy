@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -81,7 +82,7 @@ abstract class ClassifierWin
     private static final Dimension  WIN_DIMENSION = new Dimension(300, 300);
     
     /** Horizontal space between the cells in the grid. */
-    static final int                H_SPACE = 10;
+    static final int                H_SPACE = 5;
     
     /** 
      * The selected category to classify the image into or to remove the
@@ -95,17 +96,6 @@ abstract class ClassifierWin
      */
     protected Set                   availablePaths;
     
-    /** Builds and lays out the GUI. */
-    private void buildGUI() 
-    {
-        IconManager icons = IconManager.getInstance();
-        TitlePanel tp = new TitlePanel("Classification", getWinTitle(), 
-                getWinNote(), icons.getIcon(IconManager.CATEGORY_BIG));
-        //Set layout and add components
-        setLayout(new BorderLayout(0, 0));
-        add(tp, BorderLayout.NORTH);
-        add(getClassifPanel(), BorderLayout.CENTER);
-    }
     
     /** Fires a property change event and closes the window. */ 
     private void setClosed()
@@ -121,6 +111,7 @@ abstract class ClassifierWin
         super();
         if (availablePaths == null)
             throw new IllegalArgumentException("no paths");
+        this.availablePaths = availablePaths;
         setModal(true);
         setTitle("Classification");
         
@@ -128,7 +119,19 @@ abstract class ClassifierWin
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) { setClosed(); }
         });
-        buildGUI();
+    }
+    
+    /** Builds and lays out the GUI. */
+    protected void buildGUI() 
+    {
+        IconManager icons = IconManager.getInstance();
+        TitlePanel tp = new TitlePanel("Classification", getWinTitle(), 
+                getWinNote(), icons.getIcon(IconManager.CATEGORY_BIG));
+        //Set layout and add components
+        Container c = getContentPane();
+        c.setLayout(new BorderLayout(0, 0));
+        c.add(tp, BorderLayout.NORTH);
+        c.add(getClassifPanel(), BorderLayout.CENTER);
     }
     
     /** Returns the title. */
@@ -143,7 +146,8 @@ abstract class ClassifierWin
     {
         Object oldValue = selected_category;
         selected_category = category;
-        firePropertyChange(SELECTED_CATEGORY_PROPERTY, oldValue, category);
+        firePropertyChange(SELECTED_CATEGORY_PROPERTY, oldValue, 
+                    selected_category);
         setClosed();
     }
     

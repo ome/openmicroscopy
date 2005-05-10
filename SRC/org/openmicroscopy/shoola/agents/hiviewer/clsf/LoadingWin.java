@@ -32,9 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 //Java imports
 import java.awt.Dimension;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 //Third-party libraries
@@ -62,7 +59,7 @@ class LoadingWin
 {
 
     /** Dimension of the loading window. */
-    private static final Dimension WIN_DIMENSION = new Dimension(300, 150);
+    private static final Dimension WIN_DIMENSION = new Dimension(200, 30);
     
     LoadingWin()
     {
@@ -83,11 +80,7 @@ class LoadingWin
         JProgressBar progressBar = new JProgressBar();
         progressBar.setVisible(true);
         progressBar.setIndeterminate(true);
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        p. setBorder(BorderFactory.createEtchedBorder());
-        add(UIUtilities.buildComponentPanelRight(progressBar));
-        uiDelegate.setCanvas(p);
+        uiDelegate.setCanvas(progressBar);
     }
 
 }

@@ -70,7 +70,7 @@ class AddWin
     extends ClassifierWin
 {
 
-    private static final String     ROOT = "Available paths";
+    private static final String     ROOT = "Available categories";
     
     /** Root of the tree. */
     private DefaultMutableTreeNode  root;
@@ -82,6 +82,7 @@ class AddWin
         super(availablePaths);
         initTree();
         buildTreeNodes();
+        buildGUI();
     }
 
     /** Handle mouse click event. */

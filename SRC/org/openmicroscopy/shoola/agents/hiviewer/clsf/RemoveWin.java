@@ -53,6 +53,7 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
  * 
@@ -75,6 +76,7 @@ class RemoveWin
     RemoveWin(Set availablePaths)
     {
         super(availablePaths);
+        buildGUI();
     }
 
     protected String getWinTitle()
@@ -110,6 +112,11 @@ class RemoveWin
     private void addRow(GridBagLayout gridbag, GridBagConstraints c, 
                         JPanel main, int index, DataObject data)
     {
+        //The image has not been created.
+        if (data instanceof ImageSummary) {
+            main.add(new JLabel("The selected image hasn't been classified"));
+            return;
+        }
         JCheckBox box = new JCheckBox();
         box.setSelected(true);
         String name = "";
