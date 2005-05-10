@@ -72,6 +72,11 @@ class AddWin
 {
 
     private static final String     ROOT = "Available categories";
+    private static final String     PANEL_TITLE = "Add To Category";
+    private static final String     PANEL_TEXT = "Select to classify.";
+    private static final String     PANEL_NOTE = 
+                                         "The image can be classified "+
+                                         "under the following categories.";
     
     /** Root of the tree. */
     private DefaultMutableTreeNode  root;
@@ -153,15 +158,11 @@ class AddWin
         }
     }
     
-    protected String getWinTitle()
-    {
-        return "Can be classified as";
-    }
+    protected String getPanelTitle() { return PANEL_TITLE; }
 
-    protected String getWinNote()
-    {
-        return "Select the category to classify the image into";
-    }
+    protected String getPanelText() { return PANEL_TEXT; }
+    
+    protected String getPanelNote() { return PANEL_NOTE; }
 
     /** Wraps the tree in a JScrollPane. */
     protected JComponent getClassifPanel()

@@ -84,7 +84,7 @@ class ClassifierControl
      */
     private void createLoadingWin()
     {
-        loadingWin = new LoadingWin();
+        loadingWin = new LoadingWin(owner);
         loadingWin.addPropertyChangeListener(LoadingWin.CLOSED_PROPERTY, this);
         loadingWin.setOnScreen();
     }

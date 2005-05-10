@@ -74,21 +74,24 @@ class RemoveWin
     extends ClassifierWin
 {
 
+    private static final String     PANEL_TITLE = "Remove From Category";
+    private static final String     PANEL_TEXT = "Deselect to declassify.";
+    private static final String     PANEL_NOTE = 
+                                         "The image is currently classified "+
+                                         "under the following categories.";
+    
+    
     RemoveWin(Set availablePaths, JFrame owner)
     {
         super(availablePaths, owner);
         buildGUI();
     }
 
-    protected String getWinTitle()
-    {
-        return "Classified as";
-    }
+    protected String getPanelTitle() { return PANEL_TITLE; }
 
-    protected String getWinNote()
-    {
-        return "Deselects the image to declassify.";
-    }
+    protected String getPanelText() { return PANEL_TEXT; }
+    
+    protected String getPanelNote() { return PANEL_NOTE; }
     
     /** Builds panel. */
     protected JComponent getClassifPanel()

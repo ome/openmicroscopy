@@ -115,6 +115,7 @@ public class ClassifyCmd
             throw new NullPointerException("No owner.");
         this.img = img;
         this.mode = mode;
+        this.owner = owner;
     }
      
     /**

@@ -126,8 +126,8 @@ abstract class ClassifierWin
     protected void buildGUI() 
     {
         IconManager icons = IconManager.getInstance();
-        TitlePanel tp = new TitlePanel("Classification", getWinTitle(), 
-                getWinNote(), icons.getIcon(IconManager.CATEGORY_BIG));
+        TitlePanel tp = new TitlePanel(getPanelTitle(), getPanelText(), 
+                getPanelNote(), icons.getIcon(IconManager.CATEGORY_BIG));
         //Set layout and add components
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
@@ -135,11 +135,12 @@ abstract class ClassifierWin
         c.add(getClassifPanel(), BorderLayout.CENTER);
     }
     
-    /** Returns the title. */
-    protected abstract String getWinTitle();
     
-    /** Returns the note displayed in the title. */
-    protected abstract String getWinNote();
+    protected abstract String getPanelTitle();
+    
+    protected abstract String getPanelText();
+    
+    protected abstract String getPanelNote();
     
     protected abstract JComponent getClassifPanel();
     
