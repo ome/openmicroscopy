@@ -37,6 +37,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
@@ -79,8 +80,7 @@ public class ClassifyAction
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-       ClassifyCmd cmd = new ClassifyCmd(model, 
-                       ClassifyCmd.CLASSIFICATION_MODE);
+       ClassifyCmd cmd = new ClassifyCmd(model, Classifier.CLASSIFICATION_MODE);
        cmd.execute();
     }
     

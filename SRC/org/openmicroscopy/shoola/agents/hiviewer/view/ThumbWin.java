@@ -70,6 +70,9 @@ class ThumbWin
     /** The point at which the last popup event occurred. */
     private Point        popupPoint;
     
+    /** The parent frame of this window. */
+    private JFrame       parentFrame;
+    
     
     /**
      * Creates a new instance.
@@ -84,6 +87,7 @@ class ThumbWin
         super(parent, fullScaleThumb);
         if (image == null) throw new NullPointerException("No image.");
         dataObject = image;
+        parentFrame = parent;
         uiDelegate.attachMouseListener(this);
         addMouseListener(this);
     }
@@ -102,6 +106,13 @@ class ThumbWin
      */
     Point getPopupPoint() { return popupPoint; }
 
+    /**
+     * Returns the parent frame of this window.
+     * 
+     * @return See above.
+     */
+    JFrame getParentFrame() { return parentFrame; }
+    
     /**
      * Intercepts popup triggers on this window.
      * If the mouse event is a popup trigger, then we register the popup point
