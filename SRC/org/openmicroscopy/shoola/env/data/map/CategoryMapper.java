@@ -324,11 +324,10 @@ public class CategoryMapper
     public static Criteria buildClassificationCriteria(int imgID, int catID)
     {
         Criteria c = new Criteria();
-        c.addWantedField("Valid");
-        c.addWantedField("Confidence");
-        c.addWantedField("Category");
-        //Fields we want for the images.
         c.addWantedField("image");
+        c.addWantedField("Category");
+        c.addWantedField("Confidence");
+        c.addWantedField("Valid");
         if (imgID != -1) c.addFilter("image_id", new Integer(imgID));
         if (catID != -1) c.addFilter("Category", new Integer(catID));
         return c;
