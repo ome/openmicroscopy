@@ -39,9 +39,12 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
 
 /** 
  * The Controller component in the {@link Classifier} MVC triad.
+ * It manages the UI workflow according to state transitions in the Model and
+ * reacts to user inputs by asking the Model to classify/declassify its Image.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,7 +68,7 @@ class ClassifierControl
     private ClassifierComponent     model;
     
     /** Progress window shown on screen as the metadata is loading. */
-    //private LoadingWin            loadingWin;
+    private LoadingWin              loadingWin;
     
     /** The dialog that lets the user classify/declassify. */
     private ClassifierWin           classifWin;
@@ -77,10 +80,9 @@ class ClassifierControl
      */
     private void createLoadingWin()
     {
-        //TODO: implement the following:
-        //loadingWin = new LoadingWin
-        //loadingWin.addPropertyChangeListener(LoadingWin.CLOSED_PROPERTY, this)
-        //loadingWin.setOnScreen
+        loadingWin = new LoadingWin();
+        loadingWin.addPropertyChangeListener(LoadingWin.CLOSED_PROPERTY, this);
+        loadingWin.setOnScreen();
     }
     
     /**
@@ -88,30 +90,27 @@ class ClassifierControl
      */
     private void discardLoadingWin()
     {
-        //TODO: implement the following:
-        //loadingWin.removePropertyChangeListener(LoadingWin.CLOSED_PROPERTY, this)
-        //loadingWin.setClosed(true)  //We won't get this notification.
-        //loadingWin = null;
+        loadingWin.removePropertyChangeListener(LoadingWin.CLOSED_PROPERTY, 
+                                                this);
+        loadingWin.setClosed(true);  //We won't get this notification.
+        loadingWin = null;
     }
     
     /**
-     * Creates the classification window, registers for event notification, and
-     * finally sets the window on screen.
+     * Creates the classification window, registers for event notification,
+     * and finally sets the window on screen.
      */
     private void createClassifWin()
     {
-        //TODO: implement the following:
         if (model.getMode() == Classifier.CLASSIFICATION_MODE)
-            //classifWin = new AddWin
-            ;
+            classifWin = new AddWin(model.getMetadata());
         else  //Declassification mode.
-            //classifWin = new RemoveWin
-            ;
-        //classifWin.addPropertyChangeListener(
-        //              classifWin.SELECTED_CATEGORY_PROPERTY, this)
-        //classifWin.addPropertyChangeListener(
-        //              classifWin.CLOSED_PROPERTY, this)
-        //classifWin.setOnScreen
+            classifWin = new RemoveWin(model.getMetadata());
+        classifWin.addPropertyChangeListener(
+                ClassifierWin.SELECTED_CATEGORY_PROPERTY, this);
+        classifWin.addPropertyChangeListener(
+                ClassifierWin.CLOSED_PROPERTY, this);
+        classifWin.setOnScreen();
     }
     
     /**
@@ -134,13 +133,28 @@ class ClassifierControl
         model.addChangeListener(this);
     }
 
-    /* (non-Javadoc)
+    /**
+     * Listens to property changes in the {@link #loadingWin} and
+     * {@link #classifWin}.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
-        // TODO Auto-generated method stub
-        
+        //These notifications can come either from loadingWin or classifWin.
+        if (pce.getSource() == loadingWin) {  //Must be the CLOSED_PROPERTY.
+            model.discard();  //classifWin will never be brought up.
+        } else {  //It's coming from classifWin.
+            if (ClassifierWin.SELECTED_CATEGORY_PROPERTY.equals(
+                    pce.getPropertyName()))  
+                //The user selected a Category for (de-)classification.
+                //The classifWin automatically closes itself after selection,
+                //so we're about to get a CLOSED_PROPERTY notification.
+                model.save((CategoryData) pce.getNewValue());
+            else  //Must be the CLOSED_PROPERTY.
+                //Either the user selected a Category or just pressed the
+                //close button.
+                model.discard();
+        }
     }
 
     /**
