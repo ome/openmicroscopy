@@ -122,8 +122,7 @@ class STSAdapter
     {
         if (ids != null && ids.size() == 0) return null;
         Criteria c= AnnotationMapper.buildImageAnnotationCriteria(ids, uID);
-        return 
-            (List) gateway.retrieveListSTSData("ImageAnnotation", c);
+        return (List) gateway.retrieveListSTSData("ImageAnnotation", c);
     }
     
     /**
@@ -247,16 +246,19 @@ class STSAdapter
         Object[] results = new Object[2];
         Criteria c = CategoryMapper.buildClassificationCriteria(imgID, 
                             category.getID());
-        Classification classification = (Classification) 
-                            gateway.retrieveSTSData("Classification",  c);
+        //For some reasons the retrieveSTS("Classification", c) no longer work.
+        List classif = (List) gateway.retrieveListSTSData("Classification", c);
+        Classification classification;
         results[0] = Boolean.FALSE;
-        if (classification == null) {
+        if (classif == null || classif.size() == 0) {
             results[0] = Boolean.TRUE;
-            c = CategoryMapper.buildClassificationCriteria(imgID, -1);
+            c = ImageMapper.buildBasicImageCriteria(imgID);;
             classification = (Classification) 
                             createBasicAttribute("Classification", c);
             classification.setCategory(category);
             classification.setConfidence(CategoryMapper.CONFIDENCE_OBJ);
+        } else {
+            classification = (Classification) classif.get(0);
         }
         classification.setValid(Boolean.TRUE);
         results[1] = classification;
@@ -358,19 +360,20 @@ class STSAdapter
      * Retrieve the {@link CategoryGroupData}/{@link CategoryData} hierarchy
      * where the {@link CategoryData} object don't contain the specified images.
      * 
-     * @param imageSummaries    The list of DataObject.
+     * @param imgID image's ID.
      * @return List of {@link DataObject}.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
      */
-    private List retrieveCGCIHierarchyAvailable(Map map, int userID)
+    private List retrieveCGCIHierarchyAvailable(int imgID, int userID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Criteria c = HierarchyMapper.buildICGHierarchyCriteria(null, userID);
-        List classif = (List) gateway.retrieveListSTSData("Classification", c);
-        if (classif == null) return new ArrayList();
-        return HierarchyMapper.fillICGHierarchyAvailable(classif, map);    
+        Criteria c = HierarchyMapper.buildAvailablePaths(userID);
+        List categories = (List) gateway.retrieveListSTSData("Category", c);
+        if (categories == null) return new ArrayList();
+        return HierarchyMapper.fillICGHierarchyAvailable(categories, imgID, 
+                                        userID);    
     }
 
     /**
@@ -394,7 +397,7 @@ class STSAdapter
     }
    
     /**
-     * 
+     * Retrieves the categoryGroup-category-images tree.
      * @return
      * @throws DSOutOfServiceException
      * @throws DSAccessException
@@ -737,10 +740,10 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveCategoryGroups(boolean annotated, boolean in)
+    public List retrieveCategoryGroups(boolean annotated, boolean withImages)
         throws DSOutOfServiceException, DSAccessException
     {
-        if (in) return retrieveCategoryGroupsIn(annotated);
+        if (withImages) return retrieveCategoryGroupsIn(annotated);
         return retrieveCategoryGroups();
     }
     
@@ -1088,12 +1091,15 @@ class STSAdapter
                                 List imgsToAdd)
         throws DSOutOfServiceException, DSAccessException
     {
+        if (data == null) 
+            throw new IllegalArgumentException("no category specified");
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         int id = data.getID();
         Criteria c = CategoryMapper.buildBasicCriteria(id, uc.getUserID());
         Category category = (Category) gateway.retrieveSTSData("Category", c);
         category.setName(data.getName());
-        category.setDescription(data.getDescription());
+        if (data.getDescription() != null)
+            category.setDescription(data.getDescription());
         List toUpdate = new ArrayList(), newAttributes = new ArrayList();
         toUpdate.add(category); 
         Classification classification;
@@ -1148,6 +1154,15 @@ class STSAdapter
         if (imageSummaries.size() == 0)
             throw new IllegalArgumentException("List of imageSummaries " +
                     "cannot be of length 0");
+        if (!classified && imageSummaries.size() > 1) 
+            throw new IllegalArgumentException("Can only retrieve available " +
+                "path for one image at a time.");
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        int userID = uc.getUserID();
+        if (!classified) {
+            int imgID = ((ImageSummary) imageSummaries.get(0)).getID();
+            return retrieveCGCIHierarchyAvailable(imgID, userID); 
+        }
         Iterator i = imageSummaries.iterator();
         ImageSummary is;
         Map map = new HashMap();
@@ -1159,10 +1174,7 @@ class STSAdapter
             map.put(id, is);
             ids.add(id);
         }
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        int userID = uc.getUserID();
-        if (classified) return retrieveCGCIHierarchyExisting(ids, map, userID); 
-        return retrieveCGCIHierarchyAvailable(map, userID);  
+        return retrieveCGCIHierarchyExisting(ids, map, userID);
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
