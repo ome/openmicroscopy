@@ -75,14 +75,13 @@ public class DeclassifyAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        //IconManager im = IconManager.getInstance();
-        //putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
     }
 
     /** Handle the action. */
     public void actionPerformed(ActionEvent e)
     {
-       ClassifyCmd cmd = new ClassifyCmd(model, false);
+       ClassifyCmd cmd = new ClassifyCmd(model, 
+                       ClassifyCmd.DECLASSIFICATION_MODE);
        cmd.execute();
     }
     

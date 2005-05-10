@@ -168,14 +168,22 @@ public class SearchExplorerPopupMenu
             public void actionPerformed(ActionEvent ae)
             {
                 DataObject object = currentWin.getDataObject();
-                if (object != null) new ClassifyCmd(object, true).execute();
+                if (object != null) {
+                    ClassifyCmd cmd = new ClassifyCmd(object, 
+                            ClassifyCmd.CLASSIFICATION_MODE);
+                    cmd.execute();
+                }
             }
         });
         declassify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
                 DataObject object = currentWin.getDataObject();
-                if (object != null) new ClassifyCmd(object, false).execute();
+                if (object != null) {
+                    ClassifyCmd cmd = new ClassifyCmd(object, 
+                            ClassifyCmd.DECLASSIFICATION_MODE);
+                    cmd.execute();
+                }
             }
         });
         view.addActionListener(new ActionListener() {

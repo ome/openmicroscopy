@@ -151,13 +151,17 @@ class ThumbWinPopupMenu
         classify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                new ClassifyCmd(currentWin.getDataObject(), true).execute();
+                ClassifyCmd cmd = new ClassifyCmd(currentWin.getDataObject(), 
+                        ClassifyCmd.CLASSIFICATION_MODE);
+                cmd.execute();
             }
         });
         declassify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                new ClassifyCmd(currentWin.getDataObject(), false).execute();
+                ClassifyCmd cmd = new ClassifyCmd(currentWin.getDataObject(), 
+                        ClassifyCmd.DECLASSIFICATION_MODE);
+                cmd.execute();
             }
         });
         view.addActionListener(new ActionListener() {
