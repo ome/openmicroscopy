@@ -222,9 +222,10 @@ public class CategoryMapper
         if (withImages) {
             c.addWantedField("CategoryList.ClassificationList", "image");
             c.addWantedField("CategoryList.ClassificationList.image", "name");
-            c.addWantedField("CategoryList.ClassificationList.image", "created");
             c.addWantedField("CategoryList.ClassificationList.image", 
-                        "default_pixels");
+                            "created");
+            c.addWantedField("CategoryList.ClassificationList.image", 
+                            "default_pixels");
             PixelsMapper.fieldsForPixels(c, 
                     "CategoryList.ClassificationList.image.default_pixels"); 
         }
@@ -320,12 +321,15 @@ public class CategoryMapper
      * 
      * @return Corresponding criteria.
      */
-    public static Criteria buildClassificationCriteria(int imageID, int catID)
+    public static Criteria buildClassificationCriteria(int imgID, int catID)
     {
         Criteria c = new Criteria();
         c.addWantedField("Valid");
+        c.addWantedField("Confidence");
         c.addWantedField("Category");
-        if (imageID != -1) c.addFilter("image_id", new Integer(imageID));
+        //Fields we want for the images.
+        c.addWantedField("image");
+        if (imgID != -1) c.addFilter("image_id", new Integer(imgID));
         if (catID != -1) c.addFilter("Category", new Integer(catID));
         return c;
     }
