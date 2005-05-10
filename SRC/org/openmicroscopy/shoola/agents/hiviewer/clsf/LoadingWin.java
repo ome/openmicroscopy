@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 //Java imports
 import java.awt.Dimension;
-import java.awt.Frame;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -65,9 +64,9 @@ class LoadingWin
     /** Dimension of the loading window. */
     private static final Dimension WIN_DIMENSION = new Dimension(300, 150);
     
-    LoadingWin(Frame owner)
+    LoadingWin()
     {
-        super(owner, "Loading");
+        super(null, "Loading...");
         buildGUI();
     }
 
