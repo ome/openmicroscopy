@@ -248,7 +248,8 @@ class STSAdapter
                             category.getID());
         //For some reasons the retrieveSTS("Classification", c) no longer work.
         List classif = (List) gateway.retrieveListSTSData("Classification", c);
-        Classification classification;
+        Classification classification;// = 
+            //(Classification) gateway.retrieveSTSData("Classification", c);
         results[0] = Boolean.FALSE;
         if (classif == null || classif.size() == 0) {
             results[0] = Boolean.TRUE;
