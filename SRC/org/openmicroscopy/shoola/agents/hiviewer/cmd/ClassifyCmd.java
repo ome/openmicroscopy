@@ -30,20 +30,17 @@
 package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
-
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.datamng.ClassifyImage;
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
+import org.openmicroscopy.shoola.agents.hiviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
  * 
@@ -63,43 +60,79 @@ public class ClassifyCmd
     implements ActionCmd
 {
     
-    private HiViewer    model;
-    private DataObject  hierarchyObject;
+    /** 
+     * Flag to denote that a {@link Classifier} has to be created to classify an
+     * Image.
+     */
+    public static final int     CLASSIFICATION_MODE = 100;
     
-    private boolean     classify;
+    /** 
+     * Flag to denote that a {@link Classifier} has to be created to declassify
+     * an Image.
+     */
+    public static final int     DECLASSIFICATION_MODE = 101;
     
-    public ClassifyCmd(DataObject hierarchyObject, boolean classify)
+    /** Classification mode, one of the constant defined above. */
+    private int                 mode;
+    
+    private HiViewer            model;
+    
+    private DataObject          hierarchyObject;
+    
+    /** Check if the classification mode is supported. */
+    private boolean checkMode(int m)
     {
-        if (hierarchyObject == null)
-            throw new NullPointerException("No hierarchy object.");
-        this.hierarchyObject = hierarchyObject;
-        this.classify = classify;
+        boolean b = false;
+        switch (m) {
+            case CLASSIFICATION_MODE:
+            case DECLASSIFICATION_MODE:
+                b = true;
+                break;
+        }
+        return b;
     }
     
+    public ClassifyCmd(DataObject hierarchyObject, int mode)
+    {
+        if (hierarchyObject == null)
+            throw new IllegalArgumentException("No hierarchy object.");
+        if (!(checkMode(mode))) 
+            throw new IllegalArgumentException("Not supported mode.");
+        this.hierarchyObject = hierarchyObject;
+        this.mode = mode;
+    }
+     
     /** Creates a new instance.*/
-    public ClassifyCmd(HiViewer model, boolean classify)
+    public ClassifyCmd(HiViewer model, int mode)
     {
         if (model == null)
             throw new IllegalArgumentException("no model");
+        if (!(checkMode(mode))) 
+            throw new IllegalArgumentException("Not supported mode.");
         this.model = model;
-        this.classify = classify;
+        this.mode = mode;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        /*
         if (model != null) {
-            ImageDisplay selectedDisplay = model.getBrowser().
-                                                    getSelectedDisplay();
+            ImageDisplay selectedDisplay = 
+                model.getBrowser().getSelectedDisplay();
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
-        if (hierarchyObject == null) return;
-        if (hierarchyObject instanceof ImageSummary) {
-            EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-            eventBus.post(new ClassifyImage((ImageSummary) hierarchyObject));
+        if (hierarchyObject == null || 
+                !(hierarchyObject instanceof ImageSummary) ) return;
+        int imgID = ((ImageSummary) hierarchyObject).getID();
+        Classifier classifier = null;
+        switch (mode) {
+            case CLASSIFICATION_MODE:
+                classifier = ClassifierFactory.createClassifComponent(imgID);
+                break;
+            case DECLASSIFICATION_MODE:
+                classifier = ClassifierFactory.createDeclassifComponent(imgID);
         }
-        */
+        if (classifier != null) classifier.activate();
     }
 
 }
