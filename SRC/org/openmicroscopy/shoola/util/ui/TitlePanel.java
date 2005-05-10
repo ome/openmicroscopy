@@ -32,14 +32,13 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.LayoutManager;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -51,13 +50,20 @@ import javax.swing.JSeparator;
 //Application-internal dependencies
 
 /** 
- * 
+ * A general purpose title panel having a title, sub-title, explanatory text,
+ * and graphics.
+ * The title, sub-title, and explanatory text are aligned to the left in three
+ * horizontal rows and take up as much width as is available.  The grahics is
+ * aligned to the right and spawns all three rows.  The title is displayed in
+ * a bold font, the sub-title in a normal font, and the explanatory text in an
+ * italic font.  The title and sub-title are displayed in a single line label,
+ * as the explanatory text is embedded in a multi-line label.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
+ *              <a href="mailto:a.falconi@dundee.ac.uk">
+ *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -65,162 +71,240 @@ import javax.swing.JSeparator;
  * @since OME2.2
  */
 public class TitlePanel
-	extends JPanel
+    extends JPanel
 {
-
     
-    private static final int            TEXT_THRESHOLD = 50;
+    /** Default background color. */
+    private static final Color  DEFAULT_BG = Color.WHITE;
     
-	/** Default color for the background. */
-	private Color		                backgroundColor = Color.WHITE;
-	
-	/** 
-	 * The preferred size of the widget that displays the  message.
-	 * Only the part of text that fits into this display area will be displayed.
-	 */
-	protected static final Dimension	MSG_AREA_SIZE = new Dimension(150, 80);
-	
-	/** 
-	 * Create an instance.
-	 * 
-	 * @param title		title displayed in header.
-	 * @param text		brief summary to explain.
-	 * @param icon		icon displayed in the header.
-	 */
-	public TitlePanel(String title, String text, Icon icon)
-	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(buildPanel(title, text, null, icon));
-		add(new JSeparator());
-	}
-
-	/** 
-	 * Create an instance.
-	 * 
-	 * @param title		title displayed in header.
-	 * @param text		brief summary to explain.
-	 * @param note		note to add.
-	 * @param icon		icon displayed in the header.
-	 */
-	public TitlePanel(String title, String text, String note, Icon icon)
-	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(buildPanel(title, text, note, icon));
-		add(new JSeparator());
-	}
-
-    /** 
-     * Create an instance.
-     * 
-     * @param title     title displayed in header.
-     * @param text      brief summary to explain.
-     * @param component JComponent to display in the header.
+    
+    /** The component embedding the panel's title. */
+    private JComponent  title;
+    
+    /** The component embedding the panel's sub-title. */
+    private JComponent  subTitle;
+    
+    /** The component embedding the panel's text. */
+    private JComponent  text;
+    
+    /** The component embedding the panel's graphics. */
+    private JComponent  graphx;
+    
+    /** The horizontal line at the bottom of the panel. */
+    private JSeparator  hLine;
+    
+    
+    /**
+     * Sets up all sub-components.
      */
-    public TitlePanel(String title, String text, JComponent c)
+    private void buildGUI()
     {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildPanel(title, text, null, c));
-        add(new JSeparator());
-    }
-
-    /** 
-     * Create an instance.
-     * 
-     * @param title     title displayed in header.
-     * @param text      brief summary to explain.
-     * @param note      note to add.
-     * @param icon      icon displayed in the header.
-     */
-    public TitlePanel(String title, String text, String note, JComponent c)
-    {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildPanel(title, text, note, c));
-        add(new JSeparator());
-    }
-    
-    /** Build header. */
-    private JPanel buildPanel(String title, String text, String note, 
-                            JComponent c)
-    {
-        JPanel p = new JPanel();
-        p.setBackground(backgroundColor);
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(buildTextPanel(title, text, note));
-        p.add(Box.createHorizontalGlue());
-        p.add(c);
-        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        return p;
-    }
-	/** Build header. */
-	private JPanel buildPanel(String title, String text, String note, Icon icon)
-	{
-		JPanel p = new JPanel();
-		p.setBackground(backgroundColor);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(buildTextPanel(title, text, note));
-		p.add(Box.createHorizontalGlue());
-		p.add(new JLabel(icon));
-		p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-		return p;
-	}
-
-	/** Build Panel with text displayed in the header. */
-	private JPanel buildTextPanel(String title, String text, String note)
-	{
-		JPanel p = new JPanel(), pAll = new JPanel();
-		p.setBackground(backgroundColor);
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		p.setLayout(gridbag);
-		JLabel label = setTitleLabel(title);
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.EAST;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		gridbag.setConstraints(label, c);
-		p.add(label);
-		c.gridy = 1;
-		if (text.length() >= TEXT_THRESHOLD) {
-            MultilineLabel ml = new MultilineLabel(text);
-            gridbag.setConstraints(ml, c);
-            p.add(ml);
-		} else {
-			label = new JLabel(" "+text);
-			gridbag.setConstraints(label, c);
-			p.add(label);
-		}
+        add(title);
+        add(subTitle);
+        add(text);
+        add(graphx);
+        add(hLine);
+        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        setLayout(new TitlePanelLayout());
         
-		if (note != null) {
-			c.gridy = 2;
-			MultilineLabel nl = setNoteLabel(" "+note);
-			gridbag.setConstraints(nl, c);
-			p.add(nl);
-		} 
-		//necessary to align panel on the left.
-		pAll.setLayout(new FlowLayout(FlowLayout.LEFT));
-		pAll.setBackground(backgroundColor);
-		pAll.add(p);
-		return pAll;
-	}
-	
-	/** Set the font of the string to bold. */
-	private JLabel setTitleLabel(String s)
-	{
-		JLabel label = new JLabel(s);
-		Font font = label.getFont();
-		Font newFont = font.deriveFont(Font.BOLD);
-		label.setFont(newFont);
-		return label;
-	}
-	
-	/** Set the font to italic. */
-	private MultilineLabel setNoteLabel(String s)
-	{
-		MultilineLabel label = new MultilineLabel(s);
-		Font font = label.getFont();
-		Font newFont = font.deriveFont(Font.ITALIC);
-		label.setFont(newFont);
-		return label;
-	}
+        Font f = title.getFont();
+        title.setFont(f.deriveFont(Font.BOLD));
+        f = subTitle.getFont();
+        subTitle.setFont(f.deriveFont(Font.PLAIN));
+        f = text.getFont();
+        text.setFont(f.deriveFont(Font.ITALIC));
+        
+        setBackground(DEFAULT_BG);
+    }
+    
+    /**
+     * Creates a new instance.
+     * All arguments are optional.
+     * 
+     * @param title The panel's title.
+     * @param subTitle The panel's sub-title.
+     * @param text The explanatory text.
+     * @param graphx The component embedding the panel's graphics.
+     */
+    public TitlePanel(String title, String subTitle, String text, 
+                      JComponent graphx)
+    {
+        this.title = new JLabel(title);
+        this.subTitle = new JLabel(subTitle);
+        this.text = new MultilineLabel(text);
+        this.graphx = (graphx == null ? new JLabel() : graphx);
+        hLine = new JSeparator();
+        buildGUI();
+    }
+    
+    /**
+     * Creates a new instance.
+     * All arguments are optional.
+     * 
+     * @param title The panel's title.
+     * @param subTitle The panel's sub-title.
+     * @param graphx The component embedding the panel's graphics.
+     */
+    public TitlePanel(String title, String subTitle, JComponent graphx)
+    {
+        this(title, subTitle, null, graphx);
+    }
+    
+    /**
+     * Creates a new instance.
+     * All arguments are optional.
+     * 
+     * @param title The panel's title.
+     * @param subTitle The panel's sub-title.
+     * @param text The explanatory text.
+     * @param icon An icon to use as the panel's graphics.
+     */
+    public TitlePanel(String title, String subTitle, String text, Icon icon)
+    {
+        this(title, subTitle, text, new JLabel(icon));
+    }
+    
+    /**
+     * Creates a new instance.
+     * All arguments are optional.
+     * 
+     * @param title The panel's title.
+     * @param subTitle The panel's sub-title.
+     * @param icon An icon to use as the panel's graphics.
+     */
+    public TitlePanel(String title, String subTitle, Icon icon)
+    {
+        this(title, subTitle, null, new JLabel(icon));
+    }
+    
+    
+    /**
+     * Lays out the sub-components of this title panel. 
+     */
+    private class TitlePanelLayout
+        implements LayoutManager
+    {
+
+        /** Horizontal gap between the text components and the graphics. */
+        private static final int    H_GAP = 20;
+        
+        /** Left indent for the sub-title and text. */
+        private static final int    INDENT = 10;
+        
+        
+        /** Lays out the horizontal line. */
+        private void layoutHLine()
+        {
+            int w = getWidth(), h = getHeight();
+            Insets i = getInsets();
+            Dimension d = hLine.getPreferredSize();
+            hLine.setBounds(i.left, h-d.height-i.bottom, 
+                            w-i.left-i.right, d.height);
+        }
+        
+        /** 
+         * Lays out the graphics component.
+         * Assumes the horizontal line has already been laid out. 
+         */
+        private void layoutGraphx()
+        {
+            int w = getWidth(), h = getHeight();
+            Insets i = getInsets();
+            Dimension d = graphx.getPreferredSize();
+            int width = (d.width < w-H_GAP ? d.width : 0);
+            graphx.setBounds(w-i.right-width, i.top, 
+                             width, h-i.top-hLine.getHeight()-i.bottom);
+        }
+        
+        /**
+         * Lays out the title component.
+         * Assumes the horizontal line and the graphics components have already
+         * been laid out.
+         */
+        private void layoutTitle()
+        {
+            int w = getWidth();
+            Insets i = getInsets();
+            Dimension d = title.getPreferredSize();
+            title.setBounds(i.left, i.top, 
+                            w-i.left-i.right-H_GAP-graphx.getWidth(), d.height);
+        }
+        
+        /**
+         * Lays out the sub-title component.
+         * Assumes the horizontal line, the graphics, and the title components
+         * have already been laid out.
+         */
+        private void layoutSubTitle()
+        {
+            Insets i = getInsets();
+            Dimension d = subTitle.getPreferredSize();
+            subTitle.setBounds(i.left+INDENT, i.top+title.getHeight(), 
+                               title.getWidth()-INDENT, d.height);
+        }
+        
+        /**
+         * Lays out the text component.
+         * Assumes the all the other components have already been laid out.
+         */
+        private void layoutText()
+        {
+            Insets i = getInsets();
+            int h = getHeight(), 
+                y = i.top+title.getHeight()+subTitle.getHeight();
+            text.setBounds(i.left+INDENT, y, 
+                           title.getWidth()-INDENT, 
+                           h-y-hLine.getHeight()-i.bottom);
+        }
+        
+        /** Returns the preferred layout space. */
+        public Dimension minimumLayoutSize(Container c) 
+        {
+            return preferredLayoutSize(c);
+        }
+        
+        /**
+         * Returns the amount of space needed to layout all components at
+         * their preferred size.
+         */
+        public Dimension preferredLayoutSize(Container c)  
+        {
+            Insets i = getInsets();
+            Dimension titleD = title.getPreferredSize(), 
+                      subTitleD = subTitle.getPreferredSize(),
+                      textD = text.getPreferredSize(),
+                      graphxD = graphx.getPreferredSize(),
+                      hLineD = hLine.getPreferredSize();
+            int  w = i.left+i.right+H_GAP+graphxD.width+
+                     Math.max(titleD.width, subTitleD.width),
+                 h = i.top+i.bottom+hLineD.height+
+                     Math.max(titleD.height+subTitleD.height+textD.height, 
+                              graphxD.height);
+            return new Dimension(w, h);
+        }
+        
+        /** Lays out the components. */
+        public void layoutContainer(Container c) 
+        {
+            layoutHLine();
+            layoutGraphx();
+            layoutTitle();
+            layoutSubTitle();
+            layoutText();
+        }
+        
+        /**
+         * No-op implementation.
+         * Required by {@link LayoutManager}, but not needed here.
+         */
+        public void addLayoutComponent(String name, Component c) {}
+        
+        /**
+         * No-op implementation.
+         * Required by {@link LayoutManager}, but not needed here.
+         */
+        public void removeLayoutComponent(Component c) {} 
+        
+    }
 	
 }
