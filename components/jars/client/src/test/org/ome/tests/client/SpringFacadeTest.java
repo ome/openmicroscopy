@@ -5,6 +5,7 @@ package org.ome.tests.client;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.ome.omero.client.ServiceFactory;
@@ -43,7 +44,15 @@ public class SpringFacadeTest extends TestCase {
            	DataObject dobj = srv.loadPDIHierarchy(DatasetData.class, 10);
     }
     
-    public void test2(){
+    public void testAgainForId(){
+        Map result = srv.findImageAnnotations(new HashSet());
+        Iterator i = result.values().iterator();
+        while (i.hasNext()){
+            System.out.println(i.next());
+        }
+    }
+    
+    public void testOnceForSameIDs(){
             Set ids = new HashSet();
             ids.add(new Integer(19));
             ids.add(new Integer(13));

@@ -8,25 +8,4 @@
    <attainGoal name="tomcat:install"/>
  </goal>
 
-
- <postGoal name="java:compile">
-   <attainGoal name="rmic"/>
- </postGoal>
-
- <goal name="rmic">
-   <ant:rmic base="${maven.build.dir}/classes" includes="**/RMI*.class" excludes="**/RMIServer.class">
-     <ant:classpath refid="maven.dependency.classpath"/>
-   </ant:rmic>
- </goal>
-
- <goal name="jython">
-    <!-- TODO UNIX specific -->
-   <ant:pathconvert targetos="unix" property="my.classpath" refid="maven.dependency.classpath"/>
-   <ant:echo>${my.classpath}</ant:echo>
-   <ant:exec dir="${basedir}" executable="jython" failonerror="true">
-      <ant:env key="CLASSPATH" value="${my.classpath}:${maven.build.dir}"/>
-   </ant:exec>
- </goal>
-
-
 </project>

@@ -63,7 +63,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    <dependency>9Y
+    <dependency>
       <groupId>hibernate</groupId>
       <artifactId>asm</artifactId>
       <version>hibernate</version>
@@ -212,20 +212,6 @@
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
-    </dependency>
-
-    <!-- TESTING NEEDS -->
-    <dependency>
-      <groupId>omero</groupId>
-      <artifactId>GroboUtils</artifactId>
-      <version>5-core</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>omero</groupId>
-      <artifactId>GroboUtils</artifactId>
-      <version>5-utests</version>
-      <type>jar</type>
     </dependency>
   </dependencies>
   <build>

@@ -30,16 +30,17 @@
   <distributionDirectory></distributionDirectory>
   <!-- the version control repository and http url for online access
        the connection element has the form:
-       scm:<system>:<system specific connection string> -->
+       scm:<system>:<system specific connection string> 
   <repository>
     <connection>scm:svn:svn+ssh://cvs.openmicroscopy.org.uk/home/svn/josh/trunk/omero</connection>
   </repository>
+  -->
   <mailingLists/>
   <developers/>
   <dependencies/>
   <reports>
-    <report>maven-changelog-plugin</report>
-    <report>maven-developer-activity-plugin</report>
-    <report>maven-file-activity-plugin</report>
+<!--    <report>maven-changelog-plugin</report> -->
+<!--    <report>maven-developer-activity-plugin</report> -->
+<!--    <report>maven-file-activity-plugin</report> -->
   </reports>
 </project>
