@@ -1,0 +1,25 @@
+####################################################
+# It is almost certain that you should change these
+####################################################
+maven.tomcat.username=test
+maven.tomcat.password=secret
+
+#########################
+# Optional
+#########################
+#maven.tomcat.scheme=http
+#maven.tomcat.host=localhost
+#maven.tomcat.port=8080
+#maven.tomcat.manager.context=manager
+#maven.tomcat.war.context=/${pom.artifactId}
+#would like to default to maven.war.build.dir but not available here
+#maven.tomcat.build.dir=${maven.war.build.dir}
+#maven.tomcat.build.dir=${maven.build.dir}
+#would like to default to maven.war.webapp.dir but not available here
+#maven.tomcat.webapp.dir=${maven.war.webapp.dir}
+#maven.tomcat.webapp.dir=${maven.tomcat.build.dir}${maven.tomcat.war.context}
+# default location of tomcat's context configuration file
+#maven.tomcat.webapp.contextfile=${maven.tomcat.webapp.dir}/META-INF/context.xml
+#these two go togther, if you override precompile, you probably want to remove jsp from excludes
+#maven.tomcat.precompile=true
+

@@ -1,0 +1,16 @@
+############################################
+# These values are only necessary here if 
+# you plan on re-generating the hibernate
+# mappings
+############################################
+database.url=jdbc:postgresql://localhost/ome
+database.userid=josh
+database.password=""
+database.schema=public
+database.catalog=""
+database.driver=org.postgresql.Driver
+
+############################################
+# Path conversion for middlegen ant-build
+############################################
+ant.os=unix

@@ -13,16 +13,6 @@
    <property name="gen.xdoclet-tag"      value="false" />
    <property name="gui"                  value="false" />
    <property name="lib.dir"              value="${basedir}/lib/middlegen/" />
-   <!--
-   <property name="lib.dir.old"          value="/home/josh/.eclipse/eclipse/plugins/net.sf.middlegen_2.1.1/lib/" />
-   <property name="jdbc.jar.old"         value="/usr/share/java/postgresql.jar" />
-   <property name="database.driver"      value="org.postgresql.Driver" />
-   <property name="database.url"         value="jdbc:postgresql://localhost/ome" />
-   <property name="database.userid"      value="josh" />
-   <property name="database.password"    value="" />
-   <property name="database.schema"      value="public" />
-   <property name="database.catalog"     value="" />
-   -->
    <property name="dest.dir"             value="${basedir}/src/java" />
 
    <target name="init" depends="prepare,fail-if-no-middlegen,fail-if-no-hibernate,fail-if-no-hibernate-ext" >
@@ -46,7 +36,7 @@
    <target name="prepare" >
 
      <path id="middlegen.classpath">
-        <pathelement path="${jdbc.jar}"/>
+        <pathelement path="${maven.classpath}"/>
         <fileset dir="${lib.dir}" includes="*.jar"/>
      </path>
 

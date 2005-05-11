@@ -13,6 +13,8 @@
         <ant:srcfiles dir= "${basedir}/src/middlegen" includes="*.xml"/>
     </ant:uptodate>
 
+    <ant:pathconvert targetos="${ant.os}" property="maven.classpath" refid="maven.dependency.classpath"/>
+
     <ant:ant
          antfile="${basedir}/src/middlegen/middlegen-build.xml"
          dir="${basedir}"

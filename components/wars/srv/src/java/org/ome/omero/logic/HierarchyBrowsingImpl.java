@@ -630,7 +630,7 @@ public Set findPDIHierarchies(final Set arg0) {
         ad.text = ann.getContent();
         //      TODO Check below if correct; also such mappings need null-pointer
         // exception checking
-        ad.lastModified = new Timestamp(ann.getTimestamp().longValue());
+        //ad.lastModified = new Timestamp(ann.getTimestamp().longValue()); FIXME seems to have changed in DB
         ad.annotatedObject = go(ann.getImage());
 
         toCache(ann, ad);
