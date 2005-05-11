@@ -38,6 +38,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
+import java.awt.geom.Area;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -192,68 +194,121 @@ public class TitlePanel
         private static final int    INDENT = 10;
         
         
-        /** Lays out the horizontal line. */
-        private void layoutHLine()
+        /**
+         * The area that is currently available to lay out a component.
+         * When the layout starts, this is set to be the title panel minus
+         * its border.  Every time a component is laid out, these bounds are
+         * updated to subtract the area occupied by that component.
+         */
+        private Rectangle   curLayoutBounds;
+        
+        
+        /**
+         * Utility method to subtract <code>r</code> to the 
+         * {@link #curLayoutBounds}.
+         *
+         * @param r The rectangle to subtract.
+         */
+        private void updateLayoutBounds(Rectangle r)
         {
-            int w = getWidth(), h = getHeight();
-            Insets i = getInsets();
-            Dimension d = hLine.getPreferredSize();
-            hLine.setBounds(i.left, h-d.height-i.bottom, 
-                            w-i.left-i.right, d.height);
+            Area a = new Area(curLayoutBounds), b = new Area(r);
+            a.subtract(b);
+            curLayoutBounds = a.getBounds();
+        }
+        
+        /**
+         * Tells whether we should layout the given component.
+         * As a convenience, we set the component to occupy no space (thus
+         * effectively hiding) if it shouldn't be laid out.
+         * 
+         * @param c The component to layout.
+         * @return <code>true</code> if the component should be laid out,
+         *         <code>false</code> otherwise.
+         */
+        private boolean shouldLayout(JComponent c)
+        {
+            if (curLayoutBounds.width*curLayoutBounds.height <= 0) {
+                c.setBounds(0, 0, 0, 0);
+                return false;
+            }
+            return true;
+        }
+        
+        /**
+         * Utility method to calculate the actual layout height of a component.
+         * 
+         * @param preferredHeight The component's preferred height.
+         * @return The actual height to use for layout.
+         */
+        private int getActualHeight(int preferredHeight)
+        {
+            return (preferredHeight < curLayoutBounds.height ? 
+                    preferredHeight : curLayoutBounds.height);
         }
         
         /** 
-         * Lays out the graphics component.
-         * Assumes the horizontal line has already been laid out. 
+         * Lays out the horizontal line.
+         * This separator is placed at the very bottom of the panel on top
+         * of the space allocated for the border.  We force it to fit into
+         * the bottom insets of the border. 
          */
+        private void layoutHLine()
+        {
+            int h = getHeight();
+            Insets i = getInsets();
+            Dimension d = hLine.getPreferredSize();
+            int height = (d.height < i.bottom ? d.height : i.bottom-1);
+            hLine.setBounds(0, h-height, getWidth(), height);
+        }
+        
+        /** Lays out the graphics component. */
         private void layoutGraphx()
         {
-            int w = getWidth();
-            Insets i = getInsets();
+            if (!shouldLayout(graphx)) return;
             Dimension d = graphx.getPreferredSize();
-            int width = (d.width < w-H_GAP ? d.width : 0);
-            graphx.setBounds(w-i.right-width, i.top, width, d.height);
+            Rectangle r;
+            if (d.width+H_GAP < curLayoutBounds.width) {  //Can fit.
+                r = new Rectangle(curLayoutBounds.x+
+                                    curLayoutBounds.width-d.width-H_GAP,
+                                  curLayoutBounds.y, 
+                                  d.width+H_GAP, curLayoutBounds.height);
+                graphx.setBounds(curLayoutBounds.x+
+                                    curLayoutBounds.width-d.width, 
+                                 curLayoutBounds.y,
+                                 d.width, getActualHeight(d.height));
+            } else {  //Hide.
+                r = new Rectangle(0, 0, 0 , 0);
+                graphx.setBounds(r);
+            }
+            updateLayoutBounds(r);
         }
         
-        /**
-         * Lays out the title component.
-         * Assumes the horizontal line and the graphics components have already
-         * been laid out.
-         */
+        /** Lays out the title component. */
         private void layoutTitle()
         {
-            int w = getWidth();
-            Insets i = getInsets();
-            Dimension d = title.getPreferredSize();
-            title.setBounds(i.left, i.top, 
-                            w-i.left-i.right-H_GAP-graphx.getWidth(), d.height);
+            if (!shouldLayout(title)) return;
+            int height = getActualHeight(title.getPreferredSize().height);
+            title.setBounds(curLayoutBounds.x, curLayoutBounds.y, 
+                            curLayoutBounds.width, height);
+            updateLayoutBounds(title.getBounds());
         }
         
-        /**
-         * Lays out the sub-title component.
-         * Assumes the horizontal line, the graphics, and the title components
-         * have already been laid out.
-         */
+        /** Lays out the sub-title component. */
         private void layoutSubTitle()
         {
-            Insets i = getInsets();
-            Dimension d = subTitle.getPreferredSize();
-            subTitle.setBounds(i.left+INDENT, i.top+title.getHeight(), 
-                               title.getWidth()-INDENT, d.height);
+            int height = getActualHeight(subTitle.getPreferredSize().height);
+            Rectangle r = new Rectangle(curLayoutBounds.x, curLayoutBounds.y,
+                                        curLayoutBounds.width, height);
+            subTitle.setBounds(r.x+INDENT, r.y, r.width-INDENT, r.height);
+            updateLayoutBounds(r);
         }
         
-        /**
-         * Lays out the text component.
-         * Assumes the all the other components have already been laid out.
-         */
+        /** Lays out the text component. */
         private void layoutText()
         {
-            Insets i = getInsets();
-            int h = getHeight(), 
-                y = i.top+title.getHeight()+subTitle.getHeight();
-            text.setBounds(i.left+INDENT, y, 
-                           title.getWidth()-INDENT, 
-                           h-y-hLine.getHeight()-i.bottom);
+            Rectangle r = new Rectangle(curLayoutBounds);
+            text.setBounds(r.x+INDENT, r.y, r.width-INDENT, r.height);
+            updateLayoutBounds(r);
         }
         
         /** Returns the preferred layout space. */
@@ -272,11 +327,10 @@ public class TitlePanel
             Dimension titleD = title.getPreferredSize(), 
                       subTitleD = subTitle.getPreferredSize(),
                       textD = text.getPreferredSize(),
-                      graphxD = graphx.getPreferredSize(),
-                      hLineD = hLine.getPreferredSize();
+                      graphxD = graphx.getPreferredSize();
             int  w = i.left+i.right+H_GAP+graphxD.width+
                      Math.max(titleD.width, subTitleD.width),
-                 h = i.top+i.bottom+hLineD.height+
+                 h = i.top+i.bottom+
                      Math.max(titleD.height+subTitleD.height+textD.height, 
                               graphxD.height);
             return new Dimension(w, h);
@@ -285,6 +339,10 @@ public class TitlePanel
         /** Lays out the components. */
         public void layoutContainer(Container c) 
         {
+            Insets i = getInsets();
+            int availW = getWidth()-i.left-i.right,
+                availH = getHeight()-i.top-i.bottom;
+            curLayoutBounds = new Rectangle(i.left, i.top, availW, availH);
             layoutHLine();
             layoutGraphx();
             layoutTitle();
@@ -305,5 +363,5 @@ public class TitlePanel
         public void removeLayoutComponent(Component c) {} 
         
     }
-	
+
 }
