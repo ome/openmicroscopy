@@ -25,11 +25,11 @@ TO WORK WITH THE OMERO REPOSITORY:
     
     	OME_SRC/lib/maven/bin/install_repo.sh HOME_DIR/.maven/repository
 	
-    cd OME_SRC/lib/hibernate and run:
-    	
-	fix_hibernate.sh HOME_DIR/.maven/repository
+    Note: you will need to run this _even if_ you already have maven 
+          installed. It takes care of some missing libraries that are required 
+	  for the installation.
 
-    Note: these may be soon automatized in the build script.
+    TODO: this Note can be removed as soon as we have a working OME-maven repository ! 
 
 (2) Do necessary configuration:
 
