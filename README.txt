@@ -4,7 +4,7 @@
 -------------------------------------------------
 
 OMERO provides a query server which can be deployed
-in multiple servlet servers (Tomcat, JBoss, etc.).
+in various servlet servers (Tomcat, JBoss, etc.).
 It directly accesses the Postgres DB of an existing
 OME installation and returns OME Objects using 
 the Hessian libraries from caucho.com. 
