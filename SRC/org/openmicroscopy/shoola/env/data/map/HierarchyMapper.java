@@ -74,7 +74,11 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 public class HierarchyMapper
 {
 
-    
+    /**
+     * Builds a criteria to retrieve data linked to Classification.
+     * 
+     * @return See above.
+     */
     private static Criteria buildClassificationCriteria()
     {
         Criteria c = new Criteria();
@@ -121,6 +125,42 @@ public class HierarchyMapper
         ps.setName(project.getName());
         ps.setDatasets(new ArrayList());
         return ps;
+    }
+    
+    /**
+     * Creates a CategoryData object.
+     * 
+     * @param category  The remote object.
+     * @param categories map of already created data object.
+     * @return See above.
+     */
+    private static CategoryData createCategoryData(Category category, 
+                                Map categories)
+    {
+        Integer id = new Integer(category.getID());
+        CategoryData data = (CategoryData) categories.get(id);
+        if (data == null) {
+            data = new CategoryData();
+            data.setID(category.getID());
+            data.setName(category.getName());
+            categories.put(id, data);
+        }
+        return data;
+    }
+    
+    /**
+     * Creates a CategoryGroupData object.
+     * 
+     * @param group  The remote object.
+     * @return See above.
+     */
+    private static CategoryGroupData createCategoryGroupData(CategoryGroup 
+                                            group)
+    {
+        CategoryGroupData data = new CategoryGroupData();
+        data.setID(group.getID());
+        data.setName(group.getName());
+        return data;
     }
     
     /**
@@ -363,29 +403,7 @@ public class HierarchyMapper
         results.addAll(unclassifiedImages);
         return results;
     }
-    
-    private static CategoryData createCategoryData(Category category, 
-                                Map categories)
-    {
-        Integer id = new Integer(category.getID());
-        CategoryData data = (CategoryData) categories.get(id);
-        if (data == null) {
-            data = new CategoryData();
-            data.setID(category.getID());
-            data.setName(category.getName());
-            categories.put(id, data);
-        }
-        return data;
-    }
-    
-    private static CategoryGroupData createCategoryGroupData(CategoryGroup 
-                                            group)
-    {
-        CategoryGroupData data = new CategoryGroupData();
-        data.setID(group.getID());
-        data.setName(group.getName());
-        return data;
-    }
+
     
     /** 
      * Fill in a Category-CategoryGroup hierarchy.
@@ -396,7 +414,7 @@ public class HierarchyMapper
     public static List fillICGHierarchyAvailable(List categories, int imgID, 
                                             int userID)
     {
-        List results = new ArrayList();
+        ArrayList results = new ArrayList(), finalResults = new ArrayList();
         Iterator i = categories.iterator(), j;
         Category category;
         CategoryGroup group;
@@ -405,8 +423,10 @@ public class HierarchyMapper
         Classification classif;
         Integer groupID;
         HashMap groupsMap = new HashMap(), categoriesMap = new HashMap();
-        boolean in = false;
+        HashMap usedGroups = new HashMap();
+        boolean in;
         while (i.hasNext()) {
+            in = false;
             category = (Category) i.next();
             group = category.getCategoryGroup();
             j = category.getClassificationList().iterator();
@@ -416,10 +436,13 @@ public class HierarchyMapper
                         classif.getModuleExecution().getExperimenter().getID() 
                         == userID && classif.getImage().getID() == imgID) {
                     in = true;
+                    if (group != null) 
+                        usedGroups.put(new Integer(group.getID()), group);
                 }
             }
             if (!in) {  //the image has been classified in the category.
-               if (group != null) {
+               if (group != null && 
+                       !usedGroups.containsKey(new Integer(group.getID()))) {
                    groupID = new Integer(group.getID());
                    groupData = (CategoryGroupData) groupsMap.get(groupID);
                    if (groupData == null) {
@@ -431,69 +454,25 @@ public class HierarchyMapper
                    catData.setCategoryGroup(groupData);
                    groupData.getCategories().add(catData);
                    results.add(groupData);
-               } else { //orphan category
+               } else { //orphan category, shouldn't happen
                    catData = createCategoryData(category, categoriesMap);
                    results.add(catData);
                }
             } 
         }
-        return results;
-        /*
-        List results = new ArrayList();
-        //OME-JAVA object.
-        Classification classification;
-        Category category;
-        CategoryGroup group;
-        //Shoola object.
-        CategoryData cModel;
-        CategoryGroupData gModel;
-        Map categoryMap = new HashMap(), groupMap = new HashMap(), 
-            orphanMap = new HashMap();
-        Integer categoryID, groupID;
-        List categoriesList;
-        CategoryGroupData gProto = new CategoryGroupData();
-        CategoryData cProto = new CategoryData();
-        Iterator i = classifications.iterator();
+        //Copy all elements of results into finalResults
+        finalResults.addAll(results);
+        i = results.iterator();
+        Object userObject;
         while (i.hasNext()) {
-            classification = (Classification) i.next();
-            category = classification.getCategory();
-            group = category.getCategoryGroup();
-            categoryID = new Integer(category.getID());
-            if (group == null) {//Orphan category.
-                cModel = (CategoryData) orphanMap.get(categoryID);
-                if (cModel == null) {
-                    cModel = CategoryMapper.buildCategoryData(cProto, 
-                                category, null);
-                    cModel.setClassifications(new HashMap());
-                    orphanMap.put(categoryID, cModel);
-                }
-            } else {
-                groupID = new Integer(group.getID());
-                gModel = (CategoryGroupData) groupMap.get(groupID);
-                //Create CategoryGroupData
-                if (gModel == null) {
-                    gModel = CategoryMapper.buildCategoryGroup(gProto, 
-                                    group);
-                    gModel.setCategories(new ArrayList());
-                    groupMap.put(groupID, gModel);
-                }
-                cModel = (CategoryData) categoryMap.get(categoryID);
-                //Create CategoryData
-                if (cModel == null) {
-                    cModel = CategoryMapper.buildCategoryData(cProto, 
-                            category, gModel);
-                    cModel.setClassifications(new HashMap());
-                    categoryMap.put(categoryID, cModel);
-                }  
-                categoriesList = gModel.getCategories();
-                if (!categoriesList.contains(cModel))
-                    categoriesList.add(cModel);
+            userObject = i.next();
+            if (userObject instanceof CategoryGroupData) {
+                groupData = (CategoryGroupData) userObject;
+                if (usedGroups.containsKey(new Integer(groupData.getID())))
+                    finalResults.remove(groupData);
             }
         }
-        results.addAll(groupMap.values());
-        results.addAll(orphanMap.values());
-        return results;
-        */
+        return finalResults;
     }
  
 }
