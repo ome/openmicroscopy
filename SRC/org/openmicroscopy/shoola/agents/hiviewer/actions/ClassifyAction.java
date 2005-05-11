@@ -66,7 +66,7 @@ public class ClassifyAction
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Classify the selected image" +
-            "in a category.";
+            " in a category.";
     
     
     public ClassifyAction(HiViewer model)

@@ -67,7 +67,7 @@ public class DeclassifyAction
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Remove the selected image" +
-            "from a category.";
+            " from a category.";
     
     
     public DeclassifyAction(HiViewer model)
