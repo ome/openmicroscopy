@@ -164,11 +164,14 @@ public class IconManager
     /** ID of the category icon. */
     public static final int     CATEGORY_BIG = 33;
     
+    /** ID of the refresh icon. */
+    public static final int     REFRESH = 34;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 33;
+    private static int          MAX_ID = 34;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -207,6 +210,7 @@ public class IconManager
         relPaths[VIEWS_LIST] = "frame_list.png";
         relPaths[VIEWS_LIST_OVER] = "frame_list_over.png";
         relPaths[CATEGORY_BIG] = "category48.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
     }
     
     /** The sole instance. */
