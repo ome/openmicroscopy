@@ -4,18 +4,22 @@ if [ -z "$REPO_DIR" ]; then echo "usage: $0 [repository directory]"; exit; fi
 if [ -z "$MAVEN_HOME" ]; then echo "MAVEN_HOME must be set"; exit; fi
 
 ###########################################################################3
-Special for OMERO:
+#Special for OMERO:
 if [ ! -f $REPO_DIR/hibernate/jars/asm-hibernate.jar ]; then
   mkdir -p $REPO_DIR/hibernate/jars
-  cp $MAVEN_HOME/omero/asm-hibernate.jar $REPO_DIR/hibernate/jars
+  cp $MAVEN_HOME/lib/omero/asm-hibernate.jar $REPO_DIR/hibernate/jars
 fi
 if [ ! -f $REPO_DIR/hibernate/jars/jta-hibernate.jar ]; then
   mkdir -p $REPO_DIR/hibernate/jars
-  cp $MAVEN_HOME/omero/jta-hibernate.jar $REPO_DIR/hibernate/jars
+  cp $MAVEN_HOME/lib/omero/jta-hibernate.jar $REPO_DIR/hibernate/jars
 fi
 if [ ! -f $REPO_DIR/hessian/jars/hessian-2.1.12.jar ]; then
   mkdir -p $REPO_DIR/hessian/jars
-  cp $MAVEN_HOME/omero/hessian-2.1.12.jar $REPO_DIR/hessian/jars
+  cp $MAVEN_HOME/lib/omero/hessian-2.1.12.jar $REPO_DIR/hessian/jars
+fi
+if [ ! -f $REPO_DIR/antlr/jars/antlr-2.7.5H3.jar ]; then
+  mkdir -p $REPO_DIR/antlr/jars
+  cp $MAVEN_HOME/lib/omero/antlr-2.7.5H3.jar $REPO_DIR/antlr/jars
 fi
 ###########################################################################3
 
