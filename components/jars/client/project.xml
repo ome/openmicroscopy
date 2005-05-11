@@ -46,7 +46,7 @@
     </unitTest>
     <resources>
       <resource>
-        <targetPath>src/conf</targetPath>
+<!--        <targetPath>src/conf</targetPath> -->
         <directory>src/conf</directory>
         <includes>
           <include>*</include>
