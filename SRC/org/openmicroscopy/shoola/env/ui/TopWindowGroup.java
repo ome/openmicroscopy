@@ -44,7 +44,8 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ButtonMenu;
+import org.openmicroscopy.shoola.util.ui.ToolBarButtonMenu;
+
 
 /** 
  * Links a group of windows to the {@link TaskBar} and manages their display
@@ -52,7 +53,7 @@ import org.openmicroscopy.shoola.util.ui.ButtonMenu;
  * <p>Rather than adding a quick-launch button in the 
  * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry in the
  * {@link TaskBar#WINDOW_MENU} for each window in the group, the constructor of
- * this class adds a drop-down {@link ButtonMenu button} (a button that triggers
+ * this class adds a drop-down {@link ToolBarButtonMenu button} (a button that triggers
  * the display of a popup menu) to the {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and
  * a sub-menu to the {@link TaskBar#WINDOW_MENU}.  These menus contain an entry
  * for each window in the group and are populated/depopulated via the
@@ -96,7 +97,7 @@ public class TopWindowGroup
 	private JMenu		winSubMenu;
 	
 	/** The drop-down button on  the {@link TaskBar#QUICK_LAUNCH_TOOLBAR}. */
-	private ButtonMenu	dropDownButton;
+	private ToolBarButtonMenu	dropDownButton;
 	
 	/** Maps each window in the group to its configuration object. */
 	private Map			windows;
@@ -161,6 +162,7 @@ public class TopWindowGroup
 	private void clearMenus()
 	{
 		winSubMenu.removeAll();
+		winSubMenu.setEnabled(false);
 		dropDownButton.clearMenu();
 	}
 	
@@ -190,12 +192,20 @@ public class TopWindowGroup
 		taskBar = tb;
 		winSubMenu = new JMenu(name);
 		winSubMenu.setIcon(icon);
-		dropDownButton = new ButtonMenu(icon);
+		winSubMenu.setEnabled(false);
+		dropDownButton = new ToolBarButtonMenu();
 		taskBar.addToMenu(TaskBar.WINDOW_MENU, winSubMenu);
 		taskBar.addToToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, dropDownButton);
 		windows = new HashMap();
 		makeCloseAllButtons();
 	}
+
+        /**
+         * get the win menu entry 
+         */
+         public JMenu getWinMenuEntry() {
+	     return winSubMenu;
+	 } 
 	
 	/**
 	 * Adds the specified window to this group.
@@ -227,6 +237,7 @@ public class TopWindowGroup
 		//previous text and icon of the display buttons.
 		
 		if (windows.size() == 1) addCloseAllButtons();
+		winSubMenu.setEnabled(true);
 		winSubMenu.add(cfg.winSubMenuEntry);
 		dropDownButton.addToMenu(cfg.dropDownButtonEntry, true);
 	}
