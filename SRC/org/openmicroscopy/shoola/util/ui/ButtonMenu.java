@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.ToolbarMenu
+ * org.openmicroscopy.shoola.util.ui.ButtonMenu
  *
  *------------------------------------------------------------------------------
  *
@@ -150,13 +150,13 @@ public class ButtonMenu
 	}
 	
 	/** Forwards the click to the {@link #lastClickedItem} if any. */
-	private void hanldeIconButtonClick() 
+	private void handleIconButtonClick() 
 	{
 		if (lastClickedItem != null) lastClickedItem.doClick();
 	}
 	
 	/** Brings up the drop-down menu. */
-	private void hanldeArrowButtonClick()
+	private void handleArrowButtonClick()
 	{
 		//Avoid displaying an empty menu, kinda ugly.
 		if (menu.getComponents().length == 0) return;
@@ -166,7 +166,7 @@ public class ButtonMenu
 	}
 	
 	/** Sets {@link #lastClickedItem} to <code>src</code>. */
-	private void hanldeMenuButtonClick(AbstractButton src) 
+	private void handleMenuButtonClick(AbstractButton src) 
 	{
 		lastClickedItem = src;
 		iconButton.setToolTipText(UIUtilities.formatToolTipText(src.getText()));
@@ -265,9 +265,9 @@ public class ButtonMenu
 	public void actionPerformed(ActionEvent ae) 
 	{	
 		Object src = ae.getSource();
-		if (src == iconButton) hanldeIconButtonClick();
-		else if (src == arrowButton) hanldeArrowButtonClick();
-		else hanldeMenuButtonClick((AbstractButton) src);
+		if (src == iconButton) handleIconButtonClick();
+		else if (src == arrowButton) handleArrowButtonClick();
+		else handleMenuButtonClick((AbstractButton) src);
 		//NOTE: we only register with AbstractButtons, so this is safe.
 	}
 	
