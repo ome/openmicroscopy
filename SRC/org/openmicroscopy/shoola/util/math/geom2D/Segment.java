@@ -106,7 +106,7 @@ public class Segment
         } else if (direction.x1 != 0 && direction.x2 ==0) {
             k1 = (p.x1-origin.x1)/direction.x1;
             if (k1 < 0 || k1 > 1) result = false;
-            result = (p.x2 == origin.x2);
+            else result = (p.x2 == origin.x2);
         } else if (direction.x1 != 0 && direction.x2 !=0) {
             k1 = (p.x1-origin.x1)/direction.x1;
             k2 = (p.x2-origin.x2)/direction.x2;
