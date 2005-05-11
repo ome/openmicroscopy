@@ -102,6 +102,7 @@ public class ThumbnailLoader
     /** Feeds the thumbnails back to the viewer, as they arrive. */
     public void update(DSCallFeedbackEvent fe) 
     {
+        if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
         String status = fe.getStatus();
         int percDone = fe.getPercentDone();
         if (status == null) 

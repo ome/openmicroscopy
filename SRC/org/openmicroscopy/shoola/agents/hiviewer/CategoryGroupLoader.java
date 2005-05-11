@@ -111,6 +111,7 @@ public class CategoryGroupLoader
     /** Feeds the result back to the viewer. */
     public void handleResult(Object result)
     {
+        if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
         Set roots = new HashSet();
         roots.add(result);
         viewer.setHierarchyRoots(roots);

@@ -113,6 +113,7 @@ public class PDILoader
     /** Feeds the result back to the viewer. */
     public void handleResult(Object result)
     {
+        if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
         viewer.setHierarchyRoots((Set) result);
     }
     
