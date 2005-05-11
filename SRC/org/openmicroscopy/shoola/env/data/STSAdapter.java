@@ -246,20 +246,16 @@ class STSAdapter
         Object[] results = new Object[2];
         Criteria c = CategoryMapper.buildClassificationCriteria(imgID, 
                             category.getID());
-        //For some reasons the retrieveSTS("Classification", c) no longer work.
-        List classif = (List) gateway.retrieveListSTSData("Classification", c);
-        Classification classification;// = 
-            //(Classification) gateway.retrieveSTSData("Classification", c);
+        Classification classification = 
+            (Classification) gateway.retrieveSTSData("Classification", c);
         results[0] = Boolean.FALSE;
-        if (classif == null || classif.size() == 0) {
+        if (classification == null) {
             results[0] = Boolean.TRUE;
             c = ImageMapper.buildBasicImageCriteria(imgID);;
             classification = (Classification) 
                             createBasicAttribute("Classification", c);
             classification.setCategory(category);
             classification.setConfidence(CategoryMapper.CONFIDENCE_OBJ);
-        } else {
-            classification = (Classification) classif.get(0);
         }
         classification.setValid(Boolean.TRUE);
         results[1] = classification;
@@ -1132,12 +1128,11 @@ class STSAdapter
                 results = buildClassification(category, 
                         ((Integer) j.next()).intValue());
                 classification = (Classification) results[1];
-                if (((Boolean) results[0]).booleanValue()) {
+                if (((Boolean) results[0]).booleanValue()) {//new attribute
                     newAttributes.add(classification);
                     gateway.annotateAttributesData(newAttributes);
                     newAttributes.removeAll(newAttributes);
-                }
-                else toUpdate.add(classification);
+                } else toUpdate.add(classification);
             }  
         }
         if (newAttributes.size() != 0) 
