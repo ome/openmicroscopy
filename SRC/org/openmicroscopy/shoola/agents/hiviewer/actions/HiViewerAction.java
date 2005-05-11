@@ -78,7 +78,7 @@ public abstract class HiViewerAction
         model.addChangeListener(this);
     }
 
-    protected abstract void onDisplayChange(ImageDisplay selectedDisplay);
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
       
     /** 
      * @see ActionListener#actionPerformed(ActionEvent)
