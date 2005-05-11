@@ -208,12 +208,11 @@ public class TitlePanel
          */
         private void layoutGraphx()
         {
-            int w = getWidth(), h = getHeight();
+            int w = getWidth();
             Insets i = getInsets();
             Dimension d = graphx.getPreferredSize();
             int width = (d.width < w-H_GAP ? d.width : 0);
-            graphx.setBounds(w-i.right-width, i.top, 
-                             width, h-i.top-hLine.getHeight()-i.bottom);
+            graphx.setBounds(w-i.right-width, i.top, width, d.height);
         }
         
         /**
