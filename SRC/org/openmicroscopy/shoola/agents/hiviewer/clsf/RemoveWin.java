@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 
-
-
 //Java imports
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -55,9 +53,11 @@ import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Builds a Panel displaying the CategoryGroup>Category in which the 
+ * selected image has been classified.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,6 +79,8 @@ class RemoveWin
     private static final String     PANEL_NOTE = 
                                          "The image is currently classified "+
                                          "under the following categories.";
+    private static final String     UNCLASSIFIED_TEXT = "The selected image " +
+                                            "hasn't been classified";
     
     
     RemoveWin(Set availablePaths, JFrame owner)
@@ -93,7 +95,7 @@ class RemoveWin
     
     protected String getPanelNote() { return PANEL_NOTE; }
     
-    /** Builds panel. */
+    /** Builds the main panel displayed in ClassifierWin. */
     protected JComponent getClassifPanel()
     {
         JPanel main = new JPanel();
@@ -102,23 +104,21 @@ class RemoveWin
         main.setLayout(gridbag);
         GridBagConstraints cst = new GridBagConstraints();
         cst.ipadx = ClassifierWin.H_SPACE;
-        cst.weightx = 0.5;
-        cst.fill = GridBagConstraints.HORIZONTAL;
         cst.anchor = GridBagConstraints.EAST;
         Iterator i = availablePaths.iterator();
         int index = 0;
         while (i.hasNext()) 
             addRow(gridbag, cst, main, index, (DataObject) i.next());
-        return new JScrollPane(main);
+        return new JScrollPane(UIUtilities.buildComponentPanel(main));
     }
     
-    /** Add a row to the table. */
+    /** Add a row to the the GridBagLayout. */
     private void addRow(GridBagLayout gridbag, GridBagConstraints c, 
                         JPanel main, int index, DataObject data)
     {
-        //The image has not been created.
+        //The image has not been classified.
         if (data instanceof ImageSummary) {
-            main.add(new JLabel("The selected image hasn't been classified"));
+            main.add(new JLabel(UNCLASSIFIED_TEXT));
             return;
         }
         JCheckBox box = new JCheckBox();

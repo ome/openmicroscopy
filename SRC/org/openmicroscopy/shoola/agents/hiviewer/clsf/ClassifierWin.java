@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * The top container.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -135,15 +135,22 @@ abstract class ClassifierWin
         c.add(getClassifPanel(), BorderLayout.CENTER);
     }
     
-    
+    /** Title displays in the titlePanel*/
     protected abstract String getPanelTitle();
     
+    /** Text displays in the titlePanel*/
     protected abstract String getPanelText();
     
+    /** Note displays in the titlePanel*/
     protected abstract String getPanelNote();
     
+    /** The main panel added to this window.*/
     protected abstract JComponent getClassifPanel();
     
+    /** 
+     * The category selected, either to classify or declassify the 
+     * selected image.
+     */
     void setSelectedCategory(CategoryData category)
     {
         Object oldValue = selectedCategory;
