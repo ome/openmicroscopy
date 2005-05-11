@@ -168,7 +168,7 @@ public class ModulePaletteWindow
 	{
 		Icon chainIcon = icons.getIcon("chains.png");
 		configureQuickLaunchBtn(chainIcon, "Chain Builder");
-		configureWinMenuEntry("Chain Builder", icons.getIcon("chains.png"));
+		configureWinMenuEntry("Start Chain Builder", icons.getIcon("chains.png"));
 	}
 	
 	/** Builds and lays out this window. */
