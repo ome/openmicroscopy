@@ -61,8 +61,8 @@ TO WORK WITH THE OMERO REPOSITORY:
 (2) In home directory or omero install directory, 
     add "build.properties" file with the properties:
   
-      maven.tomcat.username=josh
-      maven.tomcat.password=moore
+      maven.tomcat.username=you
+      maven.tomcat.password=secret
 
    and possibly
 
@@ -73,6 +73,8 @@ TO WORK WITH THE OMERO REPOSITORY:
 (3) Run:
    maven 
 
+(4) _NOW_ you can run the test cases in client (before this there was no
+    server)
 
 -- INSTALLATION for JBOSS -
 (2)
