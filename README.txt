@@ -16,8 +16,11 @@ Note: OME_SRC = top directory containing
 
 TO WORK WITH THE OMERO REPOSITORY:
 
-(1) Initialize Maven:
+(1) Initialize environment: DB, Java, server, Maven
 
+    swith to a user with access to the database (alternatively create an account)
+    install Java and a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.)
+    
     set JAVA_HOME  ( or export JAVA_HOME)   = ....
     set MAVEN_HOME ( or export MAVEN_HOME ) = OME_SRC/lib/maven/ 
     
@@ -33,10 +36,14 @@ TO WORK WITH THE OMERO REPOSITORY:
 
 (2) Do necessary configuration:
 
-    [A] See build.properties.example for what can be set at the top level. 
-    These values can be set in HOME_DIR/build.properties, 
-    OME_SRC/build.properties, in the top level of any component, or on the 
-    command-line with -Dkey=value
+    There are three components in omero:
+    	components/jars/model
+	components/jars/client
+	components/wars/srv
+
+    [A] See build.properties.example in each of these directories (if available). 
+    These values can also be set in HOME_DIR/build.properties, 
+    OME_SRC/build.properties, or on the maven command-line with -Dkey=value
 
     [B] Of most importance, however, are the JDBC connection settings in:
     OME_SRC/components/war/src/conf/spring.properties
