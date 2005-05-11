@@ -228,4 +228,15 @@ abstract class HiViewerModel
      */
     protected abstract DataLoader createHierarchyLoader();
     
+    /**
+     * Creates a new Model from this one.
+     * This method creates a new object of the same concrete type as this
+     * one.  Subclasses have to clone their state (typically just ids) and
+     * make a new instance, which will then be in the {@link HiViewer#NEW}
+     * state.
+     * 
+     * @return A new Model created after this one.
+     */
+    protected abstract HiViewerModel reinstantiate();
+    
 }

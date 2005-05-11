@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithTitleAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.HideTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
@@ -161,6 +162,9 @@ class HiViewerControl
     /** Identifies the Zoom Fit action in the Actions menu. */
     public static final Integer     ZOOM_FIT = new Integer(20);
     
+    /** Identifies the Refresh action in the Hierarchy menu. */
+    public static final Integer     REFRESH = new Integer(21);
+    
     
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -185,6 +189,7 @@ class HiViewerControl
         actionsMap.put(EXIT, new ExitAction(model));
         actionsMap.put(VIEW_CGCI, new ViewCGCIAction(model));
         actionsMap.put(VIEW_PDI, new ViewPDIAction(model));
+        actionsMap.put(REFRESH, new RefreshAction(model));
         actionsMap.put(FIND_ANNOTATED, new FindAnnotatedAction(model));
         actionsMap.put(FIND_W_TITLE, new FindWithTitleAction(model));
         actionsMap.put(FIND_W_ANNOTATION, new FindWithAnnotationAction(model));

@@ -39,7 +39,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.CategoryGroupLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 
 /** 
- * TODO: comments.
+ * A concrete Model for a CG/C/I hierarchy consisting of a single tree
+ * rooted by a given Category Group.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,25 +57,37 @@ class CategoryGroupModel
     extends HiViewerModel
 {
 
+    /** 
+     * The id of the Category Group that is the root of the CG/C/I tree
+     * that this Model handles. 
+     */
     private int     cgID;
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param cgID The id of the Category Group that is the root of the CG/C/I
+     *             tree that this Model will handle. 
+     */
     CategoryGroupModel(int cgID) 
     {
         super();
         this.cgID = cgID; 
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#getHierarchyType()
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#getHierarchyType()
      */
     protected int getHierarchyType() 
     { 
         return HiViewer.CATEGORY_GROUP_HIERARCHY; 
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#isSameDisplay(org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel)
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#isSameDisplay(HiViewerModel)
      */
     protected boolean isSameDisplay(HiViewerModel other)
     {
@@ -92,6 +105,15 @@ class CategoryGroupModel
     protected DataLoader createHierarchyLoader()
     {
         return new CategoryGroupLoader(component, cgID);
+    }
+
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#reinstantiate()
+     */
+    protected HiViewerModel reinstantiate()
+    {
+        return new CategoryGroupModel(cgID);
     }
 
 }

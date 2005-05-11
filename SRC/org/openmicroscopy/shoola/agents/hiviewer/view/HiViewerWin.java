@@ -168,6 +168,7 @@ class HiViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.VIEW_CGCI)));
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.EXIT)));
         return menu;
     }

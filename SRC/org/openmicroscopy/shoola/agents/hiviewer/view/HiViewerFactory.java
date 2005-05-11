@@ -68,6 +68,14 @@ public class HiViewerFactory
     private static final HiViewerFactory  singleton = new HiViewerFactory();
     
     
+    /** 
+     * Returns all the {@link HiViewer} components that this factory is
+     * currently tracking.
+     * 
+     * @return The set of currently tracked viewers. 
+     */
+    static Set getViewers() { return singleton.viewers; }
+    
     /**
      * Returns a viewer to display the Project/Dataset/Image hierarchy
      * rooted by the specified Project.
@@ -149,8 +157,21 @@ public class HiViewerFactory
         return singleton.getViewer(model);
     }
     
-    /** Returns the set of tracked components. */
-    static Set getViewers() { return singleton.viewers; }
+    /**
+     * Creates a new {@link HiViewer} component after the given 
+     * <code>master</code>.
+     * The new component will be handling the same hierarchy as the
+     * <code>master</code>, but the data will be reloaded.
+     * 
+     * @param master The viewer to use for creating a new one of this kind.
+     *               Mustn't be <code>null</code>.
+     * @return A new viewer created after the <code>master</code>.
+     */
+    public static HiViewer reinstantiate(HiViewer master)
+    {
+        return singleton.copy(master);
+    }
+    
     
     /** All the tracked components. */
     private Set     viewers;
@@ -184,6 +205,26 @@ public class HiViewerFactory
         comp.addChangeListener(this);
         viewers.add(comp);
         return comp;
+    }
+    
+    /**
+     * Replaces the <code>master</code> with a new component instantiated
+     * after the <code>master</code>.
+     * 
+     * @param master The viewer to use for creating a new one of this kind.
+     *               Mustn't be <code>null</code>.
+     * @return A new viewer created after the <code>master</code>.
+     */
+    private HiViewer copy(HiViewer master)
+    {
+        if (master == null) throw new NullPointerException("No master.");
+        HiViewerComponent comp = (HiViewerComponent) master, newComp;
+        HiViewerModel model = comp.getModel();
+        newComp = new HiViewerComponent(model.reinstantiate());
+        newComp.initialize();
+        newComp.addChangeListener(this);
+        viewers.add(comp);
+        return newComp;
     }
     
     /**

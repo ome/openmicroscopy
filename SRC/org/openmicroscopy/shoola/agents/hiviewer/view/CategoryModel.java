@@ -39,7 +39,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.CategoryLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 
 /** 
- * TODO: comments.
+ * A concrete Model for a CG/C/I hierarchy consisting of a single tree
+ * rooted by a given Category.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,22 +57,34 @@ class CategoryModel
     extends HiViewerModel
 {
 
+    /** 
+     * The id of the Category that is the root of the CG/C/I tree
+     * that this Model handles. 
+     */
     private int     categoryID;
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param categoryID The id of the Category that is the root of the CG/C/I
+     *                   tree that this Model will handle. 
+     */
     CategoryModel(int categoryID) 
     {
         super();
         this.categoryID = categoryID; 
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#getHierarchyType()
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#getHierarchyType()
      */
     protected int getHierarchyType() { return HiViewer.CATEGORY_HIERARCHY; }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#isSameDisplay(org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel)
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#isSameDisplay(HiViewerModel)
      */
     protected boolean isSameDisplay(HiViewerModel other)
     {
@@ -81,12 +94,22 @@ class CategoryModel
                 && (cm.categoryID == categoryID);
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#createHierarchyLoader()
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#createHierarchyLoader()
      */
     protected DataLoader createHierarchyLoader()
     {
         return new CategoryLoader(component, categoryID);
     }
 
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#reinstantiate()
+     */
+    protected HiViewerModel reinstantiate()
+    {
+        return new CategoryModel(categoryID);
+    }
+    
 }

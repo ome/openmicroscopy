@@ -39,7 +39,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetLoader;
 
 /** 
- * TODO: comments.
+ * A concrete Model for a P/D/I hierarchy consisting of a single tree
+ * rooted by a given Dataset.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,9 +57,19 @@ class DatasetModel
     extends HiViewerModel
 {
 
+    /** 
+     * The id of the Dataset that is the root of the P/D/I tree that this 
+     * Model handles.
+     */
     private int     datasetID;
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param datasetID The id of the Dataset that is the root of the P/D/I
+     *                   tree that this Model will handle. 
+     */
     DatasetModel(int datasetID) 
     {
         super();
@@ -90,6 +101,15 @@ class DatasetModel
     protected DataLoader createHierarchyLoader()
     {
         return new DatasetLoader(component, datasetID);
+    }
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#reinstantiate()
+     */
+    protected HiViewerModel reinstantiate()
+    {
+        return new DatasetModel(datasetID);
     }
 
 }

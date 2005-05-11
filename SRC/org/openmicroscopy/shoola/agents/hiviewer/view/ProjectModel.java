@@ -39,7 +39,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ProjectLoader;
 
 /** 
- * TODO: comments. 
+ * A concrete Model for a P/D/I hierarchy consisting of a single tree
+ * rooted by a given Project.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,10 +57,19 @@ class ProjectModel
     extends HiViewerModel
 {
 
-    /** */
+    /** 
+     * The id of the Project that is the root of the P/D/I tree that this 
+     * Model handles.
+     */
     private int     projectID;
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param projectID The id of the Project that is the root of the P/D/I
+     *                  tree that this Model will handle. 
+     */
     ProjectModel(int projectID) 
     {
         super();
@@ -91,6 +101,15 @@ class ProjectModel
     protected DataLoader createHierarchyLoader()
     {
         return new ProjectLoader(component, projectID);
+    }
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#reinstantiate()
+     */
+    protected HiViewerModel reinstantiate()
+    {
+        return new ProjectModel(projectID);
     }
 
 }

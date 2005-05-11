@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 //Java imports
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 
 /** 
- * TODO: comments.
+ * A concrete Model for a CG/C/I hierarchy consisting of possibly multiple
+ * trees whose leaves are some specified Images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,9 +63,22 @@ class CGCIModel
     extends HiViewerModel
 {
 
+    /**
+     * The set of all the Images that sit at the bottom of the CG/C/I
+     * trees that this Model handles.  Every Image is represented by
+     * an {@link ImageSummary} object.  
+     */
     private Set     images;
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param images The set of all the Images that sit at the bottom of the
+     *               CG/C/I trees that this Model will handle.  Every Image
+     *               is represented by an {@link ImageSummary} object.
+     *               Don't pass <code>null</code>.
+     */
     CGCIModel(Set images) 
     {
         super();
@@ -71,13 +86,15 @@ class CGCIModel
         this.images = images; 
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#getHierarchyType()
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#getHierarchyType()
      */
     protected int getHierarchyType() { return HiViewer.CGCI_HIERARCHY; }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#isSameDisplay(org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel)
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#isSameDisplay(HiViewerModel)
      */
     protected boolean isSameDisplay(HiViewerModel other)
     {
@@ -103,12 +120,23 @@ class CGCIModel
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerModel#createHierarchyLoader()
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#createHierarchyLoader()
      */
     protected DataLoader createHierarchyLoader()
     {
         return new CGCILoader(component, images);
     }
 
+    /**
+     * Implemented as specified by the superclass.
+     * @see HiViewerModel#reinstantiate()
+     */
+    protected HiViewerModel reinstantiate()
+    {
+        HashSet copy = new HashSet(images);
+        return new CGCIModel(copy);
+    }
+    
 }
