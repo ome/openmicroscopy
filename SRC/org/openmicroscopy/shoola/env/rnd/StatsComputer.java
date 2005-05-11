@@ -47,6 +47,8 @@ import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsGlobalStatsEntry;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
+import org.openmicroscopy.shoola.util.math.geom2D.Segment;
 
 /** 
  * TEMPORARY CLASS, SHOULD'T CODE AGAINST IT.
@@ -116,19 +118,23 @@ class StatsComputer
         throws DataSourceException
     {
         double sizeBin = (max-min)/NB_BIN, epsilon = sizeBin/EPSILON;
-        double[] bins = new double[NB_BIN+1];
         int[] totals = new int[NB_BIN];
         double[] stats = new double[NB_BIN];
-        // totals[0] => [Q_0, Q1[
-        for (int i = 0; i <= NB_BIN; i++)
-            bins[i] = min + i*sizeBin;
-
-        double x;
+        PlanePoint o, e;
+        Segment[] segments = new Segment[NB_BIN];
+        for (int i = 0; i < NB_BIN; i++) {
+            o = new PlanePoint(min+i*sizeBin, 0);
+            e = new PlanePoint(min+(i+1)*sizeBin, 0);
+            segments[i] = new Segment(o, e);
+        }
+        PlanePoint point;
+        //checj segment [o,e[
         for (int x2 = 0; x2 < sizeX2; ++x2) {
             for (int x1 = 0; x1 < sizeX1; ++x1) {
-                x = plane.getPixelValue(x1, x2);
-                for (int i = 0; i < bins.length-1; i++) {
-                    if (bins[i] <= x && x < bins[i+1]) {
+                point = new PlanePoint(plane.getPixelValue(x1, x2), 0);
+                for (int i = 0; i < segments.length; i++) {
+                    if (segments[i].lies(point) && 
+                            !segments[i].getPoint(1).equals(point)) {
                         totals[i]++;
                         break;
                     }
@@ -140,13 +146,14 @@ class StatsComputer
         for (int i = 0; i < totals.length; i++) 
             stats[i] = totals[i]/total;
         //Default, we assume that we have at least 3 sub-intervals.
-        double start = bins[1], end = bins[NB_BIN];
+        double start = segments[0].getPoint(1).x1;
+        double end = segments[NB_BIN-1].getPoint(1).x1;;
         total = total-totals[0]-totals[NB_BIN-1];
         
         if (totals[0] >= totals[NB_BIN-1])
-            end = accumulateMin(totals, bins, total, epsilon);
+            end = accumulateMin(totals, segments, total, epsilon);
         else
-            start = accumulateMax(totals, bins, total, epsilon);
+            start = accumulateMax(totals, segments, total, epsilon);
         wave.setStats(stats);
         wave.setNoiseReduction(noiseReduction(stats));
         if (flag) wave.setInputWindow(start, end);
@@ -165,14 +172,14 @@ class StatsComputer
     }
     
     /** Value accumulate closed to the Min. */
-    private static double accumulateMin(int[] totals, double[] bins, 
+    private static double accumulateMin(int[] totals, Segment[] segments, 
                                         double total, double epsilon)
     {
-        double e  = bins[NB_BIN], sum = 0;
+        double e = segments[NB_BIN-1].getPoint(1).x1, sum = 0;
         for (int i = 1; i < totals.length-1; i++) {
             sum += totals[i];
             if (sum/total > THRESHOLD) {
-                e = bins[i+1]+epsilon;
+                e = segments[i].getPoint(1).x1+epsilon;
                 break;
             }
         }
@@ -180,14 +187,14 @@ class StatsComputer
     }
     
     /** Value accumulate closed to the Max. */
-    private static double accumulateMax(int[] totals, double[] bins, 
+    private static double accumulateMax(int[] totals, Segment[] segments, 
                                     double total, double epsilon)
     {
-        double s  = bins[1], sum = 0;
+        double s = segments[0].getPoint(1).x1, sum = 0;
         for (int i = totals.length-2; i > 0; i--) {
             sum += totals[i];
             if (sum/total > THRESHOLD) {
-                s = bins[i+1]-epsilon;
+                s = segments[i].getPoint(1).x1-epsilon;
                 break;
             }
         }
