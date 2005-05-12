@@ -177,10 +177,13 @@ public class Constants {
 	public static final BasicStroke BORDER_STROKE = new BasicStroke(STROKE_WIDTH);
 	
 	/** stroke for thumbnail highlight */
-	public static final BasicStroke THUMBNAIL_HIGHLIGHT_STROKE=new BasicStroke(2);
+	public static final BasicStroke THUMBNAIL_HIGHLIGHT_STROKE=new BasicStroke(8);
 	/** and for module nodes */
 	public static final BasicStroke MODULE_STROKE = new BasicStroke(12);
 		
+         /** border around all images in dataset browser */
+
+         public static final int DATASET_IMAGES_BORDER=10;
 	/** gap between images in dataset browser */
 	public static final int DATASET_IMAGE_GAP=2;
 	

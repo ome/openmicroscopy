@@ -137,8 +137,8 @@ public class DatasetNode extends GenericBox implements MouseableNode,
 		
 		removeAllChildren();
 		// initial starting point
-		double x=Constants.DATASET_IMAGE_GAP;
-		double y= Constants.DATASET_IMAGE_GAP;
+		double x=Constants.DATASET_IMAGES_BORDER;
+		double y= Constants.DATASET_IMAGES_BORDER;
 		
 		// add the name label and move down.
 		/*
@@ -150,10 +150,11 @@ public class DatasetNode extends GenericBox implements MouseableNode,
 		
 		Collection imageCollection = dataset.getImages();
 		double totalArea = buildImages(imageCollection,x,y);
-		
-		// calculate remaining height
-		double effectiveHeight = height -y;
-		double effectiveWidth = width;
+	
+
+		// calculate remaining height, leaving out space for borders.
+		double effectiveHeight = height -y-Constants.DATASET_IMAGES_BORDER*2;
+		double effectiveWidth = width- Constants.DATASET_IMAGES_BORDER*2;
 		double imageTop = y;
 		// find the scaled area
 		double scaledArea = effectiveWidth*effectiveHeight;
