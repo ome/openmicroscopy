@@ -643,7 +643,7 @@ public class DataManagerCtrl
     void createCategory()
     {
         try {
-            List groups = abstraction.getCategoryGroups();
+            List groups = abstraction.getAvailableGroups();
             if (groups == null || groups.size() == 0) {
                 UserNotifier un = abstraction.getRegistry().getUserNotifier();
                 un.notifyInfo("Create a category", 

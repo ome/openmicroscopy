@@ -371,9 +371,6 @@ public interface SemanticTypesService
             Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException;
     
-    public List retrieveImagesNotInCategoryGroup(int catGroupID)
-        throws DSOutOfServiceException, DSAccessException;
-    
     public List retrieveImagesNotInCategoryGroup(int catGroupID, Map filters, 
                                     Map complexFilters)
         throws DSOutOfServiceException, DSAccessException;
@@ -462,8 +459,9 @@ public interface SemanticTypesService
      * @return  Return a {@link CategoryGroupData} object or <code>null</code> 
      *          if no CategoryGroup is retrieved.
      * 
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public CategoryGroupData retrieveCategoryGroupTree(int cgID, 
                                                     boolean annotated)
@@ -480,10 +478,24 @@ public interface SemanticTypesService
      * @return  Return a {@link CategoryData} object or <code>null</code> if 
      *          no Category is retrieved.
      * 
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
      */
     public CategoryData retrieveCategoryTree(int cID, boolean annotated)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Retrieve the existing CategoryGroups. In this particular case,
+     * the Category within the CategoryGroup aren't retrieve.
+     * 
+     * @return List of CategoryGroupData objects.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service. 
+     */
+    public List retrieveAvailableGroups()
         throws DSOutOfServiceException, DSAccessException;
     
     /** 

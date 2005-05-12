@@ -1026,13 +1026,34 @@ public class DataManager
         }      
     }
 
+    /** 
+     * Retrieves the CategoryGroup/Category without the images.
+     * 
+     * @return  List of CategoryData objects.
+     * @throws DSAccessException
+     */
+    List getAvailableGroups()
+        throws DSAccessException
+    {
+        try { 
+            SemanticTypesService sts = registry.getSemanticTypesService();
+            return sts.retrieveAvailableGroups();  
+        } catch(DSOutOfServiceException dsose) {
+            ServiceActivationRequest 
+            request = new ServiceActivationRequest(
+                                ServiceActivationRequest.DATA_SERVICES);
+            registry.getEventBus().post(request);
+        }
+        return new ArrayList();
+    }
+    
     /** Retrieve all categoryGroups. */
     List getCategoryGroups()
         throws DSAccessException
     {
         try { 
             SemanticTypesService sts = registry.getSemanticTypesService();
-            return sts.retrieveCategoryGroups(true, true);  
+            return sts.retrieveCategoryGroups(true, false);  
         } catch(DSOutOfServiceException dsose) {
             ServiceActivationRequest 
             request = new ServiceActivationRequest(

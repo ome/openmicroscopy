@@ -359,6 +359,7 @@ class STSAdapter
      * 
      * @param imgID image's ID.
      * @return List of {@link DataObject}.
+     * 
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      *         update data from OMEDS service.  
@@ -374,10 +375,14 @@ class STSAdapter
     }
 
     /**
+     * Retrieves the CategoryGroup-Category hierarchy.
+     * Note that the Images contained in the categories aren't retrieved.
      * 
-     * @return
-     * @throws DSOutOfServiceException
-     * @throws DSAccessException
+     * @return List of Data Objects.
+     * 
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     *         update data from OMEDS service.  
      */
     private List retrieveCategoryGroups()
         throws DSOutOfServiceException, DSAccessException
@@ -752,13 +757,6 @@ class STSAdapter
     }
     
     /** Implemented as specified in {@link SemanticTypesService}. */
-    public List retrieveImagesNotInCategoryGroup(int catGroupID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        return retrieveImagesNotInCategoryGroup(catGroupID, null, null);
-    }
-    
-    /** Implemented as specified in {@link SemanticTypesService}. */
     public List retrieveImagesNotInCategoryGroup(CategoryGroupData group, 
                 Map filters, Map complexFilters)
         throws DSOutOfServiceException, DSAccessException
@@ -767,12 +765,18 @@ class STSAdapter
             throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategoryData data;
+        CategoryData data, newData;
         Iterator k;
         Object obj;
+        List listImages;
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            k = data.getImages().iterator();
+            listImages = data.getImages();
+            if (listImages.size() == 0) {
+                newData = retrieveCategoryTree(data.getID(), false);
+                listImages = newData.getImages();
+            } 
+            k = listImages.iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -827,12 +831,18 @@ class STSAdapter
     {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategoryData data;
+        CategoryData data, newData;
         Iterator k;
         Object obj;
+        List listImages;
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            k = data.getImages().iterator();
+            listImages = data.getImages();
+            if (listImages.size() == 0) {
+                newData = retrieveCategoryTree(data.getID(), false);
+                listImages = newData.getImages();
+            } 
+            k = listImages.iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -935,12 +945,20 @@ class STSAdapter
             throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategoryData data;
+        CategoryData data, newData;
         Iterator k;
         Object obj;
+        //The images may not have been retrieved
+        //retrieveCategoryTree
+        List listImages;
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            k = data.getImages().iterator();
+            listImages = data.getImages();
+            if (listImages.size() == 0) {
+                newData = retrieveCategoryTree(data.getID(), false);
+                listImages = newData.getImages();
+            } 
+            k = listImages.iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -967,13 +985,12 @@ class STSAdapter
         if (group == null)
             throw new IllegalArgumentException("no CategoryGroup");
         UserDetails uc = registry.getDataManagementService().getUserDetails();
-        Criteria c = CategoryMapper.buildCategoryWithClassificationsCriteria(
+        Criteria c = CategoryMapper.buildCategoryNotInGroupCriteria(
                         group.getID(), uc.getUserID());
         List l = (List) gateway.retrieveListSTSData("Category", c);
         if (l == null || l.size() == 0) return new ArrayList();
         CategoryData cProto = new CategoryData();
-        return CategoryMapper.fillCategoryWithClassifications(group, cProto, l, 
-                null);
+        return CategoryMapper.fillCategoryNotInGroup(group, cProto, l);
     }
 
     /** Implemented as specified in {@link SemanticTypesService}. */
@@ -1217,6 +1234,20 @@ class STSAdapter
         return CategoryMapper.fillCategoryTree(cat, isAnnotations);
     }
 
+    /** Implemented as specified in {@link SemanticTypesService}. */
+    public List retrieveAvailableGroups()
+        throws DSOutOfServiceException, DSAccessException
+    {
+        UserDetails uc = registry.getDataManagementService().getUserDetails();
+        Criteria c = CategoryMapper.buildBasicCategoryGroupCriteria(-1, 
+                    uc.getUserID());
+        List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
+        if (l == null) return new ArrayList();
+        return CategoryMapper.fillCategoryGroup(l);
+    
+    }
+
+    
     /** Implemented as specified in {@link DataManagementService}. */
     public ChannelData[] getChannelData(int imageID)
         throws DSOutOfServiceException, DSAccessException
