@@ -76,31 +76,33 @@ public class CategoryMapper
      * Fields required for Category
      * @param c existing criteria.
      */
-    private static void fieldsForCategory(Criteria c)
+    private static void fieldsForCategory(Criteria c, boolean classified)
     {
         c.addWantedField("Name");
         c.addWantedField("Description");  
         c.addWantedField("CategoryGroup");
         c.addWantedField("CategoryGroup", "Name");
         c.addWantedField("CategoryGroup", "Description");
-        c.addWantedField("ClassificationList");
-        //wanted fields for ClassificationList
-        c.addWantedField("ClassificationList", "Valid");
-        
-        c.addWantedField("ClassificationList", "Confidence");
-        c.addWantedField("ClassificationList", "image");
-        
-        //May add filtering
-        c.addWantedField("ClassificationList", "module_execution");
-        c.addWantedField("ClassificationList.module_execution", 
-                            "experimenter");
-
-        //wanted fields for images
-        c.addWantedField("ClassificationList.image", "name");
-        c.addWantedField("ClassificationList.image", "created");
-        c.addWantedField("ClassificationList.image", "default_pixels");
-        PixelsMapper.fieldsForPixels(c, 
-                "ClassificationList.image.default_pixels");  
+        if (classified) {
+            c.addWantedField("ClassificationList");
+            //wanted fields for ClassificationList
+            c.addWantedField("ClassificationList", "Valid");
+            
+            c.addWantedField("ClassificationList", "Confidence");
+            c.addWantedField("ClassificationList", "image");
+            
+            //May add filtering
+            c.addWantedField("ClassificationList", "module_execution");
+            c.addWantedField("ClassificationList.module_execution", 
+                                "experimenter");
+            
+            //wanted fields for images
+            c.addWantedField("ClassificationList.image", "name");
+            c.addWantedField("ClassificationList.image", "created");
+            c.addWantedField("ClassificationList.image", "default_pixels");
+            PixelsMapper.fieldsForPixels(c, 
+                    "ClassificationList.image.default_pixels");  
+        }
     }
     
     /** 
@@ -188,7 +190,8 @@ public class CategoryMapper
     }
     
     /**
-     * Build a criteria to retrieve {@link CategoryGroup} objects.
+     * Build a criteria to retrieve {@link CategoryGroup} objects, the 
+     * {@link Category} and {@link Image}.
      * 
      * @return Corresponding criteria.
      */
@@ -207,19 +210,19 @@ public class CategoryMapper
         //May add filter
         c.addWantedField("CategoryList.module_execution", "experimenter");      
         
-        //wanted fields for CategoryList
-        c.addWantedField("CategoryList", "ClassificationList");
-        //wanted fields for ClassificationList
-        c.addWantedField("CategoryList.ClassificationList", "Valid");
-        
-        c.addWantedField("CategoryList.ClassificationList", "Confidence");
-
-        c.addWantedField("CategoryList.ClassificationList", "module_execution");
-        c.addWantedField("CategoryList.ClassificationList.module_execution", 
-                            "experimenter");
-
         //wanted fields for images
         if (withImages) {
+            //wanted fields for CategoryList
+            c.addWantedField("CategoryList", "ClassificationList");
+            //wanted fields for ClassificationList
+            c.addWantedField("CategoryList.ClassificationList", "Valid");
+            
+            c.addWantedField("CategoryList.ClassificationList", "Confidence");
+
+            c.addWantedField("CategoryList.ClassificationList", 
+                            "module_execution");
+            c.addWantedField("CategoryList.ClassificationList.module_execution", 
+                                "experimenter");
             c.addWantedField("CategoryList.ClassificationList", "image");
             c.addWantedField("CategoryList.ClassificationList.image", "name");
             c.addWantedField("CategoryList.ClassificationList.image", 
@@ -243,7 +246,7 @@ public class CategoryMapper
     public static Criteria buildCategoryCriteria(int categoryID, int userID)
     {
         Criteria c = new Criteria();
-        fieldsForCategory(c);   
+        fieldsForCategory(c, true);   
         if (categoryID != -1) c.addFilter("id", new Integer(categoryID));
         if (userID != -1) c.addFilter("module_execution.experimenter_id", 
                                     new Integer(userID));
@@ -264,11 +267,11 @@ public class CategoryMapper
     }
     
     /** Build the criteria for the retrieveCategories() method. */
-    public static Criteria buildCategoryWithClassificationsCriteria(
+    public static Criteria buildCategoryNotInGroupCriteria(
                         int groupID, int userID)
     {
         Criteria c = new Criteria();
-        fieldsForCategory(c);
+        fieldsForCategory(c, false);
         if (groupID != -1) 
             c.addFilter("CategoryGroup", "!=", new Integer(groupID));
         if (userID != -1) c.addFilter("module_execution.experimenter_id", 
@@ -333,6 +336,16 @@ public class CategoryMapper
         return c;
     }
 
+    public static List fillCategoryGroup(List l)
+    {
+        List results = new ArrayList();
+        Iterator i = l.iterator();
+        CategoryGroupData proto = new CategoryGroupData();
+        while (i.hasNext())
+            results.add(buildCategoryGroup(proto, (CategoryGroup) i.next()));
+        return results;
+    }
+    
     /**
      * Given a list of {@link CategoryGroup} build the corresponding list of
      * {@link CategoryGroupData} objects
@@ -524,29 +537,14 @@ public class CategoryMapper
      * @param gData         The {@link CategoryGroupData} prototype.
      * @param cProto        The {@link CategoryData} prototype.
      * @param l             List of {@link Category}s.
-     * @param annotation    List of {@link ImageAnnotation}s.
      */
-    public static List fillCategoryWithClassifications(CategoryGroupData gData,
-                CategoryData cProto, List l, List annotation)
+    public static List fillCategoryNotInGroup(CategoryGroupData gData,
+                CategoryData cProto, List l)
     {
         List results = new ArrayList();
-        Map imgAnnotated = 
-            AnnotationMapper.reverseListImageAnnotations(annotation);
         //Map of ID of the images contained in the group.
-        Map ids = new HashMap(); 
         CategoryData data;
-        Iterator i = gData.getCategories().iterator();
-        Iterator k;
-        Object obj;
-        while (i.hasNext()) {
-            data = (CategoryData) i.next();
-            k = data.getImages().iterator();
-            while (k.hasNext()) {
-                obj = k.next(); //Integer
-                ids.put(obj, obj);
-            }  
-        }
-        i = l.iterator();
+        Iterator i = l.iterator();
         Category c;
         Map categoryMap = new HashMap();
         Integer id;
@@ -555,13 +553,11 @@ public class CategoryMapper
             id = new Integer(c.getID());
             data = (CategoryData) categoryMap.get(id);
             if (data == null) {
-                data = fillCategory(gData, cProto, c, imgAnnotated);
-                if (data != null) {
-                    categoryMap.put(id, data);
-                    results.add(data);
-                }
-            } else results.add(data);
+                data = fillSimpleCategory(gData, cProto, c);
+                if (data != null) categoryMap.put(id, data);
+            }
         }
+        results.addAll(categoryMap.values());
         return results;
     }
 
