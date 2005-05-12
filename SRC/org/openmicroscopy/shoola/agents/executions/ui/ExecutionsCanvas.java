@@ -96,7 +96,7 @@ public class ExecutionsCanvas extends JPanel implements
 	private AxisHash currentHash;
 	private AxisRowDecoration currentRowDecoration;
 	
-	private boolean pressSelected = true;
+    //	private boolean pressSelected = true;
 	
 	private LongRangeSlider slider = null;
 	
@@ -155,7 +155,7 @@ public class ExecutionsCanvas extends JPanel implements
 						slider.getRightXCoord());
 		}
 		drawExecutions(g2);
-		if (currentExecution != null  && pressSelected == false) {
+		if (currentExecution != null) {
 			currentExecution.drawExecutionTip(g2,xLoc,yLoc);
 		}
 		if (currentHash != null)
@@ -213,12 +213,10 @@ public class ExecutionsCanvas extends JPanel implements
 			return;
 		
 		ChainExecutionData execData = exec.getChainExecution();
-		System.err.println("viewing results for execution "+execData.getID());
 		String name = execData.getChain().getName();
 		// this is a hack to let me pull up spots viewer. once history view
 		//is done, remove this.
 		if (name.compareTo("Find and track spots") ==0) {
-			System.err.println("viewing trajectories...");
 			ViewTrackSpotsEvent event = new ViewTrackSpotsEvent(execData);
 			registry.getEventBus().post(event);
 			
@@ -236,14 +234,15 @@ public class ExecutionsCanvas extends JPanel implements
 		xLoc = e.getX();
 		yLoc = e.getY();
 		ExecutionView exec = getViewAt(xLoc,yLoc);
-		if ( exec != currentExecution && pressSelected == false) {
+		if ( exec != currentExecution) {
 			currentExecution = exec;
 			MouseOverChainExecutionEvent event;
 			ChainExecutionData execution = null;
-			if (exec != null)
-				execution = exec.getChainExecution(); 
-			registry.getEventBus().post(
+			if (exec != null) {
+			    execution = exec.getChainExecution(); 
+			    registry.getEventBus().post(
 					new MouseOverChainExecutionEvent(execution));
+			}
 			// if we didn't mouse over an event
 			
 		}
