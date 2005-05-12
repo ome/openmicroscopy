@@ -135,8 +135,8 @@ public class CreateCategoryEditor
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
         tabs.addTab("Category", im.getIcon(IconManager.CATEGORY), 
                     categoryPane);
-        tabs.addTab("Add Existing Images", im.getIcon(IconManager.IMAGE), 
-                    imagePane);
+        //tabs.addTab("Add Existing Images", im.getIcon(IconManager.IMAGE), 
+        //            imagePane);
         tabs.setSelectedComponent(categoryPane);
         tabs.setFont(font);
         tabs.setForeground(DataManagerUIF.STEELBLUE);
