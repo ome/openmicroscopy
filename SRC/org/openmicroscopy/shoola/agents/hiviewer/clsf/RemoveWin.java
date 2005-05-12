@@ -107,8 +107,10 @@ class RemoveWin
         cst.anchor = GridBagConstraints.EAST;
         Iterator i = availablePaths.iterator();
         int index = 0;
-        while (i.hasNext()) 
+        while (i.hasNext()) {
             addRow(gridbag, cst, main, index, (DataObject) i.next());
+            index++;
+        } 
         return new JScrollPane(UIUtilities.buildComponentPanel(main));
     }
     
