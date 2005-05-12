@@ -441,19 +441,20 @@ public class HierarchyMapper
                 }
             }
             if (!in) {  //the image has been classified in the category.
-               if (group != null && 
-                       !usedGroups.containsKey(new Integer(group.getID()))) {
-                   groupID = new Integer(group.getID());
-                   groupData = (CategoryGroupData) groupsMap.get(groupID);
-                   if (groupData == null) {
-                       groupData = createCategoryGroupData(group);
-                       groupsMap.put(groupID, groupData);
-                   }
-                   //Create the category
-                   catData = createCategoryData(category, categoriesMap);
-                   catData.setCategoryGroup(groupData);
-                   groupData.getCategories().add(catData);
-                   results.add(groupData);
+               if (group != null) {
+                   if (!usedGroups.containsKey(new Integer(group.getID()))) {
+                       groupID = new Integer(group.getID());
+                       groupData = (CategoryGroupData) groupsMap.get(groupID);
+                       if (groupData == null) {
+                           groupData = createCategoryGroupData(group);
+                           groupsMap.put(groupID, groupData);
+                       }
+                       //Create the category
+                       catData = createCategoryData(category, categoriesMap);
+                       catData.setCategoryGroup(groupData);
+                       groupData.getCategories().add(catData);
+                       results.add(groupData);
+                   } 
                } else { //orphan category, shouldn't happen
                    catData = createCategoryData(category, categoriesMap);
                    results.add(catData);
