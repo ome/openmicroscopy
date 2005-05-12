@@ -404,16 +404,6 @@ public class NullSemanticTypesService
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveImagesNotInCategoryGroup(int)
-     */
-    public List retrieveImagesNotInCategoryGroup(int catGroupID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrievesImagesInUserGroupNotInCategoryGroup(org.openmicroscopy.shoola.env.data.model.CategoryGroupData)
      */
     public List retrieveImagesInUserGroupNotInCategoryGroup(CategoryGroupData group)
@@ -547,6 +537,16 @@ public class NullSemanticTypesService
      * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveCategoryGroups(boolean, boolean)
      */
     public List retrieveCategoryGroups(boolean annotated, boolean in)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.openmicroscopy.shoola.env.data.SemanticTypesService#retrieveAvailableGroups()
+     */
+    public List retrieveAvailableGroups()
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
