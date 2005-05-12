@@ -27,7 +27,7 @@ public class SpringFacadeTest extends TestCase {
     HierarchyBrowsing srv;
     
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(SpringFacadeTest.class);
+        junit.textui.TestRunner.run(OmeroPercentTest.class);
     }
 
     /*
@@ -84,4 +84,4 @@ public class SpringFacadeTest extends TestCase {
             
     }
     
-}
+    }

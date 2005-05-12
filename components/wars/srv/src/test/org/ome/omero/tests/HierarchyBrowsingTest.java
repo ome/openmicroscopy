@@ -47,14 +47,14 @@ public class HierarchyBrowsingTest extends TestCase {
         assertTrue(emptyColl,hb.findDatasetAnnotations(test).size()==0);
         assertTrue(emptyColl,hb.findDatasetAnnotations(new HashSet()).size()==0);
         //
-        assertTrue(emptyColl,hb.findDatasetAnnotations(test,nonExp).size()==0);
-        assertTrue(emptyColl,hb.findDatasetAnnotations(new HashSet(),nonExp).size()==0);
+        assertTrue(emptyColl,hb.findDatasetAnnotationsForExperimenter(test,nonExp).size()==0);
+        assertTrue(emptyColl,hb.findDatasetAnnotationsForExperimenter(new HashSet(),nonExp).size()==0);
         //
         assertTrue(emptyColl,hb.findImageAnnotations(test).size()==0);
         assertTrue(emptyColl,hb.findImageAnnotations(new HashSet()).size()==0);
         //
-        assertTrue(emptyColl,hb.findImageAnnotations(test,nonExp).size()==0);
-        assertTrue(emptyColl,hb.findImageAnnotations(new HashSet(),nonExp).size()==0);
+        assertTrue(emptyColl,hb.findImageAnnotationsForExperimenter(test,nonExp).size()==0);
+        assertTrue(emptyColl,hb.findImageAnnotationsForExperimenter(new HashSet(),nonExp).size()==0);
         //
         assertTrue(emptyColl,hb.findPDIHierarchies(test).size()==0);
         assertTrue(emptyColl,hb.findPDIHierarchies(new HashSet()).size()==0);
@@ -111,6 +111,15 @@ public class HierarchyBrowsingTest extends TestCase {
     }
 
     public void testFindCGCIHierarchies() {
+        System.out
+                .println(" ***** HierarchyBrowsingTest.testFindCGCIHierarchies() *****");
+        Set ids = new HashSet();
+        ids.add(new Integer(19));
+        ids.add(new Integer(13));
+        ids.add(new Integer(11));
+        
+        // Something
+        Set result = hb.findCGCIHierarchies(ids);
     }
 
     /*
@@ -118,7 +127,7 @@ public class HierarchyBrowsingTest extends TestCase {
      */
     public void testFindImageAnnotationsSet() {
         System.out
-                .println("HierarchyBrowsingTest.testFindImageAnnotationsSet()");
+                .println(" ***** HierarchyBrowsingTest.testFindImageAnnotationsSet()");
         Set ids = new HashSet();
         ids.add(new Integer(11));
         ids.add(new Integer(13));
@@ -134,7 +143,7 @@ public class HierarchyBrowsingTest extends TestCase {
         Set ids = new HashSet();
         ids.add(new Integer(11));
         ids.add(new Integer(13));
-        Map map = hb.findImageAnnotations(ids,5);
+        Map map = hb.findImageAnnotationsForExperimenter(ids,5);
         assertTrue(nonNull, map != null && map.size() != 0);
     }
 

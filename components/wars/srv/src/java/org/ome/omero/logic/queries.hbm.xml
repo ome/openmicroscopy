@@ -33,6 +33,10 @@
 	from Image as i where i in (:img_list)
   ]]></query>	
   
+  <query name="findCGCI"><![CDATA[
+	from Image as i where i in (:img_list)
+  ]]></query>	
+  
   <!-- findAnnotations -->
   <query name="findImageAnn"><![CDATA[
   from ImageAnnotation as ann join fetch ann.image as i 

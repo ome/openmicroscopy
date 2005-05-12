@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -21,6 +23,7 @@ import org.hibernate.type.IntegerType;
 import org.ome.omero.interfaces.HierarchyBrowsing;
 import org.ome.omero.model.Category;
 import org.ome.omero.model.CategoryGroup;
+import org.ome.omero.model.Classification;
 import org.ome.omero.model.Dataset;
 import org.ome.omero.model.DatasetAnnotation;
 import org.ome.omero.model.Experimenter;
@@ -61,11 +64,11 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     public DataObject loadPDIHierarchy(final Class arg0, final int arg1) {
 
         // CONTRACT
-        if (! ProjectData.class.equals(arg0) && ! DatasetData.class.equals(arg0)) {
+        if (!ProjectData.class.equals(arg0) && !DatasetData.class.equals(arg0)) {
             throw new IllegalArgumentException(
                     "Class parameter for loadPDIHierarchy() must be ProjectData or DatasetData.");
         }
-        
+
         HibernateTemplate ht = new HibernateTemplate(sessions);
         return (DataObject) ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -73,17 +76,19 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
                 newCache();
 
-                Query q = session.getNamedQuery("PDI_by_"+arg0.getName());
+                Query q = session.getNamedQuery("PDI_by_" + arg0.getName());
                 q.setLong("id", arg1);
 
                 DataObject dobj;
-                if (arg0.equals(DatasetData.class)){
-                    Dataset result = (Dataset) q.uniqueResult(); 
-                    if (null == result) return null;
+                if (arg0.equals(DatasetData.class)) {
+                    Dataset result = (Dataset) q.uniqueResult();
+                    if (null == result)
+                        return null;
                     dobj = go(result);
                 } else {
-                    Project result = (Project) q.uniqueResult(); 
-                    if (null == result) return null;
+                    Project result = (Project) q.uniqueResult();
+                    if (null == result)
+                        return null;
                     dobj = go(result);
                 }
 
@@ -102,7 +107,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     public DataObject loadCGCIHierarchy(final Class arg0, final int arg1) {
 
         // CONTRACT
-        if (! CategoryGroupData.class.equals(arg0) && ! CategoryData.class.equals(arg0)) {
+        if (!CategoryGroupData.class.equals(arg0)
+                && !CategoryData.class.equals(arg0)) {
             throw new IllegalArgumentException(
                     "Class parameter for loadCGCIHierarchy() must be CategoryGroupData or CategoryData.");
         }
@@ -114,17 +120,19 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
                 newCache();
 
-                Query q = session.getNamedQuery("CGCI_by_"+arg0.getName());
+                Query q = session.getNamedQuery("CGCI_by_" + arg0.getName());
                 q.setLong("id", arg1);
 
                 DataObject dobj;
-                if (arg0.equals(CategoryData.class)){
-                    Category result = (Category) q.uniqueResult(); 
-                    if (null == result) return null;
+                if (arg0.equals(CategoryData.class)) {
+                    Category result = (Category) q.uniqueResult();
+                    if (null == result)
+                        return null;
                     dobj = go(result);
                 } else {
-                    CategoryGroup result = (CategoryGroup) q.uniqueResult(); 
-                    if (null == result) return null;
+                    CategoryGroup result = (CategoryGroup) q.uniqueResult();
+                    if (null == result)
+                        return null;
                     dobj = go(result);
                 }
 
@@ -140,13 +148,13 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
      * 
      * @see org.ome.omero.interfaces.HierarchyBrowsing#findPDIHierarchies(java.util.Set)
      */
-public Set findPDIHierarchies(final Set arg0) {
+    public Set findPDIHierarchies(final Set arg0) {
 
-    	// CONTRACT
-    	if (null == arg0 || arg0.size()==0) {
-    	    return new HashSet();
-    	}
-    
+        // CONTRACT
+        if (null == arg0 || arg0.size() == 0) {
+            return new HashSet();
+        }
+
         HibernateTemplate ht = new HibernateTemplate(sessions);
         return (Set) ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -171,34 +179,39 @@ public Set findPDIHierarchies(final Set arg0) {
                 Iterator i = imagesAll.iterator();
                 while (i.hasNext()) {
                     Image img = (Image) i.next();
-                    ImageData id = go(img,false); // Start using *Data to prevent lazy loading
+                    ImageData id = go(img, false); // Start using *Data to
+                    // prevent lazy loading
                     Set datasets = img.getDatasets();
 
-                    if (datasets == null || datasets.size() < 1){ 
+                    if (datasets == null || datasets.size() < 1) {
                         hierarchies.add(id);
-                    } else  {
+                    } else {
                         Iterator d = datasets.iterator();
                         while (d.hasNext()) {
                             Dataset ds = (Dataset) d.next();
-                            DatasetData dd = go(ds,false);
+                            DatasetData dd = go(ds, false);
 
-                            // Add images (since not resolved because go(*,false);
-                            if (null == dd.images) dd.images = new HashSet();
+                            // Add images (since not resolved because
+                            // go(*,false);
+                            if (null == dd.images)
+                                dd.images = new HashSet();
                             dd.images.add(id);
-                            
+
                             Set projects = ds.getProjects();
                             if (projects == null || projects.size() < 1) {
                                 hierarchies.add(dd);
                             } else {
                                 Iterator p = projects.iterator();
-                                while (p.hasNext()){
+                                while (p.hasNext()) {
                                     Project prj = (Project) p.next();
-                                    ProjectData pd = go(prj,false);
-                                    
-                                    // Add datsets (since not resolved because go(*,false)
-                                    if (null == pd.datasets) pd.datasets = new HashSet();
+                                    ProjectData pd = go(prj, false);
+
+                                    // Add datsets (since not resolved because
+                                    // go(*,false)
+                                    if (null == pd.datasets)
+                                        pd.datasets = new HashSet();
                                     pd.datasets.add(dd);
-                                    
+
                                     hierarchies.add(pd);
                                 }
                             }
@@ -212,15 +225,98 @@ public Set findPDIHierarchies(final Set arg0) {
             }
         });
     }
+
     /*
      * (non-Javadoc)
      * 
      * @see org.ome.omero.interfaces.HierarchyBrowsing#findCGCIHierarchies(java.util.Set)
      */
-    public Set findCGCIHierarchies(Set arg0) {
-        // TODO Auto-generated method stub
-        /* return null; */
-        throw new RuntimeException("implement me");
+    public Set findCGCIHierarchies(final Set arg0) {
+        // CONTRACT
+        if (null == arg0 || arg0.size() == 0) {
+            return new HashSet();
+        }
+
+        HibernateTemplate ht = new HibernateTemplate(sessions);
+        return (Set) ht.execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                newCache();
+
+                //QUERY
+                Query q = session.getNamedQuery("findCGCI");
+                q.setParameterList("img_list", arg0, new IntegerType());
+
+                List result = q.list();
+                Set imagesAll = new HashSet(result);
+
+                if (null == imagesAll || imagesAll.size() == 0) {
+                    return new HashSet();
+                }
+
+                // LOGIC
+                // This is all possible because of the use of the cache!
+                Set hierarchies = new HashSet();
+                Iterator i = imagesAll.iterator();
+                while (i.hasNext()) {
+                    Image img = (Image) i.next();
+                    ImageData id = go(img, false); // Start using *Data to
+                    // prevent lazy loading
+                    Set classifications = img.getClassifications();
+                    Set categories = new HashSet();
+
+                    for (Iterator c = classifications.iterator(); c.hasNext();) {
+                        Classification cla = (Classification) c.next();
+                        if (cla.getValid().booleanValue()) {
+                            categories.add(cla.getCategory());
+                        }
+                    }
+
+                    if (categories == null || categories.size() < 1) {
+                        hierarchies.add(id);
+                    } else {
+                        Iterator c = categories.iterator();
+                        while (c.hasNext()) {
+                            Category ca = (Category) c.next();
+                            CategoryData cd = go(ca, false);
+
+                            // Add images (since not resolved because
+                            // go(*,false);
+                            if (null == cd.images)
+                                cd.images = new HashSet();
+                            cd.images.add(id);
+
+                            Integer cg = ca.getCategoryGroup(); // TODO really
+                            // not a
+                            // collection??
+                            if (cg == null) {
+                                hierarchies.add(cd);
+                            } else {
+                                //TODO Need to get to the CG.
+                                //                                Iterator p = projects.iterator();
+                                //                                while (p.hasNext()){
+                                //                                    Project prj = (Project) p.next();
+                                //                                    ProjectData pd = go(prj,false);
+                                //                                    
+                                //                                    // Add datsets (since not resolved because
+                                // go(*,false)
+                                //                                    if (null == pd.datasets) pd.datasets = new
+                                // HashSet();
+                                //                                    pd.datasets.add(dd);
+                                //                                    
+                                //                                    hierarchies.add(pd);
+                                //                                }
+                            }
+
+                        }
+                    }
+                }
+
+                emptyCache();
+                return hierarchies;
+            }
+        });
     }
 
     /*
@@ -229,12 +325,12 @@ public Set findPDIHierarchies(final Set arg0) {
      * @see org.ome.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set)
      */
     public Map findImageAnnotations(final Set arg0) {
-        
+
         // CONTRACT
-    	if (null == arg0 || arg0.size()==0) {
-    	    return new HashMap();
-    	}
-        
+        if (null == arg0 || arg0.size() == 0) {
+            return new HashMap();
+        }
+
         HibernateTemplate ht = new HibernateTemplate(sessions);
         return (Map) ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -256,14 +352,13 @@ public Set findPDIHierarchies(final Set arg0) {
      * @see org.ome.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set,
      *      int)
      */
-    public Map findImageAnnotations(final Set arg0, final int arg1) {
-        
-        // CONTRACT
-    	if (null == arg0 || arg0.size()==0) {
-    	    return new HashMap();
-    	}
+    public Map findImageAnnotationsForExperimenter(final Set arg0, final int arg1) {
 
-        
+        // CONTRACT
+        if (null == arg0 || arg0.size() == 0) {
+            return new HashMap();
+        }
+
         HibernateTemplate ht = new HibernateTemplate(sessions);
         return (Map) ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -327,12 +422,12 @@ public Set findPDIHierarchies(final Set arg0) {
      * @see org.ome.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set)
      */
     public Map findDatasetAnnotations(final Set arg0) {
-        
+
         // CONTRACT
-    	if (null == arg0 || arg0.size()==0) {
-    	    return new HashMap();
-    	}
-        
+        if (null == arg0 || arg0.size() == 0) {
+            return new HashMap();
+        }
+
         HibernateTemplate ht = new HibernateTemplate(sessions);
         return (Map) ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -354,13 +449,13 @@ public Set findPDIHierarchies(final Set arg0) {
      * @see org.ome.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set,
      *      int)
      */
-    public Map findDatasetAnnotations(final Set arg0, final int arg1) {
-        
+    public Map findDatasetAnnotationsForExperimenter(final Set arg0, final int arg1) {
+
         // CONTRACT
-    	if (null == arg0 || arg0.size()==0) {
-    	    return new HashMap();
-    	}
-        
+        if (null == arg0 || arg0.size() == 0) {
+            return new HashMap();
+        }
+
         HibernateTemplate ht = new HibernateTemplate(sessions);
         return (Map) ht.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -380,7 +475,7 @@ public Set findPDIHierarchies(final Set arg0) {
     Map findDatasetAnnotations(final Query q) {
 
         newCache();
-        
+
         Set result = new HashSet(q.list()); // TODO this everywhere
 
         if (null == result || result.size() == 0) {
@@ -418,7 +513,7 @@ public Set findPDIHierarchies(final Set arg0) {
 
         return map2;
     }
-    
+
     /**
      * @return Returns the sessions.
      */
@@ -497,24 +592,28 @@ public Set findPDIHierarchies(final Set arg0) {
         return dd;
     }
 
-    CategoryGroupData go(CategoryGroup cg){
-        
-        if (checkCache(cg)){
+    CategoryGroupData go(CategoryGroup cg) {
+
+        if (checkCache(cg)) {
             return (CategoryGroupData) fromCache(cg);
         }
-        
+
         CategoryGroupData cgd = new CategoryGroupData();
         cgd.id = cg.getAttributeId().intValue();
         cgd.description = cg.getDescription();
         cgd.name = cg.getName();
         cgd.owner = go(cg.getModuleExecution().getExperimenter());
         // FIXMEcgd.categories = cg.
-        
-        toCache(cg,cgd);
+
+        toCache(cg, cgd);
         return cgd;
     }
-    
+
     CategoryData go(Category c) {
+        return go(c,true);
+    }
+    
+    CategoryData go(Category c, boolean resolve){
 
         if (checkCache(c)) {
             return (CategoryData) fromCache(c);
@@ -630,7 +729,8 @@ public Set findPDIHierarchies(final Set arg0) {
         ad.text = ann.getContent();
         //      TODO Check below if correct; also such mappings need null-pointer
         // exception checking
-        //ad.lastModified = new Timestamp(ann.getTimestamp().longValue()); FIXME seems to have changed in DB
+        //ad.lastModified = new Timestamp(ann.getTimestamp().longValue());
+        // FIXME seems to have changed in DB
         ad.annotatedObject = go(ann.getImage());
 
         toCache(ann, ad);
@@ -649,14 +749,14 @@ public Set findPDIHierarchies(final Set arg0) {
         ad.text = ann.getContent();
         //      TODO Check below if correct; also such mappings need null-pointer
         // exception checking
-        //TODO List ques. ad.lastModified = new Timestamp(ann. getTimestamp().longValue());
+        //TODO List ques. ad.lastModified = new Timestamp(ann.
+        // getTimestamp().longValue());
         ad.annotatedObject = go(ann.getDataset());
 
         toCache(ann, ad);
         return ad;
     }
 
-    
     void newCache() {
         cache.set(new HashMap());
     }
@@ -679,7 +779,8 @@ public Set findPDIHierarchies(final Set arg0) {
     void toCache(Object key, Object value) {
         // FIXME Why are there NULLs in the Cache!!!!
         ((Map) cache.get()).put(key, value);
-        // TODO return either original value or a new one -- tough. Not when all inherit from a single DataObject!!??
+        // TODO return either original value or a new one -- tough. Not when all
+        // inherit from a single DataObject!!??
     }
 
 }

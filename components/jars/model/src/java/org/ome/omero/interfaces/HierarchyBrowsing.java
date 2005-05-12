@@ -203,7 +203,7 @@ public interface HierarchyBrowsing
      * @return A map whose key is Image id and value the <code>Set</code>
      *         of all annotations for that Image.
      */
-    public Map findImageAnnotations(Set imgIDs, int experimenterID);
+    public Map findImageAnnotationsForExperimenter(Set imgIDs, int experimenterID);
     
     /**
      * Finds all the annotations that have been attached to the specified
@@ -238,6 +238,6 @@ public interface HierarchyBrowsing
      * @return A map whose key is Dataset id and value the <code>Set</code>
      *         of all annotations for that Dataset.
      */
-    public Map findDatasetAnnotations(Set datasetIDs, int experimenterID);
+    public Map findDatasetAnnotationsForExperimenter(Set datasetIDs, int experimenterID);
     
 }
