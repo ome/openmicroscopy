@@ -765,18 +765,26 @@ class STSAdapter
             throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategoryData data, newData;
+        CategoryData data;
         Iterator k;
         Object obj;
-        List listImages;
+        boolean empty = false;
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            listImages = data.getImages();
-            if (listImages.size() == 0) {
-                newData = retrieveCategoryTree(data.getID(), false);
-                listImages = newData.getImages();
-            } 
-            k = listImages.iterator();
+            if (data.getImages().size() == 0) {
+                empty = true;
+                break;
+            }
+        }
+        //The images were not retrieved in the first place
+        if (empty) {
+            int groupID = group.getID();
+            group = retrieveCategoryGroupTree(groupID, false);
+        }
+        i = group.getCategories().iterator();
+        while (i.hasNext()) {
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -831,18 +839,26 @@ class STSAdapter
     {
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategoryData data, newData;
+        CategoryData data;
         Iterator k;
         Object obj;
-        List listImages;
+        boolean empty = false;
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            listImages = data.getImages();
-            if (listImages.size() == 0) {
-                newData = retrieveCategoryTree(data.getID(), false);
-                listImages = newData.getImages();
-            } 
-            k = listImages.iterator();
+            if (data.getImages().size() == 0) {
+                empty = true;
+                break;
+            }
+        }
+        //The images were not retrieved in the first place
+        if (empty) {
+            int groupID = group.getID();
+            group = retrieveCategoryGroupTree(groupID, false);
+        }
+        i = group.getCategories().iterator();
+        while (i.hasNext()) {
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
@@ -900,6 +916,20 @@ class STSAdapter
         CategoryData data;
         Iterator k;
         Object obj;
+        boolean empty = false;
+        while (i.hasNext()) {
+            data = (CategoryData) i.next();
+            if (data.getImages().size() == 0) {
+                empty = true;
+                break;
+            }
+        }
+        //The images were not retrieved in the first place
+        if (empty) {
+            int groupID = group.getID();
+            group = retrieveCategoryGroupTree(groupID, false);
+        }
+        i = group.getCategories().iterator();
         while (i.hasNext()) {
             data = (CategoryData) i.next();
             k = data.getImages().iterator();
@@ -945,20 +975,26 @@ class STSAdapter
             throw new IllegalArgumentException("no CategoryGroup");
         Iterator i = group.getCategories().iterator();
         Map ids = new HashMap();
-        CategoryData data, newData;
+        CategoryData data;
         Iterator k;
         Object obj;
-        //The images may not have been retrieved
-        //retrieveCategoryTree
-        List listImages;
+        boolean empty = false;
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            listImages = data.getImages();
-            if (listImages.size() == 0) {
-                newData = retrieveCategoryTree(data.getID(), false);
-                listImages = newData.getImages();
-            } 
-            k = listImages.iterator();
+            if (data.getImages().size() == 0) {
+                empty = true;
+                break;
+            }
+        }
+        //The images were not retrieved in the first place
+        if (empty) {
+            int groupID = group.getID();
+            group = retrieveCategoryGroupTree(groupID, false);
+        }
+        i = group.getCategories().iterator();
+        while (i.hasNext()) {
+            data = (CategoryData) i.next();
+            k = data.getImages().iterator();
             while (k.hasNext()) {
                 obj = k.next(); //Integer
                 ids.put(obj, obj);
