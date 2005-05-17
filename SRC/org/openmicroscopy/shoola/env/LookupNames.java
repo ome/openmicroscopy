@@ -56,7 +56,6 @@ public class LookupNames
 
 	public static final  String ENV = "/env";
 	
-	public static final	String USER_CREDENTIALS = "/user/credentials";
 	public static final String USER_DETAILS = "/user/details";
     
 	public static final String AGENTS = "/agents";
@@ -81,6 +80,11 @@ public class LookupNames
     
     public static final String CMD_PROCESSOR = "/services/CmdProcessor";
     
-    
+    public static final String LOGIN = "/services/Login";
+    public static final String LOGIN_CFG = "/services/Login/config";
+    public static final String LOGIN_MAX_RETRY = 
+                                              "/services/LOGIN/omeds/max-retry";
+    public static final String LOGIN_RETRY_INTV = 
+                                         "/services/LOGIN/omeds/retry-interval";
 	
 }
