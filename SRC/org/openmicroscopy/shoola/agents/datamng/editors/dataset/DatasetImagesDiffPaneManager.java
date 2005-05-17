@@ -267,6 +267,7 @@ class DatasetImagesDiffPaneManager
             un.notifyInfo("Image retrieval", "No image matching your criteria");
             return;
         }
+        imagesDiff = images;
         view.showImages(images);
         loaded = true;
     }
