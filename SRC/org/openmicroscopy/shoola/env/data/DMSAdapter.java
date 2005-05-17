@@ -86,7 +86,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
-import org.openmicroscopy.shoola.env.ui.UserCredentials;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -151,11 +150,8 @@ class DMSAdapter
             List groups = new ArrayList();
             groups.add(new Integer(exp.getGroup().getID()));
             ud = new UserDetails(exp.getID(), exp.getFirstName(), 
-                                exp.getLastName(), groups);
+                                 exp.getLastName(), groups);
             registry.bind(LookupNames.USER_DETAILS, ud);
-            UserCredentials uc = (UserCredentials)
-                registry.lookup(LookupNames.USER_CREDENTIALS);
-            uc.setUserID(ud.getUserID());
         }
         return ud;
     }
@@ -699,11 +695,8 @@ class DMSAdapter
         List images = new ArrayList();
         //Put the server data into the corresponding client object.
         if (dataset == null) return images;
-        //Retrieve the user ID.
-        UserCredentials uc = (UserCredentials)
-                            registry.lookup(LookupNames.USER_CREDENTIALS);
         List ids = DatasetMapper.prepareListImagesID(dataset);
-        List l = getImageAnnotations(ids, uc.getUserID());
+        List l = getImageAnnotations(ids, getUserDetails().getUserID());
         DatasetMapper.fillListAnnotatedImages(dataset, retVal, l, images);
         return images;
     }
