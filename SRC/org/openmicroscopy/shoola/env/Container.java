@@ -42,7 +42,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
@@ -313,8 +312,6 @@ public final class Container
 		//TODO: activate services (EventBus, what else?).
 		RenderingEngine re = RenderingEngine.getInstance(this);
 		re.activate();
-		LoginManager lm = LoginManager.getInstance(this);
-		lm.activate();
 		//TODO: RE threads should be spawn during an init task.
 			
 		//Get ready to interact with the user.
