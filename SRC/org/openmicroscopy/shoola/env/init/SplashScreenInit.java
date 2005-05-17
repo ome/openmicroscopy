@@ -36,12 +36,12 @@ package org.openmicroscopy.shoola.env.init;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.data.login.LoginConfig;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.ui.SplashScreen;
 import org.openmicroscopy.shoola.env.ui.UIFactory;
-import org.openmicroscopy.shoola.env.ui.UserCredentials;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Does some configuration required for the initialization process to run.
@@ -136,7 +136,7 @@ public final class SplashScreenInit
 	}
 
 	/** 
-	 * Waits until user's credentials are available and then tries to log into
+	 * Waits until user's credentials are available and then tries to log onto
 	 * <i>OMEDS</i>.
 	 * 
 	 * @see InitializationListener#onEnd()
@@ -146,26 +146,28 @@ public final class SplashScreenInit
 		//Last update with total number of tasks executed.
 		splashScreen.updateProgress("");
 		
-		// Keep trying to login until it works.
-		//while (true) {
-		//Wait until the user enters their credentials for logging into OME.
-		UserCredentials uc = splashScreen.getUserCredentials();
-		
-		//Add credentials to the registry.
-		Registry reg = container.getRegistry();
-		reg.bind(LookupNames.USER_CREDENTIALS, uc);
-			
-		//Now try to connect to OMEDS.
-		//Ignore exceptions, the user will be prompted to log in when they try
-		//to access their data.
-		try {
-		    DataServicesFactory factory = 
-		        DataServicesFactory.getInstance(container);
-			factory.connect();
-        } catch (DSOutOfServiceException e) {  
-        } catch (DSAccessException e) {} 
-	
-        splashScreen.close();
-	}
+		//Try to log onto OMEDS and retry upon failure for at most as many
+        //times as specified in the Container's configuration.
+        Registry reg = container.getRegistry();
+        LoginConfig cfg = new LoginConfig(reg);
+        int max = cfg.getMaxRetry();
+        LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
+        boolean succeeded = false;
+        while (0 < max--) {
+            UserCredentials uc = splashScreen.getUserCredentials();
+            if ((succeeded = loginSvc.login(uc))) break;
+        }
 
+        //Now get rid of the Splash Screen.
+        splashScreen.close();
+        
+        //Exit if we couldn't manage to log in.
+        if (!succeeded) {
+            UserNotifier un = UIFactory.makeUserNotifier();
+            un.notifyError("Login Failure", "A valid connection to OMEDS "+
+                    "couldn't be established.  The application will exit.");
+            container.exit();
+        }
+    }
+    
 }

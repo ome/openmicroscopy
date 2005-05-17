@@ -54,12 +54,14 @@ import javax.swing.border.BevelBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * The dialog used by the Login Service to ask for user credentials.
+ * This is mainly a dummy UI that only creates the widgets and does layout.
+ * Its Controller listens to the input fields so to call the Login Service
+ * when the user name and password have been entered.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,10 +81,10 @@ public class LoginOMEDS
 	/** The font color for the login text fields. */
 	private static final Color		FONT_COLOR = new Color(0x4682B4);
 	
-	/** Width of the textField. */
+	/** Width of the login text fields. */
 	private static int 				TEXTFIELD_WIDTH = 140;
 	
-	/** horizontal space between the cells in the grid. */
+	/** Horizontal space between the cells in the grid. */
 	private static int				H_SPACE = 40;
 	
 	/** Top padding. */
@@ -99,7 +101,8 @@ public class LoginOMEDS
 	 * horizontally.
 	 */
 	private static final Dimension	H_SPACER_SIZE = new Dimension(20, 1);
-							
+					
+    
 	/** Text field to enter the login user name. */
 	JTextField      				user;
 
@@ -109,24 +112,29 @@ public class LoginOMEDS
 	/** Login button. */
 	JButton     					loginButton;
 	
+    /** The Controller. */
 	private LoginOMEDSManager		manager;
 	
+    /** Reference to the Container's registry. */
 	private Registry				registry;
 	
-	public LoginOMEDS(Registry registry, DataServicesFactory dsf)
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param registry The Container's registry.  Mustn't be <code>null</code>.
+     */
+	public LoginOMEDS(Registry registry)
 	{
 		super(registry.getTaskBar().getFrame(), "Login", true);
 		this.registry = registry;
-		manager = new LoginOMEDSManager(registry, dsf, this);
+		manager = new LoginOMEDSManager(registry, this);
 		initLoginFields();
 		initLoginButton();
 		buildGUI();
 		manager.initListeners();
 		pack();
 	}
-	
-	/** Return the manager of the widget. */
-	public LoginOMEDSManager getManager() { return manager; }
 	
 	/** Creates and initializes the login fields. */
 	private void initLoginFields()
@@ -152,7 +160,7 @@ public class LoginOMEDS
 			UIUtilities.formatToolTipText("Connect to the OME data server."));
 	}
 	
-	/** Build and layout the GUI. */
+	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
 		IconManager im = IconManager.getInstance(registry);
@@ -167,7 +175,7 @@ public class LoginOMEDS
 	}
 
 	
-	/** Build the body panel. */
+	/** Builds the body panel. */
 	private JPanel buildBody()
 	{
 		
@@ -222,7 +230,12 @@ public class LoginOMEDS
 		return contents;
 	}
 	
-	/** Set the font of the string to bold. */
+	/** 
+     * Creates a bold label with the given string.
+     * 
+     * @param s The label's text.
+     * @return A label having the specified text and a bold font. 
+     */
 	private JLabel setLabel(String s)
 	{
 		JLabel label = new JLabel(s);

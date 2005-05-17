@@ -36,6 +36,7 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
  * Manages the splash screen input, data and update.
@@ -74,7 +75,7 @@ class SplashScreenManager
 	private boolean				isOpen;
 	
 	/** Filled in with the user's login when available. */
-	private UserCredentials		userCredentials;
+	private SplashScreenFuture	userCredentials;
 
 	/** The current number of tasks to be executed. */
 	private int					totalTasks;
@@ -82,16 +83,14 @@ class SplashScreenManager
 	/** The current number of tasks that have been executed. */
 	private int					doneTasks;
 	
+    
 	/**
 	 * Creates the splash screen component.
 	 * Creates a new instance of this manager, of its corresponding UI
 	 * ({@link SplashScreenView}), and links them as needed.
-	 * 
-	 * @param uc	This will be filled in with the user's login when available.
 	 */
-	SplashScreenManager(UserCredentials uc)
+	SplashScreenManager()
 	{
-		userCredentials = uc;
 		view = new SplashScreenView();
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
@@ -104,9 +103,9 @@ class SplashScreenManager
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreenInit#open()
 	 */
-	public void open()
+	void open()
 	{
-		if (view == null)	return;  //close() has already been called.
+		if (view == null) return;  //close() has already been called.
 		view.setVisible(true);
 		isOpen = true;	
 	}
@@ -115,9 +114,9 @@ class SplashScreenManager
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreenInit#close()
 	 */
-	public void close()
+	void close()
 	{
-		if (view == null)	return;  //close() has already been called.
+		if (view == null) return;  //close() has already been called.
 		view.dispose();
 		view = null;
 		isOpen = false;
@@ -127,9 +126,9 @@ class SplashScreenManager
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#setTotalTasks(int)
 	 */
-	public void setTotalTasks(int value)
+	void setTotalTasks(int value)
 	{
-		if (!isOpen)	return;
+		if (!isOpen) return;
 		totalTasks = value;
 		//NB: Increment to show that the execution process is finished 
 		// i.e. all tasks executed.
@@ -143,14 +142,29 @@ class SplashScreenManager
 	 * Implemented as specified by {@link SplashScreen}.
 	 * @see SplashScreen#updateProgress(java.lang.String, int)
 	 */
-	public void updateProgress(String task)
+	void updateProgress(String task)
 	{
-		if (!isOpen)	return;
+		if (!isOpen) return;
 		view.currentTask.setText(task);
-		//view.progressBar.setValue(count);
 		view.progressBar.setValue(doneTasks++);
 		if (doneTasks == totalTasks) view.progressBar.setVisible(false);
 	}
+    
+    /**
+     * Registers a request to fill in the given <code>future</code> with
+     * the user's credentials when available.
+     * 
+     * @param future The Future to collect the credentials.
+     */
+    void collectUserCredentials(SplashScreenFuture future)
+    {
+        userCredentials = future;
+        view.user.setText("");
+        view.user.setEnabled(true);
+        view.pass.setEnabled(true);
+        view.pass.setText("");
+        view.login.setEnabled(true);
+    }
 	
 	/** 
 	 * Handles action events fired by the login fields and button.
@@ -159,23 +173,21 @@ class SplashScreenManager
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		StringBuffer buf = new StringBuffer();
-		buf.append(view.pass.getPassword());
-		String usr = view.user.getText(), psw = buf.toString();
-		if (usr == null || usr.length() == 0) {
-			UserNotifier un = UIFactory.makeUserNotifier();
-			un.notifyWarning("Login Incomplete", "Please enter a user name");
-		} else {
-			if (psw == null || psw.length() == 0) {
-				UserNotifier un = UIFactory.makeUserNotifier();
-				un.notifyWarning("Login Incomplete", "Please enter a password");
-			} else {
-				userCredentials.set(usr, psw);
-				view.user.setEnabled(false);
-				view.pass.setEnabled(false);
-				view.login.setEnabled(false);
-			}
-		}
+        StringBuffer buf = new StringBuffer();
+        buf.append(view.pass.getPassword());
+        String usr = view.user.getText(), psw = buf.toString();
+        try {
+            UserCredentials uc = new UserCredentials(usr, psw);
+            if (userCredentials != null) { 
+                userCredentials.set(uc);
+                view.user.setEnabled(false);
+                view.pass.setEnabled(false);
+                view.login.setEnabled(false);
+            }
+        } catch (IllegalArgumentException iae) {
+            UserNotifier un = UIFactory.makeUserNotifier();
+            un.notifyError("Login Incomplete", iae.getMessage());
+        }
 	}
 
 }

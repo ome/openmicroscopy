@@ -29,11 +29,13 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
  * Declares the interface to which the splash screen component has to

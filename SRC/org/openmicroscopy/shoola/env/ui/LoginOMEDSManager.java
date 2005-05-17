@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
@@ -43,10 +42,11 @@ import javax.swing.text.Document;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
- * 
+ * The Controller of the {@link LoginOMEDS} dialog.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,22 +59,14 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
  * </small>
  * @since OME2.2
  */
-public class LoginOMEDSManager
+class LoginOMEDSManager
 	implements ActionListener, DocumentListener
 {
-
-	/**
-	 * Tells whether or not the orignal service activation request succeded.
-	 */
-	private boolean				activationSuccessful;
 	
-	/** Reference to the registry. */
+	/** Reference to the Container's registry. */
 	private Registry			registry;
 	
-	/** Reference to the DataServicesFactory. */
-	private DataServicesFactory	dsf;
-	
-	/** Reference to the view. */
+	/** Reference to the View. */
 	private LoginOMEDS			view;
 	
 	private IconManager			im;
@@ -83,17 +75,16 @@ public class LoginOMEDSManager
 	
 	private Document 			dUser, dPass;
 	
+    
 	/** 
-	 * Create a new instance.
+	 * Creates a new instance.
 	 * 
-	 * @param container		Reference to the container.
-	 * @param view			Reference to the view.
+	 * @param registry		Reference to the Container's registry.
+	 * @param view			Reference to the View.
 	 */
-	LoginOMEDSManager(Registry registry, DataServicesFactory dsf,
-					LoginOMEDS view)
+	LoginOMEDSManager(Registry registry, LoginOMEDS view)
 	{
 		this.registry = registry;
-		this.dsf = dsf;
 		this.view = view;
 		im = IconManager.getInstance(registry);
 		isUser = false;
@@ -106,59 +97,33 @@ public class LoginOMEDSManager
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
 		dUser = view.user.getDocument(); 
-		dPass =  view.pass.getDocument();
+		dPass = view.pass.getDocument();
 		dUser.addDocumentListener(this);
 		dPass.addDocumentListener(this);
 		view.loginButton.addActionListener(this);
 	}
-
-	public boolean isActivationSuccessful() { return activationSuccessful; }
 	
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
-	 * button will be disabled. 
+	 * button will be disabled and the Login Service will  be invoked to
+     * log onto <i>OMEDS</i> with the given credentials.  The login dialog
+     * is then disposed.
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append(view.pass.getPassword());
 		String usr = view.user.getText(), psw = buf.toString();
-		if (usr == null || usr.length() == 0) {
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Login Incomplete", "Please enter a user name");
-		} else {
-			if (psw == null || psw.length() == 0) {
-				UserNotifier un = registry.getUserNotifier();
-				un.notifyError("Login Incomplete", "Please enter a password");
-			} else connect(usr, psw);
-		}
-	}
-	
-	/** 
-	 * Try to connect to OMEDS.
-	 * 
-	 * @param usr		User's name.
- 	 * @param psw		User's password.
-	 */
-	private void connect(String usr, String psw) 
-	{
-		UserCredentials uc = (UserCredentials)
-							registry.lookup(LookupNames.USER_CREDENTIALS);
-		uc.set(usr, psw);
-		try { 
-			dsf.connect();
-			activationSuccessful = true;
-		} catch (Exception e) {
-			String s = "Can't connect to the server. "+e;
-			registry.getLogger().error(this, s);
-			UserNotifier un = registry.getUserNotifier();
-			un.notifyError("Login to OMEDS Incomplete", 
-							"Can't connect to the server. Please try later.",
-							e);
-			activationSuccessful = false;
-		}
-		view.dispose();
+        try {
+            UserCredentials uc = new UserCredentials(usr, psw);
+            view.dispose();
+            LoginService ls = (LoginService) registry.lookup(LookupNames.LOGIN);
+            ls.login(uc);
+        } catch (IllegalArgumentException iae) {
+            UserNotifier un = registry.getUserNotifier();
+            un.notifyError("Login Incomplete", iae.getMessage());
+        }
 	}
 
 	/** Set the icon of the loginButton. */
@@ -173,8 +138,8 @@ public class LoginOMEDSManager
 	public void changedUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
-		if (dUser.equals(doc))	isUser = true;
-		if (dPass.equals(doc))	isPass = true;
+		if (dUser.equals(doc)) isUser = true;
+		if (dPass.equals(doc)) isPass = true;
 		setLoginButtonIcon();
 	}
 
@@ -182,8 +147,8 @@ public class LoginOMEDSManager
 	public void insertUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
-		if (dUser.equals(doc))	isUser = true;
-		if (dPass.equals(doc))	isPass = true;
+		if (dUser.equals(doc)) isUser = true;
+		if (dPass.equals(doc)) isPass = true;
 		setLoginButtonIcon();
 	}
 
@@ -191,8 +156,8 @@ public class LoginOMEDSManager
 	public void removeUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
-		if (dUser.equals(doc))	isUser = false;
-		if (dPass.equals(doc))	isPass = false;
+		if (dUser.equals(doc)) isUser = false;
+		if (dPass.equals(doc)) isPass = false;
 		setLoginButtonIcon();
 	}
 

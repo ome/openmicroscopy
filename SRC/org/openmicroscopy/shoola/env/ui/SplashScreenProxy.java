@@ -35,6 +35,7 @@ import javax.swing.SwingUtilities;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
  * Proxy for the splash screen component.
@@ -66,15 +67,12 @@ import javax.swing.SwingUtilities;
  * obviously enough because the user's credentials are entered by the user.  
  * So we would need a sort of Publisher-Subscriber mechanism in order to 
  * retrieve them when they are available.  This is not so straightforward
- * because these two methods above are supposed to be blocking.  In this case,
- * we're better off considering the creation of the Servant as a request to
- * retrieve the user's credentials.  The response, that is the credentials, is
- * stored into a Future which provides a rendezvous point for the Proxy.  The
- * Servant is created by passing an instance of {@link UserCredentials} (the
- * Future), which the Servant fills up when the credentials are available. 
- * The {@link #getUserCredentials() getUserCredentials} method calls 
- * <code>get()</code> on the Future.  This method blocks the Proxy
- * until the Servant has filled the credentials in.</p>
+ * because these two methods above are supposed to be blocking.  Instead we  
+ * post a request to the Servant to fill in the credentials when available.
+ * We pass a {@link SplashScreenFuture} along with the request so that the
+ * Servant may set the credentials in it as soon as the user enters them and
+ * the Proxy may block on the <code>get</code> method of the Future waiting
+ * for this event to occur.</p>
  * <p><small>
  * Our Future is not exactly the same as the one in Active Object: in our case
  * the Future is known by the Servant and never returned to clients.
@@ -119,13 +117,7 @@ class SplashScreenProxy
 	 * If update is called b/f setTotalTasks no big harm is made and we prefer
 	 * to avoid writing the code for checking this.
 	 */
-
-
-	/** 
-	 * Provides a rendezvous point to collect the user credentials when
-	 * these will be entered by the user.
-	 */
-	private UserCredentials			future;
+    
 	
 	/**
 	 * Creates the proxy, the servant and configures the servant with a
@@ -133,8 +125,7 @@ class SplashScreenProxy
 	 */
 	SplashScreenProxy()
 	{
-		future = new UserCredentials();
-		servant = new SplashScreenManager(future);
+		servant = new SplashScreenManager();
 		isValid = false;
 	}
 
@@ -144,7 +135,7 @@ class SplashScreenProxy
 	 */
 	public void open()
 	{
-		if (isValid)	return;  //Somebody's already called open().
+		if (isValid) return;  //Somebody's already called open().
 		
 		/* NOTE: If open() is called again after close(), then we get in 
 		 * here. However, no big harm can be made.
@@ -152,10 +143,7 @@ class SplashScreenProxy
 		
 		//Construct request of mehtod execution.
  		Runnable doOpen = new Runnable() {
-			public void run() 
-			{
-				servant.open();
-			}
+			public void run() { servant.open(); }
 		};
 
 		//Schedule execution within Swing dispatching thread.
@@ -170,14 +158,11 @@ class SplashScreenProxy
 	 */
 	public void close()
 	{	
-		if (!isValid)	return;  //Somebody's already called close().
+		if (!isValid) return;  //Somebody's already called close().
 		
 		//Construct request of mehtod execution.
 		Runnable doClose = new Runnable() {
-			public void run() 
-			{
-				servant.close();
-			}
+			public void run() { servant.close(); }
 		};
 		
 		//Schedule execution within Swing dispatching thread.
@@ -192,14 +177,11 @@ class SplashScreenProxy
 	 */
 	public void setTotalTasks(final int value)
 	{
-		if (!isValid)	return;  //Somebody's already called close().
+		if (!isValid) return;  //Somebody's already called close().
 		
 		//Construct request of mehtod execution.
 		Runnable doSetTotalTasks = new Runnable() {
-			public void run() 
-			{
-				servant.setTotalTasks(value);
-			}
+			public void run() { servant.setTotalTasks(value); }
 		};
 
 		//Schedule execution within Swing dispatching thread.
@@ -212,14 +194,11 @@ class SplashScreenProxy
 	 */
 	public void updateProgress(final String task)
 	{
-		if (!isValid)	return;  //Somebody's already called close().
+		if (!isValid) return;  //Somebody's already called close().
 		
 		//Construct request of mehtod execution.
 		Runnable doUpdateProgress = new Runnable() {
-			public void run()
-			{
-				servant.updateProgress(task);
-			}
+			public void run() { servant.updateProgress(task); }
 		};
 
 		//Schedule execution within Swing dispatching thread.
@@ -234,10 +213,19 @@ class SplashScreenProxy
 	{
 		//First off, let's make sure that this.open() has already been called.
 		//If not we return to prevent deadlock.
-		if (!isValid)	return null;  
+		if (!isValid) return null;  
 		
+        //Construct request of mehtod execution.
+        final SplashScreenFuture future = new SplashScreenFuture();
+        Runnable doCollectUserCredentials = new Runnable() {
+            public void run() { servant.collectUserCredentials(future); }
+        };
+
+        //Schedule execution within Swing dispatching thread.
+        SwingUtilities.invokeLater(doCollectUserCredentials);
+        
 		//Now we can safely wait for the user to enter their credentials.
-		return future.get(); 
+		return (UserCredentials) future.get(); 
 	}
 
 }
