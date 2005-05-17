@@ -184,6 +184,8 @@ class BrowserModel
      */
     public Set getImages()
     { 
+        //Note: avoid caching b/c we don't know yet what we are going
+        //to do with updates
         ImageFinder finder = new ImageFinder();
         accept(finder);
         return finder.getImages(); 
@@ -195,6 +197,8 @@ class BrowserModel
      */
     public Set getImageNodes()
     { 
+        //Note: avoid caching b/c we don't know yet what we are going
+        //to do with updates
         ImageFinder finder = new ImageFinder();
         accept(finder);
         return finder.getImageNodes(); 
