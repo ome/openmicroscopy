@@ -55,7 +55,7 @@ import java.util.Set;
  * </small>
  * @since OME2.2
  */
-class ImageFinder
+public class ImageFinder
     implements ImageDisplayVisitor
 {
 
@@ -66,17 +66,17 @@ class ImageFinder
     private Set images;
     
     /** Creates a new instance. */
-    ImageFinder()
+    public ImageFinder()
     {
         images = new HashSet();
         imageNodes = new HashSet();
     }
     
     /** Returns the set of {@link ImageNode}s displayed. */
-    Set getImageNodes() { return imageNodes; }
+    public Set getImageNodes() { return imageNodes; }
     
     /** Returns the set of corresponding <code>DataObject</code>s. */
-    Set getImages() { return images; }
+    public Set getImages() { return images; }
     
     /** Implemented as specified by {@link ImageDisplayVisitor}. */
     public void visit(ImageNode node)
