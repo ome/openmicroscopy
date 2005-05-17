@@ -92,6 +92,7 @@ public class Initializer
         initList.add(LoggerInit.class);
         initList.add(EventBusInit.class);
         initList.add(CmdProcessorInit.class);
+        initList.add(LoginServiceInit.class);
         initList.add(DataServicesInit.class);
         initList.add(TaskBarInit.class);
         initList.add(UserNotifierInit.class);
