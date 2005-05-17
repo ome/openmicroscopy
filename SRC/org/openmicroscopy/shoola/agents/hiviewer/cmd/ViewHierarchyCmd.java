@@ -36,6 +36,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerFactory;
 
@@ -81,7 +83,15 @@ public class ViewHierarchyCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        Set images = model.getBrowser().getImages();
+        ImageDisplay selectedDisplay = model.getBrowser().getSelectedDisplay();
+        Set images;
+        if (selectedDisplay == null)
+            images = model.getBrowser().getImages();
+        else {
+            ImageFinder visitor = new ImageFinder();
+            selectedDisplay.accept(visitor);
+            images = visitor.getImages();
+        }
         if (images == null || images.size() == 0) return;
         HiViewer viewer = null;
         switch (index) {
