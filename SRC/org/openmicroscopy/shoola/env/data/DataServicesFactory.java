@@ -38,8 +38,9 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
-import org.openmicroscopy.shoola.env.ui.UserCredentials;
 
 /** 
  * A factory for the {@link DataManagementService} and the
@@ -100,7 +101,8 @@ public class DataServicesFactory
 		if (info == null)  //TODO: get rid of this when we have an XML schema.
 			throw new NullPointerException("No data server host provided!");
 
-		gateway = new OMEDSGateway(info.getServerAddress());
+        LoginService ls = (LoginService) registry.lookup(LookupNames.LOGIN);
+		gateway = new OMEDSGateway(info.getServerAddress(), ls);
 		
 		//Create the adapters.
 		dms = new DMSAdapter(gateway, registry); 
@@ -118,23 +120,18 @@ public class DataServicesFactory
     public PixelsService getPS() { return ps; }
 
 	/**
-	 * Tries to connect to <i>OMEDS</i>.
+	 * Attempts to connect to <i>OMEDS</i>.
 	 * 
+     * @param uc The user's credentials for logging onto <i>OMEDS</i>.
 	 * @throws DSOutOfServiceException If the connection can't be established
-	 * 									or the credentials are invalid.							
-	 * @throws DSAccessException If the user ID can't be retrieved from 
-	 * 								<i>OMEDS</i>.
+     *                                 or the credentials are invalid.							
 	 */
-	public void connect()
-		throws DSOutOfServiceException, DSAccessException
+	public void connect(UserCredentials uc)
+		throws DSOutOfServiceException
 	{
-		UserCredentials uc = (UserCredentials)
-								registry.lookup(LookupNames.USER_CREDENTIALS);
-		//uc can't be null b/c there's no way to call this method b/f init.
+		if (uc == null)
+            throw new NullPointerException("No user credentials.");
         gateway.login(uc.getUserName(), uc.getPassword());
-		//retrieve the user's ID and store it in the UserCredentials.
-        dms.getUserDetails();
-		//uc.setUserID(dms.getUserDetails().getUserID());
 	}
 	
 	/**
