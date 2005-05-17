@@ -58,6 +58,7 @@ import org.openmicroscopy.ds.managers.HistoryManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.is.ImageServerException;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
 
 /** 
  * Unified access point to the various <i>OMEDS</i> services.
@@ -80,6 +81,8 @@ class OMEDSGateway
                                 MINOR_OMEDS_VERSION = 2,
                                 PATCH_OMEDS_VERSION = 1;
     
+    private static final String NOT_LOGGED_IN = "Have not logged in";
+    
     private static final String MESSAGE = "The version of OMEDS must be 2.2.1";               
 	/**
 	 * The factory provided by the connection library to access the various
@@ -91,7 +94,11 @@ class OMEDSGateway
 	 * Tells whether we're currently connected and logged into <i>OMEDS</i>.
 	 */
 	private boolean			connected;
-		
+	
+    /** Used whenever a broken link is detected to try reestabishing it. */
+    private LoginService    loginService;
+    
+    
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -110,23 +117,31 @@ class OMEDSGateway
 	{
 		if (e instanceof RemoteConnectionException) {
 			connected = false;
+            loginService.login();
 			throw new DSOutOfServiceException("Can't connect to OMEDS.", e);
 		} else if (e instanceof RemoteAuthenticationException) {
 			connected = false;
+            loginService.login();
 			throw new DSOutOfServiceException("Failed to log in.", e);
 		} else if (e instanceof RemoteServerErrorException) {
 			throw new DSAccessException(contextMessage, e);
 		} else if (e instanceof ImageServerException) {
-			//tempo, throw by pixelsFactory.
+			//TMP, thrown by PixelsFactory.
 			throw new DSAccessException(contextMessage, e);
         } else if (e instanceof IllegalArgumentException) {
-            //tempo, throw by pixelsFactory.
+            if (e.getMessage() == NOT_LOGGED_IN) {
+                //TMP, to remedy OME-JAVA bugs.
+                connected = false;
+                loginService.login();
+                throw new DSOutOfServiceException("Failed to log in.", e);
+            }
+            
+            //TMP, thrown by PixelsFactory.
             throw new DSAccessException(contextMessage, e);
 		} else {
-			//This should never be reached.  If so, there's a bug in the 
-			//connection library.
-			logout();
-			connected = false;
+			//This should never be reached.  If so, there's a yet another
+            //bug in OME-JAVA.
+			logout();  //Will set connected=false.
 			throw new RuntimeException("Internal error.", e);
 		}
 	}
@@ -157,10 +172,11 @@ class OMEDSGateway
 	 * @param omedsAddress
 	 * @throws DSOutOfServiceException	if the URL is not valid.
 	 */
-	OMEDSGateway(URL omedsAddress) 
+	OMEDSGateway(URL omedsAddress, LoginService ls) 
 		throws DSOutOfServiceException
 	{
-		try {
+		loginService = ls;
+        try {
 			proxiesFactory = DataServer.getDefaultServices(omedsAddress);
 		} catch (Exception e) {
 			String s = "Can't connect to OMEDS. URL not valid.";
@@ -276,13 +292,6 @@ class OMEDSGateway
 		try {
 			us = getDataFactory().getUserState(c);
 		} catch (Exception e) {
-            if (e instanceof IllegalArgumentException) { 
-                //needed b/c of ome-java and in handleException
-                //we throw a DSAccessException but in this case
-                //we must throw a DSOutOfServiceException.
-                connected = false;
-                throw new DSOutOfServiceException("Failed to log in.", e);
-            }
 			handleException(e, "Can't retrieve the user state.");
 		} 
 		return us.getExperimenter();
@@ -352,7 +361,6 @@ class OMEDSGateway
 		try {
 			retVal = getDataFactory().retrieveList(dto, c);
 		} catch (Exception e) {
-		    e.printStackTrace();
 			handleException(e, "Can't retrieve list. Type: "+dto+", Criteria: "+
 								c+".");
 		}
