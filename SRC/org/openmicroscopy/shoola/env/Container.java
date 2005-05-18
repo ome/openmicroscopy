@@ -157,32 +157,7 @@ public final class Container
 		//within the Initializer thread which belongs to root.  As a consequence
 		//of this, any other thread created thereafter will belong to root or
 		//a subgroup of root.
-	}
-    
-    /**
-     * Entry point to launch the container and bring up the whole client
-     * in the same thread as the caller's.
-     * <p>This method should only be used in a test environment &#151; we
-     * use the caller's thread to avoid regular unit tests having to deal
-     * with subtle concurrency issues.</p>
-     * <p>The absolute path to the installation directory is obtained from
-     * <code>home</code>.  If this parameter doesn't specify an absolute path,
-     * then it'll be translated into an absolute path.  Translation is system 
-     * dependent &#151; in many cases, the path is resolved against the user 
-     * directory (typically the directory in which the JVM was invoked).</p>
-     * <p>This method rolls back all executed tasks and terminates the program
-     * if an error occurs during the initialization procedure.</p>
-     * 
-     * @param home  Path to the installation directory.  If <code>null<code> or
-     *              empty, then the user directory is assumed.
-     */
-    public static void startupInTestMode(String home)
-    {
-        if (singleton != null)  return;
-        runStartupProcedure(home);
     }
-	
-	
 	
 	
 	/** Absolute path to the installation directory. */
@@ -327,5 +302,49 @@ public final class Container
 		//TODO: implement.
 		System.exit(0);
 	}
+    
+    
+/* 
+ * ==============================================================
+ *              Follows code to enable testing.
+ * ==============================================================
+ */ 
+    
+    /**
+     * Entry point to launch the container and bring up the whole client
+     * in the same thread as the caller's.
+     * <p>This method should only be used in a test environment &#151; we
+     * use the caller's thread to avoid regular unit tests having to deal
+     * with subtle concurrency issues.</p>
+     * <p>The absolute path to the installation directory is obtained from
+     * <code>home</code>.  If this parameter doesn't specify an absolute path,
+     * then it'll be translated into an absolute path.  Translation is system 
+     * dependent &#151; in many cases, the path is resolved against the user 
+     * directory (typically the directory in which the JVM was invoked).</p>
+     * <p>This method rolls back all executed tasks and terminates the program
+     * if an error occurs during the initialization procedure.</p>
+     * 
+     * @param home  Path to the installation directory.  If <code>null<code> or
+     *              empty, then the user directory is assumed.
+     */
+    public static void startupInTestMode(String home)
+    {
+        if (singleton != null) return;
+        
+        //Don't use the AbnormalExitHandler, let the test environment deal 
+        //with exceptions instead.  Initialize services as usual though.
+        Initializer initManager = null;
+        try {
+            singleton = new Container(home);
+            initManager = new Initializer(singleton);
+            initManager.configure();
+            initManager.doInit();
+            //startService() called by Initializer at end of doInit().
+        } catch (StartupException se) {
+            if (initManager != null) initManager.rollback();
+            throw new RuntimeException(
+                    "Failed to intialize the Container in test mode.", se);
+        }
+    }
 
 }
