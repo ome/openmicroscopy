@@ -42,6 +42,7 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.views.MonitorFactory;
 
 /** 
  * Creates the {@link DataManagementService} and {@link SemanticTypesService}
@@ -103,6 +105,11 @@ public final class DataServicesInit
 			RegistryFactory.linkDMS(dms, reg);
 			RegistryFactory.linkSTS(sts, reg);
 			RegistryFactory.linkPS(ps, reg);
+            
+            //Finally create and bind the factory used by the async data views
+            //to create exec monitors.
+            MonitorFactory mf = new MonitorFactory();
+            reg.bind(LookupNames.MONITOR_FACTORY, mf);
 		} catch (DSOutOfServiceException e) {
 			throw new StartupException("Can't connect to OMEDS", e);
 		} 
