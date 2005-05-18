@@ -80,6 +80,9 @@ public class LookupNames
     
     public static final String CMD_PROCESSOR = "/services/CmdProcessor";
     
+    public static final String MONITOR_FACTORY = 
+                                          "/services/data/views/MonitorFactory";
+    
     public static final String LOGIN = "/services/Login";
     public static final String LOGIN_CFG = "/services/Login/config";
     public static final String LOGIN_MAX_RETRY = 
