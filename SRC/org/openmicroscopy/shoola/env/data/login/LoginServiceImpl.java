@@ -73,13 +73,13 @@ public class LoginServiceImpl
      * Holds one of the state flags defined by the {@link LoginService}
      * interface to indicate the current state of the service. 
      */
-    private int         state;
-    
-    /** Allows to easily access the service's configuration. */
-    private LoginConfig config;
+    private int             state;
     
     /** Reference to the runtime environment. */
-    private Container   container;
+    private Container       container;
+    
+    /** Allows to easily access the service's configuration. */
+    protected LoginConfig   config;
     
     
     /**
