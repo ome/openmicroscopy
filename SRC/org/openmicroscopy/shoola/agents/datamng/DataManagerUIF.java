@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -98,7 +99,9 @@ public class DataManagerUIF
     
     public static final int                 ROW_TABLE_HEIGHT = 60;
     
-    public static final int                 ROW_NAME_FIELD = 25;
+    public static final int                 ROW_NAME_FIELD = 30;
+    
+    public static final int                 ROW_DESCRIPTION_FIELD = 120;
     
     public static final int                 SELECT_COLUMN_WIDTH = 15;
     
@@ -375,7 +378,10 @@ public class DataManagerUIF
      */
     public void setOnScreen()
     {
-        setSize(EDITOR_WIDTH, EDITOR_HEIGHT);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int width = 8*(screenSize.width/10);
+        int height = 8*(screenSize.height/10);
+        setSize(width, height);
         UIUtilities.centerAndShow(this);
     }
     
