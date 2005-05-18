@@ -146,41 +146,23 @@ public abstract class QuantumStrategy
 	{
 		boolean b = false;
 		if (min <= max) {
+            double range = max-min;
 			switch (qDef.pixelType) { 
 				case DataSink.INT8:
 				case DataSink.UINT8:
-					int m8 = (int) min, M8 = (int) max;
-					if (m8 <= M8 && M8-m8 < 0x100)  b = true; 
+					if (range < 0x100) b = true; 
 					break;
 				case DataSink.INT16:
 				case DataSink.UINT16:
+                    if (range < 0x10000) b = true; 
+                    break;
 				case DataSink.INT32:
 				case DataSink.UINT32:
-				case DataSink.FLOAT:  
-				case DataSink.DOUBLE: 
-					int m16 = (int) min, M16 = (int) max;
-					if (m16 <= M16 && M16-m16 < 0x10000)  b = true; 
-					break;
-				/*
-				case DataSink.INT32:
-					int m = (int) min, M = (int) max;
-					if (m < M && M-m < 0x100000000L)  b = true; 
-					
-					break;
-				case DataSink.UINT32:
-					long m32 = (long) min, M32 = (long) max;
-					if (m32 < M32 && M32-m32 < 0x100000000L)  b = true; 
-					break;
-				case DataSink.FLOAT:  
-				case DataSink.DOUBLE: 
-					
-					if (min < max && max-min < 0x100000000L)  b = true; 
-					break;
-				*/
-					//TODO: checking all when we support these types
-					/*
-					case Pixels.BIT:
-					*/
+                    if (range < 0x100000000L) b = true; 
+                    break;
+				case DataSink.FLOAT:   //range doesn't matter here.
+				case DataSink.DOUBLE:  //range doesn't matter here. 
+				case DataSink.BIT:  //This has never been impl server-side.
 			}
 		}
 		if (!b)
