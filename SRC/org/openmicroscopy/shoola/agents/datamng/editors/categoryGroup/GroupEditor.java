@@ -155,8 +155,9 @@ public class GroupEditor
         tabs.setSelectedComponent(generalPane);
         tabs.setFont(font);
         tabs.setForeground(DataManagerUIF.STEELBLUE);
-        TitlePanel tp = new TitlePanel("Edit Group", 
-                                "Edit an existing category group.", 
+        String s = "Editing CategoryGroup: "
+                +manager.getCategoryGroupData().getName()+".";
+        TitlePanel tp = new TitlePanel("Edit Group", s, 
                                     im.getIcon(IconManager.CATEGORY_GROUP_BIG));
         //set layout and add components
         setLayout(new BorderLayout(0, 0));

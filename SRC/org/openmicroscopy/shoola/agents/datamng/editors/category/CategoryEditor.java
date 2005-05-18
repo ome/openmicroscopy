@@ -158,8 +158,8 @@ public class CategoryEditor
 		tabs.setSelectedComponent(categoryPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
-		TitlePanel tp = new TitlePanel("Edit Category", 
-                                    "Edit an existing category.", 
+        String s = "Editing Category: "+manager.getCategoryData().getName()+".";
+		TitlePanel tp = new TitlePanel("Edit Category", s, 
 									im.getIcon(IconManager.CATEGORY_BIG));
 		//set layout and add components
         setLayout(new BorderLayout(0, 0));

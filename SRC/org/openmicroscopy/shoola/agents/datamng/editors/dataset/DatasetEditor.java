@@ -163,8 +163,8 @@ public class DatasetEditor
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
-		TitlePanel tp = new TitlePanel("Edit Dataset", 
-								"Edit an existing dataset.", 
+        String s = "Editing Dataset: "+manager.getDatasetData().getName()+".";
+		TitlePanel tp = new TitlePanel("Edit Dataset", s, 
 									im.getIcon(IconManager.DATASET_BIG));
 		//set layout and add components
         setLayout(new BorderLayout(0, 0));

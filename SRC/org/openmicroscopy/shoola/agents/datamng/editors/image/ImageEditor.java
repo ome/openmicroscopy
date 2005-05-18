@@ -144,7 +144,8 @@ public class ImageEditor
 		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
-		TitlePanel tp = new TitlePanel("Image", "Edit an existing image.", 
+        String s = "Editing Image: "+manager.getImageData().getName()+".";
+		TitlePanel tp = new TitlePanel("Edit Image", s, 
 								im.getIcon(IconManager.IMAGE_BIG));
 		//set layout and add components
 		setLayout(new BorderLayout(0, 0));

@@ -162,8 +162,8 @@ public class ProjectEditor
   		tabs.setSelectedComponent(generalPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);
-		TitlePanel tp = new TitlePanel("Edit Project", 
-                                        "Edit an existing project.", 
+        String s = "Editing Project: "+manager.getProjectData().getName()+".";
+		TitlePanel tp = new TitlePanel("Edit Project", s, 
 										im.getIcon(IconManager.PROJECT_BIG));
         setLayout(new BorderLayout(0, 0));
         add(tp, BorderLayout.NORTH);

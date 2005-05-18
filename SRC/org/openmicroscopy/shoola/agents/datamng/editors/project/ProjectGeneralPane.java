@@ -45,6 +45,7 @@ import javax.swing.border.Border;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
@@ -113,8 +114,10 @@ class ProjectGeneralPane
 		setTableLayout(table);
 		
 		// Labels
-		table.setValueAt(new JLabel(" Name"), 0, 0);
-		table.setValueAt(new JLabel(" Description"), 1, 0);
+        JPanel p = UIUtilities.buildComponentPanel(new JLabel("Name"));
+        table.setValueAt(p, 0, 0);
+        p = UIUtilities.buildComponentPanel(new JLabel("Description"));
+        table.setValueAt(p, 1, 0);
 
 		ProjectData pd = manager.getProjectData();
 		
@@ -140,7 +143,7 @@ class ProjectGeneralPane
 	private void setTableLayout(TableComponent table)
 	{
 		table.setTableHeader(null);
-		table.setRowHeight(1, DataManagerUIF.ROW_TABLE_HEIGHT);
+		table.setRowHeight(1, DataManagerUIF.ROW_DESCRIPTION_FIELD);
 		table.setRowHeight(0, DataManagerUIF.ROW_NAME_FIELD);
 		table.setDefaultRenderer(JComponent.class, 
 								new TableComponentCellRenderer());
