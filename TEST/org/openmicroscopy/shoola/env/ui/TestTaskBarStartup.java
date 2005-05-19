@@ -44,8 +44,10 @@ import org.openmicroscopy.shoola.env.init.FakeAgentsInit;
 import org.openmicroscopy.shoola.env.init.FakeDataServicesInit;
 import org.openmicroscopy.shoola.env.init.FakeInitializer;
 import org.openmicroscopy.shoola.env.init.FakeLoggerInit;
+import org.openmicroscopy.shoola.env.init.FakeLoginServiceInit;
 import org.openmicroscopy.shoola.env.init.FakeTaskBarInit;
 import org.openmicroscopy.shoola.env.init.LoggerInit;
+import org.openmicroscopy.shoola.env.init.LoginServiceInit;
 import org.openmicroscopy.shoola.env.init.NullContainerConfigInit;
 import org.openmicroscopy.shoola.env.init.NullSplashScreenInit;
 import org.openmicroscopy.shoola.env.init.SplashScreenInit;
@@ -85,6 +87,8 @@ public class TestTaskBarStartup
         //Replace the initialization tasks that create services which depend
         //on external resources with tasks that create no-op services instead.
         FakeInitializer.replaceInitTask(AgentsInit.class, FakeAgentsInit.class);
+        FakeInitializer.replaceInitTask(LoginServiceInit.class, 
+                                        FakeLoginServiceInit.class);
         FakeInitializer.replaceInitTask(DataServicesInit.class, 
                                         FakeDataServicesInit.class);
         FakeInitializer.replaceInitTask(LoggerInit.class, 
