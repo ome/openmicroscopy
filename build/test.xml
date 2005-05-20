@@ -37,12 +37,37 @@
    *           contains the results of the latest tests run in html format.
    *   + test.sources: All test files to compile.  Currently these are
    *           all the .java files within ${base.test.dir}.
-   *           The omeds package is excluded altogether as it will be soon
-   *           moved out of Shoola.
    *   + test.suite: All test case files that make up the test suite.
    *           These are all .java files under ${base.test.dir} that start with 
-   *           'Test'.  The omeds package is excluded altogether as it will
-   *           be soon moved out of Shoola.
+   *           'Test', with the exclsion of the contents of the env.data.t 
+   *           package and its sub-packages.  (Which contain Data Services test
+   *           cases that require a live connection to OMEDS to run.)
+   *           It is possible to modify all this by changing the values of the
+   *           test.suite.include and test.suite.exclude properties, which 
+   *           specifies what files end up in the test.suite.
+   *   + test.suite.include: Specifies the include pattern to use with the
+   *           test.suite property.   This property comes very handy when you
+   *           want to run a single test or, in general, a subset of all the
+   *           available tests.  Combined with Ant's ability to override 
+   *           properties from the command line, it lets you fine-tune a test
+   *           run.  For example:  
+   *             ant -Dtest.suite.include=**/shoola/env/**/Test*.java test  
+   *           runs all the tests in the evn package and its sub-packages, as  
+   *             ant -Dtestset=**/shoola/env/ui/TestTaskBarStartup.java  
+   *           runs just TestTaskBarStartup. 
+   *           (Note that you can also use the -propertyfile switch to load
+   *           properties from a file; please refer to the Ant docs.) 
+   *   + test.suite.exclude: Specifies the exclude pattern to use with the
+   *           test.suite property.   This property comes very handy when you
+   *           want to avoid running a single test or, in general, a subset of
+   *           all the available tests.  Combined with Ant's ability to override 
+   *           properties from the command line, it lets you fine-tune a test
+   *           run.  For example:  
+   *             ant -Dtest.suite.exclude=**/shoola/util/**/* test
+   *           excludes all tests in the shoola.util package and all its
+   *           sub-packages.
+   *           (Note that you can also use the -propertyfile switch to load
+   *           properties from a file; please refer to the Ant docs.)
    *   + test.libs: All libraries required by the tests.  Currently all jar
    *           files within ${base.test.lib.dir}.  Note that jar files in 
    *           sub-dirs are not included.
@@ -56,6 +81,27 @@
    *   + test.classpath: The classpath used to run the test.  Set to 
    *           include the test compile-classpath as well as all compiled 
    *           test classes.
+   *   + test.ds.suite: All test case files that make up the Data Services test
+   *           suite.  These are all .java files under ${base.test.dir} that 
+   *           start with 'Test' and belong in the env.data.t package or any of
+   *           its sub-packages.  These tests are run separately from the 
+   *           main test suite because require a live connection to OMEDS and
+   *           need to be run in the same JVM.  (So that the connection may be
+   *           recycled across tests.)
+   *   + test.ds.url: The URL to use in the Data Services tests to connect to
+   *           OMEDS.  Should be set through the -D or -propertyfile option of
+   *           the Ant command line.  
+   *   + test.ds.user: The user name to use in the Data Services tests to 
+   *           connect to OMEDS.  Should be set through the -D or -propertyfile
+   *           option of the Ant command line.
+   *   + test.ds.pass: The password to use in the Data Services tests to 
+   *           connect to OMEDS.  Should be set through the -D or -propertyfile
+   *           option of the Ant command line.
+   *
+   *   NOTE: For further information about running Data Services test that
+   *         require a live connection to OMEDS, you should refer to the
+   *         docs accompanying:
+   *            org.openmicroscopy.shoola.env.data.DataServicesTestCase
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="test.dir" location="${build.dir}/test" />
   <property name="test.compiled.dir" location="${test.dir}/compiled" /> 
@@ -65,16 +111,16 @@
   <property name="test.reports.html.dir" location="${test.reports.dir}/html" /> 
   <patternset id="test.sources">
     <include name="**/*.java" />
-    <exclude name="**/omeds/**/*.java" /> 
   </patternset> 
+  <property name="test.suite.include" value="**/Test*.java" /> 
+  <property name="test.suite.exclude" value="**/env/data/t/**/*" /> 
   <fileset id="test.suite" dir="${base.test.dir}"> 
-    <include name="**/Test*.java" />
-    <exclude name="**/omeds/**/*.java" /> 
+    <include name="${test.suite.include}" />
+    <exclude name="${test.suite.exclude}" /> 
   </fileset> 
   <fileset id="test.libs" dir="${base.test.lib.dir}" includes="*.jar" />
   <fileset id="test.resources" dir="${base.test.dir}">
     <exclude name="**/*.java" />
-    <exclude name="**/omeds/**/*" /> 
   </fileset>
   <path id="test.compile.classpath">
     <path refid="app.run.classpath" /> 
@@ -84,7 +130,12 @@
     <path refid="test.compile.classpath" />
     <pathelement location="${test.compiled.dir}" />
   </path>
- 
+  <fileset id="test.ds.suite" dir="${base.test.dir}"> 
+      <include name="**/env/data/t/**/Test*.java" />
+  </fileset> 
+  <property name="test.ds.url" value="http://testhost/shoola/" />  
+  <property name="test.ds.user" value="test-user" /> 
+  <property name="test.ds.pass" value="test-pass" /> 
  
  
   
@@ -147,58 +198,6 @@
       <patternset refid="test.sources" /> 
     </javac> 
   </target> 
- 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-   * Run a single test and produce a report on the console.
-   * This is mainly a convenience target for developers.  In order to use it
-   * you have to set the 'test.case' property to the fully qualified name of
-   * the test case class.  (This class must be part of the application test
-   * suite, which is defined by the test.suite fileset.)
-   * There are several ways to set the 'test.case' property, ranging from 
-   * manually editing this file to specifying it on the Ant's command line,
-   * like in:
-   * 
-   * ant -Dtest.case=org.openmicroscopy.shoola.my.Test test-case
-   *
-   * (You can also load properties from a file, please refer to the Ant's
-   * help or manual.)
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <target name="test-case" depends="test-compile">
-    <junit printsummary="yes" 
-           haltonerror="yes"
-           haltonfailure="yes" 
-           fork="yes">
-      <classpath refid="test.classpath" /> 
-      <test name="${test.case}" if="test.case" />  
-    </junit> 
-  </target> 
- 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-   * Run all tests matching a given pattern and produce a report on the console.
-   * This is mainly a convenience target for developers.  In order to use it
-   * you have to set the 'test.matching' property to an Ant include pattern.
-   * (The pattern will be used to match files in ${base.test.dir}.)
-   * For example:
-   *
-   * ant -Dtest.matching=**/util/mem/Test*.java test-matching
-   *
-   * Will run all tests in every util.mem package found under ${base.test.dir}.
-   * (You can also load properties from a file, please refer to the Ant's
-   * help or manual.)
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <target name="test-matching" depends="test-compile">
-    <junit printsummary="yes" 
-           haltonerror="yes"
-           haltonfailure="yes" 
-           fork="yes">
-      <classpath refid="test.classpath" /> 
-      <batchtest if="test.matching">
-        <fileset dir="${base.test.dir}">
-          <include name="${test.matching}" />
-        </fileset> 
-      </batchtest> 
-    </junit> 
-  </target>
    
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run all tests, produce a report, and halt the build upon test failure. 
@@ -238,6 +237,47 @@
   </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Run all Data Services tests, produce a report, and halt the build upon 
+   * test failure. 
+   * The test suite is specifed by the test.ds.suite fileset.  Every test case
+   * is run in the same JVM so that the connection to OMEDS may be recycled.
+   * The classpath of the JVM is set to the Ant's classpath and to 
+   * ${test.classpath}.  The system properties used by to establish a live
+   * connection to the server are set to the values of ${test.ds.url}, 
+   * ${test.ds.user}, and ${test.ds.pass}.
+   * After the tests run, an xml report is produced into 
+   * ${test.reports.xml.dir}.  In turn, an html report is generated from 
+   * those xml files and placed under ${test.reports.html.dir}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="test-ds" 
+          depends="test-compile"
+          description="Run all Data Services tests.">
+    <junit printsummary="yes" 
+           errorproperty="test-ds.didnt.pass" 
+           failureproperty="test-ds.didnt.pass"
+           fork="no">
+      <classpath refid="test.classpath" />
+      <sysproperty key="omeds.url" value="${test.ds.url}"/>
+      <sysproperty key="omeds.user" value="${test.ds.user}"/>
+      <sysproperty key="omeds.pass" value="${test.ds.pass}"/>  
+      <batchtest todir="${test.reports.xml.dir}">
+        <fileset refid="test.ds.suite" />
+        <formatter type="brief" usefile="no" />
+        <formatter type="xml" /> 
+      </batchtest> 
+    </junit>
+    <junitreport todir="${test.reports.xml.dir}">
+      <fileset dir="${test.reports.xml.dir}" includes="TEST-*.xml" />
+      <report todir="${test.reports.html.dir}" 
+              format="frames"
+              styledir="${base.build.dir}/tools" /> 
+    </junitreport>
+    <fail if="test-ds.didnt.pass">
+      Tests didn't pass.  See report details in ${test.reports.html.dir}.
+    </fail> 
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Remove all output generated by the targets within this file. 
    * This target simply deletes the ${test.dir}, relying on the fact that all
    * other targets output under this dir.  As long as dir mapping props stick
@@ -260,6 +300,10 @@
 Test targets:
 ------------- 
   test: Run all the tests and output a report under ${test.reports.html.dir}.
+  test-ds: Run all the Data Services tests and output a report under 
+           ${test.reports.html.dir}.  
+           Note that these tests require a live connection to OMEDS and extra
+           configuration.  Otherwise they will all fail.
   test.clean: Remove ${test.dir}. 
     </echo> 
   </target> 
