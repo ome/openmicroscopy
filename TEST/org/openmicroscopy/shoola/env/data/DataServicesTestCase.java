@@ -36,7 +36,30 @@ package org.openmicroscopy.shoola.env.data;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.init.AgentsInit;
+import org.openmicroscopy.shoola.env.init.BatchLoginServiceInit;
+import org.openmicroscopy.shoola.env.init.CmdProcessorInit;
+import org.openmicroscopy.shoola.env.init.ContainerConfigInit;
+import org.openmicroscopy.shoola.env.init.DataServicesInit;
+import org.openmicroscopy.shoola.env.init.DataServicesTestsInit;
+import org.openmicroscopy.shoola.env.init.FakeAgentsInit;
+import org.openmicroscopy.shoola.env.init.FakeCmdProcessorInit;
+import org.openmicroscopy.shoola.env.init.FakeInitializer;
+import org.openmicroscopy.shoola.env.init.FakeLoggerInit;
+import org.openmicroscopy.shoola.env.init.FakeTaskBarInit;
+import org.openmicroscopy.shoola.env.init.FakeUserNotifierInit;
+import org.openmicroscopy.shoola.env.init.LoggerInit;
+import org.openmicroscopy.shoola.env.init.LoginServiceInit;
+import org.openmicroscopy.shoola.env.init.NullContainerConfigInit;
+import org.openmicroscopy.shoola.env.init.NullSplashScreenInit;
+import org.openmicroscopy.shoola.env.init.SplashScreenInit;
+import org.openmicroscopy.shoola.env.init.TaskBarInit;
+import org.openmicroscopy.shoola.env.init.UserNotifierInit;
 
 /** 
  * Ancestor of all Data Services test cases.
@@ -101,11 +124,93 @@ public abstract class DataServicesTestCase
     extends TestCase
 {
 
+    /** The singleton Container shrared among all test cases. */
+    private static Container    container;
+    
+    
+    /**
+     * Reconfigures the Container's initialization procedure so to replace
+     * the services we don't need with no-op services and those that we need
+     * with test services.
+     */
+    private static void reconfigureInitProc()
+    {   
+        //Don't load container.xml; we'll configure the registry entries that
+        //we need manually instead in the DataServicesTestsInit.
+        FakeInitializer.replaceInitTask(ContainerConfigInit.class,
+                                        NullContainerConfigInit.class);
+        
+        //Iinitialize Data Services so that they connect to the server address
+        //Env and use a SyncBatchCallMonitor in asynchronous calls.
+        FakeInitializer.replaceInitTask(DataServicesInit.class,
+                                        DataServicesTestsInit.class);
+                
+        //Get rid of the default Login Service and replace it with one 
+        //suitable for testing.  (No user interaction, no UI.)
+        FakeInitializer.replaceInitTask(LoginServiceInit.class, 
+                                        BatchLoginServiceInit.class);
+        
+        //Disable multi-threading.
+        FakeInitializer.replaceInitTask(CmdProcessorInit.class, 
+                                        FakeCmdProcessorInit.class);
+        
+        //Disable logging.
+        FakeInitializer.replaceInitTask(LoggerInit.class, 
+                                        FakeLoggerInit.class);
+        
+        //Get rid of all UI-related services and components.
+        FakeInitializer.replaceInitTask(SplashScreenInit.class,
+                                        NullSplashScreenInit.class);
+        FakeInitializer.replaceInitTask(UserNotifierInit.class,
+                                        FakeUserNotifierInit.class);
+        FakeInitializer.replaceInitTask(TaskBarInit.class, 
+                                        FakeTaskBarInit.class);
+        FakeInitializer.replaceInitTask(AgentsInit.class, FakeAgentsInit.class);
+        
+        //In conclusion, we're only going to have the following services:
+        // * Data Services: Initialized to connect to the address found in
+        //                  Env and to run in the JUnit thread.
+        // * Login Service: Initialized to operate in batch mode.
+        // * Event Bus: It has no external dependencies, so we keep it as is.
+    }
+    
+    /**
+     * Initializes the test environment the first time it is called; does
+     * nothing thereafter.
+     */
+    private static void ensureInit() 
+    {
+        if (container != null) return;  //Already intialized.
+
+        //Create the Container.
+        reconfigureInitProc();
+        container = Container.startupInTestMode("");  //home is irrelevant here.
+        
+        //Now we're ready to log onto OMEDS for the first time.
+        UserCredentials uc = new UserCredentials(Env.getOmedsUser(), 
+                                                 Env.getOmedsPass());
+        Registry reg = container.getRegistry();
+        LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
+        loginSvc.login(uc);
+    }
+    
+    
     /**
      * Reference to the Container's registry.
      * Subclasses mainly use this to get references to the various
      * Data Services. 
      */
     protected Registry      registry;
+    
+    
+    /**
+     * Makes sure the Container and its services are correctly initialized
+     * for testing.
+     */
+    protected void setUp() 
+    { 
+        ensureInit();
+        registry = container.getRegistry();
+    }
     
 }
