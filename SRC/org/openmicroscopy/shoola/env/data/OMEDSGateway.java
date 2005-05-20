@@ -58,7 +58,6 @@ import org.openmicroscopy.ds.managers.HistoryManager;
 import org.openmicroscopy.ds.managers.ProjectManager;
 import org.openmicroscopy.ds.st.Experimenter;
 import org.openmicroscopy.is.ImageServerException;
-import org.openmicroscopy.shoola.env.data.login.LoginService;
 
 /** 
  * Unified access point to the various <i>OMEDS</i> services.
@@ -95,8 +94,11 @@ class OMEDSGateway
 	 */
 	private boolean			connected;
 	
-    /** Used whenever a broken link is detected to try reestabishing it. */
-    private LoginService    loginService;
+    /** 
+     * Used whenever a broken link is detected to get the Login Service and
+     * try reestabishing a valid link to <i>OMEDS</i>. 
+     */
+    private DataServicesFactory dsFactory;
     
     
 	/**
@@ -117,11 +119,11 @@ class OMEDSGateway
 	{
 		if (e instanceof RemoteConnectionException) {
 			connected = false;
-            loginService.login();
+            dsFactory.getLoginService().login();
 			throw new DSOutOfServiceException("Can't connect to OMEDS.", e);
 		} else if (e instanceof RemoteAuthenticationException) {
 			connected = false;
-            loginService.login();
+            dsFactory.getLoginService().login();
 			throw new DSOutOfServiceException("Failed to log in.", e);
 		} else if (e instanceof RemoteServerErrorException) {
 			throw new DSAccessException(contextMessage, e);
@@ -132,7 +134,7 @@ class OMEDSGateway
             if (e.getMessage() == NOT_LOGGED_IN) {
                 //TMP, to remedy OME-JAVA bugs.
                 connected = false;
-                loginService.login();
+                dsFactory.getLoginService().login();
                 throw new DSOutOfServiceException("Failed to log in.", e);
             }
             
@@ -172,10 +174,10 @@ class OMEDSGateway
 	 * @param omedsAddress
 	 * @throws DSOutOfServiceException	if the URL is not valid.
 	 */
-	OMEDSGateway(URL omedsAddress, LoginService ls) 
+	OMEDSGateway(URL omedsAddress, DataServicesFactory dsFactory) 
 		throws DSOutOfServiceException
 	{
-		loginService = ls;
+        this.dsFactory = dsFactory;
         try {
 			proxiesFactory = DataServer.getDefaultServices(omedsAddress);
 		} catch (Exception e) {
