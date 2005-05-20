@@ -183,7 +183,9 @@ public abstract class BatchCallTree
      */
     protected ExecMonitor getMonitor(AgentEventListener observer)
     {
-        return new BatchCallMonitor(this, observer);
+        MonitorFactory mf = (MonitorFactory) 
+                                    context.lookup(LookupNames.MONITOR_FACTORY);
+        return mf.makeNew(this, observer);
     }
     
     /**
