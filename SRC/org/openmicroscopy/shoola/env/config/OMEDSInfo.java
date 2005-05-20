@@ -61,19 +61,23 @@ public class OMEDSInfo
 	
 	/**
 	 * Creates a new instance.
-	 * This is the only costructor and has package visibility because instances
-	 * of this class can only be created (meaningfully) within this package.
+	 * This is the only costructor and should have package visibility because 
+     * instances of this class can only be created (meaningfully) within this
+     * package.  However, we made it public to ease testing.
 	 */
-	OMEDSInfo() {}
+	public OMEDSInfo() {}
 	
 	/**
 	 * Parses and sets the <i>URL</i> to connect to <i>OMEDS</i>.
-	 * 
+	 * This method should have package visibility because it can only 
+     * (meaningfully) used within this package.  However, we made it 
+     * public to ease testing.
+     * 
 	 * @param url	A string representing a valid <i>URL</i>.
 	 * @throws MalformedURLException If <code>url</code> specifies a malformed
 	 * 									<i>URL</i>.
 	 */
-	void setServerAddress(String url)
+	public void setServerAddress(String url)
 		throws MalformedURLException
 	{  
 		serverAddress = new URL(url);  
