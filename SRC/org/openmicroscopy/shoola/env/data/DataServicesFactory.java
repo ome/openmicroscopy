@@ -96,13 +96,11 @@ public class DataServicesFactory
 	{
 		registry = c.getRegistry();
 		
-		//Retrieve the connection URL and create the gateway.
+		//Retrieve the connection URL and create the internal proxy to OMEDS.
 		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
 		if (info == null)  //TODO: get rid of this when we have an XML schema.
 			throw new NullPointerException("No data server host provided!");
-
-        LoginService ls = (LoginService) registry.lookup(LookupNames.LOGIN);
-		gateway = new OMEDSGateway(info.getServerAddress(), ls);
+        gateway = new OMEDSGateway(info.getServerAddress(), this);
 		
 		//Create the adapters.
 		dms = new DMSAdapter(gateway, registry); 
@@ -118,6 +116,11 @@ public class DataServicesFactory
 	public SemanticTypesService getSTS() { return sts; }
     
     public PixelsService getPS() { return ps; }
+    
+    public LoginService getLoginService()
+    {
+        return (LoginService) registry.lookup(LookupNames.LOGIN);
+    }
 
 	/**
 	 * Attempts to connect to <i>OMEDS</i>.
