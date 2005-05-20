@@ -326,10 +326,11 @@ public final class Container
      * 
      * @param home  Path to the installation directory.  If <code>null<code> or
      *              empty, then the user directory is assumed.
+     * @return A reference to the newly created singleton Container.
      */
-    public static void startupInTestMode(String home)
+    public static Container startupInTestMode(String home)
     {
-        if (singleton != null) return;
+        if (singleton != null) return singleton;
         
         //Don't use the AbnormalExitHandler, let the test environment deal 
         //with exceptions instead.  Initialize services as usual though.
@@ -342,9 +343,11 @@ public final class Container
             //startService() called by Initializer at end of doInit().
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
+            singleton = null;
             throw new RuntimeException(
                     "Failed to intialize the Container in test mode.", se);
         }
+        return singleton;
     }
 
 }
