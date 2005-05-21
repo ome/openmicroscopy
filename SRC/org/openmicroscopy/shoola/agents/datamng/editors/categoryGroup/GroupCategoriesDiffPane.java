@@ -148,10 +148,10 @@ class GroupCategoriesDiffPane
         cancelButton.setToolTipText(
             UIUtilities.formatToolTipText("Cancel selection."));
         //cancel button
-        saveButton = new JButton("OK");
+        saveButton = new JButton("Add");
         saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         saveButton.setToolTipText(
-            UIUtilities.formatToolTipText("Add the selection."));
+            UIUtilities.formatToolTipText("Add the categories to the group."));
         
         if (d == null || d.size() == 0) {
             selectButton.setEnabled(false);
@@ -163,10 +163,11 @@ class GroupCategoriesDiffPane
     /** Build and lay out the GUI. */
     void buildGUI()
     {
+        String s =  "  Select categories to add to"
+                    +control.getCategoryGroupData().getName()+".";
         IconManager im = 
             IconManager.getInstance(control.getAgentCtrl().getRegistry());
-        TitlePanel tp = new TitlePanel(" Add categories", 
-                                "  Select categories to add to the group.", 
+        TitlePanel tp = new TitlePanel(" Add categories", s, 
                             im.getIcon(IconManager.DATASET_BIG));
         contents = buildDatasetsPanel();
         contents.setSize(DataManagerUIF.ADD_WIN_WIDTH, 

@@ -172,10 +172,10 @@ class CreateCategoryImagesPane
             UIUtilities.formatToolTipText("Cancel selection."));
         
         //ShowImages button
-        showImages = new JButton("Show images");
+        showImages = new JButton("Available images");
         showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         showImages.setToolTipText(
-            UIUtilities.formatToolTipText("Show list of imported images."));
+            UIUtilities.formatToolTipText("Show available images."));
         //Filters images
         IconManager im = IconManager.getInstance(manager.getRegistry());
         filter = new JButton(im.getIcon(IconManager.FILTER));

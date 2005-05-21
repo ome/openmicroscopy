@@ -173,10 +173,10 @@ class CreateDatasetImagesPane
             UIUtilities.formatToolTipText("Cancel selection."));
         
         //ShowImages button
-        showImages = new JButton("Show images");
+        showImages = new JButton("Available images");
         showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         showImages.setToolTipText(
-            UIUtilities.formatToolTipText("Show list of images."));
+            UIUtilities.formatToolTipText("Show available images."));
         setButtonsEnabled(false);
         
         //Filters images

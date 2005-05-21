@@ -128,7 +128,7 @@ class ProjectDatasetsDiffPane
 	/** 
 	 * Initializes the controls. 
 	 * 
-	 * @param d List of datasets which don't belong to the project.
+	 * @param d List of datasets that don't belong to the project.
 	 */
 	private void initButtons(List d)
 	{
@@ -143,7 +143,7 @@ class ProjectDatasetsDiffPane
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
 		//cancel button
-		saveButton = new JButton("OK");
+		saveButton = new JButton("Add");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add the selection."));
@@ -158,10 +158,11 @@ class ProjectDatasetsDiffPane
 	/** Build and lay out the GUI. */
 	void buildGUI()
 	{
+        String s = "  Select datasets to add to "
+                    +control.getProjectData().getName()+".";
         IconManager im = 
             IconManager.getInstance(control.getAgentControl().getRegistry());
-		TitlePanel tp = new TitlePanel(" Add datasets", 
-								"  Select datasets to add to the project.", 
+		TitlePanel tp = new TitlePanel(" Add datasets", s, 
 							im.getIcon(IconManager.DATASET_BIG));
 		contents = buildDatasetsPanel();
 		contents.setSize(DataManagerUIF.ADD_WIN_WIDTH, 

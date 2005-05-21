@@ -190,15 +190,15 @@ class DatasetImagesDiffPane
 		cancelButton.setToolTipText(
 			UIUtilities.formatToolTipText("Cancel selection."));
 		//save button
-		saveButton = new JButton("OK");
+		saveButton = new JButton("Add");
 		saveButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		saveButton.setToolTipText(
-			UIUtilities.formatToolTipText("Add the selection."));
+			UIUtilities.formatToolTipText("Add the images to the dataset."));
 		
-        showImages = new JButton("Show Images");
+        showImages = new JButton("Available Images");
         showImages.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         showImages.setToolTipText(
-            UIUtilities.formatToolTipText("Show Images."));
+            UIUtilities.formatToolTipText("Show Available images."));
         //Filters images
         IconManager im = IconManager.getInstance(
                 control.getAgentControl().getRegistry());
@@ -211,9 +211,10 @@ class DatasetImagesDiffPane
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
-        TitlePanel tp = new TitlePanel("Add images", 
-                    "Select images to add to the dataset.", 
-                im.getIcon(IconManager.IMAGE_BIG));
+        String s = "Select images to add to "+
+                    control.getDatasetData().getName()+".";
+        TitlePanel tp = new TitlePanel("Add images", s, 
+                    im.getIcon(IconManager.IMAGE_BIG));
         buildComponentsPanel();
         selectionsPanel = UIUtilities.buildComponentPanel(selections);
         contents = new JPanel();
