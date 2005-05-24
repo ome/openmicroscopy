@@ -277,8 +277,11 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                         hierarchies.add(id);
                     } else {
                         Iterator c = categories.iterator();
-                        while (c.hasNext()) {
-                            Category ca = (Category) c.next();
+                        while (c.hasNext()) { // OPTIMAL TODO looping over get!!
+                                              // ???
+//                          Category ca = (Category) c.next(); // HERE ??
+                            Integer cId = (Integer) c.next();
+                            Category ca = (Category) session.get(Category.class, cId);
                             CategoryData cd = go(ca, false);
 
                             // Add images (since not resolved because
@@ -287,28 +290,23 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                                 cd.images = new HashSet();
                             cd.images.add(id);
 
-                            Integer cg = ca.getCategoryGroup(); // TODO really
+                            Integer cgId = ca.getCategoryGroup(); // and HERE ??
+                                                                  // FIXME
+                            CategoryGroup cg = (CategoryGroup) session.get(CategoryGroup.class, cgId);
                             // not a
                             // collection??
                             if (cg == null) {
                                 hierarchies.add(cd);
                             } else {
-                                //TODO Need to get to the CG.
-                                //                                Iterator p = projects.iterator();
-                                //                                while (p.hasNext()){
-                                //                                    Project prj = (Project) p.next();
-                                //                                    ProjectData pd = go(prj,false);
-                                //                                    
-                                //                                    // Add datsets (since not resolved because
-                                // go(*,false)
-                                //                                    if (null == pd.datasets) pd.datasets = new
-                                // HashSet();
-                                //                                    pd.datasets.add(dd);
-                                //                                    
-                                //                                    hierarchies.add(pd);
-                                //                                }
-                            }
+                                CategoryGroupData cgd = go(cg);
 
+                                // Add categories (since not resolved because
+                                // go(*,false)
+                                    if (null == cgd.categories)
+                                        cgd.categories = new HashSet();
+                                    cgd.categories.add(cd);
+                                    hierarchies.add(cgd);
+                            }
                         }
                     }
                 }
@@ -537,12 +535,14 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
 
     ProjectData go(Project p, boolean resolve) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(Prj) *****");
         if (checkCache(p)) {
             return (ProjectData) fromCache(p);
         }
 
         ProjectData pd = new ProjectData();
+        toCache(p, pd);
+        
         pd.id = p.getProjectId().intValue();
         pd.name = p.getName();
         pd.description = p.getDescription();
@@ -555,10 +555,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                 set.add(go(d));
             }
         }
-
         pd.datasets = set;
 
-        toCache(p, pd);
         return pd;
     }
 
@@ -567,12 +565,14 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
 
     DatasetData go(Dataset d, boolean resolve) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(Ds) *****");
         if (checkCache(d)) {
             return (DatasetData) fromCache(d);
         }
 
         DatasetData dd = new DatasetData();
+        toCache(d, dd);
+
         dd.id = d.getDatasetId().intValue();
         dd.name = d.getName();
         dd.description = d.getDescription();
@@ -587,25 +587,25 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         dd.images = set;
-
-        toCache(d, dd);
         return dd;
     }
 
     CategoryGroupData go(CategoryGroup cg) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(CG) *****");
         if (checkCache(cg)) {
             return (CategoryGroupData) fromCache(cg);
         }
 
         CategoryGroupData cgd = new CategoryGroupData();
+        toCache(cg, cgd);
+        
         cgd.id = cg.getAttributeId().intValue();
         cgd.description = cg.getDescription();
         cgd.name = cg.getName();
         cgd.owner = go(cg.getModuleExecution().getExperimenter());
         // FIXMEcgd.categories = cg.
 
-        toCache(cg, cgd);
+        
         return cgd;
     }
 
@@ -614,18 +614,20 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
     
     CategoryData go(Category c, boolean resolve){
+        System.out.println(" ***** HierarchyBrowsingImpl.go(Cat) *****");
 
         if (checkCache(c)) {
             return (CategoryData) fromCache(c);
         }
 
         CategoryData cd = new CategoryData();
+        toCache(c, cd);
+        
         cd.id = c.getAttributeId().intValue();
         cd.name = c.getName();
         cd.description = c.getDescription();
         cd.owner = go(c.getModuleExecution().getExperimenter());
-
-        toCache(c, cd);
+        
         return cd;
     }
 
@@ -634,12 +636,14 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
 
     ImageData go(Image img, boolean resolve) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(Img) *****");
         if (checkCache(img)) {
             return (ImageData) fromCache(img);
         }
 
         ImageData id = new ImageData();
+        toCache(img, id);
+        
         id.id = img.getImageId().intValue();
         id.name = img.getName();
         id.description = img.getDescription();
@@ -656,13 +660,12 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             }
         }
         id.allPixels = set;
-
-        toCache(img, id);
+        
         return id;
     }
 
     PixelsData go(ImagePixel ip) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(Pix) *****");
         if (checkCache(ip)) {
             return (PixelsData) fromCache(ip);
         }
@@ -674,6 +677,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         dim.setPixelSizeZ((new Float(0))); //XXX
 
         PixelsData pd = new PixelsData();
+        toCache(ip, pd);
+        
         pd.id = ip.getAttributeId().intValue();
         pd.image = go(ip.getImage());// TODO Do they really want this?
         pd.imageServerID = ip.getImageServerId().longValue();
@@ -688,17 +693,18 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         pd.sizeY = ip.getSizeY().intValue();
         pd.sizeZ = ip.getSizeZ().intValue();
 
-        toCache(ip, pd);
         return pd;
     }
 
     ExperimenterData go(Experimenter e) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(Exp) *****");
         if (checkCache(e)) {
             return (ExperimenterData) fromCache(e);
         }
 
         ExperimenterData ed = new ExperimenterData();
+        toCache(e, ed);
+        
         ed.id = e.getAttributeId().intValue();
         ed.firstName = e.getFirstname();
         ed.lastName = e.getLastname();
@@ -706,18 +712,19 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         ed.institution = e.getInstitution();
         ed.groupID = e.getGroupId().intValue();
         //ed.groupName = e.get FIXME
-
-        toCache(e, ed);
+        
         return ed;
     }
 
     AnnotationData go(ImageAnnotation ann) {
-
+        System.out.println(" ***** HierarchyBrowsingImpl.go(IAnn) *****");
         if (checkCache(ann)) {
             return (AnnotationData) fromCache(ann);
         }
 
         AnnotationData ad = new AnnotationData();
+        toCache(ann, ad);
+        
         ad.id = ann.getAttributeId().intValue();
         ad.owner = go(ann.getModuleExecution().getExperimenter());
         /*
@@ -733,17 +740,18 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         // FIXME seems to have changed in DB
         ad.annotatedObject = go(ann.getImage());
 
-        toCache(ann, ad);
         return ad;
     }
 
     AnnotationData go(DatasetAnnotation ann) {
-
+System.out.println(" ***** HierarchyBrowsingImpl.go(Ann) *****");
         if (checkCache(ann)) {
             return (AnnotationData) fromCache(ann);
         }
 
         AnnotationData ad = new AnnotationData();
+        toCache(ann, ad);
+        
         ad.id = ann.getAttributeId().intValue();
         ad.owner = go(ann.getModuleExecution().getExperimenter());
         ad.text = ann.getContent();
@@ -753,15 +761,17 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         // getTimestamp().longValue());
         ad.annotatedObject = go(ann.getDataset());
 
-        toCache(ann, ad);
         return ad;
     }
 
     void newCache() {
-        cache.set(new HashMap());
+        Map m = new HashMap();
+        m.put(null,null); // This keeps things from getting hairy
+        cache.set(m);
     }
 
     void emptyCache() {
+        //TODO Need to make sure cache is emptied on exception
         cache.set(null);
     }
 

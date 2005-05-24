@@ -6,8 +6,13 @@ package org.ome.tests.client;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import pojos.DataObject;
 
@@ -19,8 +24,8 @@ import com.caucho.hessian.io.HessianOutput;
  */
 public class Utils {
 
-    /** only valid for DataObjects */
-    public static int fieldCount(Object obj) {
+    /** only valid for DataObjects DOESNT HANDLE RECURSION BEWARE*/
+    /*public static int fieldCount(Object obj) {
         int result = 0;
 
         if (null == obj){
@@ -66,7 +71,7 @@ public class Utils {
 
         return result;
     }
-
+*/
     public static int structureSize(Object obj) {
         int result = -1;
         try {
@@ -82,4 +87,20 @@ public class Utils {
         return result;
     }
 
+    public static String[] getObjectVoidMethods(Class clazz){
+        Set set = new HashSet();
+        
+        Method[] methods = clazz.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if (method.getReturnType().equals(Object.class)){
+                if (method.getParameterTypes().length == 0){
+                    set.add(method.getName());
+                }
+            }
+            
+        }
+        
+        return (String[]) set.toArray(new String[set.size()]);
+    }
 }
