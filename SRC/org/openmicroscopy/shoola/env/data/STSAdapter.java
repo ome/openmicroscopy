@@ -1103,9 +1103,7 @@ class STSAdapter
     public void updateCategoryGroup(CategoryGroupData data, List toAdd)
         throws DSOutOfServiceException, DSAccessException
     {
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        Criteria c = CategoryMapper.buildBasicCriteria(data.getID(), 
-                                            uc.getUserID());
+        Criteria c = CategoryMapper.buildBasicCriteria(data.getID());
         CategoryGroup cg = 
             (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
         cg.setName(data.getName());
@@ -1143,9 +1141,7 @@ class STSAdapter
     {
         if (data == null) 
             throw new IllegalArgumentException("no category specified");
-        UserDetails uc = registry.getDataManagementService().getUserDetails();
-        int id = data.getID();
-        Criteria c = CategoryMapper.buildBasicCriteria(id, uc.getUserID());
+        Criteria c = CategoryMapper.buildBasicCriteria(data.getID());
         Category category = (Category) gateway.retrieveSTSData("Category", c);
         category.setName(data.getName());
         if (data.getDescription() != null)
@@ -1160,7 +1156,8 @@ class STSAdapter
             int imgID;
             while (i.hasNext()) {
                 imgID = ((Integer) i.next()).intValue();
-                c = CategoryMapper.buildClassificationCriteria(imgID, id);
+                c = CategoryMapper.buildClassificationCriteria(imgID, 
+                                    data.getID());
                 l = (List) gateway.retrieveListSTSData("Classification", c);
                 if (l != null) {
                     k = l.iterator();
@@ -1263,8 +1260,8 @@ class STSAdapter
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         Criteria c = CategoryMapper.buildCategoryCriteria(cID, uc.getUserID());
         Category cat = (Category) gateway.retrieveSTSData("Category", c);
-        if (!annotated) 
-            return CategoryMapper.fillCategoryTree(cat, null);
+        if (!annotated) return CategoryMapper.fillCategoryTree(cat, null);
+        
         List imageIDs = CategoryMapper.prepareListImagesID(cat);
         List isAnnotations = getImageAnnotations(imageIDs, uc.getUserID());
         return CategoryMapper.fillCategoryTree(cat, isAnnotations);
@@ -1280,10 +1277,8 @@ class STSAdapter
         List l = (List) gateway.retrieveListSTSData("CategoryGroup", c);
         if (l == null) return new ArrayList();
         return CategoryMapper.fillCategoryGroup(l);
-    
     }
-
-    
+  
     /** Implemented as specified in {@link DataManagementService}. */
     public ChannelData[] getChannelData(int imageID)
         throws DSOutOfServiceException, DSAccessException
@@ -1330,10 +1325,8 @@ class STSAdapter
             PixelsMapper.fillPixelsDescription(img.getDefaultPixels(), retVal);
         //Retrieve the realSize of a pixel.
         c = PixelsMapper.buildPixelsDimensionCriteria(imageID);
-        Dimensions pixelDim = 
-            (Dimensions) gateway.retrieveSTSData("Dimensions", c);
-        if (pixelDim != null)
-            PixelsMapper.fillPixelsDimensions(pixelDim, retVal);
+        Dimensions dim = (Dimensions) gateway.retrieveSTSData("Dimensions", c);
+        if (dim != null) PixelsMapper.fillPixelsDimensions(dim, retVal);
         return retVal;
     }
     
@@ -1347,12 +1340,10 @@ class STSAdapter
         UserDetails uc = registry.getDataManagementService().getUserDetails();
         
         Criteria c = ImageMapper.buildRenderingSettingsCriteria(
-                        STSMapper.IMAGE_GRANULARITY, imageID);
-        List rsList = 
-            (List) gateway.retrieveListSTSData("RenderingSettings", c);
-        if (rsList != null && rsList.size() != 0)
-            displayOptions = ImageMapper.fillInRenderingDef(rsList, pixelType, 
-                                                uc.getUserID());                               
+                        STSMapper.IMAGE_GRANULARITY, imageID, uc.getUserID());
+        List list = (List) gateway.retrieveListSTSData("RenderingSettings", c);
+        if (list != null && list.size() != 0)
+            displayOptions = ImageMapper.fillInRenderingDef(list, pixelType);                               
         return displayOptions;
     }
     
@@ -1361,17 +1352,16 @@ class STSAdapter
                                         RenderingDef rDef)
         throws DSOutOfServiceException, DSAccessException
     { 
-        Criteria c = ImageMapper.buildRenderingSettingsCriteria(
-                            STSMapper.IMAGE_GRANULARITY, imageID);
-        List rsList = 
-            (List) gateway.retrieveListSTSData("RenderingSettings", c);
-        
         UserDetails uc = registry.getDataManagementService().getUserDetails();
+        Criteria c = ImageMapper.buildRenderingSettingsCriteria(
+                            STSMapper.IMAGE_GRANULARITY, imageID, 
+                            uc.getUserID());
+        List list = (List) gateway.retrieveListSTSData("RenderingSettings", c);
+
         //List of renderingSettings to save in DB.  
         List l = new ArrayList();
-        if (rsList != null) {
-            List list = ImageMapper.filterList(rsList, uc.getUserID());
-            if (list.size() == 0)  // nothing previously saved
+        if (list != null) {
+            if (list.size() == 0)  //nothing previously saved by the user.
                 l = saveRSFirstTime(imageID, rDef);
             else l = saveRS(rDef, list);
             gateway.updateAttributes(l);
