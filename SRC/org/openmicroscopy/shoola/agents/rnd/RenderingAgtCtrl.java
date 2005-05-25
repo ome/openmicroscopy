@@ -72,19 +72,19 @@ public class RenderingAgtCtrl
 {
 
     /** Action command ID to display the {@link GreyScalePane}. */
-    static final int                GREY = RenderingDef.GS;
+    public static final int                 GREY = RenderingDef.GS;
     
     /** Action command ID to display the {@link RGBPane}. */
-    static final int                RGB = RenderingDef.RGB;
+    public static final int                 RGB = RenderingDef.RGB;
     
     /** Action command ID to display the {@link HSBPane}. */
-    static final int                HSB = RenderingDef.HSB;
+    public static final int                 HSB = RenderingDef.HSB;
     
     /** Action command ID. */
-    static final int                SAVE = 4;
+    static final int                        SAVE = 4;
     
     /** Action command ID. */
-    static final int                RESET_DEFAULTS = 5;
+    static final int                        RESET_DEFAULTS = 5;
 
     /** String corresponding to the specified model. */
     private String                  modelType;
@@ -307,6 +307,9 @@ public class RenderingAgtCtrl
         return abstraction.getChannelData(w);
     }
 
+    /** Forward event to {@link RenderingAgt abstraction}. */
+    public int getModel() { return abstraction.getModel(); }
+    
     /** Handle events. */
     public void actionPerformed(ActionEvent e)
     {

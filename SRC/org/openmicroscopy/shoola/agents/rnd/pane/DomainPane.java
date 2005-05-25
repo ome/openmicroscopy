@@ -117,11 +117,11 @@ class DomainPane
     
     DomainPane(Registry registry, QuantumPaneManager control, int family,
                 double curveCoefficient, ChannelData[] data, QuantumDef qDef, 
-                boolean noiseReduction, int index)
+                boolean noiseReduction, int index, boolean active)
     {
         this.qDef = qDef;
         manager = new DomainPaneManager(this, control);
-        initBoxes(family, data, index, noiseReduction);
+        initBoxes(family, data, index, noiseReduction, active);
         initSliders(family, curveCoefficient);
         initLabel(curveCoefficient);
         initButton(registry);
@@ -154,7 +154,7 @@ class DomainPane
 
     /** Initializes the comboBoxes: wavelengths and transformations. */  
     private void initBoxes(int family, ChannelData[] data, int index, 
-                            boolean noiseReduction)
+                            boolean noiseReduction, boolean active)
     {
         transformations = new JComboBox(algorithms);
         transformations.setSelectedIndex(family);
@@ -164,7 +164,7 @@ class DomainPane
         wavelengths = new JComboBox(waves);
         wavelengths.setSelectedIndex(index);  
         //When the color model is gray, the user cannot select the wavelength.
-        wavelengths.setEnabled(false);
+        wavelengths.setEnabled(active);
         
         noise = new JCheckBox();
         noise.setSelected(noiseReduction);

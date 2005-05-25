@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
+import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
 import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
@@ -95,10 +96,20 @@ public class QuantumPane
         double cc = eventManager.getChannelCurveCoefficient(INDEX);
         double[] cbStats = eventManager.getChannelBindingStats(INDEX);
         boolean noiseReduction = eventManager.getChannelBindingNR(INDEX);
+        boolean active = false;
+        if (eventManager.getModel() != RenderingAgtCtrl.GREY) {
+            ChannelData[] data = eventManager.getChannelData();
+            for (int i = 0; i < data.length; i++) {
+                if (eventManager.isActive(i)) {
+                    active = true;
+                    break;
+                }
+            }
+        }
         codomainPane = new CodomainPane(eventManager.getRegistry(), manager);
         domainPane = new DomainPane(eventManager.getRegistry(), manager, family,
                                     cc, eventManager.getChannelData(), qDef, 
-                                    noiseReduction, INDEX);
+                                    noiseReduction, INDEX, active);
         gRepresentation = new GraphicsRepresentation(manager, family, cc, 
                                 qDef.cdStart, qDef.cdEnd, mini, maxi, cbStats);
         if (family == QuantumFactory.EXPONENTIAL)
