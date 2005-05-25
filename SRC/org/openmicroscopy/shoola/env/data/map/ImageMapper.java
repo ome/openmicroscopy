@@ -228,7 +228,8 @@ public class ImageMapper
      * @param id
      * @return
      */
-    public static Criteria buildRenderingSettingsCriteria(String g, int id)
+    public static Criteria buildRenderingSettingsCriteria(String g, int id,
+                                                            int userID)
     {
         Criteria c = new Criteria();
         c.addWantedField("Active");
@@ -247,7 +248,7 @@ public class ImageMapper
         c.addWantedField("Model");
         c.addWantedField("TheT");
         c.addWantedField("TheZ");
-        c.addWantedField("Experimenter");
+        c.addFilter("Experimenter", new Integer(userID));
         String column = (String) STSMapper.granularities.get(g);
         if (column != null) c.addFilter(column, new Integer(id));
         return c;
@@ -434,17 +435,13 @@ public class ImageMapper
     }
     
     /** Fill in a renderingDef object. */
-	public static RenderingDef fillInRenderingDef(List rsList, int pixelType, 
-                                                int userID)
+	public static RenderingDef fillInRenderingDef(List rsList, int pixelType)
 	{
-        List list = filterList(rsList, userID);
-        if (list.size() == 0) return null;
-        
 		//Create a new QuantumDef object.
         //Default one.
         int cdStart = 0, cdEnd = QuantumFactory.DEPTH_8BIT;
         int bitResolution = QuantumFactory.DEPTH_8BIT;
-        ChannelBindings[] channelBindings = new ChannelBindings[list.size()];
+        ChannelBindings[] channelBindings = new ChannelBindings[rsList.size()];
 		int index = 0, z = 0, t = 0, model = RenderingDef.GS;
         double coeff = 1.0, dStart = 0, dEnd = 1;
         int red = ChannelBindings.COLOR_MIN, 
@@ -454,7 +451,7 @@ public class ImageMapper
             family = QuantumFactory.LINEAR;
         boolean active = true;
         int j;
-        Iterator i = list.iterator();
+        Iterator i = rsList.iterator();
         RenderingSettings rs;
 		while (i.hasNext()) {
 			rs = (RenderingSettings) i.next();
@@ -517,20 +514,4 @@ public class ImageMapper
         rs.setCoefficient(new Double(cb.getCurveCoefficient()));
 	}
 
-    /** Filter a list of SemanticTypes. */
-    public static List filterList(List l, int userID)
-    {
-        //First filter the list.
-        Iterator i = l.iterator();
-        RenderingSettings rs;
-        List valid = new ArrayList();
-        while (i.hasNext()) {
-            rs = (RenderingSettings) i.next();
-            if (rs.getExperimenter().getID() == userID)
-                valid.add(rs);
-        }
-        return valid;
-    }
-
-	
 }

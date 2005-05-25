@@ -174,18 +174,11 @@ public class CategoryMapper
      * 
      * @return Corresponding criteria.
      */
-    public static Criteria buildBasicCriteria(int id, int userID)
+    public static Criteria buildBasicCriteria(int id)
     {
         Criteria c = new Criteria();
-        c.addWantedField("Name");
-        c.addWantedField("Description");
-        c.addWantedField("module_execution");
-        c.addWantedField("module_execution", "experimenter");
-        c.addWantedField("module_execution.experimenter", "id");
+        //ISSUE: Shoudln't need to specify the id field.
         if (id != -1) c.addFilter("id", new Integer(id));
-        if (userID != -1) 
-            c.addFilter("module_execution.experimenter_id", 
-                        new Integer(userID));
         return c;
     }
     
@@ -327,10 +320,8 @@ public class CategoryMapper
     public static Criteria buildClassificationCriteria(int imgID, int catID)
     {
         Criteria c = new Criteria();
-        c.addWantedField("image");
-        c.addWantedField("Category");
-        c.addWantedField("Confidence");
-        c.addWantedField("Valid");
+        //ISSUE: shoudln't need to retrieve id
+        c.addWantedField("id");
         if (imgID != -1) c.addFilter("image_id", new Integer(imgID));
         if (catID != -1) c.addFilter("Category", new Integer(catID));
         return c;
