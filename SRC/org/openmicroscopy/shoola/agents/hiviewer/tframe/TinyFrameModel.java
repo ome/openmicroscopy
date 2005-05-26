@@ -178,7 +178,6 @@ class TinyFrameModel
     private void setParentSizeForSingleView(Container parent)
     {
         if (parent instanceof TinyFrame) {
-            
             Dimension d = ((TinyFrame) parent).getTitleBar().getPreferredSize();
             Dimension dDesktop = singleViewDesktop.getPreferredSize();
             parent.setSize(d.width+dDesktop.width, d.height+dDesktop.height+4);
@@ -191,7 +190,7 @@ class TinyFrameModel
      */
     private void setParentSizeForMultiView(Container parent)
     {
-        if (parent instanceof TinyFrame)  
+        if (parent instanceof TinyFrame) 
             parent.setSize(parent.getPreferredSize());
         else setParentSizeForMultiView(parent.getParent());
     }
@@ -302,19 +301,19 @@ class TinyFrameModel
                 TinyFrame tf = (TinyFrame) oldChild;
                 tf.setTitleBarType(childViewTitleBarType);
                 tf.setCollapsed(childViewCollapsed);
-                if (child == null) setParentSizeForMultiView(tf.getParent());
+                if (child == null) {
+                    setParentSizeForMultiView(tf.getParent());
+                    contentPane.validate();
+                    contentPane.repaint(); 
+                }
             }
         }
         if (isChild(child)) {  //We've got a new child to display.
             desktopPane.remove(child);
             singleViewDesktop.add(child);
             childViewBounds = child.getBounds();
-            singleViewDesktop.setPreferredSize(
-                    new Dimension(childViewBounds.width, childViewBounds.height)
-                    );
-            child.setLocation(2, 2);
-            child.setSize(child.getPreferredSize());
-            
+            //was new Dimension(childViewBounds.width, childViewBounds.height)
+            singleViewDesktop.setPreferredSize(child.getPreferredSize());
             if (child instanceof TinyFrame) {
                 TinyFrame tf = (TinyFrame) child;
                 childViewTitleBarType = tf.getTitleBarType();
@@ -323,11 +322,14 @@ class TinyFrameModel
                 tf.setCollapsed(false);
                 setParentSizeForSingleView(tf.getParent());
             }
+            //Need to set the size of the child after setting the title bar.
+            child.setSize(child.getPreferredSize());
+            child.setLocation(2, 2);
+            //Do it this way otherwise the methods are called at init time.
+            contentPane.validate();
+            contentPane.repaint(); 
         }
-        contentPane.validate();
-        contentPane.repaint();
     }
-    
 
     /** 
      * Returns the title bar type.
