@@ -134,8 +134,8 @@
   </target>
 
   <target name="all" unless="middlegen.not.required">
-    <antcall target="gen-hbm">
-    <antcall target="gen-java">
+    <antcall target="gen-hbm"/>
+    <antcall target="gen-java"/>
   </target>
 
 
