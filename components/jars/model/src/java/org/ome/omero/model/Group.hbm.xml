@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.ome.omero.model.Group" 
+    table="groups"
+>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        length="30"
+    />
+    <property
+        name="moduleExecutionId"
+        type="java.lang.Integer"
+        column="module_execution_id"
+        length="4"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-many association to Dataset -->
+    <set
+        name="datasets"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="group_id" />
+        </key>
+        <one-to-many 
+            class="org.ome.omero.model.Dataset"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Image -->
+    <set
+        name="images"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="group_id" />
+        </key>
+        <one-to-many 
+            class="org.ome.omero.model.Image"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Project -->
+    <set
+        name="projects"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="group_id" />
+        </key>
+        <one-to-many 
+            class="org.ome.omero.model.Project"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to Experimenter -->
+    <many-to-one
+        name="experimenterByLeader"
+        class="org.ome.omero.model.Experimenter"
+        not-null="true"
+    >
+        <column name="leader" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Experimenter -->
+    <many-to-one
+        name="experimenterByContact"
+        class="org.ome.omero.model.Experimenter"
+        not-null="true"
+    >
+        <column name="contact" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>

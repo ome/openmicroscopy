@@ -6,7 +6,7 @@
   MiddlegenIDE: http://ultimania.org/middlegenide/
 -->
 
-<project name="Middlegen Hibernate" default="gen-java" basedir=".">
+<project name="Middlegen Hibernate" default="all" basedir=".">
    <property file="./build.properties"/>
    <property name="hibernate.cascade"    value="all" />
    <property name="package"              value="org.ome.omero.model" />
@@ -125,12 +125,17 @@
     </middlegen>
   </target>
 
-  <target name="gen-java" depends="gen-hbm" unless="middlegen.not.required">
+  <target name="gen-java" depends="init" unless="middlegen.not.required">
     <hbm2java output="${dest.dir}">
       <fileset dir="${dest.dir}">
         <include name="**/*.hbm.xml" />
       </fileset>
     </hbm2java>
+  </target>
+
+  <target name="all" unless="middlegen.not.required">
+    <antcall target="gen-hbm">
+    <antcall target="gen-java">
   </target>
 
 
