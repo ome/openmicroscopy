@@ -5,6 +5,7 @@ package org.ome.omero.logic;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -268,7 +269,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
                     for (Iterator c = classifications.iterator(); c.hasNext();) {
                         Classification cla = (Classification) c.next();
-                        if (cla.getValid().booleanValue()) {
+                        if (cla.getValid().booleanValue()) { // TODO do this in query
                             categories.add(cla.getCategory());
                         }
                     }
@@ -650,7 +651,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         id.inserted = new Timestamp(img.getInserted().getTime());
         id.created = new Timestamp(img.getCreated().getTime());
         id.owner = go(img.getExperimenter());
-        //id.defaultPixels = img.getPixelsId(); FIXME LIST
+        id.defaultPixels = go(img.getPixels());
 
         Set set = new HashSet();
         if (resolve) {
@@ -671,7 +672,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         ImageDimension dim = new ImageDimension(); // FIXME =
-        // ip.getImage().getImageDimensions();
+        //ip.getImage(). getImageDimensions();
         dim.setPixelSizeX((new Float(0))); //XXX
         dim.setPixelSizeY((new Float(0))); //XXX
         dim.setPixelSizeZ((new Float(0))); //XXX
@@ -680,13 +681,13 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         toCache(ip, pd);
         
         pd.id = ip.getAttributeId().intValue();
-        pd.image = go(ip.getImage());// TODO Do they really want this?
+        pd.image = go(ip.getImage());
         pd.imageServerID = ip.getImageServerId().longValue();
-        //pd.imageServerURL = ip.get FIXME mapping files!! for lack of FK
+        pd.imageServerURL = ip.getRepository().getImageServerUrl();
         pd.pixelSizeX = dim.getPixelSizeX().doubleValue();
         pd.pixelSizeY = dim.getPixelSizeY().doubleValue();
         pd.pixelSizeZ = dim.getPixelSizeZ().doubleValue();
-        //pd.pixelType = ip.getPixelType();FIXME List SEE STATIC FIELDS
+        //pd.pixelType = ip.getPixelType();//FIXME List SEE STATIC FIELDS
         pd.sizeC = ip.getSizeC().intValue();
         pd.sizeT = ip.getSizeT().intValue();
         pd.sizeX = ip.getSizeX().intValue();
@@ -710,8 +711,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         ed.lastName = e.getLastname();
         ed.email = e.getEmail();
         ed.institution = e.getInstitution();
-        ed.groupID = e.getGroupId().intValue();
-        //ed.groupName = e.get FIXME
+        ed.groupID = e.getGroup().getAttributeId().intValue();
+        ed.groupName = e.getGroup().getName();
         
         return ed;
     }
@@ -734,13 +735,14 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
          * attribute's mex FK)
          */
         ad.text = ann.getContent();
-        //      TODO Check below if correct; also such mappings need null-pointer
-        // exception checking
-        //ad.lastModified = new Timestamp(ann.getTimestamp().longValue());
-        // FIXME seems to have changed in DB
+        ad.lastModified = go(ann.getModuleExecution().getTimestamp());
         ad.annotatedObject = go(ann.getImage());
 
         return ad;
+    }
+    
+    Timestamp go(Date date){
+        return null == date ? null : new Timestamp(date.getTime());
     }
 
     AnnotationData go(DatasetAnnotation ann) {
@@ -755,10 +757,7 @@ System.out.println(" ***** HierarchyBrowsingImpl.go(Ann) *****");
         ad.id = ann.getAttributeId().intValue();
         ad.owner = go(ann.getModuleExecution().getExperimenter());
         ad.text = ann.getContent();
-        //      TODO Check below if correct; also such mappings need null-pointer
-        // exception checking
-        //TODO List ques. ad.lastModified = new Timestamp(ann.
-        // getTimestamp().longValue());
+        ad.lastModified = go(ann.getModuleExecution().getTimestamp());
         ad.annotatedObject = go(ann.getDataset());
 
         return ad;

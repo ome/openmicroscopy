@@ -11,7 +11,7 @@ public class Repository implements Serializable {
     private Integer attributeId;
 
     /** nullable persistent field */
-    private Integer moduleExecutionId;
+    private org.ome.omero.model.ModuleExecution moduleExecution;
 
     /** persistent field */
     private String imageServerUrl;
@@ -23,9 +23,9 @@ public class Repository implements Serializable {
     private Boolean isLocal;
 
     /** full constructor */
-    public Repository(Integer attributeId, Integer moduleExecutionId, String imageServerUrl, String path, Boolean isLocal) {
+    public Repository(Integer attributeId, org.ome.omero.model.ModuleExecution moduleExecution, String imageServerUrl, String path, Boolean isLocal) {
         this.attributeId = attributeId;
-        this.moduleExecutionId = moduleExecutionId;
+        this.moduleExecution = moduleExecution;
         this.imageServerUrl = imageServerUrl;
         this.path = path;
         this.isLocal = isLocal;
@@ -49,12 +49,12 @@ public class Repository implements Serializable {
         this.attributeId = attributeId;
     }
 
-    public Integer getModuleExecutionId() {
-        return this.moduleExecutionId;
+    public org.ome.omero.model.ModuleExecution getModuleExecution() {
+        return this.moduleExecution;
     }
 
-    public void setModuleExecutionId(Integer moduleExecutionId) {
-        this.moduleExecutionId = moduleExecutionId;
+    public void setModuleExecution(org.ome.omero.model.ModuleExecution moduleExecution) {
+        this.moduleExecution = moduleExecution;
     }
 
     public String getImageServerUrl() {

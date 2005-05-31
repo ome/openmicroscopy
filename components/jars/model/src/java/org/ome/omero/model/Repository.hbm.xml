@@ -25,8 +25,8 @@
     </id>
 
     <property
-        name="moduleExecutionId"
-        type="java.lang.Integer"
+        name="moduleExecution"
+        type="org.ome.omero.model.ModuleExecution"
         column="module_execution_id"
         length="4"
     />

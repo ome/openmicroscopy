@@ -13,7 +13,7 @@ public class Image implements Serializable {
     private Integer imageId;
 
     /** nullable persistent field */
-    private Integer pixelsId;
+    private org.ome.omero.model.ImagePixel pixels;
 
     /** persistent field */
     private Date inserted;
@@ -76,9 +76,9 @@ public class Image implements Serializable {
     private Set datasets;
 
     /** full constructor */
-    public Image(Integer imageId, Integer pixelsId, Date inserted, String name, String description, Date created, String imageGuid, org.ome.omero.model.Group group, org.ome.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
+    public Image(Integer imageId, org.ome.omero.model.ImagePixel pixels, Date inserted, String name, String description, Date created, String imageGuid, org.ome.omero.model.Group group, org.ome.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
         this.imageId = imageId;
-        this.pixelsId = pixelsId;
+        this.pixels = pixels;
         this.inserted = inserted;
         this.name = name;
         this.description = description;
@@ -136,12 +136,12 @@ public class Image implements Serializable {
         this.imageId = imageId;
     }
 
-    public Integer getPixelsId() {
-        return this.pixelsId;
+    public org.ome.omero.model.ImagePixel getPixels() {
+        return this.pixels;
     }
 
-    public void setPixelsId(Integer pixelsId) {
-        this.pixelsId = pixelsId;
+    public void setPixels(org.ome.omero.model.ImagePixel pixels) {
+        this.pixels = pixels;
     }
 
     public Date getInserted() {

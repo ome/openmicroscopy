@@ -50,8 +50,8 @@
         length="64"
     />
     <property
-        name="groupId"
-        type="java.lang.Integer"
+        name="group"
+        type="org.ome.omero.model.Group"
         column="group_id"
         length="4"
     />

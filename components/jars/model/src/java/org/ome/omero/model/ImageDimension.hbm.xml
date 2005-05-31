@@ -70,6 +70,7 @@
         name="moduleExecution"
         class="org.ome.omero.model.ModuleExecution"
         not-null="true"
+		unique="true"
     >
         <column name="module_execution_id" />
     </many-to-one>
