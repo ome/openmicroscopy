@@ -9,7 +9,7 @@
 <project name="Middlegen Hibernate" default="all" basedir=".">
    <property file="./build.properties"/>
    <property name="hibernate.cascade"    value="all" />
-   <property name="package"              value="org.ome.omero.model" />
+   <property name="package"              value="org.openmicroscopy.omero.model" />
    <property name="gen.xdoclet-tag"      value="false" />
    <property name="gui"                  value="false" />
    <property name="lib.dir"              value="${basedir}/lib/middlegen/" />

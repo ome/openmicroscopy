@@ -16,7 +16,7 @@
 		</property>
 	</bean>
 	
-	<bean id="hierarchyBrowsingService" class="org.ome.omero.logic.HierarchyBrowsingImpl">
+	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
 		<property name="sessions"><ref bean="sessionFactory"/></property>
 	</bean>		
 
@@ -34,8 +34,8 @@
         </property>
         <property name="transactionAttributeSource">
             <value>
-                org.ome.omero.interfaces.HierarchyBrowsing.find*=PROPAGATION_REQUIRED
-                org.ome.omero.interfaces.HierarchyBrowsing.load*=PROPAGATION_REQUIRED
+                org.openmicroscopy.omero.interfaces.HierarchyBrowsing.find*=PROPAGATION_REQUIRED
+                org.openmicroscopy.omero.interfaces.HierarchyBrowsing.load*=PROPAGATION_REQUIRED
             </value>
         </property>
     </bean>

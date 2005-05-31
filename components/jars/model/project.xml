@@ -6,7 +6,7 @@
   <id>${pom.groupId}-model</id>
   <name>OME Model Objects</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.ome.omero.model</package>
+  <package>org.openmicroscopy.omero.model</package>
   <description>Model code generated from middlegen</description>
   <dependencies>
     <dependency>

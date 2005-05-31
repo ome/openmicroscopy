@@ -5,7 +5,7 @@
   <id>${pom.groupId}-srv</id>
   <name>OME Server Code</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.ome.srv</package>
+  <package>org.openmicroscopy.omero.logic</package>
   <description>Server code</description>
   <dependencies>
     <dependency>

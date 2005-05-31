@@ -17,7 +17,7 @@
 	
 	<bean id="hierarchyBrowsingFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://localhost:8080/omero-srv/HierarchyBrowsing</value></property>
-	    <property name="serviceInterface"><value>org.ome.omero.interfaces.HierarchyBrowsing</value></property>
+	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.HierarchyBrowsing</value></property>
 	</bean>
 
 </beans>

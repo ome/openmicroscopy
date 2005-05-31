@@ -6,7 +6,7 @@
   <id>${pom.groupId}-client</id>
   <name>OME Client Code</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.ome.client</package>
+  <package>org.openmicroscopy.omero.client</package>
   <description>Client code</description>
   <dependencies>
     <dependency>
