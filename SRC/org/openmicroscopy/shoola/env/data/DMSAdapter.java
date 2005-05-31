@@ -47,6 +47,7 @@ import org.openmicroscopy.ds.dto.AnalysisNode;
 import org.openmicroscopy.ds.dto.ChainExecution;
 import org.openmicroscopy.ds.dto.Dataset;
 import org.openmicroscopy.ds.dto.Image;
+import org.openmicroscopy.ds.dto.Module;
 import org.openmicroscopy.ds.dto.ModuleCategory;
 import org.openmicroscopy.ds.dto.Project;
 import org.openmicroscopy.ds.st.Dimensions;
@@ -764,7 +765,13 @@ class DMSAdapter
 		if (stProto == null)   stProto = new SemanticTypeData();
 		
 		// Load the graph defined by the criteria
-		List modules = gateway.retrieveModules();
+		List modules;
+		try { 
+		    modules = gateway.retrieveModules(); 
+		} catch (DSAccessException dsae) {
+		    Criteria c = ModuleMapper.buildModulesCriteria();
+		    modules = (List) gateway.retrieveListData(Module.class, c);
+		}
 		
 		List moduleDS = null;
 		if (modules != null) 
@@ -824,7 +831,16 @@ class DMSAdapter
 
 	
 		// Load the graph defined by the criteria
-		List chains = gateway.retrieveChains();
+		List chains;
+		try { 
+		    chains = gateway.retrieveChains();
+		} catch (DSAccessException  dsae) {
+		    // ok. here's where the new call bombed. try the
+		    // old call
+		    Criteria c = AnalysisChainMapper.buildChainsCriteria();
+		    chains = 
+			(List) gateway.retrieveListData(AnalysisChain.class,c);
+		}
 	
 		List chainsDS = null;
 		if (chains != null) 
