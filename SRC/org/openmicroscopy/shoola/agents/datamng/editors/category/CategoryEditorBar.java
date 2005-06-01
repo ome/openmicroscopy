@@ -31,10 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -94,6 +91,8 @@ class CategoryEditorBar
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+        add(UIUtilities.buildComponentPanelRight(buildButtonPanel()));
+        /**
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(gridbag);
@@ -113,6 +112,7 @@ class CategoryEditorBar
 		gridbag.setConstraints(cp, c);
 		add(cp);
 		setOpaque(false); //make panel transparent
+        **/
 	}
 	
 	/** Build panel with buttons. */

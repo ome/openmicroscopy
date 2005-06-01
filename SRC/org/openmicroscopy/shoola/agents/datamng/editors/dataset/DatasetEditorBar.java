@@ -31,10 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -94,6 +91,7 @@ class DatasetEditorBar
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+        /**
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(gridbag);
@@ -113,6 +111,8 @@ class DatasetEditorBar
 		gridbag.setConstraints(cp, c);
 		add(cp);
 		setOpaque(false); //make panel transparent
+        */
+        add(UIUtilities.buildComponentPanelRight(buildButtonPanel()));
 	}
 	
 	/** Build panel with buttons. */

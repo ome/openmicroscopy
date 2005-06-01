@@ -29,26 +29,24 @@
 
 package org.openmicroscopy.shoola.agents.datamng.editors.controls;
 
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
+
+
+
+
+//Java imports
+import java.awt.Cursor;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -92,25 +90,7 @@ extends JToolBar
     /** Build and lay out the GUI. */
     private void buildGUI()
     {
-        GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        setLayout(gridbag);
-        JPanel controls = buildButtonPanel();
-        c.weightx = 0.5;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.anchor = GridBagConstraints.EAST;
-        Component cp = Box.createRigidArea(DataManagerUIF.VBOX);
-        gridbag.setConstraints(cp, c);
-        add(cp);
-        c.gridy = 1;
-        gridbag.setConstraints(controls, c); 
-        add(controls);
-        c.gridy = 2;
-        cp = Box.createRigidArea(DataManagerUIF.VBOX);
-        gridbag.setConstraints(cp, c);
-        add(cp);
-        setOpaque(false); //make panel transparent
+        add(UIUtilities.buildComponentPanelRight(buildButtonPanel()));
     }
     
     /** Build panel with buttons. */
