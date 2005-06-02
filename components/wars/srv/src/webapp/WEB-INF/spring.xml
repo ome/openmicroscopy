@@ -60,34 +60,28 @@
    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
        <property name="mappingResources">
            <list>
-<!--               <value>org/ome/hibernate/User.hbm.xml</value>
-               <value>org/ome/hibernate/Container.hbm.xml</value>
-             <value>org/ome/hibernate/old/Project.hbm.xml</value>
-               <value>org/ome/hibernate/old/Dataset.hbm.xml</value>
-               <value>org/ome/hibernate/old/Image.hbm.xml</value>			   			   			   			   
-<value>pojos/queries.hbm.xml</value> -->            
-			   <value>org/ome/omero/logic/queries.hbm.xml</value>
-			   <value>org/ome/omero/model/Image.hbm.xml</value>			   			   			   			   
-               <value>org/ome/omero/model/Project.hbm.xml</value>
-               <value>org/ome/omero/model/Category.hbm.xml</value>
-               <value>org/ome/omero/model/DisplayRoi.hbm.xml</value>
-               <value>org/ome/omero/model/ImageInfo.hbm.xml</value>
-               <value>org/ome/omero/model/Dataset.hbm.xml</value>
-               <value>org/ome/omero/model/ImagePlate.hbm.xml</value>
-               <value>org/ome/omero/model/ImagePixel.hbm.xml</value>
-               <value>org/ome/omero/model/Group.hbm.xml</value>
-               <value>org/ome/omero/model/Experimenter.hbm.xml</value>
-               <value>org/ome/omero/model/Feature.hbm.xml</value>
-               <value>org/ome/omero/model/CategoryGroup.hbm.xml</value>
-               <value>org/ome/omero/model/ImageAnnotation.hbm.xml</value>
-               <value>org/ome/omero/model/ImageDimension.hbm.xml</value>
-               <value>org/ome/omero/model/DatasetAnnotation.hbm.xml</value>
-               <value>org/ome/omero/model/DisplayOption.hbm.xml</value>
-               <value>org/ome/omero/model/ChannelComponent.hbm.xml</value>
-               <value>org/ome/omero/model/Thumbnail.hbm.xml</value>
-			   <value>org/ome/omero/model/Classification.hbm.xml</value>
-			   <value>org/ome/omero/model/ModuleExecution.hbm.xml</value>			   
-			   <value>org/ome/omero/model/Repository.hbm.xml</value>
+			   <value>org/openmicroscopy/omero/logic/queries.hbm.xml</value>
+			   <value>org/openmicroscopy/omero/model/Image.hbm.xml</value>			   			   			   			   
+               <value>org/openmicroscopy/omero/model/Project.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/Category.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/DisplayRoi.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/ImageInfo.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/Dataset.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/ImagePlate.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/ImagePixel.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/Group.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/Experimenter.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/Feature.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/CategoryGroup.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/ImageAnnotation.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/ImageDimension.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/DatasetAnnotation.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/DisplayOption.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/ChannelComponent.hbm.xml</value>
+               <value>org/openmicroscopy/omero/model/Thumbnail.hbm.xml</value>
+			   <value>org/openmicroscopy/omero/model/Classification.hbm.xml</value>
+			   <value>org/openmicroscopy/omero/model/ModuleExecution.hbm.xml</value>			   
+			   <value>org/openmicroscopy/omero/model/Repository.hbm.xml</value>
            </list>
        </property>
        <property name="hibernateProperties">

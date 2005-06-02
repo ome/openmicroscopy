@@ -9,13 +9,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
-
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import org.openmicroscopy.omero.model.Category;
+import org.openmicroscopy.omero.model.CategoryGroup;
+import org.openmicroscopy.omero.model.Dataset;
+import org.openmicroscopy.omero.model.Image;
+import org.openmicroscopy.omero.model.Project;
 
 import junit.framework.TestCase;
 
@@ -59,17 +57,17 @@ public class HierarchyBrowsingTest extends TestCase {
         assertTrue(emptyColl,hb.findPDIHierarchies(test).size()==0);
         assertTrue(emptyColl,hb.findPDIHierarchies(new HashSet()).size()==0);
         //
-        assertNull(nullObj,hb.loadCGCIHierarchy(CategoryGroupData.class, 0));
-        assertNull(nullObj,hb.loadCGCIHierarchy(CategoryData.class, 0));
+        assertNull(nullObj,hb.loadCGCIHierarchy(CategoryGroup.class, 0));
+        assertNull(nullObj,hb.loadCGCIHierarchy(Category.class, 0));
         //
-        assertNull(nullObj,hb.loadPDIHierarchy(ProjectData.class, 0));
-        assertNull(nullObj,hb.loadPDIHierarchy(DatasetData.class, 0));
+        assertNull(nullObj,hb.loadPDIHierarchy(Project.class, 0));
+        assertNull(nullObj,hb.loadPDIHierarchy(Dataset.class, 0));
     }
     
     public void testLoadPDIHierarchy() {
         System.out.println(" ***** HierarchyBrowsingTest.testLoadPDIHierarchy()");
-        DataObject dobj = hb.loadPDIHierarchy(DatasetData.class, 10);
-        assertTrue(nonNull, dobj != null);
+        Object obj = hb.loadPDIHierarchy(Dataset.class, 10);
+        assertTrue(nonNull, obj != null);
 
     }
 
@@ -90,18 +88,18 @@ public class HierarchyBrowsingTest extends TestCase {
         Set test = new HashSet();
         Iterator i = result.iterator();
         while (i.hasNext()){
-            DataObject o = (DataObject) i.next();
-            if (o instanceof ImageData) {
+            Object o = i.next();
+            if (o instanceof Image) {
                 test.add(o);
-            } else if (o instanceof DatasetData) {
-                DatasetData dd = (DatasetData) o;
-                test.addAll(dd.images);
-            } else if (o instanceof ProjectData) {
-                ProjectData pd = (ProjectData) o;
-                Iterator p = pd.datasets.iterator();
+            } else if (o instanceof Dataset) {
+                Dataset dd = (Dataset) o;
+                test.addAll(dd.getImages());
+            } else if (o instanceof Project) {
+                Project pd = (Project) o;
+                Iterator p = pd.getDatasets().iterator();
                 while (p.hasNext()){
-                    DatasetData dd = (DatasetData) p.next();
-                    test.addAll(dd.images);
+                    Dataset dd = (Dataset) p.next();
+                    test.addAll(dd.getImages());
                 }
             }
         }

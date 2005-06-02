@@ -10,11 +10,9 @@ import java.util.Set;
 
 import org.openmicroscopy.omero.client.ServiceFactory;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
-
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import org.openmicroscopy.omero.model.Dataset;
+import org.openmicroscopy.omero.model.Image;
+import org.openmicroscopy.omero.model.Project;
 
 import junit.framework.TestCase;
 
@@ -41,7 +39,7 @@ public class SpringFacadeTest extends TestCase {
     }
 
     public void test1() {
-           	DataObject dobj = srv.loadPDIHierarchy(DatasetData.class, 10);
+           	Object obj = srv.loadPDIHierarchy(Dataset.class, 10);
     }
     
     public void testAgainForId(){
@@ -64,18 +62,18 @@ public class SpringFacadeTest extends TestCase {
             Set test = new HashSet();
             Iterator i = result.iterator();
             while (i.hasNext()){
-                DataObject o = (DataObject) i.next();
-                if (o instanceof ImageData) {
+                Object o = i.next();
+                if (o instanceof Image) {
                     test.add(o);
-                } else if (o instanceof DatasetData) {
-                    DatasetData dd = (DatasetData) o;
-                    test.addAll(dd.images);
-                } else if (o instanceof ProjectData) {
-                    ProjectData pd = (ProjectData) o;
-                    Iterator p = pd.datasets.iterator();
+                } else if (o instanceof Dataset) {
+                    Dataset dd = (Dataset) o;
+                    test.addAll(dd.getImages());
+                } else if (o instanceof Project) {
+                    Project pd = (Project) o;
+                    Iterator p = pd.getDatasets().iterator();
                     while (p.hasNext()){
-                        DatasetData dd = (DatasetData) p.next();
-                        test.addAll(dd.images);
+                        Dataset dd = (Dataset) p.next();
+                        test.addAll(dd.getImages());
                     }
                 }
             }

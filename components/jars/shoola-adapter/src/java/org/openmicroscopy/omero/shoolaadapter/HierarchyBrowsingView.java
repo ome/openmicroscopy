@@ -34,15 +34,13 @@ package org.openmicroscopy.omero.shoolaadapter;
 import java.util.Map;
 import java.util.Set;
 
-import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ProjectData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ProjectData;
 
 //Third-party libraries
 

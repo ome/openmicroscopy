@@ -5,11 +5,10 @@ package org.openmicroscopy.omero.tests.client;
 
 import org.openmicroscopy.omero.client.ServiceFactory;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
-
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DatasetData;
-import pojos.ProjectData;
+import org.openmicroscopy.omero.model.Category;
+import org.openmicroscopy.omero.model.CategoryGroup;
+import org.openmicroscopy.omero.model.Dataset;
+import org.openmicroscopy.omero.model.Project;
 
 import junit.framework.TestCase;
 
@@ -48,19 +47,19 @@ public class OmeroPercentTest extends TestCase {
     }
     
     public Object testLoadPDIHierarchyProject() {
-        return hb.loadPDIHierarchy(ProjectData.class, data.prjId);
+        return hb.loadPDIHierarchy(Project.class, data.prjId);
     }
 
     public Object testLoadPDIHierarchyDataset() {
-        return hb.loadPDIHierarchy(DatasetData.class, data.dsId);
+        return hb.loadPDIHierarchy(Dataset.class, data.dsId);
     }
 
     public Object testLoadCGCIHierarchyCategoryGroup() {
-        return hb.loadCGCIHierarchy(CategoryGroupData.class,data.cgId);
+        return hb.loadCGCIHierarchy(CategoryGroup.class,data.cgId);
     }
     
     public Object testLoadCGCIHierarchyCategory() {
-        return hb.loadCGCIHierarchy(CategoryData.class,data.cId);
+        return hb.loadCGCIHierarchy(Category.class,data.cId);
     }
 
     public Object testFindCGCIHierarchies() {

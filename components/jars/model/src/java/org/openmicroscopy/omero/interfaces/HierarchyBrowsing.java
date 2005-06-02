@@ -1,5 +1,5 @@
 /*
- * pojos.HierarchyBrowsing
+ * org.openmicroscopy.omero.interfaces.HierarchyBrowsing
  *
  *------------------------------------------------------------------------------
  *
@@ -34,28 +34,23 @@ package org.openmicroscopy.omero.interfaces;
 import java.util.Map;
 import java.util.Set;
 
-import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ProjectData;
-
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Provides methods to support browsing of Image hierarchies.
+ * Provides methods to support browsing of Image hierarchies. This 
+ * interface is specialized for the OMERO/Hibernate model. An adapter will
+ * be needed to connect this to the existing client models.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
+ * @author  <br>Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:josh.moore@gmx.de">
+ * 					josh.moore@gmx.de</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -89,7 +84,8 @@ public interface HierarchyBrowsing
      * @return The requested node as root and all of its descendants.  The type
      *         of the returned value will be <code>rootNodeType</code>. 
      */
-    public DataObject loadPDIHierarchy(Class rootNodeType, int rootNodeID);
+    public Object loadPDIHierarchy(Class rootNodeType, int rootNodeID); 
+    // TODO Super Object for these or concrete "Project loadPDIHierary() / Dataset loadDIHierarchy()"??? 
     
     /**
      * Loads a Category Group/Category/Image (CG/C/I) hierarchy rooted by a
@@ -113,7 +109,7 @@ public interface HierarchyBrowsing
      * @return The requested node as root and all of its descendants.  The type
      *         of the returned value will be <code>rootNodeType</code>. 
      */
-    public DataObject loadCGCIHierarchy(Class rootNodeType, int rootNodeID);
+    public Object loadCGCIHierarchy(Class rootNodeType, int rootNodeID);
     
     /**
      * Finds the data trees in the Project/Dataset/Image (P/D/I) hierarchy that 

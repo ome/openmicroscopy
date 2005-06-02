@@ -8,22 +8,22 @@
 	TODO if all ids where called *.getId() then we could merge these
 	-->
 	
-  <query name="PDI_by_pojos.ProjectData"><![CDATA[
+  <query name="PDI_by_Project"><![CDATA[
     from Project as p join fetch p.experimenter 
 	  where p.projectId = :id
   ]]></query>
 
-  <query name="PDI_by_pojos.DatasetData"><![CDATA[
+  <query name="PDI_by_Dataset"><![CDATA[
 	from Dataset as d join fetch d.experimenter join fetch d.images as img
 	  where d.datasetId = :id 
   ]]></query>
 
-  <query name="CGCI_by_pojos.CategoryGroupData"><![CDATA[
+  <query name="CGCI_by_CategoryGroup"><![CDATA[
   from CategoryGroup cg join fetch cg.moduleExecution as mex join fetch mex.experimenter as exp
     where cg.attributeId = :id 
   ]]></query>
 
-  <query name="CGCI_by_pojos.CategoryData"><![CDATA[
+  <query name="CGCI_by_Category"><![CDATA[
   from Category c join fetch c.moduleExecution as mex join fetch mex.experimenter as exp
     where c.attributeId = :id 
   ]]></query>
