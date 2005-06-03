@@ -75,4 +75,12 @@
       ignoreFailures="${maven.multiproject.ignoreFailures}"
     />
   </goal>
+
+  <goal name="get-tomcat-plugin">
+    <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
+    <maven:property name="groupId" defaultValue="codeczar-tomcat" />
+    <maven:property name="version" defaultValue="1.1" />
+    <attainGoal name="plugin:download"/>
+  </goal>
+  
 </project>

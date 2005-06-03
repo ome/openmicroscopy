@@ -1,8 +1,0 @@
-execfile("/home/moore/lib/jython/utils.jy",globals())
-
-from org.openmicroscopy.model import *
-import org.openmicroscopy as o
-f=o.srv.logic.ServiceFactoryImpl()
-g=f.getGenericService()
-l=g.getLSObject(LSID(Vocabulary.NS+"Josh"))
-l

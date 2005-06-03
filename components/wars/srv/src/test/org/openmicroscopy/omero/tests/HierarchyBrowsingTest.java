@@ -1,13 +1,44 @@
 /*
- * Created on Apr 28, 2005
+ * org.openmicroscopy.omero.tests.HierarchyBrowsingTest
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.omero.tests;
 
+//Java imports
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+import junit.framework.TestCase;
+
+//Application-internal dependencies
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
@@ -15,7 +46,20 @@ import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.model.Project;
 
-import junit.framework.TestCase;
+
+/** 
+ * main test class for the HierarchyBrowsingImpl class. This test
+ * should <b>not</b> need the server to actually be running. Other
+ * tests may.
+ * 
+ * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0
+ * <small>
+ * (<b>Internal version:</b> $Rev$ $Date$)
+ * </small>
+ * @since OMERO 1.0
+ */
+
 
 /**
  * @author josh

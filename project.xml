@@ -17,24 +17,20 @@
     <logo>http://www.openmicroscopy.org/FIXME.gif</logo>
   </organization>
 
-  <inceptionYear>1999</inceptionYear>
-  <package>org.ome</package>
+  <inceptionYear>2005</inceptionYear>
+  <package>org.openmicroscopy.omero</package>
   <logo>http://maven.apache.org/images/maven.jpg</logo>
   <description></description>
   <shortDescription></shortDescription>
   <url>http://www.openmicroscopy.org</url>
 
-  <issueTrackingUrl>http://bugzilla.openmicroscopy.org</issueTrackingUrl>
-  <siteAddress></siteAddress>
+  <issueTrackingUrl>http://bugs.openmicroscopy.org.uk</issueTrackingUrl>
+  <siteAddress>http://www.openmicroscopy.org</siteAddress>
   <siteDirectory></siteDirectory>
   <distributionDirectory></distributionDirectory>
-  <!-- the version control repository and http url for online access
-       the connection element has the form:
-       scm:<system>:<system specific connection string> 
   <repository>
-    <connection>scm:svn:svn+ssh://cvs.openmicroscopy.org.uk/home/svn/josh/trunk/omero</connection>
+    <connection>scm:svn:http://svn.apache.org/svn/root/module</connection>
   </repository>
-  -->
   <mailingLists/>
   <developers/>
   <dependencies/>
@@ -42,5 +38,15 @@
 <!--    <report>maven-changelog-plugin</report> -->
 <!--    <report>maven-developer-activity-plugin</report> -->
 <!--    <report>maven-file-activity-plugin</report> -->
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-pmd-plugin</report>
+    <report>maven-jcoverage-plugin</report>
+    <report>maven-jdepend-plugin</report>
+    <report>maven-junit-report-plugin</report>
+    <report>maven-linkcheck-plugin</report>
+    <report>maven-multichanges-plugin</report>
+    <report>maven-tasklist-plugin</report>
+    <report>maven-javadoc-plugin</report>
+    <report>maven-jxr-plugin</report>
   </reports>
 </project>

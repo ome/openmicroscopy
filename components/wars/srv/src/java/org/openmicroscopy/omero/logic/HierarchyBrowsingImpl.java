@@ -1,8 +1,42 @@
 /*
- * Created on Feb 19, 2005
+ * org.openmicroscopy.omero.logic.HierarchyBrowsingImpl
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
  */
+
+/*------------------------------------------------------------------------------
+ *
+ * Written by:    Josh Moore <josh.moore@gmx.de>
+ *
+ *------------------------------------------------------------------------------
+ */
+
 package org.openmicroscopy.omero.logic;
 
+//Java imports
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,12 +44,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.IntegerType;
 
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+
+//Application-internal dependencies
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
@@ -31,23 +70,28 @@ import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.model2.Category2;
 import org.openmicroscopy.omero.model2.CategoryGroup2;
 
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
 /**
- * @author josh
+ * implementation of the HierarchyBrowsing service. A single service
+ * object is configured through IoC (most likely by Spring) and is
+ * available for all calls.
+ * @DEV.TODO Hibernate dependencies should be pushed down into DAOs 
+ * 
+ * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0
+ * <small>
+ * (<b>Internal version:</b> $Rev$ $Date$)
+ * </small>
+ * @since OMERO 1.0
  */
 public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
+    /** central Hibernate object 
+     * @DEV.TODO this needs to be moved to DAOs use constructor not get/setters 
+     */
     SessionFactory sessions;
 
-    static final ThreadLocal cache = new ThreadLocal();
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadPDIHierarchy(java.lang.Class,
-     *      int)
+    /**
+     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadPDIHierarchy(java.lang.Class, int)
      */
     public Object loadPDIHierarchy(final Class arg0, final int arg1) {
 
@@ -62,24 +106,22 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Query q = session.getNamedQuery("PDI_by_" + arg0.getName().substring(arg0.getPackage().getName().length()+1));
+                Query q = session.getNamedQuery("PDI_by_"
+                        + arg0.getName().substring(
+                                arg0.getPackage().getName().length() + 1));
                 q.setLong("id", arg1);
                 return q.uniqueResult();
             }
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadCGCIHierarchy(java.lang.Class,
-     *      int)
+    /**
+     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadCGCIHierarchy(java.lang.Class,int)
      */
     public Object loadCGCIHierarchy(final Class arg0, final int arg1) {
 
         // CONTRACT
-        if (!CategoryGroup.class.equals(arg0)
-                && !Category.class.equals(arg0)) {
+        if (!CategoryGroup.class.equals(arg0) && !Category.class.equals(arg0)) {
             throw new IllegalArgumentException(
                     "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category.");
         }
@@ -89,7 +131,9 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Query q = session.getNamedQuery("CGCI_by_" + arg0.getName().substring(arg0.getPackage().getName().length()+1));
+                Query q = session.getNamedQuery("CGCI_by_"
+                        + arg0.getName().substring(
+                                arg0.getPackage().getName().length() + 1));
                 q.setLong("id", arg1);
                 return q.uniqueResult();
             }
@@ -97,9 +141,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findPDIHierarchies(java.util.Set)
      */
     public Set findPDIHierarchies(final Set arg0) {
@@ -139,7 +181,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                         while (d.hasNext()) {
                             Dataset ds = (Dataset) d.next();
 
-                            if (! (ds.getImages() instanceof HashSet))
+                            if (!(ds.getImages() instanceof HashSet))
                                 ds.setImages(new HashSet());
                             ds.getImages().add(img);
 
@@ -151,7 +193,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                                 while (p.hasNext()) {
                                     Project prj = (Project) p.next();
 
-                                    if (! (prj.getDatasets() instanceof HashSet))
+                                    if (!(prj.getDatasets() instanceof HashSet))
                                         prj.setDatasets(new HashSet());
                                     prj.getDatasets().add(ds);
 
@@ -169,9 +211,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /** 
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findCGCIHierarchies(java.util.Set)
      */
     public Set findCGCIHierarchies(final Set arg0) {
@@ -197,7 +237,6 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                 }
 
                 // LOGIC
-                // This is all possible because of the use of the cache!
                 Set hierarchies = new HashSet();
                 Iterator i = imagesAll.iterator();
                 while (i.hasNext()) {
@@ -217,26 +256,28 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                     } else {
                         Iterator c = categories.iterator();
                         while (c.hasNext()) { // OPTIMAL TODO looping over get!!
-                                              // ???
+                            // ???
                             Integer cId = (Integer) c.next();
-                            Category2 ca = (Category2) session.get(Category.class, cId); // TODO hql
+                            Category2 ca = (Category2) session.get(
+                                    Category.class, cId); // TODO hql
 
                             if (null == ca.images)
                                 ca.images = new HashSet();
                             ca.images.add(img);
 
                             Integer cgId = ca.getCategoryGroup(); // and HERE ??
-                                                                  // FIXME
-                            CategoryGroup2 cg = (CategoryGroup2) session.get(CategoryGroup.class, cgId);
+                            // FIXME
+                            CategoryGroup2 cg = (CategoryGroup2) session.get(
+                                    CategoryGroup.class, cgId);
                             // not a
                             // collection??
                             if (cg == null) {
                                 hierarchies.add(ca);
                             } else {
-                                    if (null == cg.categories)
-                                        cg.categories = new HashSet();
-                                    cg.categories.add(ca);
-                                    hierarchies.add(cg);
+                                if (null == cg.categories)
+                                    cg.categories = new HashSet();
+                                cg.categories.add(ca);
+                                hierarchies.add(cg);
                             }
                         }
                     }
@@ -247,9 +288,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /** 
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set)
      */
     public Map findImageAnnotations(final Set arg0) {
@@ -273,13 +312,11 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set,
-     *      int)
+    /** 
+     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set,int)
      */
-    public Map findImageAnnotationsForExperimenter(final Set arg0, final int arg1) {
+    public Map findImageAnnotationsForExperimenter(final Set arg0,
+            final int arg1) {
 
         // CONTRACT
         if (null == arg0 || arg0.size() == 0) {
@@ -327,9 +364,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         return map;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /** 
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set)
      */
     public Map findDatasetAnnotations(final Set arg0) {
@@ -353,13 +388,11 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set,
-     *      int)
+    /** 
+     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set, int)
      */
-    public Map findDatasetAnnotationsForExperimenter(final Set arg0, final int arg1) {
+    public Map findDatasetAnnotationsForExperimenter(final Set arg0,
+            final int arg1) {
 
         // CONTRACT
         if (null == arg0 || arg0.size() == 0) {
