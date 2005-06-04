@@ -1,0 +1,18 @@
+
+-------------------------------------------------
+   OMERO - OME Read-Only Web App
+-------------------------------------------------
+
+To install the OMERO server, simply copy the war 
+(web application resource) file to your servlet 
+container. Once it is unpacked, edit:
+
+	/WEB-INF/classes/spring.properties
+
+to connect to the database.
+
+Once you start your servlet container, you can
+run the test suite against it.
+
+For more specific instructions, please see the 
+INSTALL_*.txt files in the docs directory.

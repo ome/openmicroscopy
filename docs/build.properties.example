@@ -1,0 +1,25 @@
+############################################
+# JDBC Connection properties
+############################################
+database.url=jdbc:postgresql://localhost/ome
+database.userid=josh
+database.password=""
+database.schema=public
+database.catalog=""
+database.driver=org.postgresql.Driver
+
+############################################
+# Tomcat manager connection
+############################################
+maven.tomcat.username=you
+maven.tomcat.password=secret
+
+############################################
+# Path conversion for middlegen ant-build
+############################################
+ant.os=unix
+
+############################################
+# Content Mgmt Connection
+############################################
+maven.scm.url=scm:svn:svn+ssh://jmoore@cvs.openmicroscopy.org.uk/home/svn/josh/ome3/branches/omero

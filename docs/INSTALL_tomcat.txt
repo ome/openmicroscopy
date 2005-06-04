@@ -1,0 +1,18 @@
+
+-------------------------------------------------
+   OMERO - OME Read-Only Web App
+-------------------------------------------------
+
+There are several methods to make working with a Tomcat
+instance simpler.
+
+Edit the Tomcat section of your build.properties file 
+(see HACKING.txt if you don't have one).
+
+   * Run "maven" from OMERO_HOME
+     If maven is not on your path, alternatively run:
+	 "OMERO_HOME/lib/maven/bin/maven"
+  
+   * cd to OMERO_HOME/components/wars/srv
+   
+   * Run "maven tomcat:deploy"

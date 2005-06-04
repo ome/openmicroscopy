@@ -1,0 +1,14 @@
+
+-------------------------------------------------
+   OMERO - OME Read-Only Web App
+-------------------------------------------------
+
+Building clients that access the Omero service is 
+as easy as having omero-client.jar and omero-model.jar
+on your classpath.
+
+Then create a ServiceFactory and use it to obtain a Service.
+
+    ServiceFactory services = new ServiceFactory();
+    HierarchyBrowsing proxy = services.getHierarchyBrowsingService();
+

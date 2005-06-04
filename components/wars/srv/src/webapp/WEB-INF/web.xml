@@ -33,14 +33,16 @@
 -->
 
 <!--
-# web.xml is the standard web application descriptor. It provides
-# definitions for:
-#
-# 1) configuring Spring and loading its context
-# 2) creating the dispatcher servlet for both binary and html request
-# 3) setting up filters for security (Acegi) and other needs.#
-#
+	
+  web.xml is the standard web application descriptor. It provides
+  definitions for:
+ 
+  1) configuring Spring and loading its context
+  2) creating the dispatcher servlet for both binary and html request
+  3) setting up filters for security (Acegi) and other needs.
+ 
 -->
+
 <!DOCTYPE web-app
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "http://java.sun.com/dtd/web-app_2_3.dtd">
