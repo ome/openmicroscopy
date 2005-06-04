@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 public class UtilsTest extends TestCase {
 
     public void testGetObjectVoidMethods() {
-        String[] names = Utils.getObjectVoidMethods(OmeroPercentTest.class);
+        String[] names = Utils.getObjectVoidMethods(GrinderTest.class);
     }
 
 }

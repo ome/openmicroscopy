@@ -12,78 +12,97 @@ import org.openmicroscopy.omero.model.Project;
 
 import junit.framework.TestCase;
 
-/** this class is not fully a JUnit test case, but rather
- * is intended for use with Grinder.
+/** this class tests the full functionality of Omero from the client throught to the database.
+ * There are duplicate methods here (* and *NoReturn) to be useable by both JUnit and Grinder.
+ * 
  * @author josh
+ * @since 1.0
  */
-public class OmeroPercentTest extends TestCase {
+public class GrinderTest extends TestCase {
 
     ServiceFactory services = new ServiceFactory();
     HierarchyBrowsing hb = services.getHierarchyBrowsingService();
-    PerformanceData data;
+    OMEData data;
     
-    public OmeroPercentTest(String name){
+    public GrinderTest(String name){
         super(name);
-        data = new PerformanceData(); // Completely random
+        data = new OMEPerformanceData(); // Completely random
     }
     
-    public OmeroPercentTest(PerformanceData data){
-        super("OmeroPercentTest with Data");
+    public GrinderTest(OMEData data){
+        super("GrinderTest with Data");
         this.data = data;
     }
     
-    public void testAll(){
-        Object result = testLoadPDIHierarchyProject();
-        System.out.println(Utils.structureSize(result));
-        testLoadPDIHierarchyDataset();
-        testLoadCGCIHierarchyCategoryGroup() ;
-        testLoadCGCIHierarchyCategory() ;
-        testFindCGCIHierarchies() ;
-        testFindPDIHierarchies() ;
-        testFindImageAnnotationsSet() ;
-        testFindImageAnnotationsSetForExperimenter() ;
-        testFindDatasetAnnotationsSet() ;
-        testFindDatasetAnnotationsSetForExperimenter();
+    /***********************************/
+    public void testLoadPDIHierarchyProjectNoReturn() {
+        Object obj = testLoadPDIHierarchyProject();
     }
-    
     public Object testLoadPDIHierarchyProject() {
         return hb.loadPDIHierarchy(Project.class, data.prjId);
     }
-
+    /***********************************/
+    public void testLoadPDIHierarchyDatasetNoReturn() {
+        Object obj = testLoadPDIHierarchyDataset();
+    }
     public Object testLoadPDIHierarchyDataset() {
         return hb.loadPDIHierarchy(Dataset.class, data.dsId);
     }
-
+    /***********************************/
+    public void testLoadCGCIHierarchyCategoryGroupNoReturn() {
+        Object obj = testLoadCGCIHierarchyCategoryGroup();
+    }
     public Object testLoadCGCIHierarchyCategoryGroup() {
         return hb.loadCGCIHierarchy(CategoryGroup.class,data.cgId);
     }
-    
+    /***********************************/
+    public void testLoadCGCIHierarchyCategoryNoReturn() {
+        Object obj = testLoadCGCIHierarchyCategory();
+    }
     public Object testLoadCGCIHierarchyCategory() {
         return hb.loadCGCIHierarchy(Category.class,data.cId);
     }
-
+    /***********************************/
+    public void testFindCGCIHierarchiesNoReturn() {
+        Object obj = testFindCGCIHierarchies(); 
+    }
     public Object testFindCGCIHierarchies() {
         return hb.findCGCIHierarchies(data.imgsCGCI);
     }
-    
+    /***********************************/
+    public void testFindPDIHierarchiesNoReturn() {
+        Object obj = testFindPDIHierarchies();
+    }    
     public Object testFindPDIHierarchies() {
         return hb.findPDIHierarchies(data.imgsPDI);
     }
-
+    /***********************************/
+    public void testFindImageAnnotationsSetNoReturn() {
+        Object obj = testFindImageAnnotationsSet();
+    }
     public Object testFindImageAnnotationsSet() {
         return hb.findImageAnnotations(data.imgsAnn1);
     }
-
+    /***********************************/
+    public void testFindImageAnnotationsSetForExperimenterNoReturn() {
+        Object obj = testFindImageAnnotationsSetForExperimenter();
+    }
     public Object testFindImageAnnotationsSetForExperimenter() {
         return hb.findImageAnnotationsForExperimenter(data.imgsAnn2, data.userId);
     }
-
+    /***********************************/
+    public void testFindDatasetAnnotationsSetNoReturn() {
+        Object obj = testFindDatasetAnnotationsSet();
+    }
     public Object testFindDatasetAnnotationsSet() {
         return hb.findDatasetAnnotations(data.dsAnn1);
     }
-
+    /***********************************/
+    public void testFindDatasetAnnotationsSetForExperimenterNoReturn() {
+        Object obj = testFindDatasetAnnotationsSetForExperimenter();
+    }
     public Object testFindDatasetAnnotationsSetForExperimenter() {
         return hb.findDatasetAnnotationsForExperimenter(data.dsAnn2, data.userId);
     }
-    
+    /***********************************/
 }

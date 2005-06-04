@@ -1,0 +1,35 @@
+<project 
+   xmlns:ant="jelly:ant"
+   xmlns:j="jelly:core" 
+   xmlns:maven="jelly:maven" 
+>
+  
+  <postGoal name="jar:jar">
+      <ant:jar destfile="${maven.build.dir}/${maven.final.name}.jar"
+               basedir="${maven.build.dir}/test-classes"
+	       includes="**/*.class" 
+	       update="true"/>  
+  </postGoal>
+
+ <goal name="grinder">
+   <ant:java 
+	classname="net.grinder.Grinder" 
+	fork="yes">
+      <ant:classpath>
+         <ant:path refid="maven.dependency.classpath"/>
+         <ant:pathelement location="${maven.build.dest}"/>
+      </ant:classpath>
+      <ant:jvmarg 
+         value="${jvm.prof}"/>
+   </ant:java>
+ </goal>
+
+ <goal name="hpjmeter">
+    <ant:java
+	jar="/home/josh/lib/HPjmeter/HPjmeter.jar"
+	fork="yes"
+	spawn="yes"/>
+  </goal>
+
+</project>
+

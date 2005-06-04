@@ -19,22 +19,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * @author josh
  */
-public class PerformanceData {
+public class OMEPerformanceData extends OMEData{
 
     // Main field
-    double percent = 0.05;
-    long seed = (new Random()).nextLong();
-    Random rnd = new Random(seed);
-    DataSource ds = (DataSource)SpringTestHarness.ctx.getBean("dataSource");
+    double percent = 0.001;
     
-    public PerformanceData(){
+        
+    public OMEPerformanceData(){
     }
     
-    public PerformanceData(double percent) {
+    public OMEPerformanceData(double percent) {
         this.percent = percent;
     }
     
-    public PerformanceData(double percent, long seed){
+    public OMEPerformanceData(double percent, long seed){
         this.percent=percent;
         this.seed = seed;
         this.rnd = new Random(seed);
@@ -62,49 +60,4 @@ public class PerformanceData {
     public Set imgsAnn2 = getPercentOfCollection(allImgs, percent);
     public Set dsAnn1 = getPercentOfCollection(allDss, percent);
     public Set dsAnn2 = getPercentOfCollection(allDss, percent);
-    
-    private Set getAllIds(String table, String field) {
-        JdbcTemplate jt = new JdbcTemplate(ds);
-        List rows = jt.queryForList("select "+field+" from "+table);
-        Set result = new HashSet();
-        for (Iterator i = rows.iterator(); i.hasNext();) {
-            Map element = (Map) i.next();
-            result.add(element.get(field));
-        }
-        return result;
-    }
-
-    private int getOneFromCollection(final Collection ids) {
-        
-        if (ids.size()==0){
-            throw new IllegalArgumentException(emptyColl);
-        }
-        
-        List ordered = new ArrayList(ids);
-        int choice = randomChoice(ids.size());
-        return ((Integer)ordered.get(choice)).intValue();
-    }
-
-    private Set getPercentOfCollection(final Set ids, double percent) {
-        
-        if (ids.size()==0){
-            throw new IllegalArgumentException(emptyColl);
-        }
-        
-        List ordered = new ArrayList(ids);
-        Set result = new HashSet();
-
-        while (result.size() < ids.size() * percent){ 
-            int choice = randomChoice(ordered.size());
-            result.add(ordered.remove(choice));
-        }
-        
-        return result;
-    }
-    
-    private int randomChoice(int size){
-        double value = (size-1) * rnd.nextDouble();
-        return (new Double(value)).intValue();
-    }
-    
 }
