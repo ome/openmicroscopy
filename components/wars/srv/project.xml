@@ -48,14 +48,14 @@
     <dependency>
       <groupId>hibernate</groupId>
       <artifactId>hibernate</artifactId>
-      <version>3.0</version>
+      <version>3.0.5</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
     <dependency>
-      <groupId>hibernate</groupId>
+      <groupId>omero</groupId>
       <artifactId>jta</artifactId>
       <version>hibernate</version>
       <type>jar</type>
@@ -64,7 +64,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>hibernate</groupId>
+      <groupId>omero</groupId>
       <artifactId>asm</artifactId>
       <version>hibernate</version>
       <type>jar</type>
@@ -212,6 +212,12 @@
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
+    </dependency>
+    <!-- TESTING -->
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>1.0.1</version>
     </dependency>
   </dependencies>
   <build>

@@ -45,14 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.type.IntegerType;
 
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
 //Application-internal dependencies
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
@@ -61,20 +54,17 @@ import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Classification;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.DatasetAnnotation;
-import org.openmicroscopy.omero.model.Experimenter;
 import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.model.ImageAnnotation;
-import org.openmicroscopy.omero.model.ImageDimension;
-import org.openmicroscopy.omero.model.ImagePixel;
 import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.model2.Category2;
 import org.openmicroscopy.omero.model2.CategoryGroup2;
+
 
 /**
  * implementation of the HierarchyBrowsing service. A single service
  * object is configured through IoC (most likely by Spring) and is
  * available for all calls.
- * @DEV.TODO Hibernate dependencies should be pushed down into DAOs 
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0
@@ -85,10 +75,18 @@ import org.openmicroscopy.omero.model2.CategoryGroup2;
  */
 public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
-    /** central Hibernate object 
-     * @DEV.TODO this needs to be moved to DAOs use constructor not get/setters 
-     */
-    SessionFactory sessions;
+
+    AnnotationDao annotationDao;
+
+    ContainerDao containerDao;
+    
+    public void setAnnotationDao(AnnotationDao dao) {
+        this.annotationDao = dao;
+    }
+
+    public void setContainerDao(ContainerDao dao) {
+        this.containerDao = dao;
+    }
 
     /**
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadPDIHierarchy(java.lang.Class, int)
@@ -101,18 +99,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                     "Class parameter for loadPDIHierarchy() must be Project or Dataset.");
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        return containerDao.loadHierarchy(arg0, arg1);
 
-                Query q = session.getNamedQuery("PDI_by_"
-                        + arg0.getName().substring(
-                                arg0.getPackage().getName().length() + 1));
-                q.setLong("id", arg1);
-                return q.uniqueResult();
-            }
-        });
     }
 
     /**
@@ -126,18 +114,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                     "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category.");
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                Query q = session.getNamedQuery("CGCI_by_"
-                        + arg0.getName().substring(
-                                arg0.getPackage().getName().length() + 1));
-                q.setLong("id", arg1);
-                return q.uniqueResult();
-            }
-        });
+        return containerDao.loadHierarchy(arg0, arg1);
 
     }
 
@@ -151,64 +128,53 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashSet();
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return (Set) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        List result = containerDao.findPDIHierarchies(arg0);
+        Set imagesAll = new HashSet(result);
 
-                //QUERY
-                Query q = session.getNamedQuery("findPDI");
-                q.setParameterList("img_list", arg0, new IntegerType());
+        if (null == imagesAll || imagesAll.size() == 0) {
+            return new HashSet();
+        }
 
-                List result = q.list();
-                Set imagesAll = new HashSet(result);
+        // LOGIC
+        Set hierarchies = new HashSet();
+        Iterator i = imagesAll.iterator();
+        while (i.hasNext()) {
+            Image img = (Image) i.next();
+            Set datasets = img.getDatasets();
 
-                if (null == imagesAll || imagesAll.size() == 0) {
-                    return new HashSet();
-                }
+            if (datasets == null || datasets.size() < 1) {
+                hierarchies.add(img);
+            } else {
+                Iterator d = datasets.iterator();
+                while (d.hasNext()) {
+                    Dataset ds = (Dataset) d.next();
 
-                // LOGIC
-                Set hierarchies = new HashSet();
-                Iterator i = imagesAll.iterator();
-                while (i.hasNext()) {
-                    Image img = (Image) i.next();
-                    Set datasets = img.getDatasets();
+                    if (!(ds.getImages() instanceof HashSet))
+                        ds.setImages(new HashSet());
+                    ds.getImages().add(img);
 
-                    if (datasets == null || datasets.size() < 1) {
-                        hierarchies.add(img);
+                    Set projects = ds.getProjects();
+                    if (projects == null || projects.size() < 1) {
+                        hierarchies.add(ds);
                     } else {
-                        Iterator d = datasets.iterator();
-                        while (d.hasNext()) {
-                            Dataset ds = (Dataset) d.next();
+                        Iterator p = projects.iterator();
+                        while (p.hasNext()) {
+                            Project prj = (Project) p.next();
 
-                            if (!(ds.getImages() instanceof HashSet))
-                                ds.setImages(new HashSet());
-                            ds.getImages().add(img);
+                            if (!(prj.getDatasets() instanceof HashSet))
+                                prj.setDatasets(new HashSet());
+                            prj.getDatasets().add(ds);
 
-                            Set projects = ds.getProjects();
-                            if (projects == null || projects.size() < 1) {
-                                hierarchies.add(ds);
-                            } else {
-                                Iterator p = projects.iterator();
-                                while (p.hasNext()) {
-                                    Project prj = (Project) p.next();
-
-                                    if (!(prj.getDatasets() instanceof HashSet))
-                                        prj.setDatasets(new HashSet());
-                                    prj.getDatasets().add(ds);
-
-                                    hierarchies.add(prj);
-                                }
-                            }
-
+                            hierarchies.add(prj);
                         }
                     }
+
                 }
-
-                return hierarchies;
             }
+        }
 
-        });
+        return hierarchies;
+
     }
 
     /** 
@@ -220,72 +186,59 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashSet();
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return (Set) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        List result = containerDao.findCGCIHierarchies(arg0);
+        Set imagesAll = new HashSet(result);
 
-                //QUERY
-                Query q = session.getNamedQuery("findCGCI");
-                q.setParameterList("img_list", arg0, new IntegerType());
+        if (null == imagesAll || imagesAll.size() == 0) {
+            return new HashSet();
+        }
 
-                List result = q.list();
-                Set imagesAll = new HashSet(result);
+        // LOGIC
+        Set hierarchies = new HashSet();
+        Iterator i = imagesAll.iterator();
+        while (i.hasNext()) {
+            Image img = (Image) i.next();
+            Set classifications = img.getClassifications();
+            Set categories = new HashSet();
 
-                if (null == imagesAll || imagesAll.size() == 0) {
-                    return new HashSet();
+            for (Iterator c = classifications.iterator(); c.hasNext();) {
+                Classification cla = (Classification) c.next();
+                if (cla.getValid().booleanValue()) { // TODO do this in query
+                    categories.add(cla.getCategory());
                 }
-
-                // LOGIC
-                Set hierarchies = new HashSet();
-                Iterator i = imagesAll.iterator();
-                while (i.hasNext()) {
-                    Image img = (Image) i.next();
-                    Set classifications = img.getClassifications();
-                    Set categories = new HashSet();
-
-                    for (Iterator c = classifications.iterator(); c.hasNext();) {
-                        Classification cla = (Classification) c.next();
-                        if (cla.getValid().booleanValue()) { // TODO do this in query
-                            categories.add(cla.getCategory());
-                        }
-                    }
-
-                    if (categories == null || categories.size() < 1) {
-                        hierarchies.add(img);
-                    } else {
-                        Iterator c = categories.iterator();
-                        while (c.hasNext()) { // OPTIMAL TODO looping over get!!
-                            // ???
-                            Integer cId = (Integer) c.next();
-                            Category2 ca = (Category2) session.get(
-                                    Category.class, cId); // TODO hql
-
-                            if (null == ca.images)
-                                ca.images = new HashSet();
-                            ca.images.add(img);
-
-                            Integer cgId = ca.getCategoryGroup(); // and HERE ??
-                            // FIXME
-                            CategoryGroup2 cg = (CategoryGroup2) session.get(
-                                    CategoryGroup.class, cgId);
-                            // not a
-                            // collection??
-                            if (cg == null) {
-                                hierarchies.add(ca);
-                            } else {
-                                if (null == cg.categories)
-                                    cg.categories = new HashSet();
-                                cg.categories.add(ca);
-                                hierarchies.add(cg);
-                            }
-                        }
-                    }
-                }
-
-                return hierarchies;
             }
-        });
+
+            if (categories == null || categories.size() < 1) {
+                hierarchies.add(img);
+            } else {
+                Iterator c = categories.iterator();
+                while (c.hasNext()) { // OPTIMAL TODO looping over get!!
+                    // ???
+                    Integer cId = (Integer) c.next();
+                    Category2 ca = new Category2();//containerDao.loadC(cId));// TODO hql
+
+                    if (null == ca.images)
+                        ca.images = new HashSet();
+                    ca.images.add(img);
+
+                    Integer cgId = ca.getCategoryGroup(); // and HERE ??
+                    // FIXME
+                    CategoryGroup2 cg = new CategoryGroup2();//containerDao.loadCG(cgId));
+                    // not a
+                    // collection??
+                    if (cg == null) {
+                        hierarchies.add(ca);
+                    } else {
+                        if (null == cg.categories)
+                            cg.categories = new HashSet();
+                        cg.categories.add(ca);
+                        hierarchies.add(cg);
+                    }
+                }
+            }
+        }
+
+        return hierarchies;
     }
 
     /** 
@@ -298,18 +251,9 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashMap();
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return (Map) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        List result = annotationDao.findImageAnnotations(arg0);
+        return sortImageAnnotations(result);
 
-                Query q = session.getNamedQuery("findImageAnn");
-                q.setParameterList("img_list", arg0, new IntegerType());
-
-                Map map = findImageAnnotations(q);
-                return map;
-            }
-        });
     }
 
     /** 
@@ -323,24 +267,15 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashMap();
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return (Map) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        List result = annotationDao.findImageAnnotationsForExperimenter(arg0,
+                arg1);
+        return sortImageAnnotations(result);
 
-                Query q = session.getNamedQuery("findImageAnnWithID");
-                q.setParameterList("img_list", arg0, new IntegerType());
-                q.setInteger("expId", arg1);
-
-                Map map = findImageAnnotations(q);
-                return map;
-            }
-        });
     }
 
-    Map findImageAnnotations(final Query q) {
+    Map sortImageAnnotations(final List l) {
 
-        Set result = new HashSet(q.list()); // TODO this everywhere
+        Set result = new HashSet(l); // TODO this everywhere
 
         if (null == result || result.size() == 0) {
             return new HashMap();
@@ -359,8 +294,6 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             ((Set) map.get(img_id)).add(ann);
         }
 
-        //FIXME REMOVE INVALID ENTRIES
-
         return map;
     }
 
@@ -374,18 +307,9 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashMap();
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return (Map) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        List result = annotationDao.findDataListAnnotations(arg0);
+        return sortDatasetAnnotations(result);
 
-                Query q = session.getNamedQuery("findDatasetAnn");
-                q.setParameterList("ds_list", arg0, new IntegerType());
-
-                Map map = findDatasetAnnotations(q);
-                return map;
-            }
-        });
     }
 
     /** 
@@ -399,24 +323,15 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashMap();
         }
 
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-        return (Map) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+        List result = annotationDao.findDataListAnnotationForExperimenter(arg0,
+                arg1);
+        return sortDatasetAnnotations(result);
 
-                Query q = session.getNamedQuery("findDatasetAnnWithID");
-                q.setParameterList("ds_list", arg0, new IntegerType());
-                q.setInteger("expId", arg1);
-
-                Map map = findDatasetAnnotations(q);
-                return map;
-            }
-        });
     }
 
-    Map findDatasetAnnotations(final Query q) {
+    Map sortDatasetAnnotations(final List l) {
 
-        Set result = new HashSet(q.list()); // TODO this everywhere
+        Set result = new HashSet(l); // TODO this everywhere
 
         if (null == result || result.size() == 0) {
             return new HashMap();
@@ -435,24 +350,9 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             ((Set) map.get(ds_id)).add(ann);
         }
 
-        //FIXME REMOVE INVALID ENTRIES
-
         return map;
     }
 
-    /**
-     * @return Returns the sessions.
-     */
-    public SessionFactory getSessions() {
-        return sessions;
-    }
 
-    /**
-     * @param sessions
-     *           The sessions to set.
-     */
-    public void setSessions(SessionFactory sessions) {
-        this.sessions = sessions;
-    }
 
 }

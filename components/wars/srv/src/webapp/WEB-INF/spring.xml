@@ -126,7 +126,7 @@
        <property name="hibernateProperties">
            <props>
                <prop key="hibernate.dialect">${db.dialect}</prop>
-	       <prop key="hibernate.show_sql">false</prop>
+	       <prop key="hibernate.show_sql">true</prop>
            </props>
        </property>
        <property name="dataSource">
