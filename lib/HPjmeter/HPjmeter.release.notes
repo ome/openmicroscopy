@@ -1,0 +1,684 @@
+
+                          Release Notes
+                    for HPjmeter Version 1.6
+
+These release notes contain the following topics:
+
+- What's New in This Release
+- Features
+- Supported Java(TM) Product Versions
+- System Requirements
+- Installation Instructions
+- Documentation and Help
+- FAQs
+
+
+What's New in This Release
+--------------------------
+
+HPjmeter 1.6 offers the following enhancements over HPjmeter 1.5.3:
+
+- New metrics:
+     Live Objects (Count)
+     Live Objects (Bytes)
+     Method Starvation Ratio
+
+- Support for 'prospect' when used with HP-UX Java 1.3.1.02 or later.
+
+- New 'Blanks In Numbers' option in the 'View' menu, improving
+  the readability of very large numbers.
+
+- Improved calculation of profiling intrusion compensation.
+
+- Numerous performance improvements.
+
+- Expanded on-line help.
+
+Features
+--------
+
+HPjmeter is a multi-platform tool that helps detect performance
+bottlenecks by graphically displaying profiling data.  HPjmeter extracts
+available metrics from data collected by any of the supported profiling
+options. Thus the actual capabilities of HPjmeter depend on the version
+of the Java VM, operating system, and the profiling option which was
+used for profiling.
+
+Most platforms include the following features:
+
+ * Multi-window GUI with Mark and Find features
+ * Over 15 metrics, including:
+    - Method Call Count
+    - Inclusive and Exclusive Method Times (CPU or Clock)
+    - Interactive Call Graph with Call Count, or with CPU or Clock Time,
+      if available
+    - Allocated and Residual Objects with Allocation Sites, Object
+      Reference Graph
+    - Derived metrics, such as Average Execution Times or Class Times
+ * Per Thread or Per Process display
+ * Lock Contention, Inlining, Thrown Exceptions, and Memory Leaks heuristics
+ * Compare capability for performance improvement tracking
+
+Additional features for the HP-UX version of the HotSpot VM:
+
+ * Low overhead of the Extended Profiling Agent (the -Xeprof option)
+ * Many more metrics, including:
+   - CPU and Clock Times for all Java methods
+   - Lock Contention metrics
+   - Threads Histogram showing the lifetime of Java threads and distribution
+     of thread state over the thread lifetime, including garbage collection
+     and thread starvation
+   - more derived metrics
+ * CPU times adjusted to compensate for profiling intrusion
+
+
+Supported Java Product Versions
+--------------------------------
+
+HPjmeter does not interact directly with the JRE which you use to
+profile the application. It only reads the profile data files produced
+by those JREs. The following versions of the Java product are known to
+produce profile data files from which HPjmeter can display data, based
+upon the profiling option(s) used to collect data:
+
+  SDK and JRE for Java release 1.3.x or 1.4.x for HP-UX 11.0 and 11i;
+    HotSpot VM (data collected using the -Xeprof or -Xrunhprof option)
+  SDK and JRE for Java release 1.3.x for HP-UX 11.0 and 11i; Classic VM
+    (data collected using the -Xrunhprof option)
+  SDK and JRE for Java release 1.2.2.05 or later for HP-UX 11.0 and 11i;
+    HotSpot VM (data collected using the -Xeprof option)
+  JDK and JRE for Java release 1.1.8 for HP-UX 10.20, HP-UX 11.0 and
+    HP-UX 11i (data collected using the -prof and -eprof options)
+  Hewlett Packard Chai VM 5.5 or later (data collected using the
+    -Xrunprof option)
+  Any Java 1.4 implementation (data collected using the -Xrunhprof
+    option compatible with the JavaSoft JDK-1.4.0-b92 implementation)
+  Any Java 1.3 implementation (data collected using the -Xrunhprof
+    option compatible with the JavaSoft JDK-1.3.0-C implementation)
+  Any Java 1.2 implementation (data collected using the -Xrunhprof
+    option compatible with the JavaSoft JDK-1.2.1-A implementation)
+  Any Java 1.1 implementation (data collected using the -prof option)
+
+
+
+System Requirements
+-------------------
+	
+To run HPjmeter, make sure you meet the following system requirements.
+
+You need either:
+
+    Java Virtual Machine 1.1.6 or later (the development
+    environment is not necessary)
+  and
+    Swing 1.1 package, which you can obtain separately from
+    the Java Foundations Classes site (Sun Microsystems, Inc.)
+
+Or:
+   Any Java 2 Virtual Machine, which includes the Swing 1.1
+   package.
+
+
+Installation Instructions
+-------------------------
+
+HPjmeter is available either as a compressed TAR file, or as a
+ZIP file. Both contain the same component files:
+
+  * HPjmeter.jar            - the program
+  * Java2Demo.eprof         - a sample profile data file
+  * HPjmeter.release.notes  - this ASCII file
+
+Download the HPjmeter compressed TAR file, HPjmeter-1.6.tar.gz
+or
+Download the HPjmeter ZIP file, HPjmeter-1.6.zip
+
+If you download the compressed TAR file, follow these steps:
+
+1.  Save the downloaded binary file, HPjmeter-1.6.tar.gz,
+    to a directory of your choice.
+
+2.  Using system commands, gunzip and untar the .tar.gz file as follows:
+
+     gunzip HPjmeter-1.6.tar.gz
+     tar xvf HPjmeter-1.6.tar 
+
+If you downloaded the ZIP file, HPjmeter-1.6.zip, follow these steps:
+
+1.  Save the ZIP file to a directory of your choice.
+
+2.  Using a system command, unzip the file as follows:
+
+     unzip HPjmeter-1.6.zip
+
+    or use WinZip(R) or a similar program to unzip the file.
+
+Newer versions of HPjmeter, when available, are located at
+http://www.hp.com/products1/unix/java/hpjmeter/  or
+http://www.HPjmeter.com/
+
+Running HPjmeter Using Java 1.1.x
+---------------------------------
+
+HPjmeter uses Swing 1.1, so be sure to include the appropriate
+Swing jar files in the CLASSPATH. Examples are shown below.
+You can obtain Swing 1.1 from the Java Foundation Classes site:
+http://java.sun.com/products/jfc/download.html
+
+Here is an example in csh:
+
+   setenv DISPLAY <your display>:0.0
+   setenv SWINGLOC <directory in which swingall.jar installed>
+   setenv HPJMETERLOC <directory in which HPjmeter.jar installed>
+   setenv BASEPATH /opt/java/lib/classes.zip  # may depend on the installation
+   setenv CLASSPATH $HPJMETERLOC/HPjmeter.jar:$SWINGLOC/swingall.jar:$BASEPATH
+   java -mx128m HPjmeter
+
+Here is an example in ksh:
+
+   export DISPLAY=<your display>:0.0
+   SWINGLOC=<directory in which swingall.jar installed>
+   HPJMETERLOC=<directory in which HPjmeter.jar installed>
+   BASEPATH=/opt/java/lib/classes.zip  # may depend on the installation
+   export CLASSPATH=$HPJMETERLOC/HPjmeter.jar:$SWINGLOC/swingall.jar:$BASEPATH
+   java -mx128m HPjmeter
+
+	
+Running HPjmeter using Java 2
+-----------------------------
+
+The Swing package is a standard extension for Java 2, so you do not
+need to install it, or specify it on your path.
+
+Here is an example in csh:
+
+   setenv DISPLAY <your display>:0.0
+   setenv HPJMETERLOC <directory in which HPjmeter.jar installed>
+   java -mx128m -jar $HPJMETERLOC/HPjmeter.jar
+
+Here is an example in ksh:
+
+   export DISPLAY=<your display>:0.0
+   HPJMETERLOC=<directory in which HPjmeter.jar installed>
+   java -mx128m -jar $HPJMETERLOC/HPjmeter.jar
+
+
+
+Documentation and Help
+----------------------
+
+The following information is available to assist you:
+
+-  HPjmeter Online Help -- includes a detailed description of the metrics and
+	profiling options available for different versions of Java.
+
+-  Release Notes for HPjmeter Version 1.6 -- what you are reading now.
+
+-  The HPjmeter Tour -- a web site with detailed instructions on how to use
+   the many features of HPjmeter at:
+   http://www.hp.com/java
+
+-  The HP tools for measuring system and application performance:
+   http://www.hp.com/products1/unix/java/infolibrary/tools/index.html
+
+
+HPjmeter requires no special compilation or preparation of the Java code --
+just specify a profiling option when running your application.
+Available profiling options depend on the version of the Java virtual
+machine you are using.  They are documented in the HPjmeter online help system,
+and in the section "Supported Java Product Versions"  in these release
+notes.
+
+Running your application with profiling enabled causes the virtual machine
+to dump profile data collected during the execution to a file. Since
+HPjmeter post-processes profile data, you can begin analyzing after
+the application completes.
+
+The information below describes how to use HPjmeter to
+analyze the profile data.
+
+
+- Reading Data Files
+- Understanding Metrics
+- Understanding Call Graphs
+- Analyzing Threads Performance
+- Analyzing Problems
+- Guessing Lock Contention
+- Locating Object Allocation
+
+
+Reading Data Files
+------------------
+
+Once the HPjmeter welcome screen displays, you can read in the profile data
+file that your application generated, by selecting File > Open
+and selecting the file.
+
+The HPjmeter file selection dialog box allows you to select
+a specific file type or display all data files. HPjmeter automatically
+recognizes the format of the file you select. An example profile data file
+"Java2Demo.eprof" has been attached. This file was obtained by running
+the Java 2D demo program from Sun Microsystems, Inc. (available from
+http://java.sun.com/products/java-media/2D/ and included with many
+distributions of Java 2 SDK), on HP-UX 11.0 workstation using Java 2
+JRE 1.3.1.
+
+HPjmeter currently supports the following file formats:
+
+- Those produced by the standard Java virtual machines, versions 1.1.x
+  (with .prof file name extension),
+- Those produced by the 'hprof' profiler included in many Java 2
+  implementations (with .hprof.txt file name extension)
+- A proprietary format for extended profiling, available with HP-UX
+  Java version 1.1.8, and HP-UX SDK for the Java 2 platform, HotSpot VM
+  version 1.2.2.05 or later, 1.3.x, or 1.4.x (with .eprof file name
+  extension)
+- A proprietary format for Chai VM profiling (file name 'profile.cprof')
+
+After the data file is read in, you can display various metrics from the
+application run by selecting the appropriate items from the Metrics menu.
+
+
+Understanding Metrics
+---------------------
+
+All profile data is presented using metrics. Each metric is
+described in the Online Help.
+
+One of the simple metrics is the method call count, which is the
+number of times each of the methods was called throughout the
+runtime of the application.  This metric is sorted by decreasing
+order of the call count. The most frequently called methods
+are displayed at the top of the screen.
+
+You can customize the format in which the method names are
+output. The package names for the class and the argument
+types for methods can be independently turned on and off.
+
+Another simple metric displays the amount of time spent in each method.
+This is the accumulated time over all invocations. The methods
+consuming the most time are displayed at the top of the screen.
+
+To analyze the application, you may want to look at more than one metric
+at the same time.  HPjmeter allows you to open multiple windows
+showing different metrics for the same profile data file or for
+different files. To open a new window, select Window > New Window.
+
+
+Understanding Call Graphs
+-------------------------
+
+Simple metrics alone do not provide an overall view of an application's
+control flow. HPjmeter also displays call graph information.
+To view call graph information, select any Call Graph Tree from the
+Metric menu.
+
+Call graphs are represented as a tree. You can interactively expand and
+collapse the tree "branches" (nodes) by clicking the circle beside
+the nodes.
+
+Drilling down into branch data displays called methods beneath
+the caller. Each indented line describes one called method.
+The called methods are sorted by decreasing time, with the most
+costly methods displayed at the top.
+
+By repeatedly expanding the nodes with the large times and expanding
+deeper into the tree, you can determine where the most time-consuming
+program tasks occurred.
+
+Another useful feature is the method search capability under the
+Edit menu, which allows you to search by package name, class name,
+and method name. Upon searching, the call graph tree is automatically
+expanded, displaying the methods found. Double-clicking a method
+name shows you all callers of a method.
+
+
+Analyzing Threads Performance
+-----------------------------
+
+When the profile data contains the appropriate information, HPjmeter
+is able to present the threads created during the application runtime.
+To view the threads, select Metric > Threads Histogram.
+The histogram displays the lifespan of each individual thread. It is also
+possible to see the metrics for each thread separately, by
+selecting Thread from the Scope menu.
+
+This is especially useful if you want to focus on the best
+performance of selected threads responsible for the activities
+essential for your application.
+
+
+Analyzing Memory Problems
+-------------------------
+
+Poor application performance can be also caused by inefficient use of memory.
+HPjmeter provides metrics that help you understand memory usage. One way
+the tool does this is by analyzing the number of objects allocated during
+application execution. If the profile data does not contain direct allocation
+counts, this metric is estimated based on the number of invocations of the
+classes' constructors. To view the number of objects, select Metric >
+Created Objects.
+
+
+Locating Object Allocations
+----------------------------
+
+In addition to knowing the number of allocated objects, you can locate where
+in the program these objects were created.
+
+To locate where the objects were created, select Metric > Created
+Objects (Count). Double clicking on class names lists all of the methods
+that allocated objects of the given class, sorted by the number of objects
+allocated. You can also view the number of objects of all types allocated
+by a method by choosing the Objects Created by Method metric.
+
+Other memory-related metrics show what was left in memory when the
+application completed execution. (Select Metric > Residual Objects.)
+These include arrays of objects, arrays of scalar types, and arrays
+of arrays. Object Reference Graph presents all live objects from the heap,
+along with all references to other objects. Analysis of these metrics may
+be helpful in detecting "memory leaks", which in the case of
+Java technology means objects still unintentionally referenced.
+
+
+Heuristic Help
+--------------
+
+HPjmeter has the ability to suggest potential performance bottlenecks.
+In Java technology, one such bottleneck is high lock contention,
+a synchronization problem in which threads spend much time waiting to
+acquire the locks for synchronized methods or statements. Even without
+the lock-specific profile data, HPjmeter is sometimes able to tell which
+methods might have suffered from the lock contention problem, using method
+clock times and the call graph.
+
+Lingering objects, traditionally called "memory leaks", is another possible
+area of performance problems.  HPjmeter can analyze a heap dump
+to find objects potentially responsible for holding many other objects
+in memory.
+
+Also, analyzing the call graph and method counts, HPjmeter can show
+which methods were throwing exceptions during the application execution,
+or which methods may be good candidates for inlining.
+
+However, since HPjmeter does all this in a speculative manner,
+these features are available under the Guess menu.
+
+
+FAQs
+----
+
+Q:  Does HPjmeter require HP-UX Java(tm) technology to run, or will it
+work on other platforms as well?
+
+A:  HPjmeter is written entirely in Java(tm), so it should run on any
+platform that supports Java 1.1, or Java 2.  However, if you are
+using Java 1.1, you will need the Swing 1.1 package, available from
+the Java Foundation Classes site
+(http://java.sun.com/products/jfc/download.html).
+
+
+Q:  Where should I put the HPjmeter.jar file?
+
+A:  There's no right or wrong place to put it. Just ensure that it is in your
+CLASSPATH or specify its explicit location at the time of the invocation.
+For example:   java -verbose:gc -jar /tmp/HPjmeter.jar
+
+
+Q:  Why is a .BAT file not included with HPjmeter?
+
+A:  HPjmeter is a platform-independent tool, and .BAT files work only for DOS
+or Windows(R). Furthermore, it is up to the user where to put the jar file,
+which Java VM to use and what options to specify for HPjmeter.
+
+
+Q:  I'm running HPjmeter and I cannot figure out how to start my application.
+
+A:  Unlike many profilers, HPjmeter will not run your application.
+You need to collect the profile data using one of the profiling options
+of the Java VM of your choice, and then use HPjmeter to read and analyze
+the profile data.
+
+
+Q:  Can  HPjmeter be used to analyze profiling data obtained on
+another platform?
+
+A:  Yes, provided the Java VM you are using offers a profiling option
+supported by HPjmeter. If you plan to to collect the profile data on
+a non HP-UX system, you will have to use the -Xrunhprof option, available
+for most Java 2 implementations. The -prof option from Java 1.1
+and HP Chai VM 5.5 or later are also supported.
+
+
+Q:  When I run my application with -Xeprof, it runs out of memory.
+However, when I use -verbose:gc, I see that the heap is not full.
+Why does my program report OutOfMemory?
+
+A:  You are likely running out of C Heap space either because you have a
+poorly configured system or your application is calling many methods and
+creating large numbers of threads.  The best method of determining whether
+this is a problem is to use Glance/gpm to monitor the memory used by the
+system.  Look at the Process's Memory Regions window and monitor the size
+of the DATA space displayed.  If the DATA space continues to grow then the
+profiler is requiring additional space in which to store its data.
+You can check your system's configuration to ensure that you have sufficient
+C Heap space available to your application by using the HPjconfig tool 
+available from the HP Java site (http://www.hp.com/java).  
+
+
+Q:  I specified a profiling option for the Java VM, but received no
+profile data file, or the file is incomplete. What's wrong?
+
+A:  Most probably you tried to read the data file before the application
+completed. Also, remember that in many cases the VM must terminate
+naturally, either by exiting all threads, or by a call to System.exit().
+Sometimes it will be necessary to modify the application code slightly
+to achieve this. Killing the VM process produces profile data only
+for Java 1.4 or later.
+If you are using -Xrunhprof, you may use "kill -QUIT <PID>"
+(or Ctrl-Break on Windows(R)) to force the profile data out.
+
+
+Q:  I used -Xrunhprof to get profile data, but HPjmeter rejects the file. Why?
+
+A:  There could be several reasons for this. If you run several instances
+of the Virtual Machine at the same time (like when shutting down JRun server
+from Macromedia, Inc., for example), both VMs may write their profile data
+to the same file, resulting in data corruption.
+You need to ensure that only one of them is using hprof, or that they use
+different profile data file names.
+Besides, the format of the files created by hprof is not standardized;
+it is possible that the version you are using produces files incompatible with
+this version of HPjmeter. In many cases, it is easy to "fix" the profile
+data file (using a text editor) to make it acceptable for HPjmeter.
+
+
+Q:  While reading the profile data, HPjmeter keeps running out of memory
+even after I increased the maximum heap size. What can I do?
+
+A:  If you increased the heap size to the maximum memory available on your
+system and the profile data is still too large, you need to reduce the
+amount of data collected. Scale down your application.
+If you are interested in the heap analysis (-Xrunhprof:heap=all,...)
+use a smaller heap size when you run your application.
+Even better, run a full garbage collection (call System.gc())
+just before the heap dump (-Xrunhprof will not do it for you).
+If you are interested in method execution times, decrease the number
+of threads if it is very large. If the are many, many short-lived threads
+in the application, decrease the running time.
+
+
+Q:  How much heap does HPjmeter need?
+
+A:  It depends on the profile data file. Most memory problems are related
+to heap dump analysis. As a rule of thumb expect the heap to grow about
+5 times the size of the "java.hprof.txt" file. For example, to process
+a 100 MB file, try to use "-mx500m", and adjust if necessary.
+If the required heap size is very large, we recommend using the
+64 bit version of JVM, for example "-d64 -Xmx4g -Xmn300m".
+
+
+Q:  I increased the maximum heap size when running HPjmeter, and now
+it takes forever to read the profile data file and my computer became
+unresponsive. What has HPjmeter done to my system?
+
+A:  Most likely, you specified the heap size which exceeds the effective
+capacity of your computer and/or operating system.
+What you see is "thrashing" - the system is constantly swapping
+the virtual memory pages with the hard drive.
+
+
+Q:  When reading the profile data, HPjmeter displayed a message
+"There were ... dangling references found in the heap dump". So what?
+
+A:  This warning message indicates inconsistencies in the heap dump,
+caused by errors in the Java VM, JVMPI, or hprof implementation.
+The impact of this error is usually small, and is only limited to the
+heap metrics. No other metrics are affected.
+
+
+Q:  Several entries under the Metric menu are greyed out. How can I enable
+these metrics?
+
+A:  The metrics offered by HPjmeter entirely depend on the contents
+of the profile data file. To get other metrics, you need to rerun your
+application with different profiling options. See "Features and Platforms
+Summary" in HPjmeter's on-line help for the details.
+
+
+Q:  Why is HPjmeter so slow? I cannot scroll smoothly.
+
+A:  Many Java 1.2 implementations have performance problems with remote
+displays, especially with Swing applications, such as HPjmeter.
+If at all possible, try to run HPjmeter locally on your workstation.
+If you must run it remotely, you may improve performance by running
+it using Java 1.1, or HP-UX Java 1.3 with FastSwing option.
+The best alternative is to use Java 1.4.
+
+
+Q:  One of the entries in the profile data is labeled <unknown
+caller>.  What is that?
+
+A:  The profiling information is collected by the Java virtual
+machine at the entry and exit points of each method.  When the
+virtual machine cannot identify the calling method, it assigns it
+the name <unknown caller>.  Therefore more than one method can be
+represented by the <unknown caller> name.  Usually the reason for
+not being able to recognize the caller is that it was not a Java method.
+For all practical purposes, you can assume that the <unknown caller>
+entry represents the virtual machine itself.
+
+
+Q: What is the unit of the timing data displayed by HPjmeter?
+
+A: For sampling, hprof uses varying sampling interval to keep the
+overhead at a reasonable level.  While profiling by tracing, most
+Java virtual machines measure the time in milliseconds.
+However, the profiling intrusion can be very large.  In the HotSpot VM
+(-Xeprof option) the intrusion for SPECjvm98 (http://www.spec.org/)
+can be as low as 2x.
+In extreme cases, however, profiling an application can result in
+a 10 times or greater slow-down.  In effect, the real meaning of time
+is often lost.  It is best to view the timing values as if they were
+measured in some abstract and platform-dependent time units.
+
+
+Q:  Is it possible to see the performance data for a specific
+thread only?
+
+A:  Yes, if you use the -Xeprof option for the HotSpot JVM,
+the thread=y option for Java 2 hprof, or the -eprof option
+for Java 1.1.
+
+
+Q:  Is it possible to see the performance data for a specific time
+slice only?
+
+A:  Yes, if you are using -Xeprof for HP Java 1.4.1 or later.
+Otherwise, if you'd like to use a large time slice, you can try
+the following trick. Profile your application twice. 
+The first time run it only up to the beginning of the intended time slice.
+The second time run it up to the end of the slice. You will get two data
+files which you can compare using HPjmeter.
+Assuming that both runs were performed in very similar environments,
+this could give you estimated metrics for your time slice.
+
+
+Q:  I'm looking at an Inclusive Method Time metric, and the reported
+time for one or more of the methods is very large -- even larger than
+the total running time of the application.  What's wrong?
+
+A:  Possibly nothing is wrong.  Such timing values can be reported for
+recursive functions.  Each invocation of the function "collects"
+its own time.  So depending on the depth of recursion, the total
+may be even greater than the application running time.  Another
+reason for this apparent anomaly can be caused by multiple threads
+spending time within the function.
+
+
+Q:  I'm trying to expand one of the Call Graph Tree nodes, but I
+cannot see any children.
+
+A:  It may happen that all outcoming branches from this node have
+timing values that are less than the current cut-off value.  In such
+cases no children will be displayed.
+
+
+Q:  How can I use the slider for the Call Graph Tree pruning for
+precise adjustments?
+
+A:  You can do two things. One is you can click on a side of the slider
+knob, which adjusts the cut-off value by 1.  The other is you can
+enlarge the whole tree pruning dialog window to fill the width of
+the screen.  It is best to adjust the cut-off value when the
+tree is still small.
+
+
+Q:  I can see multiple entries at the top level of the Call Graph
+Tree.  Why is that?
+
+A:  For the Process scope, each thread is likely to generate one
+entry which was seen calling others, but not being called itself.
+Such methods are placed at the top level.  Another reason for
+multiple roots of the call graph is that the profiling agent never
+saw what called these methods.  This sometimes happens, for example,
+when using the java.lang.reflect package.
+
+
+Q:  HPjmeter claims that one of the objects in the Reference Graph holds
+zero bytes. How is it possible?
+
+A:  The "bytes held" is the number of bytes that a (full) garbage collection
+will be able to recover if all references to a given object disappear.
+The value of zero indicates that this particular object can already be
+removed from the heap. This can happen if all paths leading to the object
+contain soft or weak references, or if the object can be accessed
+only from some objects waiting for finalization.
+
+
+Q:  Guess - Lock Contention reported a method which is not even
+synchronized or uses the synchronized statement.  Why is that?
+
+A:  It can happen.  HPjmeter does not have the information about
+the monitor locks, so it only guesses which methods' execution
+got delayed, using the timing data. It is also possible that the VM
+inlined a synchronized method into the method in question.
+
+
+Q:  I have a suggestion for the improvement of HPjmeter.  How can I
+report it?
+
+A:  Please send email to java-tools-support@cup.hp.com.
+
+
+
+
+
+***************************************************************************
+                             Legal Notices
+
+Copyright (c) Hewlett-Packard Company 1999-2003.
+
+HotSpot, Java and all Java-based trademarks and logos are trademarks or
+registered trademarks of Sun Microsystems, Inc.
+WinZip is a registered trademark of WinZip Computing, Inc.
