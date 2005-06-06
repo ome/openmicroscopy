@@ -215,9 +215,19 @@
     </dependency>
     <!-- TESTING -->
     <dependency>
+      <groupId>dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
       <version>1.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>all-1.0-beta-10</version>
     </dependency>
   </dependencies>
   <build>

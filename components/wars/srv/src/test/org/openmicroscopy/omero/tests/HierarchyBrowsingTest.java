@@ -206,26 +206,18 @@ public class HierarchyBrowsingTest extends TestCase {
     }
     
     public void testContainerCallWithWrongParameters(){
-     boolean ok = false;
      try {
          hb.loadPDIHierarchy(Object.class,1);
+         fail("loadPDIHierarchy(class,int) didn't choke on bad class.");
      } catch (IllegalArgumentException iae){
-         ok = true;
+         // We should get here. TODO log
      }
 
-     if (!ok){
-         fail("loadPDIHierarchy(class,int) didn't choke on bad class.");
-     }
-     
-     ok = false;
      try {
          hb.loadCGCIHierarchy(Object.class,1);
-     } catch (IllegalArgumentException iae){
-         ok = true;
-     }
-
-     if (!ok){
          fail("loadCGCIHierarchy(class,int) didn't choke on bad class.");
+     } catch (IllegalArgumentException iae){
+         // We should get here. TODO log
      }
           
     }
