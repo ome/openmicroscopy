@@ -177,6 +177,7 @@ public class CategoryMapper
     public static Criteria buildBasicCriteria(int id)
     {
         Criteria c = new Criteria();
+        c.addWantedField("id");
         //ISSUE: Shoudln't need to specify the id field.
         if (id != -1) c.addFilter("id", new Integer(id));
         return c;

@@ -211,7 +211,7 @@ class CategoryImagesDiffPane
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
-        String s = " Select images to add to"
+        String s = " Select images to add to "
                     +control.getCategoryData().getName()+".";
         TitlePanel tp = new TitlePanel("Add images", s, 
                             im.getIcon(IconManager.IMAGE_BIG));

@@ -68,10 +68,7 @@ import javax.swing.JComponent;
 class TitleBar
     extends JComponent
 {
-    
-    /** Paints the background. It's stateless, so we share it. */
-    //private static final TitlePainter PAINTER = new TitlePainter();
-    
+
     /** 
      * The width and hight, in pixels, of the {@link #sizeButton} and
      * {@link #closeButton}. 

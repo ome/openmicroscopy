@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.twindow;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JComponent;
 import javax.swing.JWindow;
 

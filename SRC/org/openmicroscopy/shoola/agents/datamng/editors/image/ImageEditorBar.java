@@ -89,27 +89,6 @@ class ImageEditorBar
 	private void buildGUI()
 	{
         add(UIUtilities.buildComponentPanelRight(buildButtonPanel()));
-        /**
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		setLayout(gridbag);
-		JPanel controls = buildButtonPanel();
-		c.weightx = 0.5;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.EAST;
-		Component cp = Box.createRigidArea(DataManagerUIF.VBOX);
-		gridbag.setConstraints(cp, c);
-		add(cp);
-		c.gridy = 1;
-		gridbag.setConstraints(controls, c); 
-		add(controls);
-		c.gridy = 2;
-		cp = Box.createRigidArea(DataManagerUIF.VBOX);
-		gridbag.setConstraints(cp, c);
-		add(cp);
-		setOpaque(false); //make panel transparent
-        */
 	}
 	
 	/** Build panel with buttons. */

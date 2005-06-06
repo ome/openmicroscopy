@@ -157,9 +157,12 @@ class ImageChooser
     {
         boolean exist = false;
         String name = fileName + "." + format;
-        for (int i = 0; i < list.length; i++) 
-            if ((list[i].getAbsolutePath()).equals(name)) exist = true;
-
+        for (int i = 0; i < list.length; i++) {
+            if ((list[i].getAbsolutePath()).equals(name)) {
+                exist = true;
+                break;
+            }
+        }
         if (!exist) {
             display = false;
             manager.saveImage(format, fileName, message);

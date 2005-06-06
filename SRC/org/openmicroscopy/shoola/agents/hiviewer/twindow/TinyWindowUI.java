@@ -56,8 +56,6 @@ import javax.swing.border.BevelBorder;
  * The UI delegate for the {@link TinyWindow}.
  * A delegate can't be shared among different instances of {@link TinyFrame} 
  * and has a life-time dependency with its owning frame.
- * (We don't share a delegate because we inherit from
- * {@link javax.swing.plaf.basic.BasicInternalFrameUI}, which can't be shared.)
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -79,24 +77,24 @@ public class TinyWindowUI
     public static final int MAX_HEIGHT = 300;
     
     /** The thickness of the frame's border. */
-    static final int    BORDER_THICKNESS = 1;
+    static final int        BORDER_THICKNESS = 1;
 
     /** The color of the frame's border. */
-    static final Color  BORDER_COLOR = new Color(99, 130, 191);
+    static final Color      BORDER_COLOR = new Color(99, 130, 191);
     
     /** 
      * The highlight color to use for the inner border surrounding the
      * frame's contents.
      */
-    static final Color  INNER_BORDER_HIGHLIGHT = new Color(240, 240, 240);
+    static final Color      INNER_BORDER_HIGHLIGHT = new Color(240, 240, 240);
     
     /** 
      * The shadow color to use for the inner border surrounding the
      * frame's contents.
      */
-    static final Color  INNER_BORDER_SHADOW = new Color(200, 200, 200);
+    static final Color      INNER_BORDER_SHADOW = new Color(200, 200, 200);
 
-    static final int    INNER_PADDING = 1;
+    static final int        INNER_PADDING = 1;
     
     /** The window that owns this UI delegate. */
     private TinyWindow      window;
@@ -106,6 +104,7 @@ public class TinyWindowUI
     
     /** The component that displays the image. */
     private JComponent      canvas;
+    
     
     /**
      * Creates and sets the window and its content's borders.
