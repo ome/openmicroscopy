@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <extend>../../../project.xml</extend>
+  <extend>${omero.home.relative}/project.xml</extend>
   <pomVersion>3</pomVersion>
   <id>${pom.groupId}-shoola-adapter</id>
   <name>OME Shoola Adapter Code</name>

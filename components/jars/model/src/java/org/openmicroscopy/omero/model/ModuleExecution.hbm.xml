@@ -76,7 +76,7 @@
     />
     <property
         name="timestamp"
-        type="timestamp"
+        type="java.sql.Timestamp"
         column="timestamp"
         length="8"
     />

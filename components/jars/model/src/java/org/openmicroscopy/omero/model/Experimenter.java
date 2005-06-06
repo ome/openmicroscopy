@@ -24,7 +24,7 @@ public class Experimenter implements Serializable {
     private String password;
 
     /** nullable persistent field */
-    private org.openmicroscopy.omero.model.Group group;
+    private Integer groupId;
 
     /** nullable persistent field */
     private String dataDir;
@@ -57,13 +57,13 @@ public class Experimenter implements Serializable {
     private Set moduleExecutions;
 
     /** full constructor */
-    public Experimenter(Integer attributeId, String omeName, String email, String firstname, String password, org.openmicroscopy.omero.model.Group group, String dataDir, Integer moduleExecutionId, String lastname, String institution, Set datasets, Set groupsByLeader, Set groupsByContact, Set images, Set projects, Set moduleExecutions) {
+    public Experimenter(Integer attributeId, String omeName, String email, String firstname, String password, Integer groupId, String dataDir, Integer moduleExecutionId, String lastname, String institution, Set datasets, Set groupsByLeader, Set groupsByContact, Set images, Set projects, Set moduleExecutions) {
         this.attributeId = attributeId;
         this.omeName = omeName;
         this.email = email;
         this.firstname = firstname;
         this.password = password;
-        this.group = group;
+        this.groupId = groupId;
         this.dataDir = dataDir;
         this.moduleExecutionId = moduleExecutionId;
         this.lastname = lastname;
@@ -131,12 +131,12 @@ public class Experimenter implements Serializable {
         this.password = password;
     }
 
-    public org.openmicroscopy.omero.model.Group getGroup() {
-        return this.group;
+    public Integer getGroupId() {
+        return this.groupId;
     }
 
-    public void setGroup(org.openmicroscopy.omero.model.Group group) {
-        this.group = group;
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
     public String getDataDir() {

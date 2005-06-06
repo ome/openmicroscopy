@@ -11,7 +11,7 @@ public class ImagePixel implements Serializable {
     private Integer attributeId;
 
     /** nullable persistent field */
-    private org.openmicroscopy.omero.model.Repository repository;
+    private Integer repository;
 
     /** nullable persistent field */
     private String pixelType;
@@ -50,7 +50,7 @@ public class ImagePixel implements Serializable {
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
     /** full constructor */
-    public ImagePixel(Integer attributeId, org.openmicroscopy.omero.model.Repository repository, String pixelType, Integer sizeY, Integer sizeZ, String fileSha1, String path, Integer sizeT, Long imageServerId, Integer sizeX, Integer sizeC, Integer bitsPerPixel, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public ImagePixel(Integer attributeId, Integer repository, String pixelType, Integer sizeY, Integer sizeZ, String fileSha1, String path, Integer sizeT, Long imageServerId, Integer sizeX, Integer sizeC, Integer bitsPerPixel, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
         this.repository = repository;
         this.pixelType = pixelType;
@@ -86,11 +86,11 @@ public class ImagePixel implements Serializable {
         this.attributeId = attributeId;
     }
 
-    public org.openmicroscopy.omero.model.Repository getRepository() {
+    public Integer getRepository() {
         return this.repository;
     }
 
-    public void setRepository(org.openmicroscopy.omero.model.Repository repository) {
+    public void setRepository(Integer repository) {
         this.repository = repository;
     }
 

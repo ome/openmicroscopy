@@ -25,8 +25,8 @@
     </id>
 
     <property
-        name="moduleExecution"
-        type="org.openmicroscopy.omero.model.ModuleExecution"
+        name="moduleExecutionId"
+        type="java.lang.Integer"
         column="module_execution_id"
         length="4"
     />

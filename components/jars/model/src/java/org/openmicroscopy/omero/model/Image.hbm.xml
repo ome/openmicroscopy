@@ -25,14 +25,14 @@
     </id>
 
     <property
-        name="pixels"
-        type="org.openmicroscopy.omero.model.ImagePixel"
+        name="pixelsId"
+        type="java.lang.Integer"
         column="pixels_id"
         length="4"
     />
     <property
         name="inserted"
-        type="timestamp"
+        type="java.sql.Timestamp"
         column="inserted"
         not-null="true"
         length="8"
@@ -52,7 +52,7 @@
     />
     <property
         name="created"
-        type="timestamp"
+        type="java.sql.Timestamp"
         column="created"
         not-null="true"
         length="8"

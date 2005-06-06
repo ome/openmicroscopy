@@ -13,7 +13,7 @@ public class Image implements Serializable {
     private Integer imageId;
 
     /** nullable persistent field */
-    private org.openmicroscopy.omero.model.ImagePixel pixels;
+    private Integer pixelsId;
 
     /** persistent field */
     private Date inserted;
@@ -76,9 +76,9 @@ public class Image implements Serializable {
     private Set datasets;
 
     /** full constructor */
-    public Image(Integer imageId, org.openmicroscopy.omero.model.ImagePixel pixels, Date inserted, String name, String description, Date created, String imageGuid, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
+    public Image(Integer imageId, Integer pixelsId, Date inserted, String name, String description, Date created, String imageGuid, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
         this.imageId = imageId;
-        this.pixels = pixels;
+        this.pixelsId = pixelsId;
         this.inserted = inserted;
         this.name = name;
         this.description = description;
@@ -136,12 +136,12 @@ public class Image implements Serializable {
         this.imageId = imageId;
     }
 
-    public org.openmicroscopy.omero.model.ImagePixel getPixels() {
-        return this.pixels;
+    public Integer getPixelsId() {
+        return this.pixelsId;
     }
 
-    public void setPixels(org.openmicroscopy.omero.model.ImagePixel pixels) {
-        this.pixels = pixels;
+    public void setPixelsId(Integer pixelsId) {
+        this.pixelsId = pixelsId;
     }
 
     public Date getInserted() {

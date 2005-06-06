@@ -12,6 +12,7 @@
   </postGoal>
 
  <goal name="grinder">
+   <ant:mkdir dest="log"/>
    <ant:java 
 	classname="net.grinder.Grinder" 
 	fork="yes">
@@ -26,7 +27,7 @@
 
  <goal name="hpjmeter">
     <ant:java
-	jar="/home/josh/lib/HPjmeter/HPjmeter.jar"
+	jar="${omero.decent}/lib/HPjmeter/HPjmeter.jar"
 	fork="yes"
 	spawn="yes"/>
   </goal>

@@ -26,7 +26,7 @@
 
     <property
         name="repository"
-        type="org.openmicroscopy.omero.model.Repository"
+        type="java.lang.Integer"
         column="repository"
         length="4"
     />

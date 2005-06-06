@@ -70,7 +70,6 @@
         name="moduleExecution"
         class="org.openmicroscopy.omero.model.ModuleExecution"
         not-null="true"
-		unique="true"
     >
         <column name="module_execution_id" />
     </many-to-one>

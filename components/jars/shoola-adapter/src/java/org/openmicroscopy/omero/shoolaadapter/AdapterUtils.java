@@ -189,7 +189,7 @@ public class AdapterUtils {
         
         pd.setID(ip.getAttributeId().intValue());
         pd.setImageServerID(ip.getImageServerId().longValue());
-        pd.setImageServerUrl(ip.getRepository().getImageServerUrl());
+        //pd.setImageServerUrl(ip.getRepository().getImageServerUrl()); TODO
         pd.setPixelSizeX(dim.getPixelSizeX().doubleValue());
         pd.setPixelSizeY(dim.getPixelSizeY().doubleValue());
         pd.setPixelSizeZ(dim.getPixelSizeZ().doubleValue());
@@ -210,7 +210,7 @@ public class AdapterUtils {
         }
 
         List groups = new ArrayList();
-        groups.add(e.getGroup().getAttributeId());//FIXME
+        //groups.add(e.getGroup().getAttributeId());//FIXME
         UserDetails ed = new UserDetails(e.getAttributeId().intValue(),e.getFirstname(),e.getLastname(),groups);
         to(cache, e, ed);
 
