@@ -12,7 +12,7 @@
   </postGoal>
 
  <goal name="grinder">
-   <ant:mkdir dest="log"/>
+   <ant:mkdir dir="log"/>
    <ant:java 
 	classname="net.grinder.Grinder" 
 	fork="yes">
@@ -31,6 +31,11 @@
 	fork="yes"
 	spawn="yes"/>
   </goal>
+
+<!-- TODO doesn't work -->
+  <preGoal name="clean:clean">
+    <ant:delete dir="${basedir}/cacheDir"/>
+  </preGoal>
 
 </project>
 
