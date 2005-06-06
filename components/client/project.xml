@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <extend>../../../project.xml</extend>
+  <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
   <id>${pom.groupId}-client</id>
   <name>OME Client Code</name>
@@ -44,8 +44,8 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <sourceDirectory>src</sourceDirectory>
+    <unitTestSourceDirectory>test</unitTestSourceDirectory>
     <unitTest>
       <includes>
         <include>**/*.java</include>
@@ -53,8 +53,7 @@
     </unitTest>
     <resources>
       <resource>
-<!--        <targetPath>src/conf</targetPath> -->
-        <directory>src/conf</directory>
+        <directory>conf</directory>
         <includes>
           <include>*</include>
         </includes>

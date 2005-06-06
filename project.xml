@@ -10,18 +10,19 @@
   <groupId>omero</groupId>
   <name>Open Microscopy Environment Read-Only</name>
   <currentVersion>1.0</currentVersion>
+  <description>OMERO is a web-application providing read-only query
+services to an existing OME installation</description>
 
   <organization>
     <name>Open Microscopy Environment</name>
     <url>http://www.openmicroscopy.org/</url>
-    <logo>http://www.openmicroscopy.org/FIXME.gif</logo>
+    <logo>http://www.openmicroscopy.org/images/logo-4.png</logo>
   </organization>
 
   <inceptionYear>2005</inceptionYear>
   <package>org.openmicroscopy.omero</package>
-  <logo>http://maven.apache.org/images/maven.jpg</logo>
-  <description></description>
-  <shortDescription></shortDescription>
+  <logo>http://www.openmicroscopy.org/images/logo-4.png</logo>
+  <shortDescription>A read-only query server for OME</shortDescription>
   <url>http://www.openmicroscopy.org</url>
 
   <issueTrackingUrl>http://bugs.openmicroscopy.org.uk</issueTrackingUrl>

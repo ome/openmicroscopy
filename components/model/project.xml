@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <extend>${omero.home.relative}/project.xml</extend>
+  <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
   <id>${pom.groupId}-model</id>
   <name>OME Model Objects</name>
@@ -22,16 +22,10 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    <unitTest>
-      <includes>
-        <include>**/*Test.java</include>
-      </includes>
-    </unitTest>
+    <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
-        <directory>src/java</directory>
+        <directory>src</directory>
         <includes>
           <include>**/*.hbm.xml</include>
         </includes>

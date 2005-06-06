@@ -1,81 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" default="multiproject:build">
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" default="build">
 
-  <goal name="multiproject:build">
-    <attainGoal name="multiproject:jar-install" />
-    <attainGoal name="multiproject:war-install" />
+  <goal name="build">
+    <attainGoal name="multiproject:artifact" />
   </goal>
-  <goal name="multiproject:war">
-    <maven:reactor
-      basedir="."
-      banner="Creating WAR files"
-      includes="${maven.multiproject.war.includes}"
-      excludes="${maven.multiproject.war.excludes}"
-      postProcessing="true"
-      goals="war"
-      ignoreFailures="${maven.multiproject.ignoreFailures}"
-    />
+  <goal name="install">
+    <attainGoal name="multiproject:install" />
   </goal>
-  <goal name="multiproject:jar">
-    <maven:reactor
-      basedir="."
-      banner="Creating Jar files" 
-      includes="${maven.multiproject.jar.includes}"
-      excludes="${maven.multiproject.jar.excludes}"
-      postProcessing="true"
-      goals="jar"
-      ignoreFailures="${maven.multiproject.ignoreFailures}"
-    />
+  <goal name="clean">
+    <attainGoal name="multiproject:clean"/>
+    <attainGoal name="clean:clean"/>
   </goal>
-  <goal name="multiproject:war-install">
-    <maven:reactor
-      basedir="."
-      banner="Installing WAR files"
-      includes="${maven.multiproject.war.includes}"
-      excludes="${maven.multiproject.war.excludes}"
-      postProcessing="true"
-      goals="war:install"
-      ignoreFailures="${maven.multiproject.ignoreFailures}"
-    />
-  </goal>
-  <goal name="multiproject:jar-install">
-    <maven:reactor
-      basedir="."
-      banner="Installing Jar files"
-      includes="${maven.multiproject.jar.includes}"
-      excludes="${maven.multiproject.jar.excludes}"
-      postProcessing="true"
-      goals="jar:install"
-      ignoreFailures="${maven.multiproject.ignoreFailures}"
-    />
-  </goal>
-  <goal name="multiproject:clean">
-    <attainGoal name="multiproject:jar-clean" />
-    <attainGoal name="multiproject:war-clean" />
-  </goal>
-  <goal name="multiproject:jar-clean">
-    <maven:reactor
-      basedir="."
-      banner="Cleaning Jar files"
-      includes="${maven.multiproject.jar.includes}"
-      excludes="${maven.multiproject.jar.excludes}"
-      postProcessing="true"
-      goals="clean"
-      ignoreFailures="${maven.multiproject.ignoreFailures}"
-    />
-  </goal>
-  <goal name="multiproject:war-clean">
-    <maven:reactor
-      basedir="."
-      banner="Cleaning War files"
-      includes="${maven.multiproject.war.includes}"
-      excludes="${maven.multiproject.war.excludes}"
-      postProcessing="true"
-      goals="clean"
-      ignoreFailures="${maven.multiproject.ignoreFailures}"
-    />
-  </goal>
-
+  
   <goal name="get-tomcat-plugin">
     <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
     <maven:property name="groupId" defaultValue="codeczar-tomcat" />

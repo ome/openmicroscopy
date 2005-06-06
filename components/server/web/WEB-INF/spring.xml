@@ -56,10 +56,23 @@
 	</bean>
 	
 	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
-		<property name="sessions"><ref bean="sessionFactory"/></property>
+		<property name="annotationDao"><ref bean="annotationDao"/></property>
+		<property name="containerDao"><ref bean="containerDao"/></property>
 	</bean>		
 
 	<!-- ### Data ####################################################### -->
+
+	<bean id="dao" abstract="true">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="annotationDao" 
+		class="org.openmicroscopy.omero.logic.AnnotationDaoHibernate"
+		parent="dao"/>
+
+	<bean id="containerDao" 
+		class="org.openmicroscopy.omero.logic.ContainerDaoHibernate"
+		parent="dao"/>
 
 	<bean id="transactionManager" 
     	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

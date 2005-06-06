@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <extend>../../../project.xml</extend>
+  <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
   <id>${pom.groupId}-test</id>
   <name>OME Test Code</name>

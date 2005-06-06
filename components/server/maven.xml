@@ -3,6 +3,12 @@
 
 >
 
+ <!-- see doc under: http://www.codeczar.com/products/maven-tomcat-plugin/ -->
+ <!-- 
+	tomcat:(re-|un-)deploy: Use for remote serviers
+	tomcat:install,reload,remove use the expanded directory
+	 (use for local instances where the build dir is visible)
+  -->
  <goal name="tomcat-redo">
    <attainGoal name="tomcat:remove"/>
    <attainGoal name="tomcat:install"/>
@@ -53,7 +59,7 @@
  </taskdef>
 
  <groovyc destdir="${basedir}/target/test-classes"
-          srcdir="${basedir}/src/test" 
+          srcdir="${basedir}/test" 
           listfiles="true">
 	<classpath refid="groovy.classpath"/>
  </groovyc>

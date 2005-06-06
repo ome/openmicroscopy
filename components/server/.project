@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>omero-srv</name>
+	<name>omero-server</name>
 	<comment>Server code</comment>
 	<projects>
 	</projects>

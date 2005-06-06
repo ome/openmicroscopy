@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/java"/>
-	<classpathentry kind="src" path="src/webapp/WEB-INF"/>
-	<classpathentry excluding="WEB-INF/|WEB-INF/" kind="src" path="src/webapp"/>
-	<classpathentry kind="src" path="src/conf"/>
-	<classpathentry output="target/test-classes" kind="src" path="src/test"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="web/WEB-INF"/>
+	<classpathentry excluding="WEB-INF/|WEB-INF/" kind="src" path="web"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry output="target/test-classes" kind="src" path="test"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry sourcepath="OMERO_HOME/components/jars/model/src/java" kind="var" path="MAVEN_REPO/omero/jars/omero-model-1.0.jar"/>
+	<classpathentry sourcepath="OMERO_HOME/components/jars/model/src" kind="var" path="MAVEN_REPO/omero/jars/omero-model-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/opensymphony/jars/oscache-2.0.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/mysql/jars/mysql-connector-java-3.0.8-stable-bin.jar"/>
