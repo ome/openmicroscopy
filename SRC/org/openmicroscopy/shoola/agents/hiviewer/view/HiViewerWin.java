@@ -227,8 +227,11 @@ class HiViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.PROPERTIES)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
+        
         menu.add(createClassifySubMenu());
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.SAVE_THUMB)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));

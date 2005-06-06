@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.HideTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeLayoutAction;
@@ -165,6 +166,9 @@ class HiViewerControl
     /** Identifies the Refresh action in the Hierarchy menu. */
     public static final Integer     REFRESH = new Integer(21);
     
+    /** Identifies the Save thumbnails action in the Actions menu. */
+    public static final Integer     SAVE_THUMB = new Integer(21);
+    
     
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -208,6 +212,7 @@ class HiViewerControl
         actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
         actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
         actionsMap.put(FIND_W_ST, new FindwSTAction(model));
+        actionsMap.put(SAVE_THUMB, new SaveThumbnailsAction(model));
     }
   
     /** Creates the windowsMenuItems. */
