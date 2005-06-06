@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.ome.hibernate.old">
+	<class name="Dataset">
+		<id name="id" column="datasetId">
+			<generator class="native"/>
+		</id>
+		<set name="projects" inverse="true" lazy="true" cascade="save-update">
+			<key column="datasetId"/>
+			<many-to-many column="projectId" class="Project"/>
+		</set>
+		
+		<set name="images" lazy="true" cascade="save-update">
+			<key column="datasetId"/>
+			<many-to-many column="imageId" class="Image"/>
+		</set>
+	</class>
+</hibernate-mapping>

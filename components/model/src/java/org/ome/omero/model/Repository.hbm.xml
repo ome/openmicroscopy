@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.ome.omero.model.Repository" 
+    table="repositories"
+>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="moduleExecution"
+        type="org.ome.omero.model.ModuleExecution"
+        column="module_execution_id"
+        length="4"
+    />
+    <property
+        name="imageServerUrl"
+        type="java.lang.String"
+        column="image_server_url"
+        not-null="true"
+        unique="true"
+        length="-1"
+    />
+    <property
+        name="path"
+        type="java.lang.String"
+        column="path"
+        unique="true"
+        length="256"
+    />
+    <property
+        name="isLocal"
+        type="java.lang.Boolean"
+        column="is_local"
+        length="1"
+    />
+
+    <!-- Associations -->
+  
+
+</class>
+</hibernate-mapping>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configs>
+		<config>src/webapp/WEB-INF/config-test.xml</config>
+		<config>src/webapp/WEB-INF/security.xml</config>
+		<config>src/webapp/WEB-INF/facade-servlet.xml</config>
+		<config>src/webapp/WEB-INF/config.xml</config>
+		<config>src/webapp/WEB-INF/spring.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

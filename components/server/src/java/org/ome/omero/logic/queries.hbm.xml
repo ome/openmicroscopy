@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+  <!-- load*Hierarchy 
+	TODO if all ids where called *.getId() then we could merge these
+	-->
+	
+  <query name="PDI_by_pojos.ProjectData"><![CDATA[
+    from Project as p join fetch p.experimenter 
+	  where p.projectId = :id
+  ]]></query>
+
+  <query name="PDI_by_pojos.DatasetData"><![CDATA[
+	from Dataset as d join fetch d.experimenter join fetch d.images as img
+	  where d.datasetId = :id 
+  ]]></query>
+
+  <query name="CGCI_by_pojos.CategoryGroupData"><![CDATA[
+  from CategoryGroup cg join fetch cg.moduleExecution as mex join fetch mex.experimenter as exp
+    where cg.attributeId = :id 
+  ]]></query>
+
+  <query name="CGCI_by_pojos.CategoryData"><![CDATA[
+  from Category c join fetch c.moduleExecution as mex join fetch mex.experimenter as exp
+    where c.attributeId = :id 
+  ]]></query>
+    
+  <!-- find*Hierarchies -->
+  <query name="findPDI"><![CDATA[
+	from Image as i where i in (:img_list)
+  ]]></query>	
+  
+  <query name="findCGCI"><![CDATA[
+	from Image as i where i in (:img_list)
+  ]]></query>	
+  
+  <!-- findAnnotations -->
+  <query name="findImageAnn"><![CDATA[
+  from ImageAnnotation as ann join fetch ann.image as i 
+    where ann.image in (:img_list)
+  ]]></query>
+
+  <query name="findImageAnnWithID"><![CDATA[
+  from ImageAnnotation as ann join fetch ann.image as i 
+  	where ann.image in (:img_list) 
+	and ann.moduleExecution.experimenter = :expId
+  ]]></query>
+
+  <query name="findDatasetAnn"><![CDATA[
+  from DatasetAnnotation as ann join fetch ann.dataset as d 
+    where ann.dataset in (:ds_list)
+  ]]></query>
+  
+  <query name="findDatasetAnnWithID"><![CDATA[
+  from DatasetAnnotation as ann join fetch ann.dataset as d 
+    where ann.dataset in (:ds_list) 
+	and ann.moduleExecution.experimenter = :expId
+  ]]></query>
+  
+  <!--  
+	from A a left join fetch a.bs
+from C c left join fetch c.ds where c.id in (:cids)
+from D d left join fetch d.es where d.id in (:dids)
+
+Or maybe:
+
+from A a
+left join fetch a.bs
+where a.xyz = 'foo'
+
+from A a
+left join a.bs b
+left join b.c c
+left join fetch c.ds
+where a.xyz = 'foo'
+
+from A a
+left join a.bs b
+left join b.c c
+left join c.ds d
+left join fetch d.es
+where a.xyz = 'foo' 
+
+from Image i left join fetch i.datasets
+from Image i left join i.datsets as d left join fetch d.projects
+
+	-->
+	
+  
+  
+</hibernate-mapping>
