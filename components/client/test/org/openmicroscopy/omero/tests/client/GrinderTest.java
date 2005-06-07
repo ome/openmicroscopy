@@ -14,23 +14,26 @@ import junit.framework.TestCase;
 
 /** this class tests the full functionality of Omero from the client throught to the database.
  * There are duplicate methods here (* and *NoReturn) to be useable by both JUnit and Grinder.
+ * There are no client unit tests because the client has ZERO logic. These tests could just as well
+ * be called on the server instance. 
+ * TODO set HierarchyBrowsing in Constructor -- then can test server and client separately!
  * 
  * @author josh
  * @since 1.0
  */
-public class GrinderTest extends TestCase {
+public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends TestCase {
 
     ServiceFactory services = new ServiceFactory();
     HierarchyBrowsing hb = services.getHierarchyBrowsingService();
     OMEData data;
     
-    public GrinderTest(String name){
+    public AbstractOmeroHierarchyBrowserIntegrationTest(String name){
         super(name);
         data = new OMEPerformanceData(); // Completely random
     }
     
-    public GrinderTest(OMEData data){
-        super("GrinderTest with Data");
+    public AbstractOmeroHierarchyBrowserIntegrationTest(OMEData data){
+        super("AbstractOmeroHierarchyBrowserIntegrationTest with Data");
         this.data = data;
     }
     

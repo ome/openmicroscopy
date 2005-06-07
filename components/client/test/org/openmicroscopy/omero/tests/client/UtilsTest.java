@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 public class UtilsTest extends TestCase {
 
     public void testGetObjectVoidMethods() {
-        String[] names = Utils.getObjectVoidMethods(GrinderTest.class);
+        String[] names = Utils.getObjectVoidMethods(AbstractOmeroHierarchyBrowserIntegrationTest.class);
     }
 
 }

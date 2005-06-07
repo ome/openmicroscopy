@@ -25,7 +25,7 @@ public class SpringFacadeTest extends TestCase {
     HierarchyBrowsing srv;
     
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(GrinderTest.class);
+        junit.textui.TestRunner.run(AbstractOmeroHierarchyBrowserIntegrationTest.class);
     }
 
     /*
