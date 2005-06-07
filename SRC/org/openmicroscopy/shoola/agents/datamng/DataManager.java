@@ -231,7 +231,16 @@ public class DataManager
     /** Refresh the categorySummary. */
     void refreshCategory(CategoryData data)
     {
-        if (presentation != null) presentation.refreshCategory(data);
+        if (presentation != null) {
+            try {
+                presentation.refreshCategory(getImagesInCategory(data));
+            } catch(DSAccessException dsae) {
+                String s = "Can't retrieve the specified category.";
+                registry.getLogger().error(this, s+" Error: "+dsae);
+                registry.getUserNotifier().notifyError("Data Retrieval " +
+                        "Failure", s, dsae);
+            }
+        }
     }
     
 	/** Refresh the all tree. */
