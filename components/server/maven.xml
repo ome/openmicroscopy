@@ -14,6 +14,11 @@
    <attainGoal name="tomcat:install"/>
  </goal>
 
+  <!-- For internal development. TODO -->
+  <preGoal name="war:war">
+    <attainGoal name="jar:install"/>
+  </preGoal>
+
  <!-- DB STUFF: TODO Perhaps in a build.xml (or use appfuses) -->
  
  <goal name="dbunit">
@@ -39,7 +44,7 @@
    <attainGoal name="dbunit"/>
    <ant:dbunit driver="${database.driver}"
             url="${database.url}"
-            userid="${database.userid}"
+            userid="${database.username}"
             password="${database.password}">
      <ant:export dest="db-export.xml" format="xml"/>
    </ant:dbunit>

@@ -34,7 +34,14 @@ services to an existing OME installation</description>
   </repository>
   <mailingLists/>
   <developers/>
-  <dependencies/>
+  <dependencies>
+    <depdendency>
+      <groupId>jam</groupId>
+      <artifactId>maven-jam-plugin</artifactId>
+      <version>2.1</version>
+      <type>plugin</type>
+    </depdendency>
+  </dependencies>
   <reports>
 <!--    <report>maven-changelog-plugin</report> -->
 <!--    <report>maven-developer-activity-plugin</report> -->
@@ -47,6 +54,7 @@ services to an existing OME installation</description>
     <report>maven-linkcheck-plugin</report>
     <report>maven-multichanges-plugin</report>
     <report>maven-tasklist-plugin</report> -->
+    <report>maven-findbugs-plugin</report>
     <report>maven-javadoc-plugin</report>
     <report>maven-jxr-plugin</report>
   </reports>

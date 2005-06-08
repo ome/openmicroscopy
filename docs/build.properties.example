@@ -2,17 +2,21 @@
 # JDBC Connection properties
 ############################################
 database.url=jdbc:postgresql://localhost/ome
-database.userid=josh
+database.username=josh
 database.password=""
 database.schema=public
 database.catalog=""
 database.driver=org.postgresql.Driver
+database.dialect=org.hibernate.dialect.PostgreSQLDialect
+database.show_sql=true
 
 ############################################
 # Tomcat manager connection
 ############################################
 maven.tomcat.username=you
 maven.tomcat.password=secret
+server.host=localhost
+server.port=8080
 
 ############################################
 # Path conversion for middlegen ant-build

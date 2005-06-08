@@ -12,8 +12,8 @@
    <property name="package"              value="org.openmicroscopy.omero.model" />
    <property name="gen.xdoclet-tag"      value="false" />
    <property name="gui"                  value="false" />
-   <property name="lib.dir"              value="${basedir}/lib/middlegen/" />
-   <property name="dest.dir"             value="${basedir}/src/java" />
+   <property name="lib.dir"              value="${basedir}/../../lib/middlegen/" />
+   <property name="dest.dir"             value="${basedir}/src" />
 
    <target name="init" depends="prepare,fail-if-no-middlegen,fail-if-no-hibernate,fail-if-no-hibernate-ext" >
 
@@ -73,11 +73,11 @@
 
     <middlegen
          appname="${package}"
-         prefsdir="${basedir}/src/middlegen/"
+         prefsdir="${basedir}/middlegen/"
          gui="${gui}"
          databaseurl="${database.url}"
          driver="${database.driver}"
-         username="${database.userid}"
+         username="${database.username}"
          password="${database.password}"
          schema="${database.schema}"
          catalog="${database.catalog}"

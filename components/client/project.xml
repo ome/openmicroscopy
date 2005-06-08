@@ -14,9 +14,20 @@
       <artifactId>${pom.groupId}-model</artifactId>
       <version>1.0</version>
     </dependency>
+    <dependency><!-- TODO: Make sure that nothing leaks!!! -->
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-server</artifactId>
+      <version>1.0</version>
+      <type>jar</type>
+    </dependency>
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-mock</artifactId>
       <version>1.2.1</version>
     </dependency>
     <dependency>
@@ -51,13 +62,5 @@
         <include>**/*.java</include>
       </includes>
     </unitTest>
-    <resources>
-      <resource>
-        <directory>conf</directory>
-        <includes>
-          <include>*</include>
-        </includes>
-      </resource>
-    </resources>
   </build>
 </project>

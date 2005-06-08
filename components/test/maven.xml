@@ -32,10 +32,10 @@
 	spawn="yes"/>
   </goal>
 
-<!-- TODO doesn't work -->
-  <preGoal name="clean:clean">
-    <ant:delete dir="${basedir}/cacheDir"/>
-  </preGoal>
+  <goal name="clean">
+    <ant:delete dir="${basedir}/.cachedir"/>
+    <attainGoal name="clean:clean"/>
+  </goal>
 
 </project>
 

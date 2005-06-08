@@ -14,14 +14,14 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class SpringHarness {
 
-    private final static String springConfFile = "spring.xml";
+    private final static String springConfFile = "classpath:org/openmicroscopy/omero/client/spring.xml";
     public static URL path;
     public static ApplicationContext ctx;
     
     static {
         path = SpringHarness.class.getClassLoader().getResource(springConfFile);
         if (path==null){
-            throw new RuntimeException(Properties.getString("confError") +springConfFile);
+            throw new RuntimeException("Can't find spring.xml on classpath");
         }
         ctx = new FileSystemXmlApplicationContext(path.toString());
     }

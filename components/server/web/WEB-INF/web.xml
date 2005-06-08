@@ -55,7 +55,8 @@
 	    <param-name>contextConfigLocation</param-name>
     	<param-value>
     		/WEB-INF/config.xml 
-    		/WEB-INF/spring.xml 
+    		/WEB-INF/services.xml 
+    		/WEB-INF/dao.xml 			
 <!--     		/WEB-INF/security.xml -->
     	</param-value>
 	</context-param>

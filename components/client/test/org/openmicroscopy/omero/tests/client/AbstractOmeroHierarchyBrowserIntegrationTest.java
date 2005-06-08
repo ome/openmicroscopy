@@ -3,14 +3,14 @@
  */
 package org.openmicroscopy.omero.tests.client;
 
-import org.openmicroscopy.omero.client.ServiceFactory;
+import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Project;
 
-import junit.framework.TestCase;
 
 /** this class tests the full functionality of Omero from the client throught to the database.
  * There are duplicate methods here (* and *NoReturn) to be useable by both JUnit and Grinder.
@@ -21,20 +21,24 @@ import junit.framework.TestCase;
  * @author josh
  * @since 1.0
  */
-public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends TestCase {
+public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends AbstractDependencyInjectionSpringContextTests {
 
-    ServiceFactory services = new ServiceFactory();
-    HierarchyBrowsing hb = services.getHierarchyBrowsingService();
+    /** These two values will need to be set by each concrete test */
+    HierarchyBrowsing hb;
     OMEData data;
     
     public AbstractOmeroHierarchyBrowserIntegrationTest(String name){
-        super(name);
-        data = new OMEPerformanceData(); // Completely random
+        this.setName(name);
     }
     
     public AbstractOmeroHierarchyBrowserIntegrationTest(OMEData data){
-        super("AbstractOmeroHierarchyBrowserIntegrationTest with Data");
+        this.setName("AbstractOmeroHierarchyBrowserIntegrationTest with Data");
         this.data = data;
+    }
+    
+    public AbstractOmeroHierarchyBrowserIntegrationTest(String name, OMEData data){
+        this.data = data;
+        this.setName(name);
     }
     
     /***********************************/
@@ -108,4 +112,17 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends TestC
         return hb.findDatasetAnnotationsForExperimenter(data.dsAnn2, data.userId);
     }
     /***********************************/
+    
+    public OMEData getData() {
+        return data;
+    }
+    public void setData(OMEData data) {
+        this.data = data;
+    }
+    public HierarchyBrowsing getHb() {
+        return hb;
+    }
+    public void setHb(HierarchyBrowsing hb) {
+        this.hb = hb;
+    }
 }

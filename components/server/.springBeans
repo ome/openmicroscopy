@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<configs>
-		<config>src/webapp/WEB-INF/config-test.xml</config>
-		<config>src/webapp/WEB-INF/security.xml</config>
-		<config>src/webapp/WEB-INF/facade-servlet.xml</config>
-		<config>src/webapp/WEB-INF/config.xml</config>
-		<config>src/webapp/WEB-INF/spring.xml</config>
+		<config>web/WEB-INF/services.xml</config>
+		<config>web/WEB-INF/data.xml</config>
+		<config>web/WEB-INF/security.xml</config>
+		<config>web/WEB-INF/facade-servlet.xml</config>
+		<config>web/WEB-INF/config.xml</config>
+		<config>web/WEB-INF/dao.xml</config>
+		<config>web/WEB-INF/config-test.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

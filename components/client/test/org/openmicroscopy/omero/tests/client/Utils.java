@@ -11,12 +11,23 @@ import java.util.Set;
 
 import com.caucho.hessian.io.HessianOutput;
 
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
-/**
+
+/** provides tools for testing. 
  * @author josh
  */
 public class Utils {
 
+    /** primarily used in Grinder to test the message
+     * returning from the various web services 
+     * @param obj
+     * @return
+     */
      public static int structureSize(Object obj) {
         int result = -1;
         try {
@@ -32,6 +43,11 @@ public class Utils {
         return result;
     }
 
+     /** primarily used in Grinder to discover what methods to call
+      * 
+      * @param clazz
+      * @return
+      */
     public static String[] getObjectVoidMethods(Class clazz){
         Set set = new HashSet();
         
@@ -47,5 +63,25 @@ public class Utils {
         }
         
         return (String[]) set.toArray(new String[set.size()]);
+    }
+    
+    public static void setUserAuth(){
+        Authentication auth = 
+            new UsernamePasswordAuthenticationToken(
+                "Josh","Moore");
+        setAuth(auth);
+    }
+    
+    public static void setAdminAuth(){
+        Authentication auth = 
+            new UsernamePasswordAuthenticationToken(
+                "admin","admin");
+        setAuth(auth);
+    }
+    
+    public static void setAuth(Authentication auth){
+        SecureContext secureContext = new SecureContextImpl();
+        secureContext.setAuthentication(auth);
+        ContextHolder.setContext(secureContext);
     }
 }

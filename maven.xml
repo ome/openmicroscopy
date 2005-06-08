@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" default="build">
 
+<!-- For calling from the top level -->
   <goal name="build">
     <attainGoal name="multiproject:artifact" />
   </goal>
@@ -11,12 +12,50 @@
     <attainGoal name="multiproject:clean"/>
     <attainGoal name="clean:clean"/>
   </goal>
-  
+
+<!-- From calling within a component -->
+  <goal name="create-properties">
+    <ant:sequential>
+      <ant:propertyfile 
+	comment=" Database and Server properties generated from build properties" 
+                        file="${maven.build.dest}/spring.properties">
+         <ant:entry key="database.driver" value="${database.driver}"/>
+         <ant:entry key="database.url" value="${database.url}"/>
+         <ant:entry key="database.username" value="${database.username}"/>
+         <ant:entry key="database.password" value="${database.password}"/>
+         <ant:entry key="database.dialect" value="${database.dialect}"/>
+         <ant:entry key="database.show_sql" value="${database.show_sql}"/>
+  	 <ant:entry key="server.host" value="localhost"/>
+  	 <ant:entry key="server.port" value="8080"/>
+  	 <ant:entry key="local.path" value="${maven.build.dest}"/>
+       </ant:propertyfile>
+     </ant:sequential>
+   </goal>
+
+   <preGoal name="jar:jar">
+     <attainGoal name="jam"/>
+     <attainGoal name="create-properties"/>
+   </preGoal>
+   <preGoal name="war:init">
+     <attainGoal name="jam"/>
+     <attainGoal name="create-properties"/>
+   </preGoal>
+
+   <goal name="itest">
+     <ant:ant
+         antfile="${omero.home}/jam.xml"
+         dir="${basedir}"
+         target="itest"
+         inheritAll="true"
+         inheritRefs="false"/>
+   </goal>
+
+<!-- Misc --> 
   <goal name="get-tomcat-plugin">
     <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
     <maven:property name="groupId" defaultValue="codeczar-tomcat" />
     <maven:property name="version" defaultValue="1.1" />
     <attainGoal name="plugin:download"/>
   </goal>
-  
+
 </project>
