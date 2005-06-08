@@ -10,7 +10,7 @@
   <dependencies>
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-model</artifactId>
+      <artifactId>${pom.groupId}-common</artifactId>
       <version>1.0</version>
       <type>jar</type>
       <properties>
@@ -20,6 +20,15 @@
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
+      <version>1.2.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-mock</artifactId>
       <version>1.2.1</version>
       <type>jar</type>
       <properties>
@@ -233,19 +242,14 @@
   <build>
     <sourceDirectory>src</sourceDirectory>
     <unitTestSourceDirectory>test</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory>itest</integrationUnitTestSourceDirectory>
     <unitTest>
       <includes>
-        <include>**/*Test.java</include>
+        <include>${basedir}/test/**/*Test.java</include>
+        <include>${basedir}/itest/**/*Test.java</include>
       </includes>
     </unitTest>
     <resources>
-      <resource>
-        <directory>conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
       <resource>
         <directory>src</directory>
         <includes>

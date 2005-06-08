@@ -72,11 +72,7 @@
     <!-- ============== ACCESS =========== -->
 
 	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
-	<bean id="lsidVoter" class="org.openmicroscopy.srv.logic.LSIDVoter">
-	    <property name="cache"><ref bean="cache"/></property>
-	    <property name="store"><ref bean="store"/></property>
-   	    <property name="versionService"><ref bean="versionService"/></property>
-	</bean>
+<!--	<bean id="TODOVoter" class="org.openmicroscopy.XXX"> -->
 
 	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
 	    <property name="allowIfAllAbstainDecisions">
@@ -85,7 +81,6 @@
 	    <property name="decisionVoters">
 	        <list>
 	           <ref local="roleVoter"/>
-   	           <ref local="lsidVoter"/>
 	        </list>
 	    </property>
 	</bean>
@@ -93,16 +88,12 @@
 
    <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
 
-   <bean id="afterQueryFilter" class="org.openmicroscopy.srv.logic.AfterQueryInvocation">
-	    <property name="cache"><ref bean="cache"/></property>
-	    <property name="store"><ref bean="store"/></property>
-   	    <property name="versionService"><ref bean="versionService"/></property>
-   </bean>
+<!--   <bean id="afterQueryFilter" class="org.openmicroscopy.TODO">-->
    
    <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
       <property name="providers">
          <list>
-            <ref local="afterQueryFilter"/>
+<!--            <ref local="afterQueryFilter"/> -->
          </list>
       </property>
    </bean>
@@ -153,7 +144,6 @@
    <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
       <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
    </bean>
-
 
 </beans>
 
