@@ -3,6 +3,10 @@
  */
 package org.openmicroscopy.omero.tests.client;
 
+import org.openmicroscopy.omero.tests.AbstractOmeroHierarchyBrowserIntegrationTest;
+import org.openmicroscopy.omero.tests.OMEData;
+import org.openmicroscopy.omero.tests.OMEPerformanceData;
+
 /**
  * @author josh
  */

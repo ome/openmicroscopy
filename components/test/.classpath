@@ -5,7 +5,7 @@
   </classpathentry>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
   </classpathentry>
-  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-model-1.0.jar">
+  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-1.0.jar">
   </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-client-1.0.jar">
   </classpathentry>

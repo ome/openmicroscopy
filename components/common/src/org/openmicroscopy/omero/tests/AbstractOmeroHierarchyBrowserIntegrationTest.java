@@ -1,7 +1,7 @@
 /*
  * Created on Feb 27, 2005
  */
-package org.openmicroscopy.omero.tests.client;
+package org.openmicroscopy.omero.tests;
 
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 

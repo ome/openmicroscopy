@@ -1,7 +1,7 @@
 /*
  * Created on May 12, 2005
  */
-package org.openmicroscopy.omero.tests.client;
+package org.openmicroscopy.omero.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,11 +11,12 @@ import java.util.Set;
 
 import com.caucho.hessian.io.HessianOutput;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+//TODO
+//import net.sf.acegisecurity.Authentication;
+//import net.sf.acegisecurity.context.ContextHolder;
+//import net.sf.acegisecurity.context.security.SecureContext;
+//import net.sf.acegisecurity.context.security.SecureContextImpl;
+//import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
 /** provides tools for testing. 
@@ -65,23 +66,23 @@ public class Utils {
         return (String[]) set.toArray(new String[set.size()]);
     }
     
-    public static void setUserAuth(){
-        Authentication auth = 
-            new UsernamePasswordAuthenticationToken(
-                "Josh","Moore");
-        setAuth(auth);
-    }
-    
-    public static void setAdminAuth(){
-        Authentication auth = 
-            new UsernamePasswordAuthenticationToken(
-                "admin","admin");
-        setAuth(auth);
-    }
-    
-    public static void setAuth(Authentication auth){
-        SecureContext secureContext = new SecureContextImpl();
-        secureContext.setAuthentication(auth);
-        ContextHolder.setContext(secureContext);
-    }
+//    public static void setUserAuth(){
+//        Authentication auth = 
+//            new UsernamePasswordAuthenticationToken(
+//                "Josh","Moore");
+//        setAuth(auth);
+//    }
+//    
+//    public static void setAdminAuth(){
+//        Authentication auth = 
+//            new UsernamePasswordAuthenticationToken(
+//                "admin","admin");
+//        setAuth(auth);
+//    }
+//    
+//    public static void setAuth(Authentication auth){
+//        SecureContext secureContext = new SecureContextImpl();
+//        secureContext.setAuthentication(auth);
+//        ContextHolder.setContext(secureContext);
+//    }
 }

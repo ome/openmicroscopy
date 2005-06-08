@@ -12,6 +12,9 @@ import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.model.Project;
+import org.openmicroscopy.omero.tests.AbstractOmeroHierarchyBrowserIntegrationTest;
+import org.openmicroscopy.omero.tests.OMEData;
+import org.openmicroscopy.omero.tests.OMEPerformanceData;
 
 /**
  * @author josh
@@ -19,7 +22,7 @@ import org.openmicroscopy.omero.model.Project;
 public class OmeroHierarchyBrowsingIntegrationTest
         extends
             AbstractOmeroHierarchyBrowserIntegrationTest {
-
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
@@ -37,14 +40,14 @@ public class OmeroHierarchyBrowsingIntegrationTest
     
     public void testContainerCallWithWrongParameters(){
         try {
-            hb.loadPDIHierarchy(Object.class,1);
+            getHb().loadPDIHierarchy(Object.class,1);
             fail("loadPDIHierarchy(class,int) didn't choke on bad class.");
         } catch (IllegalArgumentException iae){
             // We should get here. TODO log
         }
 
         try {
-            hb.loadCGCIHierarchy(Object.class,1);
+            getHb().loadCGCIHierarchy(Object.class,1);
             fail("loadCGCIHierarchy(class,int) didn't choke on bad class.");
         } catch (IllegalArgumentException iae){
             // We should get here. TODO log
@@ -58,7 +61,7 @@ public class OmeroHierarchyBrowsingIntegrationTest
 
     public void testNulls(){
         // Each method should return a null or an empty set as appropriate
-        //TODO hb.findCGCIHierarchies(	);
+        //TODO getHb().findCGCIHierarchies(	);
         //TODO generate OMENullData(); and use it here.
         //TODO OMEData toString();
         
@@ -66,26 +69,26 @@ public class OmeroHierarchyBrowsingIntegrationTest
         test.add(new Integer(0)); // Non-existence set of ids
         int nonExp = 0; // Non-existence experimenter ID
         //
-        assertTrue(emptyColl,hb.findDatasetAnnotations(test).size()==0);
-        assertTrue(emptyColl,hb.findDatasetAnnotations(new HashSet()).size()==0);
+        assertTrue(emptyColl,getHb().findDatasetAnnotations(test).size()==0);
+        assertTrue(emptyColl,getHb().findDatasetAnnotations(new HashSet()).size()==0);
         //
-        assertTrue(emptyColl,hb.findDatasetAnnotationsForExperimenter(test,nonExp).size()==0);
-        assertTrue(emptyColl,hb.findDatasetAnnotationsForExperimenter(new HashSet(),nonExp).size()==0);
+        assertTrue(emptyColl,getHb().findDatasetAnnotationsForExperimenter(test,nonExp).size()==0);
+        assertTrue(emptyColl,getHb().findDatasetAnnotationsForExperimenter(new HashSet(),nonExp).size()==0);
         //
-        assertTrue(emptyColl,hb.findImageAnnotations(test).size()==0);
-        assertTrue(emptyColl,hb.findImageAnnotations(new HashSet()).size()==0);
+        assertTrue(emptyColl,getHb().findImageAnnotations(test).size()==0);
+        assertTrue(emptyColl,getHb().findImageAnnotations(new HashSet()).size()==0);
         //
-        assertTrue(emptyColl,hb.findImageAnnotationsForExperimenter(test,nonExp).size()==0);
-        assertTrue(emptyColl,hb.findImageAnnotationsForExperimenter(new HashSet(),nonExp).size()==0);
+        assertTrue(emptyColl,getHb().findImageAnnotationsForExperimenter(test,nonExp).size()==0);
+        assertTrue(emptyColl,getHb().findImageAnnotationsForExperimenter(new HashSet(),nonExp).size()==0);
         //
-        assertTrue(emptyColl,hb.findPDIHierarchies(test).size()==0);
-        assertTrue(emptyColl,hb.findPDIHierarchies(new HashSet()).size()==0);
+        assertTrue(emptyColl,getHb().findPDIHierarchies(test).size()==0);
+        assertTrue(emptyColl,getHb().findPDIHierarchies(new HashSet()).size()==0);
         //
-        assertNull(nullObj,hb.loadCGCIHierarchy(CategoryGroup.class, 0));
-        assertNull(nullObj,hb.loadCGCIHierarchy(Category.class, 0));
+        assertNull(nullObj,getHb().loadCGCIHierarchy(CategoryGroup.class, 0));
+        assertNull(nullObj,getHb().loadCGCIHierarchy(Category.class, 0));
         //
-        assertNull(nullObj,hb.loadPDIHierarchy(Project.class, 0));
-        assertNull(nullObj,hb.loadPDIHierarchy(Dataset.class, 0));
+        assertNull(nullObj,getHb().loadPDIHierarchy(Project.class, 0));
+        assertNull(nullObj,getHb().loadPDIHierarchy(Dataset.class, 0));
     }
     
     public void testContainedImages(){
@@ -111,7 +114,7 @@ public class OmeroHierarchyBrowsingIntegrationTest
                 }
             }
         }
-        assertTrue("There should only be as many images as in the data.imagesPDI", test.size() == this.data.imgsPDI.size());
+        assertTrue("There should only be as many images as in the data.imagesPDI", test.size() == this.getData().imgsPDI.size());
 //      TODO Make sure joins aren't leaving anything out because of empties!
     }
 

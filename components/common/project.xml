@@ -3,17 +3,12 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <artifactId>${pom.groupId}-client</artifactId>
-  <name>OME Client Code</name>
+  <id>${pom.groupId}-common</id>
+  <name>OME Common Objects</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.openmicroscopy.omero.client</package>
-  <description>Client code</description>
+  <package>org.openmicroscopy.omero</package>
+  <description>Common code: Model code generated from middlegen</description>
   <dependencies>
-    <dependency>
-      <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-common</artifactId>
-      <version>1.0</version>
-    </dependency>
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
@@ -25,36 +20,36 @@
       <version>1.2.1</version>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-    <dependency>
-      <groupId>acegisecurity</groupId>
-      <artifactId>acegi-security</artifactId>
-      <version>0.8.2</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
     </dependency>
     <dependency>
       <groupId>hessian</groupId>
       <artifactId>hessian</artifactId>
       <version>2.1.12</version>
     </dependency>
-    <!-- TESTING ONLY -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+    </dependency>
     <dependency>
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>7.4.1-jdbc3</version>
     </dependency>
-
   </dependencies>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
-    <unitTestSourceDirectory>test</unitTestSourceDirectory>
-    <unitTest>
-      <includes>
-        <include>**/*.java</include>
-      </includes>
-    </unitTest>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.hbm.xml</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>

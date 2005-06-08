@@ -11,7 +11,7 @@
   <dependencies>
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-model</artifactId>
+      <artifactId>${pom.groupId}-common</artifactId>
       <version>1.0</version>
     </dependency>
     <dependency>

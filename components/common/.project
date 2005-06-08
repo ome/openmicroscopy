@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <projectDescription>
-  <name>omero-model</name>
-  <comment>Model code generated from owl</comment>
+  <name>omero-common</name>
+  <comment>Common code: Model code generated from middlegen</comment>
   <projects>
   </projects>
   <buildSpec>

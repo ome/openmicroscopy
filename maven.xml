@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" default="build">
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant"
+xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
+
+<!-- Dependencies -->
+   <preGoal name="jar:jar">
+     <attainGoal name="jam"/>
+     <attainGoal name="create-properties"/>
+   </preGoal>
+   <preGoal name="war:init">
+     <attainGoal name="jam"/>
+     <attainGoal name="create-properties"/>
+   </preGoal>
+   <preGoal name="test:test">
+     <attainGoal name="filterTests"/>
+   </preGoal>
+
+<!-- Setup --> 
+  <goal name="get-tomcat-plugin">
+    <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
+    <maven:property name="groupId" defaultValue="codeczar-tomcat" />
+    <maven:property name="version" defaultValue="1.1" />
+    <attainGoal name="plugin:download"/>
+  </goal>
+
 
 <!-- For calling from the top level -->
   <goal name="build">
@@ -13,9 +36,11 @@
     <attainGoal name="clean:clean"/>
   </goal>
 
+
 <!-- From calling within a component -->
   <goal name="create-properties">
     <ant:sequential>
+      <ant:mkdir dir="${maven.build.dest}"/>
       <ant:propertyfile 
 	comment=" Database and Server properties generated from build properties" 
                         file="${maven.build.dest}/spring.properties">
@@ -32,15 +57,6 @@
      </ant:sequential>
    </goal>
 
-   <preGoal name="jar:jar">
-     <attainGoal name="jam"/>
-     <attainGoal name="create-properties"/>
-   </preGoal>
-   <preGoal name="war:init">
-     <attainGoal name="jam"/>
-     <attainGoal name="create-properties"/>
-   </preGoal>
-
    <goal name="itest">
      <ant:ant
          antfile="${omero.home}/jam.xml"
@@ -50,12 +66,28 @@
          inheritRefs="false"/>
    </goal>
 
-<!-- Misc --> 
-  <goal name="get-tomcat-plugin">
-    <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
-    <maven:property name="groupId" defaultValue="codeczar-tomcat" />
-    <maven:property name="version" defaultValue="1.1" />
-    <attainGoal name="plugin:download"/>
-  </goal>
+  <goal name="filterTests">
+   <j:set var="testModeX" value="${maven.test.mode}X" />
+   <j:if test="${testModeX == 'X'}" >
+     <j:set var="maven.test.mode" value="all" />
+   </j:if>
+   <echo>Running ${maven.test.mode} tests</echo>
+   <j:if test="${maven.test.mode != 'all'}" >
+     <j:set var="includeProp" value="test.${maven.test.mode}.includes" />
+     <j:if test="${context.getVariable(includeProp) != null}">
+       <u:tokenize var="patterns" delim=",">${context.getVariable(includeProp)}</u:tokenize>
+       <j:forEach var="pattern" items="${patterns}">
+         <j:set var="dummy" value="${pom.build.unitTest.addInclude(pattern)}" />
+       </j:forEach>
+     </j:if>
+     <j:set var="excludeProp" value="test.${maven.test.mode}.excludes" />
+     <j:if test="${context.getVariable(excludeProp) != null}">
+       <u:tokenize var="patterns" delim=",">${context.getVariable(excludeProp)}</u:tokenize>
+       <j:forEach var="pattern" items="${patterns}">
+         <j:set var="dummy" value="${pom.build.unitTest.addExclude(pattern)}" />
+       </j:forEach>
+     </j:if>
+   </j:if>
+ </goal>
 
 </project>

@@ -1,7 +1,7 @@
 /*
  * Created on May 22, 2005
  */
-package org.openmicroscopy.omero.tests.client;
+package org.openmicroscopy.omero.tests;
 
 import java.util.ArrayList;
 import java.util.Collection;

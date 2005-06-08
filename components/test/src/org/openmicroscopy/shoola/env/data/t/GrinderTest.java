@@ -35,8 +35,8 @@ package org.openmicroscopy.shoola.env.data.t;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.tests.client.OMEData;
-import org.openmicroscopy.omero.tests.client.OMEPerformanceData;
+import org.openmicroscopy.omero.tests.OMEData;
+import org.openmicroscopy.omero.tests.OMEPerformanceData;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DataServicesTestCase;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;

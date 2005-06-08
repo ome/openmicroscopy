@@ -242,11 +242,9 @@
   <build>
     <sourceDirectory>src</sourceDirectory>
     <unitTestSourceDirectory>test</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory>itest</integrationUnitTestSourceDirectory>
     <unitTest>
       <includes>
-        <include>${basedir}/test/**/*Test.java</include>
-        <include>${basedir}/itest/**/*Test.java</include>
+        <include>**/*Test.java</include>
       </includes>
     </unitTest>
     <resources>
