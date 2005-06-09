@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
  * </small>
  * @since OME2.2
  */
-public class GrinderTest
+public class ShoolaGrinderTest
     extends DataServicesTestCase
 {
     
@@ -71,11 +71,11 @@ public class GrinderTest
     DataManagementService dms;
     SemanticTypesService sts;
     
-    public GrinderTest(){
+    public ShoolaGrinderTest(){
         this.data = new OMEPerformanceData();
     }
     
-    public GrinderTest(OMEData data){
+    public ShoolaGrinderTest(OMEData data){
         this.data = data;
     }
     

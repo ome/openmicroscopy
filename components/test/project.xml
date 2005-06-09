@@ -20,14 +20,29 @@
       <version>1.0</version>
     </dependency>
     <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-shoola-adapter</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-mock</artifactId>
       <version>1.2.1</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId> 
       <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
     </dependency>
     <dependency>
       <groupId>hessian</groupId>

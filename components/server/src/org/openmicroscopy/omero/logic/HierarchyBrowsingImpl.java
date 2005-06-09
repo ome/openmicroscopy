@@ -193,7 +193,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
         if (null == imagesAll || imagesAll.size() == 0) {
             return new HashSet();
-        }
+        }//TODO log if this is empty. (input/output) update jdbc tests.
 
         // LOGIC
         Set hierarchies = new HashSet();

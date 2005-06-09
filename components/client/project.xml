@@ -56,5 +56,22 @@
         <include>**/*.java</include>
       </includes>
     </unitTest>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>test</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+
   </build>
 </project>

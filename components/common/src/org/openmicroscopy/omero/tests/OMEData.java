@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -32,46 +33,27 @@ public abstract class OMEData {
     public OMEData() {
     }
 
-
     final static String emptyColl = "collections may not be empty";
-
     long seed = (new Random()).nextLong();
-
     Random rnd = new Random(seed);
 
     // Test data : calculated before to not change times.
     public Set allUsers;
-
     public Set allImgs;
-
     public Set allDss;
-
     public Set allPrjs;
-
     public Set allCgs;
-
     public Set allCs;
-
     public int userId;
-
     public int prjId;
-
     public int dsId;
-
     public int cgId;
-
     public int cId;
-
     public Set imgsPDI;
-
     public Set imgsCGCI;
-
     public Set imgsAnn1;
-
     public Set imgsAnn2;
-
     public Set dsAnn1;
-
     public Set dsAnn2;
 
     public void init() {
@@ -146,5 +128,21 @@ public abstract class OMEData {
         double value = (size - 1) * rnd.nextDouble();
         return (new Double(value)).intValue();
     }
-
+   
+    public String toString(){
+    return new ToStringBuilder(this).
+    	append("seed",seed ).
+    	append("userId",userId).
+    	append("prjId",prjId).
+    	append("dsId",dsId).
+    	append("cgId",cgId).
+    	append("cId",cId).
+    	append("imgsPDI",imgsPDI).
+    	append("imgsCGCI",imgsCGCI).
+    	append("imgsAnn1",imgsAnn1).
+    	append("imgsAnn2",imgsAnn2).
+    	append("dsAnn1",dsAnn1).
+    	append("dsAnn2",dsAnn2).
+    	toString();
+	}
 }

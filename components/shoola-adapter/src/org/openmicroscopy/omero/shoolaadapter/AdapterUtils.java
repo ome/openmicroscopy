@@ -25,9 +25,12 @@ import org.openmicroscopy.omero.model.ImagePixel;
 import org.openmicroscopy.omero.model.ModuleExecution;
 import org.openmicroscopy.omero.model.Project;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
+import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
@@ -40,6 +43,96 @@ import org.openmicroscopy.shoola.env.rnd.data.DataSink;
  */
 public class AdapterUtils {
 
+    private static Log log = LogFactory.getLog(AdapterUtils.class);
+    
+    static public DataObject adaptLoadedPDIHierarchy(Class rootNodeType, Object result) {
+        if (rootNodeType.equals(Project.class)){
+            return AdapterUtils.go((Project) result);
+        } else if (rootNodeType.equals(Dataset.class)){
+            return AdapterUtils.go((Dataset) result);
+        } else {
+            throw new IllegalArgumentException("Method only takes Project and Dataset as argument.");
+        }
+    }
+
+    static public DataObject adaptLoadedCGCIHierarchy(Class rootNodeType, Object result) {
+        if (rootNodeType.equals(CategoryGroup.class)){
+            return AdapterUtils.go((CategoryGroup) result);
+        } else if (rootNodeType.equals(Category.class)){
+            return AdapterUtils.go((Category) result);
+        } else {
+            throw new IllegalArgumentException("Method only takes CategoryGroup and Category as argument.");
+        }
+    }
+
+    static public Set adaptFoundPDIHierarchies(Set result) {
+        Set dataObjects = new HashSet();
+        for (Iterator i = result.iterator(); i.hasNext();) {
+            Object obj = i.next();
+            if (obj instanceof Project) {
+                Project prj = (Project) obj;
+                dataObjects.add(AdapterUtils.go(prj));
+            } else if (obj instanceof Dataset) {
+                Dataset ds = (Dataset) obj;
+                dataObjects.add(AdapterUtils.go(ds)); 
+            } else if (obj instanceof Image) {
+                Image img = (Image) obj;
+                dataObjects.add(AdapterUtils.go(img));
+            } else {
+                throw new RuntimeException("Method returned unexpected value type:" + obj.getClass()	);
+            }
+        }
+        return dataObjects;
+    }
+
+    static public Set adaptFoundCGCIHierarchies(Set result) {
+        Set dataObjects = new HashSet();
+        for (Iterator i = result.iterator(); i.hasNext();) {
+            Object obj = i.next();
+            if (obj instanceof CategoryGroup) {
+                CategoryGroup cg = (CategoryGroup) obj;
+                dataObjects.add(AdapterUtils.go(cg));
+            } else if (obj instanceof Category) {
+                Category ca = (Category) obj;
+                dataObjects.add(AdapterUtils.go(ca)); 
+            } else if (obj instanceof Image) {
+                Image img = (Image) obj;
+                dataObjects.add(AdapterUtils.go(img));
+            } else {
+                throw new RuntimeException("Method returned unexpected value type:" + obj.getClass()	);
+            }
+        }
+        return dataObjects;
+    }
+
+    static public Map adaptFoundImageAnnotations(Map result) {
+        Map dataObjects = new HashMap();
+        for (Iterator i = result.keySet().iterator(); i.hasNext();) {
+            Object key = i.next();
+            Set value = (Set) result.get(key);
+            dataObjects.put(key,new HashSet());
+            for (Iterator j = value.iterator(); j.hasNext();) {
+                ImageAnnotation ann = (ImageAnnotation) j.next();
+                ((Set) dataObjects.get(key)).add(AdapterUtils.go(ann));
+            }
+        }
+        return dataObjects; 
+    }
+
+    static public Map adaptFoundDatasetAnnotations(Map result) {
+        Map dataObjects = new HashMap();
+        for (Iterator i = result.keySet().iterator(); i.hasNext();) {
+            Object key = i.next();
+            Set value = (Set) result.get(key);
+            dataObjects.put(key,new HashSet());
+            for (Iterator j = value.iterator(); j.hasNext();) {
+                DatasetAnnotation ann = (DatasetAnnotation) j.next();
+                ((Set) dataObjects.get(key)).add(AdapterUtils.go(ann));
+            }
+        }
+        return dataObjects; 
+    }
+    
     static public ProjectData go(Project p) {
         return go(p, newCache());
     }
@@ -53,18 +146,30 @@ public class AdapterUtils {
         ProjectData pd = new ProjectData();
         to(cache, p, pd);
         
-        pd.setID(p.getProjectId().intValue());
+        if (null == p.getProjectId()) {
+            log.debug("Id for "+p+" is null.");
+        } else {
+            pd.setID(p.getProjectId().intValue());
+        }
         pd.setName(p.getName());
         pd.setDescription(p.getDescription());
-        pd.setOwnerFirstName(p.getExperimenter().getFirstname());
+        if (null==p.getExperimenter()){
+            log.debug("Experimenter for "+p+" is null.");
+        } else {
+            pd.setOwnerFirstName(p.getExperimenter().getFirstname());
+        }
         //TODO
 
-        Set set = new HashSet();
-        for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
-            Dataset d = (Dataset) i.next();
-            set.add(go(d,cache));
+        if (null==p.getDatasets()){
+            log.debug("Datasets for "+p+" is null.");
+        } else {
+            Set set = new HashSet();
+            for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
+                Dataset d = (Dataset) i.next();
+                set.add(go(d,cache));
+            }
+            pd.setDatasets(new ArrayList(set));
         }
-        pd.setDatasets(new ArrayList(set));
 
         return pd;
     }
@@ -82,20 +187,34 @@ public class AdapterUtils {
         DatasetData dd = new DatasetData();
         to(cache, d, dd);
 
-        dd.setID(d.getDatasetId().intValue());
-        dd.setName(d.getName());
-        dd.setDescription(d.getDescription());
-        dd.setOwnerFirstName(d.getExperimenter().getFirstname());
-        //TODO
-
-        Set set = new HashSet();
-        for (Iterator i = d.getImages().iterator(); i.hasNext();) {
-              Image img = (Image) i.next();
-              set.add(go(img,cache));
+        if (null==d.getDatasetId()){
+            log.debug("Id for "+d+" is null.");
+        } else {
+            dd.setID(d.getDatasetId().intValue());
         }
 
-        dd.setImages(new ArrayList(set));
+        dd.setName(d.getName());
+        dd.setDescription(d.getDescription());
+        if (null==d.getExperimenter()){
+            log.debug("Experimenter for "+d+" is null.");
+        } else {
+            dd.setOwnerFirstName(d.getExperimenter().getFirstname());
+        }
+        //TODO
+
+        if (null==d.getImages()){
+            log.debug("Images for "+d+" is null.");
+        } else {
+	        Set set = new HashSet();
+	        for (Iterator i = d.getImages().iterator(); i.hasNext();) {
+	              Image img = (Image) i.next();
+	              set.add(go(img,cache));
+	        }
+	
+	        dd.setImages(new ArrayList(set));
+        }
         return dd;
+        
     }
 
     static public CategoryGroupData go(CategoryGroup cg) {
@@ -154,20 +273,34 @@ public class AdapterUtils {
         ImageData id = new ImageData();
         to(cache, img, id);
         
-        id.setID(img.getImageId().intValue());
+        if (null==img.getImageId()){
+            log.debug("Id for "+img+" is null.");
+        } else {
+            id.setID(img.getImageId().intValue());
+        }
         id.setName(img.getName());
         id.setDescription(img.getDescription());
         id.setInserted(convertDate(img.getInserted()));
         id.setCreated(convertDate(img.getCreated()));
-        id.setOwnerID(img.getExperimenter().getAttributeId().intValue());
+        
+        if (null==img.getExperimenter()){
+            log.debug("Experimenter for "+img+" is null.");
+        } else {
+            //TODO and id here?
+            id.setOwnerID(img.getExperimenter().getAttributeId().intValue());
+        }
         //TODO
 
-        Set set = new HashSet();
-        for (Iterator i = img.getImagePixels().iterator(); i.hasNext();) {
-                ImagePixel p = (ImagePixel) i.next();
-                set.add(go(p,cache));
+        if (null==img.getImagePixels()){
+            log.debug("Pixels for "+img+" is null.");
+        } else {
+            Set set = new HashSet();
+            for (Iterator i = img.getImagePixels().iterator(); i.hasNext();) {
+                	ImagePixel p = (ImagePixel) i.next();
+                	set.add(go(p,cache));
+            }
+            id.setPixels(new ArrayList(set));
         }
-        id.setPixels(new ArrayList(set));
         
         return id;
     }
@@ -268,7 +401,11 @@ public class AdapterUtils {
     }
 
     static public Timestamp convertDate(Date date){
-        return null == date ? null : new Timestamp(date.getTime());
+        if (null==date){
+            log.debug("Null date.");
+            return null;
+        } 
+        return new Timestamp(date.getTime());
     }
     
     static Map newCache() {
@@ -294,482 +431,5 @@ public class AdapterUtils {
         // TODO return either original value or a new one -- tough. Not when all
         // inherit from a single DataObject!!??
     }
-
-   
-//    SessionFactory sessions;
-//
-//    static final ThreadLocal cache = new ThreadLocal();
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadPDIHierarchy(java.lang.Class,
-//     *      int)
-//     */
-//    public DataObject loadPDIHierarchy(final Class arg0, final int arg1) {
-//
-//        // CONTRACT
-//        if (!ProjectData.class.equals(arg0) && !DatasetData.class.equals(arg0)) {
-//            throw new IllegalArgumentException(
-//                    "Class parameter for loadPDIHierarchy() must be ProjectData or DatasetData.");
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (DataObject) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                newCache();
-//
-//                Query q = session.getNamedQuery("PDI_by_" + arg0.getName());
-//                q.setLong("id", arg1);
-//
-//                DataObject dobj;
-//                if (arg0.equals(DatasetData.class)) {
-//                    Dataset result = (Dataset) q.uniqueResult();
-//                    if (null == result)
-//                        return null;
-//                    dobj = go(result);
-//                } else {
-//                    Project result = (Project) q.uniqueResult();
-//                    if (null == result)
-//                        return null;
-//                    dobj = go(result);
-//                }
-//
-//                emptyCache();
-//                return dobj;
-//            }
-//        });
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#loadCGCIHierarchy(java.lang.Class,
-//     *      int)
-//     */
-//    public DataObject loadCGCIHierarchy(final Class arg0, final int arg1) {
-//
-//        // CONTRACT
-//        if (!CategoryGroupData.class.equals(arg0)
-//                && !CategoryData.class.equals(arg0)) {
-//            throw new IllegalArgumentException(
-//                    "Class parameter for loadCGCIHierarchy() must be CategoryGroupData or CategoryData.");
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (DataObject) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                newCache();
-//
-//                Query q = session.getNamedQuery("CGCI_by_" + arg0.getName());
-//                q.setLong("id", arg1);
-//
-//                DataObject dobj;
-//                if (arg0.equals(CategoryData.class)) {
-//                    Category result = (Category) q.uniqueResult();
-//                    if (null == result)
-//                        return null;
-//                    dobj = go(result);
-//                } else {
-//                    CategoryGroup result = (CategoryGroup) q.uniqueResult();
-//                    if (null == result)
-//                        return null;
-//                    dobj = go(result);
-//                }
-//
-//                emptyCache();
-//                return dobj;
-//            }
-//        });
-//
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findPDIHierarchies(java.util.Set)
-//     */
-//    public Set findPDIHierarchies(final Set arg0) {
-//
-//        // CONTRACT
-//        if (null == arg0 || arg0.size() == 0) {
-//            return new HashSet();
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (Set) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                newCache();
-//
-//                //QUERY
-//                Query q = session.getNamedQuery("findPDI");
-//                q.setParameterList("img_list", arg0, new IntegerType());
-//
-//                List result = q.list();
-//                Set imagesAll = new HashSet(result);
-//
-//                if (null == imagesAll || imagesAll.size() == 0) {
-//                    return new HashSet();
-//                }
-//
-//                // LOGIC
-//                // This is all possible because of the use of the cache!
-//                Set hierarchies = new HashSet();
-//                Iterator i = imagesAll.iterator();
-//                while (i.hasNext()) {
-//                    Image img = (Image) i.next();
-//                    ImageData id = go(img, false); // Start using *Data to
-//                    // prevent lazy loading
-//                    Set datasets = img.getDatasets();
-//
-//                    if (datasets == null || datasets.size() < 1) {
-//                        hierarchies.add(id);
-//                    } else {
-//                        Iterator d = datasets.iterator();
-//                        while (d.hasNext()) {
-//                            Dataset ds = (Dataset) d.next();
-//                            DatasetData dd = go(ds, false);
-//
-//                            // Add images (since not resolved because
-//                            // go(*,false);
-//                            if (null == dd.images)
-//                                dd.images = new HashSet();
-//                            dd.images.add(id);
-//
-//                            Set projects = ds.getProjects();
-//                            if (projects == null || projects.size() < 1) {
-//                                hierarchies.add(dd);
-//                            } else {
-//                                Iterator p = projects.iterator();
-//                                while (p.hasNext()) {
-//                                    Project prj = (Project) p.next();
-//                                    ProjectData pd = go(prj, false);
-//
-//                                    // Add datsets (since not resolved because
-//                                    // go(*,false)
-//                                    if (null == pd.datasets)
-//                                        pd.datasets = new HashSet();
-//                                    pd.datasets.add(dd);
-//
-//                                    hierarchies.add(pd);
-//                                }
-//                            }
-//
-//                        }
-//                    }
-//                }
-//
-//                emptyCache();
-//                return hierarchies;
-//            }
-//        });
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findCGCIHierarchies(java.util.Set)
-//     */
-//    public Set findCGCIHierarchies(final Set arg0) {
-//        // CONTRACT
-//        if (null == arg0 || arg0.size() == 0) {
-//            return new HashSet();
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (Set) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                newCache();
-//
-//                //QUERY
-//                Query q = session.getNamedQuery("findCGCI");
-//                q.setParameterList("img_list", arg0, new IntegerType());
-//
-//                List result = q.list();
-//                Set imagesAll = new HashSet(result);
-//
-//                if (null == imagesAll || imagesAll.size() == 0) {
-//                    return new HashSet();
-//                }
-//
-//                // LOGIC
-//                // This is all possible because of the use of the cache!
-//                Set hierarchies = new HashSet();
-//                Iterator i = imagesAll.iterator();
-//                while (i.hasNext()) {
-//                    Image img = (Image) i.next();
-//                    ImageData id = go(img, false); // Start using *Data to
-//                    // prevent lazy loading
-//                    Set classifications = img.getClassifications();
-//                    Set categories = new HashSet();
-//
-//                    for (Iterator c = classifications.iterator(); c.hasNext();) {
-//                        Classification cla = (Classification) c.next();
-//                        if (cla.getValid().booleanValue()) { // TODO do this in query
-//                            categories.add(cla.getCategory());
-//                        }
-//                    }
-//
-//                    if (categories == null || categories.size() < 1) {
-//                        hierarchies.add(id);
-//                    } else {
-//                        Iterator c = categories.iterator();
-//                        while (c.hasNext()) { // OPTIMAL TODO looping over get!!
-//                                              // ???
-////                          Category ca = (Category) c.next(); // HERE ??
-//                            Integer cId = (Integer) c.next();
-//                            Category ca = (Category) session.get(Category.class, cId);
-//                            CategoryData cd = go(ca, false);
-//
-//                            // Add images (since not resolved because
-//                            // go(*,false);
-//                            if (null == cd.images)
-//                                cd.images = new HashSet();
-//                            cd.images.add(id);
-//
-//                            Integer cgId = ca.getCategoryGroup(); // and HERE ??
-//                                                                  // FIXME
-//                            CategoryGroup cg = (CategoryGroup) session.get(CategoryGroup.class, cgId);
-//                            // not a
-//                            // collection??
-//                            if (cg == null) {
-//                                hierarchies.add(cd);
-//                            } else {
-//                                CategoryGroupData cgd = go(cg);
-//
-//                                // Add categories (since not resolved because
-//                                // go(*,false)
-//                                    if (null == cgd.categories)
-//                                        cgd.categories = new HashSet();
-//                                    cgd.categories.add(cd);
-//                                    hierarchies.add(cgd);
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                emptyCache();
-//                return hierarchies;
-//            }
-//        });
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set)
-//     */
-//    public Map findImageAnnotations(final Set arg0) {
-//
-//        // CONTRACT
-//        if (null == arg0 || arg0.size() == 0) {
-//            return new HashMap();
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (Map) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                Query q = session.getNamedQuery("findImageAnn");
-//                q.setParameterList("img_list", arg0, new IntegerType());
-//
-//                Map map = findImageAnnotations(q);
-//                emptyCache();
-//                return map;
-//            }
-//        });
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set,
-//     *      int)
-//     */
-//    public Map findImageAnnotationsForExperimenter(final Set arg0, final int arg1) {
-//
-//        // CONTRACT
-//        if (null == arg0 || arg0.size() == 0) {
-//            return new HashMap();
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (Map) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                Query q = session.getNamedQuery("findImageAnnWithID");
-//                q.setParameterList("img_list", arg0, new IntegerType());
-//                q.setInteger("expId", arg1);
-//
-//                Map map = findImageAnnotations(q);
-//                emptyCache();
-//                return map;
-//            }
-//        });
-//    }
-//
-//    Map findImageAnnotations(final Query q) {
-//        newCache();
-//
-//        Set result = new HashSet(q.list()); // TODO this everywhere
-//
-//        if (null == result || result.size() == 0) {
-//            return new HashMap();
-//        }
-//
-//        Map map = new HashMap();
-//
-//        // SORT
-//        Iterator i = result.iterator();
-//        while (i.hasNext()) {
-//            ImageAnnotation ann = (ImageAnnotation) i.next();
-//            Integer img_id = ann.getImage().getImageId();
-//            if (!map.containsKey(img_id)) {
-//                map.put(img_id, new HashSet());
-//            }
-//            ((Set) map.get(img_id)).add(ann);
-//        }
-//
-//        //FIXME REMOVE INVALID ENTRIES
-//
-//        //MAP TO DATAOBJECT
-//        Map map2 = new HashMap();
-//        Iterator i2 = map.keySet().iterator();
-//        while (i2.hasNext()) {
-//            Object key = i2.next();
-//            Set annotations = (Set) map.get(key);
-//            Set annotationDataObjects = new HashSet();
-//            Iterator i3 = annotations.iterator();
-//            while (i3.hasNext()) {
-//                annotationDataObjects.add(go((ImageAnnotation) i3.next()));
-//            }
-//            map2.put(key, annotationDataObjects);
-//        }
-//
-//        return map2;
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set)
-//     */
-//    public Map findDatasetAnnotations(final Set arg0) {
-//
-//        // CONTRACT
-//        if (null == arg0 || arg0.size() == 0) {
-//            return new HashMap();
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (Map) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                Query q = session.getNamedQuery("findDatasetAnn");
-//                q.setParameterList("ds_list", arg0, new IntegerType());
-//
-//                Map map = findDatasetAnnotations(q);
-//                emptyCache();
-//                return map;
-//            }
-//        });
-//    }
-//
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set,
-//     *      int)
-//     */
-//    public Map findDatasetAnnotationsForExperimenter(final Set arg0, final int arg1) {
-//
-//        // CONTRACT
-//        if (null == arg0 || arg0.size() == 0) {
-//            return new HashMap();
-//        }
-//
-//        HibernateTemplate ht = new HibernateTemplate(sessions);
-//        return (Map) ht.execute(new HibernateCallback() {
-//            public Object doInHibernate(Session session)
-//                    throws HibernateException {
-//
-//                Query q = session.getNamedQuery("findDatasetAnnWithID");
-//                q.setParameterList("ds_list", arg0, new IntegerType());
-//                q.setInteger("expId", arg1);
-//
-//                Map map = findDatasetAnnotations(q);
-//                emptyCache();
-//                return map;
-//            }
-//        });
-//    }
-//
-//    Map findDatasetAnnotations(final Query q) {
-//
-//        newCache();
-//
-//        Set result = new HashSet(q.list()); // TODO this everywhere
-//
-//        if (null == result || result.size() == 0) {
-//            return new HashMap();
-//        }
-//
-//        Map map = new HashMap();
-//
-//        // SORT
-//        Iterator i = result.iterator();
-//        while (i.hasNext()) {
-//            DatasetAnnotation ann = (DatasetAnnotation) i.next();
-//            Integer ds_id = ann.getDataset().getDatasetId();
-//            if (!map.containsKey(ds_id)) {
-//                map.put(ds_id, new HashSet());
-//            }
-//            ((Set) map.get(ds_id)).add(ann);
-//        }
-//
-//        //FIXME REMOVE INVALID ENTRIES
-//
-//        //MAP TO DATAOBJECT
-//        Map map2 = new HashMap();
-//        Iterator i2 = map.keySet().iterator();
-//        while (i2.hasNext()) {
-//            Object key = i2.next();
-//            Set annotations = (Set) map.get(key);
-//            Set annotationDataObjects = new HashSet();
-//            Iterator i3 = annotations.iterator();
-//            while (i3.hasNext()) {
-//                annotationDataObjects.add(go((DatasetAnnotation) i3.next()));
-//            }
-//            map2.put(key, annotationDataObjects);
-//        }
-//
-//        return map2;
-//    }
-//
-//    /**
-//     * @return Returns the sessions.
-//     */
-//    public SessionFactory getSessions() {
-//        return sessions;
-//    }
-//
-//    /**
-//     * @param sessions
-//     *           The sessions to set.
-//     */
-//    public void setSessions(SessionFactory sessions) {
-//        this.sessions = sessions;
-//    }
 
 }
