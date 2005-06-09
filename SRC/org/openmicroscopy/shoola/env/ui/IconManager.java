@@ -109,6 +109,45 @@ public class IconManager
 	private static final String		DEFAULT_INFO_ICON_PATH = 
 											"graphx/stock_dialog-info-32.png";
 	
+    /** 
+     * The pathname, relative to this class, of the default close icon to
+     * use for tiny window dialogs.
+     */ 
+    private static final String     DEFAULT_CLOSE_PATH = "graphx/cross.png";
+    
+    /** 
+     * The pathname, relative to this class, of the default close icon to
+     * use for tiny window dialogs.
+     */ 
+    private static final String     DEFAULT_CLOSE_OVER_PATH = 
+                                            "graphx/cross_over.png";
+    
+    /** 
+     * The pathname, relative to this class, of the default minus icon to
+     * use for tiny window dialogs.
+     */ 
+    private static final String     DEFAULT_MINUS_PATH = "graphx/minus.png";
+    
+    /** 
+     * The pathname, relative to this class, of the default minus_over icon to
+     * use for tiny window dialogs.
+     */ 
+    private static final String     DEFAULT_MINUS_OVER_PATH = 
+                                            "graphx/minus_over.png";
+    
+    /** 
+     * The pathname, relative to this class, of the default plus icon to
+     * use for tiny window dialogs.
+     */ 
+    private static final String     DEFAULT_PLUS_PATH = "graphx/plus.png";
+    
+    /** 
+     * The pathname, relative to this class, of the default plus_over icon to
+     * use for tiny window dialogs.
+     */ 
+    private static final String     DEFAULT_PLUS_OVER_PATH = 
+                                        "graphx/plus_over.png";
+    
 	/** ID of the help icon. */
 	static final int		HELP = 0;
 	
@@ -164,7 +203,8 @@ public class IconManager
 	/** The sole instance. */
 	private static IconManager	singleton;
 	
-	
+
+    
 	/**
 	 * Returns the splash screen.
 	 * 
@@ -225,6 +265,66 @@ public class IconManager
 		return createIcon(DEFAULT_INFO_ICON_PATH);
 	}
 	
+    /**
+     * Returns the default close icon to use for tiny window dialog.
+     * 
+     * @return See above.
+     */
+    public static Icon getDefaultCloseIcon()
+    {
+        return createIcon(DEFAULT_CLOSE_PATH);
+    }
+    
+    /**
+     * Returns the default close_over icon to use for tiny window dialog.
+     * 
+     * @return See above.
+     */
+    public static Icon getDefaultCloseOverIcon()
+    {
+        return createIcon(DEFAULT_CLOSE_OVER_PATH);
+    }
+    
+    /**
+     * Returns the default minus icon to use for tiny window dialog.
+     * 
+     * @return See above.
+     */
+    public static Icon getDefaultMinusIcon()
+    {
+        return createIcon(DEFAULT_MINUS_PATH);
+    }
+    
+    /**
+     * Returns the default size icon to use for tiny window dialog.
+     * 
+     * @return See above.
+     */
+    public static Icon getDefaultMinusOverIcon()
+    {
+        return createIcon(DEFAULT_MINUS_OVER_PATH);
+    }
+    
+    /**
+     * Returns the default minus icon to use for tiny window dialog.
+     * 
+     * @return See above.
+     */
+    public static Icon getDefaultPlusIcon()
+    {
+        return createIcon(DEFAULT_PLUS_PATH);
+    }
+    
+    /**
+     * Returns the default size icon to use for tiny window dialog.
+     * 
+     * @return See above.
+     */
+    public static Icon getDefaultPlusOverIcon()
+    {
+        return createIcon(DEFAULT_PLUS_OVER_PATH);
+    }
+    
 	/**
 	 * Returns the <code>IconManager</code> object. 
 	 * 
@@ -236,15 +336,15 @@ public class IconManager
 		return singleton;
 	}
 	
-	
-	/**
-	 * Creates a new instance and configures the parameters.
-	 * 
-	 * @param registry	Reference to the registry.
-	 */
-	private IconManager(Registry registry)
-	{
-		super(registry, LookupNames.ICONS_FACTORY, relPaths);
-	}
+    /**
+     * Creates a new instance and configures the parameters.
+     * 
+     * @param registry  Reference to the registry.
+     */
+    private IconManager(Registry registry)
+    {
+        super(registry, LookupNames.ICONS_FACTORY, relPaths);
+    }
+
 	
 }
