@@ -38,7 +38,7 @@ import javax.swing.JProgressBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
+import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class LoadingWin
-    extends TinyWindow
+    extends TinyDialog
 {
 
     /** Dimension of the loading window. */
@@ -66,6 +66,7 @@ class LoadingWin
     LoadingWin(JFrame owner)
     {
         super(owner, "Loading...");
+        setModal(true);
         buildGUI();
     }
 

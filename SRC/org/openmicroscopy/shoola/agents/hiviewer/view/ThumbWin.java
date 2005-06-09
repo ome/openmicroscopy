@@ -40,8 +40,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 
 /** 
  * A floating window to display a thumbnail at its maximum scaling size.
@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
  * @since OME2.2
  */
 class ThumbWin
-    extends TinyWindow
+    extends TinyDialog
     implements MouseListener
 {
 

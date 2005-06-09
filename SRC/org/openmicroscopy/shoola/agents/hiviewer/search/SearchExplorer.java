@@ -47,13 +47,13 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
-import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindowUI;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
+import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialogUI;
 
 /** 
  * 
@@ -70,7 +70,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
  * @since OME2.2
  */
 public class SearchExplorer
-    extends TinyWindow
+    extends TinyDialog
 {
     
     private static final int    DEFAULT_WIDTH = 150;
@@ -103,9 +103,9 @@ public class SearchExplorer
         Dimension d = tree.getPreferredScrollableViewportSize();
         Dimension dC = getContentPane().getPreferredSize();
         int w = dC.width, h = d.height;
-        if (w > TinyWindowUI.MAX_WIDTH) w = TinyWindowUI.MAX_WIDTH;
+        if (w > TinyDialogUI.MAX_WIDTH) w = TinyDialogUI.MAX_WIDTH;
         if (w < DEFAULT_WIDTH) w = DEFAULT_WIDTH;
-        if (h > TinyWindowUI.MAX_HEIGHT) h = TinyWindowUI.MAX_HEIGHT;
+        if (h > TinyDialogUI.MAX_HEIGHT) h = TinyDialogUI.MAX_HEIGHT;
         setSize(w, h);
     }
     

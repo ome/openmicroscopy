@@ -45,11 +45,11 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
-import org.openmicroscopy.shoola.agents.hiviewer.twindow.TinyWindow;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 
 /** 
- * Brings {@link TinyWindow}s on screen to display full-scale thumbnails.
+ * Brings {@link TinyDialog}s on screen to display full-scale thumbnails.
  * Windows that are already on screen for a thumbnail of a given image are
  * recycled, even if the window was originally brought up for a node in
  * another {@link HiViewerWin}.
@@ -80,11 +80,11 @@ class ThumbWinManager
      * @param node The image node for which a window is needed.
      * @return A window for <code>node</code>.
      */
-    private static TinyWindow getWindowFor(ImageNode node)
+    private static TinyDialog getWindowFor(ImageNode node)
     {
         ImageSummary ho = (ImageSummary) node.getHierarchyObject();
         final Integer id = new Integer(ho.getID());
-        TinyWindow w = (TinyWindow) windows.get(id);
+        TinyDialog w = (TinyDialog) windows.get(id);
         if (w == null) {
             Thumbnail prv = node.getThumbnail();
             BufferedImage full = prv.getFullScaleThumb();
@@ -97,7 +97,7 @@ class ThumbWinManager
             //If this is not the case and we load async, then we need a
             //callback handler.
             
-                w.addPropertyChangeListener(TinyWindow.CLOSED_PROPERTY,
+                w.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY,
                     new PropertyChangeListener() {
                         public void propertyChange(PropertyChangeEvent pce)
                         {
@@ -140,7 +140,7 @@ class ThumbWinManager
     static void display(ImageNode node)
     {
         if (node == null) throw new NullPointerException("No node.");
-        TinyWindow w = getWindowFor(node);
+        TinyDialog w = getWindowFor(node);
         if (w != null) {  //Could be null, see notes in getWindowFor().
             w.pack();  //Now we have the right width and height.
             Point p = getWindowLocation(node, w.getWidth(), w.getHeight());
