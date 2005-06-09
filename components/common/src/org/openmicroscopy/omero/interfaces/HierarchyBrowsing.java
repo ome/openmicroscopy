@@ -56,6 +56,9 @@ import java.util.Set;
  * (<b>Internal version:</b> $Revision: $ $Date: $)
  * </small>
  * @since OME2.2
+ * @DEV.TODO Possibly change these methods to return an abstract super type 
+ * @DEV.TODO or even a concretefor these or concrete type like "Project loadPDIHierary()"
+ * @DEV.TODO Update code generation for Hibernate to include copyright. 
  */
 public interface HierarchyBrowsing
 {
@@ -63,48 +66,47 @@ public interface HierarchyBrowsing
     /**
      * Loads a Project/Dataset/Image (P/D/I) hierarchy rooted by a given node.
      * <p>The root node can be either Project or Dataset.  A Project tree will
-     * be represented by {@link ProjectData}, {@link DatasetData}, and
-     * {@link ImageData} objects.  A Dataset tree will only have objects of
+     * be represented by {@link Project}, {@link Dataset}, and
+     * {@link Image} objects.  A Dataset tree will only have objects of
      * the latter two types.</p>
      * <p>This method also retrieves the Experimenters linked to the objects
      * in the tree &#151; an Experimenter is represented by an 
-     * {@link ExperimenterData} object.  Similarly, all Images will be linked
-     * to their Pixels &#151; represented by {@link PixelsData} objects.</p>
+     * {@link Experimenter} object.  Similarly, all Images will be linked
+     * to their Pixels &#151; represented by {@link Pixels} objects.</p>
      * <p>Note that objects are never duplicated.  For example, if an 
      * Experimenter owns all the objects in the retrieved tree, then those
      * objects will be linked to the <i>same</i> instance of
-     * {@link ExperimenterData}.  Or if an Image is contained in more than
-     * one Dataset in the retrieved tree, then all enclosing {@link DatasetData}
-     * objects will point to the <i>same</i> {@link ImageData} object.  And so
+     * {@link Experimenter}.  Or if an Image is contained in more than
+     * one Dataset in the retrieved tree, then all enclosing {@link Dataset}
+     * objects will point to the <i>same</i> {@link Image} object.  And so
      * on.</p>
      * 
      * @param rootNodeType  The type of the root node.  Can either be
-     *                      {@link ProjectData} or {@link DatasetData}.
+     *                      {@link Project} or {@link Dataset}.
      * @param rootNodeID    The id of the root node.
      * @return The requested node as root and all of its descendants.  The type
      *         of the returned value will be <code>rootNodeType</code>. 
      */
     public Object loadPDIHierarchy(Class rootNodeType, int rootNodeID); 
-    // TODO Super Object for these or concrete "Project loadPDIHierary() / Dataset loadDIHierarchy()"??? 
     
     /**
      * Loads a Category Group/Category/Image (CG/C/I) hierarchy rooted by a
      * given node.
      * <p>The root node can be either Category Group or Category.  A Category
-     * Group tree will be represented by {@link CategoryGroupData}, 
-     * {@link CategoryData}, and {@link ImageData} objects.  A Category tree
+     * Group tree will be represented by {@link CategoryGroup}, 
+     * {@link Category}, and {@link Image} objects.  A Category tree
      * will only have objects of the latter two types.</p>
      * <p>This method also retrieves the Experimenters linked to the objects
      * in the tree &#151; an Experimenter is represented by an 
-     * {@link ExperimenterData} object.  Similarly, all Images will be linked
-     * to their Pixels &#151; represented by {@link PixelsData} objects.</p>
+     * {@link Experimenter} object.  Similarly, all Images will be linked
+     * to their Pixels &#151; represented by {@link Pixels} objects.</p>
      * <p>Note that objects are never duplicated.  For example, if an 
      * Experimenter owns all the objects in the retrieved tree, then those
      * objects will be linked to the <i>same</i> instance of
-     * {@link ExperimenterData}.</p>
+     * {@link Experimenter}.</p>
      * 
      * @param rootNodeType  The type of the root node.  Can either be
-     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     *                      {@link CategoryGroup} or {@link Category}.
      * @param rootNodeID    The id of the root node.
      * @return The requested node as root and all of its descendants.  The type
      *         of the returned value will be <code>rootNodeType</code>. 
@@ -116,14 +118,14 @@ public interface HierarchyBrowsing
      * contain the specified Images. 
      * <p>This method will look for all the Datasets containing the specified 
      * Images and then for all Projects containing those Datasets.  In the 
-     * returned trees, Projects will be represented by {@link ProjectData}
-     * objects, Datasets by {@link DatasetData} objects, and Images by
-     * {@link ImageData} objects.</p>
+     * returned trees, Projects will be represented by {@link Project}
+     * objects, Datasets by {@link Dataset} objects, and Images by
+     * {@link Image} objects.</p>
      * <p>This method returns a <code>Set</code> with all root nodes that were
      * found.  Every root node is linked to the found objects and so on until
-     * the leaf nodes, which are {@link ImageData} objects.  Note that the type
-     * of any root node in the returned set can be {@link ProjectData}, 
-     * {@link DatasetData}, or {@link ImageData}.</p>
+     * the leaf nodes, which are {@link Image} objects.  Note that the type
+     * of any root node in the returned set can be {@link Project}, 
+     * {@link Dataset}, or {@link Image}.</p>
      * <p>For example, say that you pass in the ids of six Images: <code>i1, i2,
      * i3, i4, i5, i6</code>.  If the P/D/I hierarchy in the DB looks like this:
      * </p>
@@ -174,7 +176,7 @@ public interface HierarchyBrowsing
      * Image id onto the set of all annotations that were found for that
      * Image.  If no annotations were found for that Image, then the entry
      * will be <code>null</code>.  Otherwise it will be a <code>Set</code>
-     * containing {@link AnnotationData} objects.
+     * containing {@link Annotation} objects.
      * 
      * @param imgIDs Contains the ids of the Images.
      * @return A map whose key is Image id and value the <code>Set</code>
@@ -191,7 +193,7 @@ public interface HierarchyBrowsing
      * Image id onto the set of all annotations that were found for that
      * Image.  If no annotations were found for that Image, then the entry
      * will be <code>null</code>.  Otherwise it will be a <code>Set</code>
-     * containing {@link AnnotationData} objects.
+     * containing {@link Annotation} objects.
      * 
      * @param imgIDs Contains the ids of the Images.
      * @param experimenterID The id of the Experimenter that owns the
@@ -209,7 +211,7 @@ public interface HierarchyBrowsing
      * Dataset id onto the set of all annotations that were found for that
      * Dataset.  If no annotations were found for that Dataset, then the
      * entry will be <code>null</code>.  Otherwise it will be a <code>Set
-     * </code> containing {@link AnnotationData} objects.
+     * </code> containing {@link Annotation} objects.
      * 
      * @param datasetIDs Contains the ids of the Datasets.
      * @return A map whose key is Dataset id and value the <code>Set</code>
@@ -226,7 +228,7 @@ public interface HierarchyBrowsing
      * Dataset id onto the set of all annotations that were found for that
      * Dataset.  If no annotations were found for that Image, then the entry
      * will be <code>null</code>.  Otherwise it will be a <code>Set</code>
-     * containing {@link AnnotationData} objects.
+     * containing {@link Annotation} objects.
      * 
      * @param datasetIDs Contains the ids of the Datasets.
      * @param experimenterID The id of the Experimenter that owns the

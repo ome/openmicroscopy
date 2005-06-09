@@ -8,10 +8,10 @@ from net.grinder.script import Test
 from net.grinder.statistics import ExpressionView, StatisticsIndexMap, StatisticsView
 from java.util import Set
 from java.util import HashSet
-from org.openmicroscopy.omero.tests.client import OMEPerformanceData
-from org.openmicroscopy.omero.tests.client import GrinderTest as Omero
-from org.openmicroscopy.omero.tests.client import Utils
-from org.openmicroscopy.shoola.env.data.t import GrinderTest as Shoola
+from org.openmicroscopy.omero.tests import OMEPerformanceData as Data
+from org.openmicroscopy.omero.tests import OmeroGrinderTest as Omero
+from org.openmicroscopy.omero.util  import Utils
+from org.openmicroscopy.shoola.env.data.t import ShoolaGrinderTest as Shoola
 
 # A shorter alias for the grinder.logger.output() method.
 log = grinder.logger.output
@@ -20,7 +20,7 @@ log = grinder.logger.output
 # automatically registered with The Grinder console if you are using
 # it.
 
-data = OMEPerformanceData()
+data = Data()
 omero = Omero(data)
 shoola = Shoola(data)
 

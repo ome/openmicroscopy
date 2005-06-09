@@ -1,5 +1,34 @@
+/*
+ * org.openmicroscopy.omero.server.utests.HierarchyBrowsingUnitTest
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
 package org.openmicroscopy.omero.server.utests;
 
+//Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,9 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 
+//Application-internal dependencies
 import org.openmicroscopy.omero.logic.AnnotationDao;
 import org.openmicroscopy.omero.logic.ContainerDao;
 import org.openmicroscopy.omero.logic.HierarchyBrowsingImpl;
@@ -19,9 +50,17 @@ import org.openmicroscopy.omero.model.ImageAnnotation;
 import org.openmicroscopy.omero.model.Project;
 
 /**
- * This class tests the generic Manager and BaseManager implementation.
- * @DEV.SEARCH No Hibernate or Spring dependencies
- * @DEV.TODO add DEV.SEARCH to build.
+ * tests each public method of HierachyBrowsing using jmock
+ * facilities for the needed Daos.
+ * @DEV.TODO add DEV.SEARCH to build. (e.g. no hibernate or spring here)
+ * 
+ * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0 
+ * <small>
+ * (<b>Internal version:</b> $Rev$ $Date$)
+ * </small>
+ * @since 1.0
  */
 public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
     protected HierarchyBrowsingImpl manager = new HierarchyBrowsingImpl();

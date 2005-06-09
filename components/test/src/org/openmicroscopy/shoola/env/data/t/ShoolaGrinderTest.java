@@ -48,8 +48,9 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 
+ * used externally by Grinder to test call times in a manner similar to
+ * Omero. See {@link org.openmicroscopy.omero.test.OmeroGrinderTest}.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;

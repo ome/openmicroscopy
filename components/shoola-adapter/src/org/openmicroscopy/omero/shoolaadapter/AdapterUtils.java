@@ -1,8 +1,34 @@
 /*
- * Created on May 31, 2005
+ * org.openmicroscopy.omero.shoolaadapter.AdapterUtils
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.omero.shoolaadapter;
 
+//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,6 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Dataset;
@@ -36,10 +65,19 @@ import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
-/**
- * @author josh
+/** 
+ * provides nearly all functionality in an adapter. The implementation
+ * of <code>AdapterUtils</code> is very much bound to both the target
+ * and the source models.
+ * 
+ * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0 
+ * <small>
+ * (<b>Internal version:</b> $Rev$ $Date$)
+ * </small>
+ * @since 1.0
  */
 public class AdapterUtils {
 
