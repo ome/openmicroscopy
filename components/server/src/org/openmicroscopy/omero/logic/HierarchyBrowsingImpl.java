@@ -37,6 +37,8 @@
 package org.openmicroscopy.omero.logic;
 
 //Java imports
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-
+import org.hibernate.Hibernate;
 
 //Application-internal dependencies
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
@@ -99,7 +101,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                     "Class parameter for loadPDIHierarchy() must be Project or Dataset.");
         }
 
-        return containerDao.loadHierarchy(arg0, arg1);
+        return clean(containerDao.loadHierarchy(arg0, arg1));
 
     }
 
@@ -114,7 +116,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                     "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category.");
         }
 
-        return containerDao.loadHierarchy(arg0, arg1);
+        return clean(containerDao.loadHierarchy(arg0, arg1));
 
     }
 
@@ -173,7 +175,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             }
         }
 
-        return hierarchies;
+        return (Set) clean(hierarchies);
 
     }
 
@@ -238,7 +240,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             }
         }
 
-        return hierarchies;
+        return (Set) clean(hierarchies);
     }
 
     /** 
@@ -252,7 +254,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         List result = annotationDao.findImageAnnotations(arg0);
-        return sortImageAnnotations(result);
+        return (Map) clean(sortImageAnnotations(result));
 
     }
 
@@ -269,7 +271,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
         List result = annotationDao.findImageAnnotationsForExperimenter(arg0,
                 arg1);
-        return sortImageAnnotations(result);
+        return (Map) clean(sortImageAnnotations(result));
 
     }
 
@@ -308,7 +310,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         List result = annotationDao.findDataListAnnotations(arg0);
-        return sortDatasetAnnotations(result);
+        return (Map) clean(sortDatasetAnnotations(result));
 
     }
 
@@ -353,6 +355,105 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         return map;
     }
 
+    /** top-level call. If this is not initialized abort */
+    Object clean(Object obj){
+        if (! Hibernate.isInitialized(obj)){
+            throw new IllegalStateException("If the return object is not initialized then we can't send it.");
+        }
+        Set done = new HashSet();
+        hessianClean(obj,done);
+        return obj;
+    }
+       
+    void hessianClean(Object obj, Set done) {
+        
+        if (null==obj) return;
+        if (done.contains(obj)) return;
+        done.add(obj);
+        
+        if (obj instanceof Map) {
+            Map map = (Map) obj;
+            for (Iterator i = map.values().iterator(); i.hasNext();) {
+                Object value = i.next();
+                hessianClean(value,done);
+            }
+        } else if (obj instanceof Set) {
+            Set set = (Set) obj;
+            for (Iterator i = set.iterator(); i.hasNext();) {
+                Object item = i.next();
+                hessianClean(item,done);
+            }
+        } else { // TODO can check for super class when implemented
+            Method[] methods = obj.getClass().getDeclaredMethods();
+            for (int i = 0; i < methods.length; i++) {
+                Method method = methods[i];
+                if (method.getName().startsWith("get")){
+                    if (0==method.getParameterTypes().length){
+                        Object result=invokeGetter(obj,method);
+                        if (! Hibernate.isInitialized(result)){
+                            Method setter = getSetterForGetter(methods,method);
+                            if (null==setter){
+                                throw new IllegalStateException("No setter for getter; this will explode");
+                            }
+                            setToNull(obj,setter);
+                        } else {
+                            hessianClean(result,done);
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    Method getSetterForGetter(Method[] methods, Method getter){
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if (method.getName().startsWith("set")){
+                if (method.getName().substring(1).equals(getter.getName().substring(1))){
+                    return method;
+                }
+            }
+        }
+        return null;
+    }
+    
+    Object invokeGetter(Object target, Method getter){
+        Object result=null;
+        try {
+            result = getter.invoke(target,new Object[]{});
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    void setToNull(Object obj, Method setter){
+        RuntimeException re = new RuntimeException("Error trying to set to null"); 
+
+        try {
+            setter.invoke(obj,new Object[]{null});
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw re;
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw re;
+        } catch (InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw re;
+        }
+    }
 
 
 }

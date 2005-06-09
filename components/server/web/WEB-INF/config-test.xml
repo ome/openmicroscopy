@@ -8,9 +8,15 @@
       class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 		<list>
-			<value>target/classes/spring.properties</value>
+			<value>spring.properties</value>
 		</list>
 		</property>
+	</bean>
+
+	<!-- Add this config file to the getConfigLocations() of your tests
+		if you want data and interfaces injected -->
+	<bean id="data" class="org.openmicroscopy.omero.tests.OMEPerformanceData" init-method="init">
+		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
 </beans>

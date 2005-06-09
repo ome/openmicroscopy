@@ -18,11 +18,12 @@ public class OmeroServiceTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        System.out.println(System.getProperty("user.dir"));
+
         return new String[]{
                 "WEB-INF/services.xml",
-                "org/openmicroscopy/omero/tests/client/test.xml",
-                "WEB-INF/dao.xml"}; 
+                "WEB-INF/dao.xml",
+                "WEB-INF/data.xml",
+                "WEB-INF/config-test.xml"}; 
     }
     
     public OmeroServiceTest(String name) {

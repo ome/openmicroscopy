@@ -178,6 +178,11 @@
       </properties>
     </dependency>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.1</version>
@@ -246,12 +251,28 @@
       <includes>
         <include>**/*Test.java</include>
       </includes>
+      <resources>
+        <resource>
+          <directory>${pom.build.unitTestSourceDirectory}</directory>
+          <includes>
+            <include>**/*.xml</include>
+            <include>**/*.properties</include>
+          </includes>
+        </resource>
+      </resources>
     </unitTest>
     <resources>
       <resource>
         <directory>src</directory>
         <includes>
           <include>**/*.hbm.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>web</directory>
+        <includes>
+          <include>**/*.xml</include>
         </includes>
       </resource>
     </resources>

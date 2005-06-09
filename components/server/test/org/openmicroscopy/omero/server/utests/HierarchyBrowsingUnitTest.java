@@ -1,4 +1,4 @@
-package org.openmicroscopy.omero.tests;
+package org.openmicroscopy.omero.server.utests;
 
 import java.util.ArrayList;
 import java.util.HashSet;

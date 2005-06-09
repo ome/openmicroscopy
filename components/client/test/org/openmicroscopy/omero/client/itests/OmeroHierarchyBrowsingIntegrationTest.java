@@ -1,7 +1,7 @@
 /*
  * Created on Jun 7, 2005
 */
-package org.openmicroscopy.omero.tests.client;
+package org.openmicroscopy.omero.client.itests;
 
 import java.util.HashSet;
 import java.util.Iterator;

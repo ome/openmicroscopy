@@ -5,7 +5,7 @@
     
 <hibernate-mapping>
   <!-- load*Hierarchy 
-	TODO if all ids where called *.getId() then we could merge these
+	TODO if all ids where called *.getId() then we could merge these 
 	-->
 	
   <query name="loadHierarchy_by_Project"><![CDATA[
@@ -30,11 +30,13 @@
     
   <!-- find*Hierarchies -->
   <query name="findPDI"><![CDATA[
-	from Image as i where i in (:img_list)
+	from Image as i join fetch i.datasets as ds join fetch ds.projects as prj 
+	  where i in (:img_list)
   ]]></query>	
   
   <query name="findCGCI"><![CDATA[
-	from Image as i where i in (:img_list)
+	from Image as i join fetch i.classifications as cla 
+	  where i in (:img_list)
   ]]></query>	
   
   <!-- findAnnotations -->

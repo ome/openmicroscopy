@@ -42,8 +42,9 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
     <ant:sequential>
       <ant:mkdir dir="${maven.build.dest}"/>
       <ant:propertyfile 
-	comment=" Database and Server properties generated from build properties" 
-                        file="${maven.build.dest}/spring.properties">
+	comment=" Database and Server properties generated from build
+properties TODO remove from svn" 
+                        file="${basedir}/src/spring.properties">
          <ant:entry key="database.driver" value="${database.driver}"/>
          <ant:entry key="database.url" value="${database.url}"/>
          <ant:entry key="database.username" value="${database.username}"/>
@@ -66,6 +67,7 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
          inheritRefs="false"/>
    </goal>
 
+ <!-- from: http://java2.5341.com/msg/33178.html -->
   <goal name="filterTests">
    <j:set var="testModeX" value="${maven.test.mode}X" />
    <j:if test="${testModeX == 'X'}" >

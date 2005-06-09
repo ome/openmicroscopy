@@ -1,7 +1,7 @@
 /*
  * Created on Jun 7, 2005
  */
-package org.openmicroscopy.omero.tests.client;
+package org.openmicroscopy.omero.client.itests;
 
 import org.openmicroscopy.omero.tests.AbstractOmeroHierarchyBrowserIntegrationTest;
 import org.openmicroscopy.omero.tests.OMEData;
@@ -20,7 +20,7 @@ public class OmeroGrinderTest
     protected String[] getConfigLocations() {
         return new String[]{
                 "org/openmicroscopy/omero/client/spring.xml",
-                "org/openmicroscopy/omero/tests/client/test.xml"}; 
+                "org/openmicroscopy/omero/client/itests/test.xml"}; 
     }
     
     public OmeroGrinderTest(String name) {

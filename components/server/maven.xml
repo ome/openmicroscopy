@@ -14,11 +14,6 @@
    <attainGoal name="tomcat:install"/>
  </goal>
 
-  <!-- For internal development. TODO -->
-  <preGoal name="war:war">
-    <attainGoal name="jar:install"/>
-  </preGoal>
-
  <!-- DB STUFF: TODO Perhaps in a build.xml (or use appfuses) -->
  
  <goal name="dbunit">
