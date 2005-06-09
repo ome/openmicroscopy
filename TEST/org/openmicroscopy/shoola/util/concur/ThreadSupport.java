@@ -51,12 +51,12 @@ package org.openmicroscopy.shoola.util.concur;
  * will wait until the task has finished running.</p>
  * <p>This class factors out some test code common to all test cases in 
  * <code>concur</code> and its sub-packages.  Tests that verify synchronization
- * mainly use this class to have the JUnit thread acquire an object’s lock and 
+ * mainly use this class to have the JUnit thread acquire an object's lock and 
  * then wait for the alternate thread to attempt to acquire the same lock &#151;
  * so that we can simulate concurrent access and test synchronized blocks.  
  * Those tests are written against the methods of the target class (the class 
- * under test) that perform atomic state transitions by acquiring the target’s 
- * lock (target is an instance of the target class), modifying the target’s 
+ * under test) that perform atomic state transitions by acquiring the target's 
+ * lock (target is an instance of the target class), modifying the target's 
  * state, and then releasing the lock.  Here is the common pattern used in those
  * test cases (see {@link Semaphore} and {@link TestSemaphoreSync} for example):
  * </p>
@@ -64,15 +64,15 @@ package org.openmicroscopy.shoola.util.concur;
  *   <li>The target class allows to register a {@link ControlFlowObserver} and 
  *   notifies it whenever entering a method that performs an atomic state 
  *   transition.  The {@link ControlFlowObserver#update(int) update} method is 
- *   called after the lock is acquired but before the target’s state is modified
+ *   called after the lock is acquired but before the target's state is modified
  *   and the lock is released.</li>
  *   <li>The test case registers a {@link ControlFlowObserver} with the target.
  *   The implementation of the {@link ControlFlowObserver#update(int) update}
  *   method <i>first</i> starts the alternate flow and <i>then</i> pauses the 
  *   main flow.</li>
- *   <li>The alternate flow attempts to get the target’s state.  The target
+ *   <li>The alternate flow attempts to get the target's state.  The target
  *   protects access to its state with the same lock.</li>
- *   <li>The test consists in calling a target’s method <code>m</code> that
+ *   <li>The test consists in calling a target's method <code>m</code> that
  *   enforces an atomic state transition, waiting for the alternate flow to
  *   terminate, and then checking that the state read by the alternate flow is
  *   the state expected at the end of the transition performed by
@@ -82,24 +82,24 @@ package org.openmicroscopy.shoola.util.concur;
  * (JUnit), <code>update()</code> is called in the main flow too just after 
  * <code>m()</code> has acquired the lock, within <code>update()</code> the
  * alternate flow is started and then the main flow is paused.  Before it can
- * access the target’s state, the alternate flow has to wait until the main flow
+ * access the target's state, the alternate flow has to wait until the main flow
  * releases the lock.  So if the state that we get is not the state in which the
  * target should be after <code>m()</code>, then we can conclude that the
  * alternate flow was allowed to read the state while it was modified by 
  * <code>m()</code> &#151; so <code>m()</code> is not acquiring the lock
- * correctly.  Sadly enough, even if we get the expected state, we can’t assert 
+ * correctly.  Sadly enough, even if we get the expected state, we can't assert 
  * <code>m()</code> is acquiring the lock properly.  In fact, the alternate flow
  * could have accessed the state after <code>m()</code> returned and no
  * concurrent access to the target could have taken place at all.  To mitigate 
  * this state of affairs, we use a reasonably long {@link #PAUSE_DELAY pause} 
  * delay for the main thread so that, in practice, the alternate flow is
  * extremely likely to run while the main flow is paused and still holding the
- * lock.  Thus, it’s <i>reasonable</i> (but not logically sound) to assume that 
+ * lock.  Thus, it's <i>reasonable</i> (but not logically sound) to assume that 
  * <code>m()</code> was implemented correctly if we get the expected state.</p>
  * <p>Tests that verify the correct behavior of state dependent actions also 
  * follow a common pattern.  Those tests are written against the methods of the
- * target class that perform actions depending on the current target’s state. 
- * These methods are usually structured as follows: the target’s lock is
+ * target class that perform actions depending on the current target's state. 
+ * These methods are usually structured as follows: the target's lock is
  * acquired, the state is checked and if some condition is satisfied the method
  * proceeds (reading or modifying the state) otherwise the caller is suspended
  * (by calling the {@link Object#wait() wait} method, which releases the lock)
@@ -112,22 +112,22 @@ package org.openmicroscopy.shoola.util.concur;
  *   {@link ControlFlowObserver#update(int) update} method is called after the
  *   lock is acquired but before the {@link Object#wait() wait} method is
  *   called.</li>
- *   <li>The test case registers a {@link ControlFlowObserver}> with the target.
+ *   <li>The test case registers a {@link ControlFlowObserver} with the target.
  *   The implementation of the {@link ControlFlowObserver#update(int) update}
  *   method starts the alternate flow.</li>
  *   <li>The alternate flow has the target transition to a state in which a
  *   given state dependent method <code>m</code> can proceed.  Note that the 
- *   target’s methods invoked by the alternate flow have to acquire the target’s
+ *   target's methods invoked by the alternate flow have to acquire the target's
  *   lock and issue notifications of state change.</li>
  *   <li>The test consists transitioning the target to a state in which 
- *   <code>m()</code> can’t proceed, invoking <code>m()</code>, waiting for the
+ *   <code>m()</code> can't proceed, invoking <code>m()</code>, waiting for the
  *   alternate flow to terminate, and finally verifying that <code>m()</code>
  *   operated on the right state.</li>
  * </ul>
  * <p>Note the sequence of events: <code>m()</code> is called in the main flow
  * (JUnit), <code>update()</code> is called in the main flow too just after 
  * <code>m()</code> has acquired the lock, within <code>update()</code> the
- * alternate flow is started.  Before it can access the target’s state, the 
+ * alternate flow is started.  Before it can access the target's state, the 
  * alternate flow has to wait until the main flow releases the lock.  Now if
  * <code>m()</code> proceeds with its action and then releases the lock, it will
  * have operated on the wrong state and we fail the test.  Instead, if
@@ -137,7 +137,7 @@ package org.openmicroscopy.shoola.util.concur;
  * proceeds with its action, this time operating on the correct state &#151; in
  * this case the test succeeds.  Note that if the methods invoked by the
  * alternate flow fail to send the wake up signal, we get a deadlock.  This is a
- * failure as well, but can’t be detected by JUint and we’ll have to stop
+ * failure as well, but can't be detected by JUint and we'll have to stop
  * execution manually.</p>
  * <p>Finally, tests that verify how an object reacts to interruption follow a
  * common pattern too (see {@link Semaphore} and {@link TestSemaphoreInt} for 
