@@ -209,7 +209,11 @@ class OMEDSGateway
 		} catch (RemoteAuthenticationException rae) {
             connected = false;
 			throw new DSOutOfServiceException("Failed to log in.", rae);
-		}
+		} catch (RemoteServerErrorException iae) {
+            //Exception thrown if wrong password/username.
+            connected = false;
+            throw new DSOutOfServiceException("Failed to log in.", iae);
+        } 
 	}
     
     /**
