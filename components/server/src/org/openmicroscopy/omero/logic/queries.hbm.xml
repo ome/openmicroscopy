@@ -30,36 +30,43 @@
     
   <!-- find*Hierarchies -->
   <query name="findPDI"><![CDATA[
-	from Image as i join fetch i.datasets as ds join fetch ds.projects as prj 
+	from Image as i 
+	  left outer join fetch i.datasets as ds 
+	  left outer join fetch ds.projects as prj 
 	  where i in (:img_list)
   ]]></query>	
   
   <query name="findCGCI"><![CDATA[
 	from Image as i join fetch i.classifications as cla 
 	  where i in (:img_list)
+	    and cla.valid = true
   ]]></query>	
   
   <!-- findAnnotations -->
   <query name="findImageAnn"><![CDATA[
   from ImageAnnotation as ann join fetch ann.image as i 
     where ann.image in (:img_list)
+	  and ann.valid = true
   ]]></query>
 
   <query name="findImageAnnWithID"><![CDATA[
   from ImageAnnotation as ann join fetch ann.image as i 
   	where ann.image in (:img_list) 
-	and ann.moduleExecution.experimenter = :expId
+	  and ann.valid = true
+  	  and ann.moduleExecution.experimenter = :expId
   ]]></query>
 
   <query name="findDatasetAnn"><![CDATA[
   from DatasetAnnotation as ann join fetch ann.dataset as d 
     where ann.dataset in (:ds_list)
+	  and ann.valid = true
   ]]></query>
   
   <query name="findDatasetAnnWithID"><![CDATA[
   from DatasetAnnotation as ann join fetch ann.dataset as d 
     where ann.dataset in (:ds_list) 
-	and ann.moduleExecution.experimenter = :expId
+	  and ann.valid = true
+	  and ann.moduleExecution.experimenter = :expId
   ]]></query>
   
   <!--  

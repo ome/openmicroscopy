@@ -37,6 +37,8 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
@@ -46,6 +48,7 @@ import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.model.Project;
+import org.openmicroscopy.omero.util.Utils;
 
 
 /** abstract helper class for developing Spring-based integration tests.
@@ -60,7 +63,8 @@ import org.openmicroscopy.omero.model.Project;
  * </small>
  * @since 1.0
  */
-public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends AbstractDependencyInjectionSpringContextTests {
+public abstract class AbstractOmeroHierarchyBrowserIntegrationTest 
+	extends AbstractDependencyInjectionSpringContextTests {
 
     private static Log log = LogFactory
             .getLog(AbstractOmeroHierarchyBrowserIntegrationTest.class);
@@ -83,84 +87,118 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends Abstr
     }
     
     public AbstractOmeroHierarchyBrowserIntegrationTest(String name){
+        super();
         this.setName(name);
     }
     
     public AbstractOmeroHierarchyBrowserIntegrationTest(OMEData data){
+        super();
         this.setName("AbstractOmeroHierarchyBrowserIntegrationTest with Data");
         this.data = data;
     }
     
     public AbstractOmeroHierarchyBrowserIntegrationTest(String name, OMEData data){
+        super();
         this.data = data;
         this.setName(name);
     }
     
-    /***********************************/
-    public void testLoadPDIHierarchyProjectNoReturn() {
+    public AbstractOmeroHierarchyBrowserIntegrationTest init(){
+		this.applicationContext = getContext(getConfigLocations());
+		this.applicationContext.getBeanFactory().autowireBeanProperties(
+		this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, isDependencyCheck());
+		return this;
+    }
+    
+    public ApplicationContext getAppContext(){
+        return this.applicationContext;
+    }
+    
+    /**
+     * @throws Exception*********************************/
+    public void testLoadPDIHierarchyProjectNoReturn() throws Exception {
+        super.setUp();
         Object obj = testLoadPDIHierarchyProject();
     }
     public Object testLoadPDIHierarchyProject() {
         return hb.loadPDIHierarchy(Project.class, data.prjId);
     }
-    /***********************************/
-    public void testLoadPDIHierarchyDatasetNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testLoadPDIHierarchyDatasetNoReturn() throws Exception {
+        super.setUp();
         Object obj = testLoadPDIHierarchyDataset();
     }
     public Object testLoadPDIHierarchyDataset() {
         return hb.loadPDIHierarchy(Dataset.class, data.dsId);
     }
-    /***********************************/
-    public void testLoadCGCIHierarchyCategoryGroupNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testLoadCGCIHierarchyCategoryGroupNoReturn() throws Exception {
+        super.setUp();
         Object obj = testLoadCGCIHierarchyCategoryGroup();
     }
     public Object testLoadCGCIHierarchyCategoryGroup() {
         return hb.loadCGCIHierarchy(CategoryGroup.class,data.cgId);
     }
-    /***********************************/
-    public void testLoadCGCIHierarchyCategoryNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testLoadCGCIHierarchyCategoryNoReturn() throws Exception {
+        super.setUp();
         Object obj = testLoadCGCIHierarchyCategory();
     }
     public Object testLoadCGCIHierarchyCategory() {
         return hb.loadCGCIHierarchy(Category.class,data.cId);
     }
-    /***********************************/
-    public void testFindCGCIHierarchiesNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testFindCGCIHierarchiesNoReturn() throws Exception {
+        super.setUp();
         Object obj = testFindCGCIHierarchies(); 
     }
     public Object testFindCGCIHierarchies() {
         return hb.findCGCIHierarchies(data.imgsCGCI);
     }
-    /***********************************/
-    public void testFindPDIHierarchiesNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testFindPDIHierarchiesNoReturn() throws Exception {
+        super.setUp();
         Object obj = testFindPDIHierarchies();
     }    
     public Object testFindPDIHierarchies() {
         return hb.findPDIHierarchies(data.imgsPDI);
     }
-    /***********************************/
-    public void testFindImageAnnotationsSetNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testFindImageAnnotationsSetNoReturn() throws Exception {
+        super.setUp();
         Object obj = testFindImageAnnotationsSet();
     }
     public Object testFindImageAnnotationsSet() {
         return hb.findImageAnnotations(data.imgsAnn1);
     }
-    /***********************************/
-    public void testFindImageAnnotationsSetForExperimenterNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testFindImageAnnotationsSetForExperimenterNoReturn() throws Exception {
+        super.setUp();
         Object obj = testFindImageAnnotationsSetForExperimenter();
     }
     public Object testFindImageAnnotationsSetForExperimenter() {
         return hb.findImageAnnotationsForExperimenter(data.imgsAnn2, data.userId);
     }
-    /***********************************/
-    public void testFindDatasetAnnotationsSetNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testFindDatasetAnnotationsSetNoReturn() throws Exception {
+        super.setUp();
         Object obj = testFindDatasetAnnotationsSet();
     }
     public Object testFindDatasetAnnotationsSet() {
         return hb.findDatasetAnnotations(data.dsAnn1);
     }
-    /***********************************/
-    public void testFindDatasetAnnotationsSetForExperimenterNoReturn() {
+    /**
+     * @throws Exception*********************************/
+    public void testFindDatasetAnnotationsSetForExperimenterNoReturn() throws Exception {
+        super.setUp();
         Object obj = testFindDatasetAnnotationsSetForExperimenter();
     }
     public Object testFindDatasetAnnotationsSetForExperimenter() {
@@ -189,15 +227,11 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends Abstr
     String emptyColl = "This collection should be empty.";
     String nonNull = "We should get something back";
 
+    /** Each method should return a null or an empty set as appropriate */
     public void testNulls(){
-        // Each method should return a null or an empty set as appropriate
-        //TODO getHb().findCGCIHierarchies(	);
-        //TODO generate OMENullData(); and use it here.
-        //TODO OMEData toString();
-        
         Set test = new HashSet();
-        test.add(new Integer(0)); // Non-existence set of ids
-        int nonExp = 0; // Non-existence experimenter ID
+        test.add(new Integer(-1)); // Non-existence set of ids
+        int nonExp = -1; // Non-existence experimenter ID
         //
         assertTrue(emptyColl,getHb().findDatasetAnnotations(test).size()==0);
         assertTrue(emptyColl,getHb().findDatasetAnnotations(new HashSet()).size()==0);
@@ -214,6 +248,9 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends Abstr
         assertTrue(emptyColl,getHb().findPDIHierarchies(test).size()==0);
         assertTrue(emptyColl,getHb().findPDIHierarchies(new HashSet()).size()==0);
         //
+        assertTrue(emptyColl,getHb().findCGCIHierarchies(test).size()==0);
+        assertTrue(emptyColl,getHb().findCGCIHierarchies(new HashSet()).size()==0);
+        //
         assertNull(nullObj,getHb().loadCGCIHierarchy(CategoryGroup.class, 0));
         assertNull(nullObj,getHb().loadCGCIHierarchy(Category.class, 0));
         //
@@ -226,25 +263,9 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest extends Abstr
         Set result = (Set) testFindPDIHierarchies();
         assertTrue(nonNull, result != null && result.size() != 0);
         // Not to much
-        Set test = new HashSet();
-        Iterator i = result.iterator();
-        while (i.hasNext()){
-            Object o = i.next();
-            if (o instanceof Image) {
-                test.add(o);
-            } else if (o instanceof Dataset) {
-                Dataset dd = (Dataset) o;
-                test.addAll(dd.getImages());
-            } else if (o instanceof Project) {
-                Project pd = (Project) o;
-                Iterator p = pd.getDatasets().iterator();
-                while (p.hasNext()){
-                    Dataset dd = (Dataset) p.next();
-                    test.addAll(dd.getImages());
-                }
-            }
-        }
+        Set test = Utils.getImagesinPID(result);
         assertTrue("There should only be as many images as in the data.imagesPDI", test.size() == this.getData().imgsPDI.size());
-//      TODO Make sure joins aren't leaving anything out because of empties!
     }
+  
+
 }

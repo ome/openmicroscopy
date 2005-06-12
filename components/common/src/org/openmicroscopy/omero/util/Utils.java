@@ -34,19 +34,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 import com.caucho.hessian.io.HessianOutput;
 
+import org.openmicroscopy.omero.model.Dataset;
+import org.openmicroscopy.omero.model.Image;
+import org.openmicroscopy.omero.model.Project;
+
 //Application-internal dependencies
 
-//TODO
-//import net.sf.acegisecurity.Authentication;
-//import net.sf.acegisecurity.context.ContextHolder;
-//import net.sf.acegisecurity.context.security.SecureContext;
-//import net.sf.acegisecurity.context.security.SecureContextImpl;
-//import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 /** 
  * various tools needed throughout Omero. 
@@ -102,24 +101,27 @@ public class Utils {
         
         return (String[]) set.toArray(new String[set.size()]);
     }
-    
-//    public static void setUserAuth(){
-//        Authentication auth = 
-//            new UsernamePasswordAuthenticationToken(
-//                "Josh","Moore");
-//        setAuth(auth);
-//    }
-//    
-//    public static void setAdminAuth(){
-//        Authentication auth = 
-//            new UsernamePasswordAuthenticationToken(
-//                "admin","admin");
-//        setAuth(auth);
-//    }
-//    
-//    public static void setAuth(Authentication auth){
-//        SecureContext secureContext = new SecureContextImpl();
-//        secureContext.setAuthentication(auth);
-//        ContextHolder.setContext(secureContext);
-//    }
+
+    /** walks a PDI hierarchy and extracts the images */
+    static public Set getImagesinPID(Set result) {
+        Set test = new HashSet();
+        Iterator i = result.iterator();
+        while (i.hasNext()){
+            Object o = i.next();
+            if (o instanceof Image) {
+                test.add(o);
+            } else if (o instanceof Dataset) {
+                Dataset dd = (Dataset) o;
+                test.addAll(dd.getImages());
+            } else if (o instanceof Project) {
+                Project pd = (Project) o;
+                Iterator p = pd.getDatasets().iterator();
+                while (p.hasNext()){
+                    Dataset dd = (Dataset) p.next();
+                    test.addAll(dd.getImages());
+                }
+            }
+        }
+        return test;
+    }
 }

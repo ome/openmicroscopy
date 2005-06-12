@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 //Application-internal dependencies
@@ -77,6 +79,7 @@ import org.openmicroscopy.omero.model2.CategoryGroup2;
  */
 public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
+    private static Log log = LogFactory.getLog(HierarchyBrowsingImpl.class);
 
     AnnotationDao annotationDao;
 
@@ -98,7 +101,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         // CONTRACT
         if (!Project.class.equals(arg0) && !Dataset.class.equals(arg0)) {
             throw new IllegalArgumentException(
-                    "Class parameter for loadPDIHierarchy() must be Project or Dataset.");
+                    "Class parameter for loadPDIHierarchy() must be Project or Dataset, not "+arg0);
         }
 
         return clean(containerDao.loadHierarchy(arg0, arg1));
@@ -113,7 +116,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         // CONTRACT
         if (!CategoryGroup.class.equals(arg0) && !Category.class.equals(arg0)) {
             throw new IllegalArgumentException(
-                    "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category.");
+                    "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category, not "+arg0);
         }
 
         return clean(containerDao.loadHierarchy(arg0, arg1));
@@ -134,6 +137,10 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         Set imagesAll = new HashSet(result);
 
         if (null == imagesAll || imagesAll.size() == 0) {
+            if (log.isDebugEnabled()){
+                log.debug("findPDIHierarchies() -- no results found:\n"+
+                        arg0.toString());
+            }
             return new HashSet();
         }
 
@@ -192,8 +199,12 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         Set imagesAll = new HashSet(result);
 
         if (null == imagesAll || imagesAll.size() == 0) {
+            if (log.isDebugEnabled()){
+                log.debug("findCGCIHierarchies() -- no results found:\n"+
+                        arg0.toString());
+            }
             return new HashSet();
-        }//TODO log if this is empty. (input/output) update jdbc tests.
+        }
 
         // LOGIC
         Set hierarchies = new HashSet();
@@ -254,6 +265,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         List result = annotationDao.findImageAnnotations(arg0);
+        
         return (Map) clean(sortImageAnnotations(result));
 
     }
@@ -277,7 +289,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     Map sortImageAnnotations(final List l) {
 
-        Set result = new HashSet(l); // TODO this everywhere
+        Set result = new HashSet(l); 
 
         if (null == result || result.size() == 0) {
             return new HashMap();
@@ -333,7 +345,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     Map sortDatasetAnnotations(final List l) {
 
-        Set result = new HashSet(l); // TODO this everywhere
+        Set result = new HashSet(l); 
 
         if (null == result || result.size() == 0) {
             return new HashMap();
@@ -365,6 +377,11 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         return obj;
     }
        
+    /** removes all Hibernate-related code. 
+     * @DEV.TODO Currently tests all Objects, should eventually test only Hibernate parent class
+     * @param An object to clean of Hibernate code
+     * @param Set to catch circular references
+     */
     void hessianClean(Object obj, Set done) {
         
         if (null==obj) return;
@@ -383,7 +400,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                 Object item = i.next();
                 hessianClean(item,done);
             }
-        } else { // TODO can check for super class when implemented
+        } else { 
             Method[] methods = obj.getClass().getDeclaredMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
@@ -418,39 +435,43 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         return null;
     }
     
+    /** call getter and return object. 
+     * @DEV.TODO there maybe be cases where an exception is ok
+     * @param object on which to call getter
+     * @param getter method for some field
+     * @return value stored in field
+     */
     Object invokeGetter(Object target, Method getter){
+        RuntimeException re = new RuntimeException("Error trying to get value.");
         Object result=null;
         try {
             result = getter.invoke(target,new Object[]{});
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            re.initCause(e);
+            throw re;
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            re.initCause(e);
+            throw re; 
         } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            re.initCause(e);
+            throw re;
         }
         return result;
     }
     
     void setToNull(Object obj, Method setter){
-        RuntimeException re = new RuntimeException("Error trying to set to null"); 
+        RuntimeException re = new RuntimeException("Error trying to set to null."); 
 
         try {
             setter.invoke(obj,new Object[]{null});
         } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            re.initCause(e);
             throw re;
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            re.initCause(e);
             throw re;
         } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            re.initCause(e);
             throw re;
         }
     }

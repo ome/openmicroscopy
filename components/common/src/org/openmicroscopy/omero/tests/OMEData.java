@@ -98,7 +98,7 @@ public abstract class OMEData {
     public Set dsAnn1;
     public Set dsAnn2;
 
-    public void init() {
+    public OMEData init() {
         //      Perhaps generalize on type HOW OFTEN IS THIS USED! Each ONCE ? TODO
         if (!initialized) {
             allUsers = getAllIds("experimenters", "attribute_id");
@@ -125,6 +125,7 @@ public abstract class OMEData {
              *
              */
         }
+        return this;
     }
 
     Set getAllIds(String table, String field) {

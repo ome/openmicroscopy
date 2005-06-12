@@ -175,6 +175,7 @@ public class AdapterUtils {
         return go(p, newCache());
     }
 
+    
     static public ProjectData go(Project p, Map cache) {
 
         if (check(cache,p)) {
@@ -185,21 +186,21 @@ public class AdapterUtils {
         to(cache, p, pd);
         
         if (null == p.getProjectId()) {
-            log.debug("Id for "+p+" is null.");
+            log.debug(nullId+p);
         } else {
             pd.setID(p.getProjectId().intValue());
         }
         pd.setName(p.getName());
         pd.setDescription(p.getDescription());
         if (null==p.getExperimenter()){
-            log.debug("Experimenter for "+p+" is null.");
+            log.debug(nullExp + p);
         } else {
             pd.setOwnerFirstName(p.getExperimenter().getFirstname());
         }
         //TODO
 
         if (null==p.getDatasets()){
-            log.debug("Datasets for "+p+" is null.");
+            log.debug(nullDs + p);
         } else {
             Set set = new HashSet();
             for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
@@ -226,7 +227,7 @@ public class AdapterUtils {
         to(cache, d, dd);
 
         if (null==d.getDatasetId()){
-            log.debug("Id for "+d+" is null.");
+            log.debug(nullId + d);
         } else {
             dd.setID(d.getDatasetId().intValue());
         }
@@ -234,14 +235,14 @@ public class AdapterUtils {
         dd.setName(d.getName());
         dd.setDescription(d.getDescription());
         if (null==d.getExperimenter()){
-            log.debug("Experimenter for "+d+" is null.");
+            log.debug(nullExp + d);
         } else {
             dd.setOwnerFirstName(d.getExperimenter().getFirstname());
         }
         //TODO
 
         if (null==d.getImages()){
-            log.debug("Images for "+d+" is null.");
+            log.debug(nullImgs + d);
         } else {
 	        Set set = new HashSet();
 	        for (Iterator i = d.getImages().iterator(); i.hasNext();) {
@@ -268,7 +269,11 @@ public class AdapterUtils {
         CategoryGroupData cgd = new CategoryGroupData();
         to(cache, cg, cgd);
         
-        cgd.setID(cg.getAttributeId().intValue());
+        if (null==cg.getAttributeId()){
+            log.debug(nullId + cg);
+        } else {
+            cgd.setID(cg.getAttributeId().intValue());
+    	}	
         cgd.setDescription(cg.getDescription());
         cgd.setName(cg.getName());
         // TODO
@@ -290,7 +295,11 @@ public class AdapterUtils {
         CategoryData cd = new CategoryData();
         to(cache, c, cd);
         
-        cd.setID(c.getAttributeId().intValue());
+        if (null==c.getAttributeId()){
+            log.debug(nullId+c);
+        } else {
+            cd.setID(c.getAttributeId().intValue());
+        }
         cd.setName(c.getName());
         cd.setDescription(c.getDescription());
         //TODO
@@ -358,7 +367,7 @@ public class AdapterUtils {
         PixelsDescription pd = new PixelsDescription();
         to(cache, ip, pd);
         
-        pd.setID(ip.getAttributeId().intValue());
+        pd.setID(ip.getAttributeId().intValue());//TODO
         pd.setImageServerID(ip.getImageServerId().longValue());
         //pd.setImageServerUrl(ip.getRepository().getImageServerUrl()); TODO
         pd.setPixelSizeX(dim.getPixelSizeX().doubleValue());
@@ -400,15 +409,25 @@ public class AdapterUtils {
             return (AnnotationData) from(cache, ann);
         }
 
+        AnnotationData ad;
         ModuleExecution mex = ann.getModuleExecution();
-        AnnotationData ad = new AnnotationData(ann.getAttributeId().intValue(),
+        if (null==mex){
+            log.debug("Mex for "+ann+" is null.");
+        } else {
+        ad = new AnnotationData(ann.getAttributeId().intValue(),
                 mex.getExperimenter().getAttributeId().intValue(),
-                convertDate(mex.getTimestamp()));
+                convertDate(mex.getTimestamp()));//TODO
+        }
+        ad = null;
         to(cache, ann, ad);
         
+        if (null==ad){//TODO
+            log.error("Big problem: ad not created.");//TODO
+        } else {
         ad.setOwnerFirstName(ann.getModuleExecution().getExperimenter().getFirstname());
         ad.setOwnerLastName(ann.getModuleExecution().getExperimenter().getLastname());
         ad.setAnnotation(ann.getContent());
+        }
         //TODO
 
         return ad;
@@ -470,4 +489,9 @@ public class AdapterUtils {
         // inherit from a single DataObject!!??
     }
 
+    final static String nullId = "Null ID for: ";
+    final static String nullExp = "Null Experimenter for: ";
+    final static String nullDs = "Null Dataset for: ";
+    final static String nullImgs = "Null Images for: ";
+    
 }

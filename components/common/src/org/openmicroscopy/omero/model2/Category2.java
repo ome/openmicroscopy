@@ -54,4 +54,10 @@ public class Category2 extends org.openmicroscopy.omero.model.Category {
      */
     public Set images;
     
+    public Set getImages() {
+        return images;
+    }
+    public void setImages(Set images) {
+        this.images = images;
+    }
 }

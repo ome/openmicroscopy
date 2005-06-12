@@ -21,19 +21,20 @@
          <ant:pathelement location="${maven.build.dest}"/>
       </ant:classpath>
       <ant:jvmarg 
-         value="${jvm.prof}"/>
+         value="${jvm.args}"/>
    </ant:java>
  </goal>
 
  <goal name="hpjmeter">
     <ant:java
-	jar="${omero.decent}/lib/HPjmeter/HPjmeter.jar"
+	jar="${omero.home}/lib/HPjmeter/HPjmeter.jar"
 	fork="yes"
 	spawn="yes"/>
   </goal>
 
   <goal name="clean">
     <ant:delete dir="${basedir}/.cachedir"/>
+    <ant:delete dir="${basedir}/cachedir"/>
     <attainGoal name="clean:clean"/>
   </goal>
 

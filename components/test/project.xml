@@ -91,16 +91,30 @@
       <artifactId>xmlrpc</artifactId> 
       <version>1.2</version>
     </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+    </dependency>
   </dependencies>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
-<!--
-    <unitTestSourceDirectory>src</unitTestSourceDirectory> -->
+    <unitTestSourceDirectory>src</unitTestSourceDirectory> 
     <unitTest>
       <includes>
         <include>**/*Test.java</include>
       </includes>
     </unitTest>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.py</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>

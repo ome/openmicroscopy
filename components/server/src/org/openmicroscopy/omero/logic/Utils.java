@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.model2
+ * org.openmicroscopy.omero.logic.util.Utils
  *
  *------------------------------------------------------------------------------
  *
@@ -26,18 +26,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.omero.model2;
+
+package org.openmicroscopy.omero.logic;
 
 //Java imports
-import java.util.Set;
 
 //Third-party libraries
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 //Application-internal dependencies
 
-
 /** 
- * complement of a *.model.* class to allow for necessary logic/fields.
+ * various tools needed throughout Omero. 
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -47,17 +51,25 @@ import java.util.Set;
  * </small>
  * @since 1.0
  */
-public class CategoryGroup2 extends org.openmicroscopy.omero.model.CategoryGroup {
-
-    /** artificial field to allow for data transport 
-     * @DEV.TODO Remove artificial field as soon as possible
-     */
-    public Set categories;
+public class Utils {
     
-    public Set getCategories() {
-        return categories;
+    public static void setUserAuth(){
+        Authentication auth = 
+            new UsernamePasswordAuthenticationToken(
+                "Josh","Moore");
+        setAuth(auth);
     }
-    public void setCategories(Set categories) {
-        this.categories = categories;
+    
+    public static void setAdminAuth(){
+        Authentication auth = 
+            new UsernamePasswordAuthenticationToken(
+                "admin","admin");
+        setAuth(auth);
+    }
+    
+    public static void setAuth(Authentication auth){
+        SecureContext secureContext = new SecureContextImpl();
+        secureContext.setAuthentication(auth);
+        ContextHolder.setContext(secureContext);
     }
 }

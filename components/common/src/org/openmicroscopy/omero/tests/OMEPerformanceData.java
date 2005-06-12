@@ -53,7 +53,7 @@ import java.util.Random;
 public class OMEPerformanceData extends OMEData {
 
     // Main field
-    double percent = 0.001;
+    public double percent = 0.001;
 
     public OMEPerformanceData() {
     }
@@ -68,7 +68,7 @@ public class OMEPerformanceData extends OMEData {
         this.rnd = new Random(seed);
     }
 
-    public void init() {
+    public OMEData init() {
         // Test data : calculated before to not change times.
         if (!initialized) {
             super.init();
@@ -79,5 +79,6 @@ public class OMEPerformanceData extends OMEData {
             dsAnn1 = getPercentOfCollection(allDss, percent);
             dsAnn2 = getPercentOfCollection(allDss, percent);
         }
+        return this;
     }
 }

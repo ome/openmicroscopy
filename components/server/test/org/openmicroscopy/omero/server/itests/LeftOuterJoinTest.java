@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.server.itests
+ * org.openmicroscopy.omero.server.itests.LeftOuterJoinTest
  *
  *------------------------------------------------------------------------------
  *
@@ -57,7 +57,8 @@ import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.util.Utils;
 
 /** 
- * some  
+ * tests for a HQL join bug.
+ *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -66,80 +67,35 @@ import org.openmicroscopy.omero.util.Utils;
  * </small>
  * @since 1.0
  */
-public class OmeroThumbnailsBugTest
+public class LeftOuterJoinTest
         extends
             AbstractDependencyInjectionSpringContextTests {
 
-    private static Log log = LogFactory.getLog(OmeroThumbnailsBugTest.class);
+    private static Log log = LogFactory.getLog(LeftOuterJoinTest.class);
 
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
 
-        return new String[] { "WEB-INF/services.xml", "WEB-INF/dao.xml",
-                "WEB-INF/data.xml", "WEB-INF/config-test.xml" };
+        return new String[] { 
+                "WEB-INF/services.xml",
+                "WEB-INF/dao.xml",
+                "WEB-INF/data.xml", 
+                "WEB-INF/config-test.xml" };
     }
 
     public void testImageThumbnailExplodsOnHessianSerialization() {
-        HierarchyBrowsingImpl hbv = new HierarchyBrowsingImpl();
-        SessionFactory sessions = (SessionFactory) this.applicationContext
-                .getBean("sessionFactory");
-
-        // Mock Dao
-        Mock containerDao = new Mock(ContainerDao.class);
-        hbv.setContainerDao((ContainerDao) containerDao.proxy());
-
-        HibernateTemplate ht = new HibernateTemplate(sessions);
-
-        // Arguments
-        Set ids = new HashSet();
-        ids.add(new Integer(1));
-
-        // Result
-        Image img = (Image) ht.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-                Query q = session
-                        .createQuery("from Image as i join fetch i.datasets as ds join fetch ds.projects as prj ");
-                return q.setMaxResults(1).uniqueResult();
-            }
-        });
-        List result = new ArrayList();
-        result.add(img);
-
-        // Run
-        containerDao.expects(new InvokeOnceMatcher()).method(
-                "findPDIHierarchies").with(new IsSame(ids)).will(
-                new ReturnStub(result));
-        Set set = hbv.findPDIHierarchies(ids);
-        containerDao.verify();
-        containerDao.reset();
-        Utils.structureSize(set);
-
+        HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
+        Set imgIds = new HashSet();
+        imgIds.add(new Integer(1191));
+        imgIds.add(new Integer(4665));
+        imgIds.add(new Integer(1304));
+        imgIds.add(new Integer(4977));
+        imgIds.add(new Integer(3540));
+        imgIds.add(new Integer(2064));
+        Set result = hb.findPDIHierarchies(imgIds);
+        Set test = Utils.getImagesinPID(result);
+        assertTrue("Images in should eq. images out",imgIds.size()==test.size());
     }
-
-    public void testThumbnailsExplodeCatchExceptions() {
-        for (int i = 0; i < 5000; i++) {
-            Object o;
-            try {
-                Set ids = new HashSet();
-                ids.add(new Integer(i));
-                HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext
-                        .getBean("hierarchyBrowsingService");
-                o = hb.findPDIHierarchies(ids);
-                Utils.structureSize(o);
-                o = hb.findDatasetAnnotations(ids);
-                Utils.structureSize(o);
-                o = hb.findImageAnnotations(ids);
-                Utils.structureSize(o);
-                o = hb.findCGCIHierarchies(ids);
-                Utils.structureSize(o);
-
-            } catch (Throwable t) {
-                log.info("For id "+i+":"+t);
-            }
-        }
-    }
-
 }
