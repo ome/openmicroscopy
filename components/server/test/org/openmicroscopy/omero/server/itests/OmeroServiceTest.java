@@ -69,7 +69,7 @@ public class OmeroServiceTest
                 "WEB-INF/services.xml",
                 "WEB-INF/dao.xml",
                 "WEB-INF/data.xml",
-                "WEB-INF/config-test.xml"}; 
+                "WEB-INF/test/config-test.xml"}; 
     }
     
     public OmeroServiceTest(String name) {

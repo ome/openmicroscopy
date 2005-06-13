@@ -20,11 +20,6 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-    <dependency>
       <groupId>omero</groupId>
       <artifactId>shoola</artifactId> 
       <version>2.4.0</version>

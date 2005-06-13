@@ -45,8 +45,8 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
     protected String[] getConfigLocations() {
         return new String[] { 
                 "WEB-INF/dao.xml",
-                "WEB-INF/config-test.xml", 
-                "WEB-INF/data-test.xml" };
+                "WEB-INF/test/config-test.xml", 
+                "WEB-INF/test/data-test.xml" };
     }
 
     /**

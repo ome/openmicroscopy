@@ -32,11 +32,10 @@
 	spawn="yes"/>
   </goal>
 
-  <goal name="clean">
+  <preGoal name="clean:clean">
     <ant:delete dir="${basedir}/.cachedir"/>
     <ant:delete dir="${basedir}/cachedir"/>
-    <attainGoal name="clean:clean"/>
-  </goal>
+  </preGoal>
 
 </project>
 

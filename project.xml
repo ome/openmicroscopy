@@ -35,18 +35,24 @@ services to an existing OME installation</description>
   <mailingLists/>
   <developers/>
   <dependencies>
-    <depdendency>
-      <groupId>jam</groupId>
-      <artifactId>maven-jam-plugin</artifactId>
-      <version>2.1</version>
-      <type>plugin</type>
-    </depdendency>
-    <depdendency>
-      <groupId>maven-plugins</groupId>
-      <artifactId>maven-dbunit-plugin</artifactId>
-      <version>1.5</version>
-      <type>plugin</type>
-    </depdendency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>1.2.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-mock</artifactId>
+      <version>1.2.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -63,6 +69,18 @@ services to an existing OME installation</description>
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <depdendency>
+      <groupId>jam</groupId>
+      <artifactId>maven-jam-plugin</artifactId>
+      <version>2.1</version>
+      <type>plugin</type>
+    </depdendency>
+    <depdendency>
+      <groupId>maven-plugins</groupId>
+      <artifactId>maven-dbunit-plugin</artifactId>
+      <version>1.5</version>
+      <type>plugin</type>
+    </depdendency>
   </dependencies>
   <reports>
 <!--    <report>maven-changelog-plugin</report> -->

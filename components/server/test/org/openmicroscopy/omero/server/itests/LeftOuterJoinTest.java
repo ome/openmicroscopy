@@ -82,7 +82,7 @@ public class LeftOuterJoinTest
                 "WEB-INF/services.xml",
                 "WEB-INF/dao.xml",
                 "WEB-INF/data.xml", 
-                "WEB-INF/config-test.xml" };
+                "WEB-INF/test/config-test.xml" };
     }
 
     public void testImageThumbnailExplodsOnHessianSerialization() {

@@ -10,16 +10,6 @@
   <description>Common code: Model code generated from middlegen</description>
   <dependencies>
     <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-mock</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>

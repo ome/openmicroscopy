@@ -14,6 +14,9 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
    <preGoal name="test:test">
      <attainGoal name="filterTests"/>
    </preGoal>
+   <preGoal name="clean:clean">
+     <ant:delete file="${basedir}/src/spring.properties"/>
+   </preGoal> 
 
 <!-- Setup --> 
   <goal name="get-tomcat-plugin">
