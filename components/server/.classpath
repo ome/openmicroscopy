@@ -10,7 +10,7 @@
 	<classpathentry sourcepath="HOME/lib/spring/mock" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/acegisecurity/jars/acegi-security-0.8.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/hessian/jars/hessian-2.1.12.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.5.jar"/>
+	<classpathentry sourcepath="HOME/lib/hibernate-3.0.5/src" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/jta-hibernate.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/asm-hibernate.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>

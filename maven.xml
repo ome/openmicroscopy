@@ -42,9 +42,8 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
     <ant:sequential>
       <ant:mkdir dir="${maven.build.dest}"/>
       <ant:propertyfile 
-	comment=" Database and Server properties generated from build
-properties TODO remove from svn" 
-                        file="${basedir}/src/spring.properties">
+	comment=" DO NOT EDIT: Generated Database and Server properties from build.properties"
+        file="${basedir}/src/spring.properties">
          <ant:entry key="database.driver" value="${database.driver}"/>
          <ant:entry key="database.url" value="${database.url}"/>
          <ant:entry key="database.username" value="${database.username}"/>

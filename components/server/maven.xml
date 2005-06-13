@@ -21,13 +21,12 @@
 	classpathref="maven.dependency.classpath"/>
  </goal>
 
- <goal name="db-load">
-   <attainGoal name="dbunit"/>
+ <goal name="db-load" prereqs="dbunit">
    <ant:property name="operation" value="CLEAN_INSERT"/>
-   <ant:property name="file" value="db-export.xml"/>
-   <ant:dbunit driver="${database.driver_class}"
+   <ant:property name="file" value="sql/db-export.xml"/>
+   <ant:dbunit driver="${database.driver}"
                supportBatchStatement="false"
-               url="${database.url}"
+               url="${database.url}-test"
                userid="${database.username}"
                password="${database.password}">
      <ant:operation type="${operation}" src="${file}"
@@ -35,13 +34,56 @@
   </ant:dbunit>       
  </goal>
 
- <goal name="db-export">
-   <attainGoal name="dbunit"/>
+ <goal name="db-export" prereqs="dbunit">
    <ant:dbunit driver="${database.driver}"
             url="${database.url}"
             userid="${database.username}"
             password="${database.password}">
-     <ant:export dest="db-export.xml" format="xml"/>
+     <ant:export dest="sql/db-export.xml" format="xml"> 
+<!--remove elements for all-->
+<!--       <ant:query name="images" 
+		  sql="select * from images where image_id &lt;
+10"/>-->
+<!-- This list comes from the middlegen-build.xml file -->
+	<ant:query name="module_executions" 
+sql="select * from module_executions where module_execution_id in
+${mex} ;"/>
+	<ant:query name="projects" 
+sql="select * from projects where project_id in ${prj};"/>
+	<ant:query name="datasets" 
+sql="select * from datasets where dataset_id in ${ds};"/>
+	<ant:query name="project_dataset_map"
+sql="select * from project_dataset_map where project_id in ${prj} or
+dataset_id in ${ds}"/>
+	<ant:query name="image_dataset_map"
+sql="select * from image_dataset_map where image_id in ${img} or
+dataset_id in ${ds}"/>
+	<ant:table name="image_dataset_map"/>
+	<ant:query name="images"
+sql="select * from images where image_id in ${img} ;"/>
+	<ant:table name="experimenters"/>
+	<ant:table name="experimenter_group_map"/>
+	<ant:table name="groups"/>
+	<ant:table name="classification"/>
+	<ant:table name="categories"/>
+	<ant:table name="category_groups"/>
+	<ant:table name="dataset_annotations"/>
+	<ant:table name="image_annotations"/>
+	<ant:query name="image_dimensions"
+sql="select * from image_dimensions where image_id in ${img} ;"/>
+	<ant:query name="image_pixels"
+sql="select * from image_pixels where image_id in ${img} ;"/>
+	<ant:table name="image_info"/>
+	<ant:table name="image_plates"/>
+	<ant:table name="thumbnails"/>
+	<ant:table name="repositories"/>
+	<ant:table name="display_roi"/>
+<!--
+	<ant:table name="channel_components"/>
+	<ant:table name="features"/>
+	<ant:table name="display_options"/>
+-->
+     </ant:export>
    </ant:dbunit>
  </goal>
 

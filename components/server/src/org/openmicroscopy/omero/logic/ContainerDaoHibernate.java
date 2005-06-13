@@ -67,7 +67,7 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
                 String klass = arg0.getName().substring(
                         arg0.getPackage().getName().length() + 1);
 
-                Query q = session.getNamedQuery("loadHierarchy_by_" + klass);
+                Query q = session.getNamedQuery("loadHierarchy_by_" + klass);                	
                 q.setLong("id", arg1);
                 return q.uniqueResult();
             }
