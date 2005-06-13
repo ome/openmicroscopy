@@ -2,6 +2,7 @@
 <beansProjectDescription>
 	<configs>
 		<config>test/org/openmicroscopy/omero/client/itests/test.xml</config>
+		<config>test/org/openmicroscopy/omero/client/itests/data.xml</config>
 		<config>src/org/openmicroscopy/omero/client/spring.xml</config>
 	</configs>
 	<configSets>

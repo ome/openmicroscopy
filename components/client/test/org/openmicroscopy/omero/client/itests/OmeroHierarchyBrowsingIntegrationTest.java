@@ -69,8 +69,11 @@ public class OmeroHierarchyBrowsingIntegrationTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        return new String[]{"org/openmicroscopy/omero/client/spring.xml",
-                "org/openmicroscopy/omero/client/itests/test.xml"}; 
+        return new String[]{
+                "org/openmicroscopy/omero/client/spring.xml",
+                "org/openmicroscopy/omero/client/itests/test.xml",
+                "org/openmicroscopy/omero/client/itests/data.xml"
+                }; 
     }
     
     public OmeroHierarchyBrowsingIntegrationTest(String name) {

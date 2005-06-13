@@ -2,6 +2,27 @@
 <project xmlns:j="jelly:core" xmlns:ant="jelly:ant"
 xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
 
+ <!-- HELP -->
+ <goal name="help">
+   <ant:echo></ant:echo>
+   <ant:echo>********************************************************</ant:echo>
+   <ant:echo> Omero Build System:</ant:echo>
+   <ant:echo> -------------------</ant:echo>
+   <ant:echo> Goals: (e.g. "maven GOAL")</ant:echo>
+   <ant:echo>  help           --  This file</ant:echo>
+   <ant:echo>  build          --  Compile to target and package </ant:echo>
+   <ant:echo>  install        --  Add dependencies to your repository </ant:echo>
+   <ant:echo>  test           --  Run all tests (see test mode below)</ant:echo>
+   <ant:echo>  clean          --  Remove all generated items </ant:echo>
+   <ant:echo> </ant:echo>
+   <ant:echo> Properties: (e.g. "maven -DPROPERTY=VALUE")</ant:echo>
+   <ant:echo>  maven.test.mode={integration|unit} (Now: ${maven.test.mode})</ant:echo>
+   <ant:echo></ant:echo>
+   <ant:echo>********************************************************</ant:echo>
+   <ant:echo> For more information, see http://maven.apache.org</ant:echo>
+   <ant:echo></ant:echo>
+ </goal>
+
 <!-- Dependencies -->
    <preGoal name="jar:jar">
      <attainGoal name="jam"/>

@@ -63,8 +63,9 @@ public class OmeroGrinderTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        return new String[] { "org/openmicroscopy/omero/client/spring.xml",
-                "org/openmicroscopy/omero/client/itests/test.xml" };
+        return new String[] { 
+                "org/openmicroscopy/omero/client/spring.xml",
+                "org/openmicroscopy/omero/client/itests/data.xml" };
     }
 
     public OmeroGrinderTest(String name) {
