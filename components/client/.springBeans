@@ -6,5 +6,15 @@
 		<config>src/org/openmicroscopy/omero/client/spring.xml</config>
 	</configs>
 	<configSets>
+		<configSet>
+			<name>client testing</name>
+			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
+			<incomplete>false</incomplete>
+			<configs>
+				<config>src/org/openmicroscopy/omero/client/spring.xml</config>
+				<config>test/org/openmicroscopy/omero/client/itests/data.xml</config>
+				<config>test/org/openmicroscopy/omero/client/itests/test.xml</config>
+			</configs>
+		</configSet>
 	</configSets>
 </beansProjectDescription>

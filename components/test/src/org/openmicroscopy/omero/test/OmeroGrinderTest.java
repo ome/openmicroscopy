@@ -65,7 +65,8 @@ public class OmeroGrinderTest
     protected String[] getConfigLocations() {
         return new String[] { 
                 "org/openmicroscopy/omero/client/spring.xml",
-                "org/openmicroscopy/omero/client/itests/data.xml" };
+                "org/openmicroscopy/omero/client/itests/data.xml",
+                "org/openmicroscopy/omero/client/itests/test.xml"};
     }
 
     public OmeroGrinderTest(String name) {

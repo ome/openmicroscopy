@@ -80,14 +80,15 @@
 	  left outer join fetch cg.moduleExecution as cg_mex
 	  left outer join fetch cg_mex.experimenter as cg_exp
   	    where i in (:img_list)
-	      and cla.valid = true
+  	      and ( cla.valid = true or cla.valid is null)
+		  ALSO NEED VALID STATEMENTS ON OTHER CLA QUERIES ABOVE!!!
   ]]></query>	
   -->
   <query name="findCGCI"><![CDATA[
 	from Image as i 
 	  left outer join fetch i.classifications as cla 
   	    where i in (:img_list)
-	      and cla.valid = true
+  	      and ( cla.valid = true or cla.valid is null)
   ]]></query>			  
 		  
   <!-- findAnnotations -->
@@ -97,7 +98,7 @@
 	  left outer join fetch ann.moduleExecution as ann_mex
 	  left outer join fetch ann_mex.experimenter as ann_exp
   	  where ann.image in (:img_list) 
-	    and ann.valid = true
+	    and ( ann.valid = true or ann.valid is null)
   ]]></query>
 
   <query name="findImageAnnWithID"><![CDATA[
@@ -106,7 +107,7 @@
 	  left outer join fetch ann.moduleExecution as ann_mex
 	  left outer join fetch ann_mex.experimenter as ann_exp
   	  where ann.image in (:img_list) 
-	    and ann.valid = true
+	    and ( ann.valid = true or ann.valid is null)
   	    and ann_exp = :expId
   ]]></query>
 
@@ -116,7 +117,7 @@
 	  left outer join fetch ann.moduleExecution as ann_mex
 	  left outer join fetch ann_mex.experimenter as ann_exp
       where ann.dataset in (:ds_list)
-	    and ann.valid = true
+	    and ( ann.valid = true or ann.valid is null)
   ]]></query>
   
   <query name="findDatasetAnnWithID"><![CDATA[
@@ -125,7 +126,7 @@
 	  left outer join fetch ann.moduleExecution as ann_mex
 	  left outer join fetch ann_mex.experimenter as ann_exp
       where d in (:ds_list) 
-	    and ann.valid = true
+	    and ( ann.valid = true or ann.valid is null)
 	    and ann_exp = :expId
   ]]></query>
   

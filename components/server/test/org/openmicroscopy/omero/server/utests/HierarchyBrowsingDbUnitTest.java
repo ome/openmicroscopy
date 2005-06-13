@@ -5,7 +5,10 @@ package org.openmicroscopy.omero.server.utests;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -24,17 +27,23 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractSpringContextTests;
 
+import org.openmicroscopy.omero.logic.AnnotationDao;
+import org.openmicroscopy.omero.logic.ContainerDao;
+import org.openmicroscopy.omero.logic.Utils;
 import org.openmicroscopy.omero.model.DatasetAnnotation;
+import org.openmicroscopy.omero.model.Image;
 
 /**
  * @author josh
  */
 public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
 
-    ApplicationContext ctx;
-    DataSource ds;
     static IDatabaseConnection c = null;
-
+    ApplicationContext ctx;
+    DataSource ds = null;
+    ContainerDao cdao = null;
+    AnnotationDao adao = null;
+    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HierarchyBrowsingDbUnitTest.class);
     }
@@ -54,8 +63,10 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
      */
     protected void setUp() throws Exception {
         ctx = getContext(getConfigLocations());
-        
-        if (null==ds){
+     
+        if (null == cdao || null == adao || null == ds) {
+            cdao = (ContainerDao) ctx.getBean("containerDao");
+            adao = (AnnotationDao) ctx.getBean("annotationDao");
             ds = (DataSource) ctx.getBean("dataSource");
         }
         
@@ -70,26 +81,51 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
         return new XmlDataSet(new FileInputStream("sql/db-export.xml"));
     }
 
-    public void testFindDSAnnWithId() {
+    public void testFindPDIHierarchies(){
+        Set set = getSetFromInt(new int[]{1,5,6,7,8,9,0});
+        List result = cdao.findPDIHierarchies(set);
+        assertTrue("Should have found all the images but Zero", result.size()==set.size()+1);
+        for (Iterator i = result.iterator(); i.hasNext();) {
+            Image img = (Image) i.next();
+            assertTrue("Fully initialized",Hibernate.isInitialized(img.getDatasets()));
+        }        
+    }
+    
+    public void testFindDSAnn() {
         // Use filter sets to DRY
-        SessionFactory sf = (SessionFactory) ctx.getBean("sessionFactory"); // TODO put in spring
-        HibernateTemplate ht = new HibernateTemplate(sf);
-        List result = ht.executeFind(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-                List l = new ArrayList();
-                l.add(new Integer(120));
-                Query q = session.getNamedQuery("findDatasetAnnWithID");
-                q.setParameterList("ds_list",l);
-                q.setLong("expId",286035);
-                return q.list();
-            }
-        });
-        
+        Set set = new HashSet();
+        set.add(new Integer(120));
+        int experimenter = 286033;
+        testDsResult(adao.findDataListAnnotationForExperimenter(set,experimenter));
+        testDsResult(adao.findDataListAnnotations(set));
+    }
+ 
+    void testDsResult(List result){
         assertTrue("This should be the only known DS annotation",result.size()==1);
         DatasetAnnotation ann = (DatasetAnnotation) result.get(0);
         assertTrue("Attribute id is also known.", ann.getAttributeId().intValue()==320101);
         assertTrue("Mex should be fetched.",Hibernate.isInitialized(ann.getModuleExecution()));
-        
+    }
+    
+    public void testFindImageAnn(){
+        Set set = new HashSet();
+        //select a.image_id, m.experimenter_id from module_executions m, image_annotations a where a.module_execution_id = m.module_execution_id;
+        //images{1,27, 313,36,42, 7,41, 357, 296,11,26,28,39,31, 485, 558,25,24, 340,4391,4446,4507, 8, 1,22};
+        //users
+        set.add(new Integer(1));
+        set.add(new Integer(27));
+        set.add(new Integer(313));
+        int experimenter = 1;
+        List r1 = adao.findImageAnnotations(set);
+        List r2 = adao.findImageAnnotationsForExperimenter(set,experimenter);
+        assertTrue("The user filtered list should be smaller", r2.size() < r1.size());
+    }
+    
+    Set getSetFromInt(int[] ids){
+        Set set = new HashSet();
+        for (int i = 0; i < ids.length; i++) {
+            set.add(new Integer(ids[i]));
+        }
+        return set;
     }
 }
