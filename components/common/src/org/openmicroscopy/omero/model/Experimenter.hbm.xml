@@ -50,22 +50,10 @@
         length="64"
     />
     <property
-        name="groupId"
-        type="java.lang.Integer"
-        column="group_id"
-        length="4"
-    />
-    <property
         name="dataDir"
         type="java.lang.String"
         column="data_dir"
         length="256"
-    />
-    <property
-        name="moduleExecutionId"
-        type="java.lang.Integer"
-        column="module_execution_id"
-        length="4"
     />
     <property
         name="lastname"
@@ -82,6 +70,14 @@
 
     <!-- Associations -->
   
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="org.openmicroscopy.omero.model.Group"
+        not-null="true"
+    >
+        <column name="group_id" />
+    </many-to-one>
     <!-- bi-directional one-to-many association to Dataset -->
     <set
         name="datasets"
@@ -165,6 +161,30 @@
         <one-to-many 
             class="org.openmicroscopy.omero.model.ModuleExecution"
         />
+    </set>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="org.openmicroscopy.omero.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-many association to Group -->
+    <set
+        name="groups"
+        lazy="true"
+		cascade="all"
+        table="experimenter_group_map"
+    >
+        <key>
+            <column name="experimenter_id" />
+        </key>
+        <many-to-many
+            class="org.openmicroscopy.omero.model.Group"
+        >
+            <column name="group_id" />
+        </many-to-many>
     </set>
 
 </class>

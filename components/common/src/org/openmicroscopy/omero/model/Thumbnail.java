@@ -11,9 +11,6 @@ public class Thumbnail implements Serializable {
     private Integer attributeId;
 
     /** nullable persistent field */
-    private Integer repository;
-
-    /** nullable persistent field */
     private String path;
 
     /** nullable persistent field */
@@ -23,15 +20,18 @@ public class Thumbnail implements Serializable {
     private org.openmicroscopy.omero.model.Image image;
 
     /** persistent field */
+    private org.openmicroscopy.omero.model.Repository repository;
+
+    /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
     /** full constructor */
-    public Thumbnail(Integer attributeId, Integer repository, String path, String mimeType, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public Thumbnail(Integer attributeId, String path, String mimeType, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Repository repository, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
-        this.repository = repository;
         this.path = path;
         this.mimeType = mimeType;
         this.image = image;
+        this.repository = repository;
         this.moduleExecution = moduleExecution;
     }
 
@@ -40,9 +40,10 @@ public class Thumbnail implements Serializable {
     }
 
     /** minimal constructor */
-    public Thumbnail(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public Thumbnail(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Repository repository, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
         this.image = image;
+        this.repository = repository;
         this.moduleExecution = moduleExecution;
     }
 
@@ -52,14 +53,6 @@ public class Thumbnail implements Serializable {
 
     public void setAttributeId(Integer attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public Integer getRepository() {
-        return this.repository;
-    }
-
-    public void setRepository(Integer repository) {
-        this.repository = repository;
     }
 
     public String getPath() {
@@ -84,6 +77,14 @@ public class Thumbnail implements Serializable {
 
     public void setImage(org.openmicroscopy.omero.model.Image image) {
         this.image = image;
+    }
+
+    public org.openmicroscopy.omero.model.Repository getRepository() {
+        return this.repository;
+    }
+
+    public void setRepository(org.openmicroscopy.omero.model.Repository repository) {
+        this.repository = repository;
     }
 
     public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {

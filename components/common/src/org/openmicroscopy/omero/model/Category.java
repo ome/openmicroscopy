@@ -1,6 +1,7 @@
 package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
+import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -14,21 +15,25 @@ public class Category implements Serializable {
     private String name;
 
     /** nullable persistent field */
-    private Integer categoryGroup;
-
-    /** nullable persistent field */
     private String description;
+
+    /** persistent field */
+    private org.openmicroscopy.omero.model.CategoryGroup categoryGroup;
 
     /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
+    /** persistent field */
+    private Set classifications;
+
     /** full constructor */
-    public Category(Integer attributeId, String name, Integer categoryGroup, String description, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public Category(Integer attributeId, String name, String description, org.openmicroscopy.omero.model.CategoryGroup categoryGroup, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set classifications) {
         this.attributeId = attributeId;
         this.name = name;
-        this.categoryGroup = categoryGroup;
         this.description = description;
+        this.categoryGroup = categoryGroup;
         this.moduleExecution = moduleExecution;
+        this.classifications = classifications;
     }
 
     /** default constructor */
@@ -36,9 +41,11 @@ public class Category implements Serializable {
     }
 
     /** minimal constructor */
-    public Category(Integer attributeId, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public Category(Integer attributeId, org.openmicroscopy.omero.model.CategoryGroup categoryGroup, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set classifications) {
         this.attributeId = attributeId;
+        this.categoryGroup = categoryGroup;
         this.moduleExecution = moduleExecution;
+        this.classifications = classifications;
     }
 
     public Integer getAttributeId() {
@@ -57,14 +64,6 @@ public class Category implements Serializable {
         this.name = name;
     }
 
-    public Integer getCategoryGroup() {
-        return this.categoryGroup;
-    }
-
-    public void setCategoryGroup(Integer categoryGroup) {
-        this.categoryGroup = categoryGroup;
-    }
-
     public String getDescription() {
         return this.description;
     }
@@ -73,12 +72,28 @@ public class Category implements Serializable {
         this.description = description;
     }
 
+    public org.openmicroscopy.omero.model.CategoryGroup getCategoryGroup() {
+        return this.categoryGroup;
+    }
+
+    public void setCategoryGroup(org.openmicroscopy.omero.model.CategoryGroup categoryGroup) {
+        this.categoryGroup = categoryGroup;
+    }
+
     public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {
         return this.moduleExecution;
     }
 
     public void setModuleExecution(org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.moduleExecution = moduleExecution;
+    }
+
+    public Set getClassifications() {
+        return this.classifications;
+    }
+
+    public void setClassifications(Set classifications) {
+        this.classifications = classifications;
     }
 
     public String toString() {

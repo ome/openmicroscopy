@@ -31,12 +31,6 @@
         length="-1"
     />
     <property
-        name="categoryGroup"
-        type="java.lang.Integer"
-        column="category_group"
-        length="4"
-    />
-    <property
         name="description"
         type="java.lang.String"
         column="description"
@@ -45,6 +39,28 @@
 
     <!-- Associations -->
   
+    <!-- bi-directional one-to-many association to Classification -->
+    <set
+        name="classifications"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="category" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Classification"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to CategoryGroup -->
+    <many-to-one
+        name="categoryGroup"
+        class="org.openmicroscopy.omero.model.CategoryGroup"
+        not-null="true"
+    >
+        <column name="category_group" />
+    </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one
         name="moduleExecution"

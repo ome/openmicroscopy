@@ -55,6 +55,9 @@ public class ModuleExecution implements Serializable {
     private org.openmicroscopy.omero.model.Dataset dataset;
 
     /** persistent field */
+    private org.openmicroscopy.omero.model.Group group;
+
+    /** persistent field */
     private org.openmicroscopy.omero.model.Experimenter experimenter;
 
     /** persistent field */
@@ -62,6 +65,9 @@ public class ModuleExecution implements Serializable {
 
     /** persistent field */
     private Set classifications;
+
+    /** persistent field */
+    private Set repositories;
 
     /** persistent field */
     private Set categories;
@@ -73,10 +79,16 @@ public class ModuleExecution implements Serializable {
     private Set imageInfos;
 
     /** persistent field */
+    private Set imagePlates;
+
+    /** persistent field */
     private Set imagePixels;
 
     /** persistent field */
-    private Set imagePlates;
+    private Set groups;
+
+    /** persistent field */
+    private Set experimenters;
 
     /** persistent field */
     private Set categoryGroups;
@@ -97,7 +109,7 @@ public class ModuleExecution implements Serializable {
     private Set displayOptions;
 
     /** full constructor */
-    public ModuleExecution(Integer moduleExecutionId, String status, Double attributeDbTime, boolean virtualMex, String inputTag, String iteratorTag, String dependence, Double attributeSortTime, String errorMessage, Date timestamp, Double attributeCreateTime, String newFeatureTag, Double totalTime, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Dataset dataset, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set categories, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set categoryGroups, Set imageAnnotations, Set datasetAnnotations, Set imageDimensions, Set channelComponents, Set displayOptions) {
+    public ModuleExecution(Integer moduleExecutionId, String status, Double attributeDbTime, boolean virtualMex, String inputTag, String iteratorTag, String dependence, Double attributeSortTime, String errorMessage, Date timestamp, Double attributeCreateTime, String newFeatureTag, Double totalTime, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Dataset dataset, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set repositories, Set categories, Set displayRois, Set imageInfos, Set imagePlates, Set imagePixels, Set groups, Set experimenters, Set categoryGroups, Set imageAnnotations, Set datasetAnnotations, Set imageDimensions, Set channelComponents, Set displayOptions) {
         this.moduleExecutionId = moduleExecutionId;
         this.status = status;
         this.attributeDbTime = attributeDbTime;
@@ -113,14 +125,18 @@ public class ModuleExecution implements Serializable {
         this.totalTime = totalTime;
         this.image = image;
         this.dataset = dataset;
+        this.group = group;
         this.experimenter = experimenter;
         this.thumbnails = thumbnails;
         this.classifications = classifications;
+        this.repositories = repositories;
         this.categories = categories;
         this.displayRois = displayRois;
         this.imageInfos = imageInfos;
-        this.imagePixels = imagePixels;
         this.imagePlates = imagePlates;
+        this.imagePixels = imagePixels;
+        this.groups = groups;
+        this.experimenters = experimenters;
         this.categoryGroups = categoryGroups;
         this.imageAnnotations = imageAnnotations;
         this.datasetAnnotations = datasetAnnotations;
@@ -134,20 +150,24 @@ public class ModuleExecution implements Serializable {
     }
 
     /** minimal constructor */
-    public ModuleExecution(Integer moduleExecutionId, boolean virtualMex, String dependence, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Dataset dataset, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set categories, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set categoryGroups, Set imageAnnotations, Set datasetAnnotations, Set imageDimensions, Set channelComponents, Set displayOptions) {
+    public ModuleExecution(Integer moduleExecutionId, boolean virtualMex, String dependence, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Dataset dataset, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set repositories, Set categories, Set displayRois, Set imageInfos, Set imagePlates, Set imagePixels, Set groups, Set experimenters, Set categoryGroups, Set imageAnnotations, Set datasetAnnotations, Set imageDimensions, Set channelComponents, Set displayOptions) {
         this.moduleExecutionId = moduleExecutionId;
         this.virtualMex = virtualMex;
         this.dependence = dependence;
         this.image = image;
         this.dataset = dataset;
+        this.group = group;
         this.experimenter = experimenter;
         this.thumbnails = thumbnails;
         this.classifications = classifications;
+        this.repositories = repositories;
         this.categories = categories;
         this.displayRois = displayRois;
         this.imageInfos = imageInfos;
-        this.imagePixels = imagePixels;
         this.imagePlates = imagePlates;
+        this.imagePixels = imagePixels;
+        this.groups = groups;
+        this.experimenters = experimenters;
         this.categoryGroups = categoryGroups;
         this.imageAnnotations = imageAnnotations;
         this.datasetAnnotations = datasetAnnotations;
@@ -276,6 +296,14 @@ public class ModuleExecution implements Serializable {
         this.dataset = dataset;
     }
 
+    public org.openmicroscopy.omero.model.Group getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(org.openmicroscopy.omero.model.Group group) {
+        this.group = group;
+    }
+
     public org.openmicroscopy.omero.model.Experimenter getExperimenter() {
         return this.experimenter;
     }
@@ -298,6 +326,14 @@ public class ModuleExecution implements Serializable {
 
     public void setClassifications(Set classifications) {
         this.classifications = classifications;
+    }
+
+    public Set getRepositories() {
+        return this.repositories;
+    }
+
+    public void setRepositories(Set repositories) {
+        this.repositories = repositories;
     }
 
     public Set getCategories() {
@@ -324,6 +360,14 @@ public class ModuleExecution implements Serializable {
         this.imageInfos = imageInfos;
     }
 
+    public Set getImagePlates() {
+        return this.imagePlates;
+    }
+
+    public void setImagePlates(Set imagePlates) {
+        this.imagePlates = imagePlates;
+    }
+
     public Set getImagePixels() {
         return this.imagePixels;
     }
@@ -332,12 +376,20 @@ public class ModuleExecution implements Serializable {
         this.imagePixels = imagePixels;
     }
 
-    public Set getImagePlates() {
-        return this.imagePlates;
+    public Set getGroups() {
+        return this.groups;
     }
 
-    public void setImagePlates(Set imagePlates) {
-        this.imagePlates = imagePlates;
+    public void setGroups(Set groups) {
+        this.groups = groups;
+    }
+
+    public Set getExperimenters() {
+        return this.experimenters;
+    }
+
+    public void setExperimenters(Set experimenters) {
+        this.experimenters = experimenters;
     }
 
     public Set getCategoryGroups() {

@@ -2,8 +2,8 @@
 # JDBC Connection properties
 ############################################
 database.url=jdbc:postgresql://localhost/ome
-database.username=josh
-database.password=""
+database.username=you
+database.password=secret
 database.schema=public
 database.catalog=""
 database.driver=org.postgresql.Driver
@@ -27,3 +27,11 @@ ant.os=unix
 # Content Mgmt Connection
 ############################################
 maven.scm.url=scm:svn:svn+ssh://jmoore@cvs.openmicroscopy.org.uk/home/svn/josh/ome3/branches/omero
+
+############################################
+# Shoola connection
+############################################
+omeds.url=http://localhost:8888/shoola/
+omeds.user=you
+omeds.pass=secret
+maven.junit.sysproperties=omeds.url omeds.user omeds.pass

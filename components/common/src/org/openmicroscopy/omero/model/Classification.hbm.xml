@@ -25,12 +25,6 @@
     </id>
 
     <property
-        name="category"
-        type="java.lang.Integer"
-        column="category"
-        length="4"
-    />
-    <property
         name="confidence"
         type="java.lang.Float"
         column="confidence"
@@ -52,6 +46,14 @@
         not-null="true"
     >
         <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Category -->
+    <many-to-one
+        name="category"
+        class="org.openmicroscopy.omero.model.Category"
+        not-null="true"
+    >
+        <column name="category" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

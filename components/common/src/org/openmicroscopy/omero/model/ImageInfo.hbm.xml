@@ -24,30 +24,6 @@
         <generator class="assigned" />
     </id>
 
-    <property
-        name="experiment"
-        type="java.lang.Integer"
-        column="experiment"
-        length="4"
-    />
-    <property
-        name="groupId"
-        type="java.lang.Integer"
-        column="group_id"
-        length="4"
-    />
-    <property
-        name="instrument"
-        type="java.lang.Integer"
-        column="instrument"
-        length="4"
-    />
-    <property
-        name="objective"
-        type="java.lang.Integer"
-        column="objective"
-        length="4"
-    />
 
     <!-- Associations -->
   
@@ -58,6 +34,14 @@
         not-null="true"
     >
         <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="org.openmicroscopy.omero.model.Group"
+        not-null="true"
+    >
+        <column name="group_id" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

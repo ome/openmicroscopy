@@ -60,7 +60,11 @@ class TestRunner:
 	data = Data(self.percent)
 	data.setDataSource(ds)
 	data.init()
+	log(" ")
+	log("========================================")
         log(str(data))
+	log("========================================")
+	log(" ")
 	print(str(self.percent))#+":"+str(data.imgsPDI))
 	
 	return data
@@ -77,21 +81,34 @@ class TestRunner:
         for o,s in zip(oTests,sTests):
             self.omero = o.wrap(_omero)
             self.doIt ( o.description )
-            #self.shoola = s.wrap(_shoola)
-            #self.doIt ( s.description )
+            self.shoola = s.wrap(_shoola)
+            self.doIt ( s.description )
 
     def doIt(self,method):
 	success=1
 	try:
 		result=eval("self."+method)
-		log("Return: "+str(result))
 		sz = Utils.structureSize(result)
 		grinder.statistics.setValue(szIndex, sz)        
+		log("Return from method: ( "+str(sz)+")")
+		log(str(result))
+		log(" ")
 	except Throwable, inst:
 		result="Error occurred"
 		log("------------------------------------------")
-		log(result+" :"+str(type(inst))+" : "+str(inst))
-		log(str(inst.stackTrace))
+		log(result+" :")
+		t = inst
+		while (t != None):
+			log(str(t))
+			next = inst.cause
+			if t != next:
+				t = next
+			else:
+				t = None		
+		log(" ")
+		log("Stack Trace:")
+		for s in inst.stackTrace:
+			log(str(s))
 		log("------------------------------------------")
 		success=0
 	grinder.statistics.setSuccess(success)

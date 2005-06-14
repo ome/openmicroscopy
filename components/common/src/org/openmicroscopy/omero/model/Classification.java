@@ -11,9 +11,6 @@ public class Classification implements Serializable {
     private Integer attributeId;
 
     /** nullable persistent field */
-    private Integer category;
-
-    /** nullable persistent field */
     private Float confidence;
 
     /** nullable persistent field */
@@ -23,15 +20,18 @@ public class Classification implements Serializable {
     private org.openmicroscopy.omero.model.Image image;
 
     /** persistent field */
+    private org.openmicroscopy.omero.model.Category category;
+
+    /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
     /** full constructor */
-    public Classification(Integer attributeId, Integer category, Float confidence, Boolean valid, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public Classification(Integer attributeId, Float confidence, Boolean valid, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Category category, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
-        this.category = category;
         this.confidence = confidence;
         this.valid = valid;
         this.image = image;
+        this.category = category;
         this.moduleExecution = moduleExecution;
     }
 
@@ -40,9 +40,10 @@ public class Classification implements Serializable {
     }
 
     /** minimal constructor */
-    public Classification(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public Classification(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Category category, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
         this.image = image;
+        this.category = category;
         this.moduleExecution = moduleExecution;
     }
 
@@ -52,14 +53,6 @@ public class Classification implements Serializable {
 
     public void setAttributeId(Integer attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public Integer getCategory() {
-        return this.category;
-    }
-
-    public void setCategory(Integer category) {
-        this.category = category;
     }
 
     public Float getConfidence() {
@@ -84,6 +77,14 @@ public class Classification implements Serializable {
 
     public void setImage(org.openmicroscopy.omero.model.Image image) {
         this.image = image;
+    }
+
+    public org.openmicroscopy.omero.model.Category getCategory() {
+        return this.category;
+    }
+
+    public void setCategory(org.openmicroscopy.omero.model.Category category) {
+        this.category = category;
     }
 
     public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {

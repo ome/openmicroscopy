@@ -1,6 +1,7 @@
 package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
+import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -9,9 +10,6 @@ public class Repository implements Serializable {
 
     /** identifier field */
     private Integer attributeId;
-
-    /** nullable persistent field */
-    private Integer moduleExecutionId;
 
     /** persistent field */
     private String imageServerUrl;
@@ -22,13 +20,24 @@ public class Repository implements Serializable {
     /** nullable persistent field */
     private Boolean isLocal;
 
+    /** persistent field */
+    private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
+
+    /** persistent field */
+    private Set thumbnails;
+
+    /** persistent field */
+    private Set imagePixels;
+
     /** full constructor */
-    public Repository(Integer attributeId, Integer moduleExecutionId, String imageServerUrl, String path, Boolean isLocal) {
+    public Repository(Integer attributeId, String imageServerUrl, String path, Boolean isLocal, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set thumbnails, Set imagePixels) {
         this.attributeId = attributeId;
-        this.moduleExecutionId = moduleExecutionId;
         this.imageServerUrl = imageServerUrl;
         this.path = path;
         this.isLocal = isLocal;
+        this.moduleExecution = moduleExecution;
+        this.thumbnails = thumbnails;
+        this.imagePixels = imagePixels;
     }
 
     /** default constructor */
@@ -36,9 +45,12 @@ public class Repository implements Serializable {
     }
 
     /** minimal constructor */
-    public Repository(Integer attributeId, String imageServerUrl) {
+    public Repository(Integer attributeId, String imageServerUrl, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set thumbnails, Set imagePixels) {
         this.attributeId = attributeId;
         this.imageServerUrl = imageServerUrl;
+        this.moduleExecution = moduleExecution;
+        this.thumbnails = thumbnails;
+        this.imagePixels = imagePixels;
     }
 
     public Integer getAttributeId() {
@@ -47,14 +59,6 @@ public class Repository implements Serializable {
 
     public void setAttributeId(Integer attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public Integer getModuleExecutionId() {
-        return this.moduleExecutionId;
-    }
-
-    public void setModuleExecutionId(Integer moduleExecutionId) {
-        this.moduleExecutionId = moduleExecutionId;
     }
 
     public String getImageServerUrl() {
@@ -79,6 +83,30 @@ public class Repository implements Serializable {
 
     public void setIsLocal(Boolean isLocal) {
         this.isLocal = isLocal;
+    }
+
+    public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {
+        return this.moduleExecution;
+    }
+
+    public void setModuleExecution(org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+        this.moduleExecution = moduleExecution;
+    }
+
+    public Set getThumbnails() {
+        return this.thumbnails;
+    }
+
+    public void setThumbnails(Set thumbnails) {
+        this.thumbnails = thumbnails;
+    }
+
+    public Set getImagePixels() {
+        return this.imagePixels;
+    }
+
+    public void setImagePixels(Set imagePixels) {
+        this.imagePixels = imagePixels;
     }
 
     public String toString() {

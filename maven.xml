@@ -12,7 +12,7 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
    <ant:echo>  help           --  This file</ant:echo>
    <ant:echo>  build          --  Compile to target and package </ant:echo>
    <ant:echo>  install        --  Add dependencies to your repository </ant:echo>
-   <ant:echo>  test           --  Run all tests (see test mode below)</ant:echo>
+   <ant:echo>  test-all       --  Run all tests (see test mode below)</ant:echo>
    <ant:echo>  clean          --  Remove all generated items </ant:echo>
    <ant:echo> </ant:echo>
    <ant:echo> Properties: (e.g. "maven -DPROPERTY=VALUE")</ant:echo>
@@ -38,12 +38,13 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
    <preGoal name="clean:clean">
      <ant:delete file="${basedir}/src/spring.properties"/>
    </preGoal> 
-   <goal name="test">
+   <goal name="test-all">
      <maven:property name="goal" defaultValue="test:test" />
      <attainGoal name="multiproject:goal"/>
    </goal>
 
 <!-- Setup --> 
+  <goal name="init" prereqs="create-properties"/>
   <goal name="get-tomcat-plugin">
     <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
     <maven:property name="groupId" defaultValue="codeczar-tomcat" />
@@ -67,22 +68,26 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
 
 <!-- From calling within a component -->
   <goal name="create-properties">
-    <ant:sequential>
-      <ant:mkdir dir="${maven.build.dest}"/>
-      <ant:propertyfile 
+    <u:file name="${basedir}/src" var="srcDir"/>
+    <j:if test="${srcDir.exists()}">
+     <ant:propertyfile 
 	comment=" DO NOT EDIT: Generated Database and Server properties from build.properties"
         file="${basedir}/src/spring.properties">
-         <ant:entry key="database.driver" value="${database.driver}"/>
-         <ant:entry key="database.url" value="${database.url}"/>
-         <ant:entry key="database.username" value="${database.username}"/>
-         <ant:entry key="database.password" value="${database.password}"/>
-         <ant:entry key="database.dialect" value="${database.dialect}"/>
-         <ant:entry key="database.show_sql" value="${database.show_sql}"/>
-  	 <ant:entry key="server.host" value="localhost"/>
-  	 <ant:entry key="server.port" value="8080"/>
-  	 <ant:entry key="local.path" value="${maven.build.dest}"/>
-       </ant:propertyfile>
-     </ant:sequential>
+       <ant:entry key="database.driver" value="${database.driver}"/>
+       <ant:entry key="database.url" value="${database.url}"/>
+       <ant:entry key="database.username" value="${database.username}"/>
+       <ant:entry key="database.password" value="${database.password}"/>
+       <ant:entry key="database.dialect" value="${database.dialect}"/>
+       <ant:entry key="database.show_sql" value="${database.show_sql}"/>
+       <ant:entry key="server.host" value="localhost"/>
+       <ant:entry key="server.port" value="8080"/>
+       <ant:entry key="local.path"  value="${maven.build.dest}"/>
+       <ant:entry key="omeds.url"   value="${omeds.url}"/>
+       <ant:entry key="omeds.user"  value="${omeds.user}"/>
+       <ant:entry key="omeds.pass"  value="${omeds.pass}"/>
+
+     </ant:propertyfile>
+    </j:if>
    </goal>
 
    <goal name="itest">

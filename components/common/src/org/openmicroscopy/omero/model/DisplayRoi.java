@@ -34,17 +34,17 @@ public class DisplayRoi implements Serializable {
     /** nullable persistent field */
     private Integer x1;
 
-    /** nullable persistent field */
-    private Integer displayOptions;
-
     /** persistent field */
     private org.openmicroscopy.omero.model.Image image;
 
     /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
+    /** persistent field */
+    private org.openmicroscopy.omero.model.DisplayOption displayOption;
+
     /** full constructor */
-    public DisplayRoi(Integer attributeId, Integer y1, Integer z1, Integer t0, Integer z0, Integer y0, Integer t1, Integer x0, Integer x1, Integer displayOptions, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public DisplayRoi(Integer attributeId, Integer y1, Integer z1, Integer t0, Integer z0, Integer y0, Integer t1, Integer x0, Integer x1, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, org.openmicroscopy.omero.model.DisplayOption displayOption) {
         this.attributeId = attributeId;
         this.y1 = y1;
         this.z1 = z1;
@@ -54,9 +54,9 @@ public class DisplayRoi implements Serializable {
         this.t1 = t1;
         this.x0 = x0;
         this.x1 = x1;
-        this.displayOptions = displayOptions;
         this.image = image;
         this.moduleExecution = moduleExecution;
+        this.displayOption = displayOption;
     }
 
     /** default constructor */
@@ -64,10 +64,11 @@ public class DisplayRoi implements Serializable {
     }
 
     /** minimal constructor */
-    public DisplayRoi(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public DisplayRoi(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, org.openmicroscopy.omero.model.DisplayOption displayOption) {
         this.attributeId = attributeId;
         this.image = image;
         this.moduleExecution = moduleExecution;
+        this.displayOption = displayOption;
     }
 
     public Integer getAttributeId() {
@@ -142,14 +143,6 @@ public class DisplayRoi implements Serializable {
         this.x1 = x1;
     }
 
-    public Integer getDisplayOptions() {
-        return this.displayOptions;
-    }
-
-    public void setDisplayOptions(Integer displayOptions) {
-        this.displayOptions = displayOptions;
-    }
-
     public org.openmicroscopy.omero.model.Image getImage() {
         return this.image;
     }
@@ -164,6 +157,14 @@ public class DisplayRoi implements Serializable {
 
     public void setModuleExecution(org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.moduleExecution = moduleExecution;
+    }
+
+    public org.openmicroscopy.omero.model.DisplayOption getDisplayOption() {
+        return this.displayOption;
+    }
+
+    public void setDisplayOption(org.openmicroscopy.omero.model.DisplayOption displayOption) {
+        this.displayOption = displayOption;
     }
 
     public String toString() {

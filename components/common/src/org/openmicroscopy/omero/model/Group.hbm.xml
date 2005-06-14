@@ -30,12 +30,6 @@
         column="name"
         length="30"
     />
-    <property
-        name="moduleExecutionId"
-        type="java.lang.Integer"
-        column="module_execution_id"
-        length="4"
-    />
 
     <!-- Associations -->
   
@@ -81,9 +75,51 @@
             class="org.openmicroscopy.omero.model.Project"
         />
     </set>
+    <!-- bi-directional one-to-many association to Experimenter -->
+    <set
+        name="experimenters"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="group_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Experimenter"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to ModuleExecution -->
+    <set
+        name="moduleExecutions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="group_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.ModuleExecution"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to ImageInfo -->
+    <set
+        name="imageInfos"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="group_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.ImageInfo"
+        />
+    </set>
     <!-- bi-directional many-to-one association to Experimenter -->
     <many-to-one
-        name="experimenterByLeader"
+        name="leader"
         class="org.openmicroscopy.omero.model.Experimenter"
         not-null="true"
     >
@@ -91,12 +127,21 @@
     </many-to-one>
     <!-- bi-directional many-to-one association to Experimenter -->
     <many-to-one
-        name="experimenterByContact"
+        name="contact"
         class="org.openmicroscopy.omero.model.Experimenter"
         not-null="true"
     >
         <column name="contact" />
     </many-to-one>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="org.openmicroscopy.omero.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
 
 </class>
 </hibernate-mapping>

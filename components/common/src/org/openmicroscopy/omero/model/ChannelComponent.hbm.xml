@@ -25,12 +25,6 @@
     </id>
 
     <property
-        name="pixelsId"
-        type="java.lang.Integer"
-        column="pixels_id"
-        length="4"
-    />
-    <property
         name="index"
         type="java.lang.Integer"
         column="index"
@@ -42,12 +36,6 @@
         column="color_domain"
         length="-1"
     />
-    <property
-        name="logicalChannel"
-        type="java.lang.Integer"
-        column="logical_channel"
-        length="4"
-    />
 
     <!-- Associations -->
   
@@ -58,6 +46,14 @@
         not-null="true"
     >
         <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to ImagePixel -->
+    <many-to-one
+        name="imagePixel"
+        class="org.openmicroscopy.omero.model.ImagePixel"
+        not-null="true"
+    >
+        <column name="pixels_id" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

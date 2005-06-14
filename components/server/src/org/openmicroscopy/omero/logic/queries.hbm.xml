@@ -7,7 +7,6 @@
   <!-- load*Hierarchy 
 	TODO if all ids where called *.getId() then we could merge these 
 	-->
-<!--TODO  need to add default_pixel once FK from Ilya -->
 <!--TODO some way to DRY here would be great -->
   <query name="loadHierarchy_by_Project"><![CDATA[
     from Project as p
@@ -19,6 +18,7 @@
 	  left outer join fetch d.images as i
 	  left outer join fetch i.group as i_g
 	  left outer join fetch i.experimenter as i_e
+	  left outer join fetch i.imagePixel as i_pix
 	    where p.projectId = :id
   ]]></query>
 
@@ -29,6 +29,7 @@
 	  left outer join fetch d.images as i
 	  left outer join fetch i.group as i_g
 	  left outer join fetch i.experimenter as i_e
+  	  left outer join fetch i.imagePixel as i_pix
 	    where d.datasetId = :id 
   ]]></query>
 
@@ -43,7 +44,9 @@
 	  left outer join fetch cla.moduleExecution as cla_mex
 	  left outer join fetch cla_mex.experimenter as cla_exp
 	  left outer join fetch cla.image as i
+  	  left outer join fetch i.imagePixel as i_pix
         where cg.attributeId = :id 
+	      and ( cla.valid = true or cla.valid is null)
   ]]></query>
 
   <query name="loadHierarchy_by_Category"><![CDATA[
@@ -54,12 +57,15 @@
 	  left outer join fetch cla.moduleExecution as cla_mex
 	  left outer join fetch cla_mex.experimenter as cla_exp
 	  left outer join fetch cla.image as i
+	  left outer join fetch i.imagePixel as i_pix	  
 	    where c.attributeId = :id 
+  		  and ( cla.valid = true or cla.valid is null)
   ]]></query>
     
   <!-- find*Hierarchies -->
   <query name="findPDI"><![CDATA[
 	from Image as i 
+	  left outer join fetch i.imagePixel as i_pix
 	  left outer join fetch i.datasets as d
 	  left outer join fetch d.experimenter as d_exp
 	  left outer join fetch d.group as d_g	  
@@ -69,9 +75,9 @@
 	    where i in (:img_list)
   ]]></query>	
 
-<!-- this is standard style temporarily using theta style 
   <query name="findCGCI"><![CDATA[
 	from Image as i 
+	  left outer join fetch i.imagePixel as i_pix	
 	  left outer join fetch i.classifications as cla 
 	  left outer join fetch cla.category as c
 	  left outer join fetch c.moduleExecution as c_mex
@@ -81,20 +87,13 @@
 	  left outer join fetch cg_mex.experimenter as cg_exp
   	    where i in (:img_list)
   	      and ( cla.valid = true or cla.valid is null)
-		  ALSO NEED VALID STATEMENTS ON OTHER CLA QUERIES ABOVE!!!
   ]]></query>	
-  -->
-  <query name="findCGCI"><![CDATA[
-	from Image as i 
-	  left outer join fetch i.classifications as cla 
-  	    where i in (:img_list)
-  	      and ( cla.valid = true or cla.valid is null)
-  ]]></query>			  
-		  
+  		  
   <!-- findAnnotations -->
   <query name="findImageAnn"><![CDATA[
 	from ImageAnnotation as ann 
 	  left outer join fetch ann.image as i 
+	  left outer join fetch i.imagePixel as i_pix	  
 	  left outer join fetch ann.moduleExecution as ann_mex
 	  left outer join fetch ann_mex.experimenter as ann_exp
   	  where ann.image in (:img_list) 
@@ -104,6 +103,7 @@
   <query name="findImageAnnWithID"><![CDATA[
 	from ImageAnnotation as ann 
 	  left outer join fetch ann.image as i 
+  	  left outer join fetch i.imagePixel as i_pix
 	  left outer join fetch ann.moduleExecution as ann_mex
 	  left outer join fetch ann_mex.experimenter as ann_exp
   	  where ann.image in (:img_list) 

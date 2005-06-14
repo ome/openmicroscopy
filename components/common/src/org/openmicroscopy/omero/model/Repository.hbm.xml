@@ -25,12 +25,6 @@
     </id>
 
     <property
-        name="moduleExecutionId"
-        type="java.lang.Integer"
-        column="module_execution_id"
-        length="4"
-    />
-    <property
         name="imageServerUrl"
         type="java.lang.String"
         column="image_server_url"
@@ -54,6 +48,42 @@
 
     <!-- Associations -->
   
+    <!-- bi-directional one-to-many association to Thumbnail -->
+    <set
+        name="thumbnails"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="repository" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Thumbnail"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to ImagePixel -->
+    <set
+        name="imagePixels"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="repository" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.ImagePixel"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="org.openmicroscopy.omero.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
 
 </class>
 </hibernate-mapping>

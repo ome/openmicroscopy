@@ -1,6 +1,7 @@
 package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
+import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -20,28 +21,13 @@ public class DisplayOption implements Serializable {
     private Boolean blueOn;
 
     /** nullable persistent field */
-    private Integer greyChannel;
-
-    /** nullable persistent field */
-    private Integer greenChannel;
-
-    /** nullable persistent field */
     private String colorMap;
-
-    /** nullable persistent field */
-    private Integer redChannel;
 
     /** nullable persistent field */
     private Integer ZStop;
 
     /** nullable persistent field */
     private Float zoom;
-
-    /** nullable persistent field */
-    private Integer blueChannel;
-
-    /** nullable persistent field */
-    private Integer pixels;
 
     /** nullable persistent field */
     private Integer TStop;
@@ -59,28 +45,31 @@ public class DisplayOption implements Serializable {
     private org.openmicroscopy.omero.model.Image image;
 
     /** persistent field */
+    private org.openmicroscopy.omero.model.ImagePixel imagePixel;
+
+    /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
+    /** persistent field */
+    private Set displayRois;
+
     /** full constructor */
-    public DisplayOption(Integer attributeId, Boolean redOn, Integer ZStart, Boolean blueOn, Integer greyChannel, Integer greenChannel, String colorMap, Integer redChannel, Integer ZStop, Float zoom, Integer blueChannel, Integer pixels, Integer TStop, Integer TStart, Boolean greenOn, Boolean displayRgb, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public DisplayOption(Integer attributeId, Boolean redOn, Integer ZStart, Boolean blueOn, String colorMap, Integer ZStop, Float zoom, Integer TStop, Integer TStart, Boolean greenOn, Boolean displayRgb, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ImagePixel imagePixel, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set displayRois) {
         this.attributeId = attributeId;
         this.redOn = redOn;
         this.ZStart = ZStart;
         this.blueOn = blueOn;
-        this.greyChannel = greyChannel;
-        this.greenChannel = greenChannel;
         this.colorMap = colorMap;
-        this.redChannel = redChannel;
         this.ZStop = ZStop;
         this.zoom = zoom;
-        this.blueChannel = blueChannel;
-        this.pixels = pixels;
         this.TStop = TStop;
         this.TStart = TStart;
         this.greenOn = greenOn;
         this.displayRgb = displayRgb;
         this.image = image;
+        this.imagePixel = imagePixel;
         this.moduleExecution = moduleExecution;
+        this.displayRois = displayRois;
     }
 
     /** default constructor */
@@ -88,10 +77,12 @@ public class DisplayOption implements Serializable {
     }
 
     /** minimal constructor */
-    public DisplayOption(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public DisplayOption(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ImagePixel imagePixel, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set displayRois) {
         this.attributeId = attributeId;
         this.image = image;
+        this.imagePixel = imagePixel;
         this.moduleExecution = moduleExecution;
+        this.displayRois = displayRois;
     }
 
     public Integer getAttributeId() {
@@ -126,36 +117,12 @@ public class DisplayOption implements Serializable {
         this.blueOn = blueOn;
     }
 
-    public Integer getGreyChannel() {
-        return this.greyChannel;
-    }
-
-    public void setGreyChannel(Integer greyChannel) {
-        this.greyChannel = greyChannel;
-    }
-
-    public Integer getGreenChannel() {
-        return this.greenChannel;
-    }
-
-    public void setGreenChannel(Integer greenChannel) {
-        this.greenChannel = greenChannel;
-    }
-
     public String getColorMap() {
         return this.colorMap;
     }
 
     public void setColorMap(String colorMap) {
         this.colorMap = colorMap;
-    }
-
-    public Integer getRedChannel() {
-        return this.redChannel;
-    }
-
-    public void setRedChannel(Integer redChannel) {
-        this.redChannel = redChannel;
     }
 
     public Integer getZStop() {
@@ -172,22 +139,6 @@ public class DisplayOption implements Serializable {
 
     public void setZoom(Float zoom) {
         this.zoom = zoom;
-    }
-
-    public Integer getBlueChannel() {
-        return this.blueChannel;
-    }
-
-    public void setBlueChannel(Integer blueChannel) {
-        this.blueChannel = blueChannel;
-    }
-
-    public Integer getPixels() {
-        return this.pixels;
-    }
-
-    public void setPixels(Integer pixels) {
-        this.pixels = pixels;
     }
 
     public Integer getTStop() {
@@ -230,12 +181,28 @@ public class DisplayOption implements Serializable {
         this.image = image;
     }
 
+    public org.openmicroscopy.omero.model.ImagePixel getImagePixel() {
+        return this.imagePixel;
+    }
+
+    public void setImagePixel(org.openmicroscopy.omero.model.ImagePixel imagePixel) {
+        this.imagePixel = imagePixel;
+    }
+
     public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {
         return this.moduleExecution;
     }
 
     public void setModuleExecution(org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.moduleExecution = moduleExecution;
+    }
+
+    public Set getDisplayRois() {
+        return this.displayRois;
+    }
+
+    public void setDisplayRois(Set displayRois) {
+        this.displayRois = displayRois;
     }
 
     public String toString() {

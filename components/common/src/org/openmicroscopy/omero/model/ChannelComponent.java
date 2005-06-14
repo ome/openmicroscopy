@@ -11,31 +11,27 @@ public class ChannelComponent implements Serializable {
     private Integer attributeId;
 
     /** nullable persistent field */
-    private Integer pixelsId;
-
-    /** nullable persistent field */
     private Integer index;
 
     /** nullable persistent field */
     private String colorDomain;
 
-    /** nullable persistent field */
-    private Integer logicalChannel;
-
     /** persistent field */
     private org.openmicroscopy.omero.model.Image image;
+
+    /** persistent field */
+    private org.openmicroscopy.omero.model.ImagePixel imagePixel;
 
     /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
     /** full constructor */
-    public ChannelComponent(Integer attributeId, Integer pixelsId, Integer index, String colorDomain, Integer logicalChannel, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public ChannelComponent(Integer attributeId, Integer index, String colorDomain, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ImagePixel imagePixel, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
-        this.pixelsId = pixelsId;
         this.index = index;
         this.colorDomain = colorDomain;
-        this.logicalChannel = logicalChannel;
         this.image = image;
+        this.imagePixel = imagePixel;
         this.moduleExecution = moduleExecution;
     }
 
@@ -44,9 +40,10 @@ public class ChannelComponent implements Serializable {
     }
 
     /** minimal constructor */
-    public ChannelComponent(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public ChannelComponent(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ImagePixel imagePixel, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
         this.image = image;
+        this.imagePixel = imagePixel;
         this.moduleExecution = moduleExecution;
     }
 
@@ -56,14 +53,6 @@ public class ChannelComponent implements Serializable {
 
     public void setAttributeId(Integer attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public Integer getPixelsId() {
-        return this.pixelsId;
-    }
-
-    public void setPixelsId(Integer pixelsId) {
-        this.pixelsId = pixelsId;
     }
 
     public Integer getIndex() {
@@ -82,20 +71,20 @@ public class ChannelComponent implements Serializable {
         this.colorDomain = colorDomain;
     }
 
-    public Integer getLogicalChannel() {
-        return this.logicalChannel;
-    }
-
-    public void setLogicalChannel(Integer logicalChannel) {
-        this.logicalChannel = logicalChannel;
-    }
-
     public org.openmicroscopy.omero.model.Image getImage() {
         return this.image;
     }
 
     public void setImage(org.openmicroscopy.omero.model.Image image) {
         this.image = image;
+    }
+
+    public org.openmicroscopy.omero.model.ImagePixel getImagePixel() {
+        return this.imagePixel;
+    }
+
+    public void setImagePixel(org.openmicroscopy.omero.model.ImagePixel imagePixel) {
+        this.imagePixel = imagePixel;
     }
 
     public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {

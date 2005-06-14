@@ -14,7 +14,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/grinder-3.0-beta26.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jython/jars/jython-2.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/shoola-2.4.0-rc2.jar"/>
+	<classpathentry sourcepath="HOME/code/Shoola/SRC" kind="var" path="MAVEN_REPO/omero/jars/shoola-2.4.0-rc2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/shoola-test-2.4.0-rc2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/ome-java-s240r2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xmlrpc/jars/xmlrpc-1.2.jar"/>

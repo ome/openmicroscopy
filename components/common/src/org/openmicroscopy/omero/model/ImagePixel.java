@@ -1,6 +1,7 @@
 package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
+import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -9,9 +10,6 @@ public class ImagePixel implements Serializable {
 
     /** identifier field */
     private Integer attributeId;
-
-    /** nullable persistent field */
-    private Integer repository;
 
     /** nullable persistent field */
     private String pixelType;
@@ -47,12 +45,23 @@ public class ImagePixel implements Serializable {
     private org.openmicroscopy.omero.model.Image image;
 
     /** persistent field */
+    private org.openmicroscopy.omero.model.Repository repository;
+
+    /** persistent field */
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
+    /** persistent field */
+    private Set images;
+
+    /** persistent field */
+    private Set displayOptions;
+
+    /** persistent field */
+    private Set channelComponents;
+
     /** full constructor */
-    public ImagePixel(Integer attributeId, Integer repository, String pixelType, Integer sizeY, Integer sizeZ, String fileSha1, String path, Integer sizeT, Long imageServerId, Integer sizeX, Integer sizeC, Integer bitsPerPixel, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public ImagePixel(Integer attributeId, String pixelType, Integer sizeY, Integer sizeZ, String fileSha1, String path, Integer sizeT, Long imageServerId, Integer sizeX, Integer sizeC, Integer bitsPerPixel, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Repository repository, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set images, Set displayOptions, Set channelComponents) {
         this.attributeId = attributeId;
-        this.repository = repository;
         this.pixelType = pixelType;
         this.sizeY = sizeY;
         this.sizeZ = sizeZ;
@@ -64,7 +73,11 @@ public class ImagePixel implements Serializable {
         this.sizeC = sizeC;
         this.bitsPerPixel = bitsPerPixel;
         this.image = image;
+        this.repository = repository;
         this.moduleExecution = moduleExecution;
+        this.images = images;
+        this.displayOptions = displayOptions;
+        this.channelComponents = channelComponents;
     }
 
     /** default constructor */
@@ -72,10 +85,14 @@ public class ImagePixel implements Serializable {
     }
 
     /** minimal constructor */
-    public ImagePixel(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public ImagePixel(Integer attributeId, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.Repository repository, org.openmicroscopy.omero.model.ModuleExecution moduleExecution, Set images, Set displayOptions, Set channelComponents) {
         this.attributeId = attributeId;
         this.image = image;
+        this.repository = repository;
         this.moduleExecution = moduleExecution;
+        this.images = images;
+        this.displayOptions = displayOptions;
+        this.channelComponents = channelComponents;
     }
 
     public Integer getAttributeId() {
@@ -84,14 +101,6 @@ public class ImagePixel implements Serializable {
 
     public void setAttributeId(Integer attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public Integer getRepository() {
-        return this.repository;
-    }
-
-    public void setRepository(Integer repository) {
-        this.repository = repository;
     }
 
     public String getPixelType() {
@@ -182,12 +191,44 @@ public class ImagePixel implements Serializable {
         this.image = image;
     }
 
+    public org.openmicroscopy.omero.model.Repository getRepository() {
+        return this.repository;
+    }
+
+    public void setRepository(org.openmicroscopy.omero.model.Repository repository) {
+        this.repository = repository;
+    }
+
     public org.openmicroscopy.omero.model.ModuleExecution getModuleExecution() {
         return this.moduleExecution;
     }
 
     public void setModuleExecution(org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.moduleExecution = moduleExecution;
+    }
+
+    public Set getImages() {
+        return this.images;
+    }
+
+    public void setImages(Set images) {
+        this.images = images;
+    }
+
+    public Set getDisplayOptions() {
+        return this.displayOptions;
+    }
+
+    public void setDisplayOptions(Set displayOptions) {
+        this.displayOptions = displayOptions;
+    }
+
+    public Set getChannelComponents() {
+        return this.channelComponents;
+    }
+
+    public void setChannelComponents(Set channelComponents) {
+        this.channelComponents = channelComponents;
     }
 
     public String toString() {

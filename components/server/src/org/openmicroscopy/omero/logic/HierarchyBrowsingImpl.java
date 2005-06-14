@@ -216,35 +216,28 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
             for (Iterator c = classifications.iterator(); c.hasNext();) {
                 Classification cla = (Classification) c.next();
-                if (cla.getValid().booleanValue()) { // TODO do this in query
-                    categories.add(cla.getCategory());
-                }
+                categories.add(cla.getCategory());
             }
 
             if (categories == null || categories.size() < 1) {
                 hierarchies.add(img);
             } else {
                 Iterator c = categories.iterator();
-                while (c.hasNext()) { // OPTIMAL TODO looping over get!!
-                    // ???
-                    Integer cId = (Integer) c.next();
-                    Category2 ca = new Category2();//containerDao.loadC(cId));// TODO hql
+                while (c.hasNext()) { 
+                    Category tmp = (Category) c.next();
+                    Category2 ca = new Category2(tmp);
 
-                    if (null == ca.images)
-                        ca.images = new HashSet();
-                    ca.images.add(img);
+                    if (!(ca.getImages() instanceof HashSet)) //TODO Hack 
+                        ca.setImages(new HashSet());
+                    ca.getImages().add(img);
 
-                    Integer cgId = ca.getCategoryGroup(); // and HERE ??
-                    // FIXME
-                    CategoryGroup2 cg = new CategoryGroup2();//containerDao.loadCG(cgId));
-                    // not a
-                    // collection??
+                    CategoryGroup cg = ca.getCategoryGroup(); 
                     if (cg == null) {
                         hierarchies.add(ca);
                     } else {
-                        if (null == cg.categories)
-                            cg.categories = new HashSet();
-                        cg.categories.add(ca);
+                        if (!(cg.getCategories() instanceof HashSet))
+                            cg.setCategories(new HashSet());
+                        cg.getCategories().add(ca);
                         hierarchies.add(cg);
                     }
                 }

@@ -36,12 +36,6 @@
         column="sample"
         length="4"
     />
-    <property
-        name="plate"
-        type="java.lang.Integer"
-        column="plate"
-        length="4"
-    />
 
     <!-- Associations -->
   

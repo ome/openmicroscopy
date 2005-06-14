@@ -72,12 +72,6 @@
         column="x1"
         length="4"
     />
-    <property
-        name="displayOptions"
-        type="java.lang.Integer"
-        column="display_options"
-        length="4"
-    />
 
     <!-- Associations -->
   
@@ -96,6 +90,14 @@
         not-null="true"
     >
         <column name="module_execution_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to DisplayOption -->
+    <many-to-one
+        name="displayOption"
+        class="org.openmicroscopy.omero.model.DisplayOption"
+        not-null="true"
+    >
+        <column name="display_options" />
     </many-to-one>
 
 </class>

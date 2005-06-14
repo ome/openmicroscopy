@@ -31,6 +31,8 @@ package org.openmicroscopy.omero.model2;
 //Java imports
 import java.util.Set;
 
+import org.openmicroscopy.omero.model.Category;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -60,4 +62,14 @@ public class Category2 extends org.openmicroscopy.omero.model.Category {
     public void setImages(Set images) {
         this.images = images;
     }
+    
+    public Category2(Category c){
+        this.setAttributeId(c.getAttributeId());
+     	this.setCategoryGroup(c.getCategoryGroup());
+     	this.setClassifications(c.getClassifications());
+     	this.setDescription(c.getDescription());
+     	this.setModuleExecution(c.getModuleExecution());
+     	this.setName(c.getName());
+    }
+    
 }

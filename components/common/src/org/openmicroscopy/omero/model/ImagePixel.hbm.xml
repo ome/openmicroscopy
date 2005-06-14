@@ -25,12 +25,6 @@
     </id>
 
     <property
-        name="repository"
-        type="java.lang.Integer"
-        column="repository"
-        length="4"
-    />
-    <property
         name="pixelType"
         type="java.lang.String"
         column="pixel_type"
@@ -101,6 +95,56 @@
     >
         <column name="image_id" />
     </many-to-one>
+    <!-- bi-directional many-to-one association to Repository -->
+    <many-to-one
+        name="repository"
+        class="org.openmicroscopy.omero.model.Repository"
+        not-null="true"
+    >
+        <column name="repository" />
+    </many-to-one>
+    <!-- bi-directional one-to-many association to Image -->
+    <set
+        name="images"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="pixels_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Image"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to DisplayOption -->
+    <set
+        name="displayOptions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="pixels" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.DisplayOption"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to ChannelComponent -->
+    <set
+        name="channelComponents"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="pixels_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.ChannelComponent"
+        />
+    </set>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one
         name="moduleExecution"

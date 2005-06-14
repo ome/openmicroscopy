@@ -117,6 +117,14 @@
     >
         <column name="dataset_id" />
     </many-to-one>
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="org.openmicroscopy.omero.model.Group"
+        not-null="true"
+    >
+        <column name="group_id" />
+    </many-to-one>
     <!-- bi-directional many-to-one association to Experimenter -->
     <many-to-one
         name="experimenter"
@@ -151,6 +159,20 @@
         </key>
         <one-to-many 
             class="org.openmicroscopy.omero.model.Classification"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Repository -->
+    <set
+        name="repositories"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="module_execution_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Repository"
         />
     </set>
     <!-- bi-directional one-to-many association to Category -->
@@ -195,6 +217,20 @@
             class="org.openmicroscopy.omero.model.ImageInfo"
         />
     </set>
+    <!-- bi-directional one-to-many association to ImagePlate -->
+    <set
+        name="imagePlates"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="module_execution_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.ImagePlate"
+        />
+    </set>
     <!-- bi-directional one-to-many association to ImagePixel -->
     <set
         name="imagePixels"
@@ -209,9 +245,9 @@
             class="org.openmicroscopy.omero.model.ImagePixel"
         />
     </set>
-    <!-- bi-directional one-to-many association to ImagePlate -->
+    <!-- bi-directional one-to-many association to Group -->
     <set
-        name="imagePlates"
+        name="groups"
         lazy="true"
         inverse="true"
 		cascade="all"
@@ -220,7 +256,21 @@
             <column name="module_execution_id" />
         </key>
         <one-to-many 
-            class="org.openmicroscopy.omero.model.ImagePlate"
+            class="org.openmicroscopy.omero.model.Group"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Experimenter -->
+    <set
+        name="experimenters"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="module_execution_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Experimenter"
         />
     </set>
     <!-- bi-directional one-to-many association to CategoryGroup -->

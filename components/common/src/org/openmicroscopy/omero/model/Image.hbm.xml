@@ -25,12 +25,6 @@
     </id>
 
     <property
-        name="pixelsId"
-        type="java.lang.Integer"
-        column="pixels_id"
-        length="4"
-    />
-    <property
         name="inserted"
         type="java.sql.Timestamp"
         column="inserted"
@@ -234,6 +228,14 @@
             class="org.openmicroscopy.omero.model.DisplayOption"
         />
     </set>
+    <!-- bi-directional many-to-one association to ImagePixel -->
+    <many-to-one
+        name="imagePixel"
+        class="org.openmicroscopy.omero.model.ImagePixel"
+        not-null="true"
+    >
+        <column name="pixels_id" />
+    </many-to-one>
     <!-- bi-directional many-to-one association to Group -->
     <many-to-one
         name="group"

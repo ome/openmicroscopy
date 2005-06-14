@@ -43,28 +43,10 @@
         length="1"
     />
     <property
-        name="greyChannel"
-        type="java.lang.Integer"
-        column="grey_channel"
-        length="4"
-    />
-    <property
-        name="greenChannel"
-        type="java.lang.Integer"
-        column="green_channel"
-        length="4"
-    />
-    <property
         name="colorMap"
         type="java.lang.String"
         column="color_map"
         length="-1"
-    />
-    <property
-        name="redChannel"
-        type="java.lang.Integer"
-        column="red_channel"
-        length="4"
     />
     <property
         name="ZStop"
@@ -76,18 +58,6 @@
         name="zoom"
         type="java.lang.Float"
         column="zoom"
-        length="4"
-    />
-    <property
-        name="blueChannel"
-        type="java.lang.Integer"
-        column="blue_channel"
-        length="4"
-    />
-    <property
-        name="pixels"
-        type="java.lang.Integer"
-        column="pixels"
         length="4"
     />
     <property
@@ -125,6 +95,14 @@
     >
         <column name="image_id" />
     </many-to-one>
+    <!-- bi-directional many-to-one association to ImagePixel -->
+    <many-to-one
+        name="imagePixel"
+        class="org.openmicroscopy.omero.model.ImagePixel"
+        not-null="true"
+    >
+        <column name="pixels" />
+    </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one
         name="moduleExecution"
@@ -133,6 +111,20 @@
     >
         <column name="module_execution_id" />
     </many-to-one>
+    <!-- bi-directional one-to-many association to DisplayRoi -->
+    <set
+        name="displayRois"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="display_options" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.DisplayRoi"
+        />
+    </set>
 
 </class>
 </hibernate-mapping>

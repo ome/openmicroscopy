@@ -25,12 +25,6 @@
     </id>
 
     <property
-        name="repository"
-        type="java.lang.Integer"
-        column="repository"
-        length="4"
-    />
-    <property
         name="path"
         type="java.lang.String"
         column="path"
@@ -52,6 +46,14 @@
         not-null="true"
     >
         <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Repository -->
+    <many-to-one
+        name="repository"
+        class="org.openmicroscopy.omero.model.Repository"
+        not-null="true"
+    >
+        <column name="repository" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

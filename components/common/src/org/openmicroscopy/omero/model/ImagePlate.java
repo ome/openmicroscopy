@@ -16,9 +16,6 @@ public class ImagePlate implements Serializable {
     /** nullable persistent field */
     private Integer sample;
 
-    /** nullable persistent field */
-    private Integer plate;
-
     /** persistent field */
     private org.openmicroscopy.omero.model.Image image;
 
@@ -26,11 +23,10 @@ public class ImagePlate implements Serializable {
     private org.openmicroscopy.omero.model.ModuleExecution moduleExecution;
 
     /** full constructor */
-    public ImagePlate(Integer attributeId, String well, Integer sample, Integer plate, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
+    public ImagePlate(Integer attributeId, String well, Integer sample, org.openmicroscopy.omero.model.Image image, org.openmicroscopy.omero.model.ModuleExecution moduleExecution) {
         this.attributeId = attributeId;
         this.well = well;
         this.sample = sample;
-        this.plate = plate;
         this.image = image;
         this.moduleExecution = moduleExecution;
     }
@@ -68,14 +64,6 @@ public class ImagePlate implements Serializable {
 
     public void setSample(Integer sample) {
         this.sample = sample;
-    }
-
-    public Integer getPlate() {
-        return this.plate;
-    }
-
-    public void setPlate(Integer plate) {
-        this.plate = plate;
     }
 
     public org.openmicroscopy.omero.model.Image getImage() {

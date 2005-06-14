@@ -12,9 +12,6 @@ public class Image implements Serializable {
     /** identifier field */
     private Integer imageId;
 
-    /** nullable persistent field */
-    private Integer pixelsId;
-
     /** persistent field */
     private Date inserted;
 
@@ -29,6 +26,9 @@ public class Image implements Serializable {
 
     /** nullable persistent field */
     private String imageGuid;
+
+    /** persistent field */
+    private org.openmicroscopy.omero.model.ImagePixel imagePixel;
 
     /** persistent field */
     private org.openmicroscopy.omero.model.Group group;
@@ -76,14 +76,14 @@ public class Image implements Serializable {
     private Set datasets;
 
     /** full constructor */
-    public Image(Integer imageId, Integer pixelsId, Date inserted, String name, String description, Date created, String imageGuid, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
+    public Image(Integer imageId, Date inserted, String name, String description, Date created, String imageGuid, org.openmicroscopy.omero.model.ImagePixel imagePixel, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
         this.imageId = imageId;
-        this.pixelsId = pixelsId;
         this.inserted = inserted;
         this.name = name;
         this.description = description;
         this.created = created;
         this.imageGuid = imageGuid;
+        this.imagePixel = imagePixel;
         this.group = group;
         this.experimenter = experimenter;
         this.thumbnails = thumbnails;
@@ -106,11 +106,12 @@ public class Image implements Serializable {
     }
 
     /** minimal constructor */
-    public Image(Integer imageId, Date inserted, String name, Date created, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
+    public Image(Integer imageId, Date inserted, String name, Date created, org.openmicroscopy.omero.model.ImagePixel imagePixel, org.openmicroscopy.omero.model.Group group, org.openmicroscopy.omero.model.Experimenter experimenter, Set thumbnails, Set classifications, Set displayRois, Set imageInfos, Set imagePixels, Set imagePlates, Set features, Set imageAnnotations, Set moduleExecutions, Set imageDimensions, Set channelComponents, Set displayOptions, Set datasets) {
         this.imageId = imageId;
         this.inserted = inserted;
         this.name = name;
         this.created = created;
+        this.imagePixel = imagePixel;
         this.group = group;
         this.experimenter = experimenter;
         this.thumbnails = thumbnails;
@@ -134,14 +135,6 @@ public class Image implements Serializable {
 
     public void setImageId(Integer imageId) {
         this.imageId = imageId;
-    }
-
-    public Integer getPixelsId() {
-        return this.pixelsId;
-    }
-
-    public void setPixelsId(Integer pixelsId) {
-        this.pixelsId = pixelsId;
     }
 
     public Date getInserted() {
@@ -182,6 +175,14 @@ public class Image implements Serializable {
 
     public void setImageGuid(String imageGuid) {
         this.imageGuid = imageGuid;
+    }
+
+    public org.openmicroscopy.omero.model.ImagePixel getImagePixel() {
+        return this.imagePixel;
+    }
+
+    public void setImagePixel(org.openmicroscopy.omero.model.ImagePixel imagePixel) {
+        this.imagePixel = imagePixel;
     }
 
     public org.openmicroscopy.omero.model.Group getGroup() {

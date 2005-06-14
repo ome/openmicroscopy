@@ -39,6 +39,20 @@
 
     <!-- Associations -->
   
+    <!-- bi-directional one-to-many association to Category -->
+    <set
+        name="categories"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="category_group" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Category"
+        />
+    </set>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one
         name="moduleExecution"
