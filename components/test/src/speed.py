@@ -10,7 +10,7 @@ from net.grinder.statistics import ExpressionView, StatisticsIndexMap, Statistic
 from java.util import Set
 from java.util import HashSet
 from org.openmicroscopy.omero.tests import OMEPerformanceData as Data
-from org.openmicroscopy.omero.test import OmeroGrinderTest as Omero
+from org.openmicroscopy.omero.itests import OmeroGrinderTest as Omero
 from org.openmicroscopy.omero.util  import Utils
 from org.openmicroscopy.shoola.env.data.t import ShoolaGrinderTest as Shoola
 from org.springframework.beans.factory.config import AutowireCapableBeanFactory as Autowire

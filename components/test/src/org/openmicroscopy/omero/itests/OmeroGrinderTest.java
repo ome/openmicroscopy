@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.test.OmeroGrinderTest
+ * org.openmicroscopy.omero.itests.OmeroGrinderTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.omero.test;
+package org.openmicroscopy.omero.itests;
 
 //Java imports
 import java.util.Map;
