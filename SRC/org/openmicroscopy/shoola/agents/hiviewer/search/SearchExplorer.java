@@ -89,6 +89,7 @@ public class SearchExplorer
     public SearchExplorer(JFrame owner, String title, Set nodes)
     {
         super(owner, title);
+        setResizable(true);
         this.owner = owner;
         tree = new JTree();
         manager = new SearchExplorerMng(this);
