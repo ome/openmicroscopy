@@ -278,6 +278,21 @@ public class TinyDialogUI
                     TitleBar.HEIGHT+2*BORDER_THICKNESS);
             titleBar.setPreferredSize(d);
             titleBar.sizeButton.setActionType(SizeButton.EXPAND);
+            window.setSize(d.width, d.height);
+        } else {
+            addComponent(canvas);
+            titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
+            Dimension dT = titleBar.getPreferredSize();
+            Dimension dW = window.getRestoreSize();
+            window.setSize(dT.width, dW.height);
+        }
+        /*
+        if (window.isCollapsed()) {
+            removeComponent(canvas);
+            Dimension d = new Dimension(window.getWidth(), 
+                    TitleBar.HEIGHT+2*BORDER_THICKNESS);
+            titleBar.setPreferredSize(d);
+            titleBar.sizeButton.setActionType(SizeButton.EXPAND);
         } else {
             addComponent(canvas);
             titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
@@ -287,6 +302,7 @@ public class TinyDialogUI
         int h = d.height;
         if (h > MAX_HEIGHT) h = MAX_HEIGHT;
         window.setSize(dT.width, h);
+        */
         window.validate();
         window.repaint();
     }

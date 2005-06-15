@@ -31,18 +31,19 @@ package org.openmicroscopy.shoola.env.ui.tdialog;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
-import javax.swing.JDialog;;
+import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- *  A tiny-looking JDialog.
+ *  A tiny-looking non-modal and non-resizable JDialog without decoration.
  * <p>This window has a small title bar and an JComponent to display the 
  * image.
  * <p>The window behaves mostly like a regular window, but has a close and
@@ -72,8 +73,14 @@ public class TinyDialog
     /** Bound property name indicating if the window's title has changed. */
     public final static String TITLE_PROPERTY = "title";
     
+    /** The size of the frame before the last collapse request. */
+    private Dimension       restoreSize;
+    
     /** The View component that renders this frame. */
     protected TinyDialogUI  uiDelegate;
+    
+    /** The Controller component that renders this frame. */
+    protected DialogControl controller;
     
     /** Tells if this window is expanded or collapsed. */
     private boolean         collapsed;
@@ -88,8 +95,14 @@ public class TinyDialog
     private void setProperties()
     {
         setModal(false);
+        setResizable(false);
         setUndecorated(true);
+        setRestoreSize(new Dimension(getWidth(), getHeight()));
     }
+    
+    void setRestoreSize(Dimension d) { restoreSize = d; }
+    
+    Dimension getRestoreSize() { return restoreSize; }
     
     /**
      * Creates a new window with the specified owner frame.
@@ -117,7 +130,7 @@ public class TinyDialog
         this.title = title;
         //Create the View and the Controller.
         uiDelegate = new TinyDialogUI(this, image);
-        new DialogControl(this, uiDelegate);
+        controller = new DialogControl(this, uiDelegate);
     }
     
     /**
@@ -141,13 +154,13 @@ public class TinyDialog
     public TinyDialog(Frame owner, JComponent c, String title)
     {
         super(owner);
-        setProperties();
         if (owner == null) throw new NullPointerException("No owner.");
         this.title = title;
         //Create the View and the Controller.
         if (c == null) uiDelegate = new TinyDialogUI(this);
         else uiDelegate = new TinyDialogUI(this, c);
-        new DialogControl(this, uiDelegate);
+        controller = new DialogControl(this, uiDelegate);
+        setProperties();
     }
     
     /**
@@ -159,11 +172,11 @@ public class TinyDialog
     public TinyDialog(Frame owner, String title)
     {
         super(owner);
-        setProperties();
         this.title = title;
         if (owner == null) throw new NullPointerException("No owner.");
         uiDelegate = new TinyDialogUI(this);
-        new DialogControl(this, uiDelegate);
+        controller = new DialogControl(this, uiDelegate);
+        setProperties();
     }
     
     /** Moves the window to the Front. */
@@ -221,6 +234,8 @@ public class TinyDialog
     public void setCollapsed(boolean b)
     {
         if (b == collapsed) return;  //We're already in the requested state.
+        if (!collapsed)
+            setRestoreSize(new Dimension(getWidth(), getHeight()));
         //Fire the state change.
         Boolean oldValue = collapsed ? Boolean.TRUE : Boolean.FALSE,
                 newValue = b ? Boolean.TRUE : Boolean.FALSE;
@@ -260,5 +275,19 @@ public class TinyDialog
     public boolean isClosed() { return closed; }
     
     public void closeWindow() { uiDelegate.updateClosedState(); }
+    
+    /** Overrides the method. Attaches a borderListener if <code>true</code>. */
+    public void setResizable(boolean b)
+    {
+        super.setResizable(b);
+        if (b)
+            getRootPane().addMouseMotionListener(new BorderListener(this));
+    }
+    
+    /** Overrides the method to make sure that we have no decoration. */
+    public void setUndecorated(boolean b)
+    {
+        super.setUndecorated(false);
+    }
 
 }

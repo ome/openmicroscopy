@@ -97,7 +97,7 @@ class DialogControl
         view.attachMouseListener(this);
         view.attachMouseMotionListener(this);
     }
-    
+
     /** Returns the <code>model</code>. */
     TinyDialog getModel() { return model; }
     
