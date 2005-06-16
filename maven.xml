@@ -51,6 +51,15 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
     <maven:property name="version" defaultValue="1.1" />
     <attainGoal name="plugin:download"/>
   </goal>
+ <goal name="create-classpath">
+   <ant:pathconvert targetos="${ant.os}" 
+        property="my.classpath"
+        refid="maven.dependency.classpath"/>
+   <ant:echo file="${maven.build.dir}/classpath.sh"><!-- TODO -->
+export CLASSPATH=${maven.build.dest}:${my.classpath}
+   </ant:echo>
+ </goal>
+
 
 
 <!-- For calling from the top level -->
