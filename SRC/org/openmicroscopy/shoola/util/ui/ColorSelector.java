@@ -72,7 +72,13 @@ import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 public class ColorSelector
 	extends JDialog
 {	
-	
+    
+    /** 
+     * Identifies the color paletter selected.
+     * RGB: only RED, GREEN and BLUE.
+     */
+    public static final int             RGB = 0, RGB_EXTENDED = 1;
+    
 	/** table constants. */
 	private static final int			ROW_HEIGHT = 25;
 	private static final int			WIDTH_ONE = 140;
@@ -97,8 +103,10 @@ public class ColorSelector
 	private static final int 			WIN_H = 140;
 	
 	private static final int			MAX_SLIDER = 100;
+    
 	private static final String[]  		selection;
 	
+    private static final String[]       selectionLimited;
 	
 	static {
 		selection = new String[ColorSelectorManager.MAX];
@@ -112,6 +120,12 @@ public class ColorSelector
 		selection[ColorSelectorManager.ORANGE] = "Orange";
 		selection[ColorSelectorManager.PINK] = "Pink";
 		selection[ColorSelectorManager.YELLOW] = "Yellow";
+        
+        selectionLimited = new String[3];
+        selectionLimited[ColorSelectorManager.RED] = "Red";
+        selectionLimited[ColorSelectorManager.GREEN] = "Green";
+        selectionLimited[ColorSelectorManager.BLUE] = "Blue";
+        
 	}
 				
 	/** Slider to select the alpha component of the color. */
@@ -133,14 +147,18 @@ public class ColorSelector
 	private JPanel						contents;
 	
 	private ColorSelectorManager		manager;
+    
 	
-	public ColorSelector(IColorChooser component, int[] rgba, int index)
+	public ColorSelector(IColorChooser component, int[] rgba, int index, int
+                        typePalette)
 	{
-		super(component.getReferenceFrame(), "Color Selector", true);	
-		Color c = initColor(rgba);
+		super(component.getReferenceFrame(), "Color Selector", true);
+        Color c;
+        if (typePalette == RGB) c = initLimitedColor(rgba);
+        else c = initColor(rgba);
 		manager = new ColorSelectorManager(this, component, c, index);
 		initColorPanel(c);
-		initControls((rgba[3]*100/255));
+		initControls((rgba[3]*100/255), typePalette);
 		buildGUI();
 		manager.attachListeners();
 		Container contentPane = super.getContentPane(); 
@@ -175,6 +193,24 @@ public class ColorSelector
 			color = new Color(255, 0, 0, rgba[3]);
 		return color;
 	}
+    
+    /** Initializes the color. */
+    private Color initLimitedColor(int rgba[])
+    {
+        Color  color = new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+        if (color.equals(Color.GREEN))
+            colorIndex = ColorSelectorManager.GREEN;
+        else if (color.equals(Color.BLUE)) 
+            colorIndex = ColorSelectorManager.BLUE;
+        else if (color.equals(Color.RED))
+            colorIndex = ColorSelectorManager.RED;
+        else {
+            colorIndex = ColorSelectorManager.RED;
+            color = new Color(255, 0, 0, rgba[3]);
+        }
+            
+        return color;
+    }
 	
 	/** Initialize the color preview. */
 	private void initColorPanel(Color c)
@@ -187,7 +223,7 @@ public class ColorSelector
 	}
 	
 	/** Initializes the slider and the Combobox. */
-	private void initControls(int value)
+	private void initControls(int value, int typePalette)
 	{
 		applyButton = new JButton("Apply");
 		cancelButton = new JButton("Cancel");
@@ -195,7 +231,9 @@ public class ColorSelector
 		alphaField = new JLabel("Transparency: "+value);
 		alphaField.setOpaque(false);
 		alphaSlider.setOpaque(false);
-		colorsList = new JComboBox(selection);
+        if (typePalette == RGB)
+            colorsList = new JComboBox(selectionLimited);
+        else colorsList = new JComboBox(selection);
 		colorsList.setSelectedIndex(colorIndex);
 	}
 	
