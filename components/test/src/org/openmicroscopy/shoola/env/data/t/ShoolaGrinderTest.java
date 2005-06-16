@@ -46,6 +46,8 @@ import javax.sql.DataSource;
 import org.openmicroscopy.omero.tests.OMEData;
 import org.openmicroscopy.omero.tests.OMEPerformanceData;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
@@ -81,6 +83,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class ShoolaGrinderTest
     extends DataServicesTestCase
 {
+    private static Log log = LogFactory.getLog(ShoolaGrinderTest.class);
     
     OMEData data;
     GrinderObserver observer = new GrinderObserver();
@@ -135,6 +138,7 @@ public class ShoolaGrinderTest
     }
     public Object testLoadCGCIHierarchyCategoryGroup(){
         setUp();
+        log.info("loadCGCI-CG:"+data.cgId);
         hbw.loadHierarchy(CategoryGroupData.class, data.cgId, observer);
         return observer.result;
     }
@@ -145,6 +149,7 @@ public class ShoolaGrinderTest
     }
     public Object testLoadCGCIHierarchyCategory(){
         setUp();
+        log.info("loadCGCI-C:"+data.cId);
         hbw.loadHierarchy(CategoryData.class, data.cId, observer);
         return observer.result;
     }
@@ -230,6 +235,11 @@ public class ShoolaGrinderTest
         }
         return images;
     }
+//"shoola.testLoadCGCIHierarchyCategory()"
+//"shoola.testFindImageAnnotationsSetForExperimenter()"
+//shoola.testFindDatasetAnnotationsSetForExperimenter()"
+//shoola.testLoadCGCIHierarchyCategoryGroup()"
+//
 
     
 }

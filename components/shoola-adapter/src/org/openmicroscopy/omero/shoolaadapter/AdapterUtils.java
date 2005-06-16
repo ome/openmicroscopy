@@ -85,9 +85,9 @@ public class AdapterUtils {
     
     static public DataObject adaptLoadedPDIHierarchy(Class rootNodeType, Object result) {
         if (rootNodeType.equals(Project.class)){
-            return AdapterUtils.go((Project) result);
+            return AdapterUtils.go((Project) result, new HashMap());
         } else if (rootNodeType.equals(Dataset.class)){
-            return AdapterUtils.go((Dataset) result);
+            return AdapterUtils.go((Dataset) result, new HashMap());
         } else {
             throw new IllegalArgumentException("Method only takes Project and Dataset as argument.");
         }
@@ -95,9 +95,9 @@ public class AdapterUtils {
 
     static public DataObject adaptLoadedCGCIHierarchy(Class rootNodeType, Object result) {
         if (rootNodeType.equals(CategoryGroup.class)){
-            return AdapterUtils.go((CategoryGroup) result);
+            return AdapterUtils.go((CategoryGroup) result, new HashMap());
         } else if (rootNodeType.equals(Category.class)){
-            return AdapterUtils.go((Category) result);
+            return AdapterUtils.go((Category) result, new HashMap());
         } else {
             throw new IllegalArgumentException("Method only takes CategoryGroup and Category as argument.");
         }
@@ -105,17 +105,18 @@ public class AdapterUtils {
 
     static public Set adaptFoundPDIHierarchies(Set result) {
         Set dataObjects = new HashSet();
+        Map cache = new HashMap();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
             if (obj instanceof Project) {
                 Project prj = (Project) obj;
-                dataObjects.add(AdapterUtils.go(prj));
+                dataObjects.add(AdapterUtils.go(prj,cache));
             } else if (obj instanceof Dataset) {
                 Dataset ds = (Dataset) obj;
-                dataObjects.add(AdapterUtils.go(ds)); 
+                dataObjects.add(AdapterUtils.go(ds,cache)); 
             } else if (obj instanceof Image) {
                 Image img = (Image) obj;
-                dataObjects.add(AdapterUtils.go(img));
+                dataObjects.add(AdapterUtils.go(img,cache));
             } else {
                 throw new RuntimeException("Method returned unexpected value type:" + obj.getClass()	);
             }
@@ -125,17 +126,18 @@ public class AdapterUtils {
 
     static public Set adaptFoundCGCIHierarchies(Set result) {
         Set dataObjects = new HashSet();
+        Map cache = new HashMap();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
             if (obj instanceof CategoryGroup) {
                 CategoryGroup cg = (CategoryGroup) obj;
-                dataObjects.add(AdapterUtils.go(cg));
+                dataObjects.add(AdapterUtils.go(cg,cache));
             } else if (obj instanceof Category) {
                 Category ca = (Category) obj;
-                dataObjects.add(AdapterUtils.go(ca)); 
+                dataObjects.add(AdapterUtils.go(ca,cache)); 
             } else if (obj instanceof Image) {
                 Image img = (Image) obj;
-                dataObjects.add(AdapterUtils.go(img));
+                dataObjects.add(AdapterUtils.go(img,cache));
             } else {
                 throw new RuntimeException("Method returned unexpected value type:" + obj.getClass()	);
             }
@@ -145,13 +147,14 @@ public class AdapterUtils {
 
     static public Map adaptFoundImageAnnotations(Map result) {
         Map dataObjects = new HashMap();
+        Map cache = new HashMap();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
             Set value = (Set) result.get(key);
             dataObjects.put(key,new HashSet());
             for (Iterator j = value.iterator(); j.hasNext();) {
                 ImageAnnotation ann = (ImageAnnotation) j.next();
-                ((Set) dataObjects.get(key)).add(AdapterUtils.go(ann));
+                ((Set) dataObjects.get(key)).add(AdapterUtils.go(ann,cache));
             }
         }
         return dataObjects; 
@@ -159,21 +162,22 @@ public class AdapterUtils {
 
     static public Map adaptFoundDatasetAnnotations(Map result) {
         Map dataObjects = new HashMap();
+        Map cache = new HashMap();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
             Set value = (Set) result.get(key);
             dataObjects.put(key,new HashSet());
             for (Iterator j = value.iterator(); j.hasNext();) {
                 DatasetAnnotation ann = (DatasetAnnotation) j.next();
-                ((Set) dataObjects.get(key)).add(AdapterUtils.go(ann));
+                ((Set) dataObjects.get(key)).add(AdapterUtils.go(ann,cache));
             }
         }
         return dataObjects; 
     }
     
-    static public ProjectData go(Project p) {
-        return go(p, newCache());
-    }
+//    static public ProjectData go(Project p) {
+//        return go(p, newCache());
+//    }
 
     
     static public ProjectData go(Project p, Map cache) {
@@ -213,9 +217,9 @@ public class AdapterUtils {
         return pd;
     }
 
-    static public DatasetData go(Dataset d) {
-        return go(d, newCache());
-    }
+//    static public DatasetData go(Dataset d) {
+//        return go(d, newCache());
+//    }
 
     static public DatasetData go(Dataset d, Map cache) {
 
@@ -256,9 +260,9 @@ public class AdapterUtils {
         
     }
 
-    static public CategoryGroupData go(CategoryGroup cg) {
-        return go(cg, newCache());
-    }
+//    static public CategoryGroupData go(CategoryGroup cg) {
+//        return go(cg, newCache());
+//    }
     
     static public CategoryGroupData go(CategoryGroup cg, Map cache) {
 
@@ -281,9 +285,9 @@ public class AdapterUtils {
         return cgd;
     }
 
-    static public CategoryData go(Category c) {
-        return go(c, newCache());
-    }
+//    static public CategoryData go(Category c) {
+//        return go(c, newCache());
+//    }
     
     static public CategoryData go(Category c, Map cache){
 
@@ -307,9 +311,9 @@ public class AdapterUtils {
         return cd;
     }
 
-    static public ImageData go(Image img) {
-        return go(img, newCache());
-    }
+//    static public ImageData go(Image img) {
+//        return go(img, newCache());
+//    }
 
     static public ImageData go(Image img, Map cache) {
 
@@ -399,9 +403,9 @@ public class AdapterUtils {
         return ed;
     }
 
-    static public AnnotationData go(ImageAnnotation ann) {
-        return go(ann, newCache());
-    }
+//    static public AnnotationData go(ImageAnnotation ann) {
+//        return go(ann, newCache());
+//    }
     
     static public AnnotationData go(ImageAnnotation ann, Map cache) {
 
@@ -433,9 +437,9 @@ public class AdapterUtils {
         return ad;
     }
     
-    static public AnnotationData go(DatasetAnnotation ann) {
-        return go(ann, newCache());
-    }
+//    static public AnnotationData go(DatasetAnnotation ann) {
+//        return go(ann, newCache());
+//    }
     
     static public AnnotationData go(DatasetAnnotation ann, Map cache) {
 

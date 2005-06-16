@@ -9,6 +9,7 @@ from net.grinder.script import Test
 from net.grinder.statistics import ExpressionView, StatisticsIndexMap, StatisticsView
 from java.util import Set
 from java.util import HashSet
+from org.openmicroscopy.omero.itests import ComparisonUtils as Cmp
 from org.openmicroscopy.omero.tests import OMEPerformanceData as Data
 from org.openmicroscopy.omero.itests import OmeroGrinderTest as Omero
 from org.openmicroscopy.omero.util  import Utils
@@ -48,14 +49,14 @@ grinder.registerSummaryStatisticsView(szDetailView) ## TODO THIS IS NOT ACCURATE
 class TestRunner:
    
     def __init__(self):
-	self.percent = 0.05
+	self.percent = 0.0333
 	self.increase = 0.05
 	self.run = 0
 	self.omero = None
 	self.shoola = None
 	
     def getData(self):
-	self.percent += self.increase * self.run 
+	#self.percent += self.increase * self.run 
 	self.run += 1
 	data = Data(self.percent)
 	data.setDataSource(ds)
@@ -78,23 +79,32 @@ class TestRunner:
 	_shoola = Shoola(data)
         
 	grinder.statistics.delayReports = 1
-        for o,s in zip(oTests,sTests):
-            self.omero = o.wrap(_omero)
-            self.doIt ( o.description )
-            self.shoola = s.wrap(_shoola)
-            self.doIt ( s.description )
+	for o,s in zip(oTests,sTests):
+		self.omero = o.wrap(_omero)
+		self.shoola = s.wrap(_shoola)
+		a = self.doIt( o.description )
+		b = self.doIt( s.description )
+
+		if not Cmp.compare(a,b):
+			log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+			log(o.description + " and " + s.description + "differ.")
+			log("o="+str(a))
+			log("s="+str(b))
+			log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
     def doIt(self,method):
 	success=1
+	result=None
 	try:
 		result=eval("self."+method)
 		sz = Utils.structureSize(result)
+		Utils.writeXmlToFile(result,"log/"+method[:-2]+".xml")
 		grinder.statistics.setValue(szIndex, sz)        
-		log("Return from method: ( "+str(sz)+")")
+		log("Return from method "+method+" : ( "+str(sz)+")")
 		log(str(result))
 		log(" ")
 	except Throwable, inst:
-		result="Error occurred"
+		result="Error occurred in "+method
 		log("------------------------------------------")
 		log(result+" :")
 		t = inst
@@ -113,4 +123,5 @@ class TestRunner:
 		success=0
 	grinder.statistics.setSuccess(success)
 	grinder.statistics.report()
+	return result
 

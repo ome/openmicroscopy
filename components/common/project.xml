@@ -20,6 +20,11 @@
       <version>2.1.12</version>
     </dependency>
     <dependency>
+      <groupId>burlap</groupId>
+      <artifactId>burlap</artifactId>
+      <version>2.1.7</version>
+    </dependency>
+    <dependency>
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>7.4.1-jdbc3</version>

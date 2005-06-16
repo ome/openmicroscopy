@@ -20,6 +20,7 @@
 	  left outer join fetch i.experimenter as i_e
 	  left outer join fetch i.imagePixel as i_pix
 	    where p.projectId = :id
+		and d.name != 'ImportSet'
   ]]></query>
 
   <query name="loadHierarchy_by_Dataset"><![CDATA[
@@ -31,6 +32,7 @@
 	  left outer join fetch i.experimenter as i_e
   	  left outer join fetch i.imagePixel as i_pix
 	    where d.datasetId = :id 
+		and d.name != 'ImportSet'
   ]]></query>
 
   <query name="loadHierarchy_by_CategoryGroup"><![CDATA[
@@ -73,6 +75,7 @@
 	  left outer join fetch p.experimenter as p_exp
 	  left outer join fetch p.group as p_g 
 	    where i in (:img_list)
+		and d.name != 'ImportSet'
   ]]></query>	
 
   <query name="findCGCI"><![CDATA[
@@ -118,6 +121,7 @@
 	  left outer join fetch ann_mex.experimenter as ann_exp
       where ann.dataset in (:ds_list)
 	    and ( ann.valid = true or ann.valid is null)
+		and d.name != 'ImportSet'
   ]]></query>
   
   <query name="findDatasetAnnWithID"><![CDATA[
@@ -128,6 +132,7 @@
       where d in (:ds_list) 
 	    and ( ann.valid = true or ann.valid is null)
 	    and ann_exp = :expId
+		and d.name != 'ImportSet'
   ]]></query>
   
 </hibernate-mapping>

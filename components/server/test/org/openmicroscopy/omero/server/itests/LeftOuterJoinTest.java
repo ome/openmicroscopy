@@ -31,6 +31,7 @@ package org.openmicroscopy.omero.server.itests;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +54,10 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.logic.ContainerDao;
 import org.openmicroscopy.omero.logic.HierarchyBrowsingImpl;
+import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Image;
+import org.openmicroscopy.omero.model.Project;
+import org.openmicroscopy.omero.tests.OMEData;
 import org.openmicroscopy.omero.util.Utils;
 
 /** 
@@ -82,7 +86,8 @@ public class LeftOuterJoinTest
                 "WEB-INF/services.xml",
                 "WEB-INF/dao.xml",
                 "WEB-INF/data.xml", 
-                "WEB-INF/test/config-test.xml" };
+                "WEB-INF/test/config-test.xml",
+                "WEB-INF/test/test.xml"};
     }
 
     public void testImageThumbnailExplodsOnHessianSerialization() {
@@ -98,4 +103,22 @@ public class LeftOuterJoinTest
         Set test = Utils.getImagesinPID(result);
         assertTrue("Images in should eq. images out",imgIds.size()==test.size());
     }
+
+    public void testDuplicateImages() {
+        HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
+        OMEData data = (OMEData) applicationContext.getBean("data");
+        Set result = hb.findPDIHierarchies(data.imgsPDI);
+        Set test = Utils.getImagesinPID(result);
+        assertTrue("Images in should eq. images out",data.imgsPDI.size()==test.size());
+        
+        Set noDupesPlease = new HashSet(); 
+        for (Iterator i = test.iterator(); i.hasNext();) {
+            Image img = (Image) i.next();
+            if (noDupesPlease.contains(img.getImageId())) 
+                fail("But also the IDs should be unique!");
+          	noDupesPlease.add(img.getImageId());
+        }
+        
+    }
+    
 }

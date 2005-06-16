@@ -39,6 +39,8 @@ package org.openmicroscopy.omero.logic;
 //Java imports
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,7 +65,7 @@ import org.openmicroscopy.omero.model.ImageAnnotation;
 import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.model2.Category2;
 import org.openmicroscopy.omero.model2.CategoryGroup2;
-
+import org.openmicroscopy.omero.util.ReflectionUtils;
 
 /**
  * implementation of the HierarchyBrowsing service. A single service
@@ -84,7 +86,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     AnnotationDao annotationDao;
 
     ContainerDao containerDao;
-    
+
     public void setAnnotationDao(AnnotationDao dao) {
         this.annotationDao = dao;
     }
@@ -101,7 +103,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         // CONTRACT
         if (!Project.class.equals(arg0) && !Dataset.class.equals(arg0)) {
             throw new IllegalArgumentException(
-                    "Class parameter for loadPDIHierarchy() must be Project or Dataset, not "+arg0);
+                    "Class parameter for loadPDIHierarchy() must be Project or Dataset, not "
+                            + arg0);
         }
 
         return clean(containerDao.loadHierarchy(arg0, arg1));
@@ -116,7 +119,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         // CONTRACT
         if (!CategoryGroup.class.equals(arg0) && !Category.class.equals(arg0)) {
             throw new IllegalArgumentException(
-                    "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category, not "+arg0);
+                    "Class parameter for loadCGCIHierarchy() must be CategoryGroup or Category, not "
+                            + arg0);
         }
 
         return clean(containerDao.loadHierarchy(arg0, arg1));
@@ -137,9 +141,9 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         Set imagesAll = new HashSet(result);
 
         if (null == imagesAll || imagesAll.size() == 0) {
-            if (log.isDebugEnabled()){
-                log.debug("findPDIHierarchies() -- no results found:\n"+
-                        arg0.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("findPDIHierarchies() -- no results found:\n"
+                        + arg0.toString());
             }
             return new HashSet();
         }
@@ -199,9 +203,9 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         Set imagesAll = new HashSet(result);
 
         if (null == imagesAll || imagesAll.size() == 0) {
-            if (log.isDebugEnabled()){
-                log.debug("findCGCIHierarchies() -- no results found:\n"+
-                        arg0.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("findCGCIHierarchies() -- no results found:\n"
+                        + arg0.toString());
             }
             return new HashSet();
         }
@@ -223,15 +227,15 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                 hierarchies.add(img);
             } else {
                 Iterator c = categories.iterator();
-                while (c.hasNext()) { 
+                while (c.hasNext()) {
                     Category tmp = (Category) c.next();
-                    Category2 ca = new Category2(tmp);
+                    Category2 ca = new Category2(tmp); //TODO Hack 
 
-                    if (!(ca.getImages() instanceof HashSet)) //TODO Hack 
+                    if (!(ca.getImages() instanceof HashSet))
                         ca.setImages(new HashSet());
                     ca.getImages().add(img);
 
-                    CategoryGroup cg = ca.getCategoryGroup(); 
+                    CategoryGroup cg = ca.getCategoryGroup();
                     if (cg == null) {
                         hierarchies.add(ca);
                     } else {
@@ -258,7 +262,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         List result = annotationDao.findImageAnnotations(arg0);
-        
+
         return (Map) clean(sortImageAnnotations(result));
 
     }
@@ -282,7 +286,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     Map sortImageAnnotations(final List l) {
 
-        Set result = new HashSet(l); 
+        Set result = new HashSet(l);
 
         if (null == result || result.size() == 0) {
             return new HashMap();
@@ -338,7 +342,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     Map sortDatasetAnnotations(final List l) {
 
-        Set result = new HashSet(l); 
+        Set result = new HashSet(l);
 
         if (null == result || result.size() == 0) {
             return new HashMap();
@@ -361,113 +365,62 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
 
     /** top-level call. If this is not initialized abort */
-    Object clean(Object obj){
-        if (! Hibernate.isInitialized(obj)){
-            throw new IllegalStateException("If the return object is not initialized then we can't send it.");
+    Object clean(Object obj) {
+        if (!Hibernate.isInitialized(obj)) {
+            throw new IllegalStateException(
+                    "If the return object is not initialized then we can't send it.");
         }
         Set done = new HashSet();
-        hessianClean(obj,done);
+        hessianClean(obj, done);
         return obj;
     }
-       
+
     /** removes all Hibernate-related code. 
      * @DEV.TODO Currently tests all Objects, should eventually test only Hibernate parent class
      * @param An object to clean of Hibernate code
      * @param Set to catch circular references
      */
     void hessianClean(Object obj, Set done) {
-        
-        if (null==obj) return;
-        if (done.contains(obj)) return;
+
+        if (null == obj)
+            return;
+        if (done.contains(obj))
+            return;
         done.add(obj);
-        
+
         if (obj instanceof Map) {
             Map map = (Map) obj;
             for (Iterator i = map.values().iterator(); i.hasNext();) {
                 Object value = i.next();
-                hessianClean(value,done);
+                hessianClean(value, done);
             }
         } else if (obj instanceof Set) {
             Set set = (Set) obj;
             for (Iterator i = set.iterator(); i.hasNext();) {
                 Object item = i.next();
-                hessianClean(item,done);
+                hessianClean(item, done);
             }
-        } else { 
-            Method[] methods = obj.getClass().getDeclaredMethods();
+        } else {
+            Method[] methods = ReflectionUtils.getGettersAndSetters(obj);
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                if (method.getName().startsWith("get")){
-                    if (0==method.getParameterTypes().length){
-                        Object result=invokeGetter(obj,method);
-                        if (! Hibernate.isInitialized(result)){
-                            Method setter = getSetterForGetter(methods,method);
-                            if (null==setter){
-                                throw new IllegalStateException("No setter for getter; this will explode");
-                            }
-                            setToNull(obj,setter);
-                        } else {
-                            hessianClean(result,done);
-                        }
+                if (method.getName().startsWith("set"))
+                    continue;
+                Object result = ReflectionUtils.invokeGetter(obj, method);
+                if (!Hibernate.isInitialized(result)) {
+                    Method setter = ReflectionUtils.getSetterForGetter(methods, method);
+                    if (null == setter) {
+                        throw new IllegalStateException(
+                                "No setter for getter; this will explode:"
+                                        + method);
                     }
+                    ReflectionUtils.setToNull(obj, setter);
+                } else {
+                    hessianClean(result, done);
                 }
             }
-            
-        }
-    }
-    
-    Method getSetterForGetter(Method[] methods, Method getter){
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if (method.getName().startsWith("set")){
-                if (method.getName().substring(1).equals(getter.getName().substring(1))){
-                    return method;
-                }
-            }
-        }
-        return null;
-    }
-    
-    /** call getter and return object. 
-     * @DEV.TODO there maybe be cases where an exception is ok
-     * @param object on which to call getter
-     * @param getter method for some field
-     * @return value stored in field
-     */
-    Object invokeGetter(Object target, Method getter){
-        RuntimeException re = new RuntimeException("Error trying to get value.");
-        Object result=null;
-        try {
-            result = getter.invoke(target,new Object[]{});
-        } catch (IllegalArgumentException e) {
-            re.initCause(e);
-            throw re;
-        } catch (IllegalAccessException e) {
-            re.initCause(e);
-            throw re; 
-        } catch (InvocationTargetException e) {
-            re.initCause(e);
-            throw re;
-        }
-        return result;
-    }
-    
-    void setToNull(Object obj, Method setter){
-        RuntimeException re = new RuntimeException("Error trying to set to null."); 
 
-        try {
-            setter.invoke(obj,new Object[]{null});
-        } catch (IllegalArgumentException e) {
-            re.initCause(e);
-            throw re;
-        } catch (IllegalAccessException e) {
-            re.initCause(e);
-            throw re;
-        } catch (InvocationTargetException e) {
-            re.initCause(e);
-            throw re;
         }
     }
-
 
 }
