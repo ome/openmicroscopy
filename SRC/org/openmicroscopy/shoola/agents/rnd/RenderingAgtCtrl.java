@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
 
@@ -208,6 +210,12 @@ public class RenderingAgtCtrl
     public QuantumDef getQuantumDef() { return abstraction.getQuantumDef(); }
     
     /** Forward event to {@link RenderingAgt abstraction}. */
+    public int getNumberActiveChannels() 
+    {
+        return abstraction.getNumberActiveChannels();
+    }
+    
+    /** Forward event to {@link RenderingAgt abstraction}. */
     public void setActive(int w, boolean active)
     {
         if (active) {
@@ -227,6 +235,12 @@ public class RenderingAgtCtrl
     
     /** Forward event to {@link RenderingAgt abstraction}. */
     public boolean isActive(int w) { return abstraction.isActive(w); }
+    
+    /** Forward event to {@link RenderingAgt abstraction}. */
+    public List getColorActiveChannels()
+    { 
+        return abstraction.getColorActiveChannels();
+    }
     
     /** Forward event to {@link RenderingAgt abstraction}. */
     public int[] getRGBA(int w) { return abstraction.getRGBA(w); }

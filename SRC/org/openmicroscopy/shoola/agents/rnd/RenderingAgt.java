@@ -34,6 +34,10 @@ package org.openmicroscopy.shoola.agents.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.events.viewer.DisplayViewerRelatedAgent;
 import org.openmicroscopy.shoola.env.Agent;
@@ -431,11 +435,28 @@ public class RenderingAgt
     /** 
      * Retrieve the color's component of a specified channel
      * 
-     * @param w     OME index of the specified wavlength.
+     * @param w     OME index of the specified channel.
      * @return  array of values in the range 0-255.
      */
     int[] getRGBA(int w) { return renderingControl.getRGBA(w); }
 
+    /**
+     * Returns the list of color of all active channels.
+     * @return See above.
+     */
+    List getColorActiveChannels()
+    {
+        ArrayList list = new ArrayList();
+        int[] rgba;
+        for (int c = 0; c < pxsDims.sizeW; c++) {
+            if (renderingControl.isActive(c)) {
+                rgba = getRGBA(c);
+                list.add(new Color(rgba[0], rgba[1], rgba[2]));
+            }
+        }
+        return list;
+    }
+    
     /**
      * Set the color's component of a specified channel.
      * 
@@ -476,6 +497,19 @@ public class RenderingAgt
         refreshImage();
     }
 
+    /**
+     * Returns the number of active channels.
+     * @return See above.
+     */
+    int getNumberActiveChannels()
+    { 
+        int count = 0;
+        for (int c = 0; c < pxsDims.sizeW; c++) {
+            if (renderingControl.isActive(c)) count++;
+        }
+        return count;
+    }
+    
     boolean isActive(int w) { return renderingControl.isActive(w); }
     
     double[] getChannelBindingStats(int w) 
