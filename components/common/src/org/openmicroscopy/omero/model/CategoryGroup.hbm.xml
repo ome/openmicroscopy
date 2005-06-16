@@ -15,6 +15,7 @@
     name="org.openmicroscopy.omero.model.CategoryGroup" 
     table="category_groups"
 >
+    <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
         name="attributeId"

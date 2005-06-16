@@ -2,6 +2,8 @@ package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
 import java.util.Set;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -101,6 +103,21 @@ public class Feature implements Serializable {
         return new ToStringBuilder(this)
             .append("featureId", getFeatureId())
             .toString();
+    }
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( !(other instanceof Feature) ) return false;
+        Feature castOther = (Feature) other;
+        return new EqualsBuilder()
+            .append(this.getFeatureId(), castOther.getFeatureId())
+            .isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(getFeatureId())
+            .toHashCode();
     }
 
 }

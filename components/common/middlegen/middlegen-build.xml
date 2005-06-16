@@ -120,6 +120,7 @@
             genXDocletTags="${gen.xdoclet-tag}"
        	    standardCascade="${hibernate.cascade}"
 	    javaTypeMapper="middlegen.plugins.hibernate.HibernateJavaTypeMapper"
+	    equalsHashcode="true"
 	 >
 	 </hibernate>
     </middlegen>

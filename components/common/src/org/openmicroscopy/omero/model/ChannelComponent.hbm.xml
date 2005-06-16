@@ -15,6 +15,7 @@
     name="org.openmicroscopy.omero.model.ChannelComponent" 
     table="channel_components"
 >
+    <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
         name="attributeId"

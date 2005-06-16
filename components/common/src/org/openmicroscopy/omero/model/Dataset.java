@@ -2,6 +2,8 @@ package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
 import java.util.Set;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -153,6 +155,21 @@ public class Dataset implements Serializable {
         return new ToStringBuilder(this)
             .append("datasetId", getDatasetId())
             .toString();
+    }
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( !(other instanceof Dataset) ) return false;
+        Dataset castOther = (Dataset) other;
+        return new EqualsBuilder()
+            .append(this.getDatasetId(), castOther.getDatasetId())
+            .isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(getDatasetId())
+            .toHashCode();
     }
 
 }

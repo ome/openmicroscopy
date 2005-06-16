@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import java.io.Serializable;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -86,6 +88,21 @@ public class ImagePlate implements Serializable {
         return new ToStringBuilder(this)
             .append("attributeId", getAttributeId())
             .toString();
+    }
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( !(other instanceof ImagePlate) ) return false;
+        ImagePlate castOther = (ImagePlate) other;
+        return new EqualsBuilder()
+            .append(this.getAttributeId(), castOther.getAttributeId())
+            .isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(getAttributeId())
+            .toHashCode();
     }
 
 }

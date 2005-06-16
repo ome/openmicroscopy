@@ -15,6 +15,7 @@
     name="org.openmicroscopy.omero.model.ImagePixel" 
     table="image_pixels"
 >
+    <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
         name="attributeId"

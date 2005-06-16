@@ -15,6 +15,7 @@
     name="org.openmicroscopy.omero.model.DatasetAnnotation" 
     table="dataset_annotations"
 >
+    <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
         name="attributeId"

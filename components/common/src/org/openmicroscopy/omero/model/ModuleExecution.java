@@ -3,6 +3,8 @@ package org.openmicroscopy.omero.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -444,6 +446,21 @@ public class ModuleExecution implements Serializable {
         return new ToStringBuilder(this)
             .append("moduleExecutionId", getModuleExecutionId())
             .toString();
+    }
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( !(other instanceof ModuleExecution) ) return false;
+        ModuleExecution castOther = (ModuleExecution) other;
+        return new EqualsBuilder()
+            .append(this.getModuleExecutionId(), castOther.getModuleExecutionId())
+            .isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(getModuleExecutionId())
+            .toHashCode();
     }
 
 }
