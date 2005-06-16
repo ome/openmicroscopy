@@ -51,6 +51,12 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
     <maven:property name="version" defaultValue="1.1" />
     <attainGoal name="plugin:download"/>
   </goal>
+  <goal name="get-jam-plugin">
+    <maven:property name="artifactId" defaultValue="maven-jam-plugin" />
+    <maven:property name="groupId" defaultValue="jam" />
+    <maven:property name="version" defaultValue="2.1" />
+    <attainGoal name="plugin:download"/>
+  </goal>
  <goal name="create-classpath">
    <ant:pathconvert targetos="${ant.os}" 
         property="my.classpath"
@@ -59,7 +65,6 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
 export CLASSPATH=${maven.build.dest}:${my.classpath}
    </ant:echo>
  </goal>
-
 
 
 <!-- For calling from the top level -->
