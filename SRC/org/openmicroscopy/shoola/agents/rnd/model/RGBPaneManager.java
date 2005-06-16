@@ -37,6 +37,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,6 +50,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtCtrl;
 import org.openmicroscopy.shoola.agents.rnd.editor.ChannelEditor;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ColorSelector;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -69,6 +73,14 @@ class RGBPaneManager
 	implements ActionListener, ItemListener
 {
 	
+    private static final int    MAX_CHANNELS = 3;
+    
+    private static final String MSG = "You can only map 3 channels at a " +
+                                        "time in the RGB model.";
+    
+    private static final String MSG_COLOR = "A channel has already been " +
+                                "mapped to the same color band.";
+    
 	private RGBPane 			view;
 	
 	private RenderingAgtCtrl 	eventManager;
@@ -121,7 +133,8 @@ class RGBPaneManager
             index = Integer.parseInt(e.getActionCommand());
 			if (component instanceof ColoredButton) 
 				UIUtilities.centerAndShow(new ColorSelector(view, 
-										eventManager.getRGBA(index), index));
+										eventManager.getRGBA(index), index, 
+                                        ColorSelector.RGB));
 			else 
 				UIUtilities.centerAndShow(new ChannelEditor(eventManager, 
 										eventManager.getChannelData(index)));
@@ -135,16 +148,42 @@ class RGBPaneManager
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
 		int w = Integer.parseInt(box.getActionCommand());
-		eventManager.setActive(w, e.getStateChange() == ItemEvent.SELECTED);
+        System.out.println(eventManager.getNumberActiveChannels());
+        if (eventManager.getNumberActiveChannels() < MAX_CHANNELS) {
+            eventManager.setActive(w, e.getStateChange() == ItemEvent.SELECTED);
+        } else {
+            UserNotifier un = eventManager.getRegistry().getUserNotifier();
+            un.notifyInfo("RGB model", MSG);
+            box.removeItemListener(this);
+            box.setSelected(false);
+            box.addItemListener(this);
+        }
 	}
 	
 	/** Set the four components of the selected color. */
 	void setRGBA(int w, Color c)
 	{
-		ColoredButton cb = (ColoredButton) coloredButtons.get(new Integer(w));
-		cb.setBackground(c);
-		eventManager.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
-							c.getAlpha());
+        List l = eventManager.getColorActiveChannels();
+        Iterator i = l.iterator();
+        Color color;
+        boolean alreadySelected = false;
+        while (i.hasNext()) {
+            color = (Color) i.next();
+            if (color.equals(c)) {
+                alreadySelected = true;
+                break;
+            }
+        }
+        if (alreadySelected) {
+            UserNotifier un = eventManager.getRegistry().getUserNotifier();
+            un.notifyInfo("RGB model", MSG_COLOR);
+        } else {
+            ColoredButton cb = (ColoredButton) coloredButtons.get(
+                                            new Integer(w));
+            cb.setBackground(c);
+            eventManager.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
+                                c.getAlpha());
+        }
 	}
 	
 }
