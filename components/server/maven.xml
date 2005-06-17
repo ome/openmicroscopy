@@ -23,7 +23,7 @@
 
  <goal name="db-load" prereqs="dbunit">
    <ant:property name="operation" value="CLEAN_INSERT"/>
-   <ant:property name="file" value="sql/db-export.xml"/>
+   <ant:property name="file" value="${basedir}/sql/db-export.xml"/>
    <ant:dbunit driver="${database.driver}"
                supportBatchStatement="false"
                url="${database.url}-test"
@@ -39,7 +39,7 @@
             url="${database.url}"
             userid="${database.username}"
             password="${database.password}">
-     <ant:export dest="sql/db-export.xml" format="xml"> 
+     <ant:export dest="${basedir}/sql/db-export.xml" format="xml"> 
 <!--remove elements for all-->
 <!--       <ant:query name="images" 
 		  sql="select * from images where image_id &lt;
@@ -48,16 +48,10 @@
 	<ant:query name="module_executions" 
 sql="select * from module_executions where module_execution_id in
 ${mex} ;"/>
-	<ant:query name="projects" 
-sql="select * from projects where project_id in ${prj};"/>
-	<ant:query name="datasets" 
-sql="select * from datasets where dataset_id in ${ds};"/>
-	<ant:query name="project_dataset_map"
-sql="select * from project_dataset_map where project_id in ${prj} or
-dataset_id in ${ds}"/>
-	<ant:query name="image_dataset_map"
-sql="select * from image_dataset_map where image_id in ${img} or
-dataset_id in ${ds}"/>
+	<ant:table name="projects" />
+	<ant:table name="datasets" />
+	<ant:table name="project_dataset_map"/>
+	<ant:table name="image_dataset_map" />
 	<ant:table name="image_dataset_map"/>
 	<ant:query name="images"
 sql="select * from images where image_id in ${img} ;"/>

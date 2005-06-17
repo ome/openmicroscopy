@@ -138,7 +138,6 @@ public class ShoolaGrinderTest
     }
     public Object testLoadCGCIHierarchyCategoryGroup(){
         setUp();
-        log.info("loadCGCI-CG:"+data.cgId);
         hbw.loadHierarchy(CategoryGroupData.class, data.cgId, observer);
         return observer.result;
     }
@@ -149,7 +148,6 @@ public class ShoolaGrinderTest
     }
     public Object testLoadCGCIHierarchyCategory(){
         setUp();
-        log.info("loadCGCI-C:"+data.cId);
         hbw.loadHierarchy(CategoryData.class, data.cId, observer);
         return observer.result;
     }

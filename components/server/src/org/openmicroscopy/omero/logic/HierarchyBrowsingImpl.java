@@ -220,7 +220,10 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
             for (Iterator c = classifications.iterator(); c.hasNext();) {
                 Classification cla = (Classification) c.next();
-                categories.add(cla.getCategory());
+                if (null!=cla.getCategory()){ 
+                    // TODO where else could be null with outer join
+                    categories.add(cla.getCategory());
+                }
             }
 
             if (categories == null || categories.size() < 1) {

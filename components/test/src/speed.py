@@ -50,13 +50,13 @@ class TestRunner:
    
     def __init__(self):
 	self.percent = 0.0333
-	self.increase = 0.05
+	self.increase = 0.005
 	self.run = 0
 	self.omero = None
 	self.shoola = None
 	
     def getData(self):
-	#self.percent += self.increase * self.run 
+	self.percent += self.increase * self.run 
 	self.run += 1
 	data = Data(self.percent)
 	data.setDataSource(ds)
@@ -85,12 +85,12 @@ class TestRunner:
 		a = self.doIt( o.description )
 		b = self.doIt( s.description )
 
-		if not Cmp.compare(a,b):
-			log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
-			log(o.description + " and " + s.description + "differ.")
-			log("o="+str(a))
-			log("s="+str(b))
-			log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+		#if not Cmp.compare(a,b): TODO
+		#	log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+		#	log(o.description + " and " + s.description + "differ.")
+		#	log("o="+str(a))
+		#	log("s="+str(b))
+		#	log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
     def doIt(self,method):
 	success=1
@@ -98,7 +98,7 @@ class TestRunner:
 	try:
 		result=eval("self."+method)
 		sz = Utils.structureSize(result)
-		Utils.writeXmlToFile(result,"log/"+method[:-2]+".xml")
+		Utils.writeXmlToFile(result,"log/"+method[:-2]+".run"+str(grinder.runNumber)+".thread"+str(grinder.threadID)+".xml")
 		grinder.statistics.setValue(szIndex, sz)        
 		log("Return from method "+method+" : ( "+str(sz)+")")
 		log(str(result))

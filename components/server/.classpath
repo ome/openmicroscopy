@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="sql"/>
 	<classpathentry kind="src" path="web"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>

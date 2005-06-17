@@ -227,6 +227,12 @@
             <include>**/*.properties</include>
           </includes>
         </resource>
+      <resource>
+        <directory>sql</directory>
+        <includes>
+          <include>**/db-export.xml</include>
+        </includes>
+      </resource>
       </resources>
     </unitTest>
     <resources>

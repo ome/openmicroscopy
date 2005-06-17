@@ -44,6 +44,9 @@ import org.jmock.MockObjectTestCase;
 import org.openmicroscopy.omero.logic.AnnotationDao;
 import org.openmicroscopy.omero.logic.ContainerDao;
 import org.openmicroscopy.omero.logic.HierarchyBrowsingImpl;
+import org.openmicroscopy.omero.model.Category;
+import org.openmicroscopy.omero.model.CategoryGroup;
+import org.openmicroscopy.omero.model.Classification;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.model.ImageAnnotation;
@@ -146,6 +149,42 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
         assertTrue("And that one project must be this one.",list.get(0)==prj);
         containerDao.verify();
         containerDao.reset();
+    }
+    
+    public void testfindCGCIHiearchies(){
+
+        /*
+         * CGCI Hierachies 
+         */
+        
+        // Arguments
+        Integer id = new Integer(1);
+        Set ids = new HashSet();
+        ids.add(id);
+        
+        // Result
+        Image img = new Image();
+        img.setImageId(id);
+        img.setClassifications(new HashSet());
+        Classification cla1 = new Classification();
+        img.getClassifications().add(cla1);
+        Category c1 = new Category();
+        CategoryGroup cg1 = new CategoryGroup();
+        cla1.setCategory(c1);
+        c1.setCategoryGroup(cg1);
+        List result = new ArrayList();
+        result.add(img);
+
+        // Run
+        containerDao.expects(once()).method("findCGCIHierarchies").with(same(ids)).will(returnValue(result));
+        Set set = manager.findCGCIHierarchies(ids);
+        List list = new ArrayList(set);
+        assertTrue("There should only be one category group in the result not "+list.size(),list.size()==1);
+        assertTrue("And that one c. group should be this one not "+list.get(0),list.get(0)==cg1);
+        containerDao.verify();
+        containerDao.reset();
+        
+        
     }
     
 }

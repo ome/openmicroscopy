@@ -3,20 +3,23 @@
 xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
 
  <!-- HELP -->
- <goal name="help">
+ <goal name="help" 
+	description="Default; provides help with Omero build system">
    <ant:echo></ant:echo>
    <ant:echo>********************************************************</ant:echo>
    <ant:echo> Omero Build System:</ant:echo>
    <ant:echo> -------------------</ant:echo>
    <ant:echo> Goals: (e.g. "maven GOAL")</ant:echo>
-   <ant:echo>  help           --  This file</ant:echo>
-   <ant:echo>  build          --  Compile to target and package </ant:echo>
-   <ant:echo>  install        --  Add dependencies to your repository </ant:echo>
-   <ant:echo>  test-all       --  Run all tests (see test mode below)</ant:echo>
-   <ant:echo>  clean          --  Remove all generated items </ant:echo>
+   <ant:echo>  help        --  This file</ant:echo>
+   <ant:echo>  build       --  Compile to target and package </ant:echo>
+   <ant:echo>  install     --  Add dependencies to your repository </ant:echo>
+   <ant:echo>  deploy      --  Copy war to container (see server.dir)</ant:echo>
+   <ant:echo>  test-all    --  Run all tests (see test mode below)</ant:echo>
+   <ant:echo>  clean       --  Remove all generated items </ant:echo>
    <ant:echo> </ant:echo>
    <ant:echo> Properties: (e.g. "maven -DPROPERTY=VALUE")</ant:echo>
    <ant:echo>  maven.test.mode={integration|unit} (Now: ${maven.test.mode})</ant:echo>
+   <ant:echo>  maven.server.dir=WEBAPP_DIR (Now: ${maven.server.dir})</ant:echo>
    <ant:echo></ant:echo>
    <ant:echo>********************************************************</ant:echo>
    <ant:echo> For more information, see http://maven.apache.org</ant:echo>
@@ -24,28 +27,29 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
  </goal>
 
 <!-- Dependencies -->
-   <preGoal name="jar:jar">
-     <attainGoal name="jam"/>
-     <attainGoal name="create-properties"/>
-   </preGoal>
-   <preGoal name="war:init">
-     <attainGoal name="jam"/>
-     <attainGoal name="create-properties"/>
-   </preGoal>
+   <postGoal name="java:prepare-filesystem">
+     <attainGoal name="init"/>
+   </postGoal>
+   <postGoal name="war:war-resources">
+     <attainGoal name="init"/>
+   </postGoal>
    <preGoal name="test:test">
      <attainGoal name="filterTests"/>
    </preGoal>
    <preGoal name="clean:clean">
-     <ant:delete file="${basedir}/src/spring.properties"/>
+     <attainGoal name="delete-properties"/>
    </preGoal> 
-   <goal name="test-all">
+   <goal name="test-all" description="Runs test:test goal on all components">
+     <j:expr value="${context.setVariable('maven.test.skip', false)}"/>
      <maven:property name="goal" defaultValue="test:test" />
      <attainGoal name="multiproject:goal"/>
    </goal>
 
 <!-- Setup --> 
-  <goal name="init" prereqs="create-properties"/>
-  <goal name="get-tomcat-plugin">
+  <goal name="init" prereqs="create-properties,create-classpath"
+	description="Initialization for all tasks"/><!--TODO jam -->
+  <goal name="get-tomcat-plugin" 
+	description="Download tomcat plugin for deployment">
     <maven:property name="artifactId" defaultValue="maven-tomcat-plugin" />
     <maven:property name="groupId" defaultValue="codeczar-tomcat" />
     <maven:property name="version" defaultValue="1.1" />
@@ -61,7 +65,7 @@ xmlns:maven="jelly:maven" xmlns:u="jelly:util" default="help">
    <ant:pathconvert targetos="${ant.os}" 
         property="my.classpath"
         refid="maven.dependency.classpath"/>
-   <ant:echo file="${maven.build.dir}/classpath.sh"><!-- TODO -->
+   <ant:echo file="${maven.build.dir}/Classpath.sh"><!-- TODO -->
 export CLASSPATH=${maven.build.dest}:${my.classpath}
    </ant:echo>
  </goal>
@@ -101,7 +105,13 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
        <ant:entry key="omeds.pass"  value="${omeds.pass}"/>
 
      </ant:propertyfile>
+     <ant:copy file="${basedir}/../../log4j.properties" todir="${basedir}/src"/>
     </j:if>
+   </goal>
+
+   <goal name="delete-properties">
+     <ant:delete file="${basedir}/src/spring.properties"/>
+     <ant:delete file="${basedir}/src/log4j.properties"/>
    </goal>
 
    <goal name="itest">
@@ -112,6 +122,49 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
          inheritAll="true"
          inheritRefs="false"/>
    </goal>
+
+
+ <!-- Necessary due to maven issues. Hopefully resolved in Maven 2 -->
+ <goal name="bootstrap">
+    <maven:reactor
+      basedir="."
+      includes="components/common/project.xml"
+      goals="jar:install"
+      ignoreFailures="false"
+    />
+    <maven:reactor
+      basedir="."
+      includes="components/client/project.xml"
+      goals="jar:install"
+      ignoreFailures="false"
+    />
+    <maven:reactor
+      basedir="."
+      includes="components/shoola-adapter/project.xml"
+      goals="jar:install"
+      ignoreFailures="false"
+    />
+    <!--
+    <j:forEach var="reactorProject" items="${reactorProjects}">
+      ==* ADD postProcessing="true" to reactor
+      ... Do whatever you want with the harvested information ...
+    </j:forEach>
+    -->
+ </goal>
+
+ <goal name="deploy">
+    <!-- test for tomcat TODO -->
+    <ant:copy todir="/tmp"
+	file="${maven.repo.local}/omero/wars/omero-server-1.0.war"
+	/>
+    <ant:echo message="  "/>
+    <ant:echo message=" =================================== "/>
+    <ant:echo message=" Reload/Start your web container now "/>
+    <ant:echo message=" =================================== "/>
+    <ant:echo message="  "/>
+ </goal>
+
+
 
  <!-- from: http://java2.5341.com/msg/33178.html -->
   <goal name="filterTests">

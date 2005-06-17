@@ -190,21 +190,21 @@ public class AdapterUtils {
         to(cache, p, pd);
         
         if (null == p.getProjectId()) {
-            log.debug(nullId+p);
+            if (log.isDebugEnabled())log.debug(nullId+p);
         } else {
             pd.setID(p.getProjectId().intValue());
         }
         pd.setName(p.getName());
         pd.setDescription(p.getDescription());
         if (null==p.getExperimenter()){
-            log.debug(nullExp + p);
+            if (log.isDebugEnabled())log.debug(nullExp + p);
         } else {
             pd.setOwnerFirstName(p.getExperimenter().getFirstname());
         }
         //TODO
 
         if (null==p.getDatasets()){
-            log.debug(nullDs + p);
+            if (log.isDebugEnabled())log.debug(nullDs + p);
         } else {
             Set set = new HashSet();
             for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
@@ -231,7 +231,7 @@ public class AdapterUtils {
         to(cache, d, dd);
 
         if (null==d.getDatasetId()){
-            log.debug(nullId + d);
+            if (log.isDebugEnabled())log.debug(nullId + d);
         } else {
             dd.setID(d.getDatasetId().intValue());
         }
@@ -239,14 +239,14 @@ public class AdapterUtils {
         dd.setName(d.getName());
         dd.setDescription(d.getDescription());
         if (null==d.getExperimenter()){
-            log.debug(nullExp + d);
+            if (log.isDebugEnabled())log.debug(nullExp + d);
         } else {
             dd.setOwnerFirstName(d.getExperimenter().getFirstname());
         }
         //TODO
 
         if (null==d.getImages()){
-            log.debug(nullImgs + d);
+            if (log.isDebugEnabled())log.debug(nullImgs + d);
         } else {
 	        Set set = new HashSet();
 	        for (Iterator i = d.getImages().iterator(); i.hasNext();) {
@@ -274,7 +274,7 @@ public class AdapterUtils {
         to(cache, cg, cgd);
         
         if (null==cg.getAttributeId()){
-            log.debug(nullId + cg);
+            if (log.isDebugEnabled()) log.debug(nullId + cg);
         } else {
             cgd.setID(cg.getAttributeId().intValue());
     	}	
@@ -300,7 +300,8 @@ public class AdapterUtils {
         to(cache, c, cd);
         
         if (null==c.getAttributeId()){
-            log.debug(nullId+c);
+            if (log.isDebugEnabled())
+                log.debug(nullId+c);
         } else {
             cd.setID(c.getAttributeId().intValue());
         }
@@ -325,7 +326,7 @@ public class AdapterUtils {
         to(cache, img, id);
         
         if (null==img.getImageId()){
-            log.debug("Id for "+img+" is null.");
+            if (log.isDebugEnabled())log.debug("Id for "+img+" is null.");
         } else {
             id.setID(img.getImageId().intValue());
         }
@@ -335,7 +336,7 @@ public class AdapterUtils {
         id.setCreated(convertDate(img.getCreated()));
         
         if (null==img.getExperimenter()){
-            log.debug("Experimenter for "+img+" is null.");
+            if (log.isDebugEnabled())log.debug("Experimenter for "+img+" is null.");
         } else {
             //TODO and id here?
             id.setOwnerID(img.getExperimenter().getAttributeId().intValue());
@@ -343,7 +344,7 @@ public class AdapterUtils {
         //TODO
 
         if (null==img.getImagePixels()){
-            log.debug("Pixels for "+img+" is null.");
+            if (log.isDebugEnabled())log.debug("Pixels for "+img+" is null.");
         } else {
             Set set = new HashSet();
             for (Iterator i = img.getImagePixels().iterator(); i.hasNext();) {
@@ -416,21 +417,21 @@ public class AdapterUtils {
         AnnotationData ad;
         ModuleExecution mex = ann.getModuleExecution();
         if (null==mex){
-            log.debug("Mex for "+ann+" is null.");
+            if (log.isDebugEnabled())log.debug("Mex for "+ann+" is null.");
+            ad = null;
         } else {
-        ad = new AnnotationData(ann.getAttributeId().intValue(),
+            ad = new AnnotationData(ann.getAttributeId().intValue(),
                 mex.getExperimenter().getAttributeId().intValue(),
                 convertDate(mex.getTimestamp()));//TODO
         }
-        ad = null;
         to(cache, ann, ad);
         
         if (null==ad){//TODO
-            log.error("Big problem: ad not created.");//TODO
+            if (log.isErrorEnabled())log.error("Error: Annotation data not created.");
         } else {
-        ad.setOwnerFirstName(ann.getModuleExecution().getExperimenter().getFirstname());
-        ad.setOwnerLastName(ann.getModuleExecution().getExperimenter().getLastname());
-        ad.setAnnotation(ann.getContent());
+            ad.setOwnerFirstName(ann.getModuleExecution().getExperimenter().getFirstname());
+            ad.setOwnerLastName(ann.getModuleExecution().getExperimenter().getLastname());
+            ad.setAnnotation(ann.getContent());
         }
         //TODO
 
@@ -463,7 +464,6 @@ public class AdapterUtils {
 
     static public Timestamp convertDate(Date date){
         if (null==date){
-            log.debug("Null date.");
             return null;
         } 
         return new Timestamp(date.getTime());

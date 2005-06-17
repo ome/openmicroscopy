@@ -4,7 +4,9 @@
 package org.openmicroscopy.omero.server.utests;
 
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.springframework.test.AbstractSpringContextTests;
 import org.openmicroscopy.omero.logic.AnnotationDao;
 import org.openmicroscopy.omero.logic.ContainerDao;
 import org.openmicroscopy.omero.logic.Utils;
+import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.DatasetAnnotation;
 import org.openmicroscopy.omero.model.Image;
 
@@ -63,7 +66,7 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
      */
     protected void setUp() throws Exception {
         ctx = getContext(getConfigLocations());
-     
+
         if (null == cdao || null == adao || null == ds) {
             cdao = (ContainerDao) ctx.getBean("containerDao");
             adao = (AnnotationDao) ctx.getBean("annotationDao");
@@ -71,23 +74,35 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
         }
         
         if (null==c) {
-            c = new DatabaseConnection(ds.getConnection());
-            DatabaseOperation.CLEAN_INSERT.execute(c,getData());
+            try {
+                c = new DatabaseConnection(ds.getConnection());
+                DatabaseOperation.CLEAN_INSERT.execute(c,getData());
+            } catch (Exception e){
+                c = null;
+                throw e;
+            }
         }
 
     }
     
     public IDataSet getData() throws Exception {
-        return new XmlDataSet(new FileInputStream("sql/db-export.xml"));
+        URL file = this.getClass().getClassLoader().getResource("db-export.xml");
+        return new XmlDataSet(new FileInputStream(file.getFile()));
     }
 
     public void testFindPDIHierarchies(){
         Set set = getSetFromInt(new int[]{1,5,6,7,8,9,0});
-        List result = cdao.findPDIHierarchies(set);
-        assertTrue("Should have found all the images but Zero", result.size()==set.size()+1);
+        List tmp = cdao.findPDIHierarchies(set);
+        Set result = new HashSet(tmp);
+        assertTrue("Should have found all the images but Zero but found "+result.size(), result.size()+1==set.size());
         for (Iterator i = result.iterator(); i.hasNext();) {
             Image img = (Image) i.next();
-            assertTrue("Fully initialized",Hibernate.isInitialized(img.getDatasets()));
+            Set ds = img.getDatasets();
+            assertTrue("Fully initialized datasets",Hibernate.isInitialized(ds));
+            for (Iterator j = ds.iterator(); j.hasNext();) {
+                Dataset d = (Dataset) j.next();
+                assertTrue("Fully initialized projects",Hibernate.isInitialized(d.getProjects()));
+            }
         }        
     }
     
