@@ -1,0 +1,29 @@
+<project name="Texen Velocity Code Generation" default="generate">
+
+  <target name="generate">
+
+    <taskdef name="texen" classname="org.openmicroscopy.omero.logic.ModelUtilsTexenTask">
+        <classpath>
+<!--TODO-->
+          <pathelement location="${basedir}/target/classes"/>
+          <pathelement path="${my.classpath}"/>
+        </classpath>
+    </taskdef>
+
+    <echo message="+------------------------------------------+"/>
+    <echo message="| Generating Model Utilities               |"/>
+    <echo message="+------------------------------------------+"/>
+
+    <delete dir="${outputDir}"/>
+    <mkdir dir="${outputDir}/org/openmicroscopy/omero/"/>
+
+    <texen
+      controlTemplate="Control.vm"
+      outputDirectory="${outputDir}"
+      outputFile="generation.log"
+      templatePath="${tmplDir}"
+    />
+
+  </target>
+
+</project>

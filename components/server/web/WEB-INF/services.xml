@@ -54,8 +54,9 @@
 	</bean>
 	
 	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
-		<property name="annotationDao"><ref bean="annotationDao"/></property>
-		<property name="containerDao"><ref bean="containerDao"/></property>
+		<property name="annotationDao" ref="annotationDao"/>
+		<property name="containerDao" ref="containerDao"/>
+		<property name="daoUtils" ref="daoUtils"/>
 	</bean>		
 
 </beans>

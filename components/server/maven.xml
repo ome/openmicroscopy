@@ -3,6 +3,32 @@
 
 >
 
+ <!-- GENERATE VELOCITY CODE -->
+ <goal name="texen" prereqs="create-classpath">
+    <ant:property name="outputDir"
+	location="${basedir}/gen-src/texen/org/openmicroscopy/omero/dao/utils"/>
+    <ant:property name="tmplDir"   location="${basedir}/src"/>
+    <ant:exec dir="${basedir}" executable="ant" failonerror="true">
+      <ant:env key="CLASSPATH"
+	value="${my.classpath}:${maven.build.dest}"/>
+      <ant:arg value="-DtmplDir=${tmplDir}"/>
+      <ant:arg value="-DoutputDir=${outputDir}"/>
+      <ant:arg value="-f"/>
+      <ant:arg value="${tmplDir}/texen.xml"/>
+      <ant:arg value="-d"/>
+    </ant:exec>
+<!-- TODO
+    <ant:ant
+         antfile="${basedir}/src/texen.xml"
+         dir="${basedir}"
+         target="generate"
+         inheritAll="true"
+         inheritRefs="true">
+    </ant:ant>
+-->
+ </goal>
+
+
  <!-- see doc under: http://www.codeczar.com/products/maven-tomcat-plugin/ -->
  <!-- 
 	tomcat:(re-|un-)deploy: Use for remote serviers

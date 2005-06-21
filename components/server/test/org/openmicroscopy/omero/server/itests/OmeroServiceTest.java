@@ -31,13 +31,24 @@ package org.openmicroscopy.omero.server.itests;
 //Java imports
 
 //Third-party libraries
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.LazyInitializationException;
+import org.hibernate.collection.AbstractPersistentCollection;
+import org.hibernate.collection.PersistentSet;
+import org.hibernate.mapping.PersistentClass;
 
 //Application-internal dependencies
+import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.tests.AbstractOmeroHierarchyBrowserIntegrationTest;
 import org.openmicroscopy.omero.tests.OMEData;
 import org.openmicroscopy.omero.tests.OMEPerformanceData;
+import org.openmicroscopy.omero.util.ReflectionUtils;
 import org.openmicroscopy.omero.util.Utils;
 
 /** 
@@ -82,7 +93,22 @@ public class OmeroServiceTest
     }
     
     public void testHessian(){
-        log.info(getData());
+        OMEData data = new OMEPerformanceData();
+        OMEData old = getData();
+        Set imgs = new HashSet();
+        imgs.add(new Integer(101));
+        imgs.add(new Integer(12));
+        imgs.add(new Integer(5393));
+        imgs.add(new Integer(4954));
+        imgs.add(new Integer(3919));
+        imgs.add(new Integer(1273));
+        data.imgsCGCI=imgs;
+        setData(data);
+        Object o = this.testFindCGCIHierarchies();
+        Utils.structureSize(o);
+        setData(old);
+
+        log.info(getData());        
         Utils.structureSize(this.testFindCGCIHierarchies());
         Utils.structureSize(this.testFindDatasetAnnotationsSet());
         Utils.structureSize(this.testFindDatasetAnnotationsSetForExperimenter());
@@ -94,4 +120,5 @@ public class OmeroServiceTest
         Utils.structureSize(this.testLoadPDIHierarchyDataset());
         Utils.structureSize(this.testLoadPDIHierarchyProject());
     }
+    
 }

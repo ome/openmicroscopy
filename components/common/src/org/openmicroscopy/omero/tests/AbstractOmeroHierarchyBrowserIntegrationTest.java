@@ -262,9 +262,9 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
         // Something
         Set result = (Set) testFindPDIHierarchies();
         assertTrue(nonNull, result != null && result.size() != 0);
-        // Not to much
+        // Not too much
         Set test = Utils.getImagesinPID(result);
-        assertTrue("There should only be as many images as in the data.imagesPDI", test.size() == this.getData().imgsPDI.size());
+        assertTrue("There should only be as many images "+test.size()+" as in the data.imagesPDI ("+data.imgsPDI.size()+").", test.size() == this.getData().imgsPDI.size());
     }
   
 

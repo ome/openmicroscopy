@@ -19,6 +19,9 @@
   </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar">
   </classpathentry>
+  <classpathentry kind="var"
+path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar">
+  </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar">
   </classpathentry>
   <classpathentry kind="output" path="target/classes">

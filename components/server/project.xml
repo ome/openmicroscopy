@@ -8,6 +8,14 @@
   <package>org.openmicroscopy.omero.logic</package>
   <description>Server code</description>
   <dependencies>
+    <!-- BUILD DEPS -->
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.5</version>
+      <type>jar</type>
+    </dependency>
+    <!-- RUNTIME DEPS -->
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>${pom.groupId}-common</artifactId>
@@ -21,15 +29,6 @@
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
       <version>0.8.2</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>hessian</groupId>
-      <artifactId>hessian</artifactId>
-      <version>2.1.12</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -94,6 +93,15 @@
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.5H3</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <version>1.1-beta-6</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -195,7 +203,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    <!-- TESTING -->
+    <!-- TESTING DEPS -->
     <dependency>
       <groupId>dbunit</groupId>
       <artifactId>dbunit</artifactId>
@@ -236,6 +244,9 @@
       </resources>
     </unitTest>
     <resources>
+      <resource>
+        <directory>${maven.gen.src}</directory>
+      </resource>
       <resource>
         <directory>src</directory>
         <includes>

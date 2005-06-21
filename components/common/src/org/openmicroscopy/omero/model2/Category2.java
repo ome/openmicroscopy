@@ -31,6 +31,7 @@ package org.openmicroscopy.omero.model2;
 //Java imports
 import java.util.Set;
 
+import org.openmicroscopy.omero.BaseModelUtils;
 import org.openmicroscopy.omero.model.Category;
 
 //Third-party libraries
@@ -51,6 +52,8 @@ import org.openmicroscopy.omero.model.Category;
  */
 public class Category2 extends org.openmicroscopy.omero.model.Category {
 
+    private static BaseModelUtils _utils;
+    
     /** artificial field to allow for data transport 
      * @DEV.TODO Remove artificial field as soon as possible
      */
@@ -72,4 +75,12 @@ public class Category2 extends org.openmicroscopy.omero.model.Category {
      	this.setName(c.getName());
     }
     
+    public BaseModelUtils getUtils(){
+        return _utils;
+    }
+    
+    public void setUtils(BaseModelUtils utils){
+        this._utils = utils;
+    }
+   
 }

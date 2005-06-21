@@ -76,7 +76,15 @@ public class LeftOuterJoinTest
             AbstractDependencyInjectionSpringContextTests {
 
     private static Log log = LogFactory.getLog(LeftOuterJoinTest.class);
+    HierarchyBrowsing hb;
 
+    /**
+     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
+     */
+    protected void onSetUp() throws Exception {
+        hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
+    }
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
@@ -90,8 +98,12 @@ public class LeftOuterJoinTest
                 "WEB-INF/test/test.xml"};
     }
 
+    public void testNewCleaningMethods(){
+        Object o = hb.loadPDIHierarchy(Project.class,63);
+        Utils.structureSize(o);
+    }
+    
     public void testImageThumbnailExplodsOnHessianSerialization() {
-        HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
         Set imgIds = new HashSet();
         imgIds.add(new Integer(1191));
         imgIds.add(new Integer(4665));
@@ -105,7 +117,6 @@ public class LeftOuterJoinTest
     }
 
     public void testDuplicateImages() {
-        HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
         OMEData data = (OMEData) applicationContext.getBean("data");
         Set result = hb.findPDIHierarchies(data.imgsPDI);
         Set test = Utils.getImagesinPID(result);

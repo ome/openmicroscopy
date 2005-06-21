@@ -1,18 +1,77 @@
 /*
  * Created on Jun 15, 2005
-*/
+ */
 package org.openmicroscopy.omero.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.openmicroscopy.omero.model.Dataset;
+import org.openmicroscopy.omero.model.Image;
+import org.openmicroscopy.omero.model.Project;
+
+import junit.framework.TestCase;
 
 /**
  * @author josh
  */
-public class ReflectionUtils {
+public class ReflectionUtils extends TestCase {
+
+    private static Log log = LogFactory.getLog(ReflectionUtils.class);
+
+    public static void findFieldsOfClass(Class target, Object o, String path,
+            Log log, Set done) {
+        if (null == path||path.equals(""))
+            path = "\nthis";
+        if (null==done)
+            done = new HashSet();
+        if (done.contains(o))
+            return;
+        done.add(o);
+        
+        if (target.isInstance(o)) {
+            log.info(path + ";" + "\n----------------------\n" + o.toString()+" < "+o.getClass());
+        } else if (o instanceof Set){
+            for (Iterator it = ((Set)o).iterator(); it.hasNext();) {
+                Object element = (Object) it.next();
+                findFieldsOfClass(target,element,path,log,done);
+            }
+        } else {
+            Method[] accessors = getGettersAndSetters(o);
+            log.debug(accessors);
+            for (int i = 0; i < accessors.length; i++) {
+                Method method = accessors[i];
+                if (method.getName().startsWith("get")) {
+                    log.debug("Trying "+method);
+                    Object obj = invokeGetter(o, method);
+                    if (null != obj) {
+                        findFieldsOfClass(target, obj, path + ".\n"
+                                + method.getName() + "()", log, done);
+                    }
+                }
+            }
+        }
+    }
+
+    public void testFindFields() {
+        Image test = new Image();
+        Dataset ds = new Dataset();
+        Project prj = new Project();
+        test.setDatasets(new HashSet());
+        ds.setProjects(new HashSet());
+        test.getDatasets().add(ds);
+        ds.getProjects().add(prj);
+        findFieldsOfClass(Project.class, test,null,log,null);
+    }
 
     public static Method[] getGettersAndSetters(Object obj) {
         Method[] methods, superMethods = null;
@@ -50,7 +109,6 @@ public class ReflectionUtils {
             } else {
                 ok = false;
             }
-
 
             if (ok)
                 goodMethods.add(method);
@@ -114,5 +172,4 @@ public class ReflectionUtils {
         }
     }
 
-    
 }

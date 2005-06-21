@@ -12,7 +12,7 @@
    <property name="package"              value="org.openmicroscopy.omero.model" />
    <property name="gen.xdoclet-tag"      value="false" />
    <property name="gui"                  value="false" />
-   <property name="lib.dir"              value="${basedir}/../../lib/middlegen/" />
+   <property name="lib.dir"              value="${basedir}/../../lib/" />
    <property name="dest.dir"             value="${basedir}/src" />
 
    <target name="init" depends="prepare,fail-if-no-middlegen,fail-if-no-hibernate,fail-if-no-hibernate-ext" >
@@ -23,11 +23,11 @@
         classpathref="middlegen.classpath"
      />
 
-     <taskdef
-        name="hbm2java"
-        classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask"
-        classpathref="hibernate-ext.classpath"
-     />
+     <taskdef 
+        classname="org.hibernate.tool.ant.HibernateToolTask"
+        classpathref="hibernate-ext.classpath" 
+        name="hibernatetool">
+     </taskdef>
 
     <mkdir dir="${dest.dir}"/>
    
@@ -37,16 +37,17 @@
 
      <path id="middlegen.classpath">
         <pathelement path="${maven.classpath}"/>
-        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${lib.dir}/middlegen" includes="*.jar"/>
      </path>
 
      <path id="hibernate-ext.classpath">
-       <fileset dir="${lib.dir}"           includes="*.jar"/>
+       <fileset dir="${lib.dir}/hibernate3"           includes="*.jar"/>
+       <pathelement location="${basedir}/middlegen"></pathelement>
      </path>
 
      <available property="middlegen" classname="middlegen.MiddlegenTask" classpathref="middlegen.classpath"/>
-     <available property="hibernate" classname="net.sf.hibernate.Hibernate" classpathref="hibernate-ext.classpath"/>
-     <available property="hibernate-ext" classname="net.sf.hibernate.tool.hbm2java.Hbm2JavaTask" classpathref="hibernate-ext.classpath"/>
+     <available property="hibernate" classname="org.hibernate.Hibernate" classpathref="hibernate-ext.classpath"/>
+     <available property="hibernate-ext" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="hibernate-ext.classpath"/>
 
 
    </target>
@@ -122,16 +123,26 @@
 	    javaTypeMapper="middlegen.plugins.hibernate.HibernateJavaTypeMapper"
 	    equalsHashcode="true"
 	 >
+  	 
+<!-- TODO 
+	<implements>org.openmicroscopy.omero.OMEModel</implements>
+OR
+	implements="org.openmicroscopy.omero.OMEModel" 
+-->
 	 </hibernate>
     </middlegen>
   </target>
 
-  <target name="gen-java" depends="init" unless="middlegen.not.required">
-    <hbm2java output="${dest.dir}">
-      <fileset dir="${dest.dir}">
-        <include name="**/*.hbm.xml" />
-      </fileset>
-    </hbm2java>
+  <target depends="init" name="gen-java" unless="middlegen.not.required">
+    <hibernatetool>
+      <configuration>
+        <fileset dir="${basedir}/src" id="id">
+          <include name="**/*.hbm.xml"></include>
+        </fileset>
+      </configuration>
+      <hbm2java destdir="${dest.dir}">
+      </hbm2java>
+    </hibernatetool>
   </target>
 
   <target name="all" unless="middlegen.not.required">

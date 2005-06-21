@@ -54,6 +54,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 //Application-internal dependencies
+import org.openmicroscopy.omero.OMEModel;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
@@ -87,12 +88,18 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     ContainerDao containerDao;
 
+    DaoUtils daoUtils;
+
     public void setAnnotationDao(AnnotationDao dao) {
         this.annotationDao = dao;
     }
 
     public void setContainerDao(ContainerDao dao) {
         this.containerDao = dao;
+    }
+
+    public void setDaoUtils(DaoUtils daoUtils) {
+        this.daoUtils = daoUtils;
     }
 
     /**
@@ -216,36 +223,33 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         while (i.hasNext()) {
             Image img = (Image) i.next();
             Set classifications = img.getClassifications();
-            Set categories = new HashSet();
 
-            for (Iterator c = classifications.iterator(); c.hasNext();) {
-                Classification cla = (Classification) c.next();
-                if (null!=cla.getCategory()){ 
-                    // TODO where else could be null with outer join
-                    categories.add(cla.getCategory());
-                }
-            }
-
-            if (categories == null || categories.size() < 1) {
+            if (classifications == null || classifications.size() < 1) {
                 hierarchies.add(img);
             } else {
-                Iterator c = categories.iterator();
+                Iterator c = classifications.iterator();
                 while (c.hasNext()) {
-                    Category tmp = (Category) c.next();
-                    Category2 ca = new Category2(tmp); //TODO Hack 
+                    Classification cla = (Classification) c.next();
 
-                    if (!(ca.getImages() instanceof HashSet))
-                        ca.setImages(new HashSet());
-                    ca.getImages().add(img);
+                    cla.setImage(img);
 
-                    CategoryGroup cg = ca.getCategoryGroup();
-                    if (cg == null) {
-                        hierarchies.add(ca);
+                    Category ca = cla.getCategory();
+                    if (null == ca) {
+                        hierarchies.add(cla);
                     } else {
-                        if (!(cg.getCategories() instanceof HashSet))
-                            cg.setCategories(new HashSet());
-                        cg.getCategories().add(ca);
-                        hierarchies.add(cg);
+                        if (!(ca.getClassifications() instanceof HashSet))
+                            ca.setClassifications(new HashSet());
+                        ca.getClassifications().add(cla);
+                        
+                        CategoryGroup cg = ca.getCategoryGroup();
+                        if (cg == null) {
+                            hierarchies.add(ca);
+                        } else {
+                            if (!(cg.getCategories() instanceof HashSet))
+                                cg.setCategories(new HashSet());
+                            cg.getCategories().add(ca);
+                            hierarchies.add(cg);
+                        }
                     }
                 }
             }
@@ -369,21 +373,38 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     /** top-level call. If this is not initialized abort */
     Object clean(Object obj) {
-        if (!Hibernate.isInitialized(obj)) {
-            throw new IllegalStateException(
-                    "If the return object is not initialized then we can't send it.");
+        //TODO push OMEModel down into all calls
+        if (null != obj) {
+            if (obj instanceof OMEModel) {
+                daoUtils.clean((OMEModel) obj);
+            } else if (obj instanceof Set) {
+                daoUtils.clean((Set) obj);
+            } else if (obj instanceof HashMap) {
+                daoUtils.clean(((Map) obj).keySet());
+                daoUtils.clean(new HashSet(((Map) obj).values()));                
+            } else {
+                String msg = "Instances of " + obj.getClass().getName()
+                + " not supported.";
+                throw new IllegalArgumentException(msg);
+            }
         }
-        Set done = new HashSet();
-        hessianClean(obj, done);
         return obj;
     }
+
+    //        if (!Hibernate.isInitialized(obj)) {
+    //            throw new IllegalStateException(
+    //                    "If the return object is not initialized then we can't send it.");
+    //        }
+    //        Set done = new HashSet();
+    //        hessianClean(obj, done);
+    //        return obj;
 
     /** removes all Hibernate-related code. 
      * @DEV.TODO Currently tests all Objects, should eventually test only Hibernate parent class
      * @param An object to clean of Hibernate code
      * @param Set to catch circular references
      */
-    void hessianClean(Object obj, Set done) {
+    private void hessianClean(Object obj, Set done) {
 
         if (null == obj)
             return;
@@ -411,7 +432,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                     continue;
                 Object result = ReflectionUtils.invokeGetter(obj, method);
                 if (!Hibernate.isInitialized(result)) {
-                    Method setter = ReflectionUtils.getSetterForGetter(methods, method);
+                    Method setter = ReflectionUtils.getSetterForGetter(methods,
+                            method);
                     if (null == setter) {
                         throw new IllegalStateException(
                                 "No setter for getter; this will explode:"
