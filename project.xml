@@ -54,7 +54,7 @@ services to an existing OME installation</description>
       </properties>
     </dependency>
     <dependency>
-      <groupId>hessian</groupId>
+      <groupId>omero</groupId>
       <artifactId>hessian</artifactId>
       <version>${hessian.version}</version>
       <type>jar</type>

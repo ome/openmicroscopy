@@ -10,7 +10,7 @@ OME installation and returns OME Objects using
 the Hessian libraries from caucho.com. 
 
 For information on installation and developing omero,
-please see the files under docs.
+please see the files under docs/ .
 
 The contents of this directory ("OMERO_HOME") are:
 
@@ -28,6 +28,9 @@ The contents of this directory ("OMERO_HOME") are:
 
  build.properties:
 	environment variables for a single user/installation
+
+ log4j.properties:
+	logging configuration for all components
 
  docs:
 	documentation including ...
