@@ -245,8 +245,11 @@
     </unitTest>
     <resources>
       <resource>
-        <directory>${maven.gen.src}</directory>
-      </resource>
+        <directory>${basedir}/../common/src/</directory>
+        <includes>
+          <include>**/*.hbm.xml</include>
+        </includes>
+      </resource> 
       <resource>
         <directory>src</directory>
         <includes>
@@ -260,12 +263,12 @@
           <include>**/*.xml</include>
         </includes>
       </resource>
-      <resource>
+<!--      <resource>
         <directory>test</directory>
         <includes>
           <include>**/*.xml</include>
         </includes>
-      </resource>
+      </resource>-->
     </resources>
   </build>
 </project>

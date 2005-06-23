@@ -78,13 +78,15 @@
 		<constructor-arg ref="sessionFactory"/>
 	</bean>
 
-<!--   <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
-	       <property name="cachedMappingResources">-->
+       <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
+	       <property name="cachedMappingResources">
+<!-- Originally:
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-        <property name="mappingResources">   
+        <property name="mappingResources">  
+-->
            <list>
-			   <value>org/openmicroscopy/omero/logic/queries.hbm.xml</value>
-			   <value>org/openmicroscopy/omero/model/Image.hbm.xml</value>			   			   			   			   
+	       <value>org/openmicroscopy/omero/logic/queries.hbm.xml</value>
+	       <value>org/openmicroscopy/omero/model/Image.hbm.xml</value>
                <value>org/openmicroscopy/omero/model/Project.hbm.xml</value>
                <value>org/openmicroscopy/omero/model/Category.hbm.xml</value>
                <value>org/openmicroscopy/omero/model/DisplayRoi.hbm.xml</value>
@@ -102,9 +104,9 @@
                <value>org/openmicroscopy/omero/model/DisplayOption.hbm.xml</value>
                <value>org/openmicroscopy/omero/model/ChannelComponent.hbm.xml</value>
                <value>org/openmicroscopy/omero/model/Thumbnail.hbm.xml</value>
-			   <value>org/openmicroscopy/omero/model/Classification.hbm.xml</value>
-			   <value>org/openmicroscopy/omero/model/ModuleExecution.hbm.xml</value>			   
-			   <value>org/openmicroscopy/omero/model/Repository.hbm.xml</value>
+	       <value>org/openmicroscopy/omero/model/Classification.hbm.xml</value>
+	       <value>org/openmicroscopy/omero/model/ModuleExecution.hbm.xml</value>			   
+	       <value>org/openmicroscopy/omero/model/Repository.hbm.xml</value>
            </list>
        </property>
        <property name="hibernateProperties">
