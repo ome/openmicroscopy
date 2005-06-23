@@ -112,8 +112,8 @@ services to an existing OME installation</description>
     <report>maven-junit-report-plugin</report>
     <report>maven-linkcheck-plugin</report>
     <report>maven-multichanges-plugin</report>
-    <report>maven-tasklist-plugin</report> -->
-    <report>maven-findbugs-plugin</report>
+    <report>maven-tasklist-plugin</report
+    <report>maven-findbugs-plugin</report> -->
     <report>maven-javadoc-plugin</report>
     <report>maven-jxr-plugin</report>
   </reports>

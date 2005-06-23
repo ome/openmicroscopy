@@ -99,7 +99,7 @@ public class ComparisonUtils extends TestCase {
     public static String summary(Object a) {
         Map count = new HashMap();
         StringBuffer sb = new StringBuffer(summary(a, "\n", count));
-        sb.append("-----------------------------\n");
+        sb.append("\n-----------------------------\n");
         for (Iterator i = count.keySet().iterator(); i.hasNext();) {
             Class c = (Class) i.next();
             Set set = (Set) count.get(c);

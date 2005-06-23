@@ -48,6 +48,8 @@ import org.openmicroscopy.omero.tests.OMEPerformanceData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
@@ -90,6 +92,7 @@ public class ShoolaGrinderTest
     HierarchyBrowsingView hbw;
     DataManagementService dms;
     SemanticTypesService sts;
+    //OMEDSGateway gateway;
     ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
             new String[] {
                     "org/openmicroscopy/omero/client/itests/test.xml",
@@ -112,6 +115,11 @@ public class ShoolaGrinderTest
         registry.getDataServicesView(HierarchyBrowsingView.class);
         dms = registry.getDataManagementService();
         sts = registry.getSemanticTypesService();
+//		//Retrieve the connection URL and create the internal proxy to OMEDS.
+//		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
+//		if (info == null)  //TODO: get rid of this when we have an XML schema.
+//			throw new NullPointerException("No data server host provided!");
+//        gateway = new OMEDSGateway(info.getServerAddress(), this);
     }
     /***********************************/
     public void testLoadPDIHierarchyProjectNoReturn() {

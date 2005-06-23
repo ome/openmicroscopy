@@ -30,7 +30,16 @@
 package org.openmicroscopy.omero.tests;
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 //Third-party libraries
 
@@ -52,6 +61,8 @@ import java.util.Random;
  */
 public class OMEPerformanceData extends OMEData {
 
+    private static Log log = LogFactory.getLog(OMEPerformanceData.class);
+    
     // Main field
     public double percent = 0.001;
 
@@ -74,11 +85,38 @@ public class OMEPerformanceData extends OMEData {
             super.init();
             imgsPDI = getPercentOfCollection(allImgs, percent);
             imgsCGCI = getPercentOfCollection(allImgs, percent);
-            imgsAnn1 = getPercentOfCollection(allImgs, percent);
-            imgsAnn2 = getPercentOfCollection(allImgs, percent);
-            dsAnn1 = getPercentOfCollection(allDss, percent);
-            dsAnn2 = getPercentOfCollection(allDss, percent);
+            imgsAnn1 = getImageAnnotations();
+            imgsAnn2 = getImageAnnotations();
+            dsAnn1 = getDatasetAnnotations();
+            dsAnn2 = getDatasetAnnotations();
         }
         return this;
     }
+    
+    private Set getImageAnnotations(){
+        String id = "image_id";
+        String query = "select i."+id +" from images i, image_annotations a where i.image_id = a.image_id";
+        return getAnnotations(allImgs.size(),id,query);
+    }
+
+    private Set getDatasetAnnotations(){
+        String id = "dataset_id";
+        String query = "select d."+id +" from datasets d, dataset_annotations a where d.dataset_id = a.dataset_id";
+        return getAnnotations(allDss.size(),id, query);
+    }
+    
+    private Set getAnnotations(int size, String id, String query){
+        JdbcTemplate jt = new JdbcTemplate(ds);
+        List rows = jt.queryForList(query);
+        Set result = new HashSet();
+        for (Iterator i = rows.iterator(); i.hasNext();) {
+            Map element = (Map) i.next();
+            result.add(element.get(id));
+        }
+        double newPercent = ( percent * size ) / result.size();
+        return getPercentOfCollection(result,newPercent);
+    }
+    
+    
+    
 }

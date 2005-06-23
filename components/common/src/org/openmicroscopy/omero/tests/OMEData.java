@@ -43,6 +43,8 @@ import javax.sql.DataSource;
 
 //Third-party libraries
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 //Application-internal dependencies
@@ -64,6 +66,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 public abstract class OMEData {
 
+    private static Log log = LogFactory.getLog(OMEData.class);
+    
     boolean initialized = false;
 
     DataSource ds;
@@ -158,8 +162,8 @@ public abstract class OMEData {
 
         List ordered = new ArrayList(ids);
         Set result = new HashSet();
-
-        while (result.size() < ids.size() * percent) {
+       
+        while (ordered.size() >0 && result.size() < ids.size() * percent) {
             int choice = randomChoice(ordered.size());
             result.add(ordered.remove(choice));
         }

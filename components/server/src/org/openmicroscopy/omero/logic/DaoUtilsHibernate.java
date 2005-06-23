@@ -104,8 +104,16 @@ public DaoUtilsHibernate(SessionFactory sessions){
         if (setOfModelObjects!=null){
             Set done = new HashSet();
             for (Iterator it = setOfModelObjects.iterator(); it.hasNext();) {
-                OMEModel modelObj = (OMEModel) it.next();
-                modelObj.getUtils().clean(modelObj, done);
+                Object o = it.next();
+                if (o instanceof OMEModel) {
+                    OMEModel modelObj = (OMEModel) o;
+                    modelObj.getUtils().clean(modelObj, done);
+                } else if (o instanceof Set) {
+                    Set innerSetOfModelObjects = (Set) o;
+                    clean(innerSetOfModelObjects);
+                } else {
+                    throw new IllegalArgumentException("Can't clean objects of type "+o.getClass());
+                }
             }
         }
     }

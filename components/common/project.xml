@@ -18,13 +18,14 @@
 
   <build>
     <sourceDirectory>src</sourceDirectory>
-    <resources>
+<!--<resources>
       <resource>
         <directory>src</directory>
         <includes>
           <include>**/*.hbm.xml</include>
+          <include>**/*.hbm.xml.bin</include>    
         </includes>
       </resource>
-    </resources>
+    </resources>-->
   </build>
 </project>

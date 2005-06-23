@@ -41,14 +41,14 @@
      </path>
 
      <path id="hibernate-ext.classpath">
-       <fileset dir="${lib.dir}/hibernate3"           includes="*.jar"/>
-       <pathelement location="${basedir}/middlegen"></pathelement>
+       <fileset dir="${lib.dir}/hibernate3" includes="*.jar"/>
+       <pathelement location="${basedir}/middlegen"/>
+       <pathelement location="${basedir}/src"/>
      </path>
 
      <available property="middlegen" classname="middlegen.MiddlegenTask" classpathref="middlegen.classpath"/>
      <available property="hibernate" classname="org.hibernate.Hibernate" classpathref="hibernate-ext.classpath"/>
      <available property="hibernate-ext" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="hibernate-ext.classpath"/>
-
 
    </target>
 
@@ -150,5 +150,11 @@ OR
     <antcall target="gen-java"/>
   </target>
 
+  <target name="cache">
+    <java classname="InitializeHibernateTest"
+          classpathref="hibernate-ext.classpath" 
+          fork="yes"
+          failonerror="yes"/>
+  </target>
 
 </project>

@@ -371,7 +371,6 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         return map;
     }
 
-    /** top-level call. If this is not initialized abort */
     Object clean(Object obj) {
         //TODO push OMEModel down into all calls
         if (null != obj) {
@@ -380,7 +379,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             } else if (obj instanceof Set) {
                 daoUtils.clean((Set) obj);
             } else if (obj instanceof HashMap) {
-                daoUtils.clean(((Map) obj).keySet());
+                //daoUtils.clean(((Map) obj).keySet());TODO here only integers, but...
                 daoUtils.clean(new HashSet(((Map) obj).values()));                
             } else {
                 String msg = "Instances of " + obj.getClass().getName()

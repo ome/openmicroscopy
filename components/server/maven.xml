@@ -3,10 +3,12 @@
 
 >
 
+<!-- messes with eclipse!
  <preGoal name="war:webapp">
    <ant:delete dir="${maven.build.dest}/WEB-INF"/>
    <ant:delete dir="${maven.build.dir}/test-classes/WEB-INF"/>
  </preGoal> 
+-->
 
  <!-- GENERATE VELOCITY CODE -->
  <goal name="texen" prereqs="create-classpath">
