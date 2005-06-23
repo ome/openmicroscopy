@@ -35,9 +35,11 @@ package org.openmicroscopy.shoola.env.data.t;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +50,8 @@ import org.openmicroscopy.omero.tests.OMEPerformanceData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.ds.Criteria;
+import org.openmicroscopy.ds.st.CategoryGroup;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -56,6 +60,7 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DataServicesTestCase;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.map.CategoryMapper;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
@@ -146,18 +151,41 @@ public class ShoolaGrinderTest
     }
     public Object testLoadCGCIHierarchyCategoryGroup(){
         setUp();
-        hbw.loadHierarchy(CategoryGroupData.class, data.cgId, observer);
-        return observer.result;
+        try {
+//            hbw.loadHierarchy(CategoryGroupData.class, data.cgId, observer);
+//            return observer.result;
+//             OR
+//            Object rootNode = sts.retrieveCategoryGroupTree(data.cgId, false);
+//            if (rootNode==null) throw new RuntimeException("null in loadcgci-cg");
+//            return rootNode;
+//
+//            Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, -1, true);
+//            CategoryGroup cg = 
+//                (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
+//            if (cg == null) return null;
+//            CategoryGroupData gProto = new CategoryGroupData();
+//            CategoryData cProto = new CategoryData();
+//            List l = new ArrayList();
+//            l.add(cg);
+//            List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
+//                                -1, null);
+//                if (results.size() == 0) return null;
+//                return (CategoryGroupData) results.get(0);
+            throw new RuntimeException("not implemented");
+        } catch (Exception e){
+            throw new RuntimeException(e	);
+        }
+        
     }
     /***********************************/
     public void testLoadCGCIHierarchyCategoryNoReturn() {
         Object obj = testLoadCGCIHierarchyCategory();
-        
     }
     public Object testLoadCGCIHierarchyCategory(){
         setUp();
-        hbw.loadHierarchy(CategoryData.class, data.cId, observer);
-        return observer.result;
+//        hbw.loadHierarchy(CategoryData.class, data.cId, observer);
+//        return observer.result;
+        throw new RuntimeException("not implemeneted");
     }
     /***********************************/
     public void testFindCGCIHierarchiesNoReturn() {
