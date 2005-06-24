@@ -148,10 +148,13 @@ class RGBPaneManager
 	{
 		JCheckBox box = (JCheckBox) e.getSource();
 		int w = Integer.parseInt(box.getActionCommand());
-        System.out.println(eventManager.getNumberActiveChannels());
-        if (eventManager.getNumberActiveChannels() < MAX_CHANNELS) {
+        int nbActive = eventManager.getNumberActiveChannels();
+        if (nbActive < MAX_CHANNELS) 
             eventManager.setActive(w, e.getStateChange() == ItemEvent.SELECTED);
-        } else {
+        else if (nbActive == MAX_CHANNELS && 
+                !(e.getStateChange() == ItemEvent.SELECTED))
+            eventManager.setActive(w, false);    
+        else {
             UserNotifier un = eventManager.getRegistry().getUserNotifier();
             un.notifyInfo("RGB model", MSG);
             box.removeItemListener(this);

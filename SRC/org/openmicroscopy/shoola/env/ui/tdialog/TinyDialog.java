@@ -287,7 +287,7 @@ public class TinyDialog
     /** Overrides the method to make sure that we have no decoration. */
     public void setUndecorated(boolean b)
     {
-        super.setUndecorated(false);
+        super.setUndecorated(true);
     }
 
 }
