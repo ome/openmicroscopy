@@ -171,7 +171,7 @@ public abstract class OMEData {
         return result;
     }
 
-    int randomChoice(int size) {
+    public int randomChoice(int size) {
         double value = (size - 1) * rnd.nextDouble();
         return (new Double(value)).intValue();
     }

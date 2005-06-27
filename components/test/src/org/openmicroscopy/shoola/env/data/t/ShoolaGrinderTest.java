@@ -152,26 +152,9 @@ public class ShoolaGrinderTest
     public Object testLoadCGCIHierarchyCategoryGroup(){
         setUp();
         try {
-//            hbw.loadHierarchy(CategoryGroupData.class, data.cgId, observer);
-//            return observer.result;
-//             OR
-//            Object rootNode = sts.retrieveCategoryGroupTree(data.cgId, false);
-//            if (rootNode==null) throw new RuntimeException("null in loadcgci-cg");
-//            return rootNode;
-//
-//            Criteria c = CategoryMapper.buildCategoryGroupCriteria(cgID, -1, true);
-//            CategoryGroup cg = 
-//                (CategoryGroup) gateway.retrieveSTSData("CategoryGroup", c);
-//            if (cg == null) return null;
-//            CategoryGroupData gProto = new CategoryGroupData();
-//            CategoryData cProto = new CategoryData();
-//            List l = new ArrayList();
-//            l.add(cg);
-//            List results = CategoryMapper.fillCategoryGroup(gProto, cProto, l, 
-//                                -1, null);
-//                if (results.size() == 0) return null;
-//                return (CategoryGroupData) results.get(0);
-            throw new RuntimeException("not implemented");
+            Object rootNode = sts.retrieveCategoryGroupTree(data.cgId, -1, false);
+            if (rootNode==null) throw new RuntimeException("null in loadcgci-cg");
+            return rootNode;
         } catch (Exception e){
             throw new RuntimeException(e	);
         }
@@ -183,10 +166,14 @@ public class ShoolaGrinderTest
     }
     public Object testLoadCGCIHierarchyCategory(){
         setUp();
-//        hbw.loadHierarchy(CategoryData.class, data.cId, observer);
-//        return observer.result;
-        throw new RuntimeException("not implemeneted");
-    }
+        try {
+            Object rootNode = sts.retrieveCategoryTree(data.cId, -1, false);
+            if (rootNode==null) throw new RuntimeException("null in loadcgci-c");
+            return rootNode;
+        } catch (Exception e){
+            throw new RuntimeException(e	);
+        }    
+     }
     /***********************************/
     public void testFindCGCIHierarchiesNoReturn() {
         Object obj = testFindCGCIHierarchies(); 
@@ -228,8 +215,14 @@ public class ShoolaGrinderTest
         Object obj = testFindImageAnnotationsSetForExperimenter();
     }
     public Object testFindImageAnnotationsSetForExperimenter(){
-        //setUp();
-        throw new RuntimeException("Not implemeneted.");
+        setUp();
+        try {
+            Object result = sts.getImageAnnotations(new ArrayList(data.imgsAnn2),data.userId);
+            if (null==result) throw new RuntimeException ("no return imgannforexp");
+            return result;
+        } catch (Exception e){
+            throw new RuntimeException("Error getting Image annotations", e);
+        }
     }
     /**
      * @throws DSAccessException
@@ -252,7 +245,13 @@ public class ShoolaGrinderTest
     }
     public Object testFindDatasetAnnotationsSetForExperimenter(){
         setUp();
-        throw new RuntimeException("Not implemeneted.");
+        try {
+            Object result = sts.getDatasetAnnotations(new ArrayList(data.dsAnn2),data.userId);
+            if (null==result) throw new RuntimeException ("no return dsannforexp");
+            return result;
+        } catch (Exception e){
+            throw new RuntimeException("Error getting dataset annotations", e);
+        }
     }
     /***********************************/
 
@@ -269,13 +268,7 @@ public class ShoolaGrinderTest
         }
         return images;
     }
-//"shoola.testLoadCGCIHierarchyCategory()"
-//"shoola.testFindImageAnnotationsSetForExperimenter()"
-//shoola.testFindDatasetAnnotationsSetForExperimenter()"
-//shoola.testLoadCGCIHierarchyCategoryGroup()"
-//
 
-    
 }
 
 class GrinderObserver extends DSCallAdapter{

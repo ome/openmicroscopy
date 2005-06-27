@@ -49,14 +49,14 @@ grinder.registerSummaryStatisticsView(szDetailView) ## TODO THIS IS NOT ACCURATE
 class TestRunner:
    
     def __init__(self):
-	self.percent = 0.0333
-	self.increase = 0.005
+	self.percent =  0.050
+	self.increase = 0.001
 	self.run = 0
 	self.omero = None
 	self.shoola = None
 	
     def getData(self):
-	self.percent += self.increase * self.run 
+	self.percent += self.increase # * self.run TODO
 	self.run += 1
 	data = Data(self.percent)
 	data.setDataSource(ds)
@@ -66,7 +66,6 @@ class TestRunner:
         log(str(data))
 	log("========================================")
 	log(" ")
-	print(str(self.percent))#+":"+str(data.imgsPDI))
 	
 	return data
             
@@ -78,8 +77,13 @@ class TestRunner:
 	_omero.setData(data) # Eeek.
 	_shoola = Shoola(data)
         
+   	which = data.randomChoice(10) # TODO
 	grinder.statistics.delayReports = 1
+	print(" Thread: "+str(grinder.threadID)+" Run: "+str(self.run)+"  Test: "+ str(which)+ " Percent: "+str(self.percent))
 	for o,s in zip(oTests,sTests):
+	#if (1):				#
+	#	o=oTests[which]		# Replaces for o,s above
+	#	s=sTests[which]		#
 		self.omero = o.wrap(_omero)
 		self.shoola = s.wrap(_shoola)
 		a = self.doIt( o.description )
@@ -98,7 +102,7 @@ class TestRunner:
 	try:
 		result=eval("self."+method)
 		sz = Utils.structureSize(result)
-		Utils.writeXmlToFile(result,"log/"+method[:-2]+".run"+str(grinder.runNumber)+".thread"+str(grinder.threadID)+".xml")
+		#TODOUtils.writeXmlToFile(result,"log/"+method[:-2]+".run"+str(grinder.runNumber)+".thread"+str(grinder.threadID)+".xml")
 		grinder.statistics.setValue(szIndex, sz)        
 		log("Return from method "+method+" : ( "+str(sz)+")")
 		log(str(result))
@@ -116,9 +120,9 @@ class TestRunner:
 			else:
 				t = None		
 		log(" ")
-		log("Stack Trace:")
-		for s in inst.stackTrace:
-			log(str(s))
+#		log("Stack Trace:")
+#		for s in inst.stackTrace:
+#			log(str(s))
 		log("------------------------------------------")
 		success=0
 	grinder.statistics.setSuccess(success)
