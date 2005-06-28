@@ -79,6 +79,7 @@ import org.openmicroscopy.omero.util.ReflectionUtils;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since OMERO 1.0
+ * @DEV.TODO clean should be an aspect!!
  */
 public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
@@ -343,7 +344,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
         List result = annotationDao.findDataListAnnotationForExperimenter(arg0,
                 arg1);
-        return sortDatasetAnnotations(result);
+        return (Map) clean(sortDatasetAnnotations(result));
 
     }
 
@@ -378,7 +379,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                 daoUtils.clean((OMEModel) obj);
             } else if (obj instanceof Set) {
                 daoUtils.clean((Set) obj);
-            } else if (obj instanceof HashMap) {
+            } else if (obj instanceof Map) {
                 //daoUtils.clean(((Map) obj).keySet());TODO here only integers, but...
                 daoUtils.clean(new HashSet(((Map) obj).values()));                
             } else {

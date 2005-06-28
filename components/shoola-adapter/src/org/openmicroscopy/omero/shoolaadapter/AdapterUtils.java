@@ -82,12 +82,14 @@ import org.openmicroscopy.shoola.env.data.model.ProjectData;
 public class AdapterUtils {
 
     private static Log log = LogFactory.getLog(AdapterUtils.class);
+    private static final String init_time = "cache.initialization_time";
+    private static final String cacheError = "Cache not properly initialized.";
     
     static public DataObject adaptLoadedPDIHierarchy(Class rootNodeType, Object result) {
         if (rootNodeType.equals(Project.class)){
-            return AdapterUtils.go((Project) result, new HashMap());
+            return AdapterUtils.go((Project) result, newCache());
         } else if (rootNodeType.equals(Dataset.class)){
-            return AdapterUtils.go((Dataset) result, new HashMap());
+            return AdapterUtils.go((Dataset) result, newCache());
         } else {
             throw new IllegalArgumentException("Method only takes Project and Dataset as argument.");
         }
@@ -95,9 +97,9 @@ public class AdapterUtils {
 
     static public DataObject adaptLoadedCGCIHierarchy(Class rootNodeType, Object result) {
         if (rootNodeType.equals(CategoryGroup.class)){
-            return AdapterUtils.go((CategoryGroup) result, new HashMap());
+            return AdapterUtils.go((CategoryGroup) result, newCache());
         } else if (rootNodeType.equals(Category.class)){
-            return AdapterUtils.go((Category) result, new HashMap());
+            return AdapterUtils.go((Category) result, newCache());
         } else {
             throw new IllegalArgumentException("Method only takes CategoryGroup and Category as argument.");
         }
@@ -105,7 +107,7 @@ public class AdapterUtils {
 
     static public Set adaptFoundPDIHierarchies(Set result) {
         Set dataObjects = new HashSet();
-        Map cache = new HashMap();
+        Map cache = newCache();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
             if (obj instanceof Project) {
@@ -126,7 +128,7 @@ public class AdapterUtils {
 
     static public Set adaptFoundCGCIHierarchies(Set result) {
         Set dataObjects = new HashSet();
-        Map cache = new HashMap();
+        Map cache = newCache();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
             if (obj instanceof CategoryGroup) {
@@ -147,7 +149,7 @@ public class AdapterUtils {
 
     static public Map adaptFoundImageAnnotations(Map result) {
         Map dataObjects = new HashMap();
-        Map cache = new HashMap();
+        Map cache = newCache();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
             Set value = (Set) result.get(key);
@@ -162,7 +164,7 @@ public class AdapterUtils {
 
     static public Map adaptFoundDatasetAnnotations(Map result) {
         Map dataObjects = new HashMap();
-        Map cache = new HashMap();
+        Map cache = newCache();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
             Set value = (Set) result.get(key);
@@ -182,6 +184,8 @@ public class AdapterUtils {
     
     static public ProjectData go(Project p, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache,p)) {
             return (ProjectData) from(cache, p);
         }
@@ -189,7 +193,7 @@ public class AdapterUtils {
         ProjectData pd = new ProjectData();
         to(cache, p, pd);
         
-        if (null == p.getProjectId()) {
+        if (null == p.getProjectId()) { // FIXME here NPE
             if (log.isDebugEnabled())log.debug(nullId+p);
         } else {
             pd.setID(p.getProjectId().intValue());
@@ -222,6 +226,8 @@ public class AdapterUtils {
 //    }
 
     static public DatasetData go(Dataset d, Map cache) {
+        
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
 
         if (check(cache, d)) {
             return (DatasetData) from(cache, d);
@@ -266,6 +272,8 @@ public class AdapterUtils {
     
     static public CategoryGroupData go(CategoryGroup cg, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, cg)) {
             return (CategoryGroupData) from(cache, cg);
         }
@@ -291,7 +299,8 @@ public class AdapterUtils {
     
     static public CategoryData go(Category c, Map cache){
 
-
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, c)) {
             return (CategoryData) from(cache, c);
         }
@@ -318,6 +327,8 @@ public class AdapterUtils {
 
     static public ImageData go(Image img, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, img)) {
             return (ImageData) from(cache, img);
         }
@@ -359,6 +370,8 @@ public class AdapterUtils {
 
     static public PixelsDescription go(ImagePixel ip, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, ip)) {
             return (PixelsDescription) from(cache, ip);
         }
@@ -390,6 +403,8 @@ public class AdapterUtils {
 
     static public UserDetails go(Experimenter e, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, e)) {
             return (UserDetails) from(cache, e);
         }
@@ -410,6 +425,8 @@ public class AdapterUtils {
     
     static public AnnotationData go(ImageAnnotation ann, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, ann)) {
             return (AnnotationData) from(cache, ann);
         }
@@ -444,6 +461,8 @@ public class AdapterUtils {
     
     static public AnnotationData go(DatasetAnnotation ann, Map cache) {
 
+        if (!ok(cache)) throw new IllegalArgumentException(cacheError);
+        
         if (check(cache, ann)) {
             return (AnnotationData) from(cache, ann);
         }
@@ -472,7 +491,13 @@ public class AdapterUtils {
     static Map newCache() {
         Map m = new HashMap();
         m.put(null,null); // This keeps things from getting hairy
+        m.put(init_time,new Date());
         return m;
+    }
+    
+    static boolean ok(Map cache){
+        if (cache.containsKey(init_time)) return true;
+        return false;
     }
 
     static boolean check(Map cache, Object key) {

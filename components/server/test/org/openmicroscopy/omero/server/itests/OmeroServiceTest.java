@@ -103,8 +103,13 @@ public class OmeroServiceTest
         imgs.add(new Integer(3919));
         imgs.add(new Integer(1273));
         data.imgsCGCI=imgs;
+        data.userId=286033;
+        Set set = new HashSet();
+        set.add(new Integer(120));
+        data.dsAnn1=set;
+        data.dsAnn2=set;
         setData(data);
-        Object o = this.testFindCGCIHierarchies();
+        Object o = this.testFindDatasetAnnotationsSetForExperimenter();
         Utils.structureSize(o);
         setData(old);
 
