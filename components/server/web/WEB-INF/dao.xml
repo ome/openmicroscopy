@@ -73,6 +73,10 @@
         </property>
     </bean>
 
+	<bean id="daoCleanUp" class="org.openmicroscopy.omero.logic.DaoCleanUpHibernate" lazy-init="true">
+		<constructor-arg ref="daoUtils"/>
+	</bean>
+
 	<!-- Please see documentation for DaoUtils to see what this does -->
 	<bean id="daoUtils" class="org.openmicroscopy.omero.logic.DaoUtilsHibernate" lazy-init="true">
 		<constructor-arg ref="sessionFactory"/>

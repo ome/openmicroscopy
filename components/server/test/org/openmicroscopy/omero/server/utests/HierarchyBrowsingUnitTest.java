@@ -69,23 +69,20 @@ import org.openmicroscopy.omero.model.Project;
  */
 public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
     protected HierarchyBrowsingImpl manager = new HierarchyBrowsingImpl();
-    protected Mock annotationDao,containerDao,daoUtils;
+    protected Mock annotationDao,containerDao;
     
     protected void setUp() throws Exception {
         super.setUp();
         annotationDao = new Mock(AnnotationDao.class);
         containerDao = new Mock(ContainerDao.class);
-        daoUtils = new Mock(DaoUtils.class);
         manager.setAnnotationDao((AnnotationDao) annotationDao.proxy());
         manager.setContainerDao((ContainerDao) containerDao.proxy()	);
-        manager.setDaoUtils((DaoUtils) daoUtils.proxy());
     }
     
     protected void tearDown() throws Exception {
         manager = null;
         annotationDao = null;
         containerDao = null;
-        daoUtils = null;
     }
 
     public void testAnnotationsWithVariousIdSets(){
@@ -109,7 +106,6 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
 
         // Run
         annotationDao.expects(once()).method("findImageAnnotations").with(same(ids)).will(returnValue(result));
-        daoUtils.expects(atLeastOnce()).method("clean").withAnyArguments();
         Map map = manager.findImageAnnotations(ids	);
         for (Iterator i = map.keySet().iterator(); i.hasNext();) {
             Integer key = (Integer) i.next();
@@ -117,8 +113,6 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
         }
         annotationDao.verify();
         annotationDao.reset();
-        daoUtils.verify();
-        daoUtils.reset();
 
     }
 
@@ -151,15 +145,12 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
 
         // Run
         containerDao.expects(once()).method("findPDIHierarchies").with(same(ids)).will(returnValue(result));
-        daoUtils.expects(atLeastOnce()).method("clean").withAnyArguments();
         Set set = manager.findPDIHierarchies(ids	);
         List list = new ArrayList(set);
         assertTrue("There should only be one project in the result.",list.size()==1);
         assertTrue("And that one project must be this one.",list.get(0)==prj);
         containerDao.verify();
         containerDao.reset();
-        daoUtils.verify();
-        daoUtils.reset();
     }
     
     public void testfindCGCIHiearchies(){
@@ -188,15 +179,13 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
 
         // Run
         containerDao.expects(once()).method("findCGCIHierarchies").with(same(ids)).will(returnValue(result));
-        daoUtils.expects(atLeastOnce()).method("clean").withAnyArguments();
         Set set = manager.findCGCIHierarchies(ids);
         List list = new ArrayList(set);
         assertTrue("There should only be one category group in the result not "+list.size(),list.size()==1);
         assertTrue("And that one c. group should be this one not "+list.get(0),list.get(0)==cg1);
         containerDao.verify();
         containerDao.reset();
-        daoUtils.verify();
-        daoUtils.reset();
+
     }
     
     

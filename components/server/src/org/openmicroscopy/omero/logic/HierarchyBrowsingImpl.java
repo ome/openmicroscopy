@@ -89,18 +89,12 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
     ContainerDao containerDao;
 
-    DaoUtils daoUtils;
-
     public void setAnnotationDao(AnnotationDao dao) {
         this.annotationDao = dao;
     }
 
     public void setContainerDao(ContainerDao dao) {
         this.containerDao = dao;
-    }
-
-    public void setDaoUtils(DaoUtils daoUtils) {
-        this.daoUtils = daoUtils;
     }
 
     /**
@@ -115,7 +109,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                             + arg0);
         }
 
-        return clean(containerDao.loadHierarchy(arg0, arg1));
+        return containerDao.loadHierarchy(arg0, arg1);
 
     }
 
@@ -131,7 +125,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                             + arg0);
         }
 
-        return clean(containerDao.loadHierarchy(arg0, arg1));
+        return containerDao.loadHierarchy(arg0, arg1);
 
     }
 
@@ -194,7 +188,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             }
         }
 
-        return (Set) clean(hierarchies);
+        return hierarchies;
 
     }
 
@@ -256,7 +250,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             }
         }
 
-        return (Set) clean(hierarchies);
+        return hierarchies;
     }
 
     /** 
@@ -271,7 +265,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
         List result = annotationDao.findImageAnnotations(arg0);
 
-        return (Map) clean(sortImageAnnotations(result));
+        return sortImageAnnotations(result);
 
     }
 
@@ -288,7 +282,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
         List result = annotationDao.findImageAnnotationsForExperimenter(arg0,
                 arg1);
-        return (Map) clean(sortImageAnnotations(result));
+        return sortImageAnnotations(result);
 
     }
 
@@ -327,7 +321,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         List result = annotationDao.findDataListAnnotations(arg0);
-        return (Map) clean(sortDatasetAnnotations(result));
+        return sortDatasetAnnotations(result);
 
     }
 
@@ -344,7 +338,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
         List result = annotationDao.findDataListAnnotationForExperimenter(arg0,
                 arg1);
-        return (Map) clean(sortDatasetAnnotations(result));
+        return sortDatasetAnnotations(result);
 
     }
 
@@ -370,82 +364,6 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
         }
 
         return map;
-    }
-
-    Object clean(Object obj) {
-        //TODO push OMEModel down into all calls
-        if (null != obj) {
-            if (obj instanceof OMEModel) {
-                daoUtils.clean((OMEModel) obj);
-            } else if (obj instanceof Set) {
-                daoUtils.clean((Set) obj);
-            } else if (obj instanceof Map) {
-                //daoUtils.clean(((Map) obj).keySet());TODO here only integers, but...
-                daoUtils.clean(new HashSet(((Map) obj).values()));                
-            } else {
-                String msg = "Instances of " + obj.getClass().getName()
-                + " not supported.";
-                throw new IllegalArgumentException(msg);
-            }
-        }
-        return obj;
-    }
-
-    //        if (!Hibernate.isInitialized(obj)) {
-    //            throw new IllegalStateException(
-    //                    "If the return object is not initialized then we can't send it.");
-    //        }
-    //        Set done = new HashSet();
-    //        hessianClean(obj, done);
-    //        return obj;
-
-    /** removes all Hibernate-related code. 
-     * @DEV.TODO Currently tests all Objects, should eventually test only Hibernate parent class
-     * @param An object to clean of Hibernate code
-     * @param Set to catch circular references
-     */
-    private void hessianClean(Object obj, Set done) {
-
-        if (null == obj)
-            return;
-        if (done.contains(obj))
-            return;
-        done.add(obj);
-
-        if (obj instanceof Map) {
-            Map map = (Map) obj;
-            for (Iterator i = map.values().iterator(); i.hasNext();) {
-                Object value = i.next();
-                hessianClean(value, done);
-            }
-        } else if (obj instanceof Set) {
-            Set set = (Set) obj;
-            for (Iterator i = set.iterator(); i.hasNext();) {
-                Object item = i.next();
-                hessianClean(item, done);
-            }
-        } else {
-            Method[] methods = ReflectionUtils.getGettersAndSetters(obj);
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                if (method.getName().startsWith("set"))
-                    continue;
-                Object result = ReflectionUtils.invokeGetter(obj, method);
-                if (!Hibernate.isInitialized(result)) {
-                    Method setter = ReflectionUtils.getSetterForGetter(methods,
-                            method);
-                    if (null == setter) {
-                        throw new IllegalStateException(
-                                "No setter for getter; this will explode:"
-                                        + method);
-                    }
-                    ReflectionUtils.setToNull(obj, setter);
-                } else {
-                    hessianClean(result, done);
-                }
-            }
-
-        }
     }
 
 }
