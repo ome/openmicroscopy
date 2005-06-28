@@ -1,12 +1,36 @@
 /*
- * Created on Jun 13, 2005
+ * org.openmicroscopy.omero.server.utests.HierarchyBrowsingDbUnitTest
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.omero.server.utests;
 
+//Java imports
 import java.io.FileInputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -14,24 +38,20 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+
+//Third-party libraries
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractSpringContextTests;
 
+//Application-internal dependencies
 import org.openmicroscopy.omero.logic.AnnotationDao;
 import org.openmicroscopy.omero.logic.ContainerDao;
-import org.openmicroscopy.omero.logic.Utils;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.DatasetAnnotation;
 import org.openmicroscopy.omero.model.Image;
