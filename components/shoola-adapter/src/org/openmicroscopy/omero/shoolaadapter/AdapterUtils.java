@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.omero.model.Category;
@@ -54,8 +56,6 @@ import org.openmicroscopy.omero.model.ImagePixel;
 import org.openmicroscopy.omero.model.ModuleExecution;
 import org.openmicroscopy.omero.model.Project;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
