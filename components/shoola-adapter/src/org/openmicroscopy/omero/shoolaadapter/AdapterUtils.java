@@ -193,7 +193,7 @@ public class AdapterUtils {
         ProjectData pd = new ProjectData();
         to(cache, p, pd);
         
-        if (null == p.getProjectId()) { // FIXME here NPE
+        if (null == p.getProjectId()) { 
             if (log.isDebugEnabled())log.debug(nullId+p);
         } else {
             pd.setID(p.getProjectId().intValue());
@@ -376,21 +376,22 @@ public class AdapterUtils {
             return (PixelsDescription) from(cache, ip);
         }
 
-        ImageDimension dim = new ImageDimension(); // FIXME =
-        //ip.getImage(). getImageDimensions();
-        dim.setPixelSizeX((new Float(0))); //XXX
-        dim.setPixelSizeY((new Float(0))); //XXX
-        dim.setPixelSizeZ((new Float(0))); //XXX
-
         PixelsDescription pd = new PixelsDescription();
         to(cache, ip, pd);
-        
+
+        ImageDimension dim;
+        Set dimensions = ip.getImage().getImageDimensions();
+        if (dimensions.size()>0) {
+            dim=(ImageDimension) dimensions.iterator().next();
+            pd.setPixelSizeX(dim.getPixelSizeX().doubleValue());
+            pd.setPixelSizeY(dim.getPixelSizeY().doubleValue());
+            pd.setPixelSizeZ(dim.getPixelSizeZ().doubleValue());
+            // TODO This is still not optimal. 
+        }
+
         pd.setID(ip.getAttributeId().intValue());//TODO
         pd.setImageServerID(ip.getImageServerId().longValue());
-        //pd.setImageServerUrl(ip.getRepository().getImageServerUrl()); TODO
-        pd.setPixelSizeX(dim.getPixelSizeX().doubleValue());
-        pd.setPixelSizeY(dim.getPixelSizeY().doubleValue());
-        pd.setPixelSizeZ(dim.getPixelSizeZ().doubleValue());
+        pd.setImageServerUrl(ip.getRepository().getImageServerUrl());
         pd.setPixelType(ip.getPixelType());
         pd.setSizeC(ip.getSizeC().intValue());
         pd.setSizeT(ip.getSizeT().intValue());
@@ -410,7 +411,7 @@ public class AdapterUtils {
         }
 
         List groups = new ArrayList();
-        //groups.add(e.getGroup().getAttributeId());//FIXME
+        groups.add(e.getGroup().getAttributeId());
         UserDetails ed = new UserDetails(e.getAttributeId().intValue(),e.getFirstname(),e.getLastname(),groups);
         to(cache, e, ed);
 
@@ -512,10 +513,7 @@ public class AdapterUtils {
     }
 
     static void to(Map cache, Object key, Object value) {
-        // FIXME Why are there NULLs in the Cache!!!!
         cache.put(key, value);
-        // TODO return either original value or a new one -- tough. Not when all
-        // inherit from a single DataObject!!??
     }
 
     final static String nullId = "Null ID for: ";
