@@ -386,7 +386,6 @@ public class AdapterUtils {
             pd.setPixelSizeX(dim.getPixelSizeX().doubleValue());
             pd.setPixelSizeY(dim.getPixelSizeY().doubleValue());
             pd.setPixelSizeZ(dim.getPixelSizeZ().doubleValue());
-            // TODO This is still not optimal. 
         }
 
         pd.setID(ip.getAttributeId().intValue());//TODO

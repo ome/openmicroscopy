@@ -51,7 +51,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since 1.0
- * @DEV.TODO update queries to remove invalid entries. Write tests for that.
  * 
  */
 public class AnnotationDaoHibernate extends HibernateDaoSupport implements AnnotationDao {

@@ -23,6 +23,8 @@ import junit.framework.TestCase;
 
 /**
  * @author josh
+ * @deprecated
+ * @DEV.TODO this needs to be refactored to use BeanUtils; don't use. * 
  */
 public class ReflectionUtils extends TestCase {
 
@@ -78,7 +80,7 @@ public class ReflectionUtils extends TestCase {
         methods = obj.getClass().getDeclaredMethods();
         Package pkg = obj.getClass().getPackage();
         if (null != pkg
-                && pkg.toString().indexOf("org.openmicroscopy.omero.model2") > -1) {//TODO
+                && pkg.toString().indexOf("org.openmicroscopy.omero.model2") > -1) {//FIXME not valid
             superMethods = obj.getClass().getSuperclass().getDeclaredMethods();
         }
         List goodMethods = checkGettersAndSetters(methods);

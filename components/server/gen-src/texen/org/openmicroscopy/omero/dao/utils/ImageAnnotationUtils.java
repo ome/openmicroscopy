@@ -62,7 +62,7 @@ public class ImageAnnotationUtils  extends BaseModelUtils {
     clean(o,new HashSet());
   }
 
-  //TODO Logging
+  //DONE Logging
   public void clean(Object o, Set done){
 
     // Enter each object-indexed clean only once

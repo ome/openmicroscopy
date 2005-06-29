@@ -309,12 +309,9 @@ public class PojoAdapterUtils {
             return (PixelsData) fromCache(ip);
         }
 
-        ImageDimension dim = new ImageDimension(); // FIXME =
-        //ip.getImage(). getImageDimensions();
-        dim.setPixelSizeX((new Float(0))); //XXX
-        dim.setPixelSizeY((new Float(0))); //XXX
-        dim.setPixelSizeZ((new Float(0))); //XXX
-
+        ImageDimension dim = new ImageDimension(); 
+        ip.getImage().getImageDimensions();
+       
         PixelsData pd = new PixelsData();
         toCache(ip, pd);
         
@@ -424,10 +421,7 @@ System.out.println(" ***** HierarchyBrowsingImpl.go(Ann) *****");
     }
 
     static void toCache(Object key, Object value) {
-        // FIXME Why are there NULLs in the Cache!!!!
         ((Map) cache.get()).put(key, value);
-        // TODO return either original value or a new one -- tough. Not when all
-        // inherit from a single DataObject!!??
     }
 
 }

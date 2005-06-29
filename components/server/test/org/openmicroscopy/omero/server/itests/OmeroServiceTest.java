@@ -63,7 +63,6 @@ import org.openmicroscopy.omero.util.Utils;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since 1.0
- * @DEV.TODO find the hessian bug!
  */
 public class OmeroServiceTest
         extends

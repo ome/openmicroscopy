@@ -47,7 +47,7 @@ package org.openmicroscopy.omero;
  * (<b>Internal version:</b> $Revision: $ $Date: $)
  * </small>
  * @since 1.0
- * @DEV.TODO Possibly convert to abstract class
+ * @DEV.TODO Possibly convert to abstract class then getUtils() static
  */
 public interface OMEModel
 {

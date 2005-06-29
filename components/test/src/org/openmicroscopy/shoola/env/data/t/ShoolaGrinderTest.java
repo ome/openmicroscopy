@@ -120,11 +120,6 @@ public class ShoolaGrinderTest
         registry.getDataServicesView(HierarchyBrowsingView.class);
         dms = registry.getDataManagementService();
         sts = registry.getSemanticTypesService();
-//		//Retrieve the connection URL and create the internal proxy to OMEDS.
-//		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
-//		if (info == null)  //TODO: get rid of this when we have an XML schema.
-//			throw new NullPointerException("No data server host provided!");
-//        gateway = new OMEDSGateway(info.getServerAddress(), this);
     }
     /***********************************/
     public void testLoadPDIHierarchyProjectNoReturn() {

@@ -59,6 +59,8 @@ public class BaseModelUtils {
 
     public void clean(Object o, Set done) {
         //null-op
-        done.add(o);//TODO
+        done.add(o);
+        // Prevents possible endless loops if caller
+        // expects that done will eventually fill.
     }
 }

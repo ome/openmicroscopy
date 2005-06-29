@@ -103,7 +103,7 @@ public abstract class OMEData {
     public Set dsAnn2;
 
     public OMEData init() {
-        //      Perhaps generalize on type HOW OFTEN IS THIS USED! Each ONCE ? TODO
+
         if (!initialized) {
             allUsers = getAllIds("experimenters", "attribute_id");
             allImgs = getAllIds("images", "image_id");
