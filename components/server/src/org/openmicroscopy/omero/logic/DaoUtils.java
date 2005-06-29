@@ -42,7 +42,21 @@ import org.openmicroscopy.omero.OMEModel;
  * This is done by creating the object within the Spring Framework.
  * 
  * The design requirements for the model utilities are:
- * 1. 
+ * <ol>
+ *   <li>we don't want Hibernate dependencies in /common</li>
+ *   <li>we don't necessarily want to use reflection in a service call</li>
+ *   <li>we <b>must</b> walk the tree to get rid of server-side proxies</li>
+ *   <li>it must be easily configurable from Spring</li>
+ * </ol>
+ * 
+ * OMEModel is the only super-class/interface of the model objects. It now contains
+ * a getters and setters (instance methods) for a static field <code>utils</code>.
+ * 
+ * <code>utils</code> either contains the base null-op utility or a code-generated 
+ * utility which "knows" what's in the model class.
+ * 
+ * When an instance of a <code>DaoUtils</code> is created in Spring, it uses the existing
+ * metadata to iterate over all classes/tables and edit the OMEModel.utils field.  
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

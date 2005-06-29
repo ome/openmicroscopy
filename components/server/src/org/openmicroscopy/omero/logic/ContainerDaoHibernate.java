@@ -42,8 +42,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.model.Category;
-import org.openmicroscopy.omero.model.CategoryGroup;
+
 
 
 /** uses Hibernate to fulfill hierarchy needs.
@@ -101,25 +100,6 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
             }
 
         });
-    }
-
-    /** load necessary because of the whackyness of CategoryGroup 
-     * @DEV.TODO TEMPORARY this must be moved to its own DAO if it can't be abolished all together 
-     * @param id
-     * @return a CategoryGroup
-     */
-    public CategoryGroup loadCG(Integer id){
-        return (CategoryGroup) getHibernateTemplate().load(CategoryGroup.class, id);
-        
-    }
-    
-    /** load necessary because of the whackyness of Category 
-     * @DEV.TODO TEMPORARY this must be moved to its own DAO if it can't be abolished all together 
-     * @param id
-     * @return a Category
-     */
-    public Category loadC(Integer id){
-        return (Category) getHibernateTemplate().load(Category.class, id);
     }
 
 }

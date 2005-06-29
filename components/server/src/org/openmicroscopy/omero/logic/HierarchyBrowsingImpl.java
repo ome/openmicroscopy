@@ -37,10 +37,6 @@
 package org.openmicroscopy.omero.logic;
 
 //Java imports
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,10 +47,9 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.OMEModel;
+
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
@@ -64,9 +59,7 @@ import org.openmicroscopy.omero.model.DatasetAnnotation;
 import org.openmicroscopy.omero.model.Image;
 import org.openmicroscopy.omero.model.ImageAnnotation;
 import org.openmicroscopy.omero.model.Project;
-import org.openmicroscopy.omero.model2.Category2;
-import org.openmicroscopy.omero.model2.CategoryGroup2;
-import org.openmicroscopy.omero.util.ReflectionUtils;
+
 
 /**
  * implementation of the HierarchyBrowsing service. A single service
@@ -79,7 +72,6 @@ import org.openmicroscopy.omero.util.ReflectionUtils;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since OMERO 1.0
- * @DEV.TODO clean should be an aspect!!
  */
 public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 

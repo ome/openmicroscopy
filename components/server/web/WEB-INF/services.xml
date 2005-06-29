@@ -35,6 +35,7 @@
 <!--
 
 	Configuration of top-level services.
+	TODO add log4j configuration (e.g. update intervals)
  
 -->
 
@@ -42,17 +43,28 @@
 
 <beans>	
 	
+	<!-- Aspects/Interceptors which catch ALL calls to our service methods
+		 =================================================================
+		 Possibilities are: tracing, logging, security, transactions, etc.
+	 -->
 	<bean id="serviceBeanNameProxyCreator"
 		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
 		<property name="beanNames"><value>*Service</value></property>
 		<property name="interceptorNames">
 		<list>
+			<value>serviceTracing</value>
 			<value>daoCleanUp</value>
 <!--			<value>serviceSecurity</value>
 			<value>serviceTransactions</value> -->
 		</list>
 		</property>
 	</bean>
+	
+	<bean 
+		       id="serviceTracing" 
+		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
+		lazy-init="true"
+	/>
 	
 	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
 		<property name="annotationDao" ref="annotationDao"/>

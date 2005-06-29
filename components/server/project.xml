@@ -34,6 +34,15 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>jamon</artifactId>
+      <version>spring121</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
     <!-- HIBERNATE -->
     <dependency>
       <groupId>hibernate</groupId>

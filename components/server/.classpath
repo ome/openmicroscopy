@@ -32,6 +32,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/dbunit/jars/dbunit-2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/groovy/jars/groovy-all-1.0-beta-10.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/jamon-spring121.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/hessian/jars/hessian-3.0.13.jar"/>

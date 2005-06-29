@@ -58,7 +58,6 @@ import java.util.Set;
  * @since OME2.2
  * @DEV.TODO Possibly change these methods to return an abstract super type 
  * @DEV.TODO or even a concrete for these or concrete type like "Project loadPDIHierary()"
- * @DEV.TODO Update code generation for Hibernate to include copyright. 
  */
 public interface HierarchyBrowsing
 {
