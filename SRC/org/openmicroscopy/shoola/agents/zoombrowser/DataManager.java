@@ -57,10 +57,13 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
-//import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.CompletionHandler;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-//import org.openmicroscopy.ds.st.CategoryGroup;
-//import org.openmicroscopy.ds.st.Category;
 
 /**
  * A utility class for managing communications with registry and 
@@ -76,7 +79,7 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
  * @since OME2.2
  */
 
-public class DataManager {
+public class DataManager implements AgentEventListener {
 
 	
 	/** The OME Registry */
@@ -105,6 +108,8 @@ public class DataManager {
 	public DataManager(Registry registry) {
 		this.registry = registry;
 		thumbnailRetriever = new ThumbnailRetriever(registry);	
+		registry.getEventBus().register(this,
+						ServiceActivationResponse.class);
 	}
 	
 	public Registry getRegistry() {
@@ -158,6 +163,21 @@ public class DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						projectHash = null;
+						retrieveProjects();
+					    }
+					}
+
+				    });
 				registry.getEventBus().post(request);
 			}
 		}
@@ -225,6 +245,21 @@ public class DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						datasetHash = null;
+						retrieveDatasets();
+					    }
+					}
+
+				    });
 				registry.getEventBus().post(request);
 			}
 		}		
@@ -289,37 +324,12 @@ public class DataManager {
 	public TaskBar getTaskBar() {
 		return registry.getTaskBar();
 	}
-	
-	
-	
-	/*protected synchronized void retrieveCategories() {
-		try { 
-			SemanticTypesService sts = registry.getSemanticTypesService();
-			CategoryGroup cg = (CategoryGroup) sts.getCategoryGroup(45978);
-			if (cg == null) {
-				System.err.println("no category found ");
-			}	
-			else {
-				System.err.println("found category group "+cg.getName());
-				Collection categories = cg.getCategoryList();
-				Iterator iter = categories.iterator();
-				while (iter.hasNext()) {
-					Category c = (Category) iter.next();
-					System.err.println("category... "+c.getName());
-				}
-			}
-			
-		} catch(DSAccessException dsae) {
-			String s = "Can't retrieve user's modules.";
-			registry.getLogger().error(this, s+" Error: "+dsae);
-			registry.getUserNotifier().notifyError("Data Retrieval Failure",
-													s, dsae);	
-		} catch(DSOutOfServiceException dsose) {
-			ServiceActivationRequest 
-			request = new ServiceActivationRequest(
-								ServiceActivationRequest.DATA_SERVICES);
-			registry.getEventBus().post(request);
-		}
-	}*/
-	
+
+    public void eventFired(AgentEvent e) {
+	if (e instanceof ServiceActivationResponse) {
+	    ServiceActivationResponse sar = (ServiceActivationResponse) e;
+	    if (sar.getSource() == this)
+		sar.complete();
+	}
+    }
 }

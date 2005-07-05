@@ -53,13 +53,16 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.model.AnalysisChainData;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.NodeExecutionData;
-
+import org.openmicroscopy.shoola.env.event.CompletionHandler;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
 /**
  * A utility class for managing communications with registry and 
  * retrieving data
@@ -137,6 +140,21 @@ public class ExecutionsDataManager extends DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						executionsData = null;
+						retrieveExecutionsData();
+					    }
+					}
+
+				    });
 				registry.getEventBus().post(request);
 			}
 		}

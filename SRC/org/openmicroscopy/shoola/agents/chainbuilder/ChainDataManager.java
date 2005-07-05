@@ -67,11 +67,16 @@ import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
+import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.data.model.ChainExecutionData;
 import org.openmicroscopy.shoola.env.data.model.ModuleCategoryData;
 import org.openmicroscopy.shoola.env.data.model.ModuleData;
 import org.openmicroscopy.shoola.env.data.model.ModuleExecutionData;
 import org.openmicroscopy.shoola.env.data.model.SemanticTypeData;
+import org.openmicroscopy.shoola.env.event.CompletionHandler;
+import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.event.ResponseEvent;
+
 
 /**
  * A utility class for managing communications with registry and 
@@ -148,7 +153,7 @@ public class ChainDataManager extends DataManager {
 		return null;
 	}
 	
-	protected synchronized void retrieveModules(ModuleData modProto) {
+	protected synchronized void retrieveModules(final ModuleData modProto) {
 		if (moduleHash == null ||moduleHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
@@ -170,6 +175,21 @@ public class ChainDataManager extends DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						moduleHash = null;
+						retrieveModules(modProto);
+					    }
+					}
+
+				    });
 				registry.getEventBus().post(request);
 			}
 		}
@@ -231,6 +251,22 @@ public class ChainDataManager extends DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						moduleCategoryHash = null;
+						retrieveModuleCategories();
+					    }
+					}
+
+				    });
+
 				registry.getEventBus().post(request);
 			}
 		}
@@ -303,12 +339,28 @@ public class ChainDataManager extends DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						chainHash = null;
+						retrieveChains();
+					    }
+					}
+
+				    });
+
 				registry.getEventBus().post(request);
 			}
 		}
 	}
 	
-	protected synchronized LayoutChainData retrieveChain(int id) {
+	protected synchronized LayoutChainData retrieveChain(final int id) {
 		try {
 			LayoutChainData acProto = new LayoutChainData();
 			LayoutLinkData alProto = new LayoutLinkData();
@@ -332,6 +384,22 @@ public class ChainDataManager extends DataManager {
 			ServiceActivationRequest 
 			request = new ServiceActivationRequest(
 								ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						chainHash = null;
+						retrieveChain(id);
+					    }
+					}
+
+				    });
+
 			registry.getEventBus().post(request);
 			return null;
 		}
@@ -436,6 +504,22 @@ public class ChainDataManager extends DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						chainExecutions = null;
+						retrieveChainExecutions();
+					    }
+					}
+
+				    });
+
 				registry.getEventBus().post(request);
 			}
 		}
@@ -473,7 +557,7 @@ public class ChainDataManager extends DataManager {
 	}*/
 	
 
-	public void saveChain(LayoutChainData chain) {
+	public void saveChain(final LayoutChainData chain) {
 		if (chain != null) {
 			try {
 				DataManagementService dms = registry.getDataManagementService();
@@ -487,6 +571,20 @@ public class ChainDataManager extends DataManager {
 				ServiceActivationRequest 
 				request = new ServiceActivationRequest(
 									ServiceActivationRequest.DATA_SERVICES);
+				request.setSource(this);
+				request.setCompletionHandler(new 
+							     CompletionHandler() {
+					public void handle(RequestEvent request,
+							   ResponseEvent response) {
+					    ServiceActivationResponse sar=
+						(ServiceActivationResponse) 
+						response;
+					    if (sar.isActivationSuccessful()) {
+						saveChain(chain);
+					    }
+					}
+
+				    });
 				registry.getEventBus().post(request);
 			}
 		}
