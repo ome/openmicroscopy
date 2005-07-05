@@ -47,7 +47,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
