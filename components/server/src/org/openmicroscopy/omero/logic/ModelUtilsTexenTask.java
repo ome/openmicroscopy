@@ -60,6 +60,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since 1.0
+ * @DEV.TODO possibily replace Hibernate Metadata with standard reflection for speed
  */
 public class ModelUtilsTexenTask extends TexenTask {
 
