@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+ *                     SHOOLA MASTER CONFIGURATION FILE
+ *
+ * This file specifies the configuration settings for the Shoola runtime (the
+ * Container) and links the available UI components (the Agents) to it.  The
+ * configuration entries are organized in the following groups:
+ *
+ * + Services: The runtime services provided by the Container.
+ * + Agents: The UI components that will be loaded at runtime.
+ * + Resources: Icons and fonts used by the widgets that are part of the 
+ *              Container.
+ * + Look and Feel: The L&F to use for the whole application.
+ *
+ *
+ * Note that the only entry that needs to be edited *before* launching Shoola
+ * is the URL of the OME Data Server (OMEDS) in the Services group.  All other
+ * entries can optionally be edited to tweak runtime behavior, but can in most
+ * cases be safely ignored.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<container>
+   
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
+   * SERVICES
+   *
+   * The runtime services provided by the Container.
+   * The only entry that needs to be edited *before* launching Shoola is the
+   * URL of the OME Data Server (OMEDS).  All the other entries can optionally
+   * be edited to tweak runtime behavior.
+   * 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <services>
+   
+    <!-- OME Data Server (OMEDS) configuration.
+         This entry only specifies the URL to use to connect to OMEDS.
+    -->
+    <structuredEntry name="/services/OMEDS" type="OMEDS">
+      <url>http://yourhost/shoola/</url>
+    </structuredEntry>
+    
+    <!-- OME Image Server (OMEIS) configuration.
+         This entry is currently unused.
+    -->
+    <structuredEntry name="/services/OMEIS" type="OMEIS">
+      <url>http://yourhost/cgi-bin/omeis/</url> 
+    </structuredEntry>
+    
+    <!-- Login Service configuration.
+    -->
+    <!-- The maximum number of times that the Login Service should attempt
+         to restore a valid link to OMEDS in the background. 
+         Non-positive values will be ignored and the internal default will
+         be used instead. -->
+    <entry name="/services/LOGIN/omeds/max-retry" type="integer">3</entry>
+    <!-- The interval, in milliseconds, between each attempt.
+         Non-positive values will be ignored and the internal default will
+         be used instead. -->
+    <entry name="/services/LOGIN/omeds/retry-interval"
+           type="integer">500</entry>
+           
+    <!-- Log Service configuration.
+    -->
+    <!-- Enables/disables the Log Service. -->
+    <entry name="/services/LOG/on" type="boolean">true</entry>
+    <!-- The directory where log files are kept. Path relative to the
+         installation directory. -->
+    <entry name="/services/LOG/dir">log</entry>
+    <!-- The name of the log file -->
+    <entry name="/services/LOG/file">shoola.log</entry>       
+    
+    <!-- Rendering Engine configuration.
+         NOTE: All the following entries for the Rendering Engine will
+     		be removed as soon as we move the engine to the server. 
+    -->
+    <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
+          This is a per-image cache which stores planes that have already
+          been rendered and are still valid with respect to the current
+          rendering settings.  Because the Rendering Engine can only process
+          one image at a time, the value you specify here will equal the 
+          maximum amount of memory that will be used for caching rendered
+          images at any given time.  If set to 0 or a negative value, then
+          no caching will be done (this dramatically reduces responsiveness
+          though). -->
+    <entry name="/services/RE/cacheSz" type="integer">100</entry>
+    <!-- Maximum number of planes that will be pre-fetched and rendered
+         asynchronously in addition to the plane that has been currently
+         requested.  If set to a positive value n, then separate threads 
+         will be spawned to render (at most) n planes that are likely to
+         be requested after the current plane.  If 0 or negative, then no
+         asynchronous rendering will take place.
+         Having asynchronous rendering on usually increses performance and
+         responsiveness.  However, take into account that too a high value
+         can be counterproductive (what is "high" depends on your platform
+         and deployment settings). -->
+    <entry name="/services/RE/maxPreFetch" type="integer">0</entry>
+    <!-- How many Mb should be allocated to the Rendering Engine to cache
+         pixels stacks.  If the size of an image stack exceeds this value
+         then the stack won't be cached.  This will increase the time it
+         takes to render planes within that image stack and will result
+         in an error if 3D rendering is attempted; 3D rendering requires
+         the stack to be in memory. -->
+    <entry name="/services/RE/stackBufSz" type="integer">100</entry>
+    <!-- How many Kb should be fetched at a time when retrieving a stack.
+     	   Experimental, affects performance and responsiveness.
+         Don't modify this unless you know what you're doing. -->
+    <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
+            
+  </services>
+  
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
+   * AGENTS
+   *
+   * The UI components that will be loaded at runtime.
+   * This section is mainly used by developers to make their Agents available
+   * to a Shoola instance.  System administrator may decide to remove some of
+   * the Agents in exceptional cases.  (This is easily done by deleting an
+   * agent tag altogheter.)
+   * 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <agents>
+    <structuredEntry name="/agents" type="agents">
+      
+      <!-- NOTE FOR DEVELOPERS
+           Add an agent tag for each of your Agents.
+           The name tag specifies the human-readable name of the Agent.
+           The class tag specifies the FQN of the Agent class.
+           The config tag specifies the name of the Agent's configuration file
+           within the config directory.
+      -->
+      <agent>
+        <name>Annotator</name>
+        <class>org.openmicroscopy.shoola.agents.annotator.Annotator</class>
+        <config>annotator.xml</config>
+      </agent>
+      <agent>
+        <name>Data Manager</name>
+        <class>org.openmicroscopy.shoola.agents.datamng.DataManager</class>
+        <config>dm.xml</config>
+      </agent>
+ 	    <agent>
+        <name>Viewer</name>
+        <class>org.openmicroscopy.shoola.agents.viewer.Viewer</class>
+        <config>viewer.xml</config>
+      </agent>
+	    <agent>
+        <name>Renderer</name>
+        <class>org.openmicroscopy.shoola.agents.rnd.RenderingAgt</class>
+        <config>rnd.xml</config>
+      </agent>
+      <agent>
+        <name>ROI Analysis Tool</name>
+        <class>org.openmicroscopy.shoola.agents.roi.ROIAgt</class>
+        <config>roi.xml</config>
+      </agent>
+      <agent>
+	      <name>Zoomable Browser Agent</name>
+	  <class>org.openmicroscopy.shoola.agents.zoombrowser.ZoomBrowserAgent</class>  
+        <config>zoombrowser.xml</config>
+      </agent>  
+      <agent>
+        <name>Chain Builder Agent</name>
+	<class>org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent</class>  
+        <config>chainbuilder.xml</config>
+      </agent>
+      <agent> 
+        <name>Hierarchy Viewer</name>
+        <class>org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent</class>  
+        <config>hiviewer.xml</config>
+      </agent> 
+    </structuredEntry>
+  </agents>
+  
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
+   * RESOURCES
+   *
+   * Icons and fonts used by the widgets that are part of the Container.
+   * The iconFactories shouldn't be edited by system administrators, they're
+   * only useful to developers.  The fonts family, size, and style can instead
+   * be tweaked if needed.
+   * 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <resources>
+    <iconFactories>
+      <!-- NOTE FOR DEVELOPERS
+           This type of entry can be used in agents' configuration files too.
+           It is turned into an instance of: 
+              org.openmicroscopy.shoola.env.config.IconFactory
+           This object can then be used to retrieve any image file within
+           the directory pointed by the location tag. 
+      -->
+      <structuredEntry name="/resources/icons/DefaultFactory" type="icons">
+        <!-- The location tag specifies the FQN of the package that contains
+             the icon files. -->
+        <location>org.openmicroscopy.shoola.env.ui.graphx</location>
+      </structuredEntry>
+    </iconFactories>
+    <fonts>
+      <!-- NOTE FOR DEVELOPERS
+           This type of entry can be used in agents' configuration files too.
+           It is turned into an instance of java.awt.Font. 
+      --> 
+      <structuredEntry name="/resources/fonts/Titles" type="font">
+        <family>SansSerif</family>
+        <size>12</size>
+        <style>bold</style>
+      </structuredEntry>
+    </fonts>
+  </resources>
+  
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * 
+   * LOOK & FEEL
+   *
+   * The L&F to use for the whole application.
+   * 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!-- This entry specifies what Look and Feel to use for the whole application.
+       The default value is system (case insensitive).  This will result in the
+       system's look and feel being loaded - the Mac L&F on Mac OS platforms,
+       the Windows L&F on Microsoft Windows platforms, etc.  Alternatively, you
+       can specify the following:
+          javax.swing.plaf.metal.MetalLookAndFeel: the Java look and feel.
+        
+       If you want to use a custom L&F then you can just drop the L&F jar file
+       into the lib directory and then specify here the fully-qualifed name
+       (FQN) of the L&F class to use - this name can usually be found in the
+       documents accompanying the L&F.
+  -->
+  <entry name="LookAndFeel">system</entry>
+  
+  
+</container>
