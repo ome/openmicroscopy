@@ -137,6 +137,75 @@ public interface HiViewer
      */
     public static final int     CGCI_HIERARCHY = 106;
     
+    /** Identifies the Exit action in the Hierarchy menu. */
+    public static final Integer     EXIT = new Integer(0);
+    
+    /** Identifies the View P/D/I action in the Hierarchy menu. */
+    public static final Integer     VIEW_PDI = new Integer(1);
+    
+    /** Identifies the View CG/C/I action in the hierarchy menu. */
+    public static final Integer     VIEW_CGCI = new Integer(2);
+    
+    /** Identifies the Find Annotated action in the Find menu. */
+    public static final Integer     FIND_ANNOTATED = new Integer(3);
+    
+    /** Identifies the Find With Title action in the Find menu. */
+    public static final Integer     FIND_W_TITLE = new Integer(4);
+    
+    /** Identifies the Find With Annotation action in the Find menu. */
+    public static final Integer     FIND_W_ANNOTATION = new Integer(5);
+    
+    /** Identifies the Find With ST action in the Find menu. */
+    public static final Integer     FIND_W_ST = new Integer(6);
+    
+    /** Identifies the Clear action in the Find menu. */
+    public static final Integer     CLEAR = new Integer(7);
+    
+    /** Identifies the Squary Layout action in the Layout menu. */
+    public static final Integer     SQUARY = new Integer(8);
+    
+    /** Identifies the Tree Layout action in the Layout menu. */
+    public static final Integer     TREE = new Integer(9);
+    
+    /** Identifies the Show Title Bar action in the Layout menu. */
+    public static final Integer     SHOW_TITLEBAR = new Integer(10);
+    
+    /** Identifies the Hide Title Bar action in the Layout menu. */
+    public static final Integer     HIDE_TITLEBAR = new Integer(11);
+    
+    /** Identifies the Save Layout action in the Layout menu. */
+    public static final Integer     SAVE = new Integer(12);
+    
+    /** Identifies the Properties action in the Actions menu. */
+    public static final Integer     PROPERTIES = new Integer(13);
+    
+    /** Identifies the Annotate action in the Actions menu. */
+    public static final Integer     ANNOTATE = new Integer(14);
+    
+    /** Identifies the Classify action in the Actions menu. */
+    public static final Integer     CLASSIFY = new Integer(15);
+    
+    /** Identifies the Declassify action in the Actions menu. */
+    public static final Integer     DECLASSIFY = new Integer(16);
+    
+    /** Identifies the View action in the Actions menu. */
+    public static final Integer     VIEW = new Integer(17);
+    
+    /** Identifies the Zoom In action in the Actions menu. */
+    public static final Integer     ZOOM_IN = new Integer(18);
+    
+    /** Identifies the Zoom Out action in the Actions menu. */
+    public static final Integer     ZOOM_OUT = new Integer(19);
+    
+    /** Identifies the Zoom Fit action in the Actions menu. */
+    public static final Integer     ZOOM_FIT = new Integer(20);
+    
+    /** Identifies the Refresh action in the Hierarchy menu. */
+    public static final Integer     REFRESH = new Integer(21);
+    
+    /** Identifies the Save thumbnails action in the Actions menu. */
+    public static final Integer     SAVE_THUMB = new Integer(21);
+        
     /**
      * Queries the current state.
      * 

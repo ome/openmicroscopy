@@ -36,6 +36,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -100,76 +101,6 @@ class HiViewerControl
     implements ChangeListener, PropertyChangeListener
 {
     
-    /** Identifies the Exit action in the Hierarchy menu. */
-    public static final Integer     EXIT = new Integer(0);
-    
-    /** Identifies the View P/D/I action in the Hierarchy menu. */
-    public static final Integer     VIEW_PDI = new Integer(1);
-    
-    /** Identifies the View CG/C/I action in the hierarchy menu. */
-    public static final Integer     VIEW_CGCI = new Integer(2);
-    
-    /** Identifies the Find Annotated action in the Find menu. */
-    public static final Integer     FIND_ANNOTATED = new Integer(3);
-    
-    /** Identifies the Find With Title action in the Find menu. */
-    public static final Integer     FIND_W_TITLE = new Integer(4);
-    
-    /** Identifies the Find With Annotation action in the Find menu. */
-    public static final Integer     FIND_W_ANNOTATION = new Integer(5);
-    
-    /** Identifies the Find With ST action in the Find menu. */
-    public static final Integer     FIND_W_ST = new Integer(6);
-    
-    /** Identifies the Clear action in the Find menu. */
-    public static final Integer     CLEAR = new Integer(7);
-    
-    /** Identifies the Squary Layout action in the Layout menu. */
-    public static final Integer     SQUARY = new Integer(8);
-    
-    /** Identifies the Tree Layout action in the Layout menu. */
-    public static final Integer     TREE = new Integer(9);
-    
-    /** Identifies the Show Title Bar action in the Layout menu. */
-    public static final Integer     SHOW_TITLEBAR = new Integer(10);
-    
-    /** Identifies the Hide Title Bar action in the Layout menu. */
-    public static final Integer     HIDE_TITLEBAR = new Integer(11);
-    
-    /** Identifies the Save Layout action in the Layout menu. */
-    public static final Integer     SAVE = new Integer(12);
-    
-    /** Identifies the Properties action in the Actions menu. */
-    public static final Integer     PROPERTIES = new Integer(13);
-    
-    /** Identifies the Annotate action in the Actions menu. */
-    public static final Integer     ANNOTATE = new Integer(14);
-    
-    /** Identifies the Classify action in the Actions menu. */
-    public static final Integer     CLASSIFY = new Integer(15);
-    
-    /** Identifies the Declassify action in the Actions menu. */
-    public static final Integer     DECLASSIFY = new Integer(16);
-    
-    /** Identifies the View action in the Actions menu. */
-    public static final Integer     VIEW = new Integer(17);
-    
-    /** Identifies the Zoom In action in the Actions menu. */
-    public static final Integer     ZOOM_IN = new Integer(18);
-    
-    /** Identifies the Zoom Out action in the Actions menu. */
-    public static final Integer     ZOOM_OUT = new Integer(19);
-    
-    /** Identifies the Zoom Fit action in the Actions menu. */
-    public static final Integer     ZOOM_FIT = new Integer(20);
-    
-    /** Identifies the Refresh action in the Hierarchy menu. */
-    public static final Integer     REFRESH = new Integer(21);
-    
-    /** Identifies the Save thumbnails action in the Actions menu. */
-    public static final Integer     SAVE_THUMB = new Integer(21);
-    
-    
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
      * is regarded as the Model.
@@ -190,29 +121,30 @@ class HiViewerControl
      */
     private void createActions()
     {
-        actionsMap.put(EXIT, new ExitAction(model));
-        actionsMap.put(VIEW_CGCI, new ViewCGCIAction(model));
-        actionsMap.put(VIEW_PDI, new ViewPDIAction(model));
-        actionsMap.put(REFRESH, new RefreshAction(model));
-        actionsMap.put(FIND_ANNOTATED, new FindAnnotatedAction(model));
-        actionsMap.put(FIND_W_TITLE, new FindWithTitleAction(model));
-        actionsMap.put(FIND_W_ANNOTATION, new FindWithAnnotationAction(model));
-        actionsMap.put(CLEAR, new ClearAction(model));
-        actionsMap.put(SQUARY, new SquaryLayoutAction(model));
-        actionsMap.put(TREE, new TreeLayoutAction(model));
-        actionsMap.put(SHOW_TITLEBAR, new ShowTitleBarAction(model));
-        actionsMap.put(HIDE_TITLEBAR, new HideTitleBarAction(model));
-        actionsMap.put(SAVE, new SaveLayoutAction(model));
-        actionsMap.put(PROPERTIES, new PropertiesAction(model));
-        actionsMap.put(ANNOTATE, new AnnotateAction(model));
-        actionsMap.put(CLASSIFY, new ClassifyAction(model));
-        actionsMap.put(DECLASSIFY, new DeclassifyAction(model));
-        actionsMap.put(VIEW, new ViewAction(model));
-        actionsMap.put(ZOOM_IN, new ZoomInAction(model));
-        actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
-        actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
-        actionsMap.put(FIND_W_ST, new FindwSTAction(model));
-        actionsMap.put(SAVE_THUMB, new SaveThumbnailsAction(model));
+        actionsMap.put(HiViewer.EXIT, new ExitAction(model));
+        actionsMap.put(HiViewer.VIEW_CGCI, new ViewCGCIAction(model));
+        actionsMap.put(HiViewer.VIEW_PDI, new ViewPDIAction(model));
+        actionsMap.put(HiViewer.REFRESH, new RefreshAction(model));
+        actionsMap.put(HiViewer.FIND_ANNOTATED, new FindAnnotatedAction(model));
+        actionsMap.put(HiViewer.FIND_W_TITLE, new FindWithTitleAction(model));
+        actionsMap.put(HiViewer.FIND_W_ANNOTATION, 
+                                    new FindWithAnnotationAction(model));
+        actionsMap.put(HiViewer.CLEAR, new ClearAction(model));
+        actionsMap.put(HiViewer.SQUARY, new SquaryLayoutAction(model));
+        actionsMap.put(HiViewer.TREE, new TreeLayoutAction(model));
+        actionsMap.put(HiViewer.SHOW_TITLEBAR, new ShowTitleBarAction(model));
+        actionsMap.put(HiViewer.HIDE_TITLEBAR, new HideTitleBarAction(model));
+        actionsMap.put(HiViewer.SAVE, new SaveLayoutAction(model));
+        actionsMap.put(HiViewer.PROPERTIES, new PropertiesAction(model));
+        actionsMap.put(HiViewer.ANNOTATE, new AnnotateAction(model));
+        actionsMap.put(HiViewer.CLASSIFY, new ClassifyAction(model));
+        actionsMap.put(HiViewer.DECLASSIFY, new DeclassifyAction(model));
+        actionsMap.put(HiViewer.VIEW, new ViewAction(model));
+        actionsMap.put(HiViewer.ZOOM_IN, new ZoomInAction(model));
+        actionsMap.put(HiViewer.ZOOM_OUT, new ZoomOutAction(model));
+        actionsMap.put(HiViewer.ZOOM_FIT, new ZoomFitAction(model));
+        actionsMap.put(HiViewer.FIND_W_ST, new FindwSTAction(model));
+        actionsMap.put(HiViewer.SAVE_THUMB, new SaveThumbnailsAction(model));
     }
   
     /** Creates the windowsMenuItems. */
@@ -298,7 +230,8 @@ class HiViewerControl
     
     /**
      * Creates a new instance.
-     * The {@link #initialize() initialize} method should be called straigh 
+     * The {@link #initialize(HiViewer, HiViewerWin) initialize} method 
+     * should be called straigh 
      * after to link this Controller to the other MVC components.
      */
     HiViewerControl() {}
@@ -323,6 +256,13 @@ class HiViewerControl
         model.addChangeListener(this);   
         attachListeners();
     }
+    
+    /**
+     * Returns a read-only map with HiViewer actions.
+     * 
+     * @return See above.
+     */
+    Map getActionMap() { return Collections.unmodifiableMap(actionsMap) ;}  
     
     /**
      * Returns the action corresponding to the specified id.

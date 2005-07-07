@@ -101,17 +101,17 @@ class PopupMenu
     private void createMenuItems(HiViewerControl controller)
     {
         properties = new JMenuItem(
-                controller.getAction(HiViewerControl.PROPERTIES));
+                controller.getAction(HiViewer.PROPERTIES));
         annotate = new JMenuItem(
-                controller.getAction(HiViewerControl.ANNOTATE));
+                controller.getAction(HiViewer.ANNOTATE));
         classify = new JMenuItem(
-                controller.getAction(HiViewerControl.CLASSIFY));
+                controller.getAction(HiViewer.CLASSIFY));
         declassify = new JMenuItem(
-                controller.getAction(HiViewerControl.DECLASSIFY));
-        view = new JMenuItem(controller.getAction(HiViewerControl.VIEW));
-        zoomIn = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN));
-        zoomOut = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
-        zoomFit = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
+                controller.getAction(HiViewer.DECLASSIFY));
+        view = new JMenuItem(controller.getAction(HiViewer.VIEW));
+        zoomIn = new JMenuItem(controller.getAction(HiViewer.ZOOM_IN));
+        zoomOut = new JMenuItem(controller.getAction(HiViewer.ZOOM_OUT));
+        zoomFit = new JMenuItem(controller.getAction(HiViewer.ZOOM_FIT));
     }
 
     /**
