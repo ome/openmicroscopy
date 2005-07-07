@@ -8,6 +8,16 @@
   <package>org.openmicroscopy.omero.logic</package>
   <description>Server code</description>
   <dependencies>
+    <!-- POSSIBLY TEMPORARY -->
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>connector</artifactId>
+      <version>api</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
     <!-- BUILD DEPS -->
     <dependency>
       <groupId>ant</groupId>

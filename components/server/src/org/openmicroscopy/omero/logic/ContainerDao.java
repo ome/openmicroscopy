@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.omero.OMEModel;
 
 /** data access object for various hierarchies of OME objects.
  * 
@@ -49,10 +49,8 @@ import java.util.Set;
  * @since 1.0
  */
 public interface ContainerDao {
-    public Object loadHierarchy(final Class arg0, final int arg1);
-
-    public List findPDIHierarchies(final Set arg0);
-
-    public List findCGCIHierarchies(final Set arg0);
+    public OMEModel loadHierarchy(final Class containerType, final int containerId, final int experimenterId, final boolean annotated);
+    public List findPDIHierarchies(final Set imgIds, final int experimenterId, final boolean annotated);
+    public List findCGCIHierarchies(final Set imgIds, final int experimenterId, final boolean annotated);
 
 }

@@ -38,6 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.IntegerType;
+import org.openmicroscopy.omero.OMEModel;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -58,48 +59,68 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class ContainerDaoHibernate extends HibernateDaoSupport implements ContainerDao {
 
-    public Object loadHierarchy(final Class arg0, final int arg1) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
+	private static final String ANNOTATED = "_Annotated";
+	
+    public OMEModel loadHierarchy(final Class arg0, final int arg1, final int arg2, final boolean arg3) {
+        return (OMEModel) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                String klass = arg0.getName().substring(
-                        arg0.getPackage().getName().length() + 1);
+            	StringBuilder query = new StringBuilder("loadHierarchy_by_");
+                query.append(getClassName(arg0));
+                
+                if (arg3){
+                	query.append(ANNOTATED);
+                }
 
-                Query q = session.getNamedQuery("loadHierarchy_by_" + klass);                	
+                Query q = session.getNamedQuery(query.toString());
                 q.setLong("id", arg1);
+                
+                if (arg3){
+                	q.setInteger("exp",arg2);
+                }
+                
                 return q.uniqueResult();
             }
         });
 
     }
 
-    public List findPDIHierarchies(final Set arg0) {
-
+    public List findPDIHierarchies(final Set arg0, final int arg1, final boolean arg2) {
+    	return findHierarchies("findPDI",arg0,arg1,arg2);
+    }
+    public List findCGCIHierarchies(final Set arg0, final int arg1, final boolean arg2) {
+    	return findHierarchies("findCGCI",arg0,arg1,arg2);
+    }
+    
+    protected List findHierarchies(final String queryName, final Set arg0, final int arg1, final boolean arg2) {
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Query q = session.getNamedQuery("findPDI");
+            	StringBuilder query = new StringBuilder(queryName);
+
+            	if (arg2){
+            		query.append(ANNOTATED);
+            	}
+            	
+                Query q = session.getNamedQuery(query.toString());
                 q.setParameterList("img_list", arg0, new IntegerType());
+                
+                if (arg2){
+                	q.setInteger("exp",arg1);
+                }
+                
                 return q.list();
             }
 
         });
     }
     
-    public List findCGCIHierarchies(final Set arg0) {
-
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                Query q = session.getNamedQuery("findCGCI");
-                q.setParameterList("img_list", arg0, new IntegerType());
-                return q.list();
-            }
-
-        });
-    }
+	private String getClassName(final Class arg0) {
+		String klass = arg0.getName().substring(
+		        arg0.getPackage().getName().length() + 1);
+		return klass;
+	}
 
 }

@@ -34,6 +34,8 @@ package org.openmicroscopy.omero.interfaces;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.omero.OMEModel;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -86,7 +88,19 @@ public interface HierarchyBrowsing
      * @return The requested node as root and all of its descendants.  The type
      *         of the returned value will be <code>rootNodeType</code>. 
      */
-    public Object loadPDIHierarchy(Class rootNodeType, int rootNodeID); 
+    public OMEModel loadPDIHierarchy(Class rootNodeType, int rootNodeID);
+    
+    /**
+     * Same above. + 
+     * Retrieves the datasetAnnotion and imageAnnotation for the specified user.
+     * @param rootNodeType
+     * @param rootNodeID
+     * @param experimenterID
+     * @return
+     */
+    public OMEModel loadPDIAnnotatedHierarchy(Class rootNodeType, 
+                                            int rootNodeID, int experimenterID);
+    
     
     /**
      * Loads a Category Group/Category/Image (CG/C/I) hierarchy rooted by a
@@ -110,7 +124,18 @@ public interface HierarchyBrowsing
      * @return The requested node as root and all of its descendants.  The type
      *         of the returned value will be <code>rootNodeType</code>. 
      */
-    public Object loadCGCIHierarchy(Class rootNodeType, int rootNodeID);
+    public OMEModel loadCGCIHierarchy(Class rootNodeType, int rootNodeID);
+    
+    /**
+     * Same above. + 
+     * Retrieves the imageAnnotation for the specified user.
+     * @param rootNodeType
+     * @param rootNodeID
+     * @param experimenterID
+     * @return
+     */
+    public OMEModel loadCGCIAnnotatedHierarchy(Class rootNodeType, 
+                                            int rootNodeID, int experimenterID);
     
     /**
      * Finds the data trees in the Project/Dataset/Image (P/D/I) hierarchy that 
@@ -153,6 +178,15 @@ public interface HierarchyBrowsing
     public Set findPDIHierarchies(Set imgIDs);
     
     /**
+     * Same above. + 
+     * Retrieves the datasetAnnotion and imageAnnotation for the specified user.
+     * @param imgIDs
+     * @param experimenterID
+     * @return
+     */
+     public Set findPDIAnnotatedHierarchies(Set imgIDs, int experimenterID);
+    
+    /**
      * Finds the data trees in the Category Group/Category/Image (CG/C/I) 
      * hierarchy that contain the specified Images.
      * This method is the analogous of the 
@@ -166,6 +200,29 @@ public interface HierarchyBrowsing
      * @return A <code>Set</code> with all root nodes that were found.
      */
     public Set findCGCIHierarchies(Set imgIDs);
+    
+    /**
+     * Same above. + 
+     * Retrieves the imageAnnotation for the specified user.
+     * @param imgIDs
+     * @param experimenterID
+     * @return
+     */
+    public Set findCGCIAnnotatedHierarchies(Set imgIDs, int experimenterID);
+    
+    /**
+     * Finds the data paths in the Category Group/Category/Image (CG/C/I) 
+     * hierarchy that don't end with the specified Images.
+     * This method is the analogous of the 
+     * {@link #findCGCIHierarchies(Set) findCGCIHierarchies}.
+     * The semantics is exactly the same.
+     * 
+     * @param imgIDs Contains the ids of the Images that sit at the bottom of
+     *               the trees.
+     * @return A <code>Set</code> with all root nodes that were found.
+     */
+    public Set findCGCIExcludedHierarchies(Set imgIDs);
+  
     
     /**
      * Finds all the annotations that have been attached to the specified

@@ -48,7 +48,7 @@ package pojos;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: 1.1 $ $Date: 2005/05/09 19:50:41 $)
  * </small>
  * @since OME2.2
  */
@@ -58,111 +58,105 @@ public class PixelsData
     
     /** 
      * Identifies the type used to store pixel values.
-     * Maps onto the <i>OME</i> <code>"BIT"</code> string identifier. 
-     */
-    public static final int     BIT_TYPE = 0;
-    
-    /** 
-     * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"INT8"</code> string identifier. 
      */
-    public static final int     INT8_TYPE = 1;
+    public static final int     INT8_TYPE = 0;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"INT16"</code> string identifier. 
      */
-    public static final int     INT16_TYPE = 2;
+    public static final int     INT16_TYPE = 1;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"INT32"</code> string identifier. 
      */
-    public static final int     INT32_TYPE = 3;
+    public static final int     INT32_TYPE = 2;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"UINT8"</code> string identifier. 
      */
-    public static final int     UINT8_TYPE = 4;
+    public static final int     UINT8_TYPE = 3;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"UINT16"</code> string identifier. 
      */
-    public static final int     UINT16_TYPE = 5;
+    public static final int     UINT16_TYPE = 4;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"UINT32"</code> string identifier. 
      */
-    public static final int     UINT32_TYPE = 6;
+    public static final int     UINT32_TYPE = 5;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"FLOAT"</code> string identifier. 
      */
-    public static final int     FLOAT_TYPE = 7;
+    public static final int     FLOAT_TYPE = 6;
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"DOUBLE"</code> string identifier. 
      */
-    public static final int     DOUBLE_TYPE = 8;
+    public static final int     DOUBLE_TYPE = 7;
     
     
     /** The Pixels ID. */
-    public int     id;
+    public int          id;
     
     /** The ID used by <i>OMEIS</i> to identify these Pixels. */
-    public long    imageServerID;
+    public long         imageServerID;
     
     /** The URL of the <i>OMEIS</i> instance that manages these Pixels. */
-    public String  imageServerURL;
+    public String       imageServerURL;
     
     /** 
      * The X dimension of the 5D data array.
-     * That is, the number of pixels along the X-axis in a 2D plane. 
+     * That is, the number of pixels along the X-axis in a 2D-plane. 
      */
-    public int     sizeX;
+    public int          sizeX;
     
     /** 
      * The Y dimension of the 5D data array.
-     * That is, the number of pixels along the Y-axis in a 2D plane. 
+     * That is, the number of pixels along the Y-axis in a 2D-plane. 
      */
-    public int     sizeY;
+    public int          sizeY;
     
     /** 
      * The Z dimension of the 5D data array.
-     * That is, the number of focal planes in the 3D stack. 
+     * That is, the number of focal planes in the 3D-stack. 
      */
-    public int     sizeZ;
+    public int          sizeZ;
     
     /** 
      * The C dimension of the 5D data array.
      * That is, the number of wavelengths.
      */
-    public int     sizeC;
+    public int          sizeC;
     
     /** 
      * The T dimension of the 5D data array.
      * That is, the number of timepoints. 
      */ 
-    public int     sizeT;
+    public int          sizeT;
     
     /** The X-size of a pixel in microns. */
-    public double  pixelSizeX;
+    public double       pixelSizeX;
     
     /** The Y-size of a pixel in microns. */
-    public double  pixelSizeY;
+    public double       pixelSizeY;
     
     /** The Z-size of a pixel in microns. */
-    public double  pixelSizeZ;
+    public double       pixelSizeZ;
     
     /** One of the Pixels type identifiers defined by this class. */
-    public int     pixelType;
+    public int          pixelType;
     
     /** The Image these Pixels belong to. */
-    public ImageData image;
+    public ImageData    image;
     
 }

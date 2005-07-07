@@ -114,7 +114,7 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
 
     public void testFindPDIHierarchies(){
         Set set = getSetFromInt(new int[]{1,5,6,7,8,9,0});
-        List tmp = cdao.findPDIHierarchies(set);
+        List tmp = cdao.findPDIHierarchies(set,-1,false);
         Set result = new HashSet(tmp);
         assertTrue("Should have found all the images but Zero but found "+result.size(), result.size()+1==set.size());
         for (Iterator i = result.iterator(); i.hasNext();) {

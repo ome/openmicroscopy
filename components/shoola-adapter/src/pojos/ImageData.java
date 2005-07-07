@@ -49,7 +49,7 @@ import java.util.Set;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: 1.1 $ $Date: 2005/05/09 19:50:41 $)
  * </small>
  * @since OME2.2
  */
@@ -114,6 +114,14 @@ public class ImageData
      * &#151; but never <code>null</code>. 
      */
     public Set      datasets;
+    
+    /**
+     * All the annotations related to this Image.
+     * The elements of the set are {@link AnnotationData} objetcs.
+     * If this Image hasn't been annotated, then this set will be empty
+     * &#151; but never <code>null</code>. 
+     */
+    public Set      annotations;
     
     /** 
      * The Experimenter that owns this Dataset.

@@ -144,7 +144,7 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
         result.add(img);
 
         // Run
-        containerDao.expects(once()).method("findPDIHierarchies").with(same(ids)).will(returnValue(result));
+        containerDao.expects(once()).method("findPDIHierarchies").with(same(ids),same(-1),same(false)).will(returnValue(result));
         Set set = manager.findPDIHierarchies(ids	);
         List list = new ArrayList(set);
         assertTrue("There should only be one project in the result.",list.size()==1);
@@ -178,7 +178,7 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
         result.add(img);
 
         // Run
-        containerDao.expects(once()).method("findCGCIHierarchies").with(same(ids)).will(returnValue(result));
+        containerDao.expects(once()).method("findCGCIHierarchies").with(same(ids),same(-1),same(false)).will(returnValue(result));
         Set set = manager.findCGCIHierarchies(ids);
         List list = new ArrayList(set);
         assertTrue("There should only be one category group in the result not "+list.size(),list.size()==1);

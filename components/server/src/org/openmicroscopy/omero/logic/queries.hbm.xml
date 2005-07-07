@@ -1,72 +1,91 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" [
 
-<hibernate-mapping>
-  <!-- load*Hierarchy 
-	TODO if all ids where called *.getId() then we could merge these 
+	<!-- COMPONENTS FOR BUILDING LATER ENTITIES :
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		This makes things a little more difficult to understand, 
+		but prevents coding mistakes.
+		
+		TODO if all ids where called *.getId() then we could merge some of these 
+		
 	-->
-<!--TODO some way to DRY here would be great -->
-  <query name="loadHierarchy_by_Project"><![CDATA[
-    from Project as p
+
+	<!-- =========================================
+		LOAD
+	==============================================-->
+
+	<!ENTITY fetchProject
+	"
 	  left outer join fetch p.experimenter as p_e
 	  left outer join fetch p.group as p_g
 	  left outer join fetch p.datasets as d
-	  left outer join fetch d.experimenter as d_e
-	  left outer join fetch d.group as d_g
-	  left outer join fetch d.images as i
-	  left outer join fetch i.group as i_g
-	  left outer join fetch i.experimenter as i_e
-	  left outer join fetch i.imagePixel as i_pix
-	    where p.projectId = :id
-		and d.name != 'ImportSet'
-  ]]></query>
-
-  <query name="loadHierarchy_by_Dataset"><![CDATA[
-	from Dataset as d 
+	" 
+	>
+		
+	<!ENTITY fetchDataset  
+	"
 	  left outer join fetch d.experimenter as d_e
 	  left outer join fetch d.group as d_g
 	  left outer join fetch d.images as i
 	  left outer join fetch i.group as i_g
 	  left outer join fetch i.experimenter as i_e
   	  left outer join fetch i.imagePixel as i_pix
-	    where d.datasetId = :id 
-		and d.name != 'ImportSet'
-  ]]></query>
+	" 
+	>
 
-  <query name="loadHierarchy_by_CategoryGroup"><![CDATA[
-	from CategoryGroup cg 
-	  left outer join fetch cg.moduleExecution as cg_mex 
+	<!ENTITY fetchCategoryGroup  
+	"
+      left outer join fetch cg.moduleExecution as cg_mex 
 	  left outer join fetch cg_mex.experimenter as cg_exp
 	  left outer join fetch cg_mex.categories as c
+	" 
+	>
+
+	<!ENTITY fetchCategory
+	" 
 	  left outer join fetch c.moduleExecution as c_mex
 	  left outer join fetch c_mex.experimenter as c_exp
 	  left outer join fetch c_mex.classifications as cla
 	  left outer join fetch cla.moduleExecution as cla_mex
 	  left outer join fetch cla_mex.experimenter as cla_exp
 	  left outer join fetch cla.image as i
-  	  left outer join fetch i.imagePixel as i_pix
-        where cg.attributeId = :id 
-	      and ( cla.valid = true or cla.valid is null)
-  ]]></query>
+	  left outer join fetch i.imagePixel as i_pix 
+	"
+	>
 
-  <query name="loadHierarchy_by_Category"><![CDATA[
-	from Category c 
-  	  left outer join fetch c.moduleExecution as c_mex
-	  left outer join fetch c_mex.experimenter as c_exp
-	  left outer join fetch c_mex.classifications as cla
-	  left outer join fetch cla.moduleExecution as cla_mex
-	  left outer join fetch cla_mex.experimenter as cla_exp
-	  left outer join fetch cla.image as i
-	  left outer join fetch i.imagePixel as i_pix	  
-	    where c.attributeId = :id 
-  		  and ( cla.valid = true or cla.valid is null)
-  ]]></query>
-    
-  <!-- find*Hierarchies -->
-  <query name="findPDI"><![CDATA[
-	from Image as i 
+	<!ENTITY fetchDatasetAnnotationOwner
+	" 
+	  left outer join fetch d_ann.moduleExecution as d_ann_mex
+	  left outer join fetch d_ann_mex.experimenter as d_ann_exp
+	"
+	>
+	
+	
+	<!ENTITY fetchDatasetAnnotation
+	" 
+	  left outer join d.datasetAnnotations as d_ann
+	  &fetchDatasetAnnotationOwner;
+	"
+	>
+
+	<!ENTITY fetchImageAnnotationOwner
+	" 
+	  left outer join fetch i_ann.moduleExecution as i_ann_mex
+	  left outer join fetch i_ann_mex.experimenter as i_ann_exp
+	"
+	>
+
+	<!ENTITY fetchImageAnnotation
+	" 
+	  left outer join i.imageAnnotations as i_ann
+	  &fetchImageAnnotationOwner;
+	"
+	>
+	
+	<!ENTITY fetchPDI
+	" 
 	  left outer join fetch i.imagePixel as i_pix
 	  left outer join fetch i.datasets as d
 	  left outer join fetch d.experimenter as d_exp
@@ -74,12 +93,11 @@
 	  left outer join fetch d.projects as p
 	  left outer join fetch p.experimenter as p_exp
 	  left outer join fetch p.group as p_g 
-	    where i in (:img_list)
-		and d.name != 'ImportSet'
-  ]]></query>	
+	"
+	>
 
-  <query name="findCGCI"><![CDATA[
-	from Image as i 
+	<!ENTITY fetchCGCI
+	" 
 	  left outer join fetch i.imagePixel as i_pix	
 	  left outer join fetch i.classifications as cla 
 	  left outer join fetch cla.category as c
@@ -88,51 +106,270 @@
 	  left outer join fetch c.categoryGroup as cg
 	  left outer join fetch cg.moduleExecution as cg_mex
 	  left outer join fetch cg_mex.experimenter as cg_exp
-  	    where i in (:img_list)
-  	      and ( cla.valid = true or cla.valid is null)
-  ]]></query>	
-  		  
+	"
+	>
+		
+	<!-- =========================================
+		FILTER
+	==============================================-->
+	
+	<!ENTITY NoImportSet
+	"
+      d.name != 'ImportSet'
+	"
+	>
+	
+	<!ENTITY ValidClassification 
+	" 
+      ( cla.valid = true or cla.valid is null)
+	"
+	>
+
+	<!ENTITY ValidDatasetAnnotation 
+	" 
+      ( d_ann.valid = true or d_ann.valid is null)
+	"
+	>	
+
+	<!ENTITY OwnsDatasetAnnotation 
+	" 
+      d_ann_exp = :expId
+	"
+	>	
+	
+	<!ENTITY ValidImageAnnotation 
+	" 
+	  ( i_ann.valid = true or i_ann.valid is null)
+	"
+	>	
+
+	<!ENTITY OwnsImageAnnotation 
+	" 
+	  i_ann_exp = :expId
+	"
+	>	
+		
+	<!-- =========================================
+		Full QUERIES:
+		~~~~~~~~~~~~~
+		TODO: Could possibly use pre_ post_ 
+		entities to reduce duplication here.
+	==============================================-->
+	
+  <!ENTITY loadHierarchy_by_Project
+  "
+    from Project as p
+	  &fetchProject;
+  	  &fetchDataset;
+	  where 
+	    p.projectId = :id
+	  	and &NoImportSet;
+  "
+  >
+
+  <!ENTITY loadHierarchy_by_Project_Annotated
+  "
+    from Project as p
+	  &fetchProject;
+  	  &fetchDataset;
+	  &fetchDatasetAnnotation;
+	  &fetchImageAnnotation;	  
+	  where 
+	    p.projectId = :id
+	  	and &NoImportSet;
+	    and &ValidDatasetAnnotation;
+	    and &ValidImageAnnotation;	  
+	    and &OwnsDatasetAnnotation;
+	    and &OwnsImageAnnotation;	  
+  "
+  >
+
+  <!ENTITY loadHierarchy_by_Dataset
+  "
+    from Dataset as d 
+	  &fetchDataset;
+	  where 
+	    d.datasetId = :id 
+   	    and &NoImportSet;"
+  >
+
+  <!ENTITY loadHierarchy_by_Dataset_Annotated
+  "
+    from Dataset as d 
+	  &fetchDataset;
+	  &fetchDatasetAnnotation;
+	  &fetchImageAnnotation;	  
+	  where 
+	    d.datasetId = :id 
+   	    and &NoImportSet;
+  	    and &ValidDatasetAnnotation;
+	    and &OwnsDatasetAnnotation;
+  	    and &ValidImageAnnotation;
+	    and &OwnsImageAnnotation;
+  "
+  >
+	
+  <!ENTITY loadHierarchy_by_CategoryGroup
+  "
+    from CategoryGroup cg 
+	  &fetchCategoryGroup;
+	  &fetchCategory;
+	  where &ValidClassification;
+	      and cg.attributeId = :id
+  "
+  >
+
+  <!ENTITY loadHierarchy_by_CategoryGroup_Annotated
+  "
+    from CategoryGroup cg 
+	  &fetchCategoryGroup;
+	  &fetchCategory;
+	  &fetchImageAnnotation;
+	  where &ValidClassification;
+	    and cg.attributeId = :id
+	    and &ValidImageAnnotation;
+	    and &OwnsImageAnnotation;
+  "
+  >
+
+  <!ENTITY loadHierarchy_by_Category
+  "  
+    from Category c 
+	  &fetchCategory;
+	  where 
+	    &ValidClassification;
+  		and c.attributeId = :id 
+  "
+  >
+
+  <!ENTITY loadHierarchy_by_Category_Annotated
+  "  
+    from Category c 
+	  &fetchCategory;
+	  &fetchImageAnnotation;	  
+	  where 
+	    &ValidClassification;
+  		and c.attributeId = :id 
+	    and &ValidImageAnnotation;
+	    and &OwnsImageAnnotation;
+  "
+  >
+	
+  <!ENTITY findPDI
+  "
+    from Image as i 
+	  &fetchPDI;
+      where 
+	    i in (:img_list)
+	  	and &NoImportSet;
+  "
+  >	
+
+  <!ENTITY findPDI_Annotated
+  "
+    from Image as i 
+	  &fetchPDI;
+	  &fetchDatasetAnnotation;
+	  &fetchImageAnnotation;
+      where 
+	    i in (:img_list)
+	  	and &NoImportSet;
+	    and &ValidDatasetAnnotation;
+	    and &OwnsDatasetAnnotation;
+	    and &ValidImageAnnotation;
+	    and &OwnsImageAnnotation;
+  "
+  >	
+	
+	
+  <!ENTITY findCGCI
+  "
+    from Image as i 
+	  &fetchCGCI;
+      where 
+        i in (:img_list)
+  	    and &ValidClassification;
+  "
+  >	
+
+  <!ENTITY findCGCI_Annotated
+  "
+    from Image as i 
+	  &fetchCGCI;
+	  &fetchImageAnnotation;
+      where 
+        i in (:img_list)
+  	    and &ValidClassification;
+	    and &ValidImageAnnotation;
+	    and &OwnsImageAnnotation;
+  "
+  >	
+	
+	
+  <!ENTITY findImageAnn
+  "
+	  from ImageAnnotation as i_ann 
+	    left outer join fetch i_ann.image as i 
+  	    left outer join fetch i.imagePixel as i_pix
+	    &fetchImageAnnotationOwner;
+  	    where 
+		  i in (:img_list) 
+	      and &ValidImageAnnotation;
+  "
+  >
+
+  <!ENTITY findImageAnnWithID
+  "
+	    &findImageAnn;
+  	    and &OwnsImageAnnotation;
+  "
+  >
+
+  <!ENTITY findDatasetAnn
+  "
+	from DatasetAnnotation as d_ann
+      left outer join fetch d_ann.dataset as d 
+  	  &fetchDatasetAnnotationOwner;
+      where 
+	    d in (:ds_list) 
+	    and &ValidDatasetAnnotation;
+	    and &NoImportSet;
+  "
+  >
+  
+  <!ENTITY findDatasetAnnWithID
+  "
+    &findDatasetAnn;
+        and &OwnsDatasetAnnotation;
+  "
+  >
+	
+]>
+
+<hibernate-mapping>
+	
+  <!-- Actual Queries: not much to see here -->
+	
+  <!-- load*Hierarchies -->	
+  <query name="loadHierarchy_by_Project">&loadHierarchy_by_Project;</query>
+  <query name="loadHierarchy_by_Dataset">&loadHierarchy_by_Dataset;</query>
+  <query name="loadHierarchy_by_CategoryGroup">&loadHierarchy_by_CategoryGroup;</query>
+  <query name="loadHierarchy_by_Category">&loadHierarchy_by_Category;</query>
+  <query name="loadHierarchy_by_Project_Annotated">&loadHierarchy_by_Project_Annotated;</query>
+  <query name="loadHierarchy_by_Dataset_Annotated">&loadHierarchy_by_Dataset_Annotated;</query>
+  <query name="loadHierarchy_by_CategoryGroup_Annotated">&loadHierarchy_by_CategoryGroup_Annotated;</query>
+  <query name="loadHierarchy_by_Category_Annotated">&loadHierarchy_by_Category_Annotated;</query>
+	    
+  <!-- find*Hierarchies -->
+  <query name="findPDI">&findPDI;</query>	
+  <query name="findPDI_Annotated">&findPDI_Annotated;</query>
+  <query name="findCGCI">&findCGCI;</query>	
+  <query name="findCGCI_Annotated">&findCGCI_Annotated;</query>
+	  		  
   <!-- findAnnotations -->
-  <query name="findImageAnn"><![CDATA[
-	from ImageAnnotation as ann 
-	  left outer join fetch ann.image as i 
-	  left outer join fetch i.imagePixel as i_pix	  
-	  left outer join fetch ann.moduleExecution as ann_mex
-	  left outer join fetch ann_mex.experimenter as ann_exp
-  	  where ann.image in (:img_list) 
-	    and ( ann.valid = true or ann.valid is null)
-  ]]></query>
+  <query name="findImageAnn">&findImageAnn;</query>
+  <query name="findImageAnnWithID">&findImageAnnWithID;</query>
+  <query name="findDatasetAnn">&findDatasetAnn;</query>
+  <query name="findDatasetAnnWithID">&findDatasetAnnWithID;</query>
 
-  <query name="findImageAnnWithID"><![CDATA[
-	from ImageAnnotation as ann 
-	  left outer join fetch ann.image as i 
-  	  left outer join fetch i.imagePixel as i_pix
-	  left outer join fetch ann.moduleExecution as ann_mex
-	  left outer join fetch ann_mex.experimenter as ann_exp
-  	  where ann.image in (:img_list) 
-	    and ( ann.valid = true or ann.valid is null)
-  	    and ann_exp = :expId
-  ]]></query>
-
-  <query name="findDatasetAnn"><![CDATA[
-	from DatasetAnnotation as ann 
-	  left outer join fetch ann.dataset as d 
-	  left outer join fetch ann.moduleExecution as ann_mex
-	  left outer join fetch ann_mex.experimenter as ann_exp
-      where ann.dataset in (:ds_list)
-	    and ( ann.valid = true or ann.valid is null)
-		and d.name != 'ImportSet'
-  ]]></query>
-  
-  <query name="findDatasetAnnWithID"><![CDATA[
-	from DatasetAnnotation as ann 
-	  left outer join fetch ann.dataset as d 
-	  left outer join fetch ann.moduleExecution as ann_mex
-	  left outer join fetch ann_mex.experimenter as ann_exp
-      where d in (:ds_list) 
-	    and ( ann.valid = true or ann.valid is null)
-	    and ann_exp = :expId
-		and d.name != 'ImportSet'
-  ]]></query>
-  
 </hibernate-mapping>
