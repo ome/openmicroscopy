@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.omero.server.utests;
+package org.openmicroscopy.omero.server.itests;
 
 //Java imports
 import java.io.FileInputStream;
@@ -58,7 +58,6 @@ import org.openmicroscopy.omero.model.Image;
 
 /**
  * @author josh
- * @DEV.TODO move to itests if addCacheableFile doesn't speed things up.
  * @DEV.TODO test "valid=false" sections of queries
  */
 public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {

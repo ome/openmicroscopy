@@ -117,7 +117,7 @@ public class Utils {
     }
 
     /** walks a PDI hierarchy and extracts the images */
-    static public Set getImagesinPID(Set result) {
+    static public Set getImagesinPDI(Set result) {
         Set test = new HashSet();
         Iterator i = result.iterator();
         while (i.hasNext()){

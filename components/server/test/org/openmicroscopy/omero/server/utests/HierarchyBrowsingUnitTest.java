@@ -57,6 +57,9 @@ import org.openmicroscopy.omero.model.Project;
 /**
  * tests each public method of HierachyBrowsing using jmock
  * facilities for the needed Daos.
+ * 
+ * The load* methods have no logic and so aren't tested.
+ * 
  * @DEV.TODO add DEV.SEARCH to build. (e.g. no hibernate or spring here)
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -187,8 +190,5 @@ public class HierarchyBrowsingUnitTest extends MockObjectTestCase {
         containerDao.reset();
 
     }
-    
-    
-    
     
 }

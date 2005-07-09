@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
 /** 
  * calls the Omero interface and returns through the target (Shoola)
  * interface using {@link AdapterUtils}.
- * 
+ * @DEV.TODO use InvocationHandler to simplifiy this
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
