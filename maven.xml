@@ -236,5 +236,12 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
      </j:if>
    </j:if>
    </preGoal>
+   <!-- TODO Needed for doing in class compilation. Try removing -->
+   <preGoal name="java:compile">
+    <ant:path id="jdk.classpath">
+        <ant:pathelement path="${tools.jar}"/>
+    </ant:path>
+    <maven:addPath id="maven.dependency.classpath" refid="jdk.classpath"/>
+  </preGoal>
 
 </project>

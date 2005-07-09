@@ -112,14 +112,14 @@ public class LeftOuterJoinTest
         imgIds.add(new Integer(3540));
         imgIds.add(new Integer(2064));
         Set result = hb.findPDIHierarchies(imgIds);
-        Set test = Utils.getImagesinPID(result);
+        Set test = Utils.getImagesinPDI(result);
         assertTrue("Images in should eq. images out",imgIds.size()==test.size());
     }
 
     public void testDuplicateImages() {
         OMEData data = (OMEData) applicationContext.getBean("data");
         Set result = hb.findPDIHierarchies(data.imgsPDI);
-        Set test = Utils.getImagesinPID(result);
+        Set test = Utils.getImagesinPDI(result);
         assertTrue("Images in should eq. images out",data.imgsPDI.size()==test.size());
         
         Set noDupesPlease = new HashSet(); 
