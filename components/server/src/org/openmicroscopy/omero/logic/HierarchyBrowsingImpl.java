@@ -339,7 +339,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
 
     Map sortImageAnnotations(List l) {
-
+//FIXME refactor all! add all ids to return map
         Set result = new HashSet(l);
 
         if (null == result || result.size() == 0) {
@@ -366,7 +366,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findDatasetAnnotations(java.util.Set)
      */
     public Map findDatasetAnnotations(Set arg0) {
-
+//FIXME
         // CONTRACT
         if (null == arg0 || arg0.size() == 0) {
             return new HashMap();

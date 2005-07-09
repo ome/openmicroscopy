@@ -38,8 +38,10 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-//Application-internal dependencies
+//Application-internal dependencie
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Dataset;
@@ -66,47 +68,47 @@ import pojos.ProjectData;
  */
 public class PojoAdapterUtils {
 
-    static final ThreadLocal cache = new ThreadLocal();
- 
+    private static Log log = LogFactory.getLog(PojoAdapterUtils.class);
+    private static final String init_time = "cache.initialization_time";
+    private static final String cacheError = "Cache not properly initialized.";
+     
     static public DataObject adaptLoadedPDIHierarchy(Class rootNodeType, Object result) {
-        newCache();
         
         if (rootNodeType.equals(Project.class)){
-            return PojoAdapterUtils.go((Project) result);
+            return PojoAdapterUtils.go((Project) result, newCache());
         } else if (rootNodeType.equals(Dataset.class)){
-            return PojoAdapterUtils.go((Dataset) result);
+            return PojoAdapterUtils.go((Dataset) result, newCache());
         } else {
             throw new IllegalArgumentException("Method only takes Project and Dataset as argument.");
         }
     }
 
     static public DataObject adaptLoadedCGCIHierarchy(Class rootNodeType, Object result) {
-        newCache();
-        
+
         if (rootNodeType.equals(CategoryGroup.class)){
-            return PojoAdapterUtils.go((CategoryGroup) result);
+            return PojoAdapterUtils.go((CategoryGroup) result, newCache());
         } else if (rootNodeType.equals(Category.class)){
-            return PojoAdapterUtils.go((Category) result);
+            return PojoAdapterUtils.go((Category) result, newCache());
         } else {
             throw new IllegalArgumentException("Method only takes CategoryGroup and Category as argument.");
         }
     }
 
     static public Set adaptFoundPDIHierarchies(Set result) {
-        newCache();
-        
-        Set dataObjects = new HashSet();
+
+    		Map cache = newCache();
+    		Set dataObjects = new HashSet();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
             if (obj instanceof Project) {
                 Project prj = (Project) obj;
-                dataObjects.add(PojoAdapterUtils.go(prj));
+                dataObjects.add(PojoAdapterUtils.go(prj,cache));
             } else if (obj instanceof Dataset) {
                 Dataset ds = (Dataset) obj;
-                dataObjects.add(PojoAdapterUtils.go(ds)); 
+                dataObjects.add(PojoAdapterUtils.go(ds,cache)); 
             } else if (obj instanceof Image) {
                 Image img = (Image) obj;
-                dataObjects.add(PojoAdapterUtils.go(img));
+                dataObjects.add(PojoAdapterUtils.go(img,cache));
             } else {
                 throw new RuntimeException("Method returned unexpected value type:" + obj.getClass()	);
             }
@@ -115,20 +117,20 @@ public class PojoAdapterUtils {
     }
 
     static public Set adaptFoundCGCIHierarchies(Set result) {
-        newCache();
         
+    		Map cache = newCache();
         Set dataObjects = new HashSet();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
             if (obj instanceof CategoryGroup) {
                 CategoryGroup cg = (CategoryGroup) obj;
-                dataObjects.add(PojoAdapterUtils.go(cg));
+                dataObjects.add(PojoAdapterUtils.go(cg,cache));
             } else if (obj instanceof Category) {
                 Category ca = (Category) obj;
-                dataObjects.add(PojoAdapterUtils.go(ca)); 
+                dataObjects.add(PojoAdapterUtils.go(ca,cache)); 
             } else if (obj instanceof Image) {
                 Image img = (Image) obj;
-                dataObjects.add(PojoAdapterUtils.go(img));
+                dataObjects.add(PojoAdapterUtils.go(img,cache));
             } else {
                 throw new RuntimeException("Method returned unexpected value type:" + obj.getClass()	);
             }
@@ -137,8 +139,8 @@ public class PojoAdapterUtils {
     }
 
     static public Map adaptFoundImageAnnotations(Map result) {
-        newCache();
         
+    		Map cache = newCache();
         Map dataObjects = new HashMap();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
@@ -146,15 +148,15 @@ public class PojoAdapterUtils {
             dataObjects.put(key,new HashSet());
             for (Iterator j = value.iterator(); j.hasNext();) {
                 ImageAnnotation ann = (ImageAnnotation) j.next();
-                ((Set) dataObjects.get(key)).add(PojoAdapterUtils.go(ann));
+                ((Set) dataObjects.get(key)).add(PojoAdapterUtils.go(ann,cache));
             }
         }
         return dataObjects; 
     }
 
     static public Map adaptFoundDatasetAnnotations(Map result) {
-        newCache();
-        
+       
+    		Map cache = newCache();
         Map dataObjects = new HashMap();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
@@ -162,161 +164,138 @@ public class PojoAdapterUtils {
             dataObjects.put(key,new HashSet());
             for (Iterator j = value.iterator(); j.hasNext();) {
                 DatasetAnnotation ann = (DatasetAnnotation) j.next();
-                ((Set) dataObjects.get(key)).add(PojoAdapterUtils.go(ann));
+                ((Set) dataObjects.get(key)).add(PojoAdapterUtils.go(ann,cache));
             }
         }
         return dataObjects; 
     }
-    
-    
-    static ProjectData go(Project p) {
-        return go(p, true);
-    }
 
-    static ProjectData go(Project p, boolean resolve) {
-        System.out.println(" ***** HierarchyBrowsingImpl.go(Prj) *****");
-        if (checkCache(p)) {
-            return (ProjectData) fromCache(p);
+    static ProjectData go(Project p, Map cache) {
+        
+        if (check(cache,p)) {
+            return (ProjectData) from(cache,p);
         }
 
         ProjectData pd = new ProjectData();
-        toCache(p, pd);
+        to(cache,p, pd);
         
         pd.id = p.getProjectId().intValue();
         pd.name = p.getName();
         pd.description = p.getDescription();
-        pd.owner = go(p.getExperimenter());
+        pd.owner = go(p.getExperimenter(),cache);
 
         Set set = new HashSet();
-        if (resolve) {
-            for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
-                Dataset d = (Dataset) i.next();
-                set.add(go(d));
-            }
+        for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
+        		Dataset d = (Dataset) i.next();
+             set.add(go(d,cache));
         }
         pd.datasets = set;
 
         return pd;
     }
 
-    static DatasetData go(Dataset d) {
-        return go(d, true);
-    }
-
-    static DatasetData go(Dataset d, boolean resolve) {
+    static DatasetData go(Dataset d, Map cache) {
         System.out.println(" ***** HierarchyBrowsingImpl.go(Ds) *****");
-        if (checkCache(d)) {
-            return (DatasetData) fromCache(d);
+        if (check(cache,d)) {
+            return (DatasetData) from(cache,d);
         }
 
         DatasetData dd = new DatasetData();
-        toCache(d, dd);
+        to(cache,d, dd);
 
         dd.id = d.getDatasetId().intValue();
         dd.name = d.getName();
         dd.description = d.getDescription();
-        dd.owner = go(d.getExperimenter());
+        dd.owner = go(d.getExperimenter(),cache);
 
         Set set = new HashSet();
-        if (resolve) {
-            for (Iterator i = d.getImages().iterator(); i.hasNext();) {
-                Image img = (Image) i.next();
-                set.add(go(img));
-            }
+        for (Iterator i = d.getImages().iterator(); i.hasNext();) {
+        		Image img = (Image) i.next();
+        		set.add(go(img,cache));
         }
 
         dd.images = set;
         return dd;
     }
 
-    static CategoryGroupData go(CategoryGroup cg) {
+    static CategoryGroupData go(CategoryGroup cg, Map cache) {
         System.out.println(" ***** HierarchyBrowsingImpl.go(CG) *****");
-        if (checkCache(cg)) {
-            return (CategoryGroupData) fromCache(cg);
+        if (check(cache,cg)) {
+            return (CategoryGroupData) from(cache,cg);
         }
 
         CategoryGroupData cgd = new CategoryGroupData();
-        toCache(cg, cgd);
+        to(cache,cg, cgd);
         
         cgd.id = cg.getAttributeId().intValue();
         cgd.description = cg.getDescription();
         cgd.name = cg.getName();
-        cgd.owner = go(cg.getModuleExecution().getExperimenter());
+        cgd.owner = go(cg.getModuleExecution().getExperimenter(),cache);
         // FIXMEcgd.categories = cg.
 
         
         return cgd;
     }
-
-    static CategoryData go(Category c) {
-        return go(c,true);
-    }
-    
-    static CategoryData go(Category c, boolean resolve){
+   
+    static CategoryData go(Category c, Map cache){
         System.out.println(" ***** HierarchyBrowsingImpl.go(Cat) *****");
 
-        if (checkCache(c)) {
-            return (CategoryData) fromCache(c);
+        if (check(cache,c)) {
+            return (CategoryData) from(cache,c);
         }
 
         CategoryData cd = new CategoryData();
-        toCache(c, cd);
+        to(cache,c, cd);
         
         cd.id = c.getAttributeId().intValue();
         cd.name = c.getName();
         cd.description = c.getDescription();
-        cd.owner = go(c.getModuleExecution().getExperimenter());
+        cd.owner = go(c.getModuleExecution().getExperimenter(),cache);
         
         return cd;
     }
 
-    static ImageData go(Image img) {
-        return go(img, true);
-    }
-
-    static ImageData go(Image img, boolean resolve) {
+    static ImageData go(Image img, Map cache) {
         System.out.println(" ***** HierarchyBrowsingImpl.go(Img) *****");
-        if (checkCache(img)) {
-            return (ImageData) fromCache(img);
+        if (check(cache,img)) {
+            return (ImageData) from(cache,img);
         }
 
         ImageData id = new ImageData();
-        toCache(img, id);
+        to(cache,img, id);
         
         id.id = img.getImageId().intValue();
         id.name = img.getName();
         id.description = img.getDescription();
         id.inserted = new Timestamp(img.getInserted().getTime());
         id.created = new Timestamp(img.getCreated().getTime());
-        id.owner = go(img.getExperimenter());
-        id.defaultPixels = go(img.getImagePixel());
+        id.owner = go(img.getExperimenter(),cache);
+        id.defaultPixels = go(img.getImagePixel(),cache);
 
         Set set = new HashSet();
-        if (resolve) {
-            for (Iterator i = img.getImagePixels().iterator(); i.hasNext();) {
-                ImagePixel p = (ImagePixel) i.next();
-                set.add(go(p));
-            }
+        for (Iterator i = img.getImagePixels().iterator(); i.hasNext();) {
+        		ImagePixel p = (ImagePixel) i.next();
+        		set.add(go(p,cache));
         }
         id.allPixels = set;
         
         return id;
     }
 
-    static PixelsData go(ImagePixel ip) {
+    static PixelsData go(ImagePixel ip, Map cache) {
         System.out.println(" ***** HierarchyBrowsingImpl.go(Pix) *****");
-        if (checkCache(ip)) {
-            return (PixelsData) fromCache(ip);
+        if (check(cache,ip)) {
+            return (PixelsData) from(cache,ip);
         }
 
         ImageDimension dim = new ImageDimension(); 
         ip.getImage().getImageDimensions();
        
         PixelsData pd = new PixelsData();
-        toCache(ip, pd);
+        to(cache,ip, pd);
         
         pd.id = ip.getAttributeId().intValue();
-        pd.image = go(ip.getImage());
+        pd.image = go(ip.getImage(),cache);
         pd.imageServerID = ip.getImageServerId().longValue();
         pd.imageServerURL = ip.getRepository().getImageServerUrl();
         pd.pixelSizeX = dim.getPixelSizeX().doubleValue();
@@ -332,14 +311,14 @@ public class PojoAdapterUtils {
         return pd;
     }
 
-    static ExperimenterData go(Experimenter e) {
+    static ExperimenterData go(Experimenter e, Map cache) {
         System.out.println(" ***** HierarchyBrowsingImpl.go(Exp) *****");
-        if (checkCache(e)) {
-            return (ExperimenterData) fromCache(e);
+        if (check(cache,e)) {
+            return (ExperimenterData) from(cache,e);
         }
 
         ExperimenterData ed = new ExperimenterData();
-        toCache(e, ed);
+        to(cache,e, ed);
         
         ed.id = e.getAttributeId().intValue();
         ed.firstName = e.getFirstname();
@@ -352,17 +331,17 @@ public class PojoAdapterUtils {
         return ed;
     }
 
-    static AnnotationData go(ImageAnnotation ann) {
+    static AnnotationData go(ImageAnnotation ann, Map cache) {
         System.out.println(" ***** HierarchyBrowsingImpl.go(IAnn) *****");
-        if (checkCache(ann)) {
-            return (AnnotationData) fromCache(ann);
+        if (check(cache,ann)) {
+            return (AnnotationData) from(cache,ann);
         }
 
         AnnotationData ad = new AnnotationData();
-        toCache(ann, ad);
+        to(cache,ann, ad);
         
         ad.id = ann.getAttributeId().intValue();
-        ad.owner = go(ann.getModuleExecution().getExperimenter());
+        ad.owner = go(ann.getModuleExecution().getExperimenter(),cache);
         /*
          * STs have FX constraints on the 'explicit containers' (images,
          * datasets, features), but nothing else. We were going to add those to
@@ -370,58 +349,69 @@ public class PojoAdapterUtils {
          * attribute's mex FK)
          */
         ad.text = ann.getContent();
-        ad.lastModified = go(ann.getModuleExecution().getTimestamp());
-        ad.annotatedObject = go(ann.getImage());
+        ad.lastModified = convertDate(ann.getModuleExecution().getTimestamp());
+        ad.annotatedObject = go(ann.getImage(),cache);
 
         return ad;
     }
-    
-    static Timestamp go(Date date){
-        return null == date ? null : new Timestamp(date.getTime());
-    }
+  
 
-    static AnnotationData go(DatasetAnnotation ann) {
-System.out.println(" ***** HierarchyBrowsingImpl.go(Ann) *****");
-        if (checkCache(ann)) {
-            return (AnnotationData) fromCache(ann);
+    static AnnotationData go(DatasetAnnotation ann, Map cache) {
+
+        if (check(cache,ann)) {
+            return (AnnotationData) from(cache,ann);
         }
 
         AnnotationData ad = new AnnotationData();
-        toCache(ann, ad);
+        to(cache,ann, ad);
         
         ad.id = ann.getAttributeId().intValue();
-        ad.owner = go(ann.getModuleExecution().getExperimenter());
+        ad.owner = go(ann.getModuleExecution().getExperimenter(),cache);
         ad.text = ann.getContent();
-        ad.lastModified = go(ann.getModuleExecution().getTimestamp());
-        ad.annotatedObject = go(ann.getDataset());
+        ad.lastModified = convertDate(ann.getModuleExecution().getTimestamp());
+        ad.annotatedObject = go(ann.getDataset(),cache);
 
         return ad;
     }
 
-    static void newCache() {
+    static Timestamp convertDate(Date date){
+        if (null==date){
+            return null;
+        } 
+        return new Timestamp(date.getTime());
+    }
+    
+    static Map newCache() {
         Map m = new HashMap();
         m.put(null,null); // This keeps things from getting hairy
-        cache.set(m);
+        m.put(init_time,new Date());
+        return m;
+    }
+    
+    static boolean ok(Map cache){
+        if (cache.containsKey(init_time)) return true;
+        return false;
     }
 
-    static void emptyCache() {
-        //TODO Need to make sure cache is emptied on exception
-        cache.set(null);
-    }
-
-    static boolean checkCache(Object key) {
-        if (((Map) cache.get()).containsKey(key)) {
+    static boolean check(Map cache, Object key) {
+        if (cache.containsKey(key)) {
             return true;
         }
         return false;
     }
 
-    static Object fromCache(Object key) {
-        return ((Map) cache.get()).get(key);
+    static Object from(Map cache, Object key) {
+        return cache.get(key);
     }
 
-    static void toCache(Object key, Object value) {
-        ((Map) cache.get()).put(key, value);
+    static void to(Map cache, Object key, Object value) {
+        cache.put(key, value);
     }
+
+    final static String nullId = "Null ID for: ";
+    final static String nullExp = "Null Experimenter for: ";
+    final static String nullDs = "Null Dataset for: ";
+    final static String nullImgs = "Null Images for: ";
+    
 
 }

@@ -29,6 +29,7 @@
 package org.openmicroscopy.omero.shoolaadapter;
 
 //Java imports
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,8 +38,18 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.omero.client.ServiceFactory;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
+import org.openmicroscopy.omero.model.Category;
+import org.openmicroscopy.omero.model.CategoryGroup;
+import org.openmicroscopy.omero.model.Dataset;
+import org.openmicroscopy.omero.model.DatasetAnnotation;
+import org.openmicroscopy.omero.model.ImageAnnotation;
+import org.openmicroscopy.omero.model.Project;
 
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * calls the Omero interface and returns through the target (Shoola)
@@ -52,37 +63,43 @@ import pojos.DataObject;
  * </small>
  * @since 1.0
  */
-public class PojoHierarchyBrowsingAdapter implements PojoHierarchyBrowsingView {
+public class PojoHierarchyBrowsingAdapter implements PojoOmeroService {
 
     private ServiceFactory services = new ServiceFactory();
-    private HierarchyBrowsing proxiedInterface = services.getHierarchyBrowsingService();
+    private HierarchyBrowsing proxiedInterface = services.getHierarchyBrowsingService();    
+    static private Map classMap;
+
+    static {
+    		classMap = new HashMap();
+    		classMap.put(ProjectData.class,Project.class);
+    		classMap.put(DatasetData.class,Dataset.class);
+    		classMap.put(CategoryGroupData.class,CategoryGroup.class);
+    		classMap.put(CategoryData.class,Category.class);
+    	}
     
-    public PojoHierarchyBrowsingAdapter(){
-        proxiedInterface = services.getHierarchyBrowsingService();
-    }
-    
+
     /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#loadPDIHierarchy(java.lang.Class, int)
+     * @see org.openmicroscopy.omero.shoolaadapter.PojoOmeroService#loadPDIHierarchy(java.lang.Class, int)
      */
     public DataObject loadPDIHierarchy(Class rootNodeType, int rootNodeID) {
-
+    		rootNodeType=(Class) classMap.get(rootNodeType);
         Object result = proxiedInterface.loadPDIHierarchy(rootNodeType, rootNodeID);
         return PojoAdapterUtils.adaptLoadedPDIHierarchy(rootNodeType,result);
         
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#loadCGCIHierarchy(java.lang.Class, int)
+     * @see org.openmicroscopy.omero.shoolaadapter.PojoOmeroService#loadCGCIHierarchy(java.lang.Class, int)
      */
     public DataObject loadCGCIHierarchy(Class rootNodeType, int rootNodeID) {
-    
+    	rootNodeType=(Class) classMap.get(rootNodeType);
         Object result = proxiedInterface.loadCGCIHierarchy(rootNodeType, rootNodeID);
         return PojoAdapterUtils.adaptLoadedCGCIHierarchy(rootNodeType,result);
 
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#findPDIHierarchies(java.util.Set)
+     * @see org.openmicroscopy.omero.shoolaadapter.PojoOmeroService#findPDIHierarchies(java.util.Set)
      */
     public Set findPDIHierarchies(Set imgIDs) {
         Set result = proxiedInterface.findPDIHierarchies(imgIDs);
@@ -90,15 +107,41 @@ public class PojoHierarchyBrowsingAdapter implements PojoHierarchyBrowsingView {
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#findCGCIHierarchies(java.util.Set)
+     * @see org.openmicroscopy.omero.shoolaadapter.PojoOmeroService#findCGCIHierarchies(java.util.Set)
      */
     public Set findCGCIHierarchies(Set imgIDs) {
         Set result = proxiedInterface.findCGCIHierarchies(imgIDs);
         return PojoAdapterUtils.adaptFoundCGCIHierarchies(result);
     }
 
+	public DataObject loadPDIAnnotatedHierarchy(Class rootNodeType, int rootNodeID, int experimenterID) {
+		rootNodeType=(Class) classMap.get(rootNodeType);
+		Object result = proxiedInterface.loadPDIAnnotatedHierarchy(rootNodeType,rootNodeID, experimenterID);
+		return PojoAdapterUtils.adaptLoadedPDIHierarchy(rootNodeType,result);
+	}
+
+	public DataObject loadCGCIAnnotatedHierarchy(Class rootNodeType, int rootNodeID, int experimenterID) {
+		rootNodeType=(Class) classMap.get(rootNodeType);
+		Object result = proxiedInterface.loadCGCIAnnotatedHierarchy(rootNodeType,rootNodeID,experimenterID);
+		return PojoAdapterUtils.adaptLoadedCGCIHierarchy(rootNodeType,result);
+	}
+
+	public Set findPDIAnnotatedHierarchies(Set imgIDs, int experimenterID) {
+		Set result = proxiedInterface.findPDIAnnotatedHierarchies(imgIDs,experimenterID);
+		return PojoAdapterUtils.adaptFoundPDIHierarchies(result);
+	}
+
+	public Set findCGCIAnnotatedHierarchies(Set imgIDs, int experimenterID) {
+		Set result = proxiedInterface.findCGCIAnnotatedHierarchies(imgIDs,experimenterID);
+		return PojoAdapterUtils.adaptFoundCGCIHierarchies(result);
+	}
+
+	public Set findCGCIExcludedHierarchies(Set imgIDs) {
+		throw new RuntimeException("Implement me.");
+	}
+
     /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#findImageAnnotations(java.util.Set)
+     * @see org.openmicroscopy.omero.shoolaadapter.PojoOmeroService#findImageAnnotations(java.util.Set)
      */
     public Map findImageAnnotations(Set imgIDs) {
         Map result = proxiedInterface.findImageAnnotations(imgIDs);
@@ -106,30 +149,33 @@ public class PojoHierarchyBrowsingAdapter implements PojoHierarchyBrowsingView {
     }
 
     /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#findImageAnnotationsForExperimenter(java.util.Set, int)
+     * @see org.openmicroscopy.omero.shoolaadapter.PojoOmeroService#findAnnotations(java.lang.Class, java.util.Set, int)
      */
-    public Map findImageAnnotationsForExperimenter(Set imgIDs,
-            int experimenterID) {
-        Map result = proxiedInterface.findImageAnnotationsForExperimenter(imgIDs,experimenterID);
-        return PojoAdapterUtils.adaptFoundImageAnnotations(result);
+    public Map findAnnotations(Class clazz, Set iDs, int experimenterID) {
+    		
+    		if (clazz==null){
+    			throw new IllegalArgumentException("Class parameter to method cannot be null");
+    		}
+    	
+    		if (clazz.equals(ImageAnnotation.class)){
+    			Map result;
+    			if (experimenterID == -1){
+    				result = proxiedInterface.findImageAnnotations(iDs);
+    			} else {
+    				result = proxiedInterface.findImageAnnotationsForExperimenter(iDs,experimenterID);    				
+    			}
+    			return PojoAdapterUtils.adaptFoundImageAnnotations(result);
+    		} else if (clazz.equals(DatasetAnnotation.class)){
+    			Map result;
+    			if (experimenterID == -1){
+    				result = proxiedInterface.findDatasetAnnotations(iDs);
+    			} else {
+    				result = proxiedInterface.findDatasetAnnotationsForExperimenter(iDs,experimenterID);    				
+    			}
+    			return PojoAdapterUtils.adaptFoundDatasetAnnotations(result);    			
+    		} else {
+    			throw new IllegalArgumentException("Method cannot handle calls for type "+clazz.getName());
+    		}
     }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#findDatasetAnnotations(java.util.Set)
-     */
-    public Map findDatasetAnnotations(Set datasetIDs) {
-        Map result = proxiedInterface.findDatasetAnnotations(datasetIDs);
-        return PojoAdapterUtils.adaptFoundDatasetAnnotations(result);
-    }
-
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsing#findDatasetAnnotationsForExperimenter(java.util.Set, int)
-     */
-    public Map findDatasetAnnotationsForExperimenter(Set datasetIDs,
-            int experimenterID) {
-        Map result = proxiedInterface.findDatasetAnnotationsForExperimenter(datasetIDs,experimenterID);
-        return PojoAdapterUtils.adaptFoundDatasetAnnotations(result);
-
-    }
-    
+	
 }

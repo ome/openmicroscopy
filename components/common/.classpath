@@ -5,12 +5,10 @@
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hessian/jars/hessian-2.1.12.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/burlap/jars/burlap-2.1.7.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/hessian-3.0.13.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
-	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.shoolaadapter.ServiceFactory
+ * org.openmicroscopy.omero.shoolaadapter.OmeroEntry
  *
  *------------------------------------------------------------------------------
  *
@@ -30,11 +30,13 @@
 package org.openmicroscopy.omero.shoolaadapter;
 
 //Java imports
+import java.net.MalformedURLException;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsingView;
+import org.openmicroscopy.omero.client.SpringHarness;
+import org.springframework.remoting.caucho.HessianProxyFactoryBean;
 
 /** 
  * Entry point for all Shoola calls. Provides methods to 
@@ -48,10 +50,47 @@ import org.openmicroscopy.omero.shoolaadapter.HierarchyBrowsingView;
  * </small>
  * @since 1.0
  */
-public class ServiceFactory {
+public class OmeroEntry {
 
-    public HierarchyBrowsingView getHierarchyBrowsingService(){
-        return new HierarchyBrowsingAdapter();
+	public OmeroEntry(){
+		
+	}
+	
+	public OmeroEntry(String host, int port){
+		
+		if (null == host || host.equals("")){
+			throw new IllegalArgumentException("Host name cannot be empty");//TODO
+		}
+		
+		if (port < 0){
+			throw new IllegalArgumentException("Port cannot be negative.");//TODO
+		}
+		
+		String url = constructUrl(host,port);
+		resetAllFacades(url);
+	}
+	
+    public PojoOmeroService getPojoOmeroService(){
+        return new PojoHierarchyBrowsingAdapter();
+    }
+    
+    private String constructUrl(String host, int port){
+    		return "http://"+host+":"+port+"/omero"+"/";//FIXME put omero.context in spring.properties (rename omero.properties)
+    }
+    
+    private void resetAllFacades(String url){
+    		String[] beans=SpringHarness.ctx.getBeanDefinitionNames();
+    		for (int i=0;i<beans.length;i++) {
+    			HessianProxyFactoryBean fb = (HessianProxyFactoryBean) SpringHarness.ctx.getBean(SpringHarness.ctx.FACTORY_BEAN_PREFIX+beans[i]);
+    			String oldUrl = fb.getServiceUrl();
+    	        	String service = oldUrl.substring(oldUrl.lastIndexOf("/"));
+    			fb.setServiceUrl(url+service);
+    			try {
+    					fb.afterPropertiesSet();
+				} catch (MalformedURLException e) {
+					throw new OmeroException("Improperly formed url.",e); // TODO
+				}
+    		}
     }
     
 }

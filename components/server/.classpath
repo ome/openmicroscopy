@@ -18,7 +18,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cglib/jars/cglib-2.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.5H3.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/antlr-2.7.5H3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jaxen/jars/jaxen-1.1-beta-6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.3.jar"/>
@@ -37,7 +37,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/jamon-spring121.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hessian/jars/hessian-3.0.13.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero//jars/hessian-3.0.13.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar"/>

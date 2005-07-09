@@ -119,6 +119,7 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
        <ant:entry key="omeds.url"   value="${omeds.url}"/>
        <ant:entry key="omeds.user"  value="${omeds.user}"/>
        <ant:entry key="omeds.pass"  value="${omeds.pass}"/>
+       <ant:entry key="omero.context"  value="${omero.context}"/>
 
      </ant:propertyfile>
      <ant:copy file="${basedir}/../../log4j.properties" todir="${basedir}/src"/>
