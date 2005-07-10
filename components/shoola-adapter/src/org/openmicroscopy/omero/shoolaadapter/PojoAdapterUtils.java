@@ -336,7 +336,7 @@ public class PojoAdapterUtils {
 						log.warn(nullImg+cla);
 					}
 				} else {
-					set.add(img);
+					set.add(go(img,cache));
 				}
 			}
 		}
