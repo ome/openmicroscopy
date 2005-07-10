@@ -91,6 +91,11 @@ public class OmeroServiceTest
         super("OmeroGrinderTest with Data",data);
     }
     
+    public void testPathCalls(){
+    	Object con = this.testFindCGCPathsContained();
+    	log.info(con);
+    }
+    
     public void testHessian(){
         OMEData data = new OMEPerformanceData();
         OMEData old = getData();

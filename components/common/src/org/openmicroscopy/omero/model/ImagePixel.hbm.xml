@@ -50,12 +50,6 @@
         length="-1"
     />
     <property
-        name="path"
-        type="java.lang.String"
-        column="path"
-        length="-1"
-    />
-    <property
         name="sizeT"
         type="java.lang.Integer"
         column="size_t"
@@ -77,12 +71,6 @@
         name="sizeC"
         type="java.lang.Integer"
         column="size_c"
-        length="4"
-    />
-    <property
-        name="bitsPerPixel"
-        type="java.lang.Integer"
-        column="bits_per_pixel"
         length="4"
     />
 

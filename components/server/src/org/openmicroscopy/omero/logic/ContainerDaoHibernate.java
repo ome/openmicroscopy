@@ -30,6 +30,7 @@
 package org.openmicroscopy.omero.logic;
 
 //Java imports
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.IntegerType;
 import org.openmicroscopy.omero.OMEModel;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -77,7 +79,7 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
                 q.setLong("id", arg1);
                 
                 if (arg3){
-                	q.setInteger("exp",arg2);
+                	q.setInteger("expId",arg2);
                 }
                 
                 return q.uniqueResult();
@@ -108,7 +110,7 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
                 q.setParameterList("img_list", arg0, new IntegerType());
                 
                 if (arg2){
-                	q.setInteger("exp",arg1);
+                	q.setInteger("expId",arg1);
                 }
                 
                 return q.list();
@@ -116,11 +118,53 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
 
         });
     }
+
+    /** 
+     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findCGCPaths(java.util.Set, boolean)
+     * @DEV.TODO Review the query for categories without categoryGroups 
+     * @DEV.WARNING Categories without CategoryGroups may not appear as expected.
+     */
+    public List findCGCPaths(final Set imgIds, final boolean contained) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+            	StringBuilder query = new StringBuilder("findCGCPaths");
+                if (!contained){
+                	query.append("_Not");
+                }
+                query.append("_Contained");
+
+                Query q = session.getNamedQuery(query.toString());
+                q.setParameterList("img_list", imgIds, new IntegerType());
+                
+                return q.list();
+            }
+        });
+
+    }
+
+    
+    
+    /* =================================
+     * Helper Functions TODO Util class for all Daos
+     * =================================*/
     
 	private String getClassName(final Class arg0) {
 		String klass = arg0.getName().substring(
 		        arg0.getPackage().getName().length() + 1);
 		return klass;
+	}
+
+	private Object getUniqe(Query q) {
+		List l = q.list();
+		Set set = new HashSet(l);
+		
+		if (set.size()>1){
+			throw new DataRetrievalFailureException("Multiple datasets with same id returned.");
+		}
+		
+		return l.get(0);
 	}
 
 }

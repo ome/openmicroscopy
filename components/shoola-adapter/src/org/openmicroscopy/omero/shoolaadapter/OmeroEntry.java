@@ -53,7 +53,6 @@ import org.springframework.remoting.caucho.HessianProxyFactoryBean;
 public class OmeroEntry {
 
 	public OmeroEntry(){
-		
 	}
 	
 	public OmeroEntry(String host, int port){

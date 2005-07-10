@@ -67,6 +67,23 @@
   </ant:dbunit>       
  </goal>
 
+ <goal name="db-export-cgc-paths" prereqs="dbunit">
+   <ant:dbunit driver="${database.driver}"
+            url="${database.url}"
+            userid="${database.username}"
+            password="${database.password}">
+     <ant:export dest="${basedir}/sql/cgc-paths.xml" format="xml">
+ 	<ant:table name="classification"/>
+ 	<ant:table name="categories"/>
+ 	<ant:table name="category_groups"/>
+ 	<ant:table name="module_executions"/>
+ 	<ant:table name="images"/>
+ 	<ant:table name="experimenters"/>
+ 	<ant:table name="image_pixels"/>
+     </ant:export>
+  </ant:dbunit>
+ </goal>
+
  <goal name="db-export" prereqs="dbunit">
    <ant:dbunit driver="${database.driver}"
             url="${database.url}"

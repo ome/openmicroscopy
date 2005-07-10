@@ -86,6 +86,15 @@ public class AdapterUtils {
     private static final String cacheError = "Cache not properly initialized.";
     
     static public DataObject adaptLoadedPDIHierarchy(Class rootNodeType, Object result) {
+    	
+    	if (null == result) {
+    		return null;
+    	}
+    	
+    	if (null == rootNodeType) {
+    		throw new IllegalArgumentException("Class parameter may not be null.");
+    	}
+    	
         if (rootNodeType.equals(Project.class)){
             return AdapterUtils.go((Project) result, newCache());
         } else if (rootNodeType.equals(Dataset.class)){
@@ -96,6 +105,15 @@ public class AdapterUtils {
     }
 
     static public DataObject adaptLoadedCGCIHierarchy(Class rootNodeType, Object result) {
+
+    	if (null == result) {
+    		return null;
+    	}
+    	
+    	if (null == rootNodeType) {
+    		throw new IllegalArgumentException("Class parameter may not be null.");
+    	}
+    	
         if (rootNodeType.equals(CategoryGroup.class)){
             return AdapterUtils.go((CategoryGroup) result, newCache());
         } else if (rootNodeType.equals(Category.class)){
@@ -106,6 +124,11 @@ public class AdapterUtils {
     }
 
     static public Set adaptFoundPDIHierarchies(Set result) {
+    	
+    	if (null == result) {
+    		return null;
+    	}
+   	
         Set dataObjects = new HashSet();
         Map cache = newCache();
         for (Iterator i = result.iterator(); i.hasNext();) {
@@ -127,7 +150,12 @@ public class AdapterUtils {
     }
 
     static public Set adaptFoundCGCIHierarchies(Set result) {
-        Set dataObjects = new HashSet();
+
+    	if (null == result) {
+    		return null;
+    	}
+    	
+    	Set dataObjects = new HashSet();
         Map cache = newCache();
         for (Iterator i = result.iterator(); i.hasNext();) {
             Object obj = i.next();
@@ -148,7 +176,12 @@ public class AdapterUtils {
     }
 
     static public Map adaptFoundImageAnnotations(Map result) {
-        Map dataObjects = new HashMap();
+
+    	if (null == result) {
+    		return null;
+    	}
+
+    	Map dataObjects = new HashMap();
         Map cache = newCache();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();
@@ -163,7 +196,12 @@ public class AdapterUtils {
     }
 
     static public Map adaptFoundDatasetAnnotations(Map result) {
-        Map dataObjects = new HashMap();
+
+    	if (null == result) {
+    		return null;
+    	}
+    	
+    	Map dataObjects = new HashMap();
         Map cache = newCache();
         for (Iterator i = result.keySet().iterator(); i.hasNext();) {
             Object key = i.next();

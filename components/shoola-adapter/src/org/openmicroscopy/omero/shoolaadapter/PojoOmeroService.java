@@ -213,7 +213,7 @@ public interface PojoOmeroService
      *               the trees.
      * @return A <code>Set</code> with all root nodes that were found.
      */
-    public Set findCGCIExcludedHierarchies(Set imgIDs);
+    public Set findCGCPaths(Set imgIDs, boolean contained);
     
     /**
      * Finds all the annotations that have been attached to the specified

@@ -50,18 +50,22 @@
 	  left outer join fetch c_mex.classifications as cla
 	  left outer join fetch cla.moduleExecution as cla_mex
 	  left outer join fetch cla_mex.experimenter as cla_exp
-	  left outer join fetch cla.image as i
-	  left outer join fetch i.imagePixel as i_pix 
 	"
 	>
-
+<!-- TODO possibly rejoin above and below -->
+	<!ENTITY fetchClassificationImage
+    "
+	  left outer join fetch cla.image as i
+	  left outer join fetch i.imagePixel as i_pix 
+    "
+    >
+	
 	<!ENTITY fetchDatasetAnnotationOwner
 	" 
 	  left outer join fetch d_ann.moduleExecution as d_ann_mex
 	  left outer join fetch d_ann_mex.experimenter as d_ann_exp
 	"
 	>
-	
 	
 	<!ENTITY fetchDatasetAnnotation
 	" 
@@ -169,6 +173,7 @@
 
   <!ENTITY loadHierarchy_by_Project_Annotated
   "
+    select p 
     from Project as p
 	  &fetchProject;
   	  &fetchDataset;
@@ -195,6 +200,7 @@
 
   <!ENTITY loadHierarchy_by_Dataset_Annotated
   "
+    select d
     from Dataset as d 
 	  &fetchDataset;
 	  &fetchDatasetAnnotation;
@@ -214,6 +220,7 @@
     from CategoryGroup cg 
 	  &fetchCategoryGroup;
 	  &fetchCategory;
+	  &fetchClassificationImage;
 	  where &ValidClassification;
 	      and cg.attributeId = :id
   "
@@ -224,6 +231,7 @@
     from CategoryGroup cg 
 	  &fetchCategoryGroup;
 	  &fetchCategory;
+	  &fetchClassificationImage;
 	  &fetchImageAnnotation;
 	  where &ValidClassification;
 	    and cg.attributeId = :id
@@ -236,6 +244,7 @@
   "  
     from Category c 
 	  &fetchCategory;
+	  &fetchClassificationImage;
 	  where 
 	    &ValidClassification;
   		and c.attributeId = :id 
@@ -246,6 +255,7 @@
   "  
     from Category c 
 	  &fetchCategory;
+	  &fetchClassificationImage;
 	  &fetchImageAnnotation;	  
 	  where 
 	    &ValidClassification;
@@ -304,8 +314,31 @@
 	    and &OwnsImageAnnotation;
   "
   >	
-	
-	
+
+  <!ENTITY findCGCPath
+  "	  
+    from CategoryGroup cg 
+	  &fetchCategoryGroup;
+	  &fetchCategory;
+	  &fetchClassificationImage;
+	  where &ValidClassification;
+  "
+  >	
+
+  <!ENTITY findCGCPath_Contained
+  "	  
+    &findCGCPath;
+        and i in (:img_list)
+  "
+  >	
+
+  <!ENTITY findCGCPath_Not_Contained
+  "	  
+    &findCGCPath;
+        and i not in (:img_list)
+  "
+  >	
+		
   <!ENTITY findImageAnn
   "
 	  from ImageAnnotation as i_ann 
@@ -365,7 +398,9 @@
   <query name="findPDI_Annotated">&findPDI_Annotated;</query>
   <query name="findCGCI">&findCGCI;</query>	
   <query name="findCGCI_Annotated">&findCGCI_Annotated;</query>
-	  		  
+  <query name="findCGCPaths_Contained">&findCGCPath_Contained;</query>
+  <query name="findCGCPaths_Not_Contained">&findCGCPath_Not_Contained;</query>	  		  
+	
   <!-- findAnnotations -->
   <query name="findImageAnn">&findImageAnn;</query>
   <query name="findImageAnnWithID">&findImageAnnWithID;</query>

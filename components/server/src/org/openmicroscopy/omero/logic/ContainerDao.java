@@ -52,5 +52,6 @@ public interface ContainerDao {
     public OMEModel loadHierarchy(final Class containerType, final int containerId, final int experimenterId, final boolean annotated);
     public List findPDIHierarchies(final Set imgIds, final int experimenterId, final boolean annotated);
     public List findCGCIHierarchies(final Set imgIds, final int experimenterId, final boolean annotated);
+    public List findCGCPaths(final Set imgIds, final boolean contained);
 
 }

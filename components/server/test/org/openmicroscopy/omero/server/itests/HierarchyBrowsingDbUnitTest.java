@@ -60,52 +60,13 @@ import org.openmicroscopy.omero.model.Image;
  * @author josh
  * @DEV.TODO test "valid=false" sections of queries
  */
-public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
+public class HierarchyBrowsingDbUnitTest extends AbstractDbUnitTest {
 
-    static IDatabaseConnection c = null;
-    ApplicationContext ctx;
-    DataSource ds = null;
-    ContainerDao cdao = null;
-    AnnotationDao adao = null;
-    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HierarchyBrowsingDbUnitTest.class);
     }
 
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    protected String[] getConfigLocations() {
-        return new String[] { 
-                "WEB-INF/dao.xml",
-                "WEB-INF/test/config-test.xml", 
-                "WEB-INF/test/data-test.xml" };
-    }
-
-    /**
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        ctx = getContext(getConfigLocations());
-
-        if (null == cdao || null == adao || null == ds) {
-            cdao = (ContainerDao) ctx.getBean("containerDao");
-            adao = (AnnotationDao) ctx.getBean("annotationDao");
-            ds = (DataSource) ctx.getBean("dataSource");
-        }
-        
-        if (null==c) {
-            try {
-                c = new DatabaseConnection(ds.getConnection());
-                DatabaseOperation.CLEAN_INSERT.execute(c,getData());
-            } catch (Exception e){
-                c = null;
-                throw e;
-            }
-        }
-
-    }
-    
+    @Override
     public IDataSet getData() throws Exception {
         URL file = this.getClass().getClassLoader().getResource("db-export.xml");
         return new XmlDataSet(new FileInputStream(file.getFile()));
@@ -156,12 +117,5 @@ public class HierarchyBrowsingDbUnitTest extends AbstractSpringContextTests {
         List r2 = adao.findImageAnnotationsForExperimenter(set,experimenter);
         assertTrue("The user filtered list should be smaller", r2.size() < r1.size());
     }
-    
-    Set getSetFromInt(int[] ids){
-        Set set = new HashSet();
-        for (int i = 0; i < ids.length; i++) {
-            set.add(new Integer(ids[i]));
-        }
-        return set;
-    }
+
 }

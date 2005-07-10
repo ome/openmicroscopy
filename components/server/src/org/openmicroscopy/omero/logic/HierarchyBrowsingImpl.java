@@ -114,7 +114,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
                             + arg0);
         }
 
-        return containerDao.loadHierarchy(arg0, arg1, arg2, false);
+        return containerDao.loadHierarchy(arg0, arg1, arg2, arg3);
 
     }
     
@@ -235,15 +235,18 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
     }
 
     /** 
-     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findCGCIExcludedHierarchies(java.util.Set)
+     * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findCGCPaths(java.util.Set, boolean)
      */
-    public Set findCGCIExcludedHierarchies(Set arg0) {
-    	//experimenter
-    	//Anntoations?
-    	// make findCGCIHierchies(...,boolean invert)
-    	// or
-    	// first get inverse of all iamges from imageDao
-    	throw new RuntimeException("not implemented");
+    public Set findCGCPaths(Set imgIds, boolean contained) {
+    	List l = containerDao.findCGCPaths(imgIds,contained);
+    	Set<CategoryGroup> s = new HashSet<CategoryGroup>(l);
+    	for (CategoryGroup cg : s){
+    		for (Object o : cg.getCategories()){
+    			Category c = (Category) o;
+    			c.setClassifications(null);
+    		}
+    	}
+    	return s;
     }
     
     protected Set findCGCI(Set arg0, int experimenterId, boolean annotated) {

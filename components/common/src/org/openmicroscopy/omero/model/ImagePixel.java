@@ -23,12 +23,10 @@ org.openmicroscopy.omero.OMEModel {
      private Integer sizeY;
      private Integer sizeZ;
      private String fileSha1;
-     private String path;
      private Integer sizeT;
      private Long imageServerId;
      private Integer sizeX;
      private Integer sizeC;
-     private Integer bitsPerPixel;
      private Image image;
      private Repository repository;
      private Set images;
@@ -111,17 +109,6 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public String getPath() {
-        return this.path;
-    }
-    
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    /**
-     * 
-     */
     public Integer getSizeT() {
         return this.sizeT;
     }
@@ -161,17 +148,6 @@ org.openmicroscopy.omero.OMEModel {
     
     public void setSizeC(Integer sizeC) {
         this.sizeC = sizeC;
-    }
-
-    /**
-     * 
-     */
-    public Integer getBitsPerPixel() {
-        return this.bitsPerPixel;
-    }
-    
-    public void setBitsPerPixel(Integer bitsPerPixel) {
-        this.bitsPerPixel = bitsPerPixel;
     }
 
     /**

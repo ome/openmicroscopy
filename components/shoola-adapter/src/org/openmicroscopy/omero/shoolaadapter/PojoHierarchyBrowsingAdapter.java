@@ -136,8 +136,9 @@ public class PojoHierarchyBrowsingAdapter implements PojoOmeroService {
 		return PojoAdapterUtils.adaptFoundCGCIHierarchies(result);
 	}
 
-	public Set findCGCIExcludedHierarchies(Set imgIDs) {
-		throw new RuntimeException("Implement me.");
+	public Set findCGCPaths(Set imgIDs, boolean contained) {
+		Set result = proxiedInterface.findCGCPaths(imgIDs, contained);
+		return PojoAdapterUtils.adaptFoundCGCIHierarchies(result);//TODO Does this work as expected?
 	}
 
     /* (non-Javadoc)

@@ -211,17 +211,20 @@ public interface HierarchyBrowsing
     public Set findCGCIAnnotatedHierarchies(Set imgIDs, int experimenterID);
     
     /**
-     * Finds the data paths in the Category Group/Category/Image (CG/C/I) 
-     * hierarchy that don't end with the specified Images.
-     * This method is the analogous of the 
-     * {@link #findCGCIHierarchies(Set) findCGCIHierarchies}.
-     * The semantics is exactly the same.
+     * Finds data paths in the Category Group/Category/Image (CG/C/I) 
+     * hierarchy.
+     * This method is similar to {@link #findCGCIHierarchies(Set) findCGCIHierarchies} 
+     * but returns only CategoryGroups and Categories. If <code>contained</code>
+     * is true the CGC paths are returned which lead to this image.
+     * If <code>contained</code> is <code>false</code>, all paths are excluded
+     * for which an image is contained in a <code><b>CategoryGroup</b></code>.
+     * This is <u>more</u> restrictive than may be imagined.
      * 
-     * @param imgIDs Contains the ids of the Images that sit at the bottom of
-     *               the trees.
+     * @param imgIDs Contains the ids of the Images that sit at the bottom of the trees.
+     * @param contained controls the contained or not contained semantics of the query.
      * @return A <code>Set</code> with all root nodes that were found.
      */
-    public Set findCGCIExcludedHierarchies(Set imgIDs);
+    public Set findCGCPaths(Set imgIDs, boolean contained);
   
     
     /**

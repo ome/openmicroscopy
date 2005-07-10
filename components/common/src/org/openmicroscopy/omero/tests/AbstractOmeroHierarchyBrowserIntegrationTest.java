@@ -125,6 +125,15 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
     }
     /**
      * @throws Exception*********************************/
+    public void testLoadPDIAnnotatedHierarchyProjectNoReturn() throws Exception {
+        super.setUp();
+        Object obj = testLoadPDIAnnotatedHierarchyProject();
+    }
+    public Object testLoadPDIAnnotatedHierarchyProject() {
+        return hb.loadPDIAnnotatedHierarchy(Project.class, data.prjId, data.userId);
+    }
+    /**
+     * @throws Exception*********************************/
     public void testLoadPDIHierarchyDatasetNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadPDIHierarchyDataset();
@@ -132,6 +141,15 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
     public Object testLoadPDIHierarchyDataset() {
         return hb.loadPDIHierarchy(Dataset.class, data.dsId);
     }
+    /**
+     * @throws Exception*********************************/
+    public void testLoadPDIAnnotatedHierarchyDatasetNoReturn() throws Exception {
+        super.setUp();
+        Object obj = testLoadPDIAnnotatedHierarchyDataset();
+    }
+    public Object testLoadPDIAnnotatedHierarchyDataset() {
+        return hb.loadPDIAnnotatedHierarchy(Dataset.class, data.dsId, data.userId);
+    }    
     /**
      * @throws Exception*********************************/
     public void testLoadCGCIHierarchyCategoryGroupNoReturn() throws Exception {
@@ -143,12 +161,30 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
     }
     /**
      * @throws Exception*********************************/
+    public void testLoadCGCIAnnotatedHierarchyCategoryGroupNoReturn() throws Exception {
+        super.setUp();
+        Object obj = testLoadCGCIAnnotatedHierarchyCategoryGroup();
+    }
+    public Object testLoadCGCIAnnotatedHierarchyCategoryGroup() {
+        return hb.loadCGCIAnnotatedHierarchy(CategoryGroup.class,data.cgId,data.userId);
+    }    
+    /**
+     * @throws Exception*********************************/
     public void testLoadCGCIHierarchyCategoryNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadCGCIHierarchyCategory();
     }
     public Object testLoadCGCIHierarchyCategory() {
         return hb.loadCGCIHierarchy(Category.class,data.cId);
+    }
+    /**
+     * @throws Exception*********************************/
+    public void testLoadCGCIAnnotatedHierarchyCategoryNoReturn() throws Exception {
+        super.setUp();
+        Object obj = testLoadCGCIAnnotatedHierarchyCategory();
+    }
+    public Object testLoadCGCIAnnotatedHierarchyCategory() {
+        return hb.loadCGCIAnnotatedHierarchy(Category.class,data.cId,data.userId);
     }
     /**
      * @throws Exception*********************************/
@@ -159,6 +195,24 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
     public Object testFindCGCIHierarchies() {
         return hb.findCGCIHierarchies(data.imgsCGCI);
     }
+    /**
+     * @throws Exception*********************************/
+    public void testFindCGCPathsContainedNoReturn() throws Exception {
+        super.setUp();
+        Object obj = testFindCGCPathsContained(); 
+    }
+    public Object testFindCGCPathsContained() {
+        return hb.findCGCPaths(data.imgsCGCI,true);
+    }  
+    /**
+     * @throws Exception*********************************/
+    public void testFindCGCPathsNotContainedNoReturn() throws Exception {
+        super.setUp();
+        Object obj = testFindCGCPathsNotContained(); 
+    }
+    public Object testFindCGCPathsNotContained() {
+        return hb.findCGCPaths(data.imgsCGCI,false);
+    }    
     /**
      * @throws Exception*********************************/
     public void testFindPDIHierarchiesNoReturn() throws Exception {
@@ -253,9 +307,19 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
         //
         assertNull(nullObj,getHb().loadCGCIHierarchy(CategoryGroup.class, 0));
         assertNull(nullObj,getHb().loadCGCIHierarchy(Category.class, 0));
+        assertNull(nullObj,getHb().loadCGCIAnnotatedHierarchy(CategoryGroup.class, 0,nonExp));
+        assertNull(nullObj,getHb().loadCGCIAnnotatedHierarchy(Category.class, 0,nonExp));
         //
         assertNull(nullObj,getHb().loadPDIHierarchy(Project.class, 0));
         assertNull(nullObj,getHb().loadPDIHierarchy(Dataset.class, 0));
+        assertNull(nullObj,getHb().loadPDIAnnotatedHierarchy(Project.class, 0,nonExp));
+        assertNull(nullObj,getHb().loadPDIAnnotatedHierarchy(Dataset.class, 0,nonExp));
+        //
+        assertNull(emptyColl,getHb().findCGCPaths(test,true).size()==0);
+        assertNull(emptyColl,getHb().findCGCPaths(new HashSet(),true).size()==0);
+        assertNull(emptyColl,getHb().findCGCPaths(test,false).size()==0);
+        assertNull(emptyColl,getHb().findCGCPaths(new HashSet(),false).size()==0);
+
     }
     
     public void testContainedImages(){

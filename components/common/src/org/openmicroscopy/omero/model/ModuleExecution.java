@@ -21,13 +21,13 @@ org.openmicroscopy.omero.OMEModel {
      private Integer moduleExecutionId;
      private String status;
      private Double attributeDbTime;
-     private Boolean virtualMex;
-     private String inputTag;
      private String iteratorTag;
      private String dependence;
      private Double attributeSortTime;
-     private String errorMessage;
      private Date timestamp;
+     private Boolean virtualMex;
+     private String inputTag;
+     private String errorMessage;
      private Double attributeCreateTime;
      private String newFeatureTag;
      private Double totalTime;
@@ -105,28 +105,6 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Boolean getVirtualMex() {
-        return this.virtualMex;
-    }
-    
-    public void setVirtualMex(Boolean virtualMex) {
-        this.virtualMex = virtualMex;
-    }
-
-    /**
-     * 
-     */
-    public String getInputTag() {
-        return this.inputTag;
-    }
-    
-    public void setInputTag(String inputTag) {
-        this.inputTag = inputTag;
-    }
-
-    /**
-     * 
-     */
     public String getIteratorTag() {
         return this.iteratorTag;
     }
@@ -160,23 +138,45 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public String getErrorMessage() {
-        return this.errorMessage;
-    }
-    
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    /**
-     * 
-     */
     public Date getTimestamp() {
         return this.timestamp;
     }
     
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    /**
+     * 
+     */
+    public Boolean getVirtualMex() {
+        return this.virtualMex;
+    }
+    
+    public void setVirtualMex(Boolean virtualMex) {
+        this.virtualMex = virtualMex;
+    }
+
+    /**
+     * 
+     */
+    public String getInputTag() {
+        return this.inputTag;
+    }
+    
+    public void setInputTag(String inputTag) {
+        this.inputTag = inputTag;
+    }
+
+    /**
+     * 
+     */
+    public String getErrorMessage() {
+        return this.errorMessage;
+    }
+    
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     /**
