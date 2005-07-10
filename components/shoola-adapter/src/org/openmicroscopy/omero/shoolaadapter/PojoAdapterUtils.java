@@ -58,6 +58,7 @@ import org.openmicroscopy.omero.model.ImagePixel;
 import org.openmicroscopy.omero.model.ModuleExecution;
 import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.model.Repository;
+import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -246,7 +247,7 @@ public class PojoAdapterUtils {
 			set.add(go(d, cache));
 		}
 		pd.datasets = set;
-
+		
 		return pd;
 	}
 
@@ -262,7 +263,7 @@ public class PojoAdapterUtils {
 		dd.name = d.getName();
 		dd.description = d.getDescription();
 		dd.owner = go(d.getExperimenter(), cache);
-
+		
 		Set set = new HashSet();
 		if (null==d.getImages()){
 			if (log.isWarnEnabled()){
@@ -274,8 +275,34 @@ public class PojoAdapterUtils {
 				set.add(go(img, cache));
 			}
 		}
-
 		dd.images = set;
+		
+		Set set2 = new HashSet();
+		if (null==d.getDatasetAnnotations()){//TODO no size()==0 on this warnings!
+			if (log.isWarnEnabled()){
+				log.warn(nullAnns+d);
+			}
+		} else {//TODO convert all of this to visitor pattern PLEASE!
+			for (Iterator i = d.getDatasetAnnotations().iterator(); i.hasNext();) {
+				DatasetAnnotation dann = (DatasetAnnotation) i.next();
+				set2.add(go(dann,cache));
+			}
+		}
+		dd.annotations = set2;
+		
+		Set set3 = new HashSet();
+		if (null==d.getProjects()){
+			if (log.isWarnEnabled()){
+				log.warn(nullPrjs+d);
+			}
+		} else {
+			for (Iterator i = d.getProjects().iterator(); i.hasNext();) {
+				Project p = (Project) i.next();
+				set3.add(go(p,cache));
+			}
+		}
+		dd.projects = set3;
+		
 		return dd;
 	}
 
@@ -303,7 +330,7 @@ public class PojoAdapterUtils {
 			}
 		}
 		cgd.categories = set; 
-
+		
 		return cgd;
 	}
 
@@ -320,6 +347,7 @@ public class PojoAdapterUtils {
 		cd.name = c.getName();
 		cd.description = c.getDescription();
 		cd.owner = getOwnerFromMex(c,c.getModuleExecution(), cache);
+		cd.group = go(c.getCategoryGroup(),cache);
 		
 		Set set = new HashSet();
 		Set clas = c.getClassifications();
@@ -375,6 +403,32 @@ public class PojoAdapterUtils {
 		}
 		id.allPixels = set;
 
+		Set set2 = new HashSet();
+		if (null==img.getImageAnnotations()){
+			if (log.isWarnEnabled()){
+				log.warn(nullAnns+img);
+			}
+		} else {
+			for (Iterator i = img.getImageAnnotations().iterator(); i.hasNext();) {
+				ImageAnnotation iann = (ImageAnnotation) i.next();
+				set2.add(go(iann,cache));
+			}
+		}
+		id.annotations = set2;
+		
+		Set set3 = new HashSet();
+		if (null==img.getDatasets()){
+			if (log.isWarnEnabled()){//TODO not all of these need to be warn
+				log.warn(nullDs+img);
+			}
+		} else {
+			for (Iterator i = img.getDatasets().iterator(); i.hasNext();) {
+				Dataset ds = (Dataset) i.next();
+				set3.add(go(ds,cache));
+			}
+		}
+		id.datasets = set3;
+		
 		return id;
 	}
 
@@ -414,13 +468,13 @@ public class PojoAdapterUtils {
 			pd.pixelSizeY = dim.getPixelSizeY().doubleValue();
 			pd.pixelSizeZ = dim.getPixelSizeZ().doubleValue();
 		} 
-		// pd.pixelType = ip.getPixelType();//FIXME List SEE STATIC FIELDS
+		pd.pixelType = PojoAdapterUtils.getPixelTypeID(ip.getPixelType());
 		pd.sizeC = ip.getSizeC().intValue();
 		pd.sizeT = ip.getSizeT().intValue();
 		pd.sizeX = ip.getSizeX().intValue();
 		pd.sizeY = ip.getSizeY().intValue();
 		pd.sizeZ = ip.getSizeZ().intValue();
-
+		
 		return pd;
 	}
 
@@ -544,6 +598,10 @@ public class PojoAdapterUtils {
 	
 	final static String nullClas = "Null classifications for: ";
 	
+	final static String nullAnns = "Null Annotations for: ";
+	
+	final static String nullPrjs = "Null Projects for: ";
+	
 	/* =====================================================
 	 * Other Helper methods
 	 * ===================================================== */
@@ -557,6 +615,23 @@ public class PojoAdapterUtils {
 		} 
 		return go(mex.getExperimenter(), cache);
 	}
+
+	private static Map pixelTypesMap = new HashMap();
 	
+	static {
+        pixelTypesMap.put("INT8", new Integer(PixelsData.INT8_TYPE));
+        pixelTypesMap.put("INT16", new Integer(PixelsData.INT16_TYPE));
+        pixelTypesMap.put("INT32", new Integer(PixelsData.INT32_TYPE));
+        pixelTypesMap.put("UINT8", new Integer(PixelsData.UINT8_TYPE));
+        pixelTypesMap.put("UINT16", new Integer(PixelsData.UINT16_TYPE));
+        pixelTypesMap.put("UINT32", new Integer(PixelsData.UINT32_TYPE));
+        pixelTypesMap.put("FLOAT", new Integer(PixelsData.FLOAT_TYPE));
+        pixelTypesMap.put("DOUBLE", new Integer(PixelsData.DOUBLE_TYPE));
+	}
+	
+	static private int getPixelTypeID(String pixelType) {
+		return ((Integer)pixelTypesMap.get(pixelType)).intValue();//TODO exceptions
+	}
+
 	
 }
