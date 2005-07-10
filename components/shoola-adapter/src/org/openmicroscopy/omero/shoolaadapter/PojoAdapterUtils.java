@@ -630,7 +630,7 @@ public class PojoAdapterUtils {
 	}
 	
 	static private int getPixelTypeID(String pixelType) {
-		return pixelType == null ? 0 : ((Integer)pixelTypesMap.get(pixelType)).intValue();//TODO exceptions 
+		return 0;//pixelType == null ? 0 : ((Integer)pixelTypesMap.get(pixelType)).intValue();//TODO exceptions 
 		// FIXME quick hack
 	}
 
