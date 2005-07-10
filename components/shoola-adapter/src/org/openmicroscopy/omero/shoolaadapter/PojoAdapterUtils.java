@@ -468,7 +468,7 @@ public class PojoAdapterUtils {
 			pd.pixelSizeY = dim.getPixelSizeY().doubleValue();
 			pd.pixelSizeZ = dim.getPixelSizeZ().doubleValue();
 		} 
-		pd.pixelType = PojoAdapterUtils.getPixelTypeID(ip.getPixelType());
+		pd.pixelType = 1 ; //FIXME PojoAdapterUtils.getPixelTypeID(ip.getPixelType());
 		pd.sizeC = ip.getSizeC().intValue();
 		pd.sizeT = ip.getSizeT().intValue();
 		pd.sizeX = ip.getSizeX().intValue();
@@ -630,7 +630,7 @@ public class PojoAdapterUtils {
 	}
 	
 	static private int getPixelTypeID(String pixelType) {
-		return ((Integer)pixelTypesMap.get(pixelType)).intValue();//TODO exceptions
+		return pixelType == null ? null : ((Integer)pixelTypesMap.get(pixelType)).intValue();//TODO exceptions
 	}
 
 	
