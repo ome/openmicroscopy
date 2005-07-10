@@ -315,10 +315,10 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
         assertNull(nullObj,getHb().loadPDIAnnotatedHierarchy(Project.class, 0,nonExp));
         assertNull(nullObj,getHb().loadPDIAnnotatedHierarchy(Dataset.class, 0,nonExp));
         //
-        assertNull(emptyColl,getHb().findCGCPaths(test,true).size()==0);
-        assertNull(emptyColl,getHb().findCGCPaths(new HashSet(),true).size()==0);
-        assertNull(emptyColl,getHb().findCGCPaths(test,false).size()==0);
-        assertNull(emptyColl,getHb().findCGCPaths(new HashSet(),false).size()==0);
+        assertTrue(emptyColl,getHb().findCGCPaths(test,true).size()==0);
+        assertTrue(emptyColl,getHb().findCGCPaths(new HashSet(),true).size()==0);
+        assertTrue(emptyColl,getHb().findCGCPaths(test,false).size()==0);
+        assertTrue(emptyColl,getHb().findCGCPaths(new HashSet(),false).size()==0);
 
     }
     

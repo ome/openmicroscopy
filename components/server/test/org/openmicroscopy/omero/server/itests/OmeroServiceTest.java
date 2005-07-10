@@ -32,6 +32,8 @@ package org.openmicroscopy.omero.server.itests;
 
 //Third-party libraries
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -44,6 +46,8 @@ import org.hibernate.collection.PersistentSet;
 import org.hibernate.mapping.PersistentClass;
 
 //Application-internal dependencies
+import org.openmicroscopy.omero.model.Category;
+import org.openmicroscopy.omero.model.CategoryGroup;
 import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.tests.AbstractOmeroHierarchyBrowserIntegrationTest;
 import org.openmicroscopy.omero.tests.OMEData;
@@ -92,8 +96,34 @@ public class OmeroServiceTest
     }
     
     public void testPathCalls(){
-    	Object con = this.testFindCGCPathsContained();
-    	log.info(con);
+    	Set imgs = TestUtils.getSetFromInt(new int[]{2});
+    	log.info("Checking paths for image "+imgs);
+    	Set<CategoryGroup> con = (Set<CategoryGroup>) this.getHb().findCGCPaths(imgs,true);
+    	log.info("Contained:\n"+con+"\n"+cg2path(con));
+    	Set<CategoryGroup> non = (Set<CategoryGroup>) this.getHb().findCGCPaths(imgs,false);
+    	log.info("Not-Contained:\n"+non+"\n"+cg2path(non));
+    	
+    	for (CategoryGroup cg : con) {
+    		for (CategoryGroup cg2: non){
+    			assertTrue(
+    					"No contained paths may be contained and not-contained",
+    					cg.getAttributeId()!=cg2.getAttributeId()
+    				);
+    		}
+   		}
+    }
+    
+    String cg2path(Set<CategoryGroup> l){
+    	StringBuilder sb = new StringBuilder();
+    	for (CategoryGroup cg : l){
+			int cgId = cg.getAttributeId();
+				for (Object o : cg.getCategories()){
+				Category c = (Category) o;
+				int cId = c.getAttributeId();
+				sb.append("/"+cgId+"/"+cId+"\n");
+			}
+    	}
+    	return sb.toString();
     }
     
     public void testHessian(){

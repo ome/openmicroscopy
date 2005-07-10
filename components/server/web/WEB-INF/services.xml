@@ -52,9 +52,9 @@
 		<property name="beanNames"><value>*Service</value></property>
 		<property name="interceptorNames">
 		<list>
-			<value>serviceTracing</value>
 			<value>daoCleanUp</value>
 <!--			<value>serviceSecurity</value>
+				<value>serviceTracing</value>
 			<value>serviceTransactions</value> -->
 		</list>
 		</property>

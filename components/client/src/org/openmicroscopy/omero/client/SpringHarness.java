@@ -53,7 +53,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class SpringHarness {
 
-    private final static String springConfFile = "classpath:org/openmicroscopy/omero/client/spring.xml";
+    private final static String springConfFile = "org/openmicroscopy/omero/client/spring.xml";
     public static URL path;
     public static ApplicationContext ctx;
     
