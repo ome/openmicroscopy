@@ -46,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 // Application-internal dependencie
 import org.openmicroscopy.omero.model.Category;
 import org.openmicroscopy.omero.model.CategoryGroup;
+import org.openmicroscopy.omero.model.Classification;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.DatasetAnnotation;
 import org.openmicroscopy.omero.model.Experimenter;
@@ -319,6 +320,27 @@ public class PojoAdapterUtils {
 		cd.name = c.getName();
 		cd.description = c.getDescription();
 		cd.owner = getOwnerFromMex(c,c.getModuleExecution(), cache);
+		
+		Set set = new HashSet();
+		Set clas = c.getClassifications();
+		if (null==clas||clas.size()<1){
+			if (log.isWarnEnabled()){
+				log.warn(nullClas+c);
+			}
+		} else {
+			for (Iterator i = clas.iterator(); i.hasNext();) {
+				Classification cla = (Classification) i.next();
+				Image img = cla.getImage();
+				if (null==img) {
+					if (log.isWarnEnabled()){
+						log.warn(nullImg+cla);
+					}
+				} else {
+					set.add(img);
+				}
+			}
+		}
+		cd.images = set;
 
 		return cd;
 	}
@@ -517,6 +539,10 @@ public class PojoAdapterUtils {
 	final static String nullPixs = "Null ImagePixels for: ";
 	
 	final static String nullCats = "Null Categories for: ";
+	
+	final static String nullImg = "Null image for: ";
+	
+	final static String nullClas = "Null classifications for: ";
 	
 	/* =====================================================
 	 * Other Helper methods
