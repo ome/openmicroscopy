@@ -238,6 +238,12 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
      * @see org.openmicroscopy.omero.interfaces.HierarchyBrowsing#findCGCPaths(java.util.Set, boolean)
      */
     public Set findCGCPaths(Set imgIds, boolean contained) {
+    	
+        // CONTRACT
+        if (null == imgIds || imgIds.size() == 0) {
+            return new HashSet();
+        }
+    	
     	List l = containerDao.findCGCPaths(imgIds,contained);
     	Set<CategoryGroup> s = new HashSet<CategoryGroup>(l);
     	for (CategoryGroup cg : s){

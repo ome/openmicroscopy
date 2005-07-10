@@ -77,19 +77,21 @@ public class OmeroEntry {
     		return "http://"+host+":"+port+"/omero"+"/";//FIXME put omero.context in spring.properties (rename omero.properties)
     }
     
+    //TODO make this code more flexible (see client!:/spring.xml
     private void resetAllFacades(String url){
-    		String[] beans=SpringHarness.ctx.getBeanDefinitionNames();
-    		for (int i=0;i<beans.length;i++) {
-    			HessianProxyFactoryBean fb = (HessianProxyFactoryBean) SpringHarness.ctx.getBean(SpringHarness.ctx.FACTORY_BEAN_PREFIX+beans[i]);
-    			String oldUrl = fb.getServiceUrl();
-    	        	String service = oldUrl.substring(oldUrl.lastIndexOf("/"));
-    			fb.setServiceUrl(url+service);
-    			try {
-    					fb.afterPropertiesSet();
-				} catch (MalformedURLException e) {
-					throw new OmeroException("Improperly formed url.",e); // TODO
-				}
-    		}
+   		String[] beans=SpringHarness.ctx.getBeanDefinitionNames();
+   		for (int i=0;i<beans.length;i++) {
+   			if (beans[i].endsWith("Facade")){
+   				HessianProxyFactoryBean fb = (HessianProxyFactoryBean) SpringHarness.ctx.getBean(SpringHarness.ctx.FACTORY_BEAN_PREFIX+beans[i]);
+   				String oldUrl = fb.getServiceUrl();
+   				String service = oldUrl.substring(oldUrl.lastIndexOf("/"));
+   				fb.setServiceUrl(url+service);
+   				try {
+   					fb.afterPropertiesSet();
+   				} catch (MalformedURLException e) {
+   					throw new OmeroException("Improperly formed url.",e); // TODO
+   				}
+   			}
+   		}
     }
-    
 }

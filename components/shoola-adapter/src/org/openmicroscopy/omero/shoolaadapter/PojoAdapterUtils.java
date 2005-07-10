@@ -67,7 +67,6 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
-import sun.security.krb5.internal.crypto.c;
 
 /**
  * @author josh

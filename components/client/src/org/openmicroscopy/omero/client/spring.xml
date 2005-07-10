@@ -40,6 +40,9 @@
 
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
+<!-- TODO: To make adapter code work properly, all service beans should be named *Facade 
+  	 This restriction will hopefully be loosened in the future. -->
+
 	<beans>	
 	<!-- ***** CONFIG ***** -->
 	<!-- property placeholder post-processor -->
