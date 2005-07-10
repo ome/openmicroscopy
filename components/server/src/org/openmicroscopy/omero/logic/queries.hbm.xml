@@ -69,7 +69,7 @@
 	
 	<!ENTITY fetchDatasetAnnotation
 	" 
-	  left outer join d.datasetAnnotations as d_ann
+	  left outer join fetch d.datasetAnnotations as d_ann
 	  &fetchDatasetAnnotationOwner;
 	"
 	>
@@ -83,7 +83,7 @@
 
 	<!ENTITY fetchImageAnnotation
 	" 
-	  left outer join i.imageAnnotations as i_ann
+	  left outer join fetch i.imageAnnotations as i_ann
 	  &fetchImageAnnotationOwner;
 	"
 	>
@@ -131,25 +131,25 @@
 
 	<!ENTITY ValidDatasetAnnotation 
 	" 
-      ( d_ann.valid = true or d_ann.valid is null)
+      ( d_ann.valid = true or d_ann.valid is null ) 
 	"
 	>	
 
 	<!ENTITY OwnsDatasetAnnotation 
 	" 
-      d_ann_exp = :expId
+      ( d_ann_exp = :expId or d_ann_exp is null )
 	"
 	>	
 	
 	<!ENTITY ValidImageAnnotation 
 	" 
-	  ( i_ann.valid = true or i_ann.valid is null)
+	  ( i_ann.valid = true or i_ann.valid is null )
 	"
 	>	
 
 	<!ENTITY OwnsImageAnnotation 
 	" 
-	  i_ann_exp = :expId
+	  ( i_ann_exp = :expId or i_ann_exp is null )
 	"
 	>	
 		
@@ -161,7 +161,8 @@
 	==============================================-->
 	
   <!ENTITY loadHierarchy_by_Project
-  "
+  " 
+	select p
     from Project as p
 	  &fetchProject;
   	  &fetchDataset;
@@ -191,6 +192,7 @@
 
   <!ENTITY loadHierarchy_by_Dataset
   "
+    select d
     from Dataset as d 
 	  &fetchDataset;
 	  where 
@@ -217,6 +219,7 @@
 	
   <!ENTITY loadHierarchy_by_CategoryGroup
   "
+    select cg
     from CategoryGroup cg 
 	  &fetchCategoryGroup;
 	  &fetchCategory;
@@ -228,6 +231,7 @@
 
   <!ENTITY loadHierarchy_by_CategoryGroup_Annotated
   "
+    select cg
     from CategoryGroup cg 
 	  &fetchCategoryGroup;
 	  &fetchCategory;
@@ -242,6 +246,7 @@
 
   <!ENTITY loadHierarchy_by_Category
   "  
+    select c
     from Category c 
 	  &fetchCategory;
 	  &fetchClassificationImage;
@@ -253,6 +258,7 @@
 
   <!ENTITY loadHierarchy_by_Category_Annotated
   "  
+    select c
     from Category c 
 	  &fetchCategory;
 	  &fetchClassificationImage;
@@ -267,6 +273,7 @@
 	
   <!ENTITY findPDI
   "
+    select i
     from Image as i 
 	  &fetchPDI;
       where 
@@ -277,6 +284,7 @@
 
   <!ENTITY findPDI_Annotated
   "
+    select i
     from Image as i 
 	  &fetchPDI;
 	  &fetchDatasetAnnotation;
@@ -294,6 +302,7 @@
 	
   <!ENTITY findCGCI
   "
+    select i
     from Image as i 
 	  &fetchCGCI;
       where 
@@ -304,6 +313,7 @@
 
   <!ENTITY findCGCI_Annotated
   "
+    select i
     from Image as i 
 	  &fetchCGCI;
 	  &fetchImageAnnotation;
@@ -316,7 +326,8 @@
   >	
 
   <!ENTITY findCGCPath
-  "	  
+  "
+    select cg	  
     from CategoryGroup cg 
 	  &fetchCategoryGroup;
 	  &fetchCategory;
@@ -333,7 +344,8 @@
   >	
 
   <!ENTITY findCGCPath_Not_Contained
-  "	  
+  "
+    select cg	  
     from CategoryGroup cg
 	  &fetchCategoryGroup;
 	  &fetchCategory;
@@ -347,6 +359,7 @@
 		
   <!ENTITY findImageAnn
   "
+      select i_ann
 	  from ImageAnnotation as i_ann 
 	    left outer join fetch i_ann.image as i 
   	    left outer join fetch i.imagePixel as i_pix
@@ -366,6 +379,7 @@
 
   <!ENTITY findDatasetAnn
   "
+    select d_ann
 	from DatasetAnnotation as d_ann
       left outer join fetch d_ann.dataset as d 
   	  &fetchDatasetAnnotationOwner;

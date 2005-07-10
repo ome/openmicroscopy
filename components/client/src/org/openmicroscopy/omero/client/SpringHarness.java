@@ -30,11 +30,12 @@
 package org.openmicroscopy.omero.client;
 
 //Java imports
-import java.net.URL;
 
 //Third-party libraries
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.core.io.Resource;
 
 //Application-internal dependencies
 
@@ -53,16 +54,20 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 public class SpringHarness {
 
-    private final static String springConfFile = "org/openmicroscopy/omero/client/spring.xml";
-    public static URL path;
+    private final static String springConfFile = "classpath:org/openmicroscopy/omero/client/spring.xml";
+    public static Resource path;
     public static ApplicationContext ctx;
     
     static {
-        path = SpringHarness.class.getClassLoader().getResource(springConfFile);
+        path = SpringHarness.ctx.getResource(springConfFile);
         if (path==null){
             throw new RuntimeException("Client jar corrupted. Can't find internal configuration file:\n"+springConfFile);
         }
-        ctx = new FileSystemXmlApplicationContext(path.toString());
+        try {
+			ctx = new FileSystemXmlApplicationContext(path.getURL().toString());
+		} catch (Exception e) {
+			throw new RuntimeException("Can't load file: "+path);
+		}
     }
 	
     

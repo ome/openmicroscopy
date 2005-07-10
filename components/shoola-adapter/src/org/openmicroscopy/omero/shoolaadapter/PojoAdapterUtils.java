@@ -92,7 +92,7 @@ public class PojoAdapterUtils {
 			throw new IllegalArgumentException(
 					"Class parameter may not be null.");
 		}
-
+//TODO wrap all of this code in try/catch !!!
 		if (rootNodeType.equals(Project.class)) {
 			return PojoAdapterUtils.go((Project) result, newCache());
 		} else if (rootNodeType.equals(Dataset.class)) {

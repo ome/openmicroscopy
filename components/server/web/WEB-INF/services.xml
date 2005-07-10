@@ -52,6 +52,7 @@
 		<property name="beanNames"><value>*Service</value></property>
 		<property name="interceptorNames">
 		<list>
+			<value>logging</value>	
 			<value>daoCleanUp</value>
 <!--			<value>serviceSecurity</value>
 				<value>serviceTracing</value>
@@ -65,7 +66,14 @@
 		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
 		lazy-init="true"
 	/>
-	
+
+	<bean 
+		       id="logging" 
+		    class="org.openmicroscopy.omero.logic.ReturnLogger" 
+		lazy-init="true"
+	/>
+
+		
 	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
 		<property name="annotationDao" ref="annotationDao"/>
 		<property name="containerDao" ref="containerDao"/>

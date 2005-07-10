@@ -51,14 +51,23 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
+import org.openmicroscopy.omero.OMEModel;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.logic.ContainerDao;
+import org.openmicroscopy.omero.logic.DaoCleanUpHibernate;
 import org.openmicroscopy.omero.logic.HierarchyBrowsingImpl;
+import org.openmicroscopy.omero.logic.ReturnLogger;
+import org.openmicroscopy.omero.model.Category;
+import org.openmicroscopy.omero.model.CategoryGroup;
+import org.openmicroscopy.omero.model.Classification;
 import org.openmicroscopy.omero.model.Dataset;
 import org.openmicroscopy.omero.model.Image;
+import org.openmicroscopy.omero.model.ImageAnnotation;
 import org.openmicroscopy.omero.model.Project;
 import org.openmicroscopy.omero.tests.OMEData;
 import org.openmicroscopy.omero.util.Utils;
+
+import sun.security.krb5.internal.i;
 
 /** 
  * tests for a HQL join bug.
@@ -130,6 +139,30 @@ public class LeftOuterJoinTest
           	noDupesPlease.add(img.getImageId());
         }
         
+    }
+
+    public void testWhereAreTheImageAnnsLoadCGCI(){
+    	Category c =(Category) hb.loadCGCIAnnotatedHierarchy(Category.class,250,1);
+    	Set<Classification> clas = c.getClassifications();
+    	boolean annsThere = false;
+    	for (Classification cla : clas){
+    		Image img = cla.getImage();
+    		Set<ImageAnnotation> anns = img.getImageAnnotations();
+    		log.info("Annotations for image "+img.getImageId()+":"+anns);
+    		if (anns !=null && anns.size() > 0) annsThere = true;
+    	}
+    	assertTrue("There should be an annotation",annsThere);
+    }
+    
+    public void testAndNowAFrigginStackOverFLow() throws Throwable{
+    	Set<OMEModel> set = hb.findPDIAnnotatedHierarchies(TestUtils.getSetFromInt(new int[]{2,3}),1);
+    	log.info(set);
+    	// Already applied below:
+//    	DaoCleanUpHibernate clean = (DaoCleanUpHibernate)this.applicationContext.getBean("daoCleanUp");
+//    	ReturnLogger log = (ReturnLogger) this.applicationContext.getBean("logging");
+//    	clean.clean(set);
+//    	log.log(set);
+    	
     }
     
 }

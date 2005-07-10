@@ -13,7 +13,7 @@
   </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-client-1.0.jar">
   </classpathentry>
-  <classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.1.jar">
+  <classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar">
   </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/omero/jars/shoola-2.4.0-rc2.jar">
   </classpathentry>

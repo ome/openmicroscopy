@@ -29,6 +29,11 @@
 package org.openmicroscopy.omero.logic;
 
 //Java imports
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,13 +41,16 @@ import java.util.Set;
 //Third-party libraries
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.omero.OMEModel;
 
+import com.caucho.burlap.io.BurlapOutput;
+
 /** 
- * method interceptor to clean objects of all Hibernate references, 
- * specifically lazy-loading proxies
+ * method interceptor to log all result objects. 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -51,38 +59,29 @@ import org.openmicroscopy.omero.OMEModel;
  * </small>
  * @since 1.0
  */
-public class DaoCleanUpHibernate implements MethodInterceptor {
+public class ReturnLogger implements MethodInterceptor {
 
-    DaoUtils daoUtils;
-
-    public DaoCleanUpHibernate(DaoUtils daoUtils) {
-        this.daoUtils = daoUtils;
-    }
-    
+	private static Log log = LogFactory.getLog(ReturnLogger.class);
+	
     /**
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     public Object invoke(MethodInvocation arg0) throws Throwable {
-        return clean(arg0.proceed());
+        Object o = arg0.proceed();
+        log.info("Meth:\t"+arg0.getMethod().getName());
+        log.info("Args:\t"+arg0.getArguments());
+        log.info("Rslt:\t"+o);
+        log(o);
+        return o;
     }
     
-    public Object clean(Object obj) {
-        //TODO push OMEModel down into all calls
-        if (null != obj) {
-            if (obj instanceof OMEModel) {
-                daoUtils.clean((OMEModel) obj);
-            } else if (obj instanceof Set) {
-                daoUtils.clean((Set) obj);
-            } else if (obj instanceof Map) {
-                //daoUtils.clean(((Map) obj).keySet());TODO here only integers, but...
-                daoUtils.clean(new HashSet(((Map) obj).values()));                
-            } else {
-                String msg = "Instances of " + obj.getClass().getName()
-                + " not supported.";
-                throw new IllegalArgumentException(msg);
-            }
-        }
-        return obj;
+    public void log(Object o) throws Throwable{
+        OutputStream os = new ByteArrayOutputStream();
+        BurlapOutput out = new BurlapOutput(os);
+        out.writeObject(o);
+        byte[] b = ((ByteArrayOutputStream)os).toByteArray();
+        os.close();
+        log.info(new String(b));
     }
-
+    
 }

@@ -64,7 +64,7 @@ public class OmeroGrinderTest extends
 				"org/openmicroscopy/omero/client/itests/data.xml",
 				"org/openmicroscopy/omero/client/itests/test.xml" };
 	}
-
+//TODO check here are these methods sensible???
 	public OmeroGrinderTest(String name) {
 		super(name, new OMEPerformanceData());
 	}

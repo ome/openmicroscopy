@@ -74,6 +74,10 @@ import org.openmicroscopy.omero.model.Project;
  * </small>
  * @since OMERO 1.0
  * @DEV.TODO add queries.hbm.xml to pre-processed (cached) files.
+ * @DEV.TODO Check the types of parameters coming in. 
+ * 			 passing pojo.ImageData rather than Integer
+ *  		 lead to a StackOverFlowError!
+ *  		BEST solution Set-->int[] !!! (for Python et al. as well)
  */
 public class HierarchyBrowsingImpl implements HierarchyBrowsing {
 
