@@ -1,0 +1,58 @@
+############################################
+# JDBC Connection properties
+############################################
+database.url=jdbc:postgresql://localhost/ome
+database.username=you
+database.password=secret
+database.schema=public
+database.catalog=""
+database.driver=org.postgresql.Driver
+database.dialect=org.hibernate.dialect.PostgreSQLDialect
+database.show_sql=true
+
+############################################
+# Tomcat manager connection
+############################################
+maven.tomcat.username=you
+maven.tomcat.password=secret
+server.host=localhost
+server.port=8080
+server.dir=/tmp
+
+############################################
+# Path conversion for middlegen ant-build
+############################################
+ant.os=unix
+
+############################################
+# Content Mgmt Connection
+############################################
+maven.scm.url=scm:svn:svn+ssh://jmoore@cvs.openmicroscopy.org.uk/home/svn/josh/ome3/branches/omero
+
+############################################
+# Shoola connection
+############################################
+omeds.url=http://localhost:8888/shoola/
+omeds.user=you
+omeds.pass=secret
+maven.junit.sysproperties=omeds.url omeds.user omeds.pass
+
+#
+# TODO clean up
+#
+maven.tomcat.scheme=http
+maven.tomcat.host=${server.host}
+maven.tomcat.port=${server.port}
+#maven.tomcat.manager.context=manager
+#maven.tomcat.war.context=/${pom.artifactId}
+#would like to default to maven.war.build.dir but not available here
+#maven.tomcat.build.dir=${maven.war.build.dir}
+#maven.tomcat.build.dir=${maven.build.dir}
+#would like to default to maven.war.webapp.dir but not available here
+#maven.tomcat.webapp.dir=${maven.war.webapp.dir}
+#maven.tomcat.webapp.dir=${maven.tomcat.build.dir}${maven.tomcat.war.context}
+# default location of tomcat's context configuration file
+#maven.tomcat.webapp.contextfile=${maven.tomcat.webapp.dir}/META-INF/context.xml
+#these two go togther, if you override precompile, you probably want to remove jsp from excludes
+#maven.tomcat.precompile=true
+

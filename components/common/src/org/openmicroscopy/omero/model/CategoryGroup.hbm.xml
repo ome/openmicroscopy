@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.openmicroscopy.omero.model.CategoryGroup" 
+    table="category_groups"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        length="-1"
+    />
+    <property
+        name="description"
+        type="java.lang.String"
+        column="description"
+        length="-1"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-many association to Category -->
+    <set
+        name="categories"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="category_group" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.Category"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="org.openmicroscopy.omero.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>

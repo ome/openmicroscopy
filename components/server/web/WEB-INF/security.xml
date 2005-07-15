@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+ 
+  security.xml defines the interceptors for all methods which need
+  authentication and authorization.
+
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN/EN" "http://www.springframework.org/dtd/spring-beans.dtd" >
+<beans>
+
+    <!-- ============== INTERCEPTOR =========== -->
+	<bean id="serviceSecurity"
+		class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<property name="validateConfigAttributes"><value>true</value></property>
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+<!--
+		<property name="runAsManager"><ref bean="runAsManager"/></property>
+-->
+		<property name="afterInvocationManager"><ref bean="afterInvocationManager"/></property>
+		<property name="objectDefinitionSource">
+			<value>
+				org.openmicroscopy.interfaces.ImageService.retrieve*=ROLE_USER,LOOKUP
+				org.openmicroscopy.interfaces.ImageService.query*=ROLE_USER,QUERY
+			</value>
+		</property>
+	</bean>
+
+	<bean id="memoryAuthenticationDao" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+	    <property name="userMap">
+	        <value>
+	            Josh=Moore,ROLE_USER
+	            admin=admin,ROLE_USER,ROLE_ADMIN
+	        </value>
+	    </property>
+	</bean>
+
+    <!-- ============== ACCESS =========== -->
+
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+<!--	<bean id="TODOVoter" class="org.openmicroscopy.XXX"> -->
+
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
+	    <property name="allowIfAllAbstainDecisions">
+	        <value>false</value>
+	    </property>
+	    <property name="decisionVoters">
+	        <list>
+	           <ref local="roleVoter"/>
+	        </list>
+	    </property>
+	</bean>
+
+
+   <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
+
+<!--   <bean id="afterQueryFilter" class="org.openmicroscopy.TODO">-->
+   
+   <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
+      <property name="providers">
+         <list>
+<!--            <ref local="afterQueryFilter"/> -->
+         </list>
+      </property>
+   </bean>
+
+   <!-- ============== AUTHENTICATION =========== -->
+   
+	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationEntryPoint"><ref bean="authenticationEntryPoint"/></property>
+	</bean>
+
+	<bean id="authenticationEntryPoint"
+		class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+		<property name="realmName"><value>Name Of Your Realm</value></property>
+	</bean>
+
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	     <property name="authenticationDao">
+	         <ref local="memoryAuthenticationDao"/>
+	     </property>
+	</bean>
+	
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+	    <property name="providers">
+	        <list>
+	            <ref bean="daoAuthenticationProvider"/>
+	        </list>
+	    </property>
+	</bean>
+
+   <!-- ======================== FILTER CHAIN ======================= -->
+
+	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
+	      of "httpSessionContextIntegrationFilter" in the list below -->
+	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+      <property name="filterInvocationDefinitionSource">
+         <value>
+		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+		    PATTERN_TYPE_APACHE_ANT
+            /**=httpSessionContextIntegrationFilter,basicProcessingFilter
+         </value>
+      </property>
+    </bean>
+<!-- WAS
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
+-->
+
+   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
+   </bean>
+
+</beans>
+

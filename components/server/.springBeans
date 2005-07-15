@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configs>
+		<config>web/WEB-INF/services.xml</config>
+		<config>web/WEB-INF/data.xml</config>
+		<config>web/WEB-INF/security.xml</config>
+		<config>web/WEB-INF/config.xml</config>
+		<config>web/WEB-INF/facade-servlet.xml</config>
+		<config>web/WEB-INF/dao.xml</config>
+	</configs>
+	<configSets>
+		<configSet>
+			<name>testing</name>
+			<allowBeanDefinitionOverriding>true</allowBeanDefinitionOverriding>
+			<incomplete>false</incomplete>
+			<configs>
+				<config>web/WEB-INF/config.xml</config>
+				<config>web/WEB-INF/dao.xml</config>
+				<config>web/WEB-INF/data.xml</config>
+				<config>web/WEB-INF/facade-servlet.xml</config>
+				<config>web/WEB-INF/security.xml</config>
+				<config>web/WEB-INF/services.xml</config>
+			</configs>
+		</configSet>
+	</configSets>
+</beansProjectDescription>

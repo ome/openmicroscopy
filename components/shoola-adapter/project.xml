@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>${pom.groupId}-shoola-adapter</id>
+  <name>OME Shoola Adapter Code</name>
+  <currentVersion>1.0</currentVersion>
+  <package>org.openmicroscopy.omero.shoolaadapter</package>
+  <description>Shoola Adapter for Omero. This code should really be in the Shoola code base.</description>
+  <dependencies>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-common</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>${pom.groupId}-client</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>shoola</artifactId> 
+      <version>2.4.0-rc2</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <unitTestSourceDirectory>test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>conf</directory>
+        <includes>
+          <include>*</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

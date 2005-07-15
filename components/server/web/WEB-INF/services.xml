@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+
+	Configuration of top-level services.
+	TODO add log4j configuration (e.g. update intervals)
+ 
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>	
+	
+	<!-- Aspects/Interceptors which catch ALL calls to our service methods
+		 =================================================================
+		 Possibilities are: tracing, logging, security, transactions, etc.
+	 -->
+	<bean id="serviceBeanNameProxyCreator"
+		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="beanNames"><value>*Service</value></property>
+		<property name="interceptorNames">
+		<list>
+			<value>exceptionHandling</value>
+			<value>logging</value>	
+			<value>daoCleanUp</value>
+<!--			<value>serviceSecurity</value>
+				<value>serviceTracing</value>
+			<value>serviceTransactions</value> -->
+		</list>
+		</property>
+	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<!-- INTERCEPTORS -->	
+	<bean 
+		       id="serviceTracing" 
+		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
+		lazy-init="true"
+	/>
+
+	<bean 
+		       id="logging" 
+		    class="org.openmicroscopy.omero.logic.ReturnLogger" 
+		lazy-init="true"
+	/>
+
+	<bean
+			   id="exceptionHandling"
+			class="org.openmicroscopy.omero.logic.ExceptionHandler"
+		lazy-init="true"
+	/>
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+			
+	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
+		<property name="annotationDao" ref="annotationDao"/>
+		<property name="containerDao" ref="containerDao"/>
+	</bean>		
+
+</beans>

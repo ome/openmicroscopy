@@ -1,0 +1,20 @@
+#*
+file: Control.vm
+This is the control template for Omero Server code generation
+*#
+Generating ModelUtils:
+Starting at $now
+
+Context includes:
+ $strings
+ $files
+ $properties
+ $sessions
+ $classes
+ $task
+  
+#foreach ($class in $classes)
+    #set ($outputFile = "${task.nopkg($class)}Utils.java")
+    #set ($meta     = $metas.get($class))
+    $generator.parse("modelUtils.vm", $outputFile, "[utils]", $sessions)
+#end

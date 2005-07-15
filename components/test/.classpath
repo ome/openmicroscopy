@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding=".svn" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-1.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-client-1.0.jar"/>
+	<classpathentry sourcepath="/OMERO_HOME/components/shoola-adapter/src" kind="var" path="MAVEN_REPO/omero/jars/omero-shoola-adapter-1.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar"/>
+	<classpathentry sourcepath="HOME/lib/spring-framework-1.2.2/mock" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hessian/jars/hessian-2.1.12.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/burlap/jars/burlap-2.1.7.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/grinder-3.0-beta26.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/jython/jars/jython-2.1.jar"/>
+	<classpathentry sourcepath="HOME/code/Shoola/SRC" kind="var" path="MAVEN_REPO/omero/jars/shoola-2.4.0-rc2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/shoola-test-2.4.0-rc2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/ome-java-s240r2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/xmlrpc/jars/xmlrpc-1.2.jar"/>
+	<classpathentry kind="output" path="target/eclipse"/>
+</classpath>

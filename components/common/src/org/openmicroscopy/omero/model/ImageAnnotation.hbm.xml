@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.openmicroscopy.omero.model.ImageAnnotation" 
+    table="image_annotations"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="theT"
+        type="java.lang.Integer"
+        column="the_t"
+        length="4"
+    />
+    <property
+        name="content"
+        type="java.lang.String"
+        column="content"
+        length="-1"
+    />
+    <property
+        name="theC"
+        type="java.lang.Integer"
+        column="the_c"
+        length="4"
+    />
+    <property
+        name="theZ"
+        type="java.lang.Integer"
+        column="the_z"
+        length="4"
+    />
+    <property
+        name="valid"
+        type="java.lang.Boolean"
+        column="valid"
+        length="1"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="org.openmicroscopy.omero.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="org.openmicroscopy.omero.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>

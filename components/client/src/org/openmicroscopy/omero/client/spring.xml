@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+
+	Configuration of client proxies.
+ 
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- TODO: To make adapter code work properly, all service beans should be named *Facade 
+  	 This restriction will hopefully be loosened in the future. -->
+
+	<beans>	
+	<!-- ***** CONFIG ***** -->
+	<!-- property placeholder post-processor -->
+	<bean id="placeholderConfig"
+              class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+		<property name="locations">
+		<list>
+			<value>spring.properties</value>
+		</list>
+		</property>
+<!--TODO		<property name="ignoreResourceNotFound" value="true"/> 
+	see also Servlet version using web.xml!!! no more config.
+	-->
+	</bean>
+	
+	<bean id="hierarchyBrowsingFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/HierarchyBrowsing</value></property>
+	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.HierarchyBrowsing</value></property>
+	</bean>
+
+</beans>

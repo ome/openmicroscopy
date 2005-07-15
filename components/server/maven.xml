@@ -1,0 +1,155 @@
+<project
+  xmlns:ant="jelly:ant"
+
+>
+
+<!-- messes with eclipse!
+ <preGoal name="war:webapp">
+   <ant:delete dir="${maven.build.dest}/WEB-INF"/>
+   <ant:delete dir="${maven.build.dir}/test-classes/WEB-INF"/>
+ </preGoal> 
+-->
+
+ <!-- GENERATE VELOCITY CODE -->
+ <goal name="texen" prereqs="create-classpath">
+    <ant:property name="outputDir"
+	location="${basedir}/gen-src/texen/org/openmicroscopy/omero/dao/utils"/>
+    <ant:property name="tmplDir"   location="${basedir}/src"/>
+    <ant:exec dir="${basedir}" executable="ant" failonerror="true">
+      <ant:env key="CLASSPATH"
+	value="${my.classpath}:${maven.build.dest}"/>
+      <ant:arg value="-DtmplDir=${tmplDir}"/>
+      <ant:arg value="-DoutputDir=${outputDir}"/>
+      <ant:arg value="-f"/>
+      <ant:arg value="${tmplDir}/texen.xml"/>
+      <ant:arg value="-d"/>
+    </ant:exec>
+<!-- TODO
+    <ant:ant
+         antfile="${basedir}/src/texen.xml"
+         dir="${basedir}"
+         target="generate"
+         inheritAll="true"
+         inheritRefs="true">
+    </ant:ant>
+-->
+ </goal>
+
+
+ <!-- see doc under: http://www.codeczar.com/products/maven-tomcat-plugin/ -->
+ <!-- 
+	tomcat:(re-|un-)deploy: Use for remote serviers
+	tomcat:install,reload,remove use the expanded directory
+	 (use for local instances where the build dir is visible)
+  -->
+ <goal name="tomcat-redo">
+   <attainGoal name="tomcat:remove"/>
+   <attainGoal name="tomcat:install"/>
+ </goal>
+
+ <!-- DB STUFF: TODO Perhaps in a build.xml (or use appfuses) -->
+ 
+ <goal name="dbunit">
+   <ant:taskdef name="dbunit" classname="org.dbunit.ant.DbUnitTask"
+	classpathref="maven.dependency.classpath"/>
+ </goal>
+
+ <goal name="db-load" prereqs="dbunit">
+   <ant:property name="operation" value="CLEAN_INSERT"/>
+   <ant:property name="file" value="${basedir}/sql/db-export.xml"/>
+   <ant:dbunit driver="${database.driver}"
+               supportBatchStatement="false"
+               url="${database.url}-test"
+               userid="${database.username}"
+               password="${database.password}">
+     <ant:operation type="${operation}" src="${file}"
+                    format="xml"/>
+  </ant:dbunit>       
+ </goal>
+
+ <goal name="db-export-cgc-paths" prereqs="dbunit">
+   <ant:dbunit driver="${database.driver}"
+            url="${database.url}"
+            userid="${database.username}"
+            password="${database.password}">
+     <ant:export dest="${basedir}/sql/cgc-paths.xml" format="xml">
+ 	<ant:table name="classification"/>
+ 	<ant:table name="categories"/>
+ 	<ant:table name="category_groups"/>
+ 	<ant:table name="module_executions"/>
+ 	<ant:table name="images"/>
+ 	<ant:table name="experimenters"/>
+ 	<ant:table name="image_pixels"/>
+     </ant:export>
+  </ant:dbunit>
+ </goal>
+
+ <goal name="db-export" prereqs="dbunit">
+   <ant:dbunit driver="${database.driver}"
+            url="${database.url}"
+            userid="${database.username}"
+            password="${database.password}">
+     <ant:export dest="${basedir}/sql/db-export.xml" format="xml"> 
+<!--remove elements for all-->
+<!--       <ant:query name="images" 
+		  sql="select * from images where image_id &lt;
+10"/>-->
+<!-- This list comes from the middlegen-build.xml file -->
+	<ant:query name="module_executions" 
+sql="select * from module_executions where module_execution_id in
+${mex} ;"/>
+	<ant:table name="projects" />
+	<ant:table name="datasets" />
+	<ant:table name="project_dataset_map"/>
+	<ant:table name="image_dataset_map" />
+	<ant:table name="image_dataset_map"/>
+	<ant:query name="images"
+sql="select * from images where image_id in ${img} ;"/>
+	<ant:table name="experimenters"/>
+	<ant:table name="experimenter_group_map"/>
+	<ant:table name="groups"/>
+	<ant:table name="classification"/>
+	<ant:table name="categories"/>
+	<ant:table name="category_groups"/>
+	<ant:table name="dataset_annotations"/>
+	<ant:table name="image_annotations"/>
+	<ant:query name="image_dimensions"
+sql="select * from image_dimensions where image_id in ${img} ;"/>
+	<ant:query name="image_pixels"
+sql="select * from image_pixels where image_id in ${img} ;"/>
+	<ant:table name="image_info"/>
+	<ant:table name="image_plates"/>
+	<ant:table name="thumbnails"/>
+	<ant:table name="repositories"/>
+	<ant:table name="display_roi"/>
+<!--
+	<ant:table name="channel_components"/>
+	<ant:table name="features"/>
+	<ant:table name="display_options"/>
+-->
+     </ant:export>
+   </ant:dbunit>
+ </goal>
+
+<goal name="run-groovyc" prereqs="java:compile,test:compile">
+   
+   <path id="groovy.classpath">
+     <pathelement path="${maven.build.dest}"/>
+     <pathelement path="target/classes"/>
+     <pathelement path="target/test-classes"/>
+     <path refid="maven.dependency.classpath"/>
+   </path>
+
+ <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc">
+    <classpath refid="groovy.classpath"/>
+ </taskdef>
+
+ <groovyc destdir="${basedir}/target/test-classes"
+          srcdir="${basedir}/test" 
+          listfiles="true">
+	<classpath refid="groovy.classpath"/>
+ </groovyc>
+
+ </goal>
+
+</project>
