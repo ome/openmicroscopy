@@ -9,6 +9,7 @@ working OME Database, a Java Development Kit, and a Servlet container.
 (1) Initialize environment: DB, Java, server, Maven
 
     * Install Java and a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.)
+      Warning: The Omero server side code requires Java 5 and Tomcat 5.5.x. 
     
     * Set JAVA_HOME to your JDK installation
 
@@ -37,3 +38,5 @@ working OME Database, a Java Development Kit, and a Servlet container.
 
       (Alternatively, follow the container-specific instructions under docs/ .)
 
+
+TODO: Some of these instructions should go in INSTALL.txt. 

@@ -16,3 +16,7 @@ run the test suite against it.
 
 For more specific instructions, please see the 
 INSTALL_*.txt files in the docs directory.
+
+Note: These instructions are for releases only.
+If you are working from subversion, please see
+BUILDING.txt to get things running.
