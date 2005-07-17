@@ -64,7 +64,7 @@ import org.openmicroscopy.omero.util.Utils;
  * @since 1.0
  */
 public abstract class AbstractOmeroHierarchyBrowserIntegrationTest 
-	extends AbstractDependencyInjectionSpringContextTests {
+	extends AbstractDependencyInjectionSpringContextTests implements HierarchyBrowsingTests {
 
     private static Log log = LogFactory
             .getLog(AbstractOmeroHierarchyBrowserIntegrationTest.class);
@@ -103,7 +103,7 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
         this.setName(name);
     }
     
-    public AbstractOmeroHierarchyBrowserIntegrationTest init(){
+    public HierarchyBrowsingTests init(){
 		this.applicationContext = getContext(getConfigLocations());
 		this.applicationContext.getBeanFactory().autowireBeanProperties(
 		this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, isDependencyCheck());
@@ -114,147 +114,211 @@ public abstract class AbstractOmeroHierarchyBrowserIntegrationTest
         return this.applicationContext;
     }
     
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIHierarchyProjectNoReturn()
+	 */
     public void testLoadPDIHierarchyProjectNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadPDIHierarchyProject();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIHierarchyProject()
+	 */
     public Object testLoadPDIHierarchyProject() {
         return hb.loadPDIHierarchy(Project.class, data.prjId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIAnnotatedHierarchyProjectNoReturn()
+	 */
     public void testLoadPDIAnnotatedHierarchyProjectNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadPDIAnnotatedHierarchyProject();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIAnnotatedHierarchyProject()
+	 */
     public Object testLoadPDIAnnotatedHierarchyProject() {
         return hb.loadPDIAnnotatedHierarchy(Project.class, data.prjId, data.userId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIHierarchyDatasetNoReturn()
+	 */
     public void testLoadPDIHierarchyDatasetNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadPDIHierarchyDataset();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIHierarchyDataset()
+	 */
     public Object testLoadPDIHierarchyDataset() {
         return hb.loadPDIHierarchy(Dataset.class, data.dsId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIAnnotatedHierarchyDatasetNoReturn()
+	 */
     public void testLoadPDIAnnotatedHierarchyDatasetNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadPDIAnnotatedHierarchyDataset();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadPDIAnnotatedHierarchyDataset()
+	 */
     public Object testLoadPDIAnnotatedHierarchyDataset() {
         return hb.loadPDIAnnotatedHierarchy(Dataset.class, data.dsId, data.userId);
     }    
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIHierarchyCategoryGroupNoReturn()
+	 */
     public void testLoadCGCIHierarchyCategoryGroupNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadCGCIHierarchyCategoryGroup();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIHierarchyCategoryGroup()
+	 */
     public Object testLoadCGCIHierarchyCategoryGroup() {
         return hb.loadCGCIHierarchy(CategoryGroup.class,data.cgId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIAnnotatedHierarchyCategoryGroupNoReturn()
+	 */
     public void testLoadCGCIAnnotatedHierarchyCategoryGroupNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadCGCIAnnotatedHierarchyCategoryGroup();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIAnnotatedHierarchyCategoryGroup()
+	 */
     public Object testLoadCGCIAnnotatedHierarchyCategoryGroup() {
         return hb.loadCGCIAnnotatedHierarchy(CategoryGroup.class,data.cgId,data.userId);
     }    
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIHierarchyCategoryNoReturn()
+	 */
     public void testLoadCGCIHierarchyCategoryNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadCGCIHierarchyCategory();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIHierarchyCategory()
+	 */
     public Object testLoadCGCIHierarchyCategory() {
         return hb.loadCGCIHierarchy(Category.class,data.cId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIAnnotatedHierarchyCategoryNoReturn()
+	 */
     public void testLoadCGCIAnnotatedHierarchyCategoryNoReturn() throws Exception {
         super.setUp();
         Object obj = testLoadCGCIAnnotatedHierarchyCategory();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testLoadCGCIAnnotatedHierarchyCategory()
+	 */
     public Object testLoadCGCIAnnotatedHierarchyCategory() {
         return hb.loadCGCIAnnotatedHierarchy(Category.class,data.cId,data.userId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindCGCIHierarchiesNoReturn()
+	 */
     public void testFindCGCIHierarchiesNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindCGCIHierarchies(); 
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindCGCIHierarchies()
+	 */
     public Object testFindCGCIHierarchies() {
         return hb.findCGCIHierarchies(data.imgsCGCI);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindCGCPathsContainedNoReturn()
+	 */
     public void testFindCGCPathsContainedNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindCGCPathsContained(); 
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindCGCPathsContained()
+	 */
     public Object testFindCGCPathsContained() {
         return hb.findCGCPaths(data.imgsCGCI,true);
     }  
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindCGCPathsNotContainedNoReturn()
+	 */
     public void testFindCGCPathsNotContainedNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindCGCPathsNotContained(); 
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindCGCPathsNotContained()
+	 */
     public Object testFindCGCPathsNotContained() {
         return hb.findCGCPaths(data.imgsCGCI,false);
     }    
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindPDIHierarchiesNoReturn()
+	 */
     public void testFindPDIHierarchiesNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindPDIHierarchies();
     }    
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindPDIHierarchies()
+	 */
     public Object testFindPDIHierarchies() {
         return hb.findPDIHierarchies(data.imgsPDI);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindImageAnnotationsSetNoReturn()
+	 */
     public void testFindImageAnnotationsSetNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindImageAnnotationsSet();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindImageAnnotationsSet()
+	 */
     public Object testFindImageAnnotationsSet() {
         return hb.findImageAnnotations(data.imgsAnn1);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindImageAnnotationsSetForExperimenterNoReturn()
+	 */
     public void testFindImageAnnotationsSetForExperimenterNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindImageAnnotationsSetForExperimenter();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindImageAnnotationsSetForExperimenter()
+	 */
     public Object testFindImageAnnotationsSetForExperimenter() {
         return hb.findImageAnnotationsForExperimenter(data.imgsAnn2, data.userId);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindDatasetAnnotationsSetNoReturn()
+	 */
     public void testFindDatasetAnnotationsSetNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindDatasetAnnotationsSet();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindDatasetAnnotationsSet()
+	 */
     public Object testFindDatasetAnnotationsSet() {
         return hb.findDatasetAnnotations(data.dsAnn1);
     }
-    /**
-     * @throws Exception*********************************/
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindDatasetAnnotationsSetForExperimenterNoReturn()
+	 */
     public void testFindDatasetAnnotationsSetForExperimenterNoReturn() throws Exception {
         super.setUp();
         Object obj = testFindDatasetAnnotationsSetForExperimenter();
     }
+    /* (non-Javadoc)
+	 * @see org.openmicroscopy.omero.tests.HierarchyBrowsingTests#testFindDatasetAnnotationsSetForExperimenter()
+	 */
     public Object testFindDatasetAnnotationsSetForExperimenter() {
         return hb.findDatasetAnnotationsForExperimenter(data.dsAnn2, data.userId);
     }

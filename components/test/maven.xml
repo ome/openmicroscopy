@@ -11,7 +11,7 @@
 	       update="true"/>  
   </postGoal>
 
- <goal name="grinder" prereqs="init,jar">
+ <goal name="grinder" prereqs="java:prepare-filesystem,init,jar">
    <ant:mkdir dir="log"/>
    <ant:java 
 	classname="net.grinder.Grinder" 

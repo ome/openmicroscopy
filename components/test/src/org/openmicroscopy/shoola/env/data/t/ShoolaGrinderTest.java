@@ -45,6 +45,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.openmicroscopy.omero.tests.HierarchyBrowsingTests;
 import org.openmicroscopy.omero.tests.OMEData;
 import org.openmicroscopy.omero.tests.OMEPerformanceData;
 
@@ -89,6 +90,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class ShoolaGrinderTest
     extends DataServicesTestCase
+    implements HierarchyBrowsingTests
 {
     private static Log log = LogFactory.getLog(ShoolaGrinderTest.class);
     
@@ -127,18 +129,51 @@ public class ShoolaGrinderTest
     }
     public Object testLoadPDIHierarchyProject()
     {
-        setUp();
-        hbw.loadHierarchy(ProjectSummary.class, data.prjId , observer);
-        return observer.result;
+    	try {
+    		setUp();
+    		return dms.retrieveProjectTree(data.prjId,false);
+    	} catch (Throwable t){
+    		throw new RuntimeException(t);
+    	}
+
     }
     /***********************************/
     public void testLoadPDIHierarchyDatasetNoReturn() {
         Object obj = testLoadPDIHierarchyDataset();
     }
     public Object testLoadPDIHierarchyDataset(){
-        setUp();
-        hbw.loadHierarchy(DatasetSummaryLinked.class, data.dsId, observer);
-        return observer.result;
+    	try {
+    		setUp();
+    		return dms.retrieveDatasetTree(data.dsId,false);
+    	} catch (Throwable t){
+    		throw new RuntimeException(t);
+    	}
+    }
+    /***********************************/
+    public void testLoadPDIAnnotatedHierarchyProjectNoReturn() {
+        Object obj = testLoadPDIAnnotatedHierarchyProject();
+    }
+    public Object testLoadPDIAnnotatedHierarchyProject()
+    {	
+    	try {
+    		setUp();
+    		return dms.retrieveProjectTree(data.prjId,true);
+    	} catch (Throwable t){
+    		throw new RuntimeException(t);
+    	}
+    }
+    /***********************************/
+    public void testLoadPDIAnnotatedHierarchyDatasetNoReturn() {
+        Object obj = testLoadPDIAnnotatedHierarchyDataset();
+    }
+    public Object testLoadPDIAnnotatedHierarchyDataset(){
+    	try {
+    		setUp();
+    		return dms.retrieveDatasetTree(data.dsId,true);
+    	} catch (Throwable t){
+    		throw new RuntimeException(t);
+    	}
+
     }
     /***********************************/
     public void testLoadCGCIHierarchyCategoryGroupNoReturn() {
@@ -170,6 +205,33 @@ public class ShoolaGrinderTest
         }    
      }
     /***********************************/
+    public void testLoadCGCIAnnotatedHierarchyCategoryGroupNoReturn() {
+        Object obj = testLoadCGCIAnnotatedHierarchyCategoryGroup();
+    }
+    public Object testLoadCGCIAnnotatedHierarchyCategoryGroup(){
+        setUp();
+        try {
+            Object rootNode = sts.retrieveCategoryGroupTree(data.cgId, -1, true);
+            if (rootNode==null) throw new RuntimeException("null in loadcgci-cg-annotated");
+            return rootNode;
+        } catch (Exception e){
+            throw new RuntimeException(e	);
+        }        
+    }
+    /***********************************/
+    public void testLoadCGCIAnnotatedHierarchyCategoryNoReturn() {
+        Object obj = testLoadCGCIAnnotatedHierarchyCategory();
+    }
+    public Object testLoadCGCIAnnotatedHierarchyCategory(){
+        setUp();
+        try {
+            Object rootNode = sts.retrieveCategoryTree(data.cId, -1, true);
+            if (rootNode==null) throw new RuntimeException("null in loadcgci-c-annotated");
+            return rootNode;
+        } catch (Exception e){
+            throw new RuntimeException(e	);
+        }         }
+    /***********************************/
     public void testFindCGCIHierarchiesNoReturn() {
         Object obj = testFindCGCIHierarchies(); 
     }
@@ -189,21 +251,46 @@ public class ShoolaGrinderTest
         hbw.findPDIHierarchies(images, observer);
         return observer.result;
     }
+    /***********************************/
+	public void testFindCGCPathsContainedNoReturn() throws Exception {
+		// TODO Auto-generated method stub
+		//
+		throw new RuntimeException("Not implemented yet.");
+	}
 
-    /**
-     * @throws DSAccessException
-     * @throws DSOutOfServiceException*********************************/
-    public void testFindImageAnnotationsSetNoReturn() throws DSOutOfServiceException, DSAccessException {
+	public Object testFindCGCPathsContained() {
+		// TODO Auto-generated method stub
+		//return null;
+		throw new RuntimeException("Not implemented yet.");
+	}
+    /***********************************/
+	public void testFindCGCPathsNotContainedNoReturn() throws Exception {
+		// TODO Auto-generated method stub
+		//
+		throw new RuntimeException("Not implemented yet.");
+	}
+
+	public Object testFindCGCPathsNotContained() {
+		// TODO Auto-generated method stub
+		//return null;
+		throw new RuntimeException("Not implemented yet.");
+	}
+    /***********************************/
+    public void testFindImageAnnotationsSetNoReturn() {
         Object obj = testFindImageAnnotationsSet();
     }
-    public Object testFindImageAnnotationsSet() throws DSOutOfServiceException, DSAccessException{
-        setUp();
+    public Object testFindImageAnnotationsSet() {
+        try {
+    	setUp();
         Map result = new HashMap();
         for (Iterator iter = data.imgsAnn1.iterator(); iter.hasNext();) {
             Integer i = (Integer) iter.next();
             result.put(i,sts.getImageAnnotations(i.intValue()));
         }
         return result;
+        } catch (Throwable t){
+        	throw new RuntimeException(t);
+        }
     }
     /***********************************/
     public void testFindImageAnnotationsSetForExperimenterNoReturn() {
@@ -219,20 +306,22 @@ public class ShoolaGrinderTest
             throw new RuntimeException("Error getting Image annotations", e);
         }
     }
-    /**
-     * @throws DSAccessException
-     * @throws DSOutOfServiceException*********************************/
-    public void testFindDatasetAnnotationsSetNoReturn() throws DSOutOfServiceException, DSAccessException {
+    /***********************************/
+    public void testFindDatasetAnnotationsSetNoReturn() {
         Object obj = testFindDatasetAnnotationsSet();
     }
-    public Object testFindDatasetAnnotationsSet() throws DSOutOfServiceException, DSAccessException{
-        setUp();
+    public Object testFindDatasetAnnotationsSet() {
+        try {
+    	setUp();
         Map result = new HashMap();
         for (Iterator iter = data.imgsAnn1.iterator(); iter.hasNext();) {
             Integer i = (Integer) iter.next();
             result.put(i,sts.getDatasetAnnotations(i.intValue()));
         }
         return result;
+        } catch (Throwable t){
+        	throw new RuntimeException(t);
+        }
         }
     /***********************************/
     public void testFindDatasetAnnotationsSetForExperimenterNoReturn() {

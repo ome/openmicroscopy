@@ -8,7 +8,7 @@ database.schema=public
 database.catalog=""
 database.driver=org.postgresql.Driver
 database.dialect=org.hibernate.dialect.PostgreSQLDialect
-database.show_sql=true
+database.show_sql=false
 
 ############################################
 # Tomcat manager connection
