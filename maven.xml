@@ -113,8 +113,8 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
        <ant:entry key="database.password" value="${database.password}"/>
        <ant:entry key="database.dialect" value="${database.dialect}"/>
        <ant:entry key="database.show_sql" value="${database.show_sql}"/>
-       <ant:entry key="server.host" value="localhost"/>
-       <ant:entry key="server.port" value="8080"/>
+       <ant:entry key="server.host" value="${server.host}"/>
+       <ant:entry key="server.port" value="${server.port}"/>
        <ant:entry key="local.path"  value="${maven.build.dest}"/>
        <ant:entry key="omeds.url"   value="${omeds.url}"/>
        <ant:entry key="omeds.user"  value="${omeds.user}"/>
@@ -164,7 +164,11 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
 <!-- ========================================================= -->
 
  <goal name="server" description="Prepares server" prereqs="build">
-    <!-- test for tomcat TODO -->
+    <j:set var="tomcatX" value="${maven.tomcat.username}X" />
+    <j:if test="${tomcatX == 'X'}" >
+      <attainGoal name="server-tomcat"/>
+    </j:if>
+<!-- TODO -->
     <ant:echo message="  "/>
     <ant:echo message=" =================================== "/>
     <ant:echo message=" Reload/Start your web container now "/>
