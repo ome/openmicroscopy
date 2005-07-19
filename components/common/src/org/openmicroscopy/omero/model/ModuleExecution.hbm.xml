@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="module_execution_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">module_execution_seq</param>
+        </generator>
     </id>
 
     <property
@@ -102,13 +104,13 @@
 
     <!-- Associations -->
   
-    <!-- bi-directional many-to-one association to Image -->
+    <!-- bi-directional many-to-one association to Module -->
     <many-to-one
-        name="image"
-        class="org.openmicroscopy.omero.model.Image"
+        name="module"
+        class="org.openmicroscopy.omero.model.Module"
         not-null="true"
     >
-        <column name="image_id" />
+        <column name="module_id" />
     </many-to-one>
     <!-- bi-directional many-to-one association to Dataset -->
     <many-to-one
@@ -118,14 +120,6 @@
     >
         <column name="dataset_id" />
     </many-to-one>
-    <!-- bi-directional many-to-one association to Group -->
-    <many-to-one
-        name="group"
-        class="org.openmicroscopy.omero.model.Group"
-        not-null="true"
-    >
-        <column name="group_id" />
-    </many-to-one>
     <!-- bi-directional many-to-one association to Experimenter -->
     <many-to-one
         name="experimenter"
@@ -133,6 +127,22 @@
         not-null="true"
     >
         <column name="experimenter_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="org.openmicroscopy.omero.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="org.openmicroscopy.omero.model.Group"
+        not-null="true"
+    >
+        <column name="group_id" />
     </many-to-one>
     <!-- bi-directional one-to-many association to Thumbnail -->
     <set
@@ -146,6 +156,20 @@
         </key>
         <one-to-many 
             class="org.openmicroscopy.omero.model.Thumbnail"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to SemanticTypeOutput -->
+    <set
+        name="semanticTypeOutputs"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="module_execution_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.SemanticTypeOutput"
         />
     </set>
     <!-- bi-directional one-to-many association to Classification -->
@@ -190,20 +214,6 @@
             class="org.openmicroscopy.omero.model.Category"
         />
     </set>
-    <!-- bi-directional one-to-many association to DisplayRoi -->
-    <set
-        name="displayRois"
-        lazy="true"
-        inverse="true"
-		cascade="all"
-    >
-        <key>
-            <column name="module_execution_id" />
-        </key>
-        <one-to-many 
-            class="org.openmicroscopy.omero.model.DisplayRoi"
-        />
-    </set>
     <!-- bi-directional one-to-many association to ImageInfo -->
     <set
         name="imageInfos"
@@ -218,9 +228,9 @@
             class="org.openmicroscopy.omero.model.ImageInfo"
         />
     </set>
-    <!-- bi-directional one-to-many association to ImagePlate -->
+    <!-- bi-directional one-to-many association to RenderingSetting -->
     <set
-        name="imagePlates"
+        name="renderingSettings"
         lazy="true"
         inverse="true"
 		cascade="all"
@@ -229,7 +239,21 @@
             <column name="module_execution_id" />
         </key>
         <one-to-many 
-            class="org.openmicroscopy.omero.model.ImagePlate"
+            class="org.openmicroscopy.omero.model.RenderingSetting"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to LogicalChannel -->
+    <set
+        name="logicalChannels"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="module_execution_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.LogicalChannel"
         />
     </set>
     <!-- bi-directional one-to-many association to ImagePixel -->
@@ -258,6 +282,20 @@
         </key>
         <one-to-many 
             class="org.openmicroscopy.omero.model.Group"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to AnalysisNodeExecution -->
+    <set
+        name="analysisNodeExecutions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="module_execution_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.AnalysisNodeExecution"
         />
     </set>
     <!-- bi-directional one-to-many association to Experimenter -->
@@ -342,20 +380,6 @@
         </key>
         <one-to-many 
             class="org.openmicroscopy.omero.model.ChannelComponent"
-        />
-    </set>
-    <!-- bi-directional one-to-many association to DisplayOption -->
-    <set
-        name="displayOptions"
-        lazy="true"
-        inverse="true"
-		cascade="all"
-    >
-        <key>
-            <column name="module_execution_id" />
-        </key>
-        <one-to-many 
-            class="org.openmicroscopy.omero.model.DisplayOption"
         />
     </set>
 

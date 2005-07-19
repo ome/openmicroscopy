@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="dataset_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">dataset_seq</param>
+        </generator>
     </id>
 
     <property
@@ -48,6 +50,34 @@
 
     <!-- Associations -->
   
+    <!-- bi-directional one-to-many association to AnalysisChainExecution -->
+    <set
+        name="analysisChainExecutions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.AnalysisChainExecution"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to OmeSession -->
+    <set
+        name="omeSessions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.OmeSession"
+        />
+    </set>
     <!-- bi-directional one-to-many association to ModuleExecution -->
     <set
         name="moduleExecutions"
@@ -76,14 +106,6 @@
             class="org.openmicroscopy.omero.model.DatasetAnnotation"
         />
     </set>
-    <!-- bi-directional many-to-one association to Group -->
-    <many-to-one
-        name="group"
-        class="org.openmicroscopy.omero.model.Group"
-        not-null="true"
-    >
-        <column name="group_id" />
-    </many-to-one>
     <!-- bi-directional many-to-one association to Experimenter -->
     <many-to-one
         name="experimenter"
@@ -92,22 +114,14 @@
     >
         <column name="owner_id" />
     </many-to-one>
-    <!-- bi-directional many-to-many association to Image -->
-    <set
-        name="images"
-        lazy="true"
-		cascade="all"
-        table="image_dataset_map"
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="org.openmicroscopy.omero.model.Group"
+        not-null="true"
     >
-        <key>
-            <column name="dataset_id" />
-        </key>
-        <many-to-many
-            class="org.openmicroscopy.omero.model.Image"
-        >
-            <column name="image_id" />
-        </many-to-many>
-    </set>
+        <column name="group_id" />
+    </many-to-one>
     <!-- bi-directional many-to-many association to Project -->
     <set
         name="projects"
@@ -122,6 +136,22 @@
             class="org.openmicroscopy.omero.model.Project"
         >
             <column name="project_id" />
+        </many-to-many>
+    </set>
+    <!-- bi-directional many-to-many association to Image -->
+    <set
+        name="images"
+        lazy="true"
+		cascade="all"
+        table="image_dataset_map"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <many-to-many
+            class="org.openmicroscopy.omero.model.Image"
+        >
+            <column name="image_id" />
         </many-to-many>
     </set>
 

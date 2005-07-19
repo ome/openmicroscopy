@@ -21,8 +21,8 @@ org.openmicroscopy.omero.OMEModel {
      private Integer attributeId;
      private String path;
      private String mimeType;
-     private Image image;
      private Repository repository;
+     private Image image;
      private ModuleExecution moduleExecution;
 
 
@@ -78,23 +78,23 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Image getImage() {
-        return this.image;
-    }
-    
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    /**
-     * 
-     */
     public Repository getRepository() {
         return this.repository;
     }
     
     public void setRepository(Repository repository) {
         this.repository = repository;
+    }
+
+    /**
+     * 
+     */
+    public Image getImage() {
+        return this.image;
+    }
+    
+    public void setImage(Image image) {
+        this.image = image;
     }
 
     /**

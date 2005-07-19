@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="org.openmicroscopy.omero.model.AnalysisChainNode" 
+    table="analysis_chain_nodes"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="analysisChainNodeId"
+        type="java.lang.Integer"
+        column="analysis_chain_node_id"
+    >
+        <generator class="sequence">
+            <param name="sequence">analysis_chain_nodes_seq</param>
+        </generator>
+    </id>
+
+    <property
+        name="newFeatureTag"
+        type="java.lang.String"
+        column="new_feature_tag"
+        length="128"
+    />
+    <property
+        name="iteratorTag"
+        type="java.lang.String"
+        column="iterator_tag"
+        length="128"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to AnalysisChain -->
+    <many-to-one
+        name="analysisChain"
+        class="org.openmicroscopy.omero.model.AnalysisChain"
+        not-null="true"
+    >
+        <column name="analysis_chain_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Module -->
+    <many-to-one
+        name="module"
+        class="org.openmicroscopy.omero.model.Module"
+        not-null="true"
+    >
+        <column name="module_id" />
+    </many-to-one>
+    <!-- bi-directional one-to-many association to AnalysisNodeExecution -->
+    <set
+        name="analysisNodeExecutions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="analysis_chain_node_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.AnalysisNodeExecution"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to AnalysisChainLink -->
+    <set
+        name="analysisChainLinksByToNode"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="to_node" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.AnalysisChainLink"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to AnalysisChainLink -->
+    <set
+        name="analysisChainLinksByFromNode"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="from_node" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.AnalysisChainLink"
+        />
+    </set>
+
+</class>
+</hibernate-mapping>

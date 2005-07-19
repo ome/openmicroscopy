@@ -62,7 +62,6 @@ public class ImagePixelUtils  extends BaseModelUtils {
     clean(o,new HashSet());
   }
 
-  //DONE Logging
   public void clean(Object o, Set done){
 
     // Enter each object-indexed clean only once
@@ -72,17 +71,6 @@ public class ImagePixelUtils  extends BaseModelUtils {
     done.add(o);
   
     ImagePixel self = (ImagePixel) o;
-    // Cleaning org.openmicroscopy.omero.model.Image::image field
-    if (null==self.getImage()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getImage())){
-      self.setImage(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set ImagePixel.image to null");
-         }
-    } else {
-      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
-    }
     // Cleaning org.openmicroscopy.omero.model.Repository::repository field
     if (null==self.getRepository()){
       // Do nothing
@@ -110,22 +98,6 @@ public class ImagePixelUtils  extends BaseModelUtils {
          (new org.openmicroscopy.omero.model.Image()).getUtils().clean(it.next(),done);
       }
     }
-	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ImagePixel.displayOptions)
-    // Cleaning java.util.Set::displayOptions set (Role: org.openmicroscopy.omero.model.ImagePixel.displayOptions)
-    if (null==self.getDisplayOptions()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getDisplayOptions())){
-      self.setDisplayOptions(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set ImagePixel.displayOptions to null");
-         }
-    } else {
-      for (Iterator it = self.getDisplayOptions().iterator(); it.hasNext();){
-      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.DisplayOption)
-      	 //org.openmicroscopy.omero.model.DisplayOption
-         (new org.openmicroscopy.omero.model.DisplayOption()).getUtils().clean(it.next(),done);
-      }
-    }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ImagePixel.channelComponents)
     // Cleaning java.util.Set::channelComponents set (Role: org.openmicroscopy.omero.model.ImagePixel.channelComponents)
     if (null==self.getChannelComponents()){
@@ -141,6 +113,17 @@ public class ImagePixelUtils  extends BaseModelUtils {
       	 //org.openmicroscopy.omero.model.ChannelComponent
          (new org.openmicroscopy.omero.model.ChannelComponent()).getUtils().clean(it.next(),done);
       }
+    }
+    // Cleaning org.openmicroscopy.omero.model.Image::image field
+    if (null==self.getImage()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getImage())){
+      self.setImage(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ImagePixel.image to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
     }
     // Cleaning org.openmicroscopy.omero.model.ModuleExecution::moduleExecution field
     if (null==self.getModuleExecution()){

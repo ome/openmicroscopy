@@ -27,11 +27,10 @@ org.openmicroscopy.omero.OMEModel {
      private Long imageServerId;
      private Integer sizeX;
      private Integer sizeC;
-     private Image image;
      private Repository repository;
      private Set images;
-     private Set displayOptions;
      private Set channelComponents;
+     private Image image;
      private ModuleExecution moduleExecution;
 
 
@@ -153,17 +152,6 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Image getImage() {
-        return this.image;
-    }
-    
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    /**
-     * 
-     */
     public Repository getRepository() {
         return this.repository;
     }
@@ -186,23 +174,23 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Set getDisplayOptions() {
-        return this.displayOptions;
-    }
-    
-    public void setDisplayOptions(Set displayOptions) {
-        this.displayOptions = displayOptions;
-    }
-
-    /**
-     * 
-     */
     public Set getChannelComponents() {
         return this.channelComponents;
     }
     
     public void setChannelComponents(Set channelComponents) {
         this.channelComponents = channelComponents;
+    }
+
+    /**
+     * 
+     */
+    public Image getImage() {
+        return this.image;
+    }
+    
+    public void setImage(Image image) {
+        this.image = image;
     }
 
     /**

@@ -62,7 +62,6 @@ public class ClassificationUtils  extends BaseModelUtils {
     clean(o,new HashSet());
   }
 
-  //DONE Logging
   public void clean(Object o, Set done){
 
     // Enter each object-indexed clean only once
@@ -72,17 +71,6 @@ public class ClassificationUtils  extends BaseModelUtils {
     done.add(o);
   
     Classification self = (Classification) o;
-    // Cleaning org.openmicroscopy.omero.model.Image::image field
-    if (null==self.getImage()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getImage())){
-      self.setImage(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set Classification.image to null");
-         }
-    } else {
-      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
-    }
     // Cleaning org.openmicroscopy.omero.model.Category::category field
     if (null==self.getCategory()){
       // Do nothing
@@ -93,6 +81,17 @@ public class ClassificationUtils  extends BaseModelUtils {
          }
     } else {
       (new org.openmicroscopy.omero.model.Category()).getUtils().clean(self.getCategory(),done);
+    }
+    // Cleaning org.openmicroscopy.omero.model.Image::image field
+    if (null==self.getImage()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getImage())){
+      self.setImage(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set Classification.image to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
     }
     // Cleaning org.openmicroscopy.omero.model.ModuleExecution::moduleExecution field
     if (null==self.getModuleExecution()){

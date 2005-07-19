@@ -107,19 +107,38 @@
 	<table name="image_annotations"/>
 	<table name="image_dimensions"/>
 	<table name="image_info"/>
-	<table name="image_plates"/>
 	<table name="channel_components"/>
-	<table name="display_options"/>
-	<table name="display_roi"/>
 	<table name="features"/>
 	<table name="thumbnails"/>
 	<table name="repositories"/>
+<!-- Thanks Jean-Marie -->
+	<!-- table name="image_plates"/ 
+	<table name="display_options"/>
+	<table name="display_roi"/-->
+	<table name="logical_channels"/>
+	<table name="rendering_settings"/>
+<!-- For Writes -->
+	<table name="semantic_type_outputs"/>
+	<table name="semantic_types"/>
+	<table name="semantic_elements"/>
+	<table name="modules"/>
+	<table name="ome_sessions"/>
+<!-- For Harry -->
+	<table name="analysis_chains"/>
+	<table name="analysis_chain_nodes"/>
+	<table name="analysis_chain_links"/>
+	<table name="analysis_chain_executions"/>
+	<table name="analysis_node_executions"/>
+	<table name="formal_inputs"/>
+	<table name="formal_outputs"/>
 
          <hibernate
             destination="${dest.dir}"
             package="${package}"
             genXDocletTags="${gen.xdoclet-tag}"
        	    standardCascade="${hibernate.cascade}"
+	    standardGeneratorScheme="sequence"
+	    standardGeneratorArg="this_seq_does_not_exist"
 	    javaTypeMapper="middlegen.plugins.hibernate.HibernateJavaTypeMapper"
 	    equalsHashcode="true"
 	 >

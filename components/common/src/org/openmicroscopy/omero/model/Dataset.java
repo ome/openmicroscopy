@@ -22,12 +22,14 @@ org.openmicroscopy.omero.OMEModel {
      private Boolean locked;
      private String name;
      private String description;
+     private Set analysisChainExecutions;
+     private Set omeSessions;
      private Set moduleExecutions;
      private Set datasetAnnotations;
-     private Group group;
      private Experimenter experimenter;
-     private Set images;
+     private Group group;
      private Set projects;
+     private Set images;
 
 
     // Constructors
@@ -93,6 +95,28 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
+    public Set getAnalysisChainExecutions() {
+        return this.analysisChainExecutions;
+    }
+    
+    public void setAnalysisChainExecutions(Set analysisChainExecutions) {
+        this.analysisChainExecutions = analysisChainExecutions;
+    }
+
+    /**
+     * 
+     */
+    public Set getOmeSessions() {
+        return this.omeSessions;
+    }
+    
+    public void setOmeSessions(Set omeSessions) {
+        this.omeSessions = omeSessions;
+    }
+
+    /**
+     * 
+     */
     public Set getModuleExecutions() {
         return this.moduleExecutions;
     }
@@ -115,17 +139,6 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Group getGroup() {
-        return this.group;
-    }
-    
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
-    /**
-     * 
-     */
     public Experimenter getExperimenter() {
         return this.experimenter;
     }
@@ -137,12 +150,12 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Set getImages() {
-        return this.images;
+    public Group getGroup() {
+        return this.group;
     }
     
-    public void setImages(Set images) {
-        this.images = images;
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     /**
@@ -154,6 +167,17 @@ org.openmicroscopy.omero.OMEModel {
     
     public void setProjects(Set projects) {
         this.projects = projects;
+    }
+
+    /**
+     * 
+     */
+    public Set getImages() {
+        return this.images;
+    }
+    
+    public void setImages(Set images) {
+        this.images = images;
     }
 
 

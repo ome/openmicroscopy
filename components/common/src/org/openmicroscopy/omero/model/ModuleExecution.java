@@ -31,26 +31,28 @@ org.openmicroscopy.omero.OMEModel {
      private Double attributeCreateTime;
      private String newFeatureTag;
      private Double totalTime;
-     private Image image;
+     private Module module;
      private Dataset dataset;
-     private Group group;
      private Experimenter experimenter;
+     private Image image;
+     private Group group;
      private Set thumbnails;
+     private Set semanticTypeOutputs;
      private Set classifications;
      private Set repositories;
      private Set categories;
-     private Set displayRois;
      private Set imageInfos;
-     private Set imagePlates;
+     private Set renderingSettings;
+     private Set logicalChannels;
      private Set imagePixels;
      private Set groups;
+     private Set analysisNodeExecutions;
      private Set experimenters;
      private Set categoryGroups;
      private Set imageAnnotations;
      private Set datasetAnnotations;
      private Set imageDimensions;
      private Set channelComponents;
-     private Set displayOptions;
 
 
     // Constructors
@@ -215,12 +217,12 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Image getImage() {
-        return this.image;
+    public Module getModule() {
+        return this.module;
     }
     
-    public void setImage(Image image) {
-        this.image = image;
+    public void setModule(Module module) {
+        this.module = module;
     }
 
     /**
@@ -237,17 +239,6 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Group getGroup() {
-        return this.group;
-    }
-    
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
-    /**
-     * 
-     */
     public Experimenter getExperimenter() {
         return this.experimenter;
     }
@@ -259,12 +250,45 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
+    public Image getImage() {
+        return this.image;
+    }
+    
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    /**
+     * 
+     */
+    public Group getGroup() {
+        return this.group;
+    }
+    
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    /**
+     * 
+     */
     public Set getThumbnails() {
         return this.thumbnails;
     }
     
     public void setThumbnails(Set thumbnails) {
         this.thumbnails = thumbnails;
+    }
+
+    /**
+     * 
+     */
+    public Set getSemanticTypeOutputs() {
+        return this.semanticTypeOutputs;
+    }
+    
+    public void setSemanticTypeOutputs(Set semanticTypeOutputs) {
+        this.semanticTypeOutputs = semanticTypeOutputs;
     }
 
     /**
@@ -303,17 +327,6 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Set getDisplayRois() {
-        return this.displayRois;
-    }
-    
-    public void setDisplayRois(Set displayRois) {
-        this.displayRois = displayRois;
-    }
-
-    /**
-     * 
-     */
     public Set getImageInfos() {
         return this.imageInfos;
     }
@@ -325,12 +338,23 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Set getImagePlates() {
-        return this.imagePlates;
+    public Set getRenderingSettings() {
+        return this.renderingSettings;
     }
     
-    public void setImagePlates(Set imagePlates) {
-        this.imagePlates = imagePlates;
+    public void setRenderingSettings(Set renderingSettings) {
+        this.renderingSettings = renderingSettings;
+    }
+
+    /**
+     * 
+     */
+    public Set getLogicalChannels() {
+        return this.logicalChannels;
+    }
+    
+    public void setLogicalChannels(Set logicalChannels) {
+        this.logicalChannels = logicalChannels;
     }
 
     /**
@@ -353,6 +377,17 @@ org.openmicroscopy.omero.OMEModel {
     
     public void setGroups(Set groups) {
         this.groups = groups;
+    }
+
+    /**
+     * 
+     */
+    public Set getAnalysisNodeExecutions() {
+        return this.analysisNodeExecutions;
+    }
+    
+    public void setAnalysisNodeExecutions(Set analysisNodeExecutions) {
+        this.analysisNodeExecutions = analysisNodeExecutions;
     }
 
     /**
@@ -419,17 +454,6 @@ org.openmicroscopy.omero.OMEModel {
     
     public void setChannelComponents(Set channelComponents) {
         this.channelComponents = channelComponents;
-    }
-
-    /**
-     * 
-     */
-    public Set getDisplayOptions() {
-        return this.displayOptions;
-    }
-    
-    public void setDisplayOptions(Set displayOptions) {
-        this.displayOptions = displayOptions;
     }
 
 

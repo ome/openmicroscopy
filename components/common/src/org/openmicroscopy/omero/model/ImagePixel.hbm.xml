@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="attribute_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">attribute_seq</param>
+        </generator>
     </id>
 
     <property
@@ -76,14 +78,6 @@
 
     <!-- Associations -->
   
-    <!-- bi-directional many-to-one association to Image -->
-    <many-to-one
-        name="image"
-        class="org.openmicroscopy.omero.model.Image"
-        not-null="true"
-    >
-        <column name="image_id" />
-    </many-to-one>
     <!-- bi-directional many-to-one association to Repository -->
     <many-to-one
         name="repository"
@@ -106,20 +100,6 @@
             class="org.openmicroscopy.omero.model.Image"
         />
     </set>
-    <!-- bi-directional one-to-many association to DisplayOption -->
-    <set
-        name="displayOptions"
-        lazy="true"
-        inverse="true"
-		cascade="all"
-    >
-        <key>
-            <column name="pixels" />
-        </key>
-        <one-to-many 
-            class="org.openmicroscopy.omero.model.DisplayOption"
-        />
-    </set>
     <!-- bi-directional one-to-many association to ChannelComponent -->
     <set
         name="channelComponents"
@@ -134,6 +114,14 @@
             class="org.openmicroscopy.omero.model.ChannelComponent"
         />
     </set>
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="org.openmicroscopy.omero.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
+    </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one
         name="moduleExecution"

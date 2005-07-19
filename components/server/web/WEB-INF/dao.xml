@@ -55,6 +55,10 @@
 		class="org.openmicroscopy.omero.logic.ContainerDaoHibernate"
 		parent="dao"/>
 
+	<bean id="genericDao" 
+		class="org.openmicroscopy.omero.logic.GenericDaoHibernate"
+		parent="dao"/>
+	
 	<bean id="transactionManager" 
     	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 	    <property name="dataSource" ref="dataSource"/>
@@ -84,35 +88,52 @@
 
        <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
 	       <property name="cachedMappingResources">
-<!-- Originally:
+<!-- Originally: TODO switch to Spring version!
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="mappingResources">  
 -->
            <list>
-	       <value>org/openmicroscopy/omero/logic/queries.hbm.xml</value>
-	       <value>org/openmicroscopy/omero/model/Image.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Project.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Category.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/DisplayRoi.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/ImageInfo.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Dataset.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/ImagePlate.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/ImagePixel.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Group.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Experimenter.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Feature.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/CategoryGroup.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/ImageAnnotation.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/ImageDimension.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/DatasetAnnotation.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/DisplayOption.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/ChannelComponent.hbm.xml</value>
-               <value>org/openmicroscopy/omero/model/Thumbnail.hbm.xml</value>
-	       <value>org/openmicroscopy/omero/model/Classification.hbm.xml</value>
-	       <value>org/openmicroscopy/omero/model/ModuleExecution.hbm.xml</value>			   
-	       <value>org/openmicroscopy/omero/model/Repository.hbm.xml</value>
-           </list>
+	       		<value>org/openmicroscopy/omero/logic/queries.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChainExecution.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChain.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChainLink.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChainNode.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisNodeExecution.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/CategoryGroup.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Category.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ChannelComponent.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Classification.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/DatasetAnnotation.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Dataset.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Experimenter.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Feature.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/FormalInput.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/FormalOutput.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Group.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImageAnnotation.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImageDimension.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Image.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImageInfo.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImagePixel.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/LogicalChannel.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ModuleExecution.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Module.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/OmeSession.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Project.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/RenderingSetting.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Repository.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/SemanticElement.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/SemanticType.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/SemanticTypeOutput.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Thumbnail.hbm.xml</value>
+			</list>
        </property>
+<!-- TODO doesn't use cache!
+		          <property name="mappingDirectoryLocations">
+		   <list>
+			   <value>org/openmicroscopy/omero/model/</value>
+		   </list>
+	   </property>		   -->
        <property name="hibernateProperties">
            <props>
               <prop key="hibernate.dialect">${database.dialect}</prop>

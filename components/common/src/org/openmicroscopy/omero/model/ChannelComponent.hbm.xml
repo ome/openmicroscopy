@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="attribute_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">attribute_seq</param>
+        </generator>
     </id>
 
     <property
@@ -40,14 +42,6 @@
 
     <!-- Associations -->
   
-    <!-- bi-directional many-to-one association to Image -->
-    <many-to-one
-        name="image"
-        class="org.openmicroscopy.omero.model.Image"
-        not-null="true"
-    >
-        <column name="image_id" />
-    </many-to-one>
     <!-- bi-directional many-to-one association to ImagePixel -->
     <many-to-one
         name="imagePixel"
@@ -55,6 +49,22 @@
         not-null="true"
     >
         <column name="pixels_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to LogicalChannel -->
+    <many-to-one
+        name="logicalChannel"
+        class="org.openmicroscopy.omero.model.LogicalChannel"
+        not-null="true"
+    >
+        <column name="logical_channel" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="org.openmicroscopy.omero.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

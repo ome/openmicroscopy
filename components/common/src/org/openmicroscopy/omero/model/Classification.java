@@ -21,8 +21,8 @@ org.openmicroscopy.omero.OMEModel {
      private Integer attributeId;
      private Float confidence;
      private Boolean valid;
-     private Image image;
      private Category category;
+     private Image image;
      private ModuleExecution moduleExecution;
 
 
@@ -78,23 +78,23 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Image getImage() {
-        return this.image;
-    }
-    
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    /**
-     * 
-     */
     public Category getCategory() {
         return this.category;
     }
     
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    /**
+     * 
+     */
+    public Image getImage() {
+        return this.image;
+    }
+    
+    public void setImage(Image image) {
+        this.image = image;
     }
 
     /**

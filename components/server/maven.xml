@@ -11,13 +11,13 @@
 -->
 
  <!-- GENERATE VELOCITY CODE -->
- <goal name="texen" prereqs="create-classpath">
+ <goal name="texen" prereqs="create-classpath,java:jar-resources">
     <ant:property name="outputDir"
 	location="${basedir}/gen-src/texen/org/openmicroscopy/omero/dao/utils"/>
     <ant:property name="tmplDir"   location="${basedir}/src"/>
     <ant:exec dir="${basedir}" executable="ant" failonerror="true">
       <ant:env key="CLASSPATH"
-	value="${my.classpath}:${maven.build.dest}"/>
+	value="${maven.build.dest}:${basedir}/test:${my.classpath}"/>
       <ant:arg value="-DtmplDir=${tmplDir}"/>
       <ant:arg value="-DoutputDir=${outputDir}"/>
       <ant:arg value="-f"/>

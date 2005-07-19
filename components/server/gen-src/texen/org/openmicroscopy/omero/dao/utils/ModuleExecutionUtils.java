@@ -62,7 +62,6 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
     clean(o,new HashSet());
   }
 
-  //DONE Logging
   public void clean(Object o, Set done){
 
     // Enter each object-indexed clean only once
@@ -72,16 +71,16 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
     done.add(o);
   
     ModuleExecution self = (ModuleExecution) o;
-    // Cleaning org.openmicroscopy.omero.model.Image::image field
-    if (null==self.getImage()){
+    // Cleaning org.openmicroscopy.omero.model.Module::module field
+    if (null==self.getModule()){
       // Do nothing
-    } else if (!Hibernate.isInitialized(self.getImage())){
-      self.setImage(null);
+    } else if (!Hibernate.isInitialized(self.getModule())){
+      self.setModule(null);
          if (log.isDebugEnabled()){
-             log.debug("Set ModuleExecution.image to null");
+             log.debug("Set ModuleExecution.module to null");
          }
     } else {
-      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
+      (new org.openmicroscopy.omero.model.Module()).getUtils().clean(self.getModule(),done);
     }
     // Cleaning org.openmicroscopy.omero.model.Dataset::dataset field
     if (null==self.getDataset()){
@@ -94,17 +93,6 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
     } else {
       (new org.openmicroscopy.omero.model.Dataset()).getUtils().clean(self.getDataset(),done);
     }
-    // Cleaning org.openmicroscopy.omero.model.Group::group field
-    if (null==self.getGroup()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getGroup())){
-      self.setGroup(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set ModuleExecution.group to null");
-         }
-    } else {
-      (new org.openmicroscopy.omero.model.Group()).getUtils().clean(self.getGroup(),done);
-    }
     // Cleaning org.openmicroscopy.omero.model.Experimenter::experimenter field
     if (null==self.getExperimenter()){
       // Do nothing
@@ -115,6 +103,28 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
          }
     } else {
       (new org.openmicroscopy.omero.model.Experimenter()).getUtils().clean(self.getExperimenter(),done);
+    }
+    // Cleaning org.openmicroscopy.omero.model.Image::image field
+    if (null==self.getImage()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getImage())){
+      self.setImage(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ModuleExecution.image to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
+    }
+    // Cleaning org.openmicroscopy.omero.model.Group::group field
+    if (null==self.getGroup()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getGroup())){
+      self.setGroup(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ModuleExecution.group to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.Group()).getUtils().clean(self.getGroup(),done);
     }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.thumbnails)
     // Cleaning java.util.Set::thumbnails set (Role: org.openmicroscopy.omero.model.ModuleExecution.thumbnails)
@@ -130,6 +140,22 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
       	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.Thumbnail)
       	 //org.openmicroscopy.omero.model.Thumbnail
          (new org.openmicroscopy.omero.model.Thumbnail()).getUtils().clean(it.next(),done);
+      }
+    }
+	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.semanticTypeOutputs)
+    // Cleaning java.util.Set::semanticTypeOutputs set (Role: org.openmicroscopy.omero.model.ModuleExecution.semanticTypeOutputs)
+    if (null==self.getSemanticTypeOutputs()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getSemanticTypeOutputs())){
+      self.setSemanticTypeOutputs(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ModuleExecution.semanticTypeOutputs to null");
+         }
+    } else {
+      for (Iterator it = self.getSemanticTypeOutputs().iterator(); it.hasNext();){
+      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.SemanticTypeOutput)
+      	 //org.openmicroscopy.omero.model.SemanticTypeOutput
+         (new org.openmicroscopy.omero.model.SemanticTypeOutput()).getUtils().clean(it.next(),done);
       }
     }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.classifications)
@@ -180,22 +206,6 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
          (new org.openmicroscopy.omero.model.Category()).getUtils().clean(it.next(),done);
       }
     }
-	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.displayRois)
-    // Cleaning java.util.Set::displayRois set (Role: org.openmicroscopy.omero.model.ModuleExecution.displayRois)
-    if (null==self.getDisplayRois()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getDisplayRois())){
-      self.setDisplayRois(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set ModuleExecution.displayRois to null");
-         }
-    } else {
-      for (Iterator it = self.getDisplayRois().iterator(); it.hasNext();){
-      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.DisplayRoi)
-      	 //org.openmicroscopy.omero.model.DisplayRoi
-         (new org.openmicroscopy.omero.model.DisplayRoi()).getUtils().clean(it.next(),done);
-      }
-    }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.imageInfos)
     // Cleaning java.util.Set::imageInfos set (Role: org.openmicroscopy.omero.model.ModuleExecution.imageInfos)
     if (null==self.getImageInfos()){
@@ -212,20 +222,36 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
          (new org.openmicroscopy.omero.model.ImageInfo()).getUtils().clean(it.next(),done);
       }
     }
-	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.imagePlates)
-    // Cleaning java.util.Set::imagePlates set (Role: org.openmicroscopy.omero.model.ModuleExecution.imagePlates)
-    if (null==self.getImagePlates()){
+	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.renderingSettings)
+    // Cleaning java.util.Set::renderingSettings set (Role: org.openmicroscopy.omero.model.ModuleExecution.renderingSettings)
+    if (null==self.getRenderingSettings()){
       // Do nothing
-    } else if (!Hibernate.isInitialized(self.getImagePlates())){
-      self.setImagePlates(null);
+    } else if (!Hibernate.isInitialized(self.getRenderingSettings())){
+      self.setRenderingSettings(null);
          if (log.isDebugEnabled()){
-             log.debug("Set ModuleExecution.imagePlates to null");
+             log.debug("Set ModuleExecution.renderingSettings to null");
          }
     } else {
-      for (Iterator it = self.getImagePlates().iterator(); it.hasNext();){
-      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.ImagePlate)
-      	 //org.openmicroscopy.omero.model.ImagePlate
-         (new org.openmicroscopy.omero.model.ImagePlate()).getUtils().clean(it.next(),done);
+      for (Iterator it = self.getRenderingSettings().iterator(); it.hasNext();){
+      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.RenderingSetting)
+      	 //org.openmicroscopy.omero.model.RenderingSetting
+         (new org.openmicroscopy.omero.model.RenderingSetting()).getUtils().clean(it.next(),done);
+      }
+    }
+	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.logicalChannels)
+    // Cleaning java.util.Set::logicalChannels set (Role: org.openmicroscopy.omero.model.ModuleExecution.logicalChannels)
+    if (null==self.getLogicalChannels()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getLogicalChannels())){
+      self.setLogicalChannels(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ModuleExecution.logicalChannels to null");
+         }
+    } else {
+      for (Iterator it = self.getLogicalChannels().iterator(); it.hasNext();){
+      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.LogicalChannel)
+      	 //org.openmicroscopy.omero.model.LogicalChannel
+         (new org.openmicroscopy.omero.model.LogicalChannel()).getUtils().clean(it.next(),done);
       }
     }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.imagePixels)
@@ -258,6 +284,22 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
       	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.Group)
       	 //org.openmicroscopy.omero.model.Group
          (new org.openmicroscopy.omero.model.Group()).getUtils().clean(it.next(),done);
+      }
+    }
+	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.analysisNodeExecutions)
+    // Cleaning java.util.Set::analysisNodeExecutions set (Role: org.openmicroscopy.omero.model.ModuleExecution.analysisNodeExecutions)
+    if (null==self.getAnalysisNodeExecutions()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getAnalysisNodeExecutions())){
+      self.setAnalysisNodeExecutions(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ModuleExecution.analysisNodeExecutions to null");
+         }
+    } else {
+      for (Iterator it = self.getAnalysisNodeExecutions().iterator(); it.hasNext();){
+      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.AnalysisNodeExecution)
+      	 //org.openmicroscopy.omero.model.AnalysisNodeExecution
+         (new org.openmicroscopy.omero.model.AnalysisNodeExecution()).getUtils().clean(it.next(),done);
       }
     }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.experimenters)
@@ -354,22 +396,6 @@ public class ModuleExecutionUtils  extends BaseModelUtils {
       	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.ChannelComponent)
       	 //org.openmicroscopy.omero.model.ChannelComponent
          (new org.openmicroscopy.omero.model.ChannelComponent()).getUtils().clean(it.next(),done);
-      }
-    }
-	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.ModuleExecution.displayOptions)
-    // Cleaning java.util.Set::displayOptions set (Role: org.openmicroscopy.omero.model.ModuleExecution.displayOptions)
-    if (null==self.getDisplayOptions()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getDisplayOptions())){
-      self.setDisplayOptions(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set ModuleExecution.displayOptions to null");
-         }
-    } else {
-      for (Iterator it = self.getDisplayOptions().iterator(); it.hasNext();){
-      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.DisplayOption)
-      	 //org.openmicroscopy.omero.model.DisplayOption
-         (new org.openmicroscopy.omero.model.DisplayOption()).getUtils().clean(it.next(),done);
       }
     }
   }

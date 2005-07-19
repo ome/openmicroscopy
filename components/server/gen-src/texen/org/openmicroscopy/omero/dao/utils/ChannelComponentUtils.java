@@ -62,7 +62,6 @@ public class ChannelComponentUtils  extends BaseModelUtils {
     clean(o,new HashSet());
   }
 
-  //DONE Logging
   public void clean(Object o, Set done){
 
     // Enter each object-indexed clean only once
@@ -72,17 +71,6 @@ public class ChannelComponentUtils  extends BaseModelUtils {
     done.add(o);
   
     ChannelComponent self = (ChannelComponent) o;
-    // Cleaning org.openmicroscopy.omero.model.Image::image field
-    if (null==self.getImage()){
-      // Do nothing
-    } else if (!Hibernate.isInitialized(self.getImage())){
-      self.setImage(null);
-         if (log.isDebugEnabled()){
-             log.debug("Set ChannelComponent.image to null");
-         }
-    } else {
-      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
-    }
     // Cleaning org.openmicroscopy.omero.model.ImagePixel::imagePixel field
     if (null==self.getImagePixel()){
       // Do nothing
@@ -93,6 +81,28 @@ public class ChannelComponentUtils  extends BaseModelUtils {
          }
     } else {
       (new org.openmicroscopy.omero.model.ImagePixel()).getUtils().clean(self.getImagePixel(),done);
+    }
+    // Cleaning org.openmicroscopy.omero.model.LogicalChannel::logicalChannel field
+    if (null==self.getLogicalChannel()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getLogicalChannel())){
+      self.setLogicalChannel(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ChannelComponent.logicalChannel to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.LogicalChannel()).getUtils().clean(self.getLogicalChannel(),done);
+    }
+    // Cleaning org.openmicroscopy.omero.model.Image::image field
+    if (null==self.getImage()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getImage())){
+      self.setImage(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set ChannelComponent.image to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.Image()).getUtils().clean(self.getImage(),done);
     }
     // Cleaning org.openmicroscopy.omero.model.ModuleExecution::moduleExecution field
     if (null==self.getModuleExecution()){

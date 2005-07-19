@@ -26,13 +26,17 @@ org.openmicroscopy.omero.OMEModel {
      private String dataDir;
      private String lastname;
      private String institution;
-     private Group group;
+     private Set renderingSettings;
      private Set datasets;
      private Set groupsByLeader;
      private Set groupsByContact;
+     private Set analysisChains;
      private Set images;
+     private Set analysisChainExecutions;
      private Set projects;
+     private Set omeSessions;
      private Set moduleExecutions;
+     private Group group;
      private ModuleExecution moduleExecution;
      private Set groups;
 
@@ -144,12 +148,12 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Group getGroup() {
-        return this.group;
+    public Set getRenderingSettings() {
+        return this.renderingSettings;
     }
     
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setRenderingSettings(Set renderingSettings) {
+        this.renderingSettings = renderingSettings;
     }
 
     /**
@@ -188,12 +192,34 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
+    public Set getAnalysisChains() {
+        return this.analysisChains;
+    }
+    
+    public void setAnalysisChains(Set analysisChains) {
+        this.analysisChains = analysisChains;
+    }
+
+    /**
+     * 
+     */
     public Set getImages() {
         return this.images;
     }
     
     public void setImages(Set images) {
         this.images = images;
+    }
+
+    /**
+     * 
+     */
+    public Set getAnalysisChainExecutions() {
+        return this.analysisChainExecutions;
+    }
+    
+    public void setAnalysisChainExecutions(Set analysisChainExecutions) {
+        this.analysisChainExecutions = analysisChainExecutions;
     }
 
     /**
@@ -210,12 +236,34 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
+    public Set getOmeSessions() {
+        return this.omeSessions;
+    }
+    
+    public void setOmeSessions(Set omeSessions) {
+        this.omeSessions = omeSessions;
+    }
+
+    /**
+     * 
+     */
     public Set getModuleExecutions() {
         return this.moduleExecutions;
     }
     
     public void setModuleExecutions(Set moduleExecutions) {
         this.moduleExecutions = moduleExecutions;
+    }
+
+    /**
+     * 
+     */
+    public Group getGroup() {
+        return this.group;
+    }
+    
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     /**

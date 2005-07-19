@@ -12,41 +12,39 @@
 -->
 
 <class 
-    name="org.openmicroscopy.omero.model.ImagePlate" 
-    table="image_plates"
+    name="org.openmicroscopy.omero.model.AnalysisNodeExecution" 
+    table="analysis_node_executions"
 >
     <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
-        name="attributeId"
+        name="analysisNodeExecutionId"
         type="java.lang.Integer"
-        column="attribute_id"
+        column="analysis_node_execution_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">analysis_node_execution_seq</param>
+        </generator>
     </id>
 
-    <property
-        name="well"
-        type="java.lang.String"
-        column="well"
-        length="-1"
-    />
-    <property
-        name="sample"
-        type="java.lang.Integer"
-        column="sample"
-        length="4"
-    />
 
     <!-- Associations -->
   
-    <!-- bi-directional many-to-one association to Image -->
+    <!-- bi-directional many-to-one association to AnalysisChainExecution -->
     <many-to-one
-        name="image"
-        class="org.openmicroscopy.omero.model.Image"
+        name="analysisChainExecution"
+        class="org.openmicroscopy.omero.model.AnalysisChainExecution"
         not-null="true"
     >
-        <column name="image_id" />
+        <column name="analysis_chain_execution_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to AnalysisChainNode -->
+    <many-to-one
+        name="analysisChainNode"
+        class="org.openmicroscopy.omero.model.AnalysisChainNode"
+        not-null="true"
+    >
+        <column name="analysis_chain_node_id" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="attribute_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">attribute_seq</param>
+        </generator>
     </id>
 
     <property
@@ -40,14 +42,6 @@
 
     <!-- Associations -->
   
-    <!-- bi-directional many-to-one association to Image -->
-    <many-to-one
-        name="image"
-        class="org.openmicroscopy.omero.model.Image"
-        not-null="true"
-    >
-        <column name="image_id" />
-    </many-to-one>
     <!-- bi-directional many-to-one association to Repository -->
     <many-to-one
         name="repository"
@@ -55,6 +49,14 @@
         not-null="true"
     >
         <column name="repository" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="org.openmicroscopy.omero.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
     </many-to-one>
     <!-- bi-directional many-to-one association to ModuleExecution -->
     <many-to-one

@@ -62,7 +62,6 @@ public class ProjectUtils  extends BaseModelUtils {
     clean(o,new HashSet());
   }
 
-  //DONE Logging
   public void clean(Object o, Set done){
 
     // Enter each object-indexed clean only once
@@ -72,16 +71,21 @@ public class ProjectUtils  extends BaseModelUtils {
     done.add(o);
   
     Project self = (Project) o;
-    // Cleaning org.openmicroscopy.omero.model.Group::group field
-    if (null==self.getGroup()){
+	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.Project.omeSessions)
+    // Cleaning java.util.Set::omeSessions set (Role: org.openmicroscopy.omero.model.Project.omeSessions)
+    if (null==self.getOmeSessions()){
       // Do nothing
-    } else if (!Hibernate.isInitialized(self.getGroup())){
-      self.setGroup(null);
+    } else if (!Hibernate.isInitialized(self.getOmeSessions())){
+      self.setOmeSessions(null);
          if (log.isDebugEnabled()){
-             log.debug("Set Project.group to null");
+             log.debug("Set Project.omeSessions to null");
          }
     } else {
-      (new org.openmicroscopy.omero.model.Group()).getUtils().clean(self.getGroup(),done);
+      for (Iterator it = self.getOmeSessions().iterator(); it.hasNext();){
+      	 //org.hibernate.type.ManyToOneType(org.openmicroscopy.omero.model.OmeSession)
+      	 //org.openmicroscopy.omero.model.OmeSession
+         (new org.openmicroscopy.omero.model.OmeSession()).getUtils().clean(it.next(),done);
+      }
     }
     // Cleaning org.openmicroscopy.omero.model.Experimenter::experimenter field
     if (null==self.getExperimenter()){
@@ -93,6 +97,17 @@ public class ProjectUtils  extends BaseModelUtils {
          }
     } else {
       (new org.openmicroscopy.omero.model.Experimenter()).getUtils().clean(self.getExperimenter(),done);
+    }
+    // Cleaning org.openmicroscopy.omero.model.Group::group field
+    if (null==self.getGroup()){
+      // Do nothing
+    } else if (!Hibernate.isInitialized(self.getGroup())){
+      self.setGroup(null);
+         if (log.isDebugEnabled()){
+             log.debug("Set Project.group to null");
+         }
+    } else {
+      (new org.openmicroscopy.omero.model.Group()).getUtils().clean(self.getGroup(),done);
     }
 	// Type: org.hibernate.type.SetType(org.openmicroscopy.omero.model.Project.datasets)
     // Cleaning java.util.Set::datasets set (Role: org.openmicroscopy.omero.model.Project.datasets)

@@ -22,8 +22,9 @@ org.openmicroscopy.omero.OMEModel {
      private String view;
      private String name;
      private String description;
-     private Group group;
+     private Set omeSessions;
      private Experimenter experimenter;
+     private Group group;
      private Set datasets;
 
 
@@ -90,12 +91,12 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Group getGroup() {
-        return this.group;
+    public Set getOmeSessions() {
+        return this.omeSessions;
     }
     
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setOmeSessions(Set omeSessions) {
+        this.omeSessions = omeSessions;
     }
 
     /**
@@ -107,6 +108,17 @@ org.openmicroscopy.omero.OMEModel {
     
     public void setExperimenter(Experimenter experimenter) {
         this.experimenter = experimenter;
+    }
+
+    /**
+     * 
+     */
+    public Group getGroup() {
+        return this.group;
+    }
+    
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     /**

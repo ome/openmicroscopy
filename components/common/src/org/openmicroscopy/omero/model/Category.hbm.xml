@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="attribute_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">attribute_seq</param>
+        </generator>
     </id>
 
     <property

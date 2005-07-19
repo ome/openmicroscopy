@@ -22,7 +22,9 @@
         type="java.lang.Integer"
         column="project_id"
     >
-        <generator class="assigned" />
+        <generator class="sequence">
+            <param name="sequence">project_seq</param>
+        </generator>
     </id>
 
     <property
@@ -47,14 +49,20 @@
 
     <!-- Associations -->
   
-    <!-- bi-directional many-to-one association to Group -->
-    <many-to-one
-        name="group"
-        class="org.openmicroscopy.omero.model.Group"
-        not-null="true"
+    <!-- bi-directional one-to-many association to OmeSession -->
+    <set
+        name="omeSessions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
     >
-        <column name="group_id" />
-    </many-to-one>
+        <key>
+            <column name="project_id" />
+        </key>
+        <one-to-many 
+            class="org.openmicroscopy.omero.model.OmeSession"
+        />
+    </set>
     <!-- bi-directional many-to-one association to Experimenter -->
     <many-to-one
         name="experimenter"
@@ -62,6 +70,14 @@
         not-null="true"
     >
         <column name="owner_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="org.openmicroscopy.omero.model.Group"
+        not-null="true"
+    >
+        <column name="group_id" />
     </many-to-one>
     <!-- bi-directional many-to-many association to Dataset -->
     <set

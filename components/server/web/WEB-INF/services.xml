@@ -88,4 +88,9 @@
 		<property name="containerDao" ref="containerDao"/>
 	</bean>		
 
+	<bean id="writeService" class="org.openmicroscopy.omero.logic.WriteImpl">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="genericDao" ref="genericDao"/>		
+	</bean>		
+	
 </beans>

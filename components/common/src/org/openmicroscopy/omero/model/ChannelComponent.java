@@ -21,8 +21,9 @@ org.openmicroscopy.omero.OMEModel {
      private Integer attributeId;
      private Integer index;
      private String colorDomain;
-     private Image image;
      private ImagePixel imagePixel;
+     private LogicalChannel logicalChannel;
+     private Image image;
      private ModuleExecution moduleExecution;
 
 
@@ -78,23 +79,34 @@ org.openmicroscopy.omero.OMEModel {
     /**
      * 
      */
-    public Image getImage() {
-        return this.image;
-    }
-    
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    /**
-     * 
-     */
     public ImagePixel getImagePixel() {
         return this.imagePixel;
     }
     
     public void setImagePixel(ImagePixel imagePixel) {
         this.imagePixel = imagePixel;
+    }
+
+    /**
+     * 
+     */
+    public LogicalChannel getLogicalChannel() {
+        return this.logicalChannel;
+    }
+    
+    public void setLogicalChannel(LogicalChannel logicalChannel) {
+        this.logicalChannel = logicalChannel;
+    }
+
+    /**
+     * 
+     */
+    public Image getImage() {
+        return this.image;
+    }
+    
+    public void setImage(Image image) {
+        this.image = image;
     }
 
     /**
