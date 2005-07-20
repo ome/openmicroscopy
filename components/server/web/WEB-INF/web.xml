@@ -58,10 +58,10 @@
     		/WEB-INF/services.xml 
     		/WEB-INF/dao.xml 			
     		/WEB-INF/data.xml 			
-<!--     		/WEB-INF/security.xml -->
+     		/WEB-INF/security.xml 
     	</param-value>
 	</context-param>
-<!--
+
    <filter>
         <filter-name>Acegi Filter Chain Proxy</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
@@ -75,7 +75,7 @@
       <filter-name>Acegi Filter Chain Proxy</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
--->
+
 	<listener>
     	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>

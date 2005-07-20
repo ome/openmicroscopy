@@ -54,6 +54,7 @@ public class WriteTest
         extends
             AbstractDependencyInjectionSpringContextTests  {
 
+	//TODO add transient to fields?
     private static Log log = LogFactory.getLog(WriteTest.class);
 
     Write w;

@@ -61,6 +61,15 @@
 	<bean id="hierarchyBrowsingFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/HierarchyBrowsing</value></property>
 	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.HierarchyBrowsing</value></property>
+		<property name="username" value="${omeds.user}"/>
+		<property name="password" value="${omeds.pass}"/>
 	</bean>
 
+	<bean id="writeFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/Write</value></property>
+	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.Write</value></property>
+		<property name="username" value="${omeds.user}"/>
+		<property name="password" value="${omeds.pass}"/>
+	</bean>
+		
 </beans>

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.util.Utils
+ * org.openmicroscopy.omero.security.AuthenticationDao
  *
  *------------------------------------------------------------------------------
  *
@@ -27,21 +27,27 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.omero.logic;
+package org.openmicroscopy.omero.security;
 
 //Java imports
 
 //Third-party libraries
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import java.util.List;
+
+import org.springframework.dao.DataAccessException;
+
+import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
+import net.sf.acegisecurity.providers.dao.PasswordAuthenticationDao;
+import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl;
 
 //Application-internal dependencies
 
 /** 
- * various tools needed throughout Omero. 
+ * TODO
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -51,25 +57,31 @@ import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * </small>
  * @since 1.0
  */
-public class Utils {
-    
-    public static void setUserAuth(){
-        Authentication auth = 
-            new UsernamePasswordAuthenticationToken(
-                "josh","jmoore1");
-        setAuth(auth);
-    }
-    
-    public static void setAdminAuth(){
-        Authentication auth = 
-            new UsernamePasswordAuthenticationToken(
-                "admin","secretx");
-        setAuth(auth);
-    }
-    
-    public static void setAuth(Authentication auth){
-        SecureContext secureContext = new SecureContextImpl();
-        secureContext.setAuthentication(auth);
-        ContextHolder.setContext(secureContext);
-    }
+
+public class AuthenticationDao extends JdbcDaoImpl implements
+		PasswordAuthenticationDao {
+
+	public UserDetails loadUserByUsernameAndPassword(String username, String password){
+        
+		UserDetails user = super.loadUserByUsername(username);
+
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+		if (null==password){
+			throw new BadCredentialsException("Password empty");
+        }
+		
+		String crypted = user.getPassword();
+		String recrypted = Crypt.crypt(crypted,password);
+
+		if (!recrypted.equals(crypted)) {
+        	throw new BadCredentialsException("Password invalid");
+        }
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        
+        return new User(user.getUsername(), user.getPassword(),
+            user.isEnabled(), true, true, true, user.getAuthorities());
+
+	}
+
+
 }

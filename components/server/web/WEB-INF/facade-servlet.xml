@@ -18,4 +18,9 @@
 	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.HierarchyBrowsing</value></property>
 	</bean>
 	
+	<bean name="/Write" class="org.springframework.remoting.caucho.HessianServiceExporter">
+	    <property name="service"><ref bean="writeService"/></property> 
+	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.Write</value></property>
+	</bean>
+	
 </beans>

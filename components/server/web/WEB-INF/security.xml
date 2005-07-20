@@ -50,12 +50,12 @@
 		<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
 <!--
 		<property name="runAsManager"><ref bean="runAsManager"/></property>
--->
 		<property name="afterInvocationManager"><ref bean="afterInvocationManager"/></property>
+-->
 		<property name="objectDefinitionSource">
 			<value>
-				org.openmicroscopy.interfaces.ImageService.retrieve*=ROLE_USER,LOOKUP
-				org.openmicroscopy.interfaces.ImageService.query*=ROLE_USER,QUERY
+				org.openmicroscopy.omero.interfaces.HierarchyBrowsing.*=ROLE_USER
+				org.openmicroscopy.omero.interfaces.Write.*=ROLE_ADMIN
 			</value>
 		</property>
 	</bean>
@@ -63,16 +63,29 @@
 	<bean id="memoryAuthenticationDao" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
 	    <property name="userMap">
 	        <value>
-	            Josh=Moore,ROLE_USER
-	            admin=admin,ROLE_USER,ROLE_ADMIN
+				josh=jmoore1,ROLE_USER
+	            admin=secretx,ROLE_USER,ROLE_ADMIN
 	        </value>
 	    </property>
 	</bean>
 
+    <bean id="jdbcAuthenticationDao" class="org.openmicroscopy.omero.security.AuthenticationDao">
+<!--class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">-->
+        <property name="dataSource" ref="dataSource"/>
+        <property name="usersByUsernameQuery">
+            <value>SELECT ome_name as username,password,'true' as enabled FROM experimenters WHERE ome_name = ?</value>
+        </property>
+        <property name="authoritiesByUsernameQuery">
+            <value>SELECT ome_name as username, 'ROLE_USER' as role_name FROM experimenters WHERE ome_name = ?</value>
+        </property>
+    </bean>
+	
     <!-- ============== ACCESS =========== -->
 
-	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
-<!--	<bean id="TODOVoter" class="org.openmicroscopy.XXX"> -->
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter">
+        <property name="rolePrefix" value="ROLE_"/>
+	</bean>
+	
 
 	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
 	    <property name="allowIfAllAbstainDecisions">
@@ -88,16 +101,16 @@
 
    <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
 
-<!--   <bean id="afterQueryFilter" class="org.openmicroscopy.TODO">-->
+<!--   <bean id="afterQueryFilter" class="org.openmicroscopy.TODO">
    
    <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
       <property name="providers">
          <list>
-<!--            <ref local="afterQueryFilter"/> -->
+            <ref local="afterQueryFilter"/> -
          </list>
       </property>
    </bean>
-
+-->
    <!-- ============== AUTHENTICATION =========== -->
    
 	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
@@ -110,9 +123,18 @@
 		<property name="realmName"><value>Name Of Your Realm</value></property>
 	</bean>
 
-	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
-	     <property name="authenticationDao">
-	         <ref local="memoryAuthenticationDao"/>
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.PasswordDaoAuthenticationProvider">
+<!--class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">-->
+		<!-- FIXME Add Password Encoder -->
+		<!-- TODO
+Event Publishing:
+The DaoAuthenticationProvider automatically obtains the ApplicationContext it is running in at startup time. This allows the provider to publish events through the standard Spring event framework. Three types of event messages are published:
+Who's on line? on AuthenticationSuccessEvent with JMS
+			TODO
+			1.6.8. Concurrent Session Support
+			-->
+	     <property name="passwordAuthenticationDao">
+	         <ref local="jdbcAuthenticationDao"/>
 	     </property>
 	</bean>
 	
@@ -146,4 +168,3 @@
    </bean>
 
 </beans>
-
