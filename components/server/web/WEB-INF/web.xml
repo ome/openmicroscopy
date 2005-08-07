@@ -49,7 +49,9 @@
 
 <web-app>
 
+    <!-- TODO
     @maven.tomcat.generated@
+    -->
 	
 	<context-param>
 	    <param-name>contextConfigLocation</param-name>

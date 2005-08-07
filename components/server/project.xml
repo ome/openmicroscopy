@@ -126,8 +126,9 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>omero</groupId>
-      <artifactId>antlr</artifactId>
+      <groupId>hibernate</groupId>
+      <artifactId>antlr</artifactId> 
+<!-- TODO switch to 2.7.6 when time comes -->
       <version>2.7.5H3</version>
       <type>jar</type>
       <properties>
@@ -144,14 +145,6 @@
       </properties>
     </dependency>
     <!-- OTHER -->
-    <dependency>
-      <groupId>velocity</groupId>
-      <artifactId>velocity</artifactId>
-      <version>1.4</version>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
@@ -296,6 +289,48 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+<!-- MIDDLEGEN REQUIREMENTS -->
+<!--<dependency>
+      <groupId>middlegen</groupId>
+      <artifactId>middlegen</artifactId>
+      <version>2.1</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>middlegen</groupId>
+      <artifactId>middlegen-hibernate-plugin</artifactId>
+      <version>2.1</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>hibernate</groupId>
+      <artifactId>hibernate-tools</artifactId>
+      <version>2.1.3</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>velocity-tools</groupId>
+      <artifactId>velocity-tools</artifactId>
+      <version>generic-1.1</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.4</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+-->
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

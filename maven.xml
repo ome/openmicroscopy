@@ -116,10 +116,17 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
        <ant:entry key="server.host" value="${server.host}"/>
        <ant:entry key="server.port" value="${server.port}"/>
        <ant:entry key="local.path"  value="${maven.build.dest}"/>
+       <!-- OME-JAVA Properties -->
        <ant:entry key="omeds.url"   value="${omeds.url}"/>
        <ant:entry key="omeds.user"  value="${omeds.user}"/>
        <ant:entry key="omeds.pass"  value="${omeds.pass}"/>
        <ant:entry key="omero.context"  value="${omero.context}"/>
+       <!-- Hibernate Properties -->
+       <ant:entry key="hibernate.connection.driver_class" value="${database.driver}"/>
+       <ant:entry key="hibernate.connection.url" value="${database.url}"/>
+       <ant:entry key="hibernate.connection.username" value="${database.username}"/>
+       <ant:entry key="hibernate.connection.password" value="${database.password}"/>
+       <ant:entry key="hibernate.dialect"  value="${database.dialect}"/>
 
      </ant:propertyfile>
      <ant:copy file="${basedir}/../../log4j.properties" todir="${basedir}/src"/>

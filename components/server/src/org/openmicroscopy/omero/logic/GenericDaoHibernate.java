@@ -44,6 +44,8 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.IntegerType;
+import org.openmicroscopy.omero.BaseModelUtils;
+import org.openmicroscopy.omero.OMEModel;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -87,12 +89,19 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
         });
 	}
 	
+	/*
+	 * @see org.openmicroscopy.omero.logic.GenericDao#getById(java.lang.Class, int)
+	 * @DEV.TODO weirdness here; learn more about CGLIB initialization.
+	 */
 	public Object getById(final Class klazz, final int id) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                return session.load(klazz,id);
+                OMEModel o = (OMEModel) session.load(klazz,id);
+                BaseModelUtils u = o.getUtils();
+                return o;
+                
                 
             }
         });

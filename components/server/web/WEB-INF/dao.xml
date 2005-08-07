@@ -138,7 +138,7 @@
            <props>
               <prop key="hibernate.dialect">${database.dialect}</prop>
 	       	  <prop key="hibernate.show_sql">${database.show_sql}</prop>
-			  <prop key="hibernate.cglib.use_reflection_optimization">false</prop>
+			  <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
            </props>
        </property>
        <property name="dataSource">
