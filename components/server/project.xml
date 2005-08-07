@@ -321,7 +321,8 @@
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
-    </dependency>
+    </dependency>-->
+<!-- TODO: may bother meta code -->
     <dependency>
       <groupId>velocity</groupId>
       <artifactId>velocity</artifactId>
@@ -330,7 +331,6 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
--->
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

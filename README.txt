@@ -33,10 +33,17 @@ The contents of this directory ("OMERO_HOME") are:
 	logging configuration for all components
 
  docs:
-	documentation including ...
+	documentation. Currently of important are
+
+         * BUILDING.txt  if you've checked out from source, and
+         * INSTALL.txt   for running the server.
 
  lib:
 	libraries necessary for build including maven itself.
+
+
+
+
 
 TODO: LICENCES.
 
