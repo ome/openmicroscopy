@@ -41,6 +41,8 @@ import java.util.Set;
  * Provides methods to for dealing with the core "Pojos" of OME. Included are:
  * Projects, Datasets...
  * 
+ * TODO: following description should possibly be moved to a 
+ * marker interface with a see also link
  * The names of the methods correlate to how the function:
  * <ul>
  * <li><b>load</b>: start at container objects and work down toward the leaves</li>

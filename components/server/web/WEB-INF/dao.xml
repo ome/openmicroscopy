@@ -47,6 +47,10 @@
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 
+	<bean id="analysisDao" 
+		class="ome.dao.hibernate.AnalysisDaoHibernate"
+		parent="dao"/>	
+	
 	<bean id="annotationDao" 
 		class="org.openmicroscopy.omero.logic.AnnotationDaoHibernate"
 		parent="dao"/>

@@ -63,7 +63,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class GenericDaoHibernate extends HibernateDaoSupport implements GenericDao {
 //TODO can use generics here!
-	public Object getByExample(final Object example) {
+	public Object getUniqueByExample(final Object example) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
@@ -76,6 +76,20 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
         });
 	}
 
+	public List getListByExample(final Object example) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                Criteria c = session.createCriteria(example.getClass());
+                c.add(Example.create(example));
+                return c.list();
+                
+            }
+        });
+	}
+
+	
 	public Object getByName(final Class klazz, final String name) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -121,5 +135,8 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
             }
         });
 	}
+	
+	
+	
 
 }

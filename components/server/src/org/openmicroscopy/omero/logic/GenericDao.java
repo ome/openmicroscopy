@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.omero.logic;
 
+import java.util.List;
+
 //Java imports
 
 //Third-party libraries
@@ -48,7 +50,8 @@ package org.openmicroscopy.omero.logic;
  */
 public interface GenericDao {
     
-	public Object getByExample(Object example);
+	public Object getUniqueByExample(Object example);
+	public List getListByExample(Object example);
 	public Object getByName(Class klazz, String name);
 	public Object getById(Class klazz, int id);
 	public void persist(Object[] objects);

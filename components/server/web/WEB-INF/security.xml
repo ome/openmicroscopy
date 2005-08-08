@@ -36,6 +36,10 @@
  
   security.xml defines the interceptors for all methods which need
   authentication and authorization.
+	
+  TODO : refactor so security can be turned on or off by omitting this file. 
+	     currently services.xml shouldn't really have a dependency on this file.
+	     or a no-security.xml
 
 -->
 

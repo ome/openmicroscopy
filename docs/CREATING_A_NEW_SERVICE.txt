@@ -1,0 +1,17 @@
+
+1) Add to common/src/ome/api interface "<API>"
+   run "maven jar:install" for common
+
+2) Add to server/src/ome/logic class "<API>Impl"
+   Add to server/src/ome/dao   interface "<API>Dao"
+   Add to server/src/ome/dao/hibernate class "<API>DaoHibernate"
+   
+   Code.
+   (This may include writing queries in a "<API>Queries.hbm.xml" file
+
+3) Update spring configuration in:
+   server/web/WEB-INF/{services.xml,dao.xml}
+
+4) Write test by extending 
+   AbstractDepedencyInjectionSpringContextTests
+   with proper getConfigLocations

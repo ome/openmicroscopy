@@ -84,7 +84,14 @@
 		lazy-init="true"
 	/>
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-			
+
+	<bean id="analysisService" class="ome.logic.AnalysisImpl">
+		<property name="analysisDao" ref="analysisDao"/>		
+		<property name="annotationDao" ref="annotationDao"/>
+		<property name="containerDao" ref="containerDao"/>
+		<property name="genericDao" ref="genericDao"/>		
+	</bean>		
+				
 	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
 		<property name="annotationDao" ref="annotationDao"/>
 		<property name="containerDao" ref="containerDao"/>
