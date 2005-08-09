@@ -504,12 +504,12 @@ public class ROIAgt
     /** Handle the event @see DisplayROI. */
     private void handleDisplayROI(DisplayROI response)
     {
-        if (response.getDrawingCanvas() != null) { //close window
-            if (control.getDrawingCanvas() == null)
-                control.setDrawingCanvas(response.getDrawingCanvas());
+        //if (response.getDrawingCanvas() != null) { //close window
+            //if (control.getDrawingCanvas() == null)
+            control.setDrawingCanvas(response.getDrawingCanvas());
             if (presentation == null) buildPresentation();
             presentation.deIconify();
-        } else removePresentation();
+        //} else removePresentation();
     }
     
     /** Handle the event @see AddROICanvas. */
