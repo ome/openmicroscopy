@@ -39,6 +39,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
@@ -118,7 +119,7 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadClassificationPaths(int, 
+     * @see HierarchyBrowsingView#loadClassificationPaths(int, boolean,
      *                                  AgentEventListener)
      */
     public CallHandle loadClassificationPaths(int imageID, boolean classsified,
@@ -130,7 +131,7 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#classify(CategoryData, imgIDs,
+     * @see HierarchyBrowsingView#classify(CategoryData, Set,
      *                                      AgentEventListener)
      */
     public CallHandle classify(CategoryData data, Set imgIDs, 
@@ -142,13 +143,25 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#declassify(CategoryData, imgIDs,
+     * @see HierarchyBrowsingView#declassify(CategoryData, Set,
      *                                      AgentEventListener)
      */
     public CallHandle declassify(CategoryData data, Set imgIDs, 
                                 AgentEventListener observer)
     {
         BatchCallTree cmd = new ClassificationSaver(data, imgIDs, false);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#loadAnnotations(int, int,
+     *                                      AgentEventListener)
+     */
+    public CallHandle loadAnnotations(int nodeTypeID, int nodeID,
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationLoader(nodeTypeID, nodeID);
         return cmd.exec(observer);
     }
     

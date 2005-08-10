@@ -56,6 +56,12 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 public interface HierarchyBrowsingView
     extends DataServicesView
 {
+    
+    /** Identifies the annotation data retrieval. */
+    public static final int DATASET_ANNOTATION = 0;
+    
+    /** Identifies the image data retrieval. */
+    public static final int IMAGE_ANNOTATION = 1;
 
     /**
      * Loads a data hierarchy rooted by a given node.
@@ -230,12 +236,25 @@ public interface HierarchyBrowsingView
      * This method has no return value, so the result object of the <code>
      * DSCallOutcomeEvent</code> will be <code>null</code>.
      * 
-     * @param category  The data object that represents the Category.
+     * @param data  The data object that represents the Category.
      * @param imgIDs    The ids of the Images to declassify.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle declassify(CategoryData data, Set imgIDs, 
                                  AgentEventListener observer);
+    
+    /**
+     * Retrieves all the annotations linked to the specified node type.
+     * 
+     * @param nodeTypeID One of the following constants:
+     *                  {@link #DATASET_ANNOTATION},
+     *                  {@link #IMAGE_ANNOTATION}.           
+     * @param nodeID    The id of the node.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadAnnotations(int nodeTypeID, int nodeID,
+                                        AgentEventListener observer);
     
 }
