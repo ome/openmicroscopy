@@ -128,7 +128,6 @@ class AddWin
     
     /**
      * Builds the tree displaying the hierarchy CategoryGroup - Category.
-     * @return See above.
      */
     private void buildTreeNodes()
     {
@@ -164,11 +163,12 @@ class AddWin
     
     protected String getPanelNote() { return PANEL_NOTE; }
 
-    /** Wraps the tree in a JScrollPane. */
-    protected JComponent getClassifPanel()
-    {
-        return new JScrollPane(tree);
-    }
+    /**
+     * Adds the tree to a scrollPane.
+     * 
+     * @return The component hosting the tree.
+     */
+    protected JComponent getClassifPanel() { return new JScrollPane(tree); }
 
     
 }

@@ -37,6 +37,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.ClassifPathsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
@@ -81,7 +83,6 @@ class AddModel
      * available for classification.
      * 
      * @return See above.
-     * @see ClassifierModel#createClassifLoader()
      */
     protected ClassifLoader createClassifLoader()
     {

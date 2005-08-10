@@ -36,6 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 
 /** 
@@ -157,7 +158,7 @@ abstract class ClassifierModel
     Set getMetadata() { return availablePaths; }
     
     /**
-     * Sets the object in the {@link Classifier.DISCARDED} state.
+     * Sets the object in the {@link Classifier#DISCARDED} state.
      * Any ongoing data loading will be cancelled.
      */
     void discard()

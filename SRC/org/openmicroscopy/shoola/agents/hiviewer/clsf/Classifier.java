@@ -155,8 +155,8 @@ public interface Classifier
      *                       paths.
      * @throws IllegalStateException If the current state is not
      *                               {@link #LOADING_METADATA}.
-     * @see org.openmicroscopy.shoola.agents.hiviewer.clsf.ClassifPathsLoader
-     * @see org.openmicroscopy.shoola.agents.hiviewer.clsf.DeclassifPathsLoader
+     * @see org.openmicroscopy.shoola.agents.hiviewer.ClassifPathsLoader
+     * @see org.openmicroscopy.shoola.agents.hiviewer.DeclassifPathsLoader
      */
     public void setMetadata(Set availablePaths);
     

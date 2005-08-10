@@ -37,6 +37,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.DeclassifPathsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
@@ -77,7 +79,7 @@ class RemoveModel
     protected int getMode() { return Classifier.DECLASSIFICATION_MODE; }
     
     /**
-     * Returns a new {@link ClassifPathsLoader} to load all paths that are
+     * Returns a new {@link ClassifLoader} to load all paths that are
      * available for declassification.
      * 
      * @return See above.

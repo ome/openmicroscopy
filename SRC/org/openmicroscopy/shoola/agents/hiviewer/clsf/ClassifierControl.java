@@ -40,6 +40,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 
 /** 
@@ -120,8 +121,9 @@ class ClassifierControl
     
     /**
      * Creates a new instance.
-     * The {@link #initialize() initialize} method should be called straight 
-     * after to link this Controller to the other MVC components.
+     * The {@link #initialize(ClassifierComponent, JFrame) initialize}
+     * method should be called straight after to link this Controller to 
+     * the other MVC components.
      */
     ClassifierControl() {}
     
@@ -136,13 +138,11 @@ class ClassifierControl
      */
     void initialize(ClassifierComponent model, JFrame owner) 
     { 
-        if (model == null)
-            throw new NullPointerException("No model.");
-        if (owner == null)
-            throw new NullPointerException("No owner.");
+        if (model == null) throw new NullPointerException("No model.");
+        if (owner == null) throw new NullPointerException("No owner.");
         this.model = model;
-        model.addChangeListener(this);
         this.owner = owner;
+        model.addChangeListener(this);
     }
 
     /**
@@ -184,6 +184,7 @@ class ClassifierControl
             case Classifier.READY:
                 discardLoadingWin();
                 createClassifWin();
+                break;
             case Classifier.DISCARDED:
                 //An error occurred while loading the metadata.
                 discardLoadingWin();

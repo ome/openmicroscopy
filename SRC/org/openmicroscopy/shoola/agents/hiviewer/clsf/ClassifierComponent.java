@@ -77,8 +77,8 @@ class ClassifierComponent
     
     /**
      * Creates a new instance.
-     * The {@link #initialize() initialize} method should be called straigh 
-     * after to complete the MVC set up.
+     * The {@link #initialize(JFrame) initialize} method should be called
+     * straight after to complete the MVC set up.
      * 
      * @param model The Model sub-component.
      */
