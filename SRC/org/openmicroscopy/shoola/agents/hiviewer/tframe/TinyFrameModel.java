@@ -209,8 +209,6 @@ class TinyFrameModel
      *                    Mustn't be <code>null</code>.
      * @param restoreSize The initial frame's size.
      *                    Mustn't be <code>null</code>.
-     * @param uiDelegate The frame's View.  We need it here to decorate the
-     *                   desktops.  Mustn't be <code>null</code>.
      */
     //TODO: The ugly call to setSingleViewMode() after creation is needed
     //to avoid circular dependencies.  In fact, that call use to be in this

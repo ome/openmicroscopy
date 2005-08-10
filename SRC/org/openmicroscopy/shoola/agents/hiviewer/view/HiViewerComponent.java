@@ -90,7 +90,7 @@ class HiViewerComponent
     {
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
-        controller = new HiViewerControl();
+        controller = new HiViewerControl(this);
         view = new HiViewerWin();
     }
     
@@ -100,7 +100,7 @@ class HiViewerComponent
     void initialize()
     {
         model.initialize(this);
-        controller.initialize(this, view);
+        controller.initialize(view);
         view.initialize(controller, model);
     }
     

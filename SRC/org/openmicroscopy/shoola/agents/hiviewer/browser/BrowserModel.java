@@ -81,10 +81,8 @@ class BrowserModel
     
     /**
      * Creates a new instance.
-     * You then need to {@link #setController(BrowserControl) specify}
-     * the controller component.
      * 
-     * @param view The root display of the visualization trees.  Each child node
+     * @param view The root display of the visualization trees. Each child node
      *              is the top node of a visualization tree.
      *              Mustn't be <code>null</code>.
      */
@@ -206,7 +204,7 @@ class BrowserModel
     
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see oBrowser#accept(ImageDisplayVisitor)
+     * @see Browser#accept(ImageDisplayVisitor)
      */
     public void accept(ImageDisplayVisitor visitor) 
     {

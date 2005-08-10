@@ -80,7 +80,7 @@ class FrameBorder
     /**
      * Creates a line border with the specified color and no margin.
      * 
-     * @param color     The color of the border.
+     * @param lineColor The color of the border.
      */
     FrameBorder(Color lineColor)
     {
@@ -90,7 +90,7 @@ class FrameBorder
     /**
      * Creates a line border with the specified color and the given margin.
      * 
-     * @param color     The color of the border.
+     * @param lineColor The color of the border.
      * @param margin    The margin thickness in pixels.
      */
     FrameBorder(Color lineColor, int margin)
@@ -101,7 +101,7 @@ class FrameBorder
     /**
      * Creates a line border with the specified color and the given margin.
      * 
-     * @param color             The color of the border.
+     * @param lineColor         The color of the border.
      * @param backgroundColor   The color for the margin.
      * @param margin            The margin thickness in pixels.
      */

@@ -261,7 +261,7 @@ public class TinyFrame
     /**
      * Fits this frame with the specified title bar.
      * 
-     * @param titleBarType One of the static constants defined by this class.
+     * @param type One of the static constants defined by this class.
      */
     public void setTitleBarType(int type)
     {

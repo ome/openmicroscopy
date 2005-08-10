@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * an hierarchy of {@link DataObject}s into a visualisation tree.
  * The tree is then displayed in the HiViewer. For example,
  * A list of Projects-Datasets-Images is passed to the 
- * {@link #translateProjects(List)} method and transforms into a list of 
+ * {@link #transformProjects(List)} method and transforms into a list of 
  * ImageSet-ImageSet-ImageNode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -113,9 +113,9 @@ public class HiTranslator
      * Then adds the newly create {@link ImageNode} to the specified 
      * {@link ImageSet parent}. 
      * 
-     * @param   List of ImageSummary.
-     * @param   Visualisation object corresponding to the DataObject containing
-     *          the images.
+     * @param images List of ImageSummary objects.
+     * @param parent Visualisation object corresponding to the DataObject
+     *          containing the images.
      */
     private static void linkImagesTo(List images, ImageSet parent)
     {
@@ -129,11 +129,8 @@ public class HiTranslator
      * Link the images contained into the specified {@link DataObject} 
      * to the specified visualisation object corresponding to the DataObject.
      * 
-     * @param uo        Must be instance of <code>DatasetSummaryLinked</code> or
+     * @param uo Must be instance of <code>DatasetSummaryLinked</code> or
      *                  <code>DatasetData</code>.
-     * @param parent    Parent of the new created visualization element. 
-     *                  If parent is <code>null</code>, 
-     *                  an ImageSet without parent is created.
      * @return  The visualisation element corresponding to the 
      *              {@link DataObject}.
      */
@@ -158,8 +155,8 @@ public class HiTranslator
      * Return the first element in the specified set. 
      * Return <code>null</code> if the set is empty.
      * 
-     * @param set
-     * @return
+     * @param set The set to analyse.
+     * @return See above.
      */
     private static ImageDisplay getFirstElement(Set set)
     {
@@ -225,7 +222,7 @@ public class HiTranslator
      * Transforms a Datasets/Images hierarchy into a visualisation
      * tree. 
      * 
-     * @param projects  List of datasets to transform.
+     * @param datasets  List of datasets to transform.
      * @return List of corresponding ImageSet.
      */
     private static Set transformDatasets(List datasets)
@@ -304,7 +301,7 @@ public class HiTranslator
      * Transforms a Category/Images hierarchy into a visualisation
      * tree. 
      * 
-     * @param groups  List of categories to transform.
+     * @param categories  List of categories to transform.
      * @return List of corresponding ImageSet.
      */
     private static Set transformCategories(List categories)
@@ -389,7 +386,7 @@ public class HiTranslator
      * {@link ImageSummary}.
      * The {@link ImageSummary}s are added to an unclassified {@link ImageSet}.
      * 
-     * @param dataObjects   List of dataObjects to transform.
+     * @param ho   The object to transform.
      * @return See above.
      */
     public static Set transform(DataObject ho)

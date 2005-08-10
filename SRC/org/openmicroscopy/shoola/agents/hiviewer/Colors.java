@@ -84,7 +84,7 @@ public class Colors
     
     private Map             colorsMap;
     
-    /** The registry to use to lookup the {@link #factory}. */
+    /** Reference to the registry. */
     private Registry        registry;
     
     /**

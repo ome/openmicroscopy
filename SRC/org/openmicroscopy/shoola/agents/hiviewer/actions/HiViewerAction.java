@@ -81,7 +81,7 @@ public abstract class HiViewerAction
     protected void onDisplayChange(ImageDisplay selectedDisplay) {}
       
     /** 
-     * @see ActionListener#actionPerformed(ActionEvent)
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
 

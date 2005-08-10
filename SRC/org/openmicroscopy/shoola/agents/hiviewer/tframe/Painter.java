@@ -65,9 +65,10 @@ abstract class Painter
      * the graphics context is private to this method, so properties can be
      * set without side-effects.
      * 
-     * @param g2D   The graphics context.  Guaranteed not to be 
+     * @param g2D   The graphics context. Guaranteed not to be 
      *              <code>null</code>.
-     * @param area  The area to paint.  Guaranteed not to be <code>null</code>.
+     * @param width The width of the area to paint.
+     * @param height The height of the area to paint.
      */
     protected abstract void doPaint(Graphics2D g2D, int width, int height);
     

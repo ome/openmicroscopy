@@ -230,29 +230,33 @@ class HiViewerControl
     
     /**
      * Creates a new instance.
-     * The {@link #initialize(HiViewer, HiViewerWin) initialize} method 
+     * The {@link #initialize(HiViewerWin) initialize} method 
      * should be called straigh 
      * after to link this Controller to the other MVC components.
-     */
-    HiViewerControl() {}
-    
-    /**
-     * Links this Controller to its Model and its View.
      * 
      * @param model  Reference to the {@link HiViewer} component, which, in 
      *               this context, is regarded as the Model.
      *               Mustn't be <code>null</code>.
-     * @param view   Reference to the View.  Mustn't be <code>null</code>.
      */
-    void initialize(HiViewer model, HiViewerWin view)
+    HiViewerControl(HiViewer model)
     {
         if (model == null) throw new NullPointerException("No model.");
-        if (view == null) throw new NullPointerException("No view.");
         this.model = model;
-        this.view = view;
-        historyState = -1;
         actionsMap = new HashMap();
         createActions();
+    }
+    
+    /**
+     * Links this Controller to its Model and its View.
+     * 
+
+     * @param view   Reference to the View.  Mustn't be <code>null</code>.
+     */
+    void initialize(HiViewerWin view)
+    {
+        if (view == null) throw new NullPointerException("No view.");
+        this.view = view;
+        historyState = -1;
         model.addChangeListener(this);   
         attachListeners();
     }

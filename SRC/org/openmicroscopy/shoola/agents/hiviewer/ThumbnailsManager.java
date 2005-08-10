@@ -57,9 +57,9 @@ import org.openmicroscopy.shoola.env.data.model.ImageSummary;
  * usually just one thumbnail is required to display all the nodes.  This
  * class enforces the sharing strategy. 
  *
- * @see HiViewer
- * @see Browser
- * @see ImageDisplay
+ * @see org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer
+ * @see org.openmicroscopy.shoola.agents.hiviewer.browser.Browser
+ * @see org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

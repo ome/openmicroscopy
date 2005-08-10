@@ -29,19 +29,16 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.hiviewer.saver.ContainerSaver;
-import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.saver.ContainerSaver;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -72,14 +69,10 @@ public class SaveThumbnailsCmd
      * 
      * @param model The Model which has a reference to the browser.
      *              Mustn't be <code>null</code>.
-     * @param mode  The classification mode.  This is one of the constants 
-     *              defined by the {@link Classifier} interface and tells 
-     *              whether we're classifying or declassifying.
      */
     public SaveThumbnailsCmd(HiViewer model) 
     { 
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new NullPointerException("No model");
         this.model = model;
     }
     

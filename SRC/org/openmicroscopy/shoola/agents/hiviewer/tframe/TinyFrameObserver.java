@@ -43,10 +43,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.tframe;
  * like buttons and icons in the title bar.  Each of those usually observes one
  * bound property of the {@link TinyFrame} and updates itself upon change
  * notifications.  So this interface defines a method that such components
- * implement to {@link #attach(TinyFrame) register} with the {@link TinyFrame},
+ * implement to {@link #attach() register} with the {@link TinyFrame},
  * the Model.  After adding a sub-component to the View, this method is called
  * to allow the component to start observing the Model.  When the component is
- * removed from the View, the {@link #detach(TinyFrame) detach} method is
+ * removed from the View, the {@link #detach() detach} method is
  * called so that the component can remove itself from the Model's change
  * notification register.  This is critical to avoid memory leaks.  In fact,
  * the title bar's components (icon, buttons, etc.) can be replaced multiple
