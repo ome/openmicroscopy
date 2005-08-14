@@ -50,7 +50,7 @@
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
 		<property name="locations">
 		<list>
-			<value>spring.properties</value>
+			<value>classpath:spring.properties</value>
 		</list>
 		</property>
 <!--TODO		<property name="ignoreResourceNotFound" value="true"/> 
