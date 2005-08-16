@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.GenericDao
+ * org.openmicroscopy.omero.server.itests.ConfigHelper
  *
  *------------------------------------------------------------------------------
  *
@@ -26,21 +26,20 @@
  *
  *------------------------------------------------------------------------------
  */
-
-package org.openmicroscopy.omero.logic;
-
-import java.util.List;
-import java.util.Map;
+package org.openmicroscopy.omero.server.itests;
 
 //Java imports
 
+
 //Third-party libraries
+
 
 //Application-internal dependencies
 
 
-/** data access object for basic objects.
- * 
+/** 
+ * tests for a HQL join bug.
+ *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -49,18 +48,20 @@ import java.util.Map;
  * </small>
  * @since 1.0
  */
-public interface GenericDao {
-    
-	public Object getUniqueByExample(Object example);
-	public List getListByExample(Object example);
-	public Object getByName(Class klazz, String name);
-	public Object getById(Class klazz, int id);
-	public void persist(Object[] objects);
-	@Deprecated
-	public Object queryUnique(String query, Object[] params);
-	@Deprecated
-	public List queryList(String query, Object[] params);
-	
-	public Object getUniqueByMap(Class klazz, Map constraints);
-	public List getListByMap(Class klazz, Map constraints);
+public class ConfigHelper {
+
+    /**
+     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
+     */
+    public static String[] getConfigLocations() {
+
+        return new String[] { 
+                "WEB-INF/services.xml",
+                "WEB-INF/security.xml",
+                "WEB-INF/dao.xml",
+                "WEB-INF/data.xml", 
+                "WEB-INF/test/config-test.xml",
+                "WEB-INF/test/test.xml"};
+    }
+
 }

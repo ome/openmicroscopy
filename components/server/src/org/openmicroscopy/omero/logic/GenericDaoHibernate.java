@@ -34,6 +34,7 @@ package org.openmicroscopy.omero.logic;
 //Third-party libraries
 
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -136,7 +137,67 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
         });
 	}
 	
+	@Deprecated
+	public Object queryUnique(final String query, final Object[] params) {
+        return getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+            	Query q = session.createQuery(query);
+            	fillParams(q,params);
+                return q.uniqueResult();
+                
+            }
+        });
+	}
 	
+	@Deprecated
+	public List queryList(final String query, final Object[] params) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+            	Query q = session.createQuery(query);
+            	fillParams(q,params);
+                return q.list();
+                
+            }
+        });
+	}
+
+
+	public Object getUniqueByMap(final Class klazz, final Map constraints) {
+        return (Object) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                Criteria c = session.createCriteria(klazz);
+                	c.add(Expression.allEq(constraints));
+                return c.uniqueResult();
+                
+            }
+        });
+	}
+
+	public List getListByMap(final Class klazz, final Map constraints) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                Criteria c = session.createCriteria(klazz);
+               	c.add(Expression.allEq(constraints));
+                return c.list();
+                
+            }
+        });
+	}
 	
+	private void fillParams(Query q, final Object[] params) {
+		if (null!=params){
+			for (int i = 0; i < params.length; i++) {
+				q.setParameter(i,params[i]);
+			}
+		}
+	}
 
 }

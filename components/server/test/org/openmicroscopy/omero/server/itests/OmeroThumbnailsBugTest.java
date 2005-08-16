@@ -77,12 +77,7 @@ public class OmeroThumbnailsBugTest
      */
     protected String[] getConfigLocations() {
 
-        return new String[] { 
-                "WEB-INF/services.xml", 
-                "WEB-INF/security.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/data.xml", 
-                "WEB-INF/test/config-test.xml" };
+        return ConfigHelper.getConfigLocations();//TODO omit data
     }
 
     public void testImageThumbnailExplodsOnHessianSerialization() {

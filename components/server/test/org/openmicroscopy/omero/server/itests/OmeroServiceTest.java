@@ -79,13 +79,7 @@ public class OmeroServiceTest
      */
     protected String[] getConfigLocations() {
 
-        return new String[]{
-                "WEB-INF/services.xml",
-                "WEB-INF/security.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/data.xml",
-                "WEB-INF/test/config-test.xml",
-                "WEB-INF/test/test.xml"}; 
+        return ConfigHelper.getConfigLocations();
     }
     
     public OmeroServiceTest(String name) {

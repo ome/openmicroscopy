@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.server.itests.LeftOuterJoinTest
+ * org.openmicroscopy.omero.server.itests.GenericDaoTest
  *
  *------------------------------------------------------------------------------
  *
@@ -30,9 +30,11 @@ package org.openmicroscopy.omero.server.itests;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -55,6 +57,7 @@ import org.openmicroscopy.omero.OMEModel;
 import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
 import org.openmicroscopy.omero.logic.ContainerDao;
 import org.openmicroscopy.omero.logic.DaoCleanUpHibernate;
+import org.openmicroscopy.omero.logic.GenericDao;
 import org.openmicroscopy.omero.logic.HierarchyBrowsingImpl;
 import org.openmicroscopy.omero.logic.ReturnLogger;
 import org.openmicroscopy.omero.model.Category;
@@ -70,7 +73,7 @@ import org.openmicroscopy.omero.util.Utils;
 import sun.security.krb5.internal.i;
 
 /** 
- * tests for a HQL join bug.
+ * tests for a generic data access
  *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -80,18 +83,18 @@ import sun.security.krb5.internal.i;
  * </small>
  * @since 1.0
  */
-public class LeftOuterJoinTest
+public class GenericDaoTest
         extends
             AbstractDependencyInjectionSpringContextTests {
 
-    private static Log log = LogFactory.getLog(LeftOuterJoinTest.class);
-    HierarchyBrowsing hb;
+    private static Log log = LogFactory.getLog(GenericDaoTest.class);
+    GenericDao gdao;
 
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
-        hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
+        gdao = (GenericDao) applicationContext.getBean("genericDao");
     }
     
     /**
@@ -102,62 +105,60 @@ public class LeftOuterJoinTest
         return ConfigHelper.getConfigLocations();
     }
 
-    public void testNewCleaningMethods(){
-        Object o = hb.loadPDIHierarchy(Project.class,63);
-        Utils.structureSize(o);
-    }
-    
-    public void testImageThumbnailExplodsOnHessianSerialization() {
-        Set imgIds = new HashSet();
-        imgIds.add(new Integer(1191));
-        imgIds.add(new Integer(4665));
-        imgIds.add(new Integer(1304));
-        imgIds.add(new Integer(4977));
-        imgIds.add(new Integer(3540));
-        imgIds.add(new Integer(2064));
-        Set result = hb.findPDIHierarchies(imgIds);
-        Set test = Utils.getImagesinPDI(result);
-        assertTrue("Images in should eq. images out",imgIds.size()==test.size());
-    }
+	public void testGetById() {
+	}
 
-    public void testDuplicateImages() {
-        OMEData data = (OMEData) applicationContext.getBean("data");
-        Set result = hb.findPDIHierarchies(data.imgsPDI);
-        Set test = Utils.getImagesinPDI(result);
-        assertTrue("Images in should eq. images out",data.imgsPDI.size()==test.size());
-        
-        Set noDupesPlease = new HashSet(); 
-        for (Iterator i = test.iterator(); i.hasNext();) {
-            Image img = (Image) i.next();
-            if (noDupesPlease.contains(img.getImageId())) 
-                fail("But also the IDs should be unique!");
-          	noDupesPlease.add(img.getImageId());
-        }
-        
-    }
+	public void testGetByName() {
+	}
 
-    public void testWhereAreTheImageAnnsLoadCGCI(){
-    	Category c =(Category) hb.loadCGCIAnnotatedHierarchy(Category.class,250,1);
-    	Set<Classification> clas = c.getClassifications();
-    	boolean annsThere = false;
-    	for (Classification cla : clas){
-    		Image img = cla.getImage();
-    		Set<ImageAnnotation> anns = img.getImageAnnotations();
-    		log.info("Annotations for image "+img.getImageId()+":"+anns);
-    		if (anns !=null && anns.size() > 0) annsThere = true;
-    	}
-    	assertTrue("There should be an annotation",annsThere);
-    }
-    
-    public void testAndNowAFrigginStackOverFLow() throws Throwable{
-    	Set<OMEModel> set = hb.findPDIAnnotatedHierarchies(TestUtils.getSetFromInt(new int[]{2,3}),1);
-    	log.info(set);
-    	// Already applied below:
-//    	DaoCleanUpHibernate clean = (DaoCleanUpHibernate)this.applicationContext.getBean("daoCleanUp");
-//    	ReturnLogger log = (ReturnLogger) this.applicationContext.getBean("logging");
-//    	clean.clean(set);
-//    	log.log(set);
-    	
-    }
+	public void testGetListByExample() {
+	}
+
+	public void testGetListByMap() {
+		
+		//Project by id
+		Map projectById = new HashMap();
+		projectById.put("projectId",1);
+		List l1 = gdao.getListByMap(Project.class, projectById );
+		assertTrue("Can only be one",l1.size()==1);
+		
+		//Dataset by locked
+		Map unlockedDatasets = new HashMap();
+		unlockedDatasets.put("locked",Boolean.FALSE);
+		List l2 = gdao.getListByMap(Dataset.class, unlockedDatasets);
+		assertTrue("At least one unlocked D", l2.size()>0);
+		
+		//Sending wrong parameter
+		Map stringRatherThanBoolean = new HashMap();
+		stringRatherThanBoolean.put("locked","f");
+		try {
+			List l3 = gdao.getListByMap(Dataset.class, stringRatherThanBoolean);
+			fail("Shouldn't suceed");
+		} catch (ClassCastException cce){
+			// good
+		} catch (Throwable t) {
+			fail("Expected class cast exception");
+		}
+		
+		
+		
+		
+	}
+
+	public void testGetUniqueByExample() {
+	}
+
+	public void testGetUniqueByMap() {
+	}
+
+	public void testPersist() {
+	}
+
+	public void testQueryList() {
+	}
+
+	public void testQueryUnique() {
+	}
+   
     
 }

@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
+import ome.api.Analysis;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -80,18 +82,18 @@ import sun.security.krb5.internal.i;
  * </small>
  * @since 1.0
  */
-public class LeftOuterJoinTest
+public class AnalysisLogicTest
         extends
             AbstractDependencyInjectionSpringContextTests {
 
-    private static Log log = LogFactory.getLog(LeftOuterJoinTest.class);
-    HierarchyBrowsing hb;
+    private static Log log = LogFactory.getLog(AnalysisLogicTest.class);
+    Analysis ae;
 
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
-        hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
+        ae = (Analysis) applicationContext.getBean("analysisService");
     }
     
     /**
@@ -102,62 +104,36 @@ public class LeftOuterJoinTest
         return ConfigHelper.getConfigLocations();
     }
 
-    public void testNewCleaningMethods(){
-        Object o = hb.loadPDIHierarchy(Project.class,63);
-        Utils.structureSize(o);
+    public void testGetProjectsForUser(){
+    	Set s = ae.getProjectsForUser(1);
+    	assertTrue(notNull,s.size()>0);
+    }
+ 
+    public void testAllDatasets(){
+    	Set s = ae.getAllDatasets();
+    	assertTrue(notNull,s.size()>0);
     }
     
-    public void testImageThumbnailExplodsOnHessianSerialization() {
-        Set imgIds = new HashSet();
-        imgIds.add(new Integer(1191));
-        imgIds.add(new Integer(4665));
-        imgIds.add(new Integer(1304));
-        imgIds.add(new Integer(4977));
-        imgIds.add(new Integer(3540));
-        imgIds.add(new Integer(2064));
-        Set result = hb.findPDIHierarchies(imgIds);
-        Set test = Utils.getImagesinPDI(result);
-        assertTrue("Images in should eq. images out",imgIds.size()==test.size());
-    }
+	public void testChainExecutionsForDataset() {
+		Set s = ae.getChainExecutionsForDataset(1);
+		assertTrue(notNull,s.size()>0);
+	}
+	
+	public void testDsFromPs(){
+		Set s = ae.getDatasetsForProject(1);
+		assertTrue(notNull, s.size()>0);
+	}
 
-    public void testDuplicateImages() {
-        OMEData data = (OMEData) applicationContext.getBean("data");
-        Set result = hb.findPDIHierarchies(data.imgsPDI);
-        Set test = Utils.getImagesinPDI(result);
-        assertTrue("Images in should eq. images out",data.imgsPDI.size()==test.size());
-        
-        Set noDupesPlease = new HashSet(); 
-        for (Iterator i = test.iterator(); i.hasNext();) {
-            Image img = (Image) i.next();
-            if (noDupesPlease.contains(img.getImageId())) 
-                fail("But also the IDs should be unique!");
-          	noDupesPlease.add(img.getImageId());
-        }
-        
-    }
+	public void testPsFromDs(){
+		Set s = ae.getProjectsForDataset(1);
+		assertTrue(notNull, s.size()>0);
+	}
 
-    public void testWhereAreTheImageAnnsLoadCGCI(){
-    	Category c =(Category) hb.loadCGCIAnnotatedHierarchy(Category.class,250,1);
-    	Set<Classification> clas = c.getClassifications();
-    	boolean annsThere = false;
-    	for (Classification cla : clas){
-    		Image img = cla.getImage();
-    		Set<ImageAnnotation> anns = img.getImageAnnotations();
-    		log.info("Annotations for image "+img.getImageId()+":"+anns);
-    		if (anns !=null && anns.size() > 0) annsThere = true;
-    	}
-    	assertTrue("There should be an annotation",annsThere);
-    }
-    
-    public void testAndNowAFrigginStackOverFLow() throws Throwable{
-    	Set<OMEModel> set = hb.findPDIAnnotatedHierarchies(TestUtils.getSetFromInt(new int[]{2,3}),1);
-    	log.info(set);
-    	// Already applied below:
-//    	DaoCleanUpHibernate clean = (DaoCleanUpHibernate)this.applicationContext.getBean("daoCleanUp");
-//    	ReturnLogger log = (ReturnLogger) this.applicationContext.getBean("logging");
-//    	clean.clean(set);
-//    	log.log(set);
-    	
-    }
-    
+	public void testIsFromDs(){
+		Set s = ae.getImagesForDataset(1);
+		assertTrue(notNull, s.size()>0);
+	}
+	
+	private final static String notNull = "There has to be something";
+	
 }
