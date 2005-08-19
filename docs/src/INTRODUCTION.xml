@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<chapter id="introduction">
+  <title>Introduction</title>
+  <section id="introduction-what">
+    <title>What?</title>
+    <para>
+      The OME java server is a port of the perl code make use of existing object-relational mapping (ORM) tools. 
+    </para>
+  </section>
+  
+  <section id="introduction-why">
+    <title>Why?</title>
+    <para>
+      Speed, ease of development, agility, alternative implementations
+    </para>
+  </section>
+  
+  <section id="introduction-how">
+    <title>How?</title>
+    <para>
+      Just what are these implementations? Well,...
+    </para>
+  </section>
+  
+  <section id="intro-blurb">
+    <title>Other info</title>
+    <programlisting>
+LICENSE
+
+    OME is distributed with the GNU Lesser General Public License
+    (LGPL). You should be aware that any code submitted to the OME
+    project will also fall under this license. If you have issues
+    relating to licensing, want to sub license parts of the OME source
+    code, or wish to discuss the licensing scheme please contact the
+    OME core developers (ome-devel@lists.openmicroscopy.org.uk).
+
+COPYRIGHT
+
+    The OME source code, specification, documentation and database schema are,
+    in their entirety Copyright (C) 2003 Open Microscopy Environment,
+    Massachusetts Institute of Technology, National Institutes of Health,
+    University of Dundee. As with the OME license, any questions related to the
+    copyright, copyright holders or copyright scheme should be directed to the
+    OME core developers (ome-devel@lists.openmicroscopy.org.uk).
+
+DEVELOPER LOCATIONS
+
+    The OME core developers are split between three main locations: OME Boston
+    (MIT and Harvard; managed by Peter Sorger and Erik Brauner), OME Dundee
+    (University of Dundee; managed by Jason Swedlow) and OME Baltimore (NIH;
+    managed by Ilya Goldberg).
+
+RESOURCES
+
+    Most of the OME developer related documentation is either in the
+    source tree (/doc and pod in the source files) or located on the
+    CVS webserver (http://cvs.openmicroscopy.org.uk/).  There is also
+    a documentation website available at
+    http://docs.openmicroscopy.org.uk/.
+
+LINKS
+
+	The OME Project:  http://www.openmicroscopy.org/
+	OME developers:   http://cvs.openmicroscopy.org.uk/
+	Web based CVS:    http://cvs.openmicroscopy.org.uk/cvsweb/
+	Documentation:    http://docs.openmicroscopy.org.uk
+	Bug Tracker:      http://bugs.openmicroscopy.org.uk
+
+MAILING LISTS
+
+	OME developers:   ome-devel@lists.openmicroscopy.org.uk
+
+      </programlisting>
+  </section>
+
+
+</chapter>
+

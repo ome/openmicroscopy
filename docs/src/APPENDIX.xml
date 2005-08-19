@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="further">
+  <title>Further Reading</title>
+
+  <para>
+	There is quite a lot of information out there on setting up
+	a system just like this, which is a large reason for having
+	done it this way.
+  </para>
+  <para>
+	If you'd like to read more take a look at:
+  </para>
+  <itemizedlist spacing="compact">
+  	<title>Sites:</title>
+		<listitem><para>
+			<ulink url="http://appfuse.dev.java.net">
+			http://appfuse.dev.java.net
+			</ulink>
+		</para></listitem>
+		<listitem><para>
+			<ulink url="http://springframework.org">
+			http://springframework.org
+			</ulink>
+		</para></listitem>
+		<listitem><para>
+			<ulink url="http://hibernate.org">
+			http://hibernate.org
+			</ulink>
+		</para></listitem>
+  </itemizedlist>
+  <itemizedlist spacing="compact">
+  <title>Books:</title>
+		<listitem><para>Hibernate in Action</para></listitem>
+		<listitem><para>Spring in Action</para></listitem>
+  </itemizedlist>
+</chapter>
+<chapter id="ack">
+  <title>Acknowledgements</title>
+
+  <para>
+	Thanks to the Spring team for the docbook build system. They,
+in turn, say:
+	<quote>
+Thanks to Hibernate, for providing the skeleton for
+DocBook documentation!
+	</quote>
+  </para>
+</chapter>

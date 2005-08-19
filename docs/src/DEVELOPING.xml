@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="devel">
+  <title>Developing with/for the Java server</title>
+  <section id="devel-server">
+    <title>Server-side development</title>
+  <section id="devel-quick">
+    <title>Quick How-To</title>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Add to common/src/ome/api interface "[API]"
+	  Run "maven jar:install" for common
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Add to server/src/ome/logic class "[API]Impl"
+	  Add to server/src/ome/dao   interface "[API]Dao"
+	  Add to server/src/ome/dao/hibernate class "[API]DaoHibernate"
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Code.
+	  (This may include writing queries in a "[API]Queries.hbm.xml" file
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Update spring configuration in:
+	  server/web/WEB-INF/{services.xml,dao.xml}
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Write test by extending 
+	  AbstractDepedencyInjectionSpringContextTests
+	  with proper getConfigLocations
+	</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  </section>
+  <section id="devel-client">
+    <title>Client-side development</title>
+    <para>
+      If you are satisfied with working with the generated domain model objects directly, working with the server is nearly trivial.  You simply need to supply connection paramters, either in a <literal>spring.properties</literal> on your classpath or through system variables.  After that, all calls on any <literal>ServiceFactory</literal> object will return a functioning proxy.
+    </para>
+    <para>
+      If, however, the possibility instability of this worries you, it is straight forward to design an adapter around the existing model and API.  To implement an adapter, you will need to define your own domain model objects and provide an implementation of the AdapterUtil iterfaces for your service.  This will convert 
+    </para>
+    <para>
+      Currently, there is no solution for adapting in the write direction. This is a result of the original intent of the server (read-only), and is currently on the TODO list.
+    </para>
+  </section>
+  <section id="devel-ides">
+    <title>Using Eclipse as an IDE</title>
+    <para>
+      There are currently <literal>.project</literal> and <literal>.classpath</literal> files stored in subversion. Maven can reproduce them (for example, after changes to <literal>project.xml</literal>, but the existing files contain certain modifications that make working with the code base easier. You will  need, however, certain classpath variables (<literal>MAVEN_REPO</literal>, <literal>OMERO_HOME</literal>, <literal>USER_HOME</literal>) to make them work.
+    </para>
+    <para>
+      More work needs to be done to make the Eclipse projects more useful. 
+      This will be completed at a later date.
+    </para>
+<!--
+      TODO: Server refresh weirdness!
+-->
+  </section>
+</chapter>
+

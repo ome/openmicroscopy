@@ -1,0 +1,182 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Open Microscopy Environment</title><link rel="stylesheet" href="../styles/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.60.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en"><div class="titlepage"><div><div><h1 class="title"><a name="d0e1"></a>Open Microscopy Environment</h1></div><div><h2 class="subtitle">
+          Java Server Documentation
+        </h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Josh</span> <span class="surname">Moore</span></h3></div></div></div><div><p class="releaseinfo">Version alpha</p></div><div><div class="legalnotice"><p>Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p></div></div><div><p class="pubdate">(Work in progress)</p></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dd><dl><dt>1.1. <a href="#introduction-what">What?</a></dt><dt>1.2. <a href="#introduction-why">Why?</a></dt><dt>1.3. <a href="#introduction-how">How?</a></dt><dt>1.1. <a href="#intro-blurb">Other info</a></dt></dl></dd><dt>2. <a href="#jmx">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#start-build">Building</a></dt><dd><dl><dt>2.1.1. <a href="#start-install-tomcat"></a></dt></dl></dd><dt>2.2. <a href="#start-install">Installing</a></dt><dt>2.3. <a href="#start-use">Using</a></dt></dl></dd><dt>3. <a href="#design">Server Design</a></dt><dt>4. <a href="#devel">Developing with/for the Java server</a></dt><dd><dl><dt>4.1. <a href="#devel-server">Server-side development</a></dt><dd><dl><dt>4.1.1. <a href="#devel-quick">Quick How-To</a></dt></dl></dd><dt>4.2. <a href="#devel-client">Client-side development</a></dt><dt>4.3. <a href="#devel-ides">Using Eclipse as an IDE</a></dt></dl></dd><dt>5. <a href="#test">Testing</a></dt><dd><dl><dt>5.1. <a href="#test-unit">Unit Testing</a></dt><dt>5.2. <a href="#test-integration">Integration Testing</a></dt><dd><dl><dt>5.2.1. <a href="#test-int-db">DbUnit Testing</a></dt></dl></dd></dl></dd><dt>6. <a href="#todo">Todo List</a></dt></dl></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="introduction"></a>Chapter&nbsp;1.&nbsp;Introduction</h2></div></div><div></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="introduction-what"></a>1.1.&nbsp;What?</h2></div></div><div></div></div><p>
+      The OME java server is a port of the perl code make use of existing object-relational mapping (ORM) tools. 
+    </p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="introduction-why"></a>1.2.&nbsp;Why?</h2></div></div><div></div></div><p>
+      Speed, ease of development, agility, alternative implementations
+    </p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="introduction-how"></a>1.3.&nbsp;How?</h2></div></div><div></div></div><p>
+      Just what are these implementations? Well,...
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="intro-blurb"></a>1.1.&nbsp;Other info</h2></div></div><div></div></div><pre class="programlisting">
+LICENSE
+
+    OME is distributed with the GNU Lesser General Public License
+    (LGPL). You should be aware that any code submitted to the OME
+    project will also fall under this license. If you have issues
+    relating to licensing, want to sub license parts of the OME source
+    code, or wish to discuss the licensing scheme please contact the
+    OME core developers (ome-devel@lists.openmicroscopy.org.uk).
+
+COPYRIGHT
+
+    The OME source code, specification, documentation and database schema are,
+    in their entirety Copyright (C) 2003 Open Microscopy Environment,
+    Massachusetts Institute of Technology, National Institutes of Health,
+    University of Dundee. As with the OME license, any questions related to the
+    copyright, copyright holders or copyright scheme should be directed to the
+    OME core developers (ome-devel@lists.openmicroscopy.org.uk).
+
+DEVELOPER LOCATIONS
+
+    The OME core developers are split between three main locations: OME Boston
+    (MIT and Harvard; managed by Peter Sorger and Erik Brauner), OME Dundee
+    (University of Dundee; managed by Jason Swedlow) and OME Baltimore (NIH;
+    managed by Ilya Goldberg).
+
+RESOURCES
+
+    Most of the OME developer related documentation is either in the
+    source tree (/doc and pod in the source files) or located on the
+    CVS webserver (http://cvs.openmicroscopy.org.uk/).  There is also
+    a documentation website available at
+    http://docs.openmicroscopy.org.uk/.
+
+LINKS
+
+	The OME Project:  http://www.openmicroscopy.org/
+	OME developers:   http://cvs.openmicroscopy.org.uk/
+	Web based CVS:    http://cvs.openmicroscopy.org.uk/cvsweb/
+	Documentation:    http://docs.openmicroscopy.org.uk
+	Bug Tracker:      http://bugs.openmicroscopy.org.uk
+
+MAILING LISTS
+
+	OME developers:   ome-devel@lists.openmicroscopy.org.uk
+
+      </pre></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jmx"></a>Chapter&nbsp;2.&nbsp;Getting Started</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-build"></a>2.1.&nbsp;Building</h2></div></div><div></div></div><p>
+      As with any new framework, it takes a while to get into the code base. Let's start with building.
+    </p><p>
+      To work with the OMERO source base, you will need to have a fully working OME Database, a Java Development Kit, and a Servlet container, as well as various environment variables.
+    </p><div class="itemizedlist"><ul type="disc"><li><p>
+	  Install Java and a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.) Warning: The Omero server side code requires Java 5 and Tomcat 5.5.x. 
+	</p></li><li><p>
+	  Set JAVA_HOME to your JDK installation
+	</p></li><li><p>
+	  Set MAVEN_HOME to your Maven installation or alternatively to OMERO_HOME/lib/maven/  If you use the latter also run: 
+	</p><p>
+	  OMERO_HOME/lib/maven/bin/install_repo.sh HOME_DIR/.maven/repository
+	</p><p>
+	  install_repo.bat is available for Windows users. Also, place MAVEN_HOME/bin/maven(.bat) on your PATH.
+	</p></li><li><p>
+	  Copy docs/examples/build.properties.example to OMERO_HOME or HOME; edit the properties for your site. 
+	</p><p>
+	  Note: This file should _not_ be put under revision control!
+	</p></li></ul></div><p>
+      Now you are ready to <span class="emphasis"><em>build and install</em></span> OMERO.  Run <tt class="literal">maven bootstrap</tt> to prepare the installation. Then run <tt class="literal">maven install</tt>to place all jars and the war file in your local maven repository. Copy the war file under
+    </p><p>		
+      OMERO_HOME/components/server/target 
+    </p><p>
+      to your servlet container. Enjoy!
+    </p><p>
+      Alternatively, follow the container-specific instructions below.
+    </p><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div><p>
+	There are several methods to make working with a Tomcat
+	instance simpler.
+      </p><p>
+	Edit the Tomcat section of your build.properties file 
+	(see HACKING.txt if you don't have one).
+      </p><div class="itemizedlist"><ul type="disc"><li><p>
+	    Run "maven" from OMERO_HOME
+	    If maven is not on your path, alternatively run:
+	    "OMERO_HOME/lib/maven/bin/maven"
+	  </p></li><li><p>
+	    cd to OMERO_HOME/components/wars/srv
+	  </p></li><li><p>
+	    Run "maven tomcat:deploy"
+	  </p></li></ul></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-install"></a>2.2.&nbsp;Installing</h2></div></div><div></div></div><p>
+      If you are not building from source, but have downloaded the war (web-application resource) file then your work is a bit simpler.
+    </p><p>
+      To install the OMERO server, simply copy the war (web application resource) file to your servlet container. Once it is unpacked, edit:
+    </p><p>
+      /WEB-INF/classes/spring.properties
+    </p>
+    to connect to the database.
+    <p>
+      Once you start your servlet container, you can run the test suite against it.
+    </p><p>
+      For more specific instructions, please see the INSTALL_*.txt files in the docs directory.
+    </p><p>
+      Note: These instructions are for releases only.  If you are working from subversion, please see BUILDING.txt to get things running.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-use"></a>2.3.&nbsp;Using</h2></div></div><div></div></div><p>
+      Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
+    </p><p>
+      Then create a ServiceFactory and use it to obtain a Service.
+    </p><p>
+      </p><pre class="programlisting">
+	ServiceFactory services = new ServiceFactory();
+	HierarchyBrowsing proxy = services.getHierarchyBrowsingService();
+      </pre><p>
+    </p></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="design"></a>Chapter&nbsp;3.&nbsp;Server Design</h2></div></div><div></div></div><p>
+    There are several concepts which play a large role in the design of the server. These include: the DAO pattern, AOP cross-cutting, and dependency injection. The first of these is handled (currently) by Hibernate. The other two by Spring.
+  </p></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+	  Add to common/src/ome/api interface "[API]"
+	  Run "maven jar:install" for common
+	</p></li><li><p>
+	  Add to server/src/ome/logic class "[API]Impl"
+	  Add to server/src/ome/dao   interface "[API]Dao"
+	  Add to server/src/ome/dao/hibernate class "[API]DaoHibernate"
+	</p></li><li><p>
+	  Code.
+	  (This may include writing queries in a "[API]Queries.hbm.xml" file
+	</p></li><li><p>
+	  Update spring configuration in:
+	  server/web/WEB-INF/{services.xml,dao.xml}
+	</p></li><li><p>
+	  Write test by extending 
+	  AbstractDepedencyInjectionSpringContextTests
+	  with proper getConfigLocations
+	</p></li></ul></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-client"></a>4.2.&nbsp;Client-side development</h2></div></div><div></div></div><p>
+      If you are satisfied with working with the generated domain model objects directly, working with the server is nearly trivial.  You simply need to supply connection paramters, either in a <tt class="literal">spring.properties</tt> on your classpath or through system variables.  After that, all calls on any <tt class="literal">ServiceFactory</tt> object will return a functioning proxy.
+    </p><p>
+      If, however, the possibility instability of this worries you, it is straight forward to design an adapter around the existing model and API.  To implement an adapter, you will need to define your own domain model objects and provide an implementation of the AdapterUtil iterfaces for your service.  This will convert 
+    </p><p>
+      Currently, there is no solution for adapting in the write direction. This is a result of the original intent of the server (read-only), and is currently on the TODO list.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-ides"></a>4.3.&nbsp;Using Eclipse as an IDE</h2></div></div><div></div></div><p>
+      There are currently <tt class="literal">.project</tt> and <tt class="literal">.classpath</tt> files stored in subversion. Maven can reproduce them (for example, after changes to <tt class="literal">project.xml</tt>, but the existing files contain certain modifications that make working with the code base easier. You will  need, however, certain classpath variables (<tt class="literal">MAVEN_REPO</tt>, <tt class="literal">OMERO_HOME</tt>, <tt class="literal">USER_HOME</tt>) to make them work.
+    </p><p>
+      More work needs to be done to make the Eclipse projects more useful. 
+      This will be completed at a later date.
+    </p></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="test"></a>Chapter&nbsp;5.&nbsp;Testing</h2></div></div><div></div></div><p>
+      or <span class="emphasis"><em>"Dependency injection, getConfigLocations, integration,
+      oh my."</em></span>
+    </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="test-unit"></a>5.1.&nbsp;Unit Testing</h2></div></div><div></div></div><p>
+	The unit testing framework is fairly simple.  Only methods which contain logic written within the OME Java Server are tested.  This means that framework functionality like remoting is <span class="emphasis"><em>not</em></span> tested.  Neither is DAO functionality; this is a part of integration testing. (see below)
+      </p><p>
+	Therefore, most of the code which is unit tested lies in the logic packages of the server component.  This is done using <a href="http://jmock.org" target="_top">jMock</a>.
+      </p><p>
+	You can run the unit tests for any component from its directory by entering:
+      </p><pre class="programlisting">
+	maven test -Dmaven.test.mode=unit
+
+	# or if you haven't changed the value of maven.test.mode simply:
+	maven test
+      </pre><p>
+	The same can be done for all components using:
+      </p><pre class="programlisting">
+	maven test-all
+      </pre><p>
+	from the top-level directory.
+      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="test-integration"></a>5.2.&nbsp;Integration Testing</h2></div></div><div></div></div><p>
+	Integration testing is a bit more complex.
+      </p><p>
+	Because of there reliance on a database (which is not easily mockable), all DAO classes are tested in integration mode. 
+      </p><p>
+	To run integration tests, use <tt class="literal">-Dmaven.test.mode=integration</tt> while calling the <tt class="literal">test</tt> and <tt class="literal">test-all</tt> maven targets mentioned under Unit Testing.
+      </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="test-int-db"></a>5.2.1.&nbsp;DbUnit Testing</h3></div></div><div></div></div><p>
+	  Several special integration tests, based on the <a href="http://dbunit.sourceforge.net/" target="_top">DbUnit</a> JUnit extension, are also included in the integration tests. This currently requires the creation of a special DB (specifically <tt class="literal">"[your standard DB url]-test"</tt>).
+	</p><p>
+	  Currently, these tests will fail. Documentation on preparing these tests will be added later. 
+	</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="todo"></a>Chapter&nbsp;6.&nbsp;Todo List</h2></div></div><div></div></div><p>or, "Who what when?"</p><p>For a list of todo items, their priorities, assignees, and so
+forth please see <a href="./TODO.html" target="_top">TODO.html</a>.
+  </p></div></div></body></html>

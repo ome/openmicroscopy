@@ -1,9 +1,0 @@
-
--------------------------------------------------
-   OMERO - OME Read-Only Web App
--------------------------------------------------
-
-To test the Omero web app, you must have already
-installed the server (see INSTALL.txt).
-
-

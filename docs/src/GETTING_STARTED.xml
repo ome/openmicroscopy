@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="jmx">
+  <title>Getting Started</title>
+  <section id="start-build">
+    <title>Building</title>
+    <para>
+      As with any new framework, it takes a while to get into the code base. Let's start with building.
+    </para>
+    <para>
+      To work with the OMERO source base, you will need to have a fully working OME Database, a Java Development Kit, and a Servlet container, as well as various environment variables.
+    </para>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Install Java and a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.) Warning: The Omero server side code requires Java 5 and Tomcat 5.5.x. 
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Set JAVA_HOME to your JDK installation
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Set MAVEN_HOME to your Maven installation or alternatively to OMERO_HOME/lib/maven/  If you use the latter also run: 
+	</para>
+	<para>
+	  OMERO_HOME/lib/maven/bin/install_repo.sh HOME_DIR/.maven/repository
+	</para>
+	<para>
+	  install_repo.bat is available for Windows users. Also, place MAVEN_HOME/bin/maven(.bat) on your PATH.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Copy docs/examples/build.properties.example to OMERO_HOME or HOME; edit the properties for your site. 
+	</para>
+	<para>
+	  Note: This file should _not_ be put under revision control!
+	</para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      Now you are ready to <emphasis>build and install</emphasis> OMERO.  Run <literal>maven bootstrap</literal> to prepare the installation. Then run <literal>maven install</literal>to place all jars and the war file in your local maven repository. Copy the war file under
+    </para>
+    <para>		
+      OMERO_HOME/components/server/target 
+    </para>
+    <para>
+      to your servlet container. Enjoy!
+    </para>
+    <para>
+      Alternatively, follow the container-specific instructions below.
+    </para>
+  </section>
+  <section id="start-install">
+    <title>Installing</title>
+    <para>
+      If you are not building from source, but have downloaded the war (web-application resource) file then your work is a bit simpler.
+    </para>
+    <para>
+      To install the OMERO server, simply copy the war (web application resource) file to your servlet container. Once it is unpacked, edit:
+    </para>
+    <para>
+      /WEB-INF/classes/spring.properties
+    </para>
+    to connect to the database.
+    <para>
+      Once you start your servlet container, you can run the test suite against it.
+    </para>
+    <para>
+      For more specific instructions, please see the INSTALL_*.txt files in the docs directory.
+    </para>
+    <para>
+      Note: These instructions are for releases only.  If you are working from subversion, please see BUILDING.txt to get things running.
+    </para>
+    <section id="start-install-tomcat">
+      <title>Installing on Tomcat</title>
+      <para>
+	There are several methods to make working with a Tomcat
+	instance simpler.
+      </para>
+      <para>
+	Edit the Tomcat section of your build.properties file 
+	(see HACKING.txt if you don't have one).
+      </para>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Run "maven" from OMERO_HOME
+	    If maven is not on your path, alternatively run:
+	    "OMERO_HOME/lib/maven/bin/maven"
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    cd to OMERO_HOME/components/wars/srv
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Run "maven tomcat:deploy"
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>	
+  <section id="start-use">
+    <title>Using</title>
+    <para>
+      Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
+    </para>
+    <para>
+      Then create a ServiceFactory and use it to obtain a Service.
+    </para>
+    <para>
+      <programlisting>
+	ServiceFactory services = new ServiceFactory();
+	HierarchyBrowsing proxy = services.getHierarchyBrowsingService();
+      </programlisting>
+    </para>
+  </section>
+</chapter>

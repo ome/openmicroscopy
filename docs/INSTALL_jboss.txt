@@ -1,8 +1,0 @@
-
--------------------------------------------------
-   OMERO - OME Read-Only Web App
--------------------------------------------------
-
-Deploying to JBoss is similar to deploying to Tomcat.
-TODO. (which properties must be set.)
-
