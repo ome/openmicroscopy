@@ -64,26 +64,7 @@
 		</property>
 	</bean>
 
-	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<!-- INTERCEPTORS -->	
-	<bean 
-		       id="serviceTracing" 
-		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
-		lazy-init="true"
-	/>
-
-	<bean 
-		       id="logging" 
-		    class="org.openmicroscopy.omero.logic.ReturnLogger" 
-		lazy-init="true"
-	/>
-
-	<bean
-			   id="exceptionHandling"
-			class="org.openmicroscopy.omero.logic.ExceptionHandler"
-		lazy-init="true"
-	/>
-	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 	<bean id="analysisService" class="ome.logic.AnalysisImpl">
 		<property name="analysisDao" ref="analysisDao"/>		

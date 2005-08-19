@@ -108,7 +108,7 @@ public class CodeGeneration extends TestCase {
 
 	// STORING IN DATABASE
 	ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-			new String[]{"WEB-INF/data.xml","WEB-INF/test/config-test.xml"});
+			new String[]{"WEB-INF/dbcp.xml","WEB-INF/config-local.xml"});
 	JdbcTemplate jt = new JdbcTemplate((DataSource) ctx
 			.getBean("dataSource"));
 	

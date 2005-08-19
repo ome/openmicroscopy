@@ -23,116 +23,120 @@
   </calendars>
   <tasks>
     <task id="1" name="Pre-Dundee" note="" work="576000" start="20050818T000000Z" end="20050914T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="2" name="code TODOs" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="3" name="&quot;omero project&quot;" note="" work="57600" start="20050818T000000Z" end="20050819T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="4" name="Rename + Pojo Interface" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="5" name="clean tests (maven/eclipse workspace)" note="" work="28800" start="20050818T170000Z" end="20050819T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <predecessors>
-          <predecessor id="1" predecessor-id="4" type="FS"/>
-        </predecessors>
+      <task id="2" name="fix texen stuff" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="3" name="test try+final on Utils" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="4" name="one directory" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="5" name="doch in project.xml ?" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
-      <task id="6" name="dbunit" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="7" name="spring log4j" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="8" name="spring xml refactor jdbc-jndi-aop-hibernate" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="9" name="genericDao tests" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="10" name="hibernate init" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="11" name="fix texen stuff" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="12" name="documentation " note="" work="28800" start="20050819T170000Z" end="20050822T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="6" name="Rename + Pojo Interface" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="7" name="clean tests (maven/eclipse workspace)" note="" work="28800" start="20050818T170000Z" end="20050819T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
-          <predecessor id="1" predecessor-id="3" type="FS"/>
           <predecessor id="1" predecessor-id="6" type="FS"/>
-          <predecessor id="1" predecessor-id="2" type="FS"/>
         </predecessors>
-        <task id="13" name="design documents" note="" work="28800" start="20050819T170000Z" end="20050822T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
-      <task id="14" name="review meeting notes/emails" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="15" name="proposal" note="" work="14400" duration="576000" start="20050818T000000Z" end="20050914T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration"/>
-    </task>
-    <task id="16" name="New Model" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="17" name="Changes" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="18" name="user settings" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="19" name="thumbnail with byte array" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="20" name="acl" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="8" name="code TODOs" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="9" name="&quot;omero project&quot;" note="" work="57600" start="20050818T000000Z" end="20050819T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="10" name="dbunit" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="11" name="spring log4j" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="12" name="genericDao tests" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="13" name="hibernate init" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="14" name="documentation " note="" work="28800" start="20050819T170000Z" end="20050822T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <predecessors>
+          <predecessor id="1" predecessor-id="9" type="FS"/>
+          <predecessor id="1" predecessor-id="10" type="FS"/>
+          <predecessor id="1" predecessor-id="8" type="FS"/>
+        </predecessors>
+        <task id="15" name="design documents" note="" work="28800" start="20050819T170000Z" end="20050822T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
-      <task id="21" name="all from base class with id?" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="22" name="DB Update scripts" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="23" name="Locking" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="16" name="review meeting notes/emails" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="17" name="proposal" note="" work="14400" duration="576000" start="20050818T000000Z" end="20050914T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-duration"/>
     </task>
-    <task id="24" name="Server Basic Functionality" note="" work="1152000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+    <task id="18" name="New Model" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="19" name="Changes" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="20" name="user settings" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="21" name="thumbnail with byte array" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="22" name="acl" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      </task>
+      <task id="23" name="all from base class with id?" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="24" name="DB Update scripts" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="25" name="Locking" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    </task>
+    <task id="26" name="Server Basic Functionality" note="" work="1152000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <predecessors>
         <predecessor id="1" predecessor-id="1" type="FS"/>
       </predecessors>
-      <task id="25" name="Full-read api" note="" work="288000" start="20050914T170000Z" end="20050928T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="26" name="ObjectAdapter for Writes" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="27" name="All tables" note="" work="432000" start="20050914T170000Z" end="20051005T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="28" name="DB Object Interop" note="" work="1152000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="29" name="Testing" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="30" name="Transactions (JTA/XA)" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="31" name="Exceptions in api" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="32" name="security review" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="33" name="Reverse Engineering Perl" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="34" name="consistency (see emails)" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="35" name="Import" note="" work="1152000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="36" name="RDF based" note="" work="576000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="37" name="Using Hibernate API" note="" work="576000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="27" name="Full-read api" note="" work="288000" start="20050914T170000Z" end="20050928T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="28" name="ObjectAdapter for Writes" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="29" name="All tables" note="" work="432000" start="20050914T170000Z" end="20051005T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="30" name="DB Object Interop" note="" work="1152000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="31" name="Testing" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="32" name="Transactions (JTA/XA)" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="33" name="Exceptions in api" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="34" name="security review" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="35" name="Reverse Engineering Perl" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="36" name="consistency (see emails)" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="37" name="Import" note="" work="1152000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="38" name="RDF based" note="" work="576000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="39" name="Using Hibernate API" note="" work="576000" start="20050914T170000Z" end="20051109T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
-      <task id="38" name="New Semantic Types" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="39" name="MetaModel in DB" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="40" name="DAG of Type sets" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="41" name="Namespaces" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="42" name="Type Ownership" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="43" name="OriginalFile, Deletes" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="44" name="ClassLoader" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-        <task id="45" name="Spring HotSwap" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="40" name="New Semantic Types" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="41" name="MetaModel in DB" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="42" name="DAG of Type sets" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="43" name="Namespaces" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="44" name="Type Ownership" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="45" name="OriginalFile, Deletes" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="46" name="ClassLoader" note="" work="28800" start="20050914T170000Z" end="20050915T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="47" name="Spring HotSwap" note="" work="144000" start="20050914T170000Z" end="20050921T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
     </task>
-    <task id="46" name="Server Extended Functionality" note="" work="2304000" start="20050818T000000Z" end="20051207T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="47" name="Connectivity" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+    <task id="48" name="Server Extended Functionality" note="" work="2304000" start="20050818T000000Z" end="20051207T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="49" name="Connectivity" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <predecessors>
-          <predecessor id="1" predecessor-id="62" type="FS"/>
+          <predecessor id="1" predecessor-id="65" type="FS"/>
         </predecessors>
-        <task id="48" name="Asynchronous" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-          <task id="49" name="JMS" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-          <task id="50" name="Call backs" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="50" name="Asynchronous" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <task id="51" name="JMS" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+          <task id="52" name="Call backs" note="" work="28800" start="20050818T113000Z" end="20050819T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
         </task>
       </task>
-      <task id="51" name="OMEIS" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="52" name="java version of omeis-io" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="53" name="OMEIS" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="54" name="java version of omeis-io" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
-      <task id="53" name="LSID" note="" work="1728000" start="20050818T000000Z" end="20051207T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="54" name="Session Beans" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="55" name="Clustering" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="55" name="LSID" note="" work="1728000" start="20050818T000000Z" end="20051207T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="56" name="Session Beans" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="57" name="Clustering" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="58" name="add jndi datasource" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="56" name="Testing" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="57" name="Performance Testing" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="58" name="Comparison testing (same objects or more)" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="59" name="Testing" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="60" name="Performance Testing" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="61" name="Comparison testing (same objects or more)" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="59" name="Deployment" note="" work="2822400" start="20050818T000000Z" end="20060102T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="60" name="TomcatCD / knoppix" note="" work="28800" start="20060101T000000Z" end="20060102T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+    <task id="62" name="Deployment" note="" work="2822400" start="20050818T000000Z" end="20060102T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="63" name="TomcatCD / knoppix" note="" work="28800" start="20060101T000000Z" end="20060102T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <constraint type="start-no-earlier-than" time="20060101T000000Z"/>
       </task>
-      <task id="61" name="WebStart" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="62" name="Supported JVMS" note="" work="12600" start="20050818T000000Z" end="20050818T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="64" name="WebStart" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="65" name="Supported JVMS" note="" work="12600" start="20050818T000000Z" end="20050818T113000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="63" name="Client" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="64" name="Client Cache" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="65" name="Adapter framework (templates?)" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="66" name="Client" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="67" name="Client Cache" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="68" name="Adapter framework (templates?)" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="66" name="" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-    <task id="67" name="Use Technologies" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+    <task id="69" name="" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="70" name="Use Technologies" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <predecessors>
-        <predecessor id="1" predecessor-id="24" type="FS"/>
+        <predecessor id="1" predecessor-id="26" type="FS"/>
       </predecessors>
-      <task id="68" name="beandoc" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="69" name="yourkit" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="70" name="jpda" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="71" name="maven 1.1,2 or ant 1.6" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="71" name="beandoc" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="72" name="yourkit" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="73" name="jpda" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="74" name="maven 1.1,2 or ant 1.6" note="" work="28800" start="20051109T170000Z" end="20051110T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="72" name="Social" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="73" name="DSTC re: owl" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="75" name="Social" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="76" name="DSTC re: owl" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="74" name="Code rules" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="75" name="no &quot;spring&quot; or &quot;hibernate&quot; in services" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="77" name="Code rules" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="78" name="no &quot;spring&quot; or &quot;hibernate&quot; in services" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
   </tasks>
   <resource-groups default_group="4">
@@ -184,8 +188,8 @@
     </resource>
   </resources>
   <allocations>
-    <allocation task-id="53" resource-id="1" units="75"/>
-    <allocation task-id="37" resource-id="3" units="50"/>
-    <allocation task-id="36" resource-id="3" units="50"/>
+    <allocation task-id="55" resource-id="1" units="75"/>
+    <allocation task-id="39" resource-id="3" units="50"/>
+    <allocation task-id="38" resource-id="3" units="50"/>
   </allocations>
 </project>

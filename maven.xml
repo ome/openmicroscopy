@@ -210,6 +210,7 @@ export CLASSPATH=${maven.build.dest}:${my.classpath}
    </postGoal>
    <preGoal name="clean:clean">
      <attainGoal name="delete-properties"/>
+     <ant:delete file="${basedir}/jcoverage.ser"/>
    </preGoal> 
  <!-- http://weblogs.java.net/blog/michael_n/archive/2005/05/maven_multiple.html-->
   <preGoal name="java:compile">

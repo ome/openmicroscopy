@@ -56,11 +56,13 @@
 	<context-param>
 	    <param-name>contextConfigLocation</param-name>
     	<param-value>
-    		/WEB-INF/config.xml 
+    		/WEB-INF/aop.xml
+    		/WEB-INF/config-web.xml 
     		/WEB-INF/services.xml 
-    		/WEB-INF/dao.xml 			
-    		/WEB-INF/data.xml 			
      		/WEB-INF/security.xml 
+    		/WEB-INF/dao.xml 			
+			/WEB-INF/hibernate.xml 		
+    		/WEB-INF/dbcp.xml 			
     	</param-value>
 	</context-param>
 

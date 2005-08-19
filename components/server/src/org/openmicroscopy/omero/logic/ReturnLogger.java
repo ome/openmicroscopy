@@ -62,8 +62,13 @@ import com.caucho.burlap.io.BurlapOutput;
 public class ReturnLogger implements MethodInterceptor {
 
 	private static Log log = LogFactory.getLog(ReturnLogger.class);
+	private boolean printXML = false;
+
+	public void setPrintXML(boolean value){
+		this.printXML = value;
+	}
 	
-    /**
+	/**
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     public Object invoke(MethodInvocation arg0) throws Throwable {
@@ -76,12 +81,14 @@ public class ReturnLogger implements MethodInterceptor {
     }
     
     public void log(Object o) throws Throwable{
-        OutputStream os = new ByteArrayOutputStream();
-        BurlapOutput out = new BurlapOutput(os);
-        out.writeObject(o);
-        byte[] b = ((ByteArrayOutputStream)os).toByteArray();
-        os.close();
-        log.info(new String(b));
+    	if (printXML){
+    		OutputStream os = new ByteArrayOutputStream();
+    		BurlapOutput out = new BurlapOutput(os);
+    		out.writeObject(o);
+    		byte[] b = ((ByteArrayOutputStream)os).toByteArray();
+    		os.close();
+    		log.info(new String(b));
+    	}
     }
     
 }

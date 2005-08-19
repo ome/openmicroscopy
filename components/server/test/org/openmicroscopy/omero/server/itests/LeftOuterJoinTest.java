@@ -91,6 +91,8 @@ public class LeftOuterJoinTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
+    	super.onSetUp();
+    	org.openmicroscopy.omero.logic.Utils.setUserAuth();
         hb = (HierarchyBrowsing) applicationContext.getBean("hierarchyBrowsingService");
     }
     

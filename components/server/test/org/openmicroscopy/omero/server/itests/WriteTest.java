@@ -37,6 +37,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
 import org.openmicroscopy.omero.interfaces.Write;
+import org.openmicroscopy.omero.logic.Utils;
 
 
 /** 
@@ -66,6 +67,7 @@ public class WriteTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
+    	Utils.setUserAuth();
     }
     
     /**

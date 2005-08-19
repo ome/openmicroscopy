@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+
+	Configuration of all things dao. It should be possible to drop in
+	a new dao.xml for JDOs or whatever, and have things work seamlessly.
+ 
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>	
+
+	<bean id="dao" abstract="true">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="transactionManager" 
+    	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	    <property name="dataSource" ref="dataSource"/>
+	</bean>
+
+    <bean id="serviceTransactions" 
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="transactionAttributeSource">
+            <value>
+                org.openmicroscopy.omero.interfaces.HierarchyBrowsing.find*=PROPAGATION_REQUIRED
+                org.openmicroscopy.omero.interfaces.HierarchyBrowsing.load*=PROPAGATION_REQUIRED
+            </value>
+        </property>
+    </bean>
+
+	<bean id="daoCleanUp" class="org.openmicroscopy.omero.logic.DaoCleanUpHibernate" lazy-init="true">
+		<constructor-arg ref="daoUtils"/>
+	</bean>
+
+	<!-- Please see documentation for DaoUtils to see what this does -->
+	<bean id="daoUtils" class="org.openmicroscopy.omero.logic.DaoUtilsHibernate" lazy-init="true">
+		<constructor-arg ref="sessionFactory"/>
+	</bean>
+
+       <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
+	       <property name="cachedMappingResources">
+<!-- Originally: TODO switch to Spring version!
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="mappingResources">  
+-->
+           <list>
+	       		<value>org/openmicroscopy/omero/logic/queries.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChainExecution.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChain.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChainLink.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisChainNode.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/AnalysisNodeExecution.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/CategoryGroup.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Category.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ChannelComponent.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Classification.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/DatasetAnnotation.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Dataset.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Experimenter.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Feature.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/FormalInput.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/FormalOutput.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Group.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImageAnnotation.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImageDimension.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Image.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImageInfo.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ImagePixel.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/LogicalChannel.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/ModuleExecution.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Module.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/OmeSession.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Project.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/RenderingSetting.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Repository.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/SemanticElement.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/SemanticType.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/SemanticTypeOutput.hbm.xml</value>
+				<value>org/openmicroscopy/omero/model/Thumbnail.hbm.xml</value>
+			</list>
+       </property>
+<!-- TODO doesn't use cache!
+		          <property name="mappingDirectoryLocations">
+		   <list>
+			   <value>org/openmicroscopy/omero/model/</value>
+		   </list>
+	   </property>		   -->
+       <property name="hibernateProperties">
+           <props>
+              <prop key="hibernate.dialect">${database.dialect}</prop>
+	       	  <prop key="hibernate.show_sql">${database.show_sql}</prop>
+			  <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
+           </props>
+       </property>
+       <property name="dataSource">
+           <ref bean="dataSource"/>
+       </property>
+   </bean>
+</beans>

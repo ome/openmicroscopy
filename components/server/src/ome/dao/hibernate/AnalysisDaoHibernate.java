@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.server.itests.ConfigHelper
+ * ome.dao.hibernate.AnalysisDaoHibernate
  *
  *------------------------------------------------------------------------------
  *
@@ -26,20 +26,35 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.omero.server.itests;
+
+package ome.dao.hibernate;
 
 //Java imports
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
+import ome.dao.AnalysisDao;
 
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.type.IntegerType;
+import org.openmicroscopy.omero.OMEModel;
+import org.openmicroscopy.omero.logic.ContainerDao;
+import org.openmicroscopy.omero.model.Project;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
 
 
-/** 
- * tests for a HQL join bug.
- *  
+
+/** uses Hibernate to fulfill hierarchy needs.
+ * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -47,35 +62,21 @@ package org.openmicroscopy.omero.server.itests;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since 1.0
+ * 
  */
-public class ConfigHelper {
+public class AnalysisDaoHibernate extends HibernateDaoSupport implements AnalysisDao {
 
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    public static String[] getConfigLocations() {
+	
+	public Set getProjectsForUser(final int experimenterId) {
+        return (Set) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
 
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/services.xml",
-                "WEB-INF/security.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
-    }
+            	Query q = session.createQuery("from Project p where p.experimenter = :expId");
+            	q.setInteger("expId",experimenterId);
+            	return new HashSet(q.list());
+            }
+        });
 
-    public static String[] getDaoConfigLocations() {
-
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
-    }
-
-    
+	}
 }

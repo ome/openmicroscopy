@@ -76,10 +76,15 @@ public class OmeroThumbnailsBugTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-
         return ConfigHelper.getConfigLocations();//TODO omit data
     }
 
+    @Override
+    protected void onSetUp() throws Exception {
+    	super.onSetUp();
+    	org.openmicroscopy.omero.logic.Utils.setUserAuth();
+    }
+    
     public void testImageThumbnailExplodsOnHessianSerialization() {
         HierarchyBrowsingImpl hbv = new HierarchyBrowsingImpl();
         SessionFactory sessions = (SessionFactory) this.applicationContext
@@ -118,27 +123,27 @@ public class OmeroThumbnailsBugTest
 
     }
 
-    public void testThumbnailsExplodeCatchExceptions() {
-        for (int i = 0; i < 5000; i++) {
-            Object o;
-            try {
-                Set ids = new HashSet();
-                ids.add(new Integer(i));
-                HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext
-                        .getBean("hierarchyBrowsingService");
-                o = hb.findPDIHierarchies(ids);
-                Utils.structureSize(o);
-                o = hb.findDatasetAnnotations(ids);
-                Utils.structureSize(o);
-                o = hb.findImageAnnotations(ids);
-                Utils.structureSize(o);
-                o = hb.findCGCIHierarchies(ids);
-                Utils.structureSize(o);
-
-            } catch (Throwable t) {
-                log.info("For id "+i+":"+t);
-            }
-        }
-    }
+//    public void testThumbnailsExplodeCatchExceptions() {
+//        for (int i = 0; i < 5000; i++) {
+//            Object o;
+//            try {
+//                Set ids = new HashSet();
+//                ids.add(new Integer(i));
+//                HierarchyBrowsing hb = (HierarchyBrowsing) applicationContext
+//                        .getBean("hierarchyBrowsingService");
+//                o = hb.findPDIHierarchies(ids);
+//                Utils.structureSize(o);
+//                o = hb.findDatasetAnnotations(ids);
+//                Utils.structureSize(o);
+//                o = hb.findImageAnnotations(ids);
+//                Utils.structureSize(o);
+//                o = hb.findCGCIHierarchies(ids);
+//                Utils.structureSize(o);
+//
+//            } catch (Throwable t) {
+//                log.info("For id "+i+":"+t);
+//            }
+//        }
+//    }
 
 }

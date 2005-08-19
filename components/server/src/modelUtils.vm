@@ -96,15 +96,24 @@ public class ${Class}  extends BaseModelUtils {
 #set( $collection = $sessions.getCollectionMetadata($Role) )
 #set( $ElementType = $collection.getElementType())
 #set( $ElementClass = $ElementType.getReturnedClass().getName() )
+
 	// Type: $Type
     // Cleaning $Target::$p set (Role: $Role)
-    if (null==self.$getP()){
+
+	$Type from$getP = null;
+	try { 
+		from$getP = self.$getP();
+	} catch () {
+		// Failed. Leave null and "do nothing" below.
+	}
+	
+	if (null==from$getP){
       // Do nothing
-    } else if (!Hibernate.isInitialized(self.$getP())){
+    } else if (!Hibernate.isInitialized(from$getP)){
       self.$setP(null);
 #debug($ObjClass $p)
     } else {
-      for (Iterator it = self.$getP().iterator(); it.hasNext();){
+      for (Iterator it = from$getP.iterator(); it.hasNext();){
       	 //$ElementType
       	 //$ElementClass
          (new ${ElementClass}()).getUtils().clean(it.next(),done);

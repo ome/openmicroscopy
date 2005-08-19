@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.server.itests.ConfigHelper
+ * ome.dao.AnalysisDao
  *
  *------------------------------------------------------------------------------
  *
@@ -26,20 +26,20 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.omero.server.itests;
+
+package ome.dao;
 
 //Java imports
-
+import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
-
 //Application-internal dependencies
+import org.openmicroscopy.omero.OMEModel;
 
-
-/** 
- * tests for a HQL join bug.
- *  
+/** data access object for various analysis objects.
+ * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -48,34 +48,7 @@ package org.openmicroscopy.omero.server.itests;
  * </small>
  * @since 1.0
  */
-public class ConfigHelper {
+public interface AnalysisDao {
+    public Set getProjectsForUser(int experimenterId);
 
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    public static String[] getConfigLocations() {
-
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/services.xml",
-                "WEB-INF/security.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
-    }
-
-    public static String[] getDaoConfigLocations() {
-
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
-    }
-
-    
 }

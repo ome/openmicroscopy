@@ -68,10 +68,7 @@ public abstract class AbstractDbUnitTest extends AbstractSpringContextTests {
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        return new String[] { 
-                "WEB-INF/dao.xml",
-                "WEB-INF/test/config-test.xml", 
-                "WEB-INF/test/data-test.xml" };
+        return ConfigHelper.getDaoConfigLocations();
     }
 
     /**

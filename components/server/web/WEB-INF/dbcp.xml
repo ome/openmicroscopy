@@ -34,17 +34,23 @@
 
 <!--
 
-	Provides a OMEData instance for testing.
+	Only data source for all other activities
  
 -->
+
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>	
-
-	<!-- Add this config file to the getConfigLocations() of your tests
-		if you want data and interfaces injected -->
-	<bean id="data" class="org.openmicroscopy.omero.tests.OMEPerformanceData" init-method="init" lazy-init="true">
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
 		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	    <property name="driverClassName"><value>${database.driver}</value></property>
+    	<property name="url"><value>${database.url}-test</value></property>
+	    <property name="username"><value>${database.username}</value></property>
+	    <property name="password"><value>${database.password}</value></property>
 	</bean>
 
 </beans>

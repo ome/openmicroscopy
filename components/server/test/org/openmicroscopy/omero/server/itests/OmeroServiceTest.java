@@ -82,6 +82,12 @@ public class OmeroServiceTest
         return ConfigHelper.getConfigLocations();
     }
     
+    @Override
+    protected void onSetUp() throws Exception {
+    	super.onSetUp();
+    	org.openmicroscopy.omero.logic.Utils.setUserAuth();
+    }
+    
     public OmeroServiceTest(String name) {
         super(name,new OMEPerformanceData());
     }

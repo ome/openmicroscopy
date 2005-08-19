@@ -1,0 +1,761 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="${table.package}.${table.destinationClassName}" 
+    table="$table.sqlName"
+#if($table.schemaName)
+    schema="${table.databaseSchema}"
+#end
+#if(!$table.mutable)
+    mutable="false"
+#end
+#if($table.proxy)
+#if($plugin.genLazyNotProxy)
+    lazy="true"
+#else
+    proxy="${table.package}.${table.destinationClassName}"
+#end
+#end
+#if($table.dynamicUpdate)
+    dynamic-update="true"
+#end
+#if($table.dynamicInsert)
+    dynamic-insert="true"
+#end
+#if($table.selectBeforeUpdate)
+    select-before-update="true"
+#end
+#if($table.persisterName)
+    persister="${table.persister}"
+#end
+#if($table.batchSizeVal)
+    batch-size="${table.batchSize}"
+#end
+#if($table.whereVal)
+    where="${table.where}"
+#end
+>
+#if($table.classDescriptionName)
+    <meta attribute="class-description" inherit="false">
+       ${table.classDescription}
+    </meta>
+#end
+#if ($plugin.genXDocletTags)
+    <meta attribute="class-description" inherit="false">
+       @hibernate.class
+        table="$table.sqlName"
+#if($table.schemaName)
+        schema="${table.databaseSchema}"
+#end
+#if(!$table.mutable)
+        mutable="false"
+#end
+#if($table.dynamicUpdate)
+        dynamic-update="true"
+#end
+#if($table.dynamicInsert)
+        dynamic-insert="true"
+#end
+#if($table.selectBeforeUpdate)
+        select-before-update="true"
+#end
+#if($table.batchSizeVal)
+        batch-size="${table.batchSize}"
+#end
+#if($table.whereVal)
+        where="${table.where}"
+#end
+#if($table.proxy)
+#if($plugin.genLazyNotProxy)
+        lazy="true"
+#else
+        proxy="${table.package}.${table.destinationClassName}"
+#end
+#end
+    </meta>
+#end
+#if($table.extendsName)
+    <meta attribute="extends" inherit="false">${table.extends}</meta>
+#end
+#if($table.implementLifecycle)
+    <meta attribute="implements" inherit="false">net.sf.hibernate.Lifecycle</meta>
+#end
+#if($table.implementValidatable)
+    <meta attribute="implements" inherit="false">net.sf.hibernate.Validatable</meta>
+#end
+#if($table.equalsHashcode)
+    <meta attribute="implement-equals" inherit="false">true</meta>
+#end
+####### Generate all the extra (non hibernate) implements meta data
+#foreach ( $implClass in $table.implements )
+    <meta attribute="implements" inherit="false">${implClass}</meta>
+#end
+#if($table.classScopeName)
+    <meta attribute="scope-class" inherit="false">${table.classScope}</meta>
+#end
+#set ($VersionId = true)
+
+## Case where we have a composite key
+#set ($genPlainCompoundKey = ($table.plainCompoundKey || $table.relationshipPkAndNonPkMembers))
+#if ($table.compositeKey)
+## Special case where there is no primary key (bad database design).
+## In this case we put all the properties in a composite id.
+#if ($table.primaryKeyColumns.size() == 0 )
+    <composite-id>
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description" inherit="false">
+           @hibernate.id
+            generator-class="assigned"
+        </meta>
+#end
+#foreach ( $compKeyColumn in $table.basicColumns )
+        <key-property 
+            name="${compKeyColumn.variableName}" 
+            column="${compKeyColumn.sqlName}" 
+            type="${compKeyColumn.javaType}"
+#if ($compKeyColumn.sized)
+            length="$compKeyColumn.size"
+#end
+#if ($plugin.genXDocletTags)
+        >
+            <meta attribute="field-description">
+               @hibernate.property
+                column="${compKeyColumn.sqlName}"
+#if ($column.sized)            
+                length="$compKeyColumn.size"
+#end
+            </meta> 
+        </key-property>
+#else
+        />
+#end
+#end
+#else
+#if ($plugin.genIntergratedCompositeKeys)
+    <composite-id>
+#else
+    <composite-id name="comp_id" class="${table.package}.${table.compoundKeyDestinationClassName}">
+#end
+#if ($table.compoundKeyHasAnyEqualsHashcode)
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description" inherit="false">
+           @hibernate.id
+            generator-class="assigned"
+        </meta>
+#end
+## Check for plain Compound key generation.
+#if ($genPlainCompoundKey)
+#set ( $compKeyColumnCollection = $table.primaryKeyColumns )
+#else
+#set ( $compKeyColumnCollection = $table.primaryNotForeignKeyColumns )
+#end
+#foreach ( $compKeyColumn in $compKeyColumnCollection )
+        <key-property 
+            name="${compKeyColumn.variableName}" 
+            column="${compKeyColumn.sqlName}" 
+            type="${compKeyColumn.javaType}"
+#if ($compKeyColumn.sized)
+            length="$compKeyColumn.size"
+#end
+#if ($plugin.genXDocletTags)
+        >
+            <meta attribute="field-description">
+               @hibernate.property
+                column="${compKeyColumn.sqlName}"
+#if ($column.sized)            
+                length="$compKeyColumn.size"
+#end
+            </meta> 
+        </key-property>
+#else
+        />
+#end
+#end
+#end
+#if (!$genPlainCompoundKey)
+## Go across all relationships that are part of the primary key
+#foreach($relationshipRole in $table.primaryKeyRoles)
+#set( $target = $relationshipRole.getTarget($plugin))
+#if ($relationshipRole.enabled)
+## Check for a direct one-to-one mapping across Compound keys
+        <!-- $table.getDirectionality($relationshipRole) $table.getCardinalityValue($relationshipRole) association to $target.destinationClassName -->
+        <key-many-to-one
+        	name="$table.getVariableName($relationshipRole)"
+	        class="${target.package}.${target.destinationClassName}"
+	    >
+#if ($plugin.genXDocletTags)
+            <meta attribute="field-description">
+               @hibernate.many-to-one
+            </meta>
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+            <meta attribute="field-description">
+               @hibernate.column
+                name="$columnMap.foreignKey"
+            </meta>
+#end
+#end
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+    	    <column name="$columnMap.foreignKey" />
+#end
+	    </key-many-to-one>
+#else
+## Inactive end of a uni-directional foreign key in as a part of the 
+## compound key.
+#foreach ( $InactiveFKeyColumn in $table.getFkColsPkInactive($relationshipRole))
+        <key-property 
+            name="${InactiveFKeyColumn.variableName}" 
+            column="${InactiveFKeyColumn.sqlName}" 
+            type="${InactiveFKeyColumn.javaType}"
+#if ($InactiveFKeyColumn.sized)
+            length="$InactiveFKeyColumn.size"
+#end
+#if ($plugin.genXDocletTags)
+        >
+            <meta attribute="field-description">
+               @hibernate.property
+                column="${InactiveFKeyColumn.sqlName}"
+#if ($column.sized)            
+                length="$InactiveFKeyColumn.size"
+#end
+            </meta> 
+        </key-property>
+#else
+        />
+#end
+#end
+#end
+#end
+#end
+    </composite-id>    
+#else
+#set ($column = $table.pkColumn) 
+    <id
+        name="${column.variableName}"
+        type="$column.javaType"
+        column="$column.sqlName"
+#if ($table.generatorUnsavedValue && !($table.versioningPresent && $plugin.versionUnsavedValueSimpleKey))
+        unsaved-value="$table.generatorUnsavedValue"
+#end
+#if ($column.accessFieldName)
+        access="$column.accessField"
+#end
+    >
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.id
+            generator-class="$table.keyGenerator"
+            type="$column.javaType"
+            column="$column.sqlName"
+#if ($table.generatorUnsavedValue)
+            unsaved-value="$table.generatorUnsavedValue"
+#end
+#if ($column.accessFieldName)
+            access="$column.accessField"
+#end
+
+#if ($table.generatorRequiresParams)
+#if ($table.keyGenerator == "sequence")
+           @hibernate.generator-param
+	        name="$table.keyGenerator"
+	        value="$table.formattedKeyGeneratorArg"
+#elseif ($table.keyGenerator == "hilo")
+#if ($table.keyGeneratorArg != "")
+           @hibernate.generator-param
+	        name="table"
+	        value="$table.keyGeneratorArg"
+           @hibernate.generator-param
+	        name="column"
+	        value="next_value"
+#end
+           @hibernate.generator-param
+	        name="max_lo"
+	        value="100"
+#elseif ($table.keyGenerator == "seqhilo")
+           @hibernate.generator-param
+	        name="sequence"
+	        value="$table.formattedKeyGeneratorArg"
+           @hibernate.generator-param
+	        name="max_lo"
+	        value="100"
+#end
+#elseif ($table.keyGenerator == "native" && $table.keyGeneratorArg != "")
+           @hibernate.generator-param
+	        name="sequence"
+	        value="$table.formattedKeyGeneratorArg"
+#end   
+        </meta>
+#end
+#if ($column.includeEquals)
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if (!$table.generatorRequiresParams)
+#if ($table.keyGenerator == "native" && $table.keyGeneratorArg != "")
+        <generator class="$table.keyGenerator">
+            <param name="sequence">$table.formattedKeyGeneratorArg</param>
+        </generator>
+#else
+        <generator class="$table.keyGenerator" />
+#end
+#else
+        <generator class="$table.keyGenerator">
+#if ($table.keyGenerator == "sequence")     
+            <param name="sequence">$table.formattedKeyGeneratorArg</param>
+#elseif ($table.keyGenerator == "hilo")
+#if ($table.keyGeneratorArg != "")
+            <param name="table">$table.keyGeneratorArg</param>
+            <param name="column">next_value</param>
+#end
+            <param name="max_lo">100</param>
+#elseif ($table.keyGenerator == "seqhilo")
+            <param name="sequence">$table.formattedKeyGeneratorArg</param>
+            <param name="max_lo">100</param>
+#end
+        </generator>
+#end        
+    </id>
+#end
+#if ($table.versioningPresent && $VersionId)
+#set ($VersionId = false)
+#set ($versionCol = $table.versioningField)
+
+#if ($versionCol.specialtyVersionProperty)
+    <version
+        name="${versionCol.variableName}"
+        type="$versionCol.javaType"
+        column="$versionCol.sqlName"
+#if ($versionCol.accessFieldName)
+        access="$versionCol.accessField"
+#end
+#if (($plugin.versionUnsavedValueCompoundKeys && $table.compositeKey) || ($plugin.versionUnsavedValueSimpleKey && !$table.compositeKey))
+        unsaved-value="negative"
+#end
+#if ($versionCol.includeEquals || $plugin.genXDocletTags)
+    >
+#if ($versionCol.includeEquals)
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.version
+            column="$versionCol.sqlName"
+#if ($versionCol.accessFieldName)
+            access="$versionCol.accessField"
+#end
+#if (($plugin.versionUnsavedValueCompoundKeys && $table.compositeKey) || ($plugin.versionUnsavedValueSimpleKey && !$table.compositeKey))
+            unsaved-value="negative"
+#end
+        </meta>
+#end
+    </version>
+#else
+    />
+#end    
+#elseif ($versionCol.specialtyTimestampProperty)
+    <timestamp
+        name="${versionCol.variableName}"
+        column="$versionCol.sqlName"
+#if ($versionCol.accessFieldName)
+        access="$versionCol.accessField"
+#end
+#if (($plugin.versionUnsavedValueCompoundKeys && $table.compositeKey) || ($plugin.versionUnsavedValueSimpleKey && !$table.compositeKey))
+        unsaved-value="null"
+#end
+#if ($versionCol.includeEquals || $plugin.genXDocletTags)
+    >
+#if ($versionCol.includeEquals)
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.timestamp
+            column="$versionCol.sqlName"
+#if ($versionCol.accessFieldName)
+            access="$versionCol.accessField"
+#end
+#if (($plugin.versionUnsavedValueCompoundKeys && $table.compositeKey) || ($plugin.versionUnsavedValueSimpleKey && !$table.compositeKey))
+            unsaved-value="null"
+#end
+        </meta>
+#end
+    </timestamp>
+#else
+    />
+#end    
+#end
+#end
+
+## Special case where there is no primary key
+## In this case all the properties have been included in the composite id so
+## we do not generate them another time.
+#if ($table.primaryKeyColumns.size() != 0 )
+#foreach ($column in $table.notKeyColumns )
+#if ($column.specialtyProperty)
+    <property
+        name="${column.variableName}"
+        type="$column.javaType"
+        column="$column.sqlName"
+#if (!$column.updateable)
+        update="false"
+#end
+#if (!$column.insertable)
+        insert="false"
+#end
+#if (!$column.nullable)
+        not-null="true"
+#end
+#if ($column.unique)
+        unique="true"
+#end
+#if ($column.sized)
+        length="$column.size"
+#end
+#if ($column.accessFieldName)
+        access="$column.accessField"
+#end
+#if ($column.metaData || $plugin.genXDocletTags)
+    >
+#if($column.fieldDescriptionName)
+        <meta attribute="field-description">
+           ${column.fieldDescription}
+        </meta>
+#end
+#if ($column.includeToString)
+        <meta attribute="use-in-tostring">true</meta>
+#end
+#if (!$column.genProperty)
+        <meta attribute="gen-property">false</meta>
+#end
+#if ($column.includeEquals)
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if($column.fieldScopeName)
+        <meta attribute="scope-field">${column.fieldScope}</meta>
+#end
+#if($column.fieldGetScopeName)
+        <meta attribute="scope-get">${column.fieldGetScope}</meta>
+#end
+#if($column.fieldSetScopeName)
+        <meta attribute="scope-set">${column.fieldSetScope}</meta>
+#end
+#if($column.beanPropertyTypeName)
+        <meta attribute="beans-property-type">${column.beanPropertyType}</meta>
+#end
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.property
+            column="$column.sqlName"
+#if (!$column.updateable)
+            update="false"
+#end
+#if (!$column.insertable)
+            insert="false"
+#end
+#if ($column.unique)
+            unique="true"
+#end
+#if ($column.sized)            
+            length="$column.size"
+#end
+#if ($column.accessFieldName)
+            access="$column.accessField"
+#end
+#if (!$column.nullable)            
+            not-null="true"
+#end
+        </meta>    
+#end
+    </property>
+#else
+    />
+#end
+#end
+#end
+#end
+
+    <!-- Associations -->
+## Plain Compound Key generation for Many-to-one association generation
+#if ($table.compositeKey && $genPlainCompoundKey)
+## Use derived access proerties for the many-to-one associations.
+    <!-- derived association(s) for compound key -->
+## Go across all relationships that are part of the compound key
+#foreach($relationshipRole in $table.primaryKeyRoles)
+#set( $target = $relationshipRole.getTarget($plugin))
+#if ($relationshipRole.enabled && !$target.isRoleOneToOnePrimaryKeys($relationshipRole.targetRole, $table))
+    <!-- $table.getDirectionality($relationshipRole) $table.getCardinalityValue($relationshipRole) association to $target.destinationClassName -->
+    <many-to-one
+        name="$table.getVariableName($relationshipRole)"
+	    class="${target.package}.${target.destinationClassName}"
+	    update="false"
+	    insert="false"
+	>
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.many-to-one
+            update="false"
+            insert="false"
+        </meta>
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+        <meta attribute="field-description">
+           @hibernate.column
+            name="$columnMap.foreignKey"
+        </meta>
+#end
+#end
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+    	<column name="$columnMap.foreignKey" />
+#end
+	</many-to-one>
+	
+#end
+#end
+    <!-- end of derived association(s) -->
+#end
+  
+####### Pure One-to-one roles only total primary key to primary key roles.
+#foreach($relationshipRole in $table.childSidePrimaryKeyOnlyOneToOneRoles)
+#set( $target = $relationshipRole.getTarget($plugin))
+## The check only works from one direction so this is reversed.
+#if ($target.isRoleOneToOnePrimaryKeys($relationshipRole.targetRole, $table))
+    <!-- $table.getDirectionality($relationshipRole) $table.getCardinalityValue($relationshipRole) association to $target.destinationClassName -->
+    <one-to-one
+        name="$table.getVariableName($relationshipRole)"
+        class="${target.package}.${target.destinationClassName}"
+        outer-join="auto"
+        constrained="true"
+#if ($plugin.genXDocletTags)
+    >
+        <meta attribute="field-description">
+           @hibernate.one-to-one
+            class="${target.package}.${target.destinationClassName}"
+            outer-join="auto"
+            constrained="true"
+        </meta>    
+    </one-to-one>
+#else
+    />
+#end    
+#end
+#end
+####### Non primary key based roles   
+#foreach($relationshipRole in $table.notPrimaryKeyRoles)
+#if( $relationshipRole.enabled)
+#set( $one2one = $relationshipRole.relation.one2One )
+#set( $many2many = $relationshipRole.relation.many2Many )
+#set( $bidirectional = $relationshipRole.relation.bidirectional )
+#set( $target = $relationshipRole.getTarget($plugin))
+########## Compute cardinality strings for javadocs (useful for humans)
+    <!-- $table.getDirectionality($relationshipRole) $table.getCardinalityValue($relationshipRole) association to $target.destinationClassName -->
+#if( !$relationshipRole.targetMany )
+## With the test $relationshipRole.originPrimaryKey we generate one2one 
+## relationships not based on the primary key only as many-to-one relations
+## on one side and property-ref on the other.
+#if( ($one2one && $relationshipRole.originPrimaryKey) || ($one2one && $table.isRoleOneToOnePrimaryKeys($relationshipRole, $target)))
+    <one-to-one
+        name="$table.getVariableName($relationshipRole)"
+        class="${target.package}.${target.destinationClassName}"
+        outer-join="auto"
+#if(! $table.isRoleOneToOnePrimaryKeys($relationshipRole, $target))
+#if ($bidirectional)
+        property-ref="$target.getVariableName($relationshipRole.targetRole)" 
+#else
+### Should only be one.
+#foreach( $columnMap in $relationshipRole.columnMaps )
+        property-ref="$target.getColumn($columnMap.foreignKey).variableName" 
+#end
+#end
+#end
+#if ($plugin.genXDocletTags)
+    >
+        <meta attribute="field-description">
+           @hibernate.one-to-one
+            outer-join="auto"
+#if(! $table.isRoleOneToOnePrimaryKeys($relationshipRole, $target))
+#if ($bidirectional)
+            property-ref="$target.getVariableName($relationshipRole.targetRole)" 
+#else
+### Should only be one.
+#foreach( $columnMap in $relationshipRole.columnMaps )
+            property-ref="$target.getColumn($columnMap.foreignKey).variableName" 
+#end
+#end
+#end
+        </meta>
+    </one-to-one>
+#else
+    />
+#end
+#else
+    <many-to-one
+        name="$table.getVariableName($relationshipRole)"
+        class="${target.package}.${target.destinationClassName}"
+#if ($bidirectional && !$one2one)
+        not-null="true"
+#end
+## This is the case of one-to-one relationships not based on the pk.
+#if ($bidirectional && $one2one)
+        unique="true"
+#end
+    >
+#if ($table.isFKRoleHasAnyEqualsHashcode($relationshipRole))
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.many-to-one
+#if ($bidirectional && !$one2one)
+            not-null="true"
+#end
+## This is the case of one-to-one relationships not based on the pk.
+#if ($bidirectional && $one2one)
+            unique="true"
+#end
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )          
+           @hibernate.column name="$columnMap.foreignKey"         
+#end
+        </meta>
+#end
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+        <column name="$columnMap.foreignKey" />
+#end
+    </many-to-one>
+#end
+#else
+    <set
+        name="$table.getVariableName($relationshipRole)"
+        lazy="true"
+#if( !$many2many && $bidirectional )
+        inverse="true"
+#end
+		cascade="$plugin.standardCascade"
+#if( $many2many )
+        table="$relationshipRole.relation.joinTable.sqlName"
+#end
+    >
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.set
+            lazy="true"
+#if( !$many2many && $bidirectional )
+            inverse="true"
+#end
+            cascade="$plugin.standardCascade"
+#if( $many2many )
+            table="$relationshipRole.relation.joinTable.sqlName"
+#end
+
+#foreach( $columnMap in $relationshipRole.columnMaps )
+           @hibernate.collection-key
+            column="$columnMap.foreignKey"
+#end
+
+#if( !$many2many )
+           @hibernate.collection-one-to-many
+            class="${target.package}.${target.destinationClassName}"
+#else
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+           @hibernate.collection-many-to-many
+            class="${target.package}.${target.destinationClassName}"
+            column="$columnMap.foreignKey"
+#end
+#end
+        </meta>
+#end
+        <key>
+#foreach( $columnMap in $relationshipRole.columnMaps )
+            <column name="$columnMap.foreignKey" />
+#end
+        </key>
+#if( !$many2many )
+        <one-to-many 
+#else
+        <many-to-many
+#end
+            class="${target.package}.${target.destinationClassName}"
+#if( $many2many)
+        >
+#foreach( $columnMap in $relationshipRole.targetRole.columnMaps )
+            <column name="$columnMap.foreignKey" />
+#end
+        </many-to-many>
+#else
+        />
+#end
+    </set>
+#end
+#else
+## Inactive end of a association foreign key
+#foreach ( $InactiveFKeyColumn in $table.getFkColsInactive($relationshipRole) )
+    <property 
+        name="${InactiveFKeyColumn.variableName}" 
+        column="${InactiveFKeyColumn.sqlName}" 
+        type="${InactiveFKeyColumn.javaType}"
+#if ($InactiveFKeyColumn.sized)
+        length="$InactiveFKeyColumn.size"
+#end
+#if (!$InactiveFKeyColumn.updateable)
+        update="false"
+#end
+#if (!$InactiveFKeyColumn.insertable)
+        insert="false"
+#end
+#if (!$InactiveFKeyColumn.nullable)
+        not-null="true"
+#end
+#if ($InactiveFKeyColumn.unique)
+        unique="true"
+#end
+#if ($InactiveFKeyColumn.accessFieldName)
+        access="$InactiveFKeyColumn.accessField"
+#end
+#if ($InactiveFKeyColumn.includeEquals || $plugin.genXDocletTags)
+    >
+#if ($InactiveFKeyColumn.includeEquals)
+        <meta attribute="use-in-equals">true</meta>
+#end
+#if ($plugin.genXDocletTags)
+        <meta attribute="field-description">
+           @hibernate.property
+            column="${InactiveFKeyColumn.sqlName}"
+#if ($InactiveFKeyColumn.sized)            
+            length="$InactiveFKeyColumn.size"
+#end
+#if (!$InactiveFKeyColumn.updateable)
+            update="false"
+#end
+#if (!$InactiveFKeyColumn.insertable)
+            insert="false"
+#end
+#if ($InactiveFKeyColumn.unique)
+            unique="true"
+#end
+#if (!$InactiveFKeyColumn.nullable)            
+            not-null="true"
+#end
+#if ($InactiveFKeyColumn.accessFieldName)
+            access="$InactiveFKeyColumn.accessField"
+#end
+        </meta> 
+#end
+    </property>
+#else
+    />
+#end
+#end
+#end
+#end
+
+</class>
+</hibernate-mapping>

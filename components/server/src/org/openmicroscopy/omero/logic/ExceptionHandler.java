@@ -66,7 +66,7 @@ public class ExceptionHandler implements MethodInterceptor {
     		return o;
     	} catch (Throwable t) {
     		if (filter_p(t)){
-    			throw new RuntimeException("Internal server error.");
+    			throw new RuntimeException("Internal server error.",t);//TODO
     		}
     		throw t;
     	}
