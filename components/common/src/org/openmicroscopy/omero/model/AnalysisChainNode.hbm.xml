@@ -23,7 +23,7 @@
         column="analysis_chain_node_id"
     >
         <generator class="sequence">
-            <param name="sequence">analysis_chain_nodes_seq</param>
+            <param name="sequence">this_seq_does_not_exist</param>
         </generator>
     </id>
 

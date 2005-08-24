@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 SemanticType 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -146,6 +149,95 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: SemanticTypeId ------------------------------------------
+	  Integer _SemanticTypeId = null;
+	  try {
+	     _SemanticTypeId = getSemanticTypeId();
+	  } catch (Exception e) {
+		 setSemanticTypeId(null);
+	  }
+// TODO catch class cast?
+	  setSemanticTypeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):SemanticTypeId",_SemanticTypeId)); 
+
+	  // Visiting: Granularity ------------------------------------------
+	  String _Granularity = null;
+	  try {
+	     _Granularity = getGranularity();
+	  } catch (Exception e) {
+		 setGranularity(null);
+	  }
+// TODO catch class cast?
+	  setGranularity((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):Granularity",_Granularity)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):Name",_Name)); 
+
+	  // Visiting: Description ------------------------------------------
+	  String _Description = null;
+	  try {
+	     _Description = getDescription();
+	  } catch (Exception e) {
+		 setDescription(null);
+	  }
+// TODO catch class cast?
+	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):Description",_Description)); 
+
+	  // Visiting: SemanticTypeOutputs ------------------------------------------
+	  Set _SemanticTypeOutputs = null;
+	  try {
+	     _SemanticTypeOutputs = getSemanticTypeOutputs();
+	  } catch (Exception e) {
+		 setSemanticTypeOutputs(null);
+	  }
+// TODO catch class cast?
+	  setSemanticTypeOutputs((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):SemanticTypeOutputs",_SemanticTypeOutputs)); 
+
+	  // Visiting: FormalOutputs ------------------------------------------
+	  Set _FormalOutputs = null;
+	  try {
+	     _FormalOutputs = getFormalOutputs();
+	  } catch (Exception e) {
+		 setFormalOutputs(null);
+	  }
+// TODO catch class cast?
+	  setFormalOutputs((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):FormalOutputs",_FormalOutputs)); 
+
+	  // Visiting: FormalInputs ------------------------------------------
+	  Set _FormalInputs = null;
+	  try {
+	     _FormalInputs = getFormalInputs();
+	  } catch (Exception e) {
+		 setFormalInputs(null);
+	  }
+// TODO catch class cast?
+	  setFormalInputs((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):FormalInputs",_FormalInputs)); 
+
+	  // Visiting: SemanticElements ------------------------------------------
+	  Set _SemanticElements = null;
+	  try {
+	     _SemanticElements = getSemanticElements();
+	  } catch (Exception e) {
+		 setSemanticElements(null);
+	  }
+// TODO catch class cast?
+	  setSemanticElements((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticType):SemanticElements",_SemanticElements)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "SemanticType"+(semanticTypeId==null ? ":Hash"+this.hashCode() : ":"+semanticTypeId);
+  }
+  
 
 
 }

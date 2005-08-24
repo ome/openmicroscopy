@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 Feature 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -122,6 +125,75 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: FeatureId ------------------------------------------
+	  Integer _FeatureId = null;
+	  try {
+	     _FeatureId = getFeatureId();
+	  } catch (Exception e) {
+		 setFeatureId(null);
+	  }
+// TODO catch class cast?
+	  setFeatureId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Feature):FeatureId",_FeatureId)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Feature):Name",_Name)); 
+
+	  // Visiting: Tag ------------------------------------------
+	  String _Tag = null;
+	  try {
+	     _Tag = getTag();
+	  } catch (Exception e) {
+		 setTag(null);
+	  }
+// TODO catch class cast?
+	  setTag((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Feature):Tag",_Tag)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Feature):Image",_Image)); 
+
+	  // Visiting: Features ------------------------------------------
+	  Set _Features = null;
+	  try {
+	     _Features = getFeatures();
+	  } catch (Exception e) {
+		 setFeatures(null);
+	  }
+// TODO catch class cast?
+	  setFeatures((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Feature):Features",_Features)); 
+
+	  // Visiting: Feature ------------------------------------------
+	  Feature _Feature = null;
+	  try {
+	     _Feature = getFeature();
+	  } catch (Exception e) {
+		 setFeature(null);
+	  }
+// TODO catch class cast?
+	  setFeature((Feature) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Feature):Feature",_Feature)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "Feature"+(featureId==null ? ":Hash"+this.hashCode() : ":"+featureId);
+  }
+  
 
 
 }

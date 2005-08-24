@@ -42,7 +42,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>	
-
+	
 	<bean id="dao" abstract="true">
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
@@ -64,18 +64,21 @@
             </value>
         </property>
     </bean>
-
+	<!-- TODO: Delete
 	<bean id="daoCleanUp" class="org.openmicroscopy.omero.logic.DaoCleanUpHibernate" lazy-init="true">
 		<constructor-arg ref="daoUtils"/>
 	</bean>
-
+	-->
 	<!-- Please see documentation for DaoUtils to see what this does -->
+	<!--
 	<bean id="daoUtils" class="org.openmicroscopy.omero.logic.DaoUtilsHibernate" lazy-init="true">
 		<constructor-arg ref="sessionFactory"/>
 	</bean>
+	-->
+	<bean id="daoCleanUp" class="ome.dao.hibernate.ProxyCleanupFilter"/>
 
-       <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
-	       <property name="cachedMappingResources">
+    <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
+		<property name="cachedMappingResources">
 <!-- Originally: TODO switch to Spring version!
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="mappingResources">  

@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 DatasetAnnotation 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -110,6 +113,65 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.DatasetAnnotation):AttributeId",_AttributeId)); 
+
+	  // Visiting: Content ------------------------------------------
+	  String _Content = null;
+	  try {
+	     _Content = getContent();
+	  } catch (Exception e) {
+		 setContent(null);
+	  }
+// TODO catch class cast?
+	  setContent((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.DatasetAnnotation):Content",_Content)); 
+
+	  // Visiting: Valid ------------------------------------------
+	  Boolean _Valid = null;
+	  try {
+	     _Valid = getValid();
+	  } catch (Exception e) {
+		 setValid(null);
+	  }
+// TODO catch class cast?
+	  setValid((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.DatasetAnnotation):Valid",_Valid)); 
+
+	  // Visiting: Dataset ------------------------------------------
+	  Dataset _Dataset = null;
+	  try {
+	     _Dataset = getDataset();
+	  } catch (Exception e) {
+		 setDataset(null);
+	  }
+// TODO catch class cast?
+	  setDataset((Dataset) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.DatasetAnnotation):Dataset",_Dataset)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.DatasetAnnotation):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "DatasetAnnotation"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

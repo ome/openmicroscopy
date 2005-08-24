@@ -4,5 +4,76 @@
   <para>
     There are several concepts which play a large role in the design of the server. These include: the DAO pattern, AOP cross-cutting, and dependency injection. The first of these is handled (currently) by Hibernate. The other two by Spring.
   </para>
+
+  <section id="design-types">
+    <para>
+      small domain language --> generate schema/spec/model/...
+    </para>
+    <para>
+      links (fields immutable "from" & "to")
+    </para>
+    <para>
+      goal: no exceptions in the model. simple domain language that can produce everything. no stored procedures. no special code. (ideal, i know.)
+    </para>
+  </section>
+  <section id="design-mex">
+    <para>
+      option 1: many-many tables
+      option 2: range table
+      option 3: single mex per row
+      option 4: virtual mex as "composite"
+  </section>
+  <section id="design-security">
+    <title>Security</title>
+    <section id="design-access">
+      <title>Access Control</title>
+      <para>
+	9 bit (like unix)
+	RWX==>Read_Edit_Delete. 
+	Or combine edit and delete?
+      </para>
+    <para>
+      or 32 bit 
+      read, edit(includes delete), locked, versioned, inactive, ...
+    </para>
+      <programlisting>
+ome=# select perm from image;
+   perm    
+-----------
+ 
+ 111100100
+ 111000000
+ 111100000
+(4 rows)
+
+ome=# select b'000000000'<(b'100100100'&amp;perm) from perms;
+ ?column? 
+----------
+ 
+ t
+ t
+ t
+(4 rows)
+
+ome=# select b'000000000'<(b'000100100'&amp;perm) from perms;
+ ?column? 
+----------
+ 
+ t
+ f
+ t
+(4 rows)
+
+ome=# select b'000000000'<(b'000000100'&amp;perm) from perms;
+ ?column? 
+----------
+ 
+ t
+ f
+ f
+(4 rows)
+      </programlisting>
+    </section>
+  </section>
  </chapter>
 

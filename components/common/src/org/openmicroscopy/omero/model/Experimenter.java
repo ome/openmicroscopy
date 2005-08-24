@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 Experimenter 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -302,6 +305,225 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):AttributeId",_AttributeId)); 
+
+	  // Visiting: OmeName ------------------------------------------
+	  String _OmeName = null;
+	  try {
+	     _OmeName = getOmeName();
+	  } catch (Exception e) {
+		 setOmeName(null);
+	  }
+// TODO catch class cast?
+	  setOmeName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):OmeName",_OmeName)); 
+
+	  // Visiting: Email ------------------------------------------
+	  String _Email = null;
+	  try {
+	     _Email = getEmail();
+	  } catch (Exception e) {
+		 setEmail(null);
+	  }
+// TODO catch class cast?
+	  setEmail((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Email",_Email)); 
+
+	  // Visiting: Firstname ------------------------------------------
+	  String _Firstname = null;
+	  try {
+	     _Firstname = getFirstname();
+	  } catch (Exception e) {
+		 setFirstname(null);
+	  }
+// TODO catch class cast?
+	  setFirstname((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Firstname",_Firstname)); 
+
+	  // Visiting: Password ------------------------------------------
+	  String _Password = null;
+	  try {
+	     _Password = getPassword();
+	  } catch (Exception e) {
+		 setPassword(null);
+	  }
+// TODO catch class cast?
+	  setPassword((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Password",_Password)); 
+
+	  // Visiting: DataDir ------------------------------------------
+	  String _DataDir = null;
+	  try {
+	     _DataDir = getDataDir();
+	  } catch (Exception e) {
+		 setDataDir(null);
+	  }
+// TODO catch class cast?
+	  setDataDir((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):DataDir",_DataDir)); 
+
+	  // Visiting: Lastname ------------------------------------------
+	  String _Lastname = null;
+	  try {
+	     _Lastname = getLastname();
+	  } catch (Exception e) {
+		 setLastname(null);
+	  }
+// TODO catch class cast?
+	  setLastname((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Lastname",_Lastname)); 
+
+	  // Visiting: Institution ------------------------------------------
+	  String _Institution = null;
+	  try {
+	     _Institution = getInstitution();
+	  } catch (Exception e) {
+		 setInstitution(null);
+	  }
+// TODO catch class cast?
+	  setInstitution((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Institution",_Institution)); 
+
+	  // Visiting: RenderingSettings ------------------------------------------
+	  Set _RenderingSettings = null;
+	  try {
+	     _RenderingSettings = getRenderingSettings();
+	  } catch (Exception e) {
+		 setRenderingSettings(null);
+	  }
+// TODO catch class cast?
+	  setRenderingSettings((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):RenderingSettings",_RenderingSettings)); 
+
+	  // Visiting: Datasets ------------------------------------------
+	  Set _Datasets = null;
+	  try {
+	     _Datasets = getDatasets();
+	  } catch (Exception e) {
+		 setDatasets(null);
+	  }
+// TODO catch class cast?
+	  setDatasets((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Datasets",_Datasets)); 
+
+	  // Visiting: GroupsByLeader ------------------------------------------
+	  Set _GroupsByLeader = null;
+	  try {
+	     _GroupsByLeader = getGroupsByLeader();
+	  } catch (Exception e) {
+		 setGroupsByLeader(null);
+	  }
+// TODO catch class cast?
+	  setGroupsByLeader((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):GroupsByLeader",_GroupsByLeader)); 
+
+	  // Visiting: GroupsByContact ------------------------------------------
+	  Set _GroupsByContact = null;
+	  try {
+	     _GroupsByContact = getGroupsByContact();
+	  } catch (Exception e) {
+		 setGroupsByContact(null);
+	  }
+// TODO catch class cast?
+	  setGroupsByContact((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):GroupsByContact",_GroupsByContact)); 
+
+	  // Visiting: AnalysisChains ------------------------------------------
+	  Set _AnalysisChains = null;
+	  try {
+	     _AnalysisChains = getAnalysisChains();
+	  } catch (Exception e) {
+		 setAnalysisChains(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChains((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):AnalysisChains",_AnalysisChains)); 
+
+	  // Visiting: Images ------------------------------------------
+	  Set _Images = null;
+	  try {
+	     _Images = getImages();
+	  } catch (Exception e) {
+		 setImages(null);
+	  }
+// TODO catch class cast?
+	  setImages((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Images",_Images)); 
+
+	  // Visiting: AnalysisChainExecutions ------------------------------------------
+	  Set _AnalysisChainExecutions = null;
+	  try {
+	     _AnalysisChainExecutions = getAnalysisChainExecutions();
+	  } catch (Exception e) {
+		 setAnalysisChainExecutions(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):AnalysisChainExecutions",_AnalysisChainExecutions)); 
+
+	  // Visiting: Projects ------------------------------------------
+	  Set _Projects = null;
+	  try {
+	     _Projects = getProjects();
+	  } catch (Exception e) {
+		 setProjects(null);
+	  }
+// TODO catch class cast?
+	  setProjects((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Projects",_Projects)); 
+
+	  // Visiting: OmeSessions ------------------------------------------
+	  Set _OmeSessions = null;
+	  try {
+	     _OmeSessions = getOmeSessions();
+	  } catch (Exception e) {
+		 setOmeSessions(null);
+	  }
+// TODO catch class cast?
+	  setOmeSessions((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):OmeSessions",_OmeSessions)); 
+
+	  // Visiting: ModuleExecutions ------------------------------------------
+	  Set _ModuleExecutions = null;
+	  try {
+	     _ModuleExecutions = getModuleExecutions();
+	  } catch (Exception e) {
+		 setModuleExecutions(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):ModuleExecutions",_ModuleExecutions)); 
+
+	  // Visiting: Group ------------------------------------------
+	  Group _Group = null;
+	  try {
+	     _Group = getGroup();
+	  } catch (Exception e) {
+		 setGroup(null);
+	  }
+// TODO catch class cast?
+	  setGroup((Group) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Group",_Group)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):ModuleExecution",_ModuleExecution)); 
+
+	  // Visiting: Groups ------------------------------------------
+	  Set _Groups = null;
+	  try {
+	     _Groups = getGroups();
+	  } catch (Exception e) {
+		 setGroups(null);
+	  }
+// TODO catch class cast?
+	  setGroups((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Experimenter):Groups",_Groups)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "Experimenter"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

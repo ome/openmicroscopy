@@ -49,39 +49,34 @@
          -->
         <bean id="daoBeanNameProxyCreator"
                 class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
-                <property name="beanNames" value="*Dao"/>
+                <property name="beanNames"><value>*Dao</value></property> 
                 <property name="interceptorNames">
                 <list>
-<!--                    
-                        <value>exceptionHandling</value>
-                        <value>logging</value>
-			TODO: tracing for all? and daoCleanup here?
-                        <value>daoCleanUp</value>
-                        <value>serviceTracing</value>
--->
+					<value>daoCleanUp</value>					
+					<!--                    
+                    <value>exceptionHandling</value>
+                    <value>logging</value>
+					<value>serviceTracing</value> TODO: tracing for all?
+					-->
                 </list>
                 </property>
         </bean>
+
+	<!-- TODO: possibly switch to proxyFactoryBean for increased functionality
+		<bean id="daoProxy" abstract="true" class="org.springframework.aop.framework.ProxyFactoryBean">
+			<property name="interceptorNames">
+    	  		<list>
+      	    		<value>daoCleanUp</value>
+	-->
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
         <!-- dao parent bean must be defined in a specific technology
 	     package hibernate.xml jdo.xml etc. -->
 
-	<bean id="analysisDao" 
-		class="ome.dao.hibernate.AnalysisDaoHibernate"
-		parent="dao"/>	
-	
-	<bean id="annotationDao" 
-		class="org.openmicroscopy.omero.logic.AnnotationDaoHibernate"
-		parent="dao"/>
-
-	<bean id="containerDao" 
-		class="org.openmicroscopy.omero.logic.ContainerDaoHibernate"
-		parent="dao"/>
-
-	<bean id="genericDao" 
-		class="org.openmicroscopy.omero.logic.GenericDaoHibernate"
-		parent="dao"/>
+	<bean id="analysisDao"   class="ome.dao.hibernate.AnalysisDaoHibernate"  parent="dao"/>	
+	<bean id="annotationDao" class="org.openmicroscopy.omero.logic.AnnotationDaoHibernate"  parent="dao"/>
+	<bean id="containerDao"  class="org.openmicroscopy.omero.logic.ContainerDaoHibernate"  parent="dao"/>
+	<bean id="genericDao"    class="org.openmicroscopy.omero.logic.GenericDaoHibernate"  parent="dao"/>
 	
 </beans>

@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 ChannelComponent 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -134,6 +137,85 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):AttributeId",_AttributeId)); 
+
+	  // Visiting: Index ------------------------------------------
+	  Integer _Index = null;
+	  try {
+	     _Index = getIndex();
+	  } catch (Exception e) {
+		 setIndex(null);
+	  }
+// TODO catch class cast?
+	  setIndex((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):Index",_Index)); 
+
+	  // Visiting: ColorDomain ------------------------------------------
+	  String _ColorDomain = null;
+	  try {
+	     _ColorDomain = getColorDomain();
+	  } catch (Exception e) {
+		 setColorDomain(null);
+	  }
+// TODO catch class cast?
+	  setColorDomain((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):ColorDomain",_ColorDomain)); 
+
+	  // Visiting: ImagePixel ------------------------------------------
+	  ImagePixel _ImagePixel = null;
+	  try {
+	     _ImagePixel = getImagePixel();
+	  } catch (Exception e) {
+		 setImagePixel(null);
+	  }
+// TODO catch class cast?
+	  setImagePixel((ImagePixel) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):ImagePixel",_ImagePixel)); 
+
+	  // Visiting: LogicalChannel ------------------------------------------
+	  LogicalChannel _LogicalChannel = null;
+	  try {
+	     _LogicalChannel = getLogicalChannel();
+	  } catch (Exception e) {
+		 setLogicalChannel(null);
+	  }
+// TODO catch class cast?
+	  setLogicalChannel((LogicalChannel) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):LogicalChannel",_LogicalChannel)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):Image",_Image)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ChannelComponent):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "ChannelComponent"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

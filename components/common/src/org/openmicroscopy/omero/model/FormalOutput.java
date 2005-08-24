@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 FormalOutput 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -158,6 +161,105 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: FormalOutputId ------------------------------------------
+	  Integer _FormalOutputId = null;
+	  try {
+	     _FormalOutputId = getFormalOutputId();
+	  } catch (Exception e) {
+		 setFormalOutputId(null);
+	  }
+// TODO catch class cast?
+	  setFormalOutputId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):FormalOutputId",_FormalOutputId)); 
+
+	  // Visiting: FeatureTag ------------------------------------------
+	  String _FeatureTag = null;
+	  try {
+	     _FeatureTag = getFeatureTag();
+	  } catch (Exception e) {
+		 setFeatureTag(null);
+	  }
+// TODO catch class cast?
+	  setFeatureTag((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):FeatureTag",_FeatureTag)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):Name",_Name)); 
+
+	  // Visiting: Optional ------------------------------------------
+	  Boolean _Optional = null;
+	  try {
+	     _Optional = getOptional();
+	  } catch (Exception e) {
+		 setOptional(null);
+	  }
+// TODO catch class cast?
+	  setOptional((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):Optional",_Optional)); 
+
+	  // Visiting: Description ------------------------------------------
+	  String _Description = null;
+	  try {
+	     _Description = getDescription();
+	  } catch (Exception e) {
+		 setDescription(null);
+	  }
+// TODO catch class cast?
+	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):Description",_Description)); 
+
+	  // Visiting: List ------------------------------------------
+	  Boolean _List = null;
+	  try {
+	     _List = getList();
+	  } catch (Exception e) {
+		 setList(null);
+	  }
+// TODO catch class cast?
+	  setList((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):List",_List)); 
+
+	  // Visiting: Module ------------------------------------------
+	  Module _Module = null;
+	  try {
+	     _Module = getModule();
+	  } catch (Exception e) {
+		 setModule(null);
+	  }
+// TODO catch class cast?
+	  setModule((Module) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):Module",_Module)); 
+
+	  // Visiting: AnalysisChainLinks ------------------------------------------
+	  Set _AnalysisChainLinks = null;
+	  try {
+	     _AnalysisChainLinks = getAnalysisChainLinks();
+	  } catch (Exception e) {
+		 setAnalysisChainLinks(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainLinks((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):AnalysisChainLinks",_AnalysisChainLinks)); 
+
+	  // Visiting: SemanticType ------------------------------------------
+	  SemanticType _SemanticType = null;
+	  try {
+	     _SemanticType = getSemanticType();
+	  } catch (Exception e) {
+		 setSemanticType(null);
+	  }
+// TODO catch class cast?
+	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalOutput):SemanticType",_SemanticType)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "FormalOutput"+(formalOutputId==null ? ":Hash"+this.hashCode() : ":"+formalOutputId);
+  }
+  
 
 
 }

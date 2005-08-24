@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 ImageDimension 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -146,6 +149,95 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):AttributeId",_AttributeId)); 
+
+	  // Visiting: PixelSizeC ------------------------------------------
+	  Float _PixelSizeC = null;
+	  try {
+	     _PixelSizeC = getPixelSizeC();
+	  } catch (Exception e) {
+		 setPixelSizeC(null);
+	  }
+// TODO catch class cast?
+	  setPixelSizeC((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):PixelSizeC",_PixelSizeC)); 
+
+	  // Visiting: PixelSizeT ------------------------------------------
+	  Float _PixelSizeT = null;
+	  try {
+	     _PixelSizeT = getPixelSizeT();
+	  } catch (Exception e) {
+		 setPixelSizeT(null);
+	  }
+// TODO catch class cast?
+	  setPixelSizeT((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):PixelSizeT",_PixelSizeT)); 
+
+	  // Visiting: PixelSizeX ------------------------------------------
+	  Float _PixelSizeX = null;
+	  try {
+	     _PixelSizeX = getPixelSizeX();
+	  } catch (Exception e) {
+		 setPixelSizeX(null);
+	  }
+// TODO catch class cast?
+	  setPixelSizeX((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):PixelSizeX",_PixelSizeX)); 
+
+	  // Visiting: PixelSizeY ------------------------------------------
+	  Float _PixelSizeY = null;
+	  try {
+	     _PixelSizeY = getPixelSizeY();
+	  } catch (Exception e) {
+		 setPixelSizeY(null);
+	  }
+// TODO catch class cast?
+	  setPixelSizeY((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):PixelSizeY",_PixelSizeY)); 
+
+	  // Visiting: PixelSizeZ ------------------------------------------
+	  Float _PixelSizeZ = null;
+	  try {
+	     _PixelSizeZ = getPixelSizeZ();
+	  } catch (Exception e) {
+		 setPixelSizeZ(null);
+	  }
+// TODO catch class cast?
+	  setPixelSizeZ((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):PixelSizeZ",_PixelSizeZ)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):Image",_Image)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageDimension):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "ImageDimension"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

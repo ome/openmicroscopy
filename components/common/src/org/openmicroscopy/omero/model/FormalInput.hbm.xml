@@ -23,7 +23,7 @@
         column="formal_input_id"
     >
         <generator class="sequence">
-            <param name="sequence">formal_input_seq</param>
+            <param name="sequence">this_seq_does_not_exist</param>
         </generator>
     </id>
 

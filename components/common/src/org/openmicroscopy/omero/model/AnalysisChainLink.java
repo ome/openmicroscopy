@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 AnalysisChainLink 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -122,6 +125,75 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AnalysisChainLinkId ------------------------------------------
+	  Integer _AnalysisChainLinkId = null;
+	  try {
+	     _AnalysisChainLinkId = getAnalysisChainLinkId();
+	  } catch (Exception e) {
+		 setAnalysisChainLinkId(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainLinkId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainLink):AnalysisChainLinkId",_AnalysisChainLinkId)); 
+
+	  // Visiting: AnalysisChain ------------------------------------------
+	  AnalysisChain _AnalysisChain = null;
+	  try {
+	     _AnalysisChain = getAnalysisChain();
+	  } catch (Exception e) {
+		 setAnalysisChain(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChain((AnalysisChain) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainLink):AnalysisChain",_AnalysisChain)); 
+
+	  // Visiting: AnalysisChainNodeByToNode ------------------------------------------
+	  AnalysisChainNode _AnalysisChainNodeByToNode = null;
+	  try {
+	     _AnalysisChainNodeByToNode = getAnalysisChainNodeByToNode();
+	  } catch (Exception e) {
+		 setAnalysisChainNodeByToNode(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainNodeByToNode((AnalysisChainNode) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainLink):AnalysisChainNodeByToNode",_AnalysisChainNodeByToNode)); 
+
+	  // Visiting: AnalysisChainNodeByFromNode ------------------------------------------
+	  AnalysisChainNode _AnalysisChainNodeByFromNode = null;
+	  try {
+	     _AnalysisChainNodeByFromNode = getAnalysisChainNodeByFromNode();
+	  } catch (Exception e) {
+		 setAnalysisChainNodeByFromNode(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainNodeByFromNode((AnalysisChainNode) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainLink):AnalysisChainNodeByFromNode",_AnalysisChainNodeByFromNode)); 
+
+	  // Visiting: FormalOutput ------------------------------------------
+	  FormalOutput _FormalOutput = null;
+	  try {
+	     _FormalOutput = getFormalOutput();
+	  } catch (Exception e) {
+		 setFormalOutput(null);
+	  }
+// TODO catch class cast?
+	  setFormalOutput((FormalOutput) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainLink):FormalOutput",_FormalOutput)); 
+
+	  // Visiting: FormalInput ------------------------------------------
+	  FormalInput _FormalInput = null;
+	  try {
+	     _FormalInput = getFormalInput();
+	  } catch (Exception e) {
+		 setFormalInput(null);
+	  }
+// TODO catch class cast?
+	  setFormalInput((FormalInput) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainLink):FormalInput",_FormalInput)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "AnalysisChainLink"+(analysisChainLinkId==null ? ":Hash"+this.hashCode() : ":"+analysisChainLinkId);
+  }
+  
 
 
 }

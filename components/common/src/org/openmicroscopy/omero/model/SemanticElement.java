@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 SemanticElement 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -98,6 +101,55 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: SemanticElementId ------------------------------------------
+	  Integer _SemanticElementId = null;
+	  try {
+	     _SemanticElementId = getSemanticElementId();
+	  } catch (Exception e) {
+		 setSemanticElementId(null);
+	  }
+// TODO catch class cast?
+	  setSemanticElementId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticElement):SemanticElementId",_SemanticElementId)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticElement):Name",_Name)); 
+
+	  // Visiting: Description ------------------------------------------
+	  String _Description = null;
+	  try {
+	     _Description = getDescription();
+	  } catch (Exception e) {
+		 setDescription(null);
+	  }
+// TODO catch class cast?
+	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticElement):Description",_Description)); 
+
+	  // Visiting: SemanticType ------------------------------------------
+	  SemanticType _SemanticType = null;
+	  try {
+	     _SemanticType = getSemanticType();
+	  } catch (Exception e) {
+		 setSemanticType(null);
+	  }
+// TODO catch class cast?
+	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticElement):SemanticType",_SemanticType)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "SemanticElement"+(semanticElementId==null ? ":Hash"+this.hashCode() : ":"+semanticElementId);
+  }
+  
 
 
 }

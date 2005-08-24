@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 LogicalChannel 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -314,6 +317,235 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):AttributeId",_AttributeId)); 
+
+	  // Visiting: PhotometricInterpretation ------------------------------------------
+	  String _PhotometricInterpretation = null;
+	  try {
+	     _PhotometricInterpretation = getPhotometricInterpretation();
+	  } catch (Exception e) {
+		 setPhotometricInterpretation(null);
+	  }
+// TODO catch class cast?
+	  setPhotometricInterpretation((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):PhotometricInterpretation",_PhotometricInterpretation)); 
+
+	  // Visiting: Mode ------------------------------------------
+	  String _Mode = null;
+	  try {
+	     _Mode = getMode();
+	  } catch (Exception e) {
+		 setMode(null);
+	  }
+// TODO catch class cast?
+	  setMode((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):Mode",_Mode)); 
+
+	  // Visiting: AuxLightAttenuation ------------------------------------------
+	  Float _AuxLightAttenuation = null;
+	  try {
+	     _AuxLightAttenuation = getAuxLightAttenuation();
+	  } catch (Exception e) {
+		 setAuxLightAttenuation(null);
+	  }
+// TODO catch class cast?
+	  setAuxLightAttenuation((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):AuxLightAttenuation",_AuxLightAttenuation)); 
+
+	  // Visiting: ExWave ------------------------------------------
+	  Integer _ExWave = null;
+	  try {
+	     _ExWave = getExWave();
+	  } catch (Exception e) {
+		 setExWave(null);
+	  }
+// TODO catch class cast?
+	  setExWave((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):ExWave",_ExWave)); 
+
+	  // Visiting: DetectorOffset ------------------------------------------
+	  Float _DetectorOffset = null;
+	  try {
+	     _DetectorOffset = getDetectorOffset();
+	  } catch (Exception e) {
+		 setDetectorOffset(null);
+	  }
+// TODO catch class cast?
+	  setDetectorOffset((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):DetectorOffset",_DetectorOffset)); 
+
+	  // Visiting: AuxTechnique ------------------------------------------
+	  String _AuxTechnique = null;
+	  try {
+	     _AuxTechnique = getAuxTechnique();
+	  } catch (Exception e) {
+		 setAuxTechnique(null);
+	  }
+// TODO catch class cast?
+	  setAuxTechnique((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):AuxTechnique",_AuxTechnique)); 
+
+	  // Visiting: Fluor ------------------------------------------
+	  String _Fluor = null;
+	  try {
+	     _Fluor = getFluor();
+	  } catch (Exception e) {
+		 setFluor(null);
+	  }
+// TODO catch class cast?
+	  setFluor((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):Fluor",_Fluor)); 
+
+	  // Visiting: ContrastMethod ------------------------------------------
+	  String _ContrastMethod = null;
+	  try {
+	     _ContrastMethod = getContrastMethod();
+	  } catch (Exception e) {
+		 setContrastMethod(null);
+	  }
+// TODO catch class cast?
+	  setContrastMethod((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):ContrastMethod",_ContrastMethod)); 
+
+	  // Visiting: DetectorGain ------------------------------------------
+	  Float _DetectorGain = null;
+	  try {
+	     _DetectorGain = getDetectorGain();
+	  } catch (Exception e) {
+		 setDetectorGain(null);
+	  }
+// TODO catch class cast?
+	  setDetectorGain((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):DetectorGain",_DetectorGain)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):Name",_Name)); 
+
+	  // Visiting: SamplesPerPixel ------------------------------------------
+	  Integer _SamplesPerPixel = null;
+	  try {
+	     _SamplesPerPixel = getSamplesPerPixel();
+	  } catch (Exception e) {
+		 setSamplesPerPixel(null);
+	  }
+// TODO catch class cast?
+	  setSamplesPerPixel((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):SamplesPerPixel",_SamplesPerPixel)); 
+
+	  // Visiting: LightAttenuation ------------------------------------------
+	  Float _LightAttenuation = null;
+	  try {
+	     _LightAttenuation = getLightAttenuation();
+	  } catch (Exception e) {
+		 setLightAttenuation(null);
+	  }
+// TODO catch class cast?
+	  setLightAttenuation((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):LightAttenuation",_LightAttenuation)); 
+
+	  // Visiting: EmWave ------------------------------------------
+	  Integer _EmWave = null;
+	  try {
+	     _EmWave = getEmWave();
+	  } catch (Exception e) {
+		 setEmWave(null);
+	  }
+// TODO catch class cast?
+	  setEmWave((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):EmWave",_EmWave)); 
+
+	  // Visiting: AuxLightWavelength ------------------------------------------
+	  Integer _AuxLightWavelength = null;
+	  try {
+	     _AuxLightWavelength = getAuxLightWavelength();
+	  } catch (Exception e) {
+		 setAuxLightWavelength(null);
+	  }
+// TODO catch class cast?
+	  setAuxLightWavelength((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):AuxLightWavelength",_AuxLightWavelength)); 
+
+	  // Visiting: IlluminationType ------------------------------------------
+	  String _IlluminationType = null;
+	  try {
+	     _IlluminationType = getIlluminationType();
+	  } catch (Exception e) {
+		 setIlluminationType(null);
+	  }
+// TODO catch class cast?
+	  setIlluminationType((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):IlluminationType",_IlluminationType)); 
+
+	  // Visiting: NdFilter ------------------------------------------
+	  Float _NdFilter = null;
+	  try {
+	     _NdFilter = getNdFilter();
+	  } catch (Exception e) {
+		 setNdFilter(null);
+	  }
+// TODO catch class cast?
+	  setNdFilter((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):NdFilter",_NdFilter)); 
+
+	  // Visiting: PinholeSize ------------------------------------------
+	  Integer _PinholeSize = null;
+	  try {
+	     _PinholeSize = getPinholeSize();
+	  } catch (Exception e) {
+		 setPinholeSize(null);
+	  }
+// TODO catch class cast?
+	  setPinholeSize((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):PinholeSize",_PinholeSize)); 
+
+	  // Visiting: LightWavelength ------------------------------------------
+	  Integer _LightWavelength = null;
+	  try {
+	     _LightWavelength = getLightWavelength();
+	  } catch (Exception e) {
+		 setLightWavelength(null);
+	  }
+// TODO catch class cast?
+	  setLightWavelength((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):LightWavelength",_LightWavelength)); 
+
+	  // Visiting: ChannelComponents ------------------------------------------
+	  Set _ChannelComponents = null;
+	  try {
+	     _ChannelComponents = getChannelComponents();
+	  } catch (Exception e) {
+		 setChannelComponents(null);
+	  }
+// TODO catch class cast?
+	  setChannelComponents((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):ChannelComponents",_ChannelComponents)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):Image",_Image)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.LogicalChannel):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "LogicalChannel"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 AnalysisChainNode 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -146,6 +149,95 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AnalysisChainNodeId ------------------------------------------
+	  Integer _AnalysisChainNodeId = null;
+	  try {
+	     _AnalysisChainNodeId = getAnalysisChainNodeId();
+	  } catch (Exception e) {
+		 setAnalysisChainNodeId(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainNodeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):AnalysisChainNodeId",_AnalysisChainNodeId)); 
+
+	  // Visiting: NewFeatureTag ------------------------------------------
+	  String _NewFeatureTag = null;
+	  try {
+	     _NewFeatureTag = getNewFeatureTag();
+	  } catch (Exception e) {
+		 setNewFeatureTag(null);
+	  }
+// TODO catch class cast?
+	  setNewFeatureTag((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):NewFeatureTag",_NewFeatureTag)); 
+
+	  // Visiting: IteratorTag ------------------------------------------
+	  String _IteratorTag = null;
+	  try {
+	     _IteratorTag = getIteratorTag();
+	  } catch (Exception e) {
+		 setIteratorTag(null);
+	  }
+// TODO catch class cast?
+	  setIteratorTag((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):IteratorTag",_IteratorTag)); 
+
+	  // Visiting: AnalysisChain ------------------------------------------
+	  AnalysisChain _AnalysisChain = null;
+	  try {
+	     _AnalysisChain = getAnalysisChain();
+	  } catch (Exception e) {
+		 setAnalysisChain(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChain((AnalysisChain) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):AnalysisChain",_AnalysisChain)); 
+
+	  // Visiting: Module ------------------------------------------
+	  Module _Module = null;
+	  try {
+	     _Module = getModule();
+	  } catch (Exception e) {
+		 setModule(null);
+	  }
+// TODO catch class cast?
+	  setModule((Module) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):Module",_Module)); 
+
+	  // Visiting: AnalysisNodeExecutions ------------------------------------------
+	  Set _AnalysisNodeExecutions = null;
+	  try {
+	     _AnalysisNodeExecutions = getAnalysisNodeExecutions();
+	  } catch (Exception e) {
+		 setAnalysisNodeExecutions(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisNodeExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):AnalysisNodeExecutions",_AnalysisNodeExecutions)); 
+
+	  // Visiting: AnalysisChainLinksByToNode ------------------------------------------
+	  Set _AnalysisChainLinksByToNode = null;
+	  try {
+	     _AnalysisChainLinksByToNode = getAnalysisChainLinksByToNode();
+	  } catch (Exception e) {
+		 setAnalysisChainLinksByToNode(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainLinksByToNode((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):AnalysisChainLinksByToNode",_AnalysisChainLinksByToNode)); 
+
+	  // Visiting: AnalysisChainLinksByFromNode ------------------------------------------
+	  Set _AnalysisChainLinksByFromNode = null;
+	  try {
+	     _AnalysisChainLinksByFromNode = getAnalysisChainLinksByFromNode();
+	  } catch (Exception e) {
+		 setAnalysisChainLinksByFromNode(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainLinksByFromNode((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChainNode):AnalysisChainLinksByFromNode",_AnalysisChainLinksByFromNode)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "AnalysisChainNode"+(analysisChainNodeId==null ? ":Hash"+this.hashCode() : ":"+analysisChainNodeId);
+  }
+  
 
 
 }

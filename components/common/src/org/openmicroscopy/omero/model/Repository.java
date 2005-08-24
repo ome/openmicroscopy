@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 Repository 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -134,6 +137,85 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):AttributeId",_AttributeId)); 
+
+	  // Visiting: ImageServerUrl ------------------------------------------
+	  String _ImageServerUrl = null;
+	  try {
+	     _ImageServerUrl = getImageServerUrl();
+	  } catch (Exception e) {
+		 setImageServerUrl(null);
+	  }
+// TODO catch class cast?
+	  setImageServerUrl((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):ImageServerUrl",_ImageServerUrl)); 
+
+	  // Visiting: Path ------------------------------------------
+	  String _Path = null;
+	  try {
+	     _Path = getPath();
+	  } catch (Exception e) {
+		 setPath(null);
+	  }
+// TODO catch class cast?
+	  setPath((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):Path",_Path)); 
+
+	  // Visiting: IsLocal ------------------------------------------
+	  Boolean _IsLocal = null;
+	  try {
+	     _IsLocal = getIsLocal();
+	  } catch (Exception e) {
+		 setIsLocal(null);
+	  }
+// TODO catch class cast?
+	  setIsLocal((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):IsLocal",_IsLocal)); 
+
+	  // Visiting: Thumbnails ------------------------------------------
+	  Set _Thumbnails = null;
+	  try {
+	     _Thumbnails = getThumbnails();
+	  } catch (Exception e) {
+		 setThumbnails(null);
+	  }
+// TODO catch class cast?
+	  setThumbnails((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):Thumbnails",_Thumbnails)); 
+
+	  // Visiting: ImagePixels ------------------------------------------
+	  Set _ImagePixels = null;
+	  try {
+	     _ImagePixels = getImagePixels();
+	  } catch (Exception e) {
+		 setImagePixels(null);
+	  }
+// TODO catch class cast?
+	  setImagePixels((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):ImagePixels",_ImagePixels)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Repository):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "Repository"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 AnalysisChain 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -146,6 +149,95 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AnalysisChainId ------------------------------------------
+	  Integer _AnalysisChainId = null;
+	  try {
+	     _AnalysisChainId = getAnalysisChainId();
+	  } catch (Exception e) {
+		 setAnalysisChainId(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):AnalysisChainId",_AnalysisChainId)); 
+
+	  // Visiting: Locked ------------------------------------------
+	  Boolean _Locked = null;
+	  try {
+	     _Locked = getLocked();
+	  } catch (Exception e) {
+		 setLocked(null);
+	  }
+// TODO catch class cast?
+	  setLocked((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):Locked",_Locked)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):Name",_Name)); 
+
+	  // Visiting: Description ------------------------------------------
+	  String _Description = null;
+	  try {
+	     _Description = getDescription();
+	  } catch (Exception e) {
+		 setDescription(null);
+	  }
+// TODO catch class cast?
+	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):Description",_Description)); 
+
+	  // Visiting: AnalysisChainExecutions ------------------------------------------
+	  Set _AnalysisChainExecutions = null;
+	  try {
+	     _AnalysisChainExecutions = getAnalysisChainExecutions();
+	  } catch (Exception e) {
+		 setAnalysisChainExecutions(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):AnalysisChainExecutions",_AnalysisChainExecutions)); 
+
+	  // Visiting: AnalysisChainLinks ------------------------------------------
+	  Set _AnalysisChainLinks = null;
+	  try {
+	     _AnalysisChainLinks = getAnalysisChainLinks();
+	  } catch (Exception e) {
+		 setAnalysisChainLinks(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainLinks((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):AnalysisChainLinks",_AnalysisChainLinks)); 
+
+	  // Visiting: AnalysisChainNodes ------------------------------------------
+	  Set _AnalysisChainNodes = null;
+	  try {
+	     _AnalysisChainNodes = getAnalysisChainNodes();
+	  } catch (Exception e) {
+		 setAnalysisChainNodes(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainNodes((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):AnalysisChainNodes",_AnalysisChainNodes)); 
+
+	  // Visiting: Experimenter ------------------------------------------
+	  Experimenter _Experimenter = null;
+	  try {
+	     _Experimenter = getExperimenter();
+	  } catch (Exception e) {
+		 setExperimenter(null);
+	  }
+// TODO catch class cast?
+	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisChain):Experimenter",_Experimenter)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "AnalysisChain"+(analysisChainId==null ? ":Hash"+this.hashCode() : ":"+analysisChainId);
+  }
+  
 
 
 }

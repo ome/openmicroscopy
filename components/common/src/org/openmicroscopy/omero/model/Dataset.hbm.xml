@@ -23,7 +23,7 @@
         column="dataset_id"
     >
         <generator class="sequence">
-            <param name="sequence">dataset_seq</param>
+            <param name="sequence">this_seq_does_not_exist</param>
         </generator>
     </id>
 

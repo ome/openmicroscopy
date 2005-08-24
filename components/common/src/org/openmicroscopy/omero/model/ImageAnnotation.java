@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 ImageAnnotation 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -146,6 +149,95 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):AttributeId",_AttributeId)); 
+
+	  // Visiting: TheT ------------------------------------------
+	  Integer _TheT = null;
+	  try {
+	     _TheT = getTheT();
+	  } catch (Exception e) {
+		 setTheT(null);
+	  }
+// TODO catch class cast?
+	  setTheT((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):TheT",_TheT)); 
+
+	  // Visiting: Content ------------------------------------------
+	  String _Content = null;
+	  try {
+	     _Content = getContent();
+	  } catch (Exception e) {
+		 setContent(null);
+	  }
+// TODO catch class cast?
+	  setContent((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):Content",_Content)); 
+
+	  // Visiting: TheC ------------------------------------------
+	  Integer _TheC = null;
+	  try {
+	     _TheC = getTheC();
+	  } catch (Exception e) {
+		 setTheC(null);
+	  }
+// TODO catch class cast?
+	  setTheC((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):TheC",_TheC)); 
+
+	  // Visiting: TheZ ------------------------------------------
+	  Integer _TheZ = null;
+	  try {
+	     _TheZ = getTheZ();
+	  } catch (Exception e) {
+		 setTheZ(null);
+	  }
+// TODO catch class cast?
+	  setTheZ((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):TheZ",_TheZ)); 
+
+	  // Visiting: Valid ------------------------------------------
+	  Boolean _Valid = null;
+	  try {
+	     _Valid = getValid();
+	  } catch (Exception e) {
+		 setValid(null);
+	  }
+// TODO catch class cast?
+	  setValid((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):Valid",_Valid)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):Image",_Image)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.ImageAnnotation):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "ImageAnnotation"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

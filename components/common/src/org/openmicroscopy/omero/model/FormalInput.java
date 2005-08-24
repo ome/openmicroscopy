@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 FormalInput 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -158,6 +161,105 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: FormalInputId ------------------------------------------
+	  Integer _FormalInputId = null;
+	  try {
+	     _FormalInputId = getFormalInputId();
+	  } catch (Exception e) {
+		 setFormalInputId(null);
+	  }
+// TODO catch class cast?
+	  setFormalInputId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):FormalInputId",_FormalInputId)); 
+
+	  // Visiting: UserDefined ------------------------------------------
+	  Boolean _UserDefined = null;
+	  try {
+	     _UserDefined = getUserDefined();
+	  } catch (Exception e) {
+		 setUserDefined(null);
+	  }
+// TODO catch class cast?
+	  setUserDefined((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):UserDefined",_UserDefined)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):Name",_Name)); 
+
+	  // Visiting: Optional ------------------------------------------
+	  Boolean _Optional = null;
+	  try {
+	     _Optional = getOptional();
+	  } catch (Exception e) {
+		 setOptional(null);
+	  }
+// TODO catch class cast?
+	  setOptional((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):Optional",_Optional)); 
+
+	  // Visiting: Description ------------------------------------------
+	  String _Description = null;
+	  try {
+	     _Description = getDescription();
+	  } catch (Exception e) {
+		 setDescription(null);
+	  }
+// TODO catch class cast?
+	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):Description",_Description)); 
+
+	  // Visiting: List ------------------------------------------
+	  Boolean _List = null;
+	  try {
+	     _List = getList();
+	  } catch (Exception e) {
+		 setList(null);
+	  }
+// TODO catch class cast?
+	  setList((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):List",_List)); 
+
+	  // Visiting: Module ------------------------------------------
+	  Module _Module = null;
+	  try {
+	     _Module = getModule();
+	  } catch (Exception e) {
+		 setModule(null);
+	  }
+// TODO catch class cast?
+	  setModule((Module) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):Module",_Module)); 
+
+	  // Visiting: SemanticType ------------------------------------------
+	  SemanticType _SemanticType = null;
+	  try {
+	     _SemanticType = getSemanticType();
+	  } catch (Exception e) {
+		 setSemanticType(null);
+	  }
+// TODO catch class cast?
+	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):SemanticType",_SemanticType)); 
+
+	  // Visiting: AnalysisChainLinks ------------------------------------------
+	  Set _AnalysisChainLinks = null;
+	  try {
+	     _AnalysisChainLinks = getAnalysisChainLinks();
+	  } catch (Exception e) {
+		 setAnalysisChainLinks(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainLinks((Set) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.FormalInput):AnalysisChainLinks",_AnalysisChainLinks)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "FormalInput"+(formalInputId==null ? ":Hash"+this.hashCode() : ":"+formalInputId);
+  }
+  
 
 
 }

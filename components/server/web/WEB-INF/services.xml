@@ -55,7 +55,6 @@
 			<value>serviceSecurity</value>
 			<value>exceptionHandling</value>
 			<value>logging</value>	
-			<value>daoCleanUp</value>
 <!--			
 			<value>serviceTracing</value>
 			<value>serviceTransactions</value> 

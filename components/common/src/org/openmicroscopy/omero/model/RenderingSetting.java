@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 RenderingSetting 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -290,6 +293,215 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):AttributeId",_AttributeId)); 
+
+	  // Visiting: TheT ------------------------------------------
+	  Integer _TheT = null;
+	  try {
+	     _TheT = getTheT();
+	  } catch (Exception e) {
+		 setTheT(null);
+	  }
+// TODO catch class cast?
+	  setTheT((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):TheT",_TheT)); 
+
+	  // Visiting: CdEnd ------------------------------------------
+	  Integer _CdEnd = null;
+	  try {
+	     _CdEnd = getCdEnd();
+	  } catch (Exception e) {
+		 setCdEnd(null);
+	  }
+// TODO catch class cast?
+	  setCdEnd((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):CdEnd",_CdEnd)); 
+
+	  // Visiting: InputEnd ------------------------------------------
+	  Double _InputEnd = null;
+	  try {
+	     _InputEnd = getInputEnd();
+	  } catch (Exception e) {
+		 setInputEnd(null);
+	  }
+// TODO catch class cast?
+	  setInputEnd((Double) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):InputEnd",_InputEnd)); 
+
+	  // Visiting: Model ------------------------------------------
+	  Integer _Model = null;
+	  try {
+	     _Model = getModel();
+	  } catch (Exception e) {
+		 setModel(null);
+	  }
+// TODO catch class cast?
+	  setModel((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Model",_Model)); 
+
+	  // Visiting: CdStart ------------------------------------------
+	  Integer _CdStart = null;
+	  try {
+	     _CdStart = getCdStart();
+	  } catch (Exception e) {
+		 setCdStart(null);
+	  }
+// TODO catch class cast?
+	  setCdStart((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):CdStart",_CdStart)); 
+
+	  // Visiting: Green ------------------------------------------
+	  Integer _Green = null;
+	  try {
+	     _Green = getGreen();
+	  } catch (Exception e) {
+		 setGreen(null);
+	  }
+// TODO catch class cast?
+	  setGreen((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Green",_Green)); 
+
+	  // Visiting: Alpha ------------------------------------------
+	  Integer _Alpha = null;
+	  try {
+	     _Alpha = getAlpha();
+	  } catch (Exception e) {
+		 setAlpha(null);
+	  }
+// TODO catch class cast?
+	  setAlpha((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Alpha",_Alpha)); 
+
+	  // Visiting: Blue ------------------------------------------
+	  Integer _Blue = null;
+	  try {
+	     _Blue = getBlue();
+	  } catch (Exception e) {
+		 setBlue(null);
+	  }
+// TODO catch class cast?
+	  setBlue((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Blue",_Blue)); 
+
+	  // Visiting: Red ------------------------------------------
+	  Integer _Red = null;
+	  try {
+	     _Red = getRed();
+	  } catch (Exception e) {
+		 setRed(null);
+	  }
+// TODO catch class cast?
+	  setRed((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Red",_Red)); 
+
+	  // Visiting: BitResolution ------------------------------------------
+	  Integer _BitResolution = null;
+	  try {
+	     _BitResolution = getBitResolution();
+	  } catch (Exception e) {
+		 setBitResolution(null);
+	  }
+// TODO catch class cast?
+	  setBitResolution((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):BitResolution",_BitResolution)); 
+
+	  // Visiting: Active ------------------------------------------
+	  Boolean _Active = null;
+	  try {
+	     _Active = getActive();
+	  } catch (Exception e) {
+		 setActive(null);
+	  }
+// TODO catch class cast?
+	  setActive((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Active",_Active)); 
+
+	  // Visiting: InputStart ------------------------------------------
+	  Double _InputStart = null;
+	  try {
+	     _InputStart = getInputStart();
+	  } catch (Exception e) {
+		 setInputStart(null);
+	  }
+// TODO catch class cast?
+	  setInputStart((Double) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):InputStart",_InputStart)); 
+
+	  // Visiting: TheC ------------------------------------------
+	  Integer _TheC = null;
+	  try {
+	     _TheC = getTheC();
+	  } catch (Exception e) {
+		 setTheC(null);
+	  }
+// TODO catch class cast?
+	  setTheC((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):TheC",_TheC)); 
+
+	  // Visiting: Coefficient ------------------------------------------
+	  Double _Coefficient = null;
+	  try {
+	     _Coefficient = getCoefficient();
+	  } catch (Exception e) {
+		 setCoefficient(null);
+	  }
+// TODO catch class cast?
+	  setCoefficient((Double) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Coefficient",_Coefficient)); 
+
+	  // Visiting: TheZ ------------------------------------------
+	  Integer _TheZ = null;
+	  try {
+	     _TheZ = getTheZ();
+	  } catch (Exception e) {
+		 setTheZ(null);
+	  }
+// TODO catch class cast?
+	  setTheZ((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):TheZ",_TheZ)); 
+
+	  // Visiting: Family ------------------------------------------
+	  Integer _Family = null;
+	  try {
+	     _Family = getFamily();
+	  } catch (Exception e) {
+		 setFamily(null);
+	  }
+// TODO catch class cast?
+	  setFamily((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Family",_Family)); 
+
+	  // Visiting: Experimenter ------------------------------------------
+	  Experimenter _Experimenter = null;
+	  try {
+	     _Experimenter = getExperimenter();
+	  } catch (Exception e) {
+		 setExperimenter(null);
+	  }
+// TODO catch class cast?
+	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Experimenter",_Experimenter)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):Image",_Image)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.RenderingSetting):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "RenderingSetting"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

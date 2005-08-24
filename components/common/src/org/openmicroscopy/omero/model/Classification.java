@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 Classification 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -122,6 +125,75 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AttributeId ------------------------------------------
+	  Integer _AttributeId = null;
+	  try {
+	     _AttributeId = getAttributeId();
+	  } catch (Exception e) {
+		 setAttributeId(null);
+	  }
+// TODO catch class cast?
+	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Classification):AttributeId",_AttributeId)); 
+
+	  // Visiting: Confidence ------------------------------------------
+	  Float _Confidence = null;
+	  try {
+	     _Confidence = getConfidence();
+	  } catch (Exception e) {
+		 setConfidence(null);
+	  }
+// TODO catch class cast?
+	  setConfidence((Float) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Classification):Confidence",_Confidence)); 
+
+	  // Visiting: Valid ------------------------------------------
+	  Boolean _Valid = null;
+	  try {
+	     _Valid = getValid();
+	  } catch (Exception e) {
+		 setValid(null);
+	  }
+// TODO catch class cast?
+	  setValid((Boolean) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Classification):Valid",_Valid)); 
+
+	  // Visiting: Category ------------------------------------------
+	  Category _Category = null;
+	  try {
+	     _Category = getCategory();
+	  } catch (Exception e) {
+		 setCategory(null);
+	  }
+// TODO catch class cast?
+	  setCategory((Category) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Classification):Category",_Category)); 
+
+	  // Visiting: Image ------------------------------------------
+	  Image _Image = null;
+	  try {
+	     _Image = getImage();
+	  } catch (Exception e) {
+		 setImage(null);
+	  }
+// TODO catch class cast?
+	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Classification):Image",_Image)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.Classification):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "Classification"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+  }
+  
 
 
 }

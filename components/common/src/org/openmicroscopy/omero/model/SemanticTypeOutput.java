@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 SemanticTypeOutput 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -86,6 +89,45 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: SemanticTypeOutputId ------------------------------------------
+	  Integer _SemanticTypeOutputId = null;
+	  try {
+	     _SemanticTypeOutputId = getSemanticTypeOutputId();
+	  } catch (Exception e) {
+		 setSemanticTypeOutputId(null);
+	  }
+// TODO catch class cast?
+	  setSemanticTypeOutputId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticTypeOutput):SemanticTypeOutputId",_SemanticTypeOutputId)); 
+
+	  // Visiting: SemanticType ------------------------------------------
+	  SemanticType _SemanticType = null;
+	  try {
+	     _SemanticType = getSemanticType();
+	  } catch (Exception e) {
+		 setSemanticType(null);
+	  }
+// TODO catch class cast?
+	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticTypeOutput):SemanticType",_SemanticType)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.SemanticTypeOutput):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "SemanticTypeOutput"+(semanticTypeOutputId==null ? ":Hash"+this.hashCode() : ":"+semanticTypeOutputId);
+  }
+  
 
 
 }

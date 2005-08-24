@@ -4,6 +4,8 @@ $c2j.getPackageDeclaration($clazz)
 ## <CustomCode>
 ###########################################################
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 ###########################################################
 ## </CustomCode>
 ###########################################################
@@ -38,7 +40,8 @@ $c2j.getImplementsDeclaration($clazz) ,
 ###########################################################
 ## <CustomCode>
 ###########################################################
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 ###########################################################
 ## </CustomCode>
 ###########################################################
@@ -172,10 +175,42 @@ $c2j.getExtraCode($clazz)
 		_utils = utils;
 	}
 ##parse( "$clazz.vm" )
+
+  public boolean acceptFilter(Filter filter){
+
+#foreach($property in $c2j.getAllPropertiesIterator($clazz))
+#set( $type = $c2j.stripPackage( $c2j.getJavaTypeName($property, $generics), $clazz) )
+#set( $pkg = $c2j.getJavaTypeName($property, $generics) )
+#set( $get = "$c2j.getGetterSignature($property)()" )
+#set( $set = "set$c2j.getPropertyName($property)" )
+#set( $field = $c2j.getPropertyName($property) )
+
+	  // Visiting: $field ------------------------------------------
+	  $type _$field = null;
+	  try {
+	     _$field = $get;
+	  } catch (Exception e) {
+		 $set(null);
+	  }
+// TODO catch class cast?
+	  $set(($type) filter.filter("$clazz:$field",_$field)); 
+##if( $pkg.contains("openmicroscopy"))
+##elseif($type.equals("Set"))
+##	  $set(($type) filter.filter((Collection)_$field)); 
+##else
+##	  $set(($type) filter.filter((Object) _$field));
+##end ## if 
+#end ## foreach
+  	 return true;
+  }
+  
+  public String toString(){
+	return "$c2j.getDeclarationName($clazz)"+($clazz.identifierProperty.name==null ? ":Hash_"+this.hashCode() : ":Id_"+$clazz.identifierProperty.name);
+  }
+  
 ###########################################################
 ## </CustomCode>
 ###########################################################
-
 
 
 }

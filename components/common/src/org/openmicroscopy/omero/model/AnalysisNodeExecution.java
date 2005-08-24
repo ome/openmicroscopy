@@ -1,6 +1,8 @@
 package org.openmicroscopy.omero.model;
 
 import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.Filterable;
+import ome.util.Filter;
 
 
 import java.util.*;
@@ -14,7 +16,8 @@ import java.util.*;
 public class
 AnalysisNodeExecution 
 implements java.io.Serializable ,
-org.openmicroscopy.omero.OMEModel {
+org.openmicroscopy.omero.OMEModel,
+ome.util.Filterable {
 
     // Fields    
 
@@ -98,6 +101,55 @@ org.openmicroscopy.omero.OMEModel {
 		_utils = utils;
 	}
 
+  public boolean acceptFilter(Filter filter){
+
+
+	  // Visiting: AnalysisNodeExecutionId ------------------------------------------
+	  Integer _AnalysisNodeExecutionId = null;
+	  try {
+	     _AnalysisNodeExecutionId = getAnalysisNodeExecutionId();
+	  } catch (Exception e) {
+		 setAnalysisNodeExecutionId(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisNodeExecutionId((Integer) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisNodeExecution):AnalysisNodeExecutionId",_AnalysisNodeExecutionId)); 
+
+	  // Visiting: AnalysisChainExecution ------------------------------------------
+	  AnalysisChainExecution _AnalysisChainExecution = null;
+	  try {
+	     _AnalysisChainExecution = getAnalysisChainExecution();
+	  } catch (Exception e) {
+		 setAnalysisChainExecution(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainExecution((AnalysisChainExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisNodeExecution):AnalysisChainExecution",_AnalysisChainExecution)); 
+
+	  // Visiting: AnalysisChainNode ------------------------------------------
+	  AnalysisChainNode _AnalysisChainNode = null;
+	  try {
+	     _AnalysisChainNode = getAnalysisChainNode();
+	  } catch (Exception e) {
+		 setAnalysisChainNode(null);
+	  }
+// TODO catch class cast?
+	  setAnalysisChainNode((AnalysisChainNode) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisNodeExecution):AnalysisChainNode",_AnalysisChainNode)); 
+
+	  // Visiting: ModuleExecution ------------------------------------------
+	  ModuleExecution _ModuleExecution = null;
+	  try {
+	     _ModuleExecution = getModuleExecution();
+	  } catch (Exception e) {
+		 setModuleExecution(null);
+	  }
+// TODO catch class cast?
+	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(org.openmicroscopy.omero.model.AnalysisNodeExecution):ModuleExecution",_ModuleExecution)); 
+   	 return true;
+  }
+  
+  public String toString(){
+	return "AnalysisNodeExecution"+(analysisNodeExecutionId==null ? ":Hash"+this.hashCode() : ":"+analysisNodeExecutionId);
+  }
+  
 
 
 }
