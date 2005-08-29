@@ -2,13 +2,17 @@
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
    <title>Open Microscopy Environment</title><link rel="stylesheet" href="../styles/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.60.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en"><div class="titlepage"><div><div><h1 class="title"><a name="d0e1"></a>Open Microscopy Environment</h1></div><div><h2 class="subtitle">
           Java Server Documentation
-        </h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Josh</span> <span class="surname">Moore</span></h3></div></div></div><div><p class="releaseinfo">Version alpha</p></div><div><div class="legalnotice"><p>Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p></div></div><div><p class="pubdate">(Work in progress)</p></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dd><dl><dt>1.1. <a href="#introduction-what">What?</a></dt><dt>1.2. <a href="#introduction-why">Why?</a></dt><dt>1.3. <a href="#introduction-how">How?</a></dt><dt>1.1. <a href="#intro-blurb">Other info</a></dt></dl></dd><dt>2. <a href="#jmx">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#start-build">Building</a></dt><dd><dl><dt>2.1.1. <a href="#start-install-tomcat"></a></dt></dl></dd><dt>2.2. <a href="#start-install">Installing</a></dt><dt>2.3. <a href="#start-use">Using</a></dt></dl></dd><dt>3. <a href="#design">Server Design</a></dt><dt>4. <a href="#devel">Developing with/for the Java server</a></dt><dd><dl><dt>4.1. <a href="#devel-server">Server-side development</a></dt><dd><dl><dt>4.1.1. <a href="#devel-quick">Quick How-To</a></dt></dl></dd><dt>4.2. <a href="#devel-client">Client-side development</a></dt><dt>4.3. <a href="#devel-ides">Using Eclipse as an IDE</a></dt></dl></dd><dt>5. <a href="#test">Testing</a></dt><dd><dl><dt>5.1. <a href="#test-unit">Unit Testing</a></dt><dt>5.2. <a href="#test-integration">Integration Testing</a></dt><dd><dl><dt>5.2.1. <a href="#test-int-db">DbUnit Testing</a></dt></dl></dd></dl></dd><dt>6. <a href="#todo">Todo List</a></dt></dl></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="introduction"></a>Chapter&nbsp;1.&nbsp;Introduction</h2></div></div><div></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="introduction-what"></a>1.1.&nbsp;What?</h2></div></div><div></div></div><p>
-      The OME java server is a port of the perl code make use of existing object-relational mapping (ORM) tools. 
-    </p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="introduction-why"></a>1.2.&nbsp;Why?</h2></div></div><div></div></div><p>
-      Speed, ease of development, agility, alternative implementations
-    </p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="introduction-how"></a>1.3.&nbsp;How?</h2></div></div><div></div></div><p>
-      Just what are these implementations? Well,...
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="intro-blurb"></a>1.1.&nbsp;Other info</h2></div></div><div></div></div><pre class="programlisting">
+        </h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Josh</span> <span class="surname">Moore</span></h3></div></div></div><div><p class="releaseinfo">Version alpha</p></div><div><div class="legalnotice"><p>Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p></div></div><div><p class="pubdate">(Work in progress)</p></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dd><dl><dt>1.1. <a href="#intro-info">Project Information</a></dt></dl></dd><dt>2. <a href="#jmx">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#start-build">Building</a></dt><dt>2.2. <a href="#start-install">Installing</a></dt><dd><dl><dt>2.2.1. <a href="#start-install-tomcat">Installing on Tomcat</a></dt></dl></dd><dt>2.3. <a href="#start-use">Using</a></dt></dl></dd><dt>3. <a href="#design">Server Design</a></dt><dd><dl><dt>3.1. <a href="#design-model">Object Model</a></dt><dt>3.2. <a href="#design-types"> Domain Language and Type Generation [SUGGESTION]</a></dt><dt>3.3. <a href="#design-mex">MEXes [DELIBERATION]</a></dt><dt>3.4. <a href="#design-security">Access Control [PROPOSAL]</a></dt><dt>3.5. <a href="#design-visitor">Filtering</a></dt><dt>3.6. <a href="#design-rules">Rules [IDEA]</a></dt><dt>3.7. <a href="#design-graphs">Working with graphs</a></dt><dt>3.8. <a href="#design-import">Importing</a></dt><dt>3.9. <a href="#design-client">Client libraries</a></dt></dl></dd><dt>4. <a href="#devel">Developing with/for the Java server</a></dt><dd><dl><dt>4.1. <a href="#devel-server">Server-side development</a></dt><dd><dl><dt>4.1.1. <a href="#devel-quick">Quick How-To</a></dt></dl></dd><dt>4.2. <a href="#devel-client">Client-side development</a></dt><dt>4.3. <a href="#devel-ides">Using Eclipse as an IDE</a></dt></dl></dd><dt>5. <a href="#test">Testing</a></dt><dd><dl><dt>5.1. <a href="#test-unit">Unit Testing</a></dt><dt>5.2. <a href="#test-integration">Integration Testing</a></dt><dd><dl><dt>5.2.1. <a href="#test-int-db">DbUnit Testing</a></dt></dl></dd></dl></dd><dt>6. <a href="#todo">Todo List</a></dt></dl></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="introduction"></a>Chapter&nbsp;1.&nbsp;Introduction</h2></div></div><div></div></div>
+  The OME Java Server is a port of some of the OME Data Server (OMEDS) Perl code to Java. 
+  Specifically, it replaces the object-relational mapping code named "DBObject" with existing object-relational mapping (ORM) tools. 
+  The change frees us from the maintenance of self-written code which has been the basis of the project for the last X years.
+  As a project code, it becomes necessary to focus ever more carefully on the offered specialty.
+  Though DBObject has served us well, there are simply other development teams who specialize in OR mapping and it has become time to look into these existing options.
+  
+  <p>
+    In addition to the reduced developer load, the choice of alternative existing O/R implementations such as  Hibernate or Java Data Objects (JDO), 
+    the compiled language and more extensive feature list bring significant performance gains.
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="intro-info"></a>1.1.&nbsp;Project Information</h2></div></div><div></div></div><pre class="programlisting">
 LICENSE
 
     OME is distributed with the GNU Lesser General Public License
@@ -54,72 +58,340 @@ MAILING LISTS
 
 	OME developers:   ome-devel@lists.openmicroscopy.org.uk
 
-      </pre></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jmx"></a>Chapter&nbsp;2.&nbsp;Getting Started</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-build"></a>2.1.&nbsp;Building</h2></div></div><div></div></div><p>
-      As with any new framework, it takes a while to get into the code base. Let's start with building.
-    </p><p>
-      To work with the OMERO source base, you will need to have a fully working OME Database, a Java Development Kit, and a Servlet container, as well as various environment variables.
+      </pre></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="jmx"></a>Chapter&nbsp;2.&nbsp;Getting Started</h2></div></div><div></div></div><p>
+      As with any new framework, it takes a while to work through the various layers. 
+      We will assume that due to the development quality of the project that anyone interested 
+      will first begin by examining the source code. 
+      Let's start with building.
+    </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-build"></a>2.1.&nbsp;Building</h2></div></div><div></div></div><p>
+      The OMERO build system is currently based on <a href="http://maven.apache.org" target="_top">Maven</a>. 
+      In addtion, to work with the Omero source base, you will need to have a fully working OME database,
+      not necessarily Postgres, a Java Development Kit, and a Servlet container, as well as various environment variables.
     </p><div class="itemizedlist"><ul type="disc"><li><p>
-	  Install Java and a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.) Warning: The Omero server side code requires Java 5 and Tomcat 5.5.x. 
+	  Install <a href="http://java.sun.com" target="_top">Java</a>. 
+	  <span class="emphasis"><em>The Omero server code requires Java 5.</em></span> 
+	  Also, set the JAVA_HOME environment variable to your JDK installation
 	</p></li><li><p>
-	  Set JAVA_HOME to your JDK installation
+	  Install a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.). 
+	  Most testing is done on <a href="http://jakarta.apache.org/tomcat" target="_top">Tomcat</a>. 
 	</p></li><li><p>
-	  Set MAVEN_HOME to your Maven installation or alternatively to OMERO_HOME/lib/maven/  If you use the latter also run: 
-	</p><p>
+	  Install Maven. 
+	  Set MAVEN_HOME to your Maven installation.
+	  Alternatively you can use the included Maven installation and set MAVEN_HOME to OMERO_HOME/lib/maven/.
+	  If you do this, also run the command: 
+	  <tt class="literal">
 	  OMERO_HOME/lib/maven/bin/install_repo.sh HOME_DIR/.maven/repository
-	</p><p>
-	  install_repo.bat is available for Windows users. Also, place MAVEN_HOME/bin/maven(.bat) on your PATH.
+	  </tt>
+	  install_repo.bat is available for Windows users. 
+	  Also, place MAVEN_HOME/bin/maven(.bat) on your PATH.
 	</p></li><li><p>
 	  Copy docs/examples/build.properties.example to OMERO_HOME or HOME; edit the properties for your site. 
+	  
 	</p><p>
-	  Note: This file should _not_ be put under revision control!
+	  Note: This file should <span class="emphasis"><em>not</em></span> be put under revision control!
 	</p></li></ul></div><p>
-      Now you are ready to <span class="emphasis"><em>build and install</em></span> OMERO.  Run <tt class="literal">maven bootstrap</tt> to prepare the installation. Then run <tt class="literal">maven install</tt>to place all jars and the war file in your local maven repository. Copy the war file under
-    </p><p>		
-      OMERO_HOME/components/server/target 
-    </p><p>
+      Now you are ready to <span class="emphasis"><em>build and install</em></span> Omero.  
+      Run <tt class="literal">maven bootstrap</tt> to prepare the installation. 
+      Then run <tt class="literal">maven install</tt>to place all jars and the war file in your local maven repository. 
+      Copy the war file under 
+      <tt class="literal">OMERO_HOME/components/server/target</tt>
       to your servlet container. Enjoy!
     </p><p>
       Alternatively, follow the container-specific instructions below.
-    </p><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-install"></a>2.2.&nbsp;Installing</h2></div></div><div></div></div><p>
+      If you are not building from source, but have downloaded the war (web-application resource) file then your work is a bit simpler.
+      Simply copy the war (web application resource) file to your servlet container. Once it is unpacked, edit:
+      <tt class="literal">
+	/WEB-INF/classes/spring.properties
+      </tt>
+      to connect to the database.
+    </p><p>
+      Once you start your servlet container, you can run the test suite against it.
+    </p><p>
+      Note: These instructions are for releases only.  If you are working from subversion, please see "Building" above to get things running.
+    </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="start-install-tomcat"></a>2.2.1.&nbsp;Installing on Tomcat</h3></div></div><div></div></div><p>
 	There are several methods to make working with a Tomcat
 	instance simpler.
       </p><p>
-	Edit the Tomcat section of your build.properties file 
-	(see HACKING.txt if you don't have one).
+	Edit the Tomcat section of your build.properties file, mentioned under "Building".
       </p><div class="itemizedlist"><ul type="disc"><li><p>
 	    Run "maven" from OMERO_HOME
 	    If maven is not on your path, alternatively run:
-	    "OMERO_HOME/lib/maven/bin/maven"
+	    <tt class="literal">OMERO_HOME/lib/maven/bin/maven</tt>
 	  </p></li><li><p>
 	    cd to OMERO_HOME/components/wars/srv
 	  </p></li><li><p>
-	    Run "maven tomcat:deploy"
-	  </p></li></ul></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-install"></a>2.2.&nbsp;Installing</h2></div></div><div></div></div><p>
-      If you are not building from source, but have downloaded the war (web-application resource) file then your work is a bit simpler.
-    </p><p>
-      To install the OMERO server, simply copy the war (web application resource) file to your servlet container. Once it is unpacked, edit:
-    </p><p>
-      /WEB-INF/classes/spring.properties
-    </p>
-    to connect to the database.
-    <p>
-      Once you start your servlet container, you can run the test suite against it.
-    </p><p>
-      For more specific instructions, please see the INSTALL_*.txt files in the docs directory.
-    </p><p>
-      Note: These instructions are for releases only.  If you are working from subversion, please see BUILDING.txt to get things running.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-use"></a>2.3.&nbsp;Using</h2></div></div><div></div></div><p>
+	    Run 
+	    <tt class="literal">maven tomcat:deploy</tt>
+	  </p></li></ul></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-use"></a>2.3.&nbsp;Using</h2></div></div><div></div></div><p>
       Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
     </p><p>
       Then create a ServiceFactory and use it to obtain a Service.
     </p><p>
       </p><pre class="programlisting">
 	ServiceFactory services = new ServiceFactory();
-	HierarchyBrowsing proxy = services.getHierarchyBrowsingService();
-      </pre><p>
+	HierarchyBrowsing proxy = services.getHierarchyBrowsingService();</pre><p>
     </p></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="design"></a>Chapter&nbsp;3.&nbsp;Server Design</h2></div></div><div></div></div><p>
-    There are several concepts which play a large role in the design of the server. These include: the DAO pattern, AOP cross-cutting, and dependency injection. The first of these is handled (currently) by Hibernate. The other two by Spring.
-  </p></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+    It is fairly easy to work with the server without understanding all of its layers.
+    The API is cleary outlined in the <tt class="literal">ome.api</tt> package 
+    and the client proxies work <span class="emphasis"><em>almost</em></span> as if the calls were being made from within the same virtual machine.
+    The only current caveat is that objects returned between two different calls will not be 
+    referentially (i.e. <tt class="literal">obj1 == obj2</tt>) equivalent.
+    We are working on removing this restriction.
+  </p><p>
+    To understand the full technology stack, however, there are several concepts which are of importance. 
+  </p><p>
+    A <span class="bold"><b>layered architecture</b></span> ensures that components only "talk to" the minimum necessary number of other components. 
+    This reduces the complexity of the entire system.
+    The Omero services (or, "business layer") are made available through a presentation layer (currently only <a href="http://caucho.com/hessian" target="_top">Hessian</a> remoting. 
+    Services make use of the DAO objects (for an explanatino of "DAO" see below), which hide away all details of the O/R mapping framework.
+  </p><p>
+    Ensuring a loose-coupling of various components is also facilitated by <span class="bold"><b>dependency injection</b></span>. 
+    Dependency injection is the process of allowing a managing component to place a needed resource in a component's hand.
+    Code for lookup or creation of resources, in turn, is unneeded, and explicit implementation details don't need to be hard-coded.
+  </p><p>
+    The <span class="bold"><b><a href="http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html" target="_top">DAO pattern</a></b></span>
+    also plays an important role. It hides away the specifics of accessing the database, whether JDBC calls or a full Object-Relational mapping tool.
+  </p><p>
+    <span class="bold"><b>Object-relational mapping</b></span> is the process of mapping relational tables to object-oriented classes.
+  </p><p>
+    <span class="bold"><b>Aspect-oriented programming</b></span>, a somewhat new and misunderstood technology, 
+    is perhaps the last technology which should be mentioned...
+  </p><p>
+    These are the relative generic technologies that we are using, but a much more interesting question is <span class="emphasis"><em>how</em></span> are we using them.
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-model"></a>3.1.&nbsp;Object Model</h2></div></div><div></div></div><p>
+      At the core of the work on the Open Microscopy Environment is the definition of a vocabulary for working with microscopic data. 
+      This vocabulary has a representation in the specification, in the database (the <span class="emphasis"><em>data model</em></span>), and in code.
+      This last representation is the object model with which we will concern ourselves here.
+    </p><p>
+      Because of its complexity, the object model is generated, either from the specification or from the data model.
+      It relies on no libraries and can be used in both the server and the client.
+      Instances of the object model have no direct interaction with the database, rather the mapping is handled externally by the O/R framework.
+    </p><p>
+      By and large, generated classes are composed only of getter and setter fields for fields representing columns in the database.
+      However, to make working with the model easier and, perhaps, more powerful, there are several features which we are 
+      considering including.
+    </p><p><span class="bold"><b>"<span class="underline">OME</span> <span class="underline">R</span>emote <span class="underline">O</span>bjects"</b></span> Currently Omero does not use remote or distributed objects. 
+      <sup>[<a name="d0e218" href="#ftn.d0e218">1</a>]</sup>
+      But to making working with these objects a bit more like truly distributed objects it would be nice to add certain functionality.
+    </p><p>
+      The first and most important addition is making two objects returned from the server be the same reference. To allow this, however, the client developer will need to pass in a ConflictHandler which resolves any stale data.
+    </p><p>
+      
+      setCache() new apis
+      setLazyLoader()
+        retrieveField (Rather than getField)
+    </p><p><span class="bold"><b>Extensibility</b></span> [IDEA]
+      
+    extended api:
+      ome.model.[TYPE].I (inner static interface)
+      fill(Prototype implements [TYPE].I) (copy procedure)
+      synchonization!
+
+      extGet(""),extPut(""),extRemove(""),extAll();
+      or cglib
+      or modelEvents
+     setWrapper?
+    </p><p>
+      In addition to the extended functionality of the new object model, there are some changes to the actual structure, the specification, that are needed.
+    </p><p>
+ * image_id ==&gt; pixel_id where appropriate
+ * plane_info
+ * ACL (getting ownership in each table not MEX)
+ * one table ; one class
+ * cleaning up container relationships (project, category, screen, etc.)
+ * replace ST definition ("ST is immutable") with locking meechanism
+ * possibly versioning
+    </p><p>
+      Inheritance
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-types"></a>3.2.&nbsp; Domain Language and Type Generation [SUGGESTION]</h2></div></div><div></div></div><p>
+      This model has two general parts: first, the long studied and well-established core model and second, the user-specified portion.
+      It is vital that there is a central defintion of both parts of the object model.
+      
+      domain language:
+     dsl
+      immutability=true ==&gt; cache=true
+      private=true ==&gt; umask=700
+        combined with user_umask, system_umask, group_umask?? on create_type
+      defaults in DTD (with local overrides) 
+      cache=true
+    meta model
+      xml is parsed and store in the st, st_elements, data_table, data_column tables
+      api for saying give me valueOfField(String field,int id)--&gt;for lazy-loading.;
+        MetaDao mdao;
+        mdao.getType(field);
+	gdao.getById(type,id);
+	mdao.getField(obj,field);
+    preview java/schema
+
+    </p><p>
+      small domain language --&gt; generate schema/spec/model/...
+    </p><p>
+      links [fields immutable "from" &amp; "to"]
+    </p><p>
+      goal: no exceptions in the model. simple domain language that can produce everything. no stored procedures. no special code. (ideal, i know.)
+    </p><p>
+      Namespaces
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-mex"></a>3.3.&nbsp;MEXes [DELIBERATION]</h2></div></div><div></div></div><p>
+      option 1: single mex per row
+      option 2: range table/textual
+      option 3: many-many tables
+      option 4: virtual mex as "composite"
+      option 5: mex as part of the metamodel.
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-security"></a>3.4.&nbsp;Access Control [PROPOSAL]</h2></div></div><div></div></div><p>
+      The central idea of this access control proposal is that each row in the database should have an experimenter and a permissions field (possibly a group field). An experimenter on each row simplifies implementing public-vs.-private data at the cost of redundancy (as experimenter is also stored in the mex for an object). Permissions permit a more flexible control over information Similar to the access control permissions for Unix filesystems, 
+    </p><p>
+      
+      </p><p>
+      Graph walking. There are complex issues with such cyclical graphs in that pure hierarchy style permissions RWX are not sufficient, more specifically the X bit as it applies to directories won't work since a user has many different ways to access any given object. Rather we need to have an extra filtering step (outlined below) to remove unreadable entries. 
+    </p><p>
+      9 bit (like unix)
+      RWX==&gt;Read_Edit_Delete. 
+      Or combine edit and delete?
+    </p><p>
+      or 32 bit 
+      read, edit(includes delete), locked, versioned, inactive, ...
+    </p><pre class="programlisting">
+ome=# select perm from image;
+   perm    
+-----------
+ 
+ 111100100
+ 111000000
+ 111100000
+(4 rows)
+
+ome=# select b'000000000'&lt;(b'100100100'&amp;perm) from perms;
+ ?column? 
+----------
+ 
+ t
+ t
+ t
+(4 rows)
+
+ome=# select b'000000000'&lt;(b'000100100'&amp;perm) from perms;
+ ?column? 
+----------
+ 
+ t
+ f
+ t
+(4 rows)
+
+ome=# select b'000000000'&lt;(b'000000100'&amp;perm) from perms;
+ ?column? 
+----------
+ 
+ t
+ f
+ f
+(4 rows)
+
+
+OR 
+
+
+ 0 - (none)
+  1 - read
+  2 - read,update
+  3 - read,update,insert
+  4 - read,update,insert,delete
+  5 - read,update,insert,delete,admin
+  &gt; 5 - custom
+
+
+      </pre><p>
+	The need to filter out those objects from a graph for which a user doesn't have permission lead to the implementation of a visitor-like pattern.
+      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-visitor"></a>3.5.&nbsp;Filtering</h2></div></div><div></div></div><p>
+      Model objects have a acceptFilter method which accepts an implementation of the interface filter:
+    </p><pre class="programlisting">
+      interface Filter {
+      Object filter(Object)
+      Map filter(Map)
+      Collection filter(Collection)
+      Model filter(Model) 
+    </pre><p>
+      Each model object is responsible for calling the appropriate filter method for each of its fields <span class="emphasis"><em>and setting the field value to the return value of the method call.</em></span>
+    </p><p>Early in working with Hibernate a method for filtering out the un-initialized lazy proxies (TODO add discussion on this) was needed. Both a reflective (see revision TODO) and a code generation (see revision 176) were used in the server component to create external iterators (TODO: link to pattern) for each model object.</p><p>
+      However, reflection in the model <span class="emphasis"><em>could be</em></span> too slow, and each type of utility in the code generated case would have needed its own generation step. Now with a modified visitor pattern (TODO: link), we can easily create a filter, which walks a model graph and optionally changes any of its values.
+    </p><p>
+      In the case of the security filter, it works like so:
+    </p><pre class="programlisting">
+	Model filter(Model m) {
+	
+	    Credentials c = 
+	      ((SecureContext)ContextHolder.getContext())
+	        .getAuthentication().getCredentials(); // Acegi Security API
+
+	    Permissions  p = m.getPermissions();
+
+	    if (! p.allowRead(c)){
+	        return null; // Sets this field to null
+            }
+	    return m;
+
+        }
+    </pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-rules"></a>3.6.&nbsp;Rules [IDEA]</h2></div></div><div></div></div><p>
+    Drools.
+    Checks on all writes, WriteBlocker with reason, Checks Mexes (Blocks if user tries to enter a mex, they are created based on roles. We need an AE Role)
+    </p><p>
+      This is most important for writes to the database, both "saves" (of new data) and "updates" of existing data (including deletes.) Any operation which changes the database can be proceeded by a call such as:
+      </p><pre class="programlisting">
+	Object[] objs;
+	//...
+	rules.check(objs); // throws exception if something's amiss.
+	dao.write(objs);
+      </pre><p>
+    </p><p>
+      An example of a rule which we currently have but which is not formalized is the concept of an image being a member of one and only one category in a category group. 
+      If we were to implement this as a rule:
+      </p><pre class="programlisting">
+	condition(Classification cl) {
+	  i = cl.getImage();
+	  c = cl.getCategory();
+	  cg = c.getCategoryGroup();
+	  c2 = cg.contains(i);
+	  if (c.id != c2.id) return true;
+	}
+
+	consequence(){
+	  throw new ImageCategoryExeption();
+      </pre><p>
+    </p><p>
+      rule api to create conditions, which may make conditions useable from within the type-creation language.
+      </p><pre class="programlisting">
+	&lt;type&gt;
+	  &lt;field name="field1"&gt;...
+	  &lt;rule&gt;
+  	    &lt;condition&lt;
+	      return dao.conflicts(field1);
+	    &lt;/condition&lt;
+  	    &lt;consequence&lt;
+	      throw new Exception();
+	    &lt;/consequence&lt;
+	  &lt;rule&gt;
+	&lt;/type&gt;
+      </pre><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-graphs"></a>3.7.&nbsp;Working with graphs</h2></div></div><div></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-import"></a>3.8.&nbsp;Importing</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-client"></a>3.9.&nbsp;Client libraries</h2></div></div><div></div></div><p>
+      Though Omero is mostly a server-side project, established libraries for accessing that server make using it substantially easier.
+    </p><p>
+    connectivity:
+      asynchrounous: jmx,remoting,...
+      events: changes from other clients (how many clients currently connected!)
+    </p><p>
+    cache:
+      jbossAOPTreeCache http://docs.jboss.com/jbcache/current/TreeCacheAop/html/  OR
+      jcache with CacheLoader! (with jms for sync) OR
+      OScache (persistent -- changes between restarts! classes too? ==&gt; CacheClassLoader)
+
+      aop over client (or even server if have jdbc connection [pattern needs name])
+      ConflictResolver (per agent) 
+      new ome.client.ServiceFactory() -- no caching
+      ome.client.ServiceFactory.withCaching(ConflictResolver) -- with caching
+        if conflictResolver==null, throws OptimisticLockException at commit time.
+    </p></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d0e218" href="#d0e218">1</a>] </sup>Just what are distributed objects? TODO</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
 	  Add to common/src/ome/api interface "[API]"
 	  Run "maven jar:install" for common
 	</p></li><li><p>

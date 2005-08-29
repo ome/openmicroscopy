@@ -2,36 +2,174 @@
 <chapter id="design">
   <title>Server Design</title>
   <para>
-    There are several concepts which play a large role in the design of the server. These include: the DAO pattern, AOP cross-cutting, and dependency injection. The first of these is handled (currently) by Hibernate. The other two by Spring.
+    It is fairly easy to work with the server without understanding all of its layers.
+    The API is cleary outlined in the <literal>ome.api</literal> package 
+    and the client proxies work <emphasis>almost</emphasis> as if the calls were being made from within the same virtual machine.
+    The only current caveat is that objects returned between two different calls will not be 
+    referentially (i.e. <literal>obj1 == obj2</literal>) equivalent.
+    We are working on removing this restriction.
+  </para>
+  <para>
+    To understand the full technology stack, however, there are several concepts which are of importance. 
+  </para>
+  <para>
+    A <emphasis role="bold">layered architecture</emphasis> ensures that components only "talk to" the minimum necessary number of other components. 
+    This reduces the complexity of the entire system.
+    The Omero services (or, "business layer") are made available through a presentation layer (currently only <ulink url="http://caucho.com/hessian">Hessian</ulink> remoting. 
+    Services make use of the DAO objects (for an explanatino of "DAO" see below), which hide away all details of the O/R mapping framework.
+  </para>
+  <para>
+    Ensuring a loose-coupling of various components is also facilitated by <emphasis role="bold">dependency injection</emphasis>. 
+    Dependency injection is the process of allowing a managing component to place a needed resource in a component's hand.
+    Code for lookup or creation of resources, in turn, is unneeded, and explicit implementation details don't need to be hard-coded.
+  </para>
+  <para>
+    The <emphasis role="bold"><ulink url="http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html">DAO pattern</ulink></emphasis>
+    also plays an important role. It hides away the specifics of accessing the database, whether JDBC calls or a full Object-Relational mapping tool.
+  </para>
+  <para>
+    <emphasis role="bold">Object-relational mapping</emphasis> is the process of mapping relational tables to object-oriented classes.
+  </para>
+  <para>
+    <emphasis role="bold">Aspect-oriented programming</emphasis>, a somewhat new and misunderstood technology, 
+    is perhaps the last technology which should be mentioned...
+  </para>
+  <para>
+    These are the relative generic technologies that we are using, but a much more interesting question is <emphasis>how</emphasis> are we using them.
   </para>
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <section id="design-model">
+    <title>Object Model</title>
+    <para>
+      At the core of the work on the Open Microscopy Environment is the definition of a vocabulary for working with microscopic data. 
+      This vocabulary has a representation in the specification, in the database (the <emphasis>data model</emphasis>), and in code.
+      This last representation is the object model with which we will concern ourselves here.
+    </para>
+    <para>
+      Because of its complexity, the object model is generated, either from the specification or from the data model.
+      It relies on no libraries and can be used in both the server and the client.
+      Instances of the object model have no direct interaction with the database, rather the mapping is handled externally by the O/R framework.
+    </para>
+    <para>
+      By and large, generated classes are composed only of getter and setter fields for fields representing columns in the database.
+      However, to make working with the model easier and, perhaps, more powerful, there are several features which we are 
+      considering including.
+    </para>
+    <para><emphasis role="bold">"<emphasis role="underline">OME</emphasis> <emphasis role="underline">R</emphasis>emote <emphasis role="underline">O</emphasis>bjects"</emphasis> Currently Omero does not use remote or distributed objects. 
+      <footnote>
+	<para>Just what are distributed objects? TODO</para>
+    </footnote>
+      But to making working with these objects a bit more like truly distributed objects it would be nice to add certain functionality.
+    </para>
+    <para>
+      The first and most important addition is making two objects returned from the server be the same reference. To allow this, however, the client developer will need to pass in a ConflictHandler which resolves any stale data.
+    </para>
+    <para>
+      
+      setCache() new apis
+      setLazyLoader()
+        retrieveField (Rather than getField)
+    </para>
+    <para><emphasis role="bold">Extensibility</emphasis> [IDEA]
+      
+    extended api:
+      ome.model.[TYPE].I (inner static interface)
+      fill(Prototype implements [TYPE].I) (copy procedure)
+      synchonization!
+
+      extGet(""),extPut(""),extRemove(""),extAll();
+      or cglib
+      or modelEvents
+     setWrapper?
+    </para>
+    <para>
+      In addition to the extended functionality of the new object model, there are some changes to the actual structure, the specification, that are needed.
+    </para>
+    <para>
+ * image_id ==> pixel_id where appropriate
+ * plane_info
+ * ACL (getting ownership in each table not MEX)
+ * one table ; one class
+ * cleaning up container relationships (project, category, screen, etc.)
+ * replace ST definition ("ST is immutable") with locking meechanism
+ * possibly versioning
+    </para>
+    <para>
+      Inheritance
+    </para>
+  </section>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
   <section id="design-types">
+    <title> Domain Language and Type Generation [SUGGESTION]</title>
+    <para>
+      This model has two general parts: first, the long studied and well-established core model and second, the user-specified portion.
+      It is vital that there is a central defintion of both parts of the object model.
+      
+      domain language:
+     dsl
+      immutability=true ==> cache=true
+      private=true ==> umask=700
+        combined with user_umask, system_umask, group_umask?? on create_type
+      defaults in DTD (with local overrides) 
+      cache=true
+    meta model
+      xml is parsed and store in the st, st_elements, data_table, data_column tables
+      api for saying give me valueOfField(String field,int id)-->for lazy-loading.;
+        MetaDao mdao;
+        mdao.getType(field);
+	gdao.getById(type,id);
+	mdao.getField(obj,field);
+    preview java/schema
+
+    </para>
     <para>
       small domain language --> generate schema/spec/model/...
     </para>
     <para>
-      links (fields immutable "from" & "to")
+      links [fields immutable "from" &amp; "to"]
     </para>
     <para>
       goal: no exceptions in the model. simple domain language that can produce everything. no stored procedures. no special code. (ideal, i know.)
     </para>
-  </section>
-  <section id="design-mex">
     <para>
-      option 1: many-many tables
-      option 2: range table
-      option 3: single mex per row
-      option 4: virtual mex as "composite"
+      Namespaces
+    </para>
   </section>
+
+
+  <section id="design-mex">
+    <title>MEXes [DELIBERATION]</title>
+    <para>
+      option 1: single mex per row
+      option 2: range table/textual
+      option 3: many-many tables
+      option 4: virtual mex as "composite"
+      option 5: mex as part of the metamodel.
+    </para>
+  </section>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
   <section id="design-security">
-    <title>Security</title>
-    <section id="design-access">
-      <title>Access Control</title>
-      <para>
-	9 bit (like unix)
-	RWX==>Read_Edit_Delete. 
-	Or combine edit and delete?
+    <title>Access Control [PROPOSAL]</title>
+    <para>
+      The central idea of this access control proposal is that each row in the database should have an experimenter and a permissions field (possibly a group field). An experimenter on each row simplifies implementing public-vs.-private data at the cost of redundancy (as experimenter is also stored in the mex for an object). Permissions permit a more flexible control over information Similar to the access control permissions for Unix filesystems, 
+    </para>
+    <para>
+      
       </para>
+    <para>
+      Graph walking. There are complex issues with such cyclical graphs in that pure hierarchy style permissions RWX are not sufficient, more specifically the X bit as it applies to directories won't work since a user has many different ways to access any given object. Rather we need to have an extra filtering step (outlined below) to remove unreadable entries. 
+    </para>
+    <para>
+      9 bit (like unix)
+      RWX==>Read_Edit_Delete. 
+      Or combine edit and delete?
+    </para>
     <para>
       or 32 bit 
       read, edit(includes delete), locked, versioned, inactive, ...
@@ -46,7 +184,7 @@ ome=# select perm from image;
  111100000
 (4 rows)
 
-ome=# select b'000000000'<(b'100100100'&amp;perm) from perms;
+ome=# select b'000000000'&lt;(b'100100100'&amp;perm) from perms;
  ?column? 
 ----------
  
@@ -55,7 +193,7 @@ ome=# select b'000000000'<(b'100100100'&amp;perm) from perms;
  t
 (4 rows)
 
-ome=# select b'000000000'<(b'000100100'&amp;perm) from perms;
+ome=# select b'000000000'&lt;(b'000100100'&amp;perm) from perms;
  ?column? 
 ----------
  
@@ -64,7 +202,7 @@ ome=# select b'000000000'<(b'000100100'&amp;perm) from perms;
  t
 (4 rows)
 
-ome=# select b'000000000'<(b'000000100'&amp;perm) from perms;
+ome=# select b'000000000'&lt;(b'000000100'&amp;perm) from perms;
  ?column? 
 ----------
  
@@ -72,8 +210,143 @@ ome=# select b'000000000'<(b'000000100'&amp;perm) from perms;
  f
  f
 (4 rows)
+
+
+OR 
+
+
+ 0 - (none)
+  1 - read
+  2 - read,update
+  3 - read,update,insert
+  4 - read,update,insert,delete
+  5 - read,update,insert,delete,admin
+  > 5 - custom
+
+
       </programlisting>
-    </section>
+
+      <para>
+	The need to filter out those objects from a graph for which a user doesn't have permission lead to the implementation of a visitor-like pattern.
+      </para>
   </section>
- </chapter>
+  <section id="design-visitor">
+    <title>Filtering</title>
+    <para>
+      Model objects have a acceptFilter method which accepts an implementation of the interface filter:
+    </para>
+    <programlisting>
+      interface Filter {
+      Object filter(Object)
+      Map filter(Map)
+      Collection filter(Collection)
+      Model filter(Model) 
+    </programlisting>
+    <para>
+      Each model object is responsible for calling the appropriate filter method for each of its fields <emphasis>and setting the field value to the return value of the method call.</emphasis>
+    </para>
+    <para>Early in working with Hibernate a method for filtering out the un-initialized lazy proxies (TODO add discussion on this) was needed. Both a reflective (see revision TODO) and a code generation (see revision 176) were used in the server component to create external iterators (TODO: link to pattern) for each model object.</para>
+    <para>
+      However, reflection in the model <emphasis>could be</emphasis> too slow, and each type of utility in the code generated case would have needed its own generation step. Now with a modified visitor pattern (TODO: link), we can easily create a filter, which walks a model graph and optionally changes any of its values.
+    </para>
+    <para>
+      In the case of the security filter, it works like so:
+    </para>
+    <programlisting>
+	Model filter(Model m) {
+	
+	    Credentials c = 
+	      ((SecureContext)ContextHolder.getContext())
+	        .getAuthentication().getCredentials(); // Acegi Security API
+
+	    Permissions  p = m.getPermissions();
+
+	    if (! p.allowRead(c)){
+	        return null; // Sets this field to null
+            }
+	    return m;
+
+        }
+    </programlisting>	
+  </section>
+  <section id="design-rules">
+    <title>Rules [IDEA]</title>
+    <para>
+    Drools.
+    Checks on all writes, WriteBlocker with reason, Checks Mexes (Blocks if user tries to enter a mex, they are created based on roles. We need an AE Role)
+    </para>
+    <para>
+      This is most important for writes to the database, both "saves" (of new data) and "updates" of existing data (including deletes.) Any operation which changes the database can be proceeded by a call such as:
+      <programlisting>
+	Object[] objs;
+	//...
+	rules.check(objs); // throws exception if something's amiss.
+	dao.write(objs);
+      </programlisting>
+    </para>
+    <para>
+      An example of a rule which we currently have but which is not formalized is the concept of an image being a member of one and only one category in a category group. 
+      If we were to implement this as a rule:
+      <programlisting>
+	condition(Classification cl) {
+	  i = cl.getImage();
+	  c = cl.getCategory();
+	  cg = c.getCategoryGroup();
+	  c2 = cg.contains(i);
+	  if (c.id != c2.id) return true;
+	}
+
+	consequence(){
+	  throw new ImageCategoryExeption();
+      </programlisting>
+    </para>
+    <para>
+      rule api to create conditions, which may make conditions useable from within the type-creation language.
+      <programlisting>
+	&lt;type&gt;
+	  &lt;field name="field1"&gt;...
+	  &lt;rule&gt;
+  	    &lt;condition&lt;
+	      return dao.conflicts(field1);
+	    &lt;/condition&lt;
+  	    &lt;consequence&lt;
+	      throw new Exception();
+	    &lt;/consequence&lt;
+	  &lt;rule&gt;
+	&lt;/type&gt;
+      </programlisting>
+    </para>
+  </section>
+  <section id="design-graphs">
+    <title>Working with graphs</title>
+  </section>
+  <section id="design-import">
+    <title>Importing</title>
+    <para>
+    </para>
+  </section>
+  <section id="design-client">
+    <title>Client libraries</title>
+    <para>
+      Though Omero is mostly a server-side project, established libraries for accessing that server make using it substantially easier.
+    </para>
+    <para>
+    connectivity:
+      asynchrounous: jmx,remoting,...
+      events: changes from other clients (how many clients currently connected!)
+    </para>
+    <para>
+    cache:
+      jbossAOPTreeCache http://docs.jboss.com/jbcache/current/TreeCacheAop/html/  OR
+      jcache with CacheLoader! (with jms for sync) OR
+      OScache (persistent -- changes between restarts! classes too? ==> CacheClassLoader)
+
+      aop over client (or even server if have jdbc connection [pattern needs name])
+      ConflictResolver (per agent) 
+      new ome.client.ServiceFactory() -- no caching
+      ome.client.ServiceFactory.withCaching(ConflictResolver) -- with caching
+        if conflictResolver==null, throws OptimisticLockException at commit time.
+    </para>
+  </section>
+</chapter>
 

@@ -1,52 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="jmx">
   <title>Getting Started</title>
+    <para>
+      As with any new framework, it takes a while to work through the various layers. 
+      We will assume that due to the development quality of the project that anyone interested 
+      will first begin by examining the source code. 
+      Let's start with building.
+    </para>
   <section id="start-build">
     <title>Building</title>
     <para>
-      As with any new framework, it takes a while to get into the code base. Let's start with building.
-    </para>
-    <para>
-      To work with the OMERO source base, you will need to have a fully working OME Database, a Java Development Kit, and a Servlet container, as well as various environment variables.
+      The OMERO build system is currently based on <ulink url="http://maven.apache.org">Maven</ulink>. 
+      In addtion, to work with the Omero source base, you will need to have a fully working OME database,
+      not necessarily Postgres, a Java Development Kit, and a Servlet container, as well as various environment variables.
     </para>
     <itemizedlist>
       <listitem>
 	<para>
-	  Install Java and a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.) Warning: The Omero server side code requires Java 5 and Tomcat 5.5.x. 
+	  Install <ulink url="http://java.sun.com">Java</ulink>. 
+	  <emphasis>The Omero server code requires Java 5.</emphasis> 
+	  Also, set the JAVA_HOME environment variable to your JDK installation
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  Set JAVA_HOME to your JDK installation
+	  Install a Servlet Container (Tomcat, Jetty, Resin, or JBoss et al.). 
+	  Most testing is done on <ulink url="http://jakarta.apache.org/tomcat">Tomcat</ulink>. 
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  Set MAVEN_HOME to your Maven installation or alternatively to OMERO_HOME/lib/maven/  If you use the latter also run: 
-	</para>
-	<para>
+	  Install Maven. 
+	  Set MAVEN_HOME to your Maven installation.
+	  Alternatively you can use the included Maven installation and set MAVEN_HOME to OMERO_HOME/lib/maven/.
+	  If you do this, also run the command: 
+	  <literal>
 	  OMERO_HOME/lib/maven/bin/install_repo.sh HOME_DIR/.maven/repository
-	</para>
-	<para>
-	  install_repo.bat is available for Windows users. Also, place MAVEN_HOME/bin/maven(.bat) on your PATH.
+	  </literal>
+	  install_repo.bat is available for Windows users. 
+	  Also, place MAVEN_HOME/bin/maven(.bat) on your PATH.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  Copy docs/examples/build.properties.example to OMERO_HOME or HOME; edit the properties for your site. 
+	  <!-- TODO information on setting properties, especially for another database -->
 	</para>
 	<para>
-	  Note: This file should _not_ be put under revision control!
+	  Note: This file should <emphasis>not</emphasis> be put under revision control!
 	</para>
       </listitem>
     </itemizedlist>
     <para>
-      Now you are ready to <emphasis>build and install</emphasis> OMERO.  Run <literal>maven bootstrap</literal> to prepare the installation. Then run <literal>maven install</literal>to place all jars and the war file in your local maven repository. Copy the war file under
-    </para>
-    <para>		
-      OMERO_HOME/components/server/target 
-    </para>
-    <para>
+      Now you are ready to <emphasis>build and install</emphasis> Omero.  
+      Run <literal>maven bootstrap</literal> to prepare the installation. 
+      Then run <literal>maven install</literal>to place all jars and the war file in your local maven repository. 
+      Copy the war file under 
+      <literal>OMERO_HOME/components/server/target</literal>
       to your servlet container. Enjoy!
     </para>
     <para>
@@ -57,22 +67,17 @@
     <title>Installing</title>
     <para>
       If you are not building from source, but have downloaded the war (web-application resource) file then your work is a bit simpler.
+      Simply copy the war (web application resource) file to your servlet container. Once it is unpacked, edit:
+      <literal>
+	/WEB-INF/classes/spring.properties
+      </literal>
+      to connect to the database.
     </para>
-    <para>
-      To install the OMERO server, simply copy the war (web application resource) file to your servlet container. Once it is unpacked, edit:
-    </para>
-    <para>
-      /WEB-INF/classes/spring.properties
-    </para>
-    to connect to the database.
     <para>
       Once you start your servlet container, you can run the test suite against it.
     </para>
     <para>
-      For more specific instructions, please see the INSTALL_*.txt files in the docs directory.
-    </para>
-    <para>
-      Note: These instructions are for releases only.  If you are working from subversion, please see BUILDING.txt to get things running.
+      Note: These instructions are for releases only.  If you are working from subversion, please see "Building" above to get things running.
     </para>
     <section id="start-install-tomcat">
       <title>Installing on Tomcat</title>
@@ -81,15 +86,14 @@
 	instance simpler.
       </para>
       <para>
-	Edit the Tomcat section of your build.properties file 
-	(see HACKING.txt if you don't have one).
+	Edit the Tomcat section of your build.properties file, mentioned under "Building".
       </para>
       <itemizedlist>
 	<listitem>
 	  <para>
 	    Run "maven" from OMERO_HOME
 	    If maven is not on your path, alternatively run:
-	    "OMERO_HOME/lib/maven/bin/maven"
+	    <literal>OMERO_HOME/lib/maven/bin/maven</literal>
 	  </para>
 	</listitem>
 	<listitem>
@@ -99,7 +103,8 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    Run "maven tomcat:deploy"
+	    Run 
+	    <literal>maven tomcat:deploy</literal>
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -116,8 +121,7 @@
     <para>
       <programlisting>
 	ServiceFactory services = new ServiceFactory();
-	HierarchyBrowsing proxy = services.getHierarchyBrowsingService();
-      </programlisting>
+	HierarchyBrowsing proxy = services.getHierarchyBrowsingService();</programlisting>
     </para>
   </section>
 </chapter>

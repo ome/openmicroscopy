@@ -2,29 +2,21 @@
 
 <chapter id="introduction">
   <title>Introduction</title>
-  <section id="introduction-what">
-    <title>What?</title>
-    <para>
-      The OME java server is a port of the perl code make use of existing object-relational mapping (ORM) tools. 
-    </para>
-  </section>
+  <!-- what -->
+  The OME Java Server is a port of some of the OME Data Server (OMEDS) Perl code to Java. 
+  Specifically, it replaces the object-relational mapping code named "DBObject" with existing object-relational mapping (ORM) tools. 
+  The change frees us from the maintenance of self-written code which has been the basis of the project for the last X years.
+  As a project code, it becomes necessary to focus ever more carefully on the offered specialty.
+  Though DBObject has served us well, there are simply other development teams who specialize in OR mapping and it has become time to look into these existing options.
   
-  <section id="introduction-why">
-    <title>Why?</title>
-    <para>
-      Speed, ease of development, agility, alternative implementations
-    </para>
-  </section>
+  <!-- why -->
+  <para>
+    In addition to the reduced developer load, the choice of alternative existing O/R implementations such as  Hibernate or Java Data Objects (JDO), 
+    the compiled language and more extensive feature list bring significant performance gains.
+  </para>
   
-  <section id="introduction-how">
-    <title>How?</title>
-    <para>
-      Just what are these implementations? Well,...
-    </para>
-  </section>
-  
-  <section id="intro-blurb">
-    <title>Other info</title>
+  <section id="intro-info">
+    <title>Project Information</title>
     <programlisting>
 LICENSE
 
