@@ -3,7 +3,7 @@ $c2j.getPackageDeclaration($clazz)
 ###########################################################
 ## <CustomCode>
 ###########################################################
-import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.BaseModelUtils;
 import ome.util.Filterable;
 import ome.util.Filter;
 ###########################################################
@@ -40,7 +40,7 @@ $c2j.getImplementsDeclaration($clazz) ,
 ###########################################################
 ## <CustomCode>
 ###########################################################
-org.openmicroscopy.omero.OMEModel,
+ome.api.OMEModel,
 ome.util.Filterable {
 ###########################################################
 ## </CustomCode>
@@ -166,8 +166,8 @@ $c2j.getExtraCode($clazz)
 ## <CustomCode>
 ###########################################################
 	/** utility methods. Container may re-assign this. */	
-	protected static org.openmicroscopy.omero.BaseModelUtils _utils = 
-		new org.openmicroscopy.omero.BaseModelUtils();
+	protected static BaseModelUtils _utils = 
+		new BaseModelUtils();
 	public BaseModelUtils getUtils(){
 		return _utils;
 	}
@@ -194,7 +194,7 @@ $c2j.getExtraCode($clazz)
 	  }
 // TODO catch class cast?
 	  $set(($type) filter.filter("$clazz:$field",_$field)); 
-##if( $pkg.contains("openmicroscopy"))
+##if( $pkg.startsWith("ome."))
 ##elseif($type.equals("Set"))
 ##	  $set(($type) filter.filter((Collection)_$field)); 
 ##else

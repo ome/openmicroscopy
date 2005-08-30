@@ -31,21 +31,14 @@ package ome.dao.hibernate;
 
 //Java imports
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 import ome.dao.AnalysisDao;
 
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.type.IntegerType;
-import org.openmicroscopy.omero.OMEModel;
-import org.openmicroscopy.omero.logic.ContainerDao;
-import org.openmicroscopy.omero.model.Project;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 

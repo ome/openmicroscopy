@@ -13,7 +13,7 @@
  <!-- GENERATE VELOCITY CODE -->
  <goal name="texen" prereqs="create-classpath,java:jar-resources">
     <ant:property name="outputDir"
-	location="${basedir}/gen-src/texen/org/openmicroscopy/omero/dao/utils"/>
+	location="${basedir}/gen-src/texen/ome/dao/hibernate/utils"/>
     <ant:property name="tmplDir"   location="${basedir}/src"/>
     <ant:exec dir="${basedir}" executable="ant" failonerror="true">
       <ant:env key="CLASSPATH"

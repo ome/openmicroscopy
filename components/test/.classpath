@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-client-1.0.jar"/>
-	<classpathentry sourcepath="/OMERO_HOME/components/shoola-adapter/src" kind="var" path="MAVEN_REPO/omero/jars/omero-shoola-adapter-1.0.jar"/>
+	<classpathentry sourcepath="/OMERO_HOME/components/pojos-adapter/src" kind="var" path="MAVEN_REPO/omero/jars/omero-pojos-adapter-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar"/>
 	<classpathentry sourcepath="HOME/lib/spring-framework-1.2.2/mock" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>

@@ -52,22 +52,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.dao.AnnotationDao;
+import ome.dao.ContainerDao;
+import ome.dao.GenericDao;
+import ome.model.AnalysisChainExecution;
 
-import org.openmicroscopy.omero.OMEModel;
-import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
-import org.openmicroscopy.omero.logic.AnnotationDao;
-import org.openmicroscopy.omero.logic.ContainerDao;
-import org.openmicroscopy.omero.logic.GenericDao;
-import org.openmicroscopy.omero.model.AnalysisChainExecution;
-import org.openmicroscopy.omero.model.Category;
-import org.openmicroscopy.omero.model.CategoryGroup;
-import org.openmicroscopy.omero.model.Classification;
-import org.openmicroscopy.omero.model.Dataset;
-import org.openmicroscopy.omero.model.DatasetAnnotation;
-import org.openmicroscopy.omero.model.Experimenter;
-import org.openmicroscopy.omero.model.Image;
-import org.openmicroscopy.omero.model.ImageAnnotation;
-import org.openmicroscopy.omero.model.Project;
+import ome.model.Dataset;
+import ome.model.Experimenter;
+import ome.model.Project;
 
 
 /**

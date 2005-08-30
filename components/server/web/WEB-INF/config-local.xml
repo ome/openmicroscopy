@@ -55,7 +55,7 @@
 	<!-- Add this config file to the getConfigLocations() of your tests
 		if you want data and interfaces injected -->
 <!-- TODO this needs to be somewhere else
-	<bean id="data" class="org.openmicroscopy.omero.tests.OMEPerformanceData" init-method="init">
+	<bean id="data" class="ome.testing.OMEPerformanceData" init-method="init">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 	-->

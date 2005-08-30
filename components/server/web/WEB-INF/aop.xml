@@ -53,13 +53,13 @@
 
 	<bean 
 		       id="logging" 
-		    class="org.openmicroscopy.omero.logic.ReturnLogger" 
+		    class="ome.aop.ReturnLogger" 
 		lazy-init="true"
 	/>
 
 	<bean
 		       id="exceptionHandling"
-	    	    class="org.openmicroscopy.omero.logic.ExceptionHandler"
+	    	    class="ome.aop.ExceptionHandler"
 		lazy-init="true"
 	/>
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

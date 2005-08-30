@@ -72,12 +72,12 @@
 		<property name="genericDao" ref="genericDao"/>		
 	</bean>		
 				
-	<bean id="hierarchyBrowsingService" class="org.openmicroscopy.omero.logic.HierarchyBrowsingImpl">
+	<bean id="hierarchyBrowsingService" class="ome.logic.HierarchyBrowsingImpl">
 		<property name="annotationDao" ref="annotationDao"/>
 		<property name="containerDao" ref="containerDao"/>
 	</bean>		
 
-	<bean id="writeService" class="org.openmicroscopy.omero.logic.WriteImpl">
+	<bean id="writeService" class="ome.logic.WriteImpl">
 		<property name="jdbcTemplate" ref="jdbcTemplate"/>
 		<property name="genericDao" ref="genericDao"/>		
 	</bean>		

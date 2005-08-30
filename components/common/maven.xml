@@ -5,7 +5,7 @@
 >
   
   <goal name="middlegen">
-    <ant:uptodate property="middlegen.not.required" targetfile="${basedir}/src/org/ome/omero/model/" >
+    <ant:uptodate property="middlegen.not.required" targetfile="${basedir}/src/ome/model/" >
         <ant:srcfiles dir= "${basedir}/middlegen" includes="*.xml"/>
     </ant:uptodate>
 

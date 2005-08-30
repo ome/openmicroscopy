@@ -23,7 +23,7 @@ ok(defined($service));
 
 
 # TESTING CLASS
-my $class = java::lang::Class->forName("org.openmicroscopy.omero.model.Project");
+my $class = java::lang::Class->forName("ome.model.Project");
 my $result = $service->loadPDIHierarchy($class,1);
 ok(defined($result));
 diag(Dumper($result));

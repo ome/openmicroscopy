@@ -143,9 +143,9 @@
 	 >
   	 
 <!-- TODO 
-	<implements>org.openmicroscopy.omero.OMEModel</implements>
+	<implements>ome.api.OMEModel</implements>
 OR
-	implements="org.openmicroscopy.omero.OMEModel" 
+	implements="ome.api.OMEModel" 
 -->
 	 </hibernate>
     </middlegen>

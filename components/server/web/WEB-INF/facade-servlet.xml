@@ -15,12 +15,12 @@
 
 	<bean name="/HierarchyBrowsing" class="org.springframework.remoting.caucho.HessianServiceExporter">
 	    <property name="service"><ref bean="hierarchyBrowsingService"/></property> 
-	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.HierarchyBrowsing</value></property>
+	    <property name="serviceInterface"><value>ome.api.HierarchyBrowsing</value></property>
 	</bean>
 	
 	<bean name="/Write" class="org.springframework.remoting.caucho.HessianServiceExporter">
 	    <property name="service"><ref bean="writeService"/></property> 
-	    <property name="serviceInterface"><value>org.openmicroscopy.omero.interfaces.Write</value></property>
+	    <property name="serviceInterface"><value>ome.api.Write</value></property>
 	</bean>
 	
 </beans>

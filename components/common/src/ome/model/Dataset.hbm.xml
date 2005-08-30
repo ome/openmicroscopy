@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.Dataset" 
+    table="datasets"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="datasetId"
+        type="java.lang.Integer"
+        column="dataset_id"
+    >
+        <generator class="sequence">
+            <param name="sequence">this_seq_does_not_exist</param>
+        </generator>
+    </id>
+
+    <property
+        name="locked"
+        type="boolean"
+        column="locked"
+        not-null="true"
+        length="1"
+    />
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        not-null="true"
+        length="256"
+    />
+    <property
+        name="description"
+        type="java.lang.String"
+        column="description"
+        length="-1"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-many association to AnalysisChainExecution -->
+    <set
+        name="analysisChainExecutions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <one-to-many 
+            class="ome.model.AnalysisChainExecution"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to OmeSession -->
+    <set
+        name="omeSessions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <one-to-many 
+            class="ome.model.OmeSession"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to ModuleExecution -->
+    <set
+        name="moduleExecutions"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <one-to-many 
+            class="ome.model.ModuleExecution"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to DatasetAnnotation -->
+    <set
+        name="datasetAnnotations"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <one-to-many 
+            class="ome.model.DatasetAnnotation"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to Experimenter -->
+    <many-to-one
+        name="experimenter"
+        class="ome.model.Experimenter"
+        not-null="true"
+    >
+        <column name="owner_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Group -->
+    <many-to-one
+        name="group"
+        class="ome.model.Group"
+        not-null="true"
+    >
+        <column name="group_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-many association to Project -->
+    <set
+        name="projects"
+        lazy="true"
+		cascade="all"
+        table="project_dataset_map"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <many-to-many
+            class="ome.model.Project"
+        >
+            <column name="project_id" />
+        </many-to-many>
+    </set>
+    <!-- bi-directional many-to-many association to Image -->
+    <set
+        name="images"
+        lazy="true"
+		cascade="all"
+        table="image_dataset_map"
+    >
+        <key>
+            <column name="dataset_id" />
+        </key>
+        <many-to-many
+            class="ome.model.Image"
+        >
+            <column name="image_id" />
+        </many-to-many>
+    </set>
+
+</class>
+</hibernate-mapping>

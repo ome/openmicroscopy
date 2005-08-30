@@ -8,7 +8,7 @@ use warnings;
 
 my @imports =
   [
-  'org.openmicroscopy.omero.client.ServiceFactory',
+  'ome.client.ServiceFactory',
   'java.util.HashSet',
   'java.util.Set',
   'java.util.Iterator',

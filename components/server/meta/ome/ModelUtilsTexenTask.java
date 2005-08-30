@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.ModelUtilsTexenTask
+ * ome.ModelUtilsTexenTask
  *
  *------------------------------------------------------------------------------
  *

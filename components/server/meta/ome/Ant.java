@@ -10,7 +10,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
-import org.openmicroscopy.omero.logic.dynamic.BuildTime;
+import ome.dynamic.BuildTime;
 
 public @BuildTime class Ant {
 

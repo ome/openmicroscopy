@@ -3,7 +3,7 @@ $c2j.getPackageDeclaration($clazz)
 ###########################################################
 ## <CustomCode>
 ###########################################################
-import org.openmicroscopy.omero.BaseModelUtils;
+import ome.util.BaseModelUtils;
 ###########################################################
 ## </CustomCode>
 ###########################################################
@@ -38,7 +38,7 @@ $c2j.getImplementsDeclaration($clazz) ,
 ###########################################################
 ## <CustomCode>
 ###########################################################
-org.openmicroscopy.omero.OMEModel {
+ome.api.OMEModel {
 ###########################################################
 ## </CustomCode>
 ###########################################################
@@ -163,8 +163,8 @@ $c2j.getExtraCode($clazz)
 ## <CustomCode>
 ###########################################################
 	/** utility methods. Container may re-assign this. */	
-	protected static org.openmicroscopy.omero.BaseModelUtils _utils = 
-		new org.openmicroscopy.omero.BaseModelUtils();
+	protected static BaseModelUtils _utils = 
+		new BaseModelUtils();
 	public BaseModelUtils getUtils(){
 		return _utils;
 	}

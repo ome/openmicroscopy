@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.ImagePixel" 
+    table="image_pixels"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="sequence">
+            <param name="sequence">this_seq_does_not_exist</param>
+        </generator>
+    </id>
+
+    <property
+        name="pixelType"
+        type="java.lang.String"
+        column="pixel_type"
+        length="-1"
+    />
+    <property
+        name="sizeY"
+        type="java.lang.Integer"
+        column="size_y"
+        length="4"
+    />
+    <property
+        name="sizeZ"
+        type="java.lang.Integer"
+        column="size_z"
+        length="4"
+    />
+    <property
+        name="fileSha1"
+        type="java.lang.String"
+        column="file_sha1"
+        length="-1"
+    />
+    <property
+        name="sizeT"
+        type="java.lang.Integer"
+        column="size_t"
+        length="4"
+    />
+    <property
+        name="imageServerId"
+        type="java.lang.Long"
+        column="image_server_id"
+        length="8"
+    />
+    <property
+        name="sizeX"
+        type="java.lang.Integer"
+        column="size_x"
+        length="4"
+    />
+    <property
+        name="sizeC"
+        type="java.lang.Integer"
+        column="size_c"
+        length="4"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Repository -->
+    <many-to-one
+        name="repository"
+        class="ome.model.Repository"
+        not-null="true"
+    >
+        <column name="repository" />
+    </many-to-one>
+    <!-- bi-directional one-to-many association to Image -->
+    <set
+        name="images"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="pixels_id" />
+        </key>
+        <one-to-many 
+            class="ome.model.Image"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to ChannelComponent -->
+    <set
+        name="channelComponents"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <key>
+            <column name="pixels_id" />
+        </key>
+        <one-to-many 
+            class="ome.model.ChannelComponent"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="ome.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="ome.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>

@@ -6,7 +6,7 @@
   <id>${pom.groupId}-test</id>
   <name>OME Test Code</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.openmicroscopy.omero.test</package>
+  <package>ome.tests</package>
   <description>The test code for the Omero server and clients. Test code is in its own package due to the complex dependencies dealing with the legacy code and Shoola.</description>
   <dependencies>
     <dependency>
@@ -21,7 +21,7 @@
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>${pom.groupId}-shoola-adapter</artifactId>
+      <artifactId>${pom.groupId}-pojos-adapter</artifactId>
       <version>1.0</version>
     </dependency>
     <dependency>

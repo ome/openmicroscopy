@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.omero.model.Dataset;
-import org.openmicroscopy.omero.model.Image;
-import org.openmicroscopy.omero.model.Project;
+import ome.model.Dataset;
+import ome.model.Image;
+import ome.model.Project;
 
 import junit.framework.TestCase;
 

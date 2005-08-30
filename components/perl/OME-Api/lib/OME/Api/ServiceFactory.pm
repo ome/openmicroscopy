@@ -7,7 +7,7 @@ use warnings;
 our $VERSION = '0.01';
 
 # Api
-my $f = new org::openmicroscopy::omero::client::ServiceFactory();
+my $f = new ome::client::ServiceFactory();
 
 # Preloaded methods go here.
 

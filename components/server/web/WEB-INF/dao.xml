@@ -52,7 +52,7 @@
                 <property name="beanNames"><value>*Dao</value></property> 
                 <property name="interceptorNames">
                 <list>
-					<value>daoCleanUp</value>					
+					<value>daoFilter</value>					
 					<!--                    
                     <value>exceptionHandling</value>
                     <value>logging</value>
@@ -74,9 +74,10 @@
         <!-- dao parent bean must be defined in a specific technology
 	     package hibernate.xml jdo.xml etc. -->
 
+	<!-- hibernate classes mentioned TODO move to dao.hibernate -->
 	<bean id="analysisDao"   class="ome.dao.hibernate.AnalysisDaoHibernate"  parent="dao"/>	
-	<bean id="annotationDao" class="org.openmicroscopy.omero.logic.AnnotationDaoHibernate"  parent="dao"/>
-	<bean id="containerDao"  class="org.openmicroscopy.omero.logic.ContainerDaoHibernate"  parent="dao"/>
-	<bean id="genericDao"    class="org.openmicroscopy.omero.logic.GenericDaoHibernate"  parent="dao"/>
+	<bean id="annotationDao" class="ome.dao.hibernate.AnnotationDaoHibernate"  parent="dao"/>
+	<bean id="containerDao"  class="ome.dao.hibernate.ContainerDaoHibernate"  parent="dao"/>
+	<bean id="genericDao"    class="ome.dao.hibernate.GenericDaoHibernate"  parent="dao"/>
 	
 </beans>

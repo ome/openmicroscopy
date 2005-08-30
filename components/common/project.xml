@@ -6,7 +6,7 @@
   <id>${pom.groupId}-common</id>
   <name>OME Common Objects</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.openmicroscopy.omero</package>
+  <package>ome</package>
   <description>Common code: Model code generated from middlegen</description>
   <dependencies>
     <dependency>

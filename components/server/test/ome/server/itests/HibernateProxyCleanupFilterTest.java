@@ -54,24 +54,24 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.OMEModel;
-import org.openmicroscopy.omero.interfaces.HierarchyBrowsing;
-import org.openmicroscopy.omero.logic.ContainerDao;
-import org.openmicroscopy.omero.logic.DaoCleanUpHibernate;
-import org.openmicroscopy.omero.logic.GenericDao;
-import org.openmicroscopy.omero.logic.HierarchyBrowsingImpl;
-import org.openmicroscopy.omero.logic.ReturnLogger;
-import org.openmicroscopy.omero.model.Category;
-import org.openmicroscopy.omero.model.CategoryGroup;
-import org.openmicroscopy.omero.model.Classification;
-import org.openmicroscopy.omero.model.Dataset;
-import org.openmicroscopy.omero.model.Image;
-import org.openmicroscopy.omero.model.ImageAnnotation;
-import org.openmicroscopy.omero.model.Project;
-import org.openmicroscopy.omero.server.itests.ConfigHelper;
-import org.openmicroscopy.omero.server.itests.TestUtils;
-import org.openmicroscopy.omero.tests.OMEData;
-import org.openmicroscopy.omero.util.Utils;
+import ome.api.OMEModel;
+import ome.api.HierarchyBrowsing;
+import ome.dao.ContainerDao;
+import ome.dao.hibernate.DaoCleanUpHibernate;
+import ome.dao.GenericDao;
+import ome.logic.HierarchyBrowsingImpl;
+import ome.aop.ReturnLogger;
+import ome.model.Category;
+import ome.model.CategoryGroup;
+import ome.model.Classification;
+import ome.model.Dataset;
+import ome.model.Image;
+import ome.model.ImageAnnotation;
+import ome.model.Project;
+import ome.server.itests.ConfigHelper;
+import ome.server.itests.TestUtils;
+import ome.testing.OMEData;
+import ome.util.Utils;
 
 import sun.security.krb5.internal.i;
 
@@ -101,7 +101,7 @@ public class HibernateProxyCleanupFilterTest
      */
     protected void onSetUp() throws Exception {
     	super.onSetUp();
-    	org.openmicroscopy.omero.logic.Utils.setUserAuth();
+    	ome.security.Utils.setUserAuth();
         cd = (ContainerDao) applicationContext.getBean("containerDao");
         gd = (GenericDao) applicationContext.getBean("genericDao");
         cu = (DaoCleanUpHibernate) applicationContext.getBean("daoCleanUp");

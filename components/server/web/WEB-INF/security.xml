@@ -58,8 +58,8 @@
 -->
 		<property name="objectDefinitionSource">
 			<value>
-				org.openmicroscopy.omero.interfaces.HierarchyBrowsing.*=ROLE_USER
-				org.openmicroscopy.omero.interfaces.Write.*=ROLE_ADMIN
+				ome.api.HierarchyBrowsing.*=ROLE_USER
+				ome.api.Write.*=ROLE_ADMIN
 			</value>
 		</property>
 	</bean>
@@ -73,7 +73,7 @@
 	    </property>
 	</bean>
 
-    <bean id="jdbcAuthenticationDao" class="org.openmicroscopy.omero.security.AuthenticationDao">
+    <bean id="jdbcAuthenticationDao" class="ome.security.AuthenticationDao">
 <!--class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">-->
         <property name="dataSource" ref="dataSource"/>
         <property name="usersByUsernameQuery">

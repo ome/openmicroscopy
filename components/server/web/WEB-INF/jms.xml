@@ -134,7 +134,7 @@
     -->
 
 	<!-- a thread safe non-pooled MessageListener i.e. Dispatcher -->
-	<bean id="bean" class="org.openmicroscopy.omero.server.itests.JmsTest" singleton="true"/>
+	<bean id="bean" class="ome.server.itests.JmsTest" singleton="true"/>
 
 	<!--
  	a pooled, non-thread safe MessageListener using ProxyFactoryBean 
@@ -151,7 +151,7 @@
       </bean>
     </property>
   </bean>
-  <bean id="pooledBeanTarget" class="org.openmicroscopy.omero.server.itests.JmsTest" singleton="false">
+  <bean id="pooledBeanTarget" class="ome.server.itests.JmsTest" singleton="false">
   </bean>
   
 </beans>

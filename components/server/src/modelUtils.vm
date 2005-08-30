@@ -10,7 +10,7 @@
 #end
 #end
 /*
- * org.openmicroscopy.omero.dao.utils.${Class}
+ * ome.dao.hibernate.utils.${Class}
  *
  *------------------------------------------------------------------------------
  *
@@ -38,7 +38,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.omero.dao.utils;
+package ome.dao.hibernate.utils;
 
 //Java imports
 import java.util.HashSet;
@@ -51,8 +51,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.BaseModelUtils;
-import org.openmicroscopy.omero.model.${ObjClass};
+import ome.util.BaseModelUtils;
+import ome.model.${ObjClass};
 
 /**
  *  
@@ -120,7 +120,7 @@ public class ${Class}  extends BaseModelUtils {
       }
     }
 #end
-#if( $Target.startsWith("org.openmicroscopy.omero"))
+#if( $Target.startsWith("ome."))
     // Cleaning $Target::$p field
     if (null==self.$getP()){
       // Do nothing

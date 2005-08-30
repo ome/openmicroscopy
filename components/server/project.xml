@@ -5,7 +5,7 @@
   <id>${pom.groupId}-server</id>
   <name>OME Server Code</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.openmicroscopy.omero.logic</package>
+  <package>ome</package>
   <description>Server code</description>
   <dependencies>
     <!-- POSSIBLY TEMPORARY -->
@@ -350,7 +350,7 @@
       <resource>
         <directory>sql</directory>
         <includes>
-          <include>**/db-export.xml</include>
+          <include>**/*.xml</include>
         </includes>
       </resource>
       </resources>

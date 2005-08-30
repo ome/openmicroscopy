@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<configs>
-		<config>test/org/openmicroscopy/omero/client/itests/test.xml</config>
-		<config>test/org/openmicroscopy/omero/client/itests/data.xml</config>
-		<config>src/org/openmicroscopy/omero/client/spring.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -11,9 +8,6 @@
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
 			<incomplete>false</incomplete>
 			<configs>
-				<config>src/org/openmicroscopy/omero/client/spring.xml</config>
-				<config>test/org/openmicroscopy/omero/client/itests/data.xml</config>
-				<config>test/org/openmicroscopy/omero/client/itests/test.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

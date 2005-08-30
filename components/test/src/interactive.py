@@ -1,16 +1,19 @@
 from java.lang import Throwable
 from java.util import Set
 from java.util import HashSet
-from org.openmicroscopy.omero.itests import ComparisonUtils as Cmp
-from org.openmicroscopy.omero.tests import OMEPerformanceData as Data
-from org.openmicroscopy.omero.itests import OmeroGrinderTest as Omero
-from org.openmicroscopy.omero.util  import Utils
+
+from ome.testing import OMEPerformanceData as Data
+from ome.itests import ComparisonUtils as Cmp
+from ome.itests import OmeroGrinderTest as Omero
+from ome.util  import Utils
 from org.openmicroscopy.shoola.env.data.t import ShoolaGrinderTest as Shoola
+import org.openmicroscopy.shoola.env.data.model as model
+
 from org.springframework.beans.factory.config import AutowireCapableBeanFactory as Autowire
 from java.lang import Boolean as Bool
 from org.apache.commons.logging import Log
 from org.apache.commons.logging import LogFactory
-import org.openmicroscopy.shoola.env.data.model as model
+
 
 from pprint import pprint as pp
 

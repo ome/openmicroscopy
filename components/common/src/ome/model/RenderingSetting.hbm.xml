@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.RenderingSetting" 
+    table="rendering_settings"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="sequence">
+            <param name="sequence">this_seq_does_not_exist</param>
+        </generator>
+    </id>
+
+    <property
+        name="theT"
+        type="java.lang.Integer"
+        column="the_t"
+        length="4"
+    />
+    <property
+        name="cdEnd"
+        type="java.lang.Integer"
+        column="cd_end"
+        length="4"
+    />
+    <property
+        name="inputEnd"
+        type="java.lang.Double"
+        column="input_end"
+        length="8"
+    />
+    <property
+        name="model"
+        type="java.lang.Integer"
+        column="model"
+        length="4"
+    />
+    <property
+        name="cdStart"
+        type="java.lang.Integer"
+        column="cd_start"
+        length="4"
+    />
+    <property
+        name="green"
+        type="java.lang.Integer"
+        column="green"
+        length="4"
+    />
+    <property
+        name="alpha"
+        type="java.lang.Integer"
+        column="alpha"
+        length="4"
+    />
+    <property
+        name="blue"
+        type="java.lang.Integer"
+        column="blue"
+        length="4"
+    />
+    <property
+        name="red"
+        type="java.lang.Integer"
+        column="red"
+        length="4"
+    />
+    <property
+        name="bitResolution"
+        type="java.lang.Integer"
+        column="bit_resolution"
+        length="4"
+    />
+    <property
+        name="active"
+        type="java.lang.Boolean"
+        column="active"
+        length="1"
+    />
+    <property
+        name="inputStart"
+        type="java.lang.Double"
+        column="input_start"
+        length="8"
+    />
+    <property
+        name="theC"
+        type="java.lang.Integer"
+        column="the_c"
+        length="4"
+    />
+    <property
+        name="coefficient"
+        type="java.lang.Double"
+        column="coefficient"
+        length="8"
+    />
+    <property
+        name="theZ"
+        type="java.lang.Integer"
+        column="the_z"
+        length="4"
+    />
+    <property
+        name="family"
+        type="java.lang.Integer"
+        column="family"
+        length="4"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Experimenter -->
+    <many-to-one
+        name="experimenter"
+        class="ome.model.Experimenter"
+        not-null="true"
+    >
+        <column name="experimenter" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="ome.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="ome.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>

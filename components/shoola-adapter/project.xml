@@ -3,10 +3,10 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>${pom.groupId}-shoola-adapter</id>
-  <name>OME Shoola Adapter Code</name>
+  <id>${pom.groupId}-pojos-adapter</id>
+  <name>OME Pojos Adapter Code</name>
   <currentVersion>1.0</currentVersion>
-  <package>org.openmicroscopy.omero.shoolaadapter</package>
+  <package>ome.adapters.pojos</package>
   <description>Shoola Adapter for Omero. This code should really be in the Shoola code base.</description>
   <dependencies>
     <dependency>

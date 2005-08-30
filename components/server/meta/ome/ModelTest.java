@@ -6,7 +6,7 @@ import ome.model.ImageDatasetLink;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.openmicroscopy.omero.logic.dynamic.BuildRunner;
+import ome.dynamic.BuildRunner;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;

@@ -30,13 +30,12 @@
 package ome.dao;
 
 //Java imports
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.omero.OMEModel;
+
 
 /** data access object for various analysis objects.
  * 

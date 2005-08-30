@@ -58,7 +58,7 @@
 	    <property name="password"><value>${database.password}</value></property>
 	</bean>
 	
-       <bean id="sessionFactory" class="org.openmicroscopy.omero.logic.OmeroSessionFactoryBean">
+       <bean id="sessionFactory" class="ome.dao.hibernate.OmeroSessionFactoryBean">
 	       <property name="cachedMappingResources">
 <!-- Originally: TODO switch to Spring version!
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
@@ -73,7 +73,7 @@
 <!-- TODO doesn't use cache!
 		          <property name="mappingDirectoryLocations">
 		   <list>
-			   <value>org/openmicroscopy/omero/model/</value>
+			   <value>ome/model/</value>
 		   </list>
 	   </property>		   -->
        <property name="hibernateProperties">
