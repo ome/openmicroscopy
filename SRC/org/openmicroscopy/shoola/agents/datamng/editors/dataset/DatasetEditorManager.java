@@ -117,7 +117,14 @@ class DatasetEditorManager
     
     DatasetData getDatasetData() { return model; }
     
-	List getImages() { return getDatasetData().getImages(); }
+	List getImages()
+    { 
+        List l = getDatasetData().getImages();
+        if (l == null) l = new ArrayList();
+        return l;
+    }
+        
+    
 	
 	List getImagesToAdd() { return imagesToAdd; }
 	
@@ -199,7 +206,7 @@ class DatasetEditorManager
 		view.getSaveButton().setEnabled(true);	
 	}
 
-	/** Add the list of selected images to the {@link ProjectDatasetPane}. */
+	/** Add the list of selected images to the {@link ProjectDatasetsPane}. */
 	void addImagesSelection(List l)
 	{
 		Iterator i = l.iterator();
