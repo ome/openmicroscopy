@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.Cursor;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -124,6 +125,9 @@ class ProjectDatasetsPane
 	private void buildGUI()
 	{
 		listDatasets = manager.getProjectData().getDatasets();
+        //quick fix
+        if (listDatasets == null)
+            listDatasets = new ArrayList();
 		buildTablePanel();
 		buildButtonsPanel();
 		buildButtonsToAddPanel();
@@ -267,7 +271,7 @@ class ProjectDatasetsPane
 	private class DatasetsTableModel
 		extends AbstractTableModel
 	{
-		private final String[]		columnNames = {"Name", "Remove"};
+		private final String[]	columnNames = {"Name", "Remove"};
 		private final Object[]	datasets = listDatasets.toArray();
 		private Object[][] 		data = new Object[datasets.length][2];
 
