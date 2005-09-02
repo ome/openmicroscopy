@@ -3,10 +3,10 @@
 
 <!-- TODO add properties goal to update pref.properties -->
 
-<project name="Middlegen Hibernate" default="all" basedir=".">
+<project name="Middlegen Hibernate" default="gen-java" basedir=".">
    <property file="${basedir}/mgen.properties"/>
    <property name="hibernate.cascade"    value="all" />
-   <property name="package"              value="ome.model" />
+   <property name="package"              value="ome.model.core" />
    <property name="gen.xdoclet-tag"      value="true" />
    <property name="gui"                  value="false" />
    <property name="lib.dir"              value="${basedir}/lib/" />
@@ -160,6 +160,22 @@ OR
       </configuration>
       <hbm2java destdir="${dest.dir}">
       </hbm2java>
+    </hibernatetool>
+  </target>
+
+  <target depends="init" name="gen-ddl" unless="middlegen.not.required">
+    <hibernatetool>
+      <configuration propertyfile="${basedir}/mgen.properties">
+        <fileset dir="${dest.dir}" id="id">
+          <include name="**/*.hbm.xml"></include>
+        </fileset>
+      </configuration>
+      <hbm2ddl 
+	outputfilename="ddl.sql" 
+	destdir="${dest.dir}"
+	export="false" 
+	console="false"
+	/>
     </hibernatetool>
   </target>
 

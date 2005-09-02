@@ -65,9 +65,17 @@
         <property name="mappingResources">  
 -->
            <list>
-	       		<value>ome/model/Dataset.hbm.xml</value>
-				<value>ome/model/Image.hbm.xml</value>
-				<value>ome/model/ImageDatasetLink.hbm.xml</value>			   
+			   <value>ome/model/core/Map.hbm.xml</value>
+			   <value>ome/model/core/RoiSet.hbm.xml</value>
+			   <value>ome/model/core/Pixel.hbm.xml</value>
+			   <value>ome/model/core/Roi2d.hbm.xml</value>
+   			   <value>ome/model/core/Shape.hbm.xml</value>
+			   <value>ome/model/core/Roi3d.hbm.xml</value>
+			   <value>ome/model/core/Roi4d.hbm.xml</value>
+			   <value>ome/model/core/Roi5d.hbm.xml</value>			   
+	      	   <value>ome/model/core/Dataset.hbm.xml</value>
+			   <value>ome/model/core/Image.hbm.xml</value>
+			   <value>ome/model/core/ImageDatasetLink.hbm.xml</value>			   
 			</list>
        </property>
 <!-- TODO doesn't use cache!
@@ -79,8 +87,7 @@
        <property name="hibernateProperties">
            <props>
               <prop key="hibernate.dialect">${database.dialect}</prop>
-	       	  <prop key="hibernate.show_sql">${database.show_sql}</prop>
-			  <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
+	       	  <prop key="hibernate.show_sql">true</prop>
            </props>
        </property>
        <property name="dataSource">

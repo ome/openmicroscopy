@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.core.Pixel" 
+    table="pixel"
+>
+    <meta attribute="class-description" inherit="false">
+       @hibernate.class
+        table="pixel"
+    </meta>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="id"
+        type="java.lang.Integer"
+        column="id"
+    >
+        <meta attribute="field-description">
+           @hibernate.id
+            generator-class="sequence"
+            type="java.lang.Integer"
+            column="id"
+
+           @hibernate.generator-param
+	        name="sequence"
+	        value="pixel_seq"
+        </meta>
+        <generator class="sequence">
+            <param name="sequence">pixel_seq</param>
+        </generator>
+    </id>
+
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-many association to Roi5D -->
+    <set
+        name="roi5ds"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <meta attribute="field-description">
+           @hibernate.set
+            lazy="true"
+            inverse="true"
+            cascade="all"
+
+           @hibernate.collection-key
+            column="pixel"
+
+           @hibernate.collection-one-to-many
+            class="ome.model.core.Roi5D"
+        </meta>
+        <key>
+            <column name="pixel" />
+        </key>
+        <one-to-many 
+            class="ome.model.core.Roi5D"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Map -->
+    <set
+        name="maps"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <meta attribute="field-description">
+           @hibernate.set
+            lazy="true"
+            inverse="true"
+            cascade="all"
+
+           @hibernate.collection-key
+            column="pixel"
+
+           @hibernate.collection-one-to-many
+            class="ome.model.core.Map"
+        </meta>
+        <key>
+            <column name="pixel" />
+        </key>
+        <one-to-many 
+            class="ome.model.core.Map"
+        />
+    </set>
+
+</class>
+</hibernate-mapping>

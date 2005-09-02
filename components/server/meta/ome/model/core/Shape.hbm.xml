@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.core.Shape" 
+    table="shape"
+>
+	<meta attribute="scope-class" inherit="false">public abstract</meta>
+    <meta attribute="class-description" inherit="false">
+       @hibernate.class
+        table="shape"
+    </meta>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="id"
+        type="java.lang.Integer"
+        column="id"
+    >
+        <meta attribute="field-description">
+           @hibernate.id
+            generator-class="sequence"
+            type="java.lang.Integer"
+            column="id"
+
+           @hibernate.generator-param
+	        name="sequence"
+	        value="shape_seq"
+        </meta>
+        <generator class="sequence">
+            <param name="sequence">shape_seq</param>
+        </generator>
+    </id>
+
+    <discriminator>
+      <column name="type" sql-type="char(5)"/>
+    </discriminator>
+
+    <!-- Associations -->
+  
+	<!-- bi-directional one-to-many association to Map -->
+	<set
+        name="roi2ds"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <meta attribute="field-description">
+           @hibernate.set
+            lazy="true"
+            inverse="true"
+
+           @hibernate.collection-key
+            column="roi2d"
+
+           @hibernate.collection-one-to-many
+            class="ome.model.core.Roi2D"
+        </meta>
+        <key>
+            <column name="shape" />
+        </key>
+        <one-to-many 
+            class="ome.model.core.Roi2D"
+        />
+    </set>
+
+    <subclass name="ome.model.core.ShapeSquare" discriminator-value="squar">
+      <property name="x0" column="x0" type="java.lang.Integer" />
+      <property name="x1" column="x1" type="java.lang.Integer" />
+      <property name="y0" column="y0" type="java.lang.Integer" />
+      <property name="y1" column="y1" type="java.lang.Integer" />
+     </subclass>
+
+    <subclass name="ome.model.core.ShapeEllipse" discriminator-value="ellip">
+	  <property name="p1x" column="p1x" type="java.lang.Integer"/>
+	  <property name="p1y" column="p1y" type="java.lang.Integer"/>
+	  <property name="p2x" column="p2x" type="java.lang.Integer"/>
+	  <property name="p2y" column="p2y" type="java.lang.Integer"/>
+	  <property name="length" column="l" type="java.lang.Integer"/>
+    </subclass>
+	
+
+</class>
+</hibernate-mapping>
