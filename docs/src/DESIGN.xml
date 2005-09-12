@@ -348,5 +348,22 @@ OR
         if conflictResolver==null, throws OptimisticLockException at commit time.
     </para>
   </section>
+  <section id="design-notes">
+    <programlisting>
+      LAZYLOAD
+      have ProxyFilter call model.UnloadedField(String fieldName);
+      lazyLoader can then check and call:
+      api.load(Field,id);
+      this uses another filter which Hibernate.initializes() all fields (and members of sets) of an object. 
+  
+      DSL
+      api is currently: 
+         user.createType(dslXml)
+      we could optionally offer:
+         admin.createType(dslXml,hbmXml) 
+      in which namespace info etc., comes from dslXml, but special information like constraints, etc.
+      could be specificed directly in the hbm. mapping file (changes with other technology)
+    </programlisting>
+  </section>
 </chapter>
 

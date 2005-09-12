@@ -9,6 +9,7 @@ database.catalog=""
 database.driver=org.postgresql.Driver
 database.dialect=org.hibernate.dialect.PostgreSQLDialect
 database.show_sql=false
+database.use_cglib=false
 
 ############################################
 # Tomcat manager connection
