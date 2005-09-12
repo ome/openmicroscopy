@@ -283,8 +283,10 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
         QueryParser parser = new QueryParser("class", analyzer);
         Query query = parser.parse("Roi");
         Hits hits = is.search(query);
+        assertTrue(hits.length()>0);
         for (int i=0; i<hits.length(); i++) {
             Document doc = hits.doc(i);
+            System.out.println(doc);
             // display the articles that were found to the user
         }
         is.close();

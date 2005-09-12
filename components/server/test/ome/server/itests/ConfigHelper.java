@@ -77,5 +77,16 @@ public class ConfigHelper {
                 "WEB-INF/test/test.xml"};
     }
 
+    public static String[] getDbUnitConfigLocations() {
+
+        return new String[] { 
+        		"WEB-INF/aop.xml",
+                "WEB-INF/dao.xml",
+                "WEB-INF/hibernate.xml",
+                "WEB-INF/test/dbcp.xml", 
+                "WEB-INF/config-local.xml",
+                "WEB-INF/test/test.xml"};
+    }    
+    
     
 }

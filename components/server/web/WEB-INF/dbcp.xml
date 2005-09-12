@@ -48,7 +48,7 @@
 	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 	    <property name="driverClassName"><value>${database.driver}</value></property>
-    	<property name="url"><value>${database.url}-test</value></property>
+    	<property name="url"><value>${database.url}</value></property>
 	    <property name="username"><value>${database.username}</value></property>
 	    <property name="password"><value>${database.password}</value></property>
 	</bean>
