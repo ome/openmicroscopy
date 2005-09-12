@@ -58,7 +58,7 @@
 -->
 		<property name="objectDefinitionSource">
 			<value>
-				ome.api.HierarchyBrowsing.*=ROLE_ANONYMOUS
+				ome.api.HierarchyBrowsing.*=ROLE_ANONYMOUS,ROLE_USER
 				ome.api.Write.*=ROLE_ADMIN
 			</value>
 		</property>
@@ -90,8 +90,8 @@
         <property name="rolePrefix" value="ROLE_"/>
 	</bean>
 	
-
-	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
+<!--<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">-->
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
 	    <property name="allowIfAllAbstainDecisions">
 	        <value>false</value>
 	    </property>
