@@ -66,8 +66,8 @@ public class ContextFilter implements Filter {
 
 	private static Log log = LogFactory.getLog(ContextFilter.class);
 	
-	protected ThreadLocal cache = null;
-	protected ThreadLocal context;
+	protected ThreadLocal cache = new ThreadLocal();
+	protected ThreadLocal context = new ThreadLocal();
 	
 	class Entry {
 		Object key;
@@ -218,7 +218,6 @@ public class ContextFilter implements Filter {
 	}
 
 	void newContext(){
-		context = new ThreadLocal();
 		context.set(new LinkedList());
 	}
 
@@ -226,18 +225,18 @@ public class ContextFilter implements Filter {
 		Set set = new HashSet();
 		set.add(null); 
 		
-		cache = new ThreadLocal();
 		cache.set(set);
 	}
 	
 	void push(Object o){
-		if (context==null) newContext();
+		if (context.get()==null) newContext();
 		LinkedList l = (LinkedList) context.get();
 		l.addLast(o);
 	}
 	
 	// beware: context is being changed during filtering. Eek! FIXME
 	void pop(Object o){
+		if (context.get()==null) newContext();
 		LinkedList l = (LinkedList) context.get();
 		Object last = l.removeLast();
 		if (o != last){
@@ -246,16 +245,12 @@ public class ContextFilter implements Filter {
 	}
 
 	void seen(Object o){
-		if (cache==null) {
-			newCache();
-		}
-		
+		if (cache.get()==null) newCache();
 		( (Set) cache.get()).add(o);
 	}
 	
 	boolean hasntSeen(Object o) {
-		if (cache==null)
-			return true;
+		if (cache.get()==null)newCache();
 		return ! ((Set) cache.get()).contains(o);
 	}
 	
