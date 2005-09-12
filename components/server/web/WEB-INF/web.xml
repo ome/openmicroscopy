@@ -89,10 +89,28 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-    
+
+	<servlet>
+	 	<servlet-name>dwr-invoker</servlet-name>
+      	<display-name>DWR Servlet</display-name>
+      	<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+      	<init-param>
+       		<param-name>debug</param-name>
+       		<param-value>true</param-value>
+      	</init-param>
+    </servlet>
+	    
     <servlet-mapping>
          <servlet-name>facade</servlet-name>
          <url-pattern>/</url-pattern>
     </servlet-mapping>
-    
+
+	<!-- TODO Needs to be done in facade-servlet.xml 
+ 		 http://bram.jteam.nl/?p=2 
+	-->
+    <servlet-mapping>
+    	<servlet-name>dwr-invoker</servlet-name>
+    	<url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
+
 </web-app>
