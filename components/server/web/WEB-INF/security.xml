@@ -58,7 +58,7 @@
 -->
 		<property name="objectDefinitionSource">
 			<value>
-				ome.api.HierarchyBrowsing.*=ROLE_USER
+				ome.api.HierarchyBrowsing.*=ROLE_ANONYMOUS
 				ome.api.Write.*=ROLE_ADMIN
 			</value>
 		</property>
@@ -102,6 +102,17 @@
 	    </property>
 	</bean>
 
+   <!-- ============== ANONYMOUS USER =========== -->
+	
+	<bean id="anonymousProcessingFilter" class="net.sf.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+  		<property name="key"><value>ome_foobar</value></property>
+  		<property name="userAttribute"><value>anonymousUser,ROLE_ANONYMOUS</value></property>
+	</bean>
+
+	<bean id="anonymousAuthenticationProvider" class="net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+  		<property name="key"><value>ome_foobar</value></property>
+	</bean>
+	
 
    <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
 
@@ -132,7 +143,8 @@
 		<!-- FIXME Add Password Encoder -->
 		<!-- TODO
 Event Publishing:
-The DaoAuthenticationProvider automatically obtains the ApplicationContext it is running in at startup time. This allows the provider to publish events through the standard Spring event framework. Three types of event messages are published:
+The DaoAuthenticationProvider automatically obtains the ApplicationContext it is running in at startup time. 
+This allows the provider to publish events through the standard Spring event framework. Three types of event messages are published:
 Who's on line? on AuthenticationSuccessEvent with JMS
 			TODO
 			1.6.8. Concurrent Session Support
@@ -146,6 +158,7 @@ Who's on line? on AuthenticationSuccessEvent with JMS
 	    <property name="providers">
 	        <list>
 	            <ref bean="daoAuthenticationProvider"/>
+	            <ref bean="anonymousAuthenticationProvider"/>
 	        </list>
 	    </property>
 	</bean>
@@ -159,12 +172,12 @@ Who's on line? on AuthenticationSuccessEvent with JMS
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,basicProcessingFilter
+            /**=httpSessionContextIntegrationFilter,basicProcessingFilter,anonymousProcessingFilter
          </value>
       </property>
     </bean>
 <!-- WAS
-            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
+/**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
 -->
 
    <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">

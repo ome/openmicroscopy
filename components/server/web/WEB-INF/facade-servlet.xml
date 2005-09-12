@@ -3,6 +3,8 @@
 
 <beans>
 
+   <bean id="handlerMapping" class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+		
    <!-- Configurer that sets up a shared VelocityEngine for Velocity views -->
    <bean id="velocityConfigurer" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
        <property name="resourceLoaderPath"><value>WEB-INF/views/</value></property>
@@ -13,6 +15,12 @@
 	   </property>
    </bean>
 
+	<!--fileViewController"-->
+    <bean name="/index.html" 
+		class="org.springframework.web.servlet.mvc.UrlFilenameViewController"/>	
+	
+	<!-- SERVICES -->
+	
 	<bean name="/HierarchyBrowsing" class="org.springframework.remoting.caucho.HessianServiceExporter">
 	    <property name="service"><ref bean="hierarchyBrowsingService"/></property> 
 	    <property name="serviceInterface"><value>ome.api.HierarchyBrowsing</value></property>
@@ -22,5 +30,13 @@
 	    <property name="service"><ref bean="writeService"/></property> 
 	    <property name="serviceInterface"><value>ome.api.Write</value></property>
 	</bean>
+
+	<!-- FACADES -->
 	
+	<bean name="/PrimitiveHierarchyBrowsing" class="org.springframework.remoting.caucho.HessianServiceExporter">
+	    <property name="service"><ref bean="primitiveHierarchyBrowsingFacade"/></property> 
+	    <property name="serviceInterface"><value>ome.api.PrimitiveHierarchyBrowsing</value></property>
+	</bean>
+
+		
 </beans>

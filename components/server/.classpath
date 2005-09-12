@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="gen-src/texen"/>
 	<classpathentry kind="src" path="web"/>
 	<classpathentry kind="src" path="sql"/>
 	<classpathentry kind="src" path="src"/>
@@ -13,10 +12,10 @@
 	<classpathentry sourcepath="/USER_HOME/lib/ant/src" kind="var" path="MAVEN_REPO/ant/jars/ant-1.6.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ant/jars/ant-launcher-1.6.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-1.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/acegisecurity/jars/acegi-security-0.8.2.jar"/>
+	<classpathentry sourcepath="/USER_HOME/lib/acegi-0.8.3" kind="var" path="MAVEN_REPO/acegisecurity/jars/acegi-security-0.8.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/oro/jars/oro-2.0.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/jamon-spring121.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.5.jar"/>
+	<classpathentry sourcepath="/USER_HOME/lib/hibernate-3.0.5/src" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/jta-hibernate.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/asm-hibernate.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
@@ -34,6 +33,8 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-dbcp/jars/commons-dbcp-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/odmg/jars/odmg-3.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/lucene/jars/lucene-1.4.3.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/dwr/jars/dwr-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dbunit/jars/dbunit-2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/groovy/jars/groovy-all-1.0-beta-10.jar"/>
@@ -48,5 +49,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar"/>
+	<classpathentry kind="src" path="meta"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

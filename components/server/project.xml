@@ -232,6 +232,25 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+  <!-- TOYS ~~~~~~~~~ -->
+    <dependency>
+      <groupId>lucene</groupId>
+      <artifactId>lucene</artifactId>
+      <version>1.4.3</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>dwr</artifactId>
+      <version>1.0</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
     <!-- TESTING DEPS -->
     <dependency>
       <groupId>dbunit</groupId>
