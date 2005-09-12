@@ -14,7 +14,9 @@ import java.util.*;
 public class
 Roi3DTimeIndex extends ome.model.core.Roi3D
 implements java.io.Serializable ,
-ome.api.OMEModel {
+ome.api.OMEModel
+, ome.NewModel 
+{
 
     // Fields    
 

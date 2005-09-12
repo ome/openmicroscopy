@@ -3,7 +3,7 @@
 
 <!-- TODO add properties goal to update pref.properties -->
 
-<project name="Middlegen Hibernate" default="gen-java" basedir=".">
+<project name="Middlegen Hibernate" default="all" basedir=".">
    <property file="${basedir}/mgen.properties"/>
    <property name="hibernate.cascade"    value="all" />
    <property name="package"              value="ome.model.core" />
@@ -11,6 +11,7 @@
    <property name="gui"                  value="false" />
    <property name="lib.dir"              value="${basedir}/lib/" />
    <property name="dest.dir"             value="${basedir}" />
+   <property name="target.dir" value="${basedir}/../target/classes" /><!--TODO-->
 
    <target name="ant">
      <ant/>
@@ -46,6 +47,7 @@
      <path id="hibernate-ext.classpath">
        <fileset dir="${lib.dir}/hibernate3" includes="*.jar"/>
        <pathelement location="${dest.dir}/"/>
+       <pathelement location="${target.dir}/"/>
      </path>
 
      <available property="middlegen" classname="middlegen.MiddlegenTask" classpathref="middlegen.classpath"/>
@@ -173,14 +175,14 @@ OR
       <hbm2ddl 
 	outputfilename="ddl.sql" 
 	destdir="${dest.dir}"
-	export="false" 
+	export="true" 
 	console="false"
 	/>
     </hibernatetool>
   </target>
 
   <target name="all" unless="middlegen.not.required">
-    <antcall target="gen-hbm"/>
+    <antcall target="gen-ddl"/>
     <antcall target="gen-java"/>
   </target>
 

@@ -38,7 +38,12 @@ $c2j.getImplementsDeclaration($clazz) ,
 ###########################################################
 ## <CustomCode>
 ###########################################################
-ome.api.OMEModel {
+ome.api.OMEModel
+#if ( ! $c2j.getPackageDeclaration($clazz).contains("ome.model.meta") )
+## TODO specifically defined
+, ome.NewModel 
+#end 
+{
 ###########################################################
 ## </CustomCode>
 ###########################################################

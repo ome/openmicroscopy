@@ -14,7 +14,9 @@ import java.util.*;
 public class
 ShapeSquare extends ome.model.core.Shape
 implements java.io.Serializable ,
-ome.api.OMEModel {
+ome.api.OMEModel
+, ome.NewModel 
+{
 
     // Fields    
 

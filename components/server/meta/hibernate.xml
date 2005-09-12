@@ -58,14 +58,31 @@
 	    <property name="password"><value>${database.password}</value></property>
 	</bean>
 	
-       <bean id="sessionFactory" class="ome.dao.hibernate.OmeroSessionFactoryBean">
-	       <property name="cachedMappingResources">
+	<bean id="hibernateInterceptor" class="ome.hibernate.EventInterceptor">
+		<property name="hibernateTemplate" ref="template"/>
+	</bean>
+	
+	<bean id="template" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+   <bean id="transactionManager"
+      class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+      <property name="sessionFactory" ref="sessionFactory"/>
+   </bean>
+	
+    <bean id="sessionFactory" class="ome.dao.hibernate.OmeroSessionFactoryBean">
+      <property name="entityInterceptor" ref="hibernateInterceptor"/>
+      <property name="cachedMappingResources">
 <!-- Originally: TODO switch to Spring version!
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="mappingResources">  
 -->
            <list>
-			   <value>ome/model/core/Map.hbm.xml</value>
+			   <value>ome/model/meta/Experimenter.hbm.xml</value>			   			   
+   			   <value>ome/model/meta/Event.hbm.xml</value>			   			   
+			   <value>ome/model/core/Eg.hbm.xml</value>			   
+   			   <value>ome/model/core/Map.hbm.xml</value>
 			   <value>ome/model/core/RoiSet.hbm.xml</value>
 			   <value>ome/model/core/Pixel.hbm.xml</value>
 			   <value>ome/model/core/Roi2d.hbm.xml</value>
@@ -93,5 +110,13 @@
        <property name="dataSource">
            <ref bean="dataSource"/>
        </property>
+		<property name="eventListeners">
+		  <map>
+			  <entry key="save" value-ref="saveListener"/>			  
+			  <entry key="save-update" value-ref="saveUpdateListener"/>
+		  </map>
+		</property>
    </bean>
+	<bean id="saveListener" class="ome.hibernate.SaveListener"/>
+	<bean id="saveUpdateListener" class="ome.hibernate.SaveUpdateListener"/>	
 </beans>

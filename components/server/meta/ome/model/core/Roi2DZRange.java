@@ -14,7 +14,9 @@ import java.util.*;
 public class
 Roi2DZRange extends ome.model.core.Roi2D
 implements java.io.Serializable ,
-ome.api.OMEModel {
+ome.api.OMEModel
+, ome.NewModel 
+{
 
     // Fields    
 

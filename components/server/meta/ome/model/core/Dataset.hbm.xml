@@ -22,7 +22,7 @@
     <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
-        name="datasetId"
+        name="id"
         type="java.lang.Integer"
         column="dataset_id"
     >
@@ -41,6 +41,9 @@
         </generator>
     </id>
 
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <version
         name="version"
         type="java.lang.Integer"
@@ -54,6 +57,16 @@
         </meta>
     </version>
 
+    <property name="permissions" type="ome.hibernate.PermissionsType"/>
+    <many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+    <many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+    <many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	
     <property
         name="groupId"
         type="java.lang.Integer"
@@ -122,5 +135,7 @@
         />
     </set>
 
+	
+	
 </class>
 </hibernate-mapping>

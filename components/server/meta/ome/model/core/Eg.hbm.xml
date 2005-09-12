@@ -12,32 +12,16 @@
 -->
 
 <class 
-    name="ome.model.core.RoiSet" 
-    table="roi_set"
+    name="ome.model.core.Eg" 
+    table="eg"
 >
-    <meta attribute="class-description" inherit="false">
-       @hibernate.class
-        table="roi_set"
-    </meta>
-    <meta attribute="implement-equals" inherit="false">true</meta>
-
     <id
         name="id"
         type="java.lang.Integer"
         column="id"
     >
-        <meta attribute="field-description">
-           @hibernate.id
-            generator-class="sequence"
-            type="java.lang.Integer"
-            column="id"
-
-           @hibernate.generator-param
-	        name="sequence"
-	        value="roi_set_seq"
-        </meta>
         <generator class="sequence">
-            <param name="sequence">roi_set_seq</param>
+            <param name="sequence">eq_seq</param>
         </generator>
     </id>
 
@@ -68,45 +52,7 @@
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	
 	
-    <property
-        name="name"
-        type="java.lang.String"
-        column="name"
-    >
-        <meta attribute="field-description">
-           @hibernate.property
-            column="name"
-        </meta>    
-    </property>
-
-    <!-- Associations -->
-  
-    <!-- bi-directional one-to-many association to Map -->
-    <set
-        name="maps"
-        lazy="true"
-        inverse="true"
-		cascade="all"
-    >
-        <meta attribute="field-description">
-           @hibernate.set
-            lazy="true"
-            inverse="true"
-            cascade="all"
-
-           @hibernate.collection-key
-            column="set"
-
-           @hibernate.collection-one-to-many
-            class="ome.model.core.Map"
-        </meta>
-        <key>
-            <column name="set" />
-        </key>
-        <one-to-many 
-            class="ome.model.core.Map"
-        />
-    </set>
-
+    <property name="list" type="ome.hibernate.ArrayStringType"/>
+	
 </class>
 </hibernate-mapping>

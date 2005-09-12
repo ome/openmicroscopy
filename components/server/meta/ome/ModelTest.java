@@ -1,28 +1,48 @@
 package ome;
 
-import java.awt.Shape;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.transaction.TransactionManager;
 
 import ome.model.core.*;
+import ome.model.meta.Event;
+import ome.model.meta.EventDiff;
+import ome.model.meta.EventLog;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import ome.dynamic.BuildRunner;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-
-import com.sun.tools.javac.code.Attribute.Array;
-
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 
 	static {
 		BuildRunner.load("build.xml");
-		//BuildRunner.run("build.xml");
+		//BuildRunner.run("build.xml"); 
 		//BuildRunner.launch("build.xml");
 	}
+	
+	PlatformTransactionManager tx;
+	
+	TransactionTemplate tt;
 	
 	HibernateTemplate ht;
 	
@@ -31,10 +51,16 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 	public void setSessionFactory(SessionFactory sessions){
 		s=sessions;
 	}
+
+	public void setTransactionManager(PlatformTransactionManager mgr){
+		this.tx=mgr;
+	}
 	
 	@Override
 	protected void onSetUp() throws Exception {
 		ht = new HibernateTemplate(s);
+		tt = new TransactionTemplate(tx);
+		
 	}
 	
 	@Override
@@ -46,6 +72,47 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 
 	public void testSessionFactoryExists(){
 		assertNotNull(s);
+	}
+	
+	public void testMyType(){
+		Eg e = new Eg();
+		e.setList(new int[]{1,2,3});
+		persist(e);
+		
+		Eg g = (Eg) ht.get(Eg.class,1);
+		int[] ids = g.getList();
+		ids[0]=9;
+		persist(g);
+	}
+	
+	public void testEvents(){
+		Event e = new Event();
+		EventDiff d1 = new EventDiff();
+		EventDiff d2 = new EventDiff();
+		Set s = new HashSet();
+		EventLog l = new EventLog();
+		
+		e.setName("test");
+		
+		l.setEvent(e);
+		l.setExperimenter(1);
+		l.setDiffs(s);
+		
+		s.add(d1);
+		s.add(d2);
+		
+		d1.setAction("CREATE");
+		d1.setType("Image");
+		d1.setIds(new int[]{1,2,3});
+		d1.setEventLog(l);
+		
+		d2.setAction("EDIT");
+		d2.setType("Dataset");
+		d2.setIds(new int[]{4,5,6});
+		d2.setEventLog(l);
+		
+		persist(e,l,d1,d2);
+		
 	}
 	
 	public void testRetrieveAll(){
@@ -66,25 +133,12 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 		persist(img, ds, link);
 		
 	}
-
-	void persist(final Object... args) {
-		ht.execute(new HibernateCallback(){
-			public Object doInHibernate(Session session){
-				
-				for (Object arg: args) {
-					session.save(arg);
-				}
-				
-				return null;
-			}
-		});
-	}
 	
 	public void testVersionShouldIncreate(){
 		Image i = (Image) ht.find("from Image i where i.version is not null").get(0);
 		i.setName("new name for version"+i.getVersion());
 		ht.update(i);
-		Image i2 = (Image) ht.get(Image.class,i.getImageId());
+		Image i2 = (Image) ht.get(Image.class,i.getId());
 		assertTrue(i.getVersion()!=i2.getVersion());
 	}
 	
@@ -204,7 +258,36 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 		});
 		
 	}
-	
-	
+
+	void persist(final Object... args) {
+		tt.execute(new TransactionCallbackWithoutResult(){
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				ht.execute(new HibernateCallback(){
+					public Object doInHibernate(Session session){
+						
+						for (Object arg: args) {
+							session.saveOrUpdate(arg);
+						}
+						
+						return null;
+					}
+				});
+			}
+		});
+	}
+
+	// http://www.javaranch.com/newsletter/200404/Lucene.html
+	public void testSearch() throws IOException, ParseException{
+        IndexSearcher is = new IndexSearcher("/tmp/j");
+        Analyzer analyzer = new StandardAnalyzer();
+        QueryParser parser = new QueryParser("class", analyzer);
+        Query query = parser.parse("Roi");
+        Hits hits = is.search(query);
+        for (int i=0; i<hits.length(); i++) {
+            Document doc = hits.doc(i);
+            // display the articles that were found to the user
+        }
+        is.close();
+	}
 	
 }

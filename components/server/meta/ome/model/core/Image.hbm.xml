@@ -22,7 +22,7 @@
     <meta attribute="implement-equals" inherit="false">true</meta>
 
     <id
-        name="imageId"
+        name="id"
         type="java.lang.Integer"
         column="image_id"
     >
@@ -41,6 +41,10 @@
         </generator>
     </id>
 
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <version
         name="version"
         type="java.lang.Integer"
@@ -53,6 +57,16 @@
             unsaved-value="negative"
         </meta>
     </version>
+
+	<property name="permissions" type="ome.hibernate.PermissionsType"/>
+    <many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+    <many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+    <many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
 
     <property
         name="pixelsId"

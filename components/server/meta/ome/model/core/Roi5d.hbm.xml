@@ -3,6 +3,10 @@
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
     
+<!-- TODO
+	<meta attribute="use-in-tostring">true</meta>
+	-->
+
 <hibernate-mapping>
 <!-- 
     Created by the Middlegen Hibernate plugin 2.1
@@ -41,6 +45,10 @@
         </generator>
     </id>
 	
+ 
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <version
         name="version"
         type="java.lang.Integer"
@@ -53,6 +61,16 @@
             unsaved-value="negative"
         </meta>
     </version>
+
+	<property name="permissions" type="ome.hibernate.PermissionsType"/>
+    <many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+    <many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+    <many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
 	
     <!-- Associations -->
   

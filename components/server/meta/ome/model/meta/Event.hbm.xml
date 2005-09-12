@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class name="ome.model.meta.Event" mutable="false">
+    <id name="id" type="java.lang.Integer">
+        <generator class="sequence">
+            <param name="sequence">event_seq</param>
+        </generator>
+    </id>
+    <property name="name" type="string"/>
+</class>
+
+<class name="ome.model.meta.EventDiff" mutable="false">
+    <id name="id" type="java.lang.Integer">
+        <generator class="sequence">
+            <param name="sequence">event_diff_seq</param>
+        </generator>
+    </id>
+	<many-to-one name="eventLog" class="ome.model.meta.EventLog" not-null="true"/>
+    <property name="type" type="string"/>	
+    <property name="action" type="string"/>
+    <property name="ids" type="ome.hibernate.ArrayStringType"/>
+</class>
+	
+	
+<class name="ome.model.meta.EventLog" mutable="false">
+    <id name="id" type="java.lang.Integer">
+        <generator class="sequence">
+            <param name="sequence">event_log_seq</param>
+        </generator>
+    </id>
+    <property name="experimenter" type="integer" not-null="true"/>
+	<many-to-one name="event" class="ome.model.meta.Event" not-null="true"/>
+	<set name="diffs" lazy="true" inverse="true">
+		<key column="eventLog"/>
+		<one-to-many class="ome.model.meta.EventDiff"/>
+	</set>
+</class>
+	
+	
+</hibernate-mapping>

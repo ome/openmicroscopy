@@ -14,7 +14,9 @@ import java.util.*;
 public class
 Roi4DChannelIndex extends ome.model.core.Roi4D
 implements java.io.Serializable ,
-ome.api.OMEModel {
+ome.api.OMEModel
+, ome.NewModel 
+{
 
     // Fields    
 

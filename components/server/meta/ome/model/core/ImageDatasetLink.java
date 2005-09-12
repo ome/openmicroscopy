@@ -16,12 +16,18 @@ import java.util.*;
 public class
 ImageDatasetLink 
 implements java.io.Serializable ,
-ome.api.OMEModel {
+ome.api.OMEModel
+, ome.NewModel 
+{
 
     // Fields    
 
-     private Integer imageDatasetLinkId;
+     private Integer id;
      private Integer version;
+     private byte[] permissions;
+     private ome.model.meta.Experimenter owner;
+     private ome.model.meta.Event creationEvent;
+     private ome.model.meta.Event updateEvent;
      private Dataset dataset;
      private Image image;
 
@@ -33,8 +39,8 @@ ome.api.OMEModel {
     }
     
     /** constructor with id */
-    public ImageDatasetLink(Integer imageDatasetLinkId) {
-        this.imageDatasetLinkId = imageDatasetLinkId;
+    public ImageDatasetLink(Integer id) {
+        this.id = id;
     }
    
     
@@ -52,12 +58,12 @@ ome.api.OMEModel {
      * 	        value="image_dataset_link_seq"
      *         
      */
-    public Integer getImageDatasetLinkId() {
-        return this.imageDatasetLinkId;
+    public Integer getId() {
+        return this.id;
     }
     
-    public void setImageDatasetLinkId(Integer imageDatasetLinkId) {
-        this.imageDatasetLinkId = imageDatasetLinkId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     /**
@@ -72,6 +78,50 @@ ome.api.OMEModel {
     
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    /**
+     * 
+     */
+    public byte[] getPermissions() {
+        return this.permissions;
+    }
+    
+    public void setPermissions(byte[] permissions) {
+        this.permissions = permissions;
+    }
+
+    /**
+     * 
+     */
+    public ome.model.meta.Experimenter getOwner() {
+        return this.owner;
+    }
+    
+    public void setOwner(ome.model.meta.Experimenter owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * 
+     */
+    public ome.model.meta.Event getCreationEvent() {
+        return this.creationEvent;
+    }
+    
+    public void setCreationEvent(ome.model.meta.Event creationEvent) {
+        this.creationEvent = creationEvent;
+    }
+
+    /**
+     * 
+     */
+    public ome.model.meta.Event getUpdateEvent() {
+        return this.updateEvent;
+    }
+    
+    public void setUpdateEvent(ome.model.meta.Event updateEvent) {
+        this.updateEvent = updateEvent;
     }
 
     /**
