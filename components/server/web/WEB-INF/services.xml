@@ -64,7 +64,8 @@
 	</bean>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-
+	<!-- SERVICES -->
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<bean id="analysisService" class="ome.logic.AnalysisImpl">
 		<property name="analysisDao" ref="analysisDao"/>		
 		<property name="annotationDao" ref="annotationDao"/>
@@ -81,5 +82,13 @@
 		<property name="jdbcTemplate" ref="jdbcTemplate"/>
 		<property name="genericDao" ref="genericDao"/>		
 	</bean>		
-	
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<!-- SERVICES -->
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<bean id="primitiveHierarchyBrowsingFacade" class="ome.facade.PrimitiveHierarchyBrowsingImpl">
+		<property name="hierarchyBrowsingService" ref="hierarchyBrowsingService"/>
+	</bean>		
+
+		
 </beans>
