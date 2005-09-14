@@ -1,6 +1,6 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>Open Microscopy Environment</title><link rel="stylesheet" href="../styles/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.60.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en"><div class="titlepage"><div><div><h1 class="title"><a name="d0e1"></a>Open Microscopy Environment</h1></div><div><h2 class="subtitle">
+   <title>Open Microscopy Environment</title><link rel="stylesheet" href="src/html.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.60.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en"><div class="titlepage"><div><div><h1 class="title"><a name="d0e1"></a>Open Microscopy Environment</h1></div><div><h2 class="subtitle">
           Java Server Documentation
         </h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Josh</span> <span class="surname">Moore</span></h3></div></div></div><div><p class="releaseinfo">Version alpha</p></div><div><div class="legalnotice"><p>Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.</p></div></div><div><p class="pubdate">(Work in progress)</p></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dd><dl><dt>1.1. <a href="#intro-info">Project Information</a></dt></dl></dd><dt>2. <a href="#jmx">Getting Started</a></dt><dd><dl><dt>2.1. <a href="#start-build">Building</a></dt><dt>2.2. <a href="#start-install">Installing</a></dt><dd><dl><dt>2.2.1. <a href="#start-install-tomcat">Installing on Tomcat</a></dt></dl></dd><dt>2.3. <a href="#start-use">Using</a></dt></dl></dd><dt>3. <a href="#design">Server Design</a></dt><dd><dl><dt>3.1. <a href="#design-model">Object Model</a></dt><dt>3.2. <a href="#design-types"> Domain Language and Type Generation [SUGGESTION]</a></dt><dt>3.3. <a href="#design-mex">MEXes [DELIBERATION]</a></dt><dt>3.4. <a href="#design-security">Access Control [PROPOSAL]</a></dt><dt>3.5. <a href="#design-visitor">Filtering</a></dt><dt>3.6. <a href="#design-rules">Rules [IDEA]</a></dt><dt>3.7. <a href="#design-graphs">Working with graphs</a></dt><dt>3.8. <a href="#design-import">Importing</a></dt><dt>3.9. <a href="#design-client">Client libraries</a></dt><dt>3.10. <a href="#design-notes"></a></dt></dl></dd><dt>4. <a href="#devel">Developing with/for the Java server</a></dt><dd><dl><dt>4.1. <a href="#devel-server">Server-side development</a></dt><dd><dl><dt>4.1.1. <a href="#devel-quick">Quick How-To</a></dt></dl></dd><dt>4.2. <a href="#devel-client">Client-side development</a></dt><dt>4.3. <a href="#devel-ides">Using Eclipse as an IDE</a></dt></dl></dd><dt>5. <a href="#test">Testing</a></dt><dd><dl><dt>5.1. <a href="#test-unit">Unit Testing</a></dt><dt>5.2. <a href="#test-integration">Integration Testing</a></dt><dd><dl><dt>5.2.1. <a href="#test-int-db">DbUnit Testing</a></dt></dl></dd></dl></dd><dt>6. <a href="#todo">Todo List</a></dt></dl></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="introduction"></a>Chapter&nbsp;1.&nbsp;Introduction</h2></div></div><div></div></div>
   The OME Java Server is a port of some of the OME Data Server (OMEDS) Perl code to Java. 
@@ -124,9 +124,13 @@ MAILING LISTS
 	    Run 
 	    <tt class="literal">maven tomcat:deploy</tt>
 	  </p></li></ul></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-use"></a>2.3.&nbsp;Using</h2></div></div><div></div></div><p>
-      Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
+      <span class="strikethrough">
+      DEPRECATED:Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
+      </span>
     </p><p>
-      Then create a ServiceFactory and use it to obtain a Service.
+      If you are working from the source distribution, a file will be created under <tt class="literal">client/target/</tt> named <tt class="literal">Classpath.sh</tt> which properly defines your CLASSPATH environment variable to include all the necessary jars. (TODO: working from binary distribution). In your classpath when using maven is also a file, <tt class="literal">spring.properties</tt> which will contain your connection information if you properly defined build.properties. The values in <tt class="literal">spring.properties</tt> are used by Spring to create your proxy to the server. 
+    </p><p>
+      If your path is correctly set (as above), simply create a ServiceFactory and use it to obtain a Service.
     </p><p>
       </p><pre class="programlisting">
 	ServiceFactory services = new ServiceFactory();
@@ -172,7 +176,7 @@ MAILING LISTS
       However, to make working with the model easier and, perhaps, more powerful, there are several features which we are 
       considering including.
     </p><p><span class="bold"><b>"<span class="underline">OME</span> <span class="underline">R</span>emote <span class="underline">O</span>bjects"</b></span> Currently Omero does not use remote or distributed objects. 
-      <sup>[<a name="d0e218" href="#ftn.d0e218">1</a>]</sup>
+      <sup>[<a name="d0e235" href="#ftn.d0e235">1</a>]</sup>
       But to making working with these objects a bit more like truly distributed objects it would be nice to add certain functionality.
     </p><p>
       The first and most important addition is making two objects returned from the server be the same reference. To allow this, however, the client developer will need to pass in a ConflictHandler which resolves any stale data.
@@ -405,7 +409,37 @@ OR
          admin.createType(dslXml,hbmXml) 
       in which namespace info etc., comes from dslXml, but special information like constraints, etc.
       could be specificed directly in the hbm. mapping file (changes with other technology)
-    </pre></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d0e218" href="#d0e218">1</a>] </sup>Just what are distributed objects? TODO</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+      :: modelling exclusivity (==&gt;rules?) 
+      :: currently using Hibernate to model 
+
+      NOTIFICATION:
+        exception handling so all get notified
+        care with the synch'ing.
+      
+        HibernateUpdateEvent--&gt;
+          JMS Msg with triple (objLsid, fieldLsid, newValue) --&gt;
+          client cache gets event, looks up objLsid in cache --&gt;
+          calls new tripleSetFilter(jmsMsg).filter(obj) --&gt;
+          call obj.notify(UpdateEvent);
+
+      MODEL Sync.
+        only if observers &gt; 0
+        only if using omero-model-multithread.jar (MultiThreadClassLoader)
+
+
+      Model Report Objects (with counts of all collections)
+        "lite" objects using polymorph=explicit (or one-to-one link "VIEW")
+        other possibility is to define imageCount-style properties on the main model obj.
+          and to use lazy-field loading???
+
+      
+      Usage Log: (within Sec. Filter to throttle users)
+      
+      Filter Password
+
+      
+
+    </pre></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d0e235" href="#d0e235">1</a>] </sup>Just what are distributed objects? TODO</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
 	  Add to common/src/ome/api interface "[API]"
 	  Run "maven jar:install" for common
 	</p></li><li><p>

@@ -363,6 +363,38 @@ OR
          admin.createType(dslXml,hbmXml) 
       in which namespace info etc., comes from dslXml, but special information like constraints, etc.
       could be specificed directly in the hbm. mapping file (changes with other technology)
+      :: modelling exclusivity (==>rules?) 
+      :: currently using Hibernate to model 
+
+      NOTIFICATION:
+        exception handling so all get notified
+        care with the synch'ing.
+      
+        HibernateUpdateEvent-->
+          JMS Msg with triple (objLsid, fieldLsid, newValue) -->
+          client cache gets event, looks up objLsid in cache -->
+          calls new tripleSetFilter(jmsMsg).filter(obj) -->
+          call obj.notify(UpdateEvent);
+
+      MODEL Sync.
+        only if observers > 0
+        only if using omero-model-multithread.jar (MultiThreadClassLoader)
+
+
+      Model Report Objects (with counts of all collections)
+        "lite" objects using polymorph=explicit (or one-to-one link "VIEW")
+        other possibility is to define imageCount-style properties on the main model obj.
+          and to use lazy-field loading???
+
+      
+      Usage Log: (within Sec. Filter to throttle users)
+      
+      Filter Password
+
+      SEC: onLoad, LSID subclass of each type
+
+      START: tomcat manager
+
     </programlisting>
   </section>
 </chapter>

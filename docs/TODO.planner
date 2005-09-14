@@ -221,6 +221,104 @@
     <task id="104" name="Code rules" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <task id="105" name="no &quot;spring&quot; or &quot;hibernate&quot; in services" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
+    <task id="106" name="" note="" work="28800" start="20050818T000000Z" end="20050818T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="107" name="Example" note="" work="5558400" start="20050818T000000Z" end="20060515T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="108" name="Omero2" note="" work="2131200" start="20050818T000000Z" end="20051130T000000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="109" name="Cleanup &amp; Branch" note="" work="198900" start="20050818T000000Z" end="20050826T161500Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="110" name="Referential Integrity" note="" work="290700" start="20050826T161500Z" end="20050909T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="109" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="111" name="New Services" note="" work="809100" start="20050826T161500Z" end="20051005T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="109" type="FS"/>
+          </predecessors>
+          <task id="112" name="Pojo interface" note="" work="578700" start="20050826T161500Z" end="20050923T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+          <task id="113" name="Primitive interfaces" note="" work="809100" start="20050826T161500Z" end="20051005T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        </task>
+        <task id="114" name="Installer" note="" work="99900" start="20051005T170000Z" end="20051011T114500Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="110" type="FS"/>
+            <predecessor id="1" predecessor-id="111" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="115" name="2.4.1. freeze" note="" work="0" start="20051031T000000Z" end="20051031T000000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+          <constraint type="must-start-on" time="20051031T000000Z"/>
+          <predecessors>
+            <predecessor id="1" predecessor-id="110" type="FS"/>
+            <predecessor id="1" predecessor-id="111" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="116" name="Testing" note="" work="576000" start="20051031T000000Z" end="20051125T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="115" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="117" name="Shoola integration" note="" work="576000" start="20051031T000000Z" end="20051125T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="115" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="118" name="2.4.1 release" note="" work="0" start="20051130T000000Z" end="20051130T000000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+          <constraint type="must-start-on" time="20051130T000000Z"/>
+          <predecessors>
+            <predecessor id="1" predecessor-id="117" type="FS"/>
+            <predecessor id="1" predecessor-id="116" type="FS"/>
+          </predecessors>
+        </task>
+      </task>
+      <task id="119" name="Omero3" note="" work="5558400" start="20050818T000000Z" end="20060515T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="120" name="Core Model" note="" work="434700" start="20050818T000000Z" end="20050908T084500Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+        <task id="121" name="New Type creation" note="" work="515700" start="20050908T084500Z" end="20051003T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="120" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="122" name="Import" note="" work="1676700" start="20051003T170000Z" end="20051223T094500Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="121" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="123" name="3.0 freeze" note="" work="0" start="20051231T000000Z" end="20051231T000000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+          <constraint type="must-start-on" time="20051231T000000Z"/>
+          <predecessors>
+            <predecessor id="1" predecessor-id="122" type="FS"/>
+            <predecessor id="1" predecessor-id="121" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="124" name="testing" note="" work="576000" start="20051231T000000Z" end="20060127T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="123" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="125" name="3.0 release" note="" work="0" start="20060201T000000Z" end="20060201T000000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+          <constraint type="must-start-on" time="20060201T000000Z"/>
+          <predecessors>
+            <predecessor id="1" predecessor-id="124" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="126" name="AE extensions" note="" work="1756800" start="20060201T000000Z" end="20060426T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="125" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="127" name="3.1 freeze" note="" work="0" start="20060430T000000Z" end="20060430T000000Z" percent-complete="0" priority="0" type="milestone" scheduling="fixed-work">
+          <constraint type="must-start-on" time="20060430T000000Z"/>
+        </task>
+        <task id="128" name="testing" note="" work="288000" start="20060430T000000Z" end="20060512T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <predecessors>
+            <predecessor id="1" predecessor-id="127" type="FS"/>
+          </predecessors>
+        </task>
+        <task id="129" name="3.1 release" note="" work="28800" start="20060515T000000Z" end="20060515T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <constraint type="must-start-on" time="20060515T000000Z"/>
+          <predecessors>
+            <predecessor id="1" predecessor-id="128" type="FS"/>
+          </predecessors>
+        </task>
+      </task>
+    </task>
   </tasks>
   <resource-groups default_group="4">
     <group id="1" name="Madison" admin-name="Kevin" admin-phone="" admin-email=""/>

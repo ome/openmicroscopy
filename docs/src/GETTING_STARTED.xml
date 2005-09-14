@@ -113,10 +113,15 @@
   <section id="start-use">
     <title>Using</title>
     <para>
-      Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
+      <emphasis role="strikethrough">
+      DEPRECATED:Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
+      </emphasis>
     </para>
     <para>
-      Then create a ServiceFactory and use it to obtain a Service.
+      If you are working from the source distribution, a file will be created under <literal>client/target/</literal> named <literal>Classpath.sh</literal> which properly defines your CLASSPATH environment variable to include all the necessary jars. (TODO: working from binary distribution). In your classpath when using maven is also a file, <literal>spring.properties</literal> which will contain your connection information if you properly defined build.properties. The values in <literal>spring.properties</literal> are used by Spring to create your proxy to the server. 
+    </para>
+    <para>
+      If your path is correctly set (as above), simply create a ServiceFactory and use it to obtain a Service.
     </para>
     <para>
       <programlisting>
