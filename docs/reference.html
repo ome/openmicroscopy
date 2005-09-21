@@ -122,7 +122,9 @@ MAILING LISTS
 	    cd to OMERO_HOME/components/wars/srv
 	  </p></li><li><p>
 	    Run 
-	    <tt class="literal">maven tomcat:deploy</tt>
+	    <tt class="literal">maven tomcat:install</tt>
+	    If you have already installed once, you'll first need to 
+	    <tt class="literal">maven tomcat:remove</tt> .
 	  </p></li></ul></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="start-use"></a>2.3.&nbsp;Using</h2></div></div><div></div></div><p>
       <span class="strikethrough">
       DEPRECATED:Building clients that access the Omero service is as easy as having omero-client.jar and omero-model.jar on your classpath.
@@ -176,7 +178,7 @@ MAILING LISTS
       However, to make working with the model easier and, perhaps, more powerful, there are several features which we are 
       considering including.
     </p><p><span class="bold"><b>"<span class="underline">OME</span> <span class="underline">R</span>emote <span class="underline">O</span>bjects"</b></span> Currently Omero does not use remote or distributed objects. 
-      <sup>[<a name="d0e235" href="#ftn.d0e235">1</a>]</sup>
+      <sup>[<a name="d0e238" href="#ftn.d0e238">1</a>]</sup>
       But to making working with these objects a bit more like truly distributed objects it would be nice to add certain functionality.
     </p><p>
       The first and most important addition is making two objects returned from the server be the same reference. To allow this, however, the client developer will need to pass in a ConflictHandler which resolves any stale data.
@@ -437,9 +439,11 @@ OR
       
       Filter Password
 
-      
+      SEC: onLoad, LSID subclass of each type
 
-    </pre></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d0e235" href="#d0e235">1</a>] </sup>Just what are distributed objects? TODO</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+      START: tomcat manager
+
+    </pre></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d0e238" href="#d0e238">1</a>] </sup>Just what are distributed objects? TODO</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
 	  Add to common/src/ome/api interface "[API]"
 	  Run "maven jar:install" for common
 	</p></li><li><p>

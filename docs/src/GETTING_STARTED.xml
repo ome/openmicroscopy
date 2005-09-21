@@ -104,7 +104,9 @@
 	<listitem>
 	  <para>
 	    Run 
-	    <literal>maven tomcat:deploy</literal>
+	    <literal>maven tomcat:install</literal>
+	    If you have already installed once, you'll first need to 
+	    <literal>maven tomcat:remove</literal> .
 	  </para>
 	</listitem>
       </itemizedlist>
