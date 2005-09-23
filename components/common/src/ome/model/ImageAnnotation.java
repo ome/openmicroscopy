@@ -139,15 +139,6 @@ ome.util.Filterable {
 
 
 
-	/** utility methods. Container may re-assign this. */	
-	protected static ome.util.BaseModelUtils _utils = 
-		new ome.util.BaseModelUtils();
-	public BaseModelUtils getUtils(){
-		return _utils;
-	}
-	public void setUtils(BaseModelUtils utils){
-		_utils = utils;
-	}
 
   public boolean acceptFilter(Filter filter){
 
@@ -235,7 +226,7 @@ ome.util.Filterable {
   }
   
   public String toString(){
-	return "ImageAnnotation"+(attributeId==null ? ":Hash"+this.hashCode() : ":"+attributeId);
+	return "ImageAnnotation"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
 

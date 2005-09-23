@@ -29,7 +29,6 @@
 
 package ome.api;
 
-import ome.util.BaseModelUtils;
 
 //Java imports
 
@@ -53,6 +52,4 @@ import ome.util.BaseModelUtils;
  */
 public interface OMEModel
 {
-    public BaseModelUtils getUtils();
-    public void setUtils(BaseModelUtils utils);
 }

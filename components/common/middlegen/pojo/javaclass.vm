@@ -165,15 +165,15 @@ $c2j.getExtraCode($clazz)
 ###########################################################
 ## <CustomCode>
 ###########################################################
-	/** utility methods. Container may re-assign this. */	
-	protected static BaseModelUtils _utils = 
-		new BaseModelUtils();
-	public BaseModelUtils getUtils(){
-		return _utils;
-	}
-	public void setUtils(BaseModelUtils utils){
-		_utils = utils;
-	}
+##	/** utility methods. Container may re-assign this. */	
+##	protected static BaseModelUtils _utils = 
+##		new BaseModelUtils();
+##	public BaseModelUtils getUtils(){
+##		return _utils;
+##	}
+##	public void setUtils(BaseModelUtils utils){
+##		_utils = utils;
+##	}
 ##parse( "$clazz.vm" )
 
   public boolean acceptFilter(Filter filter){

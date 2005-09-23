@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -63,6 +65,7 @@ import ome.dao.ContainerDao;
 public class ContainerDaoHibernate extends HibernateDaoSupport implements ContainerDao {
 
 	private static final String ANNOTATED = "_Annotated";
+	private static Log log = LogFactory.getLog(ContainerDaoHibernate.class);
 	
     public OMEModel loadHierarchy(final Class arg0, final int arg1, final int arg2, final boolean arg3) {
         return (OMEModel) getHibernateTemplate().execute(new HibernateCallback() {
@@ -156,9 +159,12 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
 		if (arg0 ==null)
 			throw new IllegalArgumentException("Class argument cannot be null.");
 		
-		String klass = arg0.getName().substring(
-		        arg0.getPackage().getName().length() + 1);
-		return klass;
+		String klass = arg0.getName();
+		int last = klass.lastIndexOf(".");
+		if (last == -1)	
+			return klass;
+		
+		return klass.substring(last+1);
 	}
 
 	private Object getUniqe(Query q) {

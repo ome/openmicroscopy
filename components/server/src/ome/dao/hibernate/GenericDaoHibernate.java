@@ -113,7 +113,6 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
                     throws HibernateException {
 
                 OMEModel o = (OMEModel) session.load(klazz,id);
-                BaseModelUtils u = o.getUtils();
                 return o;
                 
                 
