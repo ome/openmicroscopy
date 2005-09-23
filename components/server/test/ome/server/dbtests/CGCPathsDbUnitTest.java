@@ -1,5 +1,5 @@
 /*
- * ome.server.utests.HierarchyBrowsingDbUnitTest
+ * ome.server.dbtests.HierarchyBrowsingDbUnitTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests;
+package ome.server.dbtests;
 
 //Java imports
 import java.io.FileInputStream;
@@ -38,10 +38,10 @@ import java.util.Set;
 //Third-party libraries
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
-import ome.model.CategoryGroup;
 
 //Application-internal dependencies
-
+import ome.model.CategoryGroup;
+import ome.server.itests.*;
 
 /**
  * @author josh

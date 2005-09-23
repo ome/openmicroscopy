@@ -17,7 +17,7 @@
 	You can run the unit tests for any component from its directory by entering:
       </para>
       <programlisting>
-	maven test -Dmaven.test.mode=unit
+	maven utest
 
 	# or if you haven't changed the value of maven.test.mode simply:
 	maven test
@@ -26,7 +26,7 @@
 	The same can be done for all components using:
       </para>
       <programlisting>
-	maven test-all
+	maven utest-all
       </programlisting>
       <para>
 	from the top-level directory.
@@ -38,19 +38,39 @@
 	Integration testing is a bit more complex.
       </para>
       <para>
-	Because of there reliance on a database (which is not easily mockable), all DAO classes are tested in integration mode. 
+	Because of the reliance on a database (which is not easily mockable), all DAO classes are tested in integration mode. 
       </para>
       <para>
-	To run integration tests, use <literal>-Dmaven.test.mode=integration</literal> while calling the <literal>test</literal> and <literal>test-all</literal> maven targets mentioned under Unit Testing.
+	To run integration tests, use <literal>maven itest</literal> from the individual component directories and <literal>maven itest-all</literal> from the top-level directory. 
       </para>
       <section id="test-int-db">
 	<title>DbUnit Testing</title>
 	<para>
-	  Several special integration tests, based on the <ulink url="http://dbunit.sourceforge.net/">DbUnit</ulink> JUnit extension, are also included in the integration tests. This currently requires the creation of a special DB (specifically <literal>"[your standard DB url]-test"</literal>).
+	  Several special integration tests, based on the <ulink url="http://dbunit.sourceforge.net/">DbUnit</ulink> JUnit extension, are also included. These currently require the creation of a special DB (specifically <literal>"[your standard DB url]-test"</literal>).
 	</para>
 	<para>
-	  Currently, these tests will fail. Documentation on preparing these tests will be added later. 
+	  Currently, these tests will fail. Documentation on preparing these tests will be added later. <!-- TODO -->
 	</para>
       </section>
     </section>    
+    <section id="test-verifying">
+      <title>Did the tests pass?</title>
+      For each test that is run, a report is produced in: <literal>[COMPONENT_NAME]/target/test-report</literal>. Here, you can find all exceptions or failures. 
+    </section>
+    <section id="test-writing">
+      <title>Writing your own tests</title>
+      <para>
+        The only restrictions placed on a test are:
+      </para>
+      <itemizedlist>
+       <listitem>
+        They must be placed in the appropriate directory: <literal>utests</literal>, <literal>dbtests</literal> and <literal>itests</literal> under the <literal>test</literal> directory.<!-- TODO give example -->
+	</listitem>
+        <listitem>They must end in "<literal>Test</literal>"</listitem>
+	<listitem>They must not begin with "<literal>Abstract</literal>"</listitem>
+      </itemizedlist>
+      <para>
+        Otherwise, any classes subclassing from <literal>TestCase</literal> will be run.
+      </para>
+    </section>
 </chapter>

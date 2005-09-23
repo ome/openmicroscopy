@@ -1,5 +1,5 @@
 /*
- * ome.server.itests.AbstractDbUnitTest
+ * ome.server.dbtests.AbstractDbUnitTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests;
+package ome.server.dbtests;
 
 //Java imports
 
@@ -47,6 +47,7 @@ import org.springframework.test.AbstractSpringContextTests;
 //Application-internal dependencies
 import ome.dao.AnnotationDao;
 import ome.dao.ContainerDao;
+import ome.server.itests.*;
 
 /**
  * @author josh

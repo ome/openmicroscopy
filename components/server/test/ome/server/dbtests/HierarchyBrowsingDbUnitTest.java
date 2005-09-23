@@ -1,5 +1,5 @@
 /*
- * ome.server.utests.HierarchyBrowsingDbUnitTest
+ * ome.server.dbtests.HierarchyBrowsingDbUnitTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests;
+package ome.server.dbtests;
 
 //Java imports
 import java.io.FileInputStream;
@@ -45,6 +45,7 @@ import org.hibernate.Hibernate;
 import ome.model.Dataset;
 import ome.model.DatasetAnnotation;
 import ome.model.Image;
+import ome.server.itests.*;
 
 /**
  * @author josh
