@@ -79,7 +79,15 @@ public abstract class OMEData {
     public OMEData() {
     }
 
-    final static String emptyColl = "collections may not be empty";
+    final static String emptyColl = "Collections may not be empty.\n" +
+    		"You are currently trying to run a test on an OME database\n" +
+    		"that does not appear to have the needed data.\n" +
+    		"\n" +
+    		"There must be at least one:\n" +
+    		"project,dataset,image,experimenter,classification,category,category group,image annotation and dataset annotation\n" +
+    		"\n" +
+    		"Testing results would be unpredictable without test data.\n" +
+    		"Please fill your database and retry.";
     long seed = (new Random()).nextLong();
     Random rnd = new Random(seed);
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+
+	Configuration of rules engine
+ 
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>	
+
+    <bean id="ruleSetTemplate" abstract="true"
+        class="org.drools.spring.factory.RuleSetFactoryBean">
+        <property name="ruleMetadataSourceChain">
+            <list>
+                <bean class="org.drools.spring.metadata.annotation.java.AnnotationRuleMetadataSource"/>
+                <bean class="org.drools.spring.metadata.ClassInferedRuleMetadataSource"/>
+            </list>
+        </property>
+        <property name="methodMetadataSourceChain">
+            <bean class="org.drools.spring.metadata.annotation.java.AnnotationMethodMetadataSource"/>
+        </property>
+        <property name="argumentMetadataSourceChain">
+            <list>
+                <bean class="org.drools.spring.metadata.annotation.java.AnnotationArgumentMetadataSource"/>
+                <bean class="org.drools.spring.metadata.ParameterInferedTypeArgumentMetadataSource"/>
+            </list>
+        </property>
+    </bean>    
+
+    <bean id="ruleTemplate" abstract="true">
+<!--    <property name="control" ref="tempuratureControl"/> -->
+    </bean>
+    
+    <bean id="ruleSet" parent="ruleSetTemplate">
+        <property name="rules">
+            <set>
+<!-- FOR DEBUGGING ONLY
+	                <bean id="all" parent="ruleTemplate" 
+                    class="ome.rules.drools.AllObjects" />
+-->
+                <bean id="time" parent="ruleTemplate" 
+                    class="ome.rules.drools.TimeRule" />
+				<bean id="graph" parent="ruleTemplate" 
+                    class="ome.rules.drools.GraphRule" />
+				<bean id="classification" parent="ruleTemplate" 
+                    class="ome.rules.drools.ClassificationExclusivityRule" />
+				</set>
+        </property>
+    </bean>
+
+	<bean id="conflictResolver"
+		class="org.drools.spring.factory.ConflictResolverFactoryBean">
+		<property name="resolverStrategies">
+			<list>
+				<bean class="org.drools.conflict.SalienceConflictResolver" />
+				<bean class="org.drools.conflict.LoadOrderConflictResolver" />
+			</list>
+		</property>
+	</bean>
+
+    <bean id="ruleBase"
+        class="org.drools.spring.factory.RuleBaseFactoryBean">
+        <property name="conflictResolver" ref="conflictResolver" />
+        <property name="autoDetectRuleSets" value="true"/>
+    </bean>
+
+	<!-- CURRENTLY UNUSED
+    <bean id="workingMemory"
+        class="org.drools.spring.factory.WorkingMemoryFactoryBean">
+        <property name="ruleBase" ref="ruleBase" />
+        <property name="autoDetectListeners" value="false"/>
+    </bean>
+
+    <bean id="workingMemoryLogger"
+        class="org.drools.event.DebugWorkingMemoryEventListener">
+    </bean>
+	-->
+
+	<bean id="rulesEngine" class="ome.rules.DroolsEngine">
+		<constructor-arg index="0" ref="ruleBase" />
+		<constructor-arg index="1" value="true" />		
+	</bean>
+    
+</beans>

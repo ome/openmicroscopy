@@ -101,7 +101,7 @@ public class ContextFilter implements Filter {
 		if (hasntSeen(f)){
 			//log.info("Haven't seen. Stepping into "+f);
 			enter(f);
-			seen(f);
+			addSeen(f);
 			f.acceptFilter(this);
 			exit(f);
 		} 
@@ -121,7 +121,7 @@ public class ContextFilter implements Filter {
 		
 		if (hasntSeen(c)){
 			//log.info("Haven't seen. Stepping into "+c);
-			seen(c);
+			addSeen(c);
 			enter(c);
 			for (Iterator iter = c.iterator(); iter.hasNext();) {
 				Object item = iter.next();
@@ -150,7 +150,7 @@ public class ContextFilter implements Filter {
 		
 		if (hasntSeen(m)){
 			//log.info("Haven't seen. Stepping into "+m);
-			seen(m);
+			addSeen(m);
 			enter(m);
 			for (Iterator iter = m.entrySet().iterator(); iter.hasNext();) {
 				Map.Entry _entry = (Map.Entry) iter.next();
@@ -191,7 +191,7 @@ public class ContextFilter implements Filter {
 		
 		if (hasntSeen(entry)){
 			//log.info("Stepping into "+entry);
-			seen(entry);
+			addSeen(entry);
 			enter(entry);
 			Object key = filter(fieldId, entry.key);
 			Object value = filter(fieldId, entry.value);
@@ -217,25 +217,25 @@ public class ContextFilter implements Filter {
 		return true;
 	}
 
-	void newContext(){
+	protected void newContext(){
 		context.set(new LinkedList());
 	}
 
-	void newCache(){
+	protected void newCache(){
 		Set set = new HashSet();
 		set.add(null); 
 		
 		cache.set(set);
 	}
 	
-	void push(Object o){
+	protected void push(Object o){
 		if (context.get()==null) newContext();
 		LinkedList l = (LinkedList) context.get();
 		l.addLast(o);
 	}
 	
 	// beware: context is being changed during filtering. Eek! FIXME
-	void pop(Object o){
+	protected void pop(Object o){
 		if (context.get()==null) newContext();
 		LinkedList l = (LinkedList) context.get();
 		Object last = l.removeLast();
@@ -244,12 +244,12 @@ public class ContextFilter implements Filter {
 		}
 	}
 
-	void seen(Object o){
+	protected void addSeen(Object o){
 		if (cache.get()==null) newCache();
 		( (Set) cache.get()).add(o);
 	}
 	
-	boolean hasntSeen(Object o) {
+	protected boolean hasntSeen(Object o) {
 		if (cache.get()==null)newCache();
 		return ! ((Set) cache.get()).contains(o);
 	}

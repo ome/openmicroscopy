@@ -234,6 +234,24 @@
     </dependency>
   <!-- TOYS ~~~~~~~~~ -->
     <dependency>
+      <groupId>drools</groupId>
+      <artifactId>drools-all-jdk5</artifactId>
+      <version>2.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>drools</groupId>
+      <artifactId>drools-io</artifactId>
+      <version>2.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
       <groupId>lucene</groupId>
       <artifactId>lucene</artifactId>
       <version>1.4.3</version>

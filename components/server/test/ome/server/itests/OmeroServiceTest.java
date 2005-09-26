@@ -48,6 +48,7 @@ import org.hibernate.mapping.PersistentClass;
 //Application-internal dependencies
 import ome.model.Category;
 import ome.model.CategoryGroup;
+import ome.model.Image;
 import ome.model.Project;
 import ome.testing.AbstractOmeroHierarchyBrowserIntegrationTest;
 import ome.testing.OMEData;
@@ -158,6 +159,21 @@ public class OmeroServiceTest
         Utils.structureSize(this.testLoadCGCIHierarchyCategoryGroup());
         Utils.structureSize(this.testLoadPDIHierarchyDataset());
         Utils.structureSize(this.testLoadPDIHierarchyProject());
+    }
+ 
+    public void testDuplicateImages() {
+        Set result = (Set) this.testFindPDIHierarchies();
+        Set test = Utils.getImagesinPDI(result);
+        assertTrue("Images in should eq. images out",this.getData().imgsPDI.size()==test.size());
+        
+        Set noDupesPlease = new HashSet(); 
+        for (Iterator i = test.iterator(); i.hasNext();) {
+            Image img = (Image) i.next();
+            if (noDupesPlease.contains(img.getImageId())) 
+                fail("But also the IDs should be unique!");
+          	noDupesPlease.add(img.getImageId());
+        }
+        
     }
     
 }
