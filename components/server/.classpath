@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="web"/>
-	<classpathentry kind="src" path="sql"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry excluding="jdbcbeanclient/" kind="src" path="omeis/src"/>
-	<classpathentry excluding="jdbcbeanclient/" kind="src" path="omeis/test"/>
-	<classpathentry output="target/test-classes" kind="src" path="test"/>
+	<classpathentry excluding="**/.svn" kind="src" path="web"/>
+	<classpathentry excluding="**/.svn" kind="src" path="sql"/>
+	<classpathentry excluding="**/.svn" kind="src" path="src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="meta"/>
+	<classpathentry excluding="**/.svn|jdbcbeanclient/" kind="src" path="omeis/src"/>
+	<classpathentry excluding="**/.svn|jdbcbeanclient/" kind="src" path="omeis/test"/>
+	<classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/connector-api.jar"/>
@@ -51,6 +52,5 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/drools/jars/drools-all-jdk5-2.1.jar"/>
-	<classpathentry kind="src" path="meta"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
