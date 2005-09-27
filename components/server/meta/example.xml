@@ -1,0 +1,92 @@
+
+<!--
+//------------------------------------
+// EXAMPLE
+//------------------------------------
+-->
+
+<types>
+
+  <!-- 
+
+  All new types automatically get:
+  * id
+  * version
+  * permission
+  * user 
+
+  Possibly: (???)
+  * group
+  * created
+  * last-modified 
+  
+  Optional fields that can be entered with <abc/> style element:
+  * Name 
+  * Keyword
+  * ...
+
+  Each handled appropriately by Lucene where necessary
+  -->
+
+  <type id="ome:annotation" abstract="true">
+    <field name="name" type="xsd:string"/>
+    <field name="text" type="xsd:string"/>
+  </type>
+
+  <type id="ome:imageAnnotation" parent="ome:annotation">
+    <field name="image" type="ome:image"/>
+  </type>
+
+  <type id="ome:datasetAnnotation" parent="ome:annotation">
+    <field name="dataset" type="ome:dataset"/>
+  </type>
+
+  <!-- ==================================== -->
+
+  <type id="ome:reference" abstract="true">
+    <field name="url" type="xsd:uri"/>
+  </type>
+
+  <type id="ome:imageReference" parent="ome:reference"/>
+
+  <link id="ome:imageReferenceLink">
+    <to    name="image" type="ome:image"/>
+    <from  name="reference" type="ome:reference"/>
+  </link>
+
+  <!-- ... other links for dataset, etc. -->
+
+  <!-- ==================================== -->
+
+  <type id="ome:keyword">
+    <field name="keyword" type="xsd:string"/>
+  </type>
+
+  <!-- OR have a keyword (comma separated) on each row! e.g. -->
+
+  <type id="ome:lense">
+    <keywords/> 
+    <!-- looks like "<keywords>big,glass,clear</keywords>" -->
+  </type>
+
+  <!-- ==================================== -->
+
+  <!-- Let's see what having MEX in the metamodel would look like -->
+
+  <type name="ome:Foo">
+    <field name="image" type="ome:Image"/>
+    <field name="int"   type="xsd:int"/>
+    <creationMex/>
+  </type>
+
+  <updateMex>
+    <target type="ome:Foo"/>
+  </updateMex>
+
+  <!-- Class ome.model.<NAMESPACE>.Foo would get a static field:
+       final static boolean UPDATE_MEX = true;
+       so that all updating actions on a Foo add an operation in:
+       foo_mex_map (or whatever)
+  -->
+
+</types>

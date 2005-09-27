@@ -165,79 +165,7 @@ MAILING LISTS
     is perhaps the last technology which should be mentioned...
   </p><p>
     These are the relative generic technologies that we are using, but a much more interesting question is <span class="emphasis"><em>how</em></span> are we using them.
-  </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-model"></a>3.1.&nbsp;Object Model</h2></div></div><div></div></div><p>
-      At the core of the work on the Open Microscopy Environment is the definition of a vocabulary for working with microscopic data. 
-      This vocabulary has a representation in the specification, in the database (the <span class="emphasis"><em>data model</em></span>), and in code.
-      This last representation is the object model with which we will concern ourselves here.
-    </p><p>
-      Because of its complexity, the object model is generated, either from the specification or from the data model.
-      It relies on no libraries and can be used in both the server and the client.
-      Instances of the object model have no direct interaction with the database, rather the mapping is handled externally by the O/R framework.
-    </p><p>
-      By and large, generated classes are composed only of getter and setter fields for fields representing columns in the database.
-      However, to make working with the model easier and, perhaps, more powerful, there are several features which we are 
-      considering including.
-    </p><p><span class="bold"><b>"<span class="underline">OME</span> <span class="underline">R</span>emote <span class="underline">O</span>bjects"</b></span> Currently Omero does not use remote or distributed objects. 
-      <sup>[<a name="d0e238" href="#ftn.d0e238">1</a>]</sup>
-      But to making working with these objects a bit more like truly distributed objects it would be nice to add certain functionality.
-    </p><p>
-      The first and most important addition is making two objects returned from the server be the same reference. To allow this, however, the client developer will need to pass in a ConflictHandler which resolves any stale data.
-    </p><p>
-      
-      setCache() new apis
-      setLazyLoader()
-        retrieveField (Rather than getField)
-    </p><p><span class="bold"><b>Extensibility</b></span> [IDEA]
-      
-    extended api:
-      ome.model.[TYPE].I (inner static interface)
-      fill(Prototype implements [TYPE].I) (copy procedure)
-      synchonization!
-
-      extGet(""),extPut(""),extRemove(""),extAll();
-      or cglib
-      or modelEvents
-     setWrapper?
-    </p><p>
-      In addition to the extended functionality of the new object model, there are some changes to the actual structure, the specification, that are needed.
-    </p><p>
- * image_id ==&gt; pixel_id where appropriate
- * plane_info
- * ACL (getting ownership in each table not MEX)
- * one table ; one class
- * cleaning up container relationships (project, category, screen, etc.)
- * replace ST definition ("ST is immutable") with locking meechanism
- * possibly versioning
-    </p><p>
-      Inheritance
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-types"></a>3.2.&nbsp; Domain Language and Type Generation [SUGGESTION]</h2></div></div><div></div></div><p>
-      This model has two general parts: first, the long studied and well-established core model and second, the user-specified portion.
-      It is vital that there is a central defintion of both parts of the object model.
-      
-      domain language:
-     dsl
-      immutability=true ==&gt; cache=true
-      private=true ==&gt; umask=700
-        combined with user_umask, system_umask, group_umask?? on create_type
-      defaults in DTD (with local overrides) 
-      cache=true
-    meta model
-      xml is parsed and store in the st, st_elements, data_table, data_column tables
-      api for saying give me valueOfField(String field,int id)--&gt;for lazy-loading.;
-        MetaDao mdao;
-        mdao.getType(field);
-	gdao.getById(type,id);
-	mdao.getField(obj,field);
-    preview java/schema
-
-    </p><p>
-      small domain language --&gt; generate schema/spec/model/...
-    </p><p>
-      links [fields immutable "from" &amp; "to"]
-    </p><p>
-      goal: no exceptions in the model. simple domain language that can produce everything. no stored procedures. no special code. (ideal, i know.)
-    </p><p>
-      Namespaces
+  </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-model"></a>3.1.&nbsp;Object Model</h2></div></div><div></div></div><p>Moved to wiki: <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Object+Model" target="_top">Object+Model</a></p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-types"></a>3.2.&nbsp; Domain Language and Type Generation [SUGGESTION]</h2></div></div><div></div></div><p>Moved to wiki: <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Type+Language" target="_top">Type+Language</a>
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="design-mex"></a>3.3.&nbsp;MEXes [DELIBERATION]</h2></div></div><div></div></div><p>
       option 1: single mex per row
       option 2: range table/textual
@@ -398,22 +326,6 @@ OR
       ome.client.ServiceFactory.withCaching(ConflictResolver) -- with caching
         if conflictResolver==null, throws OptimisticLockException at commit time.
     </p></div><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div><pre class="programlisting">
-      LAZYLOAD
-      have ProxyFilter call model.UnloadedField(String fieldName);
-      lazyLoader can then check and call:
-      api.load(Field,id);
-      this uses another filter which Hibernate.initializes() all fields (and members of sets) of an object. 
-  
-      DSL
-      api is currently: 
-         user.createType(dslXml)
-      we could optionally offer:
-         admin.createType(dslXml,hbmXml) 
-      in which namespace info etc., comes from dslXml, but special information like constraints, etc.
-      could be specificed directly in the hbm. mapping file (changes with other technology)
-      :: modelling exclusivity (==&gt;rules?) 
-      :: currently using Hibernate to model 
-
       NOTIFICATION:
         exception handling so all get notified
         care with the synch'ing.
@@ -424,17 +336,7 @@ OR
           calls new tripleSetFilter(jmsMsg).filter(obj) --&gt;
           call obj.notify(UpdateEvent);
 
-      MODEL Sync.
-        only if observers &gt; 0
-        only if using omero-model-multithread.jar (MultiThreadClassLoader)
 
-
-      Model Report Objects (with counts of all collections)
-        "lite" objects using polymorph=explicit (or one-to-one link "VIEW")
-        other possibility is to define imageCount-style properties on the main model obj.
-          and to use lazy-field loading???
-
-      
       Usage Log: (within Sec. Filter to throttle users)
       
       Filter Password
@@ -443,7 +345,7 @@ OR
 
       START: tomcat manager
 
-    </pre></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d0e238" href="#d0e238">1</a>] </sup>Just what are distributed objects? TODO</p></div></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+    </pre></div></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="devel"></a>Chapter&nbsp;4.&nbsp;Developing with/for the Java server</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel-server"></a>4.1.&nbsp;Server-side development</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="devel-quick"></a>4.1.1.&nbsp;Quick How-To</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
 	  Add to common/src/ome/api interface "[API]"
 	  Run "maven jar:install" for common
 	</p></li><li><p>

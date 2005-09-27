@@ -42,104 +42,18 @@
 
   <section id="design-model">
     <title>Object Model</title>
-    <para>
-      At the core of the work on the Open Microscopy Environment is the definition of a vocabulary for working with microscopic data. 
-      This vocabulary has a representation in the specification, in the database (the <emphasis>data model</emphasis>), and in code.
-      This last representation is the object model with which we will concern ourselves here.
-    </para>
-    <para>
-      Because of its complexity, the object model is generated, either from the specification or from the data model.
-      It relies on no libraries and can be used in both the server and the client.
-      Instances of the object model have no direct interaction with the database, rather the mapping is handled externally by the O/R framework.
-    </para>
-    <para>
-      By and large, generated classes are composed only of getter and setter fields for fields representing columns in the database.
-      However, to make working with the model easier and, perhaps, more powerful, there are several features which we are 
-      considering including.
-    </para>
-    <para><emphasis role="bold">"<emphasis role="underline">OME</emphasis> <emphasis role="underline">R</emphasis>emote <emphasis role="underline">O</emphasis>bjects"</emphasis> Currently Omero does not use remote or distributed objects. 
-      <footnote>
-	<para>Just what are distributed objects? TODO</para>
-    </footnote>
-      But to making working with these objects a bit more like truly distributed objects it would be nice to add certain functionality.
-    </para>
-    <para>
-      The first and most important addition is making two objects returned from the server be the same reference. To allow this, however, the client developer will need to pass in a ConflictHandler which resolves any stale data.
-    </para>
-    <para>
-      
-      setCache() new apis
-      setLazyLoader()
-        retrieveField (Rather than getField)
-    </para>
-    <para><emphasis role="bold">Extensibility</emphasis> [IDEA]
-      
-    extended api:
-      ome.model.[TYPE].I (inner static interface)
-      fill(Prototype implements [TYPE].I) (copy procedure)
-      synchonization!
-
-      extGet(""),extPut(""),extRemove(""),extAll();
-      or cglib
-      or modelEvents
-     setWrapper?
-    </para>
-    <para>
-      In addition to the extended functionality of the new object model, there are some changes to the actual structure, the specification, that are needed.
-    </para>
-    <para>
- * image_id ==> pixel_id where appropriate
- * plane_info
- * ACL (getting ownership in each table not MEX)
- * one table ; one class
- * cleaning up container relationships (project, category, screen, etc.)
- * replace ST definition ("ST is immutable") with locking meechanism
- * possibly versioning
-    </para>
-    <para>
-      Inheritance
-    </para>
+    <para>Moved to wiki: <ulink url="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Object+Model">Object+Model</ulink></para>
   </section>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <section id="design-types">
     <title> Domain Language and Type Generation [SUGGESTION]</title>
-    <para>
-      This model has two general parts: first, the long studied and well-established core model and second, the user-specified portion.
-      It is vital that there is a central defintion of both parts of the object model.
-      
-      domain language:
-     dsl
-      immutability=true ==> cache=true
-      private=true ==> umask=700
-        combined with user_umask, system_umask, group_umask?? on create_type
-      defaults in DTD (with local overrides) 
-      cache=true
-    meta model
-      xml is parsed and store in the st, st_elements, data_table, data_column tables
-      api for saying give me valueOfField(String field,int id)-->for lazy-loading.;
-        MetaDao mdao;
-        mdao.getType(field);
-	gdao.getById(type,id);
-	mdao.getField(obj,field);
-    preview java/schema
-
-    </para>
-    <para>
-      small domain language --> generate schema/spec/model/...
-    </para>
-    <para>
-      links [fields immutable "from" &amp; "to"]
-    </para>
-    <para>
-      goal: no exceptions in the model. simple domain language that can produce everything. no stored procedures. no special code. (ideal, i know.)
-    </para>
-    <para>
-      Namespaces
+    <para>Moved to wiki: <ulink url="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Type+Language">Type+Language</ulink>
     </para>
   </section>
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <section id="design-mex">
     <title>MEXes [DELIBERATION]</title>
@@ -350,22 +264,6 @@ OR
   </section>
   <section id="design-notes">
     <programlisting>
-      LAZYLOAD
-      have ProxyFilter call model.UnloadedField(String fieldName);
-      lazyLoader can then check and call:
-      api.load(Field,id);
-      this uses another filter which Hibernate.initializes() all fields (and members of sets) of an object. 
-  
-      DSL
-      api is currently: 
-         user.createType(dslXml)
-      we could optionally offer:
-         admin.createType(dslXml,hbmXml) 
-      in which namespace info etc., comes from dslXml, but special information like constraints, etc.
-      could be specificed directly in the hbm. mapping file (changes with other technology)
-      :: modelling exclusivity (==>rules?) 
-      :: currently using Hibernate to model 
-
       NOTIFICATION:
         exception handling so all get notified
         care with the synch'ing.
@@ -376,17 +274,7 @@ OR
           calls new tripleSetFilter(jmsMsg).filter(obj) -->
           call obj.notify(UpdateEvent);
 
-      MODEL Sync.
-        only if observers > 0
-        only if using omero-model-multithread.jar (MultiThreadClassLoader)
 
-
-      Model Report Objects (with counts of all collections)
-        "lite" objects using polymorph=explicit (or one-to-one link "VIEW")
-        other possibility is to define imageCount-style properties on the main model obj.
-          and to use lazy-field loading???
-
-      
       Usage Log: (within Sec. Filter to throttle users)
       
       Filter Password
