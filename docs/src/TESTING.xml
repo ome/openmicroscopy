@@ -43,6 +43,9 @@
       <para>
 	To run integration tests, use <literal>maven itest</literal> from the individual component directories and <literal>maven itest-all</literal> from the top-level directory. 
       </para>
+      <para>
+        Running integration tests places several restrictions on the environment. There must be a running OME database. It must contain <emphasis>some</emphasis>projects, datasets, images, image annotations, dataset annotations, classifications, categories, and category groups. These tests could break for a number of reasons. Patience is needed.
+      </para>
       <section id="test-int-db">
 	<title>DbUnit Testing</title>
 	<para>
