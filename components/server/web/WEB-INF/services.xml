@@ -86,11 +86,11 @@
 	<bean id="pixelsService" class="ome.logic.PixelsImpl">
 		<constructor-arg index="0" ref="daoFactory"/>
 	</bean>			
-<!--	
+    	
 	<bean id="pojosService" class="ome.logic.PojosImpl">
 		<constructor-arg index="0" ref="daoFactory"/>
 	</bean>		
--->	
+   	
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- FACADES -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

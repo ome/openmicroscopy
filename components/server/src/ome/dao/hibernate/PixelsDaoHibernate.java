@@ -32,11 +32,6 @@ package ome.dao.hibernate;
 //Java imports
 
 //Third-party libraries
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.providers.dao.User;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -46,7 +41,6 @@ import org.hibernate.Session;
 //Application-internal dependencies
 import ome.dao.PixelsDao;
 import ome.model.Experimenter;
-import ome.model.Image;
 import ome.model.ImagePixel;
 import ome.model.RenderingSetting;
 import org.springframework.orm.hibernate3.HibernateCallback;

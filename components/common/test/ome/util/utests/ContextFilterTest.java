@@ -1,4 +1,4 @@
-package ome.util;
+package ome.util.utests;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +8,8 @@ import java.util.Set;
 import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.Project;
+import ome.util.ContextFilter;
+import ome.util.Filter;
 
 import junit.framework.TestCase;
 

@@ -38,28 +38,34 @@ import java.util.Set;
 // Application-internal dependencies
 
 /**
- * Provides methods to for dealing with the core "Pojos" of OME. Included are:
- * Projects, Datasets...
+ * Provides methods for dealing with the core "Pojos" of OME. Included are:
+ * Projects, Datasets, Images, CategoryGroups, Categories, Classifications,
+ * ImageAnnotations, and DatasetAnnotations.
  * 
- * TODO: following description should possibly be moved to a 
- * marker interface with a see also link
- * The names of the methods correlate to how the function:
+ * <p>
+ * The names of the methods correlate to how the function operates:
  * <ul>
- * <li><b>load</b>: start at container objects and work down toward the leaves</li>
- * <li><b>find</b>: start at leave objects and work up to containers</li>
- * <li><b>get</b>: only concerned with one level in the hierarchy</li>
+ * <li><b>load</b>: start at container objects and work down toward the leaves, returning hierarchy</li>
+ * <li><b>find</b>: start at leave objects and work up to containers, returning hierarchy</li>
+ * <li><b>get</b>: retrieves only leaves in the hierarchy (currently only Images)</li>
  * </ul>
- * Most methods take a <code>options</code> map which is built on the
+ * </p>
+ * <p>
+ * Most methods take an <code>options</code> map which is built on the
  * client-side using {@link omero.client.OptionBuilder an option builder.} The
  * currently supported options are:
  * <ul>
- * <li><b>annotator</b>(Integer): </li>
- * <li><b>leaves</b>(Boolean): </li>
- * <li><b>experimenter</b>(Integer): </li>
- * </ul>
- * <u>Note</u>: Each option has a method-specific (and possibly
- * context-specific) meaning.
- * 
+ * 	<li><b>annotator</b>(Integer): 
+ * 	If -1, annotations are retrieved to objects in the hierarchy where they exist;
+ * 	if a valid experimenterID, annotations are only retrieved for that user. May 
+ * 	not be used be all methods.</li>
+ * 	<li><b>leaves</b>(Boolean): if FALSE omits images from the returned hierarchy.
+ * 	May not be used by all methods.</li>
+ * 	<li><b>experimenter</b>(Integer): inables filtering on a per-experimenter basis.
+ * 	This option has a method-specific (and possibly context-specific) meaning. Please 
+ * 	see the individual methods.</li>
+ * </p>
+ *  
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author <br>
@@ -68,7 +74,10 @@ import java.util.Set;
  * @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
  *          </small>
  * @since OME1.0
- * @TODO.DEV possibly move optionBuilder to the common code. ome.common.utils
+ * @DEV.TODO possibly move optionBuilder to the common code. ome.common.utils
+ * @DEV.TODO possibly move map description to marker interface with a see also link
+ * @DEV.TODO add throws statements where necessary (IllegalArgument, ...)
+ *
  */
 public interface Pojos {
 
@@ -76,7 +85,7 @@ public interface Pojos {
 	 * Loads a container hierarchy rooted by a given node.
 	 * <p>
 	 * This method also retrieves the Experimenters linked to the objects in the
-	 * tree. Similarly, all Images will be linked to their Pixel objects.
+	 * tree. Similarly, all Images will be linked to their Pixel objects if included.
 	 * </p>
 	 * <p>
 	 * Note that objects are never duplicated. For example, if an Experimenter
@@ -88,12 +97,25 @@ public interface Pojos {
 	 * </p>
 	 * 
 	 * @param rootNodeType
-	 *            The type of the root node. 
-	 *            Can be {@link Project}, {@link Dataset}, {@link CategoryGroup}, or {@link Category}.
+	 *   		The type of the root node. Can be {@link Project}, 
+	 *   		{@link Dataset}, {@link CategoryGroup}, or {@link Category}. 
+	 *   		Cannot be null.
 	 * @param rootNodeIds
-	 *            The ids of the root nodes.
-	 * @return The requested node as root and all of its descendants. The type
-	 *         of the returned value will be <code>rootNodeType</code>. 
+	 *      	The ids of the root nodes. Can be null if an Experimenter
+	 *      	is specified in <code>options</code>, otherwise an Exception
+	 *      	is thrown to prevent all images in the entire database 
+	 *      	from being downloaded.
+	 * @param options
+	 * 			Map as above. <code>annotator</code> and <code>leaves</code> used. 
+	 * 			If <code>rootNodeIds!=null</code>, the result will be filtered
+	 * 			by the <code>experimenter</code> at the <code>Image</code> and
+	 * 			intermediate levels <i>if available</i>.
+	 * 			If <code>rootNodeIds==null</code>, <code>experimenter</code> must
+	 * 			be set and filtering will be applied at the <i>Class</i>-level;
+	 * 			e.g. to retrieve a user's Projects, or user's Datasets. 
+	 * @return 
+	 * 			The requested node as root and all of its descendants. The type
+	 *         	of the returned value will be <code>rootNodeType</code>. 
 	 */
 	public Set loadContainerHierary(Class rootNodeType, Set rootNodeIds,
 			Map options);
@@ -144,11 +166,17 @@ public interface Pojos {
 	 * </p>
 	 * 
 	 * @param rootNodeType top-most type which will be searched for 
-	 * 			Can be {@link Project} or {@link CategoryGroup}
+	 * 			Can be {@link Project} or {@link CategoryGroup}. Not null.
 	 * @param imagesIds
-	 *            Contains the ids of the Images that sit at the bottom of the
-	 *            trees. Not null.
+	 *     		Contains the ids of the Images that sit at the bottom of the
+	 *      	trees. Not null.
+	 * @param options
+	 * 			Map as above. <code>annotator</code> used.
+	 * 			<code>experimenter</code> may be applied at the top-level only
+	 * 			or at each level in the hierarchy, but will not apply to the 
+	 * 			leaf (Image) level.
 	 * @return A <code>Set</code> with all root nodes that were found.
+	 * @DEV.TODO decide on use of experimenter option
 	 */
 	public Set findContainerHierarchies(Class rootNodeType, Set imagesIds,
 			Map options);
@@ -162,42 +190,65 @@ public interface Pojos {
 	 * node, then the entry will be <code>null</code>. Otherwise it will be a
 	 * <code>Set</code> containing {@link Annotation} objects.
 	 * 
-	 * <h3>Options:</h3>
-	 * TODO
-	 * 
 	 * @param rootNodeType
 	 *            The type of the rootNodes 
-	 *            Can be {@link Dataset} or {@link Image} 
+	 *            Can be {@link Dataset} or {@link Image}. Not null. 
 	 * @param rootNodeIds
-	 *            Ids of the objects of type <code>rootNodeType</code>
+	 *            Ids of the objects of type <code>rootNodeType</code>. Not null.
 	 * @param options
-	 *            Map of options, as described above
+	 *            Map as above. <code>annotator</code> used to filter. 
+	 *            No notion of <code>experimenter</code> or <code>leaves</code>
 	 * @return A map whose key is rootNodeId and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 */
-	public Set findAnnotations(Class rootNodeType, Set rootNodeIds, Map options);
+	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, Map options);
 
 	/**
-	 * Finds data paths in the Category Group/Category/Image (CG/C/I) hierarchy.
+	 * Finds paths in the Category Group/Category/Image (CG/C/I) hierarchy.
+	 * <p>
 	 * This method is similar to
 	 * {@link #findCGCIHierarchies(Set) findCGCIHierarchies} but returns only
-	 * CategoryGroups and Categories. If <code>contained</code> is true the
-	 * CGC paths are returned which lead to this image. If
-	 * <code>contained</code> is <code>false</code>, all paths are excluded
-	 * for which an image is contained in a <code><b>CategoryGroup</b></code>.
+	 * CategoryGroups and Categories. Further, it returns only paths 
+	 * for which an image is <b>not</b> contained in a <code>CategoryGroup</code>.
 	 * This is <u>more</u> restrictive than may be imagined.
-	 * 
+	 * </p>
+	 * <p>
+	 * The goal is to find CGC paths to which an Image MAY be attached, keeping
+	 * exclusivity in mind.
+	 * </p>
 	 * @param imgIDs
-	 *            Contains the ids of the Images that sit at the bottom of the
-	 *            trees. Not null.
+	 *            the ids of the Images that sit at the bottom of the
+	 *            CGC trees. Not null.
 	 * @param options
-	 *            Map of options, as described above
+	 *            Map as above. No notion of <code>annotator</code> or <code>leaves</code>.
+	 *            <code>experimenter</code> is as 
+	 *            {@link #findContainerHierarchies(Class, Set, Map)}
 	 * @return A <code>Set</code> with all root nodes that were found.
 	 */
-	public Set findCGCPaths(Set imgIds);
+	public Set findCGCPaths(Set imgIds, Map options);
 
-	
+	/**
+	 * Retrieve a user's (or all users') images within any given container. 
+	 * @param rootNodeType
+	 *   		A Class which will have its hierarchy searched for Images. Not null.
+	 * @param rootNodeIds
+	 * 			A set of ids of type <code>rootNodeType</code>
+	 * @param options
+	 *            Map as above. No notion of <<code>leaves</code>.
+	 *            <code>experimenter</code> applies at the Image level. 
+	 * @return A set of images.
+	 */
 	public Set getImages(Class rootNodeType, Set rootNotIds, Map options);
+
+	/**
+	 * Retrieve a user's images. 
+	 *  
+	 * @param options
+	 *            Map as above. No notion of <<code>leaves</code>.
+	 *            <code>experimenter</code> applies at the Image level and
+	 *            must be present. 
+	 * @return A set of images.
+	 */
 
 	public Set getUserImages(Map options);
 

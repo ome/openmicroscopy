@@ -1,5 +1,5 @@
 /*
- * pojos.OptionBuilder
+ * ome.util.builders.PojoOptions
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package pojos;
+package ome.util.builders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +40,7 @@ import java.util.Map;
 //Application-internal dependencies
 
 /** 
- * generates Maps for service calls. 
+ * generates Maps for Pojo service calls. 
  * 
  * The server will make the same assumptions about missing keys
  * as it would about a null <code>option</code> instance.
@@ -56,18 +56,26 @@ import java.util.Map;
  * </small>
  * @since OME2.2
  */
-public class OptionBuilder
+public class PojoOptions
     
 {
 	//TODO Get these values from omero-common
-    private static final String ANNOTATOR = "Annotator";
-    private static final String LEAF = "Leaves";
-    private static final String EXPERIMENTER = "Experimenter";
+    private static final String ANNOTATOR = "annotator";
+    private static final String LEAF = "leaves";
+    private static final String EXPERIMENTER = "experimenter";
     
     private Map options = new HashMap();
 
-    public OptionBuilder(){
+    public PojoOptions(){
     	this.leaves();
+    }
+    
+    public PojoOptions(Map map){
+    	String[] s = new String[]{ANNOTATOR,LEAF,EXPERIMENTER};
+    	for (int i = 0; i < s.length; i++) {
+    		if (map.containsKey(s[i]))
+    			this.options.put(s[i], map.get(s[i]));
+    	}
     }
 
     /* ==============================
@@ -75,48 +83,63 @@ public class OptionBuilder
      * ============================== */
     
     
-    public OptionBuilder leaves(){
+    public PojoOptions leaves(){
     	options.put(LEAF,Boolean.TRUE);
     	return this;
     }
     
-    public OptionBuilder noLeaves(){
+    public PojoOptions noLeaves(){
     	options.put(LEAF,Boolean.FALSE);
     	return this;
+    }
+
+    public boolean isLeaves(){
+   		return ((Boolean) options.get(LEAF)).booleanValue();
     }
     
     /* ==============================
      * With / Without Annotations
      * ============================== */
     
-    public OptionBuilder noAnnotations(){
+    public PojoOptions noAnnotations(){
     	remove(ANNOTATOR);
     	return this;
     }
     
-    public OptionBuilder annotationsFor(Integer i){
+    public PojoOptions annotationsFor(Integer i){
     	options.put(ANNOTATOR,i);
     	return this;
     }
     
-    public OptionBuilder allAnnotations(){
+    public PojoOptions allAnnotations(){
     	options.put(ANNOTATOR,null);
     	return this;
     }
 
+    public boolean isAnnotation(){
+    	return options.containsKey(ANNOTATOR);
+    }
+    
+    public Integer getAnnotator(){
+    	return (Integer) options.get(ANNOTATOR);
+    }
+    
     /* ==============================
      * Filtered by Experimenter
      * ============================== */
     
-    
-    public OptionBuilder exp(Integer i){
+    public PojoOptions exp(Integer i){
     	options.put(EXPERIMENTER,i);
     	return this;
     }
     
-    public OptionBuilder allExps(){
+    public PojoOptions allExps(){
     	remove(EXPERIMENTER);
     	return this;
+    }
+    
+    public Integer getExperimenter(){
+    	return (Integer) options.get(EXPERIMENTER);
     }
 
     

@@ -1,18 +1,20 @@
-package pojos;
+package ome.util.utests;
+
+import ome.util.builders.PojoOptions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import junit.framework.TestCase;
 
-public class OptionBuildTest extends TestCase {
+public class PojoOptionsTest extends TestCase {
 
-	private static Log log = LogFactory.getLog(OptionBuildTest.class);
+	private static Log log = LogFactory.getLog(PojoOptionsTest.class);
 	
-	OptionBuilder ob;
+	PojoOptions ob;
 	
 	protected void setUp() throws Exception {
-		ob=new OptionBuilder();
+		ob=new PojoOptions();
 	}
 	
 	public void testDefaults(){
