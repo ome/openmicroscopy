@@ -38,6 +38,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -90,18 +91,57 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
 	}
 
 	
-	public Object getByName(final Class klazz, final String name) {
+	public Object getUniqueByFieldILike(final Class klazz, final String field, final String value) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
                 Criteria c = session.createCriteria(klazz);
-                c.add(Expression.ilike("name",name,MatchMode.ANYWHERE));
+                c.add(Expression.ilike(field,value,MatchMode.ANYWHERE));
                 return c.uniqueResult();
                 
             }
         });
 	}
+
+	public List getListByFieldILike(final Class klazz, final String field, final String value) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                Criteria c = session.createCriteria(klazz);
+                c.add(Expression.ilike(field,value,MatchMode.ANYWHERE));
+                return c.list();
+                
+            }
+        });
+	}
+
+	public Object getUniqueByFieldEq(final Class klazz, final String field, final Object value) {
+        return getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                Criteria c = session.createCriteria(klazz);
+                c.add(Expression.eq(field,value));
+                return c.uniqueResult();
+                
+            }
+        });
+	}
+
+	public List getListByFieldEq(final Class klazz, final String field, final Object value) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                Criteria c = session.createCriteria(klazz);
+                c.add(Expression.eq(field,value));
+                return c.list();
+                
+            }
+        });
+	}	
 	
 	/*
 	 * @see ome.logic.GenericDao#getById(java.lang.Class, int)
@@ -113,6 +153,7 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
                     throws HibernateException {
 
                 OMEModel o = (OMEModel) session.load(klazz,id);
+                Hibernate.initialize(o);
                 return o;
                 
                 

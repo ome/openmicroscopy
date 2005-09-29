@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.GenericDao
+ * ome.server.itests.PixelsServiceTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,20 +26,24 @@
  *
  *------------------------------------------------------------------------------
  */
-
-package ome.dao;
-
-import java.util.List;
-import java.util.Map;
+package ome.server.itests;
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
+import ome.api.Pixels;
+import ome.model.ImagePixel;
+import ome.model.RenderingSetting;
 
-
-/** data access object for basic objects.
+/** 
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -49,21 +53,38 @@ import java.util.Map;
  * </small>
  * @since 1.0
  */
-public interface GenericDao {
+public class PixelsServiceTest
+        extends
+            AbstractDependencyInjectionSpringContextTests {
+
+    private static Log log = LogFactory.getLog(PixelsServiceTest.class);
+
+    private Pixels pix;
     
-	public Object getUniqueByExample(Object example);
-	public List getListByExample(Object example);
-	public Object getUniqueByFieldILike(Class klazz, String field, String value);
-	public List getListByFieldILike(Class klazz, String field, String value);
-	public Object getUniqueByFieldEq(Class klazz, String field, Object value);
-	public List getListByFieldEq(Class klazz, String field, Object value);
-	public Object getById(Class klazz, int id);
-	public void persist(Object[] objects);
-	@Deprecated
-	public Object queryUnique(String query, Object[] params);
-	@Deprecated
-	public List queryList(String query, Object[] params);
-	
-	public Object getUniqueByMap(Class klazz, Map constraints);
-	public List getListByMap(Class klazz, Map constraints);
+    /**
+     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
+     */
+    protected String[] getConfigLocations() {
+        return ConfigHelper.getConfigLocations();
+    }
+    
+    @Override
+    protected void onSetUp() throws Exception {
+    	super.onSetUp();
+    	ome.security.Utils.setUserAuth();
+    	pix = (Pixels) applicationContext.getBean("pixelsService");
+    }
+    
+    public void testPix(){
+    	ImagePixel p = pix.retrievePixDescription(5);
+    	assertNotNull(p);
+    	log.info(p);
+    }
+    
+    public void test1() {
+    	RenderingSetting r = pix.retrieveRndSettings(5);
+    	assertNotNull(r);
+    	log.info(r);
+    }
+    
 }

@@ -79,5 +79,14 @@
 	<bean id="annotationDao" class="ome.dao.hibernate.AnnotationDaoHibernate"  parent="dao"/>
 	<bean id="containerDao"  class="ome.dao.hibernate.ContainerDaoHibernate"  parent="dao"/>
 	<bean id="genericDao"    class="ome.dao.hibernate.GenericDaoHibernate"  parent="dao"/>
+	<bean id="pixelsDao"     class="ome.dao.hibernate.PixelsDaoHibernate"  parent="dao"/>
+	
+	<bean id="daoFactory"	 class="ome.dao.DaoFactory">
+		<constructor-arg index="0" ref="analysisDao"/>
+		<constructor-arg index="1" ref="annotationDao"/>
+		<constructor-arg index="2" ref="containerDao"/>
+		<constructor-arg index="3" ref="genericDao"/>						
+		<constructor-arg index="4" ref="pixelsDao"/>			
+	</bean>	
 	
 </beans>

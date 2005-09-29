@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.GenericDao
+ * ome.dao.PixelsDao
  *
  *------------------------------------------------------------------------------
  *
@@ -29,17 +29,18 @@
 
 package ome.dao;
 
-import java.util.List;
-import java.util.Map;
-
 //Java imports
+import java.util.List;
+import java.util.Set;
+
+import ome.model.RenderingSetting;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 
-/** data access object for basic objects.
+/** data access object for Image and Dataset annotations.
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -49,21 +50,9 @@ import java.util.Map;
  * </small>
  * @since 1.0
  */
-public interface GenericDao {
+public interface PixelsDao {
     
-	public Object getUniqueByExample(Object example);
-	public List getListByExample(Object example);
-	public Object getUniqueByFieldILike(Class klazz, String field, String value);
-	public List getListByFieldILike(Class klazz, String field, String value);
-	public Object getUniqueByFieldEq(Class klazz, String field, Object value);
-	public List getListByFieldEq(Class klazz, String field, Object value);
-	public Object getById(Class klazz, int id);
-	public void persist(Object[] objects);
-	@Deprecated
-	public Object queryUnique(String query, Object[] params);
-	@Deprecated
-	public List queryList(String query, Object[] params);
-	
-	public Object getUniqueByMap(Class klazz, Map constraints);
-	public List getListByMap(Class klazz, Map constraints);
+    public RenderingSetting retrieveRndSettings(int userId, int pixId);
+    public void saveRndSettings(int userId, int pixId, RenderingSetting rndSetting);
+    public int createRndSettings();
 }

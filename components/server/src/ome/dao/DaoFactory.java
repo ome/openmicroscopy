@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.GenericDao
+ * ome.dao.DaoFactory
  *
  *------------------------------------------------------------------------------
  *
@@ -29,9 +29,6 @@
 
 package ome.dao;
 
-import java.util.List;
-import java.util.Map;
-
 //Java imports
 
 //Third-party libraries
@@ -39,7 +36,7 @@ import java.util.Map;
 //Application-internal dependencies
 
 
-/** data access object for basic objects.
+/** collection of data access objects.
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -47,23 +44,47 @@ import java.util.Map;
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 1.0
+ * @since OMERO 2.0
  */
-public interface GenericDao {
-    
-	public Object getUniqueByExample(Object example);
-	public List getListByExample(Object example);
-	public Object getUniqueByFieldILike(Class klazz, String field, String value);
-	public List getListByFieldILike(Class klazz, String field, String value);
-	public Object getUniqueByFieldEq(Class klazz, String field, Object value);
-	public List getListByFieldEq(Class klazz, String field, Object value);
-	public Object getById(Class klazz, int id);
-	public void persist(Object[] objects);
-	@Deprecated
-	public Object queryUnique(String query, Object[] params);
-	@Deprecated
-	public List queryList(String query, Object[] params);
+public class DaoFactory {
+
+	private AnalysisDao ydao;
+	private AnnotationDao adao;
+	private ContainerDao cdao;
+	private GenericDao gdao;
+	private PixelsDao pdao;
 	
-	public Object getUniqueByMap(Class klazz, Map constraints);
-	public List getListByMap(Class klazz, Map constraints);
+	public DaoFactory(
+			AnalysisDao analysis,
+			AnnotationDao annotations,
+			ContainerDao container,
+			GenericDao generic,
+			PixelsDao pixels){
+		ydao = analysis;
+		adao = annotations;
+		cdao = container;
+		gdao = generic;
+		pdao = pixels;
+	}
+
+	public AnalysisDao analysis(){
+		return ydao;
+	}
+	
+	public AnnotationDao annotation(){
+		return adao;
+	}
+
+	public ContainerDao container(){
+		return cdao;
+	}
+	
+	public GenericDao generic(){
+		return gdao;
+	}
+	
+	public PixelsDao pixels(){
+		return pdao;
+	}
+		
 }

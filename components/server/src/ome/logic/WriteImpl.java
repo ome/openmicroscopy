@@ -88,8 +88,8 @@ public class WriteImpl implements Write {
 		content = "Hibernate:"+content;
 		
 		Dataset ds = (Dataset) gdao.getById(Dataset.class, datasetId);
-		Module annModule = (Module) gdao.getByName(Module.class, "Annotation");
-		SemanticType dannST = (SemanticType) gdao.getByName(SemanticType.class, "DatasetAnnotation");
+		Module annModule = (Module) gdao.getUniqueByFieldILike(Module.class, "name", "Annotation");
+		SemanticType dannST = (SemanticType) gdao.getUniqueByFieldILike(SemanticType.class, "name", "DatasetAnnotation");
 
 		//TODO this should be in a AdminService/Dao
 		int rootExperimenterId = template.queryForInt(

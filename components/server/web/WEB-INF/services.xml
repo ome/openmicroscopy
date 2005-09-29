@@ -83,8 +83,16 @@
 		<property name="genericDao" ref="genericDao"/>		
 	</bean>		
 
+	<bean id="pixelsService" class="ome.logic.PixelsImpl">
+		<constructor-arg index="0" ref="daoFactory"/>
+	</bean>			
+<!--	
+	<bean id="pojosService" class="ome.logic.PojosImpl">
+		<constructor-arg index="0" ref="daoFactory"/>
+	</bean>		
+-->	
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<!-- SERVICES -->
+	<!-- FACADES -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<bean id="primitiveHierarchyBrowsingFacade" class="ome.facade.PrimitiveHierarchyBrowsingImpl">
 		<property name="hierarchyBrowsingService" ref="hierarchyBrowsingService"/>
