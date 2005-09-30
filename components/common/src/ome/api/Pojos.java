@@ -45,22 +45,31 @@ import java.util.Set;
  * <p>
  * The names of the methods correlate to how the function operates:
  * <ul>
- * <li><b>load</b>: start at container objects and work down toward the leaves, returning hierarchy</li>
+ * <li><b>load</b>: start at container objects and work down toward the leaves, 
+ * 					returning hierarchy (Proejct-&gt;Dataset-&gt;Image</li>
  * <li><b>find</b>: start at leave objects and work up to containers, returning hierarchy</li>
  * <li><b>get</b>: retrieves only leaves in the hierarchy (currently only Images)</li>
  * </ul>
  * </p>
+ * <h3>Options Mechanism</h3>
  * <p>
- * Most methods take an <code>options</code> map which is built on the
+ * The options are used to add some constraints to the generic method e.g. load hierarchy 
+ * trees images <i>for a given user</i>. This mechanism should give us enough flexibility 
+ * to extend the API if necessary, e.g. in some cases we might want to retrieve the images 
+ * with or without annotations
+ * </p>
+ * <p>
+ * Most methods take such an <code>options</code> map which is built on the
  * client-side using {@link omero.client.OptionBuilder an option builder.} The
  * currently supported options are:
  * <ul>
  * 	<li><b>annotator</b>(Integer): 
- * 	If -1, annotations are retrieved to objects in the hierarchy where they exist;
+ * 	If key exists but value null, annotations are retrieved for all objects in the hierarchy where they exist;
  * 	if a valid experimenterID, annotations are only retrieved for that user. May 
- * 	not be used be all methods.</li>
+ * 	not be used be all methods.
+ * <b>Default: all annotations</b></li>
  * 	<li><b>leaves</b>(Boolean): if FALSE omits images from the returned hierarchy.
- * 	May not be used by all methods.</li>
+ * 	May not be used by all methods. <b>Default: true</b></li>
  * 	<li><b>experimenter</b>(Integer): inables filtering on a per-experimenter basis.
  * 	This option has a method-specific (and possibly context-specific) meaning. Please 
  * 	see the individual methods.</li>
@@ -82,7 +91,7 @@ import java.util.Set;
 public interface Pojos {
 
 	/**
-	 * Loads a container hierarchy rooted by a given node.
+	 * Retrieves hierarchy trees rooted by a given node.
 	 * <p>
 	 * This method also retrieves the Experimenters linked to the objects in the
 	 * tree. Similarly, all Images will be linked to their Pixel objects if included.
@@ -107,13 +116,14 @@ public interface Pojos {
 	 *      	from being downloaded.
 	 * @param options
 	 * 			Map as above. <code>annotator</code> and <code>leaves</code> used. 
+	 * 			If <code>rootNodeIds==null</code>, <code>experimenter</code> must
+	 * 			be set and filtering will be applied at the <i>Class</i>-level; i.e 
+	 * 			e.g. to retrieve a user's Projects, or user's Datasets. 
 	 * 			If <code>rootNodeIds!=null</code>, the result will be filtered
 	 * 			by the <code>experimenter</code> at the <code>Image</code> and
 	 * 			intermediate levels <i>if available</i>.
-	 * 			If <code>rootNodeIds==null</code>, <code>experimenter</code> must
-	 * 			be set and filtering will be applied at the <i>Class</i>-level;
-	 * 			e.g. to retrieve a user's Projects, or user's Datasets. 
-	 * @return 
+	 * @DEV.TODO should it be applied at all levels?
+	 * @return  a set of hierarchy trees.
 	 * 			The requested node as root and all of its descendants. The type
 	 *         	of the returned value will be <code>rootNodeType</code>. 
 	 */
@@ -121,7 +131,7 @@ public interface Pojos {
 			Map options);
 
 	/**
-	 * Finds the data trees in various hierarchies that
+	 * Retrieves hierarchy trees in various hierarchies that
 	 * contain the specified Images.
 	 * <p>
 	 * This method will look for all the containers containing the specified
@@ -204,31 +214,34 @@ public interface Pojos {
 	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, Map options);
 
 	/**
-	 * Finds paths in the Category Group/Category/Image (CG/C/I) hierarchy.
+	 * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
 	 * <p>
-	 * This method is similar to
-	 * {@link #findCGCIHierarchies(Set) findCGCIHierarchies} but returns only
-	 * CategoryGroups and Categories. Further, it returns only paths 
-	 * for which an image is <b>not</b> contained in a <code>CategoryGroup</code>.
-	 * This is <u>more</u> restrictive than may be imagined.
-	 * </p>
-	 * <p>
-	 * The goal is to find CGC paths to which an Image MAY be attached, keeping
-	 * exclusivity in mind.
+	 * Because of the mutually exclusive rule of CG/C hierarchy, this method is quite tricky
+	 * We want to retrieve all Category Group/Category paths that end with the specified leaves.
+	 * </p><p> 
+	 * We also want to retrieve the all Category Group/Category paths that don’t end with the 
+	 * specified leaves, note that in that case because of the mutually exclusive constraint the 
+	 * categories which don’t contain a specified leaf but which is itself contained in a group 
+	 * which already has a category ending with the specified leaf is excluded.
+	 * </p><p>  
+	 * This is <u>more</u> restrictive than may be imagined. The goal is to 
+	 * find CGC paths to which an Image <B>MAY</b> be attached.
 	 * </p>
 	 * @param imgIDs
 	 *            the ids of the Images that sit at the bottom of the
 	 *            CGC trees. Not null.
+	 * @param algorithm, specify the search algorithm for finding paths.
 	 * @param options
 	 *            Map as above. No notion of <code>annotator</code> or <code>leaves</code>.
 	 *            <code>experimenter</code> is as 
 	 *            {@link #findContainerHierarchies(Class, Set, Map)}
-	 * @return A <code>Set</code> with all root nodes that were found.
+	 * @return A <code>Set</code> of hierarchy trees with all root nodes that were found.
 	 */
-	public Set findCGCPaths(Set imgIds, Map options);
+	public Set findCGCPaths(Set imgIds, int algorithm, Map options);
 
 	/**
-	 * Retrieve a user's (or all users') images within any given container. 
+	 * Retrieve a user's (or all users') images within any given container.  For example,
+	 * all images in project1.
 	 * @param rootNodeType
 	 *   		A Class which will have its hierarchy searched for Images. Not null.
 	 * @param rootNodeIds
@@ -246,10 +259,9 @@ public interface Pojos {
 	 * @param options
 	 *            Map as above. No notion of <<code>leaves</code>.
 	 *            <code>experimenter</code> applies at the Image level and
-	 *            must be present. 
+	 *            <b>must be present</b>. 
 	 * @return A set of images.
 	 */
-
 	public Set getUserImages(Map options);
 
 }

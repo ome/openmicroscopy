@@ -59,7 +59,6 @@ import java.util.Map;
 public class PojoOptions
     
 {
-	//TODO Get these values from omero-common
     private static final String ANNOTATOR = "annotator";
     private static final String LEAF = "leaves";
     private static final String EXPERIMENTER = "experimenter";
@@ -67,7 +66,7 @@ public class PojoOptions
     private Map options = new HashMap();
 
     public PojoOptions(){
-    	this.leaves();
+    	this.leaves().allAnnotations();
     }
     
     public PojoOptions(Map map){
