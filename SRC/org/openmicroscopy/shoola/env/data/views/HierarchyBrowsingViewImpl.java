@@ -36,15 +36,18 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.UserDetailsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
@@ -162,6 +165,53 @@ class HierarchyBrowsingViewImpl
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new AnnotationLoader(nodeTypeID, nodeID);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#createAnnotation(int, int, String,
+     *                                      AgentEventListener)
+     */
+    public CallHandle createAnnotation(int nodeTypeID, int nodeID, String txt,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(nodeTypeID, nodeID, txt);
+        return cmd.exec(observer);
+    }
+    
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#updateAnnotation(int, int, AnnotationData,
+     *                                      AgentEventListener)
+     */
+    public CallHandle updateAnnotation(int nodeTypeID, int nodeID,
+                        AnnotationData data, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(nodeTypeID, nodeID, data);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#deleteAnnotation(int, AnnotationData,
+     *                                              AgentEventListener)
+     */
+    public CallHandle deleteAnnotation(int nodeTypeID, AnnotationData data,
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(nodeTypeID, data);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#loadUserDetails(AgentEventListener)
+     */
+    public CallHandle loadUserDetails(AgentEventListener observer)
+    {
+        BatchCallTree cmd = new UserDetailsLoader();
         return cmd.exec(observer);
     }
     

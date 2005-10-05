@@ -36,6 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
@@ -250,11 +251,25 @@ public interface HierarchyBrowsingView
      * @param nodeTypeID One of the following constants:
      *                  {@link #DATASET_ANNOTATION},
      *                  {@link #IMAGE_ANNOTATION}.           
-     * @param nodeID    The id of the node.
+     * @param nodeID The id of the node.
      * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadAnnotations(int nodeTypeID, int nodeID,
                                         AgentEventListener observer);
+    
+    public CallHandle createAnnotation(int nodeTypeID, int nodeID, String txt,  
+                                        AgentEventListener observer);
+    
+    public CallHandle updateAnnotation(int nodeTypeID, int nodeID, 
+                             AnnotationData data, AgentEventListener observer);
+    
+    
+    public CallHandle deleteAnnotation(int nodeTypeID, AnnotationData data,
+                                        AgentEventListener observer);
+    
+    
+    public CallHandle loadUserDetails(AgentEventListener observer);
+    
     
 }
