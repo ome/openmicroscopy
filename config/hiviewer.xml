@@ -63,6 +63,11 @@
 <green>102</green>
 <blue>175</blue>
 </structuredEntry>
+<structuredEntry name="/resources/colors/RegExTitleAndAnnotationHighlight" type="color">
+<red>127</red>
+<green>255</green>
+<blue>212</blue>
+</structuredEntry>
 </colors>
-   </resources>
+</resources>
 </agent>
