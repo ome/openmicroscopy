@@ -40,6 +40,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 
 /** 
  * Implements the {@link HiViewer} interface to provide the functionality
@@ -132,7 +134,7 @@ class HiViewerComponent
         int state = model.getState();
         switch (state) {
             case NEW:
-                model.fireHierarchyLoading();
+                model.fireUserDetailsLoading();
                 view.setOnScreen();
                 fireStateChange();
                 break;
@@ -155,6 +157,7 @@ class HiViewerComponent
                     "This method can only be invoked in the LOADING_HIERARCHY "+
                     "state.");
         model.createBrowser(roots);
+        model.createClipBoard();
         model.fireThumbnailLoading();
         //b/c fireThumbnailLoading() sets the state to READY if there is no
         //image.
@@ -192,7 +195,8 @@ class HiViewerComponent
     public void setStatus(String description, int perc)
     {
         int state = model.getState();
-        if (state == LOADING_HIERARCHY || state == LOADING_THUMBNAILS)
+        if (state == LOADING_USER_DETAILS || state == LOADING_HIERARCHY ||
+                state == LOADING_THUMBNAILS)
             view.setStatus(description, false, perc);
         else view.setStatus(description, true, perc);
     }
@@ -255,6 +259,58 @@ class HiViewerComponent
                    "This method can only be invoked in the LOADING_THUMBNAILS "+
                         "or READY state.");
         }       
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getClipBoard()
+     */
+    public ClipBoard getClipBoard()
+    {
+        int state = model.getState();
+        switch (state) {
+            case LOADING_THUMBNAILS:
+            case READY:
+                return model.getClipBoard();
+            default:
+                throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setUserDetails(UserDetails)
+     */
+    public void setUserDetails(UserDetails details)
+    {
+        if (model.getState() != LOADING_USER_DETAILS)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the LOADING_HIERARCHY "+
+                    "state.");
+        model.setUserDetails(details);
+        model.fireHierarchyLoading();
+        fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getUserDetails()
+     */
+    public UserDetails getUserDetails()
+    {
+        int state = model.getState();
+        switch (state) {
+            case LOADING_HIERARCHY:
+            case LOADING_THUMBNAILS:
+            case READY:
+                return model.getUserDetails();
+            default:
+                throw new IllegalStateException(
+                   "This method can only be invoked in the" +
+                   "LOADING_HIERARCHY, LOADING_THUMBNAILS or READY state.");
+        }
     }
     
 }

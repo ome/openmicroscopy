@@ -40,6 +40,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.ObservableComponent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 
 /** 
  * Defines the interface provided by the hierarchy viewer component.
@@ -89,17 +91,20 @@ public interface HiViewer
     /** Flag to denote the <i>New</i> state. */
     public static final int     NEW = 1;
     
+    /** Flag to denote the <i>Loading User details</i> state. */
+    public static final int     LOADING_USER_DETAILS = 2;
+    
     /** Flag to denote the <i>Loading Hierarchy</i> state. */
-    public static final int     LOADING_HIERARCHY = 2;
+    public static final int     LOADING_HIERARCHY = 3;
     
     /** Flag to denote the <i>Loading Thumbnails</i> state. */
-    public static final int     LOADING_THUMBNAILS = 3;
+    public static final int     LOADING_THUMBNAILS = 4;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 4;
+    public static final int     READY = 5;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 5;
+    public static final int     DISCARDED = 6;
     
     /** 
      * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
@@ -205,7 +210,10 @@ public interface HiViewer
     
     /** Identifies the Save thumbnails action in the Actions menu. */
     public static final Integer     SAVE_THUMB = new Integer(21);
-        
+       
+    /** Identifies the Save thumbnails action in the Actions menu. */
+    public static final Integer     SEARCH = new Integer(22);
+    
     /**
      * Queries the current state.
      * 
@@ -273,6 +281,14 @@ public interface HiViewer
     public Browser getBrowser();
     
     /**
+     * Returns the {@link ClipBoard} component that the viewer embeds to 
+     * controls the visualized trees.
+     * 
+     * @return See above.
+     */
+    public ClipBoard getClipBoard();
+    
+    /**
      * Transitions the viewer to the {@link #DISCARDED} state.
      * Any ongoing data loading is cancelled.
      */
@@ -283,5 +299,19 @@ public interface HiViewer
     
     /** Returns the title of the hiViewer. */
     public String getViewTitle();
+
+    /**
+     * Sets the user's details.
+     * 
+     * @param details The user's details.
+     */
+    public void setUserDetails(UserDetails details);
+    
+    /**
+     * Returns the current user's details.
+     * 
+     * @return See above.
+     */
+    public UserDetails getUserDetails();
     
 }

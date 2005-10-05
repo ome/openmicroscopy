@@ -41,10 +41,14 @@ import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailsManager;
+import org.openmicroscopy.shoola.agents.hiviewer.UserDetailsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 
 /** 
  * The Model component in the <code>HiViewer</code> MVC triad.
@@ -70,11 +74,17 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 abstract class HiViewerModel
 {
 
+    /** The current user's details. */
+    private UserDetails         userDetails;
+    
     /** Holds one of the state flags defined by {@link HiViewer}. */
     private int                 state;
     
     /** The sub-component that hosts the display. */
     private Browser             browser;
+    
+    /** The sub-component that controls the display. */
+    private ClipBoard           clipBoard;
     
     /** 
      * Will either be a hierarchy loader, a thumbnail loader, or 
@@ -103,11 +113,40 @@ abstract class HiViewerModel
     void initialize(HiViewer component) { this.component = component; }
     
     /**
+     * Sets the current user's details.
+     * 
+     * @param details The user's details.
+     */
+    void setUserDetails(UserDetails details)
+    { 
+        if (details == null) throw new NullPointerException("No details.");
+        userDetails = details;
+    }
+    
+    /**
+     * Returns the current user's details.
+     * 
+     * @return See above.
+     */
+    UserDetails getUserDetails() { return userDetails; }
+    
+    /**
      * Returns the current state.
      * 
      * @return One of the flags defined by the {@link HiViewer} interface.  
      */
     int getState() { return state; }
+    
+    /**
+     * Starts the asynchronous retrieval of the user's details needed
+     * by this model and sets the state to {@link HiViewer#LOADING_USER_DETAILS}. 
+     */
+    void fireUserDetailsLoading()
+    {
+        state = HiViewer.LOADING_USER_DETAILS;
+        currentLoader = new UserDetailsLoader(component);
+        currentLoader.load();
+    }
     
     /**
      * Starts the asynchronous retrieval of the hierarchy objects needed
@@ -143,12 +182,30 @@ abstract class HiViewerModel
     }
     
     /**
+     * Creates a {@link ClipBoard} component to manage the browsed
+     * hierarchy trees.
+     * 
+     */
+    void createClipBoard()
+    {
+        clipBoard = ClipBoardFactory.createClipBoard(component); 
+    }
+    
+    /**
      * Returns the browser component that hosts the display.
      * 
      * @return The browser component or <code>null</code> if the state is
      *         {@link HiViewer#NEW} or {@link HiViewer#LOADING_HIERARCHY}.
      */
     Browser getBrowser() { return browser; }
+    
+    /**
+     * Returns the clipBoard component that controls the display.
+     * 
+     * @return The clipBoard component or <code>null</code> if the state is
+     *         {@link HiViewer#NEW} or {@link HiViewer#LOADING_HIERARCHY}.
+     */
+    ClipBoard getClipBoard() { return clipBoard; }
     
     /**
      * Starts the asynchronous retrieval of the thumbnails needed for the

@@ -216,15 +216,15 @@ class HiViewerControl
         
     }
     
-    /** Sets the browser UI and attach listeners. */
-    private void setBrowserView()
+    /** Sets the browser UI, the clipboard UI and attach listeners. */
+    private void setViews()
     {
         Browser browser = model.getBrowser();
         browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, 
                                       this);
         browser.addPropertyChangeListener(
                 Browser.THUMB_SELECTED_PROPERTY, this); 
-        view.setBrowserView(browser.getUI());
+        view.setViews(browser.getUI(), model.getClipBoard().getUI());
         view.setViewTitle();
     }
     
@@ -284,11 +284,11 @@ class HiViewerControl
         int state = model.getState();
         switch (state) {
             case HiViewer.LOADING_THUMBNAILS:
-                setBrowserView();
+                setViews();
                 break;
             case HiViewer.READY:
                 if (historyState == HiViewer.LOADING_HIERARCHY)
-                    setBrowserView();
+                    setViews();
                 break;
             case HiViewer.DISCARDED:
                 view.setVisible(false);

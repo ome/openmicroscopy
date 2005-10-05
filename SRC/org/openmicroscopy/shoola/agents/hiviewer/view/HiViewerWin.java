@@ -47,6 +47,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 
 //Third-party libraries
@@ -59,12 +60,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The {@link HiViewer}'s View.
- * Embeds the <code>Browser</code>'s UI to display the various visualization
- * trees.  Also provides a menu bar and a status bar.  After creation this
- * window will display an empty panel as a placeholder for the <code>Browser
- * </code>'s UI.  When said UI is ready, the Controller calls the
- * {@link #setBrowserView(JComponent) setBrowserView} method to have the View
- * display it. 
+ * Embeds the <code>Browser</code>'s UI and the <code>ClipBoard</code>'s UI
+ * to display the various visualization trees. Also provides a menu bar and a
+ * status bar. After creation this window will display an empty panel as a 
+ * placeholder for the <code>Browser</code>'s UI. When said UI is ready, the
+ * Controller calls the {@link #setViews(JComponent, JComponent) setViews}
+ * method to have the View display it. 
  *
  * @see org.openmicroscopy.shoola.agents.hiviewer.browser.Browser
  * 
@@ -108,6 +109,28 @@ class HiViewerWin
     /** The Model. */
     private HiViewerModel       model;
     
+    /**
+     * Sets the <code>Browser</code>'s UI and <code>ClipBoard</code>'s UI into
+     * a horizontal splitPane.
+     * 
+     * @param browserUI The <code>Browser</code>'s UI
+     * @param clipBoardUI The <code>ClipBoard</code>'s UI
+     * @return See above.
+     */
+    private JSplitPane createSplitPane(JComponent browserUI,
+                                        JComponent clipBoardUI)
+    {
+        JSplitPane pane = new JSplitPane();
+        pane.setResizeWeight(1);
+        
+        pane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        pane.setOneTouchExpandable(true);
+        pane.setContinuousLayout(true);
+        pane.setTopComponent(browserUI);
+        pane.setBottomComponent(clipBoardUI);
+
+        return pane;
+    }
     
     /** Builds and lays out the GUI. */
     private void buildUI()
@@ -182,12 +205,14 @@ class HiViewerWin
     {
         JMenu menu = new JMenu("Find");
         menu.setMnemonic(KeyEvent.VK_F);
+        /*
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.FIND_ANNOTATED)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.FIND_W_TITLE)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.FIND_W_ANNOTATION)));
+        */
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.FIND_W_ST)));
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
@@ -247,8 +272,8 @@ class HiViewerWin
     
     /**
      * Creates a new instance.
-     * The {@link #initialize(HiViewerControl) initialize} method should be
-     * called straigh after to link this View to the Controller.
+     * The {@link #initialize(HiViewerControl, HiViewerModel) initialize} method
+     * should be called straigh after to link this View to the Controller.
      */
     HiViewerWin() 
     {
@@ -277,15 +302,18 @@ class HiViewerWin
     JMenu getWindowsMenu() { return windowsMenu; }
     
     /** 
-     * Sets the <code>Browser</code>'s UI into the display panel.
+     * Sets the <code>Browser</code>'s UI and the <code>ClipBoard</code>'s UI
+     * into the display panel.
      * 
      * @param browserView  The <code>Browser</code>'s UI.  
+     * @param clipBoardView The <code>ClipBoard</code>'s UI.
      */
-    void setBrowserView(JComponent browserView)
+    void setViews(JComponent browserView, JComponent clipBoardView)
     {
         Container container = getContentPane();
         container.removeAll();
-        container.add(browserView, BorderLayout.CENTER);
+        container.add(createSplitPane(browserView, clipBoardView),
+                        BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH); 
     }
     
