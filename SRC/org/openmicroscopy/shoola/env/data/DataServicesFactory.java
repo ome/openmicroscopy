@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 
 /** 
  * A factory for the {@link DataManagementService} and the
- * {@link SemanticTypeService}.
+ * {@link SemanticTypesService}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
