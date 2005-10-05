@@ -93,6 +93,9 @@ public class UserDetailsLoader
      */
     protected Object getResult() { return userDetails; }
 
+    /**
+     * Creates a new instance.
+     */
     public UserDetailsLoader()
     {
         loadCall = loadUserDetails();

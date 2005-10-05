@@ -258,17 +258,55 @@ public interface HierarchyBrowsingView
     public CallHandle loadAnnotations(int nodeTypeID, int nodeID,
                                         AgentEventListener observer);
     
+    /** 
+     * Creates an annotation of the specified type for the specified node.
+     * 
+     * @param nodeTypeID One of the following constants:
+     *                  {@link #DATASET_ANNOTATION},
+     *                  {@link #IMAGE_ANNOTATION}.   
+     * @param nodeID The id of the node.
+     * @param txt The textual annotation.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle createAnnotation(int nodeTypeID, int nodeID, String txt,  
                                         AgentEventListener observer);
     
+    /**
+     * Updates the specified annotation.
+     * 
+     * @param nodeTypeID One of the following constants:
+     *                  {@link #DATASET_ANNOTATION},
+     *                  {@link #IMAGE_ANNOTATION}.   
+     * @param nodeID The id of the node.
+     * @param data The Annotation object to update.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle updateAnnotation(int nodeTypeID, int nodeID, 
                              AnnotationData data, AgentEventListener observer);
     
     
+    /**
+     * Deletes the specified annotation.
+     * 
+     * @param nodeTypeID One of the following constants:
+     *                  {@link #DATASET_ANNOTATION},
+     *                  {@link #IMAGE_ANNOTATION}.   
+     * @param data The Annotation object to delete.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle deleteAnnotation(int nodeTypeID, AnnotationData data,
                                         AgentEventListener observer);
     
     
+    /**
+     * Retrieves the details of the current user.
+     * 
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle loadUserDetails(AgentEventListener observer);
     
     

@@ -176,6 +176,16 @@ public class AnnotationSaver
      */
     protected Object getResult() { return Boolean.TRUE; }
 
+    /**
+     * Creates a new instance.
+     * Constructor invokes to update an annotation.
+     * 
+     * @param nodeTypeID One of the following constants:
+     *                  {@link HierarchyBrowsingView#DATASET_ANNOTATION},
+     *                  {@link HierarchyBrowsingView#IMAGE_ANNOTATION}.   
+     * @param nodeID The id of the node.
+     * @param data The Annotation object.
+     */
     public AnnotationSaver(int nodeTypeID, int nodeID, AnnotationData data)
     {
         if (data == null) throw new IllegalArgumentException("no annotation.");
@@ -187,6 +197,16 @@ public class AnnotationSaver
                                                 nodeTypeID);
     }
     
+    /**
+     * Creates a new instance.
+     * Constructor invokes to create an annotation.
+     * 
+     * @param nodeTypeID One of the following constants:
+     *                  {@link HierarchyBrowsingView#DATASET_ANNOTATION},
+     *                  {@link HierarchyBrowsingView#IMAGE_ANNOTATION}.   
+     * @param nodeID The id of the node.
+     * @param data The textual annotation.
+     */
     public AnnotationSaver(int nodeTypeID, int nodeID, String data)
     {
         if (data == null) throw new IllegalArgumentException("no annotation."); 
@@ -199,6 +219,13 @@ public class AnnotationSaver
                                                 nodeTypeID);
     }
     
+    /**
+     * Creates a new instance.
+     * Constructor invokes to delete an annotation.
+     * 
+     * @param nodeTypeID The id of the node.
+     * @param data The Annotation object.
+     */
     public AnnotationSaver(int nodeTypeID, AnnotationData data)
     {
         if (data == null) throw new IllegalArgumentException("no annotation."); 
