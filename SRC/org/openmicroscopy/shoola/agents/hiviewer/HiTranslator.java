@@ -78,17 +78,7 @@ public class HiTranslator
     
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
     
-    /** Format the toolTip of the specified node. */
-    private static void formatToolTipFor(ImageDisplay node, 
-            AnnotationData data)
-    {
-        String toolTip = "";
-        if (data != null)
-            toolTip = UIUtilities.makeParagraph(node.getTitle(), 
-                    data.getAnnotation(), UIUtilities.TABLE_WIDTH);
-        else toolTip = UIUtilities.formatToolTipText(node.getTitle());  
-        node.getTitleBar().setToolTipText(toolTip);
-    }
+
     
     /** 
      * Transforms each {@link ImageSummary} object into a visualisation object
@@ -395,6 +385,23 @@ public class HiTranslator
         Set s = new HashSet();
         s.add(ho);
         return transformHierarchy(s);
+    }
+    
+
+    /**
+     * Formats the toolTip of the specified node.
+     * 
+     * @param node The node.
+     * @param data The annotation data.
+     */
+    public static void formatToolTipFor(ImageDisplay node, AnnotationData data)
+    {
+        String toolTip = "";
+        if (data != null)
+            toolTip = UIUtilities.makeParagraph(node.getTitle(), 
+                    data.getAnnotation(), UIUtilities.TABLE_WIDTH);
+        else toolTip = UIUtilities.formatToolTipText(node.getTitle());  
+        node.getTitleBar().setToolTipText(toolTip);
     }
    
 }

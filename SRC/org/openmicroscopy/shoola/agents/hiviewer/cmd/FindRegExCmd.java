@@ -38,9 +38,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.hiviewer.search.SearchExplorer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -64,6 +62,8 @@ public class FindRegExCmd
     
     public static final int IN_ANNOTATION = 1;
     
+    public static final int IN_T_AND_A = 2;
+    
     /** Reference to the model. */
     private HiViewer    model;
     
@@ -73,11 +73,33 @@ public class FindRegExCmd
     /** One of the constants defined above. */
     private int         index;
     
-    /** Creates a new instance.*/
+    private boolean checkIndex(int i)
+    {
+        switch (i) {
+            case IN_TITLE:
+            case IN_ANNOTATION:
+            case IN_T_AND_A:
+                return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model The <code>HiViewer</code> model.
+     * @param regEx The regular expression.
+     * @param index The search index.
+     *              One of the constants defined by this class.
+     */
     public FindRegExCmd(HiViewer model, String regEx, int index)
     {
         if (model == null)
-            throw new IllegalArgumentException("no model");
+            throw new IllegalArgumentException("No model.");
+        if (regEx == null)
+            throw new IllegalArgumentException("No regular expression.");
+        if (!checkIndex(index))
+            throw new IllegalArgumentException("Search index not valid.");
         this.model = model;
         this.regEx = regEx;
         this.index = index;
@@ -87,32 +109,28 @@ public class FindRegExCmd
     public void execute()
     {
         FindRegExVisitor visitor = null;
-        String title = "";
         switch (index) {
             case IN_TITLE:
-                title = "With title";
                 visitor = new FindRegExTitleVisitor(model, regEx);
                 break;
             case IN_ANNOTATION:
-                title = "With annotation";
                 visitor = new FindRegExAnnotationVisitor(model, regEx);
+                break;
+            case IN_T_AND_A:
+                visitor = new FindRegExTitleAndAnnotationVisitor(model, regEx);
+                
         }
         if (visitor == null) return;
-        //Clear fisrt.
-        ClearCmd cmd = new ClearCmd(model);
-        cmd.execute();
         Browser browser = model.getBrowser();
         ImageDisplay selectedDisplay = browser.getSelectedDisplay();
         if (selectedDisplay.getParentDisplay() == null) //root
             browser.accept(visitor);
         else {
-            if (selectedDisplay instanceof ImageNode)
-                selectedDisplay.getParentDisplay().accept(visitor);
-            else selectedDisplay.accept(visitor);
+            if (!(selectedDisplay instanceof ImageNode))
+                selectedDisplay.accept(visitor);
         }
-        SearchExplorer explorer = new SearchExplorer(model.getUI(), title, 
-                visitor.getFoundNodes());
-        UIUtilities.centerAndShow(explorer);
+        
+        model.getClipBoard().setSearchResults(visitor.getFoundNodes());
     }
 
 }

@@ -71,7 +71,7 @@ public class AnnotationLoader
      * @param id The id of the dataset. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeDatasetBactchCall(final int id)
+    private BatchCall makeDatasetBatchCall(final int id)
     {
         return new BatchCall("Loading dataset annotation: "+id) {
             public void doCall() throws Exception
@@ -88,7 +88,7 @@ public class AnnotationLoader
      * @param id The id of the image. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeImageBactchCall(final int id)
+    private BatchCall makeImageBatchCall(final int id)
     {
         return new BatchCall("Loading image annotation: "+id) {
             public void doCall() throws Exception
@@ -127,9 +127,9 @@ public class AnnotationLoader
     public AnnotationLoader(int nodeTypeID, int nodeID)
     {
         if (nodeTypeID == HierarchyBrowsingView.DATASET_ANNOTATION) 
-            loadCall = makeDatasetBactchCall(nodeID);
+            loadCall = makeDatasetBatchCall(nodeID);
         else if (nodeTypeID == HierarchyBrowsingView.IMAGE_ANNOTATION) 
-            loadCall = makeImageBactchCall(nodeID);
+            loadCall = makeImageBatchCall(nodeID);
         else throw new IllegalArgumentException("Unsupported type: "+
                                                 nodeTypeID);
     }

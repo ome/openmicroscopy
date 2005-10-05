@@ -110,6 +110,4 @@ class FindAnnotatedVisitor
                 setHighlight(node);
     }
     
-
-    
 }

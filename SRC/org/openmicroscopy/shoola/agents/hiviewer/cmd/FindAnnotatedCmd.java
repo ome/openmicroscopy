@@ -76,21 +76,29 @@ public class FindAnnotatedCmd
     public void execute()
     {
         //Clear fisrt.
-        ClearCmd cmd = new ClearCmd(model);
-        cmd.execute();
+        //ClearCmd cmd = new ClearCmd(model);
+        //cmd.execute();
         FindAnnotatedVisitor visitor = new FindAnnotatedVisitor(model);
         Browser browser = model.getBrowser();
         ImageDisplay selectedDisplay = browser.getSelectedDisplay();
+        if (selectedDisplay == null) return;
         if (selectedDisplay.getParentDisplay() == null) //root
             browser.accept(visitor);
         else {
+            if (!(selectedDisplay instanceof ImageNode))
+                selectedDisplay.accept(visitor);
+            /*
             if (selectedDisplay instanceof ImageNode)
                 selectedDisplay.getParentDisplay().accept(visitor);
             else selectedDisplay.accept(visitor);
+            */
         }
+        model.getClipBoard().setSearchResults(visitor.getFoundNodes());
+        /*
         SearchExplorer explorer = new SearchExplorer(model.getUI(), TITLE, 
                 visitor.getFoundNodes());
         UIUtilities.centerAndShow(explorer);
+        */
     }
 
 }

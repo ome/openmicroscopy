@@ -63,21 +63,45 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class Colors
 {
     
+    /** Identifies the color used to highlight the title bar. */
     public static final int     TITLE_BAR_HIGHLIGHT = 0;
     
+    /** Identifies the color of the title bar. */
     public static final int     TITLE_BAR = 1;
     
+    /**
+     * Identifies the color used to highlight the title bar when the 
+     * regular expression is found in the title and the node is selected.
+     */
     public static final int     REGEX_TITLE_HIGHLIGHT = 2;
     
+    /**
+     * Identifies the color of the title bar when the 
+     * regular expression is found in the title.
+     */
     public static final int     REGEX_TITLE = 3;
     
+    /**
+     * Identifies the color used to highlight the title bar when the 
+     * regular expression is found in the annotation and the node is selected.
+     */
     public static final int     REGEX_ANNOTATION_HIGHLIGHT = 4;
     
+    /**
+     * Identifies the color of the title bar when the 
+     * regular expression is found in the annotation.
+     */
     public static final int     REGEX_ANNOTATION = 5;
     
+    /**
+     * Identifies the color used to highlight the title bar when the 
+     * node is selected and annotated.
+     */
     public static final int     ANNOTATED_HIGHLIGHT = 6;
     
     public static final int     ANNOTATED = 7;
+    
+    public static final int     REGEX_TITLE_AND_ANNOTATION = 8;
     
     /** The sole instance. */
     private static Colors   singleton;
@@ -86,6 +110,8 @@ public class Colors
     
     /** Reference to the registry. */
     private Registry        registry;
+
+
     
     /**
      * Creates a new instance and configures the parameters.
@@ -121,6 +147,9 @@ public class Colors
         colorsMap.put(new Integer(REGEX_TITLE_HIGHLIGHT), c);
         c = (Color) registry.lookup("/resources/colors/RegExTitle");
         colorsMap.put(new Integer(REGEX_TITLE), c);
+        c = (Color) registry.lookup(
+                "/resources/colors/RegExTitleAndAnnotationHighlight");
+        colorsMap.put(new Integer(REGEX_TITLE_AND_ANNOTATION), c);
     }
     
     /** Returns the <code>Colors</code> object. */
