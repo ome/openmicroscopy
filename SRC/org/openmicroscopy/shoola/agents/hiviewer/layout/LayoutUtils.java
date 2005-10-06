@@ -42,6 +42,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 
 /** 
@@ -167,7 +168,9 @@ public class LayoutUtils
         
         //Finally do layout.
         Dimension d;
-        Iterator children = node.getChildrenDisplay().iterator();
+        List l = CollectionSorter.sortImageDisplay(node.getChildrenDisplay());
+        //Iterator children = node.getChildrenDisplay().iterator();
+        Iterator children = l.iterator();
         ImageDisplay child;
         try {
             for (int i = 0; i < n; ++i) {
