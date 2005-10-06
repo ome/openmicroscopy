@@ -144,7 +144,7 @@ class ColorEntry
      * This method tries to parse the value of the corresponding 
      * red tag into an integer.
      * Failing that or if the parsed value is not between the 
-     * {@link #MIN_VALUE}, {@link #MAX_SIZE} interval, 
+     * {@link #MIN_VALUE}, {@link #MAX_VALUE} interval, 
      * then the {@link #DEFAULT_RED} is returned.
      * 
      * @param colorAttributes The pairs <i>(tag-name, tag-value)</i> built from
@@ -163,7 +163,7 @@ class ColorEntry
      * This method tries to parse the value of the corresponding 
      * green tag into an integer.
      * Failing that or if the parsed value is not between the 
-     * {@link #MIN_VALUE}, {@link #MAX_SIZE} interval, 
+     * {@link #MIN_VALUE}, {@link #MAX_VALUE} interval, 
      * then the {@link #DEFAULT_GREEN} is returned.
      * 
      * @param colorAttributes The pairs <i>(tag-name, tag-value)</i> built from
@@ -182,7 +182,7 @@ class ColorEntry
      * This method tries to parse the value of the corresponding 
      * blue tag into an integer.
      * Failing that or if the parsed value is not between the 
-     * {@link #MIN_VALUE}, {@link #MAX_SIZE} interval, 
+     * {@link #MIN_VALUE}, {@link #MAX_VALUE} interval, 
      * then the {@link #DEFAULT_BLUE} is returned.
      * 
      * @param colorAttributes The pairs <i>(tag-name, tag-value)</i> built from
