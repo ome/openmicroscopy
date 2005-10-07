@@ -250,7 +250,7 @@ class HiViewerWin
         JMenu menu = new JMenu("Actions");
         menu.setMnemonic(KeyEvent.VK_A);
         menu.add(new JMenuItem(controller.getAction(HiViewer.PROPERTIES)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.ANNOTATE)));
+        //menu.add(new JMenuItem(controller.getAction(HiViewer.ANNOTATE)));
         
         menu.add(createClassifySubMenu());
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
