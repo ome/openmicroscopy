@@ -46,6 +46,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
@@ -127,8 +128,7 @@ class HiViewerWin
         pane.setOneTouchExpandable(true);
         pane.setContinuousLayout(true);
         pane.setTopComponent(browserUI);
-        pane.setBottomComponent(clipBoardUI);
-
+        pane.setBottomComponent(new JScrollPane(clipBoardUI));
         return pane;
     }
     
