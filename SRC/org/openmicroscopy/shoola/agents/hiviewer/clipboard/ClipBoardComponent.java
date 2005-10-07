@@ -206,7 +206,6 @@ class ClipBoardComponent
             view.manageAnnotation();
             retrieveAnnotations(model.getAnnotatedObjectID(), 
                     model.getAnnotatedObjectIndex());
-            //model.updateNodeAnnotation();
         }
     }
     

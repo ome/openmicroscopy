@@ -197,6 +197,9 @@ class ClipBoardUI
         annotationView.onDisplayChange(selectedDisplay);
     }
     
+    /**
+     * Updates the annotation tabbed pane.
+     */
     void manageAnnotation()
     {
         annotationView.manageAnnotation();

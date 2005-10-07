@@ -232,7 +232,7 @@ public class AnnotationEditor
     /** Feeds the result back to the viewer. */
     public void handleResult(Object result) 
     {
-        clipBoard.manageAnnotationEditing(true);
+        clipBoard.manageAnnotationEditing(((Boolean) result).booleanValue());
     }
 
 }
