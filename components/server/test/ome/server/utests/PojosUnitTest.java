@@ -1,5 +1,5 @@
 /*
- * ome.client.ServiceFactory
+ * ome.server.utests.PojosUnitTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,37 +26,64 @@
  *
  *------------------------------------------------------------------------------
  */
-
-package ome.client;
+package ome.server.utests;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 
 //Application-internal dependencies
-import ome.api.HierarchyBrowsing;
-import ome.api.Pojos;
+import ome.dao.AnnotationDao;
+import ome.dao.ContainerDao;
+import ome.dao.DaoFactory;
+import ome.logic.HierarchyBrowsingImpl;
+import ome.logic.PojosImpl;
+import ome.model.Category;
+import ome.model.CategoryGroup;
+import ome.model.Classification;
+import ome.model.Dataset;
+import ome.model.Image;
+import ome.model.ImageAnnotation;
+import ome.model.Project;
 
-/** 
- * Entry point for all client calls. Provides methods to 
- * obtain proxies for all remote facades. 
- * 
+/**
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 1.0
+ * @since Omero 2.0
  */
-public class ServiceFactory {
-
-    public HierarchyBrowsing getHierarchyBrowsingService(){
-        return (HierarchyBrowsing) SpringHarness.ctx.getBean("hierarchyBrowsingFacade");
+public class PojosUnitTest extends MockObjectTestCase {
+    protected PojosImpl manager;
+    protected Mock annotationDao,containerDao;
+    
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        annotationDao = new Mock(AnnotationDao.class);
+        containerDao = new Mock(ContainerDao.class);
+        DaoFactory factory = new DaoFactory(null,(AnnotationDao) annotationDao.proxy(), (ContainerDao) containerDao.proxy(),null,null);
+        manager = new PojosImpl(factory);
     }
     
-    public Pojos getPojosService(){
-        return (Pojos) SpringHarness.ctx.getBean("pojosFacade");
+    protected void tearDown() throws Exception {
+        manager = null;
+        annotationDao = null;
+        containerDao = null;
+    }
+    
+    public void testEmpty(){
+    	//
     }
     
 }

@@ -69,11 +69,17 @@ public class PojoOptions
     	this.leaves().allAnnotations();
     }
     
-    public PojoOptions(Map map){
-    	String[] s = new String[]{ANNOTATOR,LEAF,EXPERIMENTER};
-    	for (int i = 0; i < s.length; i++) {
-    		if (map.containsKey(s[i]))
-    			this.options.put(s[i], map.get(s[i]));
+    /** builds a PojoOptions from a passed map. Empty maps and null maps have the same effect.
+     * Further they <b>override</b> the defaults. For defaults, use {@see #PojoOptions() they null-arg constructor}.
+     * @param map
+     */
+    public PojoOptions(Map map){ 
+    	if (null != map){
+    		String[] s = new String[]{ANNOTATOR,LEAF,EXPERIMENTER};
+    		for (int i = 0; i < s.length; i++) {
+    			if (map.containsKey(s[i]))
+    				this.options.put(s[i], map.get(s[i]));
+    		}
     	}
     }
 
@@ -88,12 +94,12 @@ public class PojoOptions
     }
     
     public PojoOptions noLeaves(){
-    	options.put(LEAF,Boolean.FALSE);
+    	options.remove(LEAF);
     	return this;
     }
 
     public boolean isLeaves(){
-   		return ((Boolean) options.get(LEAF)).booleanValue();
+   		return options.containsKey(LEAF);
     }
     
     /* ==============================
@@ -118,6 +124,10 @@ public class PojoOptions
     public boolean isAnnotation(){
     	return options.containsKey(ANNOTATOR);
     }
+
+    public boolean isAllAnnotations(){
+    	return isAnnotation() && getAnnotator()==null;
+    }
     
     public Integer getAnnotator(){
     	return (Integer) options.get(ANNOTATOR);
@@ -135,6 +145,10 @@ public class PojoOptions
     public PojoOptions allExps(){
     	remove(EXPERIMENTER);
     	return this;
+    }
+    
+    public boolean isExperimenter(){
+    	return options.containsKey(EXPERIMENTER);
     }
     
     public Integer getExperimenter(){

@@ -1,0 +1,8 @@
+## FIND	
+
+select i from Image i
+#bottomUpHierarchy()
+	where 
+#imagelist()
+#filters()
+#typeExperimenter()

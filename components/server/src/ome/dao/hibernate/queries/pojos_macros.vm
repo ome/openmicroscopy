@@ -1,0 +1,211 @@
+## MACROS
+## Notes:
+## $abbrev, $class
+## $do{Project|Dataset|CategoryGroup|Category|Classification}
+## $do{Image|Dataset}Annotation{Owner}
+## Options::
+## !$doId implies the rootNodeId or imageIds set was null
+## $doExperimenter
+## $do{INCLUSIVEEXCLUSIVE}
+## 
+#####################################################
+#macro(select)
+select ${abbrev} from ${class} ${abbrev}
+#end
+#####################################################
+## ANNOTATIONS
+#####################################################
+#macro(ifDatasetAnnotation)
+#if($doDatasetAnnotation)
+	left outer join fetch d.datasetAnnotations as d_ann
+	left outer join fetch d_ann.moduleExecution as d_ann_mex
+	left outer join fetch d_ann_mex.experimenter as d_ann_exp
+#end
+#end
+#####################################################
+#macro(ifImageAnnotation)
+#if($doImageAnnotation)
+	left outer join fetch i.imageAnnotations as i_ann
+	left outer join fetch i_ann.moduleExecution as i_ann_mex
+	left outer join fetch i_ann_mex.experimenter as i_ann_exp
+#end
+#end
+#####################################################
+## LEAVES
+#####################################################
+#macro(ifImage)
+#if($doImage)
+	left outer join fetch i.group as i_g
+	left outer join fetch i.experimenter as i_exp
+	left outer join fetch i.imagePixel as i_pix
+#ifImageAnnotation()
+#end
+#end
+#####################################################
+## HIERARCHY-Components
+#####################################################
+#macro(ifCategoryGroup)
+#if($doCategoryGroup)
+	left outer join fetch cg.moduleExecution as cg_mex 
+	left outer join fetch cg_mex.experimenter as cg_exp
+	left outer join fetch cg.categories as c
+#end
+#end
+#####################################################
+#macro(ifCategory)
+#if($doCategory)
+	left outer join fetch c.moduleExecution as c_mex
+	left outer join fetch c_mex.experimenter as c_exp
+#end
+#end
+#####################################################
+#macro(ifClassification)
+#if($doClassification)
+	left outer join fetch c.classifications as cla
+	left outer join fetch cla.moduleExecution as cla_mex
+	left outer join fetch cla_mex.experimenter as cla_exp
+	left outer join fetch cla.image as i
+#ifImage()
+#end
+#end
+#####################################################
+#macro(ifProject)
+#if($doProject)
+	left outer join fetch p.experimenter as p_exp
+	left outer join fetch p.group as p_g
+	left outer join fetch p.datasets as d
+#end
+#end
+#####################################################
+#macro(ifDataset)
+#if($doDataset)
+	left outer join fetch d.experimenter as d_exp
+	left outer join fetch d.group as d_g
+	left outer join fetch d.images as i
+#ifImage()
+#ifDatasetAnnotation()
+#end
+#end
+#####################################################
+## HIERARCHIES
+#####################################################
+#macro(topDownHierarchy)
+#ifProject()
+#ifDataset()
+#ifCategoryGroup()
+#ifCategory()
+#ifClassification()
+#end
+#####################################################
+#macro(bottomUpHierarchy)
+#ifImage()
+#if($doDataset)
+	left outer join fetch i.datasets as d
+	left outer join fetch d.experimenter as d_exp
+	left outer join fetch d.group as d_g	  
+#ifDatasetAnnotation()	
+#if($doProject)	
+	left outer join fetch d.projects as p
+	left outer join fetch p.experimenter as p_exp
+	left outer join fetch p.group as p_g 
+#end
+#end
+#if($doClassification)
+	left outer join fetch i.classifications as cla 
+	left outer join fetch cla.moduleExecution as cla_mex
+	left outer join fetch cla_mex.experimenter as cla_exp
+#if($doCategory)	
+	left outer join fetch cla.category as c
+	left outer join fetch c.moduleExecution as c_mex
+	left outer join fetch c_mex.experimenter as c_exp
+#if($doCategoryGroup)	
+	left outer join fetch c.categoryGroup as cg
+	left outer join fetch cg.moduleExecution as cg_mex
+	left outer join fetch cg_mex.experimenter as cg_exp
+#end
+#end
+#end
+#end
+#####################################################
+## WHERE
+#####################################################
+
+#macro(id)
+#if($noIds)
+		true
+#else
+		${abbrev}.id = :id
+#end
+#end
+#macro(idlist)
+#if($noIds)	
+		true = true
+#else
+		${abbrev}.id in (:id_list)
+#end
+#end
+#macro(imagelist)
+#if($noIds)
+		true
+#else
+		i.id in (:id_list)
+#end
+#end
+#####################################################
+#macro(filters)
+#if($doDataset)
+		and d.name != 'ImportSet'
+#if($doDatasetAnnotation)
+		and ( d_ann.valid = true or d_ann.valid is null ) 
+#if($doAnnotationOwner)
+		and ( d_ann_exp = :ann_owner or d_ann_exp is null )
+#end
+#end
+#end
+## TODO this can possibly leave when pojo_anns moves to its own query builder
+#if($doImage)
+#if($doImageAnnotation)
+		and ( i_ann.valid = true or i_ann.valid is null )
+#if($doAnnotationOwner)
+		and ( i_ann_exp = :ann_owner or i_ann_exp is null )
+#end
+#end
+#end
+#if($doClassification)
+		and ( cla.valid = true or cla.valid is null )
+#end
+#end
+#####################################################
+#macro(typeExperimenter)
+#if($doExperimenter)
+## TODO or just the top level here?	
+#if($doProject)
+		and ( p_exp = :exp or p_exp is null )
+#end
+#if($doDataset)
+		and ( d_exp = :exp or d_exp is null )
+#end
+#if($doCategoryGroup)
+		and ( cg_exp = :exp or cg_exp is null )
+#end
+#if($doCategory)
+		and ( c_exp = :exp or c_exp is null )		
+#end
+#if($doClassification)
+		and ( cla_exp = :exp or cla_exp is null )
+#end
+#end
+#end
+#macro(imageExperimenter)
+#if($doExperimenter)
+		and ( i_exp = :exp or i_exp is null )
+#end
+#end
+#####################################################
+## INTERNAL TOOLS
+#####################################################
+#macro(error $string)
+----------------------------
+Error: $string
+----------------------------
+#end

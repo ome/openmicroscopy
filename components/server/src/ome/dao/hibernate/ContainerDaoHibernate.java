@@ -49,6 +49,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 //Application-internal dependencies
 import ome.api.OMEModel;
 import ome.dao.ContainerDao;
+import ome.tools.StringUtils;
 
 
 /** uses Hibernate to fulfill hierarchy needs.
@@ -73,7 +74,7 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
                     throws HibernateException {
 
             	StringBuilder query = new StringBuilder("loadHierarchy_by_");
-                query.append(getClassName(arg0));
+                query.append(StringUtils.getClassName(arg0));
                 
                 if (arg3){
                 	query.append(ANNOTATED);
@@ -126,7 +127,7 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
     /** 
      * @see ome.interfaces.HierarchyBrowsing#findCGCPaths(java.util.Set, boolean)
      * @DEV.TODO Review the query for categories without categoryGroups 
-     * @DEV.WARNING Categories without CategoryGroups may not appear as expected.
+     * @DEV.TODO Categories without CategoryGroups may not appear as expected.
      */
     public List findCGCPaths(final Set imgIds, final boolean contained) {
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
@@ -154,18 +155,7 @@ public class ContainerDaoHibernate extends HibernateDaoSupport implements Contai
      * Helper Functions TODO Util class for all Daos
      * =================================*/
     
-	private String getClassName(final Class arg0) {
-		
-		if (arg0 ==null)
-			throw new IllegalArgumentException("Class argument cannot be null.");
-		
-		String klass = arg0.getName();
-		int last = klass.lastIndexOf(".");
-		if (last == -1)	
-			return klass;
-		
-		return klass.substring(last+1);
-	}
+
 
 	private Object getUniqe(Query q) {
 		List l = q.list();

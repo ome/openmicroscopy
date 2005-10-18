@@ -1,5 +1,7 @@
 package ome.util.utests;
 
+import java.util.HashMap;
+
 import ome.util.builders.PojoOptions;
 
 import org.apache.commons.logging.Log;
@@ -33,4 +35,11 @@ public class PojoOptionsTest extends TestCase {
 		);
 	}
 	
+	public void testNullMap(){
+		ob = new PojoOptions(null);
+		assertTrue("no keys",ob.map().keySet().size()==0);
+		
+		ob = new PojoOptions(new HashMap());
+		assertTrue("also no no keys",ob.map().keySet().size()==0);
+	}
 }

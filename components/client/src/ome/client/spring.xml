@@ -65,6 +65,13 @@
 		<property name="password" value="${omeds.pass}"/>
 	</bean>
 
+	<bean id="pojosFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/Pojos</value></property>
+	    <property name="serviceInterface"><value>ome.api.Pojos</value></property>
+		<property name="username" value="${omeds.user}"/>
+		<property name="password" value="${omeds.pass}"/>
+	</bean>
+		
 	<bean id="writeFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/Write</value></property>
 	    <property name="serviceInterface"><value>ome.api.Write</value></property>

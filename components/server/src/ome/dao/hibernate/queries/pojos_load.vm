@@ -1,0 +1,12 @@
+## LOAD 
+
+#select() ## Project p | Dataset d | CategoryGroup cg | Category c
+#topDownHierarchy()
+	where 
+#idlist()
+#filters()
+#if($noIds)
+#typeExperimenter()
+#else
+#imageExperimenter()
+#end

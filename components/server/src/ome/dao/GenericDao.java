@@ -59,11 +59,14 @@ public interface GenericDao {
 	public List getListByFieldEq(Class klazz, String field, Object value);
 	public Object getById(Class klazz, int id);
 	public void persist(Object[] objects);
+	public Object getUniqueByMap(Class klazz, Map constraints);
+	public List getListByMap(Class klazz, Map constraints);
 	@Deprecated
 	public Object queryUnique(String query, Object[] params);
 	@Deprecated
 	public List queryList(String query, Object[] params);
-	
-	public Object getUniqueByMap(Class klazz, Map constraints);
-	public List getListByMap(Class klazz, Map constraints);
+	@Deprecated
+	public Object queryUniqueMap(String query, Map params);
+	@Deprecated
+	public List queryListMap(String query, Map params);
 }

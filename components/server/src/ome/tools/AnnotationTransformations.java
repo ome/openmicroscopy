@@ -1,5 +1,4 @@
-/*
- * ome.client.ServiceFactory
+/* ome.tools.HierarchyTransformations
  *
  *------------------------------------------------------------------------------
  *
@@ -27,36 +26,57 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.client;
+package ome.tools;
 
 //Java imports
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import ome.model.DatasetAnnotation;
+import ome.model.ImageAnnotation;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.api.HierarchyBrowsing;
-import ome.api.Pojos;
 
-/** 
- * Entry point for all client calls. Provides methods to 
- * obtain proxies for all remote facades. 
- * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
- * @since 1.0
- */
-public class ServiceFactory {
+public class AnnotationTransformations {
 
-    public HierarchyBrowsing getHierarchyBrowsingService(){
-        return (HierarchyBrowsing) SpringHarness.ctx.getBean("hierarchyBrowsingFacade");
-    }
-    
-    public Pojos getPojosService(){
-        return (Pojos) SpringHarness.ctx.getBean("pojosFacade");
-    }
-    
+	public static Map sortDatasetAnnotatiosn(Set result) {
+
+		Map map = new HashMap();
+
+        // SORT
+        Iterator i = result.iterator();
+        while (i.hasNext()) {
+            DatasetAnnotation ann = (DatasetAnnotation) i.next();
+            Integer ds_id = ann.getDataset().getDatasetId();
+            if (!map.containsKey(ds_id)) {
+                map.put(ds_id, new HashSet());
+            }
+            ((Set) map.get(ds_id)).add(ann);
+        }
+
+        return map;	
+	}
+
+	public static Map sortImageAnnotatiosn(Set result) {
+
+		Map map = new HashMap();
+
+		// SORT
+		Iterator i = result.iterator();
+		while (i.hasNext()) {
+			ImageAnnotation ann = (ImageAnnotation) i.next();
+			Integer img_id = ann.getImage().getImageId();
+			if (!map.containsKey(img_id)) {
+				map.put(img_id, new HashSet());
+			}
+			((Set) map.get(img_id)).add(ann);
+		}
+
+		return map;
+	}
 }

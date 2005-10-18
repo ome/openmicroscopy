@@ -30,6 +30,7 @@
 package ome.dao.hibernate;
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,6 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 
 //Application-internal dependencies
-import ome.util.BaseModelUtils;
 import ome.api.OMEModel;
 import ome.dao.GenericDao;
 
@@ -204,7 +204,34 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
         });
 	}
 
+	@Deprecated
+	public Object queryUniqueMap(final String query, final Map params) {
+        return getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
 
+            	Query q = session.createQuery(query);
+            	fillParamsMap(q,params);
+                return q.uniqueResult();
+                
+            }
+        });
+	}
+	
+	@Deprecated
+	public List queryListMap(final String query, final Map params) {
+        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+            	Query q = session.createQuery(query);
+            	fillParamsMap(q,params);
+                return q.list();
+                
+            }
+        });
+	}
+	
 	public Object getUniqueByMap(final Class klazz, final Map constraints) {
         return (Object) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -239,4 +266,20 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
 		}
 	}
 
+	private void fillParamsMap(Query q, final Map params) {
+		if (null!=params){
+			for (Object o : params.keySet()) {
+				String s = (String) o;
+				if (s.endsWith("_list")){ 
+					// Perhaps two arguments. params / paramLists FIXME above too.
+					// TODO only take the existing parameters
+					q.setParameterList(s,(Collection)params.get(o));
+				} else {
+					q.setParameter(s,params.get(o));
+				}
+			}
+		}
+	}
+
 }
+				

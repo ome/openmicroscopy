@@ -37,6 +37,7 @@
 package ome.logic;
 
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,6 +57,7 @@ import ome.api.Pojos;
 import ome.dao.AnnotationDao;
 import ome.dao.ContainerDao;
 import ome.dao.DaoFactory;
+import ome.dao.hibernate.queries.PojosQueryBuilder;
 import ome.model.Category;
 import ome.model.CategoryGroup;
 import ome.model.Classification;
@@ -64,6 +66,8 @@ import ome.model.DatasetAnnotation;
 import ome.model.Image;
 import ome.model.ImageAnnotation;
 import ome.model.Project;
+import ome.tools.AnnotationTransformations;
+import ome.tools.HierarchyTransformations;
 import ome.util.builders.PojoOptions;
 
 
@@ -77,17 +81,26 @@ import ome.util.builders.PojoOptions;
  * </small>
  * @since OMERO 2.0
  */
-public class PojosImpl extends HierarchyBrowsingImpl implements Pojos {
+public class PojosImpl implements Pojos {
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
+    private enum ALGORITHM {INCLUSIVE,EXCLUSIVE};
+    
     private DaoFactory daos;
     
     public PojosImpl(DaoFactory daoFactory){
     	this.daos = daoFactory;
     }
 
-    public Set loadContainerHierary(Class rootNodeType, Set rootNodeIds, Map options) {
+    private Map<String, Object> getParameters(Collection coll, PojoOptions po){ 
+    	Map<String, Object> m = new HashMap<String, Object>();
+    	if (null != coll) m.put("id_list",coll);
+		if (po.isExperimenter()) m.put("exp",po.getExperimenter());
+		return m;
+    }
+
+    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds, Map options) {
 
         PojoOptions po = new PojoOptions(options);
         
@@ -97,12 +110,12 @@ public class PojosImpl extends HierarchyBrowsingImpl implements Pojos {
 
         if (Project.class.equals(rootNodeType) ||
         		Dataset.class.equals(rootNodeType) ) {
-        	return null; // FIXME containerDao.loadHierarchy(rootNodeType,);
+        	// empty
         }
         		
         else if (CategoryGroup.class.equals(rootNodeType) || 
         		Category.class.equals(rootNodeType)) {
-        	return null; // FIXME loadCGCI(rootNodeType,);	
+        	// empty
         }
         
         else {
@@ -110,24 +123,44 @@ public class PojosImpl extends HierarchyBrowsingImpl implements Pojos {
                 "Class parameter for loadContainerIHierarchy() must be in {Project,Dataset,Category,CategoryGroup}, not "
                         + rootNodeType);
         }
-        
+
+        Map m = getParameters(rootNodeIds, po);
+    	String q = PojosQueryBuilder.buildLoadQuery(rootNodeType,rootNodeIds==null,po.map());//TODO and rootNodeIds.size()==0
+    	List   l = daos.generic().queryListMap(q,m); // TODO make queryList and all generic calls parameterizeable
+    	return new HashSet(l);
         
 	}
 
 	public Set findContainerHierarchies(Class rootNodeType, Set imageIds, Map options) {
 		
-		if (null == imageIds)
+		if (null == rootNodeType || null == imageIds)
 			throw new IllegalArgumentException(
-					"Set of ids for findContainerHierarcheies() may not be null.");
+					"rootNodeType and set of ids for findContainerHierarcheies() may not be null.");
 
 		PojoOptions po = new PojoOptions(options);
-		
+        Map m = getParameters(imageIds, po);
+    	String q = PojosQueryBuilder.buildFindQuery(rootNodeType,po.map());
+    	List   l;
+    	Set s;
+    	
 		if (Project.class.equals(rootNodeType)) {
-			return null; // FIXME findPDI();
+			if (imageIds.size()==0){
+				return new HashSet();
+			}
+
+			l = daos.generic().queryListMap(q,m);
+			return HierarchyTransformations.invertPDI(new HashSet(l)); // logging, null checking. daos should never return null TODO then size!
+			
 		}
 
 		else if (CategoryGroup.class.equals(rootNodeType)){
-			return null; // FIXME findCGCI();
+			if (imageIds.size()==0){
+				return new HashSet();
+			}
+			
+			l = daos.generic().queryListMap(q,m);
+			return HierarchyTransformations.invertCGCI(new HashSet(l)); 
+			// TODO; this if-else statement could be removed if Transformations did their own dispatching 
 		}
 		
 		else {throw new IllegalArgumentException(
@@ -146,23 +179,26 @@ public class PojosImpl extends HierarchyBrowsingImpl implements Pojos {
 		PojoOptions po = new PojoOptions(options);
 		
 		if (Dataset.class.equals(rootNodeType)){
-			List result;
-			if (po.isAnnotation() && po.getAnnotator()!=null) {
-				result = daos.annotation().findDataListAnnotationForExperimenter(rootNodeIds,po.getAnnotator().intValue());
-			} else {
-				result = daos.annotation().findDataListAnnotations(rootNodeIds);
+			if (rootNodeIds.size()==0){
+				return new HashMap();
 			}
-			return sortDatasetAnnotations(result);
+
+	        Map m = getParameters(rootNodeIds, po);m.remove("exp");//FIXME
+	    	String q = PojosQueryBuilder.buildAnnsQuery(rootNodeType,po.map());
+	    	List   l = daos.generic().queryListMap(q,m); 
+	    	return AnnotationTransformations.sortDatasetAnnotatiosn(new HashSet(l));
+
 		} 
 		
 		else if (Image.class.equals(rootNodeType)){
-			List result;
-			if (po.isAnnotation() && po.getAnnotator()!=null) {
-				result = daos.annotation().findImageAnnotationsForExperimenter(rootNodeIds,po.getAnnotator().intValue());
-			} else {
-				result = daos.annotation().findImageAnnotations(rootNodeIds);
+			if (rootNodeIds.size()==0){
+				return new HashMap();
 			}
-			return sortImageAnnotations(result);
+
+	        Map m = getParameters(rootNodeIds, po);m.remove("exp");//FIXME
+	    	String q = PojosQueryBuilder.buildAnnsQuery(rootNodeType,po.map());
+	    	List   l = daos.generic().queryListMap(q,m); 
+	    	return AnnotationTransformations.sortImageAnnotatiosn(new HashSet(l));
 		}
 
 		else { 
@@ -173,14 +209,47 @@ public class PojosImpl extends HierarchyBrowsingImpl implements Pojos {
 
 	}
 
-	public Set findCGCPaths(Set imgIds, Map options) {
-		return null; // FIXME 
+	public Set findCGCPaths(Set imgIds, int algorithm, Map options) {
+		if (null == imgIds){
+			throw new IllegalArgumentException(
+					"Set of ids for findCGCPaths() may not be null");
+		}
+		
+		if (imgIds.size()==0){
+			return new HashSet();
+		}
+
+		if (algorithm >= ALGORITHM.values().length) {
+			throw new IllegalArgumentException(
+					"No such algorithm known");
+		}
+		
+		PojoOptions po = new PojoOptions(options);
+		
+		String q = PojosQueryBuilder.buildPathsQuery(ALGORITHM.values()[algorithm].toString(),po.map());
+		Map m = getParameters(imgIds,po);
+		return new HashSet(daos.generic().queryListMap(q,m));
+		
+		
+		
 	}
 
-	public Set getImages(Class rootNodeType, Set rootNotIds, Map options) {
-		// TODO Auto-generated method stub
-		//return null;
-		throw new RuntimeException("Not implemented yet.");
+	public Set getImages(Class rootNodeType, Set rootNodeIds, Map options) {
+		if (null == rootNodeType || null == rootNodeIds){
+			throw new IllegalArgumentException(
+					"rootNodeType and set of ids for getImages() may not be null");
+		}
+		
+		if (rootNodeIds.size()==0){
+			return new HashSet();
+		}
+
+		PojoOptions po = new PojoOptions(options);
+		
+		String q = PojosQueryBuilder.buildGetQuery(rootNodeType,po.map());
+		Map m = getParameters(rootNodeIds,po);
+		return new HashSet(daos.generic().queryListMap(q,m));
+		
 	}
 
 	public Set getUserImages(Map options) {
@@ -192,27 +261,11 @@ public class PojosImpl extends HierarchyBrowsingImpl implements Pojos {
 					"experimenter option is required for getUserImages().");
 		}
 	
-		String queryA = " from Image i ";
-		String queryB = " left outer join fetch i.experimenter e ";
-		String queryC = " left outer fetch join i.imageAnnotations a";
-		String queryD = " where e.id = :exp_id ";
-		String queryE = " and a.experimenterId = :ann_id";
-		String query;
-		Object[] objects = new Object[1];
-		if (po.isAnnotation()){
-			query = queryA + queryB + queryC + queryD;
-			if (po.getAnnotator()!=null){
-				objects = new Object[2];
-				objects[1]=po.getAnnotator();
-				
-			}
-		} else {
-			query = queryA + queryB + queryD;
-		}
-
-		objects[0]=po.getExperimenter();
-		return new HashSet(daos.generic().queryList(query,objects));
+		String q = PojosQueryBuilder.buildGetQuery(Image.class,po.map());
+		Map m = getParameters(null,po);
+		return new HashSet(daos.generic().queryListMap(q,m));
 		
 	}
 
 }
+

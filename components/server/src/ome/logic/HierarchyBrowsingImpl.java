@@ -39,7 +39,6 @@ package ome.logic;
 //Java imports
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,12 +55,10 @@ import ome.dao.AnnotationDao;
 import ome.dao.ContainerDao;
 import ome.model.Category;
 import ome.model.CategoryGroup;
-import ome.model.Classification;
 import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
-import ome.model.Image;
-import ome.model.ImageAnnotation;
 import ome.model.Project;
+import ome.tools.AnnotationTransformations;
+import ome.tools.HierarchyTransformations;
 
 
 /**
@@ -184,45 +181,7 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashSet();
         }
 
-        // LOGIC
-        Set hierarchies = new HashSet();
-        Iterator i = imagesAll.iterator();
-        while (i.hasNext()) {
-            Image img = (Image) i.next();
-            Set datasets = img.getDatasets();
-
-            if (datasets == null || datasets.size() < 1) {
-                hierarchies.add(img);
-            } else {
-                Iterator d = datasets.iterator();
-                while (d.hasNext()) {
-                    Dataset ds = (Dataset) d.next();
-
-                    if (!(ds.getImages() instanceof HashSet))
-                        ds.setImages(new HashSet());
-                    ds.getImages().add(img);
-
-                    Set projects = ds.getProjects();
-                    if (projects == null || projects.size() < 1) {
-                        hierarchies.add(ds);
-                    } else {
-                        Iterator p = projects.iterator();
-                        while (p.hasNext()) {
-                            Project prj = (Project) p.next();
-
-                            if (!(prj.getDatasets() instanceof HashSet))
-                                prj.setDatasets(new HashSet());
-                            prj.getDatasets().add(ds);
-
-                            hierarchies.add(prj);
-                        }
-                    }
-
-                }
-            }
-        }
-
-        return hierarchies;
+        return HierarchyTransformations.invertPDI(imagesAll);
 
     }
 
@@ -279,47 +238,11 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashSet();
         }
 
-        // LOGIC
-        Set hierarchies = new HashSet();
-        Iterator i = imagesAll.iterator();
-        while (i.hasNext()) {
-            Image img = (Image) i.next();
-            Set classifications = img.getClassifications();
-
-            if (classifications == null || classifications.size() < 1) {
-                hierarchies.add(img);
-            } else {
-                Iterator c = classifications.iterator();
-                while (c.hasNext()) {
-                    Classification cla = (Classification) c.next();
-
-                    cla.setImage(img);
-
-                    Category ca = cla.getCategory();
-                    if (null == ca) {
-                        hierarchies.add(cla);
-                    } else {
-                        if (!(ca.getClassifications() instanceof HashSet))
-                            ca.setClassifications(new HashSet());
-                        ca.getClassifications().add(cla);
-                        
-                        CategoryGroup cg = ca.getCategoryGroup();
-                        if (cg == null) {
-                            hierarchies.add(ca);
-                        } else {
-                            if (!(cg.getCategories() instanceof HashSet))
-                                cg.setCategories(new HashSet());
-                            cg.getCategories().add(ca);
-                            hierarchies.add(cg);
-                        }
-                    }
-                }
-            }
-        }
-
-        return hierarchies;
+        return HierarchyTransformations.invertCGCI(imagesAll);
+        
     }
 
+	
     /** 
      * @see ome.interfaces.HierarchyBrowsing#findImageAnnotations(java.util.Set)
      */
@@ -361,20 +284,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashMap();
         }
 
-        Map map = new HashMap();
+        return AnnotationTransformations.sortImageAnnotatiosn(result);
 
-        // SORT
-        Iterator i = result.iterator();
-        while (i.hasNext()) {
-            ImageAnnotation ann = (ImageAnnotation) i.next();
-            Integer img_id = ann.getImage().getImageId();
-            if (!map.containsKey(img_id)) {
-                map.put(img_id, new HashSet());
-            }
-            ((Set) map.get(img_id)).add(ann);
-        }
-
-        return map;
     }
 
     /** 
@@ -417,20 +328,8 @@ public class HierarchyBrowsingImpl implements HierarchyBrowsing {
             return new HashMap();
         }
 
-        Map map = new HashMap();
+        return AnnotationTransformations.sortDatasetAnnotatiosn(result);
 
-        // SORT
-        Iterator i = result.iterator();
-        while (i.hasNext()) {
-            DatasetAnnotation ann = (DatasetAnnotation) i.next();
-            Integer ds_id = ann.getDataset().getDatasetId();
-            if (!map.containsKey(ds_id)) {
-                map.put(ds_id, new HashSet());
-            }
-            ((Set) map.get(ds_id)).add(ann);
-        }
-
-        return map;
     }
 
 }

@@ -31,6 +31,7 @@ package ome.aop;
 //Java imports
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 //Third-party libraries
 import org.aopalliance.intercept.MethodInterceptor;
@@ -68,7 +69,7 @@ public class ReturnLogger implements MethodInterceptor {
     public Object invoke(MethodInvocation arg0) throws Throwable {
         Object o = arg0.proceed();
         log.info("Meth:\t"+arg0.getMethod().getName());
-        log.info("Args:\t"+arg0.getArguments());
+        log.info("Args:\t"+Arrays.asList(arg0.getArguments()));
         log.info("Rslt:\t"+o);
         log(o);
         return o;

@@ -127,7 +127,7 @@ public interface Pojos {
 	 * 			The requested node as root and all of its descendants. The type
 	 *         	of the returned value will be <code>rootNodeType</code>. 
 	 */
-	public Set loadContainerHierary(Class rootNodeType, Set rootNodeIds,
+	public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
 			Map options);
 
 	/**
@@ -241,17 +241,17 @@ public interface Pojos {
 
 	/**
 	 * Retrieve a user's (or all users') images within any given container.  For example,
-	 * all images in project1.
+	 * all images in project.
 	 * @param rootNodeType
-	 *   		A Class which will have its hierarchy searched for Images. Not null.
+	 *   		A Class which will have its hierarchy searched for Images. Not null. TODO types?
 	 * @param rootNodeIds
-	 * 			A set of ids of type <code>rootNodeType</code>
+	 * 			A set of ids of type <code>rootNodeType</code> Not null.
 	 * @param options
-	 *            Map as above. No notion of <<code>leaves</code>.
+	 *            Map as above. No notion of <code>leaves</code>.
 	 *            <code>experimenter</code> applies at the Image level. 
 	 * @return A set of images.
 	 */
-	public Set getImages(Class rootNodeType, Set rootNotIds, Map options);
+	public Set getImages(Class rootNodeType, Set rootNodeIds, Map options);
 
 	/**
 	 * Retrieve a user's images. 

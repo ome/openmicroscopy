@@ -1,0 +1,10 @@
+## GET
+
+##select i from $class as $abbrev
+##topDownHierarchy()
+select i from Image i
+#bottomUpHierarchy()
+	where 
+#idlist()
+#filters()
+#imageExperimenter()

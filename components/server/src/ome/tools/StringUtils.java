@@ -1,5 +1,5 @@
 /*
- * ome.client.ServiceFactory
+ * ome.tools.StringUtils
  *
  *------------------------------------------------------------------------------
  *
@@ -27,36 +27,28 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.client;
+package ome.tools;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.api.HierarchyBrowsing;
-import ome.api.Pojos;
 
-/** 
- * Entry point for all client calls. Provides methods to 
- * obtain proxies for all remote facades. 
- * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
- * @since 1.0
- */
-public class ServiceFactory {
 
-    public HierarchyBrowsing getHierarchyBrowsingService(){
-        return (HierarchyBrowsing) SpringHarness.ctx.getBean("hierarchyBrowsingFacade");
-    }
-    
-    public Pojos getPojosService(){
-        return (Pojos) SpringHarness.ctx.getBean("pojosFacade");
-    }
-    
+public class StringUtils {
+
+	public static String getClassName(final Class arg0) {
+		
+		if (arg0 ==null)
+			throw new IllegalArgumentException("Class argument cannot be null.");
+		
+		String klass = arg0.getName();
+		int last = klass.lastIndexOf(".");
+		if (last == -1)	
+			return klass;
+		
+		return klass.substring(last+1);
+	}
+	
 }
