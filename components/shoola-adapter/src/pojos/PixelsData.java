@@ -29,6 +29,18 @@
 
 package pojos;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import ome.adapters.pojos.Model2PojosMapper;
+import ome.adapters.pojos.PojoAdapterUtils;
+import ome.api.OMEModel;
+import ome.model.ImageDimension;
+import ome.model.ImagePixel;
+import ome.model.Repository;
+import ome.util.ModelMapper;
+
 
 //Java imports
 
@@ -158,5 +170,36 @@ public class PixelsData
     
     /** The Image these Pixels belong to. */
     public ImageData    image;
+    
+    public void copy(OMEModel model, ModelMapper mapper) {
+		if (model instanceof ImagePixel) {
+			ImagePixel pix = (ImagePixel) model;
+			this.id=mapper.nullSafeInt(pix.getAttributeId());
+			this.image=(ImageData)mapper.findTarget(pix.getImage());
+			this.imageServerID=mapper.nullSafeLong(pix.getImageServerId());
+			Repository rep = pix.getRepository();
+			if (rep!=null){
+				this.imageServerURL=rep.getImageServerUrl();
+			}
+			if (pix.getImage()!=null){
+				Set dims = pix.getImage().getImageDimensions();
+				if (dims !=null && dims.size()>0){
+					ImageDimension dim = (ImageDimension) dims.iterator().next();
+					this.pixelSizeX = dim.getPixelSizeX().doubleValue();
+					this.pixelSizeY = dim.getPixelSizeY().doubleValue();
+					this.pixelSizeZ = dim.getPixelSizeZ().doubleValue(); // TODO can explode
+				}
+			}
+			this.pixelType = Model2PojosMapper.getPixelTypeID(pix.getPixelType());
+			this.sizeC = mapper.nullSafeInt(pix.getSizeC());
+			this.sizeT = mapper.nullSafeInt(pix.getSizeT().intValue());
+			this.sizeX = mapper.nullSafeInt(pix.getSizeX().intValue());
+			this.sizeY = mapper.nullSafeInt(pix.getSizeY().intValue());
+			this.sizeZ = mapper.nullSafeInt(pix.getSizeZ().intValue()); // TODO null error here?
+			
+		} else {
+			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
+		}
+    }
     
 }

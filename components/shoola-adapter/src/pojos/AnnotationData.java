@@ -33,6 +33,13 @@ package pojos;
 //Java imports
 import java.sql.Timestamp;
 
+import ome.api.OMEModel;
+import ome.model.DatasetAnnotation;
+import ome.model.ImageAnnotation;
+import ome.model.ModuleExecution;
+import ome.util.ModelMapper;
+import sun.security.krb5.internal.crypto.t;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -79,5 +86,31 @@ public class AnnotationData
      * This field may not be <code>null</code>.  
      */
     public ExperimenterData owner;
+    
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof ImageAnnotation) {
+			ImageAnnotation iann = (ImageAnnotation) model;
+			this.id=mapper.nullSafeInt(iann.getAttributeId());
+			this.text=iann.getContent();
+			ModuleExecution mex = iann.getModuleExecution();
+			if (mex!=null){
+				this.lastModified=mapper.date2timestamp(mex.getTimestamp());
+				this.owner=(ExperimenterData) mapper.findTarget(mex.getExperimenter());
+			}
+			this.annotatedObject=(DataObject) mapper.findTarget(iann.getImage());
+    	} else if (model instanceof DatasetAnnotation) {
+			DatasetAnnotation dann = (DatasetAnnotation) model;
+			this.id=mapper.nullSafeInt(dann.getAttributeId());
+			this.text=dann.getContent();
+			ModuleExecution mex = dann.getModuleExecution();
+			if (mex!=null){
+				this.lastModified=mapper.date2timestamp(mex.getTimestamp());
+				this.owner=(ExperimenterData) mapper.findTarget(mex.getExperimenter());
+			}
+			this.annotatedObject=(DataObject) mapper.findTarget(dann.getDataset());
+		} else {
+			throw new IllegalArgumentException("AnnotationData can only copy from ImageAnnotation and DatasetAnnotations");
+		}
+    }
     
 }

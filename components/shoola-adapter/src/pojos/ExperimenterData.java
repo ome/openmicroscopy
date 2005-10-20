@@ -29,6 +29,11 @@
 
 package pojos;
 
+import ome.api.OMEModel;
+import ome.model.Experimenter;
+import ome.model.Group;
+import ome.util.ModelMapper;
+
 
 //Java imports
 
@@ -75,5 +80,24 @@ public class ExperimenterData
     
     /** The name of the Group this Experimenter belongs in. */
     public String      groupName;
-    
+     
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof Experimenter) {
+			Experimenter exp = (Experimenter) model;
+			if (exp.getAttributeId()!=null){
+				this.id=exp.getAttributeId().intValue();
+			}
+			this.firstName=exp.getFirstname();
+			this.lastName=exp.getLastname();
+			this.email=exp.getEmail();
+			this.institution=exp.getInstitution();
+			if (exp.getGroup()!=null){
+				Group g = exp.getGroup();
+				this.groupID=mapper.nullSafeInt(g.getAttributeId());
+				this.groupName=g.getName();
+			}
+		} else {
+			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
+		}
+    }
 }

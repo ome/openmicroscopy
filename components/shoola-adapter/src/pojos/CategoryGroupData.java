@@ -31,7 +31,15 @@ package pojos;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+
+import ome.api.OMEModel;
+import ome.model.Category;
+import ome.model.CategoryGroup;
+import ome.util.ModelMapper;
+import sun.security.krb5.internal.crypto.t;
 
 //Third-party libraries
 
@@ -83,4 +91,15 @@ public class CategoryGroupData
      */
     public ExperimenterData owner;
     
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof CategoryGroup) {
+			CategoryGroup cg = (CategoryGroup) model;
+			this.id=mapper.nullSafeInt(cg.getAttributeId());
+			this.name=cg.getName();
+			this.description=cg.getDescription();
+			this.categories=(Set) mapper.createCollection(cg.getCategories());
+		} else {
+			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
+		}
+    }
 }

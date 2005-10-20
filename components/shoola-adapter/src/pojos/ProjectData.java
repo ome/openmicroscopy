@@ -33,6 +33,11 @@ package pojos;
 //Java imports
 import java.util.Set;
 
+import ome.api.OMEModel;
+import ome.model.Experimenter;
+import ome.model.Project;
+import ome.util.ModelMapper;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -82,4 +87,16 @@ public class ProjectData
      */
     public ExperimenterData owner;
     
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof Project) {
+			Project p = (Project) model;
+			this.id=mapper.nullSafeInt(p.getProjectId());
+			this.name=p.getName();
+			this.description=p.getDescription();
+			this.datasets=(Set) mapper.createCollection(p.getDatasets());
+			this.owner=(ExperimenterData) mapper.findTarget(p.getExperimenter());
+		} else { 
+			throw new IllegalArgumentException("ProjectData copies only from Project");
+		}
+    }
 }

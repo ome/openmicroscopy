@@ -32,7 +32,17 @@ package pojos;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+
+import ome.api.OMEModel;
+import ome.model.Dataset;
+import ome.model.Image;
+import ome.model.ImagePixel;
+import ome.model.ModuleExecution;
+import ome.util.ModelMapper;
 
 //Third-party libraries
 
@@ -129,4 +139,19 @@ public class ImageData
      */
     public ExperimenterData owner;
     
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof Image) {
+			Image i = (Image) model;
+			this.id=mapper.nullSafeInt(i.getImageId());
+			this.name=i.getName();
+			this.description=i.getDescription();
+			this.created=mapper.date2timestamp(i.getCreated());
+			this.inserted=mapper.date2timestamp(i.getInserted());
+			this.defaultPixels=(PixelsData)mapper.findTarget(i.getImagePixel());
+			this.allPixels=(Set) mapper.createCollection(i.getImagePixels());
+			this.datasets=(Set) mapper.createCollection(i.getDatasets());
+		} else {
+			throw new IllegalArgumentException("ImageData copies only from Image");
+		}
+    }
 }

@@ -29,6 +29,9 @@
 
 package pojos;
 
+import ome.api.ModelBased;
+import ome.api.OMEModel;
+
 
 //Java imports
 
@@ -52,7 +55,7 @@ package pojos;
  * </small>
  * @since OME2.2
  */
-public interface DataObject
+public interface DataObject extends ModelBased
 {
 
 }

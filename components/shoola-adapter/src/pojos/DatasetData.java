@@ -31,7 +31,16 @@ package pojos;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+
+import ome.api.OMEModel;
+import ome.model.Dataset;
+import ome.model.DatasetAnnotation;
+import ome.model.Image;
+import ome.model.Project;
+import ome.util.ModelMapper;
 
 //Third-party libraries
 
@@ -99,4 +108,18 @@ public class DatasetData
      */
     public ExperimenterData owner;
     
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof Dataset) {
+			Dataset d = (Dataset) model;
+			this.id=mapper.nullSafeInt(d.getDatasetId());
+			this.name=d.getName();
+			this.description=d.getDescription();
+			this.images=(Set)mapper.createCollection(d.getImages());
+			this.projects=(Set)mapper.createCollection(d.getProjects());
+			this.annotations=(Set)mapper.createCollection(d.getDatasetAnnotations());
+			this.owner=(ExperimenterData)mapper.findTarget(d.getExperimenter());
+		} else {
+			throw new IllegalArgumentException("DatasetData can only copy from Dataset");
+		}
+    }
 }

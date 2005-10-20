@@ -31,7 +31,15 @@ package pojos;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+
+import ome.api.OMEModel;
+import ome.model.Category;
+import ome.model.Classification;
+import ome.model.ModuleExecution;
+import ome.util.ModelMapper;
 
 //Third-party libraries
 
@@ -87,5 +95,29 @@ public class CategoryData
      * This field may not be <code>null</code>.  
      */
     public ExperimenterData owner;
+    
+    public void copy(OMEModel model, ModelMapper mapper) {
+    	if (model instanceof Category) {
+			Category c = (Category) model;
+			this.id=mapper.nullSafeInt(c.getAttributeId());
+			this.name=c.getName();
+			this.description=c.getDescription();
+			Set _images = new HashSet();
+			for (Iterator i = c.getClassifications().iterator(); i.hasNext();) {
+				Classification cla = (Classification) i.next();
+				if (cla.getImage()!=null){
+					_images.add(mapper.findTarget(cla.getImage()));
+				}
+			}
+			this.images = _images;
+			this.group= (CategoryGroupData) mapper.findTarget(c.getCategoryGroup());
+			ModuleExecution mex = c.getModuleExecution();
+			if (mex!=null){
+				this.owner=(ExperimenterData) mapper.findTarget(mex.getExperimenter());
+			}
+		} else {
+			throw new IllegalArgumentException("CategoryData can only copy Category type.");
+		}
+    }
     
 }
