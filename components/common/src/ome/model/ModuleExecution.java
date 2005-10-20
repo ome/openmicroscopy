@@ -475,7 +475,7 @@ ome.util.Filterable {
 		 setModuleExecutionId(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecutionId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ModuleExecutionId",_ModuleExecutionId)); 
+	  setModuleExecutionId((Integer) filter.filter(MODULEEXECUTIONID,_ModuleExecutionId)); 
 
 	  // Visiting: Status ------------------------------------------
 	  String _Status = null;
@@ -485,7 +485,7 @@ ome.util.Filterable {
 		 setStatus(null);
 	  }
 // TODO catch class cast?
-	  setStatus((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Status",_Status)); 
+	  setStatus((String) filter.filter(STATUS,_Status)); 
 
 	  // Visiting: AttributeDbTime ------------------------------------------
 	  Double _AttributeDbTime = null;
@@ -495,7 +495,7 @@ ome.util.Filterable {
 		 setAttributeDbTime(null);
 	  }
 // TODO catch class cast?
-	  setAttributeDbTime((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):AttributeDbTime",_AttributeDbTime)); 
+	  setAttributeDbTime((Double) filter.filter(ATTRIBUTEDBTIME,_AttributeDbTime)); 
 
 	  // Visiting: IteratorTag ------------------------------------------
 	  String _IteratorTag = null;
@@ -505,7 +505,7 @@ ome.util.Filterable {
 		 setIteratorTag(null);
 	  }
 // TODO catch class cast?
-	  setIteratorTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):IteratorTag",_IteratorTag)); 
+	  setIteratorTag((String) filter.filter(ITERATORTAG,_IteratorTag)); 
 
 	  // Visiting: Dependence ------------------------------------------
 	  String _Dependence = null;
@@ -515,7 +515,7 @@ ome.util.Filterable {
 		 setDependence(null);
 	  }
 // TODO catch class cast?
-	  setDependence((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Dependence",_Dependence)); 
+	  setDependence((String) filter.filter(DEPENDENCE,_Dependence)); 
 
 	  // Visiting: AttributeSortTime ------------------------------------------
 	  Double _AttributeSortTime = null;
@@ -525,7 +525,7 @@ ome.util.Filterable {
 		 setAttributeSortTime(null);
 	  }
 // TODO catch class cast?
-	  setAttributeSortTime((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):AttributeSortTime",_AttributeSortTime)); 
+	  setAttributeSortTime((Double) filter.filter(ATTRIBUTESORTTIME,_AttributeSortTime)); 
 
 	  // Visiting: Timestamp ------------------------------------------
 	  Date _Timestamp = null;
@@ -535,7 +535,7 @@ ome.util.Filterable {
 		 setTimestamp(null);
 	  }
 // TODO catch class cast?
-	  setTimestamp((Date) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Timestamp",_Timestamp)); 
+	  setTimestamp((Date) filter.filter(TIMESTAMP,_Timestamp)); 
 
 	  // Visiting: VirtualMex ------------------------------------------
 	  Boolean _VirtualMex = null;
@@ -545,7 +545,7 @@ ome.util.Filterable {
 		 setVirtualMex(null);
 	  }
 // TODO catch class cast?
-	  setVirtualMex((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):VirtualMex",_VirtualMex)); 
+	  setVirtualMex((Boolean) filter.filter(VIRTUALMEX,_VirtualMex)); 
 
 	  // Visiting: InputTag ------------------------------------------
 	  String _InputTag = null;
@@ -555,7 +555,7 @@ ome.util.Filterable {
 		 setInputTag(null);
 	  }
 // TODO catch class cast?
-	  setInputTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):InputTag",_InputTag)); 
+	  setInputTag((String) filter.filter(INPUTTAG,_InputTag)); 
 
 	  // Visiting: ErrorMessage ------------------------------------------
 	  String _ErrorMessage = null;
@@ -565,7 +565,7 @@ ome.util.Filterable {
 		 setErrorMessage(null);
 	  }
 // TODO catch class cast?
-	  setErrorMessage((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ErrorMessage",_ErrorMessage)); 
+	  setErrorMessage((String) filter.filter(ERRORMESSAGE,_ErrorMessage)); 
 
 	  // Visiting: AttributeCreateTime ------------------------------------------
 	  Double _AttributeCreateTime = null;
@@ -575,7 +575,7 @@ ome.util.Filterable {
 		 setAttributeCreateTime(null);
 	  }
 // TODO catch class cast?
-	  setAttributeCreateTime((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):AttributeCreateTime",_AttributeCreateTime)); 
+	  setAttributeCreateTime((Double) filter.filter(ATTRIBUTECREATETIME,_AttributeCreateTime)); 
 
 	  // Visiting: NewFeatureTag ------------------------------------------
 	  String _NewFeatureTag = null;
@@ -585,7 +585,7 @@ ome.util.Filterable {
 		 setNewFeatureTag(null);
 	  }
 // TODO catch class cast?
-	  setNewFeatureTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):NewFeatureTag",_NewFeatureTag)); 
+	  setNewFeatureTag((String) filter.filter(NEWFEATURETAG,_NewFeatureTag)); 
 
 	  // Visiting: TotalTime ------------------------------------------
 	  Double _TotalTime = null;
@@ -595,7 +595,7 @@ ome.util.Filterable {
 		 setTotalTime(null);
 	  }
 // TODO catch class cast?
-	  setTotalTime((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):TotalTime",_TotalTime)); 
+	  setTotalTime((Double) filter.filter(TOTALTIME,_TotalTime)); 
 
 	  // Visiting: Module ------------------------------------------
 	  Module _Module = null;
@@ -605,7 +605,7 @@ ome.util.Filterable {
 		 setModule(null);
 	  }
 // TODO catch class cast?
-	  setModule((Module) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Module",_Module)); 
+	  setModule((Module) filter.filter(MODULE,_Module)); 
 
 	  // Visiting: Dataset ------------------------------------------
 	  Dataset _Dataset = null;
@@ -615,7 +615,7 @@ ome.util.Filterable {
 		 setDataset(null);
 	  }
 // TODO catch class cast?
-	  setDataset((Dataset) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Dataset",_Dataset)); 
+	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -625,7 +625,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -635,7 +635,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: Group ------------------------------------------
 	  Group _Group = null;
@@ -645,7 +645,7 @@ ome.util.Filterable {
 		 setGroup(null);
 	  }
 // TODO catch class cast?
-	  setGroup((Group) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Group",_Group)); 
+	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Thumbnails ------------------------------------------
 	  Set _Thumbnails = null;
@@ -655,7 +655,7 @@ ome.util.Filterable {
 		 setThumbnails(null);
 	  }
 // TODO catch class cast?
-	  setThumbnails((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Thumbnails",_Thumbnails)); 
+	  setThumbnails((Set) filter.filter(THUMBNAILS,_Thumbnails)); 
 
 	  // Visiting: SemanticTypeOutputs ------------------------------------------
 	  Set _SemanticTypeOutputs = null;
@@ -665,7 +665,7 @@ ome.util.Filterable {
 		 setSemanticTypeOutputs(null);
 	  }
 // TODO catch class cast?
-	  setSemanticTypeOutputs((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):SemanticTypeOutputs",_SemanticTypeOutputs)); 
+	  setSemanticTypeOutputs((Set) filter.filter(SEMANTICTYPEOUTPUTS,_SemanticTypeOutputs)); 
 
 	  // Visiting: Classifications ------------------------------------------
 	  Set _Classifications = null;
@@ -675,7 +675,7 @@ ome.util.Filterable {
 		 setClassifications(null);
 	  }
 // TODO catch class cast?
-	  setClassifications((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Classifications",_Classifications)); 
+	  setClassifications((Set) filter.filter(CLASSIFICATIONS,_Classifications)); 
 
 	  // Visiting: Repositories ------------------------------------------
 	  Set _Repositories = null;
@@ -685,7 +685,7 @@ ome.util.Filterable {
 		 setRepositories(null);
 	  }
 // TODO catch class cast?
-	  setRepositories((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Repositories",_Repositories)); 
+	  setRepositories((Set) filter.filter(REPOSITORIES,_Repositories)); 
 
 	  // Visiting: Categories ------------------------------------------
 	  Set _Categories = null;
@@ -695,7 +695,7 @@ ome.util.Filterable {
 		 setCategories(null);
 	  }
 // TODO catch class cast?
-	  setCategories((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Categories",_Categories)); 
+	  setCategories((Set) filter.filter(CATEGORIES,_Categories)); 
 
 	  // Visiting: ImageInfos ------------------------------------------
 	  Set _ImageInfos = null;
@@ -705,7 +705,7 @@ ome.util.Filterable {
 		 setImageInfos(null);
 	  }
 // TODO catch class cast?
-	  setImageInfos((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ImageInfos",_ImageInfos)); 
+	  setImageInfos((Set) filter.filter(IMAGEINFOS,_ImageInfos)); 
 
 	  // Visiting: RenderingSettings ------------------------------------------
 	  Set _RenderingSettings = null;
@@ -715,7 +715,7 @@ ome.util.Filterable {
 		 setRenderingSettings(null);
 	  }
 // TODO catch class cast?
-	  setRenderingSettings((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):RenderingSettings",_RenderingSettings)); 
+	  setRenderingSettings((Set) filter.filter(RENDERINGSETTINGS,_RenderingSettings)); 
 
 	  // Visiting: LogicalChannels ------------------------------------------
 	  Set _LogicalChannels = null;
@@ -725,7 +725,7 @@ ome.util.Filterable {
 		 setLogicalChannels(null);
 	  }
 // TODO catch class cast?
-	  setLogicalChannels((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):LogicalChannels",_LogicalChannels)); 
+	  setLogicalChannels((Set) filter.filter(LOGICALCHANNELS,_LogicalChannels)); 
 
 	  // Visiting: ImagePixels ------------------------------------------
 	  Set _ImagePixels = null;
@@ -735,7 +735,7 @@ ome.util.Filterable {
 		 setImagePixels(null);
 	  }
 // TODO catch class cast?
-	  setImagePixels((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ImagePixels",_ImagePixels)); 
+	  setImagePixels((Set) filter.filter(IMAGEPIXELS,_ImagePixels)); 
 
 	  // Visiting: Groups ------------------------------------------
 	  Set _Groups = null;
@@ -745,7 +745,7 @@ ome.util.Filterable {
 		 setGroups(null);
 	  }
 // TODO catch class cast?
-	  setGroups((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Groups",_Groups)); 
+	  setGroups((Set) filter.filter(GROUPS,_Groups)); 
 
 	  // Visiting: AnalysisNodeExecutions ------------------------------------------
 	  Set _AnalysisNodeExecutions = null;
@@ -755,7 +755,7 @@ ome.util.Filterable {
 		 setAnalysisNodeExecutions(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisNodeExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):AnalysisNodeExecutions",_AnalysisNodeExecutions)); 
+	  setAnalysisNodeExecutions((Set) filter.filter(ANALYSISNODEEXECUTIONS,_AnalysisNodeExecutions)); 
 
 	  // Visiting: Experimenters ------------------------------------------
 	  Set _Experimenters = null;
@@ -765,7 +765,7 @@ ome.util.Filterable {
 		 setExperimenters(null);
 	  }
 // TODO catch class cast?
-	  setExperimenters((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):Experimenters",_Experimenters)); 
+	  setExperimenters((Set) filter.filter(EXPERIMENTERS,_Experimenters)); 
 
 	  // Visiting: CategoryGroups ------------------------------------------
 	  Set _CategoryGroups = null;
@@ -775,7 +775,7 @@ ome.util.Filterable {
 		 setCategoryGroups(null);
 	  }
 // TODO catch class cast?
-	  setCategoryGroups((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):CategoryGroups",_CategoryGroups)); 
+	  setCategoryGroups((Set) filter.filter(CATEGORYGROUPS,_CategoryGroups)); 
 
 	  // Visiting: ImageAnnotations ------------------------------------------
 	  Set _ImageAnnotations = null;
@@ -785,7 +785,7 @@ ome.util.Filterable {
 		 setImageAnnotations(null);
 	  }
 // TODO catch class cast?
-	  setImageAnnotations((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ImageAnnotations",_ImageAnnotations)); 
+	  setImageAnnotations((Set) filter.filter(IMAGEANNOTATIONS,_ImageAnnotations)); 
 
 	  // Visiting: DatasetAnnotations ------------------------------------------
 	  Set _DatasetAnnotations = null;
@@ -795,7 +795,7 @@ ome.util.Filterable {
 		 setDatasetAnnotations(null);
 	  }
 // TODO catch class cast?
-	  setDatasetAnnotations((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):DatasetAnnotations",_DatasetAnnotations)); 
+	  setDatasetAnnotations((Set) filter.filter(DATASETANNOTATIONS,_DatasetAnnotations)); 
 
 	  // Visiting: ImageDimensions ------------------------------------------
 	  Set _ImageDimensions = null;
@@ -805,7 +805,7 @@ ome.util.Filterable {
 		 setImageDimensions(null);
 	  }
 // TODO catch class cast?
-	  setImageDimensions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ImageDimensions",_ImageDimensions)); 
+	  setImageDimensions((Set) filter.filter(IMAGEDIMENSIONS,_ImageDimensions)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
 	  Set _ChannelComponents = null;
@@ -815,7 +815,7 @@ ome.util.Filterable {
 		 setChannelComponents(null);
 	  }
 // TODO catch class cast?
-	  setChannelComponents((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ModuleExecution):ChannelComponents",_ChannelComponents)); 
+	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
    	 return true;
   }
   
@@ -823,6 +823,81 @@ ome.util.Filterable {
 	return "ModuleExecution"+(moduleExecutionId==null ? ":Hash_"+this.hashCode() : ":Id_"+moduleExecutionId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String MODULEEXECUTIONID = "ModuleExecution_ModuleExecutionId";
+	public final static String STATUS = "ModuleExecution_Status";
+	public final static String ATTRIBUTEDBTIME = "ModuleExecution_AttributeDbTime";
+	public final static String ITERATORTAG = "ModuleExecution_IteratorTag";
+	public final static String DEPENDENCE = "ModuleExecution_Dependence";
+	public final static String ATTRIBUTESORTTIME = "ModuleExecution_AttributeSortTime";
+	public final static String TIMESTAMP = "ModuleExecution_Timestamp";
+	public final static String VIRTUALMEX = "ModuleExecution_VirtualMex";
+	public final static String INPUTTAG = "ModuleExecution_InputTag";
+	public final static String ERRORMESSAGE = "ModuleExecution_ErrorMessage";
+	public final static String ATTRIBUTECREATETIME = "ModuleExecution_AttributeCreateTime";
+	public final static String NEWFEATURETAG = "ModuleExecution_NewFeatureTag";
+	public final static String TOTALTIME = "ModuleExecution_TotalTime";
+	public final static String MODULE = "ModuleExecution_Module";
+	public final static String DATASET = "ModuleExecution_Dataset";
+	public final static String EXPERIMENTER = "ModuleExecution_Experimenter";
+	public final static String IMAGE = "ModuleExecution_Image";
+	public final static String GROUP = "ModuleExecution_Group";
+	public final static String THUMBNAILS = "ModuleExecution_Thumbnails";
+	public final static String SEMANTICTYPEOUTPUTS = "ModuleExecution_SemanticTypeOutputs";
+	public final static String CLASSIFICATIONS = "ModuleExecution_Classifications";
+	public final static String REPOSITORIES = "ModuleExecution_Repositories";
+	public final static String CATEGORIES = "ModuleExecution_Categories";
+	public final static String IMAGEINFOS = "ModuleExecution_ImageInfos";
+	public final static String RENDERINGSETTINGS = "ModuleExecution_RenderingSettings";
+	public final static String LOGICALCHANNELS = "ModuleExecution_LogicalChannels";
+	public final static String IMAGEPIXELS = "ModuleExecution_ImagePixels";
+	public final static String GROUPS = "ModuleExecution_Groups";
+	public final static String ANALYSISNODEEXECUTIONS = "ModuleExecution_AnalysisNodeExecutions";
+	public final static String EXPERIMENTERS = "ModuleExecution_Experimenters";
+	public final static String CATEGORYGROUPS = "ModuleExecution_CategoryGroups";
+	public final static String IMAGEANNOTATIONS = "ModuleExecution_ImageAnnotations";
+	public final static String DATASETANNOTATIONS = "ModuleExecution_DatasetAnnotations";
+	public final static String IMAGEDIMENSIONS = "ModuleExecution_ImageDimensions";
+	public final static String CHANNELCOMPONENTS = "ModuleExecution_ChannelComponents";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(MODULEEXECUTIONID);
+	   FIELDS.add(STATUS);
+	   FIELDS.add(ATTRIBUTEDBTIME);
+	   FIELDS.add(ITERATORTAG);
+	   FIELDS.add(DEPENDENCE);
+	   FIELDS.add(ATTRIBUTESORTTIME);
+	   FIELDS.add(TIMESTAMP);
+	   FIELDS.add(VIRTUALMEX);
+	   FIELDS.add(INPUTTAG);
+	   FIELDS.add(ERRORMESSAGE);
+	   FIELDS.add(ATTRIBUTECREATETIME);
+	   FIELDS.add(NEWFEATURETAG);
+	   FIELDS.add(TOTALTIME);
+	   FIELDS.add(MODULE);
+	   FIELDS.add(DATASET);
+	   FIELDS.add(EXPERIMENTER);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(GROUP);
+	   FIELDS.add(THUMBNAILS);
+	   FIELDS.add(SEMANTICTYPEOUTPUTS);
+	   FIELDS.add(CLASSIFICATIONS);
+	   FIELDS.add(REPOSITORIES);
+	   FIELDS.add(CATEGORIES);
+	   FIELDS.add(IMAGEINFOS);
+	   FIELDS.add(RENDERINGSETTINGS);
+	   FIELDS.add(LOGICALCHANNELS);
+	   FIELDS.add(IMAGEPIXELS);
+	   FIELDS.add(GROUPS);
+	   FIELDS.add(ANALYSISNODEEXECUTIONS);
+	   FIELDS.add(EXPERIMENTERS);
+	   FIELDS.add(CATEGORYGROUPS);
+	   FIELDS.add(IMAGEANNOTATIONS);
+	   FIELDS.add(DATASETANNOTATIONS);
+	   FIELDS.add(IMAGEDIMENSIONS);
+	   FIELDS.add(CHANNELCOMPONENTS);
+ 	}
 
 
 }

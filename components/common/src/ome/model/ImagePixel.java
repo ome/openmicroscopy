@@ -223,7 +223,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: PixelType ------------------------------------------
 	  String _PixelType = null;
@@ -233,7 +233,7 @@ ome.util.Filterable {
 		 setPixelType(null);
 	  }
 // TODO catch class cast?
-	  setPixelType((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):PixelType",_PixelType)); 
+	  setPixelType((String) filter.filter(PIXELTYPE,_PixelType)); 
 
 	  // Visiting: SizeY ------------------------------------------
 	  Integer _SizeY = null;
@@ -243,7 +243,7 @@ ome.util.Filterable {
 		 setSizeY(null);
 	  }
 // TODO catch class cast?
-	  setSizeY((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):SizeY",_SizeY)); 
+	  setSizeY((Integer) filter.filter(SIZEY,_SizeY)); 
 
 	  // Visiting: SizeZ ------------------------------------------
 	  Integer _SizeZ = null;
@@ -253,7 +253,7 @@ ome.util.Filterable {
 		 setSizeZ(null);
 	  }
 // TODO catch class cast?
-	  setSizeZ((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):SizeZ",_SizeZ)); 
+	  setSizeZ((Integer) filter.filter(SIZEZ,_SizeZ)); 
 
 	  // Visiting: FileSha1 ------------------------------------------
 	  String _FileSha1 = null;
@@ -263,7 +263,7 @@ ome.util.Filterable {
 		 setFileSha1(null);
 	  }
 // TODO catch class cast?
-	  setFileSha1((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):FileSha1",_FileSha1)); 
+	  setFileSha1((String) filter.filter(FILESHA1,_FileSha1)); 
 
 	  // Visiting: SizeT ------------------------------------------
 	  Integer _SizeT = null;
@@ -273,7 +273,7 @@ ome.util.Filterable {
 		 setSizeT(null);
 	  }
 // TODO catch class cast?
-	  setSizeT((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):SizeT",_SizeT)); 
+	  setSizeT((Integer) filter.filter(SIZET,_SizeT)); 
 
 	  // Visiting: ImageServerId ------------------------------------------
 	  Long _ImageServerId = null;
@@ -283,7 +283,7 @@ ome.util.Filterable {
 		 setImageServerId(null);
 	  }
 // TODO catch class cast?
-	  setImageServerId((Long) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):ImageServerId",_ImageServerId)); 
+	  setImageServerId((Long) filter.filter(IMAGESERVERID,_ImageServerId)); 
 
 	  // Visiting: SizeX ------------------------------------------
 	  Integer _SizeX = null;
@@ -293,7 +293,7 @@ ome.util.Filterable {
 		 setSizeX(null);
 	  }
 // TODO catch class cast?
-	  setSizeX((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):SizeX",_SizeX)); 
+	  setSizeX((Integer) filter.filter(SIZEX,_SizeX)); 
 
 	  // Visiting: SizeC ------------------------------------------
 	  Integer _SizeC = null;
@@ -303,7 +303,7 @@ ome.util.Filterable {
 		 setSizeC(null);
 	  }
 // TODO catch class cast?
-	  setSizeC((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):SizeC",_SizeC)); 
+	  setSizeC((Integer) filter.filter(SIZEC,_SizeC)); 
 
 	  // Visiting: Repository ------------------------------------------
 	  Repository _Repository = null;
@@ -313,7 +313,7 @@ ome.util.Filterable {
 		 setRepository(null);
 	  }
 // TODO catch class cast?
-	  setRepository((Repository) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):Repository",_Repository)); 
+	  setRepository((Repository) filter.filter(REPOSITORY,_Repository)); 
 
 	  // Visiting: Images ------------------------------------------
 	  Set _Images = null;
@@ -323,7 +323,7 @@ ome.util.Filterable {
 		 setImages(null);
 	  }
 // TODO catch class cast?
-	  setImages((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):Images",_Images)); 
+	  setImages((Set) filter.filter(IMAGES,_Images)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
 	  Set _ChannelComponents = null;
@@ -333,7 +333,7 @@ ome.util.Filterable {
 		 setChannelComponents(null);
 	  }
 // TODO catch class cast?
-	  setChannelComponents((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):ChannelComponents",_ChannelComponents)); 
+	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -343,7 +343,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -353,7 +353,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImagePixel):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -361,6 +361,39 @@ ome.util.Filterable {
 	return "ImagePixel"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "ImagePixel_AttributeId";
+	public final static String PIXELTYPE = "ImagePixel_PixelType";
+	public final static String SIZEY = "ImagePixel_SizeY";
+	public final static String SIZEZ = "ImagePixel_SizeZ";
+	public final static String FILESHA1 = "ImagePixel_FileSha1";
+	public final static String SIZET = "ImagePixel_SizeT";
+	public final static String IMAGESERVERID = "ImagePixel_ImageServerId";
+	public final static String SIZEX = "ImagePixel_SizeX";
+	public final static String SIZEC = "ImagePixel_SizeC";
+	public final static String REPOSITORY = "ImagePixel_Repository";
+	public final static String IMAGES = "ImagePixel_Images";
+	public final static String CHANNELCOMPONENTS = "ImagePixel_ChannelComponents";
+	public final static String IMAGE = "ImagePixel_Image";
+	public final static String MODULEEXECUTION = "ImagePixel_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(PIXELTYPE);
+	   FIELDS.add(SIZEY);
+	   FIELDS.add(SIZEZ);
+	   FIELDS.add(FILESHA1);
+	   FIELDS.add(SIZET);
+	   FIELDS.add(IMAGESERVERID);
+	   FIELDS.add(SIZEX);
+	   FIELDS.add(SIZEC);
+	   FIELDS.add(REPOSITORY);
+	   FIELDS.add(IMAGES);
+	   FIELDS.add(CHANNELCOMPONENTS);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

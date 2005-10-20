@@ -151,7 +151,7 @@ ome.util.Filterable {
 		 setProjectId(null);
 	  }
 // TODO catch class cast?
-	  setProjectId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):ProjectId",_ProjectId)); 
+	  setProjectId((Integer) filter.filter(PROJECTID,_ProjectId)); 
 
 	  // Visiting: View ------------------------------------------
 	  String _View = null;
@@ -161,7 +161,7 @@ ome.util.Filterable {
 		 setView(null);
 	  }
 // TODO catch class cast?
-	  setView((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):View",_View)); 
+	  setView((String) filter.filter(VIEW,_View)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -171,7 +171,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -181,7 +181,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: OmeSessions ------------------------------------------
 	  Set _OmeSessions = null;
@@ -191,7 +191,7 @@ ome.util.Filterable {
 		 setOmeSessions(null);
 	  }
 // TODO catch class cast?
-	  setOmeSessions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):OmeSessions",_OmeSessions)); 
+	  setOmeSessions((Set) filter.filter(OMESESSIONS,_OmeSessions)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -201,7 +201,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Group ------------------------------------------
 	  Group _Group = null;
@@ -211,7 +211,7 @@ ome.util.Filterable {
 		 setGroup(null);
 	  }
 // TODO catch class cast?
-	  setGroup((Group) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):Group",_Group)); 
+	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Datasets ------------------------------------------
 	  Set _Datasets = null;
@@ -221,7 +221,7 @@ ome.util.Filterable {
 		 setDatasets(null);
 	  }
 // TODO catch class cast?
-	  setDatasets((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Project):Datasets",_Datasets)); 
+	  setDatasets((Set) filter.filter(DATASETS,_Datasets)); 
    	 return true;
   }
   
@@ -229,6 +229,27 @@ ome.util.Filterable {
 	return "Project"+(projectId==null ? ":Hash_"+this.hashCode() : ":Id_"+projectId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String PROJECTID = "Project_ProjectId";
+	public final static String VIEW = "Project_View";
+	public final static String NAME = "Project_Name";
+	public final static String DESCRIPTION = "Project_Description";
+	public final static String OMESESSIONS = "Project_OmeSessions";
+	public final static String EXPERIMENTER = "Project_Experimenter";
+	public final static String GROUP = "Project_Group";
+	public final static String DATASETS = "Project_Datasets";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(PROJECTID);
+	   FIELDS.add(VIEW);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(OMESESSIONS);
+	   FIELDS.add(EXPERIMENTER);
+	   FIELDS.add(GROUP);
+	   FIELDS.add(DATASETS);
+ 	}
 
 
 }

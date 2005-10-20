@@ -187,7 +187,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -197,7 +197,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Datasets ------------------------------------------
 	  Set _Datasets = null;
@@ -207,7 +207,7 @@ ome.util.Filterable {
 		 setDatasets(null);
 	  }
 // TODO catch class cast?
-	  setDatasets((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Datasets",_Datasets)); 
+	  setDatasets((Set) filter.filter(DATASETS,_Datasets)); 
 
 	  // Visiting: Images ------------------------------------------
 	  Set _Images = null;
@@ -217,7 +217,7 @@ ome.util.Filterable {
 		 setImages(null);
 	  }
 // TODO catch class cast?
-	  setImages((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Images",_Images)); 
+	  setImages((Set) filter.filter(IMAGES,_Images)); 
 
 	  // Visiting: Projects ------------------------------------------
 	  Set _Projects = null;
@@ -227,7 +227,7 @@ ome.util.Filterable {
 		 setProjects(null);
 	  }
 // TODO catch class cast?
-	  setProjects((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Projects",_Projects)); 
+	  setProjects((Set) filter.filter(PROJECTS,_Projects)); 
 
 	  // Visiting: Experimenters ------------------------------------------
 	  Set _Experimenters = null;
@@ -237,7 +237,7 @@ ome.util.Filterable {
 		 setExperimenters(null);
 	  }
 // TODO catch class cast?
-	  setExperimenters((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Experimenters",_Experimenters)); 
+	  setExperimenters((Set) filter.filter(EXPERIMENTERS,_Experimenters)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
 	  Set _ModuleExecutions = null;
@@ -247,7 +247,7 @@ ome.util.Filterable {
 		 setModuleExecutions(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):ModuleExecutions",_ModuleExecutions)); 
+	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: ImageInfos ------------------------------------------
 	  Set _ImageInfos = null;
@@ -257,7 +257,7 @@ ome.util.Filterable {
 		 setImageInfos(null);
 	  }
 // TODO catch class cast?
-	  setImageInfos((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):ImageInfos",_ImageInfos)); 
+	  setImageInfos((Set) filter.filter(IMAGEINFOS,_ImageInfos)); 
 
 	  // Visiting: Leader ------------------------------------------
 	  Experimenter _Leader = null;
@@ -267,7 +267,7 @@ ome.util.Filterable {
 		 setLeader(null);
 	  }
 // TODO catch class cast?
-	  setLeader((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Leader",_Leader)); 
+	  setLeader((Experimenter) filter.filter(LEADER,_Leader)); 
 
 	  // Visiting: Contact ------------------------------------------
 	  Experimenter _Contact = null;
@@ -277,7 +277,7 @@ ome.util.Filterable {
 		 setContact(null);
 	  }
 // TODO catch class cast?
-	  setContact((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):Contact",_Contact)); 
+	  setContact((Experimenter) filter.filter(CONTACT,_Contact)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -287,7 +287,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.Group):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -295,6 +295,33 @@ ome.util.Filterable {
 	return "Group"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "Group_AttributeId";
+	public final static String NAME = "Group_Name";
+	public final static String DATASETS = "Group_Datasets";
+	public final static String IMAGES = "Group_Images";
+	public final static String PROJECTS = "Group_Projects";
+	public final static String EXPERIMENTERS = "Group_Experimenters";
+	public final static String MODULEEXECUTIONS = "Group_ModuleExecutions";
+	public final static String IMAGEINFOS = "Group_ImageInfos";
+	public final static String LEADER = "Group_Leader";
+	public final static String CONTACT = "Group_Contact";
+	public final static String MODULEEXECUTION = "Group_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DATASETS);
+	   FIELDS.add(IMAGES);
+	   FIELDS.add(PROJECTS);
+	   FIELDS.add(EXPERIMENTERS);
+	   FIELDS.add(MODULEEXECUTIONS);
+	   FIELDS.add(IMAGEINFOS);
+	   FIELDS.add(LEADER);
+	   FIELDS.add(CONTACT);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

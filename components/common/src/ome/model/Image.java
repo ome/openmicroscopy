@@ -307,7 +307,7 @@ ome.util.Filterable {
 		 setImageId(null);
 	  }
 // TODO catch class cast?
-	  setImageId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImageId",_ImageId)); 
+	  setImageId((Integer) filter.filter(IMAGEID,_ImageId)); 
 
 	  // Visiting: Inserted ------------------------------------------
 	  Date _Inserted = null;
@@ -317,7 +317,7 @@ ome.util.Filterable {
 		 setInserted(null);
 	  }
 // TODO catch class cast?
-	  setInserted((Date) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Inserted",_Inserted)); 
+	  setInserted((Date) filter.filter(INSERTED,_Inserted)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -327,7 +327,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -337,7 +337,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: Created ------------------------------------------
 	  Date _Created = null;
@@ -347,7 +347,7 @@ ome.util.Filterable {
 		 setCreated(null);
 	  }
 // TODO catch class cast?
-	  setCreated((Date) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Created",_Created)); 
+	  setCreated((Date) filter.filter(CREATED,_Created)); 
 
 	  // Visiting: ImageGuid ------------------------------------------
 	  String _ImageGuid = null;
@@ -357,7 +357,7 @@ ome.util.Filterable {
 		 setImageGuid(null);
 	  }
 // TODO catch class cast?
-	  setImageGuid((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImageGuid",_ImageGuid)); 
+	  setImageGuid((String) filter.filter(IMAGEGUID,_ImageGuid)); 
 
 	  // Visiting: ImagePixel ------------------------------------------
 	  ImagePixel _ImagePixel = null;
@@ -367,7 +367,7 @@ ome.util.Filterable {
 		 setImagePixel(null);
 	  }
 // TODO catch class cast?
-	  setImagePixel((ImagePixel) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImagePixel",_ImagePixel)); 
+	  setImagePixel((ImagePixel) filter.filter(IMAGEPIXEL,_ImagePixel)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -377,7 +377,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Thumbnails ------------------------------------------
 	  Set _Thumbnails = null;
@@ -387,7 +387,7 @@ ome.util.Filterable {
 		 setThumbnails(null);
 	  }
 // TODO catch class cast?
-	  setThumbnails((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Thumbnails",_Thumbnails)); 
+	  setThumbnails((Set) filter.filter(THUMBNAILS,_Thumbnails)); 
 
 	  // Visiting: RenderingSettings ------------------------------------------
 	  Set _RenderingSettings = null;
@@ -397,7 +397,7 @@ ome.util.Filterable {
 		 setRenderingSettings(null);
 	  }
 // TODO catch class cast?
-	  setRenderingSettings((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):RenderingSettings",_RenderingSettings)); 
+	  setRenderingSettings((Set) filter.filter(RENDERINGSETTINGS,_RenderingSettings)); 
 
 	  // Visiting: LogicalChannels ------------------------------------------
 	  Set _LogicalChannels = null;
@@ -407,7 +407,7 @@ ome.util.Filterable {
 		 setLogicalChannels(null);
 	  }
 // TODO catch class cast?
-	  setLogicalChannels((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):LogicalChannels",_LogicalChannels)); 
+	  setLogicalChannels((Set) filter.filter(LOGICALCHANNELS,_LogicalChannels)); 
 
 	  // Visiting: ImagePixels ------------------------------------------
 	  Set _ImagePixels = null;
@@ -417,7 +417,7 @@ ome.util.Filterable {
 		 setImagePixels(null);
 	  }
 // TODO catch class cast?
-	  setImagePixels((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImagePixels",_ImagePixels)); 
+	  setImagePixels((Set) filter.filter(IMAGEPIXELS,_ImagePixels)); 
 
 	  // Visiting: Classifications ------------------------------------------
 	  Set _Classifications = null;
@@ -427,7 +427,7 @@ ome.util.Filterable {
 		 setClassifications(null);
 	  }
 // TODO catch class cast?
-	  setClassifications((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Classifications",_Classifications)); 
+	  setClassifications((Set) filter.filter(CLASSIFICATIONS,_Classifications)); 
 
 	  // Visiting: Features ------------------------------------------
 	  Set _Features = null;
@@ -437,7 +437,7 @@ ome.util.Filterable {
 		 setFeatures(null);
 	  }
 // TODO catch class cast?
-	  setFeatures((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Features",_Features)); 
+	  setFeatures((Set) filter.filter(FEATURES,_Features)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
 	  Set _ModuleExecutions = null;
@@ -447,7 +447,7 @@ ome.util.Filterable {
 		 setModuleExecutions(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ModuleExecutions",_ModuleExecutions)); 
+	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: ImageAnnotations ------------------------------------------
 	  Set _ImageAnnotations = null;
@@ -457,7 +457,7 @@ ome.util.Filterable {
 		 setImageAnnotations(null);
 	  }
 // TODO catch class cast?
-	  setImageAnnotations((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImageAnnotations",_ImageAnnotations)); 
+	  setImageAnnotations((Set) filter.filter(IMAGEANNOTATIONS,_ImageAnnotations)); 
 
 	  // Visiting: ImageDimensions ------------------------------------------
 	  Set _ImageDimensions = null;
@@ -467,7 +467,7 @@ ome.util.Filterable {
 		 setImageDimensions(null);
 	  }
 // TODO catch class cast?
-	  setImageDimensions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImageDimensions",_ImageDimensions)); 
+	  setImageDimensions((Set) filter.filter(IMAGEDIMENSIONS,_ImageDimensions)); 
 
 	  // Visiting: ImageInfos ------------------------------------------
 	  Set _ImageInfos = null;
@@ -477,7 +477,7 @@ ome.util.Filterable {
 		 setImageInfos(null);
 	  }
 // TODO catch class cast?
-	  setImageInfos((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ImageInfos",_ImageInfos)); 
+	  setImageInfos((Set) filter.filter(IMAGEINFOS,_ImageInfos)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
 	  Set _ChannelComponents = null;
@@ -487,7 +487,7 @@ ome.util.Filterable {
 		 setChannelComponents(null);
 	  }
 // TODO catch class cast?
-	  setChannelComponents((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):ChannelComponents",_ChannelComponents)); 
+	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
 
 	  // Visiting: Group ------------------------------------------
 	  Group _Group = null;
@@ -497,7 +497,7 @@ ome.util.Filterable {
 		 setGroup(null);
 	  }
 // TODO catch class cast?
-	  setGroup((Group) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Group",_Group)); 
+	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Datasets ------------------------------------------
 	  Set _Datasets = null;
@@ -507,7 +507,7 @@ ome.util.Filterable {
 		 setDatasets(null);
 	  }
 // TODO catch class cast?
-	  setDatasets((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Image):Datasets",_Datasets)); 
+	  setDatasets((Set) filter.filter(DATASETS,_Datasets)); 
    	 return true;
   }
   
@@ -515,6 +515,53 @@ ome.util.Filterable {
 	return "Image"+(imageId==null ? ":Hash_"+this.hashCode() : ":Id_"+imageId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String IMAGEID = "Image_ImageId";
+	public final static String INSERTED = "Image_Inserted";
+	public final static String NAME = "Image_Name";
+	public final static String DESCRIPTION = "Image_Description";
+	public final static String CREATED = "Image_Created";
+	public final static String IMAGEGUID = "Image_ImageGuid";
+	public final static String IMAGEPIXEL = "Image_ImagePixel";
+	public final static String EXPERIMENTER = "Image_Experimenter";
+	public final static String THUMBNAILS = "Image_Thumbnails";
+	public final static String RENDERINGSETTINGS = "Image_RenderingSettings";
+	public final static String LOGICALCHANNELS = "Image_LogicalChannels";
+	public final static String IMAGEPIXELS = "Image_ImagePixels";
+	public final static String CLASSIFICATIONS = "Image_Classifications";
+	public final static String FEATURES = "Image_Features";
+	public final static String MODULEEXECUTIONS = "Image_ModuleExecutions";
+	public final static String IMAGEANNOTATIONS = "Image_ImageAnnotations";
+	public final static String IMAGEDIMENSIONS = "Image_ImageDimensions";
+	public final static String IMAGEINFOS = "Image_ImageInfos";
+	public final static String CHANNELCOMPONENTS = "Image_ChannelComponents";
+	public final static String GROUP = "Image_Group";
+	public final static String DATASETS = "Image_Datasets";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(IMAGEID);
+	   FIELDS.add(INSERTED);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(CREATED);
+	   FIELDS.add(IMAGEGUID);
+	   FIELDS.add(IMAGEPIXEL);
+	   FIELDS.add(EXPERIMENTER);
+	   FIELDS.add(THUMBNAILS);
+	   FIELDS.add(RENDERINGSETTINGS);
+	   FIELDS.add(LOGICALCHANNELS);
+	   FIELDS.add(IMAGEPIXELS);
+	   FIELDS.add(CLASSIFICATIONS);
+	   FIELDS.add(FEATURES);
+	   FIELDS.add(MODULEEXECUTIONS);
+	   FIELDS.add(IMAGEANNOTATIONS);
+	   FIELDS.add(IMAGEDIMENSIONS);
+	   FIELDS.add(IMAGEINFOS);
+	   FIELDS.add(CHANNELCOMPONENTS);
+	   FIELDS.add(GROUP);
+	   FIELDS.add(DATASETS);
+ 	}
 
 
 }

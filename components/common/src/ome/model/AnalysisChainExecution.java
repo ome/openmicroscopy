@@ -127,7 +127,7 @@ ome.util.Filterable {
 		 setAnalysisChainExecutionId(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainExecutionId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainExecution):AnalysisChainExecutionId",_AnalysisChainExecutionId)); 
+	  setAnalysisChainExecutionId((Integer) filter.filter(ANALYSISCHAINEXECUTIONID,_AnalysisChainExecutionId)); 
 
 	  // Visiting: Timestamp ------------------------------------------
 	  Date _Timestamp = null;
@@ -137,7 +137,7 @@ ome.util.Filterable {
 		 setTimestamp(null);
 	  }
 // TODO catch class cast?
-	  setTimestamp((Date) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainExecution):Timestamp",_Timestamp)); 
+	  setTimestamp((Date) filter.filter(TIMESTAMP,_Timestamp)); 
 
 	  // Visiting: AnalysisChain ------------------------------------------
 	  AnalysisChain _AnalysisChain = null;
@@ -147,7 +147,7 @@ ome.util.Filterable {
 		 setAnalysisChain(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChain((AnalysisChain) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainExecution):AnalysisChain",_AnalysisChain)); 
+	  setAnalysisChain((AnalysisChain) filter.filter(ANALYSISCHAIN,_AnalysisChain)); 
 
 	  // Visiting: AnalysisNodeExecutions ------------------------------------------
 	  Set _AnalysisNodeExecutions = null;
@@ -157,7 +157,7 @@ ome.util.Filterable {
 		 setAnalysisNodeExecutions(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisNodeExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainExecution):AnalysisNodeExecutions",_AnalysisNodeExecutions)); 
+	  setAnalysisNodeExecutions((Set) filter.filter(ANALYSISNODEEXECUTIONS,_AnalysisNodeExecutions)); 
 
 	  // Visiting: Dataset ------------------------------------------
 	  Dataset _Dataset = null;
@@ -167,7 +167,7 @@ ome.util.Filterable {
 		 setDataset(null);
 	  }
 // TODO catch class cast?
-	  setDataset((Dataset) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainExecution):Dataset",_Dataset)); 
+	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -177,7 +177,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainExecution):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
    	 return true;
   }
   
@@ -185,6 +185,23 @@ ome.util.Filterable {
 	return "AnalysisChainExecution"+(analysisChainExecutionId==null ? ":Hash_"+this.hashCode() : ":Id_"+analysisChainExecutionId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ANALYSISCHAINEXECUTIONID = "AnalysisChainExecution_AnalysisChainExecutionId";
+	public final static String TIMESTAMP = "AnalysisChainExecution_Timestamp";
+	public final static String ANALYSISCHAIN = "AnalysisChainExecution_AnalysisChain";
+	public final static String ANALYSISNODEEXECUTIONS = "AnalysisChainExecution_AnalysisNodeExecutions";
+	public final static String DATASET = "AnalysisChainExecution_Dataset";
+	public final static String EXPERIMENTER = "AnalysisChainExecution_Experimenter";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ANALYSISCHAINEXECUTIONID);
+	   FIELDS.add(TIMESTAMP);
+	   FIELDS.add(ANALYSISCHAIN);
+	   FIELDS.add(ANALYSISNODEEXECUTIONS);
+	   FIELDS.add(DATASET);
+	   FIELDS.add(EXPERIMENTER);
+ 	}
 
 
 }

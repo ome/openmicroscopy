@@ -127,7 +127,7 @@ ome.util.Filterable {
 		 setFeatureId(null);
 	  }
 // TODO catch class cast?
-	  setFeatureId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Feature):FeatureId",_FeatureId)); 
+	  setFeatureId((Integer) filter.filter(FEATUREID,_FeatureId)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -137,7 +137,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Feature):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Tag ------------------------------------------
 	  String _Tag = null;
@@ -147,7 +147,7 @@ ome.util.Filterable {
 		 setTag(null);
 	  }
 // TODO catch class cast?
-	  setTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Feature):Tag",_Tag)); 
+	  setTag((String) filter.filter(TAG,_Tag)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -157,7 +157,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.Feature):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: Features ------------------------------------------
 	  Set _Features = null;
@@ -167,7 +167,7 @@ ome.util.Filterable {
 		 setFeatures(null);
 	  }
 // TODO catch class cast?
-	  setFeatures((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Feature):Features",_Features)); 
+	  setFeatures((Set) filter.filter(FEATURES,_Features)); 
 
 	  // Visiting: Feature ------------------------------------------
 	  Feature _Feature = null;
@@ -177,7 +177,7 @@ ome.util.Filterable {
 		 setFeature(null);
 	  }
 // TODO catch class cast?
-	  setFeature((Feature) filter.filter("org.hibernate.mapping.RootClass(ome.model.Feature):Feature",_Feature)); 
+	  setFeature((Feature) filter.filter(FEATURE,_Feature)); 
    	 return true;
   }
   
@@ -185,6 +185,23 @@ ome.util.Filterable {
 	return "Feature"+(featureId==null ? ":Hash_"+this.hashCode() : ":Id_"+featureId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String FEATUREID = "Feature_FeatureId";
+	public final static String NAME = "Feature_Name";
+	public final static String TAG = "Feature_Tag";
+	public final static String IMAGE = "Feature_Image";
+	public final static String FEATURES = "Feature_Features";
+	public final static String FEATURE = "Feature_Feature";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(FEATUREID);
+	   FIELDS.add(NAME);
+	   FIELDS.add(TAG);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(FEATURES);
+	   FIELDS.add(FEATURE);
+ 	}
 
 
 }

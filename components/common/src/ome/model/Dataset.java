@@ -199,7 +199,7 @@ ome.util.Filterable {
 		 setDatasetId(null);
 	  }
 // TODO catch class cast?
-	  setDatasetId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):DatasetId",_DatasetId)); 
+	  setDatasetId((Integer) filter.filter(DATASETID,_DatasetId)); 
 
 	  // Visiting: Locked ------------------------------------------
 	  Boolean _Locked = null;
@@ -209,7 +209,7 @@ ome.util.Filterable {
 		 setLocked(null);
 	  }
 // TODO catch class cast?
-	  setLocked((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Locked",_Locked)); 
+	  setLocked((Boolean) filter.filter(LOCKED,_Locked)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -219,7 +219,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -229,7 +229,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: AnalysisChainExecutions ------------------------------------------
 	  Set _AnalysisChainExecutions = null;
@@ -239,7 +239,7 @@ ome.util.Filterable {
 		 setAnalysisChainExecutions(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):AnalysisChainExecutions",_AnalysisChainExecutions)); 
+	  setAnalysisChainExecutions((Set) filter.filter(ANALYSISCHAINEXECUTIONS,_AnalysisChainExecutions)); 
 
 	  // Visiting: OmeSessions ------------------------------------------
 	  Set _OmeSessions = null;
@@ -249,7 +249,7 @@ ome.util.Filterable {
 		 setOmeSessions(null);
 	  }
 // TODO catch class cast?
-	  setOmeSessions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):OmeSessions",_OmeSessions)); 
+	  setOmeSessions((Set) filter.filter(OMESESSIONS,_OmeSessions)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
 	  Set _ModuleExecutions = null;
@@ -259,7 +259,7 @@ ome.util.Filterable {
 		 setModuleExecutions(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):ModuleExecutions",_ModuleExecutions)); 
+	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: DatasetAnnotations ------------------------------------------
 	  Set _DatasetAnnotations = null;
@@ -269,7 +269,7 @@ ome.util.Filterable {
 		 setDatasetAnnotations(null);
 	  }
 // TODO catch class cast?
-	  setDatasetAnnotations((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):DatasetAnnotations",_DatasetAnnotations)); 
+	  setDatasetAnnotations((Set) filter.filter(DATASETANNOTATIONS,_DatasetAnnotations)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -279,7 +279,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Group ------------------------------------------
 	  Group _Group = null;
@@ -289,7 +289,7 @@ ome.util.Filterable {
 		 setGroup(null);
 	  }
 // TODO catch class cast?
-	  setGroup((Group) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Group",_Group)); 
+	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Projects ------------------------------------------
 	  Set _Projects = null;
@@ -299,7 +299,7 @@ ome.util.Filterable {
 		 setProjects(null);
 	  }
 // TODO catch class cast?
-	  setProjects((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Projects",_Projects)); 
+	  setProjects((Set) filter.filter(PROJECTS,_Projects)); 
 
 	  // Visiting: Images ------------------------------------------
 	  Set _Images = null;
@@ -309,7 +309,7 @@ ome.util.Filterable {
 		 setImages(null);
 	  }
 // TODO catch class cast?
-	  setImages((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Dataset):Images",_Images)); 
+	  setImages((Set) filter.filter(IMAGES,_Images)); 
    	 return true;
   }
   
@@ -317,6 +317,35 @@ ome.util.Filterable {
 	return "Dataset"+(datasetId==null ? ":Hash_"+this.hashCode() : ":Id_"+datasetId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String DATASETID = "Dataset_DatasetId";
+	public final static String LOCKED = "Dataset_Locked";
+	public final static String NAME = "Dataset_Name";
+	public final static String DESCRIPTION = "Dataset_Description";
+	public final static String ANALYSISCHAINEXECUTIONS = "Dataset_AnalysisChainExecutions";
+	public final static String OMESESSIONS = "Dataset_OmeSessions";
+	public final static String MODULEEXECUTIONS = "Dataset_ModuleExecutions";
+	public final static String DATASETANNOTATIONS = "Dataset_DatasetAnnotations";
+	public final static String EXPERIMENTER = "Dataset_Experimenter";
+	public final static String GROUP = "Dataset_Group";
+	public final static String PROJECTS = "Dataset_Projects";
+	public final static String IMAGES = "Dataset_Images";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(DATASETID);
+	   FIELDS.add(LOCKED);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(ANALYSISCHAINEXECUTIONS);
+	   FIELDS.add(OMESESSIONS);
+	   FIELDS.add(MODULEEXECUTIONS);
+	   FIELDS.add(DATASETANNOTATIONS);
+	   FIELDS.add(EXPERIMENTER);
+	   FIELDS.add(GROUP);
+	   FIELDS.add(PROJECTS);
+	   FIELDS.add(IMAGES);
+ 	}
 
 
 }

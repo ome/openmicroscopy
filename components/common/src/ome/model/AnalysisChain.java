@@ -151,7 +151,7 @@ ome.util.Filterable {
 		 setAnalysisChainId(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):AnalysisChainId",_AnalysisChainId)); 
+	  setAnalysisChainId((Integer) filter.filter(ANALYSISCHAINID,_AnalysisChainId)); 
 
 	  // Visiting: Locked ------------------------------------------
 	  Boolean _Locked = null;
@@ -161,7 +161,7 @@ ome.util.Filterable {
 		 setLocked(null);
 	  }
 // TODO catch class cast?
-	  setLocked((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):Locked",_Locked)); 
+	  setLocked((Boolean) filter.filter(LOCKED,_Locked)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -171,7 +171,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -181,7 +181,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: AnalysisChainExecutions ------------------------------------------
 	  Set _AnalysisChainExecutions = null;
@@ -191,7 +191,7 @@ ome.util.Filterable {
 		 setAnalysisChainExecutions(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):AnalysisChainExecutions",_AnalysisChainExecutions)); 
+	  setAnalysisChainExecutions((Set) filter.filter(ANALYSISCHAINEXECUTIONS,_AnalysisChainExecutions)); 
 
 	  // Visiting: AnalysisChainLinks ------------------------------------------
 	  Set _AnalysisChainLinks = null;
@@ -201,7 +201,7 @@ ome.util.Filterable {
 		 setAnalysisChainLinks(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainLinks((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):AnalysisChainLinks",_AnalysisChainLinks)); 
+	  setAnalysisChainLinks((Set) filter.filter(ANALYSISCHAINLINKS,_AnalysisChainLinks)); 
 
 	  // Visiting: AnalysisChainNodes ------------------------------------------
 	  Set _AnalysisChainNodes = null;
@@ -211,7 +211,7 @@ ome.util.Filterable {
 		 setAnalysisChainNodes(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainNodes((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):AnalysisChainNodes",_AnalysisChainNodes)); 
+	  setAnalysisChainNodes((Set) filter.filter(ANALYSISCHAINNODES,_AnalysisChainNodes)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -221,7 +221,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChain):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
    	 return true;
   }
   
@@ -229,6 +229,27 @@ ome.util.Filterable {
 	return "AnalysisChain"+(analysisChainId==null ? ":Hash_"+this.hashCode() : ":Id_"+analysisChainId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ANALYSISCHAINID = "AnalysisChain_AnalysisChainId";
+	public final static String LOCKED = "AnalysisChain_Locked";
+	public final static String NAME = "AnalysisChain_Name";
+	public final static String DESCRIPTION = "AnalysisChain_Description";
+	public final static String ANALYSISCHAINEXECUTIONS = "AnalysisChain_AnalysisChainExecutions";
+	public final static String ANALYSISCHAINLINKS = "AnalysisChain_AnalysisChainLinks";
+	public final static String ANALYSISCHAINNODES = "AnalysisChain_AnalysisChainNodes";
+	public final static String EXPERIMENTER = "AnalysisChain_Experimenter";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ANALYSISCHAINID);
+	   FIELDS.add(LOCKED);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(ANALYSISCHAINEXECUTIONS);
+	   FIELDS.add(ANALYSISCHAINLINKS);
+	   FIELDS.add(ANALYSISCHAINNODES);
+	   FIELDS.add(EXPERIMENTER);
+ 	}
 
 
 }

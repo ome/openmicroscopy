@@ -187,7 +187,7 @@ ome.util.Filterable {
 		 setSessionId(null);
 	  }
 // TODO catch class cast?
-	  setSessionId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):SessionId",_SessionId)); 
+	  setSessionId((Integer) filter.filter(SESSIONID,_SessionId)); 
 
 	  // Visiting: SessionKey ------------------------------------------
 	  String _SessionKey = null;
@@ -197,7 +197,7 @@ ome.util.Filterable {
 		 setSessionKey(null);
 	  }
 // TODO catch class cast?
-	  setSessionKey((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):SessionKey",_SessionKey)); 
+	  setSessionKey((String) filter.filter(SESSIONKEY,_SessionKey)); 
 
 	  // Visiting: ModuleExecutionId ------------------------------------------
 	  Integer _ModuleExecutionId = null;
@@ -207,7 +207,7 @@ ome.util.Filterable {
 		 setModuleExecutionId(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecutionId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):ModuleExecutionId",_ModuleExecutionId)); 
+	  setModuleExecutionId((Integer) filter.filter(MODULEEXECUTIONID,_ModuleExecutionId)); 
 
 	  // Visiting: FeatureView ------------------------------------------
 	  String _FeatureView = null;
@@ -217,7 +217,7 @@ ome.util.Filterable {
 		 setFeatureView(null);
 	  }
 // TODO catch class cast?
-	  setFeatureView((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):FeatureView",_FeatureView)); 
+	  setFeatureView((String) filter.filter(FEATUREVIEW,_FeatureView)); 
 
 	  // Visiting: Host ------------------------------------------
 	  String _Host = null;
@@ -227,7 +227,7 @@ ome.util.Filterable {
 		 setHost(null);
 	  }
 // TODO catch class cast?
-	  setHost((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):Host",_Host)); 
+	  setHost((String) filter.filter(HOST,_Host)); 
 
 	  // Visiting: LastAccess ------------------------------------------
 	  Date _LastAccess = null;
@@ -237,7 +237,7 @@ ome.util.Filterable {
 		 setLastAccess(null);
 	  }
 // TODO catch class cast?
-	  setLastAccess((Date) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):LastAccess",_LastAccess)); 
+	  setLastAccess((Date) filter.filter(LASTACCESS,_LastAccess)); 
 
 	  // Visiting: Started ------------------------------------------
 	  Date _Started = null;
@@ -247,7 +247,7 @@ ome.util.Filterable {
 		 setStarted(null);
 	  }
 // TODO catch class cast?
-	  setStarted((Date) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):Started",_Started)); 
+	  setStarted((Date) filter.filter(STARTED,_Started)); 
 
 	  // Visiting: ImageView ------------------------------------------
 	  String _ImageView = null;
@@ -257,7 +257,7 @@ ome.util.Filterable {
 		 setImageView(null);
 	  }
 // TODO catch class cast?
-	  setImageView((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):ImageView",_ImageView)); 
+	  setImageView((String) filter.filter(IMAGEVIEW,_ImageView)); 
 
 	  // Visiting: Project ------------------------------------------
 	  Project _Project = null;
@@ -267,7 +267,7 @@ ome.util.Filterable {
 		 setProject(null);
 	  }
 // TODO catch class cast?
-	  setProject((Project) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):Project",_Project)); 
+	  setProject((Project) filter.filter(PROJECT,_Project)); 
 
 	  // Visiting: Dataset ------------------------------------------
 	  Dataset _Dataset = null;
@@ -277,7 +277,7 @@ ome.util.Filterable {
 		 setDataset(null);
 	  }
 // TODO catch class cast?
-	  setDataset((Dataset) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):Dataset",_Dataset)); 
+	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -287,7 +287,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.OmeSession):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
    	 return true;
   }
   
@@ -295,6 +295,33 @@ ome.util.Filterable {
 	return "OmeSession"+(sessionId==null ? ":Hash_"+this.hashCode() : ":Id_"+sessionId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String SESSIONID = "OmeSession_SessionId";
+	public final static String SESSIONKEY = "OmeSession_SessionKey";
+	public final static String MODULEEXECUTIONID = "OmeSession_ModuleExecutionId";
+	public final static String FEATUREVIEW = "OmeSession_FeatureView";
+	public final static String HOST = "OmeSession_Host";
+	public final static String LASTACCESS = "OmeSession_LastAccess";
+	public final static String STARTED = "OmeSession_Started";
+	public final static String IMAGEVIEW = "OmeSession_ImageView";
+	public final static String PROJECT = "OmeSession_Project";
+	public final static String DATASET = "OmeSession_Dataset";
+	public final static String EXPERIMENTER = "OmeSession_Experimenter";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(SESSIONID);
+	   FIELDS.add(SESSIONKEY);
+	   FIELDS.add(MODULEEXECUTIONID);
+	   FIELDS.add(FEATUREVIEW);
+	   FIELDS.add(HOST);
+	   FIELDS.add(LASTACCESS);
+	   FIELDS.add(STARTED);
+	   FIELDS.add(IMAGEVIEW);
+	   FIELDS.add(PROJECT);
+	   FIELDS.add(DATASET);
+	   FIELDS.add(EXPERIMENTER);
+ 	}
 
 
 }

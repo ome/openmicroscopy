@@ -115,7 +115,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.DatasetAnnotation):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Content ------------------------------------------
 	  String _Content = null;
@@ -125,7 +125,7 @@ ome.util.Filterable {
 		 setContent(null);
 	  }
 // TODO catch class cast?
-	  setContent((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.DatasetAnnotation):Content",_Content)); 
+	  setContent((String) filter.filter(CONTENT,_Content)); 
 
 	  // Visiting: Valid ------------------------------------------
 	  Boolean _Valid = null;
@@ -135,7 +135,7 @@ ome.util.Filterable {
 		 setValid(null);
 	  }
 // TODO catch class cast?
-	  setValid((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.DatasetAnnotation):Valid",_Valid)); 
+	  setValid((Boolean) filter.filter(VALID,_Valid)); 
 
 	  // Visiting: Dataset ------------------------------------------
 	  Dataset _Dataset = null;
@@ -145,7 +145,7 @@ ome.util.Filterable {
 		 setDataset(null);
 	  }
 // TODO catch class cast?
-	  setDataset((Dataset) filter.filter("org.hibernate.mapping.RootClass(ome.model.DatasetAnnotation):Dataset",_Dataset)); 
+	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -155,7 +155,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.DatasetAnnotation):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -163,6 +163,21 @@ ome.util.Filterable {
 	return "DatasetAnnotation"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "DatasetAnnotation_AttributeId";
+	public final static String CONTENT = "DatasetAnnotation_Content";
+	public final static String VALID = "DatasetAnnotation_Valid";
+	public final static String DATASET = "DatasetAnnotation_Dataset";
+	public final static String MODULEEXECUTION = "DatasetAnnotation_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(CONTENT);
+	   FIELDS.add(VALID);
+	   FIELDS.add(DATASET);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

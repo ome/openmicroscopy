@@ -139,7 +139,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: ImageServerUrl ------------------------------------------
 	  String _ImageServerUrl = null;
@@ -149,7 +149,7 @@ ome.util.Filterable {
 		 setImageServerUrl(null);
 	  }
 // TODO catch class cast?
-	  setImageServerUrl((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):ImageServerUrl",_ImageServerUrl)); 
+	  setImageServerUrl((String) filter.filter(IMAGESERVERURL,_ImageServerUrl)); 
 
 	  // Visiting: Path ------------------------------------------
 	  String _Path = null;
@@ -159,7 +159,7 @@ ome.util.Filterable {
 		 setPath(null);
 	  }
 // TODO catch class cast?
-	  setPath((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):Path",_Path)); 
+	  setPath((String) filter.filter(PATH,_Path)); 
 
 	  // Visiting: IsLocal ------------------------------------------
 	  Boolean _IsLocal = null;
@@ -169,7 +169,7 @@ ome.util.Filterable {
 		 setIsLocal(null);
 	  }
 // TODO catch class cast?
-	  setIsLocal((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):IsLocal",_IsLocal)); 
+	  setIsLocal((Boolean) filter.filter(ISLOCAL,_IsLocal)); 
 
 	  // Visiting: Thumbnails ------------------------------------------
 	  Set _Thumbnails = null;
@@ -179,7 +179,7 @@ ome.util.Filterable {
 		 setThumbnails(null);
 	  }
 // TODO catch class cast?
-	  setThumbnails((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):Thumbnails",_Thumbnails)); 
+	  setThumbnails((Set) filter.filter(THUMBNAILS,_Thumbnails)); 
 
 	  // Visiting: ImagePixels ------------------------------------------
 	  Set _ImagePixels = null;
@@ -189,7 +189,7 @@ ome.util.Filterable {
 		 setImagePixels(null);
 	  }
 // TODO catch class cast?
-	  setImagePixels((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):ImagePixels",_ImagePixels)); 
+	  setImagePixels((Set) filter.filter(IMAGEPIXELS,_ImagePixels)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -199,7 +199,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.Repository):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -207,6 +207,25 @@ ome.util.Filterable {
 	return "Repository"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "Repository_AttributeId";
+	public final static String IMAGESERVERURL = "Repository_ImageServerUrl";
+	public final static String PATH = "Repository_Path";
+	public final static String ISLOCAL = "Repository_IsLocal";
+	public final static String THUMBNAILS = "Repository_Thumbnails";
+	public final static String IMAGEPIXELS = "Repository_ImagePixels";
+	public final static String MODULEEXECUTION = "Repository_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(IMAGESERVERURL);
+	   FIELDS.add(PATH);
+	   FIELDS.add(ISLOCAL);
+	   FIELDS.add(THUMBNAILS);
+	   FIELDS.add(IMAGEPIXELS);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

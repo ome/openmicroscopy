@@ -23,10 +23,10 @@ ome.util.Filterable {
 
      private Integer formalOutputId;
      private String featureTag;
-     private String name;
      private Boolean optional;
      private String description;
      private Boolean list;
+     private String name;
      private Module module;
      private Set analysisChainLinks;
      private SemanticType semanticType;
@@ -73,17 +73,6 @@ ome.util.Filterable {
     /**
      * 
      */
-    public String getName() {
-        return this.name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * 
-     */
     public Boolean getOptional() {
         return this.optional;
     }
@@ -112,6 +101,17 @@ ome.util.Filterable {
     
     public void setList(Boolean list) {
         this.list = list;
+    }
+
+    /**
+     * 
+     */
+    public String getName() {
+        return this.name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -163,7 +163,7 @@ ome.util.Filterable {
 		 setFormalOutputId(null);
 	  }
 // TODO catch class cast?
-	  setFormalOutputId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):FormalOutputId",_FormalOutputId)); 
+	  setFormalOutputId((Integer) filter.filter(FORMALOUTPUTID,_FormalOutputId)); 
 
 	  // Visiting: FeatureTag ------------------------------------------
 	  String _FeatureTag = null;
@@ -173,17 +173,7 @@ ome.util.Filterable {
 		 setFeatureTag(null);
 	  }
 // TODO catch class cast?
-	  setFeatureTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):FeatureTag",_FeatureTag)); 
-
-	  // Visiting: Name ------------------------------------------
-	  String _Name = null;
-	  try {
-	     _Name = getName();
-	  } catch (Exception e) {
-		 setName(null);
-	  }
-// TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):Name",_Name)); 
+	  setFeatureTag((String) filter.filter(FEATURETAG,_FeatureTag)); 
 
 	  // Visiting: Optional ------------------------------------------
 	  Boolean _Optional = null;
@@ -193,7 +183,7 @@ ome.util.Filterable {
 		 setOptional(null);
 	  }
 // TODO catch class cast?
-	  setOptional((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):Optional",_Optional)); 
+	  setOptional((Boolean) filter.filter(OPTIONAL,_Optional)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -203,7 +193,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: List ------------------------------------------
 	  Boolean _List = null;
@@ -213,7 +203,17 @@ ome.util.Filterable {
 		 setList(null);
 	  }
 // TODO catch class cast?
-	  setList((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):List",_List)); 
+	  setList((Boolean) filter.filter(LIST,_List)); 
+
+	  // Visiting: Name ------------------------------------------
+	  String _Name = null;
+	  try {
+	     _Name = getName();
+	  } catch (Exception e) {
+		 setName(null);
+	  }
+// TODO catch class cast?
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Module ------------------------------------------
 	  Module _Module = null;
@@ -223,7 +223,7 @@ ome.util.Filterable {
 		 setModule(null);
 	  }
 // TODO catch class cast?
-	  setModule((Module) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):Module",_Module)); 
+	  setModule((Module) filter.filter(MODULE,_Module)); 
 
 	  // Visiting: AnalysisChainLinks ------------------------------------------
 	  Set _AnalysisChainLinks = null;
@@ -233,7 +233,7 @@ ome.util.Filterable {
 		 setAnalysisChainLinks(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainLinks((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):AnalysisChainLinks",_AnalysisChainLinks)); 
+	  setAnalysisChainLinks((Set) filter.filter(ANALYSISCHAINLINKS,_AnalysisChainLinks)); 
 
 	  // Visiting: SemanticType ------------------------------------------
 	  SemanticType _SemanticType = null;
@@ -243,7 +243,7 @@ ome.util.Filterable {
 		 setSemanticType(null);
 	  }
 // TODO catch class cast?
-	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(ome.model.FormalOutput):SemanticType",_SemanticType)); 
+	  setSemanticType((SemanticType) filter.filter(SEMANTICTYPE,_SemanticType)); 
    	 return true;
   }
   
@@ -251,6 +251,29 @@ ome.util.Filterable {
 	return "FormalOutput"+(formalOutputId==null ? ":Hash_"+this.hashCode() : ":Id_"+formalOutputId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String FORMALOUTPUTID = "FormalOutput_FormalOutputId";
+	public final static String FEATURETAG = "FormalOutput_FeatureTag";
+	public final static String OPTIONAL = "FormalOutput_Optional";
+	public final static String DESCRIPTION = "FormalOutput_Description";
+	public final static String LIST = "FormalOutput_List";
+	public final static String NAME = "FormalOutput_Name";
+	public final static String MODULE = "FormalOutput_Module";
+	public final static String ANALYSISCHAINLINKS = "FormalOutput_AnalysisChainLinks";
+	public final static String SEMANTICTYPE = "FormalOutput_SemanticType";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(FORMALOUTPUTID);
+	   FIELDS.add(FEATURETAG);
+	   FIELDS.add(OPTIONAL);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(LIST);
+	   FIELDS.add(NAME);
+	   FIELDS.add(MODULE);
+	   FIELDS.add(ANALYSISCHAINLINKS);
+	   FIELDS.add(SEMANTICTYPE);
+ 	}
 
 
 }

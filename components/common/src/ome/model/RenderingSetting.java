@@ -295,7 +295,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: TheT ------------------------------------------
 	  Integer _TheT = null;
@@ -305,7 +305,7 @@ ome.util.Filterable {
 		 setTheT(null);
 	  }
 // TODO catch class cast?
-	  setTheT((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):TheT",_TheT)); 
+	  setTheT((Integer) filter.filter(THET,_TheT)); 
 
 	  // Visiting: CdEnd ------------------------------------------
 	  Integer _CdEnd = null;
@@ -315,7 +315,7 @@ ome.util.Filterable {
 		 setCdEnd(null);
 	  }
 // TODO catch class cast?
-	  setCdEnd((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):CdEnd",_CdEnd)); 
+	  setCdEnd((Integer) filter.filter(CDEND,_CdEnd)); 
 
 	  // Visiting: InputEnd ------------------------------------------
 	  Double _InputEnd = null;
@@ -325,7 +325,7 @@ ome.util.Filterable {
 		 setInputEnd(null);
 	  }
 // TODO catch class cast?
-	  setInputEnd((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):InputEnd",_InputEnd)); 
+	  setInputEnd((Double) filter.filter(INPUTEND,_InputEnd)); 
 
 	  // Visiting: Model ------------------------------------------
 	  Integer _Model = null;
@@ -335,7 +335,7 @@ ome.util.Filterable {
 		 setModel(null);
 	  }
 // TODO catch class cast?
-	  setModel((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Model",_Model)); 
+	  setModel((Integer) filter.filter(MODEL,_Model)); 
 
 	  // Visiting: CdStart ------------------------------------------
 	  Integer _CdStart = null;
@@ -345,7 +345,7 @@ ome.util.Filterable {
 		 setCdStart(null);
 	  }
 // TODO catch class cast?
-	  setCdStart((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):CdStart",_CdStart)); 
+	  setCdStart((Integer) filter.filter(CDSTART,_CdStart)); 
 
 	  // Visiting: Green ------------------------------------------
 	  Integer _Green = null;
@@ -355,7 +355,7 @@ ome.util.Filterable {
 		 setGreen(null);
 	  }
 // TODO catch class cast?
-	  setGreen((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Green",_Green)); 
+	  setGreen((Integer) filter.filter(GREEN,_Green)); 
 
 	  // Visiting: Alpha ------------------------------------------
 	  Integer _Alpha = null;
@@ -365,7 +365,7 @@ ome.util.Filterable {
 		 setAlpha(null);
 	  }
 // TODO catch class cast?
-	  setAlpha((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Alpha",_Alpha)); 
+	  setAlpha((Integer) filter.filter(ALPHA,_Alpha)); 
 
 	  // Visiting: Blue ------------------------------------------
 	  Integer _Blue = null;
@@ -375,7 +375,7 @@ ome.util.Filterable {
 		 setBlue(null);
 	  }
 // TODO catch class cast?
-	  setBlue((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Blue",_Blue)); 
+	  setBlue((Integer) filter.filter(BLUE,_Blue)); 
 
 	  // Visiting: Red ------------------------------------------
 	  Integer _Red = null;
@@ -385,7 +385,7 @@ ome.util.Filterable {
 		 setRed(null);
 	  }
 // TODO catch class cast?
-	  setRed((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Red",_Red)); 
+	  setRed((Integer) filter.filter(RED,_Red)); 
 
 	  // Visiting: BitResolution ------------------------------------------
 	  Integer _BitResolution = null;
@@ -395,7 +395,7 @@ ome.util.Filterable {
 		 setBitResolution(null);
 	  }
 // TODO catch class cast?
-	  setBitResolution((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):BitResolution",_BitResolution)); 
+	  setBitResolution((Integer) filter.filter(BITRESOLUTION,_BitResolution)); 
 
 	  // Visiting: Active ------------------------------------------
 	  Boolean _Active = null;
@@ -405,7 +405,7 @@ ome.util.Filterable {
 		 setActive(null);
 	  }
 // TODO catch class cast?
-	  setActive((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Active",_Active)); 
+	  setActive((Boolean) filter.filter(ACTIVE,_Active)); 
 
 	  // Visiting: InputStart ------------------------------------------
 	  Double _InputStart = null;
@@ -415,7 +415,7 @@ ome.util.Filterable {
 		 setInputStart(null);
 	  }
 // TODO catch class cast?
-	  setInputStart((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):InputStart",_InputStart)); 
+	  setInputStart((Double) filter.filter(INPUTSTART,_InputStart)); 
 
 	  // Visiting: TheC ------------------------------------------
 	  Integer _TheC = null;
@@ -425,7 +425,7 @@ ome.util.Filterable {
 		 setTheC(null);
 	  }
 // TODO catch class cast?
-	  setTheC((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):TheC",_TheC)); 
+	  setTheC((Integer) filter.filter(THEC,_TheC)); 
 
 	  // Visiting: Coefficient ------------------------------------------
 	  Double _Coefficient = null;
@@ -435,7 +435,7 @@ ome.util.Filterable {
 		 setCoefficient(null);
 	  }
 // TODO catch class cast?
-	  setCoefficient((Double) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Coefficient",_Coefficient)); 
+	  setCoefficient((Double) filter.filter(COEFFICIENT,_Coefficient)); 
 
 	  // Visiting: TheZ ------------------------------------------
 	  Integer _TheZ = null;
@@ -445,7 +445,7 @@ ome.util.Filterable {
 		 setTheZ(null);
 	  }
 // TODO catch class cast?
-	  setTheZ((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):TheZ",_TheZ)); 
+	  setTheZ((Integer) filter.filter(THEZ,_TheZ)); 
 
 	  // Visiting: Family ------------------------------------------
 	  Integer _Family = null;
@@ -455,7 +455,7 @@ ome.util.Filterable {
 		 setFamily(null);
 	  }
 // TODO catch class cast?
-	  setFamily((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Family",_Family)); 
+	  setFamily((Integer) filter.filter(FAMILY,_Family)); 
 
 	  // Visiting: Experimenter ------------------------------------------
 	  Experimenter _Experimenter = null;
@@ -465,7 +465,7 @@ ome.util.Filterable {
 		 setExperimenter(null);
 	  }
 // TODO catch class cast?
-	  setExperimenter((Experimenter) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Experimenter",_Experimenter)); 
+	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -475,7 +475,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -485,7 +485,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.RenderingSetting):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -493,6 +493,51 @@ ome.util.Filterable {
 	return "RenderingSetting"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "RenderingSetting_AttributeId";
+	public final static String THET = "RenderingSetting_TheT";
+	public final static String CDEND = "RenderingSetting_CdEnd";
+	public final static String INPUTEND = "RenderingSetting_InputEnd";
+	public final static String MODEL = "RenderingSetting_Model";
+	public final static String CDSTART = "RenderingSetting_CdStart";
+	public final static String GREEN = "RenderingSetting_Green";
+	public final static String ALPHA = "RenderingSetting_Alpha";
+	public final static String BLUE = "RenderingSetting_Blue";
+	public final static String RED = "RenderingSetting_Red";
+	public final static String BITRESOLUTION = "RenderingSetting_BitResolution";
+	public final static String ACTIVE = "RenderingSetting_Active";
+	public final static String INPUTSTART = "RenderingSetting_InputStart";
+	public final static String THEC = "RenderingSetting_TheC";
+	public final static String COEFFICIENT = "RenderingSetting_Coefficient";
+	public final static String THEZ = "RenderingSetting_TheZ";
+	public final static String FAMILY = "RenderingSetting_Family";
+	public final static String EXPERIMENTER = "RenderingSetting_Experimenter";
+	public final static String IMAGE = "RenderingSetting_Image";
+	public final static String MODULEEXECUTION = "RenderingSetting_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(THET);
+	   FIELDS.add(CDEND);
+	   FIELDS.add(INPUTEND);
+	   FIELDS.add(MODEL);
+	   FIELDS.add(CDSTART);
+	   FIELDS.add(GREEN);
+	   FIELDS.add(ALPHA);
+	   FIELDS.add(BLUE);
+	   FIELDS.add(RED);
+	   FIELDS.add(BITRESOLUTION);
+	   FIELDS.add(ACTIVE);
+	   FIELDS.add(INPUTSTART);
+	   FIELDS.add(THEC);
+	   FIELDS.add(COEFFICIENT);
+	   FIELDS.add(THEZ);
+	   FIELDS.add(FAMILY);
+	   FIELDS.add(EXPERIMENTER);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

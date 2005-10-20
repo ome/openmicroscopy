@@ -103,7 +103,7 @@ ome.util.Filterable {
 		 setAnalysisNodeExecutionId(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisNodeExecutionId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisNodeExecution):AnalysisNodeExecutionId",_AnalysisNodeExecutionId)); 
+	  setAnalysisNodeExecutionId((Integer) filter.filter(ANALYSISNODEEXECUTIONID,_AnalysisNodeExecutionId)); 
 
 	  // Visiting: AnalysisChainExecution ------------------------------------------
 	  AnalysisChainExecution _AnalysisChainExecution = null;
@@ -113,7 +113,7 @@ ome.util.Filterable {
 		 setAnalysisChainExecution(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainExecution((AnalysisChainExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisNodeExecution):AnalysisChainExecution",_AnalysisChainExecution)); 
+	  setAnalysisChainExecution((AnalysisChainExecution) filter.filter(ANALYSISCHAINEXECUTION,_AnalysisChainExecution)); 
 
 	  // Visiting: AnalysisChainNode ------------------------------------------
 	  AnalysisChainNode _AnalysisChainNode = null;
@@ -123,7 +123,7 @@ ome.util.Filterable {
 		 setAnalysisChainNode(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainNode((AnalysisChainNode) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisNodeExecution):AnalysisChainNode",_AnalysisChainNode)); 
+	  setAnalysisChainNode((AnalysisChainNode) filter.filter(ANALYSISCHAINNODE,_AnalysisChainNode)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -133,7 +133,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisNodeExecution):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -141,6 +141,19 @@ ome.util.Filterable {
 	return "AnalysisNodeExecution"+(analysisNodeExecutionId==null ? ":Hash_"+this.hashCode() : ":Id_"+analysisNodeExecutionId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ANALYSISNODEEXECUTIONID = "AnalysisNodeExecution_AnalysisNodeExecutionId";
+	public final static String ANALYSISCHAINEXECUTION = "AnalysisNodeExecution_AnalysisChainExecution";
+	public final static String ANALYSISCHAINNODE = "AnalysisNodeExecution_AnalysisChainNode";
+	public final static String MODULEEXECUTION = "AnalysisNodeExecution_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ANALYSISNODEEXECUTIONID);
+	   FIELDS.add(ANALYSISCHAINEXECUTION);
+	   FIELDS.add(ANALYSISCHAINNODE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

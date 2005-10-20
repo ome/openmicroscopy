@@ -151,7 +151,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: PixelSizeC ------------------------------------------
 	  Float _PixelSizeC = null;
@@ -161,7 +161,7 @@ ome.util.Filterable {
 		 setPixelSizeC(null);
 	  }
 // TODO catch class cast?
-	  setPixelSizeC((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):PixelSizeC",_PixelSizeC)); 
+	  setPixelSizeC((Float) filter.filter(PIXELSIZEC,_PixelSizeC)); 
 
 	  // Visiting: PixelSizeT ------------------------------------------
 	  Float _PixelSizeT = null;
@@ -171,7 +171,7 @@ ome.util.Filterable {
 		 setPixelSizeT(null);
 	  }
 // TODO catch class cast?
-	  setPixelSizeT((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):PixelSizeT",_PixelSizeT)); 
+	  setPixelSizeT((Float) filter.filter(PIXELSIZET,_PixelSizeT)); 
 
 	  // Visiting: PixelSizeX ------------------------------------------
 	  Float _PixelSizeX = null;
@@ -181,7 +181,7 @@ ome.util.Filterable {
 		 setPixelSizeX(null);
 	  }
 // TODO catch class cast?
-	  setPixelSizeX((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):PixelSizeX",_PixelSizeX)); 
+	  setPixelSizeX((Float) filter.filter(PIXELSIZEX,_PixelSizeX)); 
 
 	  // Visiting: PixelSizeY ------------------------------------------
 	  Float _PixelSizeY = null;
@@ -191,7 +191,7 @@ ome.util.Filterable {
 		 setPixelSizeY(null);
 	  }
 // TODO catch class cast?
-	  setPixelSizeY((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):PixelSizeY",_PixelSizeY)); 
+	  setPixelSizeY((Float) filter.filter(PIXELSIZEY,_PixelSizeY)); 
 
 	  // Visiting: PixelSizeZ ------------------------------------------
 	  Float _PixelSizeZ = null;
@@ -201,7 +201,7 @@ ome.util.Filterable {
 		 setPixelSizeZ(null);
 	  }
 // TODO catch class cast?
-	  setPixelSizeZ((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):PixelSizeZ",_PixelSizeZ)); 
+	  setPixelSizeZ((Float) filter.filter(PIXELSIZEZ,_PixelSizeZ)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -211,7 +211,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -221,7 +221,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageDimension):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -229,6 +229,27 @@ ome.util.Filterable {
 	return "ImageDimension"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "ImageDimension_AttributeId";
+	public final static String PIXELSIZEC = "ImageDimension_PixelSizeC";
+	public final static String PIXELSIZET = "ImageDimension_PixelSizeT";
+	public final static String PIXELSIZEX = "ImageDimension_PixelSizeX";
+	public final static String PIXELSIZEY = "ImageDimension_PixelSizeY";
+	public final static String PIXELSIZEZ = "ImageDimension_PixelSizeZ";
+	public final static String IMAGE = "ImageDimension_Image";
+	public final static String MODULEEXECUTION = "ImageDimension_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(PIXELSIZEC);
+	   FIELDS.add(PIXELSIZET);
+	   FIELDS.add(PIXELSIZEX);
+	   FIELDS.add(PIXELSIZEY);
+	   FIELDS.add(PIXELSIZEZ);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

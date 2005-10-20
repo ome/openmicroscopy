@@ -115,7 +115,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.CategoryGroup):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -125,7 +125,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.CategoryGroup):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -135,7 +135,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.CategoryGroup):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: Categories ------------------------------------------
 	  Set _Categories = null;
@@ -145,7 +145,7 @@ ome.util.Filterable {
 		 setCategories(null);
 	  }
 // TODO catch class cast?
-	  setCategories((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.CategoryGroup):Categories",_Categories)); 
+	  setCategories((Set) filter.filter(CATEGORIES,_Categories)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -155,7 +155,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.CategoryGroup):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -163,6 +163,21 @@ ome.util.Filterable {
 	return "CategoryGroup"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "CategoryGroup_AttributeId";
+	public final static String NAME = "CategoryGroup_Name";
+	public final static String DESCRIPTION = "CategoryGroup_Description";
+	public final static String CATEGORIES = "CategoryGroup_Categories";
+	public final static String MODULEEXECUTION = "CategoryGroup_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(CATEGORIES);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

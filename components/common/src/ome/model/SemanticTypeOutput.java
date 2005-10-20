@@ -91,7 +91,7 @@ ome.util.Filterable {
 		 setSemanticTypeOutputId(null);
 	  }
 // TODO catch class cast?
-	  setSemanticTypeOutputId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticTypeOutput):SemanticTypeOutputId",_SemanticTypeOutputId)); 
+	  setSemanticTypeOutputId((Integer) filter.filter(SEMANTICTYPEOUTPUTID,_SemanticTypeOutputId)); 
 
 	  // Visiting: SemanticType ------------------------------------------
 	  SemanticType _SemanticType = null;
@@ -101,7 +101,7 @@ ome.util.Filterable {
 		 setSemanticType(null);
 	  }
 // TODO catch class cast?
-	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticTypeOutput):SemanticType",_SemanticType)); 
+	  setSemanticType((SemanticType) filter.filter(SEMANTICTYPE,_SemanticType)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -111,7 +111,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticTypeOutput):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -119,6 +119,17 @@ ome.util.Filterable {
 	return "SemanticTypeOutput"+(semanticTypeOutputId==null ? ":Hash_"+this.hashCode() : ":Id_"+semanticTypeOutputId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String SEMANTICTYPEOUTPUTID = "SemanticTypeOutput_SemanticTypeOutputId";
+	public final static String SEMANTICTYPE = "SemanticTypeOutput_SemanticType";
+	public final static String MODULEEXECUTION = "SemanticTypeOutput_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(SEMANTICTYPEOUTPUTID);
+	   FIELDS.add(SEMANTICTYPE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

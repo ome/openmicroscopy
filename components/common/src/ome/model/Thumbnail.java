@@ -127,7 +127,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Thumbnail):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Path ------------------------------------------
 	  String _Path = null;
@@ -137,7 +137,7 @@ ome.util.Filterable {
 		 setPath(null);
 	  }
 // TODO catch class cast?
-	  setPath((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Thumbnail):Path",_Path)); 
+	  setPath((String) filter.filter(PATH,_Path)); 
 
 	  // Visiting: MimeType ------------------------------------------
 	  String _MimeType = null;
@@ -147,7 +147,7 @@ ome.util.Filterable {
 		 setMimeType(null);
 	  }
 // TODO catch class cast?
-	  setMimeType((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Thumbnail):MimeType",_MimeType)); 
+	  setMimeType((String) filter.filter(MIMETYPE,_MimeType)); 
 
 	  // Visiting: Repository ------------------------------------------
 	  Repository _Repository = null;
@@ -157,7 +157,7 @@ ome.util.Filterable {
 		 setRepository(null);
 	  }
 // TODO catch class cast?
-	  setRepository((Repository) filter.filter("org.hibernate.mapping.RootClass(ome.model.Thumbnail):Repository",_Repository)); 
+	  setRepository((Repository) filter.filter(REPOSITORY,_Repository)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -167,7 +167,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.Thumbnail):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -177,7 +177,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.Thumbnail):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -185,6 +185,23 @@ ome.util.Filterable {
 	return "Thumbnail"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "Thumbnail_AttributeId";
+	public final static String PATH = "Thumbnail_Path";
+	public final static String MIMETYPE = "Thumbnail_MimeType";
+	public final static String REPOSITORY = "Thumbnail_Repository";
+	public final static String IMAGE = "Thumbnail_Image";
+	public final static String MODULEEXECUTION = "Thumbnail_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(PATH);
+	   FIELDS.add(MIMETYPE);
+	   FIELDS.add(REPOSITORY);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

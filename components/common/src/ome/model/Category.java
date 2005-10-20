@@ -127,7 +127,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Category):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -137,7 +137,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Category):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -147,7 +147,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Category):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: Classifications ------------------------------------------
 	  Set _Classifications = null;
@@ -157,7 +157,7 @@ ome.util.Filterable {
 		 setClassifications(null);
 	  }
 // TODO catch class cast?
-	  setClassifications((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Category):Classifications",_Classifications)); 
+	  setClassifications((Set) filter.filter(CLASSIFICATIONS,_Classifications)); 
 
 	  // Visiting: CategoryGroup ------------------------------------------
 	  CategoryGroup _CategoryGroup = null;
@@ -167,7 +167,7 @@ ome.util.Filterable {
 		 setCategoryGroup(null);
 	  }
 // TODO catch class cast?
-	  setCategoryGroup((CategoryGroup) filter.filter("org.hibernate.mapping.RootClass(ome.model.Category):CategoryGroup",_CategoryGroup)); 
+	  setCategoryGroup((CategoryGroup) filter.filter(CATEGORYGROUP,_CategoryGroup)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -177,7 +177,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.Category):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -185,6 +185,23 @@ ome.util.Filterable {
 	return "Category"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "Category_AttributeId";
+	public final static String NAME = "Category_Name";
+	public final static String DESCRIPTION = "Category_Description";
+	public final static String CLASSIFICATIONS = "Category_Classifications";
+	public final static String CATEGORYGROUP = "Category_CategoryGroup";
+	public final static String MODULEEXECUTION = "Category_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(CLASSIFICATIONS);
+	   FIELDS.add(CATEGORYGROUP);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

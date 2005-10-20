@@ -199,7 +199,7 @@ ome.util.Filterable {
 		 setModuleId(null);
 	  }
 // TODO catch class cast?
-	  setModuleId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):ModuleId",_ModuleId)); 
+	  setModuleId((Integer) filter.filter(MODULEID,_ModuleId)); 
 
 	  // Visiting: Location ------------------------------------------
 	  String _Location = null;
@@ -209,7 +209,7 @@ ome.util.Filterable {
 		 setLocation(null);
 	  }
 // TODO catch class cast?
-	  setLocation((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):Location",_Location)); 
+	  setLocation((String) filter.filter(LOCATION,_Location)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -219,7 +219,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: ExecutionInstructions ------------------------------------------
 	  String _ExecutionInstructions = null;
@@ -229,7 +229,7 @@ ome.util.Filterable {
 		 setExecutionInstructions(null);
 	  }
 // TODO catch class cast?
-	  setExecutionInstructions((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):ExecutionInstructions",_ExecutionInstructions)); 
+	  setExecutionInstructions((String) filter.filter(EXECUTIONINSTRUCTIONS,_ExecutionInstructions)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -239,7 +239,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: ModuleType ------------------------------------------
 	  String _ModuleType = null;
@@ -249,7 +249,7 @@ ome.util.Filterable {
 		 setModuleType(null);
 	  }
 // TODO catch class cast?
-	  setModuleType((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):ModuleType",_ModuleType)); 
+	  setModuleType((String) filter.filter(MODULETYPE,_ModuleType)); 
 
 	  // Visiting: DefaultIterator ------------------------------------------
 	  String _DefaultIterator = null;
@@ -259,7 +259,7 @@ ome.util.Filterable {
 		 setDefaultIterator(null);
 	  }
 // TODO catch class cast?
-	  setDefaultIterator((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):DefaultIterator",_DefaultIterator)); 
+	  setDefaultIterator((String) filter.filter(DEFAULTITERATOR,_DefaultIterator)); 
 
 	  // Visiting: NewFeatureTag ------------------------------------------
 	  String _NewFeatureTag = null;
@@ -269,7 +269,7 @@ ome.util.Filterable {
 		 setNewFeatureTag(null);
 	  }
 // TODO catch class cast?
-	  setNewFeatureTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):NewFeatureTag",_NewFeatureTag)); 
+	  setNewFeatureTag((String) filter.filter(NEWFEATURETAG,_NewFeatureTag)); 
 
 	  // Visiting: FormalOutputs ------------------------------------------
 	  Set _FormalOutputs = null;
@@ -279,7 +279,7 @@ ome.util.Filterable {
 		 setFormalOutputs(null);
 	  }
 // TODO catch class cast?
-	  setFormalOutputs((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):FormalOutputs",_FormalOutputs)); 
+	  setFormalOutputs((Set) filter.filter(FORMALOUTPUTS,_FormalOutputs)); 
 
 	  // Visiting: FormalInputs ------------------------------------------
 	  Set _FormalInputs = null;
@@ -289,7 +289,7 @@ ome.util.Filterable {
 		 setFormalInputs(null);
 	  }
 // TODO catch class cast?
-	  setFormalInputs((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):FormalInputs",_FormalInputs)); 
+	  setFormalInputs((Set) filter.filter(FORMALINPUTS,_FormalInputs)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
 	  Set _ModuleExecutions = null;
@@ -299,7 +299,7 @@ ome.util.Filterable {
 		 setModuleExecutions(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):ModuleExecutions",_ModuleExecutions)); 
+	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: AnalysisChainNodes ------------------------------------------
 	  Set _AnalysisChainNodes = null;
@@ -309,7 +309,7 @@ ome.util.Filterable {
 		 setAnalysisChainNodes(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainNodes((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.Module):AnalysisChainNodes",_AnalysisChainNodes)); 
+	  setAnalysisChainNodes((Set) filter.filter(ANALYSISCHAINNODES,_AnalysisChainNodes)); 
    	 return true;
   }
   
@@ -317,6 +317,35 @@ ome.util.Filterable {
 	return "Module"+(moduleId==null ? ":Hash_"+this.hashCode() : ":Id_"+moduleId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String MODULEID = "Module_ModuleId";
+	public final static String LOCATION = "Module_Location";
+	public final static String NAME = "Module_Name";
+	public final static String EXECUTIONINSTRUCTIONS = "Module_ExecutionInstructions";
+	public final static String DESCRIPTION = "Module_Description";
+	public final static String MODULETYPE = "Module_ModuleType";
+	public final static String DEFAULTITERATOR = "Module_DefaultIterator";
+	public final static String NEWFEATURETAG = "Module_NewFeatureTag";
+	public final static String FORMALOUTPUTS = "Module_FormalOutputs";
+	public final static String FORMALINPUTS = "Module_FormalInputs";
+	public final static String MODULEEXECUTIONS = "Module_ModuleExecutions";
+	public final static String ANALYSISCHAINNODES = "Module_AnalysisChainNodes";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(MODULEID);
+	   FIELDS.add(LOCATION);
+	   FIELDS.add(NAME);
+	   FIELDS.add(EXECUTIONINSTRUCTIONS);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(MODULETYPE);
+	   FIELDS.add(DEFAULTITERATOR);
+	   FIELDS.add(NEWFEATURETAG);
+	   FIELDS.add(FORMALOUTPUTS);
+	   FIELDS.add(FORMALINPUTS);
+	   FIELDS.add(MODULEEXECUTIONS);
+	   FIELDS.add(ANALYSISCHAINNODES);
+ 	}
 
 
 }

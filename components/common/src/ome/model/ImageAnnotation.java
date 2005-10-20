@@ -151,7 +151,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: TheT ------------------------------------------
 	  Integer _TheT = null;
@@ -161,7 +161,7 @@ ome.util.Filterable {
 		 setTheT(null);
 	  }
 // TODO catch class cast?
-	  setTheT((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):TheT",_TheT)); 
+	  setTheT((Integer) filter.filter(THET,_TheT)); 
 
 	  // Visiting: Content ------------------------------------------
 	  String _Content = null;
@@ -171,7 +171,7 @@ ome.util.Filterable {
 		 setContent(null);
 	  }
 // TODO catch class cast?
-	  setContent((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):Content",_Content)); 
+	  setContent((String) filter.filter(CONTENT,_Content)); 
 
 	  // Visiting: TheC ------------------------------------------
 	  Integer _TheC = null;
@@ -181,7 +181,7 @@ ome.util.Filterable {
 		 setTheC(null);
 	  }
 // TODO catch class cast?
-	  setTheC((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):TheC",_TheC)); 
+	  setTheC((Integer) filter.filter(THEC,_TheC)); 
 
 	  // Visiting: TheZ ------------------------------------------
 	  Integer _TheZ = null;
@@ -191,7 +191,7 @@ ome.util.Filterable {
 		 setTheZ(null);
 	  }
 // TODO catch class cast?
-	  setTheZ((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):TheZ",_TheZ)); 
+	  setTheZ((Integer) filter.filter(THEZ,_TheZ)); 
 
 	  // Visiting: Valid ------------------------------------------
 	  Boolean _Valid = null;
@@ -201,7 +201,7 @@ ome.util.Filterable {
 		 setValid(null);
 	  }
 // TODO catch class cast?
-	  setValid((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):Valid",_Valid)); 
+	  setValid((Boolean) filter.filter(VALID,_Valid)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -211,7 +211,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -221,7 +221,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.ImageAnnotation):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -229,6 +229,27 @@ ome.util.Filterable {
 	return "ImageAnnotation"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "ImageAnnotation_AttributeId";
+	public final static String THET = "ImageAnnotation_TheT";
+	public final static String CONTENT = "ImageAnnotation_Content";
+	public final static String THEC = "ImageAnnotation_TheC";
+	public final static String THEZ = "ImageAnnotation_TheZ";
+	public final static String VALID = "ImageAnnotation_Valid";
+	public final static String IMAGE = "ImageAnnotation_Image";
+	public final static String MODULEEXECUTION = "ImageAnnotation_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(THET);
+	   FIELDS.add(CONTENT);
+	   FIELDS.add(THEC);
+	   FIELDS.add(THEZ);
+	   FIELDS.add(VALID);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

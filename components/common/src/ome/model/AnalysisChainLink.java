@@ -127,7 +127,7 @@ ome.util.Filterable {
 		 setAnalysisChainLinkId(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainLinkId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainLink):AnalysisChainLinkId",_AnalysisChainLinkId)); 
+	  setAnalysisChainLinkId((Integer) filter.filter(ANALYSISCHAINLINKID,_AnalysisChainLinkId)); 
 
 	  // Visiting: AnalysisChain ------------------------------------------
 	  AnalysisChain _AnalysisChain = null;
@@ -137,7 +137,7 @@ ome.util.Filterable {
 		 setAnalysisChain(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChain((AnalysisChain) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainLink):AnalysisChain",_AnalysisChain)); 
+	  setAnalysisChain((AnalysisChain) filter.filter(ANALYSISCHAIN,_AnalysisChain)); 
 
 	  // Visiting: AnalysisChainNodeByToNode ------------------------------------------
 	  AnalysisChainNode _AnalysisChainNodeByToNode = null;
@@ -147,7 +147,7 @@ ome.util.Filterable {
 		 setAnalysisChainNodeByToNode(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainNodeByToNode((AnalysisChainNode) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainLink):AnalysisChainNodeByToNode",_AnalysisChainNodeByToNode)); 
+	  setAnalysisChainNodeByToNode((AnalysisChainNode) filter.filter(ANALYSISCHAINNODEBYTONODE,_AnalysisChainNodeByToNode)); 
 
 	  // Visiting: AnalysisChainNodeByFromNode ------------------------------------------
 	  AnalysisChainNode _AnalysisChainNodeByFromNode = null;
@@ -157,7 +157,7 @@ ome.util.Filterable {
 		 setAnalysisChainNodeByFromNode(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainNodeByFromNode((AnalysisChainNode) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainLink):AnalysisChainNodeByFromNode",_AnalysisChainNodeByFromNode)); 
+	  setAnalysisChainNodeByFromNode((AnalysisChainNode) filter.filter(ANALYSISCHAINNODEBYFROMNODE,_AnalysisChainNodeByFromNode)); 
 
 	  // Visiting: FormalOutput ------------------------------------------
 	  FormalOutput _FormalOutput = null;
@@ -167,7 +167,7 @@ ome.util.Filterable {
 		 setFormalOutput(null);
 	  }
 // TODO catch class cast?
-	  setFormalOutput((FormalOutput) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainLink):FormalOutput",_FormalOutput)); 
+	  setFormalOutput((FormalOutput) filter.filter(FORMALOUTPUT,_FormalOutput)); 
 
 	  // Visiting: FormalInput ------------------------------------------
 	  FormalInput _FormalInput = null;
@@ -177,7 +177,7 @@ ome.util.Filterable {
 		 setFormalInput(null);
 	  }
 // TODO catch class cast?
-	  setFormalInput((FormalInput) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainLink):FormalInput",_FormalInput)); 
+	  setFormalInput((FormalInput) filter.filter(FORMALINPUT,_FormalInput)); 
    	 return true;
   }
   
@@ -185,6 +185,23 @@ ome.util.Filterable {
 	return "AnalysisChainLink"+(analysisChainLinkId==null ? ":Hash_"+this.hashCode() : ":Id_"+analysisChainLinkId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ANALYSISCHAINLINKID = "AnalysisChainLink_AnalysisChainLinkId";
+	public final static String ANALYSISCHAIN = "AnalysisChainLink_AnalysisChain";
+	public final static String ANALYSISCHAINNODEBYTONODE = "AnalysisChainLink_AnalysisChainNodeByToNode";
+	public final static String ANALYSISCHAINNODEBYFROMNODE = "AnalysisChainLink_AnalysisChainNodeByFromNode";
+	public final static String FORMALOUTPUT = "AnalysisChainLink_FormalOutput";
+	public final static String FORMALINPUT = "AnalysisChainLink_FormalInput";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ANALYSISCHAINLINKID);
+	   FIELDS.add(ANALYSISCHAIN);
+	   FIELDS.add(ANALYSISCHAINNODEBYTONODE);
+	   FIELDS.add(ANALYSISCHAINNODEBYFROMNODE);
+	   FIELDS.add(FORMALOUTPUT);
+	   FIELDS.add(FORMALINPUT);
+ 	}
 
 
 }

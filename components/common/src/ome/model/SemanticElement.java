@@ -103,7 +103,7 @@ ome.util.Filterable {
 		 setSemanticElementId(null);
 	  }
 // TODO catch class cast?
-	  setSemanticElementId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticElement):SemanticElementId",_SemanticElementId)); 
+	  setSemanticElementId((Integer) filter.filter(SEMANTICELEMENTID,_SemanticElementId)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -113,7 +113,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticElement):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -123,7 +123,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticElement):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: SemanticType ------------------------------------------
 	  SemanticType _SemanticType = null;
@@ -133,7 +133,7 @@ ome.util.Filterable {
 		 setSemanticType(null);
 	  }
 // TODO catch class cast?
-	  setSemanticType((SemanticType) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticElement):SemanticType",_SemanticType)); 
+	  setSemanticType((SemanticType) filter.filter(SEMANTICTYPE,_SemanticType)); 
    	 return true;
   }
   
@@ -141,6 +141,19 @@ ome.util.Filterable {
 	return "SemanticElement"+(semanticElementId==null ? ":Hash_"+this.hashCode() : ":Id_"+semanticElementId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String SEMANTICELEMENTID = "SemanticElement_SemanticElementId";
+	public final static String NAME = "SemanticElement_Name";
+	public final static String DESCRIPTION = "SemanticElement_Description";
+	public final static String SEMANTICTYPE = "SemanticElement_SemanticType";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(SEMANTICELEMENTID);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(SEMANTICTYPE);
+ 	}
 
 
 }

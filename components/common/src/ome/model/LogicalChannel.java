@@ -319,7 +319,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: PhotometricInterpretation ------------------------------------------
 	  String _PhotometricInterpretation = null;
@@ -329,7 +329,7 @@ ome.util.Filterable {
 		 setPhotometricInterpretation(null);
 	  }
 // TODO catch class cast?
-	  setPhotometricInterpretation((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):PhotometricInterpretation",_PhotometricInterpretation)); 
+	  setPhotometricInterpretation((String) filter.filter(PHOTOMETRICINTERPRETATION,_PhotometricInterpretation)); 
 
 	  // Visiting: Mode ------------------------------------------
 	  String _Mode = null;
@@ -339,7 +339,7 @@ ome.util.Filterable {
 		 setMode(null);
 	  }
 // TODO catch class cast?
-	  setMode((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):Mode",_Mode)); 
+	  setMode((String) filter.filter(MODE,_Mode)); 
 
 	  // Visiting: AuxLightAttenuation ------------------------------------------
 	  Float _AuxLightAttenuation = null;
@@ -349,7 +349,7 @@ ome.util.Filterable {
 		 setAuxLightAttenuation(null);
 	  }
 // TODO catch class cast?
-	  setAuxLightAttenuation((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):AuxLightAttenuation",_AuxLightAttenuation)); 
+	  setAuxLightAttenuation((Float) filter.filter(AUXLIGHTATTENUATION,_AuxLightAttenuation)); 
 
 	  // Visiting: ExWave ------------------------------------------
 	  Integer _ExWave = null;
@@ -359,7 +359,7 @@ ome.util.Filterable {
 		 setExWave(null);
 	  }
 // TODO catch class cast?
-	  setExWave((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):ExWave",_ExWave)); 
+	  setExWave((Integer) filter.filter(EXWAVE,_ExWave)); 
 
 	  // Visiting: DetectorOffset ------------------------------------------
 	  Float _DetectorOffset = null;
@@ -369,7 +369,7 @@ ome.util.Filterable {
 		 setDetectorOffset(null);
 	  }
 // TODO catch class cast?
-	  setDetectorOffset((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):DetectorOffset",_DetectorOffset)); 
+	  setDetectorOffset((Float) filter.filter(DETECTOROFFSET,_DetectorOffset)); 
 
 	  // Visiting: AuxTechnique ------------------------------------------
 	  String _AuxTechnique = null;
@@ -379,7 +379,7 @@ ome.util.Filterable {
 		 setAuxTechnique(null);
 	  }
 // TODO catch class cast?
-	  setAuxTechnique((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):AuxTechnique",_AuxTechnique)); 
+	  setAuxTechnique((String) filter.filter(AUXTECHNIQUE,_AuxTechnique)); 
 
 	  // Visiting: Fluor ------------------------------------------
 	  String _Fluor = null;
@@ -389,7 +389,7 @@ ome.util.Filterable {
 		 setFluor(null);
 	  }
 // TODO catch class cast?
-	  setFluor((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):Fluor",_Fluor)); 
+	  setFluor((String) filter.filter(FLUOR,_Fluor)); 
 
 	  // Visiting: ContrastMethod ------------------------------------------
 	  String _ContrastMethod = null;
@@ -399,7 +399,7 @@ ome.util.Filterable {
 		 setContrastMethod(null);
 	  }
 // TODO catch class cast?
-	  setContrastMethod((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):ContrastMethod",_ContrastMethod)); 
+	  setContrastMethod((String) filter.filter(CONTRASTMETHOD,_ContrastMethod)); 
 
 	  // Visiting: DetectorGain ------------------------------------------
 	  Float _DetectorGain = null;
@@ -409,7 +409,7 @@ ome.util.Filterable {
 		 setDetectorGain(null);
 	  }
 // TODO catch class cast?
-	  setDetectorGain((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):DetectorGain",_DetectorGain)); 
+	  setDetectorGain((Float) filter.filter(DETECTORGAIN,_DetectorGain)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -419,7 +419,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: SamplesPerPixel ------------------------------------------
 	  Integer _SamplesPerPixel = null;
@@ -429,7 +429,7 @@ ome.util.Filterable {
 		 setSamplesPerPixel(null);
 	  }
 // TODO catch class cast?
-	  setSamplesPerPixel((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):SamplesPerPixel",_SamplesPerPixel)); 
+	  setSamplesPerPixel((Integer) filter.filter(SAMPLESPERPIXEL,_SamplesPerPixel)); 
 
 	  // Visiting: LightAttenuation ------------------------------------------
 	  Float _LightAttenuation = null;
@@ -439,7 +439,7 @@ ome.util.Filterable {
 		 setLightAttenuation(null);
 	  }
 // TODO catch class cast?
-	  setLightAttenuation((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):LightAttenuation",_LightAttenuation)); 
+	  setLightAttenuation((Float) filter.filter(LIGHTATTENUATION,_LightAttenuation)); 
 
 	  // Visiting: EmWave ------------------------------------------
 	  Integer _EmWave = null;
@@ -449,7 +449,7 @@ ome.util.Filterable {
 		 setEmWave(null);
 	  }
 // TODO catch class cast?
-	  setEmWave((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):EmWave",_EmWave)); 
+	  setEmWave((Integer) filter.filter(EMWAVE,_EmWave)); 
 
 	  // Visiting: AuxLightWavelength ------------------------------------------
 	  Integer _AuxLightWavelength = null;
@@ -459,7 +459,7 @@ ome.util.Filterable {
 		 setAuxLightWavelength(null);
 	  }
 // TODO catch class cast?
-	  setAuxLightWavelength((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):AuxLightWavelength",_AuxLightWavelength)); 
+	  setAuxLightWavelength((Integer) filter.filter(AUXLIGHTWAVELENGTH,_AuxLightWavelength)); 
 
 	  // Visiting: IlluminationType ------------------------------------------
 	  String _IlluminationType = null;
@@ -469,7 +469,7 @@ ome.util.Filterable {
 		 setIlluminationType(null);
 	  }
 // TODO catch class cast?
-	  setIlluminationType((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):IlluminationType",_IlluminationType)); 
+	  setIlluminationType((String) filter.filter(ILLUMINATIONTYPE,_IlluminationType)); 
 
 	  // Visiting: NdFilter ------------------------------------------
 	  Float _NdFilter = null;
@@ -479,7 +479,7 @@ ome.util.Filterable {
 		 setNdFilter(null);
 	  }
 // TODO catch class cast?
-	  setNdFilter((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):NdFilter",_NdFilter)); 
+	  setNdFilter((Float) filter.filter(NDFILTER,_NdFilter)); 
 
 	  // Visiting: PinholeSize ------------------------------------------
 	  Integer _PinholeSize = null;
@@ -489,7 +489,7 @@ ome.util.Filterable {
 		 setPinholeSize(null);
 	  }
 // TODO catch class cast?
-	  setPinholeSize((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):PinholeSize",_PinholeSize)); 
+	  setPinholeSize((Integer) filter.filter(PINHOLESIZE,_PinholeSize)); 
 
 	  // Visiting: LightWavelength ------------------------------------------
 	  Integer _LightWavelength = null;
@@ -499,7 +499,7 @@ ome.util.Filterable {
 		 setLightWavelength(null);
 	  }
 // TODO catch class cast?
-	  setLightWavelength((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):LightWavelength",_LightWavelength)); 
+	  setLightWavelength((Integer) filter.filter(LIGHTWAVELENGTH,_LightWavelength)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
 	  Set _ChannelComponents = null;
@@ -509,7 +509,7 @@ ome.util.Filterable {
 		 setChannelComponents(null);
 	  }
 // TODO catch class cast?
-	  setChannelComponents((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):ChannelComponents",_ChannelComponents)); 
+	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -519,7 +519,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -529,7 +529,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.LogicalChannel):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -537,6 +537,55 @@ ome.util.Filterable {
 	return "LogicalChannel"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "LogicalChannel_AttributeId";
+	public final static String PHOTOMETRICINTERPRETATION = "LogicalChannel_PhotometricInterpretation";
+	public final static String MODE = "LogicalChannel_Mode";
+	public final static String AUXLIGHTATTENUATION = "LogicalChannel_AuxLightAttenuation";
+	public final static String EXWAVE = "LogicalChannel_ExWave";
+	public final static String DETECTOROFFSET = "LogicalChannel_DetectorOffset";
+	public final static String AUXTECHNIQUE = "LogicalChannel_AuxTechnique";
+	public final static String FLUOR = "LogicalChannel_Fluor";
+	public final static String CONTRASTMETHOD = "LogicalChannel_ContrastMethod";
+	public final static String DETECTORGAIN = "LogicalChannel_DetectorGain";
+	public final static String NAME = "LogicalChannel_Name";
+	public final static String SAMPLESPERPIXEL = "LogicalChannel_SamplesPerPixel";
+	public final static String LIGHTATTENUATION = "LogicalChannel_LightAttenuation";
+	public final static String EMWAVE = "LogicalChannel_EmWave";
+	public final static String AUXLIGHTWAVELENGTH = "LogicalChannel_AuxLightWavelength";
+	public final static String ILLUMINATIONTYPE = "LogicalChannel_IlluminationType";
+	public final static String NDFILTER = "LogicalChannel_NdFilter";
+	public final static String PINHOLESIZE = "LogicalChannel_PinholeSize";
+	public final static String LIGHTWAVELENGTH = "LogicalChannel_LightWavelength";
+	public final static String CHANNELCOMPONENTS = "LogicalChannel_ChannelComponents";
+	public final static String IMAGE = "LogicalChannel_Image";
+	public final static String MODULEEXECUTION = "LogicalChannel_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(PHOTOMETRICINTERPRETATION);
+	   FIELDS.add(MODE);
+	   FIELDS.add(AUXLIGHTATTENUATION);
+	   FIELDS.add(EXWAVE);
+	   FIELDS.add(DETECTOROFFSET);
+	   FIELDS.add(AUXTECHNIQUE);
+	   FIELDS.add(FLUOR);
+	   FIELDS.add(CONTRASTMETHOD);
+	   FIELDS.add(DETECTORGAIN);
+	   FIELDS.add(NAME);
+	   FIELDS.add(SAMPLESPERPIXEL);
+	   FIELDS.add(LIGHTATTENUATION);
+	   FIELDS.add(EMWAVE);
+	   FIELDS.add(AUXLIGHTWAVELENGTH);
+	   FIELDS.add(ILLUMINATIONTYPE);
+	   FIELDS.add(NDFILTER);
+	   FIELDS.add(PINHOLESIZE);
+	   FIELDS.add(LIGHTWAVELENGTH);
+	   FIELDS.add(CHANNELCOMPONENTS);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

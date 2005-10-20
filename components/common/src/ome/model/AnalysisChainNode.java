@@ -151,7 +151,7 @@ ome.util.Filterable {
 		 setAnalysisChainNodeId(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainNodeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):AnalysisChainNodeId",_AnalysisChainNodeId)); 
+	  setAnalysisChainNodeId((Integer) filter.filter(ANALYSISCHAINNODEID,_AnalysisChainNodeId)); 
 
 	  // Visiting: NewFeatureTag ------------------------------------------
 	  String _NewFeatureTag = null;
@@ -161,7 +161,7 @@ ome.util.Filterable {
 		 setNewFeatureTag(null);
 	  }
 // TODO catch class cast?
-	  setNewFeatureTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):NewFeatureTag",_NewFeatureTag)); 
+	  setNewFeatureTag((String) filter.filter(NEWFEATURETAG,_NewFeatureTag)); 
 
 	  // Visiting: IteratorTag ------------------------------------------
 	  String _IteratorTag = null;
@@ -171,7 +171,7 @@ ome.util.Filterable {
 		 setIteratorTag(null);
 	  }
 // TODO catch class cast?
-	  setIteratorTag((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):IteratorTag",_IteratorTag)); 
+	  setIteratorTag((String) filter.filter(ITERATORTAG,_IteratorTag)); 
 
 	  // Visiting: AnalysisChain ------------------------------------------
 	  AnalysisChain _AnalysisChain = null;
@@ -181,7 +181,7 @@ ome.util.Filterable {
 		 setAnalysisChain(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChain((AnalysisChain) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):AnalysisChain",_AnalysisChain)); 
+	  setAnalysisChain((AnalysisChain) filter.filter(ANALYSISCHAIN,_AnalysisChain)); 
 
 	  // Visiting: Module ------------------------------------------
 	  Module _Module = null;
@@ -191,7 +191,7 @@ ome.util.Filterable {
 		 setModule(null);
 	  }
 // TODO catch class cast?
-	  setModule((Module) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):Module",_Module)); 
+	  setModule((Module) filter.filter(MODULE,_Module)); 
 
 	  // Visiting: AnalysisNodeExecutions ------------------------------------------
 	  Set _AnalysisNodeExecutions = null;
@@ -201,7 +201,7 @@ ome.util.Filterable {
 		 setAnalysisNodeExecutions(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisNodeExecutions((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):AnalysisNodeExecutions",_AnalysisNodeExecutions)); 
+	  setAnalysisNodeExecutions((Set) filter.filter(ANALYSISNODEEXECUTIONS,_AnalysisNodeExecutions)); 
 
 	  // Visiting: AnalysisChainLinksByToNode ------------------------------------------
 	  Set _AnalysisChainLinksByToNode = null;
@@ -211,7 +211,7 @@ ome.util.Filterable {
 		 setAnalysisChainLinksByToNode(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainLinksByToNode((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):AnalysisChainLinksByToNode",_AnalysisChainLinksByToNode)); 
+	  setAnalysisChainLinksByToNode((Set) filter.filter(ANALYSISCHAINLINKSBYTONODE,_AnalysisChainLinksByToNode)); 
 
 	  // Visiting: AnalysisChainLinksByFromNode ------------------------------------------
 	  Set _AnalysisChainLinksByFromNode = null;
@@ -221,7 +221,7 @@ ome.util.Filterable {
 		 setAnalysisChainLinksByFromNode(null);
 	  }
 // TODO catch class cast?
-	  setAnalysisChainLinksByFromNode((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.AnalysisChainNode):AnalysisChainLinksByFromNode",_AnalysisChainLinksByFromNode)); 
+	  setAnalysisChainLinksByFromNode((Set) filter.filter(ANALYSISCHAINLINKSBYFROMNODE,_AnalysisChainLinksByFromNode)); 
    	 return true;
   }
   
@@ -229,6 +229,27 @@ ome.util.Filterable {
 	return "AnalysisChainNode"+(analysisChainNodeId==null ? ":Hash_"+this.hashCode() : ":Id_"+analysisChainNodeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ANALYSISCHAINNODEID = "AnalysisChainNode_AnalysisChainNodeId";
+	public final static String NEWFEATURETAG = "AnalysisChainNode_NewFeatureTag";
+	public final static String ITERATORTAG = "AnalysisChainNode_IteratorTag";
+	public final static String ANALYSISCHAIN = "AnalysisChainNode_AnalysisChain";
+	public final static String MODULE = "AnalysisChainNode_Module";
+	public final static String ANALYSISNODEEXECUTIONS = "AnalysisChainNode_AnalysisNodeExecutions";
+	public final static String ANALYSISCHAINLINKSBYTONODE = "AnalysisChainNode_AnalysisChainLinksByToNode";
+	public final static String ANALYSISCHAINLINKSBYFROMNODE = "AnalysisChainNode_AnalysisChainLinksByFromNode";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ANALYSISCHAINNODEID);
+	   FIELDS.add(NEWFEATURETAG);
+	   FIELDS.add(ITERATORTAG);
+	   FIELDS.add(ANALYSISCHAIN);
+	   FIELDS.add(MODULE);
+	   FIELDS.add(ANALYSISNODEEXECUTIONS);
+	   FIELDS.add(ANALYSISCHAINLINKSBYTONODE);
+	   FIELDS.add(ANALYSISCHAINLINKSBYFROMNODE);
+ 	}
 
 
 }

@@ -127,7 +127,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.Classification):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Confidence ------------------------------------------
 	  Float _Confidence = null;
@@ -137,7 +137,7 @@ ome.util.Filterable {
 		 setConfidence(null);
 	  }
 // TODO catch class cast?
-	  setConfidence((Float) filter.filter("org.hibernate.mapping.RootClass(ome.model.Classification):Confidence",_Confidence)); 
+	  setConfidence((Float) filter.filter(CONFIDENCE,_Confidence)); 
 
 	  // Visiting: Valid ------------------------------------------
 	  Boolean _Valid = null;
@@ -147,7 +147,7 @@ ome.util.Filterable {
 		 setValid(null);
 	  }
 // TODO catch class cast?
-	  setValid((Boolean) filter.filter("org.hibernate.mapping.RootClass(ome.model.Classification):Valid",_Valid)); 
+	  setValid((Boolean) filter.filter(VALID,_Valid)); 
 
 	  // Visiting: Category ------------------------------------------
 	  Category _Category = null;
@@ -157,7 +157,7 @@ ome.util.Filterable {
 		 setCategory(null);
 	  }
 // TODO catch class cast?
-	  setCategory((Category) filter.filter("org.hibernate.mapping.RootClass(ome.model.Classification):Category",_Category)); 
+	  setCategory((Category) filter.filter(CATEGORY,_Category)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -167,7 +167,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.Classification):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -177,7 +177,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.Classification):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -185,6 +185,23 @@ ome.util.Filterable {
 	return "Classification"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "Classification_AttributeId";
+	public final static String CONFIDENCE = "Classification_Confidence";
+	public final static String VALID = "Classification_Valid";
+	public final static String CATEGORY = "Classification_Category";
+	public final static String IMAGE = "Classification_Image";
+	public final static String MODULEEXECUTION = "Classification_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(CONFIDENCE);
+	   FIELDS.add(VALID);
+	   FIELDS.add(CATEGORY);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

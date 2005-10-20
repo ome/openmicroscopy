@@ -151,7 +151,7 @@ ome.util.Filterable {
 		 setSemanticTypeId(null);
 	  }
 // TODO catch class cast?
-	  setSemanticTypeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):SemanticTypeId",_SemanticTypeId)); 
+	  setSemanticTypeId((Integer) filter.filter(SEMANTICTYPEID,_SemanticTypeId)); 
 
 	  // Visiting: Granularity ------------------------------------------
 	  String _Granularity = null;
@@ -161,7 +161,7 @@ ome.util.Filterable {
 		 setGranularity(null);
 	  }
 // TODO catch class cast?
-	  setGranularity((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):Granularity",_Granularity)); 
+	  setGranularity((String) filter.filter(GRANULARITY,_Granularity)); 
 
 	  // Visiting: Name ------------------------------------------
 	  String _Name = null;
@@ -171,7 +171,7 @@ ome.util.Filterable {
 		 setName(null);
 	  }
 // TODO catch class cast?
-	  setName((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):Name",_Name)); 
+	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
 	  String _Description = null;
@@ -181,7 +181,7 @@ ome.util.Filterable {
 		 setDescription(null);
 	  }
 // TODO catch class cast?
-	  setDescription((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):Description",_Description)); 
+	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: SemanticTypeOutputs ------------------------------------------
 	  Set _SemanticTypeOutputs = null;
@@ -191,7 +191,7 @@ ome.util.Filterable {
 		 setSemanticTypeOutputs(null);
 	  }
 // TODO catch class cast?
-	  setSemanticTypeOutputs((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):SemanticTypeOutputs",_SemanticTypeOutputs)); 
+	  setSemanticTypeOutputs((Set) filter.filter(SEMANTICTYPEOUTPUTS,_SemanticTypeOutputs)); 
 
 	  // Visiting: FormalOutputs ------------------------------------------
 	  Set _FormalOutputs = null;
@@ -201,7 +201,7 @@ ome.util.Filterable {
 		 setFormalOutputs(null);
 	  }
 // TODO catch class cast?
-	  setFormalOutputs((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):FormalOutputs",_FormalOutputs)); 
+	  setFormalOutputs((Set) filter.filter(FORMALOUTPUTS,_FormalOutputs)); 
 
 	  // Visiting: FormalInputs ------------------------------------------
 	  Set _FormalInputs = null;
@@ -211,7 +211,7 @@ ome.util.Filterable {
 		 setFormalInputs(null);
 	  }
 // TODO catch class cast?
-	  setFormalInputs((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):FormalInputs",_FormalInputs)); 
+	  setFormalInputs((Set) filter.filter(FORMALINPUTS,_FormalInputs)); 
 
 	  // Visiting: SemanticElements ------------------------------------------
 	  Set _SemanticElements = null;
@@ -221,7 +221,7 @@ ome.util.Filterable {
 		 setSemanticElements(null);
 	  }
 // TODO catch class cast?
-	  setSemanticElements((Set) filter.filter("org.hibernate.mapping.RootClass(ome.model.SemanticType):SemanticElements",_SemanticElements)); 
+	  setSemanticElements((Set) filter.filter(SEMANTICELEMENTS,_SemanticElements)); 
    	 return true;
   }
   
@@ -229,6 +229,27 @@ ome.util.Filterable {
 	return "SemanticType"+(semanticTypeId==null ? ":Hash_"+this.hashCode() : ":Id_"+semanticTypeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String SEMANTICTYPEID = "SemanticType_SemanticTypeId";
+	public final static String GRANULARITY = "SemanticType_Granularity";
+	public final static String NAME = "SemanticType_Name";
+	public final static String DESCRIPTION = "SemanticType_Description";
+	public final static String SEMANTICTYPEOUTPUTS = "SemanticType_SemanticTypeOutputs";
+	public final static String FORMALOUTPUTS = "SemanticType_FormalOutputs";
+	public final static String FORMALINPUTS = "SemanticType_FormalInputs";
+	public final static String SEMANTICELEMENTS = "SemanticType_SemanticElements";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(SEMANTICTYPEID);
+	   FIELDS.add(GRANULARITY);
+	   FIELDS.add(NAME);
+	   FIELDS.add(DESCRIPTION);
+	   FIELDS.add(SEMANTICTYPEOUTPUTS);
+	   FIELDS.add(FORMALOUTPUTS);
+	   FIELDS.add(FORMALINPUTS);
+	   FIELDS.add(SEMANTICELEMENTS);
+ 	}
 
 
 }

@@ -139,7 +139,7 @@ ome.util.Filterable {
 		 setAttributeId(null);
 	  }
 // TODO catch class cast?
-	  setAttributeId((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):AttributeId",_AttributeId)); 
+	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Index ------------------------------------------
 	  Integer _Index = null;
@@ -149,7 +149,7 @@ ome.util.Filterable {
 		 setIndex(null);
 	  }
 // TODO catch class cast?
-	  setIndex((Integer) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):Index",_Index)); 
+	  setIndex((Integer) filter.filter(INDEX,_Index)); 
 
 	  // Visiting: ColorDomain ------------------------------------------
 	  String _ColorDomain = null;
@@ -159,7 +159,7 @@ ome.util.Filterable {
 		 setColorDomain(null);
 	  }
 // TODO catch class cast?
-	  setColorDomain((String) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):ColorDomain",_ColorDomain)); 
+	  setColorDomain((String) filter.filter(COLORDOMAIN,_ColorDomain)); 
 
 	  // Visiting: ImagePixel ------------------------------------------
 	  ImagePixel _ImagePixel = null;
@@ -169,7 +169,7 @@ ome.util.Filterable {
 		 setImagePixel(null);
 	  }
 // TODO catch class cast?
-	  setImagePixel((ImagePixel) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):ImagePixel",_ImagePixel)); 
+	  setImagePixel((ImagePixel) filter.filter(IMAGEPIXEL,_ImagePixel)); 
 
 	  // Visiting: LogicalChannel ------------------------------------------
 	  LogicalChannel _LogicalChannel = null;
@@ -179,7 +179,7 @@ ome.util.Filterable {
 		 setLogicalChannel(null);
 	  }
 // TODO catch class cast?
-	  setLogicalChannel((LogicalChannel) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):LogicalChannel",_LogicalChannel)); 
+	  setLogicalChannel((LogicalChannel) filter.filter(LOGICALCHANNEL,_LogicalChannel)); 
 
 	  // Visiting: Image ------------------------------------------
 	  Image _Image = null;
@@ -189,7 +189,7 @@ ome.util.Filterable {
 		 setImage(null);
 	  }
 // TODO catch class cast?
-	  setImage((Image) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):Image",_Image)); 
+	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
 	  ModuleExecution _ModuleExecution = null;
@@ -199,7 +199,7 @@ ome.util.Filterable {
 		 setModuleExecution(null);
 	  }
 // TODO catch class cast?
-	  setModuleExecution((ModuleExecution) filter.filter("org.hibernate.mapping.RootClass(ome.model.ChannelComponent):ModuleExecution",_ModuleExecution)); 
+	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }
   
@@ -207,6 +207,25 @@ ome.util.Filterable {
 	return "ChannelComponent"+(attributeId==null ? ":Hash_"+this.hashCode() : ":Id_"+attributeId);
   }
   
+  // FIELD-FIELDS
+  
+	public final static String ATTRIBUTEID = "ChannelComponent_AttributeId";
+	public final static String INDEX = "ChannelComponent_Index";
+	public final static String COLORDOMAIN = "ChannelComponent_ColorDomain";
+	public final static String IMAGEPIXEL = "ChannelComponent_ImagePixel";
+	public final static String LOGICALCHANNEL = "ChannelComponent_LogicalChannel";
+	public final static String IMAGE = "ChannelComponent_Image";
+	public final static String MODULEEXECUTION = "ChannelComponent_ModuleExecution";
+ 	public final static Set FIELDS = new HashSet();
+	static {
+	   FIELDS.add(ATTRIBUTEID);
+	   FIELDS.add(INDEX);
+	   FIELDS.add(COLORDOMAIN);
+	   FIELDS.add(IMAGEPIXEL);
+	   FIELDS.add(LOGICALCHANNEL);
+	   FIELDS.add(IMAGE);
+	   FIELDS.add(MODULEEXECUTION);
+ 	}
 
 
 }

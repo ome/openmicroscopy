@@ -193,7 +193,7 @@ $c2j.getExtraCode($clazz)
 		 $set(null);
 	  }
 // TODO catch class cast?
-	  $set(($type) filter.filter("$clazz:$field",_$field)); 
+	  $set(($type) filter.filter(${field.toUpperCase()},_$field)); 
 ##if( $pkg.startsWith("ome."))
 ##elseif($type.equals("Set"))
 ##	  $set(($type) filter.filter((Collection)_$field)); 
@@ -208,6 +208,19 @@ $c2j.getExtraCode($clazz)
 	return "$c2j.getDeclarationName($clazz)"+($clazz.identifierProperty.name==null ? ":Hash_"+this.hashCode() : ":Id_"+$clazz.identifierProperty.name);
   }
   
+  // FIELD-FIELDS
+  
+#foreach($property in $c2j.getAllPropertiesIterator($clazz))
+#set( $field = $c2j.getPropertyName($property) )
+	public final static String ${field.toUpperCase()} = "${c2j.getDeclarationName($clazz)}_${field}";
+#end ## foreach
+	public final static Set FIELDS = new HashSet();
+	static {
+#foreach($property in $c2j.getAllPropertiesIterator($clazz))
+#set( $field = $c2j.getPropertyName($property) )
+	   FIELDS.add(${field.toUpperCase()});
+#end ## foreach
+	}
 ###########################################################
 ## </CustomCode>
 ###########################################################

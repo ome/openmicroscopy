@@ -23,7 +23,7 @@
         column="formal_output_id"
     >
         <generator class="sequence">
-            <param name="sequence">this_seq_does_not_exist</param>
+            <param name="sequence">formal_output_seq</param>
         </generator>
     </id>
 
@@ -32,13 +32,6 @@
         type="java.lang.String"
         column="feature_tag"
         length="128"
-    />
-    <property
-        name="name"
-        type="java.lang.String"
-        column="name"
-        not-null="true"
-        length="64"
     />
     <property
         name="optional"
@@ -57,6 +50,13 @@
         type="java.lang.Boolean"
         column="list"
         length="1"
+    />
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        not-null="true"
+        length="-1"
     />
 
     <!-- Associations -->
