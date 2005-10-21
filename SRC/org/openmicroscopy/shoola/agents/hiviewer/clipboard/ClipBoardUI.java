@@ -30,14 +30,9 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
-
-
-
-
 //Java imports
-import java.awt.BorderLayout;
 import java.util.Set;
-import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -62,7 +57,7 @@ import org.openmicroscopy.shoola.env.data.model.DataObject;
  * @since OME2.2
  */
 class ClipBoardUI
-    extends JPanel
+    extends JScrollPane
 {
 
     /** Position of the search tabbed pane. */
@@ -128,12 +123,11 @@ class ClipBoardUI
     /** Builds and lays out the GUI. */
     private void buildUI()
     {
-        setLayout(new BorderLayout());
         tabPane.add(searchView, SEARCH_TAB);
         tabPane.setTitleAt(SEARCH_TAB, SEARCH);
         tabPane.add(annotationView, ANNOTATE_TAB);
         tabPane.setTitleAt(ANNOTATE_TAB, ANNOTATIONS); 
-        add(tabPane, BorderLayout.CENTER);
+        setViewportView(tabPane);
     }
     
     /**
@@ -204,5 +198,7 @@ class ClipBoardUI
     {
         annotationView.manageAnnotation();
     }
-
+    
+    int getTabPaneHeight() { return tabPane.getHeight(); }
+    
 }

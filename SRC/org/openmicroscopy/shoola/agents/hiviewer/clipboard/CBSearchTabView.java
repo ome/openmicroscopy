@@ -34,10 +34,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -122,6 +124,9 @@ class CBSearchTabView
     /** The panel hosting the search controls. */
     private JPanel              searchPanel;
     
+    /** The panel hosting the legend. */
+    private JPanel              legendPanel;
+    
     /** The results tree. */
     private SearchResultsPane   pane;
     
@@ -200,6 +205,7 @@ class CBSearchTabView
         
         return searchPanel;
     }
+
     
     /**
      * Builds the legend panel.
@@ -208,8 +214,8 @@ class CBSearchTabView
      */
     private JPanel buildLegendPanel()
     {
-        JPanel p = new JPanel();
-        p.setLayout(new GridBagLayout());
+        legendPanel = new JPanel();
+        legendPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         
         // griddy constraints
@@ -219,33 +225,33 @@ class CBSearchTabView
         // one
         c.insets = new Insets(1, 1, 1, 1);
         Colors colors = Colors.getInstance();
-        p.add(buildLegend(colors.getColor(Colors.TITLE_BAR_HIGHLIGHT), 
+        legendPanel.add(buildLegend(colors.getColor(Colors.TITLE_BAR_HIGHLIGHT), 
                         "Currently selected"), c);
         
         // two
         c.gridx = 1;
-        c.gridy = 0;
-        p.add(buildLegend(colors.getColor(Colors.REGEX_ANNOTATION),
+        legendPanel.add(buildLegend(colors.getColor(Colors.REGEX_ANNOTATION),
                         "Found in annotation"), c);
         
         // three
         c.gridx = 0;
         c.gridy = 1;
-        p.add(buildLegend(colors.getColor(Colors.REGEX_TITLE), 
+        legendPanel.add(buildLegend(colors.getColor(Colors.REGEX_TITLE), 
                         "Found in title"), c);
            
         // four
         c.gridx = 1;
         c.gridy = 1;
-        p.add(buildLegend(colors.getColor(Colors.REGEX_TITLE_AND_ANNOTATION),
+        legendPanel.add(buildLegend(
+                        colors.getColor(Colors.REGEX_TITLE_AND_ANNOTATION),
                         "Found in either"), c);
 
         //five
         c.gridx = 0;
         c.gridy = 2;
-        p.add(buildLegend(colors.getColor(Colors.ANNOTATED),
+        legendPanel.add(buildLegend(colors.getColor(Colors.ANNOTATED),
                         "Found in annotated"), c);
-        return p;
+        return legendPanel;
     }
     
     /**
@@ -293,6 +299,13 @@ class CBSearchTabView
         searchButton.setEnabled(b);
         clearButton.setEnabled(b);
         searchType.setEnabled(b);
+    }
+    
+    private Dimension getControlsDimension()
+    {
+        Dimension ds = searchPanel.getPreferredSize();
+        Dimension dl = legendPanel.getPreferredSize();
+        return new Dimension(ds.width+dl.width+1, ds.height+dl.height+1);
     }
     
     /**
@@ -405,4 +418,19 @@ class CBSearchTabView
         searchPanel.setBorder(new TitledBorder("Search '"+title+"' for: ")); 
     }
     
+    
+    public void reshape(int x, int y, int w, int h)
+    {
+        Rectangle r = view.getVisibleRect();
+        Dimension dTree = treeHolder.getSize();
+        int hTab = view.getTabPaneHeight();
+        int hDiff = hTab-dTree.height;
+        if (hDiff > 0) {
+            Dimension dC = getControlsDimension();
+            Dimension d = new Dimension(dTree.width-10, r.height-hDiff-10);
+            if (hTab < r.height) treeHolder.setPreferredSize(d);
+            else if (dTree.height > dC.height) treeHolder.setPreferredSize(d);
+        }
+        super.reshape(x, y, w, h);
+    }
 }

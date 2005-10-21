@@ -91,6 +91,7 @@ class SearchResultsPane
     
     /**
      * Displays the popup menu at the specified location.
+     * 
      * @param x The x-coordinate.
      * @param y The y-coordinate.
      */
@@ -98,6 +99,7 @@ class SearchResultsPane
     {
         TreePopupMenu menu = view.getPopupMenu();
         DataObject target = getDataObject();
+        if (target == null) return;
         String txt = TreePopupMenu.BROWSE;
         boolean b = false;
         if (target instanceof ImageSummary) {
