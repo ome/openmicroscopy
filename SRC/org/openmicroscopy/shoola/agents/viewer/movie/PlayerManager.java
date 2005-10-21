@@ -178,7 +178,6 @@ public class PlayerManager
     {
         playing = false;
         pause = true;
-        syncSlider();
     }
     
 	/** Stop the movie. */
@@ -187,8 +186,7 @@ public class PlayerManager
         timer.stop();
         playing = false;
         pause = false;
-        up = true;
-        syncSlider();     
+        up = true;  
     }
     	
 	/** Handle event fired by timer. Advance the animation frame. */
@@ -209,6 +207,7 @@ public class PlayerManager
                 case Player.PINGPONG:
                     handlePingPong(); break;
             }
+            syncSlider();
         }
 	}
     

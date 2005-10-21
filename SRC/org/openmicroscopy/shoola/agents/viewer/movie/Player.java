@@ -77,6 +77,33 @@ public class Player
     
     private PlayerUI                player;
     
+    
+    /** Initializes the components. */
+    private void init(ViewerCtrl control, int maxT, int maxZ, 
+                    MovieSettings settings)
+    {
+        int max = maxT;
+        int s = settings.getStartT(), e = settings.getEndT();
+        if (maxT == 0) {
+            s = settings.getStartZ();
+            e = settings.getEndZ();
+            max = maxZ;
+        }
+        PlayerManager manager = new PlayerManager(this, control, max, 
+                                settings.getMovieIndex(), s, e);
+        player = new PlayerUI(manager, control.getRegistry(), maxT, maxZ, 
+                            settings); 
+    }
+    
+    /** Build and lay out the GUI. */
+    private void buildGUI()
+    {
+        Container c = getContentPane();
+        c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
+        getContentPane().add(player, BorderLayout.CENTER);
+        pack();
+    }
+    
 	/**
 	 * 
 	 * @param control	reference to the {@link ViewerCtrl control}.
@@ -90,30 +117,10 @@ public class Player
 		buildGUI();
 	}
 	
-	/** Initializes the components. */
-	private void init(ViewerCtrl control, int maxT, int maxZ, 
-                    MovieSettings settings)
-	{
-        int max = maxT;
-        int s = settings.getStartT(), e = settings.getEndT();
-        if (maxT == 0) {
-            s = settings.getStartZ();
-            e = settings.getEndZ();
-            max = maxZ;
-        }
-        PlayerManager manager = new PlayerManager(this, control, max, 
-                                settings.getMovieIndex(), s, e);
-        player = new PlayerUI(manager, control.getRegistry(), maxT, maxZ, 
-                            settings); 
-	}
-	
-	/** Build and lay out the GUI. */
-	private void buildGUI()
-	{
-        Container c = getContentPane();
-        c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
-        getContentPane().add(player, BorderLayout.CENTER);
-		pack();
-	}	
+    public void close()
+    {
+        setVisible(false);
+        dispose();
+    }
     
 }
