@@ -403,6 +403,7 @@ public class ViewerCtrl
         int maxZ = abstraction.getPixelsDims().sizeZ-1;
         int maxT = abstraction.getPixelsDims().sizeT-1;
         if (movieSettings == null) initMovieSettings(maxZ, maxT);
+        if (moviePlayer != null) moviePlayer.close();
         moviePlayer = new Player(this, maxT, maxZ, movieSettings);
         UIUtilities.centerAndShow(moviePlayer);
     }
