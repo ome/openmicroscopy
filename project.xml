@@ -9,7 +9,7 @@
   <id>omero</id>
   <groupId>omero</groupId>
   <name>Open Microscopy Environment Read-Only</name>
-  <currentVersion>1.0</currentVersion>
+  <currentVersion>${omero.version}</currentVersion>
   <description>OMERO is a web-application providing read-only query
 services to an existing OME installation</description>
 

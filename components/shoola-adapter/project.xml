@@ -5,19 +5,19 @@
   <pomVersion>3</pomVersion>
   <id>${pom.groupId}-pojos-adapter</id>
   <name>OME Pojos Adapter Code</name>
-  <currentVersion>1.0</currentVersion>
+  <currentVersion>${omero.version}</currentVersion>
   <package>ome.adapters.pojos</package>
   <description>Shoola Adapter for Omero. This code should really be in the Shoola code base.</description>
   <dependencies>
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>${pom.groupId}-common</artifactId>
-      <version>1.0</version>
+      <version>${omero.version}</version>
     </dependency>
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>${pom.groupId}-client</artifactId>
-      <version>1.0</version>
+      <version>${omero.version}</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>

@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <id>${pom.groupId}-server</id>
   <name>OME Server Code</name>
-  <currentVersion>1.0</currentVersion>
+  <currentVersion>${omero.version}</currentVersion>
   <package>ome</package>
   <description>Server code</description>
   <dependencies>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>${pom.groupId}-common</artifactId>
-      <version>1.0</version>
+      <version>${omero.version}</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
