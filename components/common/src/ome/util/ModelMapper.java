@@ -69,27 +69,41 @@ public abstract class ModelMapper extends ContextFilter {
 	protected Map model2target = new HashMap();//FIXME not thread safe. 
 	
 	public ModelBased map (Filterable source){ // TODO take any object. just like filter()
-		Filterable o = super.filter("MAPPING...",source);
-		ModelBased target = (ModelBased) findTarget(source);
-		fillTarget(source,target);
+		Filterable o = this.filter("MAPPING...",source);
 		return (ModelBased) model2target.get(o);
 	}
 	
 	public Collection map (Collection source){
 		Collection o = this.filter("MAPPING...", source);
-		Collection target = findCollection(source);
-		fillCollection(source, target);
 		return (Collection) model2target.get(o);
 	}
 	
 	public Map map(Map source){
 		Map o = this.filter("MAPPING...",source);
-		Map target = findMap(source);
-		fillMap(source,target);
 		return (Map)model2target.get(o);
 	}
 
+	public Filterable filter(String fieldId, Filterable source) {
+		Filterable o = super.filter(fieldId,source);
+		ModelBased target = (ModelBased) findTarget(o);
+		fillTarget(source,target);
+		return o;
+	}
 
+	public Collection filter(String fieldId, Collection source) {
+		Collection o = super.filter(fieldId,source);
+		Collection target = findCollection(o);
+		fillCollection(source,target);	
+		return o;
+	}
+	
+	public Map filter(String fieldId, Map source) {
+		Map o = super.filter(fieldId,source);
+		Map target = findMap(o);
+		fillMap(source,target);	
+		return o;
+	}
+	
 	public Object findTarget(Object current){
 		// IMMUTABLES
 		if (null == current |
@@ -154,20 +168,26 @@ public abstract class ModelMapper extends ContextFilter {
 	}
 
 	private void fillTarget(Filterable source, ModelBased target){
-		target.copy(((OMEModel)source),this);		
+		if (source!=null && target != null){
+			target.copy(((OMEModel)source),this);		
+		}
 	}
 	
 	private void fillCollection(Collection source, Collection target){
-		for (Iterator it = source.iterator(); it.hasNext();) {
-			Object o = it.next();
-			target.add(this.findTarget(o));
+		if (source!=null && target != null){
+			for (Iterator it = source.iterator(); it.hasNext();) {
+				Object o = it.next();
+				target.add(this.findTarget(o));
+			}
 		}
 	}
 	
 	private void fillMap(Map source, Map target){
-		for (Iterator it = source.keySet().iterator(); it.hasNext();) {
-			Object o = it.next();
-			target.put(findTarget(o),findTarget(source.get(o)));
+		if (source!=null && target != null){
+			for (Iterator it = source.keySet().iterator(); it.hasNext();) {
+				Object o = it.next();
+				target.put(findTarget(o),findTarget(source.get(o)));
+			}
 		}
 	}
 	
