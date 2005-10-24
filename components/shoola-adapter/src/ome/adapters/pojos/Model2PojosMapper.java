@@ -44,13 +44,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.model.Category;
+import ome.model.CategoryGroup;
 import ome.model.Dataset;
+import ome.model.DatasetAnnotation;
+import ome.model.Experimenter;
 import ome.model.Image;
+import ome.model.ImageAnnotation;
+import ome.model.ImagePixel;
 import ome.model.Project;
 import ome.util.Filterable;
 
+import pojos.AnnotationData;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
@@ -66,7 +76,7 @@ import pojos.ProjectData;
  */
 public class Model2PojosMapper extends ome.util.ModelMapper {
 	
-	private static Log log = LogFactory.getLog(Model2PojosMapper.class); // TODO protected in cases where inherited
+	protected static Log log = LogFactory.getLog(Model2PojosMapper.class); // TODO protected in cases where inherited
 	
 	private final static Map _c2c = new HashMap(); 
 	static {
@@ -74,13 +84,17 @@ public class Model2PojosMapper extends ome.util.ModelMapper {
 		_c2c.put(Image.class,ImageData.class);
 		_c2c.put(Dataset.class,DatasetData.class);
 		_c2c.put(Project.class,ProjectData.class);
+		_c2c.put(Experimenter.class,ExperimenterData.class);
+		_c2c.put(ImageAnnotation.class,AnnotationData.class);
+		_c2c.put(DatasetAnnotation.class,AnnotationData.class);
+		_c2c.put(Category.class,CategoryData.class);
+		_c2c.put(CategoryGroup.class, CategoryGroupData.class);
+		_c2c.put(ImagePixel.class,PixelsData.class);
 	}
 	
 	protected Map c2c() {
 		return _c2c;
 	}
-	
-	Map model2pojo = new HashMap();//FIXME not thread safe.
 	
 	public static Map pixelTypesMap = new HashMap();
 	

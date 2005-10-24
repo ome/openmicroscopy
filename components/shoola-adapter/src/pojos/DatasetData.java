@@ -67,16 +67,16 @@ public class DatasetData
 {
 
     /** The Dataset ID. */
-    public int      id;
+    private int      id;
     
     /** 
      * The Dataset's name.
      * This field may not be <code>null</code>.  
      */
-    public String   name;
+    private String   name;
     
     /** The Dataset's description. */
-    public String   description;
+    private String   description;
     
     /** 
      * All the Images contained in this Dataset.
@@ -84,7 +84,7 @@ public class DatasetData
      * Dataset contains no Images, then this set will be empty &#151;
      * but never <code>null</code>. 
      */
-    public Set      images;
+    private Set      images;
     
     /** 
      * All the Projects that contain this Dataset.
@@ -92,7 +92,7 @@ public class DatasetData
      * Dataset is not contained in any Project, then this set will be empty
      * &#151; but never <code>null</code>. 
      */
-    public Set      projects;
+    private Set      projects;
     
     /**
      * All the annotations related to this Dataset.
@@ -100,26 +100,82 @@ public class DatasetData
      * If this Dataset hasn't been annotated, then this set will be empty
      * &#151; but never <code>null</code>. 
      */
-    public Set      annotations;
+    private Set      annotations;
     
     /** 
      * The Experimenter that owns this Dataset.
      * This field may not be <code>null</code>.  
      */
-    public ExperimenterData owner;
+    private ExperimenterData owner;
     
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof Dataset) {
 			Dataset d = (Dataset) model;
-			this.id=mapper.nullSafeInt(d.getDatasetId());
-			this.name=d.getName();
-			this.description=d.getDescription();
-			this.images=(Set)mapper.createCollection(d.getImages());
-			this.projects=(Set)mapper.createCollection(d.getProjects());
-			this.annotations=(Set)mapper.createCollection(d.getDatasetAnnotations());
-			this.owner=(ExperimenterData)mapper.findTarget(d.getExperimenter());
+			this.setId(mapper.nullSafeInt(d.getDatasetId()));
+			this.setName(d.getName());
+			this.setDescription(d.getDescription());
+			this.setImages((Set)mapper.findCollection(d.getImages()));
+			this.setProjects((Set)mapper.findCollection(d.getProjects()));
+			this.setAnnotations((Set)mapper.findCollection(d.getDatasetAnnotations()));
+			this.setOwner((ExperimenterData)mapper.findTarget(d.getExperimenter()));
 		} else {
 			throw new IllegalArgumentException("DatasetData can only copy from Dataset");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setImages(Set images) {
+		this.images = images;
+	}
+
+	public Set getImages() {
+		return images;
+	}
+
+	public void setProjects(Set projects) {
+		this.projects = projects;
+	}
+
+	public Set getProjects() {
+		return projects;
+	}
+
+	public void setAnnotations(Set annotations) {
+		this.annotations = annotations;
+	}
+
+	public Set getAnnotations() {
+		return annotations;
+	}
+
+	public void setOwner(ExperimenterData owner) {
+		this.owner = owner;
+	}
+
+	public ExperimenterData getOwner() {
+		return owner;
+	}
 }

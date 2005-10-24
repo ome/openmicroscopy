@@ -68,16 +68,16 @@ public class CategoryData
 {
 
     /** The Category ID. */
-    public int      id;
+    private int      id;
     
     /** 
      * The Category's name.
      * This field may not be <code>null</code>.  
      */
-    public String   name;
+    private String   name;
     
     /** The Category's description. */
-    public String   description;
+    private String   description;
     
     /** 
      * All the Images classified under this Category.
@@ -85,23 +85,23 @@ public class CategoryData
      * Category contains no Images, then this set will be empty &#151;
      * but never <code>null</code>. 
      */
-    public Set      images;
+    private Set      images;
     
     /** The Category Group this Category belongs in. */
-    public CategoryGroupData group;
+    private CategoryGroupData group;
     
     /** 
      * The Experimenter that defined this Category Group.
      * This field may not be <code>null</code>.  
      */
-    public ExperimenterData owner;
+    private ExperimenterData owner;
     
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof Category) {
 			Category c = (Category) model;
-			this.id=mapper.nullSafeInt(c.getAttributeId());
-			this.name=c.getName();
-			this.description=c.getDescription();
+			this.setId(mapper.nullSafeInt(c.getAttributeId()));
+			this.setName(c.getName());
+			this.setDescription(c.getDescription());
 			Set _images = new HashSet();
 			for (Iterator i = c.getClassifications().iterator(); i.hasNext();) {
 				Classification cla = (Classification) i.next();
@@ -109,15 +109,63 @@ public class CategoryData
 					_images.add(mapper.findTarget(cla.getImage()));
 				}
 			}
-			this.images = _images;
-			this.group= (CategoryGroupData) mapper.findTarget(c.getCategoryGroup());
+			this.setImages(_images);
+			this.setGroup((CategoryGroupData) mapper.findTarget(c.getCategoryGroup()));
 			ModuleExecution mex = c.getModuleExecution();
 			if (mex!=null){
-				this.owner=(ExperimenterData) mapper.findTarget(mex.getExperimenter());
+				this.setOwner((ExperimenterData) mapper.findTarget(mex.getExperimenter()));
 			}
 		} else {
 			throw new IllegalArgumentException("CategoryData can only copy Category type.");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setImages(Set images) {
+		this.images = images;
+	}
+
+	public Set getImages() {
+		return images;
+	}
+
+	public void setGroup(CategoryGroupData group) {
+		this.group = group;
+	}
+
+	public CategoryGroupData getGroup() {
+		return group;
+	}
+
+	public void setOwner(ExperimenterData owner) {
+		this.owner = owner;
+	}
+
+	public ExperimenterData getOwner() {
+		return owner;
+	}
     
 }

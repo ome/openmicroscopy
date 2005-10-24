@@ -61,43 +61,99 @@ public class ExperimenterData
 {
 
     /** The Experimenter ID. */
-    public int         id;
+    private int         id;
     
     /** The Experimenter's first name. */
-    public String      firstName;
+    private String      firstName;
     
     /** The Experimenter's last name. */
-    public String      lastName;
+    private String      lastName;
     
     /** The Experimenter's email. */
-    public String      email;
+    private String      email;
     
     /** The Experimenter's institution. */
-    public String      institution;
+    private String      institution;
     
     /** The ID of the Group this Experimenter belongs in. */
-    public int         groupID;
+    private int         groupID;
     
     /** The name of the Group this Experimenter belongs in. */
-    public String      groupName;
+    private String      groupName;
      
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof Experimenter) {
 			Experimenter exp = (Experimenter) model;
 			if (exp.getAttributeId()!=null){
-				this.id=exp.getAttributeId().intValue();
+				this.setId(exp.getAttributeId().intValue());
 			}
-			this.firstName=exp.getFirstname();
-			this.lastName=exp.getLastname();
-			this.email=exp.getEmail();
-			this.institution=exp.getInstitution();
+			this.setFirstName(exp.getFirstname());
+			this.setLastName(exp.getLastname());
+			this.setEmail(exp.getEmail());
+			this.setInstitution(exp.getInstitution());
 			if (exp.getGroup()!=null){
 				Group g = exp.getGroup();
-				this.groupID=mapper.nullSafeInt(g.getAttributeId());
-				this.groupName=g.getName();
+				this.setGroupID(mapper.nullSafeInt(g.getAttributeId()));
+				this.setGroupName(g.getName());
 			}
 		} else {
 			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setInstitution(String institution) {
+		this.institution = institution;
+	}
+
+	public String getInstitution() {
+		return institution;
+	}
+
+	public void setGroupID(int groupID) {
+		this.groupID = groupID;
+	}
+
+	public int getGroupID() {
+		return groupID;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
 }

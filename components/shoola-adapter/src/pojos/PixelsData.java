@@ -118,88 +118,192 @@ public class PixelsData
     
     
     /** The Pixels ID. */
-    public int          id;
+    private int          id;
     
     /** The ID used by <i>OMEIS</i> to identify these Pixels. */
-    public long         imageServerID;
+    private long         imageServerID;
     
     /** The URL of the <i>OMEIS</i> instance that manages these Pixels. */
-    public String       imageServerURL;
+    private String       imageServerURL;
     
     /** 
      * The X dimension of the 5D data array.
      * That is, the number of pixels along the X-axis in a 2D-plane. 
      */
-    public int          sizeX;
+    private int          sizeX;
     
     /** 
      * The Y dimension of the 5D data array.
      * That is, the number of pixels along the Y-axis in a 2D-plane. 
      */
-    public int          sizeY;
+    private int          sizeY;
     
     /** 
      * The Z dimension of the 5D data array.
      * That is, the number of focal planes in the 3D-stack. 
      */
-    public int          sizeZ;
+    private int          sizeZ;
     
     /** 
      * The C dimension of the 5D data array.
      * That is, the number of wavelengths.
      */
-    public int          sizeC;
+    private int          sizeC;
     
     /** 
      * The T dimension of the 5D data array.
      * That is, the number of timepoints. 
      */ 
-    public int          sizeT;
+    private int          sizeT;
     
     /** The X-size of a pixel in microns. */
-    public double       pixelSizeX;
+    private double       pixelSizeX;
     
     /** The Y-size of a pixel in microns. */
-    public double       pixelSizeY;
+    private double       pixelSizeY;
     
     /** The Z-size of a pixel in microns. */
-    public double       pixelSizeZ;
+    private double       pixelSizeZ;
     
     /** One of the Pixels type identifiers defined by this class. */
-    public int          pixelType;
+    private int          pixelType;
     
     /** The Image these Pixels belong to. */
-    public ImageData    image;
+    private ImageData    image;
     
     public void copy(OMEModel model, ModelMapper mapper) {
 		if (model instanceof ImagePixel) {
 			ImagePixel pix = (ImagePixel) model;
-			this.id=mapper.nullSafeInt(pix.getAttributeId());
-			this.image=(ImageData)mapper.findTarget(pix.getImage());
-			this.imageServerID=mapper.nullSafeLong(pix.getImageServerId());
+			this.setId(mapper.nullSafeInt(pix.getAttributeId()));
+			this.setImage((ImageData)mapper.findTarget(pix.getImage()));
+			this.setImageServerID(mapper.nullSafeLong(pix.getImageServerId()));
 			Repository rep = pix.getRepository();
 			if (rep!=null){
-				this.imageServerURL=rep.getImageServerUrl();
+				this.setImageServerURL(rep.getImageServerUrl());
 			}
 			if (pix.getImage()!=null){
 				Set dims = pix.getImage().getImageDimensions();
 				if (dims !=null && dims.size()>0){
 					ImageDimension dim = (ImageDimension) dims.iterator().next();
-					this.pixelSizeX = dim.getPixelSizeX().doubleValue();
-					this.pixelSizeY = dim.getPixelSizeY().doubleValue();
-					this.pixelSizeZ = dim.getPixelSizeZ().doubleValue(); // TODO can explode
+					this.setPixelSizeX(dim.getPixelSizeX().doubleValue());
+					this.setPixelSizeY(dim.getPixelSizeY().doubleValue());
+					this.setPixelSizeZ(dim.getPixelSizeZ().doubleValue()); // TODO can explode
 				}
 			}
-			this.pixelType = Model2PojosMapper.getPixelTypeID(pix.getPixelType());
-			this.sizeC = mapper.nullSafeInt(pix.getSizeC());
-			this.sizeT = mapper.nullSafeInt(pix.getSizeT().intValue());
-			this.sizeX = mapper.nullSafeInt(pix.getSizeX().intValue());
-			this.sizeY = mapper.nullSafeInt(pix.getSizeY().intValue());
-			this.sizeZ = mapper.nullSafeInt(pix.getSizeZ().intValue()); // TODO null error here?
+			this.setPixelType(Model2PojosMapper.getPixelTypeID(pix.getPixelType()));
+			this.setSizeC(mapper.nullSafeInt(pix.getSizeC()));
+			this.setSizeT(mapper.nullSafeInt(pix.getSizeT().intValue()));
+			this.setSizeX(mapper.nullSafeInt(pix.getSizeX().intValue()));
+			this.setSizeY(mapper.nullSafeInt(pix.getSizeY().intValue()));
+			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ().intValue())); // TODO null error here?
 			
 		} else {
 			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setImageServerID(long imageServerID) {
+		this.imageServerID = imageServerID;
+	}
+
+	public long getImageServerID() {
+		return imageServerID;
+	}
+
+	public void setImageServerURL(String imageServerURL) {
+		this.imageServerURL = imageServerURL;
+	}
+
+	public String getImageServerURL() {
+		return imageServerURL;
+	}
+
+	public void setSizeX(int sizeX) {
+		this.sizeX = sizeX;
+	}
+
+	public int getSizeX() {
+		return sizeX;
+	}
+
+	public void setSizeY(int sizeY) {
+		this.sizeY = sizeY;
+	}
+
+	public int getSizeY() {
+		return sizeY;
+	}
+
+	public void setSizeZ(int sizeZ) {
+		this.sizeZ = sizeZ;
+	}
+
+	public int getSizeZ() {
+		return sizeZ;
+	}
+
+	public void setSizeC(int sizeC) {
+		this.sizeC = sizeC;
+	}
+
+	public int getSizeC() {
+		return sizeC;
+	}
+
+	public void setSizeT(int sizeT) {
+		this.sizeT = sizeT;
+	}
+
+	public int getSizeT() {
+		return sizeT;
+	}
+
+	public void setPixelSizeX(double pixelSizeX) {
+		this.pixelSizeX = pixelSizeX;
+	}
+
+	public double getPixelSizeX() {
+		return pixelSizeX;
+	}
+
+	public void setPixelSizeY(double pixelSizeY) {
+		this.pixelSizeY = pixelSizeY;
+	}
+
+	public double getPixelSizeY() {
+		return pixelSizeY;
+	}
+
+	public void setPixelSizeZ(double pixelSizeZ) {
+		this.pixelSizeZ = pixelSizeZ;
+	}
+
+	public double getPixelSizeZ() {
+		return pixelSizeZ;
+	}
+
+	public void setPixelType(int pixelType) {
+		this.pixelType = pixelType;
+	}
+
+	public int getPixelType() {
+		return pixelType;
+	}
+
+	public void setImage(ImageData image) {
+		this.image = image;
+	}
+
+	public ImageData getImage() {
+		return image;
+	}
     
 }

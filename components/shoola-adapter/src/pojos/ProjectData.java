@@ -62,16 +62,16 @@ public class ProjectData
 {
     
     /** The Project ID. */
-    public int      id;
+    private int      id;
     
     /** 
      * The Project's name.
      * This field may not be <code>null</code>. 
      */
-    public String   name;
+    private String   name;
     
     /** The Project's description. */
-    public String   description;
+    private String   description;
     
     /**
      * All the Datasets contained in this Project.
@@ -79,24 +79,64 @@ public class ProjectData
      * Project contains no Datasets, then this set will be empty &#151;
      * but never <code>null</code>.
      */
-    public Set          datasets;
+    private Set          datasets;
     
     /** 
      * The Experimenter that owns this Project.
      * This field may not be <code>null</code>.  
      */
-    public ExperimenterData owner;
+    private ExperimenterData owner;
     
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof Project) {
 			Project p = (Project) model;
-			this.id=mapper.nullSafeInt(p.getProjectId());
-			this.name=p.getName();
-			this.description=p.getDescription();
-			this.datasets=(Set) mapper.createCollection(p.getDatasets());
-			this.owner=(ExperimenterData) mapper.findTarget(p.getExperimenter());
+			this.setId(mapper.nullSafeInt(p.getProjectId()));
+			this.setName(p.getName());
+			this.setDescription(p.getDescription());
+			this.setDatasets((Set) mapper.findCollection(p.getDatasets()));
+			this.setOwner((ExperimenterData) mapper.findTarget(p.getExperimenter()));
 		} else { 
 			throw new IllegalArgumentException("ProjectData copies only from Project");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDatasets(Set datasets) {
+		this.datasets = datasets;
+	}
+
+	public Set getDatasets() {
+		return datasets;
+	}
+
+	public void setOwner(ExperimenterData owner) {
+		this.owner = owner;
+	}
+
+	public ExperimenterData getOwner() {
+		return owner;
+	}
 }

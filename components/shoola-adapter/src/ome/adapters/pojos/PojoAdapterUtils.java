@@ -236,17 +236,17 @@ public class PojoAdapterUtils {
 		ProjectData pd = new ProjectData();
 		to(cache, p, pd);
 
-		pd.id = p.getProjectId().intValue();
-		pd.name = p.getName();
-		pd.description = p.getDescription();
-		pd.owner = go(p.getExperimenter(), cache);
+		pd.setId(p.getProjectId().intValue());
+		pd.setName(p.getName());
+		pd.setDescription(p.getDescription());
+		pd.setOwner(go(p.getExperimenter(), cache));
 
 		Set set = new HashSet();
 		for (Iterator i = p.getDatasets().iterator(); i.hasNext();) {
 			Dataset d = (Dataset) i.next();
 			set.add(go(d, cache));
 		}
-		pd.datasets = set;
+		pd.setDatasets(set);
 		
 		return pd;
 	}
@@ -259,10 +259,10 @@ public class PojoAdapterUtils {
 		DatasetData dd = new DatasetData();
 		to(cache, d, dd);
 
-		dd.id = d.getDatasetId().intValue();
-		dd.name = d.getName();
-		dd.description = d.getDescription();
-		dd.owner = go(d.getExperimenter(), cache);
+		dd.setId(d.getDatasetId().intValue());
+		dd.setName(d.getName());
+		dd.setDescription(d.getDescription());
+		dd.setOwner(go(d.getExperimenter(), cache));
 		
 		Set set = new HashSet();
 		if (null==d.getImages()){
@@ -275,7 +275,7 @@ public class PojoAdapterUtils {
 				set.add(go(img, cache));
 			}
 		}
-		dd.images = set;
+		dd.setImages(set);
 		
 		Set set2 = new HashSet();
 		if (null==d.getDatasetAnnotations()){//TODO no size()==0 on this warnings!
@@ -288,7 +288,7 @@ public class PojoAdapterUtils {
 				set2.add(go(dann,cache));
 			}
 		}
-		dd.annotations = set2;
+		dd.setAnnotations(set2);
 		
 		Set set3 = new HashSet();
 		if (null==d.getProjects()){
@@ -301,7 +301,7 @@ public class PojoAdapterUtils {
 				set3.add(go(p,cache));
 			}
 		}
-		dd.projects = set3;
+		dd.setProjects(set3);
 		
 		return dd;
 	}
@@ -314,10 +314,10 @@ public class PojoAdapterUtils {
 		CategoryGroupData cgd = new CategoryGroupData();
 		to(cache, cg, cgd);
 
-		cgd.id = cg.getAttributeId().intValue();
-		cgd.description = cg.getDescription();
-		cgd.name = cg.getName();
-		cgd.owner = getOwnerFromMex(cg,cg.getModuleExecution(),cache);
+		cgd.setId(cg.getAttributeId().intValue());
+		cgd.setDescription(cg.getDescription());
+		cgd.setName(cg.getName());
+		cgd.setOwner(getOwnerFromMex(cg,cg.getModuleExecution(),cache));
 		Set set = new HashSet();
 		if (null==cg.getCategories()){
 			if (log.isWarnEnabled()){
@@ -329,7 +329,7 @@ public class PojoAdapterUtils {
 				set.add(go(c,cache));
 			}
 		}
-		cgd.categories = set; 
+		cgd.setCategories(set); 
 		
 		return cgd;
 	}
@@ -343,11 +343,11 @@ public class PojoAdapterUtils {
 		CategoryData cd = new CategoryData();
 		to(cache, c, cd);
 
-		cd.id = c.getAttributeId().intValue();
-		cd.name = c.getName();
-		cd.description = c.getDescription();
-		cd.owner = getOwnerFromMex(c,c.getModuleExecution(), cache);
-		cd.group = go(c.getCategoryGroup(),cache);
+		cd.setId(c.getAttributeId().intValue());
+		cd.setName(c.getName());
+		cd.setDescription(c.getDescription());
+		cd.setOwner(getOwnerFromMex(c,c.getModuleExecution(), cache));
+		cd.setGroup(go(c.getCategoryGroup(),cache));
 		
 		Set set = new HashSet();
 		Set clas = c.getClassifications();
@@ -368,7 +368,7 @@ public class PojoAdapterUtils {
 				}
 			}
 		}
-		cd.images = set;
+		cd.setImages(set);
 
 		return cd;
 	}
@@ -382,13 +382,13 @@ public class PojoAdapterUtils {
 		ImageData id = new ImageData();
 		to(cache, img, id);
 
-		id.id = img.getImageId().intValue();
-		id.name = img.getName();
-		id.description = img.getDescription();
-		id.inserted = new Timestamp(img.getInserted().getTime());
-		id.created = new Timestamp(img.getCreated().getTime());
-		id.owner = go(img.getExperimenter(), cache);
-		id.defaultPixels = go(img.getImagePixel(), cache);
+		id.setId(img.getImageId().intValue());
+		id.setName(img.getName());
+		id.setDescription(img.getDescription());
+		id.setInserted(new Timestamp(img.getInserted().getTime()));
+		id.setCreated(new Timestamp(img.getCreated().getTime()));
+		id.setOwner(go(img.getExperimenter(), cache));
+		id.setDefaultPixels(go(img.getImagePixel(), cache));
 
 		Set set = new HashSet();
 		if (null==img.getImagePixels()){
@@ -401,7 +401,7 @@ public class PojoAdapterUtils {
 				set.add(go(p, cache));
 			}
 		}
-		id.allPixels = set;
+		id.setAllPixels(set);
 
 		Set set2 = new HashSet();
 		if (null==img.getImageAnnotations()){
@@ -414,7 +414,7 @@ public class PojoAdapterUtils {
 				set2.add(go(iann,cache));
 			}
 		}
-		id.annotations = set2;
+		id.setAnnotations(set2);
 		
 		Set set3 = new HashSet();
 		if (null==img.getDatasets()){
@@ -427,7 +427,7 @@ public class PojoAdapterUtils {
 				set3.add(go(ds,cache));
 			}
 		}
-		id.datasets = set3;
+		id.setDatasets(set3);
 		
 		return id;
 	}
@@ -441,16 +441,16 @@ public class PojoAdapterUtils {
 		PixelsData pd = new PixelsData();
 		to(cache, ip, pd);
 
-		pd.id = ip.getAttributeId().intValue();
-		pd.image = go(ip.getImage(), cache);
-		pd.imageServerID = ip.getImageServerId().longValue();
+		pd.setId(ip.getAttributeId().intValue());
+		pd.setImage(go(ip.getImage(), cache));
+		pd.setImageServerID(ip.getImageServerId().longValue());
 		Repository rep = ip.getRepository();
 		if (null==rep){
 			if (log.isWarnEnabled()){
 				log.warn(nullRepository+ip);
 			}
 		} else {
-			pd.imageServerURL = ip.getRepository().getImageServerUrl();
+			pd.setImageServerURL(ip.getRepository().getImageServerUrl());
 		}
 
 		Set dims = ip.getImage().getImageDimensions();
@@ -464,16 +464,16 @@ public class PojoAdapterUtils {
 			}
 			List list = new ArrayList(dims);
 			ImageDimension dim = (ImageDimension) list.get(0);
-			pd.pixelSizeX = dim.getPixelSizeX().doubleValue();
-			pd.pixelSizeY = dim.getPixelSizeY().doubleValue();
-			pd.pixelSizeZ = dim.getPixelSizeZ().doubleValue();
+			pd.setPixelSizeX(dim.getPixelSizeX().doubleValue());
+			pd.setPixelSizeY(dim.getPixelSizeY().doubleValue());
+			pd.setPixelSizeZ(dim.getPixelSizeZ().doubleValue());
 		} 
-		pd.pixelType = PojoAdapterUtils.getPixelTypeID(ip.getPixelType());
-		pd.sizeC = ip.getSizeC().intValue();
-		pd.sizeT = ip.getSizeT().intValue();
-		pd.sizeX = ip.getSizeX().intValue();
-		pd.sizeY = ip.getSizeY().intValue();
-		pd.sizeZ = ip.getSizeZ().intValue();
+		pd.setPixelType(PojoAdapterUtils.getPixelTypeID(ip.getPixelType()));
+		pd.setSizeC(ip.getSizeC().intValue());
+		pd.setSizeT(ip.getSizeT().intValue());
+		pd.setSizeX(ip.getSizeX().intValue());
+		pd.setSizeY(ip.getSizeY().intValue());
+		pd.setSizeZ(ip.getSizeZ().intValue());
 		
 		return pd;
 	}
@@ -487,19 +487,19 @@ public class PojoAdapterUtils {
 		ExperimenterData ed = new ExperimenterData();
 		to(cache, e, ed);
 
-		ed.id = e.getAttributeId().intValue();
-		ed.firstName = e.getFirstname();
-		ed.lastName = e.getLastname();
-		ed.email = e.getEmail();
-		ed.institution = e.getInstitution();
+		ed.setId(e.getAttributeId().intValue());
+		ed.setFirstName(e.getFirstname());
+		ed.setLastName(e.getLastname());
+		ed.setEmail(e.getEmail());
+		ed.setInstitution(e.getInstitution());
 		Group g = e.getGroup();
 		if (null==g){
 			if (log.isWarnEnabled()){
 				log.warn(nullGroup+e);
 			}
 		} else {
-			ed.groupID = e.getGroup().getAttributeId().intValue();
-			ed.groupName = e.getGroup().getName();
+			ed.setGroupID(e.getGroup().getAttributeId().intValue());
+			ed.setGroupName(e.getGroup().getName());
 		}
 
 		return ed;
@@ -514,11 +514,11 @@ public class PojoAdapterUtils {
 		AnnotationData ad = new AnnotationData();
 		to(cache, ann, ad);
 
-		ad.id = ann.getAttributeId().intValue();
-		ad.owner = getOwnerFromMex(ann,ann.getModuleExecution(), cache);
-		ad.text = ann.getContent();
-		ad.lastModified = convertDate(ann.getModuleExecution().getTimestamp());
-		ad.annotatedObject = go(ann.getImage(), cache);
+		ad.setId(ann.getAttributeId().intValue());
+		ad.setOwner(getOwnerFromMex(ann,ann.getModuleExecution(), cache));
+		ad.setText(ann.getContent());
+		ad.setLastModified(convertDate(ann.getModuleExecution().getTimestamp()));
+		ad.setAnnotatedObject(go(ann.getImage(), cache));
 
 		return ad;
 	}
@@ -532,11 +532,11 @@ public class PojoAdapterUtils {
 		AnnotationData ad = new AnnotationData();
 		to(cache, ann, ad);
 
-		ad.id = ann.getAttributeId().intValue();
-		ad.owner = getOwnerFromMex(ann,ann.getModuleExecution(), cache);
-		ad.text = ann.getContent();
-		ad.lastModified = convertDate(ann.getModuleExecution().getTimestamp());
-		ad.annotatedObject = go(ann.getDataset(), cache);
+		ad.setId(ann.getAttributeId().intValue());
+		ad.setOwner(getOwnerFromMex(ann,ann.getModuleExecution(), cache));
+		ad.setText(ann.getContent());
+		ad.setLastModified(convertDate(ann.getModuleExecution().getTimestamp()));
+		ad.setAnnotatedObject(go(ann.getDataset(), cache));
 
 		return ad;
 	}

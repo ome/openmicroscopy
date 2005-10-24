@@ -68,30 +68,30 @@ public class ImageData
 {
 
     /** The Image ID. */
-    public int      id;
+    private int      id;
     
     /** 
      * The Image's name.
      * This field may not be <code>null</code>.  
      */
-    public String   name;
+    private String   name;
     
     /** The Image's description. */
-    public String   description;
+    private String   description;
     
     /**
      * The creation timestamp.
      * That is the time at which the Image was created.
      * This field may not be <code>null</code>.
      */
-    public Timestamp  created;
+    private Timestamp  created;
     
     /**
      * The insertion timestamp.
      * That is the time at which the Image was inserted into the DB.
      * This field may not be <code>null</code>.
      */
-    public Timestamp  inserted;
+    private Timestamp  inserted;
     
     /**
      * The default image data associated to this Image.
@@ -105,7 +105,7 @@ public class ImageData
      * Image only has one pixels set, then this field just points to that set.
      * This field may not be <code>null</code>.
      */
-    public PixelsData defaultPixels;
+    private PixelsData defaultPixels;
     
     /**
      * All the Pixels that belong to this Image.
@@ -115,7 +115,7 @@ public class ImageData
      * 
      * @see #defaultPixels
      */
-    public Set        allPixels;
+    private Set        allPixels;
     
     /** 
      * All the Datasets that contain this Image.
@@ -123,7 +123,7 @@ public class ImageData
      * Image is not contained in any Dataset, then this set will be empty
      * &#151; but never <code>null</code>. 
      */
-    public Set      datasets;
+    private Set      datasets;
     
     /**
      * All the annotations related to this Image.
@@ -131,27 +131,107 @@ public class ImageData
      * If this Image hasn't been annotated, then this set will be empty
      * &#151; but never <code>null</code>. 
      */
-    public Set      annotations;
+    private Set      annotations;
     
     /** 
      * The Experimenter that owns this Dataset.
      * This field may not be <code>null</code>.  
      */
-    public ExperimenterData owner;
+    private ExperimenterData owner;
     
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof Image) {
 			Image i = (Image) model;
-			this.id=mapper.nullSafeInt(i.getImageId());
-			this.name=i.getName();
-			this.description=i.getDescription();
-			this.created=mapper.date2timestamp(i.getCreated());
-			this.inserted=mapper.date2timestamp(i.getInserted());
-			this.defaultPixels=(PixelsData)mapper.findTarget(i.getImagePixel());
-			this.allPixels=(Set) mapper.createCollection(i.getImagePixels());
-			this.datasets=(Set) mapper.createCollection(i.getDatasets());
+			this.setId(mapper.nullSafeInt(i.getImageId()));
+			this.setName(i.getName());
+			this.setDescription(i.getDescription());
+			this.setCreated(mapper.date2timestamp(i.getCreated()));
+			this.setInserted(mapper.date2timestamp(i.getInserted()));
+			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getImagePixel()));
+			this.setAllPixels((Set) mapper.findCollection(i.getImagePixels()));
+			this.setDatasets((Set) mapper.findCollection(i.getDatasets()));
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setCreated(Timestamp created) {
+		this.created = created;
+	}
+
+	public Timestamp getCreated() {
+		return created;
+	}
+
+	public void setInserted(Timestamp inserted) {
+		this.inserted = inserted;
+	}
+
+	public Timestamp getInserted() {
+		return inserted;
+	}
+
+	public void setDefaultPixels(PixelsData defaultPixels) {
+		this.defaultPixels = defaultPixels;
+	}
+
+	public PixelsData getDefaultPixels() {
+		return defaultPixels;
+	}
+
+	public void setAllPixels(Set allPixels) {
+		this.allPixels = allPixels;
+	}
+
+	public Set getAllPixels() {
+		return allPixels;
+	}
+
+	public void setDatasets(Set datasets) {
+		this.datasets = datasets;
+	}
+
+	public Set getDatasets() {
+		return datasets;
+	}
+
+	public void setAnnotations(Set annotations) {
+		this.annotations = annotations;
+	}
+
+	public Set getAnnotations() {
+		return annotations;
+	}
+
+	public void setOwner(ExperimenterData owner) {
+		this.owner = owner;
+	}
+
+	public ExperimenterData getOwner() {
+		return owner;
+	}
 }

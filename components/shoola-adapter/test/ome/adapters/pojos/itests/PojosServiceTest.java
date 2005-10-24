@@ -1,3 +1,4 @@
+package ome.adapters.pojos.itests;
 /*
  * ome.adapters.pojos.utests.Model2PojosMapper
  *
@@ -26,69 +27,61 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.adapters.pojos.utests;
-
 //Java imports
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
 
 //Third-party libraries
-import junit.framework.TestCase;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.AfterReturningAdvice;
+import org.springframework.aop.framework.ProxyFactory;
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
-import ome.model.Dataset;
+import ome.api.Pojos;
 import ome.model.Image;
 import ome.model.Project;
-import ome.util.ModelMapper;
-import pojos.ProjectData;
+import ome.testing.AbstractPojosServiceTest;
 
-/**
- * 
+
+/** 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 1.0
+ * @since 2.0
  */
-public class Model2PojosMapperTest extends TestCase {
-	
-	ModelMapper mapper;
-	Project p;
-	Dataset d1,d2,d3;
-	Image i1,i2,i3;
-	
-	@Override
-	protected void setUp() throws Exception {
-		mapper=new Model2PojosMapper(); 
-		p = new Project(1);
-		d1 = new Dataset(2);
-		d2 = new Dataset(3);
-		d3 = new Dataset(4);
-		i1 = new Image(5);
-		i2 = new Image(6);
-		i3 = new Image(7);
-		p.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d1,d2,d2})));
-		d1.setImages(new HashSet<Image>(Arrays.asList(new Image[]{i1})));
-		d2.setImages(new HashSet<Image>(Arrays.asList(new Image[]{i2})));
-		d3.setImages(new HashSet<Image>(Arrays.asList(new Image[]{i3})));
-		i1.setCreated(new Date());
-		i2.setInserted(new Date());
-		i1.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d1})));
-		i2.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d2})));
-		i3.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d3})));
-	}
-	
-	public void test(){
-		ProjectData pd = (ProjectData) mapper.map(p);
-		assertNotNull(pd.getDatasets());
-		assertFalse(pd.getDatasets().size()==0);
-		assertFalse(pd.getDatasets().iterator().next().getClass()==Dataset.class);
-		System.out.println(pd);
-	}
-	
+public class PojosServiceTest
+        extends
+            AbstractPojosServiceTest {
+
+    protected static Log log = LogFactory.getLog(PojosServiceTest.class);
+    
+    /**
+     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
+     */
+    protected String[] getConfigLocations() {
+    	return new String[]{
+    			"ome/client/spring.xml"};
+    }    
+    
+    public void testMappingFindContainerHierarchies(){
+    	Model2PojosMapper mapper = new Model2PojosMapper(); // TODO doc mem-leak
+    	Set s = psrv.findContainerHierarchies(Project.class,ids,null);
+    	log.info(mapper.map(s));
+    }
+    
+    public void testMappingFindAnnotations(){
+    	Map m = new Model2PojosMapper().map(psrv.findAnnotations(Image.class,ids,null)); // XXX: note you have to use Image not ImageData here!
+    	log.info(m);
+    }
+    
 }
 

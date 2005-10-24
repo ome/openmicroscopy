@@ -58,64 +58,38 @@ import ome.api.OMEModel;
  */
 public abstract class ModelMapper extends ContextFilter {
 	
-	private static Log log = LogFactory.getLog(ModelMapper.class);
+	protected static Log log = LogFactory.getLog(ModelMapper.class);
 	
+	/** TODO
+	 * identity versus null mappins
+	 * @return
+	 */
 	protected abstract Map c2c();
 
-	Map model2pojo = new HashMap();//FIXME not thread safe. rename 
+	protected Map model2target = new HashMap();//FIXME not thread safe. 
 	
-	public ModelBased map (Filterable target){ // TODO take any object. just like filter()
-		Filterable o = this.filter("MAPPING...",target);
-		return (ModelBased) model2pojo.get(o);
+	public ModelBased map (Filterable source){ // TODO take any object. just like filter()
+		Filterable o = super.filter("MAPPING...",source);
+		ModelBased target = (ModelBased) findTarget(source);
+		fillTarget(source,target);
+		return (ModelBased) model2target.get(o);
 	}
 	
-	public Object currentContext(){
-		// TODO in ContextFilter filter out getContext(); and getCurrent!
-		if (context.get() == null) newContext();
-		LinkedList ll = (LinkedList) context.get();
-		return ll.size()>0 ? ll.getLast() : null;
+	public Collection map (Collection source){
+		Collection o = this.filter("MAPPING...", source);
+		Collection target = findCollection(source);
+		fillCollection(source, target);
+		return (Collection) model2target.get(o);
 	}
 	
-	public Object filter(String fieldId, Object o) {
-		Object result = super.filter(fieldId,o);
-		doMapping(fieldId,result);
-		return result;
-	}
-	
-	public Map filter(String fieldId, Map m) {
-		Map result = super.filter(fieldId,m);
-		doMapping(fieldId,result);
-		return result;		
+	public Map map(Map source){
+		Map o = this.filter("MAPPING...",source);
+		Map target = findMap(source);
+		fillMap(source,target);
+		return (Map)model2target.get(o);
 	}
 
-	public Collection filter(String fieldId, Collection c) {
-		Collection result = super.filter(fieldId,c);
-		doMapping(fieldId,result);
-		return result;
-	}
-	
-	public Filterable filter(String fieldId, Filterable input) {
-		Filterable result = super.filter(fieldId,input);
-		doMapping(fieldId,result);
-		return result;
-	}
 
-	// TODO no longer need context !
-	protected void doMapping(String fieldId, Object result){ 
-		if (result instanceof Filterable) {
-			Filterable current = (Filterable) result;
-			ModelBased target = (ModelBased) findTarget(current);
-			target.copy(((OMEModel)current),this);
-		//FIXME need to unify Filterable and OMEModel (inheritance?)
-		} else if (result instanceof Collection) {
-			Collection current = (Collection) result;
-			createCollection(current);
-		} else if (result instanceof Map){
-			Map current = (Map) result;
-			createMap(current);
-		}
-	}
-	
 	public Object findTarget(Object current){
 		// IMMUTABLES
 		if (null == current |
@@ -126,20 +100,84 @@ public abstract class ModelMapper extends ContextFilter {
 		} else 
 		// Special cases TODO put into doFindTarget
 		if (current instanceof Date){
-			return new Timestamp(((Date)current).getTime());
+			return new Timestamp(((Date)current).getTime()); // FIXME should cache these in model2pojo
 		}
 		
-		Object target = model2pojo.get(current);
+		Object target = model2target.get(current);
 		if (null == target) {
 			Class targetType = (Class) c2c().get(current.getClass());
-			try {
-				target = targetType.newInstance();
-			} catch (Exception e) {
-				throw new RuntimeException("Internal error: could not instantiate object of type "+targetType+" while trying to map "+current);
+			if (null != targetType){
+				try {
+					target = targetType.newInstance();
+				} catch (Exception e) {
+					throw new RuntimeException("Internal error: could not instantiate object of type "+targetType+" while trying to map "+current,e);
+				}
+				model2target.put(current,target);
 			}
-			model2pojo.put(current,target);
 		}
 		return target;
+	}
+
+	
+	public Collection findCollection(Collection source){
+		if (source==null) return null;
+		
+		Collection target = (Collection) model2target.get(source);
+		if (null==target) {
+			try { 
+				target = (Collection) source.getClass().newInstance(); // TODO do we want to use the map here?
+				model2target.put(source,target);
+			} catch (InstantiationException ie){
+				throw new RuntimeException(ie);
+			} catch (IllegalAccessException iae){
+				throw new RuntimeException(iae);
+			}
+		}
+		return target;
+	}
+	
+	public Map findMap(Map source){
+		if (source==null) return null;
+
+		Map target = (Map) model2target.get(source);
+		if (null==target){
+			try { 
+				target = (Map) source.getClass().newInstance();
+				model2target.put(source,target);
+			} catch (InstantiationException ie){
+				throw new RuntimeException(ie);
+			} catch (IllegalAccessException iae){
+				throw new RuntimeException(iae);
+			}
+		}
+		return target;
+	}
+
+	private void fillTarget(Filterable source, ModelBased target){
+		target.copy(((OMEModel)source),this);		
+	}
+	
+	private void fillCollection(Collection source, Collection target){
+		for (Iterator it = source.iterator(); it.hasNext();) {
+			Object o = it.next();
+			target.add(this.findTarget(o));
+		}
+	}
+	
+	private void fillMap(Map source, Map target){
+		for (Iterator it = source.keySet().iterator(); it.hasNext();) {
+			Object o = it.next();
+			target.put(findTarget(o),findTarget(source.get(o)));
+		}
+	}
+	
+	//	FIXME need to unify Filterable and OMEModel (inheritance?)
+	// TODO no longer need context !
+	public Object currentContext(){
+		// TODO in ContextFilter filter out getContext(); and getCurrent!
+		if (context.get() == null) newContext();
+		LinkedList ll = (LinkedList) context.get();
+		return ll.size()>0 ? ll.getLast() : null;
 	}
 	
 	public Timestamp date2timestamp(Date date){
@@ -156,37 +194,5 @@ public abstract class ModelMapper extends ContextFilter {
 		if (id==null) return 0;
 		return id.longValue();
 	}
-	
-	public Collection createCollection(Collection c){
-		if (c==null) return null;
-		try { 
-			Collection result = (Collection) c.getClass().newInstance();
-			for (Iterator it = c.iterator(); it.hasNext();) {
-				Object o = it.next();
-				result.add(this.findTarget(o));
-			}
-			return result;
-		} catch (InstantiationException ie){
-			throw new RuntimeException(ie);
-		} catch (IllegalAccessException iae){
-			throw new RuntimeException(iae);
-		}
-	}
-	
-	public Map createMap(Map m){
-		if (m==null) return null;
-		try { 
-			Map result = (Map) m.getClass().newInstance();
-			for (Iterator it = m.keySet().iterator(); it.hasNext();) {
-				Object o = it.next();
-				result.put(findTarget(o),findTarget(m.get(o)));
-			}
-			return result;
-		} catch (InstantiationException ie){
-			throw new RuntimeException(ie);
-		} catch (IllegalAccessException iae){
-			throw new RuntimeException(iae);
-		}
-	}
-	
+
 }

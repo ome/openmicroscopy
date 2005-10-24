@@ -64,53 +64,93 @@ public class AnnotationData
 {
     
     /** The annotation ID. */
-    public int          id;
+    private int          id;
     
     /** The annotation textual description. */
-    public String       text;
+    private String       text;
     
     /**
      * Timestamp indicating the last time the annotation was modified.
      * This field may not be <code>null</code>.
      */
-    public Timestamp    lastModified;
+    private Timestamp    lastModified;
     
     /**
      * The object this annotation refers to, for example Image or Dataset.
      * This field may not be <code>null</code>.
      */
-    public DataObject   annotatedObject;
+    private DataObject   annotatedObject;
     
     /** 
      * The Experimenter that wrote this annotation.
      * This field may not be <code>null</code>.  
      */
-    public ExperimenterData owner;
+    private ExperimenterData owner;
     
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof ImageAnnotation) {
 			ImageAnnotation iann = (ImageAnnotation) model;
-			this.id=mapper.nullSafeInt(iann.getAttributeId());
-			this.text=iann.getContent();
+			this.setId(mapper.nullSafeInt(iann.getAttributeId()));
+			this.setText(iann.getContent());
 			ModuleExecution mex = iann.getModuleExecution();
 			if (mex!=null){
-				this.lastModified=mapper.date2timestamp(mex.getTimestamp());
-				this.owner=(ExperimenterData) mapper.findTarget(mex.getExperimenter());
+				this.setLastModified(mapper.date2timestamp(mex.getTimestamp()));
+				this.setOwner((ExperimenterData) mapper.findTarget(mex.getExperimenter()));
 			}
-			this.annotatedObject=(DataObject) mapper.findTarget(iann.getImage());
+			this.setAnnotatedObject((DataObject) mapper.findTarget(iann.getImage()));
     	} else if (model instanceof DatasetAnnotation) {
 			DatasetAnnotation dann = (DatasetAnnotation) model;
-			this.id=mapper.nullSafeInt(dann.getAttributeId());
-			this.text=dann.getContent();
+			this.setId(mapper.nullSafeInt(dann.getAttributeId()));
+			this.setText(dann.getContent());
 			ModuleExecution mex = dann.getModuleExecution();
 			if (mex!=null){
-				this.lastModified=mapper.date2timestamp(mex.getTimestamp());
-				this.owner=(ExperimenterData) mapper.findTarget(mex.getExperimenter());
+				this.setLastModified(mapper.date2timestamp(mex.getTimestamp()));
+				this.setOwner((ExperimenterData) mapper.findTarget(mex.getExperimenter()));
 			}
-			this.annotatedObject=(DataObject) mapper.findTarget(dann.getDataset());
+			this.setAnnotatedObject((DataObject) mapper.findTarget(dann.getDataset()));
 		} else {
 			throw new IllegalArgumentException("AnnotationData can only copy from ImageAnnotation and DatasetAnnotations");
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setLastModified(Timestamp lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public Timestamp getLastModified() {
+		return lastModified;
+	}
+
+	public void setAnnotatedObject(DataObject annotatedObject) {
+		this.annotatedObject = annotatedObject;
+	}
+
+	public DataObject getAnnotatedObject() {
+		return annotatedObject;
+	}
+
+	public void setOwner(ExperimenterData owner) {
+		this.owner = owner;
+	}
+
+	public ExperimenterData getOwner() {
+		return owner;
+	}
     
 }

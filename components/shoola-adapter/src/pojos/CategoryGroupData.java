@@ -66,16 +66,16 @@ public class CategoryGroupData
 {
     
     /** The Category Group ID. */
-    public int      id;
+    private int      id;
     
     /** 
      * The Category Group's name.
      * This field may not be <code>null</code>.  
      */
-    public String   name;
+    private String   name;
     
     /** The Category Group's description. */
-    public String   description;
+    private String   description;
     
     /**
      * All the Categories contained in this Category Group.
@@ -83,23 +83,63 @@ public class CategoryGroupData
      * Category Group contains no Categories, then this set will be empty
      * &#151; but never <code>null</code>.
      */
-    public Set      categories;
+    private Set      categories;
     
     /** 
      * The Experimenter that defined this Category Group.
      * This field may not be <code>null</code>.  
      */
-    public ExperimenterData owner;
+    private ExperimenterData owner;
     
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof CategoryGroup) {
 			CategoryGroup cg = (CategoryGroup) model;
-			this.id=mapper.nullSafeInt(cg.getAttributeId());
-			this.name=cg.getName();
-			this.description=cg.getDescription();
-			this.categories=(Set) mapper.createCollection(cg.getCategories());
+			this.setId(mapper.nullSafeInt(cg.getAttributeId()));
+			this.setName(cg.getName());
+			this.setDescription(cg.getDescription());
+			this.setCategories((Set) mapper.findCollection(cg.getCategories()));
 		} else {
 			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
 		}
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setCategories(Set categories) {
+		this.categories = categories;
+	}
+
+	public Set getCategories() {
+		return categories;
+	}
+
+	public void setOwner(ExperimenterData owner) {
+		this.owner = owner;
+	}
+
+	public ExperimenterData getOwner() {
+		return owner;
+	}
 }
