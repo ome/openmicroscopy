@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Set;
 
 import ome.adapters.pojos.Model2PojosMapper;
-import ome.adapters.pojos.PojoAdapterUtils;
 import ome.api.OMEModel;
 import ome.model.ImageDimension;
 import ome.model.ImagePixel;

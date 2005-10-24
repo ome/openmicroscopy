@@ -1,1 +1,0 @@
-java -Xmx300M -jar ~/lib/HPjmeter/HPjmeter.jar

@@ -35,6 +35,8 @@ import java.net.MalformedURLException;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.Pojos;
+import ome.client.ServiceFactory;
 import ome.client.SpringHarness;
 import org.springframework.remoting.caucho.HessianProxyFactoryBean;
 
@@ -69,8 +71,8 @@ public class OmeroEntry {
 		resetAllFacades(url);
 	}
 	
-    public PojoOmeroService getPojoOmeroService(){
-        return new PojoHierarchyBrowsingAdapter();
+    public Pojos getPojoOmeroService(){
+        return new ServiceFactory().getPojosService();
     }
     
     private String constructUrl(String host, int port){
