@@ -1,0 +1,21 @@
+
+HOW TO UPDATE THE MODEL:
+-----------------------
+
+First you'll need to checkout the needed libraries from:
+
+  SUBVERSION/lib/hibernate3 
+  SUBVERSION/lib/middlegen
+
+where SUBVERSION is most likely
+
+  http://cvs.openmicroscopy.org.uk/svn/omero
+
+Then from within components/common
+
+   maven middlegen                         # This produces an error; ignore it
+   svn revert src/ome/model/Groups.hbm.xml # unless you know what you're doing
+   ant -f middlegen/middlegen-build.xml -Dbasedir=`pwd` gen-java
+   maven jar:install
+
+Now you can update other projects in Eclipse, etc. and begin working.

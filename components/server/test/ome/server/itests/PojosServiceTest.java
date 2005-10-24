@@ -63,6 +63,7 @@ import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.Project;
 import ome.security.Utils;
+import ome.testing.AbstractPojosServiceTest;
 import ome.util.builders.PojoOptions;
 
 /** 
@@ -76,15 +77,9 @@ import ome.util.builders.PojoOptions;
  */
 public class PojosServiceTest
         extends
-            AbstractDependencyInjectionSpringContextTests {
+            AbstractPojosServiceTest {
 
-    private static Log log = LogFactory.getLog(PojosServiceTest.class);
-    
-    private Pojos psrv;
-    
-    public void setPojos(Pojos service){
-    	psrv = service;
-    }
+    protected static Log log = LogFactory.getLog(PojosServiceTest.class); // TODO modify to getLog() abstract
     
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
@@ -94,100 +89,10 @@ public class PojosServiceTest
         return ConfigHelper.getConfigLocations(); 
     }
 
-    Set s;
-	PojoOptions po;
-	Set ids;
-    
     @Override
     protected void onSetUp() throws Exception {
+    	super.onSetUp();
     	Utils.setUserAuth();
-        po = new PojoOptions().exp(1);
-    	ids = new HashSet<Integer>(Arrays.asList(new Integer[]{1,2,3,4,5,6,250,253,249,258}));
-    }
-
-	public void testLoadProject(){
-		log("LOADP",psrv.loadContainerHierarchy(Project.class,ids,po.map()));
-    }
-
-	public void testLoadDataset(){
-		log("LOADD",psrv.loadContainerHierarchy(Dataset.class,ids,po.map()));
-    }
-
-	public void testLoadCG(){
-		log("LOADCG",psrv.loadContainerHierarchy(CategoryGroup.class,ids,po.map()));
-    }
-
-	public void testLoadC(){
-		log("Load_c",psrv.loadContainerHierarchy(Category.class,ids,po.map()));
-    }
-	
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-	
-    public void testFindProject(){
-		log("find_p",psrv.findContainerHierarchies(Project.class,ids,po.map()));
-    }
-
-    public void testFindCG(){
-    	log("find_cg",psrv.findContainerHierarchies(CategoryGroup.class,ids,po.map()));
-    }
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-
-    public void testDatasetAnn(){
-    	log("d_ann",psrv.findAnnotations(Dataset.class,ids,po.map()));    
-    }
-
-    public void testImageAnn(){
-    	log("i_ann",psrv.findAnnotations(Image.class,ids,po.map()));
-    }
-   
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-
-    public void testGetFromProject(){
-    	log("get_p",psrv.getImages(Project.class,ids,po.map()));
-    }
-
-    public void testGetFromDataset(){
-    	log("get_d",psrv.getImages(Dataset.class,ids,po.map()));
-    }
-
-    public void testGetFromCg(){
-    	log("get_cg",psrv.getImages(CategoryGroup.class,ids,po.map()));
-    }
-
-    public void testGetFromCat(){
-    	log("get_c",psrv.getImages(Category.class,ids,po.map()));
-    }
-
-    //TODO how to run getUserImages
-    public void testGetUser(){
-    	log("get_image",psrv.getUserImages(po.map()));    
-    }
-
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-    
-    public void testPathsInc() {
-    	log("path_inc",psrv.findCGCPaths(ids,0,po.map()));
-	}
-
-    public void testPathsExc() {
-    	log("path_exc",psrv.findCGCPaths(ids,1,po.map()));
-	}
-    
-    public void testPathsFAIL() {
-    	try {
-    		log("path_exc",psrv.findCGCPaths(ids,2,po.map()));
-    		fail(" no algorithm 2 !!!");
-    	} catch (IllegalArgumentException iae){
-    		// do nothing.
-    	}
-	}
-    
-    //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
-    
-    private void log(String name, Object result){
-    	log.info(String.format("%n1)NAME: %s%n2)RESULT: %s",name,result));
     }
     
 }
