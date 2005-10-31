@@ -3,9 +3,6 @@
 	<classpathentry excluding="**/.svn" kind="src" path="web"/>
 	<classpathentry excluding="**/.svn" kind="src" path="sql"/>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry excluding="**/.svn" kind="src" path="meta"/>
-	<classpathentry excluding="**/.svn|jdbcbeanclient/" kind="src" path="omeis/src"/>
-	<classpathentry excluding="**/.svn|jdbcbeanclient/" kind="src" path="omeis/test"/>
 	<classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>

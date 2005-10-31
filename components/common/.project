@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <projectDescription>
-  <name>omero-common</name>
+  <name>OME_2_5-omero-common</name>
   <comment>Common code: Model code generated from middlegen</comment>
   <projects>
   </projects>
