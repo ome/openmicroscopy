@@ -110,9 +110,14 @@ public class Model2PojosMapper extends ome.util.ModelMapper {
 	}
 	
 	static public int getPixelTypeID(String pixelType) {
-		if (!pixelTypesMap.containsKey(pixelType))
+		if (null==pixelType){
+			throw new IllegalArgumentException("Null values not excepted");
+		}
+		
+		if (!pixelTypesMap.containsKey(pixelType.toUpperCase()))
 			throw new IllegalArgumentException("Unknown pixel type:"+pixelType);
-		return ((Integer)pixelTypesMap.get(pixelType)).intValue();
+		
+		return ((Integer)pixelTypesMap.get(pixelType.toUpperCase())).intValue();
 	}
 	
 }
