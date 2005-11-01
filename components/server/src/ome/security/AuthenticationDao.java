@@ -32,6 +32,9 @@ package ome.security;
 //Java imports
 
 //Third-party libraries
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -79,9 +82,19 @@ public class AuthenticationDao extends JdbcDaoImpl implements
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
         return new User(user.getUsername(), user.getPassword(),
-            user.isEnabled(), true, true, true, user.getAuthorities());
+            user.isEnabled(), true, true, true, mapAuthorities(user.getAuthorities()));
 
 	}
+	
+	private GrantedAuthority[] mapAuthorities(GrantedAuthority[] auths){
+		List<GrantedAuthority> oldList = Arrays.asList(auths);
+		List<GrantedAuthority> newList = new ArrayList<GrantedAuthority>();
+		for (GrantedAuthority auth : oldList){
+			newList.add(new GrantedAuthorityImpl(auth));
+		}
+		return (GrantedAuthority[]) newList.toArray(new GrantedAuthority[oldList.size()]);                                                 
+	}
 
+	
 
 }

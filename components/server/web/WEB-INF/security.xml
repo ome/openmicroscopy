@@ -167,6 +167,10 @@ Who's on line? on AuthenticationSuccessEvent with JMS
 	    </property>
 	</bean>
 
+	 <bean id="remoteAuthenticationManager" class="net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManagerImpl">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+	</bean>
+	 
    <!-- ======================== FILTER CHAIN ======================= -->
 
 	<!--  if you wish to use channel security, add "channelProcessingFilter," in front

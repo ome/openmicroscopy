@@ -36,6 +36,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.caucho.hessian.client.HessianRuntimeException;
 import com.caucho.hessian.io.HessianServiceException;
 
 //Application-internal dependencies
@@ -67,7 +68,8 @@ public class ExceptionHandler implements MethodInterceptor {
     		log.debug("Exception thrown ("+t.getClass()+"):"+t.getMessage());
     		if (filter_p(t)){
     			// throw new RuntimeException("Internal server error.",t);//TODO
-    			throw new HessianServiceException("ServiceException","Internal Error",t);
+    			// throw new HessianServiceException("ServiceException","Internal Error",t);
+    			throw new HessianRuntimeException("InternalServerError",t);
     		}
     		throw t;
     	}

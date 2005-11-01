@@ -54,6 +54,15 @@ services to an existing OME installation</description>
       </properties>
     </dependency>
     <dependency>
+      <groupId>acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+      <version>0.8.2</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
       <groupId>omero</groupId>
       <artifactId>hessian</artifactId>
       <version>${hessian.version}</version>

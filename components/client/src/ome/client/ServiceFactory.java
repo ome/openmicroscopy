@@ -34,6 +34,20 @@ package ome.client;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.net.URL;
+import java.util.Map;
+
+import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.AuthenticationManager;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.rcp.RemoteAuthenticationException;
+import net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManager;
+
+import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
 import ome.api.HierarchyBrowsing;
 import ome.api.Pojos;
 
@@ -51,12 +65,41 @@ import ome.api.Pojos;
  */
 public class ServiceFactory {
 
+	public final static String SPRING_CONF_FILE = "ome/client/spring.xml";
+    public ApplicationContext ctx;
+    
+	public ServiceFactory(){
+        URL path = ServiceFactory.class.getClassLoader().getResource(SPRING_CONF_FILE);
+        if (path==null){
+            throw new RuntimeException("Client jar corrupted. Can't find internal configuration file:\n"+SPRING_CONF_FILE);
+        }
+        try {
+			ctx = new FileSystemXmlApplicationContext(path.toString());
+		} catch (Exception e) {
+			throw new RuntimeException("Can't load file: "+path,e);
+		}
+		
+		Map auth = (Map) ctx.getBean("auth");
+		try {
+			getRemoteAuthenticationManager().attemptAuthentication((String)auth.get("name"),(String)auth.get("pass"));
+		} catch (AuthenticationException authEx){
+            throw new RemoteAuthenticationException(authEx.getMessage());			
+		}
+
+	}
+
+	public RemoteAuthenticationManager getRemoteAuthenticationManager(){
+        return (RemoteAuthenticationManager) this.ctx.getBean("remoteAuthenticationFacade");
+    }
+	
     public HierarchyBrowsing getHierarchyBrowsingService(){
-        return (HierarchyBrowsing) SpringHarness.ctx.getBean("hierarchyBrowsingFacade");
+        return (HierarchyBrowsing) this.ctx.getBean("hierarchyBrowsingFacade");
     }
     
     public Pojos getPojosService(){
-        return (Pojos) SpringHarness.ctx.getBean("pojosFacade");
+        return (Pojos) this.ctx.getBean("pojosFacade");
     }
+
+    
     
 }

@@ -129,7 +129,7 @@ public class SecurityTest
     	try {
     		p.getUserImages(null);
     		fail("Exception must be thrown");
-    	} catch (Exception e){
+    	} catch (Exception e){ //TODO which one!
     		log.info("Caugt expected exception:"+e.getMessage());
     	}
     }
