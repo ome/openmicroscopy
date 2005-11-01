@@ -9,7 +9,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/connector-api.jar"/>
 	<classpathentry sourcepath="/USER_HOME/lib/ant/src" kind="var" path="MAVEN_REPO/ant/jars/ant-1.6.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ant/jars/ant-launcher-1.6.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-1.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-2.5.jar"/>
 	<classpathentry sourcepath="/USER_HOME/lib/acegi-0.8.3" kind="var" path="MAVEN_REPO/acegisecurity/jars/acegi-security-0.8.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/oro/jars/oro-2.0.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/jamon-spring121.jar"/>

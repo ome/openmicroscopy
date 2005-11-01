@@ -52,8 +52,8 @@
 		<property name="beanNames"><value>*Service</value></property>
 		<property name="interceptorNames">
 		<list>
-			<value>serviceSecurity</value>
 			<value>exceptionHandling</value>
+			<value>serviceSecurity</value>
 			<value>logging</value>	
 <!--			
 			<value>serviceTracing</value>

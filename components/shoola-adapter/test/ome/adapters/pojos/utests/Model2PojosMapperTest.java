@@ -61,25 +61,24 @@ public class Model2PojosMapperTest extends TestCase {
 	Dataset d1,d2,d3;
 	Image i1,i2,i3;
 	
-	@Override
 	protected void setUp() throws Exception {
 		mapper=new Model2PojosMapper(); 
-		p = new Project(1);
-		d1 = new Dataset(2);
-		d2 = new Dataset(3);
-		d3 = new Dataset(4);
-		i1 = new Image(5);
-		i2 = new Image(6);
-		i3 = new Image(7);
-		p.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d1,d2,d2})));
-		d1.setImages(new HashSet<Image>(Arrays.asList(new Image[]{i1})));
-		d2.setImages(new HashSet<Image>(Arrays.asList(new Image[]{i2})));
-		d3.setImages(new HashSet<Image>(Arrays.asList(new Image[]{i3})));
+		p = new Project(new Integer(1));
+		d1 = new Dataset(new Integer(2));
+		d2 = new Dataset(new Integer(3));
+		d3 = new Dataset(new Integer(4));
+		i1 = new Image(new Integer(5));
+		i2 = new Image(new Integer(6));
+		i3 = new Image(new Integer(7));
+		p.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d1,d2,d2})));
+		d1.setImages(new HashSet(Arrays.asList(new Image[]{i1})));
+		d2.setImages(new HashSet(Arrays.asList(new Image[]{i2})));
+		d3.setImages(new HashSet(Arrays.asList(new Image[]{i3})));
 		i1.setCreated(new Date());
 		i2.setInserted(new Date());
-		i1.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d1})));
-		i2.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d2})));
-		i3.setDatasets(new HashSet<Dataset>(Arrays.asList(new Dataset[]{d3})));
+		i1.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d1})));
+		i2.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d2})));
+		i3.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d3})));
 	}
 	
 	public void test(){

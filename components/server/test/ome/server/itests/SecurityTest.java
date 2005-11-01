@@ -38,6 +38,12 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.LazyInitializationException;
@@ -46,6 +52,7 @@ import org.hibernate.collection.PersistentSet;
 import org.hibernate.mapping.PersistentClass;
 
 //Application-internal dependencies
+import ome.api.Pojos;
 import ome.api.Write;
 import ome.model.Category;
 import ome.model.CategoryGroup;
@@ -88,6 +95,11 @@ public class SecurityTest
         super("OmeroGrinderTest with Data",data);
     }
  
+    Pojos p;
+    public void setPojosServer(Pojos pojosService){
+    	p = pojosService;
+    }
+    
     Write w;
     public void setWriteService(Write writeService){
     	w = writeService; 
@@ -105,6 +117,20 @@ public class SecurityTest
     	} catch (Exception e){
     		// We want this to fail.
     		log.info("Caught expected exception:"+e.getMessage());
+    	}
+    }
+    
+    public void testExceptionThrownOnInvalidUser(){
+        Authentication auth = 
+            new UsernamePasswordAuthenticationToken(
+                "josh","WRONG");
+    	SecureContext secureContext = (SecureContext) ContextHolder.getContext();
+    	secureContext.setAuthentication(auth);
+    	try {
+    		p.getUserImages(null);
+    		fail("Exception must be thrown");
+    	} catch (Exception e){
+    		log.info("Caugt expected exception:"+e.getMessage());
     	}
     }
     

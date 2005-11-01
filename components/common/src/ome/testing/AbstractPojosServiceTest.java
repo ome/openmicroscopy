@@ -75,16 +75,16 @@ public abstract class AbstractPojosServiceTest
     protected void onSetUp() throws Exception {
         po = new PojoOptions().exp(new Integer(1));
     	ids = new HashSet(Arrays.asList(new Integer[]{
-    			Integer.valueOf(1),
-    			Integer.valueOf(2),
-    			Integer.valueOf(3),
-    			Integer.valueOf(4),
-    			Integer.valueOf(5),
-    			Integer.valueOf(6),
-    			Integer.valueOf(250),
-    			Integer.valueOf(253),
-    			Integer.valueOf(249),
-    			Integer.valueOf(258)}));
+    			new Integer(1),
+    			new Integer(2),
+    			new Integer(3),
+    			new Integer(4),
+    			new Integer(5),
+    			new Integer(6),
+    			new Integer(250),
+    			new Integer(253),
+    			new Integer(249),
+    			new Integer(258)}));
     }
 
 	public void testLoadProject(){

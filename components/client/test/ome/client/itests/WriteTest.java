@@ -22,7 +22,7 @@ public class WriteTest extends AbstractDependencyInjectionSpringContextTests {
 	    }
 	    
 	    public void testWriteWithRoleUser(){
-	    	w.createDatasetAnnotation(1,"Client-Side call");
+	    	w.createDatasetAnnotation(new Integer(1),"Client-Side call");
 	    }
 	    
 }

@@ -25,7 +25,6 @@ ome.util.Filterable {
      private String omeName;
      private String email;
      private String firstname;
-     private String password;
      private String dataDir;
      private String lastname;
      private String institution;
@@ -102,17 +101,6 @@ ome.util.Filterable {
     
     public void setFirstname(String firstname) {
         this.firstname = firstname;
-    }
-
-    /**
-     * 
-     */
-    public String getPassword() {
-        return this.password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     /**
@@ -339,16 +327,6 @@ ome.util.Filterable {
 // TODO catch class cast?
 	  setFirstname((String) filter.filter(FIRSTNAME,_Firstname)); 
 
-	  // Visiting: Password ------------------------------------------
-	  String _Password = null;
-	  try {
-	     _Password = getPassword();
-	  } catch (Exception e) {
-		 setPassword(null);
-	  }
-// TODO catch class cast?
-	  setPassword((String) filter.filter(PASSWORD,_Password)); 
-
 	  // Visiting: DataDir ------------------------------------------
 	  String _DataDir = null;
 	  try {
@@ -521,7 +499,6 @@ ome.util.Filterable {
 	public final static String OMENAME = "Experimenter_OmeName";
 	public final static String EMAIL = "Experimenter_Email";
 	public final static String FIRSTNAME = "Experimenter_Firstname";
-	public final static String PASSWORD = "Experimenter_Password";
 	public final static String DATADIR = "Experimenter_DataDir";
 	public final static String LASTNAME = "Experimenter_Lastname";
 	public final static String INSTITUTION = "Experimenter_Institution";
@@ -544,7 +521,6 @@ ome.util.Filterable {
 	   FIELDS.add(OMENAME);
 	   FIELDS.add(EMAIL);
 	   FIELDS.add(FIRSTNAME);
-	   FIELDS.add(PASSWORD);
 	   FIELDS.add(DATADIR);
 	   FIELDS.add(LASTNAME);
 	   FIELDS.add(INSTITUTION);

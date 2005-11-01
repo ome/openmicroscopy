@@ -5,8 +5,8 @@
   <classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test"> </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"> </classpathentry>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"> </classpathentry>
-  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-1.0.jar"> </classpathentry>
-  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-client-1.0.jar"> </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-2.5.jar"> </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-client-2.5.jar"> </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/omero/jars/shoola-2.4.0-rc2.jar"> </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.3.jar"> </classpathentry>
   <classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.3.jar"> </classpathentry>

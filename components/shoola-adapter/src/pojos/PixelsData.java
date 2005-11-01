@@ -191,10 +191,10 @@ public class PixelsData
 			}
 			this.setPixelType(Model2PojosMapper.getPixelTypeID(pix.getPixelType()));
 			this.setSizeC(mapper.nullSafeInt(pix.getSizeC()));
-			this.setSizeT(mapper.nullSafeInt(pix.getSizeT().intValue()));
-			this.setSizeX(mapper.nullSafeInt(pix.getSizeX().intValue()));
-			this.setSizeY(mapper.nullSafeInt(pix.getSizeY().intValue()));
-			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ().intValue())); // TODO null error here?
+			this.setSizeT(mapper.nullSafeInt(pix.getSizeT()));
+			this.setSizeX(mapper.nullSafeInt(pix.getSizeX()));
+			this.setSizeY(mapper.nullSafeInt(pix.getSizeY()));
+			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ())); // TODO null error here?
 			
 		} else {
 			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
