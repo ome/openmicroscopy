@@ -132,7 +132,7 @@ select ${abbrev} from ${class} ${abbrev}
 
 #macro(id)
 #if($noIds)
-		true
+		true = true
 #else
 		${abbrev}.id = :id
 #end
@@ -146,7 +146,7 @@ select ${abbrev} from ${class} ${abbrev}
 #end
 #macro(imagelist)
 #if($noIds)
-		true
+		true = true
 #else
 		i.id in (:id_list)
 #end
@@ -156,7 +156,7 @@ select ${abbrev} from ${class} ${abbrev}
 #if($doDataset)
 		and d.name != 'ImportSet'
 #if($doDatasetAnnotation)
-		and ( d_ann.valid = true or d_ann.valid is null ) 
+		and d_ann.valid = true 
 #if($doAnnotationOwner)
 		and ( d_ann_exp = :ann_owner or d_ann_exp is null )
 #end
@@ -165,7 +165,7 @@ select ${abbrev} from ${class} ${abbrev}
 ## TODO this can possibly leave when pojo_anns moves to its own query builder
 #if($doImage)
 #if($doImageAnnotation)
-		and ( i_ann.valid = true or i_ann.valid is null )
+		and i_ann.valid = true
 #if($doAnnotationOwner)
 		and ( i_ann_exp = :ann_owner or i_ann_exp is null )
 #end

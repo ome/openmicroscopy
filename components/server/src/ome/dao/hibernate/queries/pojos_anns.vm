@@ -1,22 +1,20 @@
 ## ANNOTATIONS
 select 
 #if($doDataset)
+#set($l = "d")
 	d_ann from DatasetAnnotation d_ann
 	left outer join fetch d_ann.dataset as d
-  	   
-	left outer join fetch d_ann.moduleExecution as d_ann_mex
-	left outer join fetch d_ann_mex.experimenter as d_ann_exp
-	where d
 #elseif($doImage)
+#set($l = "i")
 	i_ann from ImageAnnotation i_ann
 	left outer join fetch i_ann.image as i 
 	left outer join fetch i.imagePixel as i_pix
-	     
-	left outer join fetch i_ann.moduleExecution as i_ann_mex
-	left outer join fetch i_ann_mex.experimenter as i_ann_exp
-	where i
 #else
 	#error("No valid type given.")
 #end
-	in (:id_list) 
+	left outer join fetch ${l}_ann.moduleExecution as ${l}_ann_mex
+	left outer join fetch ${l}_ann_mex.experimenter as ${l}_ann_exp
+	where ${l} in (:id_list) 
 #filters()
+	and ${l}_ann_mex is not null
+	order by ${l}_ann_mex.timestamp desc

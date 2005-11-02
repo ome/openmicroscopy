@@ -31,6 +31,9 @@ package ome.aop;
 //Java imports
 
 //Third-party libraries
+import java.util.HashSet;
+import java.util.Set;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -57,6 +60,15 @@ public class ExceptionHandler implements MethodInterceptor {
 
 	private static Log log = LogFactory.getLog(ExceptionHandler.class);
 	
+	private final static Set<Class> declaredExceptions = new HashSet<Class>();
+
+	private final static Set<Class> rootExceptions = new HashSet<Class>();
+	
+	static{
+		declaredExceptions.add(IllegalArgumentException.class);
+		rootExceptions.add(RootException.class);
+	}
+	
     /**
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
@@ -67,22 +79,33 @@ public class ExceptionHandler implements MethodInterceptor {
     	} catch (Throwable t) {
     		log.debug("Exception thrown ("+t.getClass()+"):"+t.getMessage());
     		if (filter_p(t)){
-    			// throw new RuntimeException("Internal server error.",t);//TODO
-    			// throw new HessianServiceException("ServiceException","Internal Error",t);
-    			throw new HessianRuntimeException("InternalServerError",t);
+    			throw new RootException("Internal server error.",t);//TODO
     		}
     		throw t;
     	}
     }
 
     protected boolean filter_p(Throwable t){
-    	if (t == null) {
+    	
+    	if (null == t){
     		return true;
-    	} else if (!( t instanceof RootException)) {
-			return true;
-    	} else {
-    		return false;
-		}
+    	}
+    	
+    	if (declaredExceptions.contains(t.getClass())) {
+			return false;
+    	}
+    	
+    	boolean knownSubclass = false;
+    	
+    	for (Class c : rootExceptions){
+    		if (c.isAssignableFrom(t.getClass())){
+    			knownSubclass = true;
+    			break;
+			}
+    	}
+    	
+    	return ! knownSubclass;
+		
     }
     
     protected Throwable makeException(String msg, Throwable t){

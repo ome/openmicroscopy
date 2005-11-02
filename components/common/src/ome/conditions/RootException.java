@@ -49,4 +49,8 @@ public class RootException extends RuntimeException{
 	
 	private static Log log = LogFactory.getLog(RootException.class);
 	
+	public RootException(String msg, Throwable t){
+		super(msg,t);
+	}
+	
 }
