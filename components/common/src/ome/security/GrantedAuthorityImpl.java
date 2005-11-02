@@ -32,7 +32,7 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
     }
 
     public GrantedAuthorityImpl(GrantedAuthority auth){
-    	this.role = auth.getAuthority();
+    	this.role = auth == null ? null : auth.getAuthority();
     }
     
     //~ Methods ================================================================
