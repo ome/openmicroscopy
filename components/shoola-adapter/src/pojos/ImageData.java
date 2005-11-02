@@ -43,6 +43,10 @@ import ome.model.Image;
 import ome.model.ImagePixel;
 import ome.model.ModuleExecution;
 import ome.util.ModelMapper;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import sun.security.krb5.internal.crypto.m;
 
 //Third-party libraries
 
@@ -150,6 +154,8 @@ public class ImageData
 			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getImagePixel()));
 			this.setAllPixels((Set) mapper.findCollection(i.getImagePixels()));
 			this.setDatasets((Set) mapper.findCollection(i.getDatasets()));
+			this.setAnnotations((Set) mapper.findCollection(i.getImageAnnotations()));
+			this.setOwner((ExperimenterData) mapper.findTarget(i.getExperimenter()));
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");
 		}
@@ -233,5 +239,14 @@ public class ImageData
 
 	public ExperimenterData getOwner() {
 		return owner;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+				.append("name", this.name)
+				.toString();
 	}
 }

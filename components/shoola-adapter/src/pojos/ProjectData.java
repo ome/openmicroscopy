@@ -37,6 +37,8 @@ import ome.api.OMEModel;
 import ome.model.Experimenter;
 import ome.model.Project;
 import ome.util.ModelMapper;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 //Third-party libraries
 
@@ -138,5 +140,14 @@ public class ProjectData
 
 	public ExperimenterData getOwner() {
 		return owner;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+				.append("name", this.name)
+				.toString();
 	}
 }

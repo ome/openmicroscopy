@@ -38,6 +38,7 @@ select ${abbrev} from ${class} ${abbrev}
 	left outer join fetch i.group as i_g
 	left outer join fetch i.experimenter as i_exp
 	left outer join fetch i.imagePixel as i_pix
+	left outer join fetch i_pix.repository as i_pix_rep
 #ifImageAnnotation()
 #end
 #end

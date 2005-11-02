@@ -9,6 +9,8 @@ select
 	i_ann from ImageAnnotation i_ann
 	left outer join fetch i_ann.image as i 
 	left outer join fetch i.imagePixel as i_pix
+	left outer join fetch i_pix.repository as i_pix_rep
+## TODO this is also defined in macros! 
 #else
 	#error("No valid type given.")
 #end

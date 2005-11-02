@@ -41,6 +41,8 @@ import ome.model.DatasetAnnotation;
 import ome.model.Image;
 import ome.model.Project;
 import ome.util.ModelMapper;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 //Third-party libraries
 
@@ -177,5 +179,13 @@ public class DatasetData
 
 	public ExperimenterData getOwner() {
 		return owner;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
+				.append("name", this.name).toString();
 	}
 }
