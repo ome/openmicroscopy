@@ -34,6 +34,8 @@ package ome.aop;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.acegisecurity.AuthenticationException;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -67,6 +69,7 @@ public class ExceptionHandler implements MethodInterceptor {
 	static{
 		declaredExceptions.add(IllegalArgumentException.class);
 		rootExceptions.add(RootException.class);
+		rootExceptions.add(AuthenticationException.class); // Possibly AcegiSecurityException
 	}
 	
     /**
@@ -106,15 +109,6 @@ public class ExceptionHandler implements MethodInterceptor {
     	
     	return ! knownSubclass;
 		
-    }
-    
-    protected Throwable makeException(String msg, Throwable t){
-    	Throwable newT = new RuntimeException(msg);
-    	Throwable cause = t.getCause();
-    	if (cause!=null){
-    		newT.initCause(makeException(t.getMessage(),t.getCause()));	
-    	}
-    	return newT;
     }
     
 }
