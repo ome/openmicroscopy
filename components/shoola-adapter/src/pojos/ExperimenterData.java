@@ -156,4 +156,8 @@ public class ExperimenterData
 	public String getGroupName() {
 		return groupName;
 	}
+	
+	public String toString() {
+		return getClass().getName()+":"+getFirstName()+" "+getLastName()+" (id="+getId()+")";
+	}
 }

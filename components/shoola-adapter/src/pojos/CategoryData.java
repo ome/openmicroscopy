@@ -167,5 +167,9 @@ public class CategoryData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+	
+	public String toString() {
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
+	}
     
 }

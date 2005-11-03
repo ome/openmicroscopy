@@ -142,12 +142,8 @@ public class ProjectData
 		return owner;
 	}
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-				.append("name", this.name)
-				.toString();
+	public String toString(){
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
 	}
+
 }

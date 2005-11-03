@@ -305,4 +305,7 @@ public class PixelsData
 		return image;
 	}
     
+	public String toString() {
+		return getClass().getName()+" (id="+getId()+")";
+	}
 }

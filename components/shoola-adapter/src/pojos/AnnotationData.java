@@ -152,5 +152,9 @@ public class AnnotationData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+	
+	public String toString() {
+		return getClass().getName()+" (id="+getId()+")";
+	}
     
 }
