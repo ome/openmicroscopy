@@ -1,5 +1,5 @@
 /*
- * ome.aop.ExceptionHandler
+ * ome.conditions.Policy
  *
  *------------------------------------------------------------------------------
  *
@@ -26,51 +26,65 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.aop;
+package ome.conditions;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import net.sf.acegisecurity.AuthenticationException;
 
 //Java imports
 
 //Third-party libraries
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
-import ome.conditions.Policy;
-import ome.conditions.RootException;
 
-/** 
- * ExceptionHandler which maps all server-side exceptions to something 
+/**
+ * centralization of exception policy for the all components. 
+ *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 
+ * @version 2.5 
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 1.0
- * @DEV.TODO should possibly move to common!org.ome.omero.aop
+ * @since 2.5
  */
-public class ExceptionHandler implements MethodInterceptor {
-
-	private static Log log = LogFactory.getLog(ExceptionHandler.class);
+public abstract class Policy {
 	
-    /**
-     * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
-     */
-    public Object invoke(MethodInvocation arg0) throws Throwable {
-    	try {
-    		Object o = arg0.proceed();
-    		return o;
-    	} catch (Throwable t) {
-    		log.debug("Exception thrown ("+t.getClass()+"):"+t.getMessage());
-    		if (! Policy.thrownByServer(t)){
-    			throw new RootException("Internal server error.",t);//TODO
-    		}
-    		throw t;
+	public final static Set DECLARED_SERVER_EXCEPTIONS = new HashSet();
+
+	public final static Set ROOT_SERVER_EXCEPTIONS = new HashSet();
+	
+	static{
+		DECLARED_SERVER_EXCEPTIONS.add(IllegalArgumentException.class);
+		ROOT_SERVER_EXCEPTIONS.add(RootException.class);
+		ROOT_SERVER_EXCEPTIONS.add(AuthenticationException.class); // Possibly AcegiSecurityException
+	}
+	
+    public static boolean thrownByServer(Throwable t){
+    	
+    	if (null == t){
+    		return false;
     	}
+    	
+    	if (DECLARED_SERVER_EXCEPTIONS.contains(t.getClass())) {
+			return true;
+    	}
+    	
+    	boolean knownSubclass = false;
+    	
+    	for (Iterator it = ROOT_SERVER_EXCEPTIONS.iterator(); it.hasNext();) {
+			Class c = (Class) it.next();
+    		if (c.isAssignableFrom(t.getClass())){
+    			knownSubclass = true;
+    			break;
+			}
+    	}
+    	
+    	return knownSubclass;
+		
     }
-
-
-    
+	
 }
