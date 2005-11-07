@@ -56,9 +56,10 @@
 			<hbmtemplate template="pojo/ice_includes.vm" filepattern="${ice.file}" />
 			<hbmtemplate template="pojo/ice_defs.vm" filepattern="slice/{package-name}/{class-name}.ice" />
 			<hbmtemplate template="pojo/ice_exts.vm" filepattern="slice_exts/{package-name}/{class-name}Remote.ext" />
-			<hbm2ddl outputfilename="${ddl.file}" export="true" console="false" />
+			<hbmtemplate template="pojo/ice_mapper.vm" filepattern="jdk14/ome/model/adapters/Model2IceMapper.java" />
 			<hbm2java destdir="${dest.dir}/jdk14"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
+			<hbm2ddl outputfilename="${ddl.file}" export="true" console="false" />
 			<hbm2cfgXml/>
 		</hibernatetool>
 	</target>

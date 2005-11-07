@@ -1,0 +1,104 @@
+/*
+ * ome.model.adapters.Model2IceMapper
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package ome.model.adapters;
+
+//Java imports
+import java.util.HashMap;
+import java.util.Map;
+
+//Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//Application-internal dependencies
+import ome.util.Filterable;
+
+/** 
+ * Code-generated
+ */
+public class Model2IceMapper extends ome.util.ModelMapper {
+	
+	private static Log log = LogFactory.getLog(Model2IceMapper.class);
+	
+	private final static Map _c2c = new HashMap(); 
+	static {
+#macro(put $type)
+		_c2c.put(${type}.class,${type}Remote.class);
+#end
+#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
+#put($pojo.qualifiedDeclarationName)
+#foreach($property in $pojo.allPropertiesIterator)
+#if($c2j.isComponent($property))
+#set($component = $c2j.getPOJOClass($property.getValue()))
+#put($component.qualifiedDeclarationName)
+#end
+#end 
+#end
+	}
+	
+	protected Map c2c() {
+		return _c2c;
+	}
+	
+	/** Overrides to deal with non-interface. */
+	
+	public Object mapWithReflection (Filterable source){ // TODO take any object. just like filter()
+		Filterable o = this.filter("MAPPING...",source);
+		return model2target.get(o);
+	}
+	
+	private void fillTarget(Filterable source, Object target){
+		if (source!=null && target != null){
+			try {
+			    java.lang.reflect.Method m = target.getClass().getMethod("copy", new Class[]{ome.api.OMEModel.class,ome.util.ModelMapper.class});
+				m.invoke(target,new Object[]{source,this});
+			} catch (Exception e) {
+			    throw new RuntimeException("Error in invoking copy on "+target,e);
+			}
+		}
+	}
+	
+	public Filterable filter(String fieldId, Filterable source) {
+		// Filterable o = super.filter(fieldId,source);
+		// Can't call super here!! 
+		if (hasntSeen(source)){
+			//log.info("Haven't seen. Stepping into "+f);
+			enter(source);
+			addSeen(source);
+			source.acceptFilter(this);
+			exit(source);
+		} 
+		
+		Object target = findTarget(source);
+		fillTarget(source,target);
+		return source;
+	}
+
+}

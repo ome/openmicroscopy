@@ -15,7 +15,7 @@
     name="ome.model.core.Roi4D" 
     table="roi4d"
 >
-	<meta attribute="scope-class" inherit="false">public abstract</meta>
+	<meta attribute="scope-class" inherit="false">public</meta>
     <meta attribute="class-description" inherit="false">
        @hibernate.class
         table="roi4d"

@@ -12,7 +12,7 @@ public class Server {
 	    Ice.ObjectAdapter adapter
 		= ic.createObjectAdapterWithEndpoints(
 		  "TAdapter", "default -p 10000");
-	    Ice.Object object = new test.TI();
+	    Ice.Object object = new mono.TI();
 	    adapter.add(
 			object,
 			Ice.Util.stringToIdentity("T"));
@@ -22,6 +22,7 @@ public class Server {
             e.printStackTrace();
             status = 1;
         } catch (Exception e) {
+        	e.printStackTrace();
             System.err.println(e.getMessage());
             status = 1;
         }

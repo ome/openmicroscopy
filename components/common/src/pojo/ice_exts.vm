@@ -44,15 +44,17 @@
 #elseif( $javaType.startsWith("java.util.Set"))
 #set( $open = "new java.util.HashSet(" )
 #set( $close = ")" )
-#set( $prefix = "new java.util.ArrayList(" )
+#set( $prefix = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList(" ) ## TODO or just null?
 #set( $suffix = ")" )
 #elseif( $javaType.startsWith("java.lang.Integer"))
 #set( $open   = "new Integer(" )
 #set( $close  = ")" )
+#set( $prefix = "${property.name} == null ? 0 : ")
 #set( $suffix = ".intValue()" )
 #elseif( $javaType.startsWith("java.lang.Double"))
 #set( $open   = "new Double(" )
 #set( $close  = ")" )
+#set( $prefix = "${property.name} == null ? 0 : ")
 #set( $suffix = ".doubleValue()" )
 #end
 

@@ -13,8 +13,8 @@ public class Client {
             ic = Ice.Util.initialize(args);
             Ice.ObjectPrx base = ic.stringToProxy(
                     "T:default -p 10000");
-            test.TPrx printer
-                = test.TPrxHelper.checkedCast(base);
+            mono.TPrx printer
+                = mono.TPrxHelper.checkedCast(base);
             if (printer == null)
                 throw new Error("Invalid proxy");
         
