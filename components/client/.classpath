@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn" kind="src" path="src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="test"/>
+	<classpathentry sourcepath="HOME/lib/junit3.8.1/src.jar" kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry sourcepath="OMERO_HOME/components/common/src/" kind="var" path="MAVEN_REPO/omero/jars/omero-common-3.0-alpha.jar"/>
+	<classpathentry sourcepath="/SPRING_HOME/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar"/>
+	<classpathentry sourcepath="HOME/lib/spring-framework-1.2.2/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
+	<classpathentry sourcepath="HOME/lib/hessian/src" kind="var" path="MAVEN_REPO/hessian/jars/hessian-2.1.12.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
+	<classpathentry sourcepath="OMERO_HOME/components/acegi/core/src/main" kind="var" path="MAVEN_REPO/acegisecurity/jars/acegi-security-0.8.2.jar"/>
+	<classpathentry kind="output" path="target/eclipse"/>
+</classpath>

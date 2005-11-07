@@ -15,10 +15,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.Project;
-
 import junit.framework.TestCase;
 
 /**
@@ -62,17 +58,6 @@ public class ReflectionUtils extends TestCase {
                 }
             }
         }
-    }
-
-    public void testFindFields() {
-        Image test = new Image();
-        Dataset ds = new Dataset();
-        Project prj = new Project();
-        test.setDatasets(new HashSet());
-        ds.setProjects(new HashSet());
-        test.getDatasets().add(ds);
-        ds.getProjects().add(prj);
-        findFieldsOfClass(Project.class, test,null,log,null);
     }
 
     public static Method[] getGettersAndSetters(Object obj) {

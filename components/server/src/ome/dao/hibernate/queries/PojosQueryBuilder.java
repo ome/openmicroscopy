@@ -52,14 +52,6 @@ import org.apache.velocity.runtime.RuntimeConstants;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
-import ome.model.Image;
-import ome.model.ImageAnnotation;
-import ome.model.Project;
 import ome.tools.StringUtils;
 import ome.util.builders.PojoOptions;
 

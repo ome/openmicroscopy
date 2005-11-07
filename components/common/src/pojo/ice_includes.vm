@@ -1,0 +1,187 @@
+/*
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later
+ *    version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free
+ *    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+ *    02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+##########################################################################
+#macro(moduleStart $pkg)
+#set( $pkgNew = $pkg.replaceFirst("package","").replaceAll(";","").replaceAll(" ","") )
+#set( $pkgdot = "${pkgNew}." )$pkgdot.replaceAll('(.*?)[.]','module $1 { ')#end
+##########################################################################
+#macro(moduleStop $pkg)
+#set( $pkgNew = $pkg.replaceFirst("package","").replaceAll(";","").replaceAll(" ","") )
+#set( $pkgdot = "${pkgNew}." )$pkgdot.replaceAll('(.*?)[.]','};')#end
+##########################################################################
+#macro(classBody $pojo)
+#foreach($property in  $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $field = $property.name )
+#if( $fulltype.endsWith("java.util.Set") || $type.contains("[]"))
+	
+sequence<string> ${pojo.declarationName}Remote${field}Seq;
+
+#end
+#end
+
+class ${pojo.declarationName}Remote
+{
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $field = $property.name )
+	//  $pojo.importType( $fulltype ) $property.name;
+#if( $type == "Integer")
+	int $field;
+#elseif( $type == "String")
+	string $field;
+#elseif( $type == "Boolean" )
+	bool $field;
+#elseif ( $type == "Double" )
+	double $field;
+#elseif( $fulltype.endsWith("java.util.Set") || $type.contains("[]") )
+	${pojo.declarationName}Remote${field}Seq $field;
+#elseif ($fulltype.endsWith("java.util.Map") )
+	dictionary $field;
+#elseif ($fulltype.startsWith("ome") )
+	::${fulltype.replaceAll("[.]","::")}Remote $field;
+#else
+	ERROR ===========> Unknown type.
+#end
+#end
+};
+
+#end
+##########################################################################
+#macro(forwardDeclaration $pojo)
+#moduleStart(${pojo.packageDeclaration}) class ${pojo.declarationName}Remote; #moduleStop(${pojo.packageDeclaration})
+##
+#end
+##########################################################################
+#macro(classDeclaration $pojo)
+#moduleStart(${pojo.packageDeclaration})
+#classBody($pojo)
+#moduleStop(${pojo.packageDeclaration})
+##
+#end
+##########################################################################
+##########################################################################
+##########################################################################//
+///
+// FORWARD DECLARATIONS
+//
+#ifndef OME_FORWARD_DECLARATIONS
+#define OME_FORWARD_DECLARATIONS
+#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
+##set( $key = "ForwardDeclaration:$pojo" )
+##if(! $ctx.get($key))
+##// ${ctx.put($key,$key)}
+
+#forwardDeclaration($pojo)
+##
+#foreach($property in $pojo.allPropertiesIterator)
+#if($c2j.isComponent($property))
+#set($component = $c2j.getPOJOClass($property.getValue()))
+###set( $key = "ForwardDeclaration:$component" )
+###if(! $ctx.get($key))
+##// ${ctx.put($key,$key)}
+
+#forwardDeclaration($component)
+##
+###end
+###end
+#end
+#end 
+#end
+
+#endif
+#stop
+//
+// CLASS DECLARATIONS
+//
+#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
+#set( $key = "ClassDeclaration:$pojo" )	
+#if(! $ctx.get($key))
+// ${ctx.put($key,$key)}
+#classDeclaration($pojo)
+#foreach($property in $pojo.allPropertiesIterator)
+#if($c2j.isComponent($property))
+#set($component = $c2j.getPOJOClass($property.getValue()))
+#set( $key = "ClassDeclaration:$component" )	
+#if(! $ctx.get($key))
+// ${ctx.put($key,$key)}
+#classDeclaration($component)
+#end
+#end
+#end
+#end
+#end
+#stop
+
+
+
+#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
+#moduleStart(${pojo.packageDeclaration})
+
+#foreach($property in  $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $field = $property.name )
+#if( $type.endsWith("Set") )
+	sequence<string> ${pojo.declarationName}Remote${field}Seq;
+#end
+#end
+##
+class ${pojo.declarationName}Remote
+{
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $field = $property.name )
+	//  $pojo.importType( $fulltype ) $property.name;
+#if( $type == "Integer")
+	int $field;
+#elseif( $type == "String")
+	string $field;
+#elseif( $type == "Boolean" )
+	bool $field;
+#elseif ( $type == "Double" )
+	double $field;
+#elseif( $type.endsWith("Set") )
+	${pojo.declarationName}Remote${field}Seq $field;
+#elseif ($type.endsWith("Map") )
+	dictionary $field;
+#elseif ($fulltype.startsWith("ome") )
+	::${fulltype.replaceAll("[.]","::")}Remote $field;
+#else
+	ERROR ===========> Unknown type.
+#end
+#end
+};
+#moduleStop(${pojo.packageDeclaration})
+#end
+
+

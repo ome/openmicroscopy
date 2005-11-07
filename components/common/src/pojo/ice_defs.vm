@@ -1,0 +1,101 @@
+/*
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later
+ *    version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free
+ *    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+ *    02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+#set( $pkg    = $pojo.packageDeclaration)
+#set( $pkgNew = $pkg.replaceFirst("package","").replaceAll(";","").replaceAll(" ","").replaceAll("[.]","_") )
+#set( $pkgdash = "${pkgNew}_" )
+#set( $moduleStart = $pkgdash.replaceAll('(.*?)_','module $1 { '))
+#set( $moduleStop  = $pkgdash.replaceAll('(.*?)_','};'))
+
+#set( $def = $pkgdash.replaceAll(" ","_").replaceAll(";",""))	
+#set( $def = "${def}_${pojo.declarationName}")
+#ifndef $def
+#define $def
+#set( $include = '\#include' )
+
+$include <ome.ice>
+##foreach($c in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
+##set( $i = $c.packageDeclaration.replaceFirst("package","").replaceAll(";","").replaceAll(" ","") )
+##if(! $i.contains("core") )
+##$include <$i.replaceAll("[.]","/")/${c.declarationName}.ice>
+##end
+##end
+#set( $importModify = '.replaceAll("import ","$include <").replaceAll("[.]","/").replaceAll(";",".ice>").replaceAll(".*java.*","") ' )
+$secondpassclassimports$importModify
+
+
+$moduleStart
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $field = $property.name )
+#set( $value = $property.value )
+#set( $seqName = "${pojo.declarationName}Remote${field}Seq;" )
+#if( $fulltype.contains("java.util.Set")) 
+#set( $genericType = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
+#set( $genericTypeC = "${genericType.replaceAll('[.]','::')}Remote")
+["java:type:java.util.ArrayList"] sequence<$genericTypeC> $seqName
+#elseif($fulltype.contains("byte[]"))
+sequence<byte> $seqName
+#end
+#end
+
+
+
+class ${pojo.declarationName}Remote
+{
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $field = $property.name )
+#set( $value = $property.value )
+
+	//  $pojo.importType( $fulltype ) $property.name;
+##
+#if( $type == "String")
+	string $field;
+#elseif( $type == "Integer")
+	int $field;
+#elseif( $type == "Boolean" )
+	bool $field;
+#elseif ( $type == "Double" )
+	$field;
+#elseif ($type.endsWith("Map") )
+	dictionary $field;
+#elseif( $fulltype.contains("java.util.Set") || $fulltype.contains("[]")) 
+	${pojo.declarationName}Remote${field}Seq $field;
+#elseif ($fulltype.startsWith("ome") )
+	${fulltype.replaceAll("[.]","::")}Remote $field;
+
+#else
+	ERROR ===========> Unknown type.
+#end
+##
+#end
+};
+$moduleStop
+#endif 

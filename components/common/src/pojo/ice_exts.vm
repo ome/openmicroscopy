@@ -1,0 +1,86 @@
+#*
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later
+ *    version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free
+ *    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+ *    02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ *#
+##
+## Copied from pojo/PropertyAccessors.vm
+##
+##  These mappings are from HibernateTypes-->IceTypes
+##  Ice doesn't use getters/setters. So we're bastardizing them
+##  for our efforts.
+##
+#foreach($property in $pojo.getAllPropertiesIterator())
+#set( $name = $pojo.getPropertyName($property))
+#set( $javaType = $c2j.getJavaTypeName($property))
+#set( $open = " " )
+#set( $close= " " )
+#set( $prefix=" " )
+#set( $suffix=" " )
+#if( $javaType.startsWith("ome"))
+#set( $javaType = "${javaType}Remote")
+#elseif( $javaType.startsWith("java.util.Set"))
+#set( $open = "new java.util.HashSet(" )
+#set( $close = ")" )
+#set( $prefix = "new java.util.ArrayList(" )
+#set( $suffix = ")" )
+#elseif( $javaType.startsWith("java.lang.Integer"))
+#set( $open   = "new Integer(" )
+#set( $close  = ")" )
+#set( $suffix = ".intValue()" )
+#elseif( $javaType.startsWith("java.lang.Double"))
+#set( $open   = "new Double(" )
+#set( $close  = ")" )
+#set( $suffix = ".doubleValue()" )
+#end
+
+    public $javaType $pojo.getGetterSignature($property)() {
+        return ${open}this.${property.name}${close};
+    }
+    
+    public void set$name($javaType $property.Name) {
+        this.$property.Name = $!{prefix}${property.Name}$!{suffix};
+    }
+#end
+
+    public void copy(ome.api.OMEModel model, ome.util.ModelMapper mapper){
+		if (model instanceof $pojo.declarationName){
+            $pojo.declarationName source = ($pojo.declarationName) model;
+#foreach($property in $pojo.getAllPropertiesIterator())
+#set( $name = $pojo.getPropertyName($property))
+#set( $javaType = $c2j.getJavaTypeName($property))
+#if( $javaType.startsWith("ome"))
+#set( $javaType = "${javaType}Remote")
+#end
+            this.set$name(($javaType) mapper.findTarget(source.get$name()));
+#end
+	    } else {
+            throw new IllegalArgumentException("${pojo.declarationName}Remote copies only from ${pojo.declarationName}");
+	    }
+    }
+}
+
+#stop
+ 

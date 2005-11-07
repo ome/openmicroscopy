@@ -55,6 +55,15 @@ services to an existing OME installation</description>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
+      <artifactId>ice</artifactId>
+      <version>2.1.2</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>omero</groupId>
       <artifactId>hessian</artifactId>
       <version>${hessian.version}</version>
       <type>jar</type>

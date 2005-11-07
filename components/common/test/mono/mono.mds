@@ -1,0 +1,16 @@
+<Combine name="mono" fileversion="2.0">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry configuration="Debug" build="True" name="mono" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry configuration="Debug" build="True" name="mono" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="mono" single="True">
+    <Execute type="None" entry="mono" />
+  </StartMode>
+  <Entries>
+    <Entry filename="./mono.mdp" />
+  </Entries>
+</Combine>

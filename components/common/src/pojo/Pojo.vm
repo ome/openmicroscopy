@@ -1,0 +1,113 @@
+$pojo.getPackageDeclaration()
+
+$secondpassclassimports
+###########################################################
+## <CustomCode>
+###########################################################
+import ome.util.Filterable;
+import ome.util.Filter;
+import java.util.HashSet;
+import java.util.Set;
+###########################################################
+## </CustomCode>
+###########################################################
+
+$templates.PojoTypeDeclaration 
+###########################################################
+## <CustomCode>
+###########################################################
+, ome.api.OMEModel
+#if ( $pojo.getPackageDeclaration().contains("ome.model.meta") )
+## TODO specifically defined
+## meta.java (interface)
+#elseif( $pojo.getPackageDeclaration().contains("ome.model.internal") )
+## TODO component.java
+#else
+, ome.api.NewModel 
+#end 
+###########################################################
+## </CustomCode>
+###########################################################
+{
+
+#if(!$pojo.isInterface())
+
+$templates.PojoFields
+
+$templates.PojoConstructors
+   
+$templates.PojoPropertyAccessors   
+
+$templates.PojoToString
+
+$templates.PojoEqualsHashcode
+
+#else 
+
+$templates.PojoInterfacePropertyAccessors
+
+#end
+
+$templates.PojoExtraClassCode
+
+###########################################################
+## <CustomCode>
+###########################################################
+  public boolean acceptFilter(Filter filter){
+
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+#set( $get = "$pojo.getGetterSignature($property)()" )
+#set( $set = "set$pojo.getPropertyName($property)" )
+#set( $field = $property.name )
+
+	  // Visiting: $field ------------------------------------------
+	  $type _$field = null;
+	  try {
+	     _$field = $get;
+	  } catch (Exception e) {
+		 $set(null);
+	  }
+// TODO catch class cast?
+	  $set(($type) filter.filter(${field.toUpperCase()},_$field)); 
+##if( $pkg.startsWith("ome."))
+##elseif($type.equals("Set"))
+##	  $set(($type) filter.filter((Collection)_$field)); 
+##else
+##	  $set(($type) filter.filter((Object) _$field));
+##end ## if 
+#end ## foreach
+  	 return true;
+  }
+
+#if($clazz.identifierProperty)
+  public String toString(){
+#set($idGetter = "${pojo.getGetterSignature($clazz.identifierProperty)}()")
+	return "$pojo.declarationName"+($idGetter==null ? ":Hash_"+this.hashCode() : ":Id_"+$idGetter);
+  }
+#end
+  
+  // FIELD-FIELDS
+  
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $field = $property.name )
+	public final static String ${field.toUpperCase()} = "${pojo.declarationName}_${field}";
+#end ## foreach
+	public final static Set FIELDS = new HashSet();
+	static {
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $field = $property.name )
+	   FIELDS.add(${field.toUpperCase()});
+#end ## foreach
+	}
+##parse( "$clazz.vm" ) TODO
+##parse( "pojo/test.vm" )
+##$templates.get("pojo/test.vm")
+#set($t = "pojo/${pojo.declarationName}.vm")
+##if($th.templateExists($t))$templates.get($t)#end TODO
+###########################################################
+## </CustomCode>
+###########################################################
+
+}

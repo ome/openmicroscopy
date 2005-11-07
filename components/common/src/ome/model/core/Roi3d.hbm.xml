@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.core.Roi3D" 
+    table="roi3d"
+>
+	<meta attribute="scope-class" inherit="false">public abstract</meta>
+    <meta attribute="class-description" inherit="false">
+       @hibernate.class
+        table="roi3d"
+    </meta>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="id"
+        type="java.lang.Integer"
+        column="id"
+    >
+        <meta attribute="field-description">
+           @hibernate.id
+            generator-class="sequence"
+            type="java.lang.Integer"
+            column="id"
+
+           @hibernate.generator-param
+	        name="sequence"
+	        value="roi3d_seq"
+        </meta>
+        <generator class="sequence">
+            <param name="sequence">roi3d_seq</param>
+        </generator>
+    </id>
+	
+    <discriminator>
+      <column name="type" sql-type="char(5)"/>
+    </discriminator>
+	
+  
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <version
+        name="version"
+        type="java.lang.Integer"
+        column="version"
+        unsaved-value="negative"
+    >
+        <meta attribute="field-description">
+           @hibernate.version
+            column="version"
+            unsaved-value="negative"
+        </meta>
+    </version>
+
+    <component name="permissions"
+		class="ome.model.internal.Permissions">
+		<property name="bytes" type="binary" column="permissions"/>
+    </component>
+    <many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+    <many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+    <many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Pixel -->
+    <many-to-one
+        name="roi4d"
+        class="ome.model.core.Roi4D"
+        not-null="true"
+    >
+        <meta attribute="field-description">
+           @hibernate.many-to-one
+            not-null="true"
+           @hibernate.column name="roi4d"         
+        </meta>
+        <column name="roi4d" />
+    </many-to-one>
+
+	<!-- bi-directional one-to-many association to Map -->
+	<set
+        name="roi2ds"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <meta attribute="field-description">
+           @hibernate.set
+            lazy="true"
+            inverse="true"
+
+           @hibernate.collection-key
+            column="roi2d"
+
+           @hibernate.collection-one-to-many
+            class="ome.model.core.Roi2D"
+        </meta>
+        <key>
+            <column name="roi3d" />
+        </key>
+        <one-to-many 
+            class="ome.model.core.Roi2D"
+        />
+    </set>
+
+	
+    <subclass name="ome.model.core.Roi3DTimeRange" discriminator-value="range">
+      <property name="minT" column="min_t" type="java.lang.Integer" />
+      <property name="maxT" column="max_t" type="java.lang.Integer" />
+     </subclass>
+
+    <subclass name="ome.model.core.Roi3DTimeIndex" discriminator-value="index">
+	  <property name="indexT" column="index_t" type="java.lang.Integer"/>
+    </subclass>
+	
+</class>
+</hibernate-mapping>

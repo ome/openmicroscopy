@@ -1,0 +1,16 @@
+#!/usr/bin/env groovy
+
+sh = new GroovyShell()
+sh.evaluate(new File("groovy_cat"))
+
+MAP=sh.getVariable("MAP")
+ant=sh.getVariable("ant")
+
+
+ant.list(MAP)
+ant.info(MAP)
+ant.sessions(MAP)
+ant.resources(MAP)
+
+MAP['query']="*:*"
+ant.query(MAP)

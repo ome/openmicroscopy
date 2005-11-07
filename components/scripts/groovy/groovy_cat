@@ -1,0 +1,44 @@
+def MAP = [
+  'url':"http://localhost:8080/manager",
+  'username':"josh",
+  'password':"moore",
+  'path':'/omero'
+]
+def ant = new AntBuilder()
+
+def PATH = 'catalina'
+def JAR  = '/home/josh/lib/tomcat/server/lib/catalina-ant.jar'
+ant.path(id:PATH){ant.pathelement(location:JAR)}
+
+def BASE = 'org.apache.catalina.ant.'
+def TASKS = [
+  "query":"JMXQueryTask",
+  "set":"JMXSetTask",
+  "status":"JKStatusUpdateTask",
+  "info":"ServerinfoTask",
+  "sessions":"SessionsTask",
+  "resources":"ResourcesTask",
+  "deploy":"DeployTask",
+  "install":"InstallTask",
+  "list":"ListTask",
+  "reload":"ReloadTask",
+  "remove":"RemoveTask",
+  "start":"StartTask",
+  "stop":"StopTask",
+  "undeploy":"UndeployTask"
+]
+
+TASKS.each{ 
+  |pair| ant.taskdef(name:pair.key, classname:BASE+pair.value, classpathref:PATH) 
+}
+        
+
+def help(){
+  println "ant.<COMMAND>(MAP)"
+  println "See list() for COMMANDS"
+}
+
+def list(){
+ TASKS.each{|pair| println pair.key }
+}
+

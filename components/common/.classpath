@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <classpath>
-	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry sourcepath="/SPRING_HOME/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/hessian-3.0.13.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
-	<classpathentry excluding="**/.svn" kind="src" path="test"/>
-	<classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="gen-src/ome.ice">
+  </classpathentry>
+  <classpathentry kind="src" path="gen-src/ddl.sql">
+  </classpathentry>
+  <classpathentry kind="src" path="gen-src/jdk14">
+  </classpathentry>
+  <classpathentry kind="src" path="gen-src/hibernate.cfg.xml">
+  </classpathentry>
+  <classpathentry kind="src" path="gen-src/slice2java">
+  </classpathentry>
+  <classpathentry excluding="" kind="src" path="src">
+  </classpathentry>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.5.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.5.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/ice-2.1.2.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/omero/jars/hessian-3.0.13.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.7.0.jar">
+  </classpathentry>
+  <classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar">
+  </classpathentry>
+  <classpathentry kind="output" path="target/classes">
+  </classpathentry>
 </classpath>

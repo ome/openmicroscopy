@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+
+	<!-- TODO move to ome.model.sec -->
+
+<class 
+    name="ome.model.meta.Experimenter" 
+    table="experimenter"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="id"
+        type="java.lang.Integer"
+        column="id"
+    >
+        <meta attribute="field-description">
+           @hibernate.id
+            generator-class="sequence"
+            type="java.lang.Integer"
+            column="id"
+
+           @hibernate.generator-param
+	        name="sequence"
+	        value="experimenter_seq"
+        </meta>
+        <generator class="sequence">
+            <param name="sequence">experimenter_seq</param>
+        </generator>
+    </id>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <version
+        name="version"
+        type="java.lang.Integer"
+        column="version"
+        unsaved-value="negative"
+    >
+        <meta attribute="field-description">
+           @hibernate.version
+            column="version"
+            unsaved-value="negative"
+        </meta>
+    </version>
+
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	
+    <property
+        name="omeName"
+        type="java.lang.String"
+        column="ome_name"
+        unique="true"
+        length="30"
+    />
+    <property
+        name="email"
+        type="java.lang.String"
+        column="email"
+        length="50"
+    />
+    <property
+        name="firstname"
+        type="java.lang.String"
+        column="firstname"
+        length="30"
+    />
+    <property
+        name="password"
+        type="java.lang.String"
+        column="password"
+        length="64"
+    />
+    <property
+        name="dataDir"
+        type="java.lang.String"
+        column="data_dir"
+        length="256"
+    />
+    <property
+        name="lastname"
+        type="java.lang.String"
+        column="lastname"
+        length="30"
+    />
+    <property
+        name="institution"
+        type="java.lang.String"
+        column="institution"
+        length="256"
+    />
+
+</class>
+</hibernate-mapping>

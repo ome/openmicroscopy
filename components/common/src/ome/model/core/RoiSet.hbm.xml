@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.core.RoiSet" 
+    table="roi_set"
+>
+    <meta attribute="class-description" inherit="false">
+       @hibernate.class
+        table="roi_set"
+    </meta>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="id"
+        type="java.lang.Integer"
+        column="id"
+    >
+        <meta attribute="field-description">
+           @hibernate.id
+            generator-class="sequence"
+            type="java.lang.Integer"
+            column="id"
+
+           @hibernate.generator-param
+	        name="sequence"
+	        value="roi_set_seq"
+        </meta>
+        <generator class="sequence">
+            <param name="sequence">roi_set_seq</param>
+        </generator>
+    </id>
+
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <version
+        name="version"
+        type="java.lang.Integer"
+        column="version"
+        unsaved-value="negative"
+    >
+        <meta attribute="field-description">
+           @hibernate.version
+            column="version"
+            unsaved-value="negative"
+        </meta>
+    </version>
+
+    <component name="permissions"
+		class="ome.model.internal.Permissions">
+		<property name="bytes" type="binary" column="permissions"/>
+    </component>
+    <many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+    <many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+    <many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+    >
+        <meta attribute="field-description">
+           @hibernate.property
+            column="name"
+        </meta>    
+    </property>
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-many association to Map -->
+    <set
+        name="maps"
+        lazy="true"
+        inverse="true"
+		cascade="all"
+    >
+        <meta attribute="field-description">
+           @hibernate.set
+            lazy="true"
+            inverse="true"
+            cascade="all"
+
+           @hibernate.collection-key
+            column="set"
+
+           @hibernate.collection-one-to-many
+            class="ome.model.core.Map"
+        </meta>
+        <key>
+            <column name="set" />
+        </key>
+        <one-to-many 
+            class="ome.model.core.Map"
+        />
+    </set>
+
+</class>
+</hibernate-mapping>

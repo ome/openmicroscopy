@@ -29,8 +29,8 @@
 
 package ome.api;
 
-import ome.model.ImagePixel;
-import ome.model.RenderingSetting;
+import ome.model.core.ImagePixel;
+import ome.model.core.RenderingSetting;
 
 
 //Java imports

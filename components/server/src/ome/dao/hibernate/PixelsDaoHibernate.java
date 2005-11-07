@@ -40,9 +40,9 @@ import org.hibernate.Session;
 
 //Application-internal dependencies
 import ome.dao.PixelsDao;
-import ome.model.Experimenter;
-import ome.model.ImagePixel;
-import ome.model.RenderingSetting;
+import ome.model.meta.Experimenter;
+import ome.model.core.ImagePixel;
+import ome.model.core.RenderingSetting;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 

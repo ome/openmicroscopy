@@ -44,10 +44,6 @@ import java.util.Set;
 import com.caucho.burlap.io.BurlapOutput;
 import com.caucho.hessian.io.HessianOutput;
 
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.Project;
-
 //Application-internal dependencies
 
 
@@ -116,26 +112,4 @@ public class Utils {
         return (String[]) set.toArray(new String[set.size()]);
     }
 
-    /** walks a PDI hierarchy and extracts the images */
-    static public Set getImagesinPDI(Set result) {
-        Set test = new HashSet();
-        Iterator i = result.iterator();
-        while (i.hasNext()){
-            Object o = i.next();
-            if (o instanceof Image) {
-                test.add(o);
-            } else if (o instanceof Dataset) {
-                Dataset dd = (Dataset) o;
-                test.addAll(dd.getImages());
-            } else if (o instanceof Project) {
-                Project pd = (Project) o;
-                Iterator p = pd.getDatasets().iterator();
-                while (p.hasNext()){
-                    Dataset dd = (Dataset) p.next();
-                    test.addAll(dd.getImages());
-                }
-            }
-        }
-        return test;
-    }
 }
