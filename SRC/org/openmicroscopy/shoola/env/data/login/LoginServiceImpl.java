@@ -115,7 +115,7 @@ public class LoginServiceImpl
                                                                     container);
             if (factory.isConnected()) return true;
             factory.connect(uc);
-            
+
             //Log success.
             LogMessage msg = new LogMessage();
             msg.println("Logged onto OMEDS at: "+config.getOmedsAddress());
