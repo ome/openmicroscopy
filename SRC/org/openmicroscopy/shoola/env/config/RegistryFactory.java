@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -156,7 +157,7 @@ public class RegistryFactory
 	/**
 	 * Adds the {@link TaskBar} instance to the specified {@link Registry}.
 	 * 
-	 * @param tf	The {@link TaskBar} instance.
+	 * @param tb	The {@link TaskBar} instance.
 	 * @param reg	The {@link Registry}.
 	 */
 	public static void linkTaskBar(TaskBar tb, Registry reg)
@@ -185,5 +186,17 @@ public class RegistryFactory
 	{
 		((RegistryImpl) reg).setUserNotifier(un);
 	}
+    
+    /**
+     * Adds the {@link OmeroPojoService} instance to
+     * the specified {@link Registry}.
+     * 
+     * @param os   The {@link OmeroPojoService} instance.
+     * @param reg   The {@link Registry}.
+     */
+    public static void linkOPS(OmeroPojoService os, Registry reg)
+    {
+        ((RegistryImpl) reg).setOS(os);
+    }
 	
 }

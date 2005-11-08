@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
@@ -146,6 +147,13 @@ public interface Registry
 	 * @return See above.
 	 */
 	public PixelsService getPixelsService();
+    
+    /**
+     * Returns a reference to the {@link OmeroPojoService}.
+     * 
+     * @return See above.
+     */
+    public OmeroPojoService getOmeroService();
     
     /**
      * Returns an implementation of the specified <code>view</code>.

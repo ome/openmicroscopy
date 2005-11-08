@@ -68,9 +68,6 @@ class Parser
 
 	/** The tags that we handle. */
 	static private String[]		tagsEntry = { Entry.ENTRY, Entry.STRUCT_ENTRY };
-	 
-	/** Points to the configuration file schema. */ 
-	private String          	configFileXMLSchema;
 	
 	/** 
 	 * Tells whether or not we're validating the configuration file against
@@ -90,6 +87,48 @@ class Parser
     /** The registry that we have to fill up. */
     private RegistryImpl    	registry;
     
+    /**
+     * Wraps the original exception into a {@link ConfigException}, which is
+     * then re-thrown with an error message.
+     * 
+     * @param e The original exception.
+     * @throws ConfigException  Wraps the original exception and contains an
+     *                          error message.
+     */
+    private void rethrow(Exception e)
+        throws ConfigException
+    {
+        StringBuffer msg = new StringBuffer(
+                            "An error occurred while attempting to process ");
+        msg.append(configFile);
+        msg.append(".");
+        String explanation = e.getMessage();
+        if (explanation != null && explanation.length() != 0) {
+            msg.append(" (");
+            msg.append(explanation);
+            msg.append(")");    
+        }
+        throw new ConfigException(msg.toString(), e); 
+    }
+    
+    /** 
+     * Retrieves the content of the tags that we handle.
+     * Stores their DOM representation (DOM node) into a list.
+     */
+    private void readConfigEntries()
+    {
+        NodeList list;
+        Node n;
+        for (int k = 0; k < tagsEntry.length; ++k) {
+            list = document.getElementsByTagName(tagsEntry[k]);
+            for (int i = 0; i < list.getLength(); ++i) {
+                n = list.item(i);
+                if (n.hasChildNodes()) entriesTags.add(n);
+            }
+        }
+    }
+    
+    
 	/** 
 	 * Creates a new instance to fill up the specified registry with the
 	 * entries from the specified coniguration file.
@@ -104,25 +143,6 @@ class Parser
         this.configFile = configFile;
         this.registry = registry;
 		entriesTags = new ArrayList();
-    }
-    
-	/** 
-	 * Creates a new instance to fill up the specified registry with the
-	 * entries from the specified coniguration file.
-	 * The configuration file is validated against the specified schema
-	 * (currently not implemented).
-	 *
-	 * @param configFile			Path to the configuration file.
-	 * @param configFileXMLSchema	The schema to be used for validation.
-	 * @param registry				The registry to fill up. 
-	 */    
-    Parser(String configFile, String configFileXMLSchema, RegistryImpl registry)
-    {
-        this.configFileXMLSchema = configFileXMLSchema;
-        validating = true;
-		this.configFile = configFile;
-		entriesTags = new ArrayList();
-		this.registry = registry;
     }
     
 	/** 
@@ -144,7 +164,6 @@ class Parser
             if (validating) {
                 factory.setValidating(true);   
                 factory.setNamespaceAware(true);
-                validate();
             }
             readConfigEntries();
             Iterator i = entriesTags.iterator();
@@ -160,56 +179,5 @@ class Parser
         	rethrow(e);
         }   
     }
-    
-    /**
-     * Wraps the original exception into a {@link ConfigException}, which is
-     * then re-thrown with an error message.
-     * 
-     * @param e	The original exception.
-     * @throws ConfigException	Wraps the original exception and contains an
-     * 							error message.
-     */
-    private void rethrow(Exception e)
-    	throws ConfigException
-    {
-		StringBuffer msg = new StringBuffer(
-							"An error occurred while attempting to process ");
-		msg.append(configFile);
-		msg.append(".");
-		String explanation = e.getMessage();
-		if (explanation != null && explanation.length() != 0) {
-			msg.append(" (");
-			msg.append(explanation);
-			msg.append(")");	
-		}
-		throw new ConfigException(msg.toString(), e); 
-    }
-    
-	/** 
-	 * Retrieves the content of the tags that we handle.
-	 * Stores their DOM representation (DOM node) into a list.
-	 */
-    private void readConfigEntries()
-    {
-		NodeList list;
-		Node n;
-        for (int k = 0; k < tagsEntry.length; ++k) {
-            list = document.getElementsByTagName(tagsEntry[k]);
-			for (int i = 0; i < list.getLength(); ++i) {
-				n = list.item(i);
-				if (n.hasChildNodes()) entriesTags.add(n);
-			}
-        }
-    }
-    
-	/**
-	 * Validates the configuration file against the configuration schema.
-	 * Not implemented yet.
-	 */
-    private void validate()
-    	throws ConfigException
-    {
-    	//TODO: implement when we define a schema for cfg files.
-    }
-       
+ 
 }

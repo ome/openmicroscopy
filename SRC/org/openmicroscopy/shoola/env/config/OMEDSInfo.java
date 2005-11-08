@@ -55,39 +55,46 @@ import java.net.URL;
 public class OMEDSInfo
 {
 	
-	/** The <i>URL</i> to connect to <i>OMEDS</i>. */
-	private URL		serverAddress;
+    /** The <i>URL</i> to connect to <i>OMEDS</i>. */
+    private URL     serverAddress;
 
-	
-	/**
-	 * Creates a new instance.
-	 * This is the only costructor and should have package visibility because 
-     * instances of this class can only be created (meaningfully) within this
-     * package.  However, we made it public to ease testing.
-	 */
-	public OMEDSInfo() {}
-	
-	/**
-	 * Parses and sets the <i>URL</i> to connect to <i>OMEDS</i>.
-	 * This method should have package visibility because it can only 
+    /**
+     * Parses and sets the <i>URL</i> to connect to <i>OMEDS</i>.
+     * This method should have package visibility because it can only 
      * (meaningfully) used within this package.  However, we made it 
      * public to ease testing.
      * 
-	 * @param url	A string representing a valid <i>URL</i>.
-	 * @throws MalformedURLException If <code>url</code> specifies a malformed
-	 * 									<i>URL</i>.
-	 */
-	public void setServerAddress(String url)
-		throws MalformedURLException
-	{  
-		serverAddress = new URL(url);  
-	}
-	
-	/**
-	 * Returns the <i>URL</i> to connect to <i>OMEDS</i>.
-	 * 
-	 * @return	See above.
-	 */
-	public URL getServerAddress() { return serverAddress; }
+     * @param url   A string representing a valid <i>URL</i>.
+     * @throws ConfigException If <code>url</code> specifies a malformed
+     *                                  <i>URL</i>.
+     */
+    private URL createServerAddress(String url)
+        throws ConfigException
+    {  
+        try {
+             return new URL(url);
+        } catch (MalformedURLException e) {
+            throw new ConfigException("MalFormed OMEDS url.", e);
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * This is the only constructor and should have package visibility because 
+     * instances of this class can only be created (meaningfully) within this
+     * package.  However, we made it public to ease testing.
+     */
+    public OMEDSInfo(String url)
+        throws ConfigException
+    {
+        serverAddress = createServerAddress(url);
+    }
+    
+    /**
+     * Returns the <i>URL</i> to connect to <i>OMEDS</i>.
+     * 
+     * @return  See above.
+     */
+    public URL getServerAddress() { return serverAddress; }
 
 }

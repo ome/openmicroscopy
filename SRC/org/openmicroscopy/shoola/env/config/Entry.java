@@ -114,6 +114,7 @@ abstract class Entry
         contentHandlers.put("boolean", BooleanEntry.class);
         contentHandlers.put("OMEIS", OMEISEntry.class);
         contentHandlers.put("OMEDS", OMEDSEntry.class);
+        contentHandlers.put("OMERODS", OMEROEntry.class);
         contentHandlers.put("font", FontEntry.class);
         contentHandlers.put("color", ColorEntry.class);
         contentHandlers.put("icons", IconFactoryEntry.class);
