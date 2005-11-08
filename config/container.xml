@@ -40,7 +40,16 @@
     <structuredEntry name="/services/OMEDS" type="OMEDS">
       <url>http://yourhost/shoola/</url>
     </structuredEntry>
-    
+
+ 
+   <!-- OMERO Data Server (OMERO) configuration.
+         This entry only specifies the URL to use to connect to OMERO.
+    -->
+    <structuredEntry name="/services/OMERODS" type="OMERODS">
+      <hostName>yourhost</hostName>
+      <port>8080</port>
+    </structuredEntry>
+
     <!-- OME Image Server (OMEIS) configuration.
          This entry is currently unused.
     -->
