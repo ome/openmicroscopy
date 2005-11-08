@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.env.data;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
+import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -75,16 +76,22 @@ public class DataServicesFactory
 	}
 	
 	//Container cfg.
-	private Registry		registry;
+	private Registry               registry;
 	
 	//Unified access point to the various OMEDS services.
-	private OMEDSGateway	gateway;
+	private OMEDSGateway           gateway;
 	
+//  Unified access point to the various OMERO services.
+    private OMEROGateway            omeroGateway;
+    
 	//Our adapters.
-	private DMSAdapter		dms;
-	private STSAdapter		sts;
-    private PixelsServiceAdapter ps;
+	private DMSAdapter             dms;
+	private STSAdapter		       sts;
+    private PixelsServiceAdapter   ps;
 	
+    //Omero Adapter;
+    private OmeroPojoService           ops;
+    
 	/**
 	 * Try to create a new instance.
 	 * @param c		container.
@@ -102,15 +109,20 @@ public class DataServicesFactory
 			throw new NullPointerException("No data server host provided!");
         gateway = new OMEDSGateway(info.getServerAddress(), this);
 		
+        OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
+        omeroGateway = new OMEROGateway(omeroInfo.getHostName(), 
+                                        omeroInfo.getPort(), this);
 		//Create the adapters.
 		dms = new DMSAdapter(gateway, registry); 
 		sts = new STSAdapter(gateway, registry);
         ps = new PixelsServiceAdapter(gateway.getDataFactory());
-        
+        ops = new OmeroPojoServiceImpl(omeroGateway, registry);
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
 	}
 	
+    public OmeroPojoService getOPS() { return ops; }
+    
 	public DataManagementService getDMS() { return dms; }
 
 	public SemanticTypesService getSTS() { return sts; }
@@ -134,6 +146,8 @@ public class DataServicesFactory
 	{
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
+        omeroGateway.login(uc.getUserName(), uc.getPassword());
+        
         gateway.login(uc.getUserName(), uc.getPassword());
 	}
 	
