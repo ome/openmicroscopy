@@ -76,17 +76,23 @@ public class Env
     private static Env  singleton;
     
     /** The property name for the URL to connect to <i>OMEDS</i>. */
-    public static final String OMEDS_URL = "omeds.url";
+    public static final String  OMEDS_URL = "omeds.url";
     
     /** 
      * The property name for the login user name of the <i>OMEDS</i> test user. 
      */
-    public static final String OMEDS_USER = "omeds.user";
+    public static final String  OMEDS_USER = "omeds.user";
     
     /** 
      * The property name for the login password of the <i>OMEDS</i> test user.
      */
-    public static final String OMEDS_PASS = "omeds.pass";
+    public static final String  OMEDS_PASS = "omeds.pass";
+    
+    /** The property name for the host to connect to <i>OMERO</i>. */
+    public static final String  OMEDS_HOST = "server.host";
+    
+    /** The property name for the port to connect to <i>OMERO</i>. */
+    public static final String  OMEDS_PORT = "server.port";  
     
     
     /**
@@ -106,21 +112,24 @@ public class Env
     
     /**
      * Returns the URL to connect to <i>OMEDS</i>.
+     * 
      * @return See above.
      */
     public static String getOmedsUrl() { return getInstance().get(OMEDS_URL); }
     
     /**
      * The login user name of the <i>OMEDS</i> test user.
+     * 
      * @return See above.
      */
-    public static String getOmedsUser() 
+    public static String getOmedsUser()
     { 
         return getInstance().get(OMEDS_USER); 
     }
     
     /**
      * Returns the login password of the <i>OMEDS</i> test user.
+     * 
      * @return See above.
      */
     public static String getOmedsPass() 
@@ -128,6 +137,25 @@ public class Env
         return getInstance().get(OMEDS_PASS); 
     }
     
+    /**
+     * Returns the host to connect to <i>OMERO</i>.
+     * 
+     * @return See above.
+     */
+    public static String getOmedsHost()
+    {
+        return getInstance().get(OMEDS_HOST);
+    }
+    
+    /**
+     * Returns the port to connect to <i>OMERO</i>.
+     * 
+     * @return See above.
+     */
+    public static String getOmedsPort()
+    {
+        return getInstance().get(OMEDS_PORT);
+    }
     
     /** Holds the the <i>OMEDS</i> tests configuration properties.  */
     private Properties  config;
@@ -141,7 +169,8 @@ public class Env
      */
     private Env() 
     {
-        String[] propName = {OMEDS_URL, OMEDS_USER, OMEDS_PASS};
+        String[] propName = {OMEDS_URL, OMEDS_USER, OMEDS_PASS, OMEDS_HOST,
+                            OMEDS_PORT};
         config = new Properties();
         String value;
         for (int i = 0; i < propName.length; ++i) {
