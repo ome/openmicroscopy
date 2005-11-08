@@ -31,19 +31,21 @@ package org.openmicroscopy.shoola.env.init;
 
 
 //Java imports
-import java.net.MalformedURLException;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.ConfigException;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
+import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.Env;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.SyncMonitorFactory;
@@ -101,10 +103,13 @@ public class DataServicesTestsInit
         Registry reg = container.getRegistry();
         try {
             //Rebind OMEDS config entries with test entries.
-            OMEDSInfo srvAddr = new OMEDSInfo();
-            srvAddr.setServerAddress(Env.getOmedsUrl());
+            OMEDSInfo srvAddr = new OMEDSInfo(Env.getOmedsUrl());
             reg.bind(LookupNames.OMEDS, srvAddr);
             
+            //Rebind OMERO config entries with test entries
+            OMEROInfo omeroAddr = new OMEROInfo(Env.getOmedsHost(),
+                                                Env.getOmedsPort());
+            reg.bind(LookupNames.OMERODS, omeroAddr);
             //Create services.
             DataServicesFactory factory = 
                                      DataServicesFactory.getInstance(container);
@@ -117,14 +122,17 @@ public class DataServicesTestsInit
             RegistryFactory.linkSTS(sts, reg);
             RegistryFactory.linkPS(ps, reg);
             
+            OmeroPojoService ops = factory.getOPS();
+            RegistryFactory.linkOPS(ops, reg);
+            
             //Finally create and bind the factory used by the async data views
             //to create exec monitors.
             SyncMonitorFactory smf = new SyncMonitorFactory();
             reg.bind(LookupNames.MONITOR_FACTORY, smf);
         } catch (IllegalArgumentException iae) {
             throw new StartupException("No server URL.", iae);
-        } catch (MalformedURLException mue) {
-            throw new StartupException("Malformed server URL.", mue);
+        } catch (ConfigException ce) {
+            throw new StartupException("Malformed server URL.", ce);
         } catch (DSOutOfServiceException dsose) {
             throw new StartupException("Can't initialize OMEDS proxies.", 
                                        dsose);

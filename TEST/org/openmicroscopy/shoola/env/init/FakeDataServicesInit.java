@@ -39,8 +39,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.NullDataManagementService;
+import org.openmicroscopy.shoola.env.data.NullOmeroPojoService;
 import org.openmicroscopy.shoola.env.data.NullPixelsService;
 import org.openmicroscopy.shoola.env.data.NullSemanticTypesService;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 
@@ -82,6 +84,11 @@ public class FakeDataServicesInit
      */
     public static PixelsService         ps = new NullPixelsService();
     
+    /** 
+     * Default Null service.
+     * Change it to whatever implementation is required by your tests.
+     */
+    public static OmeroPojoService      ops = new NullOmeroPojoService();
 
     /**
      * Constructor required by superclass.
@@ -115,6 +122,7 @@ public class FakeDataServicesInit
         RegistryFactory.linkDMS(dms, reg);
         RegistryFactory.linkSTS(sts, reg);
         RegistryFactory.linkPS(ps, reg); 
+        RegistryFactory.linkOPS(ops, reg); 
     }
     
     /** 
