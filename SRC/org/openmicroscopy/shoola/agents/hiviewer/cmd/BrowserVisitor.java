@@ -60,13 +60,21 @@ public class BrowserVisitor
     implements ImageDisplayVisitor
 {
 
+    /** A reference to the {@link Browser}. */
     protected Browser   browser;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param browser. Reference to the {@link Browser}.
+     * Mustn't be <code>null</code>, it shouldn't happen.
+     */
     public BrowserVisitor(Browser browser)
     {
+        if (browser == null) throw new IllegalArgumentException("No browser.");
         this.browser = browser;
     }
-
+    
     public void visit(ImageNode node) {}
 
     public void visit(ImageSet node) {}

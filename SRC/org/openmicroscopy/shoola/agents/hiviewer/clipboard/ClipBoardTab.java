@@ -67,6 +67,13 @@ abstract class ClipBoardTab
     /** The {@link ClipBoardControl} control. */
     protected ClipBoardControl  controller;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param view Reference to the view. Mustn't be <code>null</code>.
+     * @param controller Reference to the control. Mustn't be <code>null</code>.
+     */
     ClipBoardTab(ClipBoardModel model, ClipBoardUI view, ClipBoardControl
                 controller)
     {

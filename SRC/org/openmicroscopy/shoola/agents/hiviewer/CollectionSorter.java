@@ -30,23 +30,21 @@
 package org.openmicroscopy.shoola.agents.hiviewer;
 
 
-
-
-
 //Java imports
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
+
+import pojos.AnnotationData;
+import pojos.DataObject;
 
 /** 
  * Helper methods to sort collections.
@@ -151,6 +149,23 @@ public class CollectionSorter
         return v;
     }
     
+    private static int compareAnnotationData(AnnotationData a1,
+                                            AnnotationData a2)
+    {
+        Timestamp t1 = a1.getLastModified();
+        if (t1 == null) {
+            t1 = new Timestamp((new java.util.Date()).getTime());
+        }
+        Timestamp t2 = a2.getLastModified();
+        if (t2 == null) {
+            t2 = new Timestamp((new java.util.Date()).getTime());
+        }
+        int v = 0;
+        if (t1.after(t2)) v = -1;
+        else if (t1.after(t2)) v = 1;
+        return v;
+    }
+    
     /**
      * Compares two {@link ImageDisplay}s.
      * 
@@ -243,6 +258,9 @@ public class CollectionSorter
             result = compareBooleans((Boolean) o1, (Boolean) o2);   
         else if (o1 instanceof ImageDisplay) 
             result = compareImageDisplay((ImageDisplay) o1, (ImageDisplay) o2);
+        else if (o1 instanceof AnnotationData) 
+            result = compareAnnotationData((AnnotationData) o1,
+                        (AnnotationData) o2);
         else result = compareObjects(o1, o2);
             
         if (result != 0) return ascending ? result : -result;
@@ -340,7 +358,7 @@ public class CollectionSorter
      */
     public static List sortImageDisplay(Set set)
     {
-        return sorImageDisplay(set, true);
+        return sortImageDisplay(set, true);
     }
     
     /**
@@ -352,7 +370,7 @@ public class CollectionSorter
      * ascending order.
      * @return A list of ordered elements.
      */
-    public static List sorImageDisplay(Set set, boolean ascending)
+    public static List sortImageDisplay(Set set, boolean ascending)
     {
         Iterator i = set.iterator();
         ImageDisplay[]  array = new ImageDisplay[set.size()];
@@ -372,4 +390,33 @@ public class CollectionSorter
         return list;
     }
     
+    public static List sortAnnotationDataByDate(Set set)
+    {
+        return sortAnnotationDataByDate(set, true);
+    }
+    
+    public static List sortAnnotationDataByDate(Set set, boolean ascending)
+    {
+        if (set == null)
+            throw new IllegalArgumentException("The set cannot be null.");
+        Iterator i = set.iterator();
+        AnnotationData[]  array = new AnnotationData[set.size()];
+        AnnotationData[]  clone = new AnnotationData[set.size()];
+        int index = 0;
+        AnnotationData data;
+        while (i.hasNext()) {
+            data = (AnnotationData) i.next();
+            
+            //if (time != null) {
+                array[index] = data;
+                clone[index] = data;
+                index++; 
+            //}
+        }
+        shuttlesort(clone, array, 0, array.length, ascending);
+        List list = new ArrayList();
+        for (int j = 0; j < array.length; j++)  
+            list.add(array[j]);
+        return list;
+    }
 }

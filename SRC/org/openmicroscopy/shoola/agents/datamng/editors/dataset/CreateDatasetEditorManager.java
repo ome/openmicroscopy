@@ -37,6 +37,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -53,10 +54,11 @@ import org.openmicroscopy.shoola.agents.datamng.util.Filter;
 import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * 
@@ -93,7 +95,7 @@ class CreateDatasetEditorManager
     
 	private DataManagerCtrl			agentCtrl;
 	
-	private List					projects;
+	private Set					   projects;
 	
 	/** List of images to be added. */
 	private List					imagesToAdd;
@@ -113,7 +115,7 @@ class CreateDatasetEditorManager
     
     CreateDatasetEditorManager(CreateDatasetEditor view, 
 									  DataManagerCtrl agentCtrl,
-									  DatasetData model, List projects)
+									  DatasetData model, Set projects)
 	{
 		this.agentCtrl = agentCtrl;
 		this.view = view;
@@ -148,7 +150,7 @@ class CreateDatasetEditorManager
 	
 	DatasetData getDatasetData() { return model; }
 	
-	List getProjects() { return projects; }
+	Set getProjects() { return projects; }
 		
 	/** Initializes the listeners. */
 	void initListeners()
@@ -222,7 +224,7 @@ class CreateDatasetEditorManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove.
 	 */
-	void addImage(boolean value, ImageSummary is) 
+	void addImage(boolean value, ImageData is) 
 	{
 		if (value) {
 			if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
@@ -237,7 +239,7 @@ class CreateDatasetEditorManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove.
 	 */
-	void addProject(boolean value, ProjectSummary ps) 
+	void addProject(boolean value, ProjectData ps) 
 	{
 		if (value) {
 			if (!projectsToAdd.contains(ps)) projectsToAdd.add(ps);
@@ -257,7 +259,7 @@ class CreateDatasetEditorManager
         if (selectedIndex == CreateDatasetImagesPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
             //retrieve the datasets used by the current user.
-            List d = agentCtrl.getUsedDatasets();
+            Set d = agentCtrl.getUsedDatasets();
             if (d != null && d.size() > 0)
                 UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this, 
                                             d));
@@ -274,7 +276,7 @@ class CreateDatasetEditorManager
         int selectedIndex = view.getImagesSelections().getSelectedIndex();
         if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
-            List images = null;
+            Set images = null;
             switch (selectedIndex) {
                 case CreateDatasetImagesPane.IMAGES_IMPORTED:
                     images = agentCtrl.getImportedImages(filters, 
@@ -296,7 +298,7 @@ class CreateDatasetEditorManager
     }
     
     /** Display the images. */
-    private void displayListImages(List images)
+    private void displayListImages(Set images)
     {
         if (images == null || images.size() == 0) {
             UserNotifier un = agentCtrl.getRegistry().getUserNotifier();

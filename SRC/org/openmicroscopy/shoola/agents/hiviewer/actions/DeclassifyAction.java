@@ -37,16 +37,19 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
+ * Brings up the declassification widget if required.
+ * This action is enabled if the hierarchy object is an image.
  * 
- *
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -70,6 +73,27 @@ public class DeclassifyAction
             " from a category.";
     
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay.getParentDisplay() == null) 
+            setEnabled(false);
+        else {
+            Object ho = selectedDisplay.getHierarchyObject();
+            setEnabled(ho instanceof ImageData);
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public DeclassifyAction(HiViewer model)
     {
         super(model);
@@ -78,23 +102,12 @@ public class DeclassifyAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
 
-    /** Handle the action. */
+    /** Creates a {@link ClassifyCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
        ClassifyCmd cmd = new ClassifyCmd(model, 
                                          Classifier.DECLASSIFICATION_MODE);
        cmd.execute();
-    }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay.getParentDisplay() == null) 
-            setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            if (ho instanceof ImageSummary) setEnabled(true);
-            else setEnabled(false);
-        }
     }
 
 }

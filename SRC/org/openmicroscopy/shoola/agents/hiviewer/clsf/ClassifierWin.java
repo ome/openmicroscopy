@@ -47,9 +47,9 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.CategoryData;
 
 /** 
  * The top container.
@@ -106,22 +106,6 @@ abstract class ClassifierWin
         dispose();
     }
     
-    /** Create a new instance. */
-    ClassifierWin(Set availablePaths, JFrame owner)
-    {
-        super(owner);
-        if (availablePaths == null)
-            throw new IllegalArgumentException("no paths");
-        this.availablePaths = availablePaths;
-        setModal(true);
-        setTitle("Classification");
-        
-        //AttachWindow Listener
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent we) { setClosed(); }
-        });
-    }
-    
     /** Builds and lays out the GUI. */
     protected void buildGUI() 
     {
@@ -147,6 +131,28 @@ abstract class ClassifierWin
     /** The main panel added to this window.*/
     protected abstract JComponent getClassifPanel();
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param availablePaths The available paths to the images.
+     * Mustn't be <code>null</code>.
+     * @param owner The owner of this frame.
+     */
+    ClassifierWin(Set availablePaths, JFrame owner)
+    {
+        super(owner);
+        if (availablePaths == null)
+            throw new IllegalArgumentException("no paths");
+        this.availablePaths = availablePaths;
+        setModal(true);
+        setTitle("Classification");
+        
+        //AttachWindow Listener
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { setClosed(); }
+        });
+    }
+
     /** 
      * The category selected, either to classify or declassify the 
      * selected image.

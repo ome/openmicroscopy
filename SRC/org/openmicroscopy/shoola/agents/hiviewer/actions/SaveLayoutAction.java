@@ -42,12 +42,13 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Saves the current layout.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,11 +65,29 @@ public class SaveLayoutAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Save current";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Save the current layout.";
 
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public SaveLayoutAction(HiViewer model)
     {
         super(model);
@@ -84,10 +103,6 @@ public class SaveLayoutAction
     {
         //TODO: implement action command
     }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay != null) setEnabled(true);
-    }
+
 
 }

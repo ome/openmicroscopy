@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 //Java imports
 import java.awt.GridLayout;
 import java.text.NumberFormat;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -45,8 +44,8 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImageData;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
  * 
@@ -118,7 +117,7 @@ class ImageInfoPane
                     " Pixel type"};
 						
         ImageData imgData = manager.getImageData();
-		PixelsDescription px = imgData.getDefaultPixels();
+		PixelsData px = imgData.getDefaultPixels();
 		
 		private Object[] data = new Object[rows];
 		
@@ -134,6 +133,7 @@ class ImageInfoPane
 				data[6] = ""+px.getSizeT();
                 data[8] = ""+px.getPixelType();
 				
+                /*
                 String listChannels = "";
                 int[] channels = imgData.getChannels();
 				if (channels != null) {
@@ -144,6 +144,7 @@ class ImageInfoPane
                     }
                 }
                 data[7] = listChannels;
+                */
 			}		
 		}
 

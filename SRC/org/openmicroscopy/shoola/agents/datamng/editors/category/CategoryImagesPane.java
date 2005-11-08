@@ -49,11 +49,11 @@ import javax.swing.table.AbstractTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
  * 
@@ -258,7 +258,7 @@ class CategoryImagesPane
 		private ImagesTableModel()
 		{
 			for (int i = 0; i < images.length; i++) {
-				data[i][0] = ((ImageSummary) images[i]).getName();
+				data[i][0] = ((ImageData) images[i]).getName();
 				data[i][1] = Boolean.FALSE;
 			}
 		}
@@ -288,7 +288,7 @@ class CategoryImagesPane
 			data[row][col] = value;
 			fireTableCellUpdated(row, col);
 			manager.selectImage(((Boolean) value).booleanValue(), 
-								(ImageSummary) images[row]);
+								(ImageData) images[row]);
 		}
 	}
 	
@@ -310,10 +310,10 @@ class CategoryImagesPane
 		
 		private ImagesAddTableModel()
 		{
-			ImageSummary is;
+			ImageData is;
 		
 			for (int i = 0; i < images.length; i++) {
-				is = (ImageSummary) images[i];
+				is = (ImageData) images[i];
 				data[i][0] = is.getName();
 				data[i][1] = new Boolean(imgs.contains(is));
 			}
@@ -339,7 +339,7 @@ class CategoryImagesPane
 			data[row][col] = value;
 			fireTableCellUpdated(row, col);
 			manager.setToAddToRemove(((Boolean) value).booleanValue(),
-									(ImageSummary) images[row]);
+									(ImageData) images[row]);
 		}
 	}
 	

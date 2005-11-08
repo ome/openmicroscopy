@@ -36,13 +36,16 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.CategoryData;
 
 /** 
  * 
@@ -70,7 +73,7 @@ class GroupCategoriesDiffPaneMng
 	/** List of categories to be added. */
 	private List                           categoriesToAdd;
 	
-    private List                           categoriesDiff;
+    private Set                           categoriesDiff;
     
 	/** Reference to the {@link GroupCategoriesDiffPane view}. */
 	private GroupCategoriesDiffPane        view;
@@ -78,7 +81,7 @@ class GroupCategoriesDiffPaneMng
 	private GroupEditorManager             control;
 
 	GroupCategoriesDiffPaneMng(GroupCategoriesDiffPane view, 
-							GroupEditorManager control, List categoriesDiff)
+							GroupEditorManager control, Set categoriesDiff)
 	{
 			this.view = view;
 			this.control = control;	
@@ -87,7 +90,7 @@ class GroupCategoriesDiffPaneMng
 			attachListeners();					
 	}
 	
-	List getCategoriesDiff() { return categoriesDiff; }
+	Set getCategoriesDiff() { return categoriesDiff; }
 	
 	/** Attach the listeners. */
 	private void attachListeners()

@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Command to saves the thumbnails contained in a dataset or category.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -67,12 +67,11 @@ public class SaveThumbnailsCmd
      * Dataset/Category.
      * If the node is not a node containing thumbnails, no action is taken.
      * 
-     * @param model The Model which has a reference to the browser.
-     *              Mustn't be <code>null</code>.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      */
     public SaveThumbnailsCmd(HiViewer model) 
     { 
-        if (model == null) throw new NullPointerException("No model");
+        if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
     }
     

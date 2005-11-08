@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * TODO: add comments. 
+ * Creates a visitor to clear the browser from previous search results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,11 +57,14 @@ public class ClearCmd
     /** Reference to the model. */
     private HiViewer    model;
     
-    /** Creates a new instance.*/
+    /**
+     * Creates a new instance. 
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     public ClearCmd(HiViewer model)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
     }
     

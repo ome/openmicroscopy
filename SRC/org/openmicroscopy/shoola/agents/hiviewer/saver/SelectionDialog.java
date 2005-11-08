@@ -58,17 +58,25 @@ public class SelectionDialog
     extends OptionsDialog
 {
    
+    /** Notification message. */
     private static final String MESSAGE = "A file with the same name and " +
                                             "extension already exists in " +
                                              "this directory. Do you " +
                                              "really want to save the image?";
     
+    /** Reference to the model. */
     private ContainerSaver model;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param messageIcon The icon displayed in the window.
+     */
     SelectionDialog (ContainerSaver model, Icon messageIcon) 
     {
         super(model, "Save images", MESSAGE, messageIcon);
-        if (model == null) throw new NullPointerException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
     }
  

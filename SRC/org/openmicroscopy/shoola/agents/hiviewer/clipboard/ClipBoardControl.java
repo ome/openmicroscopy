@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import pojos.AnnotationData;
 
 /** 
  * 
@@ -97,6 +97,11 @@ class ClipBoardControl
                 model.getParentModel().getBrowser().getSelectedDisplay());
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param component A reference to the model. Mustn't be <code>null</code>.
+     */
     ClipBoardControl(ClipBoard component)
     {
         if (component == null) throw new NullPointerException("No component.");
@@ -105,6 +110,7 @@ class ClipBoardControl
 
     /**
      * Links the MVC triad.
+     * 
      * @param view The {@link ClipBoardUI} view.
      * @param model The {@link ClipBoardModel} model.
      */
@@ -180,11 +186,10 @@ class ClipBoardControl
     {
         String propName = pce.getPropertyName();
         if (propName.equals(Browser.SELECTED_DISPLAY_PROPERTY))
-            handleBrowserSelectedDisplay(pce);
-        
+            handleBrowserSelectedDisplay(pce); 
     }
 
-    /** Listen to change events. */
+    /** Listens to change events. */
     public void stateChanged(ChangeEvent ce)
     {
         Object source = ce.getSource();

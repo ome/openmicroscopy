@@ -38,10 +38,10 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
  * Implements the {@link HiViewer} interface to provide the functionality

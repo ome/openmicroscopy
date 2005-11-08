@@ -32,7 +32,10 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 //Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -52,11 +55,11 @@ import javax.swing.table.TableColumnModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
 
 /** 
  * 
@@ -87,7 +90,7 @@ class ProjectDatasetsPane
 	
 	private DatasetsTableModel         datasetsTM;
 	
-	private List                       listDatasets;
+	private Set                       listDatasets;
 	
 	ProjectDatasetsPane(ProjectEditorManager manager)
 	{
@@ -126,8 +129,7 @@ class ProjectDatasetsPane
 	{
 		listDatasets = manager.getProjectData().getDatasets();
         //quick fix
-        if (listDatasets == null)
-            listDatasets = new ArrayList();
+        if (listDatasets == null) listDatasets = new HashSet();
 		buildTablePanel();
 		buildButtonsPanel();
 		buildButtonsToAddPanel();
@@ -278,7 +280,7 @@ class ProjectDatasetsPane
 		private DatasetsTableModel()
 		{
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = ((DatasetSummary) datasets[i]).getName();
+				data[i][0] = ((DatasetData) datasets[i]).getName();
 				data[i][1] = Boolean.FALSE;
 			}
 		}
@@ -303,7 +305,7 @@ class ProjectDatasetsPane
 			data[row][col] = value;
 			fireTableCellUpdated(row, col);
 			manager.selectDataset(((Boolean) value).booleanValue(), 
-									(DatasetSummary) datasets[row]);
+									(DatasetData) datasets[row]);
 		}
 	}
 	
@@ -324,9 +326,9 @@ class ProjectDatasetsPane
 
 		private DatasetsAddTableModel()
 		{
-			DatasetSummary ds;
+            DatasetData ds;
 			for (int i = 0; i < datasets.length; i++) {
-				 ds = (DatasetSummary) datasets[i];
+				 ds = (DatasetData) datasets[i];
 				data[i][0] = ds.getName();
 				data[i][1] = new Boolean(dats.contains(ds));
 			}
@@ -352,7 +354,7 @@ class ProjectDatasetsPane
 			data[row][col]= value;
 			fireTableCellUpdated(row, col);
 			manager.setToAddToRemove(((Boolean) value).booleanValue(), 
-									(DatasetSummary) datasets[row]);
+									(DatasetData) datasets[row]);
 		}
 	}
 

@@ -56,9 +56,22 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ContainerSaverManager
 {
     
+    /** Reference to the model. */
     private ContainerSaver      model; 
     
+    /** Reference to the preview widget. */
     private Preview             preview;
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
+    ContainerSaverManager(ContainerSaver model)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.model = model;
+    }
     
     /** Brings up the selection dialog. */
     void showSelectionDialog()
@@ -78,11 +91,6 @@ class ContainerSaverManager
         if (preview == null) preview = new Preview(model);
         preview.pack();
         UIUtilities.centerAndShow(preview);
-    }
-    
-    public ContainerSaverManager(ContainerSaver model)
-    {
-        this.model = model;
     }
 
 }

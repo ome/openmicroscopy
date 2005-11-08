@@ -37,12 +37,12 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Closes the {@link HiViewer}.
+ * This action is always enabled.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,10 +59,18 @@ public class ExitAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Exit";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Close the window.";
     
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public ExitAction(HiViewer model)
     {
         super(model);
@@ -74,9 +82,7 @@ public class ExitAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT));
     }
 
-    /** Handle the action. */
+    /** Discards the model. */
     public void actionPerformed(ActionEvent e) { model.discard(); }
-
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
 
 }

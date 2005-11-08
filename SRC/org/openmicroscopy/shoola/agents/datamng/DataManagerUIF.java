@@ -37,6 +37,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -48,11 +49,6 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -212,7 +208,7 @@ public class DataManagerUIF
 	boolean isTreeLoaded() { return explPane.getManager().isTreeLoaded(); }
 	
     /** Forward event to {@link ClassifierPaneManager}. */
-    void refreshCategory(CategoryData data)
+    void refreshCategory(pojos.CategoryData data)
     {
         classifierPane.getManager().refreshCategoryInTree(data);
     }
@@ -224,7 +220,7 @@ public class DataManagerUIF
     }
     
     /** Forward event to {@link ExplorerPaneManager}. */
-    void refreshDataset(DatasetSummary ds)
+    void refreshDataset(pojos.DatasetData ds)
     { 
         explPane.getManager().refreshDatasetInTree(ds);    
     }
@@ -239,25 +235,25 @@ public class DataManagerUIF
 	void updateDatasetInTree() { explPane.getManager().updateDatasetInTree(); }
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void updateImageInTree(ImageSummary is)
+	void updateImageInTree(pojos.ImageData is)
 	{
 		explPane.getManager().updateImageInTree(is);
 	}
 	
 	/** Forward event to {@link ImagesPaneManager}. */
-	void updateImageInTable(ImageSummary is)
+	void updateImageInTable(pojos.ImageData is)
 	{
 		imgPane.getManager().updateImageInTable(is);
 	}
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void addNewProjectToTree(ProjectSummary ps)
+	void addNewProjectToTree(pojos.ProjectData ps)
 	{
 		explPane.getManager().addNewProjectToTree(ps);
 	}
 	
 	/** Forward event to {@link ExplorerPaneManager}. */
-	void addNewDatasetToTree(List projects)
+	void addNewDatasetToTree(Set projects)
 	{
 		explPane.getManager().addNewDatasetToTree(projects);
 	}
@@ -269,7 +265,7 @@ public class DataManagerUIF
     }
     
     /** Forward event to {@link ClassifierPaneManager}. */
-    void addNewGroupToTree(CategoryGroupData data)
+    void addNewGroupToTree(pojos.CategoryGroupData data)
     {
         classifierPane.getManager().addNewGroupToTree(data);
     }

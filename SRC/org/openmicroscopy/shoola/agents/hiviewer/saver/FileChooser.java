@@ -60,24 +60,19 @@ class FileChooser
     extends JFileChooser
 {
     
-    /** Default extension format. */
+    /** The default extension. */
     private static final String DEFAULT_FORMAT = PNGFilter.PNG;
     
+    /** The default save message. */
     private static final String MSG_DIR = "The image has been saved in \n";
     
+    /** The window hosting the display. */
     private ContainerSaver  window;
     
+    /** Flag to indicate if the file chooser is already on screen. */
     private boolean         display;
     
-    public FileChooser(ContainerSaver window)
-    {
-        if (window == null) throw new NullPointerException("No window."); 
-        this.window = window;
-        display = false;
-        buildGUI();
-    }
-    
-    /** Build and lay out the GUI. */
+    /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         setDialogType(SAVE_DIALOG);
@@ -93,8 +88,9 @@ class FileChooser
     }
 
     /**
-     * Retrieve the File format selected.
-     * @param filter    filter specified.
+     * Retrieves the selected extension.
+     * 
+     * @param filter The filter specified.
      * @return See above.
      */
     private String getFormat(FileFilter filter)
@@ -109,30 +105,43 @@ class FileChooser
      * Check if the fileName specified already exists if not the image is saved
      * in the specified format.
      * 
-     * @param format        format selected <code>jpeg<code>, 
+     * @param extension  The extension selected <code>jpeg<code>, 
      *                      <code>png<code> or <code>tif<code>.
-     * @param fileName      image's name.
-     * @param message       message displayed after the image has been created.
-     * @param list          lis of files in the current directory.
+     * @param fileName The image's name.
+     * @param message The message displayed after the image has been created.
+     * @param list The list of files in the current directory.
      */
-    private void setSelection(String format, String fileName, String message,
+    private void setSelection(String extension, String fileName, String message,
                                 File[] list)
     {
         boolean exist = false;
-        String name = fileName + "." + format;
+        String name = fileName + "." + extension;
         for (int i = 0; i < list.length; i++) {
             if ((list[i].getAbsolutePath()).equals(name)) {
                 exist = true;
                 break;
             }
         }
-        window.previewImage(format, fileName, message, exist);   
+        window.previewImage(extension, fileName, message, exist);   
     }
     
-    /** Override the {@link #cancelSelection} method. */
+    /**
+     * Creates a new instance.
+     * 
+     * @param window Reference to the model. Mustn't be <code>null</code>.
+     */
+    FileChooser(ContainerSaver window)
+    {
+        if (window == null) throw new IllegalArgumentException("No window."); 
+        this.window = window;
+        display = false;
+        buildGUI();
+    }
+
+    /** Overrides the {@link #cancelSelection} method. */
     public void cancelSelection() { window.closeWindow(); }
     
-    /** Override the {@link #approveSelection} method. */
+    /** Overrides the {@link #approveSelection} method. */
     public void approveSelection()
     {
         File file = getSelectedFile();

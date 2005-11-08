@@ -40,8 +40,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
+import pojos.DataObject;
 
 /** 
  * A floating window to display a thumbnail at its maximum scaling size.
@@ -77,15 +77,15 @@ class ThumbWin
     /**
      * Creates a new instance.
      * 
-     * @param parent The parent frame.  Mustn't be <code>null</code>.
-     * @param fullScaleThumb The thumbnail.  Mustn't be <code>null</code>.
+     * @param parent The parent frame. Mustn't be <code>null</code>.
+     * @param fullScaleThumb The thumbnail. Mustn't be <code>null</code>.
      * @param image The Image object the thumbnail is for.
      *              Mustn't be <code>null</code>.
      */
     ThumbWin(JFrame parent, BufferedImage fullScaleThumb, DataObject image)
     {
         super(parent, fullScaleThumb);
-        if (image == null) throw new NullPointerException("No image.");
+        if (image == null) throw new IllegalArgumentException("No image.");
         dataObject = image;
         parentFrame = parent;
         uiDelegate.attachMouseListener(this);

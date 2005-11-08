@@ -37,6 +37,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.categoryGroup;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -54,13 +56,13 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
+
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
-
+import pojos.CategoryData;
 
 /** 
  * 
@@ -104,7 +106,7 @@ class GroupCategoriesDiffPane
     
     private JPanel                          contents;
 
-    GroupCategoriesDiffPane(GroupEditorManager control, List categoriesDiff)
+    GroupCategoriesDiffPane(GroupEditorManager control, Set categoriesDiff)
     {
         super(control.getAgentCtrl().getReferenceFrame(), 
                 "List of existing categories", true);
@@ -135,7 +137,7 @@ class GroupCategoriesDiffPane
      * 
      * @param d List of datasets which don't belong to the project.
      */
-    private void initButtons(List d)
+    private void initButtons(Set d)
     {
         //remove button
         selectButton = new JButton("Select All");

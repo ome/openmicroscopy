@@ -36,12 +36,14 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import pojos.DatasetData;
 
 /** 
  * 
@@ -74,11 +76,11 @@ class ProjectDatasetsDiffPaneManager
 	
 	private ProjectEditorManager		control;
 	
-	private List						datasetsDiff;
+	private Set						datasetsDiff;
 	
 	ProjectDatasetsDiffPaneManager(ProjectDatasetsDiffPane view, 
 									ProjectEditorManager control, 
-									List datasetsDiff)
+									Set datasetsDiff)
 	{
 			this.view = view;
 			this.control = control;	
@@ -87,7 +89,7 @@ class ProjectDatasetsDiffPaneManager
 			attachListeners();					
 	}
 	
-	List getDatasetsDiff() { return datasetsDiff; }
+	Set getDatasetsDiff() { return datasetsDiff; }
 	
 	/** Attach the listeners. */
 	private void attachListeners()
@@ -122,7 +124,7 @@ class ProjectDatasetsDiffPaneManager
 		} 
 	}
 	
-	void setSelected(boolean value, DatasetSummary ds)
+	void setSelected(boolean value, DatasetData ds)
 	{
 		if (value) datasetsDiff.add(ds);
 		else datasetsDiff.remove(ds);
@@ -145,10 +147,10 @@ class ProjectDatasetsDiffPaneManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void addDataset(boolean value, DatasetSummary ds) 
+	void addDataset(boolean value, DatasetData ds) 
 	{
 		if (value)	{
-			if (!datasetsToAdd.contains(ds))	datasetsToAdd.add(ds);
+			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
 		} else 	datasetsToAdd.remove(ds);
 	}
 	

@@ -39,14 +39,15 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
- * 
+ * Views or browses the selected node according to the hierarchy object type.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,14 +64,37 @@ public class ViewAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String VIEW = "View";
     
+    /** Name of the action. */
     private static final String BROWSE = "Browse";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "View the selected image or" +
             "browse the selected project, dataset, categoryGroup or category";
 
-    
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
+        else {
+            Object ho = selectedDisplay.getHierarchyObject();
+            if ((ho instanceof ImageData)) putValue(Action.NAME, VIEW);   
+            else putValue(Action.NAME, BROWSE);
+            setEnabled(true);
+        }
+    }
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public ViewAction(HiViewer model)
     {
         super(model);
@@ -81,23 +105,11 @@ public class ViewAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER)); 
     }
  
-    /** Handle the action. */
+    /** Creates a {@link ViewCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
        ViewCmd cmd = new ViewCmd(model);
        cmd.execute();
-    }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay.getParentDisplay() == null) 
-            setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            if ((ho instanceof ImageSummary)) putValue(Action.NAME, VIEW);   
-            else putValue(Action.NAME, BROWSE);
-            setEnabled(true);
-        }
     }
 
 }

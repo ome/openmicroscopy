@@ -34,7 +34,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.util.List;
+import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -52,6 +52,8 @@ import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.agents.datamng.editors.controls.CreateBar;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+
+import pojos.CategoryGroupData;
 
 /** 
  * Create Category widget.
@@ -79,7 +81,7 @@ public class CreateCategoryEditor
     private CreateBar                   bar;
     private CreateCategoryEditorMng     manager;
     
-    public CreateCategoryEditor(DataManagerCtrl agentCtrl, List groups, 
+    public CreateCategoryEditor(DataManagerCtrl agentCtrl, Set groups, 
                             int selectedCategoryGroupID)
     {
         this.agentCtrl = agentCtrl;
@@ -102,7 +104,7 @@ public class CreateCategoryEditor
     
     JTextArea getCategoryDescription() { return categoryPane.descriptionArea; }
     
-    JComboBox getExistingGroups() { return categoryPane.groups; }
+    //JComboBox getExistingGroups() { return categoryPane.groups; }
     
     JButton getSaveButton() { return bar.getSave(); }
     
@@ -117,11 +119,15 @@ public class CreateCategoryEditor
     JComboBox getImagesSelection() { return imagePane.selections; }
     
     /** List of imageSummary object. */
-    void showImages(List images) { imagePane.showImages(images); }
+    void showImages(Set images) { imagePane.showImages(images); }
     
     void selectAllImages() { imagePane.setSelection(Boolean.TRUE); }
     
     void resetImageSelection() { imagePane.setSelection(Boolean.FALSE); }
+    
+    CategoryGroupData getSelectedCategoryGroup() {
+        return categoryPane.getSelectedCategoryGroup();
+    }
     
     /** Build and lay out the GUI. */
     private void buildGUI()

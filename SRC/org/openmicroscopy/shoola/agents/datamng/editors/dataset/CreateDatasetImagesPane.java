@@ -30,9 +30,10 @@
 package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
-import java.util.List;
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -43,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -51,11 +53,11 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
  * 
@@ -133,7 +135,7 @@ class CreateDatasetImagesPane
 	}
 
     /** Rebuild the component to display the existing images. */ 
-    void showImages(List images)
+    void showImages(Set images)
     {
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -215,7 +217,7 @@ class CreateDatasetImagesPane
     }
     
     /** Build panel with table containing the images to add. */
-    private JPanel buildImagesPanel(List images)
+    private JPanel buildImagesPanel(Set images)
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -256,6 +258,7 @@ class CreateDatasetImagesPane
 				im.getIcon(IconManager.ORDER_BY_SELECTED_DOWN),
 				"Order by selected images.");
 		tc.setHeaderValue(txt);
+        table.setDefaultRenderer(ImageData.class, new ImagesTableRenderer());
 	}
 
 	/** 
@@ -271,12 +274,12 @@ class CreateDatasetImagesPane
 		private Object[]      images;
 		private Object[][]    data;
 
-		private ImagesTableModel(List imgs)
+		private ImagesTableModel(Set imgs)
 		{
             images = imgs.toArray();
             data = new Object[images.length][2];
 			for (int i = 0; i < images.length; i++) {
-				data[i][0] = (ImageSummary) images[i];
+				data[i][0] = (ImageData) images[i];
 				data[i][1] = new Boolean(false);
 			}
 		}
@@ -299,10 +302,24 @@ class CreateDatasetImagesPane
 		public void setValueAt(Object value, int row, int col)
 		{
 			data[row][col] = value;
-			ImageSummary is = (ImageSummary) sorter.getValueAt(row, NAME);
+			ImageData is = (ImageData) sorter.getValueAt(row, NAME);
 			fireTableCellUpdated(row, col);
 			manager.addImage(((Boolean) value).booleanValue(), is);
 		}
 	}
 	
+    private class ImagesTableRenderer
+        extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column)
+        {
+            super.getTableCellRendererComponent(table, value, isSelected,
+                            hasFocus, row, column);
+            if (value instanceof ImageData)
+                setText(((ImageData) value).getName());
+            return this;
+        }
+    }
 }

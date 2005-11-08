@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
-import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -39,8 +38,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.CategoryData;
 
 /** 
  * Loads a Category/Image hierarchy rooted by a given Category.
@@ -111,9 +110,7 @@ public class CategoryLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        Set roots = new HashSet();
-        roots.add(result);
-        viewer.setHierarchyRoots(roots);
+        viewer.setHierarchyRoots((Set) result);
     }
     
 }

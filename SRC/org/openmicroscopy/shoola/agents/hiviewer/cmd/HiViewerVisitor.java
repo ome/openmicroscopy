@@ -60,11 +60,19 @@ class HiViewerVisitor
     implements ImageDisplayVisitor
 {
 
+    /**
+     * Reference to the model.
+     */
     protected HiViewer   model;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     HiViewerVisitor(HiViewer model)
     {
-        if (model == null) throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
     }
 

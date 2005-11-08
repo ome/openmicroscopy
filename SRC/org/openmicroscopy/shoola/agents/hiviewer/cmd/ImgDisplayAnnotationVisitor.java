@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.HiViewerVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import pojos.AnnotationData;
 
 /** 
  * 
@@ -56,10 +56,19 @@ public class ImgDisplayAnnotationVisitor
     extends HiViewerVisitor
 {
  
+    /** The annotation. */
     protected AnnotationData    data;
     
+    /** The id of the selected hierarchy object. */
     protected int               hierarchyObjectID;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param data The annotation.
+     * @param hierarchyObjectID The id of the hierarchy object.
+     */
     public ImgDisplayAnnotationVisitor(HiViewer model, AnnotationData data,
                                         int hierarchyObjectID)
     {

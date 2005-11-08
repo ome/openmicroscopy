@@ -41,11 +41,14 @@ import java.awt.image.BufferedImageOp;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
+import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
- * 
+ * The class hosting the thumbnail corresponding to an {@link ImageData}.
+ * We first retrieve a thumbnail of dimension {@link #THUMB_MAX_WIDTH}
+ * and {@link #THUMB_MAX_HEIGHT} and scale it down i.e magnification factor
+ * {@link #SCALING_FACTOR}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,21 +65,55 @@ public class ThumbnailProvider
     implements Thumbnail
 {
     
+    /** The maximum width of the thumbnail. */
     static final int            THUMB_MAX_WIDTH = 96; 
+    
+    /** The maximum height of the thumbnail. */
     static final int            THUMB_MAX_HEIGHT = 96;
     
+    /** The default magnification factor. */
     public static final double  SCALING_FACTOR = 0.5;
     
+    /** The maximum magnification factor. */
     public static final double  MAX_SCALING_FACTOR = 1;
+    
+    /** The minimum magnification factor. */
     public static final double  MIN_SCALING_FACTOR = 0.25;
     
-    private ImageSummary    imgInfo;
-    private int             width;  //of displayThumb. 
-    private int             height; //of displayThumb.
-    private int             originalWidth, originalHeight;
-    private BufferedImage   fullScaleThumb;
-    private BufferedImage   displayThumb;
+    /** The {@link ImageData} the thumbnail is for. */
+    private ImageData       imgInfo;
+    
+    /**
+     * The {@link ImageNode} corresponding to the {@link ImageData} and 
+     * hosting the thumbnail.
+     */
     private ImageNode       display;
+    
+    /** The width of the thumbnail on screen. */
+    private int             width;  
+    
+    /** The height of the thumbnail on screen. */
+    private int             height; 
+    
+    /** 
+     * The width of the thumbnail retrieved from the server. The thumbnail
+     * might not be a square.
+     */
+    private int             originalWidth;
+    
+    /** 
+     * The height of the thumbnail retrieved from the server. The thumbnail
+     * might not be a square.
+     */
+    private int             originalHeight;
+    
+    /** The {@link BufferedImage} representing a thumbnail of maximum size. */
+    private BufferedImage   fullScaleThumb;
+    
+    /** The {@link BufferedImage} representing to the thumbnail displayed. */
+    private BufferedImage   displayThumb;
+    
+    /** The magnification factor. */
     private double          scalingFactor;
     
     //TODO: this duplicates code in env.data.views.calls.ThumbnailLoader,
@@ -84,7 +121,7 @@ public class ThumbnailProvider
     //laid out.  Sort this out.
     private void computeDims()
     {
-        PixelsDescription pxd = imgInfo.getDefaultPixels();
+        PixelsData pxd = imgInfo.getDefaultPixels();
         int sizeX = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
         int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
         originalWidth = THUMB_MAX_WIDTH;
@@ -102,11 +139,12 @@ public class ThumbnailProvider
     }
 
     /** 
-     * Scale the specified bufferedImage.
-     * @param f scaling factor.
-     * @param img Image to scale.
+     * Magnifies the specified image.
      * 
-     * @return The scaled bufferedImage.
+     * @param f the magnification factor.
+     * @param img The image to magnify.
+     * 
+     * @return The magnified image.
      */
     private BufferedImage magnifyImage(double f, BufferedImage img)
     {
@@ -122,14 +160,20 @@ public class ThumbnailProvider
         return rescaleBuff;
     }
     
-    public ThumbnailProvider(ImageSummary is)
+    /**
+     * Creates a new instance.
+     * 
+     * @param is The image data object.
+     */
+    public ThumbnailProvider(ImageData is)
     {
+        if (is == null) throw new IllegalArgumentException("No image.");
         imgInfo = is;
         scalingFactor = SCALING_FACTOR;
         computeDims();
     }
     
-    /** Set the thumbnail retrieved from the server. */
+    /** Sets the thumbnail retrieved from the server. */
     public void setFullScaleThumb(BufferedImage t)
     {
         if (t == null) throw new NullPointerException("No thumbnail.");
@@ -137,10 +181,12 @@ public class ThumbnailProvider
         scale(scalingFactor);
     }
     
-    public int getWidth() { return width; }
-    
-    public int getHeight() { return height; }
-    
+    /**
+     * Returns the thumbnail corresponding to the selected {@link ImageNode}.
+     * 
+     * @param node The selected node.
+     * @return See above.
+     */
     public BufferedImage getImageFor(ImageNode node) 
     { 
         display = node;
@@ -148,9 +194,9 @@ public class ThumbnailProvider
     }
 
     /** 
-     * Scales the original image. 
+     * Magnifies the original image. 
      * 
-     * @param f scaling factor.
+     * @param f The magnification factor.
      */
     public void scale(double f)
     {
@@ -167,9 +213,33 @@ public class ThumbnailProvider
             display.pack();
         }
     }
+     
+    /** 
+     * Returns the width of the displayed thumbnail.
+     * 
+     * @return See above.
+     */
+    public int getWidth() { return width; }
     
+    /** 
+     * Returns the height of the displayed thumbnail.
+     * 
+     * @return See above.
+     */
+    public int getHeight() { return height; }
+    
+    /**
+     * Returns the magnification factor.
+     * 
+     * @return See above.
+     */
     public double getScalingFactor() { return scalingFactor; }
     
+    /**
+     * Returns the thumbnail of maximal dimension.
+     * 
+     * @return See above.
+     */
     public BufferedImage getFullScaleThumb() { return fullScaleThumb; }
     
 }

@@ -40,7 +40,7 @@ import javax.swing.AbstractButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import pojos.DatasetData;
 
 
 /** 
@@ -97,7 +97,7 @@ class DatasetsSelectorMng
      *                  false otherwise.
      * @param ds        dataset summary to add or remove
      */
-    void addDataset(boolean value, DatasetSummary ds) 
+    void addDataset(boolean value, DatasetData ds) 
     {
         if (value)  {
             if (!datasetsSelected.contains(ds)) datasetsSelected.add(ds);

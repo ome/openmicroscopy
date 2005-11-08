@@ -45,7 +45,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * The canvas on which the previewed image is painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,25 +62,34 @@ class PreviewCanvas
     extends JPanel
 {
 
+    /** Reference to the view. */
+    private Preview view;
     
-    private BufferedImage image;
-    
-    PreviewCanvas()
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param view Reference to the view. Mustn't be <code>null</code>.
+     */
+    PreviewCanvas(Preview view)
     {
+        if (view == null) throw new IllegalArgumentException("No view.");
+        this.view = view;
         setDoubleBuffered(true);
     }
     
-    void setImage(BufferedImage image)
+    /** 
+     * Paints the image.
+     */
+    void paintImage()
     {
+        BufferedImage image = view.getImage();
         if (image == null) return;
-        this.image = image;
         Dimension d = new Dimension(image.getWidth(), image.getHeight());
         setSize(d);
         setPreferredSize(d);
-        //repaint();
     }
     
-    /** Overrides the {@link #paint(Graphics)} method. */
+    /** Overrides the {@link #paintComponent(Graphics)} method. */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -91,8 +100,8 @@ class PreviewCanvas
                 RenderingHints.VALUE_RENDER_QUALITY);
         g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        if (image != null)
-            g2D.drawImage(image, null, 0, 0);
+        BufferedImage image = view.getImage();
+        if (image != null) g2D.drawImage(image, null, 0, 0);
     }
     
 }

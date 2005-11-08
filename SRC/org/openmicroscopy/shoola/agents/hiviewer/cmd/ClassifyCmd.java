@@ -40,7 +40,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
+import pojos.ImageData;
 
 /** 
  * Command to classify/declassify a given Image.
@@ -61,21 +62,21 @@ public class ClassifyCmd
 {
     
     /**
-     * Utility method to get an {@link ImageSummary} from the 
+     * Utility method to get an {@link ImageData} from the 
      * <code>model</code>.
      * 
      * @param model The Model from which to extract the Image.
-     * @return The {@link ImageSummary} hierarchy object in the browser's
+     * @return The {@link ImageData} hierarchy object in the browser's
      *         current Image node or <code>null</code> if the browser's
      *         current display is not an Image node. 
      */
-    private static ImageSummary getImage(HiViewer model)
+    private static ImageData getImage(HiViewer model)
     {
-        ImageSummary img = null;
+        ImageData img = null;
         if (model != null) {
             ImageDisplay selDispl = model.getBrowser().getSelectedDisplay();
             Object x = selDispl.getHierarchyObject();
-            if (x instanceof ImageSummary) img = (ImageSummary) x;
+            if (x instanceof ImageData) img = (ImageData) x;
         }
         return img;
     }
@@ -92,7 +93,7 @@ public class ClassifyCmd
      * Represents the Image to classify/declassify.
      * If <code>null</code>, no acion is taken.
      */
-    private ImageSummary        img;
+    private ImageData           img;
     
     /** The window from which this command was invoked. */
     private JFrame              owner;
@@ -109,10 +110,9 @@ public class ClassifyCmd
      * @param owner The window from which this command was invoked.
      *              Mustn't be <code>null</code>.
      */
-    public ClassifyCmd(ImageSummary img, int mode, JFrame owner)
+    public ClassifyCmd(ImageData img, int mode, JFrame owner)
     {
-        if (owner == null)
-            throw new NullPointerException("No owner.");
+        if (owner == null) throw new NullPointerException("No owner.");
         this.img = img;
         this.mode = mode;
         this.owner = owner;
@@ -135,7 +135,7 @@ public class ClassifyCmd
     }
     
     /** 
-     * Classifies or declassifies the Image given to this command.
+     * Classifies or declassifies the image passed.
      * 
      * @see ActionCmd#execute() 
      */
@@ -143,7 +143,7 @@ public class ClassifyCmd
     {
         if (img == null) return;
         Classifier classifier = ClassifierFactory.createComponent(
-                                                    mode, img.getID(),
+                                                    mode, img.getId(),
                                                     owner);
         classifier.activate();
     }

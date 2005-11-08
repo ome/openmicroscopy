@@ -31,21 +31,17 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.CategoryGroupData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Command to find the data trees of a given <i>OME</i> hierarchy type 
@@ -59,10 +55,10 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * <p>The object returned in the <code>DSCallOutcomeEvent</code> will be a
  * <code>Set</code> with all root nodes that were found.  Every root node is
  * linked to the found objects and so on until the leaf nodes, which are the
- * <i>passed in</i> <code>ImageSummary</code>s.</p>
- * <p>The type of the returned objects are <code>ProjectSummary, 
- * DatasetSummaryLinked, ImageSummary</code> in the case of a P/D/I hierarchy,
- * as <code>CategoryGroupData, CategoryData, ImageSummary</code> for a CG/C/I
+ * <i>passed in</i> <code>ImageData</code>s.</p>
+ * <p>The type of the returned objects are <code>ProjectData, 
+ * DatasetData, ImageData</code> in the case of a P/D/I hierarchy,
+ * as <code>CategoryGroupData, CategoryData, ImageData</code> for a CG/C/I
  * hierarchy.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -79,12 +75,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class HierarchyFinder
     extends BatchCallTree
 {
-
-    /** 
-     * Contains <code>ImageSummary</code> objects, one for each leaf 
-     * image node.
-     */
-    private Set         imgSummaries;
     
     /** The root nodes of the found trees. */
     private Set         rootNodes;
@@ -94,37 +84,19 @@ public class HierarchyFinder
     
     
     /**
-     * Creates a {@link BatchCall} to search the P/D/I hierarchy.
+     * Creates a {@link BatchCall} to search the P/D/I, CG/C/I hierarchy.
      * 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makePDIBatchCall()
+    private BatchCall makeCHBatchCall(
+            final Class hierarchyRootNodeType, final Set images)
     {
-        return new BatchCall("Searching P/D/I hierarchy") {
+        return new BatchCall("Searching Container hierarchy") {
             public void doCall() throws Exception
             {
-                DataManagementService dms = context.getDataManagementService();
-                ArrayList list = new ArrayList(imgSummaries);
-                List nodes = dms.retrievePDIHierarchy(list, true);
-                rootNodes = new HashSet(nodes);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to search the CG/C/I hierarchy.
-     * 
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeCGCIBatchCall()
-    {
-        return new BatchCall("Searching CG/C/I hierarchy") {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                ArrayList list = new ArrayList(imgSummaries);
-                List nodes = sts.retrieveCGCIHierarchy(list, true);
-                rootNodes = new HashSet(nodes);
+                OmeroPojoService os = context.getOmeroService();
+                rootNodes = os.findContainerHierarchy(hierarchyRootNodeType,
+                                                    images);
             }
         };
     }
@@ -151,28 +123,23 @@ public class HierarchyFinder
      * 
      * @param hierarchyRootNodeType The type of the root node in the hierarchy
      *                     to search.  Can be one out of: 
-     *                     <code>ProjectSummary</code> or
-     *                     <code>CategoryGroupData</code>.
-     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
-     *                     for each leaf image node.
+     *                     {@link ProjectData} or {@link CategoryGroupData}.
+     * @param images Contains {@link ImageData}s, one for each leaf image node.
      */
-    public HierarchyFinder(Class hierarchyRootNodeType, Set imgSummaries)
+    public HierarchyFinder(Class hierarchyRootNodeType, Set images)
     {
-        if (imgSummaries == null)
-            throw new NullPointerException("No image summaries.");
-        try {
-            imgSummaries.toArray(new ImageSummary[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "imgSummares can only contain ImageSummary objects.");
-        }
-        this.imgSummaries = imgSummaries;
+        if (images == null) throw new IllegalArgumentException("No images.");
         if (hierarchyRootNodeType == null) 
             throw new NullPointerException("No root node type.");
-        if (hierarchyRootNodeType.equals(ProjectSummary.class))
-            findCall = makePDIBatchCall();
-        else if (hierarchyRootNodeType.equals(CategoryGroupData.class))
-            findCall = makeCGCIBatchCall();
+        try {
+            images.toArray(new ImageData[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException(
+                    "images can only contain ImageData objects.");
+        }    
+        if (hierarchyRootNodeType.equals(ProjectData.class) ||
+            hierarchyRootNodeType.equals(CategoryGroupData.class))
+            findCall = makeCHBatchCall(hierarchyRootNodeType, images);
         else
             throw new IllegalArgumentException("Unsupported type: "+
                                                 hierarchyRootNodeType+".");

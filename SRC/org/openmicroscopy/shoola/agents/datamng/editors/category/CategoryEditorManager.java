@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -49,9 +50,11 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.CategoryData;
+import pojos.ImageData;
+
 
 /** 
  * 
@@ -81,6 +84,7 @@ class CategoryEditorManager
     private static final int           VIEW = 6;
 	
 	private CategoryData               model;
+    
 	private CategoryEditor             view;
 	
 	/** List of images to remove. */
@@ -113,7 +117,7 @@ class CategoryEditorManager
     
     DataManagerCtrl getAgentControl() { return agentCtrl; }
     
-	List getImages() { return model.getImages(); }
+	Set getImages() { return model.getImages(); }
 	
 	List getImagesToAdd() { return imagesToAdd; }
 	
@@ -123,30 +127,30 @@ class CategoryEditorManager
 	
 	CategoryData getCategoryData() { return model; }
 
-    List getUserDatasets() {return agentCtrl.getUserDatasets(); }
+    Set getUserDatasets() {return agentCtrl.getUserDatasets(); }
     
-    List getUsedDatasets() {return agentCtrl.getUsedDatasets(); }
+    Set getUsedDatasets() {return agentCtrl.getUsedDatasets(); }
     
-    List getImagesDiff(Map filters, Map complexFilters)
+    Set getImagesDiff(Map filters, Map complexFilters)
     {
         return agentCtrl.getImagesDiffNotInCategoryGroup(model, filters, 
                                                         complexFilters);
     }
     
-    List getImagesDiffInUserDatasets(List datasets, Map filters, 
+    Set getImagesDiffInUserDatasets(List datasets, Map filters, 
                                     Map complexFilters)
     {
         return agentCtrl.getImagesDiffInUserDatasetsNotInCategoryGroup(model, 
                 datasets, filters, complexFilters);
     }
     
-    List getImagesDiffInUserGroup(Map filters, Map complexFilters)
+    Set getImagesDiffInUserGroup(Map filters, Map complexFilters)
     {
         return agentCtrl.getImagesDiffInUserGroupNotInCategoryGroup(model, 
                         filters, complexFilters);
     }
     
-    List getImagesDiffInSystem(Map filters, Map complexFilters)
+    Set getImagesDiffInSystem(Map filters, Map complexFilters)
     {
         return agentCtrl.getImagesDiffInSystemNotInCategoryGroup(model, filters, 
                     complexFilters);
@@ -213,9 +217,9 @@ class CategoryEditorManager
 	void addImagesSelection(List l)
 	{
 		Iterator i = l.iterator();
-		ImageSummary is;
+		ImageData is;
 		while (i.hasNext()) {
-			is = (ImageSummary) i.next();
+			is = (ImageData) i.next();
 			if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
 		}
 		view.rebuildComponent();
@@ -229,7 +233,7 @@ class CategoryEditorManager
 	 * 					false otherwise.
 	 * @param is		image summary to add or remove.
 	 */
-	void setToAddToRemove(boolean value, ImageSummary is) 
+	void setToAddToRemove(boolean value, ImageData is) 
 	{
 		if (value) imagesToAddToRemove.add(is); 
 		else {
@@ -246,7 +250,7 @@ class CategoryEditorManager
 	 * 					false otherwise.
 	 * @param is		image summary to add or remove.
 	 */
-	void selectImage(boolean value, ImageSummary is) 
+	void selectImage(boolean value, ImageData is) 
 	{
 		if (value) {
 			if(!imagesToRemove.contains(is)) imagesToRemove.add(is); 
@@ -261,15 +265,15 @@ class CategoryEditorManager
 		model.setName(view.getNameField().getText());
         Iterator i = imagesToRemove.iterator();
         ArrayList declassify = new ArrayList(), classify = new ArrayList();
-        ImageSummary is;
+        ImageData is;
         while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            declassify.add(new Integer(is.getID()));
+            is = (ImageData) i.next();
+            declassify.add(new Integer(is.getId()));
         }
         i = imagesToAdd.iterator();
         while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            classify.add(new Integer(is.getID()));
+            is = (ImageData) i.next();
+            classify.add(new Integer(is.getId()));
         }
 		agentCtrl.updateCategory(model, declassify, classify, nameChange);
 	}
@@ -292,10 +296,10 @@ class CategoryEditorManager
 	private void removeAdded()
 	{
 		Iterator i = imagesToAddToRemove.iterator();
-		ImageSummary is;
+		ImageData is;
 	
 		while (i.hasNext()) {
-			is = (ImageSummary) i.next();
+			is = (ImageData) i.next();
 			imagesToAdd.remove(is);
 			if (dialog != null) dialog.getManager().setSelected(true, is);
 		}

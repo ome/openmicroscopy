@@ -34,10 +34,10 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -48,11 +48,12 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * 
@@ -142,11 +143,11 @@ public class ClassifierPaneManager
                                     DefaultMutableTreeNode gNode, 
                                     DefaultTreeModel treeModel)
     {
-        List l = g.getCategories();
-        Iterator dIter = l.iterator();
+        Set set = g.getCategories();
+        Iterator i = set.iterator();
         DefaultMutableTreeNode cNode;
-        while (dIter.hasNext()) {
-            cNode = new DefaultMutableTreeNode(dIter.next());
+        while (i.hasNext()) {
+            cNode = new DefaultMutableTreeNode(i.next());
             treeModel.insertNodeInto(cNode, gNode, gNode.getChildCount());
             treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING),
                                     cNode, cNode.getChildCount());
@@ -158,14 +159,14 @@ public class ClassifierPaneManager
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode gNode;
-        List l = agentCtrl.getCategoryGroups();     
-        if (l == null) return;
-        Iterator j = l.iterator();
+        Set set = agentCtrl.getCategoryGroups();     
+        if (set == null) return;
+        Iterator j = set.iterator();
         CategoryGroupData cg;
         Integer id;
         while (j.hasNext()) {
             cg = (CategoryGroupData) j.next();
-            id = new Integer(cg.getID());
+            id = new Integer(cg.getId());
             gNode = (DefaultMutableTreeNode) gNodes.get(id);
             gNode.removeAllChildren();
             addCategories(cg.getCategories(), gNode, false);
@@ -178,14 +179,14 @@ public class ClassifierPaneManager
     {   
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode gNode;                                       
-        List l = agentCtrl.getCategoryGroups(); 
-        if (l == null) return;
-        Iterator j = l.iterator();
+        Set set = agentCtrl.getCategoryGroups(); 
+        if (set == null) return;
+        Iterator j = set.iterator();
         CategoryGroupData cg;
         Integer id;
         while (j.hasNext()) {
             cg = (CategoryGroupData) j.next();
-            id = new Integer(cg.getID());
+            id = new Integer(cg.getId());
             gNode = (DefaultMutableTreeNode) gNodes.get(id);
             gNode.removeAllChildren();
             addCategories(cg.getCategories(), gNode, false);
@@ -196,16 +197,15 @@ public class ClassifierPaneManager
     /** 
      * Called when a <code>group</code> node is modified. 
      * 
-     * @param l             list of categories in the group.
+     * @param set             list of categories in the group.
      * @param gNode         group node associated to the group object.
      * @param isVisible     true if the node has to be reloaded false 
      *                      otherwise.
      */
-    private void addCategories(List l, DefaultMutableTreeNode gNode,
+    private void addCategories(Set set, DefaultMutableTreeNode gNode,
                             boolean isVisible)
     {
-        Iterator i = l.iterator();
-        //CategorySummary cd;
+        Iterator i = set.iterator();
         DefaultMutableTreeNode cNode;
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         while (i.hasNext()) {
@@ -224,22 +224,22 @@ public class ClassifierPaneManager
      * 
      * @param is ImageSummary object.
      */
-    void updateImageInTree(ImageSummary is)
+    void updateImageInTree(ImageData data)
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         if (cNodes == null || cNodes.size() == 0) return;
         Iterator i = cNodes.keySet().iterator();
         Iterator j;
         DefaultMutableTreeNode dNode;
-        List dNodes, images;
+        Set dNodes, images;
         Integer id;
         //First update the images in list of expanded categories.
-        updateImagesInCategory(is);
+        updateImagesInCategory(data);
         //Then update the tree.
         while (i.hasNext()) {
             id = (Integer) i.next();
-            images = (List) imagesInCategory.get(id);
-            dNodes = (List) cNodes.get(id);
+            images = (Set) imagesInCategory.get(id);
+            dNodes = (Set) cNodes.get(id);
             j = dNodes.iterator();
             while (j.hasNext()) {
                 dNode = (DefaultMutableTreeNode) j.next();
@@ -255,19 +255,19 @@ public class ClassifierPaneManager
      * 
      * @param retVal    ImageSummary object.
      */
-    private void updateImagesInCategory(ImageSummary retVal)
+    private void updateImagesInCategory(ImageData retVal)
     {
         Iterator i = imagesInCategory.keySet().iterator();
         Iterator j;
-        List images;
-        ImageSummary is;
+        Set images;
+        ImageData data;
         while (i.hasNext()) {
-            images = (List) imagesInCategory.get(i.next());
+            images = (Set) imagesInCategory.get(i.next());
             j = images.iterator();
             while (j.hasNext()) {
-                is = (ImageSummary) j.next();
-                if (is.getID() == retVal.getID()) {
-                    is.setName(retVal.getName());
+                data = (ImageData) j.next();
+                if (data.getId() == retVal.getId()) {
+                    data.setName(retVal.getName());
                     break;
                 }
             }
@@ -284,10 +284,10 @@ public class ClassifierPaneManager
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode gNode = new DefaultMutableTreeNode(cgd);
         treeModel.insertNodeInto(gNode, root, root.getChildCount());
-        gNodes.put(new Integer(cgd.getID()), gNode);
-        List l = cgd.getCategories();
-        if (l != null) {
-            Iterator i = l.iterator();
+        gNodes.put(new Integer(cgd.getId()), gNode);
+        Set set = cgd.getCategories();
+        if (set != null) {
+            Iterator i = set.iterator();
             DefaultMutableTreeNode cNode;
             while (i.hasNext()) {
                 cNode = new DefaultMutableTreeNode(i.next());
@@ -304,15 +304,15 @@ public class ClassifierPaneManager
      * @param images    List of image summary object.
      * @param cNode     The node representing the category.
      */
-    private void addImagesToCategory(List images, DefaultMutableTreeNode cNode)
+    private void addImagesToCategory(Set images, DefaultMutableTreeNode cNode)
     {
         Iterator i = images.iterator();
-        ImageSummary is;
+        ImageData data;
         DefaultMutableTreeNode iNode;
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            iNode = new DefaultMutableTreeNode(is);
+            data = (ImageData) i.next();
+            iNode = new DefaultMutableTreeNode(data);
             treeModel.insertNodeInto(iNode, cNode, cNode.getChildCount());
         }
     }
@@ -388,7 +388,7 @@ public class ClassifierPaneManager
                                     isExpanding);
         } else if (usrObject instanceof CategoryGroupData) {
             agentCtrl.setSelectedCategoryGroup(
-                    ((CategoryGroupData) usrObject).getID());
+                    ((CategoryGroupData) usrObject).getId());
         } else {
             if (node.equals(root) && !treeLoaded && isExpanding) rebuildTree();
         }
@@ -399,21 +399,21 @@ public class ClassifierPaneManager
     {
         //no category node expanded
         if (cNodes.size() == 0) return;
-        List nodes = (List) cNodes.get(new Integer(data.getID()));
+        Set nodes = (Set) cNodes.get(new Integer(data.getId()));
         //The category hasn't been expanded, in this case, we do nothing
         if (nodes == null) return;
         Iterator i = nodes.iterator();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         DefaultMutableTreeNode node;   
-        List images = data.getImages();
+        Set images = data.getImages();
         while (i.hasNext()) {
             node = (DefaultMutableTreeNode) i.next();
             node.removeAllChildren();
             if (images.size() != 0)
                 addImagesToCategory(images, node);    
             else 
-                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), node, 
-                    node.getChildCount());
+                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY),
+                                        node, node.getChildCount());
             treeModel.reload(node);
         }       
     }
@@ -424,10 +424,10 @@ public class ClassifierPaneManager
      */
     void rebuildTree()
     {
-        List l = agentCtrl.getCategoryGroups();
+        Set set = agentCtrl.getCategoryGroups();
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         root.removeAllChildren();
-        if (l == null || l.size() == 0) {
+        if (set == null || set.size() == 0) {
             treeModel.insertNodeInto(new DefaultMutableTreeNode(""), root, 
                     root.getChildCount());
             treeModel.reload(root);
@@ -438,14 +438,14 @@ public class ClassifierPaneManager
             un.notifyInfo("Classifications", "No categoryGroup created");
             return;
         }
-        Iterator i = l.iterator();
+        Iterator i = set.iterator();
         CategoryGroupData cgd;
         DefaultMutableTreeNode gNode;
         while (i.hasNext()) {
             cgd = (CategoryGroupData) i.next();
             gNode = new DefaultMutableTreeNode(cgd);
             treeModel.insertNodeInto(gNode, root, root.getChildCount());
-            gNodes.put(new Integer(cgd.getID()), gNode);
+            gNodes.put(new Integer(cgd.getId()), gNode);
             addCategoriesToGroup(cgd, gNode, treeModel); 
         }
         treeModel.reload(root);
@@ -465,19 +465,20 @@ public class ClassifierPaneManager
                                         boolean isExpanding)
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        Integer id = new Integer(data.getID());
+        Integer id = new Integer(data.getId());
         node.removeAllChildren();
         if (isExpanding) {
-            List list;
-            if (data.getClassifications() == null) 
-                list = agentCtrl.getImagesInCategory(data).getImages();
-            else list = data.getImages();
-           
+            Set set = data.getImages();
+            /*
+            if (data.getImages() == null) 
+                set = agentCtrl.getImagesInCategory(data).getImages();
+            else set = data.getImages();
+           */
             //TODO: loading will never be displayed b/c we are in the
             // same thread.
-            if (list.size() != 0) {
-                addNodesToCategoryMaps(id, node, list);
-                addImagesToCategory(list, node);     
+            if (set.size() != 0) {
+                addNodesToCategoryMaps(id, node, set);
+                addImagesToCategory(set, node);     
             } else
                 treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
                                         node, node.getChildCount());                      
@@ -494,11 +495,11 @@ public class ClassifierPaneManager
      * @param images        list of images in the specified dataset.
      */
     private void addNodesToCategoryMaps(Integer id, DefaultMutableTreeNode node,
-                                        List images)
+                                        Set images)
     {
         if (imagesInCategory == null) imagesInCategory = new TreeMap();
-        List lNodes = (List) cNodes.get(id);
-        if (lNodes == null) lNodes = new ArrayList();
+        Set lNodes = (Set) cNodes.get(id);
+        if (lNodes == null) lNodes = new HashSet();
         lNodes.add(node);
         cNodes.put(id, lNodes);
         imagesInCategory.put(id, images);

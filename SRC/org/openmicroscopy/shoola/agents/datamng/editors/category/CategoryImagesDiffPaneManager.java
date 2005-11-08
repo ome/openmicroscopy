@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -50,6 +51,8 @@ import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * 
@@ -85,7 +88,7 @@ class CategoryImagesDiffPaneManager
 	
 	private CategoryEditorManager		control;
 	
-	private List						imagesDiff;
+	private Set						imagesDiff;
 	
     private int                         selectionIndex;
     
@@ -171,7 +174,7 @@ class CategoryImagesDiffPaneManager
 		} 
 	}
 	
-	void setSelected(boolean value, ImageSummary is)
+	void setSelected(boolean value, ImageData is)
 	{
 		if (value) imagesDiff.add(is);
 		else imagesDiff.remove(is);
@@ -194,7 +197,7 @@ class CategoryImagesDiffPaneManager
 	 * 					false otherwise.
 	 * @param is		image summary to add or remove
 	 */
-	void addImage(boolean value, ImageSummary is) 
+	void addImage(boolean value, ImageData is) 
 	{
 		if (value) {
 			if (!imagesToAdd.contains(is))	imagesToAdd.add(is); 
@@ -214,7 +217,7 @@ class CategoryImagesDiffPaneManager
         if (selectedIndex == CategoryImagesDiffPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
             //retrieve the datasets used by the current user.
-            List d = control.getUsedDatasets();
+            Set d = control.getUsedDatasets();
             if (d != null && d.size() > 0) {
                 DatasetsSelector dialog = new DatasetsSelector(
                     control.getAgentControl(), this, d);
@@ -233,7 +236,7 @@ class CategoryImagesDiffPaneManager
         int selectedIndex = view.selections.getSelectedIndex();
         if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
-            List images = null;
+            Set images = null;
             switch (selectedIndex) {
                 case CategoryImagesDiffPane.IMAGES_IMPORTED:
                     images = control.getImagesDiff(filters, complexFilters); 
@@ -271,7 +274,7 @@ class CategoryImagesDiffPaneManager
 	}
     
     /** Display the images. */
-    public void displayListImages(List images)
+    public void displayListImages(Set images)
     {
         if (images == null || images.size() == 0) {
             UserNotifier 

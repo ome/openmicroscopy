@@ -33,10 +33,10 @@ package org.openmicroscopy.shoola.agents.datamng;
 //Java imports
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -47,11 +47,11 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Modify the tree according to the events fired by the editors.
@@ -108,33 +108,6 @@ class ExplorerPaneManager
      */
     private Map                     pNodes;
     
-    ExplorerPaneManager(ExplorerPane view, DataManagerCtrl agentCtrl)
-    {
-        this.view = view;
-        this.agentCtrl = agentCtrl;
-        pNodes = new TreeMap();
-        cDNodes = new TreeMap();
-        initListeners();
-        treeLoaded = false;
-    }
-    
-    boolean isTreeLoaded() { return treeLoaded; }
-    
-    /** 
-     * Builds the tree model to represent the project-dataset
-     * hierarchy.
-     *
-     * @return  A tree model containing the project-dataset hierarchy.
-     */
-    DefaultMutableTreeNode getUserTreeModel()
-    {
-        root = new DefaultMutableTreeNode(TITLE);
-        DefaultMutableTreeNode childNode = 
-                                new DefaultMutableTreeNode("");
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        treeModel.insertNodeInto(childNode, root, root.getChildCount());
-        return root;
-    }
     
     /** 
      * Makes a tree node for every dataset in <code>p</code> and adds 
@@ -144,116 +117,20 @@ class ExplorerPaneManager
      * @param p     The project summary.
      * @param pNode The node for project <code>p</code>.
      */
-    private void addDatasetsToProject(ProjectSummary p, 
+    private void addDatasetsToProject(ProjectData p, 
                                     DefaultMutableTreeNode pNode, 
                                     DefaultTreeModel treeModel)
     {
-        List datasets = p.getDatasets();
+        Set datasets = p.getDatasets();
         Iterator dIter = datasets.iterator();
-        DatasetSummary ds;
+        DatasetData d;
         DefaultMutableTreeNode dNode;
         while (dIter.hasNext()) {
-            ds = (DatasetSummary) dIter.next();
-            dNode = new DefaultMutableTreeNode(ds);
+            d = (DatasetData) dIter.next();
+            dNode = new DefaultMutableTreeNode(d);
             treeModel.insertNodeInto(dNode, pNode, pNode.getChildCount());
             treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING),
                                     dNode, dNode.getChildCount());
-        }
-    }
-    
-    /** Update a <code>project</code> node. */
-    void updateProjectInTree()
-    {
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        DefaultMutableTreeNode pNode;
-        List pSummaries = agentCtrl.getUserProjects();    
-        if (pSummaries == null || pSummaries.size() == 0) return;
-        Iterator j = pSummaries.iterator();
-        ProjectSummary ps;
-        Integer projectID;
-        while (j.hasNext()) {
-            ps = (ProjectSummary) j.next();
-            projectID = new Integer(ps.getID());
-            pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
-            pNode.removeAllChildren();
-            addDatasets(ps.getDatasets(), pNode, false);
-            treeModel.reload(pNode);
-        }
-    }
-    
-    /** Update a <code>dataset</code> node. */
-    void updateDatasetInTree()
-    {   
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        DefaultMutableTreeNode pNode;                                       
-        List pSummaries = agentCtrl.getUserProjects();
-        if (pSummaries == null || pSummaries.size() == 0) return;
-        Iterator j = pSummaries.iterator();
-        ProjectSummary ps;
-        while (j.hasNext()) {
-            ps = (ProjectSummary) j.next();
-            pNode = (DefaultMutableTreeNode) 
-                    pNodes.get(new Integer(ps.getID()));
-            pNode.removeAllChildren();
-            addDatasets(ps.getDatasets(), pNode, false);
-            treeModel.reload(pNode);
-        }  
-    }
-    
-    /** Refresh the specified datasetSummary node. */
-    void refreshDatasetInTree(DatasetSummary ds)
-    {
-        //no dataset node expanded
-        if (cDNodes.size() == 0) return;
-        List nodes = (List) cDNodes.get(new Integer(ds.getID()));
-        //The dataset hasn't been expanded, in this case, we do nothing
-        if (nodes == null) return;
-        Iterator i = nodes.iterator();
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        DefaultMutableTreeNode node;   
-        List images = agentCtrl.getImages(ds.getID());
-        while (i.hasNext()) {
-            node = (DefaultMutableTreeNode) i.next();
-            node.removeAllChildren();
-            if (images.size() != 0)
-                addImagesToDataset(images, node);    
-            else 
-                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
-                                        node, node.getChildCount());            
-            treeModel.reload(node);
-        }       
-    }
-
-    /** 
-     * Update image data in the Tree.
-     * If the image is displayed in several expanded datasets, the image data
-     * node will also be updated.
-     * 
-     * @param is ImageSummary object.
-     */
-    void updateImageInTree(ImageSummary is)
-    {
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        if (cDNodes.size() == 0) return;
-        Iterator i = cDNodes.keySet().iterator();
-        Iterator j;
-        DefaultMutableTreeNode dNode;
-        List dNodes, images;
-        Integer datasetID;
-        //First update the images in list of expanded datasets.
-        updateImagesInDataset(is);
-        //Then update the tree.
-        while (i.hasNext()) {
-            datasetID = (Integer) i.next();
-            images = (List) imagesInDataset.get(datasetID);
-            dNodes = (List) cDNodes.get(datasetID);
-            j = dNodes.iterator();
-            while (j.hasNext()) {
-                dNode = (DefaultMutableTreeNode) j.next();
-                dNode.removeAllChildren();
-                addImagesToDataset(images, dNode); 
-                treeModel.reload(dNode);
-            }
         }
     }
     
@@ -266,16 +143,16 @@ class ExplorerPaneManager
      * @param isVisible     true if the node has to be reloaded false 
      *                      otherwise.
      */
-    private void addDatasets(List datasets, DefaultMutableTreeNode pNode,
+    private void addDatasets(Set datasets, DefaultMutableTreeNode pNode,
                             boolean isVisible)
     {
         Iterator i = datasets.iterator();
-        DatasetSummary ds;
+        DatasetData d;
         DefaultMutableTreeNode dNode;
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         while (i.hasNext()) {
-            ds = (DatasetSummary) i.next();
-            dNode = new DefaultMutableTreeNode(ds);
+            d = (DatasetData) i.next();
+            dNode = new DefaultMutableTreeNode(d);
             treeModel.insertNodeInto(dNode, pNode, pNode.getChildCount());
             treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING),
                                                 dNode, dNode.getChildCount());
@@ -288,19 +165,19 @@ class ExplorerPaneManager
      * 
      * @param retVal    ImageSummary object.
      */
-    private void updateImagesInDataset(ImageSummary retVal)
+    private void updateImagesInDataset(ImageData retVal)
     {
         Iterator i = imagesInDataset.keySet().iterator();
         Iterator j;
-        List images;
-        ImageSummary is;
+        Set images;
+        ImageData data;
         while (i.hasNext()) {
-            images = (List) imagesInDataset.get(i.next());
+            images = (Set) imagesInDataset.get(i.next());
             j = images.iterator();
             while (j.hasNext()) {
-                is = (ImageSummary) j.next();
-                if (is.getID() == retVal.getID()) {
-                    is.setName(retVal.getName());
+                data = (ImageData) j.next();
+                if (data.getId() == retVal.getId()) {
+                    data.setName(retVal.getName());
                     break;
                 }
             }
@@ -308,56 +185,54 @@ class ExplorerPaneManager
     }
     
     /** 
-     * Add a new project to the Tree. 
+     * Handle the navigation when the node which fired the treeExpansion
+     * event is a dataset summary node.
      * 
-     * @param ps    Project summary to display.
+     * @param d            DatasetSummary object.
+     * @param node          Node which fired event.
+     * @param isExpanding   True is the node is expanded false otherwise.
      */
-    void addNewProjectToTree(ProjectSummary ps)
+    private void datasetNodeNavigation(DatasetData d, 
+                                        DefaultMutableTreeNode node, 
+                                        boolean isExpanding)
     {
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(ps);
-        treeModel.insertNodeInto(pNode, root, root.getChildCount());
-        pNodes.put(new Integer(ps.getID()), pNode);
-        List datasets = ps.getDatasets();
-        if (datasets != null && datasets.size() != 0) {
-            Iterator i = datasets.iterator();
-            DefaultMutableTreeNode dNode;
-            DatasetSummary ds;
-            while (i.hasNext()) {
-                ds = (DatasetSummary) i.next();
-                dNode = new DefaultMutableTreeNode(ds);
-                dNode.add(new DefaultMutableTreeNode(LOADING));
-                pNode.add(dNode);
-            }
-        }
-        setNodeVisible(pNode, root);                            
+        Integer datasetID = new Integer(d.getId());
+        node.removeAllChildren();
+        if (isExpanding) {
+            Set images = agentCtrl.getImages(d.getId());
+            //TODO: loading will never be displayed b/c we are in the
+            // same thread.
+            if (images.size() != 0) {
+                addNodesToDatasetMaps(datasetID, node, images);
+                addImagesToDataset(images, node);     
+            } else 
+                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
+                                         node, node.getChildCount());                       
+        } else 
+            treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING), 
+                                    node, node.getChildCount());        
+        treeModel.reload(node);
     }
     
     /**
-     * Add a new dataset to the tree.
-     * 
-     * @param projects      list of projects to which the dataset id added.
+     * Add the specified node to the dataset maps.
+     * @param datasetID     maps' key.
+     * @param node          node to add.
+     * @param images        list of images in the specified dataset.
      */
-    void addNewDatasetToTree(List projects) 
+    private void addNodesToDatasetMaps(Integer datasetID, 
+                                        DefaultMutableTreeNode node,
+                                        Set images)
     {
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        DefaultMutableTreeNode pNode;                                                   
-        List pSummaries = agentCtrl.getUserProjects();
-        if (pSummaries == null || pSummaries.size() == 0) return;
-        Iterator j = pSummaries.iterator();
-        ProjectSummary ps;
-        Integer projectID;
-        while (j.hasNext()) {
-            ps = (ProjectSummary) j.next();
-            projectID = new Integer(ps.getID());
-            pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
-            pNode.removeAllChildren();
-            if (projects.indexOf(ps) != -1)
-                addDatasets(ps.getDatasets(), pNode, true);
-            else addDatasets(ps.getDatasets(), pNode, false);
-            treeModel.reload(pNode);
-        }
+        if (imagesInDataset == null) imagesInDataset = new TreeMap();
+        Set lNodes = (Set) cDNodes.get(datasetID);
+        if (lNodes == null) lNodes = new HashSet();
+        lNodes.add(node);
+        cDNodes.put(datasetID, lNodes);
+        imagesInDataset.put(datasetID, images);
     }
+    
 
     /**
      * Create and add an image's node to the dataset node.
@@ -365,15 +240,15 @@ class ExplorerPaneManager
      * @param images    List of image summary object.
      * @param dNode     The node for the dataset
      */
-    private void addImagesToDataset(List images, DefaultMutableTreeNode dNode)
+    private void addImagesToDataset(Set images, DefaultMutableTreeNode dNode)
     {
         Iterator i = images.iterator();
-        ImageSummary is;
+        ImageData data;
         DefaultMutableTreeNode iNode;
         DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
         while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            iNode = new DefaultMutableTreeNode(is);
+            data = (ImageData) i.next();
+            iNode = new DefaultMutableTreeNode(data);
             treeModel.insertNodeInto(iNode, dNode, dNode.getChildCount());
         }
     }
@@ -404,7 +279,7 @@ class ExplorerPaneManager
         int selRow = view.tree.getRowForLocation(e.getX(), e.getY());
         if (selRow != -1) {
             view.tree.setSelectionRow(selRow);
-            DataObject target = view.getCurrentOMEObject();
+            pojos.DataObject target = view.getCurrentOMEObject();
             if (target != null) {
                 if (e.isPopupTrigger()) showPopupMenu(e, target);
                 else {
@@ -445,91 +320,11 @@ class ExplorerPaneManager
                                         path.getLastPathComponent();
         Object usrObject = node.getUserObject();
         //dataset summary node
-        if (usrObject instanceof DatasetSummary) {
-            DatasetSummary ds = (DatasetSummary) usrObject;
-            datasetNodeNavigation(ds, node, isExpanding);
-        } else {
+        if (usrObject instanceof DatasetData)
+            datasetNodeNavigation((DatasetData) usrObject, node, isExpanding);
+        else {
             if (node.equals(root) && !treeLoaded && isExpanding) rebuildTree();
         }
-    }
-
-    /** Build the tree model to represent the project-dataset hierarchy. */
-    void rebuildTree()
-    {
-        List pSummaries = agentCtrl.getUserProjects();
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        root.removeAllChildren();
-        if (pSummaries == null || pSummaries.size() == 0) {
-            treeModel.insertNodeInto(new DefaultMutableTreeNode(""), root, 
-                    root.getChildCount());
-            treeModel.reload(root);
-            view.tree.collapsePath(new TreePath(root.getPath()));
-            agentCtrl.createProject();
-            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
-            un.notifyInfo("Hierarchy", "No project created");
-            return;
-        }
-        Iterator i = pSummaries.iterator();
-        ProjectSummary ps;
-        DefaultMutableTreeNode pNode;
-        while (i.hasNext()) {
-            ps = (ProjectSummary) i.next();
-            pNode = new DefaultMutableTreeNode(ps);
-            treeModel.insertNodeInto(pNode, root, root.getChildCount());
-            pNodes.put(new Integer(ps.getID()), pNode);
-            addDatasetsToProject(ps, pNode, treeModel); 
-        }
-        treeModel.reload(root);
-        treeLoaded = true;  
-    }
-    
-    /** 
-     * Handle the navigation when the node which fired the treeExpansion
-     * event is a dataset summary node.
-     * 
-     * @param ds            DatasetSummary object.
-     * @param node          Node which fired event.
-     * @param isExpanding   True is the node is expanded false otherwise.
-     */
-    private void datasetNodeNavigation(DatasetSummary ds, 
-                                        DefaultMutableTreeNode node, 
-                                        boolean isExpanding)
-    {
-        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
-        Integer datasetID = new Integer(ds.getID());
-        node.removeAllChildren();
-        if (isExpanding) {
-            List list = agentCtrl.getImages(ds.getID());
-            //TODO: loading will never be displayed b/c we are in the
-            // same thread.
-            if (list.size() != 0) {
-                addNodesToDatasetMaps(datasetID, node, list);
-                addImagesToDataset(list, node);     
-            } else 
-                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
-                                         node, node.getChildCount());                       
-        } else 
-            treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING), 
-                                    node, node.getChildCount());        
-        treeModel.reload(node);
-    }
-    
-    /**
-     * Add the specified node to the dataset maps.
-     * @param datasetID     maps' key.
-     * @param node          node to add.
-     * @param images        list of images in the specified dataset.
-     */
-    private void addNodesToDatasetMaps(Integer datasetID, 
-                                        DefaultMutableTreeNode node,
-                                        List images)
-    {
-        if (imagesInDataset == null) imagesInDataset = new TreeMap();
-        List lNodes = (List) cDNodes.get(datasetID);
-        if (lNodes == null) lNodes = new ArrayList();
-        lNodes.add(node);
-        cDNodes.put(datasetID, lNodes);
-        imagesInDataset.put(datasetID, images);
     }
     
     /** 
@@ -550,6 +345,212 @@ class ExplorerPaneManager
                 onNodeNavigation(e, true);  
             }   
         });
+    }
+    
+    ExplorerPaneManager(ExplorerPane view, DataManagerCtrl agentCtrl)
+    {
+        this.view = view;
+        this.agentCtrl = agentCtrl;
+        pNodes = new TreeMap();
+        cDNodes = new TreeMap();
+        initListeners();
+        treeLoaded = false;
+    }
+    
+    boolean isTreeLoaded() { return treeLoaded; }
+    
+    /** 
+     * Builds the tree model to represent the project-dataset
+     * hierarchy.
+     *
+     * @return  A tree model containing the project-dataset hierarchy.
+     */
+    DefaultMutableTreeNode getUserTreeModel()
+    {
+        root = new DefaultMutableTreeNode(TITLE);
+        DefaultMutableTreeNode childNode = 
+                                new DefaultMutableTreeNode("");
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        treeModel.insertNodeInto(childNode, root, root.getChildCount());
+        return root;
+    }
+
+    
+    /** Update a <code>project</code> node. */
+    void updateProjectInTree()
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        DefaultMutableTreeNode pNode;
+        Set projects = agentCtrl.getUserProjects();    
+        if (projects == null || projects.size() == 0) return;
+        Iterator j = projects.iterator();
+        ProjectData p;
+        Integer projectID;
+        while (j.hasNext()) {
+            p = (ProjectData) j.next();
+            projectID = new Integer(p.getId());
+            pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
+            pNode.removeAllChildren();
+            addDatasets(p.getDatasets(), pNode, false);
+            treeModel.reload(pNode);
+        }
+    }
+    
+    /** Update a <code>dataset</code> node. */
+    void updateDatasetInTree()
+    {   
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        DefaultMutableTreeNode pNode;                                       
+        Set projects = agentCtrl.getUserProjects();
+        if (projects == null || projects.size() == 0) return;
+        Iterator j = projects.iterator();
+        ProjectData p;
+        while (j.hasNext()) {
+            p = (ProjectData) j.next();
+            pNode = (DefaultMutableTreeNode) pNodes.get(new Integer(p.getId()));
+            pNode.removeAllChildren();
+            addDatasets(p.getDatasets(), pNode, false);
+            treeModel.reload(pNode);
+        }  
+    }
+    
+    /** Refresh the specified datasetSummary node. */
+    void refreshDatasetInTree(DatasetData data)
+    {
+        //no dataset node expanded
+        if (cDNodes.size() == 0) return;
+        Set nodes = (Set) cDNodes.get(new Integer(data.getId()));
+        //The dataset hasn't been expanded, in this case, we do nothing
+        if (nodes == null) return;
+        Iterator i = nodes.iterator();
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        DefaultMutableTreeNode node;   
+        Set images = agentCtrl.getImages(data.getId());
+        while (i.hasNext()) {
+            node = (DefaultMutableTreeNode) i.next();
+            node.removeAllChildren();
+            if (images.size() != 0)
+                addImagesToDataset(images, node);    
+            else 
+                treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
+                                        node, node.getChildCount());            
+            treeModel.reload(node);
+        }       
+    }
+
+    /** 
+     * Update image data in the Tree.
+     * If the image is displayed in several expanded datasets, the image data
+     * node will also be updated.
+     * 
+     * @param data ImageSummary object.
+     */
+    void updateImageInTree(ImageData data)
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        if (cDNodes.size() == 0) return;
+        Iterator i = cDNodes.keySet().iterator();
+        Iterator j;
+        DefaultMutableTreeNode dNode;
+        Set dNodes, images;
+        Integer datasetID;
+        //First update the images in list of expanded datasets.
+        updateImagesInDataset(data);
+        //Then update the tree.
+        while (i.hasNext()) {
+            datasetID = (Integer) i.next();
+            images = (Set) imagesInDataset.get(datasetID);
+            dNodes = (Set) cDNodes.get(datasetID);
+            j = dNodes.iterator();
+            while (j.hasNext()) {
+                dNode = (DefaultMutableTreeNode) j.next();
+                dNode.removeAllChildren();
+                addImagesToDataset(images, dNode); 
+                treeModel.reload(dNode);
+            }
+        }
+    }
+    
+    
+    /** 
+     * Add a new project to the Tree. 
+     * 
+     * @param data    Project summary to display.
+     */
+    void addNewProjectToTree(ProjectData data)
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(data);
+        treeModel.insertNodeInto(pNode, root, root.getChildCount());
+        pNodes.put(new Integer(data.getId()), pNode);
+        Set datasets = data.getDatasets();
+        if (datasets != null && datasets.size() != 0) {
+            Iterator i = datasets.iterator();
+            DefaultMutableTreeNode dNode;
+            DatasetData d;
+            while (i.hasNext()) {
+                d = (DatasetData) i.next();
+                dNode = new DefaultMutableTreeNode(d);
+                dNode.add(new DefaultMutableTreeNode(LOADING));
+                pNode.add(dNode);
+            }
+        }
+        setNodeVisible(pNode, root);                            
+    }
+    
+    /**
+     * Add a new dataset to the tree.
+     * 
+     * @param projects      list of projects to which the dataset id added.
+     */
+    void addNewDatasetToTree(Set projects) 
+    {
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        DefaultMutableTreeNode pNode;                                                   
+        Set userProjects = agentCtrl.getUserProjects();
+        if (userProjects == null || userProjects.size() == 0) return;
+        Iterator j = userProjects.iterator();
+        ProjectData p;
+        Integer projectID;
+        while (j.hasNext()) {
+            p = (ProjectData) j.next();
+            projectID = new Integer(p.getId());
+            pNode = (DefaultMutableTreeNode) pNodes.get(projectID);
+            pNode.removeAllChildren();
+            addDatasets(p.getDatasets(), pNode, projects.contains(p));
+            treeModel.reload(pNode);
+        }
+    }
+
+
+    /** Build the tree model to represent the project-dataset hierarchy. */
+    void rebuildTree()
+    {
+        Set projects = agentCtrl.getUserProjects();
+        DefaultTreeModel treeModel = (DefaultTreeModel) view.tree.getModel();
+        root.removeAllChildren();
+        if (projects == null || projects.size() == 0) {
+            treeModel.insertNodeInto(new DefaultMutableTreeNode(""), root, 
+                    root.getChildCount());
+            treeModel.reload(root);
+            view.tree.collapsePath(new TreePath(root.getPath()));
+            agentCtrl.createProject();
+            UserNotifier un = agentCtrl.getRegistry().getUserNotifier();
+            un.notifyInfo("Hierarchy", "No project created");
+            return;
+        }
+        Iterator i = projects.iterator();
+        ProjectData p;
+        DefaultMutableTreeNode pNode;
+        while (i.hasNext()) {
+            p = (ProjectData) i.next();
+            pNode = new DefaultMutableTreeNode(p);
+            treeModel.insertNodeInto(pNode, root, root.getChildCount());
+            pNodes.put(new Integer(p.getId()), pNode);
+            addDatasetsToProject(p, pNode, treeModel); 
+        }
+        treeModel.reload(root);
+        treeLoaded = true;  
     }
     
 }

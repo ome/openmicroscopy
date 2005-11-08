@@ -65,11 +65,20 @@ public class ActivationAction
     extends HiViewerAction
 {
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Bring up the selected " +
                         "hierarchy viewer.";
     
+    
     /**
-     * Creates a new instance
+     * Does nothing in this case.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
     public ActivationAction(HiViewer model)
     {
@@ -82,12 +91,7 @@ public class ActivationAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));
     }
 
-    /** Handle the action. */
+    /** Activates the model. */
     public void actionPerformed(ActionEvent e) { model.activate(); }
-    
-    /**
-     * Does nothing in this case.
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
 
 }

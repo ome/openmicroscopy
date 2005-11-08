@@ -37,7 +37,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.ImageData;
 
 /** 
  * Loads, asynchronously, the annotation linked to the specified image.
@@ -81,8 +81,8 @@ public class ImageAnnotationLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadAnnotations(
-                HierarchyBrowsingView.IMAGE_ANNOTATION, imageID, this);
+        handle = hiBrwView.loadAnnotations(ImageData.class, imageID, false,
+                                            this);
     }
 
     /** Cancels the data loading. */

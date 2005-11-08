@@ -37,6 +37,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -46,9 +48,9 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * 
@@ -178,7 +180,7 @@ class ProjectEditorManager
 	{
 		if (dialog == null) {
 			//tempo solution
-			List datasetsDiff = agentCtrl.getDatasetsDiff(model);
+			Set datasetsDiff = agentCtrl.getDatasetsDiff(model);
 			dialog = new ProjectDatasetsDiffPane(this, datasetsDiff);
 		} else {
 			dialog.remove(dialog.getContents());
@@ -193,9 +195,9 @@ class ProjectEditorManager
 	void addDatasetsSelection(List l)
 	{
 		Iterator i = l.iterator();
-		DatasetSummary ds;
+		DatasetData ds;
 		while (i.hasNext()) {
-			ds = (DatasetSummary) i.next();
+			ds = (DatasetData) i.next();
 			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);
 		}
 		view.rebuildComponent();
@@ -209,10 +211,9 @@ class ProjectEditorManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void setToAddToRemove(boolean value, DatasetSummary ds) 
+	void setToAddToRemove(boolean value, DatasetData ds) 
 	{
-		if (value)
-				datasetsToAddToRemove.add(ds); 
+		if (value) datasetsToAddToRemove.add(ds); 
 		else {
 			if (datasetsToAddToRemove.contains(ds)) 
 				datasetsToAddToRemove.remove(ds);
@@ -227,7 +228,7 @@ class ProjectEditorManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void selectDataset(boolean value, DatasetSummary ds) 
+	void selectDataset(boolean value, DatasetData ds) 
 	{
 		if (value){
 			 if (!datasetsToRemove.contains(ds)) datasetsToRemove.add(ds); 
@@ -263,9 +264,9 @@ class ProjectEditorManager
 	private void removeAdded()
 	{
 		Iterator i = datasetsToAddToRemove.iterator();
-		DatasetSummary ds;
+		DatasetData ds;
 		while (i.hasNext()) {
-			ds = (DatasetSummary) i.next();
+			ds = (DatasetData) i.next();
 			datasetsToAdd.remove(ds);
 			if (dialog != null) dialog.getManager().setSelected(true, ds);
 		}

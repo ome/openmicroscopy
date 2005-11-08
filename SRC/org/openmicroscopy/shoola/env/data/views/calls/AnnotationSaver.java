@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -42,7 +40,8 @@ import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -64,6 +63,15 @@ public class AnnotationSaver
     
     /** Classify/declassify call. */
     private BatchCall       saveCall;
+    
+    private AnnotationData transformPojoAnnotationData(pojos.AnnotationData ad)
+    {
+        AnnotationData annotation = new AnnotationData(ad.getId(),
+                                                    ad.getOwner().getId(),
+                                                    ad.getLastModified());
+        annotation.setAnnotation(ad.getText());
+        return annotation;
+    }
     
     /**
      * Creates a {@link BatchCall} to remove the specified annotation.
@@ -180,61 +188,61 @@ public class AnnotationSaver
      * Creates a new instance.
      * Constructor invokes to update an annotation.
      * 
-     * @param nodeTypeID One of the following constants:
-     *                  {@link HierarchyBrowsingView#DATASET_ANNOTATION},
-     *                  {@link HierarchyBrowsingView#IMAGE_ANNOTATION}.   
+     * @param nodeType The type of the node. Can either be
+     *                  <code>DatasetData or ImageData</code>. 
      * @param nodeID The id of the node.
      * @param data The Annotation object.
      */
-    public AnnotationSaver(int nodeTypeID, int nodeID, AnnotationData data)
+    public AnnotationSaver(Class nodeType, int nodeID,
+                            pojos.AnnotationData data)
     {
         if (data == null) throw new IllegalArgumentException("no annotation.");
-        if (nodeTypeID == HierarchyBrowsingView.DATASET_ANNOTATION) 
-            saveCall = updateDatasetAnnotation(nodeID, data);
-        else if (nodeTypeID == HierarchyBrowsingView.IMAGE_ANNOTATION) 
-            saveCall = updateImageAnnotation(nodeID, data);
-        else throw new IllegalArgumentException("Unsupported type: "+
-                                                nodeTypeID);
+        if (nodeType.equals(DatasetData.class))
+            saveCall = updateDatasetAnnotation(nodeID,
+                    transformPojoAnnotationData(data));
+        else if (nodeType.equals(ImageData.class))
+            saveCall = updateImageAnnotation(nodeID,
+                    transformPojoAnnotationData(data));
+        else throw new IllegalArgumentException("Unsupported type: "+nodeType);
     }
     
     /**
      * Creates a new instance.
      * Constructor invokes to create an annotation.
      * 
-     * @param nodeTypeID One of the following constants:
-     *                  {@link HierarchyBrowsingView#DATASET_ANNOTATION},
-     *                  {@link HierarchyBrowsingView#IMAGE_ANNOTATION}.   
+     * @param nodeType The type of the node. Can either be
+     *                  <code>DatasetData or ImageData</code>.
      * @param nodeID The id of the node.
      * @param data The textual annotation.
      */
-    public AnnotationSaver(int nodeTypeID, int nodeID, String data)
+    public AnnotationSaver(Class nodeType, int nodeID, String data)
     {
         if (data == null) throw new IllegalArgumentException("no annotation."); 
         if (nodeID < 0) throw new IllegalArgumentException("ID not valid.");
-        if (nodeTypeID == HierarchyBrowsingView.DATASET_ANNOTATION) 
+        if (nodeType.equals(DatasetData.class))
             saveCall = createDatasetAnnotation(nodeID, data);
-        else if (nodeTypeID == HierarchyBrowsingView.IMAGE_ANNOTATION) 
+        else if (nodeType.equals(ImageData.class))
             saveCall = createImageAnnotation(nodeID, data);
-        else throw new IllegalArgumentException("Unsupported type: "+
-                                                nodeTypeID);
+        else throw new IllegalArgumentException("Unsupported type: "+nodeType);
     }
     
     /**
      * Creates a new instance.
      * Constructor invokes to delete an annotation.
      * 
-     * @param nodeTypeID The id of the node.
+     * @param nodeType The type of the node. Can either be
+     *                  <code>DatasetData or ImageData</code>.
      * @param data The Annotation object.
      */
-    public AnnotationSaver(int nodeTypeID, AnnotationData data)
+    public AnnotationSaver(Class nodeType, pojos.AnnotationData data)
     {
         if (data == null) throw new IllegalArgumentException("no annotation."); 
-        if (nodeTypeID == HierarchyBrowsingView.DATASET_ANNOTATION) 
-            saveCall = removeDatasetAnnotation(data);
-        else if (nodeTypeID == HierarchyBrowsingView.IMAGE_ANNOTATION) 
-            saveCall = removeImageAnnotation(data);
-        else throw new IllegalArgumentException("Unsupported type: "+
-                                                nodeTypeID);
+        if (nodeType.equals(DatasetData.class))
+            saveCall = removeDatasetAnnotation(
+                    transformPojoAnnotationData(data));
+        else if (nodeType.equals(ImageData.class))
+            saveCall = removeImageAnnotation(transformPojoAnnotationData(data));
+        else throw new IllegalArgumentException("Unsupported type: "+ nodeType);
     }
     
 }

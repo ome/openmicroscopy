@@ -40,14 +40,16 @@ import javax.swing.event.ChangeEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewHierarchyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
+ * Views how the selected images are organized in a Project-Dataset 
+ * hierarchy.
+ * This action is always enabled.
  * 
- *
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -63,12 +65,19 @@ public class ViewPDIAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "View in P/D/I";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "View the images on screen " +
         "in a Project-Dataset-Images hierarchy.";
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public ViewPDIAction(HiViewer model)
     {
         super(model);
@@ -79,15 +88,13 @@ public class ViewPDIAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));
     }
 
-    /** Handle the action. */
+    /** Creates a {@link ViewHierarchyCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
         ViewHierarchyCmd cmd = new ViewHierarchyCmd(model, 
                             ViewHierarchyCmd.IN_PDI);
         cmd.execute();
     }
-
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
     
     /** Overrides the method. */
     public void stateChanged(ChangeEvent e)

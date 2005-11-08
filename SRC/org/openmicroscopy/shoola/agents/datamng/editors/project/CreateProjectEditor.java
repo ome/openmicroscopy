@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -76,7 +78,7 @@ public class CreateProjectEditor
 	private CreateProjectEditorManager manager;
 	
 	public CreateProjectEditor(DataManagerCtrl agentCtrl, ProjectData model,
-                                List datasets)
+                                Set datasets)
 	{
 		this.agentCtrl = agentCtrl;
 		manager = new CreateProjectEditorManager(this, agentCtrl, model,

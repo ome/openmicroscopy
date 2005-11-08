@@ -37,7 +37,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import pojos.CategoryData;
 
 /** 
  * The Model component in the {@link Classifier} MVC triad.

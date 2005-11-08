@@ -44,7 +44,8 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImageData;
+import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -66,17 +67,18 @@ class ImageOwnerPane
 	
 	private ImageEditorManager manager;
 	
-	ImageOwnerPane(ImageEditorManager manager)
+	ImageOwnerPane(ImageEditorManager manager, JPanel thumbnailPanel)
 	{
 		this.manager = manager;
-		buildGUI();
+		buildGUI(thumbnailPanel);
 	}
 	
 	/** Build and layout the GUI. */
-	private void buildGUI()
+	private void buildGUI(JPanel thumbnailPanel)
 	{
-		setLayout(new GridLayout(1, 1));
+		setLayout(new GridLayout(2, 1));
 		add(buildSummaryPanel());
+        add(thumbnailPanel);
 		Border b = BorderFactory.createEmptyBorder(0, 0, 10, 10);
 		setBorder(b);
 	}
@@ -108,12 +110,23 @@ class ImageOwnerPane
 		fieldNames = {" First Name", " Last Name", " E-mail", 
 						" Institution", " Group Name"};
 		ImageData id = manager.getImageData();
-		private Object[] data = {id.getOwnerFirstName(),
-								id.getOwnerLastName(), id.getOwnerEmail(),
-								id.getOwnerInstitution(), id.getOwnerGroupName()
-								};
-								
-		private OwnerTableModel() {}
+        
+        private Object[] data = new Object[fieldNames.length];
+        
+        private void initData(ExperimenterData owner)
+        {
+            data[0] = owner.getFirstName();
+            data[1] = owner.getLastName();
+            data[2] = owner.getEmail();
+            data[3] = owner.getInstitution();
+            data[4] = owner.getGroupName();
+        }
+ 								
+		private OwnerTableModel()
+        {
+            ExperimenterData owner = id.getOwner();
+            if (owner != null) initData(owner);
+        }
 	
 		public int getColumnCount() { return 2; }
 	

@@ -59,11 +59,12 @@ import javax.swing.border.TitledBorder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
+import pojos.AnnotationData;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * Model/View combined
@@ -225,9 +226,14 @@ class CBAnnotationTabView
         // add each user to list
         Timestamp date;
         DateFormat df = DateFormat.getDateInstance();
+        AnnotationData data;
+        List list;
         for (int i = 0; i < owners.length; i++) {
-            date = ((AnnotationData) 
-                    (getOwnerAnnotation(i).get(0))).getDate();
+            list =  getOwnerAnnotation(i);
+            data = ((AnnotationData) list.get(0));
+            date = data.getLastModified();
+            if (date == null)
+                date = new Timestamp((new java.util.Date()).getTime()); 
             listModel.addElement(owners[i]+" ("+df.format(date)+")");   
         }
     }
@@ -245,7 +251,7 @@ class CBAnnotationTabView
         if (ownerID == null) return new ArrayList();    //empty list
         return (List) annotations.get(ownerID);
     }
-
+    
     /**
      * Sets the enabled status of the components.
      * 
@@ -320,10 +326,10 @@ class CBAnnotationTabView
             annotated = false;
             return;
         }
-        List annotationList = getOwnerAnnotation(index);
-        if (annotationList.size() > 0) {
-            AnnotationData data = (AnnotationData) annotationList.get(0);
-            annotationText.setText(data.getAnnotation());
+        List list = getOwnerAnnotation(index);
+        if (list.size() > 0) {
+            AnnotationData data = (AnnotationData) list.get(0);
+            annotationText.setText(data.getText());
             annotated = true;             
         }
     }
@@ -381,10 +387,13 @@ class CBAnnotationTabView
         int index = 0;
         ownersMap = new HashMap();
         String name = "";
+        List list;
         while (i.hasNext()) {
             id = (Integer) i.next();
+            list = (List) annotations.get(id);
+            System.out.println(list);
             name = ((AnnotationData) 
-                ((List) annotations.get(id)).get(0)).getOwnerLastName();
+                    list.get(0)).getOwner().getLastName();
             if (userDetails.getUserID() == id.intValue()) userIndex = index;
             owners[index] = name;
             ownersMap.put(new Integer(index), id);
@@ -392,7 +401,10 @@ class CBAnnotationTabView
         }
         //No annotation for the current user, so allow creation.
         if (userIndex == -1) allowOwnerAnnotation(true);
-        else allowUpdate(true);
+        else {
+            annotatedByList.setSelectedIndex(userIndex);
+            allowUpdate(true);
+        }
         formatUsersList(owners);
         focusOnOwnerAnnotation();
         showSingleAnnotation();
@@ -401,9 +413,9 @@ class CBAnnotationTabView
     /** Updates the currently selected annotation. */
     void update()
     {
-        List annotationList = getOwnerAnnotation(userIndex);
-        AnnotationData data = (AnnotationData) annotationList.get(0);
-        data.setAnnotation(annotationText.getText());
+        List list = getOwnerAnnotation(userIndex);
+        AnnotationData data = (AnnotationData) list.get(0);
+        data.setText(annotationText.getText());
         controller.updateAnnotation(data);
     }
     
@@ -416,8 +428,8 @@ class CBAnnotationTabView
     /** Deletes the currently selected annotation. */
     void delete()
     {
-        List annotationList = getOwnerAnnotation(userIndex);
-        AnnotationData data = (AnnotationData) annotationList.get(0);
+        List list = getOwnerAnnotation(userIndex);
+        AnnotationData data = (AnnotationData) list.get(0);
         controller.deleteAnnotation(data);
     }
     
@@ -461,16 +473,18 @@ class CBAnnotationTabView
         Object hierarchyObject = selectedDisplay.getHierarchyObject();
         if (hierarchyObject == null) return; //root
         userIndex = -1;
-        if (hierarchyObject instanceof ImageSummary) {
+        if (hierarchyObject instanceof ImageData) {
             //Make sure that any ongoing annotationLoading is cancelled
             controller.discardAnnotation();
-            int id = ((ImageSummary) hierarchyObject).getID();
-            controller.retrieveAnnotations(id, ClipBoard.IMAGE_ANNOTATION);
-        } else if (hierarchyObject instanceof DatasetSummary) {
+            int id = ((ImageData) hierarchyObject).getId();
+            controller.retrieveAnnotations(id,
+                    AnnotationEditor.IMAGE_ANNOTATION);
+        } else if (hierarchyObject instanceof DatasetData) {
             //Make sure that any ongoing annotationLoading is cancelled
             controller.discardAnnotation();
-            int id = ((DatasetSummary) hierarchyObject).getID();
-            controller.retrieveAnnotations(id, ClipBoard.DATASET_ANNOTATION);
+            int id = ((DatasetData) hierarchyObject).getId();
+            controller.retrieveAnnotations(id,
+                    AnnotationEditor.DATASET_ANNOTATION);
         }
     }
     

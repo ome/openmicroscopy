@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * 
+ * Command used to retrieve an regular expression.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,21 +58,30 @@ public class FindRegExCmd
     implements ActionCmd
 {
     
+    /** Indicates to search in the title of the dataObject. */
     public static final int IN_TITLE = 0;
     
+    /** Indicates to search in the annotation of the dataObject. */
     public static final int IN_ANNOTATION = 1;
     
+    /** Indicates to search in the title and annotation of the dataObject. */
     public static final int IN_T_AND_A = 2;
     
     /** Reference to the model. */
     private HiViewer    model;
     
-    /** The expression.*/
+    /** The regular expression.*/
     private String      regEx;
     
     /** One of the constants defined above. */
     private int         index;
     
+    /**
+     * Checks the index passed.
+     * 
+     * @param i The passed index.
+     * @return true if the index is one the constants defined by this class.
+     */
     private boolean checkIndex(int i)
     {
         switch (i) {
@@ -128,8 +137,7 @@ public class FindRegExCmd
         else {
             if (!(selectedDisplay instanceof ImageNode))
                 selectedDisplay.accept(visitor);
-        }
-        
+        } 
         model.getClipBoard().setSearchResults(visitor.getFoundNodes());
     }
 

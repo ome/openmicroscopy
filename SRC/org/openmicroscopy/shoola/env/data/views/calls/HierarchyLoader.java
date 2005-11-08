@@ -31,18 +31,19 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * Command to load a data hierarchy rooted by a given node.
@@ -50,14 +51,14 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * Category.  Image and Dataset items are retrieved with annotations.
  * The final <code>DSCallOutcomeEvent</code> will contain the requested node
  * as root and all of its descendants.</p>
- * <p>A Project tree will be represented by <code>ProjectSummary, 
- * DatasetSummaryLinked, and ImageSummary</code> objects.  A Dataset tree
+ * <p>A Project tree will be represented by <code>ProjectData, 
+ * DatasetData, and ImageData</code> objects. A Dataset tree
  * will only have objects of the latter two types.</p>
  * <p>A Category Group tree will be represented by <code>CategoryGroupData, 
- * CategoryData</code>, and <code>ImageSummary</code> objects.  A Category 
+ * CategoryData</code>, and <code>ImageData</code> objects. A Category 
  * tree will only have objects of the latter two types.</p>
  * <p>So the object returned in the <code>DSCallOutcomeEvent</code> will be
- * a <code>ProjectSummary, DatasetSummaryLinked, CategoryGroupData</code> or
+ * a <code>ProjectData, DatasetData, CategoryGroupData</code> or
  * <code>CategoryData</code> depending on whether you asked for a Project, 
  * Dataset, Category Group, or Category tree.</p>
  *
@@ -76,79 +77,60 @@ public class HierarchyLoader
     extends BatchCallTree
 {
 
-    /** The returned value. */
-    private Object      rootNode;
+    /** The root nodes of the found trees. */
+    private Set      rootNodes;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
     
-    
     /**
-     * Creates a {@link BatchCall} to retrieve a Project tree.
+     * Creates a {@link BatchCall} to retrieve a Container tree, either
+     * Project, Dataset, CategoryGroup or Category.
      * 
-     * @param id The id of the root Project node. 
+     * @param rootNodeIDs Collection of container's id. 
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeProjectBatchCall(final int id)
+    private BatchCall makeBatchCall(final Class rootNodeType, 
+                                    final Set rootNodeIDs)
     {
-        return new BatchCall("Loading project tree: "+id) {
+        return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                DataManagementService dms = context.getDataManagementService();
-                rootNode = dms.retrieveProjectTree(id, true);
+                OmeroPojoService os = context.getOmeroService();
+                rootNodes = os.loadContainerHierarchy(rootNodeType,
+                                                    rootNodeIDs, true);
             }
         };
     }
     
     /**
-     * Creates a {@link BatchCall} to retrieve a Dataset tree.
+     * Creates {@link BatchCall} if the type is supported.
      * 
-     * @param id The id of the root Dataset node. 
-     * @return The {@link BatchCall}.
+     * @param rootNodeType  The type of the root node. Can only be one out of:
+     *                      {@link ProjectData}, {@link DatasetData},
+     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     * @param rootNodeIDs   Collection of root node ids.
      */
-    private BatchCall makeDatasetBatchCall(final int id)
+    private void validate(Class rootNodeType, Set rootNodeIDs)
     {
-        return new BatchCall("Loading dataset tree: "+id) {
-            public void doCall() throws Exception
-            {
-                DataManagementService dms = context.getDataManagementService();
-                rootNode = dms.retrieveDatasetTree(id, true);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve a Category Group tree.
-     * 
-     * @param id The id of the root Category Group node. 
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeCategoryGroupBatchCall(final int id)
-    {
-        return new BatchCall("Loading category group tree: "+id) {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                rootNode = sts.retrieveCategoryGroupTree(id, true);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve a Category tree.
-     * 
-     * @param id The id of the root Category node. 
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeCategoryBatchCall(final int id)
-    {
-        return new BatchCall("Loading category tree: "+id) {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                rootNode = sts.retrieveCategoryTree(id, true);
-            }
-        };
+        if (rootNodeType == null) 
+            throw new IllegalArgumentException("No root node type.");
+        if (rootNodeIDs == null && rootNodeIDs.size() == 0)
+            throw new IllegalArgumentException("No root node ids.");
+        try {
+            rootNodeIDs.toArray(new Integer[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException(
+                    "rootNodeIDs can only contain Integer.");
+        }  
+        if (rootNodeType.equals(ProjectData.class) ||
+            rootNodeType.equals(DatasetData.class) ||
+            rootNodeType.equals(CategoryGroupData.class) ||
+            rootNodeType.equals(CategoryData.class))
+            loadCall = makeBatchCall(rootNodeType, rootNodeIDs);
+        else
+            throw new IllegalArgumentException("Unsupported type: "+
+                                                rootNodeType);
     }
     
     /**
@@ -163,7 +145,7 @@ public class HierarchyLoader
      * 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return rootNode; }
+    protected Object getResult() { return rootNodes; }
     
     /**
      * Creates a new instance to load a tree rooted by the object having the
@@ -171,26 +153,32 @@ public class HierarchyLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param rootNodeType  The type of the root node.  Can only be one out of:
-     *                      <code>ProjectSummary, DatasetSummaryLinked, 
-     *                      CategoryGroupData, CategoryData</code>.
-     * @param nodeID        The id of the root node.
+     * @param rootNodeType  The type of the root node. Can only be one out of:
+     *                      {@link ProjectData}, {@link DatasetData},
+     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     * @param rootNodeID    The id of the root node.
      */
-    public HierarchyLoader(Class rootNodeType, int nodeID)
+    public HierarchyLoader(Class rootNodeType, int rootNodeID)
     {
-        if (rootNodeType == null) 
-            throw new NullPointerException("No root node type.");
-        if (rootNodeType.equals(ProjectSummary.class))
-            loadCall = makeProjectBatchCall(nodeID);
-        else if (rootNodeType.equals(DatasetSummaryLinked.class))
-            loadCall = makeDatasetBatchCall(nodeID);
-        else if (rootNodeType.equals(CategoryGroupData.class))
-            loadCall = makeCategoryGroupBatchCall(nodeID);
-        else if (rootNodeType.equals(CategoryData.class))
-            loadCall = makeCategoryBatchCall(nodeID);
-        else
-            throw new IllegalArgumentException("Unsupported type: "+
-                                                rootNodeType);
+        HashSet set = new HashSet(1);
+        set.add(new Integer(rootNodeID));
+        validate(rootNodeType, set);
+    }
+    
+    /**
+     * Creates a new instance to load a tree rooted by the object having the
+     * specified type and id.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param rootNodeType  The type of the root node. Can only be one out of:
+     *                      {@link ProjectData}, {@link DatasetData},
+     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     * @param rootNodeIDs   Collection of root node ids.
+     */
+    public HierarchyLoader(Class rootNodeType, Set rootNodeIDs)
+    {
+        validate(rootNodeType, rootNodeIDs);
     }
     
 }

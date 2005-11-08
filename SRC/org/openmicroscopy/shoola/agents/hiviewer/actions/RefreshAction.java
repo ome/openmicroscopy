@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * Reloads the Model of its viewer.
  * For the time being we just reinstantiate the viewer and discard the 
- * exisiting one.
+ * existing one.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,7 +72,7 @@ public class RefreshAction
     /**
      * Creates a new instance.
      * 
-     * @param model The component that this action will operate on.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
     public RefreshAction(HiViewer model)
     {

@@ -35,10 +35,11 @@ import java.awt.Point;
 import java.util.Set;
 import javax.swing.JComponent;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.ObservableComponent;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
  * Defines the interface provided by the browser component.

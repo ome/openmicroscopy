@@ -37,8 +37,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.CategoryData;
 
 /** 
  * Implements the {@link Classifier} interface to provide the functionality

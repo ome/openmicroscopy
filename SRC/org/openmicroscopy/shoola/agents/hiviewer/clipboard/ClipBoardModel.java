@@ -30,23 +30,26 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgDisplayAnnotationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgNodeAnnotationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgSetAnnotationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.AnnotationData;
 
 /** 
  * 
@@ -183,8 +186,8 @@ class ClipBoardModel
     /**
      * Returns the annotation index.
      * One of the following constant
-     * {@link HierarchyBrowsingView#DATASET_ANNOTATION}, 
-     * {@link HierarchyBrowsingView#IMAGE_ANNOTATION}.
+     * {@link AnnotationEditor#DATASET_ANNOTATION}, 
+     * {@link AnnotationEditor#IMAGE_ANNOTATION}.
      * 
      * @return See above.
      */
@@ -207,15 +210,26 @@ class ClipBoardModel
     /**
      * Sets the retrieved annotations.
      * 
-     * @param annotations The map with the annotations.
+     * @param map The map with the annotations.
      */
-    void setAnnotations(Map annotations) 
+    void setAnnotations(Map map) 
     {
-        if (annotations == null)
-            throw new NullPointerException("No annotations");
-        this.annotations = annotations;
+        if (map == null) throw new NullPointerException("No annotations");
+        HashMap sortedAnnotations = new HashMap();
+        Set set;
+        Integer index;
+        Iterator i = map.keySet().iterator();
+        while (i.hasNext()) {
+            index = (Integer) i.next();
+            set = (Set) map.get(index);
+            sortedAnnotations.put(index,
+                    CollectionSorter.sortAnnotationDataByDate(set));
+        }
+        
+        this.annotations = sortedAnnotations;
         state = ClipBoard.ANNOTATIONS_READY;
     }
+    
     
     /**
      * Sets the object in the {@link HiViewer#DISCARDED} state.
@@ -244,11 +258,11 @@ class ClipBoardModel
         if (l != null) data = (AnnotationData) l.get(0);
         ImgDisplayAnnotationVisitor visitor = null;
         switch (annotatedObjectIndex) {
-            case ClipBoard.DATASET_ANNOTATION:
+            case AnnotationEditor.DATASET_ANNOTATION:
                 visitor = new ImgSetAnnotationVisitor(getParentModel(), data,
                                                         annotatedObjectID);
                 break;
-            case ClipBoard.IMAGE_ANNOTATION:
+            case AnnotationEditor.IMAGE_ANNOTATION:
                 visitor = new ImgNodeAnnotationVisitor(getParentModel(), data,
                         annotatedObjectID);
                 break;
@@ -271,10 +285,10 @@ class ClipBoardModel
         annotatedObjectID = nodeID;
         annotatedObjectIndex = objectIndex;
         switch (objectIndex) {
-            case ClipBoard.DATASET_ANNOTATION:
+            case AnnotationEditor.DATASET_ANNOTATION:
                 currentLoader = new DatasetAnnotationLoader(component, nodeID);
                 break;
-            case ClipBoard.IMAGE_ANNOTATION:
+            case AnnotationEditor.IMAGE_ANNOTATION:
                 currentLoader = new ImageAnnotationLoader(component, nodeID);
         }
         if (currentLoader != null) currentLoader.load();            
@@ -289,16 +303,9 @@ class ClipBoardModel
     void fireCreateAnnotation(String txt)
     {
         annotationStatus = CREATE;
-        int index = -1;
-        switch (annotatedObjectIndex) {
-            case ClipBoard.DATASET_ANNOTATION:
-                index = HierarchyBrowsingView.DATASET_ANNOTATION;
-                break;
-            case ClipBoard.IMAGE_ANNOTATION:
-                index = HierarchyBrowsingView.IMAGE_ANNOTATION;
-        } 
         currentLoader = new AnnotationEditor(component, 
-                AnnotationEditor.CREATE, index, annotatedObjectID, txt);
+                AnnotationEditor.CREATE, annotatedObjectIndex,
+                annotatedObjectID, txt);
         currentLoader.load();
         state = ClipBoard.EDIT_ANNOTATIONS;
     }
@@ -311,16 +318,8 @@ class ClipBoardModel
     void fireUpdateAnnotation(AnnotationData data)
     {
         annotationStatus = UPDATE;
-        int index = -1;
-        switch (annotatedObjectIndex) {
-            case ClipBoard.DATASET_ANNOTATION:
-                index = HierarchyBrowsingView.DATASET_ANNOTATION;
-                break;
-            case ClipBoard.IMAGE_ANNOTATION:
-                index = HierarchyBrowsingView.IMAGE_ANNOTATION;
-        }
         currentLoader = new AnnotationEditor(component, AnnotationEditor.UPDATE,
-                index, annotatedObjectID, data);
+                annotatedObjectIndex, annotatedObjectID, data);
         currentLoader.load(); 
         state = ClipBoard.EDIT_ANNOTATIONS;
     }
@@ -333,16 +332,8 @@ class ClipBoardModel
     void fireDeleteAnnotation(AnnotationData data)
     {
         annotationStatus = DELETE;
-        int index = -1;
-        switch (annotatedObjectIndex) {
-            case ClipBoard.DATASET_ANNOTATION:
-                index = HierarchyBrowsingView.DATASET_ANNOTATION;
-                break;
-            case ClipBoard.IMAGE_ANNOTATION:
-                index = HierarchyBrowsingView.IMAGE_ANNOTATION;
-        }
         currentLoader = new AnnotationEditor(component, AnnotationEditor.DELETE,
-                                        index, data);
+                                        annotatedObjectIndex, data);
         currentLoader.load();
         state = ClipBoard.EDIT_ANNOTATIONS;
     }

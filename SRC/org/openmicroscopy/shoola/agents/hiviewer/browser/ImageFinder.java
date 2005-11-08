@@ -41,7 +41,7 @@ import java.util.Set;
 //Application-internal dependencies
 
 /** 
- * Initializes two set: one containing the imageNodes displayed
+ * Initializes two sets: one containing the imageNodes displayed
  * and a second containing the corresponding <code>DataObject</code>s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

@@ -85,7 +85,7 @@ public class HideTitleBarAction
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model.  Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
     public HideTitleBarAction(HiViewer model)
     {

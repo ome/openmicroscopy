@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Frame during data retrieval.
+ * Loading window brought on screen during data retrieval.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -46,10 +46,11 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * 
@@ -129,8 +130,7 @@ public class ClassifierPane
         if (node != null) {
             Object  usrObj = node.getUserObject();
             if (usrObj instanceof CategoryGroupData || 
-                usrObj instanceof CategoryData ||
-                usrObj instanceof ImageSummary)
+                usrObj instanceof CategoryData || usrObj instanceof ImageData)
                 target = (DataObject) usrObj;
         }
         return target;

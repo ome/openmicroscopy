@@ -32,25 +32,29 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.ds.st.PixelsDTO;
+import org.openmicroscopy.ds.st.RepositoryDTO;
 import org.openmicroscopy.is.ImageServerException;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
  * Command to load a given set of thumbnails.
  * <p>As thumbnails are retrieved from <i>OMEIS</i>, they're posted back to the 
- * caller through <code>DSCallFeedbackEvent</code>s.  Each thumbnail will be
+ * caller through <code>DSCallFeedbackEvent</code>s. Each thumbnail will be
  * posted in a single event; the caller can then invoke the <code>
  * getPartialResult</code> method to retrieve a <code>ThumbnailData</code>
- * object for that thumbnail.  The final <code>DSCallOutcomeEvent</code> will
+ * object for that thumbnail. The final <code>DSCallOutcomeEvent</code> will
  * have no result.</p>
  * <p>Thumbnails are generated respecting the <code>X/Y</code> ratio of the
  * original image and so that their area doesn't exceed <code>maxWidth*
@@ -72,7 +76,7 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private ImageSummary[]  images;
+    private ImageData[]  images;
     
     /** The maximum acceptable width of the thumbnails. */
     private int             maxWidth;
@@ -93,14 +97,24 @@ public class ThumbnailLoader
     private void loadThumbail(int index) 
         throws ImageServerException
     {
-        PixelsDescription pxd = images[index].getDefaultPixels();
+        PixelsData pxd = images[index].getDefaultPixels();
         int sizeX = maxWidth, sizeY = maxHeight;
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+        
+        //TO REMOVE ASAP.
+        Map map = new HashMap();
+        map.put("id", new Integer(1));
+        map.put("ImageServerURL", pxd.getImageServerURL());
+        RepositoryDTO rep = new RepositoryDTO(map);
+        map = new HashMap();
+        map.put("Repository", rep);
+        map.put("ImageServerID", new Long(pxd.getImageServerID()));
+        PixelsDTO pixels = new PixelsDTO(map); 
         BufferedImage thumbPix = context.getPixelsService().getThumbnail(
-                                                pxd.getPixels(), sizeX, sizeY);
-        currentThumbnail = new ThumbnailData(images[index].getID(), thumbPix);
+                                                pixels, sizeX, sizeY);
+        currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
     
     /**
@@ -147,22 +161,21 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
+     * @param imgs Contains {@link ImageData}s, one
      *                      for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      */
-    public ThumbnailLoader(Set imgSummaries, int maxWidth, int maxHeight)
+    public ThumbnailLoader(Set imgs, int maxWidth, int maxHeight)
     {
-        if (imgSummaries == null) 
-            throw new NullPointerException("No image summaries.");
+        if (imgs == null) throw new NullPointerException("No images.");
         if (maxWidth <= 0)
             throw new IllegalArgumentException(
                     "Non-positive width: "+maxWidth+".");
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
-        images = (ImageSummary[]) imgSummaries.toArray(new ImageSummary[] {});
+        images = (ImageData[]) imgs.toArray(new ImageData[] {});
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
     }

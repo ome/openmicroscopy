@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * Reset the default color of the titleBar.
+ * Resets the default color of the titleBar.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,21 +59,8 @@ class ClearVisitor
     extends HiViewerVisitor
 {
     
-    ClearVisitor(HiViewer viewer)
-    {
-        super(viewer);
-    }
 
-    /** Set the highlight color to null. */
-    public void visit(ImageNode node) { setHighlight(node); }
-
-    /** Set the highlight color to null. */
-    public void visit(ImageSet node)
-    {
-        if (node.getParentDisplay() != null) setHighlight(node);
-    } 
-
-    /** Highlight the titleBar of the specified node. */
+    /** Highlights the titleBar of the specified node. */
     private void setHighlight(ImageDisplay node)
     {
         if (node.equals(model.getBrowser().getSelectedDisplay())) {
@@ -81,5 +68,24 @@ class ClearVisitor
             node.setHighlight(colors.getColor(Colors.TITLE_BAR_HIGHLIGHT));
         } else node.setHighlight(null);
     }
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param viewer Reference to the model. Mustn't be <code>null</code>.
+     */
+    ClearVisitor(HiViewer viewer)
+    {
+        super(viewer);
+    }
+
+    /** Set the highlight color to <code>null</code>. */
+    public void visit(ImageNode node) { setHighlight(node); }
+
+    /** Sets the highlight color to <code>null</code>. */
+    public void visit(ImageSet node)
+    {
+        if (node.getParentDisplay() != null) setHighlight(node);
+    } 
     
 }

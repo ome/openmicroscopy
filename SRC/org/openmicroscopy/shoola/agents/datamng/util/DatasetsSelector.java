@@ -33,7 +33,8 @@ package org.openmicroscopy.shoola.agents.datamng.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.util.List;
+import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -52,12 +53,12 @@ import javax.swing.table.TableColumnModel;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
+import pojos.DatasetData;
 
 /** 
  * 
@@ -99,7 +100,7 @@ public class DatasetsSelector
     private DataManagerCtrl                 agentCtrl;
     
     public DatasetsSelector(DataManagerCtrl agentCtrl, 
-                    ISelector iSelector, List datasets)
+                    ISelector iSelector, Set datasets)
     {
         super(agentCtrl.getReferenceFrame(), "List of used datasets", true);
         this.agentCtrl = agentCtrl;
@@ -140,7 +141,7 @@ public class DatasetsSelector
     }
     
     /** Build and Lay out the GUI. */
-    private void buildGUI(List datasets)
+    private void buildGUI(Set datasets)
     {
         IconManager im = IconManager.getInstance(agentCtrl.getRegistry());
         TitlePanel tp = new TitlePanel(" Dataset selection", 
@@ -154,7 +155,7 @@ public class DatasetsSelector
     }
     
     /** Initializes the table and display it in a panel. */
-    private JPanel buildDatasetsPanel(List datasets)
+    private JPanel buildDatasetsPanel(Set datasets)
     {
         //Initializes the table
         datasetsTM = new DatasetsTableModel(datasets);
@@ -233,12 +234,12 @@ public class DatasetsSelector
         
         private Object[][]          data;
 
-        private DatasetsTableModel(List d)
+        private DatasetsTableModel(Set d)
         {
             this.datasets = d.toArray();
             data = new Object[datasets.length][LENGTH];
             for (int i = 0; i < datasets.length; i++) {
-                data[i][0] = (DatasetSummary) datasets[i];
+                data[i][0] = (DatasetData) datasets[i];
                 data[i][1] = Boolean.FALSE;
             }
         }
@@ -261,7 +262,7 @@ public class DatasetsSelector
         public void setValueAt(Object value, int row, int col)
         {   
             data[row][col] = value;
-            DatasetSummary ds = (DatasetSummary) sorter.getValueAt(row, NAME);
+            DatasetData ds = (DatasetData) sorter.getValueAt(row, NAME);
             fireTableCellUpdated(row, col);
             manager.addDataset(((Boolean) value).booleanValue(), ds);
         }

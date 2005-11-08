@@ -58,12 +58,8 @@ import javax.swing.event.MenuListener;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAnnotatedAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithAnnotationAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.FindWithTitleAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.HideTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
@@ -125,11 +121,6 @@ class HiViewerControl
         actionsMap.put(HiViewer.VIEW_CGCI, new ViewCGCIAction(model));
         actionsMap.put(HiViewer.VIEW_PDI, new ViewPDIAction(model));
         actionsMap.put(HiViewer.REFRESH, new RefreshAction(model));
-        actionsMap.put(HiViewer.FIND_ANNOTATED, new FindAnnotatedAction(model));
-        actionsMap.put(HiViewer.FIND_W_TITLE, new FindWithTitleAction(model));
-        actionsMap.put(HiViewer.FIND_W_ANNOTATION, 
-                                    new FindWithAnnotationAction(model));
-        actionsMap.put(HiViewer.CLEAR, new ClearAction(model));
         actionsMap.put(HiViewer.SQUARY, new SquaryLayoutAction(model));
         actionsMap.put(HiViewer.TREE, new TreeLayoutAction(model));
         actionsMap.put(HiViewer.SHOW_TITLEBAR, new ShowTitleBarAction(model));

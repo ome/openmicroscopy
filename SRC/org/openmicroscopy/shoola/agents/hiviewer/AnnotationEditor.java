@@ -38,9 +38,10 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.AnnotationData;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -69,10 +70,15 @@ public class AnnotationEditor
     /** Identifies the <code>DELETE</code> annotation action. */
     public static final int         DELETE = 2;
     
+    /** Indicates that we manipulate image annotations. */
+    public static final int         IMAGE_ANNOTATION = 101;
+    
+    /** Indicates that we manipulate dataset annotations. */
+    public static final int         DATASET_ANNOTATION = 104;
+    
     /** 
      * The Annotation index, one of the following constants:
-     * {@link HierarchyBrowsingView#IMAGE_ANNOTATION},
-     * {@link HierarchyBrowsingView#DATASET_ANNOTATION}
+     * {@link #IMAGE_ANNOTATION} or {@link #DATASET_ANNOTATION}.
      */ 
     private int             annotationIndex;
     
@@ -117,11 +123,28 @@ public class AnnotationEditor
     private boolean checkAnnotationIndex(int i)
     {
         switch (i) {
-            case HierarchyBrowsingView.IMAGE_ANNOTATION:
-            case HierarchyBrowsingView.DATASET_ANNOTATION:  
+            case IMAGE_ANNOTATION:
+            case DATASET_ANNOTATION:  
                 return true;
         }
         return false;
+    }
+    
+    /**
+     * Returns the Class corresponding to the annotation index.
+     * 
+     * @return See above.
+     */
+    private Class getAnnotationClass()
+    {
+        switch (annotationIndex) {
+            case IMAGE_ANNOTATION:
+                return ImageData.class;
+            case DATASET_ANNOTATION:
+                return DatasetData.class;
+            default:
+                return null;
+        }
     }
     
     /**
@@ -205,28 +228,30 @@ public class AnnotationEditor
         this.objectID = objectID;
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader#load()
+    /**
+     * Creates or updates the annotation.
+     * 
+     * @see DataLoader#load()
      */
     public void load()
     {
         switch (actionIndex) {
             case CREATE:
-                handle = hiBrwView.createAnnotation(annotationIndex, objectID,
-                                                    text, this);
+                handle = hiBrwView.createAnnotation(getAnnotationClass(),
+                                                    objectID, text, this);
                 break;
             case UPDATE:
-                handle = hiBrwView.updateAnnotation(annotationIndex, objectID,
-                                                    data, this);
+                handle = hiBrwView.updateAnnotation(getAnnotationClass(),
+                                                    objectID, data, this);
                 break;
             case DELETE:
-                handle = hiBrwView.deleteAnnotation(annotationIndex, data,
+                handle = hiBrwView.deleteAnnotation(getAnnotationClass(), data,
                                                     this);
                 break;
         }
     }
 
-    /** Cancels the data loading. */
+    /** Cancels the data saving. */
     public void cancel() { handle.cancel(); }
     
     /** Feeds the result back to the viewer. */

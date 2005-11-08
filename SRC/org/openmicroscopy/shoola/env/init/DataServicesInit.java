@@ -105,6 +105,7 @@ public final class DataServicesInit
 			RegistryFactory.linkDMS(dms, reg);
 			RegistryFactory.linkSTS(sts, reg);
 			RegistryFactory.linkPS(ps, reg);
+            RegistryFactory.linkOPS(factory.getOPS(), reg);
             
             //Finally create and bind the factory used by the async data views
             //to create exec monitors.

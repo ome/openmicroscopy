@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.HashSet;
 
 //Third-party libraries
 
@@ -40,11 +41,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import pojos.AnnotationData;
+import pojos.ImageData;
 
 /** 
- * 
+ * Visits an {@link ImageNode} and updates the annotation and tooltip.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,10 +63,11 @@ public class ImgNodeAnnotationVisitor
 {
 
     /**
+     * Creates a new instance.
      * 
-     * @param model
-     * @param data
-     * @param hierarchyObjectID
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param data The annotation.
+     * @param hierarchyObjectID The id of the hierarchy object.
      */
     public ImgNodeAnnotationVisitor(HiViewer model, AnnotationData data,
                                     int hierarchyObjectID)
@@ -73,11 +75,17 @@ public class ImgNodeAnnotationVisitor
         super(model, data, hierarchyObjectID);
     }
 
+    /**
+     * Sets the annotation of the selected {@link ImageNode} and updates 
+     * the tooltip.
+     */
     public void visit(ImageNode node)
     {
-        ImageSummary is = (ImageSummary) node.getHierarchyObject();
-        if (is.getID() == hierarchyObjectID) {
-            is.setAnnotation(data);  
+        ImageData is = (ImageData) node.getHierarchyObject();
+        if (is.getId() == hierarchyObjectID) {
+            HashSet set = new HashSet(1);
+            set.add(data);
+            is.setAnnotations(set);
             HiTranslator.formatToolTipFor(node, data);
         }       
     }   

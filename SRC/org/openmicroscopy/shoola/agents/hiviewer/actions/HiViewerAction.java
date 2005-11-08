@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -67,8 +65,22 @@ public abstract class HiViewerAction
     implements ChangeListener, PropertyChangeListener
 {
     
+    /** A reference to the Model. */
     protected HiViewer      model;
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}. Subclasses override the method.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public HiViewerAction(HiViewer model)
     {
         super();
@@ -77,9 +89,7 @@ public abstract class HiViewerAction
         this.model = model;
         model.addChangeListener(this);
     }
-
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
-      
+ 
     /** 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */

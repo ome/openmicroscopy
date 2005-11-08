@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -56,6 +58,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
+
+import pojos.ImageData;
 
 /** 
  * 
@@ -133,7 +137,7 @@ class CreateCategoryImagesPane
     }
 
     /** Rebuild the component to display the existing images. */ 
-    void showImages(List images)
+    void showImages(Set images)
     {
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -213,7 +217,7 @@ class CreateCategoryImagesPane
     }
     
     /** Build panel with table containing the images to add. */
-    private JPanel buildImagesPanel(List images)
+    private JPanel buildImagesPanel(Set images)
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -270,12 +274,12 @@ class CreateCategoryImagesPane
         private Object[]      images;
         private Object[][]    data;
 
-        private ImagesTableModel(List imgs)
+        private ImagesTableModel(Set imgs)
         {
             images = imgs.toArray();
             data = new Object[images.length][2];
             for (int i = 0; i < images.length; i++) {
-                data[i][0] = (ImageSummary) images[i];
+                data[i][0] = (ImageData) images[i];
                 data[i][1] = new Boolean(false);
             }
         }
@@ -298,7 +302,7 @@ class CreateCategoryImagesPane
         public void setValueAt(Object value, int row, int col)
         {
             data[row][col] = value;
-            ImageSummary is = (ImageSummary) sorter.getValueAt(row, NAME);
+            ImageData is = (ImageData) sorter.getValueAt(row, NAME);
             fireTableCellUpdated(row, col);
             manager.addImage(((Boolean) value).booleanValue(), is);
         }

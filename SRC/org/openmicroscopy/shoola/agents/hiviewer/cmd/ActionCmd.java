@@ -54,6 +54,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 public interface ActionCmd
 {
 
+    /** Executes the command. */
     public void execute();
     
 }

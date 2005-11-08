@@ -45,8 +45,9 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
+
+import pojos.ImageData;
 
 /** 
  * Brings {@link TinyDialog}s on screen to display full-scale thumbnails.
@@ -82,8 +83,8 @@ class ThumbWinManager
      */
     private static TinyDialog getWindowFor(ImageNode node)
     {
-        ImageSummary ho = (ImageSummary) node.getHierarchyObject();
-        final Integer id = new Integer(ho.getID());
+        ImageData ho = (ImageData) node.getHierarchyObject();
+        final Integer id = new Integer(ho.getId());
         TinyDialog w = (TinyDialog) windows.get(id);
         if (w == null) {
             Thumbnail prv = node.getThumbnail();
@@ -114,9 +115,9 @@ class ThumbWinManager
     /**
      * Calculates the top left corner, in screen coordinates, for a window.
      * 
-     * @param node    The node for which the window will be displayed.
-     * @param winW    The width of the window.
-     * @param winH    The height of the window.
+     * @param node The node for which the window will be displayed.
+     * @param winW The width of the window.
+     * @param winH The height of the window.
      * @return The window's top left corner, in screen coordinates.
      */
     private static Point getWindowLocation(ImageNode node, int winW, int winH)
@@ -139,7 +140,7 @@ class ThumbWinManager
      */
     static void display(ImageNode node)
     {
-        if (node == null) throw new NullPointerException("No node.");
+        if (node == null) throw new IllegalArgumentException("No node.");
         TinyDialog w = getWindowFor(node);
         if (w != null) {  //Could be null, see notes in getWindowFor().
             w.pack();  //Now we have the right width and height.

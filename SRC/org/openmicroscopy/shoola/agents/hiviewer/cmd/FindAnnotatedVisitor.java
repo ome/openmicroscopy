@@ -33,24 +33,23 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.HashSet;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
- * Highlights all annotated DataObject i.e. <code>ImageSummary</code> object or
- * <code>DatasetSummaryLinked</code> object.  
+ * Highlights all annotated DataObject i.e. images or datasets.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,14 +71,7 @@ class FindAnnotatedVisitor
     /** Set containing the nodes found. */
     private Set         foundNodes;
     
-    FindAnnotatedVisitor(HiViewer viewer)
-    {
-        super(viewer);
-        colors = Colors.getInstance();
-        foundNodes = new HashSet();
-    }
-
-    /** Set the color of the titleBar of the specified node. */
+    /** Sets the color of the titleBar of the specified node. */
     private void setHighlight(ImageDisplay node)
     {
         foundNodes.add(node);
@@ -89,25 +81,41 @@ class FindAnnotatedVisitor
         else node.setHighlight(colors.getColor(Colors.ANNOTATED));
     }
     
+    /**
+     * Creates a new instance. 
+     * 
+     * @param viewer Reference to the model. Mustn't be <code>null</code>.
+     */
+    FindAnnotatedVisitor(HiViewer viewer)
+    {
+        super(viewer);
+        colors = Colors.getInstance();
+        foundNodes = new HashSet();
+    }
+    
     /** Returns the set of nodes found. */
     public Set getFoundNodes() { return foundNodes; }
     
-    /** Highlight the annotated image.*/
+    /** Highlights the annotated image.*/
     public void visit(ImageNode node)
     {
         Object ho = node.getHierarchyObject();
-        if (ho instanceof ImageSummary && 
-                ((ImageSummary) ho).getAnnotation() != null)
-            setHighlight(node);
+        if (ho instanceof ImageData) {
+            Set annotations = ((ImageData) ho).getAnnotations();
+            if (annotations != null && annotations.size() > 0)
+                setHighlight(node);   
+        }
     }
 
-    /** Highlight the annotated dataset.*/
+    /** Highlights the annotated dataset.*/
     public void visit(ImageSet node)
     {
         Object ho = node.getHierarchyObject();
-        if (ho instanceof DatasetSummary && 
-                ((DatasetSummary) ho).getAnnotation() != null) 
-                setHighlight(node);
+        if (ho instanceof DatasetData) {
+            Set annotations = ((DatasetData) ho).getAnnotations();
+            if (annotations != null && annotations.size() > 0)
+                setHighlight(node);  
+        }
     }
     
 }

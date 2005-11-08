@@ -37,6 +37,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -46,8 +47,9 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import pojos.DatasetData;
+
 /** 
  * 
  *
@@ -79,7 +81,7 @@ public class CreateProjectEditorManager
 	 * List of datasets which belong to the user. These datasets can be added
 	 * to the new project.
 	 */
-	private List					datasets;	
+	private Set					datasets;	
 	
 	/** List of datasets to be added. */
 	private List					datasetsToAdd;
@@ -93,13 +95,13 @@ public class CreateProjectEditorManager
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param editor
+	 * @param view
 	 * @param model
 	 * @param datasets		List of dataset summary object.
 	 */
 	public CreateProjectEditorManager(CreateProjectEditor view, 
 									DataManagerCtrl agentCtrl, 
-                                    ProjectData model, List datasets)
+                                    ProjectData model, Set datasets)
 	{
 		this.agentCtrl = agentCtrl;
 		this.view = view;
@@ -113,7 +115,7 @@ public class CreateProjectEditorManager
 	
 	ProjectData getProjectData() { return model; }
 	
-	List getDatasets() { return datasets; }
+	Set getDatasets() { return datasets; }
 	
 	/** Initializes the listeners. */
 	void initListeners()
@@ -161,7 +163,7 @@ public class CreateProjectEditorManager
 	 * 					false otherwise.
 	 * @param ds		dataset summary to add or remove
 	 */
-	void addDataset(boolean value, DatasetSummary ds) 
+	void addDataset(boolean value, DatasetData ds) 
 	{
 		if (value) {
 			if (!datasetsToAdd.contains(ds)) datasetsToAdd.add(ds);

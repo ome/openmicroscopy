@@ -48,8 +48,8 @@ import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import pojos.ImageData;
 
 /** 
  * Image's property sheet.
@@ -89,10 +89,11 @@ public class ImageEditor
 	{
 		this.agentCtrl = agentCtrl;
 		manager = new ImageEditorManager(this, agentCtrl, model);
-		generalPane = new ImageGeneralPane(manager, 
-                    buildThumbnailPanel(thumbnail));
-		infoPane = new ImageInfoPane(manager, buildThumbnailPanel(thumbnail));
-		ownerPane = new ImageOwnerPane(manager);
+		generalPane = new ImageGeneralPane(manager,
+                                    buildThumbnailPanel(thumbnail));
+		infoPane = new ImageInfoPane(manager,
+                                    buildThumbnailPanel(thumbnail));
+		ownerPane = new ImageOwnerPane(manager, buildThumbnailPanel(thumbnail));
 		bar = new ImageEditorBar(agentCtrl.getRegistry());
 		buildGUI();
 		manager.initListeners();

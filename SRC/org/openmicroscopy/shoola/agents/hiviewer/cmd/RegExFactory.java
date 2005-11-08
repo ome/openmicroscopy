@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 //Application-internal dependencies
 
 /** 
- * Utility class.
+ * A factory to create and handle {@link Pattern}s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,11 +56,26 @@ import java.util.regex.Pattern;
 class RegExFactory
 {
     
+    /**
+     * Helper method to create an insensitive pattern.
+     * 
+     * @param regEx The expression to be compiled.
+     * @return See above.
+     */
     static Pattern createCaseInsensitivePattern(String regEx)
     {
         return Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);
     }
 
+    /**
+     * Attempts to find the next subsequence of the input sequence that matches
+     * the pattern.
+     * 
+     * @param p The pattern.
+     * @param input The character sequence to be matched
+     * @return <code>true</code> if, and only if, a subsequence of the input
+     *          sequence matches this matcher's pattern.
+     */
     static boolean find(Pattern p, String input)
     {
         Matcher m = p.matcher(input);

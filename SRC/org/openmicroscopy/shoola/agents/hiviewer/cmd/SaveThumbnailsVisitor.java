@@ -31,9 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 
-
-
-
 //Java imports
 import java.util.HashSet;
 import java.util.Set;
@@ -63,18 +60,31 @@ class SaveThumbnailsVisitor
     extends HiViewerVisitor
 {
 
-    /** Set of retrieved bufferedImage. */
+    /** The {@link Thumbnail}s retrieved. */
     private Set thumbnails;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     SaveThumbnailsVisitor(HiViewer model)
     {
         super(model);
         thumbnails = new HashSet();
     }
 
+    /**
+     * Returns the retrieved thumbnails.
+     * 
+     * @return See below.
+     */
     Set getThumbnails() { return thumbnails; }
     
-    /** Highlight the annotated image.*/
+    /**
+     * Adds to the set the {@link Thumbnail} associated to an
+     * {@link ImageNode}.
+     */
     public void visit(ImageNode node)
     {
         Thumbnail thumb = node.getThumbnail();

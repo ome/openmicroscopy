@@ -49,12 +49,12 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 
 /** 
- * 
+ * The <code>ADD</code> dialog widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,9 +71,16 @@ class AddWin
     extends ClassifierWin
 {
 
+    /** Text for the root node. */
     private static final String     ROOT = "Available categories";
+    
+    /** Text displayed in the title panel. */
     private static final String     PANEL_TITLE = "Add To Category";
+    
+    /** Text displayed in the text panel. */
     private static final String     PANEL_TEXT = "Select to classify.";
+    
+    /** Text displayed in the note panel. */
     private static final String     PANEL_NOTE = 
                                          "The image can be classified "+
                                          "under the following categories.";
@@ -81,30 +88,31 @@ class AddWin
     /** Root of the tree. */
     private DefaultMutableTreeNode  root;
     
+    /** The tree hosting the hierarchy. */
     private JTree                   tree;
     
-    
-    AddWin(Set availablePaths, JFrame owner)
-    {
-        super(availablePaths, owner);
-        initTree();
-        buildTreeNodes();
-        buildGUI();
-    }
+    /**
+     * Returns the title text. 
+     */
+    protected String getPanelTitle() { return PANEL_TITLE; }
 
-    /** Handle mouse click event. */
-    private void onClick(MouseEvent me)
-    {
-        int row = tree.getRowForLocation(me.getX(), me.getY());
-        if (row != -1) {
-            tree.setSelectionRow(row);
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                        tree.getLastSelectedPathComponent();
-            Object usrObj = node.getUserObject();
-            if (usrObj instanceof CategoryData) 
-                setSelectedCategory((CategoryData) usrObj);
-        }
-    }
+    /**
+     * Returns the panel text. 
+     */
+    protected String getPanelText() { return PANEL_TEXT; }
+    
+    /**
+     * Returns the note text. 
+     */
+    protected String getPanelNote() { return PANEL_NOTE; }
+
+    /**
+     * Adds the tree to a scrollPane.
+     * 
+     * @return The component hosting the tree.
+     */
+    protected JComponent getClassifPanel() { return new JScrollPane(tree); }
+    
 
     /** Initializes the JTree. */
     private void initTree()
@@ -157,18 +165,34 @@ class AddWin
         }
     }
     
-    protected String getPanelTitle() { return PANEL_TITLE; }
 
-    protected String getPanelText() { return PANEL_TEXT; }
+    /** Sets the selected category. */
+    private void onClick(MouseEvent me)
+    {
+        int row = tree.getRowForLocation(me.getX(), me.getY());
+        if (row != -1) {
+            tree.setSelectionRow(row);
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                        tree.getLastSelectedPathComponent();
+            Object usrObj = node.getUserObject();
+            if (usrObj instanceof CategoryData) 
+                setSelectedCategory((CategoryData) usrObj);
+        }
+    }
     
-    protected String getPanelNote() { return PANEL_NOTE; }
-
     /**
-     * Adds the tree to a scrollPane.
+     * Creates a new instance. 
      * 
-     * @return The component hosting the tree.
+     * @param availablePaths The paths to the images. Mustn't be 
+     * <code>null</code>.
+     * @param owner. The owner of the frame.
      */
-    protected JComponent getClassifPanel() { return new JScrollPane(tree); }
-
+    AddWin(Set availablePaths, JFrame owner)
+    {
+        super(availablePaths, owner);
+        initTree();
+        buildTreeNodes();
+        buildGUI();
+    }
     
 }

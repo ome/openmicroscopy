@@ -42,7 +42,8 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ProjectData;
+import pojos.ExperimenterData;
+import pojos.ProjectData;
 
 /** 
  * 
@@ -107,10 +108,11 @@ class ProjectOwnerPane
 		fieldNames = {" First Name", " Last Name", " E-mail", 
 						" Institution", " Group Name"};
 						
-		ProjectData pd = manager.getProjectData();				
-		private Object[] data = {pd.getOwnerFirstName(),
-								pd.getOwnerLastName(), pd.getOwnerEmail(),
-								pd.getOwnerInstitution(), pd.getOwnerGroupName()
+		ProjectData pd = manager.getProjectData();	
+        ExperimenterData owner = pd.getOwner();
+		private Object[] data = {owner.getFirstName(),
+                owner.getLastName(), owner.getEmail(),
+                owner.getInstitution(), owner.getGroupName()
 								};
 								
 		private OwnerTableModel() {}

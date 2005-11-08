@@ -41,8 +41,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifPathsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+
+import pojos.CategoryData;
 
 /** 
  * The concrete Model used by a {@link Classifier} component that was created
@@ -62,13 +63,6 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 class AddModel
     extends ClassifierModel
 {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param imageID The id of the Image the component will be working with.
-     */
-    AddModel(int imageID) { super(imageID); }
 
     /**
      * Returns the {@link Classifier#CLASSIFICATION_MODE} constant.
@@ -105,5 +99,12 @@ class AddModel
         ids.add(new Integer(imageID));
         hbw.classify(category, ids, new DSCallAdapter() {});
     }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param imageID The id of the Image the component will be working with.
+     */
+    AddModel(int imageID) { super(imageID); }
 
 }

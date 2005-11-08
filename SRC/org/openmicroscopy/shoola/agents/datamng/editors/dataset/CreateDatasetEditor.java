@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.dataset;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -77,7 +79,7 @@ public class CreateDatasetEditor
 	private CreateDatasetEditorManager     manager;
 	
 	public CreateDatasetEditor(DataManagerCtrl agentCtrl, DatasetData model,
-                            List projects)
+                            Set projects)
 	{
 		this.agentCtrl = agentCtrl;
 		manager = new CreateDatasetEditorManager(this, agentCtrl, model, 
@@ -154,7 +156,7 @@ public class CreateDatasetEditor
 	void resetSelectionImage() { imagesPane.setSelection(Boolean.FALSE); }
     
 	/** Forward event to the pane {@link CreateDatasetImagesPane}. */
-    void showImages(List images) { imagesPane.showImages(images); }
+    void showImages(Set images) { imagesPane.showImages(images); }
     
 	/** Build and lay out the GUI. */
 	private void buildGUI()

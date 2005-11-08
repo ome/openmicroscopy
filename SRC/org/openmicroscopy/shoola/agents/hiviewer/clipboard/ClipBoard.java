@@ -37,8 +37,9 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.ObservableComponent;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+import pojos.AnnotationData;
 
 /** 
  * 
@@ -67,12 +68,6 @@ public interface ClipBoard
     
     /** Flag to denote the <i>Discarded annotations</i> state. */
     public static final int     DISCARDED_ANNOTATIONS = 203;
-    
-    /** Flag to denote that the annotations returned are for a given dataset. */
-    public static final int     DATASET_ANNOTATION = 100;
-    
-    /** Flag to denote that the annotations returned are for a given image. */
-    public static final int     IMAGE_ANNOTATION = 101;
     
     /**
      * Any ongoing data loading is cancelled.
@@ -105,8 +100,9 @@ public interface ClipBoard
      * 
      * @param objectID The ID of the data object.
      * @param annotationIndex The annotation index,
-     * one of the following constant: {@link #DATASET_ANNOTATION}, 
-     * {@link #IMAGE_ANNOTATION}.
+     * one of the following constant:
+     * {@link AnnotationEditor#DATASET_ANNOTATION}, 
+     * {@link AnnotationEditor#IMAGE_ANNOTATION}.
      */
     public void retrieveAnnotations(int objectID, int annotationIndex);
 

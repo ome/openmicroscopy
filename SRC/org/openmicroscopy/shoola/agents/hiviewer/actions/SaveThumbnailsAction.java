@@ -38,15 +38,19 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.SaveThumbnailsCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.CategoryData;
+import pojos.DatasetData;
+
 /** 
- * 
+ * Saves the images displayed in an imageSet as a unique thumbnail.
+ * This action is enabled if the hierarchy object related to the imageSet is
+ * a category or a dataset.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,11 +67,35 @@ public class SaveThumbnailsAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Save thumbnails";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Save the thumbnails.";
     
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
+        else {
+            Object ho = selectedDisplay.getHierarchyObject();
+            if ((ho instanceof CategoryData) || (ho instanceof DatasetData))
+                setEnabled(true);
+            else setEnabled(false);
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public SaveThumbnailsAction(HiViewer model)
     {
         super(model);
@@ -78,23 +106,11 @@ public class SaveThumbnailsAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SAVE));
     }
 
-    /** Handle the action. */
+    /** Creates a {@link SaveThumbnailsCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
         SaveThumbnailsCmd cmd = new SaveThumbnailsCmd(model);
         cmd.execute();
-    }
-
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay.getParentDisplay() == null) 
-            setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            if ((ho instanceof CategoryData) || (ho instanceof DatasetSummary))
-                setEnabled(true);
-            else setEnabled(false);
-        }
     }
     
 }

@@ -41,7 +41,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.util.Set;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -59,7 +58,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
+
+import pojos.DataObject;
 
 /** 
  * 
@@ -93,8 +93,10 @@ class CBSearchTabView
     /** Identifies that the search is performed  in annotation and title. */
     private static final int    IN_T_AND_A = 2;
     
+    /** Indicates to retrieved all annotated {@link DataObject}s. */
     static final int            ALL_ANNOTATED = 3;
-    
+     
+    /** The number of search options. */
     private static final int    MAX = 3;
     
     private static String[] searchChoices;

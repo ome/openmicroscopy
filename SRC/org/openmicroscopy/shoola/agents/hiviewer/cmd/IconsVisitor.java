@@ -39,13 +39,13 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
- * 
+ * Visits the nodes to set the icon associated to the hierarchy object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,9 +73,9 @@ public class IconsVisitor
     {
         IconManager icons = IconManager.getInstance();
         Object ho = node.getHierarchyObject();
-        if (ho instanceof ProjectSummary)
+        if (ho instanceof ProjectData)
             node.setFrameIcon(icons.getIcon(IconManager.PROJECT));
-        else if (ho instanceof DatasetSummaryLinked)
+        else if (ho instanceof DatasetData)
             node.setFrameIcon(icons.getIcon(IconManager.DATASET));
         else if (ho instanceof CategoryGroupData)
             node.setFrameIcon(icons.getIcon(IconManager.CATEGORY_GROUP));

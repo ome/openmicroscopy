@@ -38,6 +38,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
@@ -46,7 +47,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Uses the treeLayout algorithm to layout the thumbnails.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,9 +64,26 @@ public class TreeLayoutAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Tree";
 
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public TreeLayoutAction(HiViewer model)
     {
         super(model);
@@ -79,16 +97,11 @@ public class TreeLayoutAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.TREE_LAYOUT));
     }
 
-    /** Handle the action. */
+    /** Creates a {@link LayoutCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
         LayoutCmd cmd = new LayoutCmd(model, LayoutFactory.TREE_LAYOUT);
         cmd.execute();
-    }
-
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay != null) setEnabled(true);
     }
 
 }

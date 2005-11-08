@@ -38,7 +38,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
  * Implements {@link Browser} to maintain presentation state, thus acting

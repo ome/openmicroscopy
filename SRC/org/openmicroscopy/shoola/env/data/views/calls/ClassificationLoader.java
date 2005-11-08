@@ -31,16 +31,13 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -76,59 +73,43 @@ public class ClassificationLoader
     
     /** Searches the CG/C/I hierarchy. */
     private BatchCall   loadCall;
-    
-    
-    /** 
-     * Utility method to create a list with one <code>Integer</code> element.
-     * 
-     * @param imgID The Image id to add.
-     * @return A list containing an <code>Integer</code> object to wrap
-     *         <code>imgID</code>.
-     */
-    private List prepareList(int imgID)
-    {
-        ImageSummary is = new ImageSummary();
-        is.setID(imgID);
-        ArrayList list = new ArrayList(1);
-        list.add(is);
-        return list;
-    }
-    
+     
     /**
-     * Creates a {@link BatchCall} to load all Category Group/Category paths
-     * that end with the specified Image.
+     * Checks if the index specified is supported.
      * 
-     * @param id The Image id.
-     * @return The {@link BatchCall}.
+     * @param i The passed index.
+     * @return <code>true</code> it the index is supported.
      */
-    private BatchCall makeClassificationIn(final int id)
+    private boolean checkAlgorithmIndex(int i)
     {
-        return new BatchCall("Loading classification tree for image: "+id) {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                List nodesIn = sts.retrieveCGCIHierarchy(prepareList(id), true);
-                rootNodes = new HashSet(nodesIn);
-            }
-        };
+        switch (i) {
+            case OmeroPojoService.CLASSIFICATION:
+            case OmeroPojoService.DECLASSIFICATION_ME:
+            case OmeroPojoService.DECLASSIFICATION_NME:    
+                return true;
+            default:
+                return false;
+        }
     }
     
     /**
      * Creates a {@link BatchCall} to load all Category Group/Category paths
      * that don't end with the specified Image.
      * 
-     * @param id The Image id.
+     * @param imageIDs The set of image ids.
+     * @param algorithm  One of the following constants:
+     *                  {@link OmeroPojoService#CLASSIFICATION},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeClassificationOut(final int id)
+    private BatchCall loadCGCPaths(final Set imageIDs, final int algorithm)
     {
-        return new BatchCall("Loading classification tree for image: "+id) {
+        return new BatchCall("Loading CGC paths. ") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                List nodesOut = sts.retrieveCGCIHierarchy(prepareList(id), 
-                                false);
-                rootNodes = new HashSet(nodesOut);
+                OmeroPojoService os = context.getOmeroService();
+                rootNodes = os.findCGCPaths(imageIDs, algorithm);
             }
         };
     }
@@ -152,16 +133,42 @@ public class ClassificationLoader
      * early and in the caller's thread.
      * 
      * @param imageID   The id of the Image.
-     * @param classified Whether to retrieve CG/C paths leading to the given
-     *                   Image (<code>true</code>) or not leading to the given
-     *                   Image (<code>false</code>).
+     * @param algorithm  One of the following constants:
+     *                  {@link OmeroPojoService#CLASSIFICATION},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
      */
-    public ClassificationLoader(int imageID, boolean classified)
+    public ClassificationLoader(int imageID, int algorithm)
     {
         if (imageID < 0) 
             throw new IllegalArgumentException("image ID not valid ");
-        if (classified) loadCall = makeClassificationIn(imageID);
-        else loadCall = makeClassificationOut(imageID);
+        if (!checkAlgorithmIndex(algorithm))
+            throw new IllegalArgumentException("Algorithm not supported.");
+        Set set = new HashSet(1);
+        set.add(new Integer(imageID));
+        loadCall  = loadCGCPaths(set, algorithm);
+    }
+    
+    /**
+     * Creates a new instance to find the Category Group/Category paths that 
+     * end or don't end with the specified Image.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param imageIDs   The collection of image's ids.
+     * @param algorithm  One of the following constants:
+     *                  {@link OmeroPojoService#CLASSIFICATION},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
+     */
+    public ClassificationLoader(Set imageIDs, int algorithm)
+    {
+        if (imageIDs == null || imageIDs.size() == 0) 
+            throw new IllegalArgumentException("The collection of ids" +
+                    "cannot be null or of size 0.");
+        if (!checkAlgorithmIndex(algorithm))
+            throw new IllegalArgumentException("Algorithm not supported.");
+        loadCall  = loadCGCPaths(imageIDs, algorithm);
     }
     
 }

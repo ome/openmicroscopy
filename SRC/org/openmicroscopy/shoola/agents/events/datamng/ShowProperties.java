@@ -37,44 +37,68 @@ import java.awt.Component;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DataObject;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
- * 
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
- * @since OME2.2
- */
+* 
+*
+* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+*               <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+* @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+*               <a href="mailto:a.falconi@dundee.ac.uk">
+*                   a.falconi@dundee.ac.uk</a>
+* @version 2.2
+* <small>
+* (<b>Internal version:</b> $Revision$ $Date$)
+* </small>
+* @since OME2.2
+*/
 public class ShowProperties
-    extends RequestEvent
+  extends RequestEvent
 {
-    
-    private Component   parent;
-    
-    private DataObject  userObject;
-    
-    public ShowProperties(DataObject userObject) 
-    {
-        this.userObject = userObject;
-        parent = null;
-    }
-    
-    public ShowProperties(DataObject userObject, Component parent) 
-    {
-        this.userObject = userObject;
-        this.parent = parent;
-    }
-    
-    public Component getParent() { return parent; }
-    
-    public DataObject getUserObject() { return userObject; }
-    
+  
+      private Component   parent;
+      
+      private pojos.DataObject  userObject;
+      
+      public ShowProperties(DataObject object) 
+      {
+          if (object instanceof ImageSummary) {
+              ImageSummary is = (ImageSummary) object;
+              ImageData data = new ImageData();
+              data.setId(is.getID());
+              data.setName(is.getName());
+              data.setCreated(is.getDate());
+              PixelsDescription pix = is.getDefaultPixels();
+              PixelsData pixData = new PixelsData();
+              pixData.setId(pix.getID());
+              pixData.setImageServerID(pix.getImageServerID());
+              pixData.setImageServerURL(pix.getImageServerUrl());
+              data.setDefaultPixels(pixData);
+              userObject = data;
+          } else
+              throw new IllegalArgumentException("Dataobject not valid.");
+          
+          parent = null;
+      }
+      public ShowProperties(pojos.DataObject userObject) 
+      {
+          this.userObject = userObject;
+          parent = null;
+      }
+      
+      public ShowProperties(pojos.DataObject userObject, Component parent) 
+      {
+          this.userObject = userObject;
+          this.parent = parent;
+      }
+      
+      public Component getParent() { return parent; }
+      
+      public pojos.DataObject getUserObject() { return userObject; }
+  
 }

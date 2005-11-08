@@ -36,9 +36,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -49,9 +51,9 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -117,10 +119,10 @@ class DatasetEditorManager
     
     DatasetData getDatasetData() { return model; }
     
-	List getImages()
+	Set getImages()
     { 
-        List l = getDatasetData().getImages();
-        if (l == null) l = new ArrayList();
+        Set l = getDatasetData().getImages();
+        if (l == null) l = new HashSet();
         return l;
     }
         
@@ -130,21 +132,21 @@ class DatasetEditorManager
 	
 	List getImagesToAddToRemove() { return imagesToAddToRemove; }
 
-    List getImagesDiff(Map filters, Map complexFilters)
+    Set getImagesDiff(Map filters, Map complexFilters)
     { 
         return agentCtrl.getImagesDiff(model, filters, complexFilters);
     }
     
-    List getUserDatasets() { return agentCtrl.getUserDatasets(); }
+    Set getUserDatasets() { return agentCtrl.getUserDatasets(); }
     
-    List getUsedDatasets() { return agentCtrl.getUsedDatasets(); }
+    Set getUsedDatasets() { return agentCtrl.getUsedDatasets(); }
     
-    List getImagesInUserGroupDiff(Map filters, Map complexFilters)
+    Set getImagesInUserGroupDiff(Map filters, Map complexFilters)
     {
         return agentCtrl.getImagesInUserGroupDiff(model, filters, complexFilters);
     }
     
-    List getImagesInSystemDiff(Map filters, Map complexFilters)
+    Set getImagesInSystemDiff(Map filters, Map complexFilters)
     {
         return agentCtrl.getImagesInSystemDiff(model, filters, complexFilters);
     }
@@ -210,9 +212,9 @@ class DatasetEditorManager
 	void addImagesSelection(List l)
 	{
 		Iterator i = l.iterator();
-		ImageSummary is;
+		ImageData is;
 		while (i.hasNext()) {
-			is = (ImageSummary) i.next();
+			is = (ImageData) i.next();
 			if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
 		}
 		view.rebuildComponent();
@@ -226,10 +228,9 @@ class DatasetEditorManager
 	 * 					false otherwise.
 	 * @param is		image summary to add or remove.
 	 */
-	void setToAddToRemove(boolean value, ImageSummary is) 
+	void setToAddToRemove(boolean value, ImageData is) 
 	{
-		if (value)
-				imagesToAddToRemove.add(is); 
+		if (value) imagesToAddToRemove.add(is); 
 		else {
 			if (imagesToAddToRemove.contains(is)) {
 				imagesToAddToRemove.remove(is);
@@ -245,10 +246,10 @@ class DatasetEditorManager
 	 * 					false otherwise.
 	 * @param is		image summary to add or remove.
 	 */
-	void selectImage(boolean value, ImageSummary is) 
+	void selectImage(boolean value, ImageData is) 
 	{
 		if (value) {
-			if(!imagesToRemove.contains(is)) imagesToRemove.add(is); 
+			if (!imagesToRemove.contains(is)) imagesToRemove.add(is); 
 		}
 		else 	imagesToRemove.remove(is);
 		view.getSaveButton().setEnabled(true);
@@ -280,10 +281,10 @@ class DatasetEditorManager
 	private void removeAdded()
 	{
 		Iterator i = imagesToAddToRemove.iterator();
-		ImageSummary is;
+		ImageData is;
 	
 		while (i.hasNext()) {
-			is = (ImageSummary) i.next();
+			is = (ImageData) i.next();
 			imagesToAdd.remove(is);
 			if (dialog != null) dialog.getManager().setSelected(true, is);
 		}

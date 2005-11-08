@@ -29,11 +29,12 @@
 
 package org.openmicroscopy.shoola.agents.datamng.editors.category;
 
+
+//Java imports
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Iterator;
-import java.util.List;
-
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -43,21 +44,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.rnd.RenderingAgtUIF;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellRenderer;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
+import pojos.CategoryGroupData;
 
 /** 
  * 
@@ -82,14 +80,16 @@ class CreateCategoryPane
 
     JComboBox                   groups;
     
-    CreateCategoryPane(List existingGroups, int selectedCategoryGroupID) 
+    private CategoryGroupData[] cgData;
+    
+    CreateCategoryPane(Set existingGroups, int selectedCategoryGroupID) 
     {
         initComponents(existingGroups, selectedCategoryGroupID);
         buildGUI();
     }
     
     /** Initializes the components. */
-    private void initComponents(List existingGroups, 
+    private void initComponents(Set existingGroups, 
                                 int selectedCategoryGroupID)
     {   
         //textfields
@@ -102,11 +102,13 @@ class CreateCategoryPane
         Iterator i = existingGroups.iterator();
         CategoryGroupData data;
         int selectedIndex = 0, j = 0;
+        cgData = new CategoryGroupData[existingGroups.size()];
         Object[] groupData = new Object[existingGroups.size()];
         while (i.hasNext()) {
             data = (CategoryGroupData) i.next();
-            groupData[j] = data;
-            if (data.getID() == selectedCategoryGroupID)
+            groupData[j] = data.getName();
+            cgData[j] = data;
+            if (data.getId() == selectedCategoryGroupID)
                 selectedIndex = j;
             j++;
         }
@@ -191,6 +193,15 @@ class CreateCategoryPane
                                 new TableComponentCellRenderer());
         table.setDefaultEditor(JComponent.class, 
                                 new TableComponentCellEditor());                         
+    }
+
+    /**
+     * @return
+     */
+    CategoryGroupData getSelectedCategoryGroup()
+    {
+        int index = groups.getSelectedIndex();
+        return cgData[index];
     }
     
 }

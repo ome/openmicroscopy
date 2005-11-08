@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.saver;
 
 
 
-
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -48,7 +46,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
 /** 
- * 
+ * The UI delegate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,28 +62,14 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 class ContainerSaverUI
 {
 
+    /** The title of the widget. */
     private static final String         TITLE = "Save the thumbnails";
     
+    /** The summary's text. */
     private static final String         SUMMARY = "";
     
-    private ContainerSaver  saver;
-    
-    private FileChooser     fileChooser;
-    
-    public ContainerSaverUI(ContainerSaver saver)
-    {
-        this.saver = saver;
-        initComponents();
-        buildGUI();
-    }
-    
-    private void initComponents()
-    {
-        fileChooser = new FileChooser(saver);
-    }
-
-    /** Build and lay out the GUI. */
-    private void buildGUI()
+    /** Builds and lays out the GUI. */
+    private void buildGUI(ContainerSaver saver)
     {
         Container c = saver.getContentPane();
         IconManager im = IconManager.getInstance();
@@ -93,7 +77,7 @@ class ContainerSaverUI
                                 im.getIcon(IconManager.SAVE_AS_BIG));  
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
-        c.add(fileChooser, BorderLayout.CENTER);
+        c.add(new FileChooser(saver), BorderLayout.CENTER);
         if (JDialog.isDefaultLookAndFeelDecorated()) {
             if (UIManager.getLookAndFeel().getSupportsWindowDecorations())
                 saver.getRootPane().setWindowDecorationStyle(
@@ -101,4 +85,14 @@ class ContainerSaverUI
         }
     }
     
+    /**
+     * Creates a new instance. 
+     * 
+     * @param saver The model. Mustn't be <code>null</code>.
+     */
+    ContainerSaverUI(ContainerSaver saver)
+    {
+        if (saver == null) throw new IllegalArgumentException("No model.");
+        buildGUI(saver);
+    }
 }

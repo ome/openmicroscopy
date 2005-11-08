@@ -42,13 +42,15 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up the property widget.
+ * This action is enabled on all display node, expected on the root node.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,11 +67,29 @@ public class PropertiesAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Properties";
     
-    private static final String DESCRIPTION = "Close the window.";
+    /** Description of the action. */
+    private static final String DESCRIPTION = "Display properties.";
 
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        setEnabled(!(selectedDisplay.getParentDisplay() == null));
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public PropertiesAction(HiViewer model)
     {
         super(model);
@@ -80,18 +100,11 @@ public class PropertiesAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.PROPERTIES));
     }
     
-    /** Handle the action. */
+    /** Creates a {@link PropertiesCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
        PropertiesCmd cmd = new PropertiesCmd(model);
        cmd.execute();
-    }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay.getParentDisplay() == null) 
-            setEnabled(false);
-        else setEnabled(true);
     }
 
 }

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.HashSet;
 
 //Third-party libraries
 
@@ -40,11 +41,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
+import pojos.AnnotationData;
+import pojos.DatasetData;
 
 /** 
- * 
+ * Visits the {@link ImageSet} and updates the annotation and tooltip if the 
+ * hierarchy object is a dataset.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,24 +64,31 @@ public class ImgSetAnnotationVisitor
 {
 
     /**
-     * @param model
-     * @param data
-     * @param hierarchyObjectID
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param data The annotation.
+     * @param hierarchyObjectID The id of the hierarchy object.
      */
     public ImgSetAnnotationVisitor(HiViewer model, AnnotationData data,
                                 int hierarchyObjectID)
     {
         super(model, data, hierarchyObjectID);
-        // TODO Auto-generated constructor stub
     }
 
+    /**
+     * Sets the annotation of the selected {@link ImageSet} and updates 
+     * the tooltip.
+     */
     public void visit(ImageSet node)
     {
         Object ho = node.getHierarchyObject();
-        if (ho instanceof DatasetSummary) {
-            DatasetSummary ds = (DatasetSummary) ho;
-            if (ds.getID() == hierarchyObjectID) {
-                ds.setAnnotation(data);     
+        if (ho instanceof DatasetData) {
+            DatasetData ds = (DatasetData) ho;
+            if (ds.getId() == hierarchyObjectID) {
+                HashSet set = new HashSet(1);
+                set.add(data);
+                ds.setAnnotations(set);     
                 HiTranslator.formatToolTipFor(node, data);
             }    
         }

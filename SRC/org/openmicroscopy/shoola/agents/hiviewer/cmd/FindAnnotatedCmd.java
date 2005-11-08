@@ -38,10 +38,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.hiviewer.search.SearchExplorer;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /** 
+ * Finds the annotated images or datasets in the selected {@link ImageSet}.
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,25 +60,23 @@ public class FindAnnotatedCmd
     implements ActionCmd
 {
     
-    private static final String     TITLE = "Annotated";
-    
     /** Reference to the model. */
     private HiViewer                model;
     
-    /** Creates a new instance.*/
+    /**
+     * Creates a new instance. 
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     public FindAnnotatedCmd(HiViewer model)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        //Clear fisrt.
-        //ClearCmd cmd = new ClearCmd(model);
-        //cmd.execute();
         FindAnnotatedVisitor visitor = new FindAnnotatedVisitor(model);
         Browser browser = model.getBrowser();
         ImageDisplay selectedDisplay = browser.getSelectedDisplay();
@@ -87,18 +86,8 @@ public class FindAnnotatedCmd
         else {
             if (!(selectedDisplay instanceof ImageNode))
                 selectedDisplay.accept(visitor);
-            /*
-            if (selectedDisplay instanceof ImageNode)
-                selectedDisplay.getParentDisplay().accept(visitor);
-            else selectedDisplay.accept(visitor);
-            */
         }
         model.getClipBoard().setSearchResults(visitor.getFoundNodes());
-        /*
-        SearchExplorer explorer = new SearchExplorer(model.getUI(), TITLE, 
-                visitor.getFoundNodes());
-        UIUtilities.centerAndShow(explorer);
-        */
     }
 
 }

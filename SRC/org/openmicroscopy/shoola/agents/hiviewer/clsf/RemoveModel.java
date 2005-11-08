@@ -41,8 +41,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DeclassifPathsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.CategoryData;
 
 /** 
  * The concrete Model used by a {@link Classifier} component that was created
@@ -62,13 +62,6 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 class RemoveModel
     extends ClassifierModel
 {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param imageID The id of the Image the component will be working with.
-     */
-    RemoveModel(int imageID) { super(imageID); }
 
     /**
      * Returns the {@link Classifier#DECLASSIFICATION_MODE} constant.
@@ -106,5 +99,12 @@ class RemoveModel
         ids.add(new Integer(imageID));
         hbw.declassify(category, ids, new DSCallAdapter() {});
     }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param imageID The id of the Image the component will be working with.
+     */
+    RemoveModel(int imageID) { super(imageID); }
 
 }

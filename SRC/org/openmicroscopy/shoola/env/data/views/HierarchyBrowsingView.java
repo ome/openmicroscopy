@@ -36,9 +36,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import pojos.AnnotationData;
+import pojos.CategoryData;
 
 /** 
  * Provides methods to support browsing of image hierarchies.
@@ -57,12 +58,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 public interface HierarchyBrowsingView
     extends DataServicesView
 {
-    
-    /** Identifies the annotation data retrieval. */
-    public static final int DATASET_ANNOTATION = 0;
-    
-    /** Identifies the image data retrieval. */
-    public static final int IMAGE_ANNOTATION = 1;
 
     /**
      * Loads a data hierarchy rooted by a given node.
@@ -70,19 +65,19 @@ public interface HierarchyBrowsingView
      * Category.  Image and Dataset items are retrieved with annotations.
      * The final <code>DSCallOutcomeEvent</code> will contain the requested node
      * as root and all of its descendants.</p>
-     * <p>A Project tree will be represented by <code>ProjectSummary, 
-     * DatasetSummaryLinked, and ImageSummary</code> objects.  A Dataset tree
+     * <p>A Project tree will be represented by <code>ProjectData, 
+     * DatasetData, and ImageData</code> objects. A Dataset tree
      * will only have objects of the latter two types.</p>
      * <p>A Category Group tree will be represented by <code>CategoryGroupData, 
-     * CategoryData</code>, and <code>ImageSummary</code> objects.  A Category 
+     * CategoryData</code>, and <code>ImageData</code> objects. A Category 
      * tree will only have objects of the latter two types.</p>
      * <p>So the object returned in the <code>DSCallOutcomeEvent</code> will be
-     * a <code>ProjectSummary, DatasetSummaryLinked, CategoryGroupData</code> or
+     * a <code>ProjectData, DatasetData, CategoryGroupData</code> or
      * <code>CategoryData</code> depending on whether you asked for a Project, 
      * Dataset, Category Group, or Category tree.</p>
      * 
-     * @param rootNodeType  The type of the root node.  Can only be one out of:
-     *                      <code>ProjectSummary, DatasetSummaryLinked, 
+     * @param rootNodeType  The type of the root node. Can only be one out of:
+     *                      <code>ProjectData, DatasetData, 
      *                      CategoryGroupData, CategoryData</code>.
      * @param nodeID        The id of the root node.
      * @param observer      Callback handler.
@@ -95,17 +90,17 @@ public interface HierarchyBrowsingView
      * Finds the data trees in the Project/Dataset/Image (P/D/I) hierarchy that 
      * contain the specified images. 
      * <p>This method will look for all the Datasets containing the specified 
-     * Images (represented by the passed in <code>ImageSummary</code>s) and then
-     * all Projects containing those Datasets.  Projects will be represented by
-     * <code>ProjectSummary</code>s and Datasets by <code>DatasetSummaryLinked
-     * </code> objects &#151; dataset annotations are retrieved too.</p>
+     * Images (represented by the passed in <code>ImageData</code>s) and then
+     * all Projects containing those Datasets. Projects will be represented by
+     * <code>ProjectData</code>s and Datasets by <code>DatasetData</code>
+     * objects &#151; dataset annotations are retrieved too.</p>
      * <p>The object returned in the <code>DSCallOutcomeEvent</code> will be a
-     * <code>Set</code> with all root nodes that were found.  Every root node
+     * <code>Set</code> with all root nodes that were found. Every root node
      * is linked to the found objects and so on until the leaf nodes, which are
-     * the <i>passed in</i> <code>ImageSummary</code>s.  Note that the type of
-     * any root node in the returned set can be <code>ProjectSummary</code>, 
-     * <code>DatasetSummaryLinked</code>, or <code>ImageSummary</code>.</p>
-     * <p>For example, say that you pass in six <code>ImageSummary</code>s:
+     * the <i>passed in</i> <code>ImageData</code>s. Note that the type of
+     * any root node in the returned set can be <code>ProjectData</code>, 
+     * <code>DatasetData</code>, or <code>ImageData</code>.</p>
+     * <p>For example, say that you pass in six <code>ImageData</code>s:
      * <code>i1, i2, i3, i4, i5, i6</code>.  If the P/D/I hierarchy in the DB
      * looks like this:</p>
      * <pre>        
@@ -128,12 +123,12 @@ public interface HierarchyBrowsingView
      * </code> Images, then <code>ds300</code> would <i>not</i> be part of the
      * returned tree rooted by <code>p1</code>.</p>
      * 
-     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
-     *                     for each leaf Image node.
+     * @param imgs Contains <code>ImageData</code> objects, onefor each leaf
+     *              Image node.
      * @param observer     Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findPDIHierarchies(Set imgSummaries,
+    public CallHandle findPDIHierarchies(Set imgs,
                                          AgentEventListener observer);
     
     /**
@@ -147,35 +142,34 @@ public interface HierarchyBrowsingView
      * <code>CategoryGroupData</code> object and a Category by a <code> 
      * CategoryData</code> object.)
      * 
-     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
+     * @param imgs Contains <code>ImageData</code> objects, one
      *                     for each leaf image node.
      * @param observer     Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findCGCIHierarchies(Set imgSummaries,
+    public CallHandle findCGCIHierarchies(Set imgs,
                                           AgentEventListener observer);
     
     /**
-     * Loads a thumbnail for each specified <code>ImageSummary</code> object.
+     * Loads a thumbnail for each specified <code>ImageData</code> object.
      * As thumbnails are retrieved from <i>OMEIS</i>, they're posted back to
      * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
      * Each thumbnail will be posted in a single event; the <code>observer
      * </code> can then call the <code>getPartialResult</code> method to 
-     * retrieve a <code>ThumbnailData</code> object for that thumbnail.  The 
+     * retrieve a <code>ThumbnailData</code> object for that thumbnail. The 
      * final <code>DSCallOutcomeEvent</code> will have no result.
      * Thumbnails are generated respecting the <code>X/Y</code> ratio of the
      * original image and so that their area doesn't exceed <code>maxWidth*
      * maxHeight</code>.
      * 
-     * @param imgSummaries Contains <code>ImageSummary</code> objects, one
+     * @param imgs Contains <code>ImageData</code> objects, one
      *                      for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadThumbnails(Set imgSummaries, 
-                                     int maxWidth, int maxHeight,
+    public CallHandle loadThumbnails(Set imgs, int maxWidth, int maxHeight,
                                      AgentEventListener observer);
     
     /**
@@ -210,13 +204,13 @@ public interface HierarchyBrowsingView
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
      * @param imageID   The id of the Image.
-     * @param classified Whether to retrieve CG/C paths leading to the given
-     *                   Image (<code>true</code>) or not leading to the given
-     *                   Image (<code>false</code>).
-     * @param observer  Callback handler.
+     * @param algorithm  One of the following constants:
+     *                  {@link OmeroPojoService#CLASSIFICATION},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadClassificationPaths(int imageID, boolean classified,
+    public CallHandle loadClassificationPaths(int imageID, int algorithm,
                                               AgentEventListener observer);
     
     /**
@@ -248,56 +242,54 @@ public interface HierarchyBrowsingView
     /**
      * Retrieves all the annotations linked to the specified node type.
      * 
-     * @param nodeTypeID One of the following constants:
-     *                  {@link #DATASET_ANNOTATION},
-     *                  {@link #IMAGE_ANNOTATION}.           
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>.       
      * @param nodeID The id of the node.
+     * @param history Pass <code>true</code> to retrieve all the annotations
+     * related to the specified rootNode even if they are no longer valid.
      * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadAnnotations(int nodeTypeID, int nodeID,
+    public CallHandle loadAnnotations(Class nodeType, int nodeID,
+                                        boolean history,
                                         AgentEventListener observer);
     
     /** 
      * Creates an annotation of the specified type for the specified node.
      * 
-     * @param nodeTypeID One of the following constants:
-     *                  {@link #DATASET_ANNOTATION},
-     *                  {@link #IMAGE_ANNOTATION}.   
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>.   
      * @param nodeID The id of the node.
      * @param txt The textual annotation.
      * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle createAnnotation(int nodeTypeID, int nodeID, String txt,  
+    public CallHandle createAnnotation(Class nodeType, int nodeID, String txt,  
                                         AgentEventListener observer);
     
     /**
      * Updates the specified annotation.
      * 
-     * @param nodeTypeID One of the following constants:
-     *                  {@link #DATASET_ANNOTATION},
-     *                  {@link #IMAGE_ANNOTATION}.   
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>.  
      * @param nodeID The id of the node.
      * @param data The Annotation object to update.
      * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle updateAnnotation(int nodeTypeID, int nodeID, 
+    public CallHandle updateAnnotation(Class nodeType, int nodeID, 
                              AnnotationData data, AgentEventListener observer);
-    
     
     /**
      * Deletes the specified annotation.
      * 
-     * @param nodeTypeID One of the following constants:
-     *                  {@link #DATASET_ANNOTATION},
-     *                  {@link #IMAGE_ANNOTATION}.   
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>. 
      * @param data The Annotation object to delete.
      * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle deleteAnnotation(int nodeTypeID, AnnotationData data,
+    public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
                                         AgentEventListener observer);
     
     
@@ -308,6 +300,5 @@ public interface HierarchyBrowsingView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadUserDetails(AgentEventListener observer);
-    
     
 }

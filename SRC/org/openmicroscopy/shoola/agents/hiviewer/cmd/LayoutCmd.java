@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * TODO: add comments.
+ * Lays out the {@link ImageDisplay} objects according to the specified index.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,16 +61,39 @@ public class LayoutCmd
     implements ActionCmd
 {
     
+    /** Reference to the model. */
     private HiViewer    model;
     
     /** One of the constants defined by the {@link LayoutFactory}. */
     private int         layoutIndex;
     
-    /** Creates a new instance.*/
+    /**
+     * Checks if the index of the layout is supported.
+     * 
+     * @param index The passed index.
+     * @return <code>true</code> if supported, <code>false</code> otherwise.
+     */
+    private boolean checkIndex(int index)
+    {
+        switch (index) {
+            case LayoutFactory.SQUARY_LAYOUT:
+            case LayoutFactory.TREE_LAYOUT:    
+                return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param layoutIndex The index of the layout.
+     */
     public LayoutCmd(HiViewer model, int layoutIndex)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
+        if (!checkIndex(layoutIndex))
+            throw new IllegalArgumentException("Index not supported.");
         this.model = model;
         this.layoutIndex = layoutIndex;
     }

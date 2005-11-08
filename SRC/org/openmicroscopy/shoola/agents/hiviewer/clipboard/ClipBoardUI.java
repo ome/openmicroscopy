@@ -41,7 +41,8 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
+
+import pojos.DataObject;
 
 /** 
  * 

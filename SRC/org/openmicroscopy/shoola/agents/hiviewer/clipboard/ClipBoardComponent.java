@@ -37,8 +37,8 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.AbstractComponent;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.AnnotationData;
 
 /** 
  * 

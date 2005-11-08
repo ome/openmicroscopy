@@ -60,19 +60,29 @@ class FindRegExVisitor
     extends HiViewerVisitor
 {
     
+    /** The set of found nodes. */
     protected Set       foundNodes;
     
     /** The pattern object created from the specified regular expression. */
     protected Pattern   pattern;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer Reference to the model. Mustn't be <code>null</code>.
+     * @param regEx The regular expression to retrieve.
+     * Mustn't be <code>null</code>.
+     */
     FindRegExVisitor(HiViewer viewer, String regEx)
     {
         super(viewer);
+        if (regEx == null)
+            throw new IllegalArgumentException("No regular expression.");
         pattern = RegExFactory.createCaseInsensitivePattern(regEx);
         foundNodes = new HashSet();
     }
     
-    /** Set containing the nodes found. */
+    /** Returns the nodes found. */
     public Set getFoundNodes() { return foundNodes; }
     
     /** Required by the I/F. */

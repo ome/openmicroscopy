@@ -40,19 +40,18 @@ import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 
 /** 
- * TODO: add comments
+ * Views the selected image or browses the selected container.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,22 +68,34 @@ public class ViewCmd
     implements ActionCmd
 {
     
+    /** Reference to the model. */
     private HiViewer    model;
+    
+    /** The hierarchy object hosting by the selected {@link ImageDisplay}. */
     private DataObject  hierarchyObject;
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param hierarchyObject The hierarchy object hosting by the selected
+     * {@link ImageDisplay}.
+     */
     public ViewCmd(DataObject hierarchyObject)
     {
         if (hierarchyObject == null)
-            throw new NullPointerException("No hierarchy object.");
+            throw new IllegalArgumentException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
     }
     
-    /** Creates a new instance.*/
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     public ViewCmd(HiViewer model)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
     }
     
@@ -97,23 +108,23 @@ public class ViewCmd
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;
-        if (hierarchyObject instanceof DatasetSummary)
+        if (hierarchyObject instanceof DatasetData)
             HiViewerAgent.browse(Browse.DATASET, 
-                    ((DatasetSummaryLinked) hierarchyObject).getID());
-        else if (hierarchyObject instanceof ProjectSummary)
+                    ((DatasetData) hierarchyObject).getId());
+        else if (hierarchyObject instanceof ProjectData)
             HiViewerAgent.browse(Browse.PROJECT, 
-                    ((ProjectSummary) hierarchyObject).getID());
+                    ((ProjectData) hierarchyObject).getId());
         else if (hierarchyObject instanceof CategoryGroupData)
             HiViewerAgent.browse(Browse.CATEGORY_GROUP, 
-                    ((CategoryGroupData) hierarchyObject).getID());
+                    ((CategoryGroupData) hierarchyObject).getId());
         else if (hierarchyObject instanceof CategoryData)
             HiViewerAgent.browse(Browse.CATEGORY, 
-                    ((CategoryData) hierarchyObject).getID());
-        else if (hierarchyObject instanceof ImageSummary) {
+                    ((CategoryData) hierarchyObject).getId());
+        else if (hierarchyObject instanceof ImageData) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-            ImageSummary is = (ImageSummary) hierarchyObject;
-            int[] pxSets = is.getPixelsIDs();
-            eventBus.post(new LoadImage(is.getID(), pxSets[0], is.getName()));   
+            ImageData is = (ImageData) hierarchyObject;
+            eventBus.post(new LoadImage(is.getId(), 
+                    is.getDefaultPixels().getId(), is.getName()));   
         }
     }
 

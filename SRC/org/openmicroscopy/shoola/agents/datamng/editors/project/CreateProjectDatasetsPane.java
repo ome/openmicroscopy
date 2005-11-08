@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
@@ -43,6 +44,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -51,11 +53,11 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
 
 /** 
  * 
@@ -180,6 +182,8 @@ class CreateProjectDatasetsPane
 				im.getIcon(IconManager.ORDER_BY_SELECTED_DOWN),
 				"Order by selected datasets.");
 		tc.setHeaderValue(txt);
+        table.setDefaultRenderer(DatasetData.class,
+                            new DatasetsTableRenderer());
 	}
 
 	/** 
@@ -199,7 +203,7 @@ class CreateProjectDatasetsPane
 		{
 			data = new Object[datasets.length][3];
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = (DatasetSummary) datasets[i];
+				data[i][0] = (DatasetData) datasets[i];
 				data[i][1] = Boolean.FALSE;
 			}
 		}
@@ -222,10 +226,25 @@ class CreateProjectDatasetsPane
 		public void setValueAt(Object value, int row, int col)
 		{
 			data[row][col] = value;
-			DatasetSummary ds = (DatasetSummary) sorter.getValueAt(row, NAME);
+			DatasetData ds = (DatasetData) sorter.getValueAt(row, NAME);
 			fireTableCellUpdated(row, col);
 			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
 	}
+    
+    private class DatasetsTableRenderer
+        extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column)
+        {
+            super.getTableCellRendererComponent(table, value, isSelected,
+                            hasFocus, row, column);
+            if (value instanceof DatasetData)
+                setText(((DatasetData) value).getName());
+            return this;
+        }
+    }
 	
 }

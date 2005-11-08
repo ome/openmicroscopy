@@ -42,7 +42,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerFactory;
 
 /** 
- * TODO: add comments
+ * Views the selected images in the specified hierarchy type
+ * i.e. Project-Dataset or CategoryGroup-Category.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,11 +72,33 @@ public class ViewHierarchyCmd
     /** One of the constants defined above. */
     private int         index;
     
-    /** Creates a new instance.*/
+    /**
+     * Checks if the passed index is supported.
+     * 
+     * @param i The passed index.
+     * @return <code>true</code> if the index is supported.
+     */
+    private boolean checkIndex(int i)
+    {
+        switch (i) {
+            case IN_CGCI:
+            case IN_PDI:    
+                return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param index The index. One of the constant defined by this class.
+     */
     public ViewHierarchyCmd(HiViewer model, int index)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model.");
+        if (!checkIndex(index))
+            throw new IllegalArgumentException("Index not supported.");
         this.model = model;
         this.index = index;
     }

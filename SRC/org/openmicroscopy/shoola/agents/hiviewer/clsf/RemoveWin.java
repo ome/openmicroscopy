@@ -36,7 +36,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -49,11 +48,11 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 
 /** 
  * Builds a Panel displaying the CategoryGroup>Category in which the 
@@ -74,45 +73,22 @@ class RemoveWin
     extends ClassifierWin
 {
 
+    /** Text displayed in the title panel. */
     private static final String     PANEL_TITLE = "Remove From Category";
+    
+    /** Text displayed in the text panel. */
     private static final String     PANEL_TEXT = "Deselect to declassify.";
+    
+    /** Text displayed in the note panel. */
     private static final String     PANEL_NOTE = 
                                          "The image is currently classified "+
                                          "under the following categories.";
+    
+    /** Message displayed if the image is unclassified. */
     private static final String     UNCLASSIFIED_TEXT = "The selected image " +
                                             "hasn't been classified";
-    
-    
-    RemoveWin(Set availablePaths, JFrame owner)
-    {
-        super(availablePaths, owner);
-        buildGUI();
-    }
 
-    protected String getPanelTitle() { return PANEL_TITLE; }
 
-    protected String getPanelText() { return PANEL_TEXT; }
-    
-    protected String getPanelNote() { return PANEL_NOTE; }
-    
-    /** Builds the main panel displayed in ClassifierWin. */
-    protected JComponent getClassifPanel()
-    {
-        JPanel main = new JPanel();
-        main.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagLayout gridbag = new GridBagLayout();
-        main.setLayout(gridbag);
-        GridBagConstraints cst = new GridBagConstraints();
-        cst.ipadx = ClassifierWin.H_SPACE;
-        cst.anchor = GridBagConstraints.EAST;
-        Iterator i = availablePaths.iterator();
-        int index = 0;
-        while (i.hasNext()) {
-            addRow(gridbag, cst, main, index, (DataObject) i.next());
-            index++;
-        } 
-        return new JScrollPane(UIUtilities.buildComponentPanel(main));
-    }
     
     /** Add a row to the the GridBagLayout. */
     private void addRow(GridBagLayout gridbag, GridBagConstraints c, 
@@ -129,9 +105,9 @@ class RemoveWin
         if (data instanceof CategoryGroupData) {
             CategoryGroupData cg = (CategoryGroupData) data;
             name += cg.getName()+">";
-            List l = cg.getCategories();
-            if (l.size() == 1) {
-                final CategoryData category = (CategoryData) l.get(0);
+            Set set = cg.getCategories();
+            if (set.size() == 1) {
+                final CategoryData category = (CategoryData) (set.toArray()[0]);
                 name += category.getName();
                 box.addItemListener(new ItemListener() {
                     public void itemStateChanged(ItemEvent e)
@@ -161,5 +137,44 @@ class RemoveWin
         gridbag.setConstraints(label, c);
         main.add(label);
     }
+    
+    protected String getPanelTitle() { return PANEL_TITLE; }
 
+    protected String getPanelText() { return PANEL_TEXT; }
+    
+    protected String getPanelNote() { return PANEL_NOTE; }
+    
+    /** Builds the main panel displayed in ClassifierWin. */
+    protected JComponent getClassifPanel()
+    {
+        JPanel main = new JPanel();
+        main.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagLayout gridbag = new GridBagLayout();
+        main.setLayout(gridbag);
+        GridBagConstraints cst = new GridBagConstraints();
+        cst.ipadx = ClassifierWin.H_SPACE;
+        cst.anchor = GridBagConstraints.EAST;
+        Iterator i = availablePaths.iterator();
+        int index = 0;
+        while (i.hasNext()) {
+            addRow(gridbag, cst, main, index, (DataObject) i.next());
+            index++;
+        } 
+        return new JScrollPane(UIUtilities.buildComponentPanel(main));
+    }
+
+
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param availablePaths Teh available paths to the images.
+     * Mustn't be <code>null</code>.
+     * @param owner The owner of this frame.
+     */
+    RemoveWin(Set availablePaths, JFrame owner)
+    {
+        super(availablePaths, owner);
+        buildGUI();
+    }
 }

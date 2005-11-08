@@ -33,7 +33,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
-import java.util.List;
+import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -58,6 +59,8 @@ import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * 
@@ -163,7 +166,7 @@ class CategoryImagesDiffPane
     }
     
     /** Display the specified list of images. */
-    void showImages(List images)
+    void showImages(Set images)
     {
         contents.removeAll();
         JPanel p = new JPanel();
@@ -249,7 +252,7 @@ class CategoryImagesDiffPane
     }
 	
 	/** Build panel with table. */
-	JPanel buildImagesPanel(List images)
+	JPanel buildImagesPanel(Set images)
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -306,12 +309,12 @@ class CategoryImagesDiffPane
 		private Object[]          images;
 		private Object[][]        data;
 		
-		private ImagesTableModel(List imagesDiff)
+		private ImagesTableModel(Set imagesDiff)
 		{
             images = imagesDiff.toArray();
             data = new Object[images.length][2];
 			for (int i = 0; i < images.length; i++) {
-				data[i][0] = (ImageSummary) images[i];
+				data[i][0] = (ImageData) images[i];
 				data[i][1] = Boolean.FALSE;
 			}
 		}
@@ -335,7 +338,7 @@ class CategoryImagesDiffPane
 		{
 			data[row][col] = value;
 			fireTableCellUpdated(row, col);
-			ImageSummary is = (ImageSummary) sorter.getValueAt(row, NAME);
+			ImageData is = (ImageData) sorter.getValueAt(row, NAME);
 			manager.addImage(((Boolean) value).booleanValue(), is);
 		}
 	}

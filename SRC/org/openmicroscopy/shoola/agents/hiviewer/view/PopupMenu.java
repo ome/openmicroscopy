@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 //Java imports
 import java.awt.event.KeyEvent;
-
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -41,11 +40,10 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
  * Pop-up menu for nodes in the browser display.
@@ -147,10 +145,12 @@ class PopupMenu
     /** 
      * Creates a new instance.
      *
-     * @param controller The Controller.
+     * @param controller The Controller. Mustn't be <code>null</code>.
      */
     PopupMenu(HiViewerControl controller) 
     {
+        if (controller == null) 
+            throw new IllegalArgumentException("No control.");
         createMenuItems(controller);
         buildGUI() ;
     }

@@ -33,11 +33,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 //Java imports
 import java.util.Set;
 
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.CategoryData;
 
 /** 
  * Defines the interface provided by the classifier component.

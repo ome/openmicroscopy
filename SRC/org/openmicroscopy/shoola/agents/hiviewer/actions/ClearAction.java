@@ -38,13 +38,15 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Clears the results of a previous search.
+ * This action is enabled on all nodes excepted on the root node.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,11 +63,29 @@ public class ClearAction
     extends HiViewerAction
 {
     
+    /** Name of the action. */
     private static final String NAME = "Clear";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Clear previous search.";
 
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay != null) setEnabled(true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public ClearAction(HiViewer model)
     {
         super(model);
@@ -76,16 +96,11 @@ public class ClearAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLEAR));
     }
     
-    /** Handle the action. */
+    /** Creates a {@link ClearCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
        ClearCmd cmd = new ClearCmd(model);
        cmd.execute();
-    }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay != null) setEnabled(true);
     }
 
 }

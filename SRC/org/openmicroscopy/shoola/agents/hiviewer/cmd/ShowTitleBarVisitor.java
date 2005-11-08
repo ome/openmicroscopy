@@ -67,7 +67,7 @@ class ShowTitleBarVisitor
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model.  Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param show  Tells whether to show (<code>true</code>) or hide 
      *              (<code>false</code>).
      */

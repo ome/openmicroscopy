@@ -38,6 +38,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
@@ -54,10 +55,10 @@ import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
 import org.openmicroscopy.shoola.agents.datamng.util.Filter;
 import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.CategoryGroupData;
+import pojos.ImageData;
 
 
 /** 
@@ -161,7 +162,7 @@ class CreateCategoryEditorMng
      *                  false otherwise.
      * @param ds        dataset summary to add or remove.
      */
-    void addImage(boolean value, ImageSummary is) 
+    void addImage(boolean value, ImageData is) 
     {
         if (value) {
             if (!imagesToAdd.contains(is)) imagesToAdd.add(is);
@@ -190,8 +191,7 @@ class CreateCategoryEditorMng
     {
         String name = view.getCategoryName().getText();
         String description = view.getCategoryDescription().getText();
-        CategoryGroupData 
-        group = (CategoryGroupData) view.getExistingGroups().getSelectedItem();
+        CategoryGroupData group = view.getSelectedCategoryGroup();
         //check if name is ""
         agentCtrl.createNewCategory(group, name, description, imagesToAdd);
     }
@@ -223,7 +223,7 @@ class CreateCategoryEditorMng
         if (selectedIndex == CategoryImagesDiffPane.IMAGES_USED) {
             selectionIndex = selectedIndex;
             //retrieve the user's datasets.
-            List d = agentCtrl.getUsedDatasets();
+            Set d = agentCtrl.getUsedDatasets();
             if (d != null && d.size() > 0) 
                 UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this,
                         d));
@@ -237,12 +237,11 @@ class CreateCategoryEditorMng
     /** Show the existing images. */
     private void showImages()
     {
-        CategoryGroupData 
-        group = (CategoryGroupData) view.getExistingGroups().getSelectedItem();
+        CategoryGroupData group = view.getSelectedCategoryGroup();
         int selectedIndex = view.getImagesSelection().getSelectedIndex();
         if (selectedIndex != selectionIndex || !loaded) {
             selectionIndex = selectedIndex;
-            List images = null;
+            Set images = null;
             switch (selectedIndex) {
                 case CreateCategoryImagesPane.IMAGES_IMPORTED:
                     images = agentCtrl.getImagesNotInCategoryGroup(group, 
@@ -266,7 +265,7 @@ class CreateCategoryEditorMng
     }
     
     /** Display the images. */
-    private void displayListImages(List images)
+    private void displayListImages(Set images)
     {
         if (images == null || images.size() == 0) {
             UserNotifier un = agentCtrl.getRegistry().getUserNotifier();

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
-import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -39,8 +38,9 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ProjectData;
 
 /** 
  * Loads a Project/Dataset/Image hierarchy rooted by a given Project.
@@ -88,7 +88,7 @@ public class ProjectLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(ProjectSummary.class, projectID, this);
+        handle = hiBrwView.loadHierarchy(ProjectData.class, projectID, this);
     }
     
     /** Cancels the data loading. */
@@ -111,9 +111,7 @@ public class ProjectLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        Set roots = new HashSet();
-        roots.add(result);
-        viewer.setHierarchyRoots(roots);
+        viewer.setHierarchyRoots((Set) result);
     }
     
 }

@@ -31,15 +31,18 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -59,42 +62,53 @@ public class AnnotationLoader
     extends BatchCallTree
 {
     
-    /** The set of retrieve annotations. */
+    /** The set of retrieved annotations. */
     private Map         annotations;
     
     /** Loads the specified annotations. */
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the dataset's annotation.
+     * Creates {@link BatchCall} if the type is supported.
      * 
-     * @param id The id of the dataset. 
-     * @return The {@link BatchCall}.
+     * @param nodeType The type of the node. Can only be one out of:
+     *                 {@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  Collection of node's ids.
      */
-    private BatchCall makeDatasetBatchCall(final int id)
+    private void validate(Class nodeType, Set nodeIDs, boolean history)
     {
-        return new BatchCall("Loading dataset annotation: "+id) {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                annotations = sts.getDatasetAnnotations(id);
-            }
-        };
+        if (nodeType == null) 
+            throw new IllegalArgumentException("No node type.");
+        if (nodeIDs == null && nodeIDs.size() == 0)
+            throw new IllegalArgumentException("No root node ids.");
+        try {
+            nodeIDs.toArray(new Integer[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException(
+                    "nodeIDs can only contain Integer.");
+        }  
+        if (nodeType.equals(DatasetData.class) ||
+            nodeType.equals(ImageData.class))
+            loadCall = makeAnnotationBatchCall(nodeType, nodeIDs, history);
     }
     
     /**
-     * Creates a {@link BatchCall} to retrieve the image's annotation.
+     * Creates a {@link BatchCall} to retrieve the annotation, either 
+     * datasetAnnoation or imageAnnotation.
      * 
-     * @param id The id of the image. 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                 {@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  Collection of node's ids.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeImageBatchCall(final int id)
+    private BatchCall makeAnnotationBatchCall(final Class nodeType,
+                                  final Set nodeIDs, final boolean history)
     {
-        return new BatchCall("Loading image annotation: "+id) {
+        return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                annotations = sts.getImageAnnotations(id);
+                OmeroPojoService os = context.getOmeroService();
+                annotations = os.findAnnotations(nodeType, nodeIDs, history);
             }
         };
     }
@@ -119,19 +133,35 @@ public class AnnotationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param nodeTypeID The id of the node type. One of the following constant:
-     *                  {@link HierarchyBrowsingView#DATASET_ANNOTATION}
-     *                  or {@link HierarchyBrowsingView#IMAGE_ANNOTATION}
-     * @param nodeID        The id of the root node.
+     * @param nodeType The type of the node. Can only be one out of:
+     *                 {@link DatasetData}, {@link ImageData}.
+     * @param nodeID  The id of the node.
+     * @param history Pass <code>true</code> to retrieve all the annotations
+     * related to the specified rootNode even if they are no longer valid.
      */
-    public AnnotationLoader(int nodeTypeID, int nodeID)
+    public AnnotationLoader(Class nodeType, int nodeID, boolean history)
     {
-        if (nodeTypeID == HierarchyBrowsingView.DATASET_ANNOTATION) 
-            loadCall = makeDatasetBatchCall(nodeID);
-        else if (nodeTypeID == HierarchyBrowsingView.IMAGE_ANNOTATION) 
-            loadCall = makeImageBatchCall(nodeID);
-        else throw new IllegalArgumentException("Unsupported type: "+
-                                                nodeTypeID);
+        HashSet set = new HashSet(1);
+        set.add(new Integer(nodeID));
+        validate(nodeType, set, history);
+    }
+    
+    /**
+     * Creates a new instance to load the annotations related to the specified
+     * node. We retrieve either DatasetAnnotation or ImageAnnotaion according
+     * to the specified class.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                 {@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  Collection of node's ids.
+     * @param history Pass <code>true</code> to retrieve all the annotations
+     * related to the specified rootNode even if they are no longer valid.
+     */
+    public AnnotationLoader(Class nodeType, Set nodeIDs, boolean history)
+    {
+        validate(nodeType, nodeIDs, history);
     }
     
 }

@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.sql.Date;
 
 import javax.swing.JComponent;
@@ -44,6 +45,7 @@ import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -56,6 +58,8 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
+
+import pojos.ImageData;
 
 /** 
  * 
@@ -184,6 +188,7 @@ class ImagesSplitPane
                 im.getIcon(IconManager.ORDER_BY_DATE_UP), 
                 im.getIcon(IconManager.ORDER_BY_DATE_DOWN), "Order by date");
         tc.setHeaderValue(header);
+        table.setDefaultRenderer(ImageData.class, new ImagesTableRenderer());
     }
     
     /** 
@@ -202,11 +207,11 @@ class ImagesSplitPane
         {
             this.images = images;
             data = new Object[images.length][2]; 
-            ImageSummary is;
+            ImageData is;
             for (int i = 0; i < images.length; i++) {
-                is = (ImageSummary) images[i];
+                is = (ImageData) images[i];
                 data[i][ImagesPane.NAME] = is;
-                data[i][ImagesPane.DATE] = new Date(is.getDate().getTime()); 
+                data[i][ImagesPane.DATE] = new Date(is.getInserted().getTime()); 
             }
         }
 
@@ -229,19 +234,34 @@ class ImagesSplitPane
         public void setValueAt(Object value, int row, int col)
         {
             if (col == ImagesPane.NAME) {
-                ImageSummary is = (ImageSummary) sorter.getValueAt(row, col);
-                is.setName(((ImageSummary) value).getName());
+                ImageData is = (ImageData) sorter.getValueAt(row, col);
+                is.setName(((ImageData) value).getName());
                 view.updateImage(is);
             }
         } 
         
         /** invoke when the view is updated. */
-        public void setValueAt(ImageSummary is, int row)
+        public void setValueAt(ImageData is, int row)
         {
-            ImageSummary summary = (ImageSummary) sorter.getValueAt(row, 
+            ImageData summary = (ImageData) sorter.getValueAt(row, 
                     ImagesPane.NAME);
             summary.setName(is.getName());
         } 
+    }
+    
+    final class ImagesTableRenderer
+        extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column)
+        {
+            super.getTableCellRendererComponent(table, value, isSelected,
+                            hasFocus, row, column);
+            if (value instanceof ImageData)
+                setText(((ImageData) value).getName());
+            return this;
+        }
     }
     
 }

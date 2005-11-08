@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 /** 
  * Command to classify or declassify Images.
  * This command can be created to either add Images to a given Category or
- * remove them.  The object returned in the <code>DSCallOutcomeEvent</code>
+ * remove them. The object returned in the <code>DSCallOutcomeEvent</code>
  * will be <code>null</code>, as the type of the underlying calls is
  * <code>void</code>.
  *
@@ -73,6 +73,12 @@ public class ClassificationSaver
     /** Classify/declassify call. */
     private BatchCall       saveCall;
     
+    //Tempo method: To remove when we use OMERO to write 
+    private CategoryData transformPojoCategoryData(pojos.CategoryData data)
+    {
+        return new CategoryData(data.getId(), data.getName(),
+                                data.getDescription());
+    }
     
     /**
      * Creates a {@link BatchCall} to add the specified Images to the
@@ -133,7 +139,7 @@ public class ClassificationSaver
      *                 <code>category</code> or <code>false</code> to remove
      *                 them from <code>category</code>.
      */
-    public ClassificationSaver(CategoryData category, Set imgIDs, 
+    public ClassificationSaver(pojos.CategoryData category, Set imgIDs, 
                                boolean classify)
     {
         if (category == null) 
@@ -146,7 +152,7 @@ public class ClassificationSaver
             throw new IllegalArgumentException(
                     "imgIDs can only contain Integer objects.");
         }
-        this.category = category;
+        this.category = transformPojoCategoryData(category);
         this.imgIDs = imgIDs;
         if (classify) saveCall = classify();
         else saveCall = declassify();

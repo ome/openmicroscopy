@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * 
+ * Magnifies the selected {@link ImageDisplay} object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,29 +58,30 @@ public class ZoomCmd
     implements ActionCmd
 {
 
+    /** Identifies the <i>Zoom in</i> action. */
     public static final int     ZOOM_IN = 0;
     
+    /** Identifies the <i>Zoom out</i> action. */
     public static final int     ZOOM_OUT = 1;
     
+    /** Identifies the <i>Zoom fit</i> action. */
     public static final int     ZOOM_FIT = 2;
     
+    /** The value by the magnification factor is incremented. */
     private static final double INCREMENT = 0.25;
     
+    /** Reference to the model. */
     private HiViewer    model;
     
+    /** One of the indexes defined by this class. */
     private static int  index;
     
-    public ZoomCmd(HiViewer model, int i)
-    {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
-        this.model = model;
-        if (!checkIndex(i))
-            throw new IllegalArgumentException("index not valid");
-        index = i;
-    }
-    
-    /** Check if the Zoom index is valid. */
+    /**
+     * Checks if the index is supported.
+     * 
+     * @param index The passed index.
+     * @return <code>true</code> if supported.
+     */
     private boolean checkIndex(int index)
     {
         switch (index) {
@@ -93,7 +94,29 @@ public class ZoomCmd
         }
     }
     
-    /** Calculate the zoomFactor according to the index. */
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param i The zoom index. One of the indexes defined by this class.
+     */
+    public ZoomCmd(HiViewer model, int i)
+    {
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
+        if (!checkIndex(i))
+            throw new IllegalArgumentException("Index not valid.");
+        this.model = model;
+        index = i;
+    }
+
+    
+    /**
+     * Updates the passed magnification factor according to the index. 
+     * 
+     * @param currentScale. The current magnification factor.
+     * @return The updated magnification factor.
+     */
     static double calculateFactor(double currentScale)
     {
         double factor = currentScale;

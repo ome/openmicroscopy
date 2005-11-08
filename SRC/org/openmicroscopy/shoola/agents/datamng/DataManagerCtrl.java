@@ -35,8 +35,10 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 
@@ -57,13 +59,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageData;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -149,19 +147,19 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
-	public List getDatasetsDiff(ProjectData data)
+	public Set getDatasetsDiff(pojos.ProjectData data)
 	{
 		return abstraction.getDatasetsDiff(data);
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
-	public List getImagesDiff(DatasetData data, Map filters, Map complexFilters)
+	public Set getImagesDiff(pojos.DatasetData data, Map filters, Map complexFilters)
 	{
 		return abstraction.getImagesDiff(data, filters, complexFilters);
 	}
 	
     /** Forward event to the {@link DataManager abstraction}. */
-    public List getImagesInUserDatasetsDiff(DatasetData data, List datasets, 
+    public Set getImagesInUserDatasetsDiff(pojos.DatasetData data, List datasets, 
                 Map filters, Map complexFilters)
     {
         return abstraction.getImagesInUserDatasetsDiff(data, datasets, 
@@ -169,7 +167,7 @@ public class DataManagerCtrl
     }
     
     /** Forward event to the {@link DataManager abstraction}. */
-    public List getImagesInUserGroupDiff(DatasetData data, Map filters, 
+    public Set getImagesInUserGroupDiff(pojos.DatasetData data, Map filters, 
                                         Map complexFilters)
     {
         return abstraction.getImagesInUserGroupDiff(data, filters, 
@@ -177,7 +175,7 @@ public class DataManagerCtrl
     }
     
     /** Forward event to the {@link DataManager abstraction}. */
-    public List getImagesInSystemDiff(DatasetData data, Map filters, 
+    public Set getImagesInSystemDiff(pojos.DatasetData data, Map filters, 
                                         Map complexFilters)
     {
         return abstraction.getImagesInSystemDiff(data, filters, complexFilters);
@@ -196,28 +194,28 @@ public class DataManagerCtrl
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
-	public void updateProject(ProjectData pd, List toRemove, List toAdd,
+	public void updateProject(pojos.ProjectData pd, List toRemove, List toAdd,
 							 boolean nameChange)
 	{
 		abstraction.updateProject(pd, toRemove, toAdd, nameChange);
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
-	public void updateDataset(DatasetData dd, List toRemove, List toAdd, 
+	public void updateDataset(pojos.DatasetData dd, List toRemove, List toAdd, 
 								boolean nameChange)
 	{
 		abstraction.updateDataset(dd, toRemove, toAdd, nameChange);
 	}
 	
 	/** Forward event to the {@link DataManager abstraction}. */
-	public void updateImage(ImageData id, boolean nameChange)
+	public void updateImage(pojos.ImageData image, boolean nameChange)
 	{
-		abstraction.updateImage(id, nameChange);
+		abstraction.updateImage(image, nameChange);
 	}
     
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getImportedImages(Map filters, Map complexFilters)
+    public Set getImportedImages(Map filters, Map complexFilters)
     { 
         try {
             return abstraction.getImportedImages(filters, complexFilters);
@@ -227,11 +225,11 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);
         }
-        return new ArrayList();
+        return new HashSet();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getImagesInDatasets(List datasets, Map filters, 
+    public Set getImagesInDatasets(List datasets, Map filters, 
                                     Map complexFilters)
     { 
         try {
@@ -243,7 +241,7 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);
         }
-        return new ArrayList();
+        return new HashSet();
     }
     
     /** 
@@ -252,28 +250,29 @@ public class DataManagerCtrl
      * @param datasets
      * @param mng
      */
-    public List loadImagesInDatasets(List datasets, int index, DataObject data, 
+    public Set loadImagesInDatasets(List datasets, int index,
+                                    pojos.DataObject data, 
             Map filters, Map complexFilters)
     {
         if (datasets == null || datasets.size() == 0) return null;
-        List images = null;
+        Set images = null;
         switch(index) {
             case FOR_HIERARCHY:
-                if (data != null && data instanceof DatasetData)
-                    images = getImagesInUserDatasetsDiff((DatasetData) data, 
+                if (data != null && data instanceof pojos.DatasetData)
+                    images = getImagesInUserDatasetsDiff((pojos.DatasetData) data, 
                             datasets, filters, complexFilters);
                 else 
                     images = getImagesInDatasets(datasets, filters, 
                                                     complexFilters); 
                 break;
             case FOR_CLASSIFICATION:
-                if (data != null && data instanceof CategoryData)
+                if (data != null && data instanceof pojos.CategoryData)
                     images =  getImagesDiffInUserDatasetsNotInCategoryGroup(
-                                (CategoryData) data, datasets, filters, 
+                                (pojos.CategoryData) data, datasets, filters, 
                                 complexFilters);
-                else if (data != null && data instanceof CategoryGroupData)
+                else if (data != null && data instanceof pojos.CategoryGroupData)
                     images =  getImagesInUserDatasetsNotInCategoryGroup(
-                            (CategoryGroupData) data, datasets, filters, 
+                            (pojos.CategoryGroupData) data, datasets, filters, 
                             complexFilters);
                 break;
         }
@@ -281,8 +280,9 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getGroupImages(Map filters, Map complexFilters)
+    public Set getGroupImages(Map filters, Map complexFilters)
     { 
+
         try {
             return abstraction.getGroupImages(filters, complexFilters);
         } catch(DSAccessException dsae) {
@@ -291,11 +291,11 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);
         }
-        return new ArrayList();
+        return new HashSet();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getSystemImages(Map filters, Map complexFilters)
+    public Set getSystemImages(Map filters, Map complexFilters)
     { 
         try {
             return abstraction.getSystemImages(filters, complexFilters);
@@ -305,11 +305,11 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);
         }
-        return new ArrayList();
+        return new HashSet();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getImages(int datasetID)
+    public Set getImages(int datasetID)
     {
         try {
             return abstraction.getImages(datasetID);
@@ -320,22 +320,17 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);
         }
-        return new ArrayList();
+        return new HashSet();
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public void viewImage(DataObject data)
+    public void viewImage(pojos.DataObject data)
     {
-        if (data instanceof ImageSummary) {
-            ImageSummary is = (ImageSummary) data;
-            int[] pxSets = is.getPixelsIDs();
+        if (data instanceof pojos.ImageData) {
+            pojos.ImageData idata = (pojos.ImageData) data;
             //TODO: select pixels if more than one!
-            abstraction.viewImage(is.getID(), pxSets[0], is.getName());
-        } else if (data instanceof ImageData) {
-            ImageData idata = (ImageData) data;
-            int[] pxSets = idata.getPixelsIDs();
-            //TODO: select pixels if more than one!
-            abstraction.viewImage(idata.getID(), pxSets[0], idata.getName());
+            abstraction.viewImage(idata.getId(),
+                    idata.getDefaultPixels().getId(), idata.getName());
         }
         
     }
@@ -353,77 +348,56 @@ public class DataManagerCtrl
      * @param   index       one of the constant FOR_CLASSIFICATION, 
      *                      FOR_HIERARCHY.
      */
-    void showProperties(DataObject target, int index)
+    void showProperties(pojos.DataObject target, int index)
     {
-        Registry registry = abstraction.getRegistry();
         if (target == null)    return;
-        try {
-            if (target instanceof ProjectSummary) {
-                ProjectData project = abstraction.getProject(
-                                        ((ProjectSummary) target).getID());
-                showComponent(new ProjectEditor(this, project), index);    
-            } else if (target instanceof DatasetSummary) {
-                DatasetData dataset = abstraction.getDataset(
-                                        ((DatasetSummary) target).getID());
-                showComponent(new DatasetEditor(this, dataset), index);
-            } else if (target instanceof ImageSummary) {
-                ImageData image = abstraction.getImage(
-                                        ((ImageSummary) target).getID());
-                showComponent(new ImageEditor(this, image, 
-                        abstraction.getThumbnail(image)), index);
-            } else if (target instanceof CategoryGroupData) {
-                showComponent(new GroupEditor(this, (CategoryGroupData) target),
-                                                index);
-            } else if (target instanceof CategoryData) {
-                CategoryData data = (CategoryData) target;
-                if (data.getClassifications() == null)
-                    data = getImagesInCategory(data);
-                showComponent(new CategoryEditor(this, data), index);
-            }
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the specified target.";
-            registry.getLogger().error(this, s+" Error: "+dsae);
-            registry.getUserNotifier().notifyError("Data Retrieval Failure", s, 
-                                                    dsae);
-        } 
+        if (target instanceof pojos.ProjectData) {
+            showComponent(new ProjectEditor(this,
+                                    (pojos.ProjectData) target), index);    
+        } else if (target instanceof pojos.DatasetData) {
+            showComponent(new DatasetEditor(this,
+                            (pojos.DatasetData) target), index);
+        } else if (target instanceof pojos.ImageData) {
+            showComponent(new ImageEditor(this, (pojos.ImageData) target, 
+                    abstraction.getThumbnail((pojos.ImageData) target)),
+                        index);
+        } else if (target instanceof pojos.CategoryGroupData) {
+            showComponent(new GroupEditor(this,
+                                (pojos.CategoryGroupData) target), index);
+        } else if (target instanceof pojos.CategoryData) {
+            pojos.CategoryData data = (pojos.CategoryData) target;
+            if (data.getImages() == null)
+                data = getImagesInCategory(data);
+            showComponent(new CategoryEditor(this, data), index);
+        }
+        
     }
     
     /** Display the propertySheet in a JDialog when an event is posted. */
-    void showProperties(DataObject target, Component parent)
+    void showProperties(pojos.DataObject target, Component parent)
     {
-        Registry registry = abstraction.getRegistry();
         if (target == null)    return;
-        try {
-            if (target instanceof ProjectSummary) {
-                ProjectData project = abstraction.getProject(
-                                        ((ProjectSummary) target).getID());
-                showComponent(new ProjectEditor(this, project), FOR_HIERARCHY, 
-                                parent);  
-            } else if (target instanceof DatasetSummary) {
-                DatasetData dataset = abstraction.getDataset(
-                                        ((DatasetSummary) target).getID());                                         
-                showComponent(new DatasetEditor(this, dataset), FOR_HIERARCHY,
-                                parent);
-            } else if (target instanceof ImageSummary) {
-                ImageData image = abstraction.getImage(
-                                        ((ImageSummary) target).getID());
-                //Retrieve the thumbnail 
-                showComponent(new ImageEditor(this, image, 
-                            abstraction.getThumbnail(image)), FOR_HIERARCHY, 
-                                parent);
-            } else if (target instanceof CategoryGroupData) {
-                showComponent(new GroupEditor(this, (CategoryGroupData) target),
-                                                FOR_CLASSIFICATION, parent);
-            } else if (target instanceof CategoryData) {
-                showComponent(new CategoryEditor(this, (CategoryData) target), 
+        if (target instanceof pojos.ProjectData) {
+            showComponent(new ProjectEditor(this,
+                        (pojos.ProjectData) target), FOR_HIERARCHY, 
+                            parent);  
+        } else if (target instanceof pojos.DatasetData) {                                    
+            showComponent(new DatasetEditor(this,
+                        (pojos.DatasetData) target), FOR_HIERARCHY,
+                            parent);
+        } else if (target instanceof pojos.ImageData) {
+            showComponent(new ImageEditor(this, (pojos.ImageData) target, 
+                        abstraction.getThumbnail((pojos.ImageData) target)),
+                        FOR_HIERARCHY, parent);
+        } else if (target instanceof pojos.CategoryGroupData) {
+            showComponent(new GroupEditor(this,
+                            (pojos.CategoryGroupData) target),
                                             FOR_CLASSIFICATION, parent);
-            }
-        } catch(DSAccessException dsae) {
-            String s = "Can't retrieve the specified target.";
-            registry.getLogger().error(this, s+" Error: "+dsae);
-            registry.getUserNotifier().notifyError("Data Retrieval Failure", s, 
-                                                    dsae);
-        } 
+        } else if (target instanceof pojos.CategoryData) {
+            showComponent(new CategoryEditor(this,
+                        (pojos.CategoryData) target), 
+                                        FOR_CLASSIFICATION, parent);
+        }
     }
     
     /** Display the specified component in one of the tabbedPane. */
@@ -470,17 +444,17 @@ public class DataManagerCtrl
     }
 
     /** Refresh project, dataset. */
-    void refresh(DataObject target)
+    void refresh(pojos.DataObject target)
     {
         if (target == null)    return;  //shouldn't happen
-        if (target instanceof ProjectSummary) 
+        if (target instanceof pojos.ProjectData) 
             abstraction.refresh();
-        else if (target instanceof DatasetSummary) 
-            abstraction.refresh((DatasetSummary) target);
-        else if (target instanceof CategoryGroupData)
+        else if (target instanceof pojos.DatasetData) 
+            abstraction.refresh((pojos.DatasetData) target);
+        else if (target instanceof pojos.CategoryGroupData)
             abstraction.refreshCategoryGroups();
-        else if (target instanceof CategoryData)
-            abstraction.refreshCategory((CategoryData) target);
+        else if (target instanceof pojos.CategoryData)
+            abstraction.refreshCategory((pojos.CategoryData) target);
     }
     
     void refresh(int index)
@@ -492,15 +466,16 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    void updateImage(ImageSummary is)
+    void updateImage(pojos.ImageData is)
     {
-        abstraction.updateImage(is);
+        abstraction.updateImage(is, false);
     }
     
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    List getUserProjects()
+    Set getUserProjects()
     { 
+
         try {
             return abstraction.getUserProjects(); 
         } catch(DSAccessException dsae) {
@@ -513,7 +488,7 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getUsedDatasets()
+    public Set getUsedDatasets()
     { 
         try {
             return abstraction.getUsedDatasets(); 
@@ -527,7 +502,7 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public List getUserDatasets()
+    public Set getUserDatasets()
     { 
         try {
             return abstraction.getUserDatasets(); 
@@ -541,25 +516,25 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public void browseDataset(DataObject data)
+    public void browseDataset(pojos.DatasetData data)
     { 
         abstraction.browseDataset(data);
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    public void browseProject(DataObject data)
+    public void browseProject(pojos.ProjectData data)
     { 
         abstraction.browseProject(data);
     }
 
     /** Forward to the {@link DataManager abstraction}. */
-    public void browseCategoryGroup(CategoryGroupData data)
+    public void browseCategoryGroup(pojos.CategoryGroupData data)
     {
        abstraction.browseCategoryGroup(data);
     }
 
     /** Forward to the {@link DataManager abstraction}. */
-    public void browseCategory(CategoryData data)
+    public void browseCategory(pojos.CategoryData data)
     {
         abstraction.browseCategory(data); 
     }
@@ -571,7 +546,7 @@ public class DataManagerCtrl
     }
     
     /** Forward the call to the {@link DataManager abstraction}. */
-    void annotate(DataObject target) { abstraction.annotate(target); }
+    void annotate(pojos.DataObject target) { abstraction.annotate(target); }
     
     /** Bring up the corresponding editor. */
     void createProject()
@@ -612,6 +587,9 @@ public class DataManagerCtrl
     /** Bring up the Images Importer file chooser */
     void showImagesImporter()
     {
+        UserNotifier un = abstraction.getRegistry().getUserNotifier();
+        un.notifyInfo("Import images", "Not yet implemented.");
+        /*
         try {
             List datasets = abstraction.getUserDatasets();
             if (datasets.size() == 0) {
@@ -626,6 +604,7 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);   
         } 
+        */
     }
     
     //Category manager
@@ -643,14 +622,14 @@ public class DataManagerCtrl
     void createCategory()
     {
         try {
-            List groups = abstraction.getAvailableGroups();
+            Set groups = abstraction.getAvailableGroups();
             if (groups == null || groups.size() == 0) {
                 UserNotifier un = abstraction.getRegistry().getUserNotifier();
                 un.notifyInfo("Create a category", 
                         "You must create a group first.");
-            } else
-                showComponent(new CreateCategoryEditor(this, groups, 
-                        selectedCategoryGroupID), FOR_CLASSIFICATION);
+        } else
+            showComponent(new CreateCategoryEditor(this, groups, 
+                    selectedCategoryGroupID), FOR_CLASSIFICATION);
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's categoryGroup.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
@@ -666,7 +645,7 @@ public class DataManagerCtrl
     }
 
     /** Retrieve all categoryGroups. */
-    List getCategoryGroups() 
+    Set getCategoryGroups() 
     {
         try {
             return abstraction.getCategoryGroups();
@@ -676,14 +655,16 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
-        return new ArrayList();
+        return new HashSet();
+
     }
 
-    CategoryData getImagesInCategory(CategoryData data)
+    pojos.CategoryData getImagesInCategory(pojos.CategoryData data)
     {
+        /*
         try {
-            CategoryData cd = abstraction.getImagesInCategory(data);
-            data.setClassifications(cd.getClassifications());
+            //CategoryData cd = abstraction.getImagesInCategory(data);
+            //data.setClassifications(cd.getClassifications());
             return data; 
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve the category.";
@@ -691,6 +672,7 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
+        */
         return data;
     }
     
@@ -699,8 +681,10 @@ public class DataManagerCtrl
      * Only, the categories containing images not already in the group
      * will be displayed.
      */
-    public List getCategoriesNotInGroup(CategoryGroupData group)
+    public Set getCategoriesNotInGroup(pojos.CategoryGroupData group)
     {
+        return abstraction.retrieveCategoriesNotInGroup(group);
+        /*
         try {
             return abstraction.retrieveCategoriesNotInGroup(group);
         } catch(DSAccessException dsae) {
@@ -709,13 +693,17 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae); 
         } 
-        return new ArrayList();
+        */
+        //return new ArrayList();
     }
 
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesNotInCategoryGroup(CategoryGroupData group,
+    public Set getImagesNotInCategoryGroup(pojos.CategoryGroupData group,
                                 Map filters, Map complexFilters)
     {
+        return abstraction.retrieveImagesNotInCategoryGroup(group, filters, 
+                complexFilters);
+        /*
         try {
             return abstraction.retrieveImagesNotInCategoryGroup(group, filters, 
                                 complexFilters);
@@ -726,12 +714,16 @@ public class DataManagerCtrl
                     "Failure", s, dsae); 
         } 
         return new ArrayList();
+        */
     }
     
    /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesInUserDatasetsNotInCategoryGroup(CategoryGroupData 
+    public Set getImagesInUserDatasetsNotInCategoryGroup(pojos.CategoryGroupData 
             group, List datasets, Map filters, Map complexFilters)
     {
+        return abstraction.retrieveImagesInUserDatasetsNotInCategoryGroup(
+                group, datasets, filters, complexFilters);
+        /*
         try {
             return abstraction.retrieveImagesInUserDatasetsNotInCategoryGroup(
                     group, datasets, filters, complexFilters);
@@ -742,12 +734,16 @@ public class DataManagerCtrl
                     "Failure", s, dsae); 
         } 
         return new ArrayList();
+        */
     }
     
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesInUserGroupNotInCategoryGroup(CategoryGroupData 
+    public Set getImagesInUserGroupNotInCategoryGroup(pojos.CategoryGroupData 
             group, Map filters, Map complexFilters)
     {
+        return abstraction.retrieveImagesInUserGroupNotInCategoryGroup(
+                group, filters, complexFilters);
+        /*
         try {
             return abstraction.retrieveImagesInUserGroupNotInCategoryGroup(
                     group, filters, complexFilters);
@@ -758,12 +754,16 @@ public class DataManagerCtrl
                     "Failure", s, dsae); 
         } 
         return new ArrayList();
+        */
     }
     
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesInSystemNotInCategoryGroup(CategoryGroupData group,
+    public Set getImagesInSystemNotInCategoryGroup(pojos.CategoryGroupData group,
             Map filters, Map complexFilters)
     {
+        return abstraction.retrieveImagesInSystemNotInCategoryGroup(
+                group, filters, complexFilters);
+        /*
         try {
             return abstraction.retrieveImagesInSystemNotInCategoryGroup(
                     group, filters, complexFilters);
@@ -774,10 +774,11 @@ public class DataManagerCtrl
                     "Failure", s, dsae); 
         } 
         return new ArrayList();
+        */
     }
     
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesDiffNotInCategoryGroup(CategoryData data, Map filters, 
+    public Set getImagesDiffNotInCategoryGroup(pojos.CategoryData data, Map filters, 
                         Map complexFilters)
     {
         return abstraction.retrieveImagesDiffNotInCategoryGroup(data, filters, 
@@ -785,7 +786,7 @@ public class DataManagerCtrl
     }
     
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesDiffInUserDatasetsNotInCategoryGroup(CategoryData 
+    public Set getImagesDiffInUserDatasetsNotInCategoryGroup(pojos.CategoryData 
             data, List datasets, Map filters, Map complexFilters)
     {
         return abstraction.retrieveImagesDiffInUserDatasetsNotInCategoryGroup(
@@ -793,7 +794,7 @@ public class DataManagerCtrl
     }
     
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesDiffInUserGroupNotInCategoryGroup(CategoryData data, 
+    public Set getImagesDiffInUserGroupNotInCategoryGroup(pojos.CategoryData data, 
                          Map filters, Map complexFilters)
     {
         return abstraction.retrieveImagesDiffInUserGroupNotInCategoryGroup(
@@ -801,7 +802,7 @@ public class DataManagerCtrl
     }
     
     /** Forward request to the {@link DataManager abstraction}. */
-    public List getImagesDiffInSystemNotInCategoryGroup(CategoryData data, 
+    public Set getImagesDiffInSystemNotInCategoryGroup(pojos.CategoryData data, 
                 Map filters, Map complexFilters)
     {
         return abstraction.retrieveImagesDiffInSystemNotInCategoryGroup(
@@ -809,14 +810,14 @@ public class DataManagerCtrl
     }
     
     /** Forward event to the {@link DataManager} abstraction. */
-    public void updateCategoryGroup(CategoryGroupData model, List toAdd, 
+    public void updateCategoryGroup(pojos.CategoryGroupData model, List toAdd, 
                                     boolean nameChange)
     {
         abstraction.updateCategoryGroup(model, toAdd, nameChange);
     }
 
     /** Forward event to the {@link DataManager} abstraction. */
-    public void updateCategory(CategoryData model, List imgsToRemove, 
+    public void updateCategory(pojos.CategoryData model, List imgsToRemove, 
                                 List imgsToAdd, boolean nameChange)
     {
         abstraction.updateCategory(model, imgsToRemove, imgsToAdd, nameChange);
@@ -832,14 +833,18 @@ public class DataManagerCtrl
     }
     
     /** Create a new group and a new category. */
-    public void createNewCategory(CategoryGroupData group, String name, 
+    public void createNewCategory(pojos.CategoryGroupData group, String name, 
                                 String description, List images)
     {
-        setSelectedCategoryGroup(group.getID());
+        CategoryGroupData data = new CategoryGroupData();
+        data.setName(group.getName());
+        data.setID(group.getId());
+        data.setDescription(group.getDescription());
+        setSelectedCategoryGroup(group.getId());
         CategoryData cd = new CategoryData();
         cd.setName(name);
         cd.setDescription(description);
-        cd.setCategoryGroup(group);
+        cd.setCategoryGroup(data);
         abstraction.createCategory(cd, images);
     }
 

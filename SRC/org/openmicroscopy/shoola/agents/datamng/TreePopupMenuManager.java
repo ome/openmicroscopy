@@ -36,12 +36,12 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * The UI manager of the {@link TreePopupMenu}.
@@ -102,14 +102,14 @@ class TreePopupMenuManager
 		target = t;
 		if (target != null) {
 			view.properties.setEnabled(true);
-            if (target instanceof ImageSummary)
+            if (target instanceof ImageData)
                 view.view.setText(TreePopupMenu.VIEW);
             else view.view.setText(TreePopupMenu.BROWSE);
 			view.view.setEnabled(true);
-			view.annotate.setEnabled((target instanceof DatasetSummary) ||
-                    (target instanceof ImageSummary));
-			view.importImg.setEnabled((target instanceof DatasetSummary));
-            view.refresh.setEnabled(!(target instanceof ImageSummary));
+			view.annotate.setEnabled((target instanceof DatasetData) ||
+                    (target instanceof ImageData));
+			view.importImg.setEnabled((target instanceof DatasetData));
+            view.refresh.setEnabled(!(target instanceof ImageData));
 		} else {//root node.
             view.properties.setEnabled(false);
             view.view.setText(TreePopupMenu.BROWSE);
@@ -146,8 +146,8 @@ class TreePopupMenuManager
 			if (src == view.properties)	agentCtrl.showProperties(target, index);
 			else if (src == view.view) view(target);
 			else if (src == view.annotate)   agentCtrl.annotate(target);
-			else if (src == view.importImg && target instanceof DatasetSummary)
-				agentCtrl.showImagesImporter(((DatasetSummary) target));
+			//else if (src == view.importImg && target instanceof DatasetData)
+			//	agentCtrl.showImagesImporter(((DatasetData) target));
             else if (src == view.refresh) agentCtrl.refresh(target);
 		} else { //root node
             if (src == view.refresh) agentCtrl.refresh(index);
@@ -161,16 +161,16 @@ class TreePopupMenuManager
     /** View the specified dataObject. */
     private void view(Object uo)
     {
-        if (uo instanceof DatasetSummary)
-            agentCtrl.browseDataset(((DatasetSummary) uo));
-        else if (uo instanceof ProjectSummary)
-            agentCtrl.browseProject(((ProjectSummary) uo));
+        if (uo instanceof DatasetData)
+            agentCtrl.browseDataset(((DatasetData) uo));
+        else if (uo instanceof ProjectData)
+            agentCtrl.browseProject(((ProjectData) uo));
         else if (uo instanceof CategoryGroupData)
             agentCtrl.browseCategoryGroup(((CategoryGroupData) uo));
         else if (uo instanceof CategoryData)
             agentCtrl.browseCategory(((CategoryData) uo));
-        else if (uo instanceof ImageSummary)
-            agentCtrl.viewImage(((ImageSummary) uo));
+        else if (uo instanceof ImageData)
+            agentCtrl.viewImage(((ImageData) uo));
     }
     
 	/** Registers listeners with the view's widgets. */

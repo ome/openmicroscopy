@@ -53,7 +53,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
+import pojos.ImageData;
 
 /** 
  * Pop-up menu for the thumbnail floating windows.
@@ -153,7 +154,7 @@ class ThumbWinPopupMenu
             public void actionPerformed(ActionEvent ae)
             {
                 ClassifyCmd cmd = new ClassifyCmd(
-                        (ImageSummary) currentWin.getDataObject(), 
+                        (ImageData) currentWin.getDataObject(), 
                         Classifier.CLASSIFICATION_MODE, 
                         currentWin.getParentFrame());
                 cmd.execute();
@@ -163,7 +164,7 @@ class ThumbWinPopupMenu
             public void actionPerformed(ActionEvent ae)
             {
                 ClassifyCmd cmd = new ClassifyCmd(
-                        (ImageSummary) currentWin.getDataObject(), 
+                        (ImageData) currentWin.getDataObject(), 
                         Classifier.DECLASSIFICATION_MODE,
                         currentWin.getParentFrame());
                 cmd.execute();

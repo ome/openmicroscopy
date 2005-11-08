@@ -41,7 +41,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
+import pojos.CategoryData;
 
 /** 
  * The Controller component in the {@link Classifier} MVC triad.

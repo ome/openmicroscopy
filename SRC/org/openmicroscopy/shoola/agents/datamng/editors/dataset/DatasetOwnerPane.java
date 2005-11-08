@@ -42,7 +42,8 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.DatasetData;
+import pojos.DatasetData;
+import pojos.ExperimenterData;
 
 /** 
  * 
@@ -107,11 +108,11 @@ class DatasetOwnerPane
 						" Institution", " Group Name"};
 						
 		DatasetData dd = manager.getDatasetData();
-		private Object[] data = {dd.getOwnerFirstName(),
-								dd.getOwnerLastName(), dd.getOwnerEmail(),
-								dd.getOwnerInstitution(), dd.getOwnerGroupName()
-								};
-								
+        ExperimenterData owner = dd.getOwner();
+		private Object[] data = {owner.getFirstName(),
+								owner.getLastName(), owner.getEmail(),
+								owner.getInstitution(), owner.getGroupName()
+								};		
 		private OwnerTableModel() {}
 	
 		public int getColumnCount() { return 2; }

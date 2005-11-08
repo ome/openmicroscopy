@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -39,6 +37,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -72,14 +71,13 @@ public class ShowTitleBarCmd
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model.  Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param show  Tells whether to show (<code>true</code>) or hide 
      *              (<code>false</code>).
      */
     public ShowTitleBarCmd(HiViewer model, boolean show)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
         this.show = show;
     }

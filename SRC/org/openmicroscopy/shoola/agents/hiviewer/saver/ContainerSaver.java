@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 /** 
- * 
+ * Dialog window to save a set of thumbnails.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,52 +64,87 @@ public class ContainerSaver
     extends JDialog
 {   
     
+    /** Reference to the class manager. */
     private ContainerSaverManager   manager;
     
-    /** The set of Buffered images to save. */
+    /** The set of images to save. */
     private Set                     thumbnails;
     
     /** The format of the image either PNG or JPEG.*/
-    private String                  format;
+    private String                  extension;
     
     /** The name of the file to create.*/
     private String                  name;
     
-    /** The save message. */
+    /** The message displayed when the image has been saved. */
     private String                  message;
     
-    /** Notify the user that an error occured. */
+    /**
+     * Notifies the user that an error occured. 
+     * 
+     * @param msg The notification message.
+     */
     private void notifyError(String msg)
     {
         UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
         un.notifyError("Save the thumbnails", msg);
     }
     
-    void previewImage(String format, String name, String msg, boolean exist)
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner The owner of this widget. Mustn't be <code>null</code>.
+     * @param thumbnails The thumbnails to save.
+     */
+    public ContainerSaver(JFrame owner, Set thumbnails) 
     {
-        if (format == null) {
-            notifyError("file format cannot be null");
+        super(owner);
+        if (owner == null) throw new IllegalArgumentException("No owner.");
+        if (thumbnails == null)
+            throw new IllegalArgumentException("No images.");
+        this.thumbnails = thumbnails;
+        //create the view and the control
+        new ContainerSaverUI(this);
+        manager = new ContainerSaverManager(this);
+    }
+    
+    /**
+     * Previews the image to save. 
+     * 
+     * @param extension The image's extension i.e. <i>PNG</i> or <i>JPEG</i>.
+     * @param name The name of the image.
+     * @param msg The message displayed when the image has been saved.
+     * @param exist Passed <code>true</code> if a file with the same name and
+     * extension already exists.
+     */
+    void previewImage(String extension, String name, String msg, boolean exist)
+    {
+        if (extension == null) {
+            notifyError("The file extension cannot be null.");
             return;
         }
         if (name == null) {
-            notifyError("name cannot be null");
+            notifyError("The name cannot be null.");
             return;
         }
-        this.format = format;
+        this.extension = extension;
         this.name = name;
         message = msg;
         if (exist) manager.showSelectionDialog();    
         else manager.showPreview();
     }
     
-    /** Save the image. */
+    /**
+     * Saves the specified {@link BufferedImage}.
+     * @param img The image to save.
+     */
     void saveImage(BufferedImage img)
     {
         UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
-        name += "."+format; //Add extension
+        name += "."+extension; //Add extension
         File f = new File(name);
         try {
-            WriterImage.saveImage(f, img, format);
+            WriterImage.saveImage(f, img, extension);
             un.notifyInfo("Image saved", message);
         } catch (Exception e) {
             f.delete();
@@ -125,20 +160,13 @@ public class ContainerSaver
         dispose();
     }
     
+    /**
+     * Returns the passed thumbnails.
+     * 
+     * @return See above.
+     */
     Set getThumbnails() {return thumbnails; }
    
+    /** Brings up the preview widget. */
     void showPreview() { manager.showPreview(); }
-    
-    public ContainerSaver(JFrame owner, Set thumbnails) 
-    {
-        super(owner);
-        if (owner == null) throw new NullPointerException("No owner.");
-        if (thumbnails == null)
-            throw new NullPointerException("No images.");
-        this.thumbnails = thumbnails;
-        //create the view and the control
-        new ContainerSaverUI(this);
-        manager = new ContainerSaverManager(this);
-    }
-    
 }

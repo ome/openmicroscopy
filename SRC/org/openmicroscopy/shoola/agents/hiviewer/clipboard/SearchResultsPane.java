@@ -41,10 +41,11 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * 
@@ -102,7 +103,7 @@ class SearchResultsPane
         if (target == null) return;
         String txt = TreePopupMenu.BROWSE;
         boolean b = false;
-        if (target instanceof ImageSummary) {
+        if (target instanceof ImageData) {
             txt = TreePopupMenu.VIEW;
             b = true;
         }
@@ -136,9 +137,9 @@ class SearchResultsPane
                                             getLastSelectedPathComponent();
         if (node != null) {
             Object  usrObj = node.getUserObject();
-            if (usrObj instanceof ProjectSummary || 
-                usrObj instanceof DatasetSummary ||
-                usrObj instanceof ImageSummary)
+            if (usrObj instanceof ProjectData || 
+                usrObj instanceof DatasetData ||
+                usrObj instanceof ImageData)
                 target = (DataObject) usrObj;
         }
         return target;

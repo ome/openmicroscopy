@@ -47,10 +47,10 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * UI component to browse the whole project-dataset
@@ -130,9 +130,9 @@ class ExplorerPane
 											tree.getLastSelectedPathComponent();
 		if (node != null) {
 			Object  usrObj = node.getUserObject();
-			if (usrObj instanceof ProjectSummary || 
-				usrObj instanceof DatasetSummary ||
-				usrObj instanceof ImageSummary)
+			if (usrObj instanceof ProjectData || 
+				usrObj instanceof DatasetData ||
+				usrObj instanceof ImageData)
 				target = (DataObject) usrObj;
 		}
 		return target;

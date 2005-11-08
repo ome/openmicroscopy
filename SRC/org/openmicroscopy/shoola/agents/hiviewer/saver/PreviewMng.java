@@ -83,38 +83,33 @@ class PreviewMng
     /** Default space between each thumbnails. */
     private static final int    DEFAULT_SPACE = 4;
     
+    /** Reference to the view. */
     private Preview         view;
     
+    /** Reference to the parent model. */
     private ContainerSaver  model;
     
+    /** The maximum size of the tumbnails. */
     private Dimension       maxDim;
     
+    /** The previewed image. */
     private BufferedImage   image;
     
-    PreviewMng(Preview view, ContainerSaver  model)
-    {
-        if (view == null) throw new NullPointerException("no view");
-        if (model == null) throw new NullPointerException("no model");
-        this.view = view;
-        this.model = model;
-        maxDim = null;
-        initListeners();
-    }
-
+    /** Creates and paints the previewed image. */
     private void preview()
     {
         int index = view.colors.getSelectedIndex();
         Color c = view.getSelectedColor(index);
         int space = Integer.parseInt((String) view.spacing.getSelectedItem());
         createImage(c, space);
-        view.previewCanvas.setImage(getImage());
+        view.previewCanvas.paintImage();
     }
     
     /** 
-     * Builds the buffered image to display. 
+     * Builds the previewed image. 
      * 
-     * @param color     The background color of the image.
-     * @param space     The space between each thumbnail.
+     * @param color The background color of the image.
+     * @param space The space between each thumbnail.
      * */
     private void createImage(Color color, int space)
     {
@@ -155,6 +150,11 @@ class PreviewMng
         }
     }
     
+    /**
+     * Determines the maximum dimension of a thumbnail.
+     * 
+     * @param thumbnails The collection of thumbnails.
+     */
     private void maxDim(Set thumbnails)
     {
         maxDim = new Dimension(0, 0);
@@ -179,20 +179,41 @@ class PreviewMng
         });
     }
     
-    /** Attach listeners to a JButton. */
+    /** Attaches listeners to a JButton. */
     private void attachButtonListener(JButton button, int id)
     {
         button.addActionListener(this);
         button.setActionCommand(""+id);
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param view The view this class controls. Mustn't be <code>null</code>.
+     * @param model Reference to the parent model. Mustn't be <code>null</code>.
+     */
+    PreviewMng(Preview view, ContainerSaver  model)
+    {
+        if (view == null) throw new IllegalArgumentException("No view.");
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.view = view;
+        this.model = model;
+        maxDim = null;
+        initListeners();
+    }
+
+    /**
+     * Returns the previewed image.
+     * 
+     * @return See below.
+     */
     BufferedImage getImage()
     {
         if (image == null) createImage(DEFAULT_BG, DEFAULT_SPACE);
         return image;
     }
     
-    /** Handle action fired by JButton. */
+    /** Handles action fired by JButton. */
     public void actionPerformed(ActionEvent e)
     {
         int index = -1;

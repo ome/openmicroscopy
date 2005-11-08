@@ -38,7 +38,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import pojos.ImageData;
 
 /** 
  * 
@@ -97,7 +97,7 @@ class ImagesPane
         imagesSplitPane.removeFromRightComponent();
     }
     
-    void updateImage(ImageSummary is)
+    void updateImage(ImageData is)
     {
         agentCtrl.updateImage(is);
     }

@@ -40,10 +40,11 @@ import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * TODO: add comments.
@@ -66,8 +67,15 @@ public class AnnotateCmd
     /** Reference to the model. */
     private HiViewer    model;
     
+    /** The hierarchy object. */
     private DataObject  hierarchyObject;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param hierarchyObject The {@link DataObject} to annotate.
+     * Mustn't be <code>null</code>.
+     */
     public AnnotateCmd(DataObject hierarchyObject)
     {
         if (hierarchyObject == null)
@@ -75,11 +83,14 @@ public class AnnotateCmd
         this.hierarchyObject = hierarchyObject;
     }
     
-    /** Creates a new instance.*/
+    /**
+     * Creates a new instance.
+     * 
+     * @param model A reference to the model. Mustn't be <code>null</code>.
+     */
     public AnnotateCmd(HiViewer model)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
     }
     
@@ -94,13 +105,13 @@ public class AnnotateCmd
         if (hierarchyObject == null) return;
         //post an Annotate event.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-        if (hierarchyObject instanceof DatasetSummary) {
-            DatasetSummary uO = (DatasetSummary) hierarchyObject;
-            eventBus.post(new AnnotateDataset(uO.getID(), uO.getName()));
-        } else if (hierarchyObject instanceof ImageSummary) {
-            ImageSummary uO = (ImageSummary) hierarchyObject;
-            eventBus.post(new AnnotateImage(uO.getID(), uO.getName(), 
-                        (uO.getPixelsIDs())[0]));
+        if (hierarchyObject instanceof DatasetData) {
+            DatasetData uO = (DatasetData) hierarchyObject;
+            eventBus.post(new AnnotateDataset(uO.getId(), uO.getName()));
+        } else if (hierarchyObject instanceof ImageData) {
+            ImageData uO = (ImageData) hierarchyObject;
+            eventBus.post(new AnnotateImage(uO.getId(), uO.getName(), 
+                            uO.getDefaultPixels().getId()));
         }    
     }
 

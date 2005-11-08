@@ -175,6 +175,7 @@ public final class AgentsInit
 		RegistryFactory.linkTaskBar(containerReg.getTaskBar(), agentReg);
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);
+        RegistryFactory.linkOPS(containerReg.getOmeroService(), agentReg);
 		//TODO: Link Image Service when ready.
 		return agentReg;
 	}

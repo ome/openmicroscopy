@@ -30,10 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer;
 
 
-
-
-
-
 //Java imports
 import java.awt.Color;
 import java.util.HashMap;
@@ -47,7 +43,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 
 
 /** 
- * Collection of static field.
+ * Collection of convenience methods.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -106,9 +102,10 @@ public class Colors
     /** The sole instance. */
     private static Colors   singleton;
     
+    /** The collection of colors. */
     private Map             colorsMap;
     
-    /** Reference to the registry. */
+    /** Convenience reference. */
     private Registry        registry;
 
 
@@ -152,7 +149,11 @@ public class Colors
         colorsMap.put(new Integer(REGEX_TITLE_AND_ANNOTATION), c);
     }
     
-    /** Returns the <code>Colors</code> object. */
+    /**
+     * Returns an instance of this class.
+     * 
+     * @return See above.
+     */
     public static Colors getInstance()
     { 
         if (singleton == null) 
@@ -160,7 +161,12 @@ public class Colors
         return singleton;
     }
 
-    /** Returns the color associated to the ID. */
+    /**
+     * Returns the color corresponding to the specified id.
+     * 
+     * @param id The passed color's id.
+     * @return See above.
+     */
     public Color getColor(int id)
     {
         if (id < 0 || colorsMap.size() <= id) {
@@ -170,7 +176,13 @@ public class Colors
         return (Color) colorsMap.get(new Integer(id));
     }
     
-    /** Reset the default highlightColor when the node is deselected. */
+    /**
+     * Returns the color corresponding to the non selection of the 
+     * specified node.
+     * 
+     * @param node The deselected node. 
+     * @return See above,
+     */
     public Color getDeselectedHighLight(ImageDisplay node)
     {
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
@@ -186,7 +198,12 @@ public class Colors
         return c;
     }
     
-    /** Set the highlight color when the node is selected. */
+    /**
+     * Returns the color corresponding to the node selection.
+     * 
+     * @param node The selected node.
+     * @return See above.
+     */
     public Color getSelectedHighLight(ImageDisplay node)
     {
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);

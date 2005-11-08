@@ -63,13 +63,11 @@ class FindRegExTitleVisitor
 
     private Colors colors;
     
-    FindRegExTitleVisitor(HiViewer viewer, String regEx)
-    {
-        super(viewer, regEx);
-        colors = Colors.getInstance();
-    }
-    
-    /** Set the color of the titleBar of the specified node. */
+    /**
+     * Sets the color of the titleBar of the specified node. 
+     * 
+     * @param node The specified node.
+     */
     private void setHighlight(ImageDisplay node)
     {
         if (!RegExFactory.find(pattern, node.getTitle())) return;
@@ -80,14 +78,27 @@ class FindRegExTitleVisitor
         else node.setHighlight(colors.getColor(Colors.REGEX_TITLE));
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer Reference to the model. Mustn't be <code>null</code>.
+     * @param regEx The regular expression to retrieve.
+     * Mustn't be <code>null</code>.
+     */
+    FindRegExTitleVisitor(HiViewer viewer, String regEx)
+    {
+        super(viewer, regEx);
+        colors = Colors.getInstance();
+    }
+    
     /** 
-     * Highlight the titleBar of the imageNode 
+     * Highlights the titleBar of the imageNode 
      * if the title contains the specified regular expression.
      */
     public void visit(ImageNode node) { setHighlight(node); }
 
     /** 
-     * Highlight the titleBar of the container 
+     * Highlights the titleBar of the container 
      * if the title contains the specified regular expression.
      */
     public void visit(ImageSet node) { setHighlight(node); }

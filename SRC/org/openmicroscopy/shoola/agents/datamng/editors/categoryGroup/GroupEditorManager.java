@@ -38,6 +38,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -47,9 +49,9 @@ import javax.swing.event.DocumentListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerCtrl;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 
 /** 
  * 
@@ -164,7 +166,7 @@ class GroupEditorManager
     void showCategorieSelection()
     {
         if (dialog == null) {
-            List categories = agentCtrl.getCategoriesNotInGroup(model);
+            Set categories = agentCtrl.getCategoriesNotInGroup(model);
             if (categories != null)
                 dialog = new GroupCategoriesDiffPane(this, categories);
         } else {

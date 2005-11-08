@@ -29,9 +29,6 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer;
 
-
-
-
 //Java imports
 import java.util.Map;
 
@@ -40,7 +37,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.DatasetData;
 
 /** 
  * Loads, asynchronously, the annotation linked to the specified dataset.
@@ -84,8 +81,8 @@ public class DatasetAnnotationLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadAnnotations(
-                HierarchyBrowsingView.DATASET_ANNOTATION, datasetID, this);
+        handle = hiBrwView.loadAnnotations(DatasetData.class, datasetID,
+                                            false, this);
     }
 
     /** Cancels the data loading. */

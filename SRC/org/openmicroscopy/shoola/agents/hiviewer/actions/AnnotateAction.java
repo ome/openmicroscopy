@@ -39,15 +39,17 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
- * Action to bring up the annotator Agent.
+ * Brings up the annotator widget if required.
+ * This action is enabled if the hierarchy node is an image or dataset.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,12 +66,36 @@ public class AnnotateAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Annotate";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Annotate the selected image " +
                                                 "or dataset.";
     
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
+        else {
+            Object ho = selectedDisplay.getHierarchyObject();
+            if ((ho instanceof ImageData) || (ho instanceof DatasetData))
+                setEnabled(true);
+            else setEnabled(false);
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public AnnotateAction(HiViewer model)
     {
         super(model);
@@ -80,23 +106,11 @@ public class AnnotateAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATE));
     }
 
-    /** Handle the action. */
+    /** Creates a {@link AnnotateCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
         AnnotateCmd cmd = new AnnotateCmd(model);
         cmd.execute();
     }
 
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay.getParentDisplay() == null) 
-            setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            if ((ho instanceof ImageSummary) || (ho instanceof DatasetSummary))
-                setEnabled(true);
-            else setEnabled(false);
-        }
-    }
-    
 }

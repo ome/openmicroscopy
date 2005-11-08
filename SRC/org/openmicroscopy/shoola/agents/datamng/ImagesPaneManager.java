@@ -38,6 +38,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
@@ -50,9 +51,10 @@ import javax.swing.JTable;
 import org.openmicroscopy.shoola.agents.datamng.util.DatasetsSelector;
 import org.openmicroscopy.shoola.agents.datamng.util.Filter;
 import org.openmicroscopy.shoola.agents.datamng.util.ISelector;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * 
@@ -119,16 +121,16 @@ class ImagesPaneManager
     }
     
 	/** update the view when an image's name has been modified. */
-	void updateImageInTable(ImageSummary is)
+	void updateImageInTable(ImageData data)
 	{
 		if (loaded) {
 			int rows = view.imagesSplitPane.sorter.getRowCount();
-			ImageSummary summary;
+			ImageData summary;
 			for (int i = 0; i < rows; i++) {
-				summary = (ImageSummary) 
+				summary = (ImageData) 
                     view.imagesSplitPane.sorter.getValueAt(i, ImagesPane.NAME);
-				if (summary.getID() == is.getID()) {
-                    view.imagesSplitPane.tableModel.setValueAt(is, i);
+				if (summary.getId() == data.getId()) {
+                    view.imagesSplitPane.tableModel.setValueAt(data, i);
 					break;
 				}		
 			}
@@ -197,7 +199,7 @@ class ImagesPaneManager
         if (selectedIndex == ImagesPaneBar.IMAGES_USED) {
             index = selectedIndex;
             //retrieve the datasets used by the current user.
-            List d = agentCtrl.getUsedDatasets();
+            Set d = agentCtrl.getUsedDatasets();
             if (d != null && d.size() > 0)
                 UIUtilities.centerAndShow(new DatasetsSelector(agentCtrl, this, 
                                             d));
@@ -214,7 +216,7 @@ class ImagesPaneManager
         int selectedIndex = view.bar.selections.getSelectedIndex();
         if (selectedIndex != index || !loaded) {
             index = selectedIndex;
-            List images = null;
+            Set images = null;
             switch (selectedIndex) {
                 case ImagesPaneBar.IMAGES_IMPORTED:
                     images = agentCtrl.getImportedImages(filters, 
@@ -248,8 +250,7 @@ class ImagesPaneManager
 		int selRow = view.imagesSplitPane.table.getSelectedRow();
 		if (selRow != -1) {
 			if (e.isPopupTrigger()) {
-				ImageSummary 
-					target = (ImageSummary) 
+				ImageData target = (ImageData) 
                         view.imagesSplitPane.sorter.getValueAt(selRow, 
                             ImagesPane.NAME);
 				DataManagerUIF presentation = agentCtrl.getReferenceFrame();
@@ -262,7 +263,7 @@ class ImagesPaneManager
 	}
     
     /** Display the images. */
-    private void displayListImages(List images)
+    private void displayListImages(Set images)
     {
         if (images == null || images.size() == 0) {
             UserNotifier un = agentCtrl.getRegistry().getUserNotifier();

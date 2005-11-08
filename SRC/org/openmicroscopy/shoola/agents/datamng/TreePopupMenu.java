@@ -40,7 +40,7 @@ import javax.swing.border.BevelBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
+import pojos.DataObject;
 
 /** 
  * The UI of the context pop-up menu used within this agent's UI. 

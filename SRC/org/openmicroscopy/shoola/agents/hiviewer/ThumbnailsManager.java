@@ -42,7 +42,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
+import pojos.ImageData;
 
 /** 
  * Manages the process of assigning thumbnails to {@link ImageNode}s in a
@@ -104,11 +105,15 @@ public class ThumbnailsManager
         processedIDs = new HashSet();
         thumbProviders = new HashMap();
         Iterator i = imageNodes.iterator();
+        ImageNode node;
+        ImageData is;
+        Integer id;
+        Set providers;
         while (i.hasNext()) {
-            ImageNode node = (ImageNode) i.next();
-            ImageSummary is = (ImageSummary) node.getHierarchyObject();
-            Integer id = new Integer(is.getID());
-            Set providers = (Set) thumbProviders.get(id);
+            node = (ImageNode) i.next();
+            is = (ImageData) node.getHierarchyObject();
+            id = new Integer(is.getId());
+            providers = (Set) thumbProviders.get(id);
             if (providers == null) {
                 totalIDs++;
                 providers = new HashSet();
@@ -122,7 +127,7 @@ public class ThumbnailsManager
      * Sets the specified pixels to be the thumbnail for the specified Image.
      * 
      * @param imageID The id of the Image.
-     * @param thumb   The thumbnail pixels.  Mustn't be <code>null</code>.
+     * @param thumb   The thumbnail pixels. Mustn't be <code>null</code>.
      */
     public void setThumbnail(int imageID, BufferedImage thumb)
     {
@@ -131,10 +136,8 @@ public class ThumbnailsManager
         Set providers = (Set) thumbProviders.get(id);
         if (providers != null) {
             Iterator p = providers.iterator();
-            while (p.hasNext()) {
-                ThumbnailProvider prv = (ThumbnailProvider) p.next();
-                prv.setFullScaleThumb(thumb);
-            }
+            while (p.hasNext())
+                ((ThumbnailProvider) p.next()).setFullScaleThumb(thumb);
             processedIDs.add(id);
         }
     }

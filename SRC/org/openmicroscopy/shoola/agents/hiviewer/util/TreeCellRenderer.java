@@ -40,14 +40,14 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
- * 
+ * Determines and sets the icon associated to a data object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,41 +64,71 @@ public class TreeCellRenderer
     extends DefaultTreeCellRenderer
 {
     
-    /** ID used to select the appropriated icon. */
-    private static final int    ROOT = 0;   
+    /** Identifies the <i>ROOT</i> icon. */
+    private static final int    ROOT = 0;  
+    
+    /** Identifies the <i>PROJECT</i> icon. */
     private static final int    PROJECT = 1;
+    
+    /** Identifies the <i>DATASET</i> icon. */
     private static final int    DATASET = 2;
+    
+    /** Identifies the <i>CATEGORY_GROUP</i> icon. */
     private static final int    CATEGORY_GROUP = 3;
+    
+    /** Identifies the <i>CATEGORY</i> icon. */
     private static final int    CATEGORY = 4;
+    
+    /** Identifies the <i>IMAGE</i> icon. */
     private static final int    IMAGE = 5;
+    
+    /** Identifies the <i>NULL</i> icon. */
     private static final int    NO_ICON = 6; 
     
-    
+    /** Reference to the {@link IconManager}. */
     private IconManager         icons;
+
     
-    public TreeCellRenderer()
-    {
-        icons = IconManager.getInstance();
-    }
-    
-    /** Retrieves the icon's ID according to the type of the DataObject. */
+    /**
+     * Retrieves the icon's ID according to the type of the DataObject.
+     * @param value The data object.
+     * @return The ID of the corresponding icon.
+     */
     private int getIconID(Object value)
     {
         DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
         Object usrObject = node.getUserObject();
         int id = ROOT;
         if (node.getLevel() != 0) {
-            if (usrObject instanceof ProjectSummary)  id = PROJECT;
-            else if (usrObject instanceof DatasetSummary) id = DATASET;
-            else if (usrObject instanceof ImageSummary) id = IMAGE;
-            else if (usrObject instanceof CategoryGroupData) 
+            if (usrObject instanceof ProjectData)  {
+                setText(((ProjectData) usrObject).getName());
+                id = PROJECT;
+            } else if (usrObject instanceof DatasetData) {
+                setText(((DatasetData) usrObject).getName());
+                id = DATASET;
+            } else if (usrObject instanceof ImageData) {
+                setText(((ImageData) usrObject).getName());
+                id = IMAGE;
+            } else if (usrObject instanceof CategoryGroupData) {
+                setText(((CategoryGroupData) usrObject).getName());
                 id = CATEGORY_GROUP;
-            else if (usrObject instanceof CategoryData) id = CATEGORY;
-            else if (usrObject instanceof String) id = NO_ICON;
+            } else if (usrObject instanceof CategoryData) {
+                setText(((CategoryData) usrObject).getName());
+                id = CATEGORY;
+            } else if (usrObject instanceof String) id = NO_ICON;
         }
         return id;
     }
+
+    /** Creates a new instance. */
+    public TreeCellRenderer()
+    {
+        icons = IconManager.getInstance();
+    }
     
+    /**
+     * Sets the icon.
+     */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
                         boolean sel, boolean expanded, boolean leaf,
                         int row, boolean hasFocus)

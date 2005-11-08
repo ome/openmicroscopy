@@ -38,14 +38,17 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ZoomCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
- * Zoom in all imageNodes within the selected container.
+ * Zooms in the {@link ImageNode}s within the selected container.
+ * This action is not enabled on {@link ImageNode}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,12 +65,34 @@ public class ZoomInAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "Zoom in";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Zoom in all imageNodes" +
             " within the selected container.";
     
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
+        else {
+            Object ho = selectedDisplay.getHierarchyObject();
+            setEnabled(!(ho instanceof ImageData));
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public ZoomInAction(HiViewer model)
     {
         super(model);
@@ -78,21 +103,11 @@ public class ZoomInAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ZOOM_IN));
     }
     
-    /** Handle the action. */
+    /** Creates a {@link ZoomCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
         ZoomCmd cmd = new ZoomCmd(model, ZoomCmd.ZOOM_IN);
         cmd.execute();
-    }
-
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            if (ho instanceof ImageSummary) setEnabled(false);
-            else setEnabled(true);
-        }
     }
 
 }

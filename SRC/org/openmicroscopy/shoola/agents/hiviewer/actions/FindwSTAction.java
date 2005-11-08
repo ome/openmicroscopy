@@ -37,6 +37,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -59,12 +60,30 @@ public class FindwSTAction
     extends HiViewerAction
 {
 
+    /** Name of the action. */
     private static final String NAME = "With ST...";
     
+    /** Description of the action. */
     private static final String DESCRIPTION = "Find a regular expression " +
             "in the specified ST.";
 
     
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        //if (selectedDisplay != null) setEnabled(true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     public FindwSTAction(HiViewer model)
     {
         super(model);
@@ -80,11 +99,6 @@ public class FindwSTAction
     public void actionPerformed(ActionEvent e)
     {
         //TODO: implement action cmd
-    }
-    
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        if (selectedDisplay != null) setEnabled(true);
     }
     
 }

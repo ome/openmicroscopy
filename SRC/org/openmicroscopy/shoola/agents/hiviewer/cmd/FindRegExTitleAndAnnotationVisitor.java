@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
@@ -42,12 +43,12 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummaryLinked;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import pojos.AnnotationData;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
- * 
+ * Visits the nodes and highlights the title bar if needed.s
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,37 +66,37 @@ public class FindRegExTitleAndAnnotationVisitor
 {
     
     private Colors colors;
-    
+
+    /** True if the regular expression if found in the annotation. */
     private boolean inAnno;
     
-    FindRegExTitleAndAnnotationVisitor(HiViewer viewer, String regEx)
-    {
-        super(viewer, regEx);
-        colors = Colors.getInstance();
-        inAnno = false;
-    }
-    
-    /** Set the color of the titleBar of the specified node. */
+    /**
+     * Sets the color of the titleBar of the specified node.
+     * 
+     * @param node the specified node.
+     */
     private void setHighlight(ImageDisplay node)
     {
         if (!RegExFactory.find(pattern, node.getTitle())) return;
         foundNodes.add(node);
-        if (node.equals(model.getBrowser().getSelectedDisplay())) {
+        if (node.equals(model.getBrowser().getSelectedDisplay())) 
             node.setHighlight(colors.getColor(Colors.REGEX_TITLE_HIGHLIGHT));
-        }
-        else 
-            if (inAnno) {
+        else if (inAnno)
                 node.setHighlight(colors.getColor(
                         Colors.REGEX_TITLE_AND_ANNOTATION));
-            } else {
-                node.setHighlight(colors.getColor(Colors.REGEX_TITLE));
-            }
+        else node.setHighlight(colors.getColor(Colors.REGEX_TITLE));          
     }     
-    
-    /** Set the color of the titleBar of the specified node. */
-    private void setHighlight(ImageDisplay node, AnnotationData data)
+
+    /**
+     * Sets the color of the titleBar of the specified node.
+     * 
+     * @param node The specified node.
+     * @param annotations The annotations.
+     */
+    private void setHighlight(ImageDisplay node, Set annotations)
     {
-        if (!RegExFactory.find(pattern, data.getAnnotation())) return;
+        AnnotationData data = (AnnotationData) (annotations.toArray()[0]);
+        if (!RegExFactory.find(pattern, data.getText())) return;
         foundNodes.add(node);
         if (node.equals(model.getBrowser().getSelectedDisplay()))
             node.setHighlight(
@@ -105,17 +106,32 @@ public class FindRegExTitleAndAnnotationVisitor
     }
     
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer Reference to the model. Mustn't be <code>null</code>.
+     * @param regEx The regular expression to retrieve.
+     * Mustn't be <code>null</code>.
+     */
+    FindRegExTitleAndAnnotationVisitor(HiViewer viewer, String regEx)
+    {
+        super(viewer, regEx);
+        colors = Colors.getInstance();
+        inAnno = false;
+    }
+    
     /** 
-     * Highlight the titleBar of the imageNode 
+     * Highlights the titleBar of the imageNode 
      * if the title contains the specified regular expression.
      */
     public void visit(ImageNode node) 
     { 
         inAnno = false;
-        AnnotationData data = 
-            ((ImageSummary) node.getHierarchyObject()).getAnnotation();
-        if (data != null) setHighlight(node, data);
-        setHighlight(node); 
+        Set annotations = 
+            ((ImageData) node.getHierarchyObject()).getAnnotations();
+        if (annotations == null || annotations.size() == 0)
+            setHighlight(node);
+        else setHighlight(node, annotations);
     }
 
     
@@ -125,13 +141,11 @@ public class FindRegExTitleAndAnnotationVisitor
      */
     public void visit(ImageSet node) 
     { 
-        Object ho = node.getHierarchyObject();
-        if (ho instanceof DatasetSummaryLinked) {
-            AnnotationData 
-                data = ((DatasetSummaryLinked) ho).getAnnotation();
-            if (data != null) setHighlight(node, data);
-        }
-        setHighlight(node); 
+        Set annotations = 
+            ((DatasetData) node.getHierarchyObject()).getAnnotations();
+        if (annotations == null || annotations.size() == 0)
+            setHighlight(node);
+        else setHighlight(node, annotations);
     }
     
     

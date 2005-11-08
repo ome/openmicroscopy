@@ -36,10 +36,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
-import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
-import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
@@ -49,6 +45,10 @@ import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.UserDetailsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import pojos.AnnotationData;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.ProjectData;
 
 /** 
  * Implementation of the {@link HierarchyBrowsingView} interface.
@@ -104,7 +104,7 @@ class HierarchyBrowsingViewImpl
                                          AgentEventListener observer)
     {
         BatchCallTree cmd = 
-                        new HierarchyFinder(ProjectSummary.class, imgSummaries);
+                        new HierarchyFinder(ProjectData.class, imgSummaries);
         return cmd.exec(observer);
     }
 
@@ -122,13 +122,13 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadClassificationPaths(int, boolean,
+     * @see HierarchyBrowsingView#loadClassificationPaths(int, int,
      *                                  AgentEventListener)
      */
-    public CallHandle loadClassificationPaths(int imageID, boolean classsified,
+    public CallHandle loadClassificationPaths(int imageID, int algorithm,
             AgentEventListener observer)
     {
-        BatchCallTree cmd = new ClassificationLoader(imageID, classsified);
+        BatchCallTree cmd = new ClassificationLoader(imageID, algorithm);
         return cmd.exec(observer);
     }
 
@@ -158,50 +158,50 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadAnnotations(int, int,
+     * @see HierarchyBrowsingView#loadAnnotations(Class, int, boolean,
      *                                      AgentEventListener)
      */
-    public CallHandle loadAnnotations(int nodeTypeID, int nodeID,
-                                    AgentEventListener observer)
+    public CallHandle loadAnnotations(Class nodeType, int nodeID,
+                                   boolean history, AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationLoader(nodeTypeID, nodeID);
+        BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID, history);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#createAnnotation(int, int, String,
+     * @see HierarchyBrowsingView#createAnnotation(Class, int, String,
      *                                      AgentEventListener)
      */
-    public CallHandle createAnnotation(int nodeTypeID, int nodeID, String txt,
+    public CallHandle createAnnotation(Class nodeType, int nodeID, String txt,
                                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationSaver(nodeTypeID, nodeID, txt);
+        BatchCallTree cmd = new AnnotationSaver(nodeType, nodeID, txt);
         return cmd.exec(observer);
     }
     
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#updateAnnotation(int, int, AnnotationData,
+     * @see HierarchyBrowsingView#updateAnnotation(Class, int, AnnotationData,
      *                                      AgentEventListener)
      */
-    public CallHandle updateAnnotation(int nodeTypeID, int nodeID,
+    public CallHandle updateAnnotation(Class nodeType, int nodeID,
                         AnnotationData data, AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationSaver(nodeTypeID, nodeID, data);
+        BatchCallTree cmd = new AnnotationSaver(nodeType, nodeID, data);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#deleteAnnotation(int, AnnotationData,
+     * @see HierarchyBrowsingView#deleteAnnotation(Class, AnnotationData,
      *                                              AgentEventListener)
      */
-    public CallHandle deleteAnnotation(int nodeTypeID, AnnotationData data,
+    public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
                                     AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationSaver(nodeTypeID, data);
+        BatchCallTree cmd = new AnnotationSaver(nodeType, data);
         return cmd.exec(observer);
     }
 

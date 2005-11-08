@@ -42,8 +42,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * 
@@ -129,15 +130,15 @@ class TreePopupMenuMng
                     if (object != null) new AnnotateCmd(object).execute();
                     break;
                 case CLASSIFY:
-                    if (object instanceof ImageSummary) {
-                        ClassifyCmd cmd = new ClassifyCmd((ImageSummary) object, 
+                    if (object instanceof ImageData) {
+                        ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
                                 Classifier.CLASSIFICATION_MODE, null);
                         cmd.execute();
                     }
                     break;
                 case DECLASSIFY:
-                    if (object instanceof ImageSummary) {
-                        ClassifyCmd cmd = new ClassifyCmd((ImageSummary) object, 
+                    if (object instanceof ImageData) {
+                        ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
                                 Classifier.DECLASSIFICATION_MODE, null);
                         cmd.execute();
                     }

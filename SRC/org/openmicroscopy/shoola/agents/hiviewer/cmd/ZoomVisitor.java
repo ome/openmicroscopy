@@ -45,8 +45,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 
 /** 
- * Zoom in or out the imageNodes of a selected ImageSet.
- * This visitor is accepted by an ImageSet not by the browser.
+ * Magnifies the {@link ImageNode}s contained in the selected {@link ImageSet}.
+ * This visitor is accepted by an {@link ImageSet} not by the browser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,15 +63,23 @@ class ZoomVisitor
     extends HiViewerVisitor
 {
 
+    /** The error factor. */
     private static final double EPSILON = 0.1;
     
-    /** Creates a new instance. */
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     ZoomVisitor(HiViewer model)
     {
         super(model);
     }
     
-    /** Scale the imageNode iff the specified scaling factor is different. */
+    /** 
+     * Magnifies the {@link ImageNode} if and only if the 
+     * magnification factor has been modified.
+     */
     public void visit(ImageNode node)
     {
         Rectangle r = node.getBounds();

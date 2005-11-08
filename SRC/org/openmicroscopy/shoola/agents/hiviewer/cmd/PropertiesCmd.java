@@ -41,11 +41,11 @@ import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import pojos.DataObject;
 
 /** 
- * TODO: add comments.
+ * Posts an event to bring up the Property widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,22 +62,31 @@ public class PropertiesCmd
     implements ActionCmd
 {
     
+    /** Reference to the model */
     private HiViewer    model;
+    
+    /** The selected hierarchy object. */
     private DataObject  hierarchyObject;
     
-    
+    /**
+     * Creates a new instance.
+     * 
+     * @param hierarchyObject The selected hierarchy object.
+     */
     public PropertiesCmd(DataObject hierarchyObject)
     {
         if (hierarchyObject == null)
-            throw new NullPointerException("No hierarchy object.");
+            throw new IllegalArgumentException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
     }
     
-    /** Creates a new instance.*/
+    /**
+     * Creates a new instance.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     */
     public PropertiesCmd(HiViewer model)
     {
-        if (model == null)
-            throw new IllegalArgumentException("no model");
+        if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
     }
     

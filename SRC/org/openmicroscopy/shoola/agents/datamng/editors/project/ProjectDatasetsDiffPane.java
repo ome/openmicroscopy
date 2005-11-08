@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -50,12 +52,12 @@ import javax.swing.table.TableColumnModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.datamng.IconManager;
-import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.util.ui.table.TableHeaderTextAndIcon;
 import org.openmicroscopy.shoola.util.ui.table.TableIconRenderer;
 import org.openmicroscopy.shoola.util.ui.table.TableSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
 
 /** 
  * 
@@ -99,7 +101,7 @@ class ProjectDatasetsDiffPane
 	
 	private JPanel							contents;
 	
-	ProjectDatasetsDiffPane(ProjectEditorManager control, List datasetsDiff)
+	ProjectDatasetsDiffPane(ProjectEditorManager control, Set datasetsDiff)
 	{
 		super(control.getAgentControl().getReferenceFrame(), 
                 "List of existing datasets", true);
@@ -130,7 +132,7 @@ class ProjectDatasetsDiffPane
 	 * 
 	 * @param d List of datasets that don't belong to the project.
 	 */
-	private void initButtons(List d)
+	private void initButtons(Set d)
 	{
 		//remove button
 		selectButton = new JButton("Select All");
@@ -246,7 +248,7 @@ class ProjectDatasetsDiffPane
 		private DatasetsTableModel()
 		{
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = (DatasetSummary) datasets[i];
+				data[i][0] = (DatasetData) datasets[i];
 				data[i][1] = new Boolean(false);
 			}
 		}
@@ -269,7 +271,7 @@ class ProjectDatasetsDiffPane
 		public void setValueAt(Object value, int row, int col)
 		{	
 			data[row][col] = value;
-			DatasetSummary ds = (DatasetSummary) sorter.getValueAt(row, NAME);
+			DatasetData ds = (DatasetData) sorter.getValueAt(row, NAME);
 			fireTableCellUpdated(row, col);
 			manager.addDataset(((Boolean) value).booleanValue(), ds);
 		}
