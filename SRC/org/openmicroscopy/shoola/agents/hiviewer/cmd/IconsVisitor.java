@@ -66,7 +66,8 @@ public class IconsVisitor
     public IconsVisitor() {}
     
     /**
-     * Set a suitable icon for this node.
+     * Sets a suitable icon for this node.
+     * 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
@@ -87,6 +88,7 @@ public class IconsVisitor
     
     /**
      * Does nothing, as {@link ImageNode}s have no icon.
+     * 
      * @see ImageDisplayVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) {}

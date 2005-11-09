@@ -60,7 +60,7 @@ class SaveThumbnailsVisitor
     extends HiViewerVisitor
 {
 
-    /** The {@link Thumbnail}s retrieved. */
+    /** The collection of retrieved {@link Thumbnail}s. */
     private Set thumbnails;
     
     /**
@@ -75,7 +75,7 @@ class SaveThumbnailsVisitor
     }
 
     /**
-     * Returns the retrieved thumbnails.
+     * Returns the collection of retrieved thumbnails.
      * 
      * @return See below.
      */
