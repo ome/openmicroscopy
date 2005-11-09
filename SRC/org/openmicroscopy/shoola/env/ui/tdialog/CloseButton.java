@@ -97,7 +97,7 @@ class CloseButton
     }
     
     /** Overridden to make sure no focus is painted on top of the icon. */
-    public boolean isFocusTraversable() { return false; }
+    public boolean isFocusable() { return false; }
     
     /** Overridden to make sure no focus is painted on top of the icon. */
     public void requestFocus() {}
