@@ -136,18 +136,18 @@ public class FindRegExTitleAndAnnotationVisitor
 
     
     /** 
-     * Highlight the titleBar of the container 
+     * Highlights the titleBar of the container 
      * if the title contains the specified regular expression.
      */
     public void visit(ImageSet node) 
     { 
-        Set annotations = 
-            ((DatasetData) node.getHierarchyObject()).getAnnotations();
-        if (annotations == null || annotations.size() == 0)
-            setHighlight(node);
-        else setHighlight(node, annotations);
+        Object obj = (DatasetData) node.getHierarchyObject();
+        if (obj instanceof DatasetData) {
+            Set annotations = ((DatasetData) obj).getAnnotations();
+            if (annotations == null || annotations.size() == 0)
+                setHighlight(node);
+            else setHighlight(node, annotations);
+        } else setHighlight(node);
     }
-    
-    
 
 }

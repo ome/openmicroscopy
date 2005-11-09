@@ -112,14 +112,14 @@ class FindRegExAnnotationVisitor
     }
 
     /** 
-     * Highlight the titleBar of the container 
+     * Highlights the titleBar of the container 
      * if the annotation contains the specified regular expression.
      */
     public void visit(ImageSet node)
     {
-        Set annotations = 
-            ((DatasetData) node.getHierarchyObject()).getAnnotations();
-        setHighlight(node, annotations);
+        Object obj = node.getHierarchyObject();
+        if (obj instanceof DatasetData)
+            setHighlight(node, ((DatasetData) obj).getAnnotations());
     }
 
 }
