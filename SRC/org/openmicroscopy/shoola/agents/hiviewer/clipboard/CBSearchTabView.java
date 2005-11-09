@@ -421,7 +421,7 @@ class CBSearchTabView
     }
     
     
-    public void reshape(int x, int y, int w, int h)
+    public void setBounds(int x, int y, int w, int h)
     {
         Rectangle r = view.getVisibleRect();
         Dimension dTree = treeHolder.getSize();
@@ -433,6 +433,6 @@ class CBSearchTabView
             if (hTab < r.height) treeHolder.setPreferredSize(d);
             else if (dTree.height > dC.height) treeHolder.setPreferredSize(d);
         }
-        super.reshape(x, y, w, h);
+        super.setBounds(x, y, w, h);
     }
 }
