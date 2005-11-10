@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.svn" kind="src" path="src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
+	<classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.4.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/velocity-tools/jars/velocity-tools-generic-1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.8.jar"/>
+	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
+	<classpathentry sourcepath="/USER_HOME/lib/ant/src" kind="var" path="MAVEN_REPO/ant/jars/ant-1.6.5.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

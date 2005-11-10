@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>omero</groupId>
+    <artifactId>main</artifactId>
+    <version>3.0-alpha-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>dsl</artifactId>
+  <packaging>jar</packaging>
+  <name>Omero Domain Specific Language</name>
+  <dependencies>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.5</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>velocity-tools</groupId>
+      <artifactId>velocity-tools-generic</artifactId>
+      <version>1.1</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+  </build>
+</project>

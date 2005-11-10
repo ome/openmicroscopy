@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<types>
+	<container id="ome.model.core.Test">
+		<properties>
+			<required name="ha" type="ome.model.core.Image"/>
+		</properties>
+	</container>
+	
+	<abstract id="ome.model.core.AbstractThing">
+		<properties>
+			<required name="myBool" type="bool"/>
+			<optional name="maybeAFloat" type="float"/>
+		</properties>
+	</abstract>
+	
+	<type id="ome.model.core.RealThing" subclasses="ome.model.core.AbstractThing">
+		<properties>
+			<onemany name="lotsOfOtherThings" type="ome.model.somewhere.ElseHa"/>
+		</properties>
+	</type>
+	
+	<type id="ome.model.somewhere.ElseHa"/>
+	
+	<link id="ome.model.links.RealThingOtherThingMap" 
+		to="ome.model.core.RealThing"
+		from="ome.model.somewhere.ElseHa"/>
+
+	<enum id="ome.model.enums.MyThingType"> <!-- enums and *Type are conventions -->
+		<properties>
+			<entry name="test1"/>
+		</properties>
+	</enum>
+	
+	<!-- examples -->
+	<!--
+	<type id="listOfExamples"><properties>
+		<test_r/><test_1/><test/><required/>
+    		<test_p/><test_1N/><onemany/>
+    		<test_q/><test_01/><zeroone/><optional/>
+    		<test_s/><test_0N/><zeromany/>
+    		<test_ip/><test_N1/><manyone/>
+    		<test_is/><test_N0/><manyzero/>
+    		<fk_p/>
+    		<fk_r/>
+    		<int_p/>
+    		<value_cardinality/>
+	</properties></type>
+	-->
+</types>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>${pom.groupId}-dsl</id>
+  <name>OME Domain Specific Language</name>
+  <currentVersion>${omero.version}</currentVersion>
+  <package>ome</package>
+  <description>Domain specific language for defining Semantic Types.</description>
+  <dependencies>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.5</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+    </dependency>
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>velocity-tools</groupId>
+      <artifactId>velocity-tools-generic</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.4.0</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>resources</directory>
+        <includes>
+          <include>**/*.vm</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

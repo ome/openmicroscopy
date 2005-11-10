@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+#set($table = ${type.typeToColumn($type.id)} )
+<class 
+    name="${type.id}" 
+    table="${table}">
+	
+#if($type.abstract)
+	<meta attribute="scope-class" inherit="false">public abstract</meta>
+#end
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 COMMON
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	
+	 <id name="id" type="java.lang.Integer" column="id">
+		<generator class="sequence">
+			<param name="sequence">seq_$table</param>
+		</generator>
+	</id>
+
+#if(!$type.immutable)
+	<version name="version" type="java.lang.Integer" column="version" unsaved-value="negative"/>
+	<many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+#end
+	
+	<many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 INTERFACE-BASED
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+#if($type.named)
+	<property name="name" type="java.lang.String" column="name" not-null="true" length="256"/>
+#end
+#if($type.described)
+   <property name="description" type="java.lang.String" column="description" length="256"/>
+#end
+
+#if(!$type.global)	
+	<many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+	<component name="permissions" class="ome.model.internal.Permissions">
+		<property name="bytes" type="binary" column="permissions"/> 
+		<!-- TODO possibly just default CHMOD here -->
+	</component>
+#end
+	
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SPECIFIC
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	 
+    <!-- Associations -->
+	 
+#foreach($prop in $type.properties)
+#if($prop.one2Many)
+
+	<!-- bi-directional one-to-many association to $prop.name -->
+    <set
+		name="${prop.name}"
+		lazy="true"
+		inverse="true"
+		mutable="${prop.mutable}"
+		cascade="all">
+		<key>
+			<column name="${table}" />
+		</key>
+		<one-to-many class="${prop.type}"/>
+    </set>
+
+#elseif($prop.foreignKey)
+
+    <!-- bi-directional many-to-one association to $prop.name -->
+    <many-to-one
+        name="${prop.name}"
+        class="${prop.type}"
+        not-null="${prop.required}"
+		unique="${prop.unique}"
+		update="${prop.mutable}">
+        <column name="${prop.name}" />
+    </many-to-one>
+
+#else
+
+	<property name="${prop.name}" type="${prop.type}" not-null="${prop.required}" unique="${prop.unique}" update="${prop.mutable}"/>
+
+#end
+#end
+ </class>
+</hibernate-mapping>

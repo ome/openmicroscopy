@@ -9,20 +9,28 @@
 	<property file="${props}" />
 	<property name="lib.dir" value="${basedir}/../../lib" />
 	<property name="src.dir" value="${basedir}/src" />
+	<property name="resrc.dir" value="${basedir}/resources" />
 	<property name="dest.dir" value="${basedir}/gen-src" />
 	<property name="ddl.file" value="ddl.sql" />
 	<property name="ice.file" value="ome.ice"/>
 	<property name="target.dir" value="${basedir}/target/classes" />
+	<property name="hbm.dir" value="${dest.dir}/hbm"/>
 	<property name="split.script" value="${basedir}/../scripts/shell/split.sh"/>
 	<!--TODO-->
 
 	<target name="prepare">
+		<pathconvert property="maven.path" refid="maven.dependency.classpath"/>
+		<echo message="${maven.path}"/>
 		<path id="hibernate-ext.classpath">
-			<fileset dir="${lib.dir}/htool" includes="**/*.jar" />
+			<!--athelement path="${maven.path}"/-->
+			<pathelement location="${basedir}/../dsl/target2/dsl-3.0-alpha-SNAPSHOT.jar"/>
 			<pathelement location="${basedir}" />
 			<pathelement location="${dest.dir}/" />
 			<pathelement location="${target.dir}/" />
+			<fileset dir="${lib.dir}/htool" includes="**/*.jar" />
 		</path>
+		<pathconvert property="this.path" refid="hibernate-ext.classpath"/>
+		<echo message="${this.path}"/>
 
 		<available property="hibernate" classname="org.hibernate.Hibernate" classpathref="hibernate-ext.classpath" />
 		<available property="hibernate-ext" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="hibernate-ext.classpath" />
@@ -39,18 +47,31 @@
 	<target name="init" depends="prepare,fail-if-no-hibernate,fail-if-no-hibernate-ext">
 		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="hibernate-ext.classpath" name="hibernatetool"/>
 		<taskdef classname="Slice2JavaTask" classpathref="hibernate-ext.classpath" name="slice2java"/>
+		<taskdef classname="ome.dsl.DSLTask" classpathref="hibernate-ext.classpath" name="dsl"/>
 		<mkdir dir="${dest.dir}" />
 <!--TODO DELETE	<javac classpathref="hibernate-ext.classpath" destdir="${target.dir}" srcdir="${src.dir}">
 			<include name="ome/hiberate/"/>
 		</javac>-->
 	</target>
 	
-	<target name="generate" depends="init">
+	<target name="dsl" depends="init">
+		<mkdir dir="${hbm.dir}"/>
+		<dsl destdir="${hbm.dir}/">
+			<fileset dir="${resrc.dir}">
+				<include name="**/*.ome"/>
+			</fileset>
+		</dsl>
+	</target>
+
+	<target name="hib" depends="init">
 		<hibernatetool destdir="${dest.dir}" templatepath="${src.dir}">
 			<classpath refid="hibernate-ext.classpath"/>
 			
 			<configuration propertyfile="${props}">
-				<fileset dir="${src.dir}" id="id" includes="${includes}"/>
+				<fileset dir="${src.dir}" includes="${includes}"/>
+				<fileset dir="${hbm.dir}" includes="${includes}">
+					<not><present targetdir="${src.dir}"/></not>
+				</fileset>
 			</configuration>
 	
 			<hbmtemplate template="pojo/ice_includes.vm" filepattern="${ice.file}" />
@@ -84,7 +105,7 @@
 			<include name="**/*.ice"/>
 		</fileset>
 		<pathconvert pathsep=" " property="slice.files" refid="slice.generated"/>
-		<exec executable="${split.script}"><!--TODO: add *.bat-->
+		<exec executable="${split.script}"><!--TODO: add *.bat--><!-- use <arg line="$"/>-->
 			<!-- Need to have PATH set properly-->
 			<arg value="slice2py"/>
 			<arg value="--output-dir"/>
@@ -137,7 +158,7 @@
 		
 	</target>
 	
-	<target name="all" depends="generate,slice,patch,compileCS,slicePY"/>
+	<target name="all" depends="dsl,hib,slice,patch,compileCS,slicePY"/>
 	
 	<target name="cache">
 		<java classname="InitializeHibernateTest" classpathref="hibernate-ext.classpath" fork="yes" failonerror="yes" />
