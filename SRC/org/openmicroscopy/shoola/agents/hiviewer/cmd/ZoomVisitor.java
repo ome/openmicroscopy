@@ -64,7 +64,7 @@ class ZoomVisitor
 {
 
     /** The error factor. */
-    private static final double EPSILON = 0.1;
+    private static final int EXTRA_PIXEL = 1;
     
     /**
      * Creates a new instance.
@@ -89,7 +89,6 @@ class ZoomVisitor
         if (sf != factor) {
             th.scale(factor);
             double ratio = factor/sf;
-            if (ratio < 1) ratio += EPSILON;
             node.setLocation((int) (r.x*ratio), (int) (r.y*ratio));
         }
     }
@@ -99,8 +98,7 @@ class ZoomVisitor
     {
         //Trick to show the scrollBar on screen
         Dimension d = node.getSize();
-        node.setSize((int) (d.getWidth()+10*EPSILON), 
-                    (int) (d.getHeight()+10*EPSILON));
+        node.setSize(d.width+EXTRA_PIXEL, d.height+EXTRA_PIXEL);
     }
 
 }

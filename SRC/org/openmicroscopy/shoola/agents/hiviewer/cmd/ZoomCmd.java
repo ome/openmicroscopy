@@ -38,6 +38,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -143,9 +146,13 @@ public class ZoomCmd
         ZoomVisitor visitor = new ZoomVisitor(model);
         Browser browser = model.getBrowser();
         ImageDisplay selectedDisplay = browser.getSelectedDisplay();
-        if (selectedDisplay.getParentDisplay() == null) //root
-            browser.accept(visitor);
-        else selectedDisplay.accept(visitor);
+        if (selectedDisplay.getParentDisplay() == null) return;
+        selectedDisplay.accept(visitor);
+        if (selectedDisplay instanceof ImageSet) {
+            Layout layout = LayoutFactory.createLayout(
+                                LayoutFactory.SQUARY_LAYOUT);
+            layout.visit((ImageSet) selectedDisplay);
+        }
     }
 
 }
