@@ -155,9 +155,9 @@ select ${abbrev} from ${class} ${abbrev}
 #####################################################
 #macro(filters)
 #if($doDataset)
-		and d.name != 'ImportSet'
+		and ( d.name != 'ImportSet' or d is null )
 #if($doDatasetAnnotation)
-		and d_ann.valid = true 
+		and ( d_ann.valid = true or d_ann is null ) 
 #if($doAnnotationOwner)
 		and ( d_ann_exp = :ann_owner or d_ann_exp is null )
 #end
@@ -166,7 +166,7 @@ select ${abbrev} from ${class} ${abbrev}
 ## TODO this can possibly leave when pojo_anns moves to its own query builder
 #if($doImage)
 #if($doImageAnnotation)
-		and i_ann.valid = true
+		and ( i_ann.valid = true or i_ann is null )
 #if($doAnnotationOwner)
 		and ( i_ann_exp = :ann_owner or i_ann_exp is null )
 #end
