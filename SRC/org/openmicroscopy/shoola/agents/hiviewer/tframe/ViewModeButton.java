@@ -184,6 +184,7 @@ class ViewModeButton
             list.setLayoutOrientation(JList.VERTICAL);
             JScrollPane sp = new JScrollPane(list);
             JMenu selectMenu = new JMenu("Select");
+            list.setBackground(selectMenu.getBackground());
             selectMenu.add(sp);
             //Add menu to the dropDownMenu
             dropDownMenu.add(selectMenu);
@@ -239,7 +240,8 @@ class ViewModeButton
         dropDownMenu = new JPopupMenu();
         initDropDownMenu();
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
-        setMargin(new Insets(0,0,0,0));  //Just to make sure button sz=icon sz.
+        //Just to make sure button sz=icon sz.
+        setMargin(new Insets(0, 0, 0, 0));  
         setOpaque(false);  //B/c button=icon.
         setFocusPainted(false);  //Don't paint focus box on top of icon.
         setRolloverEnabled(true);
@@ -247,6 +249,7 @@ class ViewModeButton
     
     /**
      * Registers this button with the Model.
+     * 
      * @see TinyFrameObserver#attach()
      */
     public void attach() 
@@ -258,6 +261,7 @@ class ViewModeButton
 
     /**
      * Detaches this button from the Model's change notification registry.
+     * 
      * @see TinyFrameObserver#detach()
      */
     public void detach() 
@@ -295,6 +299,7 @@ class ViewModeButton
     /**
      * Switches to single-view mode or displays the drop down menu if we're
      * already in single-view mode.
+     * 
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent ae)
