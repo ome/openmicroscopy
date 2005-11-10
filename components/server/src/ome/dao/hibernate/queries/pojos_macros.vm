@@ -173,7 +173,7 @@ select ${abbrev} from ${class} ${abbrev}
 #end
 #end
 #if($doClassification)
-		and ( cla.valid = true or cla.valid is null )
+		and ( cla.valid = true or cla is null )
 #end
 #end
 #####################################################
