@@ -137,6 +137,7 @@ public class ImageNode
     /** 
      * Set the size of the ThumbnailCanvas and the preferredSize of the
      * internal desktop.
+     * 
      * @param w width.
      * @param h height.
      */
