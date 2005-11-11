@@ -168,10 +168,10 @@ class DatasetImagesPane
 	{
         buttonsPanel = new JPanel();
 		//remove button
-		removeButton = new JButton("Select All");
+		removeButton = new JButton("Remove All");
 		removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		removeButton.setToolTipText(
-			UIUtilities.formatToolTipText("Remove all datasets."));
+			UIUtilities.formatToolTipText("Remove all images."));
 		//cancel button
 		resetButton = new JButton("Reset");
 		resetButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -257,7 +257,7 @@ class DatasetImagesPane
 		extends AbstractTableModel
 	{
 		
-		private final String[]	columnNames = {"Name", "Select"};
+		private final String[]	columnNames = {"Name", "Remove"};
 		private final Object[]	images = manager.getImages().toArray();
 		private Object[][]		data = new Object[images.length][2];
 		

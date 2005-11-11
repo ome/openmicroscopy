@@ -79,7 +79,7 @@ class DatasetEditorBar
 		saveButton.setToolTipText(
 			UIUtilities.formatToolTipText("Save data in the DB."));
 		saveButton.setEnabled(false);
-		addButton = new JButton("Add images");
+		addButton = new JButton("Add images...");
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		addButton.setToolTipText(
 			UIUtilities.formatToolTipText("Add images to the dataset."));
@@ -91,6 +91,7 @@ class DatasetEditorBar
 	/** Build and lay out the GUI. */
 	private void buildGUI()
 	{
+        add(UIUtilities.buildComponentPanel(addButton));
         add(UIUtilities.buildComponentPanelRight(buildButtonPanel()));
 	}
 	
@@ -103,8 +104,8 @@ class DatasetEditorBar
         p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.add(saveButton);
 		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
-		p.add(addButton);
-		p.add(Box.createRigidArea(DataManagerUIF.HBOX));
+		//p.add(addButton);
+		//p.add(Box.createRigidArea(DataManagerUIF.HBOX));
 		p.setOpaque(false); //make panel transparent
 		return p;
 	}

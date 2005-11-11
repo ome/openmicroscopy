@@ -313,7 +313,7 @@ class DatasetImagesDiffPane
             images = imagesDiff.toArray();
             data = new Object[images.length][2];
 			for (int i = 0; i < images.length; i++) {
-				data[i][0] = (ImageData) images[i];
+				data[i][0] = ((ImageData) images[i]).getName();
 				data[i][1] = Boolean.FALSE;
 			}
 		}

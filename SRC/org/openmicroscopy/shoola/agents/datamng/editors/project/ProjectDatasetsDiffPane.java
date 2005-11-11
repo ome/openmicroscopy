@@ -32,9 +32,7 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.util.List;
 import java.util.Set;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -248,7 +246,8 @@ class ProjectDatasetsDiffPane
 		private DatasetsTableModel()
 		{
 			for (int i = 0; i < datasets.length; i++) {
-				data[i][0] = (DatasetData) datasets[i];
+                data[i][0] = ((DatasetData) datasets[i]).getName();
+				//data[i][0] = (DatasetData) datasets[i];
 				data[i][1] = new Boolean(false);
 			}
 		}

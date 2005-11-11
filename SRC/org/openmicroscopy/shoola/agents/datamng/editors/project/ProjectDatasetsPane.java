@@ -31,11 +31,9 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 
 //Java imports
 import java.awt.Cursor;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -328,7 +326,7 @@ class ProjectDatasetsPane
 		{
             DatasetData ds;
 			for (int i = 0; i < datasets.length; i++) {
-				 ds = (DatasetData) datasets[i];
+			    ds = (DatasetData) datasets[i];
 				data[i][0] = ds.getName();
 				data[i][1] = new Boolean(dats.contains(ds));
 			}

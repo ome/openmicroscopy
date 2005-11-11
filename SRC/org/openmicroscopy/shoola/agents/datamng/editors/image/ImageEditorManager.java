@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.datamng.editors.image;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -60,7 +58,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 class ImageEditorManager
-	implements ActionListener, DocumentListener,  MouseListener
+	implements ActionListener, DocumentListener
 {
 	
 	/** Action command ID. */
@@ -70,7 +68,7 @@ class ImageEditorManager
 	private ImageEditor			view;
 	private DataManagerCtrl 	control;
 	
-	private boolean				nameChange, isName;
+	private boolean				nameChange;
 	
 	ImageEditorManager(ImageEditor view, DataManagerCtrl control,
 						ImageData model)
@@ -79,7 +77,6 @@ class ImageEditorManager
 		this.control = control;
 		this.model = model;
 		nameChange = false;
-		isName = false;
 	}
 	
 	ImageData getImageData() { return model; }
@@ -91,7 +88,6 @@ class ImageEditorManager
         attachButtonListener(view.getViewButton(), VIEW);
 		JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
-		nameField.addMouseListener(this);
 		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
@@ -136,41 +132,14 @@ class ImageEditorManager
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		view.getSaveButton().setEnabled(isName);
+		view.getSaveButton().setEnabled(true);
 	}
 	
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-        view.getSaveButton().setEnabled(isName);
+        view.getSaveButton().setEnabled(true);
 	}
-	
-	/** Indicates that the name has been modified. */
-	public void mousePressed(MouseEvent e) { isName = true; }
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseClicked(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseEntered(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseExited(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseReleased(MouseEvent e){}
 	
 }	
 	

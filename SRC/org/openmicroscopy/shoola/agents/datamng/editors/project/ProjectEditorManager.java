@@ -32,13 +32,10 @@ package org.openmicroscopy.shoola.agents.datamng.editors.project;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -67,7 +64,7 @@ import pojos.ProjectData;
  * @since OME2.2
  */
 class ProjectEditorManager
-	implements ActionListener, DocumentListener, MouseListener
+	implements ActionListener, DocumentListener
 {
 	
 	/** Action command ID. */
@@ -97,7 +94,7 @@ class ProjectEditorManager
 	/** List of selected datasets to be added that have to be removed. */
 	private List					datasetsToAddToRemove;
 	
-	private boolean					nameChange, isName;
+	private boolean					nameChange;
 	
 	private ProjectDatasetsDiffPane	dialog;
 	
@@ -108,7 +105,6 @@ class ProjectEditorManager
 		this.agentCtrl = agentCtrl;
 		this.model = model;
 		nameChange = false;
-		isName = false;
 		datasetsToRemove = new ArrayList();
 		datasetsToAdd = new ArrayList();
 		datasetsToAddToRemove = new ArrayList();
@@ -137,7 +133,6 @@ class ProjectEditorManager
 		//text fields.
         JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
-		nameField.addMouseListener(this);
 		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
@@ -191,7 +186,7 @@ class ProjectEditorManager
 		view.getSaveButton().setEnabled(true);	
 	}
 	
-	/** Add the list of selected datasets to the {@link ProjectDatasetPane}. */
+	/** Add the list of selected datasets. */
 	void addDatasetsSelection(List l)
 	{
 		Iterator i = l.iterator();
@@ -292,41 +287,16 @@ class ProjectEditorManager
 	/** Require by I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		view.getSaveButton().setEnabled(isName);
+		//view.getSaveButton().setEnabled(isName);
+        view.getSaveButton().setEnabled(true);
 	}
 	
 	/** Require by I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-        view.getSaveButton().setEnabled(isName);
+        //view.getSaveButton().setEnabled(isName);
+        view.getSaveButton().setEnabled(true);
 	}
 
-	/** Tells that the name has been modified. */
-	public void mousePressed(MouseEvent e) { isName = true; }
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseClicked(MouseEvent e) {}
-	
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseEntered(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseExited(MouseEvent e) {}
-
-	/** 
-	 * Required by I/F but not actually needed in our case, no op 
-	 * implementation.
-	 */ 
-	public void mouseReleased(MouseEvent e){}
-	
 }	
 	
