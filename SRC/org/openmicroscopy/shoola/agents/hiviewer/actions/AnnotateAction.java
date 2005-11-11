@@ -48,7 +48,6 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * Brings up the annotator widget if required.
  * This action is enabled if the hierarchy node is an image or dataset.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
