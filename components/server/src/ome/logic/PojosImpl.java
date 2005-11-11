@@ -40,7 +40,6 @@ package ome.logic;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,21 +49,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
-
-import ome.api.OMEModel;
-import ome.api.HierarchyBrowsing;
 import ome.api.Pojos;
-import ome.dao.AnnotationDao;
-import ome.dao.ContainerDao;
 import ome.dao.DaoFactory;
 import ome.dao.hibernate.queries.PojosQueryBuilder;
 import ome.model.Category;
 import ome.model.CategoryGroup;
-import ome.model.Classification;
 import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
+import ome.model.Experimenter;
 import ome.model.Image;
-import ome.model.ImageAnnotation;
 import ome.model.Project;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
@@ -266,6 +258,54 @@ public class PojosImpl implements Pojos {
 		return new HashSet(daos.generic().queryListMap(q,m));
 		
 	}
+    
+    /**
+     * @DEV.TODO move query to queryBuilder
+     */
+    public Map getUserDetails(Set ids, Map options)
+    {
+        
+        /* test for type guarantee and non-null*/
+        for (Object object : ids)
+        {
+            if (!(object instanceof Integer)){
+                throw new IllegalArgumentException("Ids parameter to getUserDetails must be only Integers.");    
+            }
+        }
+        
+        List results;
+        Map<Integer, Experimenter> map = new HashMap<Integer, Experimenter>();
+        
+        /* query only if we have some ids */
+        if (ids.size() > 0)
+        {
+            Map<String, Set> params = new HashMap<String, Set>();
+            params.put("id_list",ids);
+        
+            results = daos.generic().queryListMap(
+                    "select e from Experimenter e left outer join fetch e.group where e.attributeId in ( :id_list )",
+                    params
+            );
+            
+            for (Object object : results)
+            {
+                Experimenter e = (Experimenter) object;
+                map.put(e.getAttributeId(),e);
+            }
+        }
+        
+        /* ensures all ids appear in map */
+        for (Object object : ids)
+        {
+            Integer i = (Integer) object;
+            if (! map.containsKey(i)){
+                map.put(i,null);
+            }
+        }        
+        
+        return map;
+        
+    }
 
 }
 

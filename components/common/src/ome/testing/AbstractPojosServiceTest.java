@@ -146,6 +146,9 @@ public abstract class AbstractPojosServiceTest
     	log("get_image",psrv.getUserImages(po.map()));    
     }
 
+    public void testGetUserDetails(){
+        log("get_user",psrv.getUserDetails(ids,po.map()));
+    }
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
     

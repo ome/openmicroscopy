@@ -263,5 +263,15 @@ public interface Pojos {
 	 * @return A set of images.
 	 */
 	public Set getUserImages(Map options);
+    
+    /**
+     * Retrieves <code>Experimenter</code> instances based on id
+     * @param ids
+     *          Set of id Integers for <code>Experimenter</code> 
+     * @param options
+     *          Map. Unused.
+     * @return A map from id Integer to <code>Experimenter</code>
+     */
+    public Map getUserDetails(Set ids, Map options);
 
 }

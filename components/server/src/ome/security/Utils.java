@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.util.Utils
+ * ome.security.Utils
  *
  *------------------------------------------------------------------------------
  *

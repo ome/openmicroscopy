@@ -29,14 +29,9 @@
 package ome.server.itests;
 
 //Java imports
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,26 +39,16 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
-import ome.api.Pojos;
-import ome.dao.GenericDao;
-import ome.dao.hibernate.queries.PojosQueryBuilder;
-import ome.model.Category;
-import ome.model.CategoryGroup;
 import ome.model.Dataset;
-import ome.model.Image;
+import ome.model.ImagePixel;
 import ome.model.Project;
+import ome.model.Repository;
 import ome.security.Utils;
 import ome.testing.AbstractPojosServiceTest;
+import ome.util.ContextFilter;
+import ome.util.Filterable;
 import ome.util.builders.PojoOptions;
 
 /** 
@@ -95,4 +80,72 @@ public class PojosServiceTest
     	Utils.setUserAuth();
     }
     
+    public void testRepositoryNotNull(){
+    	checkForRepository(psrv.getUserImages(new PojoOptions().exp(1).map()));
+    	checkForRepository(psrv.getImages(Dataset.class,Collections.singleton(1),null));
+    	checkForRepository(psrv.loadContainerHierarchy(Project.class,Collections.singleton(1),null));
+    }
+    
+    protected void checkForRepository(Object o){
+    	Scanner scanner = new Scanner(ImagePixel.REPOSITORY);
+    	List<Repository> l = scanner.scan(o);
+    	for (Repository r : l){
+    		assertTrue("No server url",r.getImageServerUrl()!=null);
+    	}    	
+    }
+    
+}
+
+// TODO refactor out. 
+class Scanner extends ContextFilter {
+	
+	protected String _field;
+	
+	protected List _hits = new ArrayList();
+	
+	public Scanner(String field){
+		this._field = field;
+	}
+	
+	public List scan(Object target) {
+		super.filter(null,target);
+		return _hits;
+	}
+	
+	@Override
+	public Filterable filter(String fieldId, Filterable f) {
+		addIfHit(fieldId, f); // TODO here's where we could use a single call back for each filter method. (onFilter) also (onFilterX)
+		return super.filter(fieldId,f);
+	}
+	
+	@Override
+	public Collection filter(String fieldId, Collection c) {
+		addIfHit(fieldId, c); // TODO here's where we could use a single call back for each filter method. (onFilter) also (onFilterX)
+		return super.filter(fieldId,c);
+	}
+
+	@Override
+	public Map filter(String fieldId, Map m) {
+		addIfHit(fieldId, m); // TODO here's where we could use a single call back for each filter method. (onFilter) also (onFilterX)
+		return super.filter(fieldId,m);
+	}
+
+	@Override
+	public Object filter(String fieldId, Object o) {
+		addIfHit(fieldId, o); // TODO here's where we could use a single call back for each filter method. (onFilter) also (onFilterX)
+		return super.filter(fieldId,o);
+	}
+	
+	public void addIfHit(String fieldId, Object o){
+		if (fieldId==null) {
+			if (_field==null){
+				_hits.add(o);
+			}
+		} else {
+			if (fieldId.equals(_field)){
+				_hits.add(o);
+			}
+		}
+	}
+	
 }
