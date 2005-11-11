@@ -100,10 +100,10 @@ class ClipBoardUI
                 int index = -1;
                 switch (tabPane.getSelectedIndex()) {
                     case SEARCH_TAB:
-                        index = ClipBoardModel.SEARCH_PANEL;
+                        index = ClipBoard.SEARCH_PANEL;
                         break;
                     case ANNOTATE_TAB:
-                        index = ClipBoardModel.ANNOTATION_PANEL;
+                        index = ClipBoard.ANNOTATION_PANEL;
                         break;
                 };
                 controller.setPaneIndex(index);
@@ -192,14 +192,21 @@ class ClipBoardUI
         annotationView.onDisplayChange(selectedDisplay);
     }
     
-    /**
-     * Updates the annotation tabbed pane.
-     */
-    void manageAnnotation()
-    {
-        annotationView.manageAnnotation();
-    }
+    /** Updates the annotation tabbed pane. */
+    void manageAnnotation() { annotationView.manageAnnotation(); }
     
+    /** 
+     * Returns the height of the tabbed pane. 
+     * 
+     * @return See above.
+     */
     int getTabPaneHeight() { return tabPane.getHeight(); }
+    
+    /**
+     * Sets the selected tabbed pane.
+     *  
+     * @param index The index of the selected tabbed pane.
+     */
+    void setSelectedPane(int index) { tabPane.setSelectedIndex(index); }
     
 }

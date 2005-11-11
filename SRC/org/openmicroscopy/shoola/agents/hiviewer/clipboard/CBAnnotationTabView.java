@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import pojos.AnnotationData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -388,13 +389,13 @@ class CBAnnotationTabView
         ownersMap = new HashMap();
         String name = "";
         List list;
+        ExperimenterData data;
         while (i.hasNext()) {
             id = (Integer) i.next();
             list = (List) annotations.get(id);
-            System.out.println(list);
-            name = ((AnnotationData) 
-                    list.get(0)).getOwner().getLastName();
-            if (userDetails.getUserID() == id.intValue()) userIndex = index;
+            data = ((AnnotationData) list.get(0)).getOwner();
+            name = data.getLastName();
+            if (userDetails.getUserID() == data.getId()) userIndex = index;
             owners[index] = name;
             ownersMap.put(new Integer(index), id);
             index++;
@@ -464,7 +465,7 @@ class CBAnnotationTabView
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (model.getPaneIndex() != ClipBoardModel.ANNOTATION_PANEL) return;
+        if (model.getPaneIndex() != ClipBoard.ANNOTATION_PANEL) return;
         if (selectedDisplay == null) {
             setComponentsEnabled(false);
             return;

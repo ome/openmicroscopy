@@ -140,12 +140,7 @@ class ClipBoardControl
      * 
      * @param index The index of the selected pane.
      */
-    void setPaneIndex(int index)
-    {
-        model.setPaneIndex(index);
-        view.onDisplayChange(
-                model.getParentModel().getBrowser().getSelectedDisplay());
-    }
+    void setPaneIndex(int index) { component.setPaneIndex(index); }
     
     /**
      * Updates the specified annotation.

@@ -66,13 +66,7 @@ import pojos.AnnotationData;
  */
 class ClipBoardModel
 {
-    
-    /** The index of the search panel. */
-    static final int                SEARCH_PANEL = 0;
-    
-    /** The index of the annotation panel. */
-    static final int                ANNOTATION_PANEL = 1;
-    
+
     /** Identifies a <code>CREATE</code> annotation action. */
     static final int                CREATE = 100;
     
@@ -165,14 +159,7 @@ class ClipBoardModel
      * 
      * @param i The index of the tabbedPane.
      */
-    void setPaneIndex(int i) 
-    {
-        if (i != SEARCH_PANEL && i != ANNOTATION_PANEL)
-            throw new IllegalArgumentException("Pane index not valid.");
-        if (paneIndex == i) return;
-        paneIndex = i;
-        if (paneIndex != ANNOTATION_PANEL) discardAnnotation();
-    }
+    void setPaneIndex(int i)  { paneIndex = i; }
     
     /**
      * Returns the annotation status.

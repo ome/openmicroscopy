@@ -402,7 +402,7 @@ class CBSearchTabView
     {
         //TODO: Need to define a strategy to perform a search when user selects 
         //a new node.
-        if (model.getPaneIndex() != ClipBoardModel.SEARCH_PANEL) return;
+        if (model.getPaneIndex() != ClipBoard.SEARCH_PANEL) return;
         if (selectedDisplay == null || selectedDisplay instanceof ImageNode) {
             setComponentsEnabled(false);
             searchPanel.setBorder(new TitledBorder(" -- ")); 

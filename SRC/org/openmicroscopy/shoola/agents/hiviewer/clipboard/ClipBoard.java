@@ -56,17 +56,23 @@ import pojos.AnnotationData;
 public interface ClipBoard
     extends ObservableComponent
 {
+ 
+    /** Identifies the index of the search panel. */
+    public static final int     SEARCH_PANEL = 0;
     
-    /** Flag to denote the <i>Loading annotations</i> state. */
+    /** Identifies the index of the annotation panel. */
+    public static final int     ANNOTATION_PANEL = 1;
+    
+    /** Identifies the <i>Loading annotations</i> state. */
     public static final int     LOADING_ANNOTATIONS = 200;
     
-    /** Flag to denote the <i>Edit annotations</i> state. */
+    /** Identifies the <i>Edit annotations</i> state. */
     public static final int     EDIT_ANNOTATIONS = 201;
     
-    /** Flag to denote the <i>Ready</i> state. */
+    /** Identifies the <i>Ready</i> state. */
     public static final int     ANNOTATIONS_READY = 202;
     
-    /** Flag to denote the <i>Discarded annotations</i> state. */
+    /** Identifies the <i>Discarded annotations</i> state. */
     public static final int     DISCARDED_ANNOTATIONS = 203;
     
     /**
@@ -141,5 +147,8 @@ public interface ClipBoard
      */
     public void manageAnnotationEditing(boolean b);
 
+    
+    public void setPaneIndex(int index);
+    
 }
 

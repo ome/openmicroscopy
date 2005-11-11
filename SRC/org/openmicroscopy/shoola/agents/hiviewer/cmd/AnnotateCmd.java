@@ -35,19 +35,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataset;
-import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * TODO: add comments.
+ * Command to annotate a given dataset or image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -103,16 +99,9 @@ public class AnnotateCmd
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;
-        //post an Annotate event.
-        EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-        if (hierarchyObject instanceof DatasetData) {
-            DatasetData uO = (DatasetData) hierarchyObject;
-            eventBus.post(new AnnotateDataset(uO.getId(), uO.getName()));
-        } else if (hierarchyObject instanceof ImageData) {
-            ImageData uO = (ImageData) hierarchyObject;
-            eventBus.post(new AnnotateImage(uO.getId(), uO.getName(), 
-                            uO.getDefaultPixels().getId()));
-        }    
+        if ((hierarchyObject instanceof DatasetData) ||
+                (hierarchyObject instanceof ImageData))
+            model.getClipBoard().setPaneIndex(ClipBoard.ANNOTATION_PANEL);
     }
 
 }

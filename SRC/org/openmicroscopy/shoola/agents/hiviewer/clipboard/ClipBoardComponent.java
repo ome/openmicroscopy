@@ -208,5 +208,21 @@ class ClipBoardComponent
                     model.getAnnotatedObjectIndex());
         }
     }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#setPaneIndex(int)
+     */
+    public void setPaneIndex(int index)
+    {
+        if (index != SEARCH_PANEL && index != ANNOTATION_PANEL)
+            throw new IllegalArgumentException("Pane index not valid.");
+        if (model.getPaneIndex() == index) return;
+        model.setPaneIndex(index);
+        view.onDisplayChange(
+                model.getParentModel().getBrowser().getSelectedDisplay());
+        view.setSelectedPane(index);
+        if (index != ANNOTATION_PANEL) discardAnnotation();
+    }
     
 }
