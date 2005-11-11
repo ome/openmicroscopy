@@ -147,7 +147,8 @@ public abstract class AbstractPojosServiceTest
     }
 
     public void testGetUserDetails(){
-        log("get_user",psrv.getUserDetails(ids,po.map()));
+        Set names = new HashSet(Arrays.asList(new String[]{"josh","jason","chris","callan","jmoore","jswedlow","jburel"}));
+        log("get_user",psrv.getUserDetails(names,po.map()));
     }
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`

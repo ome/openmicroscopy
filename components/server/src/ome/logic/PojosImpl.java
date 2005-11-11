@@ -262,44 +262,44 @@ public class PojosImpl implements Pojos {
     /**
      * @DEV.TODO move query to queryBuilder
      */
-    public Map getUserDetails(Set ids, Map options)
+    public Map getUserDetails(Set names, Map options)
     {
         
         /* test for type guarantee and non-null*/
-        for (Object object : ids)
+        for (Object object : names)
         {
-            if (!(object instanceof Integer)){
-                throw new IllegalArgumentException("Ids parameter to getUserDetails must be only Integers.");    
+            if (!(object instanceof String)){
+                throw new IllegalArgumentException("names parameter to getUserDetails may only contain Strings.");    
             }
         }
         
         List results;
-        Map<Integer, Experimenter> map = new HashMap<Integer, Experimenter>();
+        Map<String, Experimenter> map = new HashMap<String, Experimenter>();
         
         /* query only if we have some ids */
-        if (ids.size() > 0)
+        if (names.size() > 0)
         {
             Map<String, Set> params = new HashMap<String, Set>();
-            params.put("id_list",ids);
+            params.put("name_list",names);
         
             results = daos.generic().queryListMap(
-                    "select e from Experimenter e left outer join fetch e.group where e.attributeId in ( :id_list )",
+                    "select e from Experimenter e left outer join fetch e.group where e.omeName in ( :name_list )",
                     params
             );
             
             for (Object object : results)
             {
                 Experimenter e = (Experimenter) object;
-                map.put(e.getAttributeId(),e);
+                map.put(e.getOmeName(),e);
             }
         }
         
         /* ensures all ids appear in map */
-        for (Object object : ids)
+        for (Object object : names)
         {
-            Integer i = (Integer) object;
-            if (! map.containsKey(i)){
-                map.put(i,null);
+            String name = (String) object;
+            if (! map.containsKey(name)){
+                map.put(name,null);
             }
         }        
         
