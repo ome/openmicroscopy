@@ -78,7 +78,9 @@ public class ProxyCleanupFilter extends ContextFilter implements MethodIntercept
 	}
 
 	public Object invoke(MethodInvocation arg0) throws Throwable {
-		return filter(null,arg0.proceed());
+		Object o = filter(null,arg0.proceed());
+        this.newContext(); this.newCache(); // TODO split this into stateless and stateful
+        return o;
 	}
 	
 }
