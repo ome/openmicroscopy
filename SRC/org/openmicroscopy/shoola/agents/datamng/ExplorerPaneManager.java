@@ -206,9 +206,10 @@ class ExplorerPaneManager
             if (images.size() != 0) {
                 addNodesToDatasetMaps(datasetID, node, images);
                 addImagesToDataset(images, node);     
-            } else 
+            } else {
                 treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY), 
-                                         node, node.getChildCount());                       
+                        node, node.getChildCount()); 
+            }                     
         } else 
             treeModel.insertNodeInto(new DefaultMutableTreeNode(LOADING), 
                                     node, node.getChildCount());        

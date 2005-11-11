@@ -284,12 +284,13 @@ public class DataManager
             Set images = data.getImages();
             Iterator j;
             while (i.hasNext()) {
-                isg = (pojos.ImageData) i.next();
+                isg = (pojos.ImageData) i.next();   
                 j = images.iterator();
                 while (j.hasNext()) {
                     if (((pojos.ImageData) j.next()).getId() == isg.getId())  
                         imagesDiff.remove(isg); 
                 }
+                
             }
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's images.";
@@ -505,8 +506,8 @@ public class DataManager
 	 * Return the list of {@link DatasetSummary} objects that belong to the user
 	 * but which are not linked to the specified project.
 	 * 
-	 * @param projectID		if of the project.
-	 * @return
+	 * @param data		if of the project.
+	 * @return See below.
 	 */
 	Set getDatasetsDiff(pojos.ProjectData data)
 	{
@@ -966,6 +967,14 @@ public class DataManager
         return data;
     }
     
+    private DatasetSummary transformDDToDs(pojos.DatasetData data)
+    {
+        DatasetSummary ds = new DatasetSummary();
+        ds.setID(data.getId());
+        ds.setName(data.getName());
+        return ds;
+    }
+    
 	/**
 	 * Create a new project.
 	 * 
@@ -1143,6 +1152,15 @@ public class DataManager
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
+            List toRemove = new ArrayList(dsToRemove.size());
+            Iterator i = dsToRemove.iterator();
+            while (i.hasNext())
+                toRemove.add(transformDDToDs((pojos.DatasetData) i.next()));
+            
+            List toAdd = new ArrayList(dsToAdd.size());
+            i = dsToAdd.iterator();
+            while (i.hasNext())
+                toAdd.add(transformDDToDs((pojos.DatasetData) i.next()));
 			dms.updateProject(transformPojosProjectData(pd), dsToRemove,
                                 dsToAdd);
 			//update the presentation and the project summary contained in the 
@@ -1195,8 +1213,18 @@ public class DataManager
 	{
 		try { 
 			DataManagementService dms = registry.getDataManagementService();
-			dms.updateDataset(transformPojosDatasetData(dd), isToRemove,
-                                isToAdd);
+            List toRemove = new ArrayList(isToRemove.size());
+            Iterator i = isToRemove.iterator();
+            while (i.hasNext())
+                toRemove.add(transformPojosIDToIs((pojos.ImageData) i.next()));
+            
+            List toAdd = new ArrayList(isToAdd.size());
+            i = isToAdd.iterator();
+            while (i.hasNext())
+                toAdd.add(transformPojosIDToIs((pojos.ImageData) i.next()));
+            
+			dms.updateDataset(transformPojosDatasetData(dd), toRemove,
+                                toAdd);
 			//update the presentation and the dataset summary contained in the 
 			//datasetSummaries list accordingly.
 			if (datasetSummaries.size() != 0) updateDSList(dd);

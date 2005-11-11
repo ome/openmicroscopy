@@ -33,14 +33,12 @@ package org.openmicroscopy.shoola.agents.datamng.editors.category;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
@@ -71,7 +69,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 class CategoryEditorManager
-	implements ActionListener, DocumentListener, MouseListener
+	implements ActionListener, DocumentListener
 {
 	
 	/** Action command ID. */
@@ -98,7 +96,7 @@ class CategoryEditorManager
 	
 	private DataManagerCtrl            agentCtrl;
 	
-	private boolean                    nameChange, isName;
+	private boolean                    nameChange;
 	
 	private CategoryImagesDiffPane     dialog;
     
@@ -109,7 +107,6 @@ class CategoryEditorManager
 		this.agentCtrl = agentCtrl;
 		this.model = model;
 		nameChange = false;
-		isName = false;
 		imagesToRemove = new ArrayList();
 		imagesToAdd = new ArrayList();
 		imagesToAddToRemove = new ArrayList();
@@ -171,7 +168,6 @@ class CategoryEditorManager
 		//textfields
 		JTextArea nameField = view.getNameField();
 		nameField.getDocument().addDocumentListener(this);
-		nameField.addMouseListener(this);
 		JTextArea descriptionArea = view.getDescriptionArea();
 		descriptionArea.getDocument().addDocumentListener(this);
 	}
@@ -332,41 +328,14 @@ class CategoryEditorManager
 	/** Require by {@link MouseListener} I/F. */
 	public void insertUpdate(DocumentEvent e)
 	{
-		view.getSaveButton().setEnabled(isName);
+		view.getSaveButton().setEnabled(true);
 	}
 	
 	/** Require by {@link MouseListener} I/F. */
 	public void removeUpdate(DocumentEvent e)
 	{
-        view.getSaveButton().setEnabled(isName);
+        view.getSaveButton().setEnabled(true);
 	}
-	
-	/** Indicates that the name has been modified. */
-	public void mousePressed(MouseEvent e) { isName = true; }
 
-	/** 
-	 * Required by {@link MouseListener} I/F but not actually needed in 
-     * our case, no op implementation.
-	 */ 
-	public void mouseClicked(MouseEvent e) {}
-
-    /** 
-     * Required by {@link MouseListener} I/F but not actually needed in 
-     * our case, no op implementation.
-     */ 
-	public void mouseEntered(MouseEvent e) {}
-
-    /** 
-     * Required by {@link MouseListener} I/F but not actually needed in 
-     * our case, no op implementation.
-     */ 
-	public void mouseExited(MouseEvent e) {}
-
-    /** 
-     * Required by {@link MouseListener} I/F but not actually needed in 
-     * our case, no op implementation.
-     */ 
-	public void mouseReleased(MouseEvent e){}
-	
 }	
 	

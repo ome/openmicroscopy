@@ -149,7 +149,10 @@ class DataTreeCellRenderer
             } else if (usrObject instanceof CategoryData) {
                 text = ((CategoryData) usrObject).getName();
                 id = CATEGORY_ICON; 
-            } else if (usrObject instanceof String) id = NO_ICON;
+            } else if (usrObject instanceof String) {
+                text = (String) usrObject;
+                id = NO_ICON;
+            }
             setText(text);
 		}
 		return id;
