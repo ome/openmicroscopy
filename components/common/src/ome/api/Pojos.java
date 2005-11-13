@@ -257,7 +257,7 @@ public interface Pojos {
 	 * Retrieve a user's images. 
 	 *  
 	 * @param options
-	 *            Map as above. No notion of <<code>leaves</code>.
+	 *            Map as above. No notion of <code>leaves</code>.
 	 *            <code>experimenter</code> applies at the Image level and
 	 *            <b>must be present</b>. 
 	 * @return A set of images.
