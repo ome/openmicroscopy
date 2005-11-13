@@ -82,8 +82,10 @@ select ${abbrev} from ${class} ${abbrev}
 #if($doDataset)
 	left outer join fetch d.experimenter as d_exp
 	left outer join fetch d.group as d_g
+#if(!$noLeaves)
 	left outer join fetch d.images as i
 #ifImage()
+#end
 #ifDatasetAnnotation()
 #end
 #end

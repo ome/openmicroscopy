@@ -173,6 +173,7 @@ public abstract class PojosQueryBuilder {
 		// other
 		VContext doString(String s) { return turnOn("do"+s);}
 		VContext noIds(){ return turnOn("noIds");}
+        VContext noLeaves() { return turnOn("noLeaves").turnOff("doImage"); }
 		VContext doExperimenter(){ return turnOn("doExperimenter");}
 		VContext doAnnotationOwner(){ return turnOn("doAnnotationOwner)");}
 		
@@ -193,12 +194,18 @@ public abstract class PojosQueryBuilder {
 			vc.put(s,Boolean.TRUE);
 			return this;
 		}
+        
+        VContext turnOff(String s){
+            vc.put(s,Boolean.FALSE);
+            return this;
+        }
 		
 		void parseOptions(Map options){
 			PojoOptions po = new PojoOptions(options);
 			if (po.isAnnotation()) doClassList(anns);
 			if (! po.isAllAnnotations()) doAnnotationOwner();
 			if (po.isExperimenter()) doExperimenter();
+            if (!po.isLeaves()) noLeaves();
 		}
 
 		void checkList(List<Class> list, Class target){
