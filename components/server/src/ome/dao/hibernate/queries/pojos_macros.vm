@@ -200,8 +200,10 @@ select ${abbrev} from ${class} ${abbrev}
 #end
 #end
 #macro(imageExperimenter)
+#if(!$noLeaves)
 #if($doExperimenter)
 		and ( i_exp = :exp or i_exp is null )
+#end
 #end
 #end
 #####################################################

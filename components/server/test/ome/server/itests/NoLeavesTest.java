@@ -114,7 +114,17 @@ public class NoLeavesTest
         imageSetExists(s,true);
     }
     
-    
+    public void testPojoServiceContainerNoLeavesWithExperimenter(){
+        Set<Project> s;
+        po.noLeaves().exp(1).allAnnotations();
+        s = psrv.loadContainerHierarchy(Project.class,null,po.map());
+        s = psrv.loadContainerHierarchy(Project.class,ids,po.map()); 
+        po.noLeaves().exp(1).annotationsFor(1);
+        s = psrv.loadContainerHierarchy(Project.class,null,po.map());
+        s = psrv.loadContainerHierarchy(Project.class,ids,po.map());
+        
+        fail("There should have been a boom");
+    }
     
     void imageSetExists(Set<Project> s, boolean exists)
     {

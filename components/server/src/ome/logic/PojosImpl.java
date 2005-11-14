@@ -88,7 +88,12 @@ public class PojosImpl implements Pojos {
     private Map<String, Object> getParameters(Collection coll, PojoOptions po){ 
     	Map<String, Object> m = new HashMap<String, Object>();
     	if (null != coll) m.put("id_list",coll);
-		if (po.isExperimenter()) m.put("exp",po.getExperimenter());
+		if (po.isExperimenter() && (po.isLeaves() || coll == null)) m.put("exp",po.getExperimenter()); 
+        // TODO : this needs to be checked against both pojos_macros and pojos_load
+        // specifically for variables: noIds, noLeaves, & doExperimenter. Tricky logic.
+        // Explanation: When noLeaves then image-based items are turned off. However, when experimenter
+        // is on and collection is null, then we have to check the images for their owner. Fallicacy.
+        // Possibly need to throw IllegalArgumentException.
 		return m;
     }
 
