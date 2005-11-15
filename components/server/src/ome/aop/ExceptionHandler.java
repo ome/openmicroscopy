@@ -55,6 +55,8 @@ public class ExceptionHandler implements MethodInterceptor {
 
 	private static Log log = LogFactory.getLog(ExceptionHandler.class);
 	
+    private final static String MESSAGE = "Internal server error";
+    
     /**
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
@@ -63,12 +65,26 @@ public class ExceptionHandler implements MethodInterceptor {
     		Object o = arg0.proceed();
     		return o;
     	} catch (Throwable t) {
-    		log.debug("Exception thrown ("+t.getClass()+"):"+t.getMessage());
-    		if (! Policy.thrownByServer(t)){
-    			throw new RootException("Internal server error.",t);//TODO
-    		}
-    		throw t;
-    	}
+    	    throw getAndLogException(t);
+        }
+    }
+    
+    Throwable getAndLogException(Throwable t){
+        if (null == t)
+        {
+            log.error("Exception thrown. (null)");
+            return new RootException(MESSAGE+"(null)");
+        } 
+        else {
+            String msg = " ("+t.getClass().getName()+"):"+t.getMessage();
+            log.error("Exception thrown "+msg);
+            
+            if ( Policy.thrownByServer(t) ) return t;
+            RootException re = new RootException(MESSAGE+msg);
+            re.setStackTrace(t.getStackTrace());
+            return re;
+        }
+            
     }
 
 
