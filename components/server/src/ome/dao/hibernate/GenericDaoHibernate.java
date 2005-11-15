@@ -30,9 +30,12 @@
 package ome.dao.hibernate;
 
 //Java imports
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -268,6 +271,7 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
 
 	private void fillParamsMap(Query q, final Map params) {
 		if (null!=params){
+            Set availableParameters = new HashSet(Arrays.asList(q.getNamedParameters()));
 			for (Object o : params.keySet()) {
 				String s = (String) o;
 				if (s.endsWith("_list")){ 
@@ -275,7 +279,8 @@ public class GenericDaoHibernate extends HibernateDaoSupport implements GenericD
 					// TODO only take the existing parameters
 					q.setParameterList(s,(Collection)params.get(o));
 				} else {
-					q.setParameter(s,params.get(o));
+                    if (availableParameters.contains(s))
+                        q.setParameter(s,params.get(o));
 				}
 			}
 		}
