@@ -23,7 +23,7 @@
         column="project_id"
     >
         <generator class="sequence">
-            <param name="sequence">this_seq_does_not_exist</param>
+            <param name="sequence">project_seq</param>
         </generator>
     </id>
 

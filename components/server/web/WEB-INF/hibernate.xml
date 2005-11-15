@@ -47,22 +47,34 @@
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 
+	<!-- NOTE: DataSourceTransactionManager DOES NOT WORK PROPERLY for our application.
+		 HibernateTxMgr may need to be shifted to JtaTxMgr for JMS-->
 	<bean id="transactionManager" 
-    	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
 	    <property name="dataSource" ref="dataSource"/>
 	</bean>
 
-    <bean id="serviceTransactions" 
+	<bean id="matchAllWithPropReq" 
+      class="org.springframework.transaction.interceptor.MatchAlwaysTransactionAttributeSource">
+    	<property name="transactionAttribute" value="PROPAGATION_REQUIRED"/>
+  	</bean>
+	
+    <bean id="transactions" 
         class="org.springframework.transaction.interceptor.TransactionInterceptor">
         <property name="transactionManager">
             <ref bean="transactionManager"/>
         </property>
-        <property name="transactionAttributeSource">
+		<property name="transactionAttributeSource" ref="matchAllWithPropReq"/>
+		<!--
+		<property name="transactionAttributeSource">
             <value>
+				ome.api.Pojos.*=PROPAGATION_REQUIRED
                 ome.api.HierarchyBrowsing.find*=PROPAGATION_REQUIRED
                 ome.api.HierarchyBrowsing.load*=PROPAGATION_REQUIRED
             </value>
         </property>
+		-->
     </bean>
 
 	<bean id="daoFilter" class="ome.dao.hibernate.ProxyCleanupFilter"/>

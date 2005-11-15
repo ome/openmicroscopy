@@ -55,9 +55,10 @@
 			<value>exceptionHandling</value>
 			<value>serviceSecurity</value>
 			<value>logging</value>	
+			<value>transactions</value> 
 <!--			
+				
 			<value>serviceTracing</value>
-			<value>serviceTransactions</value> 
 -->
 		</list>
 		</property>

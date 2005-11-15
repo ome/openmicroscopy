@@ -52,7 +52,8 @@
                 <property name="beanNames"><value>*Dao</value></property> 
                 <property name="interceptorNames">
                 <list>
-					<value>daoFilter</value>					
+					<value>daoFilter</value>
+					<value>transactions</value>				
 					<!--                    
                     <value>exceptionHandling</value>
                     <value>logging</value>

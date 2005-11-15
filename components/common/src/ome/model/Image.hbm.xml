@@ -23,7 +23,7 @@
         column="image_id"
     >
         <generator class="sequence">
-            <param name="sequence">this_seq_does_not_exist</param>
+            <param name="sequence">image_seq</param>
         </generator>
     </id>
 
