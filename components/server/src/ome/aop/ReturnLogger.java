@@ -67,10 +67,16 @@ public class ReturnLogger implements MethodInterceptor {
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     public Object invoke(MethodInvocation arg0) throws Throwable {
-        Object o = arg0.proceed();
         log.info("Meth:\t"+arg0.getMethod().getName());
         log.info("Args:\t"+Arrays.asList(arg0.getArguments()));
-        log.info("Rslt:\t"+o);
+        Object o;
+        try {
+            o = arg0.proceed();
+            log.info("Rslt:\t"+o);
+        } catch (Throwable t) {
+            log.debug("Excp:\t"+t);
+            throw t;
+        }
         log(o);
         return o;
     }
