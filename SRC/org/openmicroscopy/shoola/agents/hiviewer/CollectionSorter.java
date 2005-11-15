@@ -149,6 +149,13 @@ public class CollectionSorter
         return v;
     }
     
+    /**
+     * Compares two {@link AnnotationData} objects by timestamp.
+     * 
+     * @param a1 The first object.
+     * @param a2 The second object.
+     * @return See below.
+     */
     private static int compareAnnotationData(AnnotationData a1,
                                             AnnotationData a2)
     {
@@ -162,7 +169,7 @@ public class CollectionSorter
         }
         int v = 0;
         if (t1.after(t2)) v = -1;
-        else if (t1.after(t2)) v = 1;
+        else if (t2.after(t1)) v = 1;
         return v;
     }
     
@@ -390,33 +397,47 @@ public class CollectionSorter
         return list;
     }
     
-    public static List sortAnnotationDataByDate(Set set)
+    /**
+     * Sorts the set of {@link AnnotationData} objects by date 
+     * in ascending order.
+     * 
+     * @param list Collecion of objects to order.
+     * @return A list of ordered elements.
+     */
+    public static List sortAnnotationDataByDate(List list)
     {
-        return sortAnnotationDataByDate(set, true);
+        return sortAnnotationDataByDate(list, true);
     }
     
-    public static List sortAnnotationDataByDate(Set set, boolean ascending)
+    /**
+     * Sorts the set of {@link AnnotationData} objects by date in the specified
+     * order.
+     * 
+     * @param list Collecion of objects to order.
+     * @param ascending Pass <code>true</code> to sort the elements in the 
+     *                  ascending order.
+     * @return A list of ordered elements.
+     */
+    public static List sortAnnotationDataByDate(List list, boolean ascending)
     {
-        if (set == null)
+        if (list == null)
             throw new IllegalArgumentException("The set cannot be null.");
-        Iterator i = set.iterator();
-        AnnotationData[]  array = new AnnotationData[set.size()];
-        AnnotationData[]  clone = new AnnotationData[set.size()];
+        Iterator i = list.iterator();
+        AnnotationData[]  array = new AnnotationData[list.size()];
+        AnnotationData[]  clone = new AnnotationData[list.size()];
         int index = 0;
         AnnotationData data;
         while (i.hasNext()) {
             data = (AnnotationData) i.next();
-            
-            //if (time != null) {
-                array[index] = data;
-                clone[index] = data;
-                index++; 
-            //}
+            array[index] = data;
+            clone[index] = data;
+            index++;
         }
         shuttlesort(clone, array, 0, array.length, ascending);
-        List list = new ArrayList();
+        List results = new ArrayList();
         for (int j = 0; j < array.length; j++)  
-            list.add(array[j]);
-        return list;
+            results.add(array[j]);
+        return results;
     }
+    
 }
