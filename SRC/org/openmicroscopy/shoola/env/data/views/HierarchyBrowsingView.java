@@ -123,13 +123,11 @@ public interface HierarchyBrowsingView
      * </code> Images, then <code>ds300</code> would <i>not</i> be part of the
      * returned tree rooted by <code>p1</code>.</p>
      * 
-     * @param imgs Contains <code>ImageData</code> objects, onefor each leaf
-     *              Image node.
+     * @param ids Contains ids, one for each leaf Image node.
      * @param observer     Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findPDIHierarchies(Set imgs,
-                                         AgentEventListener observer);
+    public CallHandle findPDIHierarchies(Set ids, AgentEventListener observer);
     
     /**
      * Finds the data trees in the Category Group/Category/Image (CG/C/I) 
@@ -142,13 +140,11 @@ public interface HierarchyBrowsingView
      * <code>CategoryGroupData</code> object and a Category by a <code> 
      * CategoryData</code> object.)
      * 
-     * @param imgs Contains <code>ImageData</code> objects, one
-     *                     for each leaf image node.
+     * @param ids Contains ids, one for each leaf image node.
      * @param observer     Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findCGCIHierarchies(Set imgs,
-                                          AgentEventListener observer);
+    public CallHandle findCGCIHierarchies(Set ids, AgentEventListener observer);
     
     /**
      * Loads a thumbnail for each specified <code>ImageData</code> object.

@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryGroupData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -89,14 +88,14 @@ public class HierarchyFinder
      * @return The {@link BatchCall}.
      */
     private BatchCall makeCHBatchCall(
-            final Class hierarchyRootNodeType, final Set images)
+            final Class hierarchyRootNodeType, final Set ids)
     {
         return new BatchCall("Searching Container hierarchy") {
             public void doCall() throws Exception
             {
                 OmeroPojoService os = context.getOmeroService();
                 rootNodes = os.findContainerHierarchy(hierarchyRootNodeType,
-                                                    images);
+                                                    ids);
             }
         };
     }
@@ -124,22 +123,22 @@ public class HierarchyFinder
      * @param hierarchyRootNodeType The type of the root node in the hierarchy
      *                     to search.  Can be one out of: 
      *                     {@link ProjectData} or {@link CategoryGroupData}.
-     * @param images Contains {@link ImageData}s, one for each leaf image node.
+     * @param ids Contains ids, one for each leaf image node.
      */
-    public HierarchyFinder(Class hierarchyRootNodeType, Set images)
+    public HierarchyFinder(Class hierarchyRootNodeType, Set ids)
     {
-        if (images == null) throw new IllegalArgumentException("No images.");
+        if (ids == null) throw new IllegalArgumentException("No images.");
         if (hierarchyRootNodeType == null) 
             throw new NullPointerException("No root node type.");
         try {
-            images.toArray(new ImageData[] {});
+            ids.toArray(new Integer[] {});
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException(
                     "images can only contain ImageData objects.");
         }    
         if (hierarchyRootNodeType.equals(ProjectData.class) ||
             hierarchyRootNodeType.equals(CategoryGroupData.class))
-            findCall = makeCHBatchCall(hierarchyRootNodeType, images);
+            findCall = makeCHBatchCall(hierarchyRootNodeType, ids);
         else
             throw new IllegalArgumentException("Unsupported type: "+
                                                 hierarchyRootNodeType+".");

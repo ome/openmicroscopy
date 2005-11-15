@@ -100,11 +100,9 @@ class HierarchyBrowsingViewImpl
      * Implemented as specified by the view interface.
      * @see HierarchyBrowsingView#findPDIHierarchies(Set, AgentEventListener)
      */
-    public CallHandle findPDIHierarchies(Set imgSummaries, 
-                                         AgentEventListener observer)
+    public CallHandle findPDIHierarchies(Set ids, AgentEventListener observer)
     {
-        BatchCallTree cmd = 
-                        new HierarchyFinder(ProjectData.class, imgSummaries);
+        BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids);
         return cmd.exec(observer);
     }
 
@@ -112,11 +110,9 @@ class HierarchyBrowsingViewImpl
      * Implemented as specified by the view interface.
      * @see HierarchyBrowsingView#findCGCIHierarchies(Set, AgentEventListener)
      */
-    public CallHandle findCGCIHierarchies(Set imgSummaries, 
-                                          AgentEventListener observer)
+    public CallHandle findCGCIHierarchies(Set ids, AgentEventListener observer)
     {
-        BatchCallTree cmd = 
-                    new HierarchyFinder(CategoryGroupData.class, imgSummaries);
+        BatchCallTree cmd = new HierarchyFinder(CategoryGroupData.class, ids);
         return cmd.exec(observer);
     }
 
