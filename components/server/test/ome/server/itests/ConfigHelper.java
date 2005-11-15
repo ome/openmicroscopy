@@ -50,42 +50,48 @@ package ome.server.itests;
  */
 public class ConfigHelper {
 
+    final static String[] ALL = new String[] { 
+        "WEB-INF/aop.xml",
+        "WEB-INF/services.xml",
+        "WEB-INF/security.xml",
+        "WEB-INF/dao.xml",
+        "WEB-INF/hibernate.xml",
+        "WEB-INF/dbcp.xml", 
+        "WEB-INF/config-local.xml",
+        "WEB-INF/test/test.xml"};
+    
+    final static String[] DAO = new String[] { 
+        "WEB-INF/aop.xml",
+        "WEB-INF/dao.xml",
+        "WEB-INF/hibernate.xml",
+        "WEB-INF/dbcp.xml", 
+        "WEB-INF/config-local.xml",
+        "WEB-INF/test/test.xml"};
+    
+    final static String[] DBUNIT = new String[] { 
+        "WEB-INF/aop.xml",
+        "WEB-INF/dao.xml",
+        "WEB-INF/hibernate.xml",
+        "WEB-INF/test/dbcp.xml", 
+        "WEB-INF/config-local.xml",
+        "WEB-INF/test/test.xml"};
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     public static String[] getConfigLocations() {
 
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/services.xml",
-                "WEB-INF/security.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
+        return ALL;
     }
 
     public static String[] getDaoConfigLocations() {
 
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
+        return DAO;
     }
 
     public static String[] getDbUnitConfigLocations() {
 
-        return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/dao.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/test/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
+        return DBUNIT;
     }    
     
     
