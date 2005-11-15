@@ -42,7 +42,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.CGCILoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
+import pojos.ImageData;
 
 /** 
  * A concrete Model for a CG/C/I hierarchy consisting of possibly multiple
@@ -66,7 +66,7 @@ class CGCIModel
     /**
      * The set of all the Images that sit at the bottom of the CG/C/I
      * trees that this Model handles.  Every Image is represented by
-     * an {@link ImageSummary} object.  
+     * an {@link ImageData} object.  
      */
     private Set     images;
     
@@ -76,7 +76,7 @@ class CGCIModel
      * 
      * @param images The set of all the Images that sit at the bottom of the
      *               CG/C/I trees that this Model will handle.  Every Image
-     *               is represented by an {@link ImageSummary} object.
+     *               is represented by an {@link ImageData} object.
      *               Don't pass <code>null</code>.
      */
     CGCIModel(Set images) 
@@ -103,16 +103,16 @@ class CGCIModel
             return false;
         CGCIModel cgcim = (CGCIModel) other;
         if (images.size() != cgcim.images.size()) return false;
-        ImageSummary is;
+        ImageData data;
         Map myImgs = new HashMap(), otherImgs = new HashMap();
         Iterator i = images.iterator(), j = cgcim.images.iterator();
         while (i.hasNext()) {
-            is = (ImageSummary) i.next();
-            myImgs.put(new Integer(is.getID()), is);
+            data = (ImageData) i.next();
+            myImgs.put(new Integer(data.getId()), data);
         }
         while (j.hasNext()) {
-            is = (ImageSummary) j.next();
-            otherImgs.put(new Integer(is.getID()), is);
+            data = (ImageData) j.next();
+            otherImgs.put(new Integer(data.getId()), data);
         }
         i = myImgs.keySet().iterator();
         while (i.hasNext())
@@ -126,7 +126,11 @@ class CGCIModel
      */
     protected DataLoader createHierarchyLoader()
     {
-        return new CGCILoader(component, images);
+        Set ids = new HashSet(images.size());
+        Iterator i = images.iterator();
+        while (i.hasNext())
+            ids.add(new Integer(((ImageData) i.next()).getId()));
+        return new CGCILoader(component, ids);
     }
 
     /**

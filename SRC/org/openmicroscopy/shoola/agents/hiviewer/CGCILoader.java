@@ -61,10 +61,7 @@ public class CGCILoader
     extends DataLoader
 {
 
-    /** 
-     * The <code>ImageSummary</code> objects for the images that are at the 
-     * bottom of the tree. 
-     */
+    /** The ids for the images that are at the bottom of the tree. */
     private Set         images;
     
     /** Handle to the async call so that we can cancel it. */
@@ -76,7 +73,7 @@ public class CGCILoader
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
-     * @param images The <code>ImageSummary</code> objects for the images that 
+     * @param images Collection of ids for the images that 
      *               are at the bottom of the tree. 
      */
     public CGCILoader(HiViewer viewer, Set images)
@@ -87,6 +84,7 @@ public class CGCILoader
     
     /**
      * Retrieves the tree.
+     * 
      * @see DataLoader#load()
      */
     public void load()
