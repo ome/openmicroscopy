@@ -387,16 +387,14 @@ class CBAnnotationTabView
         Integer id;
         int index = 0;
         ownersMap = new HashMap();
-        String name = "";
         List list;
         ExperimenterData data;
         while (i.hasNext()) {
             id = (Integer) i.next();
             list = (List) annotations.get(id);
             data = ((AnnotationData) list.get(0)).getOwner();
-            name = data.getLastName();
-            if (userDetails.getUserID() == data.getId()) userIndex = index;
-            owners[index] = name;
+            if (userDetails.getUserID() == id.intValue()) userIndex = index;
+            owners[index] = data.getLastName();
             ownersMap.put(new Integer(index), id);
             index++;
         }

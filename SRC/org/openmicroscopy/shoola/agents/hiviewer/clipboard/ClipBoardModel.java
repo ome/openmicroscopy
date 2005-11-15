@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -100,7 +101,7 @@ class ClipBoardModel
     /** The ID of the currently selected data object. */
     private int                     annotatedObjectID;
     
-    /** Map of retrieved annotations */
+    /** Retrieved annotations for a specified image or dataset.*/
     private Map                     annotations;
     
     /** 
@@ -138,6 +139,11 @@ class ClipBoardModel
         this.component = component;
     }
     
+    /**
+     * Returns the {@link HiViewer} model.
+     * 
+     * @return See below.
+     */
     HiViewer getParentModel() { return parentModel; }
     
     /**
@@ -206,13 +212,32 @@ class ClipBoardModel
         Set set;
         Integer index;
         Iterator i = map.keySet().iterator();
+        Iterator j;
+        AnnotationData annotation;
+        Integer ownerID;
+        List userAnnos;
         while (i.hasNext()) {
             index = (Integer) i.next();
             set = (Set) map.get(index);
-            sortedAnnotations.put(index,
-                    CollectionSorter.sortAnnotationDataByDate(set));
+            j = set.iterator();
+            while (j.hasNext()) {
+                annotation = (AnnotationData) j.next();;
+                ownerID = new Integer(annotation.getOwner().getId());
+                userAnnos = (List) sortedAnnotations.get(ownerID);
+                if (userAnnos == null) {
+                    userAnnos = new ArrayList();
+                    sortedAnnotations.put(ownerID, userAnnos);
+                }
+                userAnnos.add(annotation);
+            }
         }
-        
+        i = sortedAnnotations.keySet().iterator();
+        while (i.hasNext()) {
+            ownerID = (Integer) i.next();
+            sortedAnnotations.put(ownerID,
+                CollectionSorter.sortAnnotationDataByDate(
+                        (List) sortedAnnotations.get(ownerID)));
+        }
         this.annotations = sortedAnnotations;
         state = ClipBoard.ANNOTATIONS_READY;
     }
