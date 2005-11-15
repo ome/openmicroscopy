@@ -52,6 +52,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
+import pojos.ProjectData;
+
 
 /** 
  * Create Dataset widget.
@@ -92,6 +94,23 @@ public class CreateDatasetEditor
 		manager.initListeners();
 		setSize(DataManagerUIF.EDITOR_WIDTH+100, DataManagerUIF.EDITOR_HEIGHT);
 	}
+    
+    
+    public CreateDatasetEditor(DataManagerCtrl agentCtrl, DatasetData model,
+            Set projects, ProjectData project)
+    {
+        this.agentCtrl = agentCtrl;
+        manager = new CreateDatasetEditorManager(this, agentCtrl, model, 
+                                        projects);
+        manager.addProject(true, project);
+        creationPane = new CreateDatasetPane();
+        projectsPane = new CreateDatasetProjectsPane(manager);
+        imagesPane = new CreateDatasetImagesPane(manager);
+        bar = new CreateBar();
+        buildGUI();
+        manager.initListeners();
+        setSize(DataManagerUIF.EDITOR_WIDTH+100, DataManagerUIF.EDITOR_HEIGHT);
+    }
 	
 	Registry getRegistry() { return agentCtrl.getRegistry(); }
 	
@@ -171,10 +190,10 @@ public class CreateDatasetEditor
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		tabs.addTab("New Dataset", im.getIcon(IconManager.DATASET), 
 					creationPane);
-		tabs.addTab("Add to Projects", im.getIcon(IconManager.PROJECT), 
-					projectsPane);
-		tabs.addTab("Add Images", im.getIcon(IconManager.IMAGE), 
-					imagesPane);			
+		//tabs.addTab("Add to Projects", im.getIcon(IconManager.PROJECT), 
+		//			projectsPane);
+		//tabs.addTab("Add Images", im.getIcon(IconManager.IMAGE), 
+		//			imagesPane);			
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);

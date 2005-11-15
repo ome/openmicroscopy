@@ -350,6 +350,11 @@ public class DataManagerCtrl
      */
     void showProperties(pojos.DataObject target, int index)
     {
+        abstraction.showProperties(target, index);
+    }
+    
+    void showPropertiesEditor(pojos.DataObject target, int index)
+    {
         if (target == null)    return;
         if (target instanceof pojos.ProjectData) {
             showComponent(new ProjectEditor(this,
@@ -370,8 +375,8 @@ public class DataManagerCtrl
                 data = getImagesInCategory(data);
             showComponent(new CategoryEditor(this, data), index);
         }
-        
     }
+    
     
     /** Display the propertySheet in a JDialog when an event is posted. */
     void showProperties(pojos.DataObject target, Component parent)
@@ -576,6 +581,21 @@ public class DataManagerCtrl
         } 
     }
     
+    //tempo
+    void createDataset(pojos.ProjectData project)
+    {
+        try {
+            showComponent(new CreateDatasetEditor(this, new DatasetData(), 
+                              abstraction.getUserProjects(), project),
+                              FOR_HIERARCHY);
+        } catch(DSAccessException dsae) {
+            String s = "Can't retrieve user's datasets.";
+            getRegistry().getLogger().error(this, s+" Error: "+dsae);
+            getRegistry().getUserNotifier().notifyError("Data Retrieval " +
+                    "Failure", s, dsae);   
+        } 
+    }
+    
     /** Bring up the Images Importer file chooser */
     void showImagesImporter(DatasetSummary ds)
     {
@@ -636,6 +656,11 @@ public class DataManagerCtrl
             getRegistry().getUserNotifier().notifyError("Data Retrieval " +
                     "Failure", s, dsae);   
         } 
+    }
+    
+    void createCategory(pojos.CategoryGroupData data)
+    {
+        showComponent(new CreateCategoryEditor(this, data), FOR_CLASSIFICATION);
     }
     
     /** Create a new categoryGroup. */

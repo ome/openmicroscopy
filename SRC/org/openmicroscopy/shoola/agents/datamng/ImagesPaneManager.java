@@ -255,8 +255,8 @@ class ImagesPaneManager
                             ImagesPane.NAME);
 				DataManagerUIF presentation = agentCtrl.getReferenceFrame();
 				TreePopupMenu popup = presentation.getPopupMenu();
-				popup.setTarget(target);  
                 popup.setIndex(DataManagerCtrl.FOR_IMAGES);
+				popup.setTarget(target);  
 				popup.show(view.imagesSplitPane.table, e.getX(), e.getY());
 			} 
 		}	

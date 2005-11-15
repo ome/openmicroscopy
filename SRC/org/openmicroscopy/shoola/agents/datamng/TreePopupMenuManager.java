@@ -60,7 +60,7 @@ import pojos.ProjectData;
 class TreePopupMenuManager
 	implements ActionListener 
 {
-
+    
 	/** This UI component's view. */
 	private TreePopupMenu           view; 
 	
@@ -91,6 +91,34 @@ class TreePopupMenuManager
 		initListeners();
 	}
     
+    private void setAddElementMenu(DataObject t)
+    {
+        String text = TreePopupMenu.ADD_ELEMENT;
+        boolean newElt = true;
+        if (target == null) { //root
+            if (index == DataManagerCtrl.FOR_HIERARCHY) text += " project";
+            else if (index == DataManagerCtrl.FOR_CLASSIFICATION)
+                text += " categoryGroup";
+            else newElt = false;
+        } else {
+            if (t instanceof ProjectData) {
+                text += " dataset";
+            } else if (t instanceof DatasetData) {
+                text += " image";
+                newElt = false;
+            } else if (t instanceof CategoryData) {
+                text += " image";
+                newElt = false;
+            } else if (t instanceof CategoryGroupData) {
+                text += " category";
+            } else if (t instanceof ImageData) {
+                newElt = false;
+            }
+        }
+        view.newElement.setText(text);
+        view.newElement.setEnabled(newElt);
+    }
+    
 	/** 
 	 * Sets the object (project, dataset, categoryGroup, category or image)
      * the menu is going to operate on. 
@@ -118,6 +146,7 @@ class TreePopupMenuManager
             view.importImg.setEnabled(false);
             view.refresh.setEnabled(true);
         }
+        setAddElementMenu(t);
 	}
     
     /** 
@@ -155,9 +184,23 @@ class TreePopupMenuManager
             else if (src == view.view && index == DataManagerCtrl.FOR_HIERARCHY) 
                 agentCtrl.browseRoot();  
         }
+        if (src == view.newElement) addElement(target);
 		view.setVisible(false);
 	}
 	
+    private void addElement(Object uo)
+    {
+        if (uo == null) { //root
+            if (index == DataManagerCtrl.FOR_HIERARCHY)
+                agentCtrl.createProject();
+            else if (index == DataManagerCtrl.FOR_CLASSIFICATION)
+                agentCtrl.createGroup();
+        } else if (uo instanceof ProjectData)
+            agentCtrl.createDataset((ProjectData) uo);
+        else if (uo instanceof CategoryGroupData)
+            agentCtrl.createCategory((CategoryGroupData) uo);
+    }
+    
     /** View the specified dataObject. */
     private void view(Object uo)
     {
@@ -181,6 +224,7 @@ class TreePopupMenuManager
 		view.refresh.addActionListener(this);
 		view.annotate.addActionListener(this);
 		view.importImg.addActionListener(this);
+        view.newElement.addActionListener(this);
 	}
 
 }

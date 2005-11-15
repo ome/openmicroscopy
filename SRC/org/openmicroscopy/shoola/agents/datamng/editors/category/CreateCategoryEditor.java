@@ -81,12 +81,29 @@ public class CreateCategoryEditor
     private CreateBar                   bar;
     private CreateCategoryEditorMng     manager;
     
+    private CategoryGroupData           selectedGroup;
+    
     public CreateCategoryEditor(DataManagerCtrl agentCtrl, Set groups, 
                             int selectedCategoryGroupID)
     {
         this.agentCtrl = agentCtrl;
         manager = new CreateCategoryEditorMng(this, agentCtrl);
         categoryPane = new CreateCategoryPane(groups, selectedCategoryGroupID);
+        imagePane = new CreateCategoryImagesPane(manager);
+        bar = new CreateBar();
+        getSaveButton().setEnabled(true);
+        buildGUI();
+        manager.initListeners();
+        setSize(DataManagerUIF.EDITOR_WIDTH, DataManagerUIF.EDITOR_HEIGHT);
+    }
+    
+    public CreateCategoryEditor(DataManagerCtrl agentCtrl,
+                                CategoryGroupData group)
+    {
+        selectedGroup = group;
+        this.agentCtrl = agentCtrl;
+        manager = new CreateCategoryEditorMng(this, agentCtrl);
+        categoryPane = new CreateCategoryPane();
         imagePane = new CreateCategoryImagesPane(manager);
         bar = new CreateBar();
         getSaveButton().setEnabled(true);
@@ -125,8 +142,10 @@ public class CreateCategoryEditor
     
     void resetImageSelection() { imagePane.setSelection(Boolean.FALSE); }
     
-    CategoryGroupData getSelectedCategoryGroup() {
-        return categoryPane.getSelectedCategoryGroup();
+    CategoryGroupData getSelectedCategoryGroup()
+    {
+        return selectedGroup;
+        //return categoryPane.getSelectedCategoryGroup();
     }
     
     /** Build and lay out the GUI. */

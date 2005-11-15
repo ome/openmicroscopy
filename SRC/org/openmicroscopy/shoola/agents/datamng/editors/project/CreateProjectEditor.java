@@ -89,7 +89,7 @@ public class CreateProjectEditor
 		buildGUI();
 		manager.initListeners();
 	}
-	
+    
 	Registry getRegistry() { return agentCtrl.getRegistry(); }
 	
 	/** Returns the widget {@link CreateProjectEditorManager manager}. */
@@ -138,8 +138,8 @@ public class CreateProjectEditor
 		Font font = (Font) registry.lookup("/resources/fonts/Titles");
 		tabs.addTab("New Project", im.getIcon(IconManager.PROJECT), 
 					creationPane);
-		tabs.addTab("Add Datasets", im.getIcon(IconManager.DATASET), 
-					datasetsPane);
+        //tabs.addTab("Add Datasets", im.getIcon(IconManager.DATASET), 
+		//			datasetsPane);
 		tabs.setSelectedComponent(creationPane);
 		tabs.setFont(font);
 		tabs.setForeground(DataManagerUIF.STEELBLUE);

@@ -88,6 +88,30 @@ class CreateCategoryPane
         buildGUI();
     }
     
+    CreateCategoryPane()
+    {
+        initComponents();
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JPanel  p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(buildTable());
+        p.setOpaque(false);
+        add(p);
+        
+    }
+    
+    private void initComponents()
+    {
+        //      textfields
+        nameArea = new MultilineLabel("");
+        nameArea.setForeground(DataManagerUIF.STEELBLUE);
+        nameArea.setEditable(true);
+        descriptionArea = new MultilineLabel("");
+        descriptionArea.setForeground(DataManagerUIF.STEELBLUE);
+        descriptionArea.setEditable(true);
+    }
+    
     /** Initializes the components. */
     private void initComponents(Set existingGroups, 
                                 int selectedCategoryGroupID)

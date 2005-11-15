@@ -307,11 +307,11 @@ public class DataManagerUIF
 		configureDisplayButtons();
 		
 		//Set the menubar, the content pane's layout and add components.
-		setJMenuBar(createMenuBar());
+		//setJMenuBar(createMenuBar());
 
 		//set layout and add components
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		getContentPane().add(bar, BorderLayout.NORTH);
+		//getContentPane().add(bar, BorderLayout.NORTH);
 		getContentPane().add(tabs, BorderLayout.CENTER);
 	} 	
 	

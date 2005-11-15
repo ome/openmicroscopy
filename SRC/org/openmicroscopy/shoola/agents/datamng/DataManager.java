@@ -207,8 +207,13 @@ public class DataManager
             presentation.setFocusableWindowState(true);
             presentation.deIconify();
         }
-        control.showProperties(response.getUserObject(), response.getParent());
+        //Data retrieval now via OMERO: need to modify the code.
+        pojos.DataObject object = response.getUserObject();
+        if (object == null) return;
+        pojos.DataObject target = retrieveData(object);
+        control.showProperties(target, response.getParent());
     }
+    
     
 	/** Rebuild the Tree if the connection is succesfull. */
 	private void handleSAR(ServiceActivationResponse response)
@@ -216,6 +221,62 @@ public class DataManager
 		if (response.isActivationSuccessful() && presentation != null) 
 			presentation.rebuildTree();
 	}
+    
+    private pojos.DataObject retrieveData(pojos.DataObject target)
+    {
+        if (target instanceof pojos.DatasetData) {
+            pojos.DatasetData dataset = (pojos.DatasetData) target;
+            Set set = dataset.getImages();
+            if (set == null) {
+                HashSet id = new HashSet(1);
+                id.add(new Integer(dataset.getId())); 
+                try {
+                    set = registry.getOmeroService().loadContainerHierarchy(
+                            pojos.DatasetData.class, id, true);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+                if (set != null) {
+                    Iterator i = set.iterator();
+                    while (i.hasNext()) {
+                        dataset = (pojos.DatasetData) i.next();
+                        break;
+                    }
+                }
+                return dataset;
+            }
+        } else if (target instanceof pojos.CategoryData) {
+            pojos.CategoryData category = (pojos.CategoryData) target;
+            Set set = category.getImages();
+            if (set == null) {
+                HashSet id = new HashSet(1);
+                id.add(new Integer(category.getId())); 
+                try {
+                    set = registry.getOmeroService().loadContainerHierarchy(
+                            pojos.CategoryData.class, id, true);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+                if (set != null) {
+                    Iterator i = set.iterator();
+                    while (i.hasNext()) {
+                        category = (pojos.CategoryData) i.next();
+                        break;
+                    }
+                }
+                return category;
+            }
+        }
+        return target;
+    }
+    
+    //Tempo
+    void showProperties(pojos.DataObject object, int index)
+    {
+        if (object == null) return;
+        pojos.DataObject target = retrieveData(object);
+        control.showPropertiesEditor(target, index);
+    }
     
 	/**
 	 * Import a list of images into the specified dataset.
@@ -986,6 +1047,7 @@ public class DataManager
             DataManagementService dms = registry.getDataManagementService();
             ProjectSummary ps = dms.createProject(pd); 
             pojos.ProjectData data = transformPStoPojosPD(ps);
+            System.out.println("data " +data);
             if (projectSummaries.size() != 0) {
                 if (data != null) {
                     projectSummaries.add(ps);   //local copy
@@ -995,6 +1057,7 @@ public class DataManager
                 getUserProjects(); 
                 presentation.rebuildTree();
             } 
+            presentation.rebuildTree();
             //if everything went smoothly we removed the creation panel 
             //and display the property panel
             control.showProperties(data, DataManagerCtrl.FOR_HIERARCHY);
@@ -1061,6 +1124,14 @@ public class DataManager
         return data;
     }
     
+    private ProjectSummary transformPojosProjectDataToPS(pojos.ProjectData data)
+    {
+        ProjectSummary ps = new ProjectSummary();
+        ps.setID(data.getId());
+        ps.setName(data.getName());
+        return ps;
+    }
+    
 	/**
 	 * Create a new dataset.
 	 * 
@@ -1073,19 +1144,33 @@ public class DataManager
 	{
         try { 
             DataManagementService dms = registry.getDataManagementService();
-            DatasetSummary ds = dms.createDataset(projects, images, dd);
+            
+            List p = new ArrayList();
+            if (projects != null) {
+                Iterator i = projects.iterator();
+                while (i.hasNext()) {
+                    p.add(transformPojosProjectDataToPS(
+                            (pojos.ProjectData) i.next()));
+                }
+            }
+            List imgs = new ArrayList();
+            if (images != null) {
+                Iterator i = images.iterator();
+                while (i.hasNext()) {
+                    p.add(transformPojosIDToIs(
+                            (pojos.ImageData) i.next()));
+                }
+            }
+            DatasetSummary ds = dms.createDataset(p, imgs, dd);
             pojos.DatasetData data = transformDStoPojosDD(ds);
-            if (datasetSummaries.size() !=0) getUserDatasets();
+            if (datasetSummaries.size() !=0 ) getUserDatasets();
             else datasetSummaries.add(data); //local copy.
-            ProjectSummary ps;
             pojos.ProjectData pData;
             Set set = new HashSet(projects.size());
-            for (int i = 0; i < projects.size(); i++) {
-                ps = (ProjectSummary) projects.get(i);
-                pData = transformPStoPojosPD(ps);
+            for (int i = 0; i < p.size(); i++) {
+                pData = (pojos.ProjectData) projects.get(i);
                 pData.getDatasets().add(data);
                 set.add(pData);
-                //ps.getDatasets().add(ds);   
             }
             if (presentation.isTreeLoaded()) {
                 if (projects != null ) 

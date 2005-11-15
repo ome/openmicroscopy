@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.datamng;
 
 //Java imports
 import java.awt.Font;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.BorderFactory;
@@ -66,6 +67,8 @@ class TreePopupMenu
     
     static final String             VIEW = "View", BROWSE = "Browse";
     
+    static final String             ADD_ELEMENT = "New";
+    
 	/** This UI component's controller and model. */
 	private TreePopupMenuManager	manager;
 	
@@ -89,6 +92,9 @@ class TreePopupMenu
 	
 	/** Button to import images. */
 	JMenuItem						importImg;
+    
+    JMenuItem                       newElement;
+    
 		
 	/** 
 	 * Creates a new instance.
@@ -103,6 +109,7 @@ class TreePopupMenu
 		initRefresh();
 		initAnnotate();
 		initImportImage();
+        initAddElement();
 		manager = new TreePopupMenuManager(this, agentCtrl);
 		buildGUI() ;
 	}
@@ -122,6 +129,14 @@ class TreePopupMenu
      * {@link DataManagerCtrl#FOR_CLASSIFICATION}
      */
     void setIndex(int index) { manager.setIndex(index); }
+    
+    private void initAddElement()
+    {
+        IconManager icons = IconManager.getInstance(config);
+        newElement = new JMenuItem(ADD_ELEMENT,
+                    icons.getIcon(IconManager.CREATE_PROJECT));
+        initMenuItem(newElement, true); 
+    }
     
 	/** Creates and initializes the properties button. */
 	private void initProperties() 
@@ -181,8 +196,9 @@ class TreePopupMenu
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		add(properties);
 		add(view);
-		add(annotate);
+		//add(annotate);
 		//add(importImg);
+        add(newElement);
 		add(refresh);
 	}
 
