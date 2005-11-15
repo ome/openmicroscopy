@@ -174,7 +174,7 @@ public class TinyDialogUI
      * Attaches the <code>controller</code> and sets an action command
      * to the specified button.
      * 
-     * @param controller    An instance of {@link FrameControl}.
+     * @param controller    An instance of {@link ActionListener}.
      * @param b             The button.
      * @param id            Action command ID.
      */ 

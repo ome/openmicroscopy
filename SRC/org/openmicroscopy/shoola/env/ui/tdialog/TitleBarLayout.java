@@ -45,7 +45,7 @@ import java.awt.LayoutManager;
 /** 
  * The {@link TitleBar}'s layout manager.
  * This class makes sure the minimum dimension of the title bar is always
- * {@link TitleBar.MIN_WIDTH}x{@link TitleBar.HEIGHT}.
+ * {@link TitleBar#MIN_WIDTH}x{@link TitleBar#HEIGHT}.
  * This is possible because the title bar has a <code>null</code> UI delegate
  * and its dimensions are never set. So every call to a <code>getXXXSize</code>
  * method will eventually be answered by this class' 
@@ -79,7 +79,7 @@ class TitleBarLayout
 
     /**
      * Returns the {@link TitleBar}'s minimum layout size according to the
-     * {@link TitleBar.MIN_WIDTH} and {@link TitleBar.HEIGHT} constants.
+     * {@link TitleBar#MIN_WIDTH} and {@link TitleBar#HEIGHT} constants.
      * 
      * @return See above.
      */

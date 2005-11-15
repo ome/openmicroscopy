@@ -146,9 +146,6 @@ class TitleBar
      * Updates the title bar to the new values in the model.
      * 
      * @param t The new title.
-     * @param highlightColor The highlight color if a request to highlight the
-     *                       frame was made, or <code>null</code> if the frame
-     *                       is in normal mode.
      */
     void update(String t) 
     {

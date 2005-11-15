@@ -218,7 +218,7 @@ public class ToolBar
         //bar.add(viewer3D);
         bar.add(movie);
         bar.add(roi);
-        bar.add(annotator);
+        //bar.add(annotator);
         bar.add(saveAs);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         return bar;

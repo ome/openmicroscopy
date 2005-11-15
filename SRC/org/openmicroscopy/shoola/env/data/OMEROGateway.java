@@ -111,7 +111,11 @@ class OMEROGateway
     private void handleException(Exception e, String contextMessage) 
         throws DSOutOfServiceException, DSAccessException
     {
+        //TODO: handle errors
+        throw new DSAccessException(contextMessage, e);
+        //if (e instanceof AuthenticationE)
         //TODO
+        /*
         if (e instanceof IllegalArgumentException) {
             //TMP, thrown by PixelsFactory.
             throw new DSAccessException(contextMessage, e);
@@ -121,6 +125,7 @@ class OMEROGateway
             logout();  //Will set connected=false.
             throw new RuntimeException("Internal error.", e);
         }
+        */
     }
     
     /**
