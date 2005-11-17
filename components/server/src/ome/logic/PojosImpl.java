@@ -49,6 +49,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.api.Pojos;
 import ome.dao.DaoFactory;
 import ome.dao.hibernate.queries.PojosQueryBuilder;
@@ -100,9 +102,9 @@ public class PojosImpl implements Pojos {
         // FIXME this logic really needs to be in XXXDao closer to the queries.
 		return m;
     }
-
-    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds, Map options) {
-
+    
+    public Set loadContainerHierarchy(Class rootNodeType, @Validate(Integer.class) Set rootNodeIds, Map options) {
+        
         PojoOptions po = new PojoOptions(options);
         
         if (null==rootNodeIds && po.getExperimenter()==null) 
@@ -131,10 +133,10 @@ public class PojosImpl implements Pojos {
     	return new HashSet(l);
         
 	}
-
-	public Set findContainerHierarchies(Class rootNodeType, Set imageIds, Map options) {
+    
+	public Set findContainerHierarchies(Class rootNodeType, @NotNull @Validate(Integer.class) Set imageIds, Map options) {
 		
-		if (null == rootNodeType || null == imageIds)
+        if (null == rootNodeType || null == imageIds)
 			throw new IllegalArgumentException(
 					"rootNodeType and set of ids for findContainerHierarcheies() may not be null.");
 
@@ -171,7 +173,7 @@ public class PojosImpl implements Pojos {
 		
 	}
 
-	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, Map options) {
+	public Map findAnnotations(Class rootNodeType, @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
 		
 		if (null == rootNodeIds)
 			throw new IllegalArgumentException(
@@ -210,8 +212,8 @@ public class PojosImpl implements Pojos {
 
 	}
 
-	public Set findCGCPaths(Set imgIds, int algorithm, Map options) {
-		if (null == imgIds){
+	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, int algorithm, Map options) {
+        if (null == imgIds){
 			throw new IllegalArgumentException(
 					"Set of ids for findCGCPaths() may not be null");
 		}
@@ -235,8 +237,9 @@ public class PojosImpl implements Pojos {
 		
 	}
 
-	public Set getImages(Class rootNodeType, Set rootNodeIds, Map options) {
-		if (null == rootNodeType || null == rootNodeIds){
+	public Set getImages(Class rootNodeType, @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
+		
+        if (null == rootNodeType || null == rootNodeIds){
 			throw new IllegalArgumentException(
 					"rootNodeType and set of ids for getImages() may not be null");
 		}
@@ -271,7 +274,7 @@ public class PojosImpl implements Pojos {
     /**
      * @DEV.TODO move query to queryBuilder
      */
-    public Map getUserDetails(Set names, Map options)
+    public Map getUserDetails(@Validate(String.class) Set names, Map options)
     {
         
         /* test for type guarantee and non-null*/

@@ -48,6 +48,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 //Application-internal dependencies
 import ome.api.Pojos;
 import ome.dao.DaoFactory;
+import ome.model.CategoryGroup;
 import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.ImagePixel;
@@ -122,8 +123,21 @@ public class NoLeavesTest
         po.noLeaves().exp(1).annotationsFor(1);
         s = psrv.loadContainerHierarchy(Project.class,null,po.map());
         s = psrv.loadContainerHierarchy(Project.class,ids,po.map());
+    }
+    
+    public void testfindContainersAllAnnotationsNoLeavesQueryException() throws Exception
+    {
+        Set<Integer> s = new HashSet<Integer>();
+        s.add(new Integer(1));
+
+        PojoOptions po = new PojoOptions();
+        po.exp(new Integer(1));
+        po.annotationsFor(new Integer(1));
+        po.allAnnotations();
+        po.noLeaves();
         
-        fail("There should have been a boom");
+        psrv.findContainerHierarchies(CategoryGroup.class,s,po.map());
+
     }
     
     void imageSetExists(Set<Project> s, boolean exists)

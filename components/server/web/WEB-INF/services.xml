@@ -53,8 +53,10 @@
 		<property name="interceptorNames">
 		<list>
 			<value>exceptionHandling</value>
+			<value>apiConstraints</value>
 			<value>serviceSecurity</value>
 			<value>logging</value>	
+			<value>proxyFilter</value>
 			<value>transactions</value> 
 <!--			
 				

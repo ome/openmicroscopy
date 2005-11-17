@@ -57,6 +57,12 @@
 		lazy-init="true"
 	/>
 
+	<bean 
+		       id="apiConstraints" 
+		    class="ome.aop.ApiConstraintChecker" 
+		lazy-init="true"
+	/>
+	
 	<bean
 		       id="exceptionHandling"
 	    	    class="ome.aop.ExceptionHandler"

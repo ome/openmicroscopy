@@ -77,7 +77,7 @@
 		-->
     </bean>
 
-	<bean id="daoFilter" class="ome.dao.hibernate.ProxyCleanupFilter"/>
+	<bean id="proxyFilter" class="ome.dao.hibernate.ProxyCleanupFilter"/>
 
     <bean id="sessionFactory" class="ome.dao.hibernate.OmeroSessionFactoryBean">
 		<property name="cachedMappingResources">

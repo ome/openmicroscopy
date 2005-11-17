@@ -47,22 +47,22 @@
                  =================================================================
                  Possibilities are: tracing, logging, security, transactions, etc.
          -->
+		<!--
         <bean id="daoBeanNameProxyCreator"
                 class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
                 <property name="beanNames"><value>*Dao</value></property> 
                 <property name="interceptorNames">
-                <list>
+                <list>			                					
 					<value>daoFilter</value>
-					<value>transactions</value>				
-					<!--                    
+					<value>transactions</value>	 
                     <value>exceptionHandling</value>
                     <value>logging</value>
 					<value>serviceTracing</value> TODO: tracing for all?
-					-->
                 </list>
                 </property>
         </bean>
-
+		-->
+	
 	<!-- TODO: possibly switch to proxyFactoryBean for increased functionality
 		<bean id="daoProxy" abstract="true" class="org.springframework.aop.framework.ProxyFactoryBean">
 			<property name="interceptorNames">
