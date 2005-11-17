@@ -31,6 +31,11 @@ package ome.adapters.pojos.itests;
 
 //Third-party libraries
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,9 +49,12 @@ import org.springframework.aop.framework.ProxyFactory;
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
 import ome.api.Pojos;
+import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.Project;
 import ome.testing.AbstractPojosServiceTest;
+import ome.util.builders.PojoOptions;
+import pojos.ImageData;
 
 
 /** 
@@ -78,9 +86,25 @@ public class PojosServiceTest
     	log.info(mapper.map(s));
     }
     
+    /* exaple of how to use */
+    /* must pass in Image not ImageData.class */
     public void testMappingFindAnnotations(){
-    	Map m = new Model2PojosMapper().map(psrv.findAnnotations(Image.class,ids,null)); // XXX: note you have to use Image not ImageData here!
+    	Map m = new Model2PojosMapper().map(psrv.findAnnotations(Image.class,ids,null)); 
     	log.info(m);
+    }
+    
+    /* for a while repositories weren't being returned for images. now
+     * they must be */
+    public void testMappingImageServerUrl(){
+    	List l = new ArrayList();
+    	Collection c = new Model2PojosMapper().map(psrv.getUserImages(new PojoOptions().exp(new Integer(1)).map()));
+    	for (Iterator it = c.iterator(); it.hasNext();) {
+			ImageData img = (ImageData) it.next();
+			if (img.getDefaultPixels().getImageServerURL()==null){
+				l.add(img);
+			}
+		}
+    	assertTrue("Images without repositories!",l.size()==0);
     }
     
 }
