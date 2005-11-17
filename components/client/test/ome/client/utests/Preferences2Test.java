@@ -20,16 +20,15 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  * </small>
  * @since 1.0
  */
-public class PreferencesTest extends AbstractDependencyInjectionSpringContextTests {
+public class Preferences2Test extends AbstractDependencyInjectionSpringContextTests {
 
-	static {
-		System.getProperties().setProperty("test.system.value","This was set at class load.");
-		System.getProperties().setProperty("test.file.value","An attempt to override.");
-	}
+    static {
+        System.getProperties().setProperty("test.system.value","This was set at class load.");
+        System.getProperties().setProperty("test.file.value","An attempt to override.");
+    }
 	
 	protected String[] getConfigLocations() {
-		System.getProperties().setProperty("test.system.value","This was set at config.");
-		return new String[]{"ome/client/utests/spring.xml"};
+		return new String[]{"ome/client/utests/no_props.xml"};
 	}
 	
 	List l;
@@ -38,7 +37,7 @@ public class PreferencesTest extends AbstractDependencyInjectionSpringContextTes
 	}
 	
 	public void testArePreferencesSet(){
-		// if this doesn't explod it's fine
+		// if this doesn't explode it's fine.
 	}
 	
 	
