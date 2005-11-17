@@ -150,7 +150,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: PixelSizeC ------------------------------------------
@@ -160,7 +160,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPixelSizeC(null);
 	  }
-// TODO catch class cast?
+
 	  setPixelSizeC((Float) filter.filter(PIXELSIZEC,_PixelSizeC)); 
 
 	  // Visiting: PixelSizeT ------------------------------------------
@@ -170,7 +170,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPixelSizeT(null);
 	  }
-// TODO catch class cast?
+
 	  setPixelSizeT((Float) filter.filter(PIXELSIZET,_PixelSizeT)); 
 
 	  // Visiting: PixelSizeX ------------------------------------------
@@ -180,7 +180,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPixelSizeX(null);
 	  }
-// TODO catch class cast?
+
 	  setPixelSizeX((Float) filter.filter(PIXELSIZEX,_PixelSizeX)); 
 
 	  // Visiting: PixelSizeY ------------------------------------------
@@ -190,7 +190,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPixelSizeY(null);
 	  }
-// TODO catch class cast?
+
 	  setPixelSizeY((Float) filter.filter(PIXELSIZEY,_PixelSizeY)); 
 
 	  // Visiting: PixelSizeZ ------------------------------------------
@@ -200,7 +200,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPixelSizeZ(null);
 	  }
-// TODO catch class cast?
+
 	  setPixelSizeZ((Float) filter.filter(PIXELSIZEZ,_PixelSizeZ)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -210,7 +210,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -220,7 +220,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

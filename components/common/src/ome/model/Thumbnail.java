@@ -126,7 +126,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Path ------------------------------------------
@@ -136,7 +136,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPath(null);
 	  }
-// TODO catch class cast?
+
 	  setPath((String) filter.filter(PATH,_Path)); 
 
 	  // Visiting: MimeType ------------------------------------------
@@ -146,7 +146,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setMimeType(null);
 	  }
-// TODO catch class cast?
+
 	  setMimeType((String) filter.filter(MIMETYPE,_MimeType)); 
 
 	  // Visiting: Repository ------------------------------------------
@@ -156,7 +156,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setRepository(null);
 	  }
-// TODO catch class cast?
+
 	  setRepository((Repository) filter.filter(REPOSITORY,_Repository)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -166,7 +166,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -176,7 +176,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

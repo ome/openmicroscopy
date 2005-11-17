@@ -138,7 +138,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: ImageServerUrl ------------------------------------------
@@ -148,7 +148,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageServerUrl(null);
 	  }
-// TODO catch class cast?
+
 	  setImageServerUrl((String) filter.filter(IMAGESERVERURL,_ImageServerUrl)); 
 
 	  // Visiting: Path ------------------------------------------
@@ -158,7 +158,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPath(null);
 	  }
-// TODO catch class cast?
+
 	  setPath((String) filter.filter(PATH,_Path)); 
 
 	  // Visiting: IsLocal ------------------------------------------
@@ -168,7 +168,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setIsLocal(null);
 	  }
-// TODO catch class cast?
+
 	  setIsLocal((Boolean) filter.filter(ISLOCAL,_IsLocal)); 
 
 	  // Visiting: Thumbnails ------------------------------------------
@@ -178,7 +178,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setThumbnails(null);
 	  }
-// TODO catch class cast?
+
 	  setThumbnails((Set) filter.filter(THUMBNAILS,_Thumbnails)); 
 
 	  // Visiting: ImagePixels ------------------------------------------
@@ -188,7 +188,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImagePixels(null);
 	  }
-// TODO catch class cast?
+
 	  setImagePixels((Set) filter.filter(IMAGEPIXELS,_ImagePixels)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -198,7 +198,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

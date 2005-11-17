@@ -102,7 +102,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticElementId(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticElementId((Integer) filter.filter(SEMANTICELEMENTID,_SemanticElementId)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -112,7 +112,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -122,7 +122,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: SemanticType ------------------------------------------
@@ -132,7 +132,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticType(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticType((SemanticType) filter.filter(SEMANTICTYPE,_SemanticType)); 
    	 return true;
   }

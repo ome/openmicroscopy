@@ -126,7 +126,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFeatureId(null);
 	  }
-// TODO catch class cast?
+
 	  setFeatureId((Integer) filter.filter(FEATUREID,_FeatureId)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -136,7 +136,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Tag ------------------------------------------
@@ -146,7 +146,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTag(null);
 	  }
-// TODO catch class cast?
+
 	  setTag((String) filter.filter(TAG,_Tag)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -156,7 +156,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: Features ------------------------------------------
@@ -166,7 +166,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFeatures(null);
 	  }
-// TODO catch class cast?
+
 	  setFeatures((Set) filter.filter(FEATURES,_Features)); 
 
 	  // Visiting: Feature ------------------------------------------
@@ -176,7 +176,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFeature(null);
 	  }
-// TODO catch class cast?
+
 	  setFeature((Feature) filter.filter(FEATURE,_Feature)); 
    	 return true;
   }

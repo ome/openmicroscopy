@@ -186,7 +186,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSessionId(null);
 	  }
-// TODO catch class cast?
+
 	  setSessionId((Integer) filter.filter(SESSIONID,_SessionId)); 
 
 	  // Visiting: SessionKey ------------------------------------------
@@ -196,7 +196,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSessionKey(null);
 	  }
-// TODO catch class cast?
+
 	  setSessionKey((String) filter.filter(SESSIONKEY,_SessionKey)); 
 
 	  // Visiting: ModuleExecutionId ------------------------------------------
@@ -206,7 +206,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecutionId(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecutionId((Integer) filter.filter(MODULEEXECUTIONID,_ModuleExecutionId)); 
 
 	  // Visiting: FeatureView ------------------------------------------
@@ -216,7 +216,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFeatureView(null);
 	  }
-// TODO catch class cast?
+
 	  setFeatureView((String) filter.filter(FEATUREVIEW,_FeatureView)); 
 
 	  // Visiting: Host ------------------------------------------
@@ -226,7 +226,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setHost(null);
 	  }
-// TODO catch class cast?
+
 	  setHost((String) filter.filter(HOST,_Host)); 
 
 	  // Visiting: LastAccess ------------------------------------------
@@ -236,7 +236,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLastAccess(null);
 	  }
-// TODO catch class cast?
+
 	  setLastAccess((Date) filter.filter(LASTACCESS,_LastAccess)); 
 
 	  // Visiting: Started ------------------------------------------
@@ -246,7 +246,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setStarted(null);
 	  }
-// TODO catch class cast?
+
 	  setStarted((Date) filter.filter(STARTED,_Started)); 
 
 	  // Visiting: ImageView ------------------------------------------
@@ -256,7 +256,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageView(null);
 	  }
-// TODO catch class cast?
+
 	  setImageView((String) filter.filter(IMAGEVIEW,_ImageView)); 
 
 	  // Visiting: Project ------------------------------------------
@@ -266,7 +266,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setProject(null);
 	  }
-// TODO catch class cast?
+
 	  setProject((Project) filter.filter(PROJECT,_Project)); 
 
 	  // Visiting: Dataset ------------------------------------------
@@ -276,7 +276,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDataset(null);
 	  }
-// TODO catch class cast?
+
 	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -286,7 +286,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
    	 return true;
   }

@@ -294,7 +294,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: OmeName ------------------------------------------
@@ -304,7 +304,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setOmeName(null);
 	  }
-// TODO catch class cast?
+
 	  setOmeName((String) filter.filter(OMENAME,_OmeName)); 
 
 	  // Visiting: Email ------------------------------------------
@@ -314,7 +314,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setEmail(null);
 	  }
-// TODO catch class cast?
+
 	  setEmail((String) filter.filter(EMAIL,_Email)); 
 
 	  // Visiting: Firstname ------------------------------------------
@@ -324,7 +324,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFirstname(null);
 	  }
-// TODO catch class cast?
+
 	  setFirstname((String) filter.filter(FIRSTNAME,_Firstname)); 
 
 	  // Visiting: DataDir ------------------------------------------
@@ -334,7 +334,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDataDir(null);
 	  }
-// TODO catch class cast?
+
 	  setDataDir((String) filter.filter(DATADIR,_DataDir)); 
 
 	  // Visiting: Lastname ------------------------------------------
@@ -344,7 +344,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLastname(null);
 	  }
-// TODO catch class cast?
+
 	  setLastname((String) filter.filter(LASTNAME,_Lastname)); 
 
 	  // Visiting: Institution ------------------------------------------
@@ -354,7 +354,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setInstitution(null);
 	  }
-// TODO catch class cast?
+
 	  setInstitution((String) filter.filter(INSTITUTION,_Institution)); 
 
 	  // Visiting: RenderingSettings ------------------------------------------
@@ -364,7 +364,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setRenderingSettings(null);
 	  }
-// TODO catch class cast?
+
 	  setRenderingSettings((Set) filter.filter(RENDERINGSETTINGS,_RenderingSettings)); 
 
 	  // Visiting: Datasets ------------------------------------------
@@ -374,7 +374,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDatasets(null);
 	  }
-// TODO catch class cast?
+
 	  setDatasets((Set) filter.filter(DATASETS,_Datasets)); 
 
 	  // Visiting: GroupsByLeader ------------------------------------------
@@ -384,7 +384,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroupsByLeader(null);
 	  }
-// TODO catch class cast?
+
 	  setGroupsByLeader((Set) filter.filter(GROUPSBYLEADER,_GroupsByLeader)); 
 
 	  // Visiting: GroupsByContact ------------------------------------------
@@ -394,7 +394,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroupsByContact(null);
 	  }
-// TODO catch class cast?
+
 	  setGroupsByContact((Set) filter.filter(GROUPSBYCONTACT,_GroupsByContact)); 
 
 	  // Visiting: AnalysisChains ------------------------------------------
@@ -404,7 +404,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChains(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChains((Set) filter.filter(ANALYSISCHAINS,_AnalysisChains)); 
 
 	  // Visiting: Images ------------------------------------------
@@ -414,7 +414,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImages(null);
 	  }
-// TODO catch class cast?
+
 	  setImages((Set) filter.filter(IMAGES,_Images)); 
 
 	  // Visiting: AnalysisChainExecutions ------------------------------------------
@@ -424,7 +424,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainExecutions((Set) filter.filter(ANALYSISCHAINEXECUTIONS,_AnalysisChainExecutions)); 
 
 	  // Visiting: Projects ------------------------------------------
@@ -434,7 +434,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setProjects(null);
 	  }
-// TODO catch class cast?
+
 	  setProjects((Set) filter.filter(PROJECTS,_Projects)); 
 
 	  // Visiting: OmeSessions ------------------------------------------
@@ -444,7 +444,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setOmeSessions(null);
 	  }
-// TODO catch class cast?
+
 	  setOmeSessions((Set) filter.filter(OMESESSIONS,_OmeSessions)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
@@ -454,7 +454,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: Group ------------------------------------------
@@ -464,7 +464,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroup(null);
 	  }
-// TODO catch class cast?
+
 	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -474,7 +474,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
 
 	  // Visiting: Groups ------------------------------------------
@@ -484,7 +484,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroups(null);
 	  }
-// TODO catch class cast?
+
 	  setGroups((Set) filter.filter(GROUPS,_Groups)); 
    	 return true;
   }

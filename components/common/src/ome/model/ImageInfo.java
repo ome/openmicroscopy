@@ -102,7 +102,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -112,7 +112,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: Group ------------------------------------------
@@ -122,7 +122,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroup(null);
 	  }
-// TODO catch class cast?
+
 	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -132,7 +132,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

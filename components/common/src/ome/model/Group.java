@@ -186,7 +186,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -196,7 +196,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Datasets ------------------------------------------
@@ -206,7 +206,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDatasets(null);
 	  }
-// TODO catch class cast?
+
 	  setDatasets((Set) filter.filter(DATASETS,_Datasets)); 
 
 	  // Visiting: Images ------------------------------------------
@@ -216,7 +216,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImages(null);
 	  }
-// TODO catch class cast?
+
 	  setImages((Set) filter.filter(IMAGES,_Images)); 
 
 	  // Visiting: Projects ------------------------------------------
@@ -226,7 +226,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setProjects(null);
 	  }
-// TODO catch class cast?
+
 	  setProjects((Set) filter.filter(PROJECTS,_Projects)); 
 
 	  // Visiting: Experimenters ------------------------------------------
@@ -236,7 +236,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenters(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenters((Set) filter.filter(EXPERIMENTERS,_Experimenters)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
@@ -246,7 +246,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: ImageInfos ------------------------------------------
@@ -256,7 +256,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageInfos(null);
 	  }
-// TODO catch class cast?
+
 	  setImageInfos((Set) filter.filter(IMAGEINFOS,_ImageInfos)); 
 
 	  // Visiting: Leader ------------------------------------------
@@ -266,7 +266,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLeader(null);
 	  }
-// TODO catch class cast?
+
 	  setLeader((Experimenter) filter.filter(LEADER,_Leader)); 
 
 	  // Visiting: Contact ------------------------------------------
@@ -276,7 +276,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setContact(null);
 	  }
-// TODO catch class cast?
+
 	  setContact((Experimenter) filter.filter(CONTACT,_Contact)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -286,7 +286,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

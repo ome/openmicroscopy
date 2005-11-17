@@ -114,7 +114,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -124,7 +124,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -134,7 +134,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: Categories ------------------------------------------
@@ -144,7 +144,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCategories(null);
 	  }
-// TODO catch class cast?
+
 	  setCategories((Set) filter.filter(CATEGORIES,_Categories)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -154,7 +154,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

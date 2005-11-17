@@ -126,7 +126,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Confidence ------------------------------------------
@@ -136,7 +136,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setConfidence(null);
 	  }
-// TODO catch class cast?
+
 	  setConfidence((Float) filter.filter(CONFIDENCE,_Confidence)); 
 
 	  // Visiting: Valid ------------------------------------------
@@ -146,7 +146,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setValid(null);
 	  }
-// TODO catch class cast?
+
 	  setValid((Boolean) filter.filter(VALID,_Valid)); 
 
 	  // Visiting: Category ------------------------------------------
@@ -156,7 +156,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCategory(null);
 	  }
-// TODO catch class cast?
+
 	  setCategory((Category) filter.filter(CATEGORY,_Category)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -166,7 +166,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -176,7 +176,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

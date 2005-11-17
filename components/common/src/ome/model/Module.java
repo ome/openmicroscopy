@@ -198,7 +198,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleId(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleId((Integer) filter.filter(MODULEID,_ModuleId)); 
 
 	  // Visiting: Location ------------------------------------------
@@ -208,7 +208,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLocation(null);
 	  }
-// TODO catch class cast?
+
 	  setLocation((String) filter.filter(LOCATION,_Location)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -218,7 +218,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: ExecutionInstructions ------------------------------------------
@@ -228,7 +228,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExecutionInstructions(null);
 	  }
-// TODO catch class cast?
+
 	  setExecutionInstructions((String) filter.filter(EXECUTIONINSTRUCTIONS,_ExecutionInstructions)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -238,7 +238,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: ModuleType ------------------------------------------
@@ -248,7 +248,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleType(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleType((String) filter.filter(MODULETYPE,_ModuleType)); 
 
 	  // Visiting: DefaultIterator ------------------------------------------
@@ -258,7 +258,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDefaultIterator(null);
 	  }
-// TODO catch class cast?
+
 	  setDefaultIterator((String) filter.filter(DEFAULTITERATOR,_DefaultIterator)); 
 
 	  // Visiting: NewFeatureTag ------------------------------------------
@@ -268,7 +268,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setNewFeatureTag(null);
 	  }
-// TODO catch class cast?
+
 	  setNewFeatureTag((String) filter.filter(NEWFEATURETAG,_NewFeatureTag)); 
 
 	  // Visiting: FormalOutputs ------------------------------------------
@@ -278,7 +278,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalOutputs(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalOutputs((Set) filter.filter(FORMALOUTPUTS,_FormalOutputs)); 
 
 	  // Visiting: FormalInputs ------------------------------------------
@@ -288,7 +288,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalInputs(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalInputs((Set) filter.filter(FORMALINPUTS,_FormalInputs)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
@@ -298,7 +298,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: AnalysisChainNodes ------------------------------------------
@@ -308,7 +308,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainNodes(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainNodes((Set) filter.filter(ANALYSISCHAINNODES,_AnalysisChainNodes)); 
    	 return true;
   }

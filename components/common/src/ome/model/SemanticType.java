@@ -150,7 +150,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticTypeId(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticTypeId((Integer) filter.filter(SEMANTICTYPEID,_SemanticTypeId)); 
 
 	  // Visiting: Granularity ------------------------------------------
@@ -160,7 +160,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGranularity(null);
 	  }
-// TODO catch class cast?
+
 	  setGranularity((String) filter.filter(GRANULARITY,_Granularity)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -170,7 +170,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -180,7 +180,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: SemanticTypeOutputs ------------------------------------------
@@ -190,7 +190,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticTypeOutputs(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticTypeOutputs((Set) filter.filter(SEMANTICTYPEOUTPUTS,_SemanticTypeOutputs)); 
 
 	  // Visiting: FormalOutputs ------------------------------------------
@@ -200,7 +200,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalOutputs(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalOutputs((Set) filter.filter(FORMALOUTPUTS,_FormalOutputs)); 
 
 	  // Visiting: FormalInputs ------------------------------------------
@@ -210,7 +210,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalInputs(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalInputs((Set) filter.filter(FORMALINPUTS,_FormalInputs)); 
 
 	  // Visiting: SemanticElements ------------------------------------------
@@ -220,7 +220,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticElements(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticElements((Set) filter.filter(SEMANTICELEMENTS,_SemanticElements)); 
    	 return true;
   }

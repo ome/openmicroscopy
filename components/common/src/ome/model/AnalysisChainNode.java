@@ -150,7 +150,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainNodeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainNodeId((Integer) filter.filter(ANALYSISCHAINNODEID,_AnalysisChainNodeId)); 
 
 	  // Visiting: NewFeatureTag ------------------------------------------
@@ -160,7 +160,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setNewFeatureTag(null);
 	  }
-// TODO catch class cast?
+
 	  setNewFeatureTag((String) filter.filter(NEWFEATURETAG,_NewFeatureTag)); 
 
 	  // Visiting: IteratorTag ------------------------------------------
@@ -170,7 +170,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setIteratorTag(null);
 	  }
-// TODO catch class cast?
+
 	  setIteratorTag((String) filter.filter(ITERATORTAG,_IteratorTag)); 
 
 	  // Visiting: AnalysisChain ------------------------------------------
@@ -180,7 +180,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChain(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChain((AnalysisChain) filter.filter(ANALYSISCHAIN,_AnalysisChain)); 
 
 	  // Visiting: Module ------------------------------------------
@@ -190,7 +190,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModule(null);
 	  }
-// TODO catch class cast?
+
 	  setModule((Module) filter.filter(MODULE,_Module)); 
 
 	  // Visiting: AnalysisNodeExecutions ------------------------------------------
@@ -200,7 +200,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisNodeExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisNodeExecutions((Set) filter.filter(ANALYSISNODEEXECUTIONS,_AnalysisNodeExecutions)); 
 
 	  // Visiting: AnalysisChainLinksByToNode ------------------------------------------
@@ -210,7 +210,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainLinksByToNode(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainLinksByToNode((Set) filter.filter(ANALYSISCHAINLINKSBYTONODE,_AnalysisChainLinksByToNode)); 
 
 	  // Visiting: AnalysisChainLinksByFromNode ------------------------------------------
@@ -220,7 +220,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainLinksByFromNode(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainLinksByFromNode((Set) filter.filter(ANALYSISCHAINLINKSBYFROMNODE,_AnalysisChainLinksByFromNode)); 
    	 return true;
   }

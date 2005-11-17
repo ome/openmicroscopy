@@ -294,7 +294,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: TheT ------------------------------------------
@@ -304,7 +304,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTheT(null);
 	  }
-// TODO catch class cast?
+
 	  setTheT((Integer) filter.filter(THET,_TheT)); 
 
 	  // Visiting: CdEnd ------------------------------------------
@@ -314,7 +314,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCdEnd(null);
 	  }
-// TODO catch class cast?
+
 	  setCdEnd((Integer) filter.filter(CDEND,_CdEnd)); 
 
 	  // Visiting: InputEnd ------------------------------------------
@@ -324,7 +324,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setInputEnd(null);
 	  }
-// TODO catch class cast?
+
 	  setInputEnd((Double) filter.filter(INPUTEND,_InputEnd)); 
 
 	  // Visiting: Model ------------------------------------------
@@ -334,7 +334,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModel(null);
 	  }
-// TODO catch class cast?
+
 	  setModel((Integer) filter.filter(MODEL,_Model)); 
 
 	  // Visiting: CdStart ------------------------------------------
@@ -344,7 +344,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCdStart(null);
 	  }
-// TODO catch class cast?
+
 	  setCdStart((Integer) filter.filter(CDSTART,_CdStart)); 
 
 	  // Visiting: Green ------------------------------------------
@@ -354,7 +354,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGreen(null);
 	  }
-// TODO catch class cast?
+
 	  setGreen((Integer) filter.filter(GREEN,_Green)); 
 
 	  // Visiting: Alpha ------------------------------------------
@@ -364,7 +364,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAlpha(null);
 	  }
-// TODO catch class cast?
+
 	  setAlpha((Integer) filter.filter(ALPHA,_Alpha)); 
 
 	  // Visiting: Blue ------------------------------------------
@@ -374,7 +374,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setBlue(null);
 	  }
-// TODO catch class cast?
+
 	  setBlue((Integer) filter.filter(BLUE,_Blue)); 
 
 	  // Visiting: Red ------------------------------------------
@@ -384,7 +384,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setRed(null);
 	  }
-// TODO catch class cast?
+
 	  setRed((Integer) filter.filter(RED,_Red)); 
 
 	  // Visiting: BitResolution ------------------------------------------
@@ -394,7 +394,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setBitResolution(null);
 	  }
-// TODO catch class cast?
+
 	  setBitResolution((Integer) filter.filter(BITRESOLUTION,_BitResolution)); 
 
 	  // Visiting: Active ------------------------------------------
@@ -404,7 +404,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setActive(null);
 	  }
-// TODO catch class cast?
+
 	  setActive((Boolean) filter.filter(ACTIVE,_Active)); 
 
 	  // Visiting: InputStart ------------------------------------------
@@ -414,7 +414,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setInputStart(null);
 	  }
-// TODO catch class cast?
+
 	  setInputStart((Double) filter.filter(INPUTSTART,_InputStart)); 
 
 	  // Visiting: TheC ------------------------------------------
@@ -424,7 +424,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTheC(null);
 	  }
-// TODO catch class cast?
+
 	  setTheC((Integer) filter.filter(THEC,_TheC)); 
 
 	  // Visiting: Coefficient ------------------------------------------
@@ -434,7 +434,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCoefficient(null);
 	  }
-// TODO catch class cast?
+
 	  setCoefficient((Double) filter.filter(COEFFICIENT,_Coefficient)); 
 
 	  // Visiting: TheZ ------------------------------------------
@@ -444,7 +444,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTheZ(null);
 	  }
-// TODO catch class cast?
+
 	  setTheZ((Integer) filter.filter(THEZ,_TheZ)); 
 
 	  // Visiting: Family ------------------------------------------
@@ -454,7 +454,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFamily(null);
 	  }
-// TODO catch class cast?
+
 	  setFamily((Integer) filter.filter(FAMILY,_Family)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -464,7 +464,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -474,7 +474,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -484,7 +484,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

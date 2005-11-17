@@ -474,7 +474,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecutionId(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecutionId((Integer) filter.filter(MODULEEXECUTIONID,_ModuleExecutionId)); 
 
 	  // Visiting: Status ------------------------------------------
@@ -484,7 +484,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setStatus(null);
 	  }
-// TODO catch class cast?
+
 	  setStatus((String) filter.filter(STATUS,_Status)); 
 
 	  // Visiting: AttributeDbTime ------------------------------------------
@@ -494,7 +494,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeDbTime(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeDbTime((Double) filter.filter(ATTRIBUTEDBTIME,_AttributeDbTime)); 
 
 	  // Visiting: IteratorTag ------------------------------------------
@@ -504,7 +504,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setIteratorTag(null);
 	  }
-// TODO catch class cast?
+
 	  setIteratorTag((String) filter.filter(ITERATORTAG,_IteratorTag)); 
 
 	  // Visiting: Dependence ------------------------------------------
@@ -514,7 +514,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDependence(null);
 	  }
-// TODO catch class cast?
+
 	  setDependence((String) filter.filter(DEPENDENCE,_Dependence)); 
 
 	  // Visiting: AttributeSortTime ------------------------------------------
@@ -524,7 +524,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeSortTime(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeSortTime((Double) filter.filter(ATTRIBUTESORTTIME,_AttributeSortTime)); 
 
 	  // Visiting: Timestamp ------------------------------------------
@@ -534,7 +534,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTimestamp(null);
 	  }
-// TODO catch class cast?
+
 	  setTimestamp((Date) filter.filter(TIMESTAMP,_Timestamp)); 
 
 	  // Visiting: VirtualMex ------------------------------------------
@@ -544,7 +544,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setVirtualMex(null);
 	  }
-// TODO catch class cast?
+
 	  setVirtualMex((Boolean) filter.filter(VIRTUALMEX,_VirtualMex)); 
 
 	  // Visiting: InputTag ------------------------------------------
@@ -554,7 +554,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setInputTag(null);
 	  }
-// TODO catch class cast?
+
 	  setInputTag((String) filter.filter(INPUTTAG,_InputTag)); 
 
 	  // Visiting: ErrorMessage ------------------------------------------
@@ -564,7 +564,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setErrorMessage(null);
 	  }
-// TODO catch class cast?
+
 	  setErrorMessage((String) filter.filter(ERRORMESSAGE,_ErrorMessage)); 
 
 	  // Visiting: AttributeCreateTime ------------------------------------------
@@ -574,7 +574,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeCreateTime(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeCreateTime((Double) filter.filter(ATTRIBUTECREATETIME,_AttributeCreateTime)); 
 
 	  // Visiting: NewFeatureTag ------------------------------------------
@@ -584,7 +584,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setNewFeatureTag(null);
 	  }
-// TODO catch class cast?
+
 	  setNewFeatureTag((String) filter.filter(NEWFEATURETAG,_NewFeatureTag)); 
 
 	  // Visiting: TotalTime ------------------------------------------
@@ -594,7 +594,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTotalTime(null);
 	  }
-// TODO catch class cast?
+
 	  setTotalTime((Double) filter.filter(TOTALTIME,_TotalTime)); 
 
 	  // Visiting: Module ------------------------------------------
@@ -604,7 +604,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModule(null);
 	  }
-// TODO catch class cast?
+
 	  setModule((Module) filter.filter(MODULE,_Module)); 
 
 	  // Visiting: Dataset ------------------------------------------
@@ -614,7 +614,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDataset(null);
 	  }
-// TODO catch class cast?
+
 	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -624,7 +624,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -634,7 +634,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: Group ------------------------------------------
@@ -644,7 +644,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroup(null);
 	  }
-// TODO catch class cast?
+
 	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Thumbnails ------------------------------------------
@@ -654,7 +654,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setThumbnails(null);
 	  }
-// TODO catch class cast?
+
 	  setThumbnails((Set) filter.filter(THUMBNAILS,_Thumbnails)); 
 
 	  // Visiting: SemanticTypeOutputs ------------------------------------------
@@ -664,7 +664,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticTypeOutputs(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticTypeOutputs((Set) filter.filter(SEMANTICTYPEOUTPUTS,_SemanticTypeOutputs)); 
 
 	  // Visiting: Classifications ------------------------------------------
@@ -674,7 +674,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setClassifications(null);
 	  }
-// TODO catch class cast?
+
 	  setClassifications((Set) filter.filter(CLASSIFICATIONS,_Classifications)); 
 
 	  // Visiting: Repositories ------------------------------------------
@@ -684,7 +684,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setRepositories(null);
 	  }
-// TODO catch class cast?
+
 	  setRepositories((Set) filter.filter(REPOSITORIES,_Repositories)); 
 
 	  // Visiting: Categories ------------------------------------------
@@ -694,7 +694,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCategories(null);
 	  }
-// TODO catch class cast?
+
 	  setCategories((Set) filter.filter(CATEGORIES,_Categories)); 
 
 	  // Visiting: ImageInfos ------------------------------------------
@@ -704,7 +704,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageInfos(null);
 	  }
-// TODO catch class cast?
+
 	  setImageInfos((Set) filter.filter(IMAGEINFOS,_ImageInfos)); 
 
 	  // Visiting: RenderingSettings ------------------------------------------
@@ -714,7 +714,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setRenderingSettings(null);
 	  }
-// TODO catch class cast?
+
 	  setRenderingSettings((Set) filter.filter(RENDERINGSETTINGS,_RenderingSettings)); 
 
 	  // Visiting: LogicalChannels ------------------------------------------
@@ -724,7 +724,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLogicalChannels(null);
 	  }
-// TODO catch class cast?
+
 	  setLogicalChannels((Set) filter.filter(LOGICALCHANNELS,_LogicalChannels)); 
 
 	  // Visiting: ImagePixels ------------------------------------------
@@ -734,7 +734,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImagePixels(null);
 	  }
-// TODO catch class cast?
+
 	  setImagePixels((Set) filter.filter(IMAGEPIXELS,_ImagePixels)); 
 
 	  // Visiting: Groups ------------------------------------------
@@ -744,7 +744,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroups(null);
 	  }
-// TODO catch class cast?
+
 	  setGroups((Set) filter.filter(GROUPS,_Groups)); 
 
 	  // Visiting: AnalysisNodeExecutions ------------------------------------------
@@ -754,7 +754,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisNodeExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisNodeExecutions((Set) filter.filter(ANALYSISNODEEXECUTIONS,_AnalysisNodeExecutions)); 
 
 	  // Visiting: Experimenters ------------------------------------------
@@ -764,7 +764,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenters(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenters((Set) filter.filter(EXPERIMENTERS,_Experimenters)); 
 
 	  // Visiting: CategoryGroups ------------------------------------------
@@ -774,7 +774,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setCategoryGroups(null);
 	  }
-// TODO catch class cast?
+
 	  setCategoryGroups((Set) filter.filter(CATEGORYGROUPS,_CategoryGroups)); 
 
 	  // Visiting: ImageAnnotations ------------------------------------------
@@ -784,7 +784,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageAnnotations(null);
 	  }
-// TODO catch class cast?
+
 	  setImageAnnotations((Set) filter.filter(IMAGEANNOTATIONS,_ImageAnnotations)); 
 
 	  // Visiting: DatasetAnnotations ------------------------------------------
@@ -794,7 +794,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDatasetAnnotations(null);
 	  }
-// TODO catch class cast?
+
 	  setDatasetAnnotations((Set) filter.filter(DATASETANNOTATIONS,_DatasetAnnotations)); 
 
 	  // Visiting: ImageDimensions ------------------------------------------
@@ -804,7 +804,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageDimensions(null);
 	  }
-// TODO catch class cast?
+
 	  setImageDimensions((Set) filter.filter(IMAGEDIMENSIONS,_ImageDimensions)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
@@ -814,7 +814,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setChannelComponents(null);
 	  }
-// TODO catch class cast?
+
 	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
    	 return true;
   }

@@ -162,7 +162,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalInputId(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalInputId((Integer) filter.filter(FORMALINPUTID,_FormalInputId)); 
 
 	  // Visiting: UserDefined ------------------------------------------
@@ -172,7 +172,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setUserDefined(null);
 	  }
-// TODO catch class cast?
+
 	  setUserDefined((Boolean) filter.filter(USERDEFINED,_UserDefined)); 
 
 	  // Visiting: Optional ------------------------------------------
@@ -182,7 +182,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setOptional(null);
 	  }
-// TODO catch class cast?
+
 	  setOptional((Boolean) filter.filter(OPTIONAL,_Optional)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -192,7 +192,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: List ------------------------------------------
@@ -202,7 +202,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setList(null);
 	  }
-// TODO catch class cast?
+
 	  setList((Boolean) filter.filter(LIST,_List)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -212,7 +212,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Module ------------------------------------------
@@ -222,7 +222,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModule(null);
 	  }
-// TODO catch class cast?
+
 	  setModule((Module) filter.filter(MODULE,_Module)); 
 
 	  // Visiting: SemanticType ------------------------------------------
@@ -232,7 +232,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticType(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticType((SemanticType) filter.filter(SEMANTICTYPE,_SemanticType)); 
 
 	  // Visiting: AnalysisChainLinks ------------------------------------------
@@ -242,7 +242,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainLinks(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainLinks((Set) filter.filter(ANALYSISCHAINLINKS,_AnalysisChainLinks)); 
    	 return true;
   }

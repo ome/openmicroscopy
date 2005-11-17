@@ -126,7 +126,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainLinkId(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainLinkId((Integer) filter.filter(ANALYSISCHAINLINKID,_AnalysisChainLinkId)); 
 
 	  // Visiting: AnalysisChain ------------------------------------------
@@ -136,7 +136,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChain(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChain((AnalysisChain) filter.filter(ANALYSISCHAIN,_AnalysisChain)); 
 
 	  // Visiting: AnalysisChainNodeByToNode ------------------------------------------
@@ -146,7 +146,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainNodeByToNode(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainNodeByToNode((AnalysisChainNode) filter.filter(ANALYSISCHAINNODEBYTONODE,_AnalysisChainNodeByToNode)); 
 
 	  // Visiting: AnalysisChainNodeByFromNode ------------------------------------------
@@ -156,7 +156,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainNodeByFromNode(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainNodeByFromNode((AnalysisChainNode) filter.filter(ANALYSISCHAINNODEBYFROMNODE,_AnalysisChainNodeByFromNode)); 
 
 	  // Visiting: FormalOutput ------------------------------------------
@@ -166,7 +166,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalOutput(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalOutput((FormalOutput) filter.filter(FORMALOUTPUT,_FormalOutput)); 
 
 	  // Visiting: FormalInput ------------------------------------------
@@ -176,7 +176,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFormalInput(null);
 	  }
-// TODO catch class cast?
+
 	  setFormalInput((FormalInput) filter.filter(FORMALINPUT,_FormalInput)); 
    	 return true;
   }

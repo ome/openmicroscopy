@@ -102,7 +102,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisNodeExecutionId(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisNodeExecutionId((Integer) filter.filter(ANALYSISNODEEXECUTIONID,_AnalysisNodeExecutionId)); 
 
 	  // Visiting: AnalysisChainExecution ------------------------------------------
@@ -112,7 +112,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainExecution((AnalysisChainExecution) filter.filter(ANALYSISCHAINEXECUTION,_AnalysisChainExecution)); 
 
 	  // Visiting: AnalysisChainNode ------------------------------------------
@@ -122,7 +122,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainNode(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainNode((AnalysisChainNode) filter.filter(ANALYSISCHAINNODE,_AnalysisChainNode)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -132,7 +132,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

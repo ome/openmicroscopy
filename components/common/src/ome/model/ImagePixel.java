@@ -222,7 +222,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: PixelType ------------------------------------------
@@ -232,7 +232,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPixelType(null);
 	  }
-// TODO catch class cast?
+
 	  setPixelType((String) filter.filter(PIXELTYPE,_PixelType)); 
 
 	  // Visiting: SizeY ------------------------------------------
@@ -242,7 +242,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSizeY(null);
 	  }
-// TODO catch class cast?
+
 	  setSizeY((Integer) filter.filter(SIZEY,_SizeY)); 
 
 	  // Visiting: SizeZ ------------------------------------------
@@ -252,7 +252,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSizeZ(null);
 	  }
-// TODO catch class cast?
+
 	  setSizeZ((Integer) filter.filter(SIZEZ,_SizeZ)); 
 
 	  // Visiting: FileSha1 ------------------------------------------
@@ -262,7 +262,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFileSha1(null);
 	  }
-// TODO catch class cast?
+
 	  setFileSha1((String) filter.filter(FILESHA1,_FileSha1)); 
 
 	  // Visiting: SizeT ------------------------------------------
@@ -272,7 +272,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSizeT(null);
 	  }
-// TODO catch class cast?
+
 	  setSizeT((Integer) filter.filter(SIZET,_SizeT)); 
 
 	  // Visiting: ImageServerId ------------------------------------------
@@ -282,7 +282,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImageServerId(null);
 	  }
-// TODO catch class cast?
+
 	  setImageServerId((Long) filter.filter(IMAGESERVERID,_ImageServerId)); 
 
 	  // Visiting: SizeX ------------------------------------------
@@ -292,7 +292,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSizeX(null);
 	  }
-// TODO catch class cast?
+
 	  setSizeX((Integer) filter.filter(SIZEX,_SizeX)); 
 
 	  // Visiting: SizeC ------------------------------------------
@@ -302,7 +302,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSizeC(null);
 	  }
-// TODO catch class cast?
+
 	  setSizeC((Integer) filter.filter(SIZEC,_SizeC)); 
 
 	  // Visiting: Repository ------------------------------------------
@@ -312,7 +312,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setRepository(null);
 	  }
-// TODO catch class cast?
+
 	  setRepository((Repository) filter.filter(REPOSITORY,_Repository)); 
 
 	  // Visiting: Images ------------------------------------------
@@ -322,7 +322,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImages(null);
 	  }
-// TODO catch class cast?
+
 	  setImages((Set) filter.filter(IMAGES,_Images)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
@@ -332,7 +332,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setChannelComponents(null);
 	  }
-// TODO catch class cast?
+
 	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -342,7 +342,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -352,7 +352,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

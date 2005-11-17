@@ -126,7 +126,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainExecutionId(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainExecutionId((Integer) filter.filter(ANALYSISCHAINEXECUTIONID,_AnalysisChainExecutionId)); 
 
 	  // Visiting: Timestamp ------------------------------------------
@@ -136,7 +136,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTimestamp(null);
 	  }
-// TODO catch class cast?
+
 	  setTimestamp((Date) filter.filter(TIMESTAMP,_Timestamp)); 
 
 	  // Visiting: AnalysisChain ------------------------------------------
@@ -146,7 +146,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChain(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChain((AnalysisChain) filter.filter(ANALYSISCHAIN,_AnalysisChain)); 
 
 	  // Visiting: AnalysisNodeExecutions ------------------------------------------
@@ -156,7 +156,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisNodeExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisNodeExecutions((Set) filter.filter(ANALYSISNODEEXECUTIONS,_AnalysisNodeExecutions)); 
 
 	  // Visiting: Dataset ------------------------------------------
@@ -166,7 +166,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDataset(null);
 	  }
-// TODO catch class cast?
+
 	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -176,7 +176,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
    	 return true;
   }

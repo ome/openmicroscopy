@@ -138,7 +138,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Index ------------------------------------------
@@ -148,7 +148,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setIndex(null);
 	  }
-// TODO catch class cast?
+
 	  setIndex((Integer) filter.filter(INDEX,_Index)); 
 
 	  // Visiting: ColorDomain ------------------------------------------
@@ -158,7 +158,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setColorDomain(null);
 	  }
-// TODO catch class cast?
+
 	  setColorDomain((String) filter.filter(COLORDOMAIN,_ColorDomain)); 
 
 	  // Visiting: ImagePixel ------------------------------------------
@@ -168,7 +168,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImagePixel(null);
 	  }
-// TODO catch class cast?
+
 	  setImagePixel((ImagePixel) filter.filter(IMAGEPIXEL,_ImagePixel)); 
 
 	  // Visiting: LogicalChannel ------------------------------------------
@@ -178,7 +178,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLogicalChannel(null);
 	  }
-// TODO catch class cast?
+
 	  setLogicalChannel((LogicalChannel) filter.filter(LOGICALCHANNEL,_LogicalChannel)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -188,7 +188,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -198,7 +198,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

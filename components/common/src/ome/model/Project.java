@@ -150,7 +150,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setProjectId(null);
 	  }
-// TODO catch class cast?
+
 	  setProjectId((Integer) filter.filter(PROJECTID,_ProjectId)); 
 
 	  // Visiting: View ------------------------------------------
@@ -160,7 +160,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setView(null);
 	  }
-// TODO catch class cast?
+
 	  setView((String) filter.filter(VIEW,_View)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -170,7 +170,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -180,7 +180,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: OmeSessions ------------------------------------------
@@ -190,7 +190,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setOmeSessions(null);
 	  }
-// TODO catch class cast?
+
 	  setOmeSessions((Set) filter.filter(OMESESSIONS,_OmeSessions)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -200,7 +200,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Group ------------------------------------------
@@ -210,7 +210,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroup(null);
 	  }
-// TODO catch class cast?
+
 	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Datasets ------------------------------------------
@@ -220,7 +220,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDatasets(null);
 	  }
-// TODO catch class cast?
+
 	  setDatasets((Set) filter.filter(DATASETS,_Datasets)); 
    	 return true;
   }

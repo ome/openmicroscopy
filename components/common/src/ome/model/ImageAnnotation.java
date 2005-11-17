@@ -150,7 +150,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: TheT ------------------------------------------
@@ -160,7 +160,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTheT(null);
 	  }
-// TODO catch class cast?
+
 	  setTheT((Integer) filter.filter(THET,_TheT)); 
 
 	  // Visiting: Content ------------------------------------------
@@ -170,7 +170,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setContent(null);
 	  }
-// TODO catch class cast?
+
 	  setContent((String) filter.filter(CONTENT,_Content)); 
 
 	  // Visiting: TheC ------------------------------------------
@@ -180,7 +180,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTheC(null);
 	  }
-// TODO catch class cast?
+
 	  setTheC((Integer) filter.filter(THEC,_TheC)); 
 
 	  // Visiting: TheZ ------------------------------------------
@@ -190,7 +190,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setTheZ(null);
 	  }
-// TODO catch class cast?
+
 	  setTheZ((Integer) filter.filter(THEZ,_TheZ)); 
 
 	  // Visiting: Valid ------------------------------------------
@@ -200,7 +200,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setValid(null);
 	  }
-// TODO catch class cast?
+
 	  setValid((Boolean) filter.filter(VALID,_Valid)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -210,7 +210,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -220,7 +220,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

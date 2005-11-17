@@ -318,7 +318,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: PhotometricInterpretation ------------------------------------------
@@ -328,7 +328,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPhotometricInterpretation(null);
 	  }
-// TODO catch class cast?
+
 	  setPhotometricInterpretation((String) filter.filter(PHOTOMETRICINTERPRETATION,_PhotometricInterpretation)); 
 
 	  // Visiting: Mode ------------------------------------------
@@ -338,7 +338,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setMode(null);
 	  }
-// TODO catch class cast?
+
 	  setMode((String) filter.filter(MODE,_Mode)); 
 
 	  // Visiting: AuxLightAttenuation ------------------------------------------
@@ -348,7 +348,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAuxLightAttenuation(null);
 	  }
-// TODO catch class cast?
+
 	  setAuxLightAttenuation((Float) filter.filter(AUXLIGHTATTENUATION,_AuxLightAttenuation)); 
 
 	  // Visiting: ExWave ------------------------------------------
@@ -358,7 +358,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExWave(null);
 	  }
-// TODO catch class cast?
+
 	  setExWave((Integer) filter.filter(EXWAVE,_ExWave)); 
 
 	  // Visiting: DetectorOffset ------------------------------------------
@@ -368,7 +368,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDetectorOffset(null);
 	  }
-// TODO catch class cast?
+
 	  setDetectorOffset((Float) filter.filter(DETECTOROFFSET,_DetectorOffset)); 
 
 	  // Visiting: AuxTechnique ------------------------------------------
@@ -378,7 +378,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAuxTechnique(null);
 	  }
-// TODO catch class cast?
+
 	  setAuxTechnique((String) filter.filter(AUXTECHNIQUE,_AuxTechnique)); 
 
 	  // Visiting: Fluor ------------------------------------------
@@ -388,7 +388,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setFluor(null);
 	  }
-// TODO catch class cast?
+
 	  setFluor((String) filter.filter(FLUOR,_Fluor)); 
 
 	  // Visiting: ContrastMethod ------------------------------------------
@@ -398,7 +398,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setContrastMethod(null);
 	  }
-// TODO catch class cast?
+
 	  setContrastMethod((String) filter.filter(CONTRASTMETHOD,_ContrastMethod)); 
 
 	  // Visiting: DetectorGain ------------------------------------------
@@ -408,7 +408,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDetectorGain(null);
 	  }
-// TODO catch class cast?
+
 	  setDetectorGain((Float) filter.filter(DETECTORGAIN,_DetectorGain)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -418,7 +418,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: SamplesPerPixel ------------------------------------------
@@ -428,7 +428,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSamplesPerPixel(null);
 	  }
-// TODO catch class cast?
+
 	  setSamplesPerPixel((Integer) filter.filter(SAMPLESPERPIXEL,_SamplesPerPixel)); 
 
 	  // Visiting: LightAttenuation ------------------------------------------
@@ -438,7 +438,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLightAttenuation(null);
 	  }
-// TODO catch class cast?
+
 	  setLightAttenuation((Float) filter.filter(LIGHTATTENUATION,_LightAttenuation)); 
 
 	  // Visiting: EmWave ------------------------------------------
@@ -448,7 +448,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setEmWave(null);
 	  }
-// TODO catch class cast?
+
 	  setEmWave((Integer) filter.filter(EMWAVE,_EmWave)); 
 
 	  // Visiting: AuxLightWavelength ------------------------------------------
@@ -458,7 +458,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAuxLightWavelength(null);
 	  }
-// TODO catch class cast?
+
 	  setAuxLightWavelength((Integer) filter.filter(AUXLIGHTWAVELENGTH,_AuxLightWavelength)); 
 
 	  // Visiting: IlluminationType ------------------------------------------
@@ -468,7 +468,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setIlluminationType(null);
 	  }
-// TODO catch class cast?
+
 	  setIlluminationType((String) filter.filter(ILLUMINATIONTYPE,_IlluminationType)); 
 
 	  // Visiting: NdFilter ------------------------------------------
@@ -478,7 +478,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setNdFilter(null);
 	  }
-// TODO catch class cast?
+
 	  setNdFilter((Float) filter.filter(NDFILTER,_NdFilter)); 
 
 	  // Visiting: PinholeSize ------------------------------------------
@@ -488,7 +488,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setPinholeSize(null);
 	  }
-// TODO catch class cast?
+
 	  setPinholeSize((Integer) filter.filter(PINHOLESIZE,_PinholeSize)); 
 
 	  // Visiting: LightWavelength ------------------------------------------
@@ -498,7 +498,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLightWavelength(null);
 	  }
-// TODO catch class cast?
+
 	  setLightWavelength((Integer) filter.filter(LIGHTWAVELENGTH,_LightWavelength)); 
 
 	  // Visiting: ChannelComponents ------------------------------------------
@@ -508,7 +508,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setChannelComponents(null);
 	  }
-// TODO catch class cast?
+
 	  setChannelComponents((Set) filter.filter(CHANNELCOMPONENTS,_ChannelComponents)); 
 
 	  // Visiting: Image ------------------------------------------
@@ -518,7 +518,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImage(null);
 	  }
-// TODO catch class cast?
+
 	  setImage((Image) filter.filter(IMAGE,_Image)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -528,7 +528,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

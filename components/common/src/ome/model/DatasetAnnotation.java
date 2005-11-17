@@ -114,7 +114,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAttributeId(null);
 	  }
-// TODO catch class cast?
+
 	  setAttributeId((Integer) filter.filter(ATTRIBUTEID,_AttributeId)); 
 
 	  // Visiting: Content ------------------------------------------
@@ -124,7 +124,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setContent(null);
 	  }
-// TODO catch class cast?
+
 	  setContent((String) filter.filter(CONTENT,_Content)); 
 
 	  // Visiting: Valid ------------------------------------------
@@ -134,7 +134,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setValid(null);
 	  }
-// TODO catch class cast?
+
 	  setValid((Boolean) filter.filter(VALID,_Valid)); 
 
 	  // Visiting: Dataset ------------------------------------------
@@ -144,7 +144,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDataset(null);
 	  }
-// TODO catch class cast?
+
 	  setDataset((Dataset) filter.filter(DATASET,_Dataset)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -154,7 +154,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

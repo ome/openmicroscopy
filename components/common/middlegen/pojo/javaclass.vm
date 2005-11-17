@@ -192,7 +192,7 @@ $c2j.getExtraCode($clazz)
 	  } catch (Exception e) {
 		 $set(null);
 	  }
-// TODO catch class cast?
+
 	  $set(($type) filter.filter(${field.toUpperCase()},_$field)); 
 ##if( $pkg.startsWith("ome."))
 ##elseif($type.equals("Set"))

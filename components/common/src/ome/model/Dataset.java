@@ -198,7 +198,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDatasetId(null);
 	  }
-// TODO catch class cast?
+
 	  setDatasetId((Integer) filter.filter(DATASETID,_DatasetId)); 
 
 	  // Visiting: Locked ------------------------------------------
@@ -208,7 +208,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLocked(null);
 	  }
-// TODO catch class cast?
+
 	  setLocked((Boolean) filter.filter(LOCKED,_Locked)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -218,7 +218,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -228,7 +228,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: AnalysisChainExecutions ------------------------------------------
@@ -238,7 +238,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainExecutions((Set) filter.filter(ANALYSISCHAINEXECUTIONS,_AnalysisChainExecutions)); 
 
 	  // Visiting: OmeSessions ------------------------------------------
@@ -248,7 +248,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setOmeSessions(null);
 	  }
-// TODO catch class cast?
+
 	  setOmeSessions((Set) filter.filter(OMESESSIONS,_OmeSessions)); 
 
 	  // Visiting: ModuleExecutions ------------------------------------------
@@ -258,7 +258,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecutions((Set) filter.filter(MODULEEXECUTIONS,_ModuleExecutions)); 
 
 	  // Visiting: DatasetAnnotations ------------------------------------------
@@ -268,7 +268,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDatasetAnnotations(null);
 	  }
-// TODO catch class cast?
+
 	  setDatasetAnnotations((Set) filter.filter(DATASETANNOTATIONS,_DatasetAnnotations)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -278,7 +278,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
 
 	  // Visiting: Group ------------------------------------------
@@ -288,7 +288,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setGroup(null);
 	  }
-// TODO catch class cast?
+
 	  setGroup((Group) filter.filter(GROUP,_Group)); 
 
 	  // Visiting: Projects ------------------------------------------
@@ -298,7 +298,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setProjects(null);
 	  }
-// TODO catch class cast?
+
 	  setProjects((Set) filter.filter(PROJECTS,_Projects)); 
 
 	  // Visiting: Images ------------------------------------------
@@ -308,7 +308,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setImages(null);
 	  }
-// TODO catch class cast?
+
 	  setImages((Set) filter.filter(IMAGES,_Images)); 
    	 return true;
   }

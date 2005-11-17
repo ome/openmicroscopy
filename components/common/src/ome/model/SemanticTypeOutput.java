@@ -90,7 +90,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticTypeOutputId(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticTypeOutputId((Integer) filter.filter(SEMANTICTYPEOUTPUTID,_SemanticTypeOutputId)); 
 
 	  // Visiting: SemanticType ------------------------------------------
@@ -100,7 +100,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setSemanticType(null);
 	  }
-// TODO catch class cast?
+
 	  setSemanticType((SemanticType) filter.filter(SEMANTICTYPE,_SemanticType)); 
 
 	  // Visiting: ModuleExecution ------------------------------------------
@@ -110,7 +110,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setModuleExecution(null);
 	  }
-// TODO catch class cast?
+
 	  setModuleExecution((ModuleExecution) filter.filter(MODULEEXECUTION,_ModuleExecution)); 
    	 return true;
   }

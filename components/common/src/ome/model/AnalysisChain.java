@@ -150,7 +150,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainId(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainId((Integer) filter.filter(ANALYSISCHAINID,_AnalysisChainId)); 
 
 	  // Visiting: Locked ------------------------------------------
@@ -160,7 +160,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setLocked(null);
 	  }
-// TODO catch class cast?
+
 	  setLocked((Boolean) filter.filter(LOCKED,_Locked)); 
 
 	  // Visiting: Name ------------------------------------------
@@ -170,7 +170,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setName(null);
 	  }
-// TODO catch class cast?
+
 	  setName((String) filter.filter(NAME,_Name)); 
 
 	  // Visiting: Description ------------------------------------------
@@ -180,7 +180,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setDescription(null);
 	  }
-// TODO catch class cast?
+
 	  setDescription((String) filter.filter(DESCRIPTION,_Description)); 
 
 	  // Visiting: AnalysisChainExecutions ------------------------------------------
@@ -190,7 +190,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainExecutions(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainExecutions((Set) filter.filter(ANALYSISCHAINEXECUTIONS,_AnalysisChainExecutions)); 
 
 	  // Visiting: AnalysisChainLinks ------------------------------------------
@@ -200,7 +200,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainLinks(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainLinks((Set) filter.filter(ANALYSISCHAINLINKS,_AnalysisChainLinks)); 
 
 	  // Visiting: AnalysisChainNodes ------------------------------------------
@@ -210,7 +210,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setAnalysisChainNodes(null);
 	  }
-// TODO catch class cast?
+
 	  setAnalysisChainNodes((Set) filter.filter(ANALYSISCHAINNODES,_AnalysisChainNodes)); 
 
 	  // Visiting: Experimenter ------------------------------------------
@@ -220,7 +220,7 @@ ome.util.Filterable {
 	  } catch (Exception e) {
 		 setExperimenter(null);
 	  }
-// TODO catch class cast?
+
 	  setExperimenter((Experimenter) filter.filter(EXPERIMENTER,_Experimenter)); 
    	 return true;
   }
