@@ -60,9 +60,7 @@ class HiViewerVisitor
     implements ImageDisplayVisitor
 {
 
-    /**
-     * Reference to the model.
-     */
+    /** Reference to the Model. */
     protected HiViewer   model;
     
     /**
@@ -76,8 +74,16 @@ class HiViewerVisitor
         this.model = model;
     }
 
+    /** 
+     * Required by {@link ImageDisplayVisitor} I/F. Sub-classes
+     * will implement the method.
+     */
     public void visit(ImageNode node) {}
 
+    /** 
+     * Required by {@link ImageDisplayVisitor} I/F. Sub-classes
+     * will implement the method.
+     */
     public void visit(ImageSet node) {}
     
 }

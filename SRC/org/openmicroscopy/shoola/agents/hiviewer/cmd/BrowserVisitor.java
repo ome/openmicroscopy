@@ -66,8 +66,8 @@ public class BrowserVisitor
     /**
      * Creates a new instance.
      * 
-     * @param browser. Reference to the {@link Browser}.
-     * Mustn't be <code>null</code>, it shouldn't happen.
+     * @param browser   Reference to the {@link Browser}.
+     *                  Mustn't be <code>null</code>, it shouldn't happen.
      */
     public BrowserVisitor(Browser browser)
     {
@@ -75,8 +75,16 @@ public class BrowserVisitor
         this.browser = browser;
     }
     
+    /** 
+     * Required by {@link ImageDisplayVisitor} I/F. Sub-classes
+     * will implement the method.
+     */
     public void visit(ImageNode node) {}
 
+    /** 
+     * Required by {@link ImageDisplayVisitor} I/F. Sub-classes
+     * will implement the method.
+     */
     public void visit(ImageSet node) {}
     
 }

@@ -34,9 +34,16 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashSet;
+
+import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.HiViewerVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import pojos.AnnotationData;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -77,6 +84,39 @@ public class ImgDisplayAnnotationVisitor
             throw new IllegalArgumentException("ID not valid.");
         this.hierarchyObjectID = hierarchyObjectID;
         this.data = data;
+    }
+    
+    /**
+     * Sets the annotation of the selected {@link ImageNode} and updates 
+     * the tooltip.
+     */
+    public void visit(ImageNode node)
+    {
+        ImageData is = (ImageData) node.getHierarchyObject();
+        if (is.getId() == hierarchyObjectID) {
+            HashSet set = new HashSet(1);
+            set.add(data);
+            is.setAnnotations(set);
+            HiTranslator.formatToolTipFor(node, data);
+        }       
+    }  
+    
+    /**
+     * Sets the annotation of the selected {@link ImageSet} and updates 
+     * the tooltip.
+     */
+    public void visit(ImageSet node)
+    {
+        Object ho = node.getHierarchyObject();
+        if (ho instanceof DatasetData) {
+            DatasetData ds = (DatasetData) ho;
+            if (ds.getId() == hierarchyObjectID) {
+                HashSet set = new HashSet(1);
+                set.add(data);
+                ds.setAnnotations(set);     
+                HiTranslator.formatToolTipFor(node, data);
+            }    
+        }
     }
 
 }

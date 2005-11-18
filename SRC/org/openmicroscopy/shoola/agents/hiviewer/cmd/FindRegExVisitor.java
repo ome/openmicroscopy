@@ -85,10 +85,14 @@ class FindRegExVisitor
     /** Returns the nodes found. */
     public Set getFoundNodes() { return foundNodes; }
     
-    /** Required by the I/F. */
+    /** 
+     * Required by I/F. Sub-classes will implement the method.
+     */
     public void visit(ImageNode node) {}
 
-    /** Required by the I/F. */
+    /** 
+     * Required by I/F. Sub-classes will implement the method.
+     */
     public void visit(ImageSet node) {}
 
 }
