@@ -190,6 +190,18 @@ public interface Browser
     public void accept(ImageDisplayVisitor visitor);
     
     /**
+     * Has the specified object visit all the visualization trees hosted by
+     * the browser.
+     * 
+     * @param visitor   The visitor.  Mustn't be <code>null</code>.
+     * @param algoType  The algorithm selected to visit the visualization trees.
+     *                  One of the constants defined by
+     *                  {@link ImageDisplayVisitor}
+     * @see ImageDisplayVisitor
+     */
+    public void accept(ImageDisplayVisitor visitor, int algoType);
+    
+    /**
      * Returns the widget that displays all the visualization trees hosted
      * by the browser.
      *  

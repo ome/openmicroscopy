@@ -185,7 +185,7 @@ class BrowserModel
         //Note: avoid caching b/c we don't know yet what we are going
         //to do with updates
         ImageFinder finder = new ImageFinder();
-        accept(finder);
+        accept(finder, ImageDisplayVisitor.IMAGE_NODE_ONLY);
         return finder.getImages(); 
     }
     
@@ -198,7 +198,7 @@ class BrowserModel
         //Note: avoid caching b/c we don't know yet what we are going
         //to do with updates
         ImageFinder finder = new ImageFinder();
-        accept(finder);
+        accept(finder, ImageDisplayVisitor.IMAGE_NODE_ONLY);
         return finder.getImageNodes(); 
     }
     
@@ -211,6 +211,15 @@ class BrowserModel
         rootDisplay.accept(visitor);
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#accept(ImageDisplayVisitor, int)
+     */
+    public void accept(ImageDisplayVisitor visitor, int algoType) 
+    {
+        rootDisplay.accept(visitor, algoType);
+    }
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getUI()
