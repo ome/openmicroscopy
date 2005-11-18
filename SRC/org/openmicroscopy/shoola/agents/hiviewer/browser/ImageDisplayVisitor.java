@@ -42,11 +42,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
  * <p>This interface allows you to define arbitrary operations that can then 
  * be applied to the tree by calling the 
  * {@link ImageDisplay#accept(ImageDisplayVisitor) accept} method of 
- * {@link ImageDisplay}, usually on the root node.  When a node is visited,
- * the corresponding <code>visit</code> method is called, passing a reference
- * to the node.  That is, if an {@link ImageNode} is being visited, then the
- * {@link #visit(ImageNode)} method is called.  Otherwise the 
- * {@link #visit(ImageSet)} is called for {@link ImageSet} nodes.</p>
+ * {@link ImageDisplay}, usually on the root node.  
+ * or by calling the
+ * {@link ImageDisplay#accept(ImageDisplayVisitor, int) accept} method of 
+ * {@link ImageDisplay}.
+ * When a node is visited, the corresponding <code>visit</code> method is
+ * called, passing a reference to the node.  That is, if an {@link ImageNode}
+ * is being visited, then the {@link #visit(ImageNode)} method is called. 
+ * Otherwise the {@link #visit(ImageSet)} is called for {@link ImageSet} nodes.
+ * </p>
  * <p>As an example think of highlighting all images that have been annotated.
  * You would define a class that implements this interface to perform the
  * highlight operation and then pass an instance to the <code>accept</code>
@@ -75,7 +79,34 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 public interface ImageDisplayVisitor
 {
 
+    /** 
+     * Indicates that only the {@link ImageNode} nodes will be visited.
+     */
+    public static final int IMAGE_NODE_ONLY = 0;
+    
+    /** 
+     * Indicates that only the {@link ImageSet} nodes will be visited.
+     */
+    public static final int IMAGE_SET_ONLY = 1;
+    
+    /**
+     * Indicates that {@link ImageNode} and {@link ImageSet} nodes will be
+     * visited.
+     */
+    public static final int ALL_NODES = 2;
+    
+    /**
+     * Visits the specified {@link ImageNode}. 
+     * 
+     * @param node The node to visit.
+     */
     public void visit(ImageNode node);
+    
+    /**
+     * Visits the specified {@link ImageSet}. 
+     * 
+     * @param node The node to visit.
+     */
     public void visit(ImageSet node);
     
 }

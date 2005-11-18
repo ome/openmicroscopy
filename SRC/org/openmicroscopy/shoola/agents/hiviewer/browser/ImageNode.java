@@ -118,10 +118,16 @@ public class ImageNode
     
     /**
      * Always returns <code>false</code> as this is not a container node.
+     * 
      * @see ImageDisplay#containsImages()
      */
     public boolean containsImages() { return false; }
 
+    /**
+     * Returns the thumbnail hosted by this class.
+     * 
+     * @return See above.
+     */
     public Thumbnail getThumbnail() { return thumbnail; }
     
     /** 
@@ -135,11 +141,11 @@ public class ImageNode
     }
     
     /** 
-     * Set the size of the ThumbnailCanvas and the preferredSize of the
-     * internal desktop.
+     * Sets the size of the {@link ThumbnailCanvas} and the preferred size of
+     * the internal desktop.
      * 
-     * @param w width.
-     * @param h height.
+     * @param w The width of the canvas.
+     * @param h The height of the canvas.
      */
     public void setCanvasSize(int w, int h)
     {

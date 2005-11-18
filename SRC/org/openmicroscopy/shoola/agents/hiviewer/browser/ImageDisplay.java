@@ -116,6 +116,25 @@ public abstract class ImageDisplay
      */
     private Object          hierarchyObject;
     
+    /**
+     * Checks if the algorithm to visit the tree is one of the constants
+     * defined by {@link ImageDisplayVisitor}.
+     * 
+     * @param type The algorithm type.
+     * @return  Returns <code>true</code> if the type is supported,
+     *          <code>false</code> otherwise.
+     */
+    private boolean checkAlgoType(int type)
+    {
+        switch (type) {
+            case ImageDisplayVisitor.IMAGE_NODE_ONLY:
+            case ImageDisplayVisitor.IMAGE_SET_ONLY:    
+            case ImageDisplayVisitor.ALL_NODES:
+                return true;
+            default:
+                return false;
+        }
+    }
     
     /**
      * Constructor used by subclasses.
@@ -224,14 +243,54 @@ public abstract class ImageDisplay
     public void accept(ImageDisplayVisitor visitor)
     {
         if (visitor == null) throw new NullPointerException("No visitor.");
+        accept(visitor, ImageDisplayVisitor.ALL_NODES);
+    }
+    
+    /**
+     * Has the specified object visit this node and all nodes below this one
+     * in the visualization tree.
+     * According to the specified <code>algoType</code>,
+     * the <code>visit</code> method is called passing in the
+     * node being visited. 
+     * 
+     * @param visitor   The visitor.  Mustn't be <code>null</code>.
+     * @param algoType  The algorithm selected. Must be one of the constants
+     *                  defined by {@link ImageDisplayVisitor}.
+     * @see ImageDisplayVisitor
+     */
+    public void accept(ImageDisplayVisitor visitor, int algoType)
+    {
+        if (visitor == null) throw new NullPointerException("No visitor.");
+        if (!checkAlgoType(algoType))
+            throw new IllegalArgumentException("Algorithm not supported.");
         Iterator i = childrenDisplay.iterator();
         ImageDisplay child;
-        while (i.hasNext()) {
-            child = (ImageDisplay) i.next();
-            child.accept(visitor);
+        switch (algoType) {
+            case ImageDisplayVisitor.IMAGE_NODE_ONLY:
+                while (i.hasNext()) {
+                    child = (ImageDisplay) i.next();
+                    child.accept(visitor, algoType);
+                }
+                if (this instanceof ImageNode) doAccept(visitor);
+                break;
+            case ImageDisplayVisitor.IMAGE_SET_ONLY:
+                while (i.hasNext()) {
+                    child = (ImageDisplay) i.next();
+                    if (child instanceof ImageSet)
+                        child.accept(visitor, algoType);
+                }
+                if (this instanceof ImageSet) doAccept(visitor);
+                break;
+            case ImageDisplayVisitor.ALL_NODES:
+                while (i.hasNext()) {
+                    child = (ImageDisplay) i.next();
+                    child.accept(visitor, algoType);
+                }
+                doAccept(visitor);
+                break;
         }
-        doAccept(visitor);
     }
+    
     //TODO: this is a depth-first visit.  We should let clients decide on
     //the algorithm.  For example, if we have to highlight only the images
     //that have an annotation, then we only need to visit leaf nodes.
