@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 //Java imports
 import java.awt.image.BufferedImage;
 
+import javax.swing.Icon;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -94,5 +96,8 @@ public interface Thumbnail
     
     /** Returns the original thumbnail. */
     public BufferedImage getFullScaleThumb();
+    
+    /** Returns the icon representing the thumbnail. */
+    public Icon getIcon();
     
 }

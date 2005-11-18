@@ -31,10 +31,16 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 
@@ -80,6 +86,12 @@ public class ThumbnailProvider
     /** The minimum magnification factor. */
     public static final double  MIN_SCALING_FACTOR = 0.25;
     
+    /** The thickness of the border added to the icon. */
+    private static final int    BORDER = 1;
+    
+    /** The color of the border. */
+    private static final Color  BORDER_COLOR = Color.WHITE;
+    
     /** The {@link ImageData} the thumbnail is for. */
     private ImageData       imgInfo;
     
@@ -110,12 +122,15 @@ public class ThumbnailProvider
     /** The {@link BufferedImage} representing a thumbnail of maximum size. */
     private BufferedImage   fullScaleThumb;
     
-    /** The {@link BufferedImage} representing to the thumbnail displayed. */
+    /** The {@link BufferedImage} representing the thumbnail displayed. */
     private BufferedImage   displayThumb;
     
     /** The magnification factor. */
     private double          scalingFactor;
     
+    /** The {@link Icon} representing the thumbnail. */
+    private Icon            iconThumb;
+     
     //TODO: this duplicates code in env.data.views.calls.ThumbnailLoader,
     //but we need size b/f img is retrieved -- b/c we vis tree need to be
     //laid out.  Sort this out.
@@ -241,5 +256,26 @@ public class ThumbnailProvider
      * @return See above.
      */
     public BufferedImage getFullScaleThumb() { return fullScaleThumb; }
+    
+    /**
+     * Returns the icon associated to the thumbnail.
+     * The magnification factor uses is {@link #MIN_SCALING_FACTOR}.
+     * 
+     * @return See above.
+     */
+    public Icon getIcon() 
+    {
+        if (iconThumb != null) return iconThumb;
+        BufferedImage img = magnifyImage(MIN_SCALING_FACTOR, fullScaleThumb);
+        BufferedImage newImg = new BufferedImage(img.getWidth()+2*BORDER, 
+                img.getHeight()+2*BORDER, img.getType());
+        Graphics g = newImg.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.setColor(BORDER_COLOR);
+        g2D.drawRect(0, 0, newImg.getWidth(), newImg.getHeight());
+        g2D.drawImage(img, null, BORDER, BORDER);
+        iconThumb = new ImageIcon(newImg);
+        return iconThumb;
+    }
     
 }
