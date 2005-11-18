@@ -132,13 +132,15 @@ public class HiViewerFactory
      * Returns a viewer to display data trees in the Project/Dataset/Image 
      * hierarchy that contain the specified images.
      * 
-     * @param images The <code>ImageSummary</code> objects for the images that
+     * @param images The <code>ImageData</code> objects for the images that
      *               are at the bottom of the tree.
      * @return A {@link HiViewer} component for the specified images.
      */
     public static HiViewer getPDIViewer(Set images)
     {
-        HiViewerModel model = new PDIModel(images);
+        //HiViewerModel model = new PDIModel(images);
+        HiViewerModel model = new HierarchyModel(images,
+                                HiViewer.PDI_HIERARCHY);
         return singleton.getViewer(model);
     }
     
@@ -147,13 +149,15 @@ public class HiViewerFactory
      * Category Group/Category/Image hierarchy that contain
      * the specified images.
      * 
-     * @param images The <code>ImageSummary</code> objects for the images that
+     * @param images The <code>ImageData</code> objects for the images that
      *               are at the bottom of the tree.
      * @return A {@link HiViewer} component for the specified images.
      */
     public static HiViewer getCGCIViewer(Set images)
     {
-        HiViewerModel model = new CGCIModel(images);
+        //HiViewerModel model = new CGCIModel(images);
+        HiViewerModel model = new HierarchyModel(images,
+                                            HiViewer.CGCI_HIERARCHY);
         return singleton.getViewer(model);
     }
     
