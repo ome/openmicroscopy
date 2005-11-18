@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.util;
 
 //Java imports
 import java.awt.Component;
+import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -40,6 +41,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -47,7 +50,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * Determines and sets the icon associated to a data object.
+ * Determines and sets the icon and text associated to a data object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,60 +67,40 @@ public class TreeCellRenderer
     extends DefaultTreeCellRenderer
 {
     
-    /** Identifies the <i>ROOT</i> icon. */
-    private static final int    ROOT = 0;  
-    
-    /** Identifies the <i>PROJECT</i> icon. */
-    private static final int    PROJECT = 1;
-    
-    /** Identifies the <i>DATASET</i> icon. */
-    private static final int    DATASET = 2;
-    
-    /** Identifies the <i>CATEGORY_GROUP</i> icon. */
-    private static final int    CATEGORY_GROUP = 3;
-    
-    /** Identifies the <i>CATEGORY</i> icon. */
-    private static final int    CATEGORY = 4;
-    
-    /** Identifies the <i>IMAGE</i> icon. */
-    private static final int    IMAGE = 5;
-    
-    /** Identifies the <i>NULL</i> icon. */
-    private static final int    NO_ICON = 6; 
-    
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
-
     
     /**
-     * Retrieves the icon's ID according to the type of the DataObject.
-     * @param value The data object.
-     * @return The ID of the corresponding icon.
+     * Sets the icon and the text corresponding to the user's object.
+     * If an icon is passed, the passed icon is set
+     * 
+     * @param usrObject The user's object.
+     * @param icon  If <code>null</code>, a default icon is set according to the
+     *              data type of the user's object.
      */
-    private int getIconID(Object value)
+    private void setValues(Object usrObject, Icon icon)
     {
-        DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
-        Object usrObject = node.getUserObject();
-        int id = ROOT;
-        if (node.getLevel() != 0) {
-            if (usrObject instanceof ProjectData)  {
-                setText(((ProjectData) usrObject).getName());
-                id = PROJECT;
-            } else if (usrObject instanceof DatasetData) {
-                setText(((DatasetData) usrObject).getName());
-                id = DATASET;
-            } else if (usrObject instanceof ImageData) {
-                setText(((ImageData) usrObject).getName());
-                id = IMAGE;
-            } else if (usrObject instanceof CategoryGroupData) {
-                setText(((CategoryGroupData) usrObject).getName());
-                id = CATEGORY_GROUP;
-            } else if (usrObject instanceof CategoryData) {
-                setText(((CategoryData) usrObject).getName());
-                id = CATEGORY;
-            } else if (usrObject instanceof String) id = NO_ICON;
-        }
-        return id;
+        if (usrObject instanceof ProjectData)  {
+            setText(((ProjectData) usrObject).getName());
+            if (icon == null) icon = icons.getIcon(IconManager.PROJECT);
+            setIcon(icon);
+        } else if (usrObject instanceof DatasetData) {
+            setText(((DatasetData) usrObject).getName());
+            if (icon == null) icon = icons.getIcon(IconManager.DATASET);
+            setIcon(icon);
+        } else if (usrObject instanceof ImageData) {
+            setText(((ImageData) usrObject).getName());
+            if (icon == null) icon = icons.getIcon(IconManager.IMAGE);
+            setIcon(icon);
+        } else if (usrObject instanceof CategoryGroupData) {
+            setText(((CategoryGroupData) usrObject).getName());
+            if (icon == null) icon = icons.getIcon(IconManager.CATEGORY_GROUP);
+            setIcon(icon);
+        } else if (usrObject instanceof CategoryData) {
+            setText(((CategoryData) usrObject).getName());
+            if (icon == null) icon = icons.getIcon(IconManager.CATEGORY);
+            setIcon(icon);
+        } else if (usrObject instanceof String) setIcon(null);
     }
 
     /** Creates a new instance. */
@@ -127,7 +110,7 @@ public class TreeCellRenderer
     }
     
     /**
-     * Sets the icon.
+     * Sets the icon and the text.
      */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
                         boolean sel, boolean expanded, boolean leaf,
@@ -136,27 +119,19 @@ public class TreeCellRenderer
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
         
-        int index = getIconID(value);
-        try {
-            switch (index) {
-                case ROOT:
-                    setIcon(icons.getIcon(IconManager.ROOT)); break;
-                case PROJECT:
-                    setIcon(icons.getIcon(IconManager.PROJECT)); break;
-                case DATASET:
-                    setIcon(icons.getIcon(IconManager.DATASET)); break;
-                case CATEGORY:
-                    setIcon(icons.getIcon(IconManager.CATEGORY)); break;
-                case CATEGORY_GROUP:
-                    setIcon(icons.getIcon(IconManager.CATEGORY_GROUP)); break;
-                case IMAGE:
-                    setIcon(icons.getIcon(IconManager.IMAGE)); break;
-                case NO_ICON:
-                    setIcon(null);
-            }                                   
-        } catch(NumberFormatException nfe) {   
-            throw new Error("Invalid Action ID "+index, nfe);
-        } 
+        DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
+        if (node.getLevel() == 0) {
+            setIcon(icons.getIcon(IconManager.ROOT));
+            return this;
+        }
+        Object usrObject = node.getUserObject();
+        if (usrObject instanceof ImageSet) {
+            setValues(((ImageSet) usrObject).getHierarchyObject(), null);
+        } else if (usrObject instanceof ImageNode) {
+            ImageNode imgNode = (ImageNode) usrObject;
+            setValues(imgNode.getHierarchyObject(),
+                    imgNode.getThumbnail().getIcon());
+        } else setValues(usrObject, null);
         return this;
     }
     
