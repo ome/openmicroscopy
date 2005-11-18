@@ -46,8 +46,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
-import ome.adapters.pojos.OmeroEntry;
 import ome.api.Pojos;
+import ome.client.ServiceFactory;
 import ome.model.Category;
 import ome.model.CategoryGroup;
 import ome.model.Dataset;
@@ -80,7 +80,7 @@ class OMEROGateway
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
      */
-    private OmeroEntry              entry;
+    private ServiceFactory          entry;
     
     /**
      * Tells whether we're currently connected and logged into <i>OMEDS</i>.
@@ -112,6 +112,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         //TODO: handle errors
+        e.printStackTrace();
         throw new DSAccessException(contextMessage, e);
         //if (e instanceof AuthenticationE)
         //TODO
@@ -167,6 +168,13 @@ class OMEROGateway
     }
     
     /**
+     * Returns the {@link Pojos} service.
+     * 
+     * @return See above.
+     */
+    private Pojos getPojosService() { return entry.getPojosService(); }
+    
+    /**
      * Creates a new instance.
      * 
      * @param hostName The name of the server.
@@ -210,7 +218,7 @@ class OMEROGateway
         System.setProperty("omeds.user", userName);
         System.setProperty("omeds.pass", password);
         try {
-            entry = new OmeroEntry();
+            entry = new ServiceFactory();
             mapper = new Model2PojosMapper();
             connected = true;
         } catch (Exception e) {
@@ -249,7 +257,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = entry.getPojoOmeroService();
+            Pojos service = getPojosService();
             return (Set) mapper.map(service.loadContainerHierarchy(
                             convertPojos(rootNodeType), rootNodeIDs, options));
         } catch (Exception e) {
@@ -284,7 +292,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = entry.getPojoOmeroService();
+            Pojos service = getPojosService();
             return (Set) mapper.map(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
         } catch (Exception e) {
@@ -321,7 +329,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = entry.getPojoOmeroService();
+            Pojos service = getPojosService();
             return mapper.map(service.findAnnotations(convertPojos(nodeType),
                             nodeIDs, options));
         } catch (Exception e) {
@@ -368,7 +376,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = entry.getPojoOmeroService();
+            Pojos service = getPojosService();
             return (Set) mapper.map(service.findCGCPaths(imgIDs, algorithm,
                                     options));
         } catch (Exception e) {
@@ -397,7 +405,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = entry.getPojoOmeroService();
+            Pojos service = getPojosService();
             return (Set) mapper.map(service.getImages(convertPojos(nodeType),
                                     nodeIDs, options));
         } catch (Exception e) {
@@ -422,7 +430,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = entry.getPojoOmeroService();
+            Pojos service = getPojosService();
             return (Set) mapper.map(service.getUserImages(options));
         } catch (Exception e) {
             handleException(e, "Cannot find user images ");
