@@ -33,16 +33,15 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -66,8 +65,8 @@ public class CollectionSorter
     /**
      * Compares two {@link Date}s.
      * 
-     * @param d1 The first object.
-     * @param d2 The second object.
+     * @param d1 The first object to compare.
+     * @param d2 The second object to compare.
      * @return See below.
      */
     private static int compareDates(Date d1, Date d2)
@@ -83,8 +82,8 @@ public class CollectionSorter
     /**
      * Compares two {@link String}s.
      * 
-     * @param s1 The first object.
-     * @param s2 The second object.
+     * @param s1 The first object to compare.
+     * @param s2 The second object to compare.
      * @return See below.
      */
     private static int compareStrings(String s1, String s2)
@@ -99,8 +98,8 @@ public class CollectionSorter
     /**
      * Compares two {@link Object}s.
      * 
-     * @param o1 The first object.
-     * @param o2 The second object.
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
      * @return See below.
      */
     private static int compareObjects(Object o1, Object o2)
@@ -117,8 +116,8 @@ public class CollectionSorter
     /**
      * Compares two {@link Boolean}s.
      * 
-     * @param bool1 The first object.
-     * @param bool2 The second object.
+     * @param bool1 The first object to compare.
+     * @param bool2 The second object to compare.
      * @return See below.
      */
     private static int compareBooleans(Boolean bool1, Boolean bool2)
@@ -135,8 +134,8 @@ public class CollectionSorter
     /**
      * Compares two {@link Number}s.
      * 
-     * @param n1 The first object.
-     * @param n2 The second object.
+     * @param n1 The first object to compare.
+     * @param n2 The second object to compare.
      * @return See below.
      */
     private static int compareNumbers(Number n1, Number n2)
@@ -152,8 +151,8 @@ public class CollectionSorter
     /**
      * Compares two {@link AnnotationData} objects by timestamp.
      * 
-     * @param a1 The first object.
-     * @param a2 The second object.
+     * @param a1 The first object to compare.
+     * @param a2 The second object to compare.
      * @return See below.
      */
     private static int compareAnnotationData(AnnotationData a1,
@@ -176,8 +175,8 @@ public class CollectionSorter
     /**
      * Compares two {@link ImageDisplay}s.
      * 
-     * @param id1 The first object.
-     * @param id2 The second object.
+     * @param id1 The first object to compare.
+     * @param id2 The second object to compare.
      * @return See below
      */
     private static int compareImageDisplay(ImageDisplay id1, ImageDisplay id2)
@@ -239,10 +238,10 @@ public class CollectionSorter
     /**
      * Compares two {@link Object}s.
      * 
-     * @param o1 The first object.
-     * @param o2 The second object.
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
      * @param ascending Pass <code>true</code> to order elements in ascending
-     * order, Pass <code>false</code> otherwise.
+     *                  order, Pass <code>false</code> otherwise.
      * 
      * @return See below.
      */
@@ -275,72 +274,31 @@ public class CollectionSorter
     }
     
     /**
-     * Sorts the elements of the specified set in ascending order.
-     * The elements are DataObject elements.
-     * 
-     * @param set The set to sort.
-     * @return A list of ordered elements.
-     */
-    public static List sortDataObject(Set set)
-    {
-        return sortDataObject(set, true);
-    }
-    
-    /**
-     * Sorts the elements of the specified set in the specified order.
-     * The elements are DataObject elements.
-     * 
-     * @param set The set to sort.
-     * @param ascending Pass <code>true</code> to sort the elements in the 
-     * ascending order.
-     * @return A list of ordered elements.
-     */
-    public static List sortDataObject(Set set, boolean ascending)
-    {
-        Iterator i = set.iterator();
-        DataObject[]  array = new DataObject[set.size()];
-        DataObject[]  clone = new DataObject[set.size()];
-        int index = 0;
-        DataObject da;
-        while (i.hasNext()) {
-            da = (DataObject) i.next();
-            array[index] = da;
-            clone[index] = da;
-            index++;
-        }
-        shuttlesort(clone, array, 0, array.length, ascending);
-        List list = new ArrayList();
-        for (int j = 0; j < array.length; j++) 
-            list.add(array[j]);
-        return list;
-    }
-    
-    /**
      * Sorts the elements of the specified list in ascending order.
      * The elements are DataObject elements.
      * 
-     * @param list The list to sort.
+     * @param collection The collection to sort.
      * @return A list of ordered elements.
      */
-    public static List sortDataObject(List list)
+    public static List sortDataObject(Collection collection)
     {
-        return sortDataObject(list, true);
+        return sortDataObject(collection, true);
     }
     
     /**
      * Sorts the elements of the specified list in the specified order.
      * The elements are DataObject elements.
      * 
-     * @param list The list to sort.
+     * @param collection The collection to sort.
      * @param ascending Pass <code>true</code> to sort the elements in the 
      * ascending order.
      * @return A list of ordered elements.
      */
-    public static List sortDataObject(List list, boolean ascending)
+    public static List sortDataObject(Collection collection, boolean ascending)
     {
-        Iterator i = list.iterator();
-        DataObject[]  array = new DataObject[list.size()];
-        DataObject[]  clone = new DataObject[list.size()];
+        Iterator i = collection.iterator();
+        DataObject[]  array = new DataObject[collection.size()];
+        DataObject[]  clone = new DataObject[collection.size()];
         int index = 0;
         DataObject da;
         while (i.hasNext()) {
@@ -360,28 +318,29 @@ public class CollectionSorter
      * Sorts the elements of the specified list in ascending order.
      * The elements are {@link ImageDisplay} elements.
      * 
-     * @param set The set to sort.
+     * @param collection The collection to sort.
      * @return A list of ordered elements.
      */
-    public static List sortImageDisplay(Set set)
+    public static List sortImageDisplay(Collection collection)
     {
-        return sortImageDisplay(set, true);
+        return sortImageDisplay(collection, true);
     }
     
     /**
      * Sorts the elements of the specified set in the specified order.
      * The elements are {@link ImageDisplay} elements.
      * 
-     * @param set The set to sort.
+     * @param collection The collection to sort.
      * @param ascending Pass <code>true</code> to sort the elements in the 
-     * ascending order.
+     *                  ascending order.
      * @return A list of ordered elements.
      */
-    public static List sortImageDisplay(Set set, boolean ascending)
+    public static List sortImageDisplay(Collection collection,
+                                        boolean ascending)
     {
-        Iterator i = set.iterator();
-        ImageDisplay[]  array = new ImageDisplay[set.size()];
-        ImageDisplay[]  clone = new ImageDisplay[set.size()];
+        Iterator i = collection.iterator();
+        ImageDisplay[]  array = new ImageDisplay[collection.size()];
+        ImageDisplay[]  clone = new ImageDisplay[collection.size()];
         int index = 0;
         ImageDisplay ia;
         while (i.hasNext()) {
@@ -401,30 +360,31 @@ public class CollectionSorter
      * Sorts the set of {@link AnnotationData} objects by date 
      * in ascending order.
      * 
-     * @param list Collecion of objects to order.
+     * @param collection The Collection to sort.
      * @return A list of ordered elements.
      */
-    public static List sortAnnotationDataByDate(List list)
+    public static List sortAnnotationDataByDate(Collection collection)
     {
-        return sortAnnotationDataByDate(list, true);
+        return sortAnnotationDataByDate(collection, true);
     }
     
     /**
      * Sorts the set of {@link AnnotationData} objects by date in the specified
      * order.
      * 
-     * @param list Collecion of objects to order.
+     * @param collection The collecion to sort.
      * @param ascending Pass <code>true</code> to sort the elements in the 
      *                  ascending order.
      * @return A list of ordered elements.
      */
-    public static List sortAnnotationDataByDate(List list, boolean ascending)
+    public static List sortAnnotationDataByDate(Collection collection,
+                                                boolean ascending)
     {
-        if (list == null)
+        if (collection == null)
             throw new IllegalArgumentException("The set cannot be null.");
-        Iterator i = list.iterator();
-        AnnotationData[]  array = new AnnotationData[list.size()];
-        AnnotationData[]  clone = new AnnotationData[list.size()];
+        Iterator i = collection.iterator();
+        AnnotationData[]  array = new AnnotationData[collection.size()];
+        AnnotationData[]  clone = new AnnotationData[collection.size()];
         int index = 0;
         AnnotationData data;
         while (i.hasNext()) {
