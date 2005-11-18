@@ -122,7 +122,8 @@ class SearchResultsPaneMng
         DefaultTreeModel tm = (DefaultTreeModel) view.getModel();
         dtn = (DefaultMutableTreeNode) identityMap.get(node);
         if (dtn == null) { // create a tree node
-            dtn = new DefaultMutableTreeNode(node.getHierarchyObject());
+            //dtn = new DefaultMutableTreeNode(node.getHierarchyObject());
+            dtn = new DefaultMutableTreeNode(node);
             identityMap.put(node, dtn);
         }
         ImageDisplay parent = node.getParentDisplay();
@@ -134,7 +135,8 @@ class SearchResultsPaneMng
             DefaultMutableTreeNode 
                 pdtn = (DefaultMutableTreeNode) identityMap.get(parent);
             if (pdtn == null) { // create a tree node
-                pdtn = new DefaultMutableTreeNode(parent.getHierarchyObject());
+                //pdtn = new DefaultMutableTreeNode(parent.getHierarchyObject());
+                pdtn = new DefaultMutableTreeNode(parent);
                 identityMap.put(parent, pdtn);
             }
             if (!(hasBeenAdded(tm, dtn, pdtn)))
