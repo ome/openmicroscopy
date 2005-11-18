@@ -99,13 +99,14 @@ class CBSearchTabView
     /** The number of search options. */
     private static final int    MAX = 3;
     
+    /** Search level options. */
     private static String[] searchChoices;
     
     static {
         searchChoices = new String[MAX+1];
         searchChoices[IN_TITLE] = "in title";
         searchChoices[IN_ANNOTATION] = "in annotation";
-        searchChoices[IN_T_AND_A] = "in either";
+        searchChoices[IN_T_AND_A] = "in title or annotation";
         searchChoices[ALL_ANNOTATED] = "annotated";
     }
     
@@ -118,6 +119,7 @@ class CBSearchTabView
     /** The combo box displaying the search levels. */
     JComboBox                   searchType;
     
+    /** The text field hosting the regular expression. */
     private JTextField          searchString;
     
     /** The panel hosting the tree displaying the result. */
@@ -155,7 +157,6 @@ class CBSearchTabView
         add(buildSearchPanel(), c);
 
         // add legend panel
-        c.gridx = 0;
         c.gridy = 1;
         add(buildLegendPanel(), c);
         
@@ -194,7 +195,6 @@ class CBSearchTabView
         searchPanel.add(searchString, c);
         
         // add buttons panel
-        c.gridx = 0;
         c.gridy = 1;
         c.fill = GridBagConstraints.NONE;
         searchPanel.add(buttonPanel, c);
