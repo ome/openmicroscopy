@@ -45,9 +45,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgDisplayAnnotationVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgNodeAnnotationVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgSetAnnotationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import pojos.AnnotationData;
@@ -268,7 +267,7 @@ class ClipBoardModel
         List l = (List) annotations.get(new Integer(details.getUserID()));
         AnnotationData data = null;
         if (l != null) data = (AnnotationData) l.get(0);
-        ImgDisplayAnnotationVisitor visitor = null;
+        /*
         switch (annotatedObjectIndex) {
             case AnnotationEditor.DATASET_ANNOTATION:
                 visitor = new ImgSetAnnotationVisitor(getParentModel(), data,
@@ -279,7 +278,25 @@ class ClipBoardModel
                         annotatedObjectID);
                 break;
         }
-        if (visitor != null) getParentModel().getBrowser().accept(visitor);
+        if (visitor != null) {
+            getParentModel().getBrowser().accept(visitor);
+        }
+        */
+        int algoType = -1;
+        switch (annotatedObjectIndex) {
+            case AnnotationEditor.DATASET_ANNOTATION:
+                algoType = ImageDisplayVisitor.IMAGE_SET_ONLY;
+                break;
+            case AnnotationEditor.IMAGE_ANNOTATION:
+                algoType = ImageDisplayVisitor.IMAGE_NODE_ONLY;
+                break;
+        }
+        if (algoType != -1) {
+            ImgDisplayAnnotationVisitor visitor = 
+                new ImgDisplayAnnotationVisitor(getParentModel(), data,
+                    annotatedObjectID);
+            getParentModel().getBrowser().accept(visitor, algoType);
+        }
         annotationStatus = INITIAL;
     }
     
