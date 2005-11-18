@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Java imports
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -76,7 +77,7 @@ public class HiTranslator
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
        
     /** 
-     * Returns the first element in the specified set. 
+     * Returns the first element of the specified set. 
      * Returns <code>null</code> if the set is empty or <code>null</code>.
      * 
      * @param set The set to analyse.
@@ -95,8 +96,10 @@ public class HiTranslator
     }
     
     /**
-     * Returns the first annotation in the specified set.
+     * Returns the first annotation of the specified set.
      * Returns <code>null</code> if the set is empty or <code>null</code>.
+     * We first make sure that the annotations are ordered by date (ascending
+     * order).
      * 
      * @param set The set to analyse.
      * @return See above.
@@ -104,13 +107,8 @@ public class HiTranslator
     private static AnnotationData getFirstAnnotation(Set set)
     {
         if (set == null || set.size() == 0) return null;
-        AnnotationData ad = null;
-        Iterator i = set.iterator();
-        while (i.hasNext()) {
-            ad = (AnnotationData) i.next();
-            break;  
-        }
-        return ad;
+        List l = CollectionSorter.sortAnnotationDataByDate(set);
+        return (AnnotationData) l.get(0);
     }
     
     /** 
@@ -399,7 +397,7 @@ public class HiTranslator
     }
      
     /**
-     * Formats the toolTip of the specified node.
+     * Formats the toolTip of the specified {@link ImageDisplay} node.
      * 
      * @param node The specified node.
      * @param data The annotation data.
