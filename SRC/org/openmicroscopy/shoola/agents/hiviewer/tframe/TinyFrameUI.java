@@ -187,6 +187,13 @@ public class TinyFrameUI
         return dskDecorator;
     }
     
+    /** 
+     * Returns the scroll pane that contains the internal desktop.
+     * 
+     * @return See above.
+     */
+    JScrollPane getDeskDecorator() { return dskDecorator; }
+    
     /**
      * Returns the title bar component.
      * 

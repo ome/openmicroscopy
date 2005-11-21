@@ -66,10 +66,10 @@ class SizeButton
     implements TinyFrameObserver, PropertyChangeListener, ActionListener
 {
     
-    /** Tooltip text when the button repsents the collapse action. */
+    /** Tooltip text when the button represents the collapse action. */
     static final String COLLAPSE_TOOLTIP = "Collapse";
     
-    /** Tooltip text when the button repsents the expand action. */
+    /** Tooltip text when the button represents the expand action. */
     static final String EXPAND_TOOLTIP = "Expand";
     
     

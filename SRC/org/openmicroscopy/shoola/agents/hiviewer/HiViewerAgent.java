@@ -66,6 +66,11 @@ public class HiViewerAgent
     /** Reference to the registry. */
     private static Registry         registry;
     
+    /**
+     * Helper method. 
+     * 
+     * @return A reference to the {@link Registry}.
+     */
     public static Registry getRegistry() { return registry; }
     
     

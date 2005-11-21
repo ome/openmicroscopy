@@ -39,6 +39,7 @@ import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JScrollPane;
 import javax.swing.plaf.InternalFrameUI;
 
 //Third-party libraries
@@ -361,6 +362,16 @@ public class TinyFrame
      * @return See above.
      */
     public JDesktopPane getInternalDesktop() { return model.getDesktopPane(); }
+    
+    /** 
+     * Returns the scroll pane that contains the internal desktop.
+     * 
+     * @return See above.
+     */
+    public JScrollPane getDeskDecorator() 
+    {
+        return uiDelegate.getDeskDecorator();
+    }
     
     /**
      * Overridden to return the internal desktop pane.
