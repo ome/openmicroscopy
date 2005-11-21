@@ -66,7 +66,7 @@ import ome.dao.GenericDao;
  * 
  */
 public class GenericDaoHibernate extends HibernateDaoSupport implements GenericDao {
-//TODO can use generics here!
+
 	public Object getUniqueByExample(final Object example) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
