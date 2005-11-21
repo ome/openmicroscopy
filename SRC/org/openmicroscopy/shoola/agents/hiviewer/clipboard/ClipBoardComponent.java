@@ -41,8 +41,16 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 
 /** 
+ * Implements the {@link ClipBoard} interface to provide the functionality
+ * required of the clip board component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
+ * @see org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardModel
+ * @see org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardControl
+ * @see org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardUI
  * 
- *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
  *              banderson@comnputing.dundee.ac.uk

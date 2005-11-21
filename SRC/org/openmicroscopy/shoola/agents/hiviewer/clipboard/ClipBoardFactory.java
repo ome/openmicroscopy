@@ -58,8 +58,9 @@ public class ClipBoardFactory
     /**
      * Creates a new {@link ClipBoard}.
      * 
-     * @param parentModel A reference to the {@link HiViewer} view hosting 
-     * the {@link ClipBoard} component. Mustn't be <code>null</code>.
+     * @param parentModel   A reference to the {@link HiViewer} view hosting 
+     *                      the {@link ClipBoard} component.
+     *                      Mustn't be <code>null</code>.
      * @return See above
      */
     public static ClipBoard createClipBoard(HiViewer parentModel)

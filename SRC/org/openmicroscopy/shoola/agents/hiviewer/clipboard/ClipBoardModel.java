@@ -52,8 +52,13 @@ import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import pojos.AnnotationData;
 
 /** 
+ * The Model component in the <code>ClipBoard</code> MVC triad.
+ * This class tracks the <code>ClipBoard</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. The {@link ClipBoardComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
  * 
- *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
  *              banderson@comnputing.dundee.ac.uk

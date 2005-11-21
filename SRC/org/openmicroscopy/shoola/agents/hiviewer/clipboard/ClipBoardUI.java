@@ -41,11 +41,12 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-
 import pojos.DataObject;
 
 /** 
- * 
+ * The {@link ClipBoard}'s view.
+ * This component hosts the different panels implementing the
+ * {@link ClipBoardTab} interface.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">

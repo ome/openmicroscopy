@@ -42,12 +42,11 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-
 import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * The {@link TreePopupMenu}'s controller.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">

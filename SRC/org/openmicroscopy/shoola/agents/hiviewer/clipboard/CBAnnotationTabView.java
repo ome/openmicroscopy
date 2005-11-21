@@ -68,7 +68,7 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
- * Model/View combined
+ * The <code>Annotation</code> panel
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
@@ -274,7 +274,6 @@ class CBAnnotationTabView
      */
     private void allowOwnerAnnotation(boolean b)
     {
-        //annotationText.setEditable(b);
         createAnnotation.setEnabled(b);
         if (b) {
             annotationText.requestFocus();
@@ -285,8 +284,8 @@ class CBAnnotationTabView
     /**
      * Allows or not to update or delete and existing annotation.
      * 
-     * @param b <code>true</code> to allow the action,
-     * <code>false</code> otherwise
+     * @param b Pass <code>true</code> to allow the action,
+     *          <code>false</code> otherwise
      */
     private void allowUpdate(boolean b)
     {
@@ -315,7 +314,7 @@ class CBAnnotationTabView
     }
     
     /**
-     * Shows the annotation made the selected user.
+     * Shows the annotation entered by the selected user.
      */
     void showSingleAnnotation()
     {
@@ -349,8 +348,8 @@ class CBAnnotationTabView
     /**
      * Allows to save the newly created annotation.
      * 
-     * @param b <code>true</code> to allow the action,
-     * <code>false</code> otherwise
+     * @param b Pass <code>true</code> to allow the action,
+     *          <code>false</code> otherwise
      */
     void allowCreation(boolean b)
     {
@@ -373,9 +372,7 @@ class CBAnnotationTabView
         annotationText.setEditable(i==userIndex);
     }
     
-    /**
-     * Displays the annotations.
-     */
+    /** Displays the annotations. */
     void showAnnotations()
     {
         UserDetails userDetails = model.getParentModel().getUserDetails();

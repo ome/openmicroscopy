@@ -38,6 +38,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -46,11 +47,12 @@ import javax.swing.tree.DefaultTreeModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 
 /** 
+ * The {@link SearchResultsPane}'s controller.
  * 
- *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
  *              banderson@comnputing.dundee.ac.uk
@@ -64,7 +66,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 class SearchResultsPaneMng
 {
     
-    /** Default root's text. */
+    /** The default root's text. */
     private static final String     ROOT = "Results";
     
     /** Reference to the view, this class controls. */
@@ -73,22 +75,11 @@ class SearchResultsPaneMng
     /** The root node. */
     private DefaultMutableTreeNode  root;
     
+    /** The map where the tree nodes are stored. */
     private Map                     identityMap;
     
-    /**
-     * Creates a new instance. 
-     * 
-     * @param view The <code>SearchResultsPane</code> view.
-     */
-    SearchResultsPaneMng(SearchResultsPane view)
-    {
-        this.view = view;
-        identityMap = new HashMap();
-        initListeners();
-    }
-    
     /** 
-     * Attach a mouse adapter to the tree in the view to get notified 
+     * Attaches a {@link MouseAdapter} to the tree in the view to get notified 
      * of mouse events on the tree.
      */
     private void initListeners()
@@ -99,20 +90,20 @@ class SearchResultsPaneMng
         });
     }
     
-    /** Handles mouse click events. */
+    /** Pops up the menu. */
     private void onClick(MouseEvent me)
     {
         int row = view.getRowForLocation(me.getX(), me.getY());
         if (row != -1) {
             view.setSelectionRow(row);
+            view.setSelectedNode();
             if (me.isPopupTrigger() && view.getDataObject() != null)
                 view.showMenu(me.getX(), me.getY());
         }
     }
     
     /** 
-     * Build a defaultMutableTreeNode corresponding to the 
-     * specified {@link ImageDisplay}.
+     * Builds a node corresponding to the specified {@link ImageDisplay}.
      * 
      * @param node  The specified {@link ImageDisplay}.
      */
@@ -146,7 +137,7 @@ class SearchResultsPaneMng
     }
     
     /** 
-     * Check if the specified child as already been added to the 
+     * Checkes if the specified child as already been added to the 
      * specified parent. 
      * 
      * @param tm The tree model
@@ -161,6 +152,19 @@ class SearchResultsPaneMng
         for (int i = 0; i < n; i++)
             if (tm.getChild(parent, i) == child) return true;
         return false;
+    }
+    
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param view The <code>SearchResultsPane</code> view.
+     */
+    SearchResultsPaneMng(SearchResultsPane view)
+    {
+        this.view = view;
+        identityMap = new HashMap();
+        initListeners();
     }
     
     /** Builds the tree model. */
@@ -180,7 +184,8 @@ class SearchResultsPaneMng
             DefaultTreeModel tm= (DefaultTreeModel) view.getModel();
             tm.insertNodeInto(childNode, root, root.getChildCount());
         } else {
-            Iterator i = nodes.iterator();
+            List list = CollectionSorter.sortImageDisplay(nodes);
+            Iterator i = list.iterator();
             while (i.hasNext())
                 buildTreeNode((ImageDisplay) i.next());
         }

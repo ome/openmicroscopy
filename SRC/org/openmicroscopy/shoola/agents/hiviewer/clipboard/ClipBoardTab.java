@@ -35,14 +35,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 
 /** 
- * The interface that each tabbedpane should implement.
+ * The interface that each panel composing the UI should implement.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
@@ -85,6 +84,13 @@ abstract class ClipBoardTab
         this.controller = controller;
     }
     
+    /**
+     * The class implementing the I/F should override the 
+     * method.
+     * 
+     * @param selectedDisplay   The selected {@link ImageDisplay} node in the
+     *                          <code>Browser</code>.
+     */
     protected void onDisplayChange(ImageDisplay selectedDisplay) {}
     
 }

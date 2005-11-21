@@ -62,7 +62,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
 import pojos.DataObject;
 
 /** 
- * 
+ * The <code>Search</code> panel.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
@@ -366,11 +366,13 @@ class CBSearchTabView
     /**
      * Displays the results of the search action.
      * 
-     * @param foundNodes Set of nodes.
+     * @param foundNodes The set of nodes to display.
      */
     void setSearchResults(Set foundNodes)
     {
         pane = new SearchResultsPane(this, foundNodes);
+        pane.addPropertyChangeListener(SearchResultsPane.LOCALIZE_IMAGE_DISPLAY,
+                                        controller);
         treeHolder.removeAll();
         treeHolder.add(new JScrollPane(pane), BorderLayout.CENTER);
         treeHolder.revalidate();
@@ -420,7 +422,7 @@ class CBSearchTabView
         searchPanel.setBorder(new TitledBorder("Search '"+title+"' for: ")); 
     }
     
-    
+    /** Overriden to size the tree hosting the result. */
     public void setBounds(int x, int y, int w, int h)
     {
         Rectangle r = view.getVisibleRect();
@@ -435,4 +437,5 @@ class CBSearchTabView
         }
         super.setBounds(x, y, w, h);
     }
+    
 }

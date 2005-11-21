@@ -44,7 +44,7 @@ import javax.swing.JButton;
 //Application-internal dependencies
 
 /** 
- * 
+ * The {@link CBAnnotationTabView}'s controller.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">

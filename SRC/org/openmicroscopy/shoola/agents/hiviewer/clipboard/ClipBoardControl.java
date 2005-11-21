@@ -30,12 +30,12 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
-
-
-
 //Java imports
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -49,8 +49,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import pojos.AnnotationData;
 
 /** 
+ * The {@link ClipBoard}'s controller.
  * 
- *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
  *              banderson@comnputing.dundee.ac.uk
@@ -98,6 +98,31 @@ class ClipBoardControl
     }
     
     /**
+     * Brings on screen the selected node. The nodes containing the child
+     * are visited i.e. parent then grandparent up to the root node.
+     * 
+     * @param childBounds The bounds of the selected node.
+     * @param parent The node containing the child.
+     */
+    private void scrollToNode(Rectangle childBounds, ImageDisplay parent,
+                                boolean isRoot)
+    {
+        JScrollPane dskDecorator = parent.getDeskDecorator();
+        Rectangle viewRect = dskDecorator.getViewport().getViewRect();
+        if (!viewRect.contains(childBounds)) {
+            JScrollBar vBar = dskDecorator.getVerticalScrollBar();
+            JScrollBar hBar = dskDecorator.getHorizontalScrollBar();
+            vBar.setValue(childBounds.y);
+            hBar.setValue(childBounds.x);
+        }
+        if (!isRoot) {
+            ImageDisplay node = parent.getParentDisplay();
+            scrollToNode(childBounds, node, (node.getParentDisplay() == null));       
+        }      
+    }
+    
+    
+    /**
      * Creates a new instance.
      * 
      * @param component A reference to the model. Mustn't be <code>null</code>.
@@ -111,8 +136,9 @@ class ClipBoardControl
     /**
      * Links the MVC triad.
      * 
-     * @param view The {@link ClipBoardUI} view.
+     * @param view The {@link ClipBoardUI} view. Mustn't be <code>null</code>.
      * @param model The {@link ClipBoardModel} model.
+     *              Mustn't be <code>null</code>.
      */
     void initialize(ClipBoardUI view, ClipBoardModel model)
     {
@@ -172,16 +198,26 @@ class ClipBoardControl
         component.deleteAnnotation(data);
     }
     
+    /**
+     * Discards any on-going annotation retrieval.
+     */
     void discardAnnotation() { component.discardAnnotation(); }
     
     /**
      * Reacts to a specific property change fired by the browser.
+     * and the component hosting the result of a <code>Search</code> action.
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
         String propName = pce.getPropertyName();
         if (propName.equals(Browser.SELECTED_DISPLAY_PROPERTY))
             handleBrowserSelectedDisplay(pce); 
+        else if (propName.equals(SearchResultsPane.LOCALIZE_IMAGE_DISPLAY)) {
+            ImageDisplay node = (ImageDisplay) pce.getNewValue();
+            ImageDisplay parent = node.getParentDisplay();
+            scrollToNode(node.getBounds(), parent,
+                        (parent.getParentDisplay() == null));
+        }
     }
 
     /** Listens to change events. */

@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 
 /** 
- * 
+ * The popup menu displayed when a node is selected in the results tree.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
@@ -64,8 +64,16 @@ class TreePopupMenu
     extends JPopupMenu
 {
     
+    /** 
+     * The text of the <code>view</code> menu item when an ImageNode is
+     * selected.
+     */
     static final String  VIEW = "view";
     
+    /** 
+     * The text of the <code>view</code> menu item when an ImageSet is
+     * selected.
+     */
     static final String  BROWSE = "browse";
     
     /** The <code>View</code> menu item. */

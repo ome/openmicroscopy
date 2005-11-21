@@ -42,6 +42,11 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 
 /** 
+ * Defines the interface provided by clip board component.
+ * The clip board provides a UI component hosting the <code>ImageDisplay</code>
+ * manipulation e.g. <code>Search</code> panel, <code>Annotation</code> panel.
+ * Use the {@link ClipBoardFactory} to create an object implementing this 
+ * interface.
  * 
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">

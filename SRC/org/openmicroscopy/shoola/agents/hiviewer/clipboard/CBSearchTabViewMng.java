@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
 
 /** 
- * 
+ * The {@link CBSearchTabView}'s controller. 
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
@@ -61,13 +61,16 @@ class CBSearchTabViewMng
     implements ActionListener
 {
 
-
+    /** Identifies the <code>Search</code> action. */
     private static final int SEARCH = 0;
     
+    /** Indicates that some text has been entered in the text area. */
     private static final int SEARCH_SELECTION = 1;
     
+    /** Identifies the <code>Clear</code> action. */
     private static final int CLEAR = 2;
     
+    /** A reference to the View. */
     private CBSearchTabView view;
     
     /**
@@ -104,6 +107,7 @@ class CBSearchTabViewMng
         cmd.execute();
     }
     
+    /** Clears the previous search results. */
     private void clearSearch()
     {
         ClearCmd cmd = new ClearCmd(view.model.getParentModel());
@@ -111,6 +115,9 @@ class CBSearchTabViewMng
         view.clearSearchValue();
     }
     
+    /**
+     * Reacts to the {@link CBSearchTabView#ALL_ANNOTATED} action.
+     */
     private void handleSelection()
     {
         if (view.searchType.getSelectedIndex() == CBSearchTabView.ALL_ANNOTATED)
@@ -121,6 +128,12 @@ class CBSearchTabViewMng
         }
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param view  A reference to the {@link CBSearchTabView} view. Mustn't be
+     *              <code>null</code>.
+     */
     CBSearchTabViewMng(CBSearchTabView view)
     {
         if (view == null) throw new NullPointerException("No view.");
@@ -128,6 +141,9 @@ class CBSearchTabViewMng
         attachListeners();
     }
 
+    /**
+     * Reacts to the actions.
+     */
     public void actionPerformed(ActionEvent e)
     {
         int index = -1;

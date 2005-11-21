@@ -40,15 +40,16 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Displays the results of a <code>Search</code> action.
+ * Results are presented using a {@link JTree}.
  *
  * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
@@ -64,8 +65,13 @@ class SearchResultsPane
     extends JTree
 {
 
+    /** Brings on screen the selected {@link ImageDisplay}. */
+    static final String LOCALIZE_IMAGE_DISPLAY = "localize";
+    
     /** The View hosting this component. */
-    private CBSearchTabView     view;
+    private CBSearchTabView         view;
+    
+    private DefaultMutableTreeNode  selectedNode;
     
     /** Initializes the component. */
     private void initialize()
@@ -79,11 +85,13 @@ class SearchResultsPane
     /**
      * Creates a new instance.
      * 
-     * @param view The <code>CBSearchTabView</code> hosting the component
+     * @param view  The <code>CBSearchTabView</code> hosting the component. 
+     *              Mustn't be <code>null</code>.
      * @param nodes The set of nodes to display.
      */
     SearchResultsPane(CBSearchTabView view, Set nodes)
     {
+        if (view == null) throw new NullPointerException("No view");
         this.view = view;
         initialize();
         SearchResultsPaneMng manager = new SearchResultsPaneMng(this);
@@ -136,13 +144,31 @@ class SearchResultsPane
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)
                                             getLastSelectedPathComponent();
         if (node != null) {
-            Object  usrObj = node.getUserObject();
-            if (usrObj instanceof ProjectData || 
-                usrObj instanceof DatasetData ||
-                usrObj instanceof ImageData)
-                target = (DataObject) usrObj;
+            ImageDisplay  usrObj = (ImageDisplay) node.getUserObject();
+            Object hierarchyObj = usrObj.getHierarchyObject();
+            if (hierarchyObj instanceof ProjectData || 
+                hierarchyObj instanceof DatasetData ||
+                hierarchyObj instanceof ImageData)
+                target = (DataObject) hierarchyObj;
         }
         return target;
+    }
+    
+    /**
+     * Sets the last selected node and fires an event to bring the
+     * selected {@link ImageDisplay} node on screen.
+     */
+    void setSelectedNode()
+    {
+        DefaultMutableTreeNode node =
+            (DefaultMutableTreeNode) getLastSelectedPathComponent();
+        if (selectedNode == node) return;
+        ImageDisplay  newObject = (ImageDisplay) node.getUserObject();
+        ImageDisplay  oldObject = null;
+        if (selectedNode != null)
+            oldObject = (ImageDisplay) selectedNode.getUserObject();
+        firePropertyChange(LOCALIZE_IMAGE_DISPLAY, oldObject, newObject);
+        selectedNode = node;
     }
     
 }
