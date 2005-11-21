@@ -43,7 +43,12 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import pojos.AnnotationData;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Helper methods to sort collections.
@@ -62,6 +67,27 @@ import pojos.DataObject;
 public class CollectionSorter
 {
 
+    /**
+     * Returns the name or the text of the {@link DataObject}.
+     * 
+     * @param obj The object to analyse.
+     * @return See above.
+     */
+    private static String dataObjectToString(DataObject obj)
+    {
+        String s = null;
+        if (obj instanceof ProjectData) s = ((ProjectData) obj).getName();
+        else if (obj instanceof DatasetData) s = ((DatasetData) obj).getName();
+        else if (obj instanceof ImageData) s = ((ImageData) obj).getName();
+        else if (obj instanceof CategoryData) 
+            s = ((CategoryData) obj).getName();
+        else if (obj instanceof CategoryGroupData) 
+            s = ((CategoryGroupData) obj).getName();
+        else if (obj instanceof AnnotationData) 
+            s = ((AnnotationData) obj).getText();
+        return s;
+    }
+    
     /**
      * Compares two {@link Date}s.
      * 
@@ -106,6 +132,24 @@ public class CollectionSorter
     {
         String s1 = o1.toString();
         String s2 = o2.toString();
+        int result = s1.compareTo(s2);
+        int v = 0;
+        if (result < 0) v = -1;
+        else if (result > 0) v = 1;
+        return v;
+    }
+    
+    /**
+     * Compares two {@link DataObject}s.
+     * 
+     * @param do1 The first object to compare.
+     * @param do2 The second object to compare.
+     * @return See below.
+     */
+    private static int compareDataObjects(DataObject do1, DataObject do2)
+    {
+        String s1 = dataObjectToString(do1);
+        String s2 = dataObjectToString(do2);
         int result = s1.compareTo(s2);
         int v = 0;
         if (result < 0) v = -1;
@@ -186,7 +230,7 @@ public class CollectionSorter
         if (o1 == null && o2 == null) return 0; 
         else if (o1 == null) return -1; 
         else if (o2 == null) return 1; 
-        return compareObjects(o1, o2);
+        return compareDataObjects((DataObject) o1, (DataObject) o2);
     }
     
     // This is a home-grown implementation which we have not had time
@@ -267,6 +311,8 @@ public class CollectionSorter
         else if (o1 instanceof AnnotationData) 
             result = compareAnnotationData((AnnotationData) o1,
                         (AnnotationData) o2);
+        else if (o1 instanceof DataObject)
+            result = compareDataObjects((DataObject) o1, (DataObject) o2);
         else result = compareObjects(o1, o2);
             
         if (result != 0) return ascending ? result : -result;
