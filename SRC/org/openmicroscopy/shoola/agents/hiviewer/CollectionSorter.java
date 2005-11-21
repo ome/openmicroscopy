@@ -43,12 +43,6 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Helper methods to sort collections.
@@ -67,27 +61,7 @@ import pojos.ProjectData;
 public class CollectionSorter
 {
 
-    /**
-     * Returns the name or the text of the {@link DataObject}.
-     * 
-     * @param obj The object to analyse.
-     * @return See above.
-     */
-    private static String dataObjectToString(DataObject obj)
-    {
-        String s = null;
-        if (obj instanceof ProjectData) s = ((ProjectData) obj).getName();
-        else if (obj instanceof DatasetData) s = ((DatasetData) obj).getName();
-        else if (obj instanceof ImageData) s = ((ImageData) obj).getName();
-        else if (obj instanceof CategoryData) 
-            s = ((CategoryData) obj).getName();
-        else if (obj instanceof CategoryGroupData) 
-            s = ((CategoryGroupData) obj).getName();
-        else if (obj instanceof AnnotationData) 
-            s = ((AnnotationData) obj).getText();
-        return s;
-    }
-    
+
     /**
      * Compares two {@link Date}s.
      * 
@@ -132,24 +106,6 @@ public class CollectionSorter
     {
         String s1 = o1.toString();
         String s2 = o2.toString();
-        int result = s1.compareTo(s2);
-        int v = 0;
-        if (result < 0) v = -1;
-        else if (result > 0) v = 1;
-        return v;
-    }
-    
-    /**
-     * Compares two {@link DataObject}s.
-     * 
-     * @param do1 The first object to compare.
-     * @param do2 The second object to compare.
-     * @return See below.
-     */
-    private static int compareDataObjects(DataObject do1, DataObject do2)
-    {
-        String s1 = dataObjectToString(do1);
-        String s2 = dataObjectToString(do2);
         int result = s1.compareTo(s2);
         int v = 0;
         if (result < 0) v = -1;
@@ -214,23 +170,6 @@ public class CollectionSorter
         if (t1.after(t2)) v = -1;
         else if (t2.after(t1)) v = 1;
         return v;
-    }
-    
-    /**
-     * Compares two {@link ImageDisplay}s.
-     * 
-     * @param id1 The first object to compare.
-     * @param id2 The second object to compare.
-     * @return See below
-     */
-    private static int compareImageDisplay(ImageDisplay id1, ImageDisplay id2)
-    {
-        Object o1 = id1.getHierarchyObject();
-        Object o2 = id2.getHierarchyObject();
-        if (o1 == null && o2 == null) return 0; 
-        else if (o1 == null) return -1; 
-        else if (o2 == null) return 1; 
-        return compareDataObjects((DataObject) o1, (DataObject) o2);
     }
     
     // This is a home-grown implementation which we have not had time
@@ -306,58 +245,13 @@ public class CollectionSorter
             result = compareStrings((String) o1, (String) o2);
         else if (o1 instanceof Boolean)
             result = compareBooleans((Boolean) o1, (Boolean) o2);   
-        else if (o1 instanceof ImageDisplay) 
-            result = compareImageDisplay((ImageDisplay) o1, (ImageDisplay) o2);
         else if (o1 instanceof AnnotationData) 
             result = compareAnnotationData((AnnotationData) o1,
                         (AnnotationData) o2);
-        else if (o1 instanceof DataObject)
-            result = compareDataObjects((DataObject) o1, (DataObject) o2);
         else result = compareObjects(o1, o2);
             
         if (result != 0) return ascending ? result : -result;
         return result;
-    }
-    
-    /**
-     * Sorts the elements of the specified list in ascending order.
-     * The elements are DataObject elements.
-     * 
-     * @param collection The collection to sort.
-     * @return A list of ordered elements.
-     */
-    public static List sortDataObject(Collection collection)
-    {
-        return sortDataObject(collection, true);
-    }
-    
-    /**
-     * Sorts the elements of the specified list in the specified order.
-     * The elements are DataObject elements.
-     * 
-     * @param collection The collection to sort.
-     * @param ascending Pass <code>true</code> to sort the elements in the 
-     * ascending order.
-     * @return A list of ordered elements.
-     */
-    public static List sortDataObject(Collection collection, boolean ascending)
-    {
-        Iterator i = collection.iterator();
-        DataObject[]  array = new DataObject[collection.size()];
-        DataObject[]  clone = new DataObject[collection.size()];
-        int index = 0;
-        DataObject da;
-        while (i.hasNext()) {
-            da = (DataObject) i.next();
-            array[index] = da;
-            clone[index] = da;
-            index++;
-        }
-        shuttlesort(clone, array, 0, array.length, ascending);
-        List newList = new ArrayList();
-        for (int j = 0; j < array.length; j++) 
-            newList.add(array[j]);
-        return newList;
     }
     
     /**
