@@ -1,10 +1,5 @@
 package ome.model;
 
-import ome.util.BaseModelUtils;
-import ome.util.Filterable;
-import ome.util.Filter;
-
-
 import java.util.*;
 
 
@@ -176,7 +171,7 @@ ome.util.Filterable {
 
 
 
-  public boolean acceptFilter(Filter filter){
+  public boolean acceptFilter(ome.util.Filter filter){
 
 
 	  // Visiting: SessionId ------------------------------------------

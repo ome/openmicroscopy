@@ -30,21 +30,16 @@
 package ome.security;
 
 //Java imports
-
-//Third-party libraries
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-import org.springframework.dao.DataAccessException;
-
+//Third-party libraries
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.PasswordAuthenticationDao;
 import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 import net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl;
 
 //Application-internal dependencies

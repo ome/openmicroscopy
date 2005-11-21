@@ -33,16 +33,15 @@ package pojos;
 //Java imports
 import java.sql.Timestamp;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import ome.api.OMEModel;
 import ome.model.DatasetAnnotation;
 import ome.model.ImageAnnotation;
 import ome.model.ModuleExecution;
 import ome.util.ModelMapper;
-import sun.security.krb5.internal.crypto.t;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Holds a textual annotation of a given data object and a reference to the

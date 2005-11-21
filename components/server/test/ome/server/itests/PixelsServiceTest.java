@@ -29,9 +29,6 @@
 package ome.server.itests;
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;

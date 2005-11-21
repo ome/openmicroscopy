@@ -44,7 +44,6 @@ import net.sf.acegisecurity.providers.dao.User;
 import ome.api.Pixels;
 import ome.dao.DaoFactory;
 import ome.model.Experimenter;
-import ome.model.Image;
 import ome.model.ImagePixel;
 import ome.model.RenderingSetting;
 

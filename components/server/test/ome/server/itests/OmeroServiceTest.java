@@ -33,23 +33,15 @@ package ome.server.itests;
 //Third-party libraries
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.LazyInitializationException;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.collection.PersistentSet;
-import org.hibernate.mapping.PersistentClass;
 
 //Application-internal dependencies
 import ome.model.Category;
 import ome.model.CategoryGroup;
 import ome.model.Image;
-import ome.model.Project;
 import ome.testing.AbstractOmeroHierarchyBrowserIntegrationTest;
 import ome.testing.OMEData;
 import ome.testing.OMEPerformanceData;

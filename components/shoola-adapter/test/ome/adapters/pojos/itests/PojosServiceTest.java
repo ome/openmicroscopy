@@ -27,29 +27,22 @@ package ome.adapters.pojos.itests;
  *
  *------------------------------------------------------------------------------
  */
-//Java imports
 
-//Third-party libraries
-import java.lang.reflect.Method;
+//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+
+//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.AfterReturningAdvice;
-import org.springframework.aop.framework.ProxyFactory;
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
-import ome.api.Pojos;
-import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.Project;
 import ome.testing.AbstractPojosServiceTest;

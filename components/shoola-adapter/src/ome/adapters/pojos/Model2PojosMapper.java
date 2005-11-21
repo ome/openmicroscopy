@@ -30,13 +30,8 @@
 package ome.adapters.pojos;
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 
 //Third-party libraries
@@ -53,12 +48,10 @@ import ome.model.Image;
 import ome.model.ImageAnnotation;
 import ome.model.ImagePixel;
 import ome.model.Project;
-import ome.util.Filterable;
 
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;

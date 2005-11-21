@@ -31,19 +31,14 @@ package pojos;
 
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-
-import ome.api.OMEModel;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.util.ModelMapper;
-import sun.security.krb5.internal.crypto.t;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.OMEModel;
+import ome.model.CategoryGroup;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Category Group along with links to its

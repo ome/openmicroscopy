@@ -29,12 +29,6 @@
 package ome.server.utests;
 
 //Java imports
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 import org.jmock.Mock;
@@ -44,15 +38,7 @@ import org.jmock.MockObjectTestCase;
 import ome.dao.AnnotationDao;
 import ome.dao.ContainerDao;
 import ome.dao.DaoFactory;
-import ome.logic.HierarchyBrowsingImpl;
 import ome.logic.PojosImpl;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.ImageAnnotation;
-import ome.model.Project;
 
 /**
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;

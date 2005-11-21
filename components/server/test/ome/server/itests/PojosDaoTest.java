@@ -29,28 +29,15 @@
 package ome.server.itests;
 
 //Java imports
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies

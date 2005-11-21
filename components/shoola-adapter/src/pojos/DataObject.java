@@ -29,15 +29,12 @@
 
 package pojos;
 
-import ome.api.ModelBased;
-import ome.api.OMEModel;
-
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.ModelBased;
 
 /** 
  * Marker interface for objects that hold <i>OMEDS</i> data.

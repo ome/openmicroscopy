@@ -31,36 +31,21 @@ package ome.server.itests;
 //Java imports
 
 //Third-party libraries
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.sql.DataSource;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.LazyInitializationException;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.collection.PersistentSet;
-import org.hibernate.mapping.PersistentClass;
 
 //Application-internal dependencies
 import ome.api.Pojos;
 import ome.api.Write;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Project;
 import ome.testing.AbstractOmeroHierarchyBrowserIntegrationTest;
 import ome.testing.OMEData;
 import ome.testing.OMEPerformanceData;
-import ome.util.Utils;
 
 /** 
  * tests on the security system

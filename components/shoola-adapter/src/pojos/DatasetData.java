@@ -31,22 +31,14 @@ package pojos;
 
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-
-import ome.api.OMEModel;
-import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
-import ome.model.Image;
-import ome.model.Project;
-import ome.util.ModelMapper;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.OMEModel;
+import ome.model.Dataset;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Dataset along with links to its

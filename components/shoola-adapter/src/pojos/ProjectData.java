@@ -33,16 +33,12 @@ package pojos;
 //Java imports
 import java.util.Set;
 
-import ome.api.OMEModel;
-import ome.model.Experimenter;
-import ome.model.Project;
-import ome.util.ModelMapper;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.OMEModel;
+import ome.model.Project;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Project along with links to its

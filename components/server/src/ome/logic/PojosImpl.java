@@ -144,7 +144,6 @@ public class PojosImpl implements Pojos {
         Map m = getParameters(imageIds, po);
     	String q = PojosQueryBuilder.buildFindQuery(rootNodeType,po.map());
     	List   l;
-    	Set s;
     	
 		if (Project.class.equals(rootNodeType)) {
 			if (imageIds.size()==0){

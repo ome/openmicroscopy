@@ -31,8 +31,6 @@ package ome.api;
 
 
 //Java imports
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 

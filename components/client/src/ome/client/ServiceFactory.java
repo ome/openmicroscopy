@@ -30,24 +30,18 @@
 package ome.client;
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.net.URL;
 import java.util.Map;
 
+//Third-party libraries
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.rcp.RemoteAuthenticationException;
 import net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManager;
 
-import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+//Application-internal dependencies
 import ome.api.HierarchyBrowsing;
 import ome.api.Pojos;
 

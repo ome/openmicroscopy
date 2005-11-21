@@ -29,23 +29,18 @@
 
 package pojos;
 
-import java.util.ArrayList;
-import java.util.List;
+//Java imports
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
 import ome.api.OMEModel;
 import ome.model.ImageDimension;
 import ome.model.ImagePixel;
 import ome.model.Repository;
 import ome.util.ModelMapper;
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer

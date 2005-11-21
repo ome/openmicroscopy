@@ -34,8 +34,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
-import ome.dao.AnalysisDao;
-
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -43,8 +41,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
-
-
+import ome.dao.AnalysisDao;
 
 /** uses Hibernate to fulfill hierarchy needs.
  * 

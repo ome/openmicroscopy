@@ -30,14 +30,11 @@
 package ome.dao;
 
 //Java imports
-import java.util.List;
-import java.util.Set;
-
-import ome.model.RenderingSetting;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.RenderingSetting;
 
 
 /** data access object for Image and Dataset annotations.

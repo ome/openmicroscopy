@@ -32,25 +32,14 @@ package pojos;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-
-import ome.api.OMEModel;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.ImagePixel;
-import ome.model.ModuleExecution;
-import ome.util.ModelMapper;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import sun.security.krb5.internal.crypto.m;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.OMEModel;
+import ome.model.Image;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Image along with links to its

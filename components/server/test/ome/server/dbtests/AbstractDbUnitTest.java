@@ -29,12 +29,7 @@
 package ome.server.dbtests;
 
 //Java imports
-
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.sql.DataSource;
-
 
 //Third-party libraries
 import org.dbunit.database.DatabaseConnection;

@@ -29,15 +29,8 @@
 package ome.server.itests;
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -50,14 +43,8 @@ import ome.api.Pojos;
 import ome.dao.DaoFactory;
 import ome.model.CategoryGroup;
 import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.ImagePixel;
 import ome.model.Project;
-import ome.model.Repository;
 import ome.security.Utils;
-import ome.testing.AbstractPojosServiceTest;
-import ome.util.ContextFilter;
-import ome.util.Filterable;
 import ome.util.builders.PojoOptions;
 
 /** 
