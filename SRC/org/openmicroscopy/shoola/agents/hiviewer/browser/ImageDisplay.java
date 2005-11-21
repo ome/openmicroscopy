@@ -41,6 +41,12 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame;
 
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
+
 /** 
  * Represents a component in the composite structure used to visualize an
  * image hierarchy.
@@ -291,11 +297,22 @@ public abstract class ImageDisplay
         }
     }
     
-    //TODO: this is a depth-first visit.  We should let clients decide on
-    //the algorithm.  For example, if we have to highlight only the images
-    //that have an annotation, then we only need to visit leaf nodes.
-    //The visitor I/F could define constants to select a visiting strategy and
-    //this method should turn into: accept(visitor, algoType).
+    /** Overriden to return the name of the hierarchy object. */
+    public String toString()
+    {
+        String s = "";
+        if (hierarchyObject instanceof ProjectData) 
+            s = ((ProjectData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof DatasetData)
+            s = ((DatasetData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof ImageData) 
+            s = ((ImageData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof CategoryData) 
+            s = ((CategoryData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof CategoryGroupData) 
+            s = ((CategoryGroupData) hierarchyObject).getName();
+        return s;
+    }
     
     /**
      * Made final to ensure objects are compared by reference so that the
