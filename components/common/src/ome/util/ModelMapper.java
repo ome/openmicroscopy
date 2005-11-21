@@ -205,14 +205,24 @@ public abstract class ModelMapper extends ContextFilter {
 		return new Timestamp(date.getTime());
 	}
 	
-	public int nullSafeInt(Integer id){
-		if (id==null) return 0;
-		return id.intValue();
+	public int nullSafeInt(Integer i){
+		if (i==null) return 0;
+		return i.intValue();
 	}
 	
-	public long nullSafeLong(Long id){
-		if (id==null) return 0;
-		return id.longValue();
+	public long nullSafeLong(Long l){
+		if (l==null) return 0;
+		return l.longValue();
 	}
+    
+    public double nullSafeDouble(Double d){
+        if (d==null) return 0.0;
+        return d.doubleValue();
+    }
+    
+    public float nullSafeFloat(Float f){
+        if (f==null) return 0.0F;
+        return f.floatValue();
+    }
 
 }

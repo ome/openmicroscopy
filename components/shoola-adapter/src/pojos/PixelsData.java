@@ -184,9 +184,9 @@ public class PixelsData
 				Set dims = pix.getImage().getImageDimensions();
 				if (dims !=null && dims.size()>0){
 					ImageDimension dim = (ImageDimension) dims.iterator().next();
-					this.setPixelSizeX(dim.getPixelSizeX().doubleValue());
-					this.setPixelSizeY(dim.getPixelSizeY().doubleValue());
-					this.setPixelSizeZ(dim.getPixelSizeZ().doubleValue()); // TODO can explode
+					this.setPixelSizeX(mapper.nullSafeFloat(dim.getPixelSizeX()));
+					this.setPixelSizeY(mapper.nullSafeFloat(dim.getPixelSizeY()));
+					this.setPixelSizeZ(mapper.nullSafeFloat(dim.getPixelSizeZ())); 
 				}
 			}
 			this.setPixelType(Model2PojosMapper.getPixelTypeID(pix.getPixelType()));
@@ -194,7 +194,7 @@ public class PixelsData
 			this.setSizeT(mapper.nullSafeInt(pix.getSizeT()));
 			this.setSizeX(mapper.nullSafeInt(pix.getSizeX()));
 			this.setSizeY(mapper.nullSafeInt(pix.getSizeY()));
-			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ())); // TODO null error here?
+			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ())); 
 			
 		} else {
 			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
