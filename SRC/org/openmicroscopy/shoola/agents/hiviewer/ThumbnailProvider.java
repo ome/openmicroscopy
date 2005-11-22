@@ -266,6 +266,10 @@ public class ThumbnailProvider
     public Icon getIcon() 
     {
         if (iconThumb != null) return iconThumb;
+        if (fullScaleThumb == null) {
+            IconManager im = IconManager.getInstance();
+            return im.getIcon(IconManager.IMAGE);
+        }
         BufferedImage img = magnifyImage(MIN_SCALING_FACTOR, fullScaleThumb);
         BufferedImage newImg = new BufferedImage(img.getWidth()+2*BORDER, 
                 img.getHeight()+2*BORDER, img.getType());
