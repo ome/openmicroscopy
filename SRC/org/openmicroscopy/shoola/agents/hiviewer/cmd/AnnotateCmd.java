@@ -61,47 +61,48 @@ public class AnnotateCmd
 {
     
     /** Reference to the model. */
-    private HiViewer    model;
+    private HiViewer        model;
     
-    /** The hierarchy object. */
-    private DataObject  hierarchyObject;
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param hierarchyObject The {@link DataObject} to annotate.
-     * Mustn't be <code>null</code>.
-     */
-    public AnnotateCmd(DataObject hierarchyObject)
-    {
-        if (hierarchyObject == null)
-            throw new NullPointerException("No hierarchy object.");
-        this.hierarchyObject = hierarchyObject;
-    }
+    /** The selected {@link ImageDisplay} node. */
+    private ImageDisplay    node;
     
     /**
      * Creates a new instance.
      * 
      * @param model A reference to the model. Mustn't be <code>null</code>.
+     * @param node The {@link ImageDisplay} node to annotate.
      */
-    public AnnotateCmd(HiViewer model)
+    public AnnotateCmd(HiViewer model, ImageDisplay node)
     {
         if (model == null) throw new IllegalArgumentException("No model");
         this.model = model;
+        this.node = node;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
         if (model != null) {
-            ImageDisplay selectedDisplay = model.getBrowser().
-                                                    getSelectedDisplay();
-            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+            boolean b = false;
+            if (node == null) {
+                node = model.getBrowser().getSelectedDisplay();
+                b = true;
+            }     
+            if (node == null) return;
+            if (node.getHierarchyObject() == null) return;
+            DataObject hierarchyObject = (DataObject) node.getHierarchyObject();
+            if ((hierarchyObject instanceof DatasetData) ||
+                    (hierarchyObject instanceof ImageData)) {
+                if (b) {
+                    model.getClipBoard().setPaneIndex(
+                            ClipBoard.ANNOTATION_PANEL, null);
+                } else {
+                    model.getClipBoard().setPaneIndex(
+                            ClipBoard.ANNOTATION_PANEL, node);
+                    model.getBrowser().setSelectedDisplay(node);
+                }
+            } 
         }
-        if (hierarchyObject == null) return;
-        if ((hierarchyObject instanceof DatasetData) ||
-                (hierarchyObject instanceof ImageData))
-            model.getClipBoard().setPaneIndex(ClipBoard.ANNOTATION_PANEL);
     }
 
 }
