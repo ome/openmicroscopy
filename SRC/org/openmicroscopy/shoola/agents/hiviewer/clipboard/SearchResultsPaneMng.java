@@ -47,8 +47,8 @@ import javax.swing.tree.DefaultTreeModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
 /** 
  * The {@link SearchResultsPane}'s controller.
@@ -184,7 +184,8 @@ class SearchResultsPaneMng
             DefaultTreeModel tm= (DefaultTreeModel) view.getModel();
             tm.insertNodeInto(childNode, root, root.getChildCount());
         } else {
-            List list = CollectionSorter.sortImageDisplay(nodes);
+            ViewerSorter sorter = new ViewerSorter(nodes);
+            List list = sorter.sort();
             Iterator i = list.iterator();
             while (i.hasNext())
                 buildTreeNode((ImageDisplay) i.next());

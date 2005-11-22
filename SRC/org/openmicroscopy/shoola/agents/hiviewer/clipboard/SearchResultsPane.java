@@ -64,9 +64,6 @@ import pojos.ProjectData;
 class SearchResultsPane
     extends JTree
 {
-
-    /** Brings on screen the selected {@link ImageDisplay}. */
-    static final String LOCALIZE_IMAGE_DISPLAY = "localize";
     
     /** The View hosting this component. */
     private CBSearchTabView         view;
@@ -133,6 +130,14 @@ class SearchResultsPane
         expandPath(new TreePath(root.getPath()));
     }
       
+    ImageDisplay getSelectedNode()
+    {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                                        getLastSelectedPathComponent();
+        if (node != null) return (ImageDisplay) node.getUserObject();
+        return null;
+    }
+    
     /**
      * Returns the selected data object.
      * 
@@ -167,7 +172,8 @@ class SearchResultsPane
         ImageDisplay  oldObject = null;
         if (selectedNode != null)
             oldObject = (ImageDisplay) selectedNode.getUserObject();
-        firePropertyChange(LOCALIZE_IMAGE_DISPLAY, oldObject, newObject);
+        firePropertyChange(ClipBoard.LOCALIZE_IMAGE_DISPLAY, oldObject,
+                            newObject);
         selectedNode = node;
     }
     

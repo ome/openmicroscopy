@@ -93,8 +93,9 @@ class ClipBoardControl
                         colors.getDeselectedHighLight(oldNode));
             }
         }
-        view.onDisplayChange(
-                model.getParentModel().getBrowser().getSelectedDisplay());
+        ImageDisplay node = 
+            model.getParentModel().getBrowser().getSelectedDisplay();
+        view.onDisplayChange(node);
     }
     
     /**
@@ -166,7 +167,7 @@ class ClipBoardControl
      * 
      * @param index The index of the selected pane.
      */
-    void setPaneIndex(int index) { component.setPaneIndex(index); }
+    void setPaneIndex(int index){ component.setPaneIndex(index, null); }
     
     /**
      * Updates the specified annotation.
@@ -212,7 +213,7 @@ class ClipBoardControl
         String propName = pce.getPropertyName();
         if (propName.equals(Browser.SELECTED_DISPLAY_PROPERTY))
             handleBrowserSelectedDisplay(pce); 
-        else if (propName.equals(SearchResultsPane.LOCALIZE_IMAGE_DISPLAY)) {
+        else if (propName.equals(ClipBoard.LOCALIZE_IMAGE_DISPLAY)) {
             ImageDisplay node = (ImageDisplay) pce.getNewValue();
             ImageDisplay parent = node.getParentDisplay();
             scrollToNode(node.getBounds(), parent,

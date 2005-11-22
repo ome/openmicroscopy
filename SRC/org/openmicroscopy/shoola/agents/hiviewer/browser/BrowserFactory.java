@@ -77,7 +77,6 @@ public class BrowserFactory
         //View; however right now the dependence is basically insignificant
         //(see BrowserModel code) and simplifies matters quite a bit.
         BrowserModel model = new BrowserModel(view);
-        
         //Finally the Controller.  Call intialize to allow subscription.
         BrowserControl controller = new BrowserControl(model, view);
         controller.initialize();

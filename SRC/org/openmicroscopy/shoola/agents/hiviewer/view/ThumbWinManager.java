@@ -46,7 +46,6 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
-
 import pojos.ImageData;
 
 /** 
@@ -79,9 +78,11 @@ class ThumbWinManager
      * then it will be recycled.  Otherwise a new one is created.
      * 
      * @param node The image node for which a window is needed.
+     * @param model A reference to the model.
      * @return A window for <code>node</code>.
      */
-    private static TinyDialog getWindowFor(ImageNode node)
+    private static TinyDialog getWindowFor(ImageNode node,
+                                            HiViewer model)
     {
         ImageData ho = (ImageData) node.getHierarchyObject();
         final Integer id = new Integer(ho.getId());
@@ -93,7 +94,8 @@ class ThumbWinManager
                 //NOTE: Right now we pre-fetch all images so full != null 
                 //unless they click on node at init time, when the thumbs
                 //are being loaded.
-                w = new ThumbWin((JFrame) node.getTopLevelAncestor(), full, ho);
+                w = new ThumbWin((JFrame) node.getTopLevelAncestor(), full, ho,
+                                        model, node);
             //TODO: We assume getFullScaleThumb returns a *pre-fetched* image.
             //If this is not the case and we load async, then we need a
             //callback handler.
@@ -137,11 +139,13 @@ class ThumbWinManager
      * 
      * @param node  The image node for which a window is needed.
      *              Mustn't be <code>null</code>.
+     * @param model A reference to the model. Mustn't be <code>null</code>.
      */
-    static void display(ImageNode node)
+    static void display(ImageNode node, HiViewer model)
     {
         if (node == null) throw new IllegalArgumentException("No node.");
-        TinyDialog w = getWindowFor(node);
+        if (model == null) throw new IllegalArgumentException("No model.");
+        TinyDialog w = getWindowFor(node, model);
         if (w != null) {  //Could be null, see notes in getWindowFor().
             w.pack();  //Now we have the right width and height.
             Point p = getWindowLocation(node, w.getWidth(), w.getHeight());

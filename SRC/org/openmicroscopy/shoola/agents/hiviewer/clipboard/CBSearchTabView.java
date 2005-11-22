@@ -371,7 +371,7 @@ class CBSearchTabView
     void setSearchResults(Set foundNodes)
     {
         pane = new SearchResultsPane(this, foundNodes);
-        pane.addPropertyChangeListener(SearchResultsPane.LOCALIZE_IMAGE_DISPLAY,
+        pane.addPropertyChangeListener(ClipBoard.LOCALIZE_IMAGE_DISPLAY,
                                         controller);
         treeHolder.removeAll();
         treeHolder.add(new JScrollPane(pane), BorderLayout.CENTER);
@@ -393,6 +393,12 @@ class CBSearchTabView
     DataObject getDataObject()
     {
         if (pane != null) return pane.getDataObject();
+        return null;
+    }
+    
+    ImageDisplay getSelectedNode()
+    {
+        if (pane != null) return pane.getSelectedNode();
         return null;
     }
     

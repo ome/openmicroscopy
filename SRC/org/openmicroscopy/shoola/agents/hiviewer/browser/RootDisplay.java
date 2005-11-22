@@ -61,7 +61,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrameUI;
 class RootDisplay
     extends ImageSet
 {
-
+    
     /**
      * A placeholder to simulate an hierarchy object.
      * This is required because every {@link ImageDisplay} must have one,

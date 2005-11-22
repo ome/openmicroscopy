@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 
@@ -219,17 +220,20 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setPaneIndex(int)
+     * @see ClipBoard#setPaneIndex(int, ImageDisplay)
      */
-    public void setPaneIndex(int index)
+    public void setPaneIndex(int index, ImageDisplay node)
     {
         if (index != SEARCH_PANEL && index != ANNOTATION_PANEL)
             throw new IllegalArgumentException("Pane index not valid.");
         if (model.getPaneIndex() == index) return;
         model.setPaneIndex(index);
-        view.onDisplayChange(
-                model.getParentModel().getBrowser().getSelectedDisplay());
         view.setSelectedPane(index);
+        if (node == null)
+            view.onDisplayChange(
+                    model.getParentModel().getBrowser().getSelectedDisplay());
+        else
+            firePropertyChange(ClipBoard.LOCALIZE_IMAGE_DISPLAY, null, node);
         if (index != ANNOTATION_PANEL) discardAnnotation();
     }
     

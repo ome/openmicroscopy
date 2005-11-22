@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.image.BufferedImage;
-
 import javax.swing.Icon;
 
 //Third-party libraries

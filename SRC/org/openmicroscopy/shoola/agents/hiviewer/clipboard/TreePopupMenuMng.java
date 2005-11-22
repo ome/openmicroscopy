@@ -65,20 +65,23 @@ class TreePopupMenuMng
     /** Indicates that the <code>Properties</code> menu item is selected. */
     private static final int    PROPERTIES = 0;
     
-    /** Indicates that the <code>Annotate</code> menu item is selected. */
-    private static final int    ANNOTATE = 1;
-    
     /** Indicates that the <code>Classify</code> menu item is selected. */
-    private static final int    CLASSIFY = 2;
+    private static final int    CLASSIFY = 1;
     
     /** Indicates that the <code>Declassify</code> menu item is selected. */
-    private static final int    DECLASSIFY = 3;
+    private static final int    DECLASSIFY = 2;
     
     /** Indicates that the <code>View</code> menu item is selected. */
-    private static final int    VIEW = 4;
+    private static final int    VIEW = 3;
+    
+    /** Indicates that the <code>Annotate</code> menu item is selected. */
+    private static final int    ANNOTATE = 4;
     
     /** The view this class controls. */
-    private ClipBoardUI clipBoard;
+    private ClipBoardUI     clipBoard;
+    
+    /** The view this class controls. */
+    private ClipBoardModel  model;
     
     /**
      * Adds an {@link ActionListener} to the specified component.
@@ -97,18 +100,23 @@ class TreePopupMenuMng
      * 
      * @param view The View this class is for. Mustn't be <code>null</code>.
      * @param clipBoard The {@link ClipBoardUI}. Mustn't be <code>null</code>.
+     * @param model The {@link ClipBoardModel}. Mustn't be <code>null</code>.
      */
-    TreePopupMenuMng(TreePopupMenu view, ClipBoardUI clipBoard)
+    TreePopupMenuMng(TreePopupMenu view, ClipBoardUI clipBoard, ClipBoardModel
+            model)
     {
         if (view == null) throw new IllegalArgumentException("No view.");
         if (clipBoard == null)
             throw new IllegalArgumentException("No clipBoard.");
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
         this.clipBoard = clipBoard;
+        this.model = model;
         attachItemListener(view.properties, PROPERTIES);
-        attachItemListener(view.annotate, ANNOTATE);
         attachItemListener(view.classify, CLASSIFY);
         attachItemListener(view.declassify, DECLASSIFY);
         attachItemListener(view.view, VIEW);
+        attachItemListener(view.annotate, ANNOTATE);
     }
 
     /**
@@ -126,7 +134,12 @@ class TreePopupMenuMng
                     if (object != null) new PropertiesCmd(object).execute();
                     break;
                 case ANNOTATE:
-                    if (object != null) new AnnotateCmd(object).execute();
+                    if (object != null) {
+                        AnnotateCmd cmd = 
+                            new AnnotateCmd(model.getParentModel(),
+                                            clipBoard.getSelectedNode());
+                        cmd.execute();
+                    }
                     break;
                 case CLASSIFY:
                     if (object instanceof ImageData) {

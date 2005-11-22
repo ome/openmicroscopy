@@ -298,7 +298,7 @@ class HiViewerControl
             Point p = browser.getPopupPoint();
             if (d != null && p != null) view.showPopup(d, p);
         } else {  //THUMB_SELECTED_PROPERTY
-            ThumbWinManager.display((ImageNode) d);
+            ThumbWinManager.display((ImageNode) d, model);
         }
     }
     

@@ -312,5 +312,5 @@ class HiViewerComponent
                    "LOADING_HIERARCHY, LOADING_THUMBNAILS or READY state.");
         }
     }
-    
+
 }

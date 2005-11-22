@@ -53,12 +53,11 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-
 import pojos.ImageData;
 
 /** 
- * Pop-up menu for the thumbnail floating windows.
- * The menu is shered among all instances of {@link ThumbWinPopupMenu} and
+ * The pop-up menu for the thumbnail floating windows.
+ * The menu is shared among all instances of {@link ThumbWinPopupMenu} and
  * triggers the execution of commands to view an Image's properties, to
  * annotate it, to classify it, or to view it.
  * 
@@ -82,7 +81,6 @@ class ThumbWinPopupMenu
     /** The sole instance. */
     private static ThumbWinPopupMenu    singleton = new ThumbWinPopupMenu();
     
-    
     /**
      * Pops up a menu for the specified thumbnail floating window.
      * 
@@ -100,7 +98,6 @@ class ThumbWinPopupMenu
     
     /** The window that is currently requesting the menu. */
     private ThumbWin    currentWin;
-    
     
     /**
      * Helper method to create the Classify submenu.
@@ -127,11 +124,11 @@ class ThumbWinPopupMenu
         IconManager im = IconManager.getInstance();
         JMenuItem properties = new JMenuItem("Properties", 
                                   im.getIcon(IconManager.PROPERTIES)),
-                  annotate = new JMenuItem("Annotate", 
-                                  im.getIcon(IconManager.ANNOTATE)),
                   classify = new JMenuItem("Add to category"),
                   declassify = new JMenuItem("Remove from category"),
-                  view = new JMenuItem("View", im.getIcon(IconManager.VIEWER));
+                  view = new JMenuItem("View", im.getIcon(IconManager.VIEWER)),
+                  annotate = new JMenuItem("Annotate", 
+                          im.getIcon(IconManager.ANNOTATE));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(properties);
         add(annotate);
@@ -144,12 +141,15 @@ class ThumbWinPopupMenu
                 new PropertiesCmd(currentWin.getDataObject()).execute();
             }
         });
+
         annotate.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                new AnnotateCmd(currentWin.getDataObject()).execute();
+                new AnnotateCmd(currentWin.getModel(), 
+                        currentWin.getSelectedNode()).execute();
             }
         });
+
         classify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
@@ -186,6 +186,7 @@ class ThumbWinPopupMenu
         Point p = currentWin.getPopupPoint();
         Point pNew = SwingUtilities.convertPoint(currentWin, p.x, p.y, null); 
         show(currentWin.getParent(), pNew.x, pNew.y);
+        //show(currentWin, p.x, p.y);
     }
     
 }

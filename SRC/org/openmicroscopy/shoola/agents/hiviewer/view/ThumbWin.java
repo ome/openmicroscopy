@@ -35,11 +35,15 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import pojos.DataObject;
 
@@ -61,18 +65,36 @@ import pojos.DataObject;
  */
 class ThumbWin
     extends TinyDialog
-    implements MouseListener
+    implements MouseListener, PropertyChangeListener
 {
 
+    /** The selected {@link ImageDisplay} node. */
+    private ImageDisplay    node;
+    
     /** The Image object the thumbnail is for. */
-    private DataObject   dataObject;
+    private DataObject      dataObject;
     
     /** The point at which the last popup event occurred. */
-    private Point        popupPoint;
+    private Point           popupPoint;
     
     /** The parent frame of this window. */
-    private JFrame       parentFrame;
+    private JFrame          parentFrame;
     
+    /** The action to execute an annotation. */
+    private HiViewer        model;
+    
+    /**
+     * Intercepts popup triggers on this window.
+     * If the mouse event is a popup trigger, then we register the popup point
+     * and display the popup menu.
+     */
+    private void onClick(MouseEvent me)
+    {
+        if (me.isPopupTrigger()) {
+            popupPoint = me.getPoint();
+            ThumbWinPopupMenu.showMenuFor(this);
+        }
+    }
     
     /**
      * Creates a new instance.
@@ -81,16 +103,32 @@ class ThumbWin
      * @param fullScaleThumb The thumbnail. Mustn't be <code>null</code>.
      * @param image The Image object the thumbnail is for.
      *              Mustn't be <code>null</code>.
+     * @param model A reference to the model.
      */
-    ThumbWin(JFrame parent, BufferedImage fullScaleThumb, DataObject image)
+    ThumbWin(JFrame parent, BufferedImage fullScaleThumb, DataObject image, 
+             HiViewer model, ImageDisplay node)
     {
         super(parent, fullScaleThumb);
         if (image == null) throw new IllegalArgumentException("No image.");
+        if (model == null) 
+            throw new IllegalArgumentException("No model.");
+        if (node == null)
+            throw new IllegalArgumentException("No node.");
         dataObject = image;
         parentFrame = parent;
+        this.model = model;
+        this.node = node;
         uiDelegate.attachMouseListener(this);
         addMouseListener(this);
+        addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, this);
     }
+    
+    /**
+     * Returns the reference to the {@link HiViewer}.
+     * 
+     * @return See above.
+     */
+    HiViewer getModel() { return model; }
     
     /**
      * The Image object the thumbnail is for.
@@ -98,6 +136,13 @@ class ThumbWin
      * @return See above.
      */
     DataObject getDataObject() { return dataObject; }
+    
+    /**
+     * Returns the selected node.
+     * 
+     * @return See above.
+     */
+    ImageDisplay getSelectedNode() { return node; }
     
     /**
      * The point at which the last popup event occurred.
@@ -118,19 +163,6 @@ class ThumbWin
      * If the mouse event is a popup trigger, then we register the popup point
      * and display the popup menu.
      */
-    private void onClick(MouseEvent me)
-    {
-        if (me.isPopupTrigger()) {
-            popupPoint = me.getPoint();
-            ThumbWinPopupMenu.showMenuFor(this);
-        }
-    }
-    
-    /**
-     * Intercepts popup triggers on this window.
-     * If the mouse event is a popup trigger, then we register the popup point
-     * and display the popup menu.
-     */
     public void mouseReleased(MouseEvent me) { onClick(me); }
     
     /** Hides the menu when a mousePressed event occurs. */
@@ -138,6 +170,12 @@ class ThumbWin
     { 
         ThumbWinPopupMenu.hideMenu();
         onClick(me); //needed for Mac
+    }
+    
+    /** Hides the menu when the window is closed. */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        ThumbWinPopupMenu.hideMenu();
     }
     
     /**

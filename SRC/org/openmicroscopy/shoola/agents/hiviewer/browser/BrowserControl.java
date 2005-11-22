@@ -33,6 +33,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 //Java imports
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -60,7 +63,7 @@ import javax.swing.JComponent;
  * @since OME2.2
  */
 class BrowserControl
-    implements MouseListener, ImageDisplayVisitor
+    implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
 {
     
     //TODO: Implement scroll listener.  When the currently selected node is 
@@ -105,6 +108,8 @@ class BrowserControl
     {
         if (model == null) throw new NullPointerException("No model.");
         if (view == null) throw new NullPointerException("No view.");
+        model.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY,
+                                        this);
         this.model = model;
         this.view = view;
         popupTrigger = false;
@@ -136,6 +141,16 @@ class BrowserControl
         node.getInternalDesktop().addMouseListener(this);
     }
     
+
+    /** 
+     * Listens to the {@link Browser#SELECTED_DISPLAY_PROPERTY} property.
+     * Necessary for clarity.
+     */ 
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        view.setTitle(model.currentPathString());
+    }
+    
     /**
      * Sets the currently selected display.
      * @see MouseListener#mousePressed(java.awt.event.MouseEvent)
@@ -145,7 +160,6 @@ class BrowserControl
         ImageDisplay d = findParentDisplay(me.getSource());
         d.moveToFront();
         model.setSelectedDisplay(d);
-        view.setTitle(model.currentPathString());
         if (me.isPopupTrigger()) popupTrigger = true;
     }
 
@@ -184,5 +198,6 @@ class BrowserControl
      * @see MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     public void mouseExited(MouseEvent me) {}
+
 
 }

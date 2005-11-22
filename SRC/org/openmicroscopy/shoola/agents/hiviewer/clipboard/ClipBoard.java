@@ -38,6 +38,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 
@@ -62,6 +63,12 @@ public interface ClipBoard
     extends ObservableComponent
 {
  
+    /** 
+     * Bound property name to bring on screen the selected 
+     * {@link ImageDisplay}. 
+     */
+    public static final String LOCALIZE_IMAGE_DISPLAY = "localize";
+    
     /** Identifies the index of the search panel. */
     public static final int     SEARCH_PANEL = 0;
     
@@ -152,8 +159,14 @@ public interface ClipBoard
      */
     public void manageAnnotationEditing(boolean b);
 
-    
-    public void setPaneIndex(int index);
+
+    /**
+     * Sets the selected panel.
+     * 
+     * @param index The index of the panel
+     * @param node  Pass <code>null</code> to modify the diplay.
+     */
+    public void setPaneIndex(int index, ImageDisplay node);
     
 }
 

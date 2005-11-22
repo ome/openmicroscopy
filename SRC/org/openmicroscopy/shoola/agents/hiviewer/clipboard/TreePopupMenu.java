@@ -91,7 +91,6 @@ class TreePopupMenu
     /** The <code>Annotate</code> menu item. */
     JMenuItem           annotate;  
     
-
     /** Initializes the UI components. */
     private void initComponents()
     {
@@ -124,7 +123,7 @@ class TreePopupMenu
     private void buildUI()
     {
         add(properties);
-        //add(annotate);
+        add(annotate);
         add(createClassifySubMenu());
         add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
@@ -134,16 +133,19 @@ class TreePopupMenu
      * Creates a new instance.
      * 
      * @param clipBoard The {@link ClipBoardUI}. Mustn't be <code>null</code>.
+     * @param model The {@link ClipBoardModel}. Mustn't be <code>null</code>.
      */
-    TreePopupMenu(ClipBoardUI clipBoard)
+    TreePopupMenu(ClipBoardUI clipBoard, ClipBoardModel model)
     {
         if (clipBoard == null)
             throw new IllegalArgumentException("No clipBoard.");
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
         initComponents();
         buildUI();
-        new TreePopupMenuMng(this, clipBoard);
+        new TreePopupMenuMng(this, clipBoard, model);
     }
-
+    
     void setViewText(String txt) { view.setText(txt); }
     
     void setClassifyEnabled(boolean b)

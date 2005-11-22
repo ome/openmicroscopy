@@ -42,13 +42,14 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgDisplayAnnotationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+
 import pojos.AnnotationData;
 
 /** 
@@ -108,6 +109,9 @@ class ClipBoardModel
     /** Retrieved annotations for a specified image or dataset.*/
     private Map                     annotations;
     
+    /** The {@link ViewerSorter} used to sort the annotations. */
+    private ViewerSorter            sorter;
+    
     /** 
      * Will either be a hierarchy loader, a thumbnail loader, or 
      * <code>null</code> depending on the current state. 
@@ -118,6 +122,16 @@ class ClipBoardModel
     protected ClipBoardComponent    component;
     
 
+    /** Initializes the default values. */
+    private void init()
+    {
+        annotatedObjectID = -1;
+        annotatedObjectIndex = -1;
+        annotationStatus = INITIAL;
+        sorter = new ViewerSorter();
+        sorter.setAscending(false);
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -129,9 +143,7 @@ class ClipBoardModel
         if (parentModel == null)
             throw new NullPointerException("No parent model.");
         this.parentModel = parentModel;
-        annotatedObjectID = -1;
-        annotatedObjectIndex = -1;
-        annotationStatus = INITIAL;
+        init();
     }
     
     /**
@@ -236,11 +248,27 @@ class ClipBoardModel
             }
         }
         i = sortedAnnotations.keySet().iterator();
+        List timestamps, annotations, results, list;
+        HashMap m;
+        Iterator k, l;
+        AnnotationData data;
         while (i.hasNext()) {
             ownerID = (Integer) i.next();
-            sortedAnnotations.put(ownerID,
-                CollectionSorter.sortAnnotationDataByDate(
-                        (List) sortedAnnotations.get(ownerID)));
+            annotations = (List) sortedAnnotations.get(ownerID);
+            k = annotations.iterator();
+            m = new HashMap(annotations.size());
+            timestamps = new ArrayList(annotations.size());
+            while (k.hasNext()) {
+                data = (AnnotationData) k.next();
+                m.put(data.getLastModified(), data);
+                timestamps.add(data.getLastModified());
+            }
+            results = sorter.sort(timestamps);
+            l = results.iterator();
+            list = new ArrayList(results.size());
+            while (l.hasNext())
+                list.add(m.get(l.next()));
+            sortedAnnotations.put(ownerID, list);
         }
         this.annotations = sortedAnnotations;
         state = ClipBoard.ANNOTATIONS_READY;

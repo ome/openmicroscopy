@@ -115,7 +115,7 @@ class ClipBoardUI
     /** Initializes the UI components. */
     private void initComponents()
     {
-        popupMenu = new TreePopupMenu(this);
+        popupMenu = new TreePopupMenu(this, model);
         searchView = new CBSearchTabView(model, this, controller);
         annotationView = new CBAnnotationTabView(model, this, controller);
         tabPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
@@ -165,6 +165,13 @@ class ClipBoardUI
     { 
         if (model.getPaneIndex() == SEARCH_TAB)
             return searchView.getDataObject();
+        return null;
+    }
+    
+    ImageDisplay getSelectedNode()
+    {
+        if (model.getPaneIndex() == SEARCH_TAB)
+            return searchView.getSelectedNode();
         return null;
     }
     
