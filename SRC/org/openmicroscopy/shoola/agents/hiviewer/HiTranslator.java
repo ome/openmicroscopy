@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -75,7 +77,9 @@ public class HiTranslator
     
     /** Message for unclassified images. */
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
-       
+      
+    private static ViewerSorter sorter = new ViewerSorter();
+    
     /** 
      * Returns the first element of the specified set. 
      * Returns <code>null</code> if the set is empty or <code>null</code>.
@@ -107,8 +111,18 @@ public class HiTranslator
     private static AnnotationData getFirstAnnotation(Set set)
     {
         if (set == null || set.size() == 0) return null;
-        List l = CollectionSorter.sortAnnotationDataByDate(set);
-        return (AnnotationData) l.get(0);
+        HashMap map = new HashMap(set.size());
+        Iterator i = set.iterator();
+        AnnotationData data;
+        HashSet timestamps = new HashSet(set.size());
+        while (i.hasNext()) {
+            data = (AnnotationData) i.next();
+            map.put(data.getLastModified(), data);
+            timestamps.add(data.getLastModified());
+        }
+        sorter.setAscending(false);
+        List l = sorter.sort(timestamps);
+        return (AnnotationData) map.get(l.get(0));
     }
     
     /** 
