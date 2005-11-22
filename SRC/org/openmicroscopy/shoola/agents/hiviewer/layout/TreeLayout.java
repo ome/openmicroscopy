@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
 /** 
  * Lays out all the container nodes in a tree.
@@ -68,17 +69,26 @@ class TreeLayout
                                                 "collapsed, so images are " +
                                                 "not showing.";
 
+    /** Horizontal space added to the x-coordinate of the node location. */
     private static final int    HSPACE = 10;
     
+    /** 
+     * A {@link ViewerSorter sorter} to order nodes in ascending 
+     * alphabetical order.
+     */
+    private ViewerSorter    sorter;
+    
+    /**
+     * Visits an {@link ImageSet} node that contains {@link ImageSet} nodes. 
+     * 
+     * @param node The parent {@link ImageSet} node.
+     */
     private void visitContainerNode(ImageSet node)
     {
         //Then figure out the number of columns, which is the same as the
-        //number of rows.
-        int n = node.getChildrenDisplay().size();        
-        if (n == 0) {   //node with no child
-            node.getInternalDesktop().setPreferredSize(
-                    node.getTitleBar().getMinimumSize());
-            node.setVisible(true);
+        //number of rows.  
+        if (node.getChildrenDisplay().size() == 0) {   //node with no child
+            LayoutUtils.noChildLayout(node);
             return;
         }
         Dimension d;
@@ -103,6 +113,15 @@ class TreeLayout
     }
     
     /**
+     * Package constructor so that objects can only be created by the
+     * {@link LayoutFactory}.
+     */
+    TreeLayout()
+    {
+        sorter = new ViewerSorter();
+    }
+    
+    /**
      * Lays out the current container display.
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
@@ -110,12 +129,10 @@ class TreeLayout
     {
         if (node.isSingleViewMode()) return;
         if (node.getChildrenDisplay().size() == 0) {   //node with no child
-            node.getInternalDesktop().setPreferredSize(
-                    node.getTitleBar().getMinimumSize());
-            node.setVisible(true);
+            LayoutUtils.noChildLayout(node);
             return;
         }
-        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node);
+        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node, sorter);
         else visitContainerNode(node);
     }
 

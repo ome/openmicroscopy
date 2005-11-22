@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
 /** 
  * Recursively lays out all nodes in a container display in a square grid.
@@ -75,9 +76,14 @@ class SquaryLayout
                                       "is that of the largest child in the "+
                                       "container.";
     
+    /** 
+     * A {@link ViewerSorter sorter} to order nodes in ascending 
+     * alphabetical order.
+     */
+    private ViewerSorter    sorter;
     
     /** Maximum width used to displayed the thumbnail. */
-    private int browserW;
+    private int             browserW;
     
     /** Maximum width of the BrowserView.*/
     private void setBrowserSize()
@@ -86,16 +92,18 @@ class SquaryLayout
         browserW = 8*(screenSize.width/10);
     }
   
-    /** Visit an ImageSet node that contains imageSet nodes. */
+    
+    /**
+     * Visits an {@link ImageSet} node that contains {@link ImageSet} nodes. 
+     * 
+     * @param node The parent {@link ImageSet} node.
+     */
     private void visitContainerNode(ImageSet node)
     {
         //Then figure out the number of columns, which is the same as the
-        //number of rows.
-        int n = node.getChildrenDisplay().size();        
-        if (n == 0) {   //node with no child
-            node.getInternalDesktop().setPreferredSize(
-                    node.getTitleBar().getMinimumSize());
-            node.setVisible(true);
+        //number of rows.    
+        if (node.getChildrenDisplay().size() == 0) {   //node with no child
+            LayoutUtils.noChildLayout(node);
             return;
         }
 
@@ -115,7 +123,6 @@ class SquaryLayout
                 maxY = Math.max(maxY, d.height); 
             } else {
                 x = 0;
-                //we didn't enter the previous.
                 if (maxY == 0) y += d.height; 
                 else y += maxY;
                 maxY = 0;
@@ -135,22 +142,22 @@ class SquaryLayout
     SquaryLayout()
     {
         setBrowserSize();
+        sorter = new ViewerSorter();
     }
 
     /**
      * Lays out the current container display.
+     * 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
     {
         if (node.isSingleViewMode()) return;
         if (node.getChildrenDisplay().size() == 0) {   //node with no child
-            node.getInternalDesktop().setPreferredSize(
-                    node.getTitleBar().getMinimumSize());
-            node.setVisible(true);
+            LayoutUtils.noChildLayout(node);
             return;
         }
-        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node);
+        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node, sorter);
         else visitContainerNode(node);
     }
 

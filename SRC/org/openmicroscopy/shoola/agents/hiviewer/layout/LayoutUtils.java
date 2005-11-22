@@ -42,8 +42,9 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.CollectionSorter;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
 /** 
  * A collection of <code>static</code> methods to support common computations 
@@ -63,6 +64,19 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 public class LayoutUtils
 {
 
+    /**
+     * Sets the size of the specified {@link ImageSet} node if it doesn't
+     * have child.
+     * 
+     * @param node The {@link ImageSet} node to lay out.
+     */
+    public static void noChildLayout(ImageDisplay node)
+    {
+        node.getInternalDesktop().setPreferredSize(
+                node.getTitleBar().getMinimumSize());
+        node.setVisible(true);
+    }
+    
     /**
      * Returns the object with the largest associated area. 
      * This method calculates the <code>area = width x height</code> of each
@@ -150,7 +164,8 @@ public class LayoutUtils
      * 
      * @param node The parent node.  Mustn't be <code>null</code>.
      */
-    public static void doSquareGridLayout(ImageDisplay node)
+    public static void doSquareGridLayout(ImageDisplay node,
+                                        ViewerSorter sorter)
     {
         //First find out the max dim among children.
         Dimension maxDim = maxChildDim(node);
@@ -168,7 +183,7 @@ public class LayoutUtils
         
         //Finally do layout.
         Dimension d;
-        List l = CollectionSorter.sortImageDisplay(node.getChildrenDisplay());
+        List l = sorter.sort(node.getChildrenDisplay());
         //Iterator children = node.getChildrenDisplay().iterator();
         Iterator children = l.iterator();
         ImageDisplay child;
