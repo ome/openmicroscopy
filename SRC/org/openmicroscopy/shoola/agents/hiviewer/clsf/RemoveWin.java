@@ -48,11 +48,11 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.DataObject;
-import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Builds a Panel displaying the CategoryGroup>Category in which the 
@@ -95,7 +95,7 @@ class RemoveWin
                         JPanel main, int index, DataObject data)
     {
         //The image has not been classified.
-        if (data instanceof ImageSummary) {
+        if (data instanceof ImageData) {
             main.add(new JLabel(UNCLASSIFIED_TEXT));
             return;
         }

@@ -49,9 +49,9 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.data.model.DataObject;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 
 /** 
  * The <code>ADD</code> dialog widget.
