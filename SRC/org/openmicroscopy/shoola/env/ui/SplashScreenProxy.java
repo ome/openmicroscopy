@@ -103,8 +103,7 @@ class SplashScreenProxy
 	 * {@link #open()} and the first call to {@link #close()}.
 	 * If the reference is not valid, then calls silently return without
 	 * forwarding requests.  This will prevent deadlock if 
-	 * {@link #getUserName()} or {@link #getPassword()} are called before
-	 * {@link #open()}.
+	 * {@link #getUserCredentials()} is called before {@link #open()}.
 	 */
 	private boolean					isValid;	
 	/* NOTE: Even though we send requests in the order:
@@ -190,7 +189,7 @@ class SplashScreenProxy
 
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#updateProgress(java.lang.String, int)
+	 * @see SplashScreen#updateProgress(String)
 	 */
 	public void updateProgress(final String task)
 	{

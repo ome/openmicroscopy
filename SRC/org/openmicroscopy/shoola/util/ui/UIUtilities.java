@@ -117,9 +117,9 @@ public class UIUtilities
      * for the specified parent.
      * The newly created dialog is then centered on the screen and made visible.
 	 *
-     *@param parent     The parent component.
-     *@param title      The title of the dialog.
-     *@param JComponent The component to display.
+     *@param parent The parent component.
+     *@param title  The title of the dialog.
+     *@param c      The component to display.
      *
      *@see #centerAndShow(Component)
 	 */
@@ -128,8 +128,7 @@ public class UIUtilities
     {
         if (c == null) return;
         JDialog dialog = null;
-        if (parent instanceof Frame) 
-            dialog = new JDialog((Frame) parent);
+        if (parent instanceof Frame) dialog = new JDialog((Frame) parent);
         else if (parent instanceof Dialog) 
             dialog = new JDialog((Dialog) parent);
         else if (dialog == null || parent == null) 
@@ -146,9 +145,9 @@ public class UIUtilities
     
     /** 
      * Create a modal JDialog with no title. 
-     * @see #makeForDialog(Component, String)
      * 
-     * */
+     * @see #makeForDialog(Component, String, JComponent)
+     */
     public static void makeForDialog(Component parent, JComponent c)
     {
         makeForDialog(parent, "", c);
@@ -178,10 +177,10 @@ public class UIUtilities
     /**
      * Builds a tool tip in a fixed font and color.
      * 
-     * @param title
-     * @param body
-     * @param maxWidth
-     * @return
+     * @param title The title to format.
+     * @param body The body to format.
+     * @param maxWidth The maximum width of the <code>HTML</code> table.
+     * @return See below.
      */
     public static String makeParagraph(String title, String body, int maxWidth)
     {
@@ -218,11 +217,11 @@ public class UIUtilities
 	 * Create a separator to add to a toolbar. The separator needs to be 
 	 * set when the layout of the toolbar is reset.
 	 * 
-	 * @param button	button to add to the toolBar. The height of the 
-	 * 					separator depends of the insets of the button.
-	 * @param icon		icon to add to the button. The height of the 
-	 * 					separator depends of the height of the icon.
-	 * @return
+	 * @param button The button to add to the toolBar. The height of the 
+	 * 				 separator depends of the insets of the button.
+	 * @param icon  The icon to add to the button. The height of the 
+     *              separator depends of the height of the icon.
+	 * @return See below.
 	 */
 	public static JSeparator toolBarSeparator(JButton button, Icon icon)
 	{
@@ -235,7 +234,13 @@ public class UIUtilities
 		return separator;
 	}
 	
-    /** Set the font of the string to bold. */
+    /**
+     * Displays the specified string into a {@link JLabel} and sets 
+     * the font to <code>bold</code>.
+     * 
+     * @param s The string to display.
+     * @return See above.
+     */
     public static JLabel setTextFont(String s)
     {
         JLabel label = new JLabel(s);
@@ -245,7 +250,13 @@ public class UIUtilities
         return label;
     }
     
-    /** Wrap a JComponent in a JPanel. */
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a left flowlayout.
+     * 
+     * @param component The component to add.
+     * @return See below.
+     */
     public static JPanel buildComponentPanel(JComponent component)
     {
         JPanel p = new JPanel();
@@ -254,7 +265,13 @@ public class UIUtilities
         return p;
     }
     
-    /** Wrap a JComponent in a JPanel. */
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a right flowlayout.
+     * 
+     * @param component The component to add.
+     * @return See below.
+     */
     public static JPanel buildComponentPanelRight(JComponent component)
     {
         JPanel p = new JPanel();

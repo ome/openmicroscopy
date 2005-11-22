@@ -276,12 +276,7 @@ class CategoryImagesPane
 		
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 		
-		public boolean isCellEditable(int row, int col) 
-		{ 
-			boolean isEditable = false;
-			if (col == 1) isEditable = true;
-			return isEditable; 
-		}
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 		
 		public void setValueAt(Object value, int row, int col)
 		{

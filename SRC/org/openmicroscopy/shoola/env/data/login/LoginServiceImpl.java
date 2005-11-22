@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.env.data.login;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
@@ -143,7 +144,8 @@ public class LoginServiceImpl
      */
     protected void askForCredentials()
     {
-        LoginOMEDS dialog = new LoginOMEDS(container.getRegistry());
+        Registry reg = container.getRegistry();
+        LoginOMEDS dialog = new LoginOMEDS(reg.getTaskBar().getFrame(), reg);
         UIUtilities.centerAndShow(dialog);
     }
     //NOTE: This method is protected so that subclasses can get rid of the

@@ -37,8 +37,8 @@ import javax.swing.DefaultListModel;
 //Application-internal dependencies
 
 /** 
- * Extends the {@link DefaultListModel} class. Add a non-empty constructor and
- * a {@link #addAllElements()} method.
+ * Extends the {@link DefaultListModel} class. Adds a non-empty constructor and
+ * a {@link #addAllElements(Object[])} method.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,12 +55,21 @@ public class ExtendedDefaultListModel
     extends DefaultListModel
 {
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param data The array to add to the list.
+     */
     public ExtendedDefaultListModel(Object[] data)
     {
         addAllElements(data);
     }
     
-    /** Add all the elements of the specified array to the list. */
+    /**
+     * Adds each element of the specified array to the list.
+     * 
+     * @param data The array to add to the list.
+     */
     public void addAllElements(Object[] data)
     {
         for (int i = 0; i < data.length; i++)

@@ -96,7 +96,7 @@ public class DetailedNotificationDialog
 	/** Contains the textual explanation of the notification message. */
 	private JPanel			explanationPanel;
 	
-	/** Tells whether the {@link #explanationPane} is showing. */
+	/** Tells whether the {@link #explanationPanel} is showing. */
 	private boolean			isExplanationShowing;
 	
 	/** Creates the various UI components that make up the dialog. */
@@ -116,22 +116,12 @@ public class DetailedNotificationDialog
 		MultilineLabel explanation = new MultilineLabel(expl);
 		explanation.setLineWrap(false);
 		buildExplanationPanel(explanation);
-		/*JScrollPane scrollPane = new JScrollPane(explanation);
-		scrollPane.setPreferredSize(SCROLL_PANE_SIZE);
-		explanationPanel.setLayout(
-							new BoxLayout(explanationPanel, BoxLayout.Y_AXIS));
-		explanationPanel.setBorder(
-								BorderFactory.createEmptyBorder(0, 10, 0, 10));
-		explanationPanel.add(Box.createRigidArea(V_SPACER_SIZE));
-		explanationPanel.add(new JSeparator());
-		explanationPanel.add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
-		explanationPanel.add(scrollPane);*/
 	}
 	
 	/**
 	 * Builds and lays out the explanation string
 	 *
-	 * @param component - the component to go in the explanation panel
+	 * @param component The component to go in the explanation panel.
 	 */
 	private void buildExplanationPanel(Component component) {
 		JScrollPane scrollPane = new JScrollPane(component);
@@ -158,7 +148,7 @@ public class DetailedNotificationDialog
 	}
 	
 	/**
-	 * Hanldes mouse clicks on the {@link #detailsButton}.
+	 * Handles mouse clicks on the {@link #detailsButton}.
 	 * The {@link #explanationPanel} is shown/hidden depending on the current 
 	 * value of {@link #isExplanationShowing}, which is then modified to
 	 * reflect the new state.  Also the {@link #detailsButton} text is changed
@@ -204,7 +194,8 @@ public class DetailedNotificationDialog
 	
 	/**
 	 * Creates a new dialog.
-	 * You have to call {@link #open()} to actually display it on screen.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
 	 * 
 	 * @param owner	The parent window.
 	 * @param title	The title to display on the title bar.
@@ -225,7 +216,8 @@ public class DetailedNotificationDialog
 	
 	/**
 	 * Creates a new dialog.
-	 * You have to call {@link #open()} to actually display it on screen.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
 	 * 
 	 * @param owner	The parent window.
 	 * @param title	The title to display on the title bar.

@@ -78,6 +78,58 @@ public class UserNotifierImpl
      */
     private static JFrame			SHARED_FRAME = null;
     
+    /**
+     * Brings up a notification dialog.
+     * 
+     * @param title     The dialog title.
+     * @param message   The dialog message.
+     * @param icon      The icon to show by the message.
+     */
+    private void showNotificationDialog(String title, String message, Icon icon)
+    {
+        NotificationDialog dialog = new NotificationDialog(
+                                                SHARED_FRAME, title, message, 
+                                                icon);
+        dialog.pack();                                      
+        UIUtilities.centerAndShow(dialog);
+    }
+    
+    /**
+     * Brings up a detailed notification dialog.
+     * 
+     * @param title     The dialog title.
+     * @param message   The dialog message.
+     * @param icon      The icon to show by the message.
+     * @param detail    The detailed message.
+     */
+    private void showDetailedNotificationDialog(String title, String message, 
+                                                Icon icon, String detail)
+    {
+        DetailedNotificationDialog dialog = new DetailedNotificationDialog(
+                                                SHARED_FRAME, title, message, 
+                                                icon, detail);
+        dialog.pack();                                      
+        UIUtilities.centerAndShow(dialog);
+    }
+    
+    /**
+     * Brings up a detailed notification dialog.
+     * 
+     * @param title     The dialog title.
+     * @param message   The dialog message.
+     * @param icon      The icon to show by the message.
+     * @param component  The details in a component
+     */
+    private void showDetailedNotificationDialog(String title, String message, 
+                                                Icon icon, Component component)
+    {
+        DetailedNotificationDialog dialog = new DetailedNotificationDialog(
+                                                SHARED_FRAME, title, message, 
+                                                icon, component);
+        dialog.pack();                                      
+        UIUtilities.centerAndShow(dialog);
+    }
+    
     /** Creates a new instance. */
     UserNotifierImpl()
     {
@@ -174,57 +226,5 @@ public class UserNotifierImpl
         if (icon == null) icon = IconManager.getDefaultInfoIcon();
         showNotificationDialog(title, message, icon);
     }
-    
-    /**
-     * Brings up a notification dialog.
-     * 
-     * @param title		The dialog title.
-     * @param message	The dialog message.
-     * @param icon		The icon to show by the message.
-     */
-    private void showNotificationDialog(String title, String message, Icon icon)
-    {
-		NotificationDialog dialog = new NotificationDialog(
-												SHARED_FRAME, title, message, 
-												icon);
-		dialog.pack();										
-		UIUtilities.centerAndShow(dialog);
-    }
-    
-	/**
-	 * Brings up a detailed notification dialog.
-	 * 
-	 * @param title		The dialog title.
-	 * @param message	The dialog message.
-	 * @param icon		The icon to show by the message.
-	 * @param detail	The detailed message.
-	 */
-	private void showDetailedNotificationDialog(String title, String message, 
-												Icon icon, String detail)
-	{
-		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
-												SHARED_FRAME, title, message, 
-												icon, detail);
-		dialog.pack();										
-		UIUtilities.centerAndShow(dialog);
-	}
-	
-	/**
-	 * Brings up a detailed notification dialog.
-	 * 
-	 * @param title		The dialog title.
-	 * @param message	The dialog message.
-	 * @param icon		The icon to show by the message.
-	 * @param component  The details in a component
-	 */
-	private void showDetailedNotificationDialog(String title, String message, 
-												Icon icon, Component component)
-	{
-		DetailedNotificationDialog dialog = new DetailedNotificationDialog(
-												SHARED_FRAME, title, message, 
-												icon, component);
-		dialog.pack();										
-		UIUtilities.centerAndShow(dialog);
-	}
 	
 }

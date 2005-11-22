@@ -59,13 +59,13 @@ public interface OmeroPojoService
 {
 
     /** Identifies the <code>Classification</code> algorithm. */
-    public static final int CLASSIFICATION = 0;
+    public static final int CLASSIFICATION = 1;
     
     /**
      * Identifies the <code>Declassification</code> algorithm with
      * mutually exclusive rule.
      */
-    public static final int DECLASSIFICATION_ME = 1;
+    public static final int DECLASSIFICATION_ME = 0;
     
     /**
      * Identifies the <code>Declassification</code> algorithm without

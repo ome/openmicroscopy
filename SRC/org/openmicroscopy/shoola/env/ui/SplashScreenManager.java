@@ -101,7 +101,7 @@ class SplashScreenManager
 
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreenInit#open()
+	 * @see SplashScreen#open()
 	 */
 	void open()
 	{
@@ -112,7 +112,7 @@ class SplashScreenManager
 
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreenInit#close()
+	 * @see SplashScreen#close()
 	 */
 	void close()
 	{
@@ -140,7 +140,7 @@ class SplashScreenManager
 	
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#updateProgress(java.lang.String, int)
+	 * @see SplashScreen#updateProgress(String)
 	 */
 	void updateProgress(String task)
 	{

@@ -246,9 +246,15 @@ class GroupCategoriesPane
 		
 		public Object getValueAt(int row, int col) { return data[row][col]; }
 		
-		public boolean isCellEditable(int row, int col) { return false; }
+		public boolean isCellEditable(int row, int col) { return (col == 1); }
 		
-		public void setValueAt(Object value, int row, int col) {}
+		public void setValueAt(Object value, int row, int col)
+        {
+            data[row][col] = value;
+            fireTableCellUpdated(row, col);
+            manager.categoryToRemove(((Boolean) value).booleanValue(),
+                                    (CategoryData) categories[row] );
+        }
 	}
     
     /** 

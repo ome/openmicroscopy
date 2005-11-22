@@ -90,6 +90,8 @@ class GroupEditorManager
     private List                            categoriesToAdd, 
                                             categoriesToAddToRemove;
     
+    private List                            categoriesToRemove;
+    
     private boolean                         nameChange, isName;
     
     private GroupCategoriesDiffPane         dialog;
@@ -105,6 +107,7 @@ class GroupEditorManager
         isName = false;
         categoriesToAdd = new ArrayList();
         categoriesToAddToRemove = new ArrayList();
+        categoriesToRemove = new ArrayList();
     }
 
     List getCategoriesToAdd() { return categoriesToAdd; }
@@ -211,12 +214,21 @@ class GroupEditorManager
         } 
     }
 
+    void categoryToRemove(boolean value, CategoryData cd)
+    {
+        if (value) {
+            if(!categoriesToRemove.contains(cd)) categoriesToRemove.add(cd); 
+        } else  categoriesToRemove.remove(cd);
+        view.getSaveButton().setEnabled(true);
+    }
+    
     /** Save in DB. */
     private void save()
     {
         model.setDescription(view.getDescriptionArea().getText());
         model.setName(view.getNameField().getText());
-        agentCtrl.updateCategoryGroup(model, categoriesToAdd, nameChange);
+        agentCtrl.updateCategoryGroup(model, categoriesToAdd,
+                                    categoriesToRemove, nameChange);
     }
 
     /** Remove the selected datasets from the queue of datasets to add. */

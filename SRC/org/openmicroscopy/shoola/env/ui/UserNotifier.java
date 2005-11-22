@@ -86,7 +86,8 @@ public interface UserNotifier
  	 * 
      * @param title		The title of the dialog.
  	 * @param summary	A brief description of the error.
- 	 * @param detail	A more detailed description of the cause of the error.
+     * @param component A component containing a more detailed description 
+     *                  of the cause of the error.
      */
 	public void notifyError(String title, String summary, Component component);
     
@@ -95,7 +96,7 @@ public interface UserNotifier
  	 * The dialog will just show the error summary.
 	 * 
 	 * @param title		The title of the dialog.
-	 * @param summary	A brief description of the error.
+	 * @param message	A brief description of the error.
 	 */
     public void notifyError(String title, String message);
     
@@ -131,7 +132,8 @@ public interface UserNotifier
 	 * @param component	A component containing a more detailed description 
 	 * 					of the cause of the warning.
 	 */
-	public void notifyWarning(String title, String summary, Component component);
+	public void notifyWarning(String title, String summary,
+                                Component component);
 	
 	/**
 	 * Brings up a modal dialog to notify the user of the specified warning.

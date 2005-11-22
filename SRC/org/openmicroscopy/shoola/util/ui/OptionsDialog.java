@@ -96,15 +96,124 @@ public class OptionsDialog
 	/** Contains the message and the message icon, if any. */
 	protected JPanel	messagePanel;
 	
-	/** Contains the {@link #okButton}. */
+	/** Contains the {@link #noButton} and {@link #yesButton}. */
 	protected JPanel	buttonPanel;
 	
 	/** Hides and disposes of the dialog. */
 	private JButton	noButton, yesButton;
 	
+    /** Action performed when the button is pressed. */
+    private void yesSelection()
+    { 
+        onYesSelection();
+        close(); 
+    }
+    
+    /** Action performed when the button is pressed. */
+    private void noSelection()
+    { 
+        onNoSelection();
+        close();
+    }
+    
+    /** Creates the various UI components that make up the dialog. */
+    private void createComponents()
+    {
+        contentPanel = new JPanel();
+        messagePanel = new JPanel();
+        buttonPanel = new JPanel();
+        noButton = new JButton("No");
+        yesButton = new JButton("Yes");
+    }
+    
+    /**
+     * Binds the {@link #close() close} action to the exit event generated
+     * either by the close icon or by the {@link #yesButton} or
+     * the {@link #noButton}.
+     */
+    private void attachListeners()
+    {
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) { close(); }
+        });
+        noButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { noSelection(); }
+        });
+        yesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { yesSelection(); }
+        });
+    }
+    
+    /** Hides and disposes of the dialog. */
+    private void close()
+    {
+        setVisible(false);
+        dispose();
+    }
+    
+    /**
+     * Builds and lays out the {@link #messagePanel}.
+     * It will contain the notification message along with the message icon, 
+     * if any.
+     * 
+     * @param msg       The notification message.
+     * @param msgIcon   The icon to display by the message.
+     */
+    private void buildMessagePanel(String msg, Icon msgIcon)
+    {
+        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
+        if (msgIcon != null) {
+            JLabel iconLabel = new JLabel(msgIcon);
+            iconLabel.setAlignmentY(TOP_ALIGNMENT);
+            messagePanel.add(iconLabel);
+            messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        }
+        MultilineLabel message = new MultilineLabel(msg);
+        message.setPreferredSize(MSG_AREA_SIZE);
+        message.setAlignmentY(TOP_ALIGNMENT);
+        messagePanel.add(message);
+    }
+    
+    /**
+     * Builds and lays out the {@link #buttonPanel}.
+     * The {@link #noButton} and {@link #yesButton} will be added to this panel.
+     */
+    private void buildButtonsPanel()
+    {
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.add(Box.createHorizontalGlue());
+        buttonPanel.add(yesButton);
+        buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        buttonPanel.add(noButton);
+    }
+
+    /**
+     * Builds and lays out the {@link #contentPanel}, then adds it to the
+     * content pane.
+     * 
+     * @param message       The notification message.
+     * @param messageIcon   The icon to display by the message.
+     */
+    private void buildGUI(String message, Icon messageIcon)
+    {
+        contentPanel.setBorder(BorderFactory.createCompoundBorder(
+                                BorderFactory.createEtchedBorder(),
+                                BorderFactory.createEmptyBorder(5, 5, 15, 10)));
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        buildMessagePanel(message, messageIcon);
+        contentPanel.add(messagePanel);
+        JPanel vSpacer = new JPanel();
+        vSpacer.add(Box.createRigidArea(V_SPACER_SIZE));
+        contentPanel.add(vSpacer);
+        buildButtonsPanel();
+        contentPanel.add(buttonPanel);
+        getContentPane().add(contentPanel);
+    }
+    
 	/**
 	 * Creates a new dialog.
-	 * You have to call {@link #open()} to actually display it on screen.
+	 * You have to call {@link #setVisible(boolean)} method to actually
+     * display it on screen.
 	 * 
 	 * @param owner			The parent window.
 	 * @param title			The title to display on the title bar.
@@ -112,7 +221,7 @@ public class OptionsDialog
 	 * @param messageIcon	An optional icon to display by the message.
 	 */
 	public OptionsDialog(JFrame owner, String title, String message, 
-															Icon messageIcon) 
+						Icon messageIcon) 
 	{
 		super(owner, title, true);
 		createComponents();
@@ -122,7 +231,8 @@ public class OptionsDialog
 	
 	/**
 	 * Creates a new dialog.
-	 * You have to call {@link #open()} to actually display it on screen.
+	 * You have to call {@link #setVisible(boolean)} method to actually
+     * display it on screen.
 	 * 
 	 * @param owner			The parent window.
 	 * @param title			The title to display on the title bar.
@@ -130,7 +240,7 @@ public class OptionsDialog
 	 * @param messageIcon	An optional icon to display by the message.
 	 */
 	public OptionsDialog(JDialog owner, String title, String message, 
-															Icon messageIcon) 
+						Icon messageIcon) 
 	{
 		super(owner, title, true);
 		createComponents();
@@ -141,112 +251,5 @@ public class OptionsDialog
 	protected void onYesSelection() {}
 	
 	protected void onNoSelection() {}
-	
-	/** Action performed when the button is pressed. */
-	private void yesSelection()
-	{ 
-		onYesSelection();
-		close(); 
-	}
-	
-	/** Action performed when the button is pressed. */
-	private void noSelection()
-	{ 
-		onNoSelection();
-		close();
-	}
-	
-	/** Creates the various UI components that make up the dialog. */
-	private void createComponents()
-	{
-		contentPanel = new JPanel();
-		messagePanel = new JPanel();
-		buttonPanel = new JPanel();
-		noButton = new JButton("No");
-		yesButton = new JButton("Yes");
-	}
-	
-	/**
-	 * Binds the {@link #close() close} action to the exit event generated
-	 * either by the close icon or by the {@link #okButton}.
-	 */
-	private void attachListeners()
-	{
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) { close(); }
-		});
-		noButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { noSelection(); }
-		});
-		yesButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { yesSelection(); }
-		});
-	}
-	
-	/** Hides and disposes of the dialog. */
-	private void close()
-	{
-		setVisible(false);
-		dispose();
-	}
-	
-	/**
-	 * Builds and lays out the {@link #messagePanel}.
-	 * It will contain the notification message along with the message icon, 
-	 * if any.
-	 * 
-	 * @param msg		The notification message.
-	 * @param msgIcon	The icon to display by the message.
-	 */
-	private void buildMessagePanel(String msg, Icon msgIcon)
-	{
-		messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
-		if (msgIcon != null) {
-			JLabel iconLabel = new JLabel(msgIcon);
-			iconLabel.setAlignmentY(TOP_ALIGNMENT);
-			messagePanel.add(iconLabel);
-			messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		}
-		MultilineLabel message = new MultilineLabel(msg);
-		message.setPreferredSize(MSG_AREA_SIZE);
-		message.setAlignmentY(TOP_ALIGNMENT);
-		messagePanel.add(message);
-	}
-	
-	/**
-	 * Builds and lays out the {@link #buttonPanel}.
-	 * The {@link #okButton} will be added to this panel.
-	 */
-	private void buildButtonsPanel()
-	{
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		buttonPanel.add(Box.createHorizontalGlue());
-		buttonPanel.add(yesButton);
-		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-		buttonPanel.add(noButton);
-	}
-
-	/**
-	 * Builds and lays out the {@link #contentPanel}, then adds it to the
-	 * content pane.
-	 * 
-	 * @param msg		The notification message.
-	 * @param msgIcon	The icon to display by the message.
-	 */
-	private void buildGUI(String message, Icon messageIcon)
-	{
-		contentPanel.setBorder(BorderFactory.createCompoundBorder(
-								BorderFactory.createEtchedBorder(),
-								BorderFactory.createEmptyBorder(5, 5, 15, 10)));
-		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-		buildMessagePanel(message, messageIcon);
-		contentPanel.add(messagePanel);
-		JPanel vSpacer = new JPanel();
-		vSpacer.add(Box.createRigidArea(V_SPACER_SIZE));
-		contentPanel.add(vSpacer);
-		buildButtonsPanel();
-		contentPanel.add(buttonPanel);
-		getContentPane().add(contentPanel);
-	}
 	
 }

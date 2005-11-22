@@ -1962,8 +1962,8 @@ public class DataManager
     }
     
     /**Update an existing category group. */
-    void updateCategoryGroup(pojos.CategoryGroupData data, List categoriesToAdd, 
-            boolean nameChange)
+    void updateCategoryGroup(pojos.CategoryGroupData data, List categoriesToAdd,
+            List categoriesToRemove, boolean nameChange)
     {
         if (data == null || categoriesToAdd == null) return;
         try { 

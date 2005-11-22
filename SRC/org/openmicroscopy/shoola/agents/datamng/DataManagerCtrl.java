@@ -836,9 +836,9 @@ public class DataManagerCtrl
     
     /** Forward event to the {@link DataManager} abstraction. */
     public void updateCategoryGroup(pojos.CategoryGroupData model, List toAdd, 
-                                    boolean nameChange)
+                                    List toRemove, boolean nameChange)
     {
-        abstraction.updateCategoryGroup(model, toAdd, nameChange);
+        abstraction.updateCategoryGroup(model, toAdd, toRemove, nameChange);
     }
 
     /** Forward event to the {@link DataManager} abstraction. */

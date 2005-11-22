@@ -61,8 +61,14 @@ class ThumbnailCanvas
     extends JComponent
 {
 
+    /** The {@link BufferedImage} to paint. */
     private BufferedImage   image;
     
+    /**
+     * Creates a new instance. 
+     * 
+     * @param image The {@link BufferedImage} to paint. 
+     */
     ThumbnailCanvas(BufferedImage image)
     {
         setOpaque(false);

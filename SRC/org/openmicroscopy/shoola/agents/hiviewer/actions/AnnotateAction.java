@@ -72,7 +72,6 @@ public class AnnotateAction
     private static final String DESCRIPTION = "Annotate the selected image " +
                                                 "or dataset.";
     
-    
     /**
      * Callback to notify of a change in the currently selected display
      * in the {@link Browser}.
@@ -104,11 +103,11 @@ public class AnnotateAction
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATE));
     }
-
+    
     /** Creates a {@link AnnotateCmd} command to execute the action. */
     public void actionPerformed(ActionEvent e)
     {
-        AnnotateCmd cmd = new AnnotateCmd(model);
+        AnnotateCmd cmd = new AnnotateCmd(model, null);
         cmd.execute();
     }
 

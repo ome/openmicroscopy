@@ -100,12 +100,25 @@ public class TinyDialog
         setRestoreSize(new Dimension(getWidth(), getHeight()));
     }
     
+    /**
+     * Sets the size to used to restore the size of the component
+     * when the frame is expanded.
+     *  
+     * @param d The size to set.
+     */
     void setRestoreSize(Dimension d) { restoreSize = d; }
     
+    /**
+     * Returns the size used to restore the size of the component
+     * when the frame is expanded.
+     * 
+     * @return See above.
+     */
     Dimension getRestoreSize() { return restoreSize; }
     
     /**
      * Creates a new window with the specified owner frame.
+     * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
      * @param image The bufferedImage to display. Mustn't be <code>null</code>.
      */
@@ -185,8 +198,8 @@ public class TinyDialog
     /** 
      * Moves the window to the Front and sets the location
      * 
-     * @param x     x-coordinate.
-     * @param y     y-coordinate.
+     * @param x The x-coordinate.
+     * @param y The y-coordinate.
      */
     public void moveToFront(int x, int y)
     {
@@ -197,7 +210,7 @@ public class TinyDialog
     /**
      * Moves the window and sets the location.
      * 
-     * @param p     New location.
+     * @param p The new location.
      */
     public void moveToFront(Point p) { moveToFront(p.x, p.y); }
     

@@ -53,7 +53,7 @@ import javax.swing.JPanel;
  * A general-purpose modal dialog to display a notification message.
  * An icon can be specified to display by the message and an <i>OK</i>
  * button is provided to close the dialog.  The dialog is brought up by the
- * {@link #open() open} method and is automatically disposed after the
+ * {@link #setVisible(boolean)} method and is automatically disposed after the
  * user closes it.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -176,8 +176,8 @@ public class NotificationDialog
 	 * Builds and lays out the {@link #contentPanel}, then adds it to the
 	 * content pane.
 	 * 
-	 * @param msg		The notification message.
-	 * @param msgIcon	The icon to display by the message.
+	 * @param message		The notification message.
+	 * @param messageIcon	The icon to display by the message.
 	 */
 	private void buildGUI(String message, Icon messageIcon)
 	{
@@ -197,7 +197,8 @@ public class NotificationDialog
 	
 	/**
 	 * Creates a new dialog.
-	 * You have to call {@link #open()} to actually display it on screen.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
 	 * 
 	 * @param owner			The parent window.
 	 * @param title			The title to display on the title bar.
@@ -212,7 +213,6 @@ public class NotificationDialog
 		//setResizable(false);  
 		//Believe it or not the icon from owner won't be displayed if the
 		//dialog is not resizable. 
-		
 		createComponents();
 		attachListeners();
 		buildGUI(message, messageIcon);

@@ -77,7 +77,7 @@ public interface SplashScreen
 	 * Sets the total number of initialization tasks that have to be
 	 * performed.
 	 * This method is guaranteed to be called before the first invocation
-	 * of {@link #updateProgress(String, int) updateProgress()}.
+	 * of {@link #updateProgress(String) updateProgress()}.
 	 * <p>This call is asynchronous, that is, the caller can proceed straight
 	 * after invocation without having to wait for this method to be actually
 	 * executed.</p>

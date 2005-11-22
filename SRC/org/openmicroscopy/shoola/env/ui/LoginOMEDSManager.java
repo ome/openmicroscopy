@@ -75,6 +75,14 @@ class LoginOMEDSManager
 	
 	private Document 			dUser, dPass;
 	
+
+    /** Sets the icon of the {@link LoginOMEDS#loginButton}. */
+    private void setLoginButtonIcon()
+    {
+        if (isUser && isPass) 
+            view.loginButton.setIcon(im.getIcon(IconManager.LOGIN));
+        else view.loginButton.setIcon(im.getIcon(IconManager.LOGIN_INIT));
+    }
     
 	/** 
 	 * Creates a new instance.
@@ -126,15 +134,7 @@ class LoginOMEDSManager
         }
 	}
 
-	/** Set the icon of the loginButton. */
-	private void setLoginButtonIcon()
-	{
-		if (isUser && isPass) 
-			view.loginButton.setIcon(im.getIcon(IconManager.LOGIN));
-		else view.loginButton.setIcon(im.getIcon(IconManager.LOGIN_INIT));
-	}
-	
-	/** Require by {@link DocumentListener} interface. */
+	/** Required by {@link DocumentListener} interface. */
 	public void changedUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
@@ -143,7 +143,7 @@ class LoginOMEDSManager
 		setLoginButtonIcon();
 	}
 
-	/** Require by {@link DocumentListener} interface. */
+	/** Required by {@link DocumentListener} interface. */
 	public void insertUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
@@ -152,7 +152,7 @@ class LoginOMEDSManager
 		setLoginButtonIcon();
 	}
 
-	/** Require by {@link DocumentListener} interface. */
+	/** Required by {@link DocumentListener} interface. */
 	public void removeUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();

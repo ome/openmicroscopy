@@ -164,8 +164,8 @@ public abstract class TopWindow
 	}
 	
 	/** 
-	 * Deiconify the frame if it's the {@link #getExtendedState()}
-	 * returns {@see Frame.Iconified}.
+	 * Deiconifies the frame if the frame is in the {@link Frame#ICONIFIED}
+     * state.
 	 */
 	public void deIconify()
 	{
@@ -185,9 +185,7 @@ public abstract class TopWindow
 		winMenuEntry.setEnabled(b);
 	}
 	
-	/**
-	 * Brings up the window on screen.
-	 */
+	/** Brings up the window on screen. */
 	public void open() { quickLaunchBtn.doClick(); }
 	
 	/**
