@@ -58,11 +58,8 @@
 -->
 		<property name="objectDefinitionSource">
 			<value>
-				ome.api.Analysis.*=ROLE_ANONYMOUS
-				ome.api.Analysis.*=ROLE_ANONYMOUS				
-				ome.api.HierarchyBrowsing.*=ROLE_ANONYMOUS,ROLE_USER
-				ome.api.Pixels.*=ROLE_USER
-				ome.api.Pojos.*=ROLE_ANONYMOUS,ROLE_USER
+				ome.api.Analysis.*=ROLE_USER
+				ome.api.Pojos.*=ROLE_USER
 				ome.api.Write.*=ROLE_ADMIN
 			</value>
 		</property>

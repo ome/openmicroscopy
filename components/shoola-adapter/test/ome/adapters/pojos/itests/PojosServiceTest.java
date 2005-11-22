@@ -31,6 +31,7 @@ package ome.adapters.pojos.itests;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,10 +71,13 @@ public class PojosServiceTest
      */
     protected String[] getConfigLocations() {
     	return new String[]{
-    			"ome/client/spring.xml"};
+    			"ome/client/spring.xml",
+                "ome/testing/test.xml",
+                "ome/testing/data.xml"};
     }    
     
     public void testMappingFindContainerHierarchies(){
+        ids = new HashSet(data.getMax("Project.ids",2)); // TODO possibly convert to "Set get*"
     	Model2PojosMapper mapper = new Model2PojosMapper(); // TODO doc mem-leak
     	Set s = psrv.findContainerHierarchies(Project.class,ids,null);
     	log.info(mapper.map(s));
@@ -82,6 +86,7 @@ public class PojosServiceTest
     /* exaple of how to use */
     /* must pass in Image not ImageData.class */
     public void testMappingFindAnnotations(){
+        ids = new HashSet(data.getMax("Image.Annotated.ids",2));
     	Map m = new Model2PojosMapper().map(psrv.findAnnotations(Image.class,ids,null)); 
     	log.info(m);
     }

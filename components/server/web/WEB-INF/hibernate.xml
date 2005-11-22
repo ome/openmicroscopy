@@ -69,9 +69,9 @@
 		<!--
 		<property name="transactionAttributeSource">
             <value>
+				ome.api.Analysis.*=PROPAGATION_REQUIRED
 				ome.api.Pojos.*=PROPAGATION_REQUIRED
-                ome.api.HierarchyBrowsing.find*=PROPAGATION_REQUIRED
-                ome.api.HierarchyBrowsing.load*=PROPAGATION_REQUIRED
+				ome.api.Write.*=PROPAGATION_REQUIRED
             </value>
         </property>
 		-->

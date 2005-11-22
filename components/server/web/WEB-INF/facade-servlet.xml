@@ -25,27 +25,17 @@
 		<property name="serviceInterface"><value>net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManager</value></property>
 	</bean> 
 
-	<bean name="/HierarchyBrowsing" class="org.springframework.remoting.caucho.HessianServiceExporter">
-	    <property name="service"><ref bean="hierarchyBrowsingService"/></property> 
-	    <property name="serviceInterface"><value>ome.api.HierarchyBrowsing</value></property>
-	</bean>
-
 	<bean name="/Pojos" class="org.springframework.remoting.caucho.HessianServiceExporter">
 	    <property name="service"><ref bean="pojosService"/></property> 
 	    <property name="serviceInterface"><value>ome.api.Pojos</value></property>
 	</bean>
-		
+	
+	<!--
 	<bean name="/Write" class="org.springframework.remoting.caucho.HessianServiceExporter">
 	    <property name="service"><ref bean="writeService"/></property> 
 	    <property name="serviceInterface"><value>ome.api.Write</value></property>
 	</bean>
-
+	-->
 	<!-- FACADES -->
-	
-	<bean name="/PrimitiveHierarchyBrowsing" class="org.springframework.remoting.caucho.HessianServiceExporter">
-	    <property name="service"><ref bean="primitiveHierarchyBrowsingFacade"/></property> 
-	    <property name="serviceInterface"><value>ome.api.PrimitiveHierarchyBrowsing</value></property>
-	</bean>
-
 		
 </beans>

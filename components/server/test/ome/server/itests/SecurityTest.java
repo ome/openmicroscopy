@@ -39,13 +39,12 @@ import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
 import ome.api.Pojos;
 import ome.api.Write;
-import ome.testing.AbstractOmeroHierarchyBrowserIntegrationTest;
-import ome.testing.OMEData;
-import ome.testing.OMEPerformanceData;
+
 
 /** 
  * tests on the security system
@@ -60,7 +59,7 @@ import ome.testing.OMEPerformanceData;
  */
 public class SecurityTest
         extends
-            AbstractOmeroHierarchyBrowserIntegrationTest {
+            AbstractDependencyInjectionSpringContextTests {
 
     private static Log log = LogFactory.getLog(SecurityTest.class);
     
@@ -70,14 +69,6 @@ public class SecurityTest
     protected String[] getConfigLocations() {
 
         return ConfigHelper.getConfigLocations();
-    }
-    
-    public SecurityTest(String name) {
-        super(name,new OMEPerformanceData());
-    }
-
-    public SecurityTest(OMEData data) {
-        super("OmeroGrinderTest with Data",data);
     }
  
     Pojos p;

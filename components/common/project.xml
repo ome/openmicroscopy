@@ -9,23 +9,19 @@
   <package>ome</package>
   <description>Common code: Model code generated from middlegen</description>
   <dependencies>
-    <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>7.4.1-jdbc3</version>
-    </dependency>
   </dependencies>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
-<!--<resources>
+    <resources>
       <resource>
-        <directory>src</directory>
+        <directory>resources</directory>
         <includes>
           <include>**/*.hbm.xml</include>
           <include>**/*.hbm.xml.bin</include>    
+          <include>**/*.properties</include>
         </includes>
       </resource>
-    </resources>-->
+    </resources>
   </build>
 </project>

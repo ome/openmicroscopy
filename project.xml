@@ -109,6 +109,11 @@ services to an existing OME installation</description>
       <version>1.5</version>
       <type>plugin</type>
     </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>7.4.1-jdbc3</version>
+    </dependency>
   </dependencies>
   <reports>
 <!--    <report>maven-changelog-plugin</report> -->

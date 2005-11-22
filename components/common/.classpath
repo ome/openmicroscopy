@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry sourcepath="/SPRING_HOME/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.2.jar"/>

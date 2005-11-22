@@ -32,6 +32,7 @@ package ome.testing;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +47,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 //Application-internal dependencies
 
@@ -64,118 +66,158 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * </small>
  * @since 1.0
  */
-public abstract class OMEData {
+public class OMEData {
 
+
+    final static String emptyColl = "Collections may not be empty.\n" +
+            "You are currently trying to run a test on an OME database\n" +
+            "that does not appear to have the needed data.\n" +
+            "\n" +
+            "There must be at least one:\n" +
+            "project,dataset,image,experimenter,classification,category,category group,image annotation and dataset annotation\n" +
+            "\n" +
+            "Testing results would be unpredictable without test data.\n" +
+            "Please fill your database and retry.";
+    
     private static Log log = LogFactory.getLog(OMEData.class);
     
     boolean initialized = false;
 
     DataSource ds;
 
+    Map properties;
+    
+    Map values = new HashMap();
+    
+    long seed;
+    
+    Random rnd;
+
+    String[] files = new String[]{"test_data.properties"};
+    
     public void setDataSource(DataSource dataSource) {
         this.ds = dataSource;
     }
 
     public OMEData() {
+        init();
+    }
+    
+    public OMEData(String[] files) {
+        this.files = files;
+        init();
+    }
+    
+    void init(){
+        properties = SqlPropertiesParser.parse(files);
+        seed = (new Random()).nextLong();
+        rnd = new Random(seed); 
+    }
+    
+    /* allows for storing arbitrary objects in data */
+    public void put(String propertyKey, Object value){
+        toCache(propertyKey,value);
+    }
+    
+    public List get(String propertyKey){
+        
+        if (inCache(propertyKey)){
+            return (List) fromCache(propertyKey);
+        }
+        
+        Object obj = properties.get(propertyKey);
+        if (obj == null) {
+            return null;
+        } else if (obj instanceof List)
+        {
+            toCache(propertyKey,obj);
+            return (List) obj;
+        } else if (obj instanceof String){
+            String sql = (String) obj;
+            List result = runSql(sql);
+            toCache(propertyKey,result);
+            return result;
+        } else {
+            throw new RuntimeException("Error in properties. Not expecting "+obj==null ? null : obj.getClass().getName());
+        }
     }
 
-    final static String emptyColl = "Collections may not be empty.\n" +
-    		"You are currently trying to run a test on an OME database\n" +
-    		"that does not appear to have the needed data.\n" +
-    		"\n" +
-    		"There must be at least one:\n" +
-    		"project,dataset,image,experimenter,classification,category,category group,image annotation and dataset annotation\n" +
-    		"\n" +
-    		"Testing results would be unpredictable without test data.\n" +
-    		"Please fill your database and retry.";
-    long seed = (new Random()).nextLong();
-    Random rnd = new Random(seed);
+    List getRandomNumber(List l, Number number){
+        
+        if (number == null)
+            return null;
 
-    // Test data : calculated before to not change times.
-    public Set allUsers;
-    public Set allImgs;
-    public Set allDss;
-    public Set allPrjs;
-    public Set allCgs;
-    public Set allCs;
-    public int userId;
-    public int prjId;
-    public int dsId;
-    public int cgId;
-    public int cId;
-    public Set imgsPDI;
-    public Set imgsCGCI;
-    public Set imgsAnn1;
-    public Set imgsAnn2;
-    public Set dsAnn1;
-    public Set dsAnn2;
-
-    public OMEData init() {
-
-        if (!initialized) {
-            allUsers = getAllIds("experimenters", "attribute_id");
-            allImgs = getAllIds("images", "image_id");
-            allDss = getAllIds("datasets", "dataset_id");
-            allPrjs = getAllIds("projects", "project_id");
-            allCgs = getAllIds("category_groups", "attribute_id");
-            allCs = getAllIds("categories", "attribute_id");
-
-            userId = getOneFromCollection(allUsers); // Perhaps generalize on type HOW OFTEN IS THIS USED! Each ONCE ?
-            prjId = getOneFromCollection(allPrjs);
-            dsId = getOneFromCollection(allDss);
-            cgId = getOneFromCollection(allCgs);
-            cId = getOneFromCollection(allCs);
-            /*
-             * for example. should be done in sub-classes
-             * 
-             *imgsPDI = getPercentOfCollection(allImgs, percent);
-             *imgsCGCI = getPercentOfCollection(allImgs, percent);
-             *imgsAnn1 = getPercentOfCollection(allImgs, percent);
-             *imgsAnn2 = getPercentOfCollection(allImgs, percent);
-             *dsAnn1 = getPercentOfCollection(allDss, percent);
-             *dsAnn2 = getPercentOfCollection(allDss, percent);
-             *
-             */
+        if (l == null || l.size() == 0) {
+            log.warn(emptyColl);
+            return null;
         }
-        return this;
-    }
-
-    Set getAllIds(String table, String field) {
-        JdbcTemplate jt = new JdbcTemplate(ds);
-        List rows = jt.queryForList("select " + field + " from " + table);
-        Set result = new HashSet();
-        for (Iterator i = rows.iterator(); i.hasNext();) {
-            Map element = (Map) i.next();
-            result.add(element.get(field));
-        }
-        return result;
-    }
-
-    int getOneFromCollection(final Collection ids) {
-
-        if (ids.size() == 0) {
-            throw new IllegalArgumentException(emptyColl);
-        }
-
-        List ordered = new ArrayList(ids);
-        int choice = randomChoice(ids.size());
-        return ((Integer) ordered.get(choice)).intValue();
-    }
-
-    Set getPercentOfCollection(final Set ids, double percent) {
-
-        if (ids.size() == 0) {
-            throw new IllegalArgumentException(emptyColl);
-        }
-
-        List ordered = new ArrayList(ids);
-        Set result = new HashSet();
+        
+        List ordered = new ArrayList(l);
+        List result = new ArrayList();
        
-        while (ordered.size() >0 && result.size() < ids.size() * percent) {
+        while (ordered.size() >0 && result.size() < number.longValue()) {
             int choice = randomChoice(ordered.size());
             result.add(ordered.remove(choice));
         }
 
+        return result;
+
+    }
+    
+    public List getMax(String propertyKey, int maximum){
+        List l = get(propertyKey);
+        return getRandomNumber(l,new Integer(maximum));
+       
+        
+    }
+    
+    public List getPercent(String propertyKey, double percent){
+        List l = get(propertyKey);
+        return getRandomNumber(l,new Double(l.size()*percent));
+
+    }
+    
+    public Object getRandom(String propertyKey){
+        List l = get(propertyKey);
+        List result = getRandomNumber(l,new Integer(1));
+ 
+        if (result == null || result.size() < 1)
+            return null;
+        
+        return result.get(0);
+     }
+    
+    public Object getFirst(String propertyKey){
+        List l = get(propertyKey);
+        
+        if (l == null || l.size() == 0) {
+            log.warn(emptyColl);
+            return null;
+        }
+        
+        return l.get(0);
+    }
+    
+    boolean inCache(String key){
+        return values.containsKey(key);
+    }
+    
+    void toCache(String key, Object value){
+        values.put(key,value);
+    }
+    
+    Object fromCache(String key){
+        return values.get(key);
+    }
+    
+    List runSql(String sql){
+        JdbcTemplate jt = new JdbcTemplate(ds);
+        SqlRowSet rows = jt.queryForRowSet(sql);
+        List result = new ArrayList();
+        while (rows.next()){
+            result.add(rows.getObject(1));
+        }
+        log.debug("SQL:"+sql+"\n\nResult:"+result);
         return result;
     }
 
@@ -185,19 +227,12 @@ public abstract class OMEData {
     }
    
     public String toString(){
-    return new ToStringBuilder(this).
-    	append("seed",seed ).
-    	append("userId",userId).
-    	append("prjId",prjId).
-    	append("dsId",dsId).
-    	append("cgId",cgId).
-    	append("cId",cId).
-    	append("imgsPDI",imgsPDI).
-    	append("imgsCGCI",imgsCGCI).
-    	append("imgsAnn1",imgsAnn1).
-    	append("imgsAnn2",imgsAnn2).
-    	append("dsAnn1",dsAnn1).
-    	append("dsAnn2",dsAnn2).
-    	toString();
+        ToStringBuilder tsb = new ToStringBuilder(this); 
+        for (Iterator it = values.keySet().iterator(); it.hasNext();)
+        {
+            String key = (String) it.next();
+            tsb.append(key,values.get(key));
+        }
+        return tsb.toString();
 	}
 }

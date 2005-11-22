@@ -1,5 +1,5 @@
 /*
- * ome.server.itests.TestUtils
+ * ome.testing.TestUtils
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests;
+package ome.testing;
 
 import java.util.HashSet;
 import java.util.Set;

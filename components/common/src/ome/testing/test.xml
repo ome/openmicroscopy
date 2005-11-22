@@ -41,12 +41,10 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans default-autowire="byType">	
-	<bean id="dataSource" 
-    	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-	    <property name="driverClassName"><value>${database.driver}</value></property>
-    	<property name="url"><value>${database.url}</value></property>
-	    <property name="username"><value>${database.username}</value></property>
-	    <property name="password"><value>${database.password}</value></property>
+	<!-- Add this config file to the getConfigLocations() of your tests
+		if you want data and interfaces injected -->
+	<bean id="data" class="ome.testing.OMEData" lazy-init="true">
+		<property name="dataSource" ref="dataSource"/>
 	</bean>
 	
 </beans>

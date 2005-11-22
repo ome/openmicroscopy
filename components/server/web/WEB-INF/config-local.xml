@@ -34,8 +34,7 @@
 
 <!--
 
-	Provides a local path to necessary properties and produces
-	a OMEData instance for testing.
+	Provides a local path to necessary properties
  
 -->
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
@@ -51,13 +50,5 @@
 		</list>
 		</property>
 	</bean>
-
-	<!-- Add this config file to the getConfigLocations() of your tests
-		if you want data and interfaces injected -->
-<!-- TODO this needs to be somewhere else
-	<bean id="data" class="ome.testing.OMEPerformanceData" init-method="init">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-	-->
 
 </beans>

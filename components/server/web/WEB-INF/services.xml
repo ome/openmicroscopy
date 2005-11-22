@@ -75,31 +75,19 @@
 		<property name="containerDao" ref="containerDao"/>
 		<property name="genericDao" ref="genericDao"/>		
 	</bean>		
-				
-	<bean id="hierarchyBrowsingService" class="ome.logic.HierarchyBrowsingImpl">
-		<property name="annotationDao" ref="annotationDao"/>
-		<property name="containerDao" ref="containerDao"/>
+    	
+	<bean id="pojosService" class="ome.logic.PojosImpl">
+		<constructor-arg index="0" ref="daoFactory"/>
 	</bean>		
 
 	<bean id="writeService" class="ome.logic.WriteImpl">
 		<property name="jdbcTemplate" ref="jdbcTemplate"/>
 		<property name="genericDao" ref="genericDao"/>		
-	</bean>		
-
-	<bean id="pixelsService" class="ome.logic.PixelsImpl">
-		<constructor-arg index="0" ref="daoFactory"/>
 	</bean>			
-    	
-	<bean id="pojosService" class="ome.logic.PojosImpl">
-		<constructor-arg index="0" ref="daoFactory"/>
-	</bean>		
-   	
+	   	
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- FACADES -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<bean id="primitiveHierarchyBrowsingFacade" class="ome.facade.PrimitiveHierarchyBrowsingImpl">
-		<property name="hierarchyBrowsingService" ref="hierarchyBrowsingService"/>
-	</bean>		
 
 		
 </beans>

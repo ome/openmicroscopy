@@ -76,6 +76,11 @@ public class ConfigHelper {
         "WEB-INF/config-local.xml",
         "WEB-INF/test/test.xml"};
     
+    final static String[] DATA = new String[] {
+        "WEB-INF/test/dbcp.xml", 
+        "WEB-INF/config-local.xml",
+        "WEB-INF/test/test.xml"};
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
@@ -93,6 +98,10 @@ public class ConfigHelper {
 
         return DBUNIT;
     }    
-    
+
+    public static String[] getDataConfigLocations(){
+        
+        return DATA;
+    }
     
 }

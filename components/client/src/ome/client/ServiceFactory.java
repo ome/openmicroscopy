@@ -42,7 +42,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 //Application-internal dependencies
-import ome.api.HierarchyBrowsing;
 import ome.api.Pojos;
 
 /** 
@@ -84,10 +83,6 @@ public class ServiceFactory {
 
 	public RemoteAuthenticationManager getRemoteAuthenticationManager(){
         return (RemoteAuthenticationManager) this.ctx.getBean("remoteAuthenticationFacade");
-    }
-	
-    public HierarchyBrowsing getHierarchyBrowsingService(){
-        return (HierarchyBrowsing) this.ctx.getBean("hierarchyBrowsingFacade");
     }
     
     public Pojos getPojosService(){

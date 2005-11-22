@@ -39,7 +39,7 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 
 //Application-internal dependencies
-import ome.server.itests.TestUtils;
+import ome.testing.TestUtils;
 
 /**
  * @author josh
