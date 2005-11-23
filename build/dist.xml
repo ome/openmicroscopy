@@ -54,7 +54,7 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="shoola.jar"/>
   <property name="dist.bundle.name" value="ome-shoola"/> 
-  <property name="dist.bundle.version" value="2.4.0-rc2"/>
+  <property name="dist.bundle.version" value="2.5.0-rc2"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
