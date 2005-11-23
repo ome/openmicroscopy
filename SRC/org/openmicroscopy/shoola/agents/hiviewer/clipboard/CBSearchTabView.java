@@ -386,23 +386,6 @@ class CBSearchTabView
     TreePopupMenu getPopupMenu() { return view.getPopupMenu(); }
     
     /**
-     * Returns the currently selected data object.
-     * 
-     * @return See above.
-     */
-    DataObject getDataObject()
-    {
-        if (pane != null) return pane.getDataObject();
-        return null;
-    }
-    
-    ImageDisplay getSelectedNode()
-    {
-        if (pane != null) return pane.getSelectedNode();
-        return null;
-    }
-    
-    /**
      * Updates the UI components when a node is selected in the
      * <code>Browser</code>.
      */

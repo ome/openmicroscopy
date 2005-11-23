@@ -34,7 +34,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -45,6 +48,19 @@ import javax.swing.SwingConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
+
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 
 /** 
@@ -76,31 +92,89 @@ class TreePopupMenu
      */
     static final String  BROWSE = "browse";
     
+    /** The {@link ImageDisplay} node this popup menu is for. */
+    private ImageDisplay    selectedNode;
+    
+    /** The {@link ClipBoardModel} model. */
+    private ClipBoardModel  model;
+    
     /** The <code>View</code> menu item. */
-    JMenuItem           view;
+    JMenuItem               view;
     
     /** The <code>Classify</code> menu item. */
-    JMenuItem           classify;
+    JMenuItem               classify;
     
     /** The <code>Declassify</code> menu item. */
-    JMenuItem           declassify;
+    JMenuItem               declassify;
     
     /** The <code>properties</code> menu item. */
-    JMenuItem           properties;
+    JMenuItem               properties;
     
     /** The <code>Annotate</code> menu item. */
-    JMenuItem           annotate;  
-    
+    JMenuItem               annotate;  
+     
     /** Initializes the UI components. */
     private void initComponents()
     {
         IconManager im = IconManager.getInstance();
         properties = new JMenuItem("Properties", 
                                 im.getIcon(IconManager.PROPERTIES));
+        properties.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                DataObject object = getDataObject();
+                if (object != null) new PropertiesCmd(object).execute();
+
+            }
+        });
         annotate = new JMenuItem("Annotate", im.getIcon(IconManager.ANNOTATE));
+        annotate.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                DataObject object = getDataObject();
+                if (object != null) {
+                    AnnotateCmd cmd = 
+                        new AnnotateCmd(model.getParentModel(),
+                                        selectedNode);
+                    cmd.execute();
+                }
+
+            }
+        });
         classify = new JMenuItem("Add to category");
+        classify.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                DataObject object = getDataObject();
+                if (object instanceof ImageData) {
+                    ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
+                                            Classifier.CLASSIFICATION_MODE, 
+                                            model.getParentModel().getUI());
+                    cmd.execute();
+                }
+            }
+        });
         declassify = new JMenuItem("Remove from category");
+        declassify.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                DataObject object = getDataObject();
+                if (object instanceof ImageData) {
+                    ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
+                                            Classifier.DECLASSIFICATION_MODE, 
+                                            model.getParentModel().getUI());
+                    cmd.execute();
+                }
+            }
+        });
         view = new JMenuItem(VIEW, im.getIcon(IconManager.VIEWER));
+        view.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                DataObject object = getDataObject();
+                if (object != null) new ViewCmd(object).execute();
+            }
+        });
     }
     
     /**
@@ -132,26 +206,72 @@ class TreePopupMenu
     /**
      * Creates a new instance.
      * 
-     * @param clipBoard The {@link ClipBoardUI}. Mustn't be <code>null</code>.
      * @param model The {@link ClipBoardModel}. Mustn't be <code>null</code>.
      */
-    TreePopupMenu(ClipBoardUI clipBoard, ClipBoardModel model)
+    TreePopupMenu(ClipBoardModel model)
     {
-        if (clipBoard == null)
-            throw new IllegalArgumentException("No clipBoard.");
         if (model == null)
             throw new IllegalArgumentException("No model.");
+        this.model = model;
         initComponents();
         buildUI();
-        new TreePopupMenuMng(this, clipBoard, model);
     }
     
-    void setViewText(String txt) { view.setText(txt); }
     
-    void setClassifyEnabled(boolean b)
+    /**
+     * Returns the selected data object.
+     * 
+     * @return See above.
+     */
+    DataObject getDataObject()
     {
+        DataObject target = null;
+        if (selectedNode != null) {
+            Object hierarchyObj = selectedNode.getHierarchyObject();
+            if (hierarchyObj == null) return null;
+            if (hierarchyObj instanceof ProjectData || 
+                hierarchyObj instanceof DatasetData ||
+                hierarchyObj instanceof ImageData ||
+                hierarchyObj instanceof CategoryData ||
+                hierarchyObj instanceof CategoryGroupData)
+                target = (DataObject) hierarchyObj;
+        }
+        return target;
+    }
+    
+    /**
+     * Returns the selected {@link ImageDisplay} node.
+     * 
+     * @return See above.
+     */
+    ImageDisplay getSelectedNode() { return selectedNode; }
+    
+    /**
+     * Brings up the popup menu for the specified {@link ImageDisplay} node.
+     * 
+     * @param invoker   The component in whose space the popup menu is to appear
+     * @param x         The x coordinate in invoker's coordinate space at which 
+     *                  the popup menu is to be displayed.
+     * @param y         The y coordinate in invoker's coordinate space at which 
+     *                  the popup menu is to be displayed
+     * @param node      The selected node.
+     */
+    void showMenuFor(JComponent invoker, int x, int y, ImageDisplay node)
+    {
+        if (node == null) return;
+        selectedNode = node;
+        DataObject object = getDataObject();
+        if (object == null) return;
+        String txt = TreePopupMenu.BROWSE;
+        boolean b = false;
+        if (object instanceof ImageData) {
+            txt = TreePopupMenu.VIEW;
+            b = true;
+        }
+        view.setText(txt);
         classify.setEnabled(b);
         declassify.setEnabled(b);
+        show(invoker, x, y);
     }
-    
+
 }

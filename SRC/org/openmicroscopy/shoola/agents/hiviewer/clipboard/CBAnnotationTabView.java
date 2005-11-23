@@ -418,7 +418,7 @@ class CBAnnotationTabView
     /** Creates a new annotation for the selected object. */
     void create()
     {
-       controller.createAnnotation(annotationText.getText());
+        controller.createAnnotation(annotationText.getText());
     }
     
     /** Deletes the currently selected annotation. */

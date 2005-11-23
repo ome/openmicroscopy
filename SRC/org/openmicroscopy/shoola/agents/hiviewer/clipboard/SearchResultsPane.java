@@ -42,10 +42,6 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Displays the results of a <code>Search</code> action.
@@ -103,18 +99,10 @@ class SearchResultsPane
      */
     void showMenu(int x, int y)
     {
+        if (selectedNode == null) return;
         TreePopupMenu menu = view.getPopupMenu();
-        DataObject target = getDataObject();
-        if (target == null) return;
-        String txt = TreePopupMenu.BROWSE;
-        boolean b = false;
-        if (target instanceof ImageData) {
-            txt = TreePopupMenu.VIEW;
-            b = true;
-        }
-        menu.setViewText(txt);
-        menu.setClassifyEnabled(b);
-        menu.show(this, x, y);
+        menu.showMenuFor(this, x, y,
+                        (ImageDisplay) selectedNode.getUserObject());
     }
     
     /**
@@ -128,35 +116,6 @@ class SearchResultsPane
         setModel(dtm);
         setShowsRootHandles(true);
         expandPath(new TreePath(root.getPath()));
-    }
-      
-    ImageDisplay getSelectedNode()
-    {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                                        getLastSelectedPathComponent();
-        if (node != null) return (ImageDisplay) node.getUserObject();
-        return null;
-    }
-    
-    /**
-     * Returns the selected data object.
-     * 
-     * @return See above.
-     */
-    DataObject getDataObject()
-    {
-        DataObject target = null;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                                            getLastSelectedPathComponent();
-        if (node != null) {
-            ImageDisplay  usrObj = (ImageDisplay) node.getUserObject();
-            Object hierarchyObj = usrObj.getHierarchyObject();
-            if (hierarchyObj instanceof ProjectData || 
-                hierarchyObj instanceof DatasetData ||
-                hierarchyObj instanceof ImageData)
-                target = (DataObject) hierarchyObj;
-        }
-        return target;
     }
     
     /**

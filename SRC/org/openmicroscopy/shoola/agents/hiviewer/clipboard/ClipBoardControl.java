@@ -72,7 +72,7 @@ class ClipBoardControl
     private ClipBoardModel      model;
     
     /** The {@link ClipBoard} Component. */
-    private ClipBoard  component;
+    private ClipBoard           component;
     
     /**
      * Handles the selection of a new node in the {@link Browser} component.
@@ -184,10 +184,7 @@ class ClipBoardControl
      * 
      * @param txt The text of the annotation.
      */
-    void createAnnotation(String txt)
-    {
-        component.createAnnotation(txt);
-    }
+    void createAnnotation(String txt) { component.createAnnotation(txt); }
     
     /**
      * Deletes the specified annotation.

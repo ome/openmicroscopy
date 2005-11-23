@@ -97,7 +97,7 @@ class SearchResultsPaneMng
         if (row != -1) {
             view.setSelectionRow(row);
             view.setSelectedNode();
-            if (me.isPopupTrigger() && view.getDataObject() != null)
+            if (me.isPopupTrigger())
                 view.showMenu(me.getX(), me.getY());
         }
     }

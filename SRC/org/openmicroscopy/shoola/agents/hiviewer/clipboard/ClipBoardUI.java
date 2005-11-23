@@ -41,7 +41,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import pojos.DataObject;
 
 /** 
  * The {@link ClipBoard}'s view.
@@ -115,7 +114,7 @@ class ClipBoardUI
     /** Initializes the UI components. */
     private void initComponents()
     {
-        popupMenu = new TreePopupMenu(this, model);
+        popupMenu = new TreePopupMenu(model);
         searchView = new CBSearchTabView(model, this, controller);
         annotationView = new CBAnnotationTabView(model, this, controller);
         tabPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
@@ -155,25 +154,7 @@ class ClipBoardUI
     
     /** Returns the popup menu. */
     TreePopupMenu getPopupMenu() { return popupMenu; }
-    
-    /**
-     * Returns the currently selected data object via the popupmenu.
-     * 
-     * @return See above.
-     */
-    DataObject getDataObject()
-    { 
-        if (model.getPaneIndex() == SEARCH_TAB)
-            return searchView.getDataObject();
-        return null;
-    }
-    
-    ImageDisplay getSelectedNode()
-    {
-        if (model.getPaneIndex() == SEARCH_TAB)
-            return searchView.getSelectedNode();
-        return null;
-    }
+
     
     /** Displays the retrieved annotations. */
     void showAnnotations() { annotationView.showAnnotations(); }
