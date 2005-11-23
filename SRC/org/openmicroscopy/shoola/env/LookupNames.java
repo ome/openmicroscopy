@@ -56,6 +56,8 @@ public class LookupNames
 
 	public static final  String ENV = "/env";
 	
+    public static final String USER_CREDENTIALS = "/user/credentials";
+    
 	public static final String USER_DETAILS = "/user/details";
     
 	public static final String AGENTS = "/agents";
