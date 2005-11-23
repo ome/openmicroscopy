@@ -58,20 +58,20 @@ import java.util.Set;
 public interface OmeroPojoService
 {
 
-    /** Identifies the <code>Classification</code> algorithm. */
-    public static final int CLASSIFICATION = 1;
+    /** Identifies the <code>Declassification</code> algorithm. */
+    public static final int DECLASSIFICATION = 0;
     
     /**
-     * Identifies the <code>Declassification</code> algorithm with
+     * Identifies the <code>Classification</code> algorithm with
      * mutually exclusive rule.
      */
-    public static final int DECLASSIFICATION_ME = 0;
+    public static final int CLASSIFICATION_ME = 1;
     
     /**
-     * Identifies the <code>Declassification</code> algorithm without
+     * Identifies the <code>Classification</code> algorithm without
      * mutually exclusive rule.
      */
-    public static final int DECLASSIFICATION_NME = 2;
+    public static final int CLASSIFICATION_NME = 2;
     
     /**
      * Retrieves hierarchy trees rooted by a given node.
@@ -203,9 +203,9 @@ public interface OmeroPojoService
      * @param imgIDs Set of ids of the images that sit at the bottom of the
      *              CGC trees. Mustn't be <code>null</code>.
      * @param algorithm The search algorithm for finding paths. One of the 
-     *                  following constants: {@link #CLASSIFICATION},
-     *                  {@link #DECLASSIFICATION_ME},
-     *                  {@link #DECLASSIFICATION_NME}.
+     *                  following constants: {@link #DECLASSIFICATION},
+     *                  {@link #CLASSIFICATION_ME},
+     *                  {@link #CLASSIFICATION_NME}.
      * @return A <code>Set</code> of hierarchy trees with all root nodes 
      * that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in

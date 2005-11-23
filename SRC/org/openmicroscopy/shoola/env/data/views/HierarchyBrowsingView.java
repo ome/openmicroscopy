@@ -201,9 +201,9 @@ public interface HierarchyBrowsingView
      * 
      * @param imageID   The id of the Image.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#CLASSIFICATION},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
+     *                  {@link OmeroPojoService#DECLASSIFICATION},
+     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadClassificationPaths(int imageID, int algorithm,

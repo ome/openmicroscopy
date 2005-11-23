@@ -76,9 +76,9 @@ class OmeroPojoServiceImpl
     private boolean checkAlgorithm(int algorithm)
     {
         switch (algorithm) {
-            case OmeroPojoService.CLASSIFICATION:
-            case OmeroPojoService.DECLASSIFICATION_ME:
-            case OmeroPojoService.DECLASSIFICATION_NME:    
+            case OmeroPojoService.DECLASSIFICATION:
+            case OmeroPojoService.CLASSIFICATION_ME:
+            case OmeroPojoService.CLASSIFICATION_NME:    
                 return true;
         }
         return false;

@@ -80,7 +80,7 @@ public class ClassifPathsLoader
     public void load()
     {
         handle = hiBrwView.loadClassificationPaths(classifier.getImageID(),
-                                OmeroPojoService.CLASSIFICATION, this);
+                                OmeroPojoService.CLASSIFICATION_ME, this);
     }
     
     /** Cancels the data loading. */

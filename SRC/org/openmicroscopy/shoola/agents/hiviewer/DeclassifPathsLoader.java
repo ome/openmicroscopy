@@ -80,7 +80,7 @@ public class DeclassifPathsLoader
     public void load()
     {
         handle = hiBrwView.loadClassificationPaths(classifier.getImageID(),
-                             OmeroPojoService.DECLASSIFICATION_ME, this);
+                             OmeroPojoService.DECLASSIFICATION, this);
     }
     
     /** Cancels the data loading. */

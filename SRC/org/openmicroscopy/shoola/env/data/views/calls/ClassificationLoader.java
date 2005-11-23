@@ -83,9 +83,9 @@ public class ClassificationLoader
     private boolean checkAlgorithmIndex(int i)
     {
         switch (i) {
-            case OmeroPojoService.CLASSIFICATION:
-            case OmeroPojoService.DECLASSIFICATION_ME:
-            case OmeroPojoService.DECLASSIFICATION_NME:    
+            case OmeroPojoService.DECLASSIFICATION:
+            case OmeroPojoService.CLASSIFICATION_ME:
+            case OmeroPojoService.CLASSIFICATION_NME:    
                 return true;
             default:
                 return false;
@@ -98,9 +98,9 @@ public class ClassificationLoader
      * 
      * @param imageIDs The set of image ids.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#CLASSIFICATION},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
+     *                  {@link OmeroPojoService#DECLASSIFICATION},
+     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadCGCPaths(final Set imageIDs, final int algorithm)
@@ -134,9 +134,9 @@ public class ClassificationLoader
      * 
      * @param imageID   The id of the Image.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#CLASSIFICATION},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
+     *                  {@link OmeroPojoService#DECLASSIFICATION},
+     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
      */
     public ClassificationLoader(int imageID, int algorithm)
     {
@@ -157,9 +157,9 @@ public class ClassificationLoader
      * 
      * @param imageIDs   The collection of image's ids.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#CLASSIFICATION},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#DECLASSIFICATION_NME}.
+     *                  {@link OmeroPojoService#DECLASSIFICATION},
+     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
      */
     public ClassificationLoader(Set imageIDs, int algorithm)
     {
