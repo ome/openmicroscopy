@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,8 +42,13 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.util.builders.PojoOptions;
+
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
+
+import pojos.ExperimenterData;
 
 /** 
  * 
@@ -174,18 +181,29 @@ class OmeroPojoServiceImpl
         return gateway.getUserImages(po.map());
     }
     
-    //Need to review this method
+    //TODO: TO BE MODIFIED WHEN WE GET RID OF OME_JAVA
     public UserDetails getUserDetails()
     {
-        DataManagementService dms = context.getDataManagementService();
+        UserDetails ud = (UserDetails) context.lookup(LookupNames.USER_DETAILS);
         try {
-            return dms.getUserDetails();
+            if (ud == null) {
+                UserCredentials uc = (UserCredentials) 
+                            context.lookup(LookupNames.USER_CREDENTIALS);
+                String name = uc.getUserName();
+                Set set = new HashSet(1);
+                set.add(name);
+                Map m = gateway.getUserDetails(set, (new PojoOptions()).map());
+                ExperimenterData data = (ExperimenterData) m.get(name);
+                ArrayList groups = new ArrayList(1);
+                groups.add(new Integer(data.getId()));
+                ud = new UserDetails(data.getId(), data.getFirstName(),
+                                data.getLastName(), groups);
+            }
+            return ud;
         } catch (Exception e) {
             // TODO: handle exception
         }
         return null;
-        
-        
     }
     
 }

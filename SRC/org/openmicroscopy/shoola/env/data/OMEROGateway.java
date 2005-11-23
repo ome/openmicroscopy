@@ -151,6 +151,26 @@ class OMEROGateway
     }
     
     /**
+     * Maps the constant defined by {@link OmeroPojoService}
+     * to the corresponding value defined by {@link Pojos}.
+     * 
+     * @param algorithm One of the constant defined by {@link OmeroPojoService}.
+     * @return See above.
+     */
+    private String mapAlgorithmToString(int algorithm)
+    {
+        switch (algorithm) {
+            case OmeroPojoService.CLASSIFICATION_ME:
+                return Pojos.CLASSIFICATION_ME;
+            case OmeroPojoService.CLASSIFICATION_NME:
+                return Pojos.CLASSIFICATION_NME;
+            case OmeroPojoService.DECLASSIFICATION:
+                return Pojos.DECLASSIFICATION;
+        }
+        throw new IllegalArgumentException("Algorithm not valid.");
+    }
+    
+    /**
      * Converts the specified POJO into the corresponding model.
      *  
      * @param nodeType The POJO class.
@@ -261,7 +281,7 @@ class OMEROGateway
             return (Set) mapper.map(service.loadContainerHierarchy(
                             convertPojos(rootNodeType), rootNodeIDs, options));
         } catch (Exception e) {
-            handleException(e, "Cannot load hierarchy for "+rootNodeType);
+            handleException(e, "Cannot load hierarchy for "+rootNodeType+".");
         }
         return new HashSet();
     }
@@ -296,7 +316,7 @@ class OMEROGateway
             return (Set) mapper.map(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
         } catch (Exception e) {
-            handleException(e, "Cannot find hierarchy for "+rootNodeType);
+            handleException(e, "Cannot find hierarchy for "+rootNodeType+".");
         }
         return new HashSet();
     }
@@ -333,7 +353,7 @@ class OMEROGateway
             return mapper.map(service.findAnnotations(convertPojos(nodeType),
                             nodeIDs, options));
         } catch (Exception e) {
-            handleException(e, "Cannot find annotations for "+nodeType);
+            handleException(e, "Cannot find annotations for "+nodeType+".");
         }
         return new HashMap();
     }
@@ -357,7 +377,7 @@ class OMEROGateway
      * This is <u>more</u> restrictive than may be imagined. The goal is to 
      * find CGC paths to which an Image <B>MAY</b> be attached.
      * </p>
-     * Wraps the call to the {@link Pojos#findCGCPaths(Set, int, Map)}
+     * Wraps the call to the {@link Pojos#findCGCPaths(Set, String, Map)}
      * and maps the result calling
      * {@link Model2PojosMapper#map(java.util.Collection)}.
      * 
@@ -377,10 +397,11 @@ class OMEROGateway
     {
         try {
             Pojos service = getPojosService();
-            return (Set) mapper.map(service.findCGCPaths(imgIDs, algorithm,
+            return (Set) mapper.map(service.findCGCPaths(imgIDs, 
+                                    mapAlgorithmToString(algorithm),
                                     options));
         } catch (Exception e) {
-            handleException(e, "Cannot find CGC paths");
+            handleException(e, "Cannot find CGC paths.");
         }
         return new HashSet();
     }
@@ -409,7 +430,7 @@ class OMEROGateway
             return (Set) mapper.map(service.getImages(convertPojos(nodeType),
                                     nodeIDs, options));
         } catch (Exception e) {
-            handleException(e, "Cannot find images for "+nodeType);
+            handleException(e, "Cannot find images for "+nodeType+".");
         }
         return new HashSet();
     }
@@ -433,9 +454,32 @@ class OMEROGateway
             Pojos service = getPojosService();
             return (Set) mapper.map(service.getUserImages(options));
         } catch (Exception e) {
-            handleException(e, "Cannot find user images ");
+            handleException(e, "Cannot find user images.");
         }
         return new HashSet();
+    }
+    
+    /**
+     * Retrieves the details on users specified by ID.
+     * 
+     * @param names The collection of users' ome-name.
+     * @param options Options to retrieve the data.
+     * @return A <code>Map</code> whose key are users' ID and values the 
+     *         {@link pojos.ExperimenterData}
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service.
+     */
+    Map getUserDetails(Set names, Map options)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            Pojos service = getPojosService();
+            return mapper.map(service.getUserDetails(names, options));
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve user details.");
+        }
+        return new HashMap();
     }
     
 }
