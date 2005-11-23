@@ -30,6 +30,8 @@
 package ome.api;
 
 // Java imports
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -237,9 +239,30 @@ public interface Pojos {
 	 *            {@link #findContainerHierarchies(Class, Set, Map)}
 	 * @return A <code>Set</code> of hierarchy trees with all root nodes that were found.
 	 */
-	public Set findCGCPaths(Set imgIds, int algorithm, Map options);
+	public Set findCGCPaths(Set imgIds, String algorithm, Map options);
+    
+    /**
+     * algorithm which given a set of images ids retrieve the CG-C hierarchy where 
+     * we can classify the images 
+     * constraint: if a category contains an image => the hierarchy CG-C
+     * is not retrieved.
+    */
+    public final static String CLASSIFICATION_ME = "CLASSIFICATION_ME";
+    
+    /** 
+     * algorithm which given a set of images ids retrieves the CG-C where 
+     * category doesn't contain the image.
+     **/
+    public final static String CLASSIFICATION_NME = "CLASSIFICAITON_NME";
 
-	/**
+    /** 
+     * algorithm which given a set of image ids retrieves the CG-C containing the images.
+    */
+    public final static String DECLASSIFICATION = "DECLASSIFICATION";
+	
+    public final static Set ALGORITHMS = new HashSet(Arrays.asList(new Object[]{CLASSIFICATION_ME,CLASSIFICATION_NME,DECLASSIFICATION}));
+    
+    /**
 	 * Retrieve a user's (or all users') images within any given container.  For example,
 	 * all images in project.
 	 * @param rootNodeType

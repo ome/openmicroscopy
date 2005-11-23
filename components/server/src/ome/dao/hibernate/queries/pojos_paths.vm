@@ -4,10 +4,10 @@
 #ifCategoryGroup()
 #ifCategory()	
 #ifClassification()	
-#if($doINCLUSIVE)
+#if($doDECLASSIFICATION)
 	where  
 #imagelist()
-#elseif($doEXCLUSIVE)
+#elseif($doCLASSIFICATION_ME)
 	where cg not in ( 
 		select cg from CategoryGroup cg
 			where

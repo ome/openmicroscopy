@@ -187,21 +187,28 @@ public abstract class AbstractPojosServiceTest
     public void testPathsInc()
     {
         ids = new HashSet(data.getMax("Image.ids",2));
-        log("path_inc", psrv.findCGCPaths(ids, 0, po.map()));
+        log("path_inc", psrv.findCGCPaths(ids, Pojos.DECLASSIFICATION, po.map()));
     }
 
     public void testPathsExc()
     {
         ids = new HashSet(data.getMax("Image.ids",2));
-        log("path_exc", psrv.findCGCPaths(ids, 1, po.map()));
+        log("path_exc", psrv.findCGCPaths(ids, Pojos.CLASSIFICATION_ME, po.map()));
     }
 
+    public void testPathsDeNotExc()
+    {
+        // TODO implement test
+        //ids = new HashSet(data.getMax("Image.ids",2));
+        //log("path_exc", psrv.findCGCPaths(ids, Pojos.DECLASSIFICATION_NME, po.map()));
+    }
+    
     public void testPathsFAIL()
     {
         ids = new HashSet(data.getMax("Image.ids",2));
         try
         {
-            log("path_exc", psrv.findCGCPaths(ids, 2, po.map()));
+            log("path_exc", psrv.findCGCPaths(ids, "UNKNOWN ALGORITHM", po.map()));
             fail(" no algorithm 2 !!!");
         } catch (IllegalArgumentException iae)
         {
@@ -278,15 +285,15 @@ public abstract class AbstractPojosServiceTest
         assertTrue(emptyColl, psrv.loadContainerHierarchy(Dataset.class, test, po
                 .map()).size()==0);
         //
-        assertTrue(emptyColl, psrv.findCGCPaths(test, 0, null).size() == 0);
+        assertTrue(emptyColl, psrv.findCGCPaths(test, Pojos.DECLASSIFICATION, null).size() == 0);
         assertTrue(emptyColl,
-                psrv.findCGCPaths(new HashSet(), 0, null).size() == 0);
+                psrv.findCGCPaths(new HashSet(), Pojos.DECLASSIFICATION, null).size() == 0);
         // TODO The Logic here is reversed!
         // assertTrue(emptyColl,psrv.findCGCPaths(test,false).size()==0);
-        assertTrue(emptyColl, psrv.findCGCPaths(test, 1, null).size() == 0);
+        assertTrue(emptyColl, psrv.findCGCPaths(test, Pojos.CLASSIFICATION_ME, null).size() == 0);
         assertTrue(emptyColl,
-                psrv.findCGCPaths(new HashSet(), 1, null).size() == 0);
-
+                psrv.findCGCPaths(new HashSet(), Pojos.CLASSIFICATION_ME, null).size() == 0);
+        // TODO Pojos.DE_NME
     }
 
     public void testContainedImages()
@@ -323,8 +330,8 @@ public abstract class AbstractPojosServiceTest
     public void testPathCalls()
     {
         Set imgs = new HashSet(data.getMax("Image.ids", 1));
-        Set con = psrv.findCGCPaths(imgs, 0, null);
-        Set non = psrv.findCGCPaths(imgs, 1, null);
+        Set con = psrv.findCGCPaths(imgs, Pojos.DECLASSIFICATION, null);
+        Set non = psrv.findCGCPaths(imgs, Pojos.CLASSIFICATION_ME, null);
         for (Iterator itNon = non.iterator(); itNon.hasNext();)
         {
             CategoryGroup cg = (CategoryGroup) itNon.next();

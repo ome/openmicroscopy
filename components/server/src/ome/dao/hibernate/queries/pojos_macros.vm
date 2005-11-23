@@ -6,7 +6,7 @@
 ## Options::
 ## !$doId implies the rootNodeId or imageIds set was null
 ## $doExperimenter
-## $do{INCLUSIVEEXCLUSIVE}
+## $do{each ALGORITHM. see Pojos}
 ## 
 #####################################################
 #macro(select)

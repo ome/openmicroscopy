@@ -79,8 +79,6 @@ public class PojosImpl implements Pojos {
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
-    private enum ALGORITHM {INCLUSIVE,EXCLUSIVE};
-    
     private DaoFactory daos;
     
     public PojosImpl(DaoFactory daoFactory){
@@ -211,7 +209,7 @@ public class PojosImpl implements Pojos {
 
 	}
 
-	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, int algorithm, Map options) {
+	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, String algorithm, Map options) {
         if (null == imgIds){
 			throw new IllegalArgumentException(
 					"Set of ids for findCGCPaths() may not be null");
@@ -221,14 +219,14 @@ public class PojosImpl implements Pojos {
 			return new HashSet();
 		}
 
-		if (algorithm >= ALGORITHM.values().length) {
+		if (! Pojos.ALGORITHMS.contains(algorithm)) {
 			throw new IllegalArgumentException(
 					"No such algorithm known");
 		}
 		
 		PojoOptions po = new PojoOptions(options);
 		
-		String q = PojosQueryBuilder.buildPathsQuery(ALGORITHM.values()[algorithm].toString(),po.map());
+		String q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
 		Map m = getParameters(imgIds,po);
 		return new HashSet(daos.generic().queryListMap(q,m));
 		
