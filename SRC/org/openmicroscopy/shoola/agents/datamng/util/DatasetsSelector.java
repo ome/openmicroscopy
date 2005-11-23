@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.datamng.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.util.Set;
 
@@ -44,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -216,6 +218,7 @@ public class DatasetsSelector
                 im.getIcon(IconManager.ORDER_BY_SELECTED_DOWN),
                 "Order by selected datasets.");
         tc.setHeaderValue(txt);
+        table.setDefaultRenderer(DatasetData.class, new DatasetsTableRenderer());
     }
      
     /** 
@@ -268,4 +271,18 @@ public class DatasetsSelector
         }
     }
     
+    final class DatasetsTableRenderer
+        extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column)
+        {
+            super.getTableCellRendererComponent(table, value, isSelected,
+                            hasFocus, row, column);
+            if (value instanceof DatasetData)
+                setText(((DatasetData) value).getName());
+            return this;
+        }
+    }
 }
