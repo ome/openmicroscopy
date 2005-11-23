@@ -245,8 +245,8 @@ class DatasetImagesDiffPane
         componentsPanel.add(saveButton);
         componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
         componentsPanel.add(showImages);
-        componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
-        componentsPanel.add(filter);
+        //componentsPanel.add(Box.createRigidArea(DataManagerUIF.HBOX));
+        //componentsPanel.add(filter);
         componentsPanel.setOpaque(false); //make panel transparent
     }
 	
