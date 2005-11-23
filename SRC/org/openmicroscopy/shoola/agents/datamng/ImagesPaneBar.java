@@ -120,7 +120,7 @@ class ImagesPaneBar
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         bar.putClientProperty("JToolBar.isRollover", new Boolean(true));
-        bar.add(filter);
+        //bar.add(filter);
         bar.add(load);
         return bar;
     }
