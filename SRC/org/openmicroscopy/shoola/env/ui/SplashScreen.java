@@ -98,13 +98,15 @@ public interface SplashScreen
 	 */
 	
 	public void updateProgress(String task);
+    
 	/**
 	 * Returns the login credentials of the user.
 	 * Blocks the caller until the credentials have been entered.
 	 * 
+     * @param init Pass <code>true</code> to retrieve the user credentials for
+     *             the time, <code>false</code> otherwise.
 	 * @return	The user's credentials for logging into OME.
 	 */
-	public UserCredentials getUserCredentials();
-	
+	public UserCredentials getUserCredentials(boolean init);
 	
 }

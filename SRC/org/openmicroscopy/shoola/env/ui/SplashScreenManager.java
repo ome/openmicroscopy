@@ -156,16 +156,34 @@ class SplashScreenManager
      * 
      * @param future The Future to collect the credentials.
      */
-    void collectUserCredentials(SplashScreenFuture future)
+    void collectUserCredentials(SplashScreenFuture future, boolean init)
     {
         userCredentials = future;
-        view.user.setText("");
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
-        view.pass.setText("");
         view.login.setEnabled(true);
+        if (!init) {
+            view.user.setText("");
+            view.pass.setText("");
+        }
     }
 	
+    /**
+     * Registers a request to fill in the given <code>future</code> with
+     * the user's credentials when available.
+     * 
+     * @param future The Future to collect the credentials.
+     */
+    void collectUserCredentialsInit(SplashScreenFuture future)
+    {
+        userCredentials = future;
+        //view.user.setText("");
+        view.user.setEnabled(true);
+        view.pass.setEnabled(true);
+        //view.pass.setText("");
+        view.login.setEnabled(true);
+    }
+    
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and

@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 /** 
  * Does some configuration required for the initialization process to run.
  * Loads L&F, registers for initialization progress notification and
- * pops up the splash screen.  When the initialization process is finished,
+ * pops up the splash screen. When the initialization process is finished,
  * we wait until user's credentials are available and then try to log into
  * <i>OMEDS</i>.
  *
@@ -71,9 +71,7 @@ public final class SplashScreenInit
 	private SplashScreen	splashScreen;
 	
     
-	/**
-     * Constructor required by superclass.
-     */
+	/** Constructor required by superclass. */
 	SplashScreenInit() {}
 
 	/** 
@@ -153,14 +151,13 @@ public final class SplashScreenInit
         int max = cfg.getMaxRetry();
         LoginService loginSvc = (LoginService) reg.lookup(LookupNames.LOGIN);
         boolean succeeded = false;
+        int index = max;
+        UserCredentials uc;
         while (0 < max--) {
-            UserCredentials uc = splashScreen.getUserCredentials();
+            uc = splashScreen.getUserCredentials((max == index-1));
             if ((succeeded = loginSvc.login(uc))) break;
         }
 
-        //Now get rid of the Splash Screen.
-        splashScreen.close();
-        
         //Exit if we couldn't manage to log in.
         if (!succeeded) {
             UserNotifier un = UIFactory.makeUserNotifier();
@@ -168,6 +165,9 @@ public final class SplashScreenInit
                     "couldn't be established.  The application will exit.");
             container.exit();
         }
+
+        //Now get rid of the Splash Screen.
+        splashScreen.close();
     }
     
 }

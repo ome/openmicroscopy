@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
  * splash screen and, at the same time, the <i>Swing</i> dispatching thread
  * manage that component's event handling.</p>
  * <p>In order to separate threading issues from the actual component's
- * functionality, we use Active Object.  This class palys the role of the Proxy,
+ * functionality, we use Active Object.  This class plays the role of the Proxy,
  * implementing the Active Object interface ({@link SplashScreen}, which 
  * declares what is the functionality provided to clients) and forwarding
  * requests for executions of methods on the Servant &#151; 
@@ -62,7 +62,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
  * with threads.</p>
  * <p>The last thing that we have to deal with is how to collect the result
  * of a method call on the Servant.  We only have one method that returns
- * a value to the client: {@link #getUserCredentials()}.
+ * a value to the client: {@link #getUserCredentials(boolean)}.
  * However, this one has no corresponding method on the Servant &#151;
  * obviously enough because the user's credentials are entered by the user.  
  * So we would need a sort of Publisher-Subscriber mechanism in order to 
@@ -103,7 +103,7 @@ class SplashScreenProxy
 	 * {@link #open()} and the first call to {@link #close()}.
 	 * If the reference is not valid, then calls silently return without
 	 * forwarding requests.  This will prevent deadlock if 
-	 * {@link #getUserCredentials()} is called before {@link #open()}.
+	 * {@link #getUserCredentials(boolean)} is called before {@link #open()}.
 	 */
 	private boolean					isValid;	
 	/* NOTE: Even though we send requests in the order:
@@ -206,9 +206,9 @@ class SplashScreenProxy
 
 	/**
 	 * Implemented as specified by {@link SplashScreen}.
-	 * @see SplashScreen#getUserCredentials()
+	 * @see SplashScreen#getUserCredentials(boolean)
 	 */
-	public UserCredentials getUserCredentials()
+	public UserCredentials getUserCredentials(final boolean init)
 	{
 		//First off, let's make sure that this.open() has already been called.
 		//If not we return to prevent deadlock.
@@ -217,7 +217,7 @@ class SplashScreenProxy
         //Construct request of mehtod execution.
         final SplashScreenFuture future = new SplashScreenFuture();
         Runnable doCollectUserCredentials = new Runnable() {
-            public void run() { servant.collectUserCredentials(future); }
+            public void run() { servant.collectUserCredentials(future, init); }
         };
 
         //Schedule execution within Swing dispatching thread.
@@ -226,5 +226,5 @@ class SplashScreenProxy
 		//Now we can safely wait for the user to enter their credentials.
 		return (UserCredentials) future.get(); 
 	}
-
+   
 }
