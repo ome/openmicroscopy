@@ -23,7 +23,7 @@
 		<echo message="${maven.path}"/>
 		<path id="hibernate-ext.classpath">
 			<!--athelement path="${maven.path}"/-->
-			<pathelement location="${basedir}/../dsl/target2/dsl-3.0-alpha-SNAPSHOT.jar"/>
+			<pathelement location="${basedir}/../dsl/target/classes"/>
 			<pathelement location="${basedir}" />
 			<pathelement location="${dest.dir}/" />
 			<pathelement location="${target.dir}/" />
