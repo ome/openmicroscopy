@@ -155,7 +155,11 @@ public final class SplashScreenInit
         UserCredentials uc;
         while (0 < max--) {
             uc = splashScreen.getUserCredentials((max == index-1));
-            if ((succeeded = loginSvc.login(uc))) break;
+            if ((succeeded = loginSvc.login(uc))) {
+                //needed b/c need to retrieve user's details later.
+                reg.bind(LookupNames.USER_CREDENTIALS, uc);
+                break;
+            }
         }
 
         //Exit if we couldn't manage to log in.
