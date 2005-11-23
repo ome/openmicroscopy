@@ -344,15 +344,16 @@ public class DataManager
             Iterator i = imagesDiff.iterator();
             Set images = data.getImages();
             Iterator j;
+            Set toRemove = new HashSet();
             while (i.hasNext()) {
-                isg = (pojos.ImageData) i.next();   
+                isg = (pojos.ImageData) i.next(); 
                 j = images.iterator();
                 while (j.hasNext()) {
                     if (((pojos.ImageData) j.next()).getId() == isg.getId())  
-                        imagesDiff.remove(isg); 
-                }
-                
+                        toRemove.add(isg); 
+                } 
             }
+            imagesDiff.removeAll(toRemove);
         } catch(DSAccessException dsae) {
             String s = "Can't retrieve user's images.";
             getRegistry().getLogger().error(this, s+" Error: "+dsae);
