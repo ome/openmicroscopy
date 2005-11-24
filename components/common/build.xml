@@ -4,7 +4,8 @@
 <!-- TODO add properties goal to update pref.properties -->
 
 <project name="Middlegen Hibernate" default="all" basedir=".">
-    <property name="props" value="${basedir}/src/hibernate.properties"/>
+	<property name="props" value="${basedir}/src/hibernate.properties"/>
+	<property environment="env" />
 	<property name="includes" value="**/*.hbm.xml" />
 	<property file="${props}" />
 	<property name="lib.dir" value="${basedir}/../../lib" />
@@ -15,15 +16,17 @@
 	<property name="ice.file" value="ome.ice"/>
 	<property name="target.dir" value="${basedir}/target/classes" />
 	<property name="hbm.dir" value="${dest.dir}/hbm"/>
+	<property name="api.dir" value="${dest.dir}/api"/>
 	<property name="split.script" value="${basedir}/../scripts/shell/split.sh"/>
 	<!--TODO-->
 
 	<target name="prepare">
+
 		<pathconvert property="maven.path" refid="maven.dependency.classpath"/>
 		<echo message="${maven.path}"/>
 		<path id="hibernate-ext.classpath">
-			<!--athelement path="${maven.path}"/-->
 			<pathelement location="${basedir}/../dsl/target/classes"/>
+			<pathelement path="${maven.path}"/>
 			<pathelement location="${basedir}" />
 			<pathelement location="${dest.dir}/" />
 			<pathelement location="${target.dir}/" />
@@ -34,6 +37,17 @@
 
 		<available property="hibernate" classname="org.hibernate.Hibernate" classpathref="hibernate-ext.classpath" />
 		<available property="hibernate-ext" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="hibernate-ext.classpath" />
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
+		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py" />
+		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py.exe" />
+		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs" />
+		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs.exe" />
+		<available property="mono-exists" filepath="${env.PATH}" file="mono" />
+		<available property="mono-exists" filepath="${env.PATH}" file="mono.exe" />
+		<available property="perl-exists" filepath="${env.PATH}" file="perl" />
+		<available property="perl-exists" filepath="${env.PATH}" file="perl.exe" />
+
 	</target>
 
 	<target name="fail-if-no-hibernate" unless="hibernate">
@@ -44,10 +58,29 @@
 		<fail message="Hibernate-Extension is not found. Please install Hibernate-Extenstion."/>
 	</target>
 
-	<target name="init" depends="prepare,fail-if-no-hibernate,fail-if-no-hibernate-ext">
+	<target name="if-no-slice2java" unless="slice2java-exists">
+		<echo message="WARNING: Skipping slice2java step because it is not in your path. (You should probably install it)."/>
+	</target>
+	<target name="if-no-slice2py" unless="slice2py-exists">
+		<echo message="WARNING: Skipping slice2py step because it is not in your path. (You should probably install it)."/>
+	</target>
+	<target name="if-no-slice2cs" unless="slice2cs-exists">
+		<echo message="WARNING: Skipping slice2cs step because it is not in your path. (You should probably install it)."/>
+	</target>
+	<target name="if-no-perl" unless="perl-exists">
+		<echo message="WARNING: Skipping perl step because it is not in your path. (You should probably install it)."/>
+	</target>
+	<target name="if-no-mono" unless="mono-exists">
+		<echo message="WARNING: Skipping mono step because it is not in your path. (You should probably install it)."/>
+	</target>
+	
+
+	<target name="init" 
+                depends="prepare,fail-if-no-hibernate,fail-if-no-hibernate-ext,if-no-slice2java,if-no-slice2py,if-no-slice2cs,if-no-perl,if-no-mono">
 		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="hibernate-ext.classpath" name="hibernatetool"/>
 		<taskdef classname="Slice2JavaTask" classpathref="hibernate-ext.classpath" name="slice2java"/>
 		<taskdef classname="ome.dsl.DSLTask" classpathref="hibernate-ext.classpath" name="dsl"/>
+		<taskdef classname="ome.dsl.APITask" classpathref="hibernate-ext.classpath" name="api"/>
 		<mkdir dir="${dest.dir}" />
 <!--TODO DELETE	<javac classpathref="hibernate-ext.classpath" destdir="${target.dir}" srcdir="${src.dir}">
 			<include name="ome/hiberate/"/>
@@ -55,12 +88,24 @@
 	</target>
 	
 	<target name="dsl" depends="init">
+	
 		<mkdir dir="${hbm.dir}"/>
+	
 		<dsl destdir="${hbm.dir}/">
 			<fileset dir="${resrc.dir}">
 				<include name="**/*.ome"/>
 			</fileset>
 		</dsl>
+	
+	</target>
+
+	<target name="api" depends="init">
+		<mkdir dir="${api.dir}"/>
+		<api destdir="${api.dir}/">
+			<fileset dir="${src.dir}/ome/api">
+				<include name="**/*.java"/>
+			</fileset>
+		</api>
 	</target>
 
 	<target name="hib" depends="init">
@@ -85,7 +130,7 @@
 		</hibernatetool>
 	</target>
 
-	<target name="slice" depends="init">
+	<target name="sliceJ" depends="init" if="slice2java-exists">
 		<mkdir dir="${dest.dir}/slice2java"/>
 		 <slice2java outputdir="${dest.dir}/slice2java">
 			<includepath>
@@ -99,13 +144,15 @@
 	</target>
 	
 	<!-- TODO use Macro -->
-	<target name="slicePY" depends="init">
+	
+	<target name="slicePY" depends="init" if="slice2py-exists">
 		<mkdir dir="${dest.dir}/slice2py"/>
 		<fileset dir="${dest.dir}/slice" id="slice.generated">
 			<include name="**/*.ice"/>
 		</fileset>
 		<pathconvert pathsep=" " property="slice.files" refid="slice.generated"/>
-		<exec executable="${split.script}"><!--TODO: add *.bat--><!-- use <arg line="$"/>-->
+		<exec executable="${split.script}">
+<!--TODO: add *.bat--><!-- use <arg line="$"/>-->
 			<!-- Need to have PATH set properly-->
 			<arg value="slice2py"/>
 			<arg value="--output-dir"/>
@@ -115,7 +162,7 @@
 			<arg value="${slice.files}"/>
 		</exec>
 	</target>
-	<target name="sliceCS" depends="init">
+	<target name="sliceCS" depends="init" if="slice2cs-exists">
 		<mkdir dir="${dest.dir}/slice2cs"/>
 		<fileset dir="${dest.dir}/slice" id="slice.generated">
 			<include name="**/*.ice"/>
@@ -132,7 +179,7 @@
 		</exec>
 	</target>
 	
-	<target name="compileCS" depends="sliceCS">
+	<target name="compileCS" depends="init,sliceCS" if="mono-exists">
 		<!-- Need to have MONO_PATH set properly -->
 		<!-- mcs /t:library -r:icecs.dll -out:ome.dll *.cs-->
 		<exec executable="mcs" dir="${dest.dir}/slice2cs">
@@ -143,22 +190,21 @@
 		</exec>
 	</target>
 	
-	<target name="patch">
-		
+	<target name="patch" depends="init,sliceJ" if="perl-exists">
 		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
-    		<include name="**/*Remote.java"/>
+    			<include name="**/*Remote.java"/>
 		</fileset>
 
 		<pathconvert pathsep=":" property="ice.files" refid="ice.generated"/>
 		
 		<exec executable="perl">
-		    <arg value="../scripts/perl/replace.pl"/>
+			<arg value="../scripts/perl/replace.pl"/>
 			<arg value="${ice.files}"/>
 		</exec>
 		
 	</target>
 	
-	<target name="all" depends="dsl,hib,slice,patch,compileCS,slicePY"/>
+	<target name="all" depends="dsl,hib,api,sliceJ,patch,sliceCS,compileCS,slicePY"/>
 	
 	<target name="cache">
 		<java classname="InitializeHibernateTest" classpathref="hibernate-ext.classpath" fork="yes" failonerror="yes" />
