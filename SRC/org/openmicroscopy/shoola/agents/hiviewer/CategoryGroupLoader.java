@@ -100,7 +100,7 @@ public class CategoryGroupLoader
         String status = fe.getStatus();
         int percDone = fe.getPercentDone();
         if (status == null) 
-            status = (percDone == 100) ? "Done" :  //Else
+            status = (percDone == 100) ? HiViewer.PAINTING_TEXT :  //Else
                                        ""; //Description wasn't available.   
         if (percDone != 100) //We've only got one call and don't know how long
             percDone = -1;   //it'll take.  Set to indeterminate.

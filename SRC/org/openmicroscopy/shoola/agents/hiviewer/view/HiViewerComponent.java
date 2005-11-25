@@ -156,12 +156,13 @@ class HiViewerComponent
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_HIERARCHY "+
                     "state.");
+        
         model.createBrowser(roots);
         model.createClipBoard();
         model.fireThumbnailLoading();
         //b/c fireThumbnailLoading() sets the state to READY if there is no
         //image.
-        setStatus(null, -1);
+        setStatus(HiViewer.PAINTING_TEXT, -1);
         fireStateChange();
     }
 

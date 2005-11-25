@@ -46,7 +46,7 @@ import javax.swing.JProgressBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Presents the progress of the data retrieval.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,30 +63,17 @@ public class StatusBar
     extends JPanel
 {
     
+    /** The bar notifying the user for the data retrieval progress. */
     private JProgressBar        progressBar;
 
+    /** Displays the status message. */
     private JLabel              status;
     
-    public StatusBar(Icon statusIcon)
-    {
-        initComponents(statusIcon);
-        buildUI();
-    }
-    
-    public void setStatus(String s) { status.setText(s); }
-    
-    public void setProgress(boolean hide, int perc)
-    {
-        progressBar.setVisible(!hide);
-        if (perc < 0) progressBar.setIndeterminate(true);
-        else {
-            progressBar.setStringPainted(true);
-            progressBar.setIndeterminate(false);
-            progressBar.setValue(perc);
-        }
-    }
-    
-    /** Initializes the components. */
+    /** 
+     * Initializes the components. 
+     * 
+     * @param statusIcon The icon displayed in the left corner.
+     */
     private void initComponents(Icon statusIcon)
     {
         progressBar = new JProgressBar();
@@ -100,7 +87,42 @@ public class StatusBar
         setBorder(BorderFactory.createEtchedBorder());
         add(status);
         add(UIUtilities.buildComponentPanelRight(progressBar));
-        
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param statusIcon The icon displayed in the left corner.
+     */
+    public StatusBar(Icon statusIcon)
+    {
+        initComponents(statusIcon);
+        buildUI();
+    }
+    
+    /** 
+     * Sets the status message.
+     * 
+     * @param s The message to display.
+     */
+    public void setStatus(String s) { status.setText(s); }
+    
+    /**
+     * Sets the value of the progress bar.
+     * 
+     * @param hide  Pass <code>true</code> to hide the progress bar, 
+     *              <code>false</otherwise>
+     * @param perc  The value to set.
+     */
+    public void setProgress(boolean hide, int perc)
+    {
+        progressBar.setVisible(!hide);
+        if (perc < 0) progressBar.setIndeterminate(true);
+        else {
+            progressBar.setStringPainted(true);
+            progressBar.setIndeterminate(false);
+            progressBar.setValue(perc);
+        }
     }
     
 }
