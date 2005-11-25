@@ -53,19 +53,9 @@ import java.util.regex.Pattern;
  * </small>
  * @since OME2.2
  */
-class RegExFactory
+public class RegExFactory
 {
     
-    /**
-     * Helper method to create an insensitive pattern.
-     * 
-     * @param regEx The expression to be compiled.
-     * @return See above.
-     */
-    static Pattern createCaseInsensitivePattern(String regEx)
-    {
-        return Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);
-    }
 
     /**
      * Attempts to find the next subsequence of the input sequence that matches
@@ -82,4 +72,18 @@ class RegExFactory
         return m.find();
     }
     
+    /**
+     * Helper method to create an insensitive pattern.
+     * According to the Java doc, {@link Pattern#compile(String, int)} throws an
+     * {@link java.util.regex.PatternSyntaxException} if it encounters the 
+     * metacharacters like +, ? and *.
+     * 
+     * @param regEx The expression to be compiled.
+     * @return See above.
+     */
+    public static Pattern createCaseInsensitivePattern(String regEx)
+    {
+        return Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);
+    }
+  
 }

@@ -63,22 +63,21 @@ class FindRegExVisitor
     /** The set of found nodes. */
     protected Set       foundNodes;
     
-    /** The pattern object created from the specified regular expression. */
+    /** The pattern object created from the regular expression. */
     protected Pattern   pattern;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer Reference to the model. Mustn't be <code>null</code>.
-     * @param regEx The regular expression to retrieve.
-     * Mustn't be <code>null</code>.
+     * @param viewer    Reference to the model. Mustn't be <code>null</code>.
+     * @param pattern   The pattern. Mustn't be <code>null</code>.
      */
-    FindRegExVisitor(HiViewer viewer, String regEx)
+    FindRegExVisitor(HiViewer viewer, Pattern pattern)
     {
         super(viewer);
-        if (regEx == null)
-            throw new IllegalArgumentException("No regular expression.");
-        pattern = RegExFactory.createCaseInsensitivePattern(regEx);
+        if (pattern == null)
+            throw new IllegalArgumentException("No pattern.");
+        this.pattern = pattern;
         foundNodes = new HashSet();
     }
     

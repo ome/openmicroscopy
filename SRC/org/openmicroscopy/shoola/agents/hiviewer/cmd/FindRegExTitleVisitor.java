@@ -37,6 +37,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.regex.Pattern;
+
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
@@ -61,6 +63,7 @@ class FindRegExTitleVisitor
     extends FindRegExVisitor
 {
 
+    /** A {@link Colors} instance. */
     private Colors colors;
     
     /**
@@ -81,13 +84,12 @@ class FindRegExTitleVisitor
     /**
      * Creates a new instance.
      * 
-     * @param viewer Reference to the model. Mustn't be <code>null</code>.
-     * @param regEx The regular expression to retrieve.
-     * Mustn't be <code>null</code>.
+     * @param viewer    Reference to the model. Mustn't be <code>null</code>.
+     * @param pattern   The pattern. Mustn't be <code>null</code>.
      */
-    FindRegExTitleVisitor(HiViewer viewer, String regEx)
+    FindRegExTitleVisitor(HiViewer viewer, Pattern pattern)
     {
-        super(viewer, regEx);
+        super(viewer, pattern);
         colors = Colors.getInstance();
     }
     
@@ -103,6 +105,4 @@ class FindRegExTitleVisitor
      */
     public void visit(ImageSet node) { setHighlight(node); }
 
-
-    
 }

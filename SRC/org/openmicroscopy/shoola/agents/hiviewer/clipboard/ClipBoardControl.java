@@ -224,9 +224,10 @@ class ClipBoardControl
         Object source = ce.getSource();
         if (source instanceof HiViewer) {
             HiViewer parentModel = model.getParentModel();
-            if (parentModel.getState() == HiViewer.LOADING_THUMBNAILS) {
+            if (parentModel.getState() == HiViewer.READY) {
                 parentModel.getBrowser().addPropertyChangeListener(
                         Browser.SELECTED_DISPLAY_PROPERTY, this);
+                view.initListener();
             }  
         }
     }

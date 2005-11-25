@@ -35,13 +35,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.regex.Pattern;
+
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * Command used to retrieve an regular expression.
+ * Command used to retrieve a regular expression.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,8 +72,8 @@ public class FindRegExCmd
     /** Reference to the model. */
     private HiViewer    model;
     
-    /** The regular expression.*/
-    private String      regEx;
+    /** The pattern created from the regular expression.*/
+    private Pattern     pattern;
     
     /** One of the constants defined above. */
     private int         index;
@@ -96,21 +98,22 @@ public class FindRegExCmd
     /**
      * Creates a new instance.
      * 
-     * @param model The <code>HiViewer</code> model.
-     * @param regEx The regular expression.
-     * @param index The search index.
-     *              One of the constants defined by this class.
+     * @param model     The <code>HiViewer</code> model.
+     *                  Mustn't be <code>null</code>. 
+     * @param pattern   The pattern. Mustn't be <code>null</code>. 
+     * @param index     The search index.
+     *                  One of the constants defined by this class.
      */
-    public FindRegExCmd(HiViewer model, String regEx, int index)
+    public FindRegExCmd(HiViewer model, Pattern pattern, int index)
     {
         if (model == null)
             throw new IllegalArgumentException("No model.");
-        if (regEx == null)
-            throw new IllegalArgumentException("No regular expression.");
+        if (pattern == null)
+            throw new IllegalArgumentException("No pattern.");
         if (!checkIndex(index))
             throw new IllegalArgumentException("Search index not valid.");
         this.model = model;
-        this.regEx = regEx;
+        this.pattern = pattern;
         this.index = index;
     }
     
@@ -120,14 +123,14 @@ public class FindRegExCmd
         FindRegExVisitor visitor = null;
         switch (index) {
             case IN_TITLE:
-                visitor = new FindRegExTitleVisitor(model, regEx);
+                visitor = new FindRegExTitleVisitor(model, pattern);
                 break;
             case IN_ANNOTATION:
-                visitor = new FindRegExAnnotationVisitor(model, regEx);
+                visitor = new FindRegExAnnotationVisitor(model, pattern);
                 break;
             case IN_T_AND_A:
-                visitor = new FindRegExTitleAndAnnotationVisitor(model, regEx);
-                
+                visitor = new FindRegExTitleAndAnnotationVisitor(model,
+                                pattern);    
         }
         if (visitor == null) return;
         Browser browser = model.getBrowser();

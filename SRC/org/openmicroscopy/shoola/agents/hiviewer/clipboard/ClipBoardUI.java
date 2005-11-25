@@ -91,26 +91,6 @@ class ClipBoardUI
     /** The tabbedPane hosting the display. */
     private JTabbedPane         tabPane;
     
-    /** Adds a {@link ChangeListener} to the tabbed pane. */
-    private void initListener()
-    {
-        tabPane.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e)
-            {
-                int index = -1;
-                switch (tabPane.getSelectedIndex()) {
-                    case SEARCH_TAB:
-                        index = ClipBoard.SEARCH_PANEL;
-                        break;
-                    case ANNOTATE_TAB:
-                        index = ClipBoard.ANNOTATION_PANEL;
-                        break;
-                };
-                controller.setPaneIndex(index);
-            }
-        });
-    }
-    
     /** Initializes the UI components. */
     private void initComponents()
     {
@@ -149,7 +129,27 @@ class ClipBoardUI
         buildUI();
         //Initializes the listener otherwise an event is fired when 
         //components are added to the tabbed pane.
-        initListener();
+        //initListener();
+    }
+    
+    /** Adds a {@link ChangeListener} to the tabbed pane. */
+    void initListener()
+    {
+        tabPane.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e)
+            {
+                int index = -1;
+                switch (tabPane.getSelectedIndex()) {
+                    case SEARCH_TAB:
+                        index = ClipBoard.SEARCH_PANEL;
+                        break;
+                    case ANNOTATE_TAB:
+                        index = ClipBoard.ANNOTATION_PANEL;
+                        break;
+                };
+                controller.setPaneIndex(index);
+            }
+        });
     }
     
     /** Returns the popup menu. */

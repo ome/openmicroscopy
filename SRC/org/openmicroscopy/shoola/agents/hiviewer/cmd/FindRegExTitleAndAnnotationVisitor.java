@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Java imports
 import java.util.Set;
+import java.util.regex.Pattern;
 
 //Third-party libraries
 
@@ -109,13 +110,12 @@ public class FindRegExTitleAndAnnotationVisitor
     /**
      * Creates a new instance.
      * 
-     * @param viewer Reference to the model. Mustn't be <code>null</code>.
-     * @param regEx The regular expression to retrieve.
-     * Mustn't be <code>null</code>.
+     * @param viewer    Reference to the model. Mustn't be <code>null</code>.
+     * @param pattern   The pattern. Mustn't be <code>null</code>.
      */
-    FindRegExTitleAndAnnotationVisitor(HiViewer viewer, String regEx)
+    FindRegExTitleAndAnnotationVisitor(HiViewer viewer, Pattern pattern)
     {
-        super(viewer, regEx);
+        super(viewer, pattern);
         colors = Colors.getInstance();
         inAnno = false;
     }
