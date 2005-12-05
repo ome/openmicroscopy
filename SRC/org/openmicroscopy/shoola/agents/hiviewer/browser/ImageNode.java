@@ -135,13 +135,12 @@ public class ImageNode
      * Overrides the #setSize(int, int) method, otherwise
      * after collapsing the node, we can resize the imageNode
      */
-    /*
     public void setSize(int w, int h)
     {
         super.setSize(w, h);
         setResizable(false);
     }
-    */
+    
     /** 
      * Sets the size of the {@link ThumbnailCanvas} and the preferred size of
      * the internal desktop.
@@ -152,6 +151,7 @@ public class ImageNode
     public void setCanvasSize(int w, int h)
     {
         canvas.setBounds(0, 0, w, h);
+        getInternalDesktop().setSize(w, h);
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
     }
     
