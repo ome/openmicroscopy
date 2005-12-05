@@ -36,8 +36,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
-import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrameStaticUI;
-import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrameUI;
 
 /** 
  * UI component that contains all the visualization trees hosted by the
@@ -75,10 +73,10 @@ class RootDisplay
      * 
      * @return The UI delegate for this component.
      */
-    protected TinyFrameUI createUIDelegate()
-    { 
-        return new TinyFrameStaticUI(this); 
-    }
+    //protected TinyFrameUI createUIDelegate()
+    //{ 
+    //    return new TinyFrameStaticUI(this); 
+    //}
     
     /**
      * Creates a new root display.
@@ -89,6 +87,7 @@ class RootDisplay
         Colors colors = Colors.getInstance();
         setHighlight(colors.getColor(Colors.TITLE_BAR));
         setTitleBarType(STATIC_BAR);
+        setListenToBorder(false);
     }
     
 }

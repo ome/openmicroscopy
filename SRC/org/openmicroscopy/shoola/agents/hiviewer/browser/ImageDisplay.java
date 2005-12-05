@@ -40,6 +40,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame;
+import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
 
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -102,7 +103,7 @@ import pojos.ProjectData;
  * @since OME2.2
  */
 public abstract class ImageDisplay
-    extends TinyFrame
+    extends TinyPane
 {
 
     /** 
@@ -157,7 +158,7 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet();
-        setFrameIcon(null);  //Get rid of default Java ugly icon.
+        //setFrameIcon(null);  //Get rid of default Java ugly icon.
     }
     
     /**

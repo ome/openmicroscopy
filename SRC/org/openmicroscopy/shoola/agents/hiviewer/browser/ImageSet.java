@@ -89,6 +89,7 @@ public class ImageSet
     public ImageSet(String title, Object hierarchyObject)
     {
         super(title, hierarchyObject);
+        setResizable(true);
     }
     
     /**

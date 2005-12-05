@@ -96,14 +96,15 @@ public class ImageNode
     public ImageNode(String title, Object hierarchyObject, Thumbnail t)
     {
         super(title, hierarchyObject);
+        setTitleBarType(SMALL_BAR);
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
         canvas = new ThumbnailCanvas(this);
         getInternalDesktop().add(canvas);
         int w = t.getWidth(), h = t.getHeight();
         setCanvasSize(w, h);
-        setResizable(false);
-        setTitleBarType(SMALL_BAR);
+        //setResizable(false);
+        //setTitleBarType(SMALL_BAR);
     }
     
     /**
@@ -134,12 +135,13 @@ public class ImageNode
      * Overrides the #setSize(int, int) method, otherwise
      * after collapsing the node, we can resize the imageNode
      */
+    /*
     public void setSize(int w, int h)
     {
         super.setSize(w, h);
         setResizable(false);
     }
-    
+    */
     /** 
      * Sets the size of the {@link ThumbnailCanvas} and the preferred size of
      * the internal desktop.

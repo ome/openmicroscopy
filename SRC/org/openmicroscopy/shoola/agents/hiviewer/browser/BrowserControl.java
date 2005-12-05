@@ -199,5 +199,4 @@ class BrowserControl
      */
     public void mouseExited(MouseEvent me) {}
 
-
 }
