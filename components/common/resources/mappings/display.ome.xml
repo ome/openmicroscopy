@@ -1,0 +1,79 @@
+<types>
+	
+	<!-- RENDERING SETTINGS -->
+	<type id="ome.model.display.Thumbnail">
+		<properties>
+			<required name="mimeType" type="int"/>
+			<optional name="ref" type="string"/>
+		</properties>
+	</type>
+	<type id="ome.model.display.RenderingDef">
+		<properties>
+			<required name="defaultZ" type="int"/>
+			<required name="defaultT" type="int"/>
+			<required name="model" type="ome.model.enums.ModelType"/>
+			<onemany name="waveRendering" type="ome.model.display.ChannelBinding" card="c"/>
+			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext"/>
+			<required name="quantization" type="ome.model.display.QuantumDef"/>
+		</properties>
+	</type>
+	<enum id="ome.model.enums.ModelType">
+		<entry name="EMPTY"/><!--##-->
+	</enum>
+	<type id="ome.model.display.QuantumDef">
+		<properties>
+			<required name="cdStart" type="int"/>
+			<required name="cdStop" type="int"/>
+			<required name="bitResolution" type="int"/>
+			<rules/>
+		</properties>
+	</type>
+	<type id="ome.model.display.ChannelBinding">
+		<properites>
+			<required name="family" type="ome.model.enums.FamilyType"/>
+			<required name="coefficient" type="double"/>
+			<required name="index" type="int"/>
+			<required name="inputStart" type="float"/>
+			<required name="inputEnd" type="float"/>
+			<required name="active" type="boolean"/>
+			<optional name="noiseReduction" type="boolean"/><!--here's a case of opt prim. !! -->
+			<required name="color" type="ome.model.display.Color"/>
+		</properites>
+	</type>
+	<enum id="ome.model.enums.FamilyType">
+		<entry name="XXXEmpty"/>
+	</enum>
+	<type id="ome.model.display.Color">
+		<properties>
+			<required name="red" type="int"/>
+			<required name="green" type="int"/>
+			<required name="blue" type="int"/>
+			<required name="alpha" type="int"/>
+		</properties>
+	</type>
+	
+	<abstract id="ome.model.display.CodomainMapContext"/>
+	<type id="ome.model.display.RIContext" subclasses="ome.model.display.CodomainMapContext">
+		<properties>
+			<required name="reverse" type="boolean"/>
+		</properties>
+	</type>
+	<type id="ome.model.display.PSContext" subclasses="ome.model.display.CodomainMapContext">
+		<properties>
+			<required name="upperLimit" type="int"/>
+			<required name="lowerLimit" type="int"/>
+			<required name="planeSelected" type="int"/>
+			<required name="planePrevious" type="int"/>
+			<required name="constant" type="boolean"/>
+		</properties>
+	</type>
+	<type id="ome.model.display.CSContext" subclasses="ome.model.display.CodomainMapContext">
+		<properties>
+			<required name="xStart" type="int"/>
+			<required name="yStart" type="int"/>
+			<required name="xEnd" type="int"/>
+			<required name="yEnd" type="int"/>
+		</properties>
+	</type>
+	
+</types>

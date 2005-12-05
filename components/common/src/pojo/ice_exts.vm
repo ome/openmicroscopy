@@ -46,6 +46,11 @@
 #set( $close = ")" )
 #set( $prefix = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList(" ) ## TODO or just null?
 #set( $suffix = ")" )
+#elseif( $javaType.startsWith("java.lang.Boolean"))
+#set( $open   = "new Boolean(" )
+#set( $close  = ")" )
+#set( $prefix = "${property.name} == null ? false : ")
+#set( $suffix = ".booleanValue()" )
 #elseif( $javaType.startsWith("java.lang.Integer"))
 #set( $open   = "new Integer(" )
 #set( $close  = ")" )
@@ -56,6 +61,11 @@
 #set( $close  = ")" )
 #set( $prefix = "${property.name} == null ? 0 : ")
 #set( $suffix = ".doubleValue()" )
+#elseif( $javaType.startsWith("java.lang.Float"))
+#set( $open   = "new Float(" )
+#set( $close  = ")" )
+#set( $prefix = "${property.name} == null ? 0 : ")
+#set( $suffix = ".floatValue()" )
 #end
 
     public $javaType $pojo.getGetterSignature($property)() {

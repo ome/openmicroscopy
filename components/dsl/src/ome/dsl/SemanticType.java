@@ -132,7 +132,7 @@ public abstract class SemanticType {
 		try {
 			st = (SemanticType) klass.getConstructor(new Class[]{Properties.class}).newInstance(new Object[]{attributes});
 		} catch (Exception e) {
-			throw new IllegalStateException("Cannot instantiate class "+klass);
+			throw new IllegalStateException("Cannot instantiate class "+klass,e);
 		}
 		
 		return st;

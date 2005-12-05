@@ -83,7 +83,9 @@ class ${pojo.declarationName}Remote
 #elseif( $type == "Boolean" )
 	bool $field;
 #elseif ( $type == "Double" )
-	$field;
+	double $field;
+#elseif ( $type == "Float" )
+	float $field;
 #elseif ($type.endsWith("Map") )
 	dictionary $field;
 #elseif( $fulltype.contains("java.util.Set") || $fulltype.contains("[]")) 

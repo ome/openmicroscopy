@@ -4,8 +4,6 @@ $secondpassclassimports
 ###########################################################
 ## <CustomCode>
 ###########################################################
-import ome.util.Filterable;
-import ome.util.Filter;
 import java.util.HashSet;
 import java.util.Set;
 ###########################################################
@@ -53,7 +51,7 @@ $templates.PojoExtraClassCode
 ###########################################################
 ## <CustomCode>
 ###########################################################
-  public boolean acceptFilter(Filter filter){
+  public boolean acceptFilter(ome.util.Filter filter){
 
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)

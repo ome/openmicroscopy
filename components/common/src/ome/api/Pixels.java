@@ -29,8 +29,7 @@
 
 package ome.api;
 
-import ome.model.core.ImagePixel;
-import ome.model.core.RenderingSetting;
+import ome.model.display.RenderingDef;
 
 
 //Java imports
@@ -64,7 +63,7 @@ public interface Pixels
      * @throws PixServiceException If the connection is broken, or logged in
      *          or if an error occured while trying to. 
      */
-    public ImagePixel retrievePixDescription(int pixId);
+    public ome.model.core.Pixels retrievePixDescription(int pixId);
     
     /**
      * Retrieves the rendering settings.
@@ -72,7 +71,7 @@ public interface Pixels
      * @throws PixServiceException If the connection is broken, or logged in
      *          or if an error occured while trying to. 
      */
-    public RenderingSetting retrieveRndSettings(int pixId);
+    public RenderingDef retrieveRndSettings(int pixId);
     
     /**
      * Saves the specified rendering settings.
@@ -80,6 +79,6 @@ public interface Pixels
      * @throws PixServiceException If the connection is broken, or logged in
      *          or if an error occured while trying to. 
      */
-    public void saveRndSettings(int pixId, RenderingSetting rndSettings);
+    public void saveRndSettings(int pixId, RenderingDef rndSettings);
     
 }

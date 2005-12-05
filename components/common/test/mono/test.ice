@@ -2,13 +2,13 @@
 #ifndef TEST
 #define TEST
 #include<ome.ice>
-#include<ome/model/core/Roi5D.ice>
+#include<ome/model/roi/Roi5D.ice>
 
 module mono {
 
   interface T {
 
-    ome::model::core::Roi5DRemote getRoi5D();
+    ome::model::roi::Roi5DRemote getRoi5D();
 
   };
 

@@ -25,7 +25,6 @@
 		<pathconvert property="maven.path" refid="maven.dependency.classpath"/>
 		<echo message="${maven.path}"/>
 		<path id="hibernate-ext.classpath">
-			<pathelement location="${basedir}/../dsl/target/classes"/>
 			<pathelement path="${maven.path}"/>
 			<pathelement location="${basedir}" />
 			<pathelement location="${dest.dir}/" />
@@ -93,7 +92,7 @@
 	
 		<dsl destdir="${hbm.dir}/">
 			<fileset dir="${resrc.dir}">
-				<include name="**/*.ome"/>
+				<include name="**/*.ome.xml"/>
 			</fileset>
 		</dsl>
 	

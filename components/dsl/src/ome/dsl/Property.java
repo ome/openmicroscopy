@@ -125,6 +125,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 		
 		if (VALUES.containsKey(getType())){
 			setForeignKey(Boolean.FALSE);
+            setType(((Class)VALUES.get(getType())).getName());
 		} else {
 			setForeignKey(Boolean.TRUE);
 		}
@@ -149,7 +150,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 		try {
 			p = (Property) klass.getConstructor(new Class[]{Properties.class}).newInstance(new Object[]{attributes});
 		} catch (Exception e) {
-			throw new IllegalStateException("Cannot instantiate class "+klass);
+			throw new IllegalStateException("Cannot instantiate class "+klass,e);
 		}
 		return p;
 	}
@@ -276,6 +277,7 @@ class EntryField extends Property {
 	public EntryField(Properties attrs){
 		super(attrs);
 		setType("string");
+        setForeignKey(Boolean.FALSE);
 	}
 
 	public void validate(){

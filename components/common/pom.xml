@@ -16,6 +16,11 @@
       <artifactId>ice</artifactId>
       <version>2.1.2</version>
     </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>dsl</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -33,12 +38,7 @@
           </execution>
         </executions>
         <dependencies>
-<!--          <dependency>
-            <groupId>omero</groupId>
-            <artifactId>dsl</artifactId>
-            <version>3.0-alpha-SNAPSHOT</version>
-          </dependency>
--->        </dependencies>
+        </dependencies>
       </plugin>
     </plugins>
   </build>

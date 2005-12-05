@@ -44,7 +44,9 @@
 #end
 
 #if(!$type.global)	
+#if($type.id != "ome.model.meta.Experimenter")
 	<many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
+#end
 	<component name="permissions" class="ome.model.internal.Permissions">
 		<property name="bytes" type="binary" column="permissions"/> 
 		<!-- TODO possibly just default CHMOD here -->
@@ -58,7 +60,9 @@
     <!-- Associations -->
 	 
 #foreach($prop in $type.properties)
-#if($prop.one2Many)
+#if($prop.class.name == "ome.dsl.EntryField")
+<!-- TODO: need EnmerationInitialTask -->
+#elseif($prop.one2Many)
 
 	<!-- bi-directional one-to-many association to $prop.name -->
     <set

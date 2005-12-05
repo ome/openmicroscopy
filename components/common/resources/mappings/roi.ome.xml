@@ -1,0 +1,45 @@
+<types>
+
+	<!-- ROIS -->
+	<type id="ome.model.roi.RoiSet">
+		<properties>
+			<onemany name="roiMaps" type="ome.model.roi.RoiMap"/>
+			<optional name="sourceType" type="string"/>
+			<optional name="sourceId" type="int"/> <!-- ## Long? -->
+		</properties>
+	</type>
+	<link id="ome.model.roi.RoiMap" 
+		from="ome.model.roi.RoiSet"
+		to="ome.model.roi.Roi5D"/>
+	<!--abstract id="ome.model.roi.Roi">
+		<properties>
+			<required name="indexMin" type="int"/>
+			<required name="indexMax" type="int"/>
+		</properties>
+	</abstract>-->
+	<type id="ome.model.roi.Roi5D">
+		<properties>
+			<onemany name="extents" type="ome.model.roi.RoiExtent"/>
+		</properties>
+	</type>
+	<type id="ome.model.roi.RoiExtent">
+		<properties>
+			<required name="zIndexMin" type="int"/>
+			<required name="zIndexMax" type="int"/>
+			<required name="tIndexMin" type="int"/>
+			<required name="tIndexMax" type="int"/>
+			<required name="cIndexMin" type="int"/>
+			<required name="cIndexMax" type="int"/>
+			<onemany name="shapes" type="ome.model.roi.ShapeArea"/>
+		</properties>
+	</type>	
+	<abstract id="ome.model.roi.ShapeArea"/>
+	<type id="ome.model.roi.Square" subclasses="ome.model.roi.ShapeArea">
+		<properties>
+			<required name="upperLeftX" type="int"/>
+			<required name="upperLeftY" type="int"/>
+			<required name="lowerRightX" type="int"/>
+			<required name="lowerRightY" type="int"/>
+		</properties>
+	</type>
+</types>

@@ -1,7 +1,6 @@
 package mono;
 
-import ome.model.core.Roi4DRemote;
-import ome.model.core.Roi5DRemote;
+import ome.model.roi.Roi5DRemote;
 
 public class Client {
     public static void
@@ -19,11 +18,8 @@ public class Client {
                 throw new Error("Invalid proxy");
         
             Roi5DRemote r5 = printer.getRoi5D();
-            Roi4DRemote r4 = (Roi4DRemote) r5.roi4ds.get(0);
-            Roi4DRemote r4_ = (Roi4DRemote) r5.roi4ds.get(0);
-            
-            System.out.println(r4.roi3ds);
-            System.out.println(r4_.roi3ds);
+
+            System.out.println(r5);
             
         } catch (Ice.LocalException e) {
             e.printStackTrace();

@@ -6,6 +6,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.4.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/velocity-tools/jars/velocity-tools-generic-1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>

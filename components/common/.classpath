@@ -6,6 +6,7 @@
 	<classpathentry kind="src" path="gen-src/hibernate.cfg.xml"/>
 	<classpathentry kind="src" path="gen-src/slice2java"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/postgresql/jars/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.5.jar"/>
