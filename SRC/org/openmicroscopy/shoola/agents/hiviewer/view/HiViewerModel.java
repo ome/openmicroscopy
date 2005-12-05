@@ -170,10 +170,9 @@ abstract class HiViewerModel
     void createBrowser(Set roots)
     {
         if (roots == null) throw new NullPointerException("No roots.");
-        
         //Translate.
         Set visTrees = HiTranslator.transformHierarchy(roots);
-        
+
         //Make the browser.
         browser = BrowserFactory.createBrowser(visTrees);
         
