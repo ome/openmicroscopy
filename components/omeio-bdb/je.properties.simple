@@ -1,0 +1,6 @@
+je.log.faultReadSize=8000000
+je.maxMemory=268435456
+je.evictor.lruOnly=false
+je.evictor.nodesPerScan=10
+je.cleaner.rmwFix=false
+
