@@ -245,6 +245,11 @@ public class TinyPane
      */
     public String getTitle() { return model.getTitle(); }
     
+    /**
+     * Sets the title of the frame.
+     * 
+     * @param title The title to set.
+     */
     public void setTitle(String title)
     {
         String oldValue = model.getTitle();
