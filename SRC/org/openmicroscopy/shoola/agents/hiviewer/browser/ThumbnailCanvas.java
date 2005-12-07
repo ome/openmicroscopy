@@ -71,6 +71,7 @@ class ThumbnailCanvas
     {
         if (node == null) throw new NullPointerException("No image node.");
         imageFrame = node;
+        setOpaque(false);
         setDoubleBuffered(true);
     }
     
