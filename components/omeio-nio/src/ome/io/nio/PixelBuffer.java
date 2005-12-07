@@ -90,7 +90,7 @@ public class PixelBuffer
         return woChannel;
     }
     
-    private Integer getPlaneSize()
+    public Integer getPlaneSize()
     {
         if (planeSize == null)
             planeSize = pixels.dx *pixels.dy * pixels.bp;
@@ -98,7 +98,7 @@ public class PixelBuffer
         return planeSize;
     }
     
-    private Integer getStackSize()
+    public Integer getStackSize()
     {
         if (stackSize == null)
             stackSize = getPlaneSize() * pixels.dz;
@@ -106,7 +106,7 @@ public class PixelBuffer
         return stackSize;
     }
     
-    private Integer getTimepointSize()
+    public Integer getTimepointSize()
     {
         if (timepointSize == null)
             timepointSize = getStackSize() * pixels.dc;
@@ -114,7 +114,7 @@ public class PixelBuffer
         return timepointSize;
     }
     
-    private Long getPlaneOffset(Integer z, Integer c, Integer t)
+    public Long getPlaneOffset(Integer z, Integer c, Integer t)
     {
         Integer timepointSize = getTimepointSize();
         Integer stackSize = getStackSize();
@@ -124,7 +124,7 @@ public class PixelBuffer
                ((long)planeSize * z);
     }
     
-    private Long getStackOffset(Integer c, Integer t)
+    public Long getStackOffset(Integer c, Integer t)
     {
         Integer timepointSize = getTimepointSize();
         Integer stackSize = getStackSize();
@@ -132,7 +132,7 @@ public class PixelBuffer
         return ((long) timepointSize * t) + ((long) stackSize * c);
     }
     
-    private Long getTimepointOffset(Integer t)
+    public Long getTimepointOffset(Integer t)
     {
         Integer timepointSize = getTimepointSize();
         
