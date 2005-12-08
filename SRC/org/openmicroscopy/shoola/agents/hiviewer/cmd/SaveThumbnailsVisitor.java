@@ -87,8 +87,9 @@ class SaveThumbnailsVisitor
      */
     public void visit(ImageNode node)
     {
+        if (node == null) return;
         Thumbnail thumb = node.getThumbnail();
-        thumbnails.add(thumb.getImageFor(node));
+        thumbnails.add(thumb.getDisplayedImage());
     }
     
 }

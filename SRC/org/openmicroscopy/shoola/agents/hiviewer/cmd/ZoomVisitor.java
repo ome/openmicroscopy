@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.Rectangle;
 
 //Third-party libraries
 
@@ -63,9 +61,6 @@ class ZoomVisitor
     extends HiViewerVisitor
 {
 
-    /** The error factor. */
-    private static final int EXTRA_PIXEL = 1;
-    
     /**
      * Creates a new instance.
      * 
@@ -82,23 +77,10 @@ class ZoomVisitor
      */
     public void visit(ImageNode node)
     {
-        Rectangle r = node.getBounds();
         Thumbnail th = node.getThumbnail();
         double sf = th.getScalingFactor();
         double factor = ZoomCmd.calculateFactor(sf);
-        if (sf != factor) {
-            th.scale(factor);
-            double ratio = factor/sf;
-            node.setLocation((int) (r.x*ratio), (int) (r.y*ratio));
-        }
+        if (sf != factor) th.scale(factor); 
     }
-
-    /** Required by I/F, no-op performed in this case. */
-    public void visit(ImageSet node)
-    {
-        //Trick to show the scrollBar on screen
-        Dimension d = node.getSize();
-        node.setSize(d.width+EXTRA_PIXEL, d.height+EXTRA_PIXEL);
-    }
-
+    
 }

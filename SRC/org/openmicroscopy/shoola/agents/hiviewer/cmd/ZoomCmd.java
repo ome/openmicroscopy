@@ -112,8 +112,7 @@ public class ZoomCmd
         this.model = model;
         index = i;
     }
-
-    
+ 
     /**
      * Updates the passed magnification factor according to the index. 
      * 
@@ -152,7 +151,7 @@ public class ZoomCmd
             Layout layout = LayoutFactory.createLayout(
                                 LayoutFactory.SQUARY_LAYOUT);
             layout.visit((ImageSet) selectedDisplay);
-        }
+        } 
     }
 
 }

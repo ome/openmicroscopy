@@ -73,15 +73,13 @@ public interface Thumbnail
      * Retrieves the thumbnail image.
      * This method may return <code>null</code> if the image is not readily
      * available.  In this case, an asynchronous data retrieval should be
-     * fired and then the <code>repaint</code> method of the passed <code>node
+     * fired and then the <code>repaint</code> method of the related <code>node
      * </code> should be called when the image is available.  This will cause
      * the node to call this method again to retrieve the image.
      * 
-     * @param node The image node in the visualization tree that represents the
-     *              image this thumbnail is for.
      * @return The thumbnail image.
      */
-    public BufferedImage getImageFor(ImageNode node);
+    public BufferedImage getDisplayedImage();
    
     /** 
      * Scales the thumbnail.
@@ -98,5 +96,7 @@ public interface Thumbnail
     
     /** Returns the icon representing the thumbnail. */
     public Icon getIcon();
+    
+    public void setImageNode(ImageNode node);
     
 }

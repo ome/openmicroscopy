@@ -188,6 +188,12 @@ public class ThumbnailProvider
         computeDims();
     }
     
+    public void setImageNode(ImageNode node)
+    {
+        if (node == null) throw new IllegalArgumentException("No Image node");
+        display = node;
+    }
+    
     /** Sets the thumbnail retrieved from the server. */
     public void setFullScaleThumb(BufferedImage t)
     {
@@ -199,14 +205,9 @@ public class ThumbnailProvider
     /**
      * Returns the thumbnail corresponding to the selected {@link ImageNode}.
      * 
-     * @param node The selected node.
      * @return See above.
      */
-    public BufferedImage getImageFor(ImageNode node) 
-    { 
-        display = node;
-        return displayThumb; 
-    }
+    public BufferedImage getDisplayedImage() { return displayThumb; }
 
     /** 
      * Magnifies the original image. 
@@ -223,7 +224,7 @@ public class ThumbnailProvider
             w = displayThumb.getWidth();
             h = displayThumb.getHeight();
         }  
-        if (display != null) {
+        if (display != null) {  //Shouldn't happen.
             display.setCanvasSize(w, h);
             display.pack();
         }

@@ -136,8 +136,9 @@ public class HiTranslator
      */
     private static void linkImageTo(ImageData is, ImageSet parent)
     {
-        ImageNode node = new ImageNode(is.getName(), is, 
-                new ThumbnailProvider(is));
+        ThumbnailProvider provider = new ThumbnailProvider(is);
+        ImageNode node = new ImageNode(is.getName(), is, provider);
+        provider.setImageNode(node);
         formatToolTipFor(node, getFirstAnnotation(is.getAnnotations()));  
         parent.addChildDisplay(node);
     }
