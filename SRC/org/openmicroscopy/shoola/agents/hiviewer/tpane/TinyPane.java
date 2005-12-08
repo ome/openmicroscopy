@@ -236,6 +236,7 @@ public class TinyPane
     {
         setSize(getPreferredSize());
         validate();
+        repaint();
     }
     
     /** 

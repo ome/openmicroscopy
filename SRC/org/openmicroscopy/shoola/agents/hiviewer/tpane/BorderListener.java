@@ -207,6 +207,7 @@ class BorderListener
             }
     
             getDesktopManager().beginResizingFrame(frame, resizeDir);
+            
             return;
         }
     }

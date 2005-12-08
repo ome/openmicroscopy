@@ -151,6 +151,9 @@ public class ImageNode
     public void setCanvasSize(int w, int h)
     {
         canvas.setBounds(0, 0, w, h);
+        //canvas.setPreferredSize(new Dimension(w, h));
+        //canvas.setMinimumSize(new Dimension(w, h));
+        //System.out.println(canvas.getPreferredSize());
         getInternalDesktop().setSize(w, h);
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
     }

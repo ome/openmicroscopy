@@ -71,7 +71,6 @@ class ThumbnailCanvas
     {
         if (node == null) throw new NullPointerException("No image node.");
         imageFrame = node;
-        setOpaque(false);
         setDoubleBuffered(true);
     }
     
@@ -80,7 +79,7 @@ class ThumbnailCanvas
     {
         super.paintComponent(g);
         Thumbnail thumb = imageFrame.getThumbnail();
-        BufferedImage img = thumb.getImageFor(imageFrame);
+        BufferedImage img = thumb.getDisplayedImage();
         if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
         g2D.drawImage(img, null, 0, 0);

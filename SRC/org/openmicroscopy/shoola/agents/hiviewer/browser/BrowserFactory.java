@@ -69,9 +69,9 @@ public class BrowserFactory
         //Create the View.  Add each visualization tree to the root display.
         RootDisplay view = new RootDisplay();
         Iterator i = topNodes.iterator();
-        while (i.hasNext()) 
+        while (i.hasNext())
             view.addChildDisplay((ImageDisplay) i.next());
-        
+
         
         //Now the Model.  In an ideal world the Model wouldn't depend on the
         //View; however right now the dependence is basically insignificant

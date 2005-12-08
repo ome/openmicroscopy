@@ -91,7 +91,6 @@ class SquaryLayout
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         browserW = 8*(screenSize.width/10);
     }
-  
     
     /**
      * Visits an {@link ImageSet} node that contains {@link ImageSet} nodes. 
@@ -116,8 +115,8 @@ class SquaryLayout
         for (int i = 0; i < children.length; i++) {
             d = children[i].getPreferredSize();
             children[i].setBounds(x, y, d.width, d.height);
-            children[i].setVisible(true);
-            children[i].setCollapsed(false);
+            //children[i].setVisible(true);
+            //children[i].setCollapsed(false);
             if (x+d.width <= browserW) {
                 x += d.width;
                 maxY = Math.max(maxY, d.height); 
@@ -129,10 +128,11 @@ class SquaryLayout
             } 
         }
         Rectangle bounds = node.getContentsBounds();
-        d = bounds.getSize();
-        node.getInternalDesktop().setPreferredSize(d);
-        node.setCollapsed(false);
-        node.setVisible(true);
+        node.getInternalDesktop().setPreferredSize(bounds.getSize());
+        node.validate();
+        node.repaint();
+        //node.setCollapsed(false);
+        //node.setVisible(true);
     }
 
     /**

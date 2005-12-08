@@ -187,6 +187,7 @@ public class LayoutUtils
         //Iterator children = node.getChildrenDisplay().iterator();
         Iterator children = l.iterator();
         ImageDisplay child;
+        
         try {
             for (int i = 0; i < n; ++i) {
                 for (int j = 0; j < n; ++j) {
@@ -196,14 +197,13 @@ public class LayoutUtils
                     d = child.getPreferredSize();
                     child.setBounds(j*maxDim.width, i*maxDim.height, d.width, 
                                     d.height);
-                    child.setVisible(true);
                 }
             }    
         } finally {
             Rectangle bounds = node.getContentsBounds();
             d = bounds.getSize();
+            node.getInternalDesktop().setSize(d);
             node.getInternalDesktop().setPreferredSize(d);
-            node.setVisible(true);
         }
     }
     //NOTE: Let A be the function that calculates the area of a Dimension,
