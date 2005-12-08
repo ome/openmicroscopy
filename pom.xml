@@ -7,8 +7,10 @@
   <artifactId>main</artifactId>
   <packaging>pom</packaging>
   <modules>
+<!--<module>components/omeio-bdb</module>-->
     <module>components/dsl</module>
     <module>components/common</module>
+    <module>components/server</module>
   </modules>
   <repositories>
     <repository>
@@ -60,7 +62,6 @@
     <testResources>
       <testResource><directory>test-resources</directory></testResource>
     </testResources>
-    <directory>target2</directory>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -68,6 +69,9 @@
         <configuration>
           <source>1.4</source>
           <target>1.4</target>
+          <excludes>
+            <exclude>**/.svn</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>

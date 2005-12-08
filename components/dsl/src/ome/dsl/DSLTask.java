@@ -1,8 +1,12 @@
 package ome.dsl;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Target;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.taskdefs.Mkdir;
 import org.apache.tools.ant.types.FileSet;
 
 import java.io.File;
@@ -85,7 +89,9 @@ public class DSLTask extends Task
 			VelocityHelper vh = new VelocityHelper();
 			vh.put("type",st);
 			try {
-				FileWriter fw = new FileWriter(_outputDir+File.separator+st.getId().replaceAll("[.]","_")+".hbm.xml");
+                String file = _outputDir+File.separator+st.getId().replaceAll("[.]",File.separator)+".hbm.xml";
+                mkdir(file);
+                FileWriter fw = new FileWriter(file);
 				vh.invoke("ome/dsl/mapping.vm",fw);
 				fw.flush();
 				fw.close();
@@ -93,6 +99,15 @@ public class DSLTask extends Task
 				throw new BuildException("Error while writing type:"+st,e);
 			}
 		}
+        
+    }
+    
+    void mkdir(String file){
+        Mkdir mkdir = new Mkdir();
+        mkdir.setProject(new Project());
+        mkdir.setOwningTarget(new Target());
+        mkdir.setDir(new File(file.substring(0,file.lastIndexOf(File.separator))));
+        mkdir.execute();
         
     }
 }

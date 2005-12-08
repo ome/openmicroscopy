@@ -24,12 +24,12 @@
 	</type>
 	<type id="ome.model.roi.RoiExtent">
 		<properties>
-			<required name="zIndexMin" type="int"/>
-			<required name="zIndexMax" type="int"/>
-			<required name="tIndexMin" type="int"/>
-			<required name="tIndexMax" type="int"/>
-			<required name="cIndexMin" type="int"/>
-			<required name="cIndexMax" type="int"/>
+			<required name="zindexMin" type="int"/>
+			<required name="zindexMax" type="int"/>
+			<required name="tindexMin" type="int"/>
+			<required name="tindexMax" type="int"/>
+			<required name="cindexMin" type="int"/>
+			<required name="cindexMax" type="int"/>
 			<onemany name="shapes" type="ome.model.roi.ShapeArea"/>
 		</properties>
 	</type>	

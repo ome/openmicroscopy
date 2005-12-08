@@ -69,10 +69,10 @@
 	</type>
 	<type id="ome.model.display.CSContext" subclasses="ome.model.display.CodomainMapContext">
 		<properties>
-			<required name="xStart" type="int"/>
-			<required name="yStart" type="int"/>
-			<required name="xEnd" type="int"/>
-			<required name="yEnd" type="int"/>
+			<required name="xstart" type="int"/>
+			<required name="ystart" type="int"/>
+			<required name="xend" type="int"/>
+			<required name="yend" type="int"/>
 		</properties>
 	</type>
 	

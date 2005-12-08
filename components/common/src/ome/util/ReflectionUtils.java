@@ -15,14 +15,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import junit.framework.TestCase;
-
 /**
  * @author josh
  * @deprecated
  * @DEV.TODO this needs to be refactored to use BeanUtils; don't use. * 
  */
-public class ReflectionUtils extends TestCase {
+public class ReflectionUtils {
 
     private static Log log = LogFactory.getLog(ReflectionUtils.class);
 

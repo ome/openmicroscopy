@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <projectDescription>
-  <name>omero-common</name>
-  <comment>Common code: Model code generated from middlegen</comment>
-  <projects>
-  </projects>
+  <name>common</name>
+  <comment/>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
-      <arguments>
-      </arguments>
+      <arguments/>
     </buildCommand>
   </buildSpec>
   <natures>

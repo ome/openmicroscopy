@@ -21,18 +21,55 @@
       <artifactId>dsl</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>groovy</groupId>
+      <artifactId>groovy-all-1.0-jsr</artifactId>
+      <version>04</version>
+    </dependency>
+    <!-- TODO: Perhaps delete -->
+    <dependency>
+      <groupId>com.caucho</groupId>
+      <artifactId>burlap</artifactId>
+      <version>2.1.12</version>
+    </dependency>
+    <dependency>
+      <groupId>com.caucho</groupId>
+      <artifactId>hessian</artifactId>
+      <version>2.1.12</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.1</version>
+    </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource><directory>target/generated-sources/hbm</directory></resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
+            <id>build-hibernate</id>
             <phase>generate-sources</phase>
             <goals><goal>run</goal></goals>
             <configuration>
+              <sourceRoot>target/generated-sources/jdk14</sourceRoot>
               <tasks>
-                <ant antfile="build.xml" inheritRefs="true"/>
+                <ant antfile="build.xml" inheritRefs="true" target="hib"/>
+              </tasks>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-ice</id>
+            <phase>generate-sources</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <sourceRoot>target/generated-sources/slice2java</sourceRoot>
+              <tasks>
+                <ant antfile="build.xml" inheritRefs="true" target="sliceJava"/>
               </tasks>
             </configuration>
           </execution>

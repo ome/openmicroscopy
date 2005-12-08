@@ -1,13 +1,15 @@
 package ome.io.nio.utests;
 
-import ome.io.nio.PixelBuffer;
-import ome.io.nio.Pixels;
 import junit.framework.TestCase;
+
+import ome.io.nio.PixelBuffer;
+import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
 
 
 public class HugePixelBufferUnitTest extends TestCase
 {
-    private Pixels pixels;
+    private ome.model.core.Pixels pixels;
     private PixelBuffer pixelBuffer;
     private static final int planeSize = 1024 * 1024 * 2;
     private static final int stackSize = planeSize * 64;
@@ -17,12 +19,14 @@ public class HugePixelBufferUnitTest extends TestCase
     {
         pixels = new Pixels();
         
-        pixels.dx = 1024;
-        pixels.dy = 1024;
-        pixels.dz = 64;
-        pixels.dc = 3;
-        pixels.dt = 50;
-        pixels.bp = 2;
+        pixels.setSizeX(1024);
+        pixels.setSizeY(1024);
+        pixels.setSizeZ(64);
+        pixels.setSizeC(3);
+        pixels.setSizeT(50);
+        
+        PixelsType type = new PixelsType();
+        pixels.setPixelsType(type); // FIXME
 
         pixelBuffer = new PixelBuffer(1, pixels);
     }

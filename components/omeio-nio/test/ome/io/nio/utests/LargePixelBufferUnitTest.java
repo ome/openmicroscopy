@@ -1,7 +1,9 @@
 package ome.io.nio.utests;
 
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.Pixels;
+import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
+
 import junit.framework.TestCase;
 
 
@@ -17,12 +19,14 @@ public class LargePixelBufferUnitTest extends TestCase
     {
         pixels = new Pixels();
         
-        pixels.dx = 512;
-        pixels.dy = 512;
-        pixels.dz = 64;
-        pixels.dc = 3;
-        pixels.dt = 50;
-        pixels.bp = 2;
+        pixels.setSizeX(512);
+        pixels.setSizeY(512);
+        pixels.setSizeZ(64);
+        pixels.setSizeC(3);
+        pixels.setSizeT(50);
+        
+        PixelsType type = new PixelsType();
+        pixels.setPixelsType(type); // FIXME
 
         pixelBuffer = new PixelBuffer(1, pixels);
     }

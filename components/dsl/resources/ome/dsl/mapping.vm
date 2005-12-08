@@ -29,9 +29,9 @@
 	<version name="version" type="java.lang.Integer" column="version" unsaved-value="negative"/>
 	<many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
 #end
-	
+#if(! ${type.id.startsWith("ome.model.meta")})
 	<many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
-	
+#end
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 INTERFACE-BASED
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -44,7 +44,7 @@
 #end
 
 #if(!$type.global)	
-#if($type.id != "ome.model.meta.Experimenter")
+#if(! ${type.id.startsWith("ome.model.meta")} )
 	<many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
 #end
 	<component name="permissions" class="ome.model.internal.Permissions">
@@ -69,7 +69,7 @@
 		name="${prop.name}"
 		lazy="true"
 		inverse="true"
-		mutable="${prop.mutable}"
+##TODO		mutable="${prop.mutable}"
 		cascade="all">
 		<key>
 			<column name="${table}" />

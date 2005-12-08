@@ -37,6 +37,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
+
 
 /**
  * @author callan
@@ -93,7 +96,7 @@ public class PixelBuffer
     public Integer getPlaneSize()
     {
         if (planeSize == null)
-            planeSize = pixels.dx *pixels.dy * pixels.bp;
+            planeSize = getSizeX() * getSizeY() * getBitDepth();
 
         return planeSize;
     }
@@ -101,7 +104,7 @@ public class PixelBuffer
     public Integer getStackSize()
     {
         if (stackSize == null)
-            stackSize = getPlaneSize() * pixels.dz;
+            stackSize = getPlaneSize() * getSizeZ();
         
         return stackSize;
     }
@@ -109,7 +112,7 @@ public class PixelBuffer
     public Integer getTimepointSize()
     {
         if (timepointSize == null)
-            timepointSize = getStackSize() * pixels.dc;
+            timepointSize = getStackSize() * getSizeC();
         
         return timepointSize;
     }
@@ -197,5 +200,39 @@ public class PixelBuffer
         throws IOException
     {
         setRegion(size, offset, buffer.array());
+    }
+
+    //
+    // Delegate methods to ease work with pixels
+    //
+    
+    int getBitDepth()
+    {
+        return 2; // FIXME pixels.getPixelsType();
+    }
+
+    int getSizeC()
+    {
+        return pixels.getSizeC();
+    }
+
+    int getSizeT()
+    {
+        return pixels.getSizeT();
+    }
+
+    int getSizeX()
+    {
+        return pixels.getSizeX();
+    }
+
+    int getSizeY()
+    {
+        return pixels.getSizeY();
+    }
+
+    int getSizeZ()
+    {
+        return pixels.getSizeZ();
     }
 }

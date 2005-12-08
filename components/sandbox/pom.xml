@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>omero</groupId>
+    <artifactId>main</artifactId>
+    <version>3.0-alpha-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>sandbox</artifactId>
+  <packaging>jar</packaging>
+  <name>Omero Sandbox</name>
+  <dependencies>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>common</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>7.4.1</version>
+      <scope>system</scope>
+      <systemPath>../../lib/htool/postgresql-7.4.1-jdbc3.jar</systemPath>
+    </dependency>
+  </dependencies>
+</project>

@@ -8,9 +8,10 @@
 			<optional name="contact" type="ome.model.meta.ContactDetails"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.Experimenter" named="true">
+	<type id="ome.model.meta.Experimenter">
 		<!-- ## needs to be ome_name -->
 		<properties>
+			<required name="omeName" type="string" unique="true"/>
 			<zeromany name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"/>
 			<required name="details" type="ome.model.meta.ContactDetails"/>
 		</properties>
