@@ -14,7 +14,7 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>ice</artifactId>
-      <version>2.1.2</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
@@ -69,7 +69,7 @@
             <configuration>
               <sourceRoot>target/generated-sources/slice2java</sourceRoot>
               <tasks>
-                <ant antfile="build.xml" inheritRefs="true" target="sliceJava"/>
+                <ant antfile="build.xml" inheritRefs="true" target="slice-all"/>
               </tasks>
             </configuration>
           </execution>

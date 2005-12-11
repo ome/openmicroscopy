@@ -86,7 +86,7 @@
     <macrodef name="path_warning">
         <attribute name="item"/>
         <sequential>
-            <echo mesage="WARNING: Skipping @{item} step because it is not in your path"/>
+            <echo message="WARNING: Skipping @{item} step because it is not in your path"/>
         </sequential>
     </macrodef>
 	
@@ -218,20 +218,31 @@
           slice code-gen   
          = = = = = = = = = = = = = = = = = -->
 	
-	<macrodef name="slice">
-	   <attribute name="lang"/>
-	   <attribute name="files"/>
-	   <sequential>
-		<mkdir dir="${dest.dir}/slice2@{lang}"/>
-		 <exec executable="slice2@{lang}">
+	<macrodef name="run">
+		<attribute name="exec"/>
+		<attribute name="files"/>
+		<attribute name="suffix" default=""/>
+		<sequential>
+		  <mkdir dir="${dest.dir}/@{exec}/@{suffix}"/>
+		  <exec executable="@{exec}" failonerror="true">
 		 	<arg value="--output-dir"/>
-			<arg value="${dest.dir}/slice2@{lang}"/>
+			<arg value="${dest.dir}/@{exec}/@{suffix}"/>
 			<arg value="-I${dest.dir}"/>
 			<arg value="-I${dest.dir}/slice"/>
 			<arg line="@{files}"/>
-		  </exec>
-	   	  <done name="slice2@{lang}"/>
-	    </sequential>
+		  </exec>            
+        </sequential>
+    </macrodef>
+	
+	<macrodef name="slice">
+	   <attribute name="lang"/>
+	   <attribute name="files"/>
+	   <attribute name="suffix" default=""/>
+	   <sequential>
+	   	 <run exec="slice2@{lang}" files="${dest.dir}/${ice.file}"/>
+		 <run exec="slice2@{lang}" files="@{files}" suffix="@{suffix}"/>
+	   	 <done name="slice2@{lang}"/>
+	   </sequential>
 	</macrodef>
 
 	<target name="slice-init" depends="prepare,warnings">
@@ -254,7 +265,46 @@
 		</target>
 	
 	<target name="slicePy" depends="slice-init" if="slice2py-exists" unless="slice2py.not.required">
-		<slice lang="py" files="${slice.files}"/>
+		<!-- slice lang="py" files="${slice.files}"/-->
+		<mkdir dir="${dest.dir}/slice2py"/>
+		<groovy><![CDATA[
+			
+			def dest = properties["dest.dir"]
+			def file = properties["ice.file"]
+
+			fs = project.getReferences()["slice.generated"]
+			ds = fs.getDirectoryScanner(project);
+      			files = ds.getIncludedFiles();
+			base = ds.basedir
+			
+			map = [:]
+
+			files.each { |path|
+			  m = path =~ /^(.*)\/(.*?)$/
+			  dir = m[0][1]
+			  end = m[0][2]
+			  if (null == map[dir]) map[dir]=[]
+			  map[dir] << "${base}/${path}"
+			}
+
+			def macro(String files, String suffix){
+			  macro = project.createTask("run")
+			  macro.setDynamicAttribute("exec","slice2py")
+			  macro.setDynamicAttribute("files",files)
+			  macro.setDynamicAttribute("suffix",suffix)
+			  return macro
+			}
+			
+			macro("${dest}/${file}","").execute()
+			map.keySet().each { |d|
+			  m = macro(map[d].join(" "),d).execute()
+			}
+
+			done = project.createTask("done")
+			done.setDynamicAttribute("name","slice2py")
+			done.execute()
+
+    		]]></groovy>
 	</target>
 		
 	<target name="compileCs" depends="sliceCs" if="csharp-exists">
@@ -288,9 +338,45 @@
 		ant project properties target task
 	-->
 	<target name="groovy" depends="sliceJava">
-		<groovy>
-		ant.echo("hi")
-		</groovy>
+		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
+    			<include name="**/*Remote.java"/>
+		</fileset>
+		<groovy><![CDATA[
+
+
+                      	fs = project.getReferences()["slice.generated"]
+                        ds = fs.getDirectoryScanner(project);
+                	files = ds.getIncludedFiles();
+                        base = ds.basedir
+
+			files.each { |file|
+			  filename = file.toString()
+			  filename = filename.replaceAll("slice2java","slice_exts")
+			  filename = filename.subString(0,filename.length() - 4)+"ext"
+
+			  contents = file.readLines().reverse()
+			  end = false
+			  
+			  contents.each { |line|
+			    if (line =~ /\}/ && ! end) {
+			      line = " \n\n INSERTING WITH GROOVY \n\n";
+			      end = true
+			    }
+			  }
+			  
+			  f = new java.io.File("/tmp/${filename}")
+			  contents.reverse()
+			
+			  contents.each { |line|
+			    f.writeLine(line)
+			  }
+			  // write inserts! 
+			  f.flush()
+			  f.close()
+
+			}
+
+		]]></groovy>
 	</target>
 	
     <!-- = = = = = = = = = = = = = = = = =
