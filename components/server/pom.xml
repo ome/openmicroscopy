@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>omero</groupId>
+    <artifactId>main</artifactId>
+    <version>3.0-alpha-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>server</artifactId>
+  <packaging>jar</packaging>
+  <name>Omero Server</name>
+  <dependencies>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>common</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.0.5</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>_src</sourceDirectory>
+    <testSourceDirectory>_test</testSourceDirectory>
+    <resources>
+      <resource><directory>resources</directory></resource>
+    </resources>
+    <testResources>
+      <testResource><directory>test-resources</directory></testResource>
+    </testResources>
+  </build>
+</project>
