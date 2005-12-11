@@ -316,7 +316,7 @@
 		</exec>
 	</target>
 	
-	<target name="patchJava" depends="sliceJava" if="perl-exists">
+	<target name="patchJava" depends="sliceJava" if="perl-exists" unless="slice2java.not.required">
 		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
     			<include name="**/*Remote.java"/>
 		</fileset>
