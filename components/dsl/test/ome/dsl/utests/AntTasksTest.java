@@ -21,6 +21,11 @@ public class AntTasksTest extends TestCase
     public void testAPITask()
     {
 
+        final File currentDir = new File(System.getProperty("user.dir"));
+
+        final File commonDir = new File(currentDir.getParentFile().getPath()
+                + File.separator + "common");
+
         final class T extends APITask
         {
 
@@ -33,8 +38,7 @@ public class AntTasksTest extends TestCase
                 logger.setOutputPrintStream(System.out);
 
                 setProject(new Project());
-                getProject().setBasedir(
-                        "/home/josh/code/omero/components/common/");
+                getProject().setBasedir(commonDir.getPath());
                 getProject().addBuildListener(logger);
                 getProject().init();
                 setTaskName("api");
@@ -42,16 +46,16 @@ public class AntTasksTest extends TestCase
                 setOwningTarget(new Target());
             }
         }
-        
+
         T task = new T();
         FileSet fileSet = new FileSet();
-        fileSet.setDir(new File("/home/josh/code/omero/components/common/"));
+        fileSet.setDir(commonDir);
         NameEntry entry = fileSet.createInclude();
         entry.setName("**/api/*.java");
         task.addFileset(fileSet);
         task.setDestdir(new File("/tmp"));
         task.execute();
-    
+
     }
 
 }
