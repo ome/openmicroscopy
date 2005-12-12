@@ -40,6 +40,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ShowTitleBarCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -79,7 +80,9 @@ public class HideTitleBarAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay != null) setEnabled(true);
+        if (selectedDisplay != null) 
+            setEnabled(!(model.getBrowser().getSelectedLayout() == 
+                        LayoutFactory.TREE_LAYOUT));
     }
     
     /**

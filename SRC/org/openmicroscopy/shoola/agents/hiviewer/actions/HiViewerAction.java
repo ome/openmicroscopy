@@ -102,16 +102,18 @@ public abstract class HiViewerAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (!(evt.getNewValue().equals(evt.getOldValue())) 
-                && evt.getNewValue() != null) {
-            ImageDisplay oldNode, newNode;
-            Colors colors = Colors.getInstance();
-            newNode = (ImageDisplay) evt.getNewValue();
-            newNode.setHighlight(colors.getSelectedHighLight(newNode));
-            if (evt.getOldValue() != null) {
-                oldNode = (ImageDisplay) evt.getOldValue();
-                oldNode.setHighlight(
-                        colors.getDeselectedHighLight(oldNode));
+        if (evt.getPropertyName().equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+            if (!(evt.getNewValue().equals(evt.getOldValue())) 
+                    && evt.getNewValue() != null) {
+                ImageDisplay oldNode, newNode;
+                Colors colors = Colors.getInstance();
+                newNode = (ImageDisplay) evt.getNewValue();
+                newNode.setHighlight(colors.getSelectedHighLight(newNode));
+                if (evt.getOldValue() != null) {
+                    oldNode = (ImageDisplay) evt.getOldValue();
+                    oldNode.setHighlight(
+                            colors.getDeselectedHighLight(oldNode));
+                }
             }
         }
         onDisplayChange(model.getBrowser().getSelectedDisplay());
@@ -123,6 +125,8 @@ public abstract class HiViewerAction
         if (model.getState() == HiViewer.LOADING_THUMBNAILS) {
             model.getBrowser().addPropertyChangeListener(
                     Browser.SELECTED_DISPLAY_PROPERTY, this);
+            model.getBrowser().addPropertyChangeListener(
+                    Browser.LAYOUT_PROPERTY, this);
         } 
     }
     

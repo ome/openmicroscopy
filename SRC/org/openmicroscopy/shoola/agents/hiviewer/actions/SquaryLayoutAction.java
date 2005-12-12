@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -90,8 +89,8 @@ public class SquaryLayoutAction
     {
         super(model);
         putValue(Action.NAME, NAME);
-        Layout layout = LayoutFactory.createLayout(LayoutFactory.SQUARY_LAYOUT);
-        String description = layout.getDescription();
+        String description = 
+            LayoutFactory.getLayoutDescription(LayoutFactory.SQUARY_LAYOUT);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.makeParagraph(null, description,
                         UIUtilities.TABLE_WIDTH));
