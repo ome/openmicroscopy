@@ -19,6 +19,7 @@
 	</abstract>-->
 	<type id="ome.model.roi.Roi5D">
 		<properties>
+			<required name="pixels" type="ome.model.core.Pixels"/>
 			<onemany name="extents" type="ome.model.roi.RoiExtent"/>
 		</properties>
 	</type>

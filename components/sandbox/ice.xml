@@ -1,0 +1,30 @@
+
+<project name="slice" basedir="." default="slice">
+
+  <import file="../common/build.xml"/>
+
+  <target name="slice">
+    <property name="dest.dir" value="target/generated-sources/"/>
+    <property name="incl.dir" value="../common/target/generated-sources/"/>
+    <fileset dir="slice" includes="*.ice" id="slice"/>
+    <pathconvert pathsep=" " property="files" refid="slice"/>
+    <mkdir dir="${dest.dir}/slice2java"/>
+    <exec executable="slice2java">
+      <arg value="--impl"/>
+      <arg value="--output-dir"/>
+      <arg value="${dest.dir}/slice2java"/>
+      <arg value="-I${incl.dir}"/>
+      <arg value="-I${incl.dir}/slice"/>
+      <arg line="${files}"/>
+    </exec>
+    <mkdir dir="${dest.dir}/slice2py"/>
+    <exec executable="slice2py">
+      <arg value="--output-dir"/>
+      <arg value="${dest.dir}/slice2py"/>
+      <arg value="-I${incl.dir}"/>
+      <arg value="-I${incl.dir}/slice"/>
+      <arg line="${files}"/>
+    </exec>
+  </target>
+
+</project>

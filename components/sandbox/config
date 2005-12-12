@@ -1,0 +1,11 @@
+Client.Engine=ImportEngine:tcp -p 10000
+Client.Observable=ImportStatusService:tcp -p 10001
+Client.Endpoints=
+
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1
+
+# Active connection management must be disabled when using
+# bidirectional connections.
+Ice.ACM.Client=0
