@@ -28,8 +28,8 @@
  */
 package ome.io.nio;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import ome.model.core.Pixels;
 
@@ -41,6 +41,15 @@ import ome.model.core.Pixels;
 public class PixelsService
 {
     private static PixelsService soleInstance;
+    public static final int NULL_PLANE_SIZE = 64;
+    public static final byte[] nullPlane = new byte[]
+        { -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 10
+          -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 20
+          -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 30
+          -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 40
+          -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 50
+          -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 60
+          -128, 127, -128, 127 };                                 // 64
     
     public static PixelsService getInstance()
     {
@@ -53,10 +62,6 @@ public class PixelsService
     public PixelBuffer createPixelBuffer(Pixels pixels)
         throws IOException
     {
-        Integer id = Helper.getNextPixelsId();
-
-        pixels.setId(id);
-        
         PixelBuffer pixbuf = new PixelBuffer(pixels);
         initPixelBuffer(pixbuf);
         
@@ -71,11 +76,20 @@ public class PixelsService
     private void initPixelBuffer(PixelBuffer pixbuf)
         throws IOException
     {
-        Integer size = pixbuf.getTotalSize();
-        String path = Helper.getPixelsPath(pixbuf.getImageServerId());
-        RandomAccessFile file = new RandomAccessFile(path, "w");
+        String path = Helper.getPixelsPath(pixbuf.getId());
+        byte[] padding = new byte[pixbuf.getPlaneSize() - NULL_PLANE_SIZE];
+        FileOutputStream stream = new FileOutputStream(path);
         
-        file.seek(size);
-        file.write(new byte[]{0});
+        for (int z = 0; z < pixbuf.getSizeZ(); z++)
+        {
+            for (int c = 0; c < pixbuf.getSizeC(); c++)
+            {
+                for (int t = 0; t < pixbuf.getSizeT(); t++)
+                {
+                    stream.write(nullPlane);
+                    stream.write(padding);
+                }
+            }
+        }
     }
 }

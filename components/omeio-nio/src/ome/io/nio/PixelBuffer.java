@@ -70,6 +70,14 @@ public class PixelBuffer
         path = Helper.getPixelsPath(pixels.getId());
     }
     
+    private void checkBounds(Integer y, Integer z, Integer c, Integer t)
+        throws DimensionsOutOfBoundsException
+    {
+        if (y != null && y > getSizeY())
+            throw new DimensionsOutOfBoundsException("Y '" + y +
+                    "' greater than height '" + getSizeY() + "'.");
+    }
+    
     private FileChannel getFileChannel(Boolean readOnly)
         throws FileNotFoundException
     {
@@ -137,7 +145,10 @@ public class PixelBuffer
     }
     
     public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
+        throws DimensionsOutOfBoundsException
     {
+        checkBounds(y, z, c, t);
+        
         Integer rowSize = getRowSize();
         Integer timepointSize = getTimepointSize();
         Integer stackSize = getStackSize();
@@ -147,7 +158,10 @@ public class PixelBuffer
                ((long)stackSize * c) + ((long)planeSize * z);
     }
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
+        throws DimensionsOutOfBoundsException
     {
+        checkBounds(null, z, c, t);
+        
         Integer timepointSize = getTimepointSize();
         Integer stackSize = getStackSize();
         Integer planeSize = getPlaneSize();
@@ -157,7 +171,10 @@ public class PixelBuffer
     }
     
     public Long getStackOffset(Integer c, Integer t)
+        throws DimensionsOutOfBoundsException
     {
+        checkBounds(null, null, c, t);
+        
         Integer timepointSize = getTimepointSize();
         Integer stackSize = getStackSize();
         
@@ -165,7 +182,10 @@ public class PixelBuffer
     }
     
     public Long getTimepointOffset(Integer t)
+        throws DimensionsOutOfBoundsException
     {
+        checkBounds(null, null, null, t);
+        
         Integer timepointSize = getTimepointSize();
         
         return ((long) timepointSize * t);
@@ -184,7 +204,7 @@ public class PixelBuffer
     }
     
     public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
-        throws IOException
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getRowOffset(y, z, c, t);
         Integer size = getRowSize();
@@ -193,7 +213,7 @@ public class PixelBuffer
     }
     
     public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
-        throws IOException
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
@@ -201,15 +221,23 @@ public class PixelBuffer
         return getRegion(size, offset);
     }
     
-    public MappedByteBuffer getStack(Integer c, Integer t) throws IOException
+    public MappedByteBuffer getStack(Integer c, Integer t)
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
+        MappedByteBuffer region = getRegion(size, offset);
+        byte[] nullPlane = PixelsService.nullPlane;
         
-        return getRegion(size, offset);
+        for (int i = 0; i < PixelsService.NULL_PLANE_SIZE; i++)
+            if (region.get(i) != nullPlane[i])
+                return region;
+        
+        return null;  // All of the nullPlane bytes match, non-filled plane
     }
     
-    public MappedByteBuffer getTimepoint(Integer t) throws IOException
+    public MappedByteBuffer getTimepoint(Integer t)
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
@@ -241,7 +269,7 @@ public class PixelBuffer
     
     public void setRow(ByteBuffer buffer, Integer y, Integer z,
                                           Integer c, Integer t)
-        throws IOException
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getRowOffset(y, z, c, t);
         Integer size = getRowSize();
@@ -250,7 +278,7 @@ public class PixelBuffer
     }
     
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
-        throws IOException
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
@@ -259,7 +287,7 @@ public class PixelBuffer
     }
     
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
-        throws IOException
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
@@ -267,7 +295,8 @@ public class PixelBuffer
         setRegion(size, offset, buffer);
     }
     
-    public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException
+    public void setTimepoint(ByteBuffer buffer, Integer t)
+        throws IOException, DimensionsOutOfBoundsException
     {
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
@@ -291,8 +320,16 @@ public class PixelBuffer
         
         for (int t = 0; t < getSizeT(); t++)
         {
-            MappedByteBuffer buffer = getTimepoint(t);
-            md.update(buffer);
+            try
+            {
+                MappedByteBuffer buffer = getTimepoint(t);
+                md.update(buffer);
+            }
+            catch (DimensionsOutOfBoundsException e)
+            {
+                // This better not happen. :)
+                throw new RuntimeException(e);
+            }
         }
         
         return md.digest();
@@ -337,17 +374,13 @@ public class PixelBuffer
         return pixels.getSizeZ();
     }
     
-    int getImageServerId()
+    int getId()
     {
-        // FIXME: To be implemented. Pixels type needs to store image server
-        // ids.
         return pixels.getId();
     }
     
-    String getSHA1()
+    String getSha1()
     {
-        // FIXME: To be implemented. Pixels type needs to store SHA1 message
-        // digests.
-        return "";
+        return pixels.getSha1();
     }
 }

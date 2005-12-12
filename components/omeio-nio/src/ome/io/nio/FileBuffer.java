@@ -42,13 +42,13 @@ import ome.model.core.OriginalFile;
 public class FileBuffer
 {
     private RandomAccessFile delegate;
-    private OriginalFile originalFile;
+    private OriginalFile file;
     private String path;
     
     FileBuffer (OriginalFile file, String mode)
         throws FileNotFoundException
     {
-        this.originalFile = originalFile;
+        this.file = file;
         this.path = Helper.getFilesPath(file.getId());
         
         delegate = new RandomAccessFile(path, mode);
@@ -67,19 +67,18 @@ public class FileBuffer
     // Delegate methods to ease work with original file
     //
     
-    int getImageServerId()
+    int getId()
     {
-        // FIXME: OriginalFile type needs to store image server id as well.
-        return originalFile.getId();
+        return file.getId();
     }
     
     String getName()
     {
-        return originalFile.getName();
+        return file.getName();
     }
     
     String getPath()
     {
-        return originalFile.getPath();
+        return file.getPath();
     }
 }
