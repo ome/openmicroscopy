@@ -142,6 +142,7 @@ class CBSearchTabView
         searchString = new JTextField();
         searchType = new JComboBox(searchChoices);
         setComponentsEnabled(false);
+        clearButton.setEnabled(false);
     }
     
     /** Builds and lays out the GUI. */
@@ -246,7 +247,7 @@ class CBSearchTabView
         c.gridy = 1;
         legendPanel.add(buildLegend(
                         colors.getColor(Colors.REGEX_TITLE_AND_ANNOTATION),
-                        "Found in either"), c);
+                        "Found in both"), c);
 
         //five
         c.gridx = 0;
@@ -299,7 +300,6 @@ class CBSearchTabView
     private void setComponentsEnabled(boolean b)
     {
         searchButton.setEnabled(b);
-        clearButton.setEnabled(b);
         searchType.setEnabled(b);
     }
     
@@ -396,6 +396,7 @@ class CBSearchTabView
         if (model.getPaneIndex() != ClipBoard.SEARCH_PANEL) return;
         if (selectedDisplay == null || selectedDisplay instanceof ImageNode) {
             setComponentsEnabled(false);
+            clearButton.setEnabled(true);
             searchPanel.setBorder(new TitledBorder(" -- ")); 
             return;
         }

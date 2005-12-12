@@ -29,14 +29,12 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
+//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-
-//Java imports
 
 //Third-party libraries
 
@@ -56,12 +54,16 @@ import java.util.List;
 public class ViewerSorter
 {
 
-    private boolean ascending;
+    /** Flag to indicate the order selected. */
+    private boolean     ascending;
     
-    private boolean byDate;
+    /** Flag to indicate that the objects are ordered by date. */
+    private boolean     byDate;
     
+    /** The collection to sort. */
     private Collection  collection;
     
+    /** The list containing the ordered values. */
     private List        results;
     
     /**
@@ -225,17 +227,24 @@ public class ViewerSorter
         }
     }
     
+    /** Sets the default values. */
     private void initialize()
     {
         ascending = true;
         byDate = false;
     }
     
+    /** Creates a new instance. */
     public ViewerSorter()
     {
         initialize();
     }
     
+    /**
+     * Creates a new instance. 
+     * 
+     * @param collection The collection to sort. Mustn't be <code>null</code>.
+     */
     public ViewerSorter(Collection collection)
     {
         if (collection == null) throw new NullPointerException("No collection");
@@ -253,14 +262,32 @@ public class ViewerSorter
         ascending = b;
     }
  
+    /**
+     * Returns <code>true</code> if the collection is ordered by date,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
     public boolean isByDate() { return byDate; }
 
+    /**
+     * Passes <code>true</code> to order the collection by date, 
+     * <code>false</code> otherwise.
+     * 
+     * @param b The passed value.
+     */
     public void setByDate(boolean b)
     {
         if (b == byDate) return;
         byDate = b;
     }
 
+    /**
+     * Sorts the specified collection.
+     * 
+     * @param collection The collection to sort.
+     * @return A list of ordered values.
+     */
     public List sort(Collection collection)
     {
         if (collection == null) 
@@ -269,8 +296,10 @@ public class ViewerSorter
         return sort();
     }
     
-    /* (non-Javadoc)
-     * @see org.openmicroscopy.shoola.env.ui.ViewerSorter#sort()
+    /**
+     * Sorts the collection previously set.
+     * 
+     * @return A list of ordered values.
      */
     public List sort()
     {

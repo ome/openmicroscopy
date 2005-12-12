@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JTree;
@@ -67,6 +68,9 @@ public class TreeCellRenderer
     extends DefaultTreeCellRenderer
 {
     
+    /** Flag to determine if the background color is modified. */
+    private boolean             visibleColor;
+    
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
     
@@ -90,7 +94,7 @@ public class TreeCellRenderer
             setIcon(icon);
         } else if (usrObject instanceof ImageData) {
             setText(((ImageData) usrObject).getName());
-            if (icon == null) icon = icons.getIcon(IconManager.IMAGE);
+            if (icon == null) icon = icons.getIcon(IconManager.IMAGE_MEDIUM);
             setIcon(icon);
         } else if (usrObject instanceof CategoryGroupData) {
             setText(((CategoryGroupData) usrObject).getName());
@@ -106,6 +110,20 @@ public class TreeCellRenderer
     /** Creates a new instance. */
     public TreeCellRenderer()
     {
+        this(false);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param visibleColor  <code>true</code> to modify the backgroundColor
+     *                      according to the highlight color of the node.,
+     *                      <code>false</code> otherwise.
+     *                      
+     */
+    public TreeCellRenderer(boolean visibleColor)
+    {
+        this.visibleColor = visibleColor;
         icons = IconManager.getInstance();
     }
     
@@ -120,17 +138,29 @@ public class TreeCellRenderer
                                                 row, hasFocus);
         
         DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
+        
         if (node.getLevel() == 0) {
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
         }
         Object usrObject = node.getUserObject();
+        Color c = null;
         if (usrObject instanceof ImageSet) {
             setValues(((ImageSet) usrObject).getHierarchyObject(), null);
+            if (visibleColor) {
+                c = ((ImageSet) usrObject).getHighlight();
+                if (c == null) c = getForeground();
+                setForeground(c);
+            }
         } else if (usrObject instanceof ImageNode) {
             ImageNode imgNode = (ImageNode) usrObject;
             setValues(imgNode.getHierarchyObject(),
-                    imgNode.getThumbnail().getIcon());
+                        imgNode.getThumbnail().getIcon());
+            if (visibleColor) {
+                c = imgNode.getHighlight();
+                if (c == null) c = getForeground();
+                setForeground(c);
+            }
         } else setValues(usrObject, null);
         return this;
     }
