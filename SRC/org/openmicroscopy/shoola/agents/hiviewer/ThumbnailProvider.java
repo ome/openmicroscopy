@@ -188,6 +188,7 @@ public class ThumbnailProvider
         computeDims();
     }
     
+    /** Implemented as specified by {@link Thumbnail}. */
     public void setImageNode(ImageNode node)
     {
         if (node == null) throw new IllegalArgumentException("No Image node");
@@ -267,10 +268,7 @@ public class ThumbnailProvider
     public Icon getIcon() 
     {
         if (iconThumb != null) return iconThumb;
-        if (fullScaleThumb == null) {
-            IconManager im = IconManager.getInstance();
-            return im.getIcon(IconManager.IMAGE);
-        }
+        if (fullScaleThumb == null) return null;
         BufferedImage img = magnifyImage(MIN_SCALING_FACTOR, fullScaleThumb);
         BufferedImage newImg = new BufferedImage(img.getWidth()+2*BORDER, 
                 img.getHeight()+2*BORDER, img.getType());
