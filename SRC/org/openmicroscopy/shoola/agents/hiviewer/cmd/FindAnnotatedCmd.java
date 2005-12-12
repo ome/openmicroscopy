@@ -37,8 +37,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -84,9 +84,11 @@ public class FindAnnotatedCmd
         if (selectedDisplay.getParentDisplay() == null) //root
             browser.accept(visitor);
         else {
-            if (!(selectedDisplay instanceof ImageNode))
+            if (selectedDisplay instanceof ImageSet)
                 selectedDisplay.accept(visitor);
         }
+        if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT)
+            browser.getTreeDisplay().repaint();
         model.getClipBoard().setSearchResults(visitor.getFoundNodes());
     }
 

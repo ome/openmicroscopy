@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -71,7 +73,10 @@ public class ClearCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        model.getBrowser().accept(new ClearVisitor(model));
+        Browser browser = model.getBrowser();
+        browser.accept(new ClearVisitor(model));
+        if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT)
+            browser.getTreeDisplay().repaint();
     }
 
 }

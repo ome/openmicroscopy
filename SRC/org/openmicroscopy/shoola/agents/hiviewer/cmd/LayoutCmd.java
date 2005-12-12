@@ -39,7 +39,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
@@ -101,25 +100,21 @@ public class LayoutCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplayVisitor visitor = null;
+        Browser browser = model.getBrowser();
+        if (browser.getSelectedLayout() == layoutIndex) return; 
         switch (layoutIndex) {
             case LayoutFactory.SQUARY_LAYOUT:
-                visitor = LayoutFactory.createLayout(
-                        LayoutFactory.SQUARY_LAYOUT);
+                browser.accept(LayoutFactory.createLayout(
+                        LayoutFactory.SQUARY_LAYOUT, null),
+                        ImageDisplayVisitor.IMAGE_SET_ONLY);
+                browser.setTreeDisplay(null);
+                browser.setSelectedLayout(LayoutFactory.SQUARY_LAYOUT);
                 break;
             case LayoutFactory.TREE_LAYOUT:
-                visitor = LayoutFactory.createLayout(
-                        LayoutFactory.TREE_LAYOUT);
-        }
-        if (visitor == null) return;
-        Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getSelectedDisplay();
-        if (selectedDisplay.getParentDisplay() == null) //root
-            browser.accept(visitor);
-        else {
-            if (selectedDisplay instanceof ImageSet)
-                selectedDisplay.accept(visitor);
-            else selectedDisplay.getParentDisplay().accept(visitor);
+                browser.accept(LayoutFactory.createLayout(
+                        LayoutFactory.TREE_LAYOUT, browser),
+                        ImageDisplayVisitor.IMAGE_SET_ONLY);
+                browser.setSelectedLayout(LayoutFactory.TREE_LAYOUT);
         }
     }
 
