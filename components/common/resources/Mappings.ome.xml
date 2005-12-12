@@ -235,6 +235,7 @@
 			<required name="sizeZ" type="int"/>
 			<required name="sizeC" type="int"/>
 			<required name="sizeT" type="int"/>
+                        <required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
 			<required name="bigEndian" type="boolean"/>
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>			
@@ -284,6 +285,7 @@
 			<required name="format" type="string"/> <!-- ## enum ?? -->
 			<required name="name" type="string"/> <!--## named??-->
 			<required name="size" type="int"/>
+                        <required name="sha1" type="string"/>
 		</properties>
 	</type>
 	
