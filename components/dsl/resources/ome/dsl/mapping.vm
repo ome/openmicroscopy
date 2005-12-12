@@ -70,7 +70,7 @@
 		lazy="true"
 		inverse="true"
 ##TODO		mutable="${prop.mutable}"
-		cascade="all">
+		cascade="save-update">
 		<key>
 			<column name="${table}" />
 		</key>
