@@ -161,26 +161,30 @@ public class IconManager
     /** ID of the views list over icon in the browser's internal frame. */
     public static final int     VIEWS_LIST_OVER = 32;
     
-    /** ID of the category icon. */
+    /** ID of the category big icon. */
     public static final int     CATEGORY_BIG = 33;
     
     /** ID of the refresh icon. */
     public static final int     REFRESH = 34;
     
-    /** ID of the refresh icon. */
+    /** ID of the save big icon. */
     public static final int     SAVE_AS_BIG = 35;
     
-    /** ID of the refresh icon. */
+    /** ID of the question icon. */
     public static final int     QUESTION = 36;
+    
+    /** ID of the image medium icon. */
+    public static final int     IMAGE_MEDIUM = 37;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 36;
+    private static int          MAX_ID = 37;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
+    
     static {
         relPaths[MINUS] = "minus.png";
         relPaths[MINUS_OVER] = "minus_over.png";
@@ -219,6 +223,7 @@ public class IconManager
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[SAVE_AS_BIG] = "nuvola_filesaveas48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
+        relPaths[IMAGE_MEDIUM] = "nuvola_image26.png";
     }
     
     /** The sole instance. */
