@@ -62,10 +62,9 @@
 		<available property="perl-exists" filepath="${env.PATH}" file="perl.exe" />
 		<condition property="csharp-exists">
 		  <or>
-			<available filepath="${env.PATH}" file="mono" />
-			<available filepath="${env.PATH}" file="mono.exe" />
-			<available filepath="${env.PATH}" file="NET" /><!--TODO-->
-			<available filepath="${env.PATH}" file="NET.exe" />
+			<available filepath="${env.PATH}" file="mcs" />
+			<available filepath="${env.PATH}" file="mcs.exe" />
+			<available filepath="${env.PATH}" file="csc.exe" />
 		  </or>
 		</condition>
 
@@ -307,7 +306,7 @@
     		]]></groovy>
 	</target>
 		
-	<target name="compileCs" depends="sliceCs" if="csharp-exists">
+	<target name="compileCs" depends="sliceCs" if="csharp-exists,slice2cs-exists">
 		<exec executable="mcs" dir="${dest.dir}/slice2cs">
 			<arg value="/t:library"/>
 			<arg value="-r:icecs.dll"/>
@@ -316,7 +315,7 @@
 		</exec>
 	</target>
 	
-	<target name="patchJava" depends="sliceJava" if="perl-exists" unless="slice2java.not.required">
+	<target name="patchJava" depends="sliceJava" if="perl-exists,slice2java-exists" unless="slice2java.not.required">
 		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
     			<include name="**/*Remote.java"/>
 		</fileset>
