@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-// Ice version 2.1.2
+// Ice version 3.0.0
 
 package mono;
 
@@ -78,6 +78,7 @@ public abstract class _TDisp extends Ice.ObjectImpl implements T
     public static IceInternal.DispatchStatus
     ___getRoi5D(T __obj, IceInternal.Incoming __inS, Ice.Current __current)
     {
+	__checkMode(Ice.OperationMode.Normal, __current.mode);
 	IceInternal.BasicStream __os = __inS.os();
 	ome.model.roi.Roi5DRemote __ret = __obj.getRoi5D(__current);
 	__os.writeObject(__ret);

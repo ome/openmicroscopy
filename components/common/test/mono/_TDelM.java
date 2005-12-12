@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-// Ice version 2.1.2
+// Ice version 3.0.0
 
 package mono;
 
@@ -17,13 +17,13 @@ public final class _TDelM extends Ice._ObjectDelM implements _TDel
     getRoi5D(java.util.Map __ctx)
 	throws IceInternal.NonRepeatable
     {
-	IceInternal.Outgoing __outS = getOutgoing("getRoi5D", Ice.OperationMode.Normal, __ctx);
+	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "getRoi5D", Ice.OperationMode.Normal, __ctx, __compress);
 	try
 	{
-	    boolean __ok = __outS.invoke();
+	    boolean __ok = __og.invoke();
 	    try
 	    {
-		IceInternal.BasicStream __is = __outS.is();
+		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
 		    try
@@ -32,7 +32,7 @@ public final class _TDelM extends Ice._ObjectDelM implements _TDel
 		    }
 		    catch(Ice.UserException __ex)
 		    {
-			throw new Ice.UnknownUserException();
+			throw new Ice.UnknownUserException(__ex.ice_name());
 		    }
 		}
 		ome.model.roi.Roi5DRemoteHolder __ret = new ome.model.roi.Roi5DRemoteHolder();
@@ -47,7 +47,7 @@ public final class _TDelM extends Ice._ObjectDelM implements _TDel
 	}
 	finally
 	{
-	    reclaimOutgoing(__outS);
+	    __connection.reclaimOutgoing(__og);
 	}
     }
 }
