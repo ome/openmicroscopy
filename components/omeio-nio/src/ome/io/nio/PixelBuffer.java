@@ -36,6 +36,8 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
@@ -47,24 +49,25 @@ import ome.model.enums.PixelsType;
  */
 public class PixelBuffer
 {
-    Integer id;
-    String path;
-    Pixels pixels;
-    FileChannel roChannel;
-    FileChannel woChannel;
+    private String path;
+    private Pixels pixels;
+    private FileChannel roChannel;
+    private FileChannel woChannel;
     
-    Integer planeSize;
-    Integer stackSize;
-    Integer timepointSize;
+    private Integer rowSize;
+    private Integer planeSize;
+    private Integer stackSize;
+    private Integer timepointSize;
+    private Integer totalSize;
     
-    public PixelBuffer (Integer id, Pixels pixels)
+    PixelBuffer (Pixels pixels)
     {
-        if (id == null)
-            throw new NullPointerException("Expecting a not-null id.");
+        if (pixels == null)
+            throw new NullPointerException(
+                    "Expecting a not-null pixels element.");
         
         this.pixels = pixels;
-        this.id = id;
-        path = Helper.getPixelsPath(id);
+        path = Helper.getPixelsPath(pixels.getId());
     }
     
     private FileChannel getFileChannel(Boolean readOnly)
@@ -96,9 +99,17 @@ public class PixelBuffer
     public Integer getPlaneSize()
     {
         if (planeSize == null)
-            planeSize = getSizeX() * getSizeY() * getBitDepth();
+            planeSize = getSizeX() * getSizeY() * getByteWidth();
 
         return planeSize;
+    }
+    
+    public Integer getRowSize()
+    {
+        if (rowSize == null)
+            rowSize = getSizeX() * getByteWidth();
+        
+        return rowSize;
     }
     
     public Integer getStackSize()
@@ -117,6 +128,24 @@ public class PixelBuffer
         return timepointSize;
     }
     
+    public Integer getTotalSize()
+    {
+        if (totalSize == null)
+            totalSize = getTimepointSize() * getSizeT();
+        
+        return totalSize;
+    }
+    
+    public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
+    {
+        Integer rowSize = getRowSize();
+        Integer timepointSize = getTimepointSize();
+        Integer stackSize = getStackSize();
+        Integer planeSize = getPlaneSize();
+        
+        return ((long)rowSize * y) + ((long)timepointSize * t) +
+               ((long)stackSize * c) + ((long)planeSize * z);
+    }
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
     {
         Integer timepointSize = getTimepointSize();
@@ -154,10 +183,18 @@ public class PixelBuffer
         return fileChannel.map(MapMode.READ_ONLY, size, offset);
     }
     
+    public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
+        throws IOException
+    {
+        Long offset = getRowOffset(y, z, c, t);
+        Integer size = getRowSize();
+        
+        return getRegion(size, offset);
+    }
+    
     public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
         throws IOException
     {
-        
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
 
@@ -201,14 +238,78 @@ public class PixelBuffer
     {
         setRegion(size, offset, buffer.array());
     }
-
+    
+    public void setRow(ByteBuffer buffer, Integer y, Integer z,
+                                          Integer c, Integer t)
+        throws IOException
+    {
+        Long offset = getRowOffset(y, z, c, t);
+        Integer size = getRowSize();
+        
+        setRegion(size, offset, buffer);
+    }
+    
+    public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
+        throws IOException
+    {
+        Long offset = getPlaneOffset(z, c, t);
+        Integer size = getPlaneSize();
+        
+        setRegion(size, offset, buffer);
+    }
+    
+    public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
+        throws IOException
+    {
+        Long offset = getStackOffset(c, t);
+        Integer size = getStackSize();
+        
+        setRegion(size, offset, buffer);
+    }
+    
+    public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException
+    {
+        Long offset = getTimepointOffset(t);
+        Integer size = getTimepointSize();
+        
+        setRegion(size, offset, buffer);
+    }
+    
+    public byte[] calculateMessageDigest() throws IOException
+    {
+        MessageDigest md;
+        
+        try
+        {
+            md = MessageDigest.getInstance("SHA-1");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+        
+        for (int t = 0; t < getSizeT(); t++)
+        {
+            MappedByteBuffer buffer = getTimepoint(t);
+            md.update(buffer);
+        }
+        
+        return md.digest();
+    }
+    
     //
     // Delegate methods to ease work with pixels
     //
     
+    int getByteWidth ()
+    {
+        return getBitDepth() / 8;
+    }
+    
     int getBitDepth()
     {
-        return 2; // FIXME pixels.getPixelsType();
+        return 16;  // FIXME pixels.getPixelsType();
     }
 
     int getSizeC()
@@ -234,5 +335,19 @@ public class PixelBuffer
     int getSizeZ()
     {
         return pixels.getSizeZ();
+    }
+    
+    int getImageServerId()
+    {
+        // FIXME: To be implemented. Pixels type needs to store image server
+        // ids.
+        return pixels.getId();
+    }
+    
+    String getSHA1()
+    {
+        // FIXME: To be implemented. Pixels type needs to store SHA1 message
+        // digests.
+        return "";
     }
 }
