@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Point;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JTree;
 
 
 //Third-party libraries
@@ -89,6 +90,8 @@ public interface Browser
      */
     public static final String POPUP_POINT_PROPERTY = "popupPoint";
 
+    /** Bound property name indicating a layout selection. */
+    public static final String LAYOUT_PROPERTY = "layout";
     
     /**
      * Sets the specified <code>node</code> to be the currently selected
@@ -208,5 +211,35 @@ public interface Browser
      * @return The browser widget.
      */
     public JComponent getUI();
+    
+    /**
+     * Sets the layout index.
+     * 
+     * @param index The index of the layout.
+     */
+    public void setSelectedLayout(int index);
+    
+    /**
+     * Returns the index of the selected layout.
+     * 
+     * @return See above.
+     */
+    public int getSelectedLayout();
+    
+    /**
+     * Returns the component selected when the <code>Tree</code> layout is 
+     * used.
+     * 
+     * @return See above.
+     */
+    public JTree getTreeDisplay();
+    
+    /**
+     * Sets the tree hosting the display. The value is <code>null</code>
+     * when the layout selected is not the <i>Tree layout</i>.
+     * 
+     * @param tree The tree hosting the display or <code>null</code>.
+     */
+    public void setTreeDisplay(JTree tree);
     
 }

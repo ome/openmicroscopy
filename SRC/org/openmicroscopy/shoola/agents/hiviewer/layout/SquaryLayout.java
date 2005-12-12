@@ -116,7 +116,7 @@ class SquaryLayout
             d = children[i].getPreferredSize();
             children[i].setBounds(x, y, d.width, d.height);
             //children[i].setVisible(true);
-            //children[i].setCollapsed(false);
+            children[i].setCollapsed(false);
             if (x+d.width <= browserW) {
                 x += d.width;
                 maxY = Math.max(maxY, d.height); 
@@ -129,9 +129,9 @@ class SquaryLayout
         }
         Rectangle bounds = node.getContentsBounds();
         node.getInternalDesktop().setPreferredSize(bounds.getSize());
-        node.validate();
-        node.repaint();
-        //node.setCollapsed(false);
+        //node.validate();
+        //node.repaint();
+        node.setCollapsed(false);
         //node.setVisible(true);
     }
 
@@ -152,6 +152,8 @@ class SquaryLayout
      */
     public void visit(ImageSet node)
     {
+        //if (node.getParentDisplay() != null) return;
+        node.restoreDisplay();
         if (node.isSingleViewMode()) return;
         if (node.getChildrenDisplay().size() == 0) {   //node with no child
             LayoutUtils.noChildLayout(node);
@@ -172,5 +174,11 @@ class SquaryLayout
      * @see Layout#getDescription()
      */
     public String getDescription() { return DESCRIPTION; }
+
+    /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#getIndex()
+     */
+    public int getIndex() { return LayoutFactory.SQUARY_LAYOUT; }
 
 }

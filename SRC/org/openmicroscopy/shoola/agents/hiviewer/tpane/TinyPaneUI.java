@@ -152,6 +152,7 @@ class TinyPaneUI
             frame.add(frame.getContentPane());
             frame.setSize(frame.getRestoreSize());
             frame.moveToFront();
+            frame.repaint();
         }
     }
     

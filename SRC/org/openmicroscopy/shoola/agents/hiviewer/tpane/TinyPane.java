@@ -532,4 +532,23 @@ public class TinyPane
 
     }
     
+    /**
+     * Replaces the original display by the specified one.
+     * 
+     * @param c The new display.
+     */
+    public void setChangeDisplay(JComponent c)
+    {
+       if (c == null) return;
+       model.setChangeDisplay(c, uiDelegate);
+    }
+    
+    /** Restores the original display. */
+    public void restoreDisplay() { model.restoreDisplay(uiDelegate); }
+    
+    /**
+     * Overrides to return the title of the frame.
+     */
+    public String toString() { return getTitle(); }
+    
 }

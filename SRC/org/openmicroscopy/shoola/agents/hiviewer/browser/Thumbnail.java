@@ -88,15 +88,32 @@ public interface Thumbnail
      */
     public void scale(double f);
     
-    /** Returns the current scaling factor. */
+    /** 
+     * Returns the current scaling factor. 
+     * 
+     * @return The magnification factor.
+     */
     public double getScalingFactor();
     
-    /** Returns the original thumbnail. */
+    /** 
+     * Returns the original thumbnail.
+     * 
+     * @return See above.
+     */
     public BufferedImage getFullScaleThumb();
     
-    /** Returns the icon representing the thumbnail. */
+    /** 
+     * Returns the icon representing the thumbnail.
+     *
+     * @return See above.
+     */
     public Icon getIcon();
     
+    /**
+     * Sets the node hosting the display.
+     * 
+     * @param node See above.
+     */
     public void setImageNode(ImageNode node);
     
 }

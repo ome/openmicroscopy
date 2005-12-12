@@ -34,10 +34,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Point;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JTree;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -78,6 +80,8 @@ class BrowserModel
     /** Contains all visualization trees, our View. */
     private RootDisplay     rootDisplay;
     
+    /** The index of the selected layout. */
+    private int             selectedLayout;
     
     /**
      * Creates a new instance.
@@ -225,5 +229,48 @@ class BrowserModel
      * @see Browser#getUI()
      */
     public JComponent getUI() { return rootDisplay; }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelectedLayout(int)
+     */
+    public void setSelectedLayout(int index)
+    {
+        int oldIndex = selectedLayout;
+        switch (index) {
+            case LayoutFactory.SQUARY_LAYOUT:
+            case LayoutFactory.TREE_LAYOUT:    
+                selectedLayout = index;
+                break;
+            default:
+                selectedLayout = LayoutFactory.SQUARY_LAYOUT;
+        }
+        firePropertyChange(LAYOUT_PROPERTY, new Integer(oldIndex), 
+                        new Integer(selectedLayout));
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedLayout()
+     */
+    public int getSelectedLayout() { return selectedLayout; }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getTreeDisplay()
+     */
+    public JTree getTreeDisplay()
+    {
+        return rootDisplay.getSelectedTreeComponent();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setTreeDisplay(JTree)
+     */
+    public void setTreeDisplay(JTree tree)
+    {
+        rootDisplay.setTreeView(tree);
+    }
 
 }

@@ -31,16 +31,26 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
 /** 
@@ -64,76 +74,123 @@ class TreeLayout
 
     /** Textual description of this layout. */
     static final String         DESCRIPTION = "Lays out all the container " +
-                                                "nodes in a tree. Node " +
-                                                "containing images are "+
-                                                "collapsed, so images are " +
-                                                "not showing.";
-
-    /** Horizontal space added to the x-coordinate of the node location. */
-    private static final int    HSPACE = 10;
+                                                "nodes in a tree.";
+    
+    /** The tree representation of the display. */
+    private JTree                   treeDisplay;
+    
+    /** The root of the tree. */
+    private DefaultMutableTreeNode  root;
     
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
      */
-    private ViewerSorter    sorter;
+    private ViewerSorter            sorter;
     
     /**
-     * Visits an {@link ImageSet} node that contains {@link ImageSet} nodes. 
-     * 
-     * @param node The parent {@link ImageSet} node.
+     * The component observing the changes in the display.
      */
-    private void visitContainerNode(ImageSet node)
+    private Browser                 observer;
+    
+    /**
+     * Reacts to click events on a specified node.
+     * 
+     * @param me The {@link MouseEvent} to handle.
+     */
+    private void onClick(MouseEvent me)
     {
-        //Then figure out the number of columns, which is the same as the
-        //number of rows.  
-        if (node.getChildrenDisplay().size() == 0) {   //node with no child
-            LayoutUtils.noChildLayout(node);
-            return;
+
+        int row = treeDisplay.getRowForLocation(me.getX(), me.getY());
+        if (row != -1) {
+            treeDisplay.setSelectionRow(row);
+            
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
+                        treeDisplay.getLastSelectedPathComponent();
+            ImageDisplay selectedDisplay = (ImageDisplay) n.getUserObject();
+            observer.setSelectedDisplay(selectedDisplay);
+            
+            if (me.isPopupTrigger()) observer.setPopupPoint(me.getPoint());
+            treeDisplay.getCellRenderer().getTreeCellRendererComponent(
+                        treeDisplay, n, 
+                        treeDisplay.isPathSelected(new TreePath(n.getPath())),
+                        false, true, 0, false);
+            //if (c != null) treeDisplay.repaint(c.getBounds());
+            //else treeDisplay.repaint();
         }
-        Dimension d;
-        ImageDisplay[] children = 
-            LayoutUtils.sortChildrenByPrefWidth(node, false);
-        int y = 0, x = HSPACE;
-        int h;
-        if (node.getParentDisplay() == null) x = 0;
-        for (int i = 0; i < children.length; i++) {
-            children[i].setVisible(true);
-            children[i].setCollapsed(true);
-            d = children[i].getPreferredSize();
-            h = children[i].getSize().height;
-            children[i].setBounds(x, y, d.width, h);
-            y += h; 
+        
+    }
+    
+    /** Creates the tree hosting the display. */
+    private void createTree()
+    {
+        treeDisplay = new JTree();
+        treeDisplay.setShowsRootHandles(true);
+        treeDisplay.setCellRenderer(new TreeCellRenderer(true));
+        treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
+        treeDisplay.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
+        root = new DefaultMutableTreeNode("");
+        DefaultTreeModel dtm = new DefaultTreeModel(root);
+        treeDisplay.setModel(dtm);
+        
+        treeDisplay.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) { onClick(e); }
+            public void mouseReleased(MouseEvent e) { onClick(e); }
+        });
+    }
+    
+    /** 
+     * Builds a node corresponding to the specified {@link ImageDisplay}.
+     * 
+     * @param parent  The specified {@link ImageDisplay}.
+     */
+    private void buildTreeNode(DefaultMutableTreeNode parent, List nodes)
+    {
+        DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+        Iterator i = nodes.iterator();
+        DefaultMutableTreeNode dtn = null;
+        ImageDisplay imageDisplay;
+        Set children;
+        while (i.hasNext()) {
+            imageDisplay = (ImageDisplay) i.next();
+            dtn = new DefaultMutableTreeNode(imageDisplay); 
+            tm.insertNodeInto(dtn, parent, parent.getChildCount());
+            children = imageDisplay.getChildrenDisplay();
+            if (children.size() != 0)
+                buildTreeNode(dtn, sorter.sort(children));
         }
-        Rectangle bounds = node.getContentsBounds();
-        d = bounds.getSize();
-        node.getInternalDesktop().setPreferredSize(d);
-        node.setVisible(true);
-        if (node.getParentDisplay() != null) node.setCollapsed(true);
+        if (parent == root && dtn != null) {
+            treeDisplay.collapsePath(new TreePath(dtn.getPath()));
+            treeDisplay.setRootVisible(false);
+        }  
     }
     
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
      */
-    TreeLayout()
+    TreeLayout(Browser observer)
     {
+        if (observer == null) 
+            throw new IllegalArgumentException("No observer.");
+        this.observer = observer;
         sorter = new ViewerSorter();
     }
-    
+
     /**
      * Lays out the current container display.
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
     {
-        if (node.isSingleViewMode()) return;
-        if (node.getChildrenDisplay().size() == 0) {   //node with no child
-            LayoutUtils.noChildLayout(node);
-            return;
+        if (node.getParentDisplay() != null) return;
+        if (node.getChildrenDisplay().size() == 0) return;
+        if (treeDisplay == null) {
+            createTree();
+            buildTreeNode(root, sorter.sort(node.getChildrenDisplay()));
         }
-        if (node.containsImages()) LayoutUtils.doSquareGridLayout(node, sorter);
-        else visitContainerNode(node);
+        observer.setTreeDisplay(treeDisplay);
     }
 
     /**
@@ -147,5 +204,11 @@ class TreeLayout
      * @see Layout#getDescription()
      */
     public String getDescription() { return DESCRIPTION; }
+    
+    /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#getIndex()
+     */
+    public int getIndex() { return LayoutFactory.TREE_LAYOUT; }
     
 }

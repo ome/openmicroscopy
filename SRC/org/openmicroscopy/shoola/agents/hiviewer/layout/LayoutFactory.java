@@ -30,11 +30,14 @@
 package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 
+
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 
 /** 
  * A factory to create {@link Layout} objects.
@@ -64,17 +67,18 @@ public class LayoutFactory
      * Creates the specified layout.
      * 
      * @param type One of the constants defined by this class.
+     * @param observer A reference to the Browser.
      * @return A layout object for the given layout <code>type</code>.
      * @throws IllegalArgumentException If <code>type</code> is not one of
      *          the constants defined by this class.
      */
-    public static Layout createLayout(int type)
+    public static Layout createLayout(int type, Browser observer)
     {
         switch (type) {
             case SQUARY_LAYOUT:
                 return new SquaryLayout();
             case TREE_LAYOUT:
-                return new TreeLayout();
+                return new TreeLayout(observer);
             default:
                 throw new IllegalArgumentException("Unsupported layout type: "+
                                                     +type+".");
@@ -88,7 +92,26 @@ public class LayoutFactory
      */
     public static Layout getDefaultLayout()
     { 
-        return createLayout(SQUARY_LAYOUT); 
+        return createLayout(SQUARY_LAYOUT, null); 
+    }
+    
+    /**
+     * Returns the description corresponding to the layout specified by the
+     * passed <i>type</i>.
+     * 
+     * @param type The layout's type.
+     * @return See above.
+     */
+    public static String getLayoutDescription(int type)
+    {
+        switch (type) {
+            case SQUARY_LAYOUT:
+                return SquaryLayout.DESCRIPTION;
+            case TREE_LAYOUT:
+                return TreeLayout.DESCRIPTION;
+            default:
+                return "";
+        }
     }
     
 }

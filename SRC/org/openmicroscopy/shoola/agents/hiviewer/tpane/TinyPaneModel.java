@@ -95,6 +95,9 @@ class TinyPaneModel
     /** Replaces the {@link #desktopPane} when we're in single-view mode. */
     private JLayeredPane    singleViewDesktop;
     
+    /** Replaces the current desktop when we modify the display. */
+    private JLayeredPane    changeDisplayDesktop;
+    
     /** 
      * The bounds of the currently displayed child view relative to the
      * {@link #desktopPane} in which it was originally contained, if we're
@@ -235,6 +238,56 @@ class TinyPaneModel
         listenToBorder = true;
     }
     
+    /**
+     * Replaces the original display by the specified one.
+     * 
+     * @param c The new display.
+     * @param uiDelegate The frame's View.  We need it here to decorate the
+     *                   desktops. Mustn't be <code>null</code>.
+     */
+    void setChangeDisplay(JComponent c, TinyPaneUI uiDelegate)
+    {
+        if (uiDelegate == null) 
+            throw new NullPointerException("No UI delegate.");
+        Rectangle r = contentPane.getBounds();
+        
+        contentPane.removeAll();
+        changeDisplayDesktop = new JLayeredPane();
+        contentPane.removeAll();
+        contentPane.add(
+                uiDelegate.decorateDesktopPane(changeDisplayDesktop),
+                BorderLayout.CENTER);
+        c.setSize(r.getSize());
+        changeDisplayDesktop.setLayout(new BorderLayout());
+        changeDisplayDesktop.add(c, BorderLayout.CENTER);
+        changeDisplayDesktop.setSize(r.getSize());
+        contentPane.validate();
+        contentPane.repaint();
+    }
+    
+    /**
+     * Restores the original view.
+     * 
+     * @param uiDelegate The frame's View.  We need it here to decorate the
+     *                   desktops.  Mustn't be <code>null</code>.
+     */
+    void restoreDisplay(TinyPaneUI uiDelegate)
+    {
+        if (changeDisplayDesktop == null) return;
+        contentPane.removeAll();
+        if (singleViewMode) {
+            if (singleViewDesktop != null)
+                contentPane.add(
+                    uiDelegate.decorateDesktopPane(singleViewDesktop),
+                    BorderLayout.CENTER);
+        } else 
+        contentPane.add(
+                uiDelegate.decorateDesktopPane(desktopPane),
+                BorderLayout.CENTER);
+        contentPane.validate();
+        contentPane.repaint();
+    }
+    
     /** Tells if we're in single or multi-view mode. */
     boolean isSingleViewMode() { return singleViewMode; }
     
@@ -325,6 +378,7 @@ class TinyPaneModel
             //contentPane.repaint(); 
         }
     }
+    
     /**
      * Returns the component that is showing in the single-view desktop when
      * in single-view mode.
@@ -509,5 +563,6 @@ class TinyPaneModel
      * @return See above.
      */
     public Container getContentPane() { return contentPane; }
+    
     
 }

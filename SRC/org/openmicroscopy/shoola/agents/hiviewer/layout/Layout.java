@@ -66,4 +66,11 @@ public interface Layout
      */
     public String getDescription();
     
+    /** 
+     * Returns the index of the layout.
+     * 
+     * @return See above.
+     */
+    public int getIndex();
+    
 }
