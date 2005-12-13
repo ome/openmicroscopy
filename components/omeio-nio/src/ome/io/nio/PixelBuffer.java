@@ -73,19 +73,19 @@ public class PixelBuffer
     private void checkBounds(Integer y, Integer z, Integer c, Integer t)
         throws DimensionsOutOfBoundsException
     {
-        if (y != null && y > getSizeY())
+        if (y != null && (y > getSizeY() - 1 || y < 0))
             throw new DimensionsOutOfBoundsException("Y '" + y +
                     "' greater than height '" + getSizeY() + "'.");
         
-        if (z != null && z > getSizeZ())
+        if (z != null && (z > getSizeZ() - 1 || z < 0))
             throw new DimensionsOutOfBoundsException("Z '" + z +
                     "' greater than height '" + getSizeZ() + "'.");
         
-        if (c != null && c > getSizeC())
+        if (c != null && (c > getSizeC() - 1 || c < 0))
             throw new DimensionsOutOfBoundsException("C '" + c +
                     "' greater than height '" + getSizeC() + "'.");
         
-        if (t != null && t > getSizeT())
+        if (t != null && (t > getSizeT() - 1 || t < 0))
             throw new DimensionsOutOfBoundsException("T '" + t +
                     "' greater than height '" + getSizeT() + "'.");
     }
