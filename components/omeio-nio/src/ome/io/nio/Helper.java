@@ -50,20 +50,6 @@ public class Helper
         return getPath("Files/", id);
     }
     
-    public static Integer getNextPixelsId()
-    {
-        // FIXME: *HACK* This really needs to be stored in the database and
-        // have its own type.
-        return 100;
-    }
-    
-    public static Integer getNextFilesId()
-    {
-        // FIXME: *HACK* This really needs to be stored in the database and
-        // have its own type.
-        return 100;
-    }
-    
     private static String getPath(String prefix, Integer id)
     {
         String suffix = "";

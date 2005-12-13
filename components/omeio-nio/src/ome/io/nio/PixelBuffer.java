@@ -76,6 +76,18 @@ public class PixelBuffer
         if (y != null && y > getSizeY())
             throw new DimensionsOutOfBoundsException("Y '" + y +
                     "' greater than height '" + getSizeY() + "'.");
+        
+        if (z != null && z > getSizeZ())
+            throw new DimensionsOutOfBoundsException("Z '" + z +
+                    "' greater than height '" + getSizeZ() + "'.");
+        
+        if (c != null && c > getSizeC())
+            throw new DimensionsOutOfBoundsException("C '" + c +
+                    "' greater than height '" + getSizeC() + "'.");
+        
+        if (t != null && t > getSizeT())
+            throw new DimensionsOutOfBoundsException("T '" + t +
+                    "' greater than height '" + getSizeT() + "'.");
     }
     
     private FileChannel getFileChannel(Boolean readOnly)

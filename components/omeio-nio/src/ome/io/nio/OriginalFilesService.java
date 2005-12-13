@@ -52,7 +52,6 @@ public class OriginalFilesService
     public FileBuffer createFileBuffer(OriginalFile file)
         throws FileNotFoundException
     {
-        file.setId(Helper.getNextFilesId());
         return new FileBuffer(file, "rw");
     }
 
@@ -67,6 +66,4 @@ public class OriginalFilesService
     {
         return new FileBuffer(file, "rw");
     }
-    
-    
 }
