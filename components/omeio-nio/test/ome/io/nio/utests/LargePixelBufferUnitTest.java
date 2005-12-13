@@ -1,6 +1,8 @@
 package ome.io.nio.utests;
 
+import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
@@ -19,6 +21,7 @@ public class LargePixelBufferUnitTest extends TestCase
     {
         pixels = new Pixels();
         
+        pixels.setId(1);
         pixels.setSizeX(512);
         pixels.setSizeY(512);
         pixels.setSizeZ(64);
@@ -28,7 +31,8 @@ public class LargePixelBufferUnitTest extends TestCase
         PixelsType type = new PixelsType();
         pixels.setPixelsType(type); // FIXME
 
-        pixelBuffer = new PixelBuffer(1, pixels);
+        PixelsService service = PixelsService.getInstance();
+        pixelBuffer = service.getPixelBuffer(pixels);
     }
     
     public void testGetPlaneSize()
@@ -46,18 +50,18 @@ public class LargePixelBufferUnitTest extends TestCase
         assertEquals(pixelBuffer.getTimepointSize().intValue(), timepointSize);
     }
     
-    public void testGetInitialPlaneOffset()
+    public void testGetInitialPlaneOffset() throws DimensionsOutOfBoundsException
     {
         assertEquals(pixelBuffer.getPlaneOffset(0, 0, 0).longValue(), 0L);
     }
     
-    public void testGetPlaneOffset1()
+    public void testGetPlaneOffset1() throws DimensionsOutOfBoundsException
     {
         long offset = ((long)timepointSize * 25) + ((long)planeSize * 25);
         assertEquals(pixelBuffer.getPlaneOffset(25, 0, 25).longValue(), offset);
     }
     
-    public void testGetPlaneOffset2()
+    public void testGetPlaneOffset2() throws DimensionsOutOfBoundsException
     {
         long offset = ((long)timepointSize * 25) + ((long)stackSize * 1) +
                       ((long)planeSize * 25);
