@@ -1,96 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <!-- TODO add properties goal to update pref.properties -->
-
-<project name="Middlegen Hibernate" default="all" basedir=".">
-	<!-- Define properties -->
-	<property name="props" value="${basedir}/src/hibernate.properties"/>
-	<property environment="env" />
-	<property file="${props}" />
-	<!-- Directories -->
-	<property name="lib.dir" value="${basedir}/../../lib" />
-	<property name="src.dir" value="${basedir}/src" />
-	<property name="resrc.dir" value="${basedir}/resources" />
-	<property name="dest.dir" value="${basedir}/target/generated-sources" />
+<project name="common" default="all" basedir=".">
+    
+	<dirname property="up-one" file="${basedir}"/>
+	<import file="${up-one}/antlib/resources/build.xml"/>
+	
+	<!-- Local properties -->
 	<property name="ddl.file" value="ddl.sql" />
-	<property name="ice.file" value="ome.ice"/>
-	<property name="target.dir" value="${basedir}/target/classes" />
-	<property name="hbm.dir" value="${dest.dir}/hbm"/>
-	<property name="api.dir" value="${dest.dir}/api"/>
-	<property name="done.dir" value="${dest.dir}/.done"/>
-	<!-- File patterns -->
-	<property name="dsl.pat" value="**/*.ome.xml"/>
-	<property name="hbm.pat" value="**/*.hbm.xml"/>
-	<property name="api.pat" value="**/*.java"/>
-	<property name="ice.pat" value="**/*.ice"/>
 	
-	<target name="all" depends="dsl,hib,api,slice-all"/>
+	<target name="all" depends="dsl,hib,api"/>
 	
-	<target name="prepare">
-
-	    <!-- = = = = = = = = = = = = = = = = =
-	          define CLASSPATH          
-	         = = = = = = = = = = = = = = = = = -->
-	    	
-		<pathconvert property="maven.path" refid="maven.dependency.classpath"/>
-		<path id="local.classpath">
-			<pathelement path="${maven.path}"/>
-			<pathelement location="${basedir}" />
-			<pathelement location="${dest.dir}/" />
-			<pathelement location="${target.dir}/" />
-			<fileset dir="${lib.dir}/htool" includes="**/*.jar" />
-		</path>
-		<pathconvert property="this.path" refid="local.classpath"/>
-
-		<mkdir dir="${dest.dir}" />
-		<mkdir dir="${done.dir}" />
-
-	    <!-- = = = = = = = = = = = = = = = = =
-	          check PATH          
-	         = = = = = = = = = = = = = = = = = -->
-	    
-		<available property="hibernate" classname="org.hibernate.Hibernate" classpathref="local.classpath" />
-		<available property="hibernate-ext" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" />
-		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
-		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
-		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py" />
-		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py.exe" />
-		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs" />
-		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs.exe" />
-		<available property="perl-exists" filepath="${env.PATH}" file="perl" />
-		<available property="perl-exists" filepath="${env.PATH}" file="perl.exe" />
-		<condition property="csharp-exists">
-		  <or>
-			<available filepath="${env.PATH}" file="mcs" />
-			<available filepath="${env.PATH}" file="mcs.exe" />
-			<available filepath="${env.PATH}" file="csc.exe" />
-		  </or>
-		</condition>
-
-	</target>
-
+	<target name="prepare" depends="global.prepare,hibcheck"/>
 	
-    <!-- = = = = = = = = = = = = = = = = =
-          error messages          
-         = = = = = = = = = = = = = = = = = -->
-
-	<macrodef name="not_found">
-        <attribute name="item"/>
-        <sequential>
-            <fail message="@{item} is not found. Please install."/>
-        </sequential>
-    </macrodef>
-
-    <macrodef name="path_warning">
-        <attribute name="item"/>
-        <sequential>
-            <echo message="WARNING: Skipping @{item} step because it is not in your path"/>
-        </sequential>
-    </macrodef>
-	
-	<target name="warnings" 
-		depends="fail-if-no-hibernate,fail-if-no-hibernate-ext,warn-if-no-slice2java,warn-if-no-slice2cs,warn-if-no-slice2py,warn-if-no-csharp,warn-if-no-perl"/>
+	<target name="errors" 
+		depends="fail-if-no-hibernate,fail-if-no-hibernate-ext"/>
 	
 	<target name="fail-if-no-hibernate" unless="hibernate">
 		<not_found item="Hibernate"/>
@@ -98,56 +21,12 @@
 	<target name="fail-if-no-hibernate-ext" unless="hibernate-ext">
 		<not_found item="Hibernate Tools"/>
 	</target>
-	<target name="warn-if-no-slice2java" unless="slice2java-exists">
-		<path_warning item="slice2java"/>
-	</target>
-	<target name="warn-if-no-slice2cs" unless="slice2cs-exists">
-		<path_warning item="slice2cs"/>
-	</target>
-	<target name="warn-if-no-slice2py" unless="slice2py-exists">
-		<path_warning item="slice2py"/>
-	</target>
-	<target name="warn-if-no-perl" unless="perl-exists">
-		<path_warning item="perl"/>
-	</target>
-	<target name="warn-if-no-csharp" unless="csharp-exists">
-		<path_warning item="csharp"/>
-	</target>
-	
-    <!-- = = = = = = = = = = = = = = = = =
-          checks if a build step is needed    
-         = = = = = = = = = = = = = = = = = -->
-
-	<macrodef name="is-done">
-        <attribute name="name"/>
-		<attribute name="srcdir"/>
-		<attribute name="includes"/>
-        <sequential>
-    		<condition property="@{name}.not.required">
-    		  <and>
-    		  	<available file="${done.dir}/@{name}.done"/>
-    			<uptodate 
-    				property="@{name}.not.required"> 
-    		  		<mergemapper to="${done.dir}/@{name}.done"/>
-    				<srcfiles dir= "@{srcdir}" includes="@{includes}"/>
-    			</uptodate>
-    		  </and>
-    		</condition>
-        </sequential>
-    </macrodef>
-
-	<macrodef name="done">
-		<attribute name="name"/>
-		<sequential>
-			<touch file="${done.dir}/@{name}.done"/>
-		</sequential>
-	</macrodef>
 	
     <!-- = = = = = = = = = = = = = = = = =
           home grown code-gen          
          = = = = = = = = = = = = = = = = = -->
 	
-	<target name="dsl-init" depends="prepare,warnings">
+	<target name="dsl-init" depends="prepare,errors">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="local.classpath" name="dsl"/>
 		<is-done name="dsl" srcdir="${resrc.dir}" includes="${dsl.pat}"/>
 	</target>
@@ -162,7 +41,7 @@
 		<done name="dsl"/>
 	</target>
 
-	<target name="api-init" depends="prepare,warnings">
+	<target name="api-init" depends="prepare,errors">
 		<taskdef classname="ome.dsl.APITask" classpathref="local.classpath" name="api"/>
 		<is-done name="api" srcdir="${src.dir}/ome/api" includes="${api.pat}"/>
 	</target>
@@ -181,201 +60,20 @@
           hibernate code-gen  
          = = = = = = = = = = = = = = = = = -->
 	
-	<target name="hib-init" depends="prepare,warnings">
+	<target name="hib-init" depends="prepare,errors">
 		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" name="hibernatetool"/>
 		<is-done name="hib" srcdir="${hbm.dir}" includes="${hbm.pat}"/>
 	</target>
 	
 	<target name="hib" depends="dsl,hib-init" unless="hib.not.required">
 		<mkdir dir="${dest.dir}/jdk14"/>
-		<mkdir dir="${dest.dir}/slice"/>
-		<mkdir dir="${dest.dir}/slice_exts"/>
-		<hibernatetool destdir="${dest.dir}" templatepath="${src.dir}">
-			<classpath refid="local.classpath"/>
-			
-			<configuration propertyfile="${props}">
-				<fileset dir="${src.dir}" includes="${hbm.pat}"/>
-				<fileset dir="${hbm.dir}" includes="${hbm.pat}">
-					<not><present targetdir="${src.dir}"/></not>
-				</fileset>
-			</configuration>
-	
-			<hbmtemplate template="pojo/ice_includes.vm" filepattern="${ice.file}" />
-			<hbmtemplate template="pojo/ice_defs.vm" filepattern="slice/{package-name}/{class-name}.ice" />
-			<hbmtemplate template="pojo/ice_exts.vm" filepattern="slice_exts/{package-name}/{class-name}Remote.ext" />
-			<hbmtemplate template="pojo/ice_mapper.vm" filepattern="jdk14/ome/model/adapters/Model2IceMapper.java" />
+		<hibernate>			
 			<hbm2java destdir="${dest.dir}/jdk14"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
 			<hbm2ddl outputfilename="${ddl.file}" export="true" console="false" />
 			<hbm2cfgXml destdir="${hbm.dir}"/>
-		</hibernatetool>
+		</hibernate>
 		<done name="hib"/>
-	</target>
-	
-	
-    <!-- = = = = = = = = = = = = = = = = =
-          slice code-gen   
-         = = = = = = = = = = = = = = = = = -->
-	
-	<macrodef name="run">
-		<attribute name="exec"/>
-		<attribute name="files"/>
-		<attribute name="suffix" default=""/>
-		<sequential>
-		  <mkdir dir="${dest.dir}/@{exec}/@{suffix}"/>
-		  <exec executable="@{exec}" failonerror="true">
-		 	<arg value="--output-dir"/>
-			<arg value="${dest.dir}/@{exec}/@{suffix}"/>
-			<arg value="-I${dest.dir}"/>
-			<arg value="-I${dest.dir}/slice"/>
-			<arg line="@{files}"/>
-		  </exec>            
-        </sequential>
-    </macrodef>
-	
-	<macrodef name="slice">
-	   <attribute name="lang"/>
-	   <attribute name="files"/>
-	   <attribute name="suffix" default=""/>
-	   <sequential>
-	   	 <run exec="slice2@{lang}" files="${dest.dir}/${ice.file}"/>
-		 <run exec="slice2@{lang}" files="@{files}" suffix="@{suffix}"/>
-	   	 <done name="slice2@{lang}"/>
-	   </sequential>
-	</macrodef>
-
-	<target name="slice-init" depends="prepare,warnings">
-		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" name="groovy"/>
-		<fileset dir="${dest.dir}/slice" id="slice.generated">
-			<include name="**/*.ice"/>
-		</fileset>
-		<pathconvert pathsep=" " property="slice.files" refid="slice.generated"/>
-		<is-done name="slice2java" srcdir="${dest.dir}/slice" includes="${ice.pat}" />
-		<is-done name="slice2cs" srcdir="${dest.dir}/slice" includes="${ice.pat}" />
-		<is-done name="slice2py" srcdir="${dest.dir}/slice" includes="${ice.pat}"/>
-	</target>
-	
-	<target name="sliceJava" depends="slice-init" if="slice2java-exists" unless="slice2java.not.required">
-			<slice lang="java" files="${slice.files}"/>
-	</target>
-		
-	<target name="sliceCs" depends="slice-init" if="slice2cs-exists" unless="slice2cs.not.required">
-			<slice lang="cs" files="${slice.files}"/>
-		</target>
-	
-	<target name="slicePy" depends="slice-init" if="slice2py-exists" unless="slice2py.not.required">
-		<!-- slice lang="py" files="${slice.files}"/-->
-		<mkdir dir="${dest.dir}/slice2py"/>
-		<groovy><![CDATA[
-			
-			def dest = properties["dest.dir"]
-			def file = properties["ice.file"]
-
-			fs = project.getReferences()["slice.generated"]
-			ds = fs.getDirectoryScanner(project);
-      			files = ds.getIncludedFiles();
-			base = ds.basedir
-			
-			map = [:]
-
-			files.each { |path|
-			  m = path =~ /^(.*)\/(.*?)$/
-			  dir = m[0][1]
-			  end = m[0][2]
-			  if (null == map[dir]) map[dir]=[]
-			  map[dir] << "${base}/${path}"
-			}
-
-			def macro(String files, String suffix){
-			  macro = project.createTask("run")
-			  macro.setDynamicAttribute("exec","slice2py")
-			  macro.setDynamicAttribute("files",files)
-			  macro.setDynamicAttribute("suffix",suffix)
-			  return macro
-			}
-			
-			macro("${dest}/${file}","").execute()
-			map.keySet().each { |d|
-			  m = macro(map[d].join(" "),d).execute()
-			}
-
-			done = project.createTask("done")
-			done.setDynamicAttribute("name","slice2py")
-			done.execute()
-
-    		]]></groovy>
-	</target>
-		
-	<target name="compileCs" depends="sliceCs" if="csharp-exists,slice2cs-exists">
-		<exec executable="mcs" dir="${dest.dir}/slice2cs">
-			<arg value="/t:library"/>
-			<arg value="-r:icecs.dll"/>
-			<arg value="-out:ome.dll"/>
-			<arg value="*.cs"/>
-		</exec>
-	</target>
-	
-	<target name="patchJava" depends="sliceJava" if="perl-exists,slice2java-exists" unless="slice2java.not.required">
-		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
-    			<include name="**/*Remote.java"/>
-		</fileset>
-
-		<pathconvert pathsep=":" property="ice.files" refid="ice.generated"/>
-		
-		<exec executable="perl">
-			<arg value="../scripts/perl/replace.pl"/>
-			<arg value="${ice.files}"/>
-		</exec>
-	</target>
-	
-	<target name="slice-all" depends="sliceJava,patchJava,sliceCs,compileCs,slicePy">
-		<done name="slice"/>
-	</target>
-	
-	<!-- TODO: Groovy -->
-	<!--
-		ant project properties target task
-	-->
-	<target name="groovy" depends="sliceJava">
-		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
-    			<include name="**/*Remote.java"/>
-		</fileset>
-		<groovy><![CDATA[
-
-
-                      	fs = project.getReferences()["slice.generated"]
-                        ds = fs.getDirectoryScanner(project);
-                	files = ds.getIncludedFiles();
-                        base = ds.basedir
-
-			files.each { |file|
-			  filename = file.toString()
-			  filename = filename.replaceAll("slice2java","slice_exts")
-			  filename = filename.subString(0,filename.length() - 4)+"ext"
-
-			  contents = file.readLines().reverse()
-			  end = false
-			  
-			  contents.each { |line|
-			    if (line =~ /\}/ && ! end) {
-			      line = " \n\n INSERTING WITH GROOVY \n\n";
-			      end = true
-			    }
-			  }
-			  
-			  f = new java.io.File("/tmp/${filename}")
-			  contents.reverse()
-			
-			  contents.each { |line|
-			    f.writeLine(line)
-			  }
-			  // write inserts! 
-			  f.flush()
-			  f.close()
-
-			}
-
-		]]></groovy>
 	</target>
 	
     <!-- = = = = = = = = = = = = = = = = =

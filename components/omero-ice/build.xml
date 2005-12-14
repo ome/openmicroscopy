@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="omero-ice" default="slice-all" basedir=".">
+
+	<dirname property="up-one" file="${basedir}"/>
+	<import file="${up-one}/antlib/resources/build.xml"/>
+	            
+    <!-- Local properties -->
+    <property name="ice.file" value="ome.ice"/>
+	
+	<target name="slice-all" depends="makeSlice,sliceJava,patchJava,sliceCs,compileCs,slicePy">
+		<done name="slice"/>
+	</target>
+	
+        		
+	<target name="prepare" depends="global.prepare,hibcheck">
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
+		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py" />
+		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py.exe" />
+		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs" />
+		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs.exe" />
+		<available property="perl-exists" filepath="${env.PATH}" file="perl" />
+		<available property="perl-exists" filepath="${env.PATH}" file="perl.exe" />
+		<condition property="csharp-exists">
+		  <or>
+			<available filepath="${env.PATH}" file="mcs" />
+			<available filepath="${env.PATH}" file="mcs.exe" />
+			<available filepath="${env.PATH}" file="csc.exe" />
+		  </or>
+		</condition>
+	</target>
+	
+	<target name="errors" 
+		depends="fail-if-no-slice2java,fail-if-no-slice2cs,fail-if-no-slice2py,fail-if-no-csharp,fail-if-no-perl"/>
+	
+	<target name="fail-if-no-slice2java" unless="slice2java-exists">
+		<not_found item="slice2java"/>
+	</target>
+	<target name="fail-if-no-slice2cs" unless="slice2cs-exists">
+		<not_found item="slice2cs"/>
+	</target>
+	<target name="fail-if-no-slice2py" unless="slice2py-exists">
+		<not_found item="slice2py"/>
+	</target>
+	<target name="fail-if-no-perl" unless="perl-exists">
+		<not_found item="perl"/>
+	</target>
+	<target name="fail-if-no-csharp" unless="csharp-exists">
+		<not_found item="csharp"/>
+	</target>
+	
+    <!-- = = = = = = = = = = = = = = = = =
+          generate slice   
+         = = = = = = = = = = = = = = = = = -->
+	
+	<target name="make-init" depends="prepare,errors">
+		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" name="hibernatetool"/>
+		<is-done name="make" srcdir="${common.comp}/${hbm.path}" includes="${hbm.pat}"/>
+	</target>
+	
+	<target name="makeSlice" depends="make-init" unless="make.not.required">
+		<mkdir dir="${dest.dir}/slice"/>
+		<mkdir dir="${dest.dir}/slice_exts"/>
+		<hibernate mappings="${common.comp}/${hbm.path}">			
+			<hbmtemplate template="templates/ice_includes.vm" filepattern="${ice.file}" />
+			<hbmtemplate template="templates/ice_defs.vm" filepattern="slice/{package-name}/{class-name}.ice" />
+			<hbmtemplate template="templates/ice_exts.vm" filepattern="slice_exts/{package-name}/{class-name}Remote.ext" />
+			<hbmtemplate template="templates/ice_mapper.vm" filepattern="jdk14/ome/model/adapters/Model2IceMapper.java" />
+		</hibernate>
+		<done name="hib"/>
+	</target>
+
+	
+    <!-- = = = = = = = = = = = = = = = = =
+          generated *from* slice   
+         = = = = = = = = = = = = = = = = = -->
+	
+	<target name="slice-init" depends="prepare,errors">
+		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" name="groovy"/>
+		<fileset dir="${dest.dir}/slice" id="slice.generated">
+			<include name="${ice.pat}"/>
+		</fileset>
+		<pathconvert pathsep=" " property="slice.files" refid="slice.generated"/>
+		<is-done name="slice2java" srcdir="${dest.dir}/slice" includes="${ice.pat}" />
+		<is-done name="slice2cs" srcdir="${dest.dir}/slice" includes="${ice.pat}" />
+		<is-done name="slice2py" srcdir="${dest.dir}/slice" includes="${ice.pat}"/>
+	</target>
+	
+	<target name="sliceJava" depends="slice-init" if="slice2java-exists" unless="slice2java.not.required">
+			<slice lang="java" files="${slice.files}"/>
+	</target>
+		
+	<target name="sliceCs" depends="slice-init" if="slice2cs-exists" unless="slice2cs.not.required">
+			<slice lang="cs" files="${slice.files}"/>
+		</target>
+	
+	<target name="slicePy" depends="slice-init" if="slice2py-exists" unless="slice2py.not.required">
+		<!-- slice lang="py" files="${slice.files}"/-->
+		<mkdir dir="${dest.dir}/slice2py"/>
+		<groovy><![CDATA[
+			
+			def dest = properties["dest.dir"]
+			def file = properties["ice.file"]
+
+			fs = project.getReferences()["slice.generated"]
+			ds = fs.getDirectoryScanner(project);
+      			files = ds.getIncludedFiles();
+			base = ds.basedir
+			
+			map = [:]
+
+			files.each { |path|
+			  m = path =~ /^(.*)\/(.*?)$/
+			  dir = m[0][1]
+			  end = m[0][2]
+			  if (null == map[dir]) map[dir]=[]
+			  map[dir] << "${base}/${path}"
+			}
+
+			def macro(String files, String suffix){
+			  macro = project.createTask("run")
+			  macro.setDynamicAttribute("exec","slice2py")
+			  macro.setDynamicAttribute("files",files)
+			  macro.setDynamicAttribute("suffix",suffix)
+			  return macro
+			}
+			
+			macro("${dest}/${file}","").execute()
+			map.keySet().each { |d|
+			  m = macro(map[d].join(" "),d).execute()
+			}
+
+			done = project.createTask("done")
+			done.setDynamicAttribute("name","slice2py")
+			done.execute()
+
+    		]]></groovy>
+	</target>
+		
+	<target name="compileCs" depends="sliceCs" if="csharp-exists,slice2cs-exists">
+		<exec executable="mcs" dir="${dest.dir}/slice2cs">
+			<arg value="/t:library"/>
+			<arg value="-r:icecs.dll"/>
+			<arg value="-out:ome.dll"/>
+			<arg value="*.cs"/>
+		</exec>
+	</target>
+	
+	<target name="patchJava" depends="sliceJava" if="perl-exists,slice2java-exists" unless="slice2java.not.required">
+		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
+    			<include name="**/*Remote.java"/>
+		</fileset>
+
+		<pathconvert pathsep=":" property="ice.files" refid="ice.generated"/>
+		
+		<exec executable="perl">
+			<arg value="../scripts/perl/replace.pl"/>
+			<arg value="${ice.files}"/>
+		</exec>
+	</target>
+	
+
+	<!-- TODO: Groovy -->
+	<!--
+		ant project properties target task
+	-->
+	<target name="groovy" depends="sliceJava">
+		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
+    			<include name="**/*Remote.java"/>
+		</fileset>
+		<groovy><![CDATA[
+
+
+                      	fs = project.getReferences()["slice.generated"]
+                        ds = fs.getDirectoryScanner(project);
+                	files = ds.getIncludedFiles();
+                        base = ds.basedir
+
+			files.each { |file|
+			  filename = file.toString()
+			  filename = filename.replaceAll("slice2java","slice_exts")
+			  filename = filename.subString(0,filename.length() - 4)+"ext"
+
+			  contents = file.readLines().reverse()
+			  end = false
+			  
+			  contents.each { |line|
+			    if (line =~ /\}/ && ! end) {
+			      line = " \n\n INSERTING WITH GROOVY \n\n";
+			      end = true
+			    }
+			  }
+			  
+			  f = new java.io.File("/tmp/${filename}")
+			  contents.reverse()
+			
+			  contents.each { |line|
+			    f.writeLine(line)
+			  }
+			  // write inserts! 
+			  f.flush()
+			  f.close()
+
+			}
+
+		]]></groovy>
+	</target>
+	
+</project>

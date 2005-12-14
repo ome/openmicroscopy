@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="directories" basedir="." default="">
+
+	<!-- Setup: needed calculations for other paths -->
+	<dirname property="import.dir"     file="${ant.file.directories}"/>
+	<dirname property="antlib.dir"     file="${import.dir}"/>
+	<dirname property="components.dir" file="${antlib.dir}"/>
+	<dirname property="root.dir"       file="${components.dir}"/>
+
+	<!-- Components -->
+	<property name="common.comp" value="${components.dir}/common"/>
+	
+	<!-- Relative paths -->
+	<property name="target.path"    value="target"/>
+	<property name="generated.path" value="${target.path}/generated-sources"/>	
+	<property name="hbm.path"       value="${generated.path}/hbm"/>
+		
+	<!-- Absolute paths: same for all components -->
+	<property name="lib.dir"   value="${root.dir}/lib" />
+	
+	<!-- Directories relative to basedir: different for each component -->
+	<!-- top-level -->
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="resrc.dir" value="${basedir}/resources" />
+	<property name="target.dir" value="${basedir}/${target.path}" />
+	<!-- target -->
+	<property name="classes.dir" value="${target.dir}/classes" />
+	<property name="dest.dir" value="${target.dir}/generated-sources" />
+	<!-- generated -->
+	<property name="hbm.dir" value="${dest.dir}/hbm"/>
+	<property name="api.dir" value="${dest.dir}/api"/>
+	<property name="genresrc.dir" value="${dest.dir}/resources"/>
+	<property name="done.dir" value="${dest.dir}/.done"/>
+
+		<!-- Files relative to basedir: different for each component -->
+	<property name="hibernate.properties" value="${genresrc.dir}/hibernate.properties"/>
+
+</project>

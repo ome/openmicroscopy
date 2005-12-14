@@ -7,50 +7,32 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>common</artifactId>
+  <artifactId>omero-ice</artifactId>
   <packaging>jar</packaging>
-  <name>Omero Common</name>
+  <name>Ome Remote Objects - ICE</name>
   <dependencies>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>ice</artifactId>
+      <version>3.0.0</version>
+    </dependency>
     <dependency>
       <groupId>omero</groupId>
       <artifactId>antlib</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
-    <!-- TODO: Perhaps delete -->
-    <dependency>
-      <groupId>com.caucho</groupId>
-      <artifactId>burlap</artifactId>
-      <version>2.1.12</version>
-    </dependency>
-    <dependency>
-      <groupId>com.caucho</groupId>
-      <artifactId>hessian</artifactId>
-      <version>2.1.12</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.1</version>
-    </dependency>
   </dependencies>
   <build>
-    <resources>
-      <resource><directory>target/generated-sources/hbm</directory></resource>
-      <resource>
-        <directory>target/generated-sources</directory>
-        <includes><include>**/*.ice</include></includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <id>build-hibernate</id>
+            <id>build-ice</id>
             <phase>generate-sources</phase>
             <goals><goal>run</goal></goals>
             <configuration>
-              <sourceRoot>target/generated-sources/jdk14</sourceRoot>
+              <sourceRoot>target/generated-sources/slice2java</sourceRoot>
               <tasks>
                 <ant antfile="build.xml" inheritRefs="true"/>
               </tasks>

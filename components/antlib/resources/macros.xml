@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="macros" basedir="." default="">
+	
+    <!-- = = = = = = = = = = = = = = = = =
+          define CLASSPATH          
+         = = = = = = = = = = = = = = = = = -->
+	<macrodef name="definePath">
+	  <sequential>
+		<pathconvert property="maven.path" refid="maven.dependency.classpath"/>
+		<path id="local.classpath">
+			<pathelement path="${maven.path}"/>
+			<pathelement location="${basedir}" />
+			<pathelement location="${dest.dir}/" />
+			<pathelement location="${target.dir}/" />
+			<fileset dir="${lib.dir}/htool" includes="**/*.jar" />
+		</path>
+		<pathconvert property="this.path" refid="local.classpath"/>
+	  </sequential>
+	</macrodef>
+		
+    <!-- = = = = = = = = = = = = = = = = =
+          copy resource files to generated-sources          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="copyResource">
+        <attribute name="file"/>
+        <sequential>
+            <copy file="@{file}" todir="${genresrc.dir}" failonerror="true" />
+        </sequential>
+    </macrodef>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          error messages          
+         = = = = = = = = = = = = = = = = = -->
+
+	<macrodef name="not_found">
+        <attribute name="item"/>
+        <sequential>
+            <fail message="@{item} was not found in your PATH. Please install."/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="path_warning">
+        <attribute name="item"/>
+        <sequential>
+            <echo message="WARNING: Skipping @{item} step because it is not in your path"/>
+        </sequential>
+    </macrodef>
+	
+    <!-- = = = = = = = = = = = = = = = = =
+          checks if a build step is needed    
+         = = = = = = = = = = = = = = = = = -->
+
+	<macrodef name="is-done">
+        <attribute name="name"/>
+		<attribute name="srcdir"/>
+		<attribute name="includes"/>
+        <sequential>
+    		<condition property="@{name}.not.required">
+    		  <and>
+    		  	<available file="${done.dir}/@{name}.done"/>
+    			<uptodate 
+    				property="@{name}.not.required"> 
+    		  		<mergemapper to="${done.dir}/@{name}.done"/>
+    				<srcfiles dir= "@{srcdir}" includes="@{includes}"/>
+    			</uptodate>
+    		  </and>
+    		</condition>
+        </sequential>
+    </macrodef>
+
+	<macrodef name="done">
+		<attribute name="name"/>
+		<sequential>
+			<touch file="${done.dir}/@{name}.done"/>
+		</sequential>
+	</macrodef>
+	
+    <!-- = = = = = = = = = = = = = = = = =
+          hibernate code-gen          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="hibernate">
+		<attribute name="mappings" default="${hbm.dir}"/>
+    	<element name="templates" implicit="yes"/>
+        <sequential>
+    		<hibernatetool destdir="${dest.dir}" templatepath="${src.dir}"><!-- TODO RESOURCE.dir-->
+    			<classpath refid="local.classpath"/>
+    			
+    			<configuration propertyfile="${hibernate.properties}">
+    				<fileset dir="${src.dir}" includes="${hbm.pat}"/>
+    				<fileset dir="@{mappings}" includes="${hbm.pat}">
+    					<not><present targetdir="${src.dir}"/></not>
+    				</fileset>
+    			</configuration>
+    	
+    			<templates/>
+
+    		</hibernatetool>
+        </sequential>
+    </macrodef>	
+	
+    <!-- = = = = = = = = = = = = = = = = =
+          slice code-gen   
+         = = = = = = = = = = = = = = = = = -->
+	
+	<macrodef name="run">
+		<attribute name="exec"/>
+		<attribute name="files"/>
+		<attribute name="suffix" default=""/>
+		<sequential>
+		  <mkdir dir="${dest.dir}/@{exec}/@{suffix}"/>
+		  <exec executable="@{exec}" failonerror="true">
+		 	<arg value="--output-dir"/>
+			<arg value="${dest.dir}/@{exec}/@{suffix}"/>
+			<arg value="-I${dest.dir}"/>
+			<arg value="-I${dest.dir}/slice"/>
+			<arg line="@{files}"/>
+		  </exec>            
+        </sequential>
+    </macrodef>
+	
+	<macrodef name="slice">
+	   <attribute name="lang"/>
+	   <attribute name="files"/>
+	   <attribute name="suffix" default=""/>
+	   <sequential>
+	   	 <run exec="slice2@{lang}" files="${dest.dir}/${ice.file}"/>
+		 <run exec="slice2@{lang}" files="@{files}" suffix="@{suffix}"/>
+	   	 <done name="slice2@{lang}"/>
+	   </sequential>
+	</macrodef>
+
+</project>

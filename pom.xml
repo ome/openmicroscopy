@@ -7,9 +7,12 @@
   <artifactId>main</artifactId>
   <packaging>pom</packaging>
   <modules>
-<!--<module>components/omeio-bdb</module>-->
+    <module>components/antlib</module>
     <module>components/dsl</module>
     <module>components/common</module>
+    <module>components/omero-ice</module>
+    <module>components/omeio-nio</module>
+<!--<module>components/omeio-bdb</module>-->
     <module>components/server</module>
   </modules>
   <repositories>

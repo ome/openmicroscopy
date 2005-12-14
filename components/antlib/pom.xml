@@ -7,26 +7,19 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>sandbox</artifactId>
+  <artifactId>antlib</artifactId>
   <packaging>jar</packaging>
-  <name>Omero Sandbox</name>
+  <name>Omero Library of Ant Build Scripts</name>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>omero-ice</artifactId>
+      <artifactId>dsl</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.0.5</version>
-    </dependency>
-    <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>7.4.1</version>
-      <scope>system</scope>
-      <systemPath>../../lib/htool/postgresql-7.4.1-jdbc3.jar</systemPath>
+      <groupId>groovy</groupId>
+      <artifactId>groovy-all-1.0-jsr</artifactId>
+      <version>04</version>
     </dependency>
   </dependencies>
 </project>
