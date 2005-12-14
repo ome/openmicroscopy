@@ -38,6 +38,7 @@ import junit.framework.TestCase;
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
+import ome.model.Category;
 import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.Project;
@@ -89,5 +90,10 @@ public class Model2PojosMapperTest extends TestCase {
 		System.out.println(pd);
 	}
 	
+    public void testEmptyClassificationsBug(){
+        mapper = new Model2PojosMapper();
+        Category c = new Category();
+        mapper.map(c);
+    }
 }
 

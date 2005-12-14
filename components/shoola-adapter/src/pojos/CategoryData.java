@@ -103,12 +103,14 @@ public class CategoryData
 			this.setName(c.getName());
 			this.setDescription(c.getDescription());
 			Set _images = new HashSet();
+            if (null != c.getClassifications()) {
 			for (Iterator i = c.getClassifications().iterator(); i.hasNext();) {
 				Classification cla = (Classification) i.next();
 				if (cla.getImage()!=null){
 					_images.add(mapper.findTarget(cla.getImage()));
 				}
 			}
+            }
 			this.setImages(_images);
 			this.setGroup((CategoryGroupData) mapper.findTarget(c.getCategoryGroup()));
 			ModuleExecution mex = c.getModuleExecution();
