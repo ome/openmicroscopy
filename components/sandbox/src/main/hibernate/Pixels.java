@@ -59,6 +59,7 @@ public class Pixels
                 p.setSizeZ(new Integer(1));
                 p.setSizeC(new Integer(1));
                 p.setSizeT(new Integer(1));
+                p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");  // "pixels"
                 p.setBigEndian(Boolean.TRUE);
                 
                 p.setCreationEvent(e);
