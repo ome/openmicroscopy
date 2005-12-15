@@ -28,14 +28,9 @@
  */
 package ome.io.nio.itests;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -66,7 +61,9 @@ public class PlaneIOUnitTest extends TestCase
     private Experimenter experimenter;
     private Event event;
     private byte[][] originalDigests;
-    private byte[][] newDigests;
+    
+    private Integer planeCount;
+    private Integer planeSize;
 
     private void initHibernate()
     {
@@ -91,39 +88,6 @@ public class PlaneIOUnitTest extends TestCase
                 return e;
             }
         });
-    }
-    
-    private MessageDigest newSha1MessageDigest()
-    {
-        MessageDigest md;
-        
-        try
-        {
-            md = MessageDigest.getInstance("SHA-1");
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new RuntimeException(
-                    "Required SHA-1 message digest algorithm unavailable.");
-        }
-        
-        md.reset();
-        
-        return md;
-    }
-    
-    public byte[] calculateMessageDigest(ByteBuffer buffer) throws IOException
-    {
-        MessageDigest md = newSha1MessageDigest();
-        md.update(buffer);
-        return md.digest();
-    }
-    
-    public byte[] calculateMessageDigest(byte[] buffer) throws IOException
-    {
-        MessageDigest md = newSha1MessageDigest();
-        md.update(buffer);
-        return md.digest();
     }
     
     private void createEvent()
@@ -169,6 +133,30 @@ public class PlaneIOUnitTest extends TestCase
         });
     }
     
+    private int getDigestOffset(int z, int c, int t)
+    {
+        int planeCountT = pixels.getSizeZ().intValue() *
+                          pixels.getSizeC().intValue();
+        
+        return (planeCountT * t) + (pixels.getSizeZ() * c) + z;
+    }
+    
+    private String getPlaneCheckErrStr(int z, int c, int t)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Error with plane: ");
+        sb.append("Z[");
+        sb.append(z);
+        sb.append("] ");
+        sb.append("C[");
+        sb.append(c);
+        sb.append("] ");
+        sb.append("T[");
+        sb.append(t);
+        sb.append("].");
+        return sb.toString();
+    }
+    
     private byte[] createPlane(int planeSize, byte planeNo)
     {
         byte[] plane = new byte[planeSize];
@@ -179,56 +167,13 @@ public class PlaneIOUnitTest extends TestCase
         return plane;
     }
     
-    /**
-    * Convenience method to convert a byte to a hex string.
-    *
-    * @param data the byte to convert
-    * @return String the converted byte
-    */
-    public String byteToHex(byte data)
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append(toHexChar((data >>> 4) & 0x0F));
-        buf.append(toHexChar(data & 0x0F));
-        return buf.toString();
-    }
-    
-    /**
-    * Convenience method to convert an int to a hex char.
-    *
-    * @param i the int to convert
-    * @return char the converted char
-    */
-    public char toHexChar(int i)
-    {
-        if ((0 <= i) && (i <= 9))
-            return (char) ('0' + i);
-        else
-            return (char) ('a' + (i - 10));
-    }
-    
-    /**
-    * Convenience method to convert a byte array to a hex string.
-    *
-    * @param data the byte[] to convert
-    * @return String the converted byte[]
-    */
-    public String bytesToHex(byte[] data) {
-        StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < data.length; i++)
-        {
-            buf.append(byteToHex(data[i]));
-        }
-        return (buf.toString());
-    }
-    
     private void createPlanes() throws IOException
     {
-        Integer planeCount = pixels.getSizeZ() * pixels.getSizeC() *
-                             pixels.getSizeT();
+        planeCount = pixels.getSizeZ() * pixels.getSizeC() *
+                     pixels.getSizeT();
         // FIXME: *Hack* right now we assume everything is 16-bits wide
-        Integer planeSize  = pixels.getSizeX() * pixels.getSizeY() *
-                             2;
+        planeSize  = pixels.getSizeX() * pixels.getSizeY() *
+                     2;
         String  path = ome.io.nio.Helper.getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
         
@@ -237,8 +182,7 @@ public class PlaneIOUnitTest extends TestCase
         for (int i = 0; i < planeCount; i++)
         {
             byte[] plane = createPlane(planeSize.intValue(), (byte)(i - 128));
-            originalDigests[i] = calculateMessageDigest(plane);
-            System.out.println("SHA1: " + bytesToHex(originalDigests[i]));
+            originalDigests[i] = Helper.calculateMessageDigest(plane);
             stream.write(plane);
         }
     }
@@ -259,15 +203,57 @@ public class PlaneIOUnitTest extends TestCase
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         MappedByteBuffer plane = pixbuf.getPlane(0, 0, 0);
 
-        byte[] messageDigest = calculateMessageDigest(plane);
+        byte[] messageDigest = Helper.calculateMessageDigest(plane);
         
-        System.out.println("Size: " + plane);
-        
-        FileOutputStream stream = new FileOutputStream("/tmp/file");
-        stream.getChannel().write(plane);
-        
+        assertEquals(Helper.bytesToHex(originalDigests[0]),
+                     Helper.bytesToHex(messageDigest));
+    }
+    
+    public void testLastPlane()
+        throws IOException, DimensionsOutOfBoundsException
+    {
+        PixelsService service = PixelsService.getInstance();
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels);
+        MappedByteBuffer plane = pixbuf.getPlane(pixels.getSizeZ() - 1,
+                                                 pixels.getSizeC() - 1,
+                                                 pixels.getSizeT() - 1);
+        int digestOffset = getDigestOffset(pixels.getSizeZ() - 1,
+                                           pixels.getSizeC() - 1,
+                                           pixels.getSizeT() - 1);
 
-        assertEquals(bytesToHex(originalDigests[0]), bytesToHex(messageDigest));
+        byte[] messageDigest = Helper.calculateMessageDigest(plane);
+        
+        assertEquals(Helper.bytesToHex(originalDigests[digestOffset]),
+                     Helper.bytesToHex(messageDigest));
+    }
+
+    public void testAllPlanes()
+    throws IOException, DimensionsOutOfBoundsException
+    {
+        PixelsService service = PixelsService.getInstance();
+        PixelBuffer pixbuf = service.getPixelBuffer(pixels);
+        
+        String newMessageDigest;
+        String oldMessageDigest;
+        int digestOffset;
+        for (int t = 0; t < pixels.getSizeT(); t++)
+        {
+            for (int c = 0; c < pixels.getSizeC(); c++)
+            {
+                for (int z = 0; z < pixels.getSizeZ(); z++)
+                {
+                    digestOffset = getDigestOffset(z, c, t);
+                    MappedByteBuffer plane = pixbuf.getPlane(z, c, t);
+                    newMessageDigest = 
+                        Helper.bytesToHex(Helper.calculateMessageDigest(plane));
+                    oldMessageDigest =
+                        Helper.bytesToHex(originalDigests[digestOffset]);
+                    
+                    assertEquals(getPlaneCheckErrStr(z, c, t),
+                                 oldMessageDigest, newMessageDigest);
+                }
+            }
+        }
     }
     
     protected void tearDown()
