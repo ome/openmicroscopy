@@ -97,7 +97,7 @@ public class PixelBuffer
         {
             if (roChannel == null)
             {
-                FileOutputStream stream = new FileOutputStream(path);
+                FileInputStream stream = new FileInputStream(path);
                 roChannel = stream.getChannel();
                 
                 return roChannel;
@@ -110,7 +110,7 @@ public class PixelBuffer
         if (woChannel != null)
             return woChannel;
         
-        FileInputStream stream = new FileInputStream(path);
+        FileOutputStream stream = new FileOutputStream(path);
         woChannel = stream.getChannel();
         
         return woChannel;
@@ -212,7 +212,7 @@ public class PixelBuffer
          * there happens to be an error.
          */
         
-        return fileChannel.map(MapMode.READ_ONLY, size, offset);
+        return fileChannel.map(MapMode.READ_ONLY, offset, size);
     }
     
     public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
@@ -229,16 +229,8 @@ public class PixelBuffer
     {
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
-
-        return getRegion(size, offset);
-    }
-    
-    public MappedByteBuffer getStack(Integer c, Integer t)
-        throws IOException, DimensionsOutOfBoundsException
-    {
-        Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
         MappedByteBuffer region = getRegion(size, offset);
+
         byte[] nullPlane = PixelsService.nullPlane;
         
         for (int i = 0; i < PixelsService.NULL_PLANE_SIZE; i++)
@@ -246,6 +238,15 @@ public class PixelBuffer
                 return region;
         
         return null;  // All of the nullPlane bytes match, non-filled plane
+    }
+    
+    public MappedByteBuffer getStack(Integer c, Integer t)
+        throws IOException, DimensionsOutOfBoundsException
+    {
+        Long offset = getStackOffset(c, t);
+        Integer size = getStackSize();
+        
+        return getRegion(size, offset);
     }
     
     public MappedByteBuffer getTimepoint(Integer t)
