@@ -19,7 +19,7 @@
 	 COMMON
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	
-	 <id name="id" type="java.lang.Integer" column="id">
+	 <id name="id" type="java.lang.Long" column="id">
 		<generator class="sequence">
 			<param name="sequence">seq_$table</param>
 		</generator>

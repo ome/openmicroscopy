@@ -7,7 +7,7 @@ import ome.util.Filterable;
 
 public interface NewModel extends Filterable{
 	
-	public Integer getId();
+	public Long getId();
 	public Integer getVersion();
 	public Permissions getPermissions();
 	public Experimenter getOwner();	
