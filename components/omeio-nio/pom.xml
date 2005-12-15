@@ -21,7 +21,7 @@
       <artifactId>postgresql</artifactId>
       <version>7.4.1</version>
       <scope>system</scope>
-      <systemPath>../../lib/htool/postgresql-7.4.1-jdbc3.jar</systemPath>
+      <systemPath>${basedir}/../../lib/htool/postgresql-7.4.1-jdbc3.jar</systemPath>
     </dependency>
   </dependencies>
   <build>

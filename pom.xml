@@ -61,6 +61,7 @@
     <testSourceDirectory>test</testSourceDirectory>
     <resources>
       <resource><directory>resources</directory></resource>
+      <resource><directory>target/generated-sources/resources</directory></resource>
     </resources>
     <testResources>
       <testResource><directory>test-resources</directory></testResource>

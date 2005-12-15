@@ -10,23 +10,13 @@
 	
 	<target name="all" depends="dsl,hib,api"/>
 	
-	<target name="prepare" depends="global.prepare,hibcheck"/>
-	
-	<target name="errors" 
-		depends="fail-if-no-hibernate,fail-if-no-hibernate-ext"/>
-	
-	<target name="fail-if-no-hibernate" unless="hibernate">
-		<not_found item="Hibernate"/>
-	</target>
-	<target name="fail-if-no-hibernate-ext" unless="hibernate-ext">
-		<not_found item="Hibernate Tools"/>
-	</target>
-	
+	<target name="prepare" depends="global.prepare,loadHibernate"/>
+
     <!-- = = = = = = = = = = = = = = = = =
           home grown code-gen          
          = = = = = = = = = = = = = = = = = -->
 	
-	<target name="dsl-init" depends="prepare,errors">
+	<target name="dsl-init" depends="prepare">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="local.classpath" name="dsl"/>
 		<is-done name="dsl" srcdir="${resrc.dir}" includes="${dsl.pat}"/>
 	</target>
@@ -41,7 +31,7 @@
 		<done name="dsl"/>
 	</target>
 
-	<target name="api-init" depends="prepare,errors">
+	<target name="api-init" depends="prepare">
 		<taskdef classname="ome.dsl.APITask" classpathref="local.classpath" name="api"/>
 		<is-done name="api" srcdir="${src.dir}/ome/api" includes="${api.pat}"/>
 	</target>
@@ -60,8 +50,7 @@
           hibernate code-gen  
          = = = = = = = = = = = = = = = = = -->
 	
-	<target name="hib-init" depends="prepare,errors">
-		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" name="hibernatetool"/>
+	<target name="hib-init" depends="prepare">
 		<is-done name="hib" srcdir="${hbm.dir}" includes="${hbm.pat}"/>
 	</target>
 	

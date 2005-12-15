@@ -16,17 +16,27 @@
 			This build file is intended for import only.
 		</echo>
 	</target>
-		
+
 	<target name="prepare">
 		<copyResource file="${root.dir}/hibernate.properties"/>
+		<copyResource file="${root.dir}/log4j.properties"/>
 		<definePath/>
 		<mkdir dir="${dest.dir}" />
 		<mkdir dir="${done.dir}" />
 	</target>
 
-	<target name="hibcheck">
-		<available property="hibernate" classname="org.hibernate.Hibernate" classpathref="local.classpath" />
-		<available property="hibernate-ext" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" />
+	<target name="loadHibernate">
+		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="local.classpath" />
+		<available property="hibernate.ext-exists" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" />
+		<fail unless="hibernate-exists" message="Hibernate ${fail.message}"/>
+		<fail unless="hibernate.ext-exists" message="Hibernate Tools ${fail.message}"/>
+		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" name="hibernatetool"/>
 	</target>
 	
+	<target name="loadGroovy">
+		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" />
+		<fail unless="groovy-exists" message="Groovy ${fail_message}"/>
+		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" name="groovy"/>
+	</target>
+		
 </project>

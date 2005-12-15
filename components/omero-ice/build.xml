@@ -10,9 +10,8 @@
 	<target name="slice-all" depends="makeSlice,sliceJava,patchJava,sliceCs,compileCs,slicePy">
 		<done name="slice"/>
 	</target>
-	
-        		
-	<target name="prepare" depends="global.prepare,hibcheck">
+	      		
+	<target name="prepare" depends="global.prepare,loadGroovy">
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
 		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py" />
@@ -28,37 +27,25 @@
 			<available filepath="${env.PATH}" file="csc.exe" />
 		  </or>
 		</condition>
+		<fail unless="slice2java-exists" message="${fail_message} slice2java"/>	
+		<groovy>
+			msg = properties["skip_message"]
+			["slice2cs","slice2py","perl","csharp"].each { |cmd|
+				if (!properties["${cmd}-exists"])
+					println "${msg} ${cmd}"
+			}
+		</groovy>
 	</target>
-	
-	<target name="errors" 
-		depends="fail-if-no-slice2java,fail-if-no-slice2cs,fail-if-no-slice2py,fail-if-no-csharp,fail-if-no-perl"/>
-	
-	<target name="fail-if-no-slice2java" unless="slice2java-exists">
-		<not_found item="slice2java"/>
-	</target>
-	<target name="fail-if-no-slice2cs" unless="slice2cs-exists">
-		<not_found item="slice2cs"/>
-	</target>
-	<target name="fail-if-no-slice2py" unless="slice2py-exists">
-		<not_found item="slice2py"/>
-	</target>
-	<target name="fail-if-no-perl" unless="perl-exists">
-		<not_found item="perl"/>
-	</target>
-	<target name="fail-if-no-csharp" unless="csharp-exists">
-		<not_found item="csharp"/>
-	</target>
-	
+		
     <!-- = = = = = = = = = = = = = = = = =
           generate slice   
          = = = = = = = = = = = = = = = = = -->
 	
-	<target name="make-init" depends="prepare,errors">
-		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" name="hibernatetool"/>
+	<target name="make-init" depends="prepare">
 		<is-done name="make" srcdir="${common.comp}/${hbm.path}" includes="${hbm.pat}"/>
 	</target>
 	
-	<target name="makeSlice" depends="make-init" unless="make.not.required">
+	<target name="makeSlice" depends="make-init,loadHibernate" unless="make.not.required">
 		<mkdir dir="${dest.dir}/slice"/>
 		<mkdir dir="${dest.dir}/slice_exts"/>
 		<hibernate mappings="${common.comp}/${hbm.path}">			
@@ -75,8 +62,7 @@
           generated *from* slice   
          = = = = = = = = = = = = = = = = = -->
 	
-	<target name="slice-init" depends="prepare,errors">
-		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" name="groovy"/>
+	<target name="slice-init" depends="prepare">
 		<fileset dir="${dest.dir}/slice" id="slice.generated">
 			<include name="${ice.pat}"/>
 		</fileset>

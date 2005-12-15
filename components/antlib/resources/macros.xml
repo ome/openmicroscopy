@@ -17,34 +17,42 @@
 		<pathconvert property="this.path" refid="local.classpath"/>
 	  </sequential>
 	</macrodef>
-		
+			
     <!-- = = = = = = = = = = = = = = = = =
           copy resource files to generated-sources          
          = = = = = = = = = = = = = = = = = -->
     <macrodef name="copyResource">
         <attribute name="file"/>
         <sequential>
-            <copy file="@{file}" todir="${genresrc.dir}" failonerror="true" />
+			<basename property="props.file.prop" file="@{file}"/>
+			<available file="@{file}" property="${props.file.prop}.exists"/>
+        	<fail unless="${props.file.prop}.exists"><![CDATA[
+        			!
+        			!
+        			!
+        			!
+        			=====================================================================	
+        			Missing @{file} !
+        			
+        			Please copy from ${root.dir}/docs/examples/ to
+        			${root.dir} and change the properties.
+        			=====================================================================
+        			!
+        			!
+        			!
+        		]]>
+      		</fail>    
+           <copy file="@{file}" todir="${genresrc.dir}" failonerror="true" />
+		   <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
         </sequential>
     </macrodef>
 	
 	<!-- = = = = = = = = = = = = = = = = =
           error messages          
          = = = = = = = = = = = = = = = = = -->
-
-	<macrodef name="not_found">
-        <attribute name="item"/>
-        <sequential>
-            <fail message="@{item} was not found in your PATH. Please install."/>
-        </sequential>
-    </macrodef>
-
-    <macrodef name="path_warning">
-        <attribute name="item"/>
-        <sequential>
-            <echo message="WARNING: Skipping @{item} step because it is not in your path"/>
-        </sequential>
-    </macrodef>
+	<!-- Add to localized properties -->
+	<property name="fail_message" value="FAILURE: Item missing from your PATH. Please install: "/>
+	<property name="skip_message" value="WARNING: Skipping step because item missing from your path: "/>
 	
     <!-- = = = = = = = = = = = = = = = = =
           checks if a build step is needed    
