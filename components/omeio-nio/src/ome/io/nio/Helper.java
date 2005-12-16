@@ -28,6 +28,8 @@
  */
 package ome.io.nio;
 
+import java.util.Formatter;
+
 
 /**
  * @author callan
@@ -55,21 +57,23 @@ public class Helper
         String suffix = "";
         Integer remaining = id;
         Integer dirno = 0;
-        Integer i = 0;
         
         if (id == null)
             throw new NullPointerException("Expecting a not-null id.");
 
         while (remaining > 999)
         {
-            if (i > 0)
-            {
-                dirno = remaining % 1000;
-                suffix = dirno + "/" + suffix;
-            }
-
+            System.out.println("Remaining: " + remaining);
             remaining /= 1000;
-            i++;
+            
+            if (remaining > 0)
+            {
+                Formatter formatter = new Formatter();
+                dirno = remaining % 1000;
+                suffix = formatter.format("Dir-%03d/%s", dirno, suffix)
+                                  .out().toString();
+                System.out.println("Suffix: " + suffix);
+            }
         }
         
         return root + prefix + suffix + id;
