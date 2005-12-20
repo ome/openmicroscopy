@@ -181,6 +181,11 @@
         <class>org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent</class>  
         <config>hiviewer.xml</config>
       </agent> 
+       <agent>
+        <name>Tree Manager</name>
+        <class>org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent</class>
+        <config>treeviewer.xml</config>
+    </agent>
     </structuredEntry>
   </agents>
   
