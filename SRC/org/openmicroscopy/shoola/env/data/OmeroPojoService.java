@@ -80,11 +80,12 @@ public interface OmeroPojoService
      * Annotations are currently possible only for Image and Dataset.
      * 
      * @param rootNodeType top-most type which will be searched for 
-     *          Can be <code>Project</code> or <code>CategoryGroup</code>. 
-     *          Mustn't be <code>null</code>.
-     * @param rootNodeIDs A set of the IDs of top-most containers.
-     * @param withLeaves. Passed <code>true</code> to retrieve the images,
-     * <code>false</code> otherwise.
+     *                      Can be <code>Project</code> or
+     *                      <code>CategoryGroup</code>. 
+     *                      Mustn't be <code>null</code>.
+     * @param rootNodeIDs   A set of the IDs of top-most containers.
+     * @param withLeaves.   Passed <code>true</code> to retrieve the images,
+     *                      <code>false</code> otherwise.
      * @return  A set of hierarchy trees.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
@@ -142,11 +143,12 @@ public interface OmeroPojoService
      * would <i>not</i> be part of the returned tree rooted by <code>p1</code>.
      * </p>
      * 
-     * @param rootNodeType top-most type which will be searched for 
-     *          Can be <code>Project</code> or <code>CategoryGroup</code>. 
-     *          Mustn't be <code>null</code>.
-     * @param leavesIDs Set of ids of the Images that sit at the bottom of
-     *          the trees. Mustn't be <code>null</code>.
+     * @param rootNodeType  Top-most type which will be searched for 
+     *                      Can be <code>Project</code> or
+     *                      <code>CategoryGroup</code>. 
+     *                      Mustn't be <code>null</code>.
+     * @param leavesIDs     Set of ids of the Images that sit at the bottom of
+     *                      the trees. Mustn't be <code>null</code>.
      * @return A <code>Set</code> with all root nodes that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
@@ -200,8 +202,9 @@ public interface OmeroPojoService
      * This is <u>more</u> restrictive than may be imagined. The goal is to 
      * find CGC paths to which an Image <B>MAY</b> be attached.
      * </p>
-     * @param imgIDs Set of ids of the images that sit at the bottom of the
-     *              CGC trees. Mustn't be <code>null</code>.
+     * 
+     * @param imgIDs    Set of ids of the images that sit at the bottom of the
+     *                  CGC trees. Mustn't be <code>null</code>.
      * @param algorithm The search algorithm for finding paths. One of the 
      *                  following constants: {@link #DECLASSIFICATION},
      *                  {@link #CLASSIFICATION_ME},
@@ -218,6 +221,7 @@ public interface OmeroPojoService
     /**
      * Retrieves the images contained in containers specified by the 
      * node type.
+     * 
      * @param nodeType  The type of container. Can be either Project, Dataset,
      *                  CategoryGroup, Category.
      * @param nodeIDs   Set of containers' IDS.

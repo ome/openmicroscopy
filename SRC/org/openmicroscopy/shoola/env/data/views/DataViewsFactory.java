@@ -109,7 +109,8 @@ public class DataViewsFactory
         DataServicesView dsv = null;
         if (view.equals(HierarchyBrowsingView.class))
             dsv = new HierarchyBrowsingViewImpl();
-        //else if (view.equals(..)) ...
+        else if (view.equals(DataManagerView.class)) 
+            dsv = new DataManagerViewImpl();
         if (dsv == null) 
             throw new IllegalArgumentException("Unknown view type: "+view+".");
         return dsv;

@@ -87,6 +87,7 @@ public class HierarchyLoader
      * Creates a {@link BatchCall} to retrieve a Container tree, either
      * Project, Dataset, CategoryGroup or Category.
      * 
+     * @param rootNodeType The type of the root node.
      * @param rootNodeIDs Collection of container's id. 
      * @return The {@link BatchCall}.
      */

@@ -36,6 +36,8 @@ package org.openmicroscopy.shoola.env.data.views;
 //Application-internal dependencies
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
@@ -58,40 +60,38 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#loadContainerHierarchy(Class, boolean, 
+     * @see DataManagerView#loadContainerHierarchy(Class, Set, boolean, 
      * AgentEventListener)
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
+                                            Set rootNodeIDs,
                                             boolean withLeaves,
                                             AgentEventListener observer)
     {
-        // TODO Auto-generated method stub
-        return null;
+        BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves);
+        return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#getImages(Class, Set, boolean, AgentEventListener)
+     * @see DataManagerView#loadImages(AgentEventListener)
      */
-    public CallHandle getImages(Class rootNodeType, Set rootNodeIDs, boolean in,
+    public CallHandle loadImages(AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ImagesLoader();
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#getImages(Class, Set, AgentEventListener)
+     */
+    public CallHandle getImages(Class nodeType, Set nodeIDs,
                                 AgentEventListener observer)
     {
-        // TODO Auto-generated method stub
-        return null;
+        BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs);
+        return cmd.exec(observer);
     }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#getInnerContainer(Class, Set, boolean,
-     *                                      AgentEventListener)
-     */
-    public CallHandle getInnerContainer(Class rootNodeType, Set rootNodeIDs,
-                                boolean in, AgentEventListener observer)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     
     
 }

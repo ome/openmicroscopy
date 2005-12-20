@@ -56,15 +56,41 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * @since OME2.2
  */
 public interface DataManagerView
+    extends DataServicesView
 {
 
+    /**
+     * 
+     * @param rootNodeType  The type of the root node. Can only be one out of:
+     *                      <code>ProjectData, DatasetData, 
+     *                      CategoryGroupData, CategoryData</code>.
+     * @param rootNodeIDs   A set of the IDs of top-most containers.
+     * @param withLeaves    Passes <code>true</code> to retrieve the images.
+     *                      <code>false</code> otherwise.   
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
+                                            Set rootNodeIDs,
                                             boolean withLeaves,
                                             AgentEventListener observer);
     
-    public CallHandle getImages(Class rootNodeType, Set rootNodeIDs, boolean in,
+    /**
+     * 
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadImages(AgentEventListener observer);
+    
+    /**
+     * 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, CategoryData</code>.       
+     * @param nodeIDs The id of the node.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle getImages(Class nodeType, Set nodeIDs, 
                                 AgentEventListener observer);
     
-    public CallHandle getInnerContainer(Class rootNodeType, Set rootNodeIDs, 
-                                    boolean in, AgentEventListener observer);
 }
