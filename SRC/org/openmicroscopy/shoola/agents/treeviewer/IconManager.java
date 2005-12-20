@@ -1,0 +1,187 @@
+/*
+ * org.openmicroscopy.shoola.agents.treemng.IconManager
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.treeviewer;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
+
+/** 
+ * 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
+public class IconManager
+    extends AbstractIconManager
+{
+
+    /** The <code>Hierarchy Explorer</code> icon. */
+    public static int           HIERARCHY_EXPLORER = 0;
+    
+    /** The <code>Category Explorer</code> icon. */
+    public static int           CATEGORY_EXPLORER = 1;
+    
+    /** The <code>Images Explorer</code> icon. */
+    public static int           IMAGES_EXPLORER = 2;
+    
+    /** The <code>Manager</code> icon. */
+    public static int           MANAGER = 3;
+    
+    /** The <code>Project</code> icon. */
+    public static int           PROJECT = 4;
+    
+    /** The <code>Dataset</code> icon. */
+    public static int           DATASET = 5;
+    
+    /** The <code>Image</code> icon. */
+    public static int           IMAGE = 6;
+    
+    /** The <code>Category</code> icon. */
+    public static int           CATEGORY = 7;
+    
+    /** The <code>CategoryGroup</code> icon. */
+    public static int           CATEGORY_GROUP = 8;
+    
+    /** The <code>Root</code> icon. */
+    public static int           ROOT = 9;
+    
+    /** The <code>Properties</code> icon. */
+    public static int           PROPERTIES = 10;
+    
+    /** The <code>Viewer</code> icon. */
+    public static int           VIEWER = 11;
+    
+    /** The <code>Refresh</code> icon. */
+    public static int           REFRESH = 12;
+    
+    /** The <code>Create</code> icon. */
+    public static int           CREATE = 13;
+    
+    /** The <code>Close</code> icon. */
+    public static int           CLOSE = 14;
+    
+    /** The <code>Collapse</code> icon. */
+    public static int           COLLAPSE = 15;
+    
+    /** The <code>Sort</code> icon. */
+    public static int           SORT = 16;
+    
+    /** The <code>Sort by Date</code> icon. */
+    public static int           SORT_DATE = 17;
+    
+    /** The <code>Filter</code> icon. */
+    public static int           FILTER = 18;
+    
+    /** The <code>Filter Menu</code> icon. */
+    public static int           FILTER_MENU = 19;
+    
+    /** The <code>Annotated Dataset</code> icon. */
+    public static int           ANNOTATED_DATASET = 20;
+    
+    /** The <code>Annotated Image</code> icon. */
+    public static int           ANNOTATED_IMAGE = 21;
+    
+    /** The bigger version of the <code>Create</code> icon. */
+    public static int           CREATE_BIG = 22;
+    
+    /** The <code>Error</code> icon. */
+    public static int           ERROR = 23;
+    
+    /** 
+     * The maximum ID used for the icon IDs.
+     * Allows to correctly build arrays for direct indexing. 
+     */
+    private static int          MAX_ID = 23;
+    
+    
+    /** Paths of the icon files. */
+    private static String[]     relPaths = new String[MAX_ID+1];
+    
+    static {
+        relPaths[HIERARCHY_EXPLORER] = "eclipse_hierarchy_co16.png";
+        relPaths[CATEGORY_EXPLORER] = "eclipse_hierarchicalLayout16.png";
+        relPaths[IMAGES_EXPLORER] = "eclipse_outline_co16.png";
+        relPaths[MANAGER] = "nuvola_file-manager16.png";
+        relPaths[PROJECT] = "nuvola_document16.png";
+        relPaths[DATASET] = "nuvola_folder_image16.png";
+        relPaths[IMAGE] = "nuvola_image16.png";
+        relPaths[CATEGORY] = "category16.png";
+        relPaths[CATEGORY_GROUP] = "category_group16.png";
+        relPaths[ROOT] = "nuvola_trashcan_empty16.png";
+        relPaths[PROPERTIES] = "nuvola_kate16.png";
+        relPaths[VIEWER] = "viewer16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
+        relPaths[CREATE] = "nuvola_filenew16.png"; 
+        relPaths[CLOSE] = "eclipse_close_view16.png";
+        relPaths[COLLAPSE] = "eclipse_collapseall16.png";
+        relPaths[SORT] = "eclipse_alphab_sort_co16.png";
+        relPaths[SORT_DATE] = "eclipse_trace_persp16.png";
+        relPaths[FILTER] = "eclipse_filter_ps16.png"; 
+        relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
+        relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";
+        relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
+        relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
+        relPaths[ERROR] = "eclipse_error_tsk16.png";
+        
+    }
+    
+    /** The sole instance. */
+    private static IconManager  singleton;
+    
+    
+    /** Returns the <code>IconManager</code> object. */
+    public static IconManager getInstance() 
+    { 
+        if (singleton == null) 
+            singleton = new IconManager(TreeViewerAgent.getRegistry());
+        return singleton; 
+    }
+    
+    /**
+     * Creates a new instance and configures the parameters.
+     * 
+     * @param registry  Reference to the registry.
+     */
+    private IconManager(Registry registry)
+    {
+        super(registry, "/resources/icons/Factory", relPaths);
+    }
+
+}
