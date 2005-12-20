@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 
@@ -100,9 +101,7 @@ abstract class HiViewerModel
     protected HiViewer          component;
     
     
-    /**
-     * Creates a new object and sets its state to {@link HiViewer#NEW}.
-     */
+    /** Creates a new object and sets its state to {@link HiViewer#NEW}. */
     protected HiViewerModel() { state = HiViewer.NEW; }
     
     /**
@@ -177,6 +176,8 @@ abstract class HiViewerModel
         browser = BrowserFactory.createBrowser(visTrees);
         
         //Do initial layout and set the icons.
+        Layout layout = LayoutFactory.getDefaultLayout();
+        browser.setSelectedLayout(layout.getIndex());
         browser.accept(LayoutFactory.getDefaultLayout(),
                         ImageDisplayVisitor.IMAGE_SET_ONLY);
         browser.accept(new IconsVisitor(), ImageDisplayVisitor.IMAGE_SET_ONLY);

@@ -80,7 +80,7 @@ class TreeLayout
     private JTree                   treeDisplay;
     
     /** The root of the tree. */
-    private DefaultMutableTreeNode  root;
+    //private DefaultMutableTreeNode  root;
     
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
@@ -100,7 +100,6 @@ class TreeLayout
      */
     private void onClick(MouseEvent me)
     {
-
         int row = treeDisplay.getRowForLocation(me.getX(), me.getY());
         if (row != -1) {
             treeDisplay.setSelectionRow(row);
@@ -115,14 +114,12 @@ class TreeLayout
                         treeDisplay, n, 
                         treeDisplay.isPathSelected(new TreePath(n.getPath())),
                         false, true, 0, false);
-            //if (c != null) treeDisplay.repaint(c.getBounds());
-            //else treeDisplay.repaint();
         }
         
     }
     
     /** Creates the tree hosting the display. */
-    private void createTree()
+    private DefaultMutableTreeNode createTree()
     {
         treeDisplay = new JTree();
         treeDisplay.setShowsRootHandles(true);
@@ -130,7 +127,7 @@ class TreeLayout
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
-        root = new DefaultMutableTreeNode("");
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
         DefaultTreeModel dtm = new DefaultTreeModel(root);
         treeDisplay.setModel(dtm);
         
@@ -138,6 +135,7 @@ class TreeLayout
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onClick(e); }
         });
+        return root;
     }
     
     /** 
@@ -160,6 +158,7 @@ class TreeLayout
             if (children.size() != 0)
                 buildTreeNode(dtn, sorter.sort(children));
         }
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tm.getRoot();
         if (parent == root && dtn != null) {
             treeDisplay.collapsePath(new TreePath(dtn.getPath()));
             treeDisplay.setRootVisible(false);
@@ -187,7 +186,7 @@ class TreeLayout
         if (node.getParentDisplay() != null) return;
         if (node.getChildrenDisplay().size() == 0) return;
         if (treeDisplay == null) {
-            createTree();
+            DefaultMutableTreeNode root = createTree();
             buildTreeNode(root, sorter.sort(node.getChildrenDisplay()));
         }
         observer.setTreeDisplay(treeDisplay);

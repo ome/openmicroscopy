@@ -56,6 +56,9 @@ public class MultilineLabel
 	extends JTextArea
 {
 
+    /** Creates a new instance. */
+    public MultilineLabel() { this(""); }
+    
 	/**
 	 * Creates a new instance to display the specified text.
 	 * 

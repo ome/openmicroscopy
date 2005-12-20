@@ -96,9 +96,7 @@ class HiViewerComponent
         view = new HiViewerWin();
     }
     
-    /**
-     * Links up the MVC triad.
-     */
+    /** Links up the MVC triad. */
     void initialize()
     {
         model.initialize(this);
@@ -180,7 +178,10 @@ class HiViewerComponent
                 if (model.getState() == READY) fireStateChange();
                 break;
             case READY:
+
                 model.setThumbnail(imageID, thumb);
+
+                    
                 break;
             default:
                 throw new IllegalStateException(
@@ -191,7 +192,7 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setStatus(java.lang.String, int)
+     * @see HiViewer#setStatus(String, int)
      */
     public void setStatus(String description, int perc)
     {

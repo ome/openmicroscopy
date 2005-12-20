@@ -1048,7 +1048,6 @@ public class DataManager
             DataManagementService dms = registry.getDataManagementService();
             ProjectSummary ps = dms.createProject(pd); 
             pojos.ProjectData data = transformPStoPojosPD(ps);
-            System.out.println("data " +data);
             if (projectSummaries.size() != 0) {
                 if (data != null) {
                     projectSummaries.add(ps);   //local copy

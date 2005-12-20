@@ -79,7 +79,7 @@ class ClearVisitor
         super(viewer);
     }
 
-    /** Set the highlight color to <code>null</code>. */
+    /** Sets the highlight color to <code>null</code>. */
     public void visit(ImageNode node) { setHighlight(node); }
 
     /** Sets the highlight color to <code>null</code>. */

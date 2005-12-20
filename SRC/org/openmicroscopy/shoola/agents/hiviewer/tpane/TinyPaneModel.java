@@ -134,8 +134,12 @@ class TinyPaneModel
      */
     private boolean         resizable;
     
+    /**
+     * Flag to indicate if the frame is draggable, resizable etc.
+     */
     private boolean         listenToBorder;
     
+    /** The frame's icon. */
     private Icon            frameIcon;
     
     /**

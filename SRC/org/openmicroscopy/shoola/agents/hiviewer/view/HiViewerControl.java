@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.WindowConstants;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 
 /** 
  * The HiViewer's Controller.
@@ -112,9 +114,7 @@ class HiViewerControl
     /** Keep track of the old state.*/
     private int             historyState;
     
-    /**
-     * Helper method to create all the UI actions.
-     */
+    /** Helper method to create all the UI actions. */
     private void createActions()
     {
         actionsMap.put(HiViewer.EXIT, new ExitAction(model));
@@ -240,7 +240,6 @@ class HiViewerControl
     /**
      * Links this Controller to its Model and its View.
      * 
-
      * @param view   Reference to the View.  Mustn't be <code>null</code>.
      */
     void initialize(HiViewerWin view)
@@ -261,6 +260,7 @@ class HiViewerControl
     
     /**
      * Returns the action corresponding to the specified id.
+     * 
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
@@ -294,10 +294,16 @@ class HiViewerControl
     {
         Browser browser = model.getBrowser();
         ImageDisplay d = browser.getSelectedDisplay();
-        if (Browser.POPUP_POINT_PROPERTY.equals(pce.getPropertyName())) {
+        String propName = pce.getPropertyName();
+        if (Browser.POPUP_POINT_PROPERTY.equals(propName)) {
             Point p = browser.getPopupPoint();
-            if (d != null && p != null) view.showPopup(d, p);
-        } else {  //THUMB_SELECTED_PROPERTY
+            if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT) {
+                JComponent c = browser.getTreeDisplay();
+                if (c != null && p != null) view.showPopup(c, p);
+            } else {
+                if (d != null && p != null) view.showPopup(d, p);
+            }
+        } else if (Browser.THUMB_SELECTED_PROPERTY.equals(propName)) {  
             ThumbWinManager.display((ImageNode) d, model);
         }
     }

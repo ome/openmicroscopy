@@ -201,9 +201,7 @@ public interface HiViewer
     
     /** Identifies the Save thumbnails action in the Actions menu. */
     public static final Integer     SAVE_THUMB = new Integer(19);
-       
-    /** Identifies the Save thumbnails action in the Actions menu. */
-    public static final Integer     SEARCH = new Integer(20);
+      
     
     /** 
      * The message displayed in the status bar when the metadata retrieval 

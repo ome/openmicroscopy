@@ -93,7 +93,7 @@ public class ViewerSorter
     private int compareStrings(String s1, String s2)
     {
         int v = 0;
-        int result = s1.compareTo(s2);
+        int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
         if (result < 0) v = -1;
         else if (result > 0) v = 1;
         return v;
@@ -110,7 +110,7 @@ public class ViewerSorter
     {
         String s1 = o1.toString();
         String s2 = o2.toString();
-        int result = s1.compareTo(s2);
+        int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
         int v = 0;
         if (result < 0) v = -1;
         else if (result > 0) v = 1;

@@ -90,6 +90,7 @@ public class ViewAction
             setEnabled(true);
         }
     }
+    
     /**
      * Creates a new instance.
      * 
