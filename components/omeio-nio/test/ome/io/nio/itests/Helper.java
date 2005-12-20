@@ -59,7 +59,6 @@ public class Helper
     }
     
     public static byte[] calculateMessageDigest(ByteBuffer buffer)
-        throws IOException
     {
         MessageDigest md = newSha1MessageDigest();
         md.update(buffer);
@@ -67,7 +66,6 @@ public class Helper
     }
     
     public static byte[] calculateMessageDigest(byte[] buffer)
-        throws IOException
     {
         MessageDigest md = newSha1MessageDigest();
         md.update(buffer);

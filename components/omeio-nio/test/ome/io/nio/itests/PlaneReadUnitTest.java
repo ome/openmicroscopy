@@ -28,110 +28,30 @@
  */
 package ome.io.nio.itests;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
+
+import junit.framework.TestCase;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
-import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import junit.framework.TestCase;
 
 
 /**
  * @author callan
  *
  */
-public class PlaneIOUnitTest extends TestCase
+public class PlaneReadUnitTest extends TestCase
 {
-
-    private ApplicationContext ctx;
-
-    private HibernateTemplate  ht;
-    
-    private Pixels pixels;
-    private Experimenter experimenter;
-    private Event event;
-    private byte[][] originalDigests;
-    
     private Integer planeCount;
     private Integer planeSize;
-
-    private void initHibernate()
-    {
-        String[] paths = new String[] { "config.xml", "data.xml",
-                "hibernate.xml" };
-        ctx = new ClassPathXmlApplicationContext(paths);
-
-        ht = (HibernateTemplate) ctx.getBean("hibernateTemplate");
-    }
-    
-    private void createExperimenter()
-    {
-        experimenter = (Experimenter) ht.execute(new HibernateCallback()
-        {
-            public Object doInHibernate(org.hibernate.Session session)
-                throws org.hibernate.HibernateException, java.sql.SQLException
-            {
-                Experimenter e = new Experimenter();
-                e.setOmeName("test");
-                session.save(e);
-                
-                return e;
-            }
-        });
-    }
-    
-    private void createEvent()
-    {
-        event = (Event) ht.execute(new HibernateCallback()
-        {
-            public Object doInHibernate(org.hibernate.Session session)
-                throws org.hibernate.HibernateException, java.sql.SQLException
-            {
-                Event e = new Event();
-                e.setName("test");
-                session.save(e);
-                
-                return e;
-            }
-        });
-    }
-    
-    private void createPixels()
-    {
-        pixels = (Pixels) ht.execute(new HibernateCallback()
-        {
-            public Object doInHibernate(org.hibernate.Session session)
-                throws org.hibernate.HibernateException, java.sql.SQLException
-            {
-                Pixels p = new Pixels();
-                p.setSizeX(new Integer(64));
-                p.setSizeY(new Integer(64));
-                p.setSizeZ(new Integer(16));
-                p.setSizeC(new Integer(2));
-                p.setSizeT(new Integer(10));
-                // FIXME: Bit of a hack until the model is updated, the follwing
-                // is a SHA1 of "pixels"
-                p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");
-                p.setBigEndian(Boolean.TRUE);
-
-                p.setCreationEvent(event);
-                p.setOwner(experimenter);
-
-                session.save(p);
-                return p;
-            }
-        });
-    }
+    private byte[][] originalDigests;
+    private String path;
+    private Pixels pixels;
+    private PixbufIOFixture baseFixture;
     
     private int getDigestOffset(int z, int c, int t)
     {
@@ -156,7 +76,7 @@ public class PlaneIOUnitTest extends TestCase
         sb.append("].");
         return sb.toString();
     }
-    
+
     private byte[] createPlane(int planeSize, byte planeNo)
     {
         byte[] plane = new byte[planeSize];
@@ -174,7 +94,7 @@ public class PlaneIOUnitTest extends TestCase
         // FIXME: *Hack* right now we assume everything is 16-bits wide
         planeSize  = pixels.getSizeX() * pixels.getSizeY() *
                      2;
-        String  path = ome.io.nio.Helper.getPixelsPath(pixels.getId());
+        path = ome.io.nio.Helper.getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
         
         FileOutputStream stream = new FileOutputStream(path);
@@ -189,10 +109,11 @@ public class PlaneIOUnitTest extends TestCase
  
     protected void setUp() throws IOException
     {
-        initHibernate();
-        createExperimenter();
-        createEvent();
-        createPixels();
+        // Create set up the base fixture which sets up the database for us
+        baseFixture = new PixbufIOFixture();
+        pixels = baseFixture.setUp();
+        
+        // "Our" fixture which creates the planes needed for this test case.
         createPlanes();
     }
     
@@ -258,33 +179,11 @@ public class PlaneIOUnitTest extends TestCase
     
     protected void tearDown()
     {
-        ht.execute(new HibernateCallback()
-        {
-            public Object doInHibernate(org.hibernate.Session session)
-                throws org.hibernate.HibernateException, java.sql.SQLException
-            {
-                if (pixels != null)
-                {
-                    Pixels p = (Pixels)
-                        session.get(Pixels.class, pixels.getId());
-                    session.delete(p);
-                }
-                
-                if (experimenter != null)
-                {
-                    Experimenter ex = (Experimenter)
-                        session.get(Experimenter.class, experimenter.getId());
-                    session.delete(ex);
-                }
-                
-                if (event != null)
-                {
-                    Event ev = (Event) session.get(Event.class, event.getId());
-                    session.delete(ev);
-                }
-                
-                return null;
-            }
-        });
+        // Tear down the resources created as part of the base fixture
+        baseFixture.tearDown();
+        
+        // Tear down the resources create in this fixture
+        File f = new File(path);
+        f.delete();
     }
 }

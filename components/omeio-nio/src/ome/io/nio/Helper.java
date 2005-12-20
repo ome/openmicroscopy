@@ -42,21 +42,21 @@ public class Helper
      */
     private static final String root = "/OME/OMEIS/";
 
-    public static String getPixelsPath(Integer id)
+    public static String getPixelsPath(Long id)
     {
         return getPath("Pixels/", id);
     }
     
-    public static String getFilesPath(Integer id)
+    public static String getFilesPath(Long id)
     {
         return getPath("Files/", id);
     }
     
-    private static String getPath(String prefix, Integer id)
+    private static String getPath(String prefix, Long id)
     {
         String suffix = "";
-        Integer remaining = id;
-        Integer dirno = 0;
+        Long remaining = id;
+        Long dirno = 0L;
         
         if (id == null)
             throw new NullPointerException("Expecting a not-null id.");

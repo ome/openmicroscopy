@@ -21,7 +21,7 @@ public class LargePixelBufferUnitTest extends TestCase
     {
         pixels = new Pixels();
         
-        pixels.setId(1);
+        pixels.setId(1L);
         pixels.setSizeX(512);
         pixels.setSizeY(512);
         pixels.setSizeZ(64);

@@ -49,7 +49,7 @@ public class OutOfBoundsUnitTest extends TestCase
     {
         pixels = new Pixels();
         
-        pixels.setId(1);
+        pixels.setId(1L);
         pixels.setSizeX(256);
         pixels.setSizeY(256);
         pixels.setSizeZ(64);

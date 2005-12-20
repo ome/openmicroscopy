@@ -28,10 +28,10 @@
  */
 package ome.io.nio;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -51,8 +51,7 @@ public class PixelBuffer
 {
     private String path;
     private Pixels pixels;
-    private FileChannel roChannel;
-    private FileChannel woChannel;
+    private FileChannel channel;
     
     private Integer rowSize;
     private Integer planeSize;
@@ -90,30 +89,16 @@ public class PixelBuffer
                     "' greater than height '" + getSizeT() + "'.");
     }
     
-    private FileChannel getFileChannel(Boolean readOnly)
+    private FileChannel getFileChannel()
         throws FileNotFoundException
     {
-        if (readOnly == true)
+        if (channel == null)
         {
-            if (roChannel == null)
-            {
-                FileInputStream stream = new FileInputStream(path);
-                roChannel = stream.getChannel();
-                
-                return roChannel;
-            }
-            else
-                return roChannel;
-            
+            RandomAccessFile file = new RandomAccessFile(path, "rw");
+            channel = file.getChannel();
         }
-
-        if (woChannel != null)
-            return woChannel;
-        
-        FileOutputStream stream = new FileOutputStream(path);
-        woChannel = stream.getChannel();
-        
-        return woChannel;
+            
+        return channel;
     }
     
     public Integer getPlaneSize()
@@ -206,7 +191,7 @@ public class PixelBuffer
     public MappedByteBuffer getRegion(Integer size, Long offset)
         throws IOException
     {
-        FileChannel fileChannel = getFileChannel(true);
+        FileChannel fileChannel = getFileChannel();
         
         /* fileChannel should not be "null" as it will throw an exception if
          * there happens to be an error.
@@ -259,30 +244,31 @@ public class PixelBuffer
     }
     
     public void setRegion(Integer size, Long offset, byte[] buffer)
-        throws IOException
+        throws IOException, BufferOverflowException
     {
-        FileChannel fileChannel = getFileChannel(false);
+        FileChannel fileChannel = getFileChannel();
         
         /* fileChannel should not be "null" as it will throw an exception if
          * there happens to be an error.
          */
         
         MappedByteBuffer byteBuffer =
-            fileChannel.map(MapMode.READ_ONLY, size, offset);
+            fileChannel.map(MapMode.READ_WRITE, offset, size);
         
         byteBuffer.put(buffer);
         byteBuffer.force();
+        fileChannel.force(false);
     }
     
     public void setRegion(Integer size, Long offset, ByteBuffer buffer)
-        throws IOException
+        throws IOException, BufferOverflowException
     {
         setRegion(size, offset, buffer.array());
     }
     
     public void setRow(ByteBuffer buffer, Integer y, Integer z,
                                           Integer c, Integer t)
-        throws IOException, DimensionsOutOfBoundsException
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
     {
         Long offset = getRowOffset(y, z, c, t);
         Integer size = getRowSize();
@@ -291,7 +277,7 @@ public class PixelBuffer
     }
     
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
-        throws IOException, DimensionsOutOfBoundsException
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
     {
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
@@ -299,8 +285,17 @@ public class PixelBuffer
         setRegion(size, offset, buffer);
     }
     
+    public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
+    {
+        Long offset = getPlaneOffset(z, c, t);
+        Integer size = getPlaneSize();
+    
+        setRegion(size, offset, buffer);
+    }
+    
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
-        throws IOException, DimensionsOutOfBoundsException
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
     {
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
@@ -308,12 +303,30 @@ public class PixelBuffer
         setRegion(size, offset, buffer);
     }
     
+    public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
+    {
+        Long offset = getStackOffset(c, t);
+        Integer size = getStackSize();
+
+        setRegion(size, offset, buffer);
+    }
+    
     public void setTimepoint(ByteBuffer buffer, Integer t)
-        throws IOException, DimensionsOutOfBoundsException
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
     {
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
         
+        setRegion(size, offset, buffer);
+    }
+    
+    public void setTimepoint(byte[] buffer, Integer t)
+        throws IOException, DimensionsOutOfBoundsException, BufferOverflowException
+    {
+        Long offset = getTimepointOffset(t);
+        Integer size = getTimepointSize();
+    
         setRegion(size, offset, buffer);
     }
     
@@ -346,6 +359,11 @@ public class PixelBuffer
         }
         
         return md.digest();
+    }
+    
+    public String getPath()
+    {
+        return path;
     }
     
     //
@@ -387,7 +405,7 @@ public class PixelBuffer
         return pixels.getSizeZ();
     }
     
-    int getId()
+    long getId()
     {
         return pixels.getId();
     }

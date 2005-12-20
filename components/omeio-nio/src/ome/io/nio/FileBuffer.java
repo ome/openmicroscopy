@@ -67,7 +67,7 @@ public class FileBuffer
     // Delegate methods to ease work with original file
     //
     
-    int getId()
+    long getId()
     {
         return file.getId();
     }
