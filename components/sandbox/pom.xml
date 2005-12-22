@@ -22,11 +22,9 @@
       <version>3.0.5</version>
     </dependency>
     <dependency>
-      <groupId>postgresql</groupId>
+      <groupId>omero</groupId>
       <artifactId>postgresql</artifactId>
-      <version>7.4.1</version>
-      <scope>system</scope>
-      <systemPath>../../lib/htool/postgresql-7.4.1-jdbc3.jar</systemPath>
+      <version>7.4.1-jdbc3</version>
     </dependency>
   </dependencies>
 </project>

@@ -278,14 +278,22 @@ class ResultType extends SemanticType {
 
 class EnumType extends SemanticType {
 
-	public EnumType(Properties attrs){super(attrs);}
+	public EnumType(Properties attrs){
+        super(attrs);
+        Properties props = new Properties();
+        props.setProperty("name","value");
+        props.setProperty("type","string");
+        RequiredField value = new RequiredField(props);
+        getProperties().add(value);
+    }
 	
-	public void validate(){
-		for (Iterator it = getProperties().iterator(); it.hasNext();) {
-			if (it.next().getClass()!=EntryField.class){
-				throw new IllegalStateException("EnumTypes can only contain EntryProperties.");
-			}
-		}
-		super.validate();
-	}
+//  TODO: only value? at least value? 
+//	public void validate(){
+//		for (Iterator it = getProperties().iterator(); it.hasNext();) {
+//			if (it.next().getClass()!=EntryField.class){
+//				throw new IllegalStateException("EnumTypes can only contain EntryProperties.");
+//			}
+//		}
+//		super.validate();
+//	}
 }

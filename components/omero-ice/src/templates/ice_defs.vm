@@ -78,14 +78,16 @@ class ${pojo.declarationName}Remote
 ##
 #if( $type == "String")
 	string $field;
-#elseif( $type == "Integer")
-	int $field;
 #elseif( $type == "Boolean" )
 	bool $field;
 #elseif ( $type == "Double" )
 	double $field;
 #elseif ( $type == "Float" )
 	float $field;
+#elseif( $type == "Integer")
+	int $field;
+#elseif ( $type == "Long" )
+	long $field;
 #elseif ($type.endsWith("Map") )
 	dictionary $field;
 #elseif( $fulltype.contains("java.util.Set") || $fulltype.contains("[]")) 

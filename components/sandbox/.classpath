@@ -26,6 +26,6 @@
 	<classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/hibernate/antlr/2.7.5H3/antlr-2.7.5H3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/postgresql-7.4.1-jdbc3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

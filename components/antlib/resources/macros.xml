@@ -116,7 +116,7 @@
 		<attribute name="suffix" default=""/>
 		<sequential>
 		  <mkdir dir="${dest.dir}/@{exec}/@{suffix}"/>
-		  <exec executable="@{exec}" failonerror="true">
+		  <exec executable="@{exec}" failonerror="true" logError="true">
 		 	<arg value="--output-dir"/>
 			<arg value="${dest.dir}/@{exec}/@{suffix}"/>
 			<arg value="-I${dest.dir}"/>

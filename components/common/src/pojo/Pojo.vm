@@ -51,6 +51,16 @@ $templates.PojoExtraClassCode
 ###########################################################
 ## <CustomCode>
 ###########################################################
+  public boolean isValid() 
+  {
+      return ome.util.Validator.validate(this).isValid();
+  }
+  
+  public ome.util.Validation validate()
+  {
+      return ome.util.Validator.validate(this);
+  }
+  
   public boolean acceptFilter(ome.util.Filter filter){
 
 #foreach($property in $pojo.allPropertiesIterator)

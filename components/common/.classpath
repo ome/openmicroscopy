@@ -1,8 +1,7 @@
 <classpath>
-  <classpathentry exclude="*/.svn" kind="src" path="src"/>
+  <classpathentry exclude="**/.svn" kind="src" path="src"/>
   <classpathentry kind="src" path="target/generated-sources/hbm"/>
   <classpathentry kind="src" path="target/generated-sources/jdk14"/>
-  <classpathentry kind="src" path="target/generated-sources/slice2java"/>
   <classpathentry kind="src" path="test" output="target/test-classes"/>
   <classpathentry kind="output" path="target/classes"/>
   <classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>

@@ -41,6 +41,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>omero</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>7.4.1-jdbc3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
@@ -66,19 +72,36 @@
     <testResources>
       <testResource><directory>test-resources</directory></testResource>
     </testResources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.4</source>
-          <target>1.4</target>
-          <excludes>
-            <exclude>**/.svn</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.4</source>
+            <target>1.4</target>
+            <excludes>
+              <exclude>**/.svn</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>generate-resources</id>
+              <phase>generate-resources</phase>
+              <goals><goal>run</goal></goals>
+              <configuration>
+                <tasks>
+                  <ant antfile="${basedir}/../antlib/resources/build.xml" target="prepare" inheritRefs="true"/>
+                </tasks>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <!-- used for deploying with ssh -->
     <extensions>
       <extension>

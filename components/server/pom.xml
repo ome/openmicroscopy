@@ -21,6 +21,11 @@
       <artifactId>hibernate</artifactId>
       <version>3.0.5</version>
     </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>7.4.1-jdbc3</version>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>_src</sourceDirectory>

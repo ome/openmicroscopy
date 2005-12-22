@@ -1,11 +1,11 @@
 
 <project name="slice" basedir="." default="slice">
 
-  <import file="../common/build.xml"/>
+  <import file="../omero-ice/build.xml"/>
 
   <target name="slice">
     <property name="dest.dir" value="target/generated-sources/"/>
-    <property name="incl.dir" value="../common/target/generated-sources/"/>
+    <property name="incl.dir" value="../omero-ice/target/generated-sources/"/>
     <fileset dir="slice" includes="*.ice" id="slice"/>
     <pathconvert pathsep=" " property="files" refid="slice"/>
     <mkdir dir="${dest.dir}/slice2java"/>

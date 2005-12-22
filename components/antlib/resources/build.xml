@@ -18,11 +18,15 @@
 	</target>
 
 	<target name="prepare">
-		<copyResource file="${root.dir}/hibernate.properties"/>
-		<copyResource file="${root.dir}/log4j.properties"/>
-		<definePath/>
 		<mkdir dir="${dest.dir}" />
 		<mkdir dir="${done.dir}" />
+		<copyResource file="${root.dir}/hibernate.properties"/>
+		<copyResource file="${root.dir}/log4j.properties"/>
+		<copyResource file="${root.dir}/jndi.properties"/>
+		<definePath/>
+                <echo file="${genresrc.dir}/Classpath.sh">
+                  export CLASSPATH=${this.path}
+                </echo>
 	</target>
 
 	<target name="loadHibernate">
