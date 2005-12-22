@@ -1,0 +1,16 @@
+<projectDescription>
+  <name>omero-app</name>
+  <comment/>
+  <projects>
+    <project>omero-ejb</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+      <arguments/>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

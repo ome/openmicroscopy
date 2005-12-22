@@ -1,0 +1,5 @@
+<classpath>
+  <classpathentry exclude="**/.svn" kind="output" path="target/classes"/>
+  <classpathentry exclude="**/.svn" kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>
+  <classpathentry kind="src" path="/omero-ejb"/>
+</classpath>
