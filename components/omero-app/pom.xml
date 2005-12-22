@@ -7,6 +7,7 @@
     <version>3.0-alpha-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
+  <name>Ome Remote Objects - EJB3 Deployment</name>
   <artifactId>omero-app</artifactId>
   <packaging>ear</packaging>
   <build>

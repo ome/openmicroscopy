@@ -10,10 +10,15 @@
     <module>components/antlib</module>
     <module>components/dsl</module>
     <module>components/common</module>
-    <module>components/omero-ice</module>
-    <module>components/omeio-nio</module>
 <!--<module>components/omeio-bdb</module>-->
+    <module>components/omeio-nio</module>
+    <module>components/omero-ejb</module>
+    <module>components/omero-app</module>
+    <module>components/omero-ice</module>
+    <module>components/rendering</module>
     <module>components/server</module>
+    <module>components/client-ejb</module>
+    <module>components/sandbox</module>
   </modules>
   <repositories>
     <repository>

@@ -7,6 +7,7 @@
     <artifactId>main</artifactId>
     <version>3.0-alpha-SNAPSHOT</version>
   </parent>
+  <name>Ome Remote Objects - EJB3</name>
   <artifactId>omero-ejb</artifactId>
   <packaging>jar</packaging>
   <dependencies>

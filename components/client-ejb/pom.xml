@@ -7,7 +7,8 @@
     <artifactId>main</artifactId>
     <version>3.0-alpha-SNAPSHOT</version>
   </parent>
-  <artifactId>ejb-client</artifactId>
+  <name>Ome Remote Objects - EJB3 Client</name>
+  <artifactId>client-ejb</artifactId>
   <packaging>jar</packaging>
   <dependencies>
     <dependency>
