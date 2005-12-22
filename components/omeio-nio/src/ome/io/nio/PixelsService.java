@@ -38,9 +38,14 @@ import ome.model.core.Pixels;
  * @author callan
  *
  */
-public class PixelsService
+public class PixelsService extends AbstractFileSystemService
 {
-    private static PixelsService soleInstance;
+
+    public PixelsService(String path)
+    {
+        super(path);
+    }
+    
     public static final int NULL_PLANE_SIZE = 64;
     public static final byte[] nullPlane = new byte[]
         { -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 10
@@ -51,18 +56,10 @@ public class PixelsService
           -128, 127, -128, 127, -128, 127, -128, 127, -128, 127,  // 60
           -128, 127, -128, 127 };                                 // 64
     
-    public static PixelsService getInstance()
-    {
-        if (soleInstance == null)
-            soleInstance = new PixelsService();
-        
-        return soleInstance;
-    }
-
     public PixelBuffer createPixelBuffer(Pixels pixels)
         throws IOException
     {
-        PixelBuffer pixbuf = new PixelBuffer(pixels);
+        PixelBuffer pixbuf = new PixelBuffer(getPixelsPath(pixels.getId()),pixels);
         initPixelBuffer(pixbuf);
         
         return pixbuf;
@@ -70,13 +67,13 @@ public class PixelsService
     
     public PixelBuffer getPixelBuffer(Pixels pixels)
     {
-        return new PixelBuffer(pixels);
+        return new PixelBuffer(getPixelsPath(pixels.getId()),pixels);
     }
     
     private void initPixelBuffer(PixelBuffer pixbuf)
         throws IOException
     {
-        String path = Helper.getPixelsPath(pixbuf.getId());
+        String path = getPixelsPath(pixbuf.getId());
         byte[] padding = new byte[pixbuf.getPlaneSize() - NULL_PLANE_SIZE];
         FileOutputStream stream = new FileOutputStream(path);
         

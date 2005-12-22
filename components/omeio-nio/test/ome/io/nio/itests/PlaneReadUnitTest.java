@@ -94,7 +94,7 @@ public class PlaneReadUnitTest extends TestCase
         // FIXME: *Hack* right now we assume everything is 16-bits wide
         planeSize  = pixels.getSizeX() * pixels.getSizeY() *
                      2;
-        path = ome.io.nio.Helper.getPixelsPath(pixels.getId());
+        path = new PixelsService(PixelsService.ROOT_DEFAULT).getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
         
         FileOutputStream stream = new FileOutputStream(path);
@@ -120,7 +120,7 @@ public class PlaneReadUnitTest extends TestCase
     public void testInitialPlane()
         throws IOException, DimensionsOutOfBoundsException
     {
-        PixelsService service = PixelsService.getInstance();
+        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         MappedByteBuffer plane = pixbuf.getPlane(0, 0, 0);
 
@@ -133,7 +133,7 @@ public class PlaneReadUnitTest extends TestCase
     public void testLastPlane()
         throws IOException, DimensionsOutOfBoundsException
     {
-        PixelsService service = PixelsService.getInstance();
+        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         MappedByteBuffer plane = pixbuf.getPlane(pixels.getSizeZ() - 1,
                                                  pixels.getSizeC() - 1,
@@ -151,7 +151,7 @@ public class PlaneReadUnitTest extends TestCase
     public void testAllPlanes()
     throws IOException, DimensionsOutOfBoundsException
     {
-        PixelsService service = PixelsService.getInstance();
+        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         
         String newMessageDigest;

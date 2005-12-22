@@ -17,15 +17,17 @@
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>7.4.1</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/../../lib/htool/postgresql-7.4.1-jdbc3.jar</systemPath>
+      <groupId>omero</groupId>
+      <artifactId>server</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

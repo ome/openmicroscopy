@@ -37,33 +37,29 @@ import ome.model.core.OriginalFile;
  * @author callan
  *
  */
-public class OriginalFilesService
+public class OriginalFilesService extends AbstractFileSystemService
 {
-    private static OriginalFilesService soleInstance;
-    
-    public static OriginalFilesService getInstance()
+
+    public OriginalFilesService(String path)
     {
-        if (soleInstance == null)
-            soleInstance = new OriginalFilesService();
-        
-        return soleInstance;
+        super(path);
     }
     
     public FileBuffer createFileBuffer(OriginalFile file)
         throws FileNotFoundException
     {
-        return new FileBuffer(file, "rw");
+        return new FileBuffer(getFilesPath(file.getId()),file, "rw");
     }
 
     public FileBuffer getReadOnlyFileBuffer(OriginalFile file)
         throws FileNotFoundException
     {
-        return new FileBuffer(file, "r");
+        return new FileBuffer(getFilesPath(file.getId()),file, "r");
     }
     
     public FileBuffer getReadWriteFileBuffer(OriginalFile file)
         throws FileNotFoundException
     {
-        return new FileBuffer(file, "rw");
+        return new FileBuffer(getFilesPath(file.getId()),file, "rw");
     }
 }

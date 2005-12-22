@@ -47,9 +47,8 @@ import ome.model.enums.PixelsType;
  * @author callan
  *
  */
-public class PixelBuffer
+public class PixelBuffer extends AbstractBuffer
 {
-    private String path;
     private Pixels pixels;
     private FileChannel channel;
     
@@ -59,14 +58,14 @@ public class PixelBuffer
     private Integer timepointSize;
     private Integer totalSize;
     
-    PixelBuffer (Pixels pixels)
+    PixelBuffer (String path, Pixels pixels)
     {
+        super(path);
         if (pixels == null)
             throw new NullPointerException(
                     "Expecting a not-null pixels element.");
         
         this.pixels = pixels;
-        path = Helper.getPixelsPath(pixels.getId());
     }
     
     private void checkBounds(Integer y, Integer z, Integer c, Integer t)
@@ -94,7 +93,7 @@ public class PixelBuffer
     {
         if (channel == null)
         {
-            RandomAccessFile file = new RandomAccessFile(path, "rw");
+            RandomAccessFile file = new RandomAccessFile(getPath(), "rw");
             channel = file.getChannel();
         }
             
@@ -359,11 +358,6 @@ public class PixelBuffer
         }
         
         return md.digest();
-    }
-    
-    public String getPath()
-    {
-        return path;
     }
     
     //

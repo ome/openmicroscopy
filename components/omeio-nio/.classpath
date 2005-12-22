@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry kind="src" path="test/resources"/>
-	<classpathentry excluding="resources/|resources/" kind="src" path="test"/>
+	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="test-resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="test"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
 	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
@@ -24,6 +25,6 @@
 	<classpathentry kind="var" path="M2_REPO/omero/ice/3.0.0/ice-3.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/hibernate/antlr/2.7.5H3/antlr-2.7.5H3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/postgresql-7.4.1-jdbc3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

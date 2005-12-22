@@ -65,7 +65,7 @@ public class PlaneWriteUnitTest extends TestCase
                 if (i % 2 == 0)
                     testPlane[i] = -128;
                 else
-                    testPlane[i] = 127;
+                    testPlane[i] = 126; // Changed to not match PixelService.nullPlane -j.m
             }
             
             byte[] md = Helper.calculateMessageDigest(testPlane);
@@ -114,7 +114,7 @@ public class PlaneWriteUnitTest extends TestCase
         pixels = baseFixture.setUp();
         
         // "Our" fixture which creates the planes needed for this test case.
-        service = new PixelsService();
+        service = new PixelsService(PixelsService.ROOT_DEFAULT);
         pixbuf = service.createPixelBuffer(pixels);
     }
     

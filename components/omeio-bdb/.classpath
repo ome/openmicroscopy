@@ -3,7 +3,7 @@
 	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test"/>
-	<classpathentry sourcepath="JRE_SRC" kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB"/>
+	<classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
 	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
@@ -13,5 +13,7 @@
 	<classpathentry kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/springframework/spring/1.2.6/spring-1.2.6.jar"/>
 	<classpathentry sourcepath="/USER_HOME/lib/spring/src" kind="var" path="M2_REPO/springframework/spring-mock/1.2.6/spring-mock-1.2.6.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

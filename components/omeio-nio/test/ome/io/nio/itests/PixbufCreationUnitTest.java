@@ -80,7 +80,7 @@ public class PixbufCreationUnitTest extends TestCase
         pixels = baseFixture.setUp();
         
         // "Our" fixture which creates the planes needed for this test case.
-        PixelsService service = new PixelsService();
+        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         pixbuf = service.createPixelBuffer(pixels);
     }
     

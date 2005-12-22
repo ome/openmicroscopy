@@ -31,7 +31,7 @@ public class NormalPixelBufferUnitTest extends TestCase
         PixelsType type = new PixelsType();
         pixels.setPixelsType(type); // FIXME
         
-        PixelsService service = PixelsService.getInstance();
+        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         pixelBuffer = service.getPixelBuffer(pixels);
     }
     

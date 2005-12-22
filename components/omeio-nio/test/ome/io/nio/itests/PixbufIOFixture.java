@@ -69,9 +69,13 @@ public class PixbufIOFixture
             public Object doInHibernate(org.hibernate.Session session)
                 throws org.hibernate.HibernateException, java.sql.SQLException
             {
-                Experimenter e = new Experimenter();
-                e.setOmeName("test");
-                session.save(e);
+                Experimenter e = (Experimenter) session.createQuery(" from Experimenter e where e.omeName = 'test' ").uniqueResult();
+                if (null == e)
+                {
+                    e = new Experimenter();
+                    e.setOmeName("test");
+                    session.save(e);
+                }
                 
                 return e;
             }
@@ -85,10 +89,13 @@ public class PixbufIOFixture
             public Object doInHibernate(org.hibernate.Session session)
                 throws org.hibernate.HibernateException, java.sql.SQLException
             {
-                Event e = new Event();
-                e.setName("test");
-                session.save(e);
-                
+                Event e = (Event) session.createQuery(" from Event e where e.name = 'test' ").uniqueResult();
+                if (null == e)
+                {
+                    e = new Event();
+                    e.setName("test");
+                    session.save(e);
+                }
                 return e;
             }
         });

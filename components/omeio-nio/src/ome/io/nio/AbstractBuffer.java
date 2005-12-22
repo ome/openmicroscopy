@@ -1,5 +1,5 @@
 /*
- * ome.io.nio.FileBuffer
+ * ome.io.nio.AbstractBuffer
  *
  *------------------------------------------------------------------------------
  *
@@ -28,52 +28,32 @@
  */
 package ome.io.nio;
 
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-
-import ome.model.core.OriginalFile;
-
 
 /**
- * @author callan
+ * @author jmoore
  *
  */
-public class FileBuffer extends AbstractBuffer
+public class AbstractBuffer
 {
-    private RandomAccessFile delegate;
-    private OriginalFile file;
+    private String path;
     
-    FileBuffer (String path, OriginalFile file, String mode)
-        throws FileNotFoundException
+    AbstractBuffer (String path)
     {
-        super(path);
-        this.file = file;
+        if (path == null)
+            throw new NullPointerException(
+                    "Expecting not-null path argument.");
         
-        delegate = new RandomAccessFile(path, mode);
+        this.path = path;
+    }
+
+    public String getPath()
+    {
+        return path;
     }
     
-    //
-    // Explicit delegation methods
-    //
-    
-    public FileChannel getChannel()
+    public String toString()
     {
-        return delegate.getChannel();
-    }
-    
-    //
-    // Delegate methods to ease work with original file
-    //
-    
-    long getId()
-    {
-        return file.getId();
-    }
-    
-    String getName()
-    {
-        return file.getName();
+        return getPath();
     }
     
 }

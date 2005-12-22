@@ -1,5 +1,5 @@
 /*
- * ome.io.nio.Helper
+ * ome.io.nio.AbstractFileSystemService
  *
  *------------------------------------------------------------------------------
  *
@@ -28,6 +28,7 @@
  */
 package ome.io.nio;
 
+import java.io.File;
 import java.util.Formatter;
 
 
@@ -35,24 +36,41 @@ import java.util.Formatter;
  * @author callan
  *
  */
-public class Helper
+public class AbstractFileSystemService
 {
-    /* FIXME: This is a *hack*, it needs to be replaced with real
-     * configuration option. -Chris
-     */
-    private static final String root = "/OME/OMEIS/";
 
-    public static String getPixelsPath(Long id)
+    public final static String ROOT_DEFAULT = File.separator + "OME" + File.separator + "OMEIS" + File.separator;
+    
+    public final static String PIXELS_PATH =  "Pixels" + File.separator;
+    
+    public final static String FILES_PATH = "Files" + File.separator;
+    
+    private final String root;
+
+    public AbstractFileSystemService(String path)
     {
-        return getPath("Pixels/", id);
+        this.root = path;
+        
+        File rootDirectory = new File(this.root);
+        if (
+                ! rootDirectory.isDirectory() ||
+                ! rootDirectory.canRead() || 
+                ! rootDirectory.canWrite()
+            )
+            throw new IllegalArgumentException("Invalid directory specified for file system service.");
     }
     
-    public static String getFilesPath(Long id)
+    public String getPixelsPath(Long id)
     {
-        return getPath("Files/", id);
+        return getPath(PIXELS_PATH, id);
     }
     
-    private static String getPath(String prefix, Long id)
+    public String getFilesPath(Long id)
+    {
+        return getPath(FILES_PATH, id);
+    }
+    
+    private String getPath(String prefix, Long id)
     {
         String suffix = "";
         Long remaining = id;

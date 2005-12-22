@@ -47,7 +47,7 @@
       class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 		<list>
-			<value>spring.properties</value>
+			<value>hibernate.properties</value>
 		</list>
 		</property>
 	</bean>
