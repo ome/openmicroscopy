@@ -33,16 +33,15 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 //Java imports
 import java.awt.Component;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -105,9 +104,7 @@ public class TreeCellRenderer
         icons = IconManager.getInstance();
     }
     
-    /**
-     * Sets the icon and the text.
-     */
+    /** Overriden to set the icon and the text displayed in a tool tip. */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
                         boolean sel, boolean expanded, boolean leaf,
                         int row, boolean hasFocus)
@@ -115,12 +112,14 @@ public class TreeCellRenderer
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, 
                                                 row, hasFocus);
         
-        DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
+        if (!(value instanceof TreeImageDisplay)) return this;
+        TreeImageDisplay  node = (TreeImageDisplay) value;
         
         if (node.getLevel() == 0) {
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
-        };
+        }
+        setToolTipText(node.getToolTip());
         setIcon(node.getUserObject());
         return this;
     }
