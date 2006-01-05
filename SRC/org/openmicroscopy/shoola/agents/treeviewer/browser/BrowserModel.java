@@ -249,6 +249,10 @@ class BrowserModel
         state = Browser.LOADING_DATA;
     }
     
+    /**
+     * Starts the asynchronous retrieval of the data 
+     * and sets the state to {@link Browser#LOADING_DATA}.
+     */
     void fireContainerLoading()
     {
         if (selectedDisplay == null) return;
@@ -279,7 +283,10 @@ class BrowserModel
         state = Browser.DISCARDED;
     }
     
-    /** Cancels any ongoing data loading. */
+    /** 
+     * Cancels any ongoing data loading and sets the state to 
+     * {@link Browser#READY}.
+     */
     void cancel()
     {
         if (currentLoader != null) {
@@ -289,8 +296,18 @@ class BrowserModel
         state = Browser.READY;
     }
     
+    /**
+     * Sets the filter used.
+     * 
+     * @param type The type of filter.
+     */
     void setFilterType(int type) { filterType = type; }
     
+    /**
+     * Returns the type of filter currently used.
+     * 
+     * @return See above.
+     */
     int getFilterType() { return filterType; }
     
     void refreshSelectedDisplay()

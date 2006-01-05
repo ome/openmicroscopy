@@ -162,9 +162,9 @@ class BrowserControl
      */
     void onClick(boolean popupTrigger)
     {
-        TreeImageDisplay node = (TreeImageDisplay)
-                view.getTreeDisplay().getLastSelectedPathComponent();
-        model.setSelectedDisplay(node);
+        Object node = view.getTreeDisplay().getLastSelectedPathComponent();
+        if (!(node instanceof TreeImageDisplay)) return;
+        model.setSelectedDisplay((TreeImageDisplay) node);
         if (popupTrigger) model.showPopupMenu();
     }
     

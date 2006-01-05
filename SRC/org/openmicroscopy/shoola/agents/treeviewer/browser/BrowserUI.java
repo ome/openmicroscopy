@@ -49,6 +49,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -176,6 +177,7 @@ class BrowserUI
     private void createTree()
     {
         treeDisplay = new JTree();
+        ToolTipManager.sharedInstance().registerComponent(treeDisplay);
         treeDisplay.setCellRenderer(new TreeCellRenderer());
         treeDisplay.setShowsRootHandles(true);
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
@@ -226,7 +228,6 @@ class BrowserUI
                 else {
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                                    display, display.getChildCount());
-                    
                 }
             }
         } 
@@ -424,6 +425,12 @@ class BrowserUI
         dtm.reload();
     }
     
+    /**
+     * Creates or recycles the {@link FilterMenu} and brings it on screen.
+     * 
+     * @param c The component invoking the menu.
+     * @param p The location of the click.
+     */
     void showFilterMenu(Component c, Point p)
     {
         if (filterMenu == null) filterMenu = new FilterMenu(controller);

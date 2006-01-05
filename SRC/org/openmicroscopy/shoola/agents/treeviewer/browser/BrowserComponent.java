@@ -535,11 +535,19 @@ class BrowserComponent
      */
     public void setCreatedNode(TreeImageDisplay display)
     {
-        /*
         if (display == null) 
             throw new IllegalArgumentException("No node");
         view.setCreatedNode(display, model.getSelectedDisplay());
-        */
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#deleteNodes()
+     */
+    public void deleteNodes()
+    {
+        // TODO Auto-generated method stub
+        
     }
     
 }

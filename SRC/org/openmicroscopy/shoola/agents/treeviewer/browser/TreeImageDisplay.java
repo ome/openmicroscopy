@@ -39,16 +39,9 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * 
@@ -80,6 +73,12 @@ public abstract class TreeImageDisplay
     private String              name;
     
     /**
+     * The tooltip: annotation if the <code>DataObject</code>
+     * can be annotated and the inserted date if any.
+     */
+    private String              tooltip;
+    
+    /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
      * 
@@ -100,28 +99,6 @@ public abstract class TreeImageDisplay
     }
     
     /**
-     * Determines the name of the node.
-     * 
-     * @param ho The hierarchy object hosted by this node.
-     */
-    private void setName(Object ho)
-    {
-        name = "";
-        if (ho instanceof ProjectData) 
-            name = ((ProjectData) ho).getName();
-        else if (ho instanceof DatasetData) 
-            name = ((DatasetData) ho).getName();
-        else if (ho instanceof CategoryData) 
-            name = ((CategoryData) ho).getName();
-        else if (ho instanceof CategoryGroupData) 
-            name = ((CategoryGroupData) ho).getName();
-        else if (ho instanceof ImageData) 
-            name = ((ImageData) ho).getName();
-        else if (ho instanceof String)
-            name = (String) ho;
-    }
-    
-    /**
      * Constructor used by subclasses.
      * 
      * @param hierarchyObject The original object in the image hierarchy which
@@ -133,7 +110,8 @@ public abstract class TreeImageDisplay
         super();
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
-        setName(hierarchyObject);
+        if (hierarchyObject instanceof String) name = (String) hierarchyObject;
+        //setNodeValues(hierarchyObject);
         setUserObject(hierarchyObject);
         childrenDisplay = new HashSet();
     }
@@ -171,7 +149,7 @@ public abstract class TreeImageDisplay
      * {@link #removeChildDisplay(TreeImageDisplay) removed} from <code>n</code>
      * and then added to this node. 
      * 
-     * @param child The node to add.  Mustn't be <code>null</code>.
+     * @param child The node to add. Mustn't be <code>null</code>.
      * @see DefaultMutableTreeNode
      */
     public void addChildDisplay(TreeImageDisplay child)
@@ -182,18 +160,15 @@ public abstract class TreeImageDisplay
             child.parentDisplay.removeChildDisplay(child);
         child.parentDisplay = this;
         childrenDisplay.add(child);
-        //getInternalDesktop().add(child);
     }
     
     /**
      * Removes the specified <code>child</code> node.
      * If <code>child</code> is not among the children of this node, no action
-     * is taken.  Otherwise, it is removed from the children set and orphaned.
+     * is taken. Otherwise, it is removed from the children set and orphaned.
      * That is, its parent (which is this node) is set to <code>null</code>.
-     * The specified <code>child</code> component is also removed from the
-     * internal desktop of this node.
      * 
-     * @param child The node to remove.  Mustn't be <code>null</code>.
+     * @param child The node to remove. Mustn't be <code>null</code>.
      */
     public void removeChildDisplay(TreeImageDisplay child)
     {
@@ -202,11 +177,11 @@ public abstract class TreeImageDisplay
             //NOTE: parentDisplay != null b/c child has been added through
             //the add method.
             child.parentDisplay.childrenDisplay.remove(child);
-            //child.parentDisplay.getInternalDesktop().remove(child);
             child.parentDisplay = null;
         }
     }
     
+    /** Removes all <code>children</code> nodes from the children set. */
     public void removeAllChildrenDisplay()
     {
         Iterator i = childrenDisplay.iterator();
@@ -277,7 +252,35 @@ public abstract class TreeImageDisplay
                 break;
         }
     }
-
+    
+    /**
+     * Sets the text displayed in a tool tip.
+     * 
+     * @param tooltip The text to set.
+     */
+    public void setToolTip(String tooltip) { this.tooltip = tooltip; }
+    
+    /**
+     * Returns the text displayed in a tool tip.
+     * 
+     * @return See above.
+     */
+    public String getToolTip() { return tooltip; }
+    
+    /**
+     * Sets the name of the node.
+     * 
+     * @param name The name of the node.
+     */
+    public void setNodeName(String name) { this.name = name; }
+    
+    /**
+     * Returns the name of the node.
+     * 
+     * @return See above.
+     */
+    public String getNodeName() { return name; }
+    
     /** Overriden to return the name of the hierarchy object. */
     public String toString() { return name; }
     

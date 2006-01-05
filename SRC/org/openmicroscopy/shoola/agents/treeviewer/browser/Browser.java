@@ -49,7 +49,11 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
- * 
+ * Defines the interface provided by the browser component.
+ * The browser provides a <code>JComponent</code> to host and display one
+ * visualization tree. That is, one {@link TreeImageDisplay} top node.
+ * Use the {@link BrowserFactory} to create an object implementing this 
+ * interface.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -324,12 +328,17 @@ public interface Browser
     /** Refresh the currently selected node. */
     public void refresh();
     
-    /** Adds the specified nodes to the currently selected
+    /** 
+     * Adds the specified nodes to the currently selected
      * {@link TreeImageDisplay}.
      * 
      * @param nodes Collection to set.
      */
     public void setContainerNodes(Set nodes);
     
+    /** Deletes the currently selected nodes. */
+    public void deleteNodes();
+    
     public void setCreatedNode(TreeImageDisplay node);
+    
 }
