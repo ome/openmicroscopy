@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -42,6 +43,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.Iterator;
 import java.util.Map;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -50,8 +52,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -59,7 +59,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.CreateDataObject;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UtilConstants;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -143,40 +143,7 @@ class TreeViewerWin
         Browser browser = (Browser) browsers.get(
                             new Integer(Browser.HIERARCHY_EXPLORER));
         tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        /*
-        browser = (Browser) browsers.get(
-                            new Integer(Browser.CATEGORY_EXPLORER));
-        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        browser = (Browser) browsers.get(
-                        new Integer(Browser.IMAGES_EXPLORER));
-        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        tabs.setSelectedComponent(model.getSelectedBrowser().getUI());
-        */
-        //Register listener
-        tabs.addChangeListener(new ChangeListener() {
-            // This method is called whenever the selected tab changes
-            public void stateChanged(ChangeEvent ce) {
-                JTabbedPane pane = (JTabbedPane) ce.getSource();
-                Component c = pane.getSelectedComponent();
-                if (c == null) {
-                    model.setSelectedBrowser(null);
-                    return;
-                }
-                Map browsers = model.getBrowsers();
-                Iterator i = browsers.values().iterator();
-                boolean selected = false;
-                Browser browser;
-                while (i.hasNext()) {
-                    browser = (Browser) i.next();
-                    if (c.equals(browser.getUI())) {
-                        model.setSelectedBrowser(browser);
-                        selected = true;
-                        break;
-                    }
-                }
-                if (!selected) model.setSelectedBrowser(null);
-            }
-        });
+        
         return tabs;
     }
     
@@ -217,6 +184,7 @@ class TreeViewerWin
     {
         rightPane = new JScrollPane();
         JPanel p = new JPanel();
+        p.setBackground(Color.RED);
         rightPane.add(p);
     }
     
@@ -271,12 +239,13 @@ class TreeViewerWin
         this.controller = controller;
         this.model = model;
         popupMenu = new PopupMenu(controller);
-        loadingWin =  new LoadingWindow(this);
+        loadingWin = new LoadingWindow(this);
         loadingWin.addPropertyChangeListener(controller);
         initComponents();
         configureDisplayButtons();
         setJMenuBar(createMenuBar());
         buildGUI();
+        controller.attachUIListeners(tabs);
     }
     
     /**
@@ -347,25 +316,23 @@ class TreeViewerWin
     void showPopup(Component c, Point p) { popupMenu.show(c, p.x, p.y); }
     
     /**
-     * Creates a {@link CreateDataObject} panel and adds it to 
-     * the {@link #rightPane}.
+     * Adds the specified component to the {@link #rightPane}.
      * 
-     * @param doType The type of <code>DataObject</code> to create.
+     * @param component The component to add.
      */
-    void createDataObject(Class doType)
+    void addComponent(JComponent component)
     {
-        CreateDataObject panel = new CreateDataObject(doType);
-        panel.addPropertyChangeListener(
-                CreateDataObject.CANCEL_CREATION_PROPERTY, controller);
-        panel.addPropertyChangeListener(
-                CreateDataObject.FINISH_PROPERTY, controller);
-        panel.setComponentsSize(rightPane.getBounds().width);
-        rightPane.getViewport().removeAll();
-        rightPane.getViewport().add(panel);
+        if (component instanceof DOEditor)
+           ((DOEditor) component).setComponentsSize(
+                                       rightPane.getBounds().width);
+        JViewport viewPort = rightPane.getViewport();
+        viewPort.removeAll();
+        viewPort.add(component);
+        viewPort.validate();
     }
     
-    /** Removes the creation panel from the display. */
-    void cancelDataObjectCreation()
+    /** Removes all the components from the {@link #rightPane}. */
+    void removeAllFromRightPane()
     {
         JViewport viewPort = rightPane.getViewport();
         if (viewPort.getComponents().length != 0) {

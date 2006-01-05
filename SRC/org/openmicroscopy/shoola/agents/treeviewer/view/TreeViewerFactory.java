@@ -40,7 +40,9 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- *  Factory to create {@link TreeViewer} object.
+ *  Factory to create {@link TreeViewer} component.
+ * This class keeps track of the {@link TreeViewer} instance that has been 
+ * created and is not yet in the {@link TreeViewer#DISCARDED} state.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,10 +64,7 @@ public class TreeViewerFactory
      * 
      * @return See above.
      */
-    public static TreeViewer getViewer()
-    {
-        return singleton.getTreeViewer();
-    }
+    public static TreeViewer getViewer() { return singleton.getTreeViewer(); }
     
     /** The tracked component. */
     private TreeViewer viewer;
@@ -89,6 +88,7 @@ public class TreeViewerFactory
         TreeViewerComponent component = new TreeViewerComponent(model);
         model.initialize(component);
         component.initialize();
+        viewer = component;
         return component;
     }
 

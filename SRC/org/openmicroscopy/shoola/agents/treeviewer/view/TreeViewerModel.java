@@ -37,18 +37,27 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.DataLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.DataSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 
 /** 
- * 
+ * The Model component in the <code>TreeViewer</code> MVC triad.
+ * This class tracks the <code>TreeViewer</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. However, this class doesn't know the actual hierarchy
+ * the <code>TreeViewer</code> is for. Subclasses fill this gap and provide  
+ * a suitable data loader. The {@link TreeViewerComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,7 +77,7 @@ class TreeViewerModel
      * Will either be a data loader or
      * <code>null</code> depending on the current state. 
      */
-    private DataLoader          currentLoader;
+    private DataSaver          currentLoader;
     
     /** The browsers controlled by the model. */
     private Map                 browsers;
@@ -76,11 +85,15 @@ class TreeViewerModel
     /** The currently selected {@link Browser}. */
     private Browser             selectedBrowser;
     
-    /**
-     * The type of the <code>DataObject</code> to create.
-     * Might be <code>null</code>.
+    /** The <code>DataObject</code> to edit. */
+    private DataObject          dataObject;
+    
+    /** 
+     * The type of editor. One of the following constants:
+     * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
+     * or {@link TreeViewer#NO_EDITOR}.
      */
-    private Class               dataObjectType;
+    private int                 editorType;
     
     /** Reference to the component that embeds this model. */
     protected TreeViewer        component;
@@ -104,6 +117,7 @@ class TreeViewerModel
     protected TreeViewerModel()
     {
         state = TreeViewer.NEW;
+        editorType = TreeViewer.NO_EDITOR;
         browsers = new HashMap();
         createBrowsers();
     }
@@ -144,23 +158,94 @@ class TreeViewerModel
      */
    int getState() { return state; }    
    
-   void fireDataObjectCreation(DataObject object)
+   /**
+    * Sets the object in the {@link TreeViewer#DISCARDED} state.
+    * Any ongoing data loading will be cancelled.
+    */
+   void discard()
    {
-       
+       cancel();
+       state = TreeViewer.DISCARDED;
    }
    
-   /*
-   void setDataObjectType(Class doType)
+   /**
+    * Sets the object in the {@link TreeViewer#READY} state.
+    * Any ongoing data loading will be cancelled.
+    */
+   void cancel()
+   {
+       if (currentLoader != null) {
+           currentLoader.cancel();
+           currentLoader = null;
+       }
+       state = TreeViewer.READY;
+   }
+   
+   /**
+    * Starts the asynchronous retrieval of the data 
+    * and sets the state to {@link TreeViewer#SAVE}.
+    * 
+    * @param userObject The <code>DataObject</code> to create or update.
+    */
+   void fireDataObjectEdition(DataObject userObject, Object parent)
+   {    
+       if (editorType == TreeViewer.CREATE_PROPERTIES) {
+           int parentID = -1;
+           if (parent instanceof ProjectData)
+               parentID = ((ProjectData) parent).getId();
+           else if (parent instanceof DatasetData)
+               parentID = ((DatasetData) parent).getId();
+           else if (parent instanceof CategoryData)
+               parentID = ((CategoryData) parent).getId();
+           else if (parent instanceof CategoryGroupData)
+               parentID = ((CategoryGroupData) parent).getId();
+           currentLoader = new DataObjectEditor(component, userObject, 
+                                           DataObjectEditor.CREATE, parentID);
+           currentLoader.load();
+       } else if (editorType == TreeViewer.EDIT_PROPERTIES) {
+           currentLoader = new DataObjectEditor(component, userObject, 
+                                           DataObjectEditor.EDIT);
+           currentLoader.load();
+       }
+   }
+   
+   /** 
+    * Sets the type of the <code>DataObject</code> to edit.
+    * 
+    * @param object The <code>DataObject</code> to edit
+    *               The following types are currently supported:
+    *               {@link ProjectData}, {@link DatasetData},
+    *               {@link CategoryGroupData} and {@link CategoryData}.
+    */
+   void setDataObject(DataObject object)
    { 
-       if (doType == null || (doType.equals(ProjectData.class)) || 
-           (doType.equals(DatasetData.class)) ||
-           (doType.equals(CategoryData.class)) ||
-           (doType.equals(CategoryGroupData.class)))
-           dataObjectType = doType;
+       if (object == null)
+           throw new IllegalArgumentException("DataObject cannot be null");
+       if ((object instanceof ProjectData) || (object instanceof DatasetData) ||
+            (object instanceof CategoryData) ||
+            (object instanceof CategoryGroupData) ||
+            (object instanceof ImageData)) 
+           dataObject = object;
        else throw new IllegalArgumentException("DataObject type not supported");
    }
-     
-   Class getDataObjectType() { return dataObjectType; }
-   */
+   
+   /**
+    * Sets the type of editor. One of the following constants 
+    * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
+    * or {@link TreeViewer#NO_EDITOR}.
+    * 
+    * @param editorType The type of the editor.
+    */
+   void setEditorType(int editorType) { this.editorType = editorType; }
+   
+   /**
+    * Returns the type of editor.
+    * One of the following constants 
+    * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
+    * or {@link TreeViewer#NO_EDITOR}.
+    * 
+    * @return See above.
+    */
+   int getEditorType() { return editorType; }
    
 }

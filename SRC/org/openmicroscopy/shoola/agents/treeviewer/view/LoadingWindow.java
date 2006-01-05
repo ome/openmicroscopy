@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 
 /** 
- * 
+ * The window brought up on screen during data loading.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,30 +69,44 @@ class LoadingWindow
     extends JDialog
 {
     
-    /** The message diplaying during the loading process */
+    /** The default message displayed during the saving process. */
+    public static final String          SAVING_MSG = "Creating the data and " +
+                                                        "Building the display.";
+        
+    /** The title displayed during the saving process. */
+    public static final String          SAVING_TITLE = "Creating Data";
+    
+    
+    /** The default message displayed during the loading process */
     private static final String         LOADING_MSG = "Loading Data and " +
                                                       "Building the display.";
+    
+    /** The default title for this window. */
+    private static final String         LOADING_TITLE = "Loading Data";
     
     /** 
      * The preferred size of the widget that displays the notification message.
      * Only the part of text that fits into this display area will be displayed.
      */
-    private static final Dimension    MSG_AREA_SIZE = new Dimension(300, 50);
+    private static final Dimension      MSG_AREA_SIZE = new Dimension(300, 50);
     
     /** 
      * The size of the invisible components used to separate widgets
      * horizontally.
      */
-    private static final Dimension    H_SPACER_SIZE = new Dimension(20, 1);
+    private static final Dimension      H_SPACER_SIZE = new Dimension(20, 1);
     
     /** 
      * The size of the invisible components used to separate widgets
      * vertically.
      */
-    private static final Dimension    V_SPACER_SIZE = new Dimension(1, 20);
+    private static final Dimension      V_SPACER_SIZE = new Dimension(1, 20);
     
     /** The panel hosting the message. */
     private JPanel          messagePanel;
+    
+    /** The {@link MultilineLabel} hosting the message. */
+    private MultilineLabel  messageLabel;
     
     /** Hides and disposes of the dialog. */
     private JButton         cancelButton;
@@ -107,20 +121,9 @@ class LoadingWindow
         progressBar = new JProgressBar();
         progressBar.setVisible(true);
         progressBar.setIndeterminate(true);
-    }
-    
-    /**
-     * Builds a {@link MultilineLabel label} hosting the message to display.
-     * 
-     * @param message The message to display.
-     * @return See above.
-     */
-    private MultilineLabel buildLabel(String message)
-    {
-        MultilineLabel messageLabel = new MultilineLabel(message);
+        messageLabel = new MultilineLabel(LOADING_MSG);
         messageLabel.setPreferredSize(MSG_AREA_SIZE);
         messageLabel.setAlignmentY(TOP_ALIGNMENT);
-        return messageLabel;
     }
     
     /**
@@ -177,7 +180,6 @@ class LoadingWindow
         iconLabel.setAlignmentY(TOP_ALIGNMENT);
         messagePanel.add(iconLabel);
         messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
-        MultilineLabel messageLabel = buildLabel(LOADING_MSG);
         messagePanel.add(messageLabel);
         return messagePanel;
     }
@@ -205,12 +207,34 @@ class LoadingWindow
      */
     LoadingWindow(JFrame owner)
     {
-        super(owner, "Loading Data", true);
+        super(owner, LOADING_TITLE, true);
         setResizable(false);
         createComponents();
         attachListeners();
         buildGUI();
         pack();
+    }
+    
+    /**
+     * Sets the title of this window and the text displayed.
+     * 
+     * @param title The window's title.
+     * @param text  The text to display.
+     */
+    void setTitleAndText(String title, String text)
+    {
+        setTitle(title);
+        messageLabel.setText(text);
+    }
+    
+    /** 
+     * Overriden to reset the default message and title when the window
+     * is closed.
+     */
+    public void setVisible(boolean b)
+    {
+        super.setVisible(b);
+        if (!b) setTitleAndText(LOADING_TITLE, LOADING_MSG);
     }
     
 }

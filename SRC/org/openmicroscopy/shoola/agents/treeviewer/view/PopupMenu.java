@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Font;
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.BevelBorder;
@@ -46,7 +47,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.UtilConstants;
 
 
 /** 
- * 
+ * Pop-up menu for nodes in the browser display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,6 +76,15 @@ class PopupMenu
     /** Button to add element to the specified container. */
     private JMenuItem   newElement;
     
+    /** Button to copy the selected elements. */
+    private JMenuItem   copyElement;
+    
+    /** Button to paste the selected elements. */
+    private JMenuItem   pasteElement;
+    
+    /** Button to delete the selected elements. */
+    private JMenuItem   deleteElement;
+    
     /**
      * Sets the defaults of the specified menu item.
      * 
@@ -99,15 +109,37 @@ class PopupMenu
         properties = new JMenuItem(
                             controller.getAction(TreeViewer.PROPERTIES));
         initMenuItem(properties);
-        view = new JMenuItem(
-                            controller.getAction(TreeViewer.VIEW));
+        view = new JMenuItem(controller.getAction(TreeViewer.VIEW));
         initMenuItem(view);
-        refresh = new JMenuItem(
-                        controller.getAction(TreeViewer.REFRESH));
+        refresh = new JMenuItem(controller.getAction(TreeViewer.REFRESH));
         initMenuItem(refresh);
         newElement = new JMenuItem(
-                    controller.getAction(TreeViewer.NEW_OBJECT));
+                        controller.getAction(TreeViewer.CREATE_OBJECT));
         initMenuItem(newElement);
+        copyElement = new JMenuItem(
+                        controller.getAction(TreeViewer.COPY_OBJECT)); 
+        initMenuItem(newElement);
+        pasteElement = new JMenuItem(
+                controller.getAction(TreeViewer.PASTE_OBJECT)); 
+        initMenuItem(newElement);
+        deleteElement = new JMenuItem(
+                controller.getAction(TreeViewer.DELETE_OBJECT)); 
+        initMenuItem(newElement);
+    }
+    
+    /**
+     * Creates the sub-menu to manage the data.
+     * 
+     * @return See above
+     */
+    private JMenu createManagementMenu()
+    {
+        JMenu managementMenu = new JMenu("Manage");
+        managementMenu.add(newElement);
+        managementMenu.add(copyElement);
+        managementMenu.add(pasteElement);
+        managementMenu.add(deleteElement);
+        return managementMenu;
     }
     
     /** Builds and lays out the GUI. */
@@ -116,7 +148,7 @@ class PopupMenu
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(properties);
         add(view);
-        add(newElement);
+        add(createManagementMenu());
         add(refresh);
     }
     

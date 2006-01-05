@@ -31,24 +31,31 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 
-
-
 //Java imports
+import java.util.Iterator;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.Map;
-
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.DataObject;
 
 /** 
+ * Implements the {@link TreeViewer} interface to provide the functionality
+ * required of the tree viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
+ *
+ * @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
+ * @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerWin
+ * @see org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerControl
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -137,12 +144,22 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setSelectedBrowser(Browser)
+     */
+    public void setSelectedBrowser(Browser browser)
+    {
+        //check state
+        model.setSelectedBrowser(browser);
+        removeEditor();
+    }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#getSelectedBrowser()
      */
     public void addBrowser(int browserType)
     {
-        int state = model.getState();
-        if ((state == DISCARDED))
+        if (model.getState() == DISCARDED)
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state");
         Map browsers = model.getBrowsers();
@@ -155,29 +172,85 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#createDataObject(Class)
+     * @see TreeViewer#showProperties(DataObject, int)
      */
-    public void createDataObject(Class doType)
+    public void showProperties(DataObject object, int editorType)
     {
-        //model.setDataObjectType(doType);
-        view.createDataObject(doType); 
+        if (editorType == EDIT_PROPERTIES || editorType == CREATE_PROPERTIES)
+            model.setEditorType(editorType);
+        else return;
+        //model.setDataObject(object);
+        DOEditor panel = new DOEditor(this, object, editorType);
+        panel.addPropertyChangeListener(DOEditor.CANCEL_CREATION_PROPERTY, 
+                                        controller);;
+        view.addComponent(panel); 
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#createDataObject(Class)
+     * @see TreeViewer#saveObject(DataObject)
      */
-    public void createObject(DataObject object)
+    public void saveObject(DataObject object)
     {
-        if (object == null)
-            throw new IllegalArgumentException("No object to create.");
-        model.fireDataObjectCreation(object);
-        //Should be done there but for the moment.
+        //check state and editor type.
         Browser browser = model.getSelectedBrowser();
-        if (browser != null)
-            browser.setCreatedNode(
-                    TreeViewerTranslator.transformDataObject(object));
-        view.cancelDataObjectCreation();
+        if (browser == null) return;
+        Object userObject = browser.getSelectedDisplay().getUserObject();
+        model.fireDataObjectEdition(object, userObject);
+        LoadingWindow window = view.getLoadingWindow();
+        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
+                                LoadingWindow.SAVING_MSG);
+        UIUtilities.centerAndShow(window);
+        fireStateChange();
     }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#cancel()
+     */
+    public void cancel()
+    {
+        //TODO: check state.
+        //Remove loading window.
+        model.cancel();
+        if (view.getLoadingWindow().isVisible())
+            view.getLoadingWindow().setVisible(false);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#cancel()
+     */
+    public void removeEditor()
+    {
+        //TODO: check state 
+        model.setEditorType(NO_EDITOR);
+        view.removeAllFromRightPane();
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setSaveResult(DataObject)
+     */
+    public void setSaveResult(DataObject object)
+    {
+        //Check state.
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+            switch (model.getEditorType()) {
+                case TreeViewer.CREATE_PROPERTIES:
+                    browser.setCreatedNode(
+                            TreeViewerTranslator.transformDataObject(object));
+                    break;
+                case TreeViewer.EDIT_PROPERTIES:
+                    break;
+            }
+        }  
+        if (view.getLoadingWindow().isVisible())
+            view.getLoadingWindow().setVisible(false);
+        view.removeAllFromRightPane();
+    }
+
+
     
 }

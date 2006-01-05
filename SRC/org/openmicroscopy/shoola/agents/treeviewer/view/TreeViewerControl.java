@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.Action;
+import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -48,7 +49,10 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
@@ -56,10 +60,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.CreateDataObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
 
 /** 
- * 
+ * Thre {@link TreeViewer}'s controller. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,7 +94,10 @@ class TreeViewerControl
         actionsMap.put(TreeViewer.PROPERTIES, new PropertiesAction(model));
         actionsMap.put(TreeViewer.VIEW, new ViewAction(model));
         actionsMap.put(TreeViewer.REFRESH, new RefreshAction(model));
-        actionsMap.put(TreeViewer.NEW_OBJECT, new CreateAction(model));
+        actionsMap.put(TreeViewer.CREATE_OBJECT, new CreateAction(model));
+        actionsMap.put(TreeViewer.COPY_OBJECT, new CopyAction(model));
+        actionsMap.put(TreeViewer.DELETE_OBJECT, new DeleteAction(model));
+        actionsMap.put(TreeViewer.PASTE_OBJECT, new PasteAction(model));
         actionsMap.put(TreeViewer.HIERARCHY_EXPLORER, 
                  new BrowserSelectionAction(model, Browser.HIERARCHY_EXPLORER));
         actionsMap.put(TreeViewer.CATEGORY_EXPLORER, 
@@ -114,7 +120,6 @@ class TreeViewerControl
             browser.addPropertyChangeListener(this);
             browser.addChangeListener(this);
         }
-            
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.discard(); }
@@ -137,6 +142,39 @@ class TreeViewerControl
         this.model = model;
         actionsMap = new HashMap();
         createActions();
+    }
+    
+    /**
+     * Adds listeners to UI components.
+     *
+     */
+    void attachUIListeners(JTabbedPane tabs)
+    {
+        //Register listener
+        tabs.addChangeListener(new ChangeListener() {
+            // This method is called whenever the selected tab changes
+            public void stateChanged(ChangeEvent ce) {
+                JTabbedPane pane = (JTabbedPane) ce.getSource();
+                Component c = pane.getSelectedComponent();
+                if (c == null) {
+                    model.setSelectedBrowser(null);
+                    return;
+                }
+                Map browsers = model.getBrowsers();
+                Iterator i = browsers.values().iterator();
+                boolean selected = false;
+                Browser browser;
+                while (i.hasNext()) {
+                    browser = (Browser) i.next();
+                    if (c.equals(browser.getUI())) {
+                        model.setSelectedBrowser(browser);
+                        selected = true;
+                        break;
+                    }
+                }
+                if (!selected) model.setSelectedBrowser(null);
+            }
+        });
     }
     
     /**
@@ -163,7 +201,6 @@ class TreeViewerControl
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
-        System.out.println(name);
         if (name.equals(Browser.CANCEL_PROPERTY)) {
             Browser browser = model.getSelectedBrowser();
             if (browser != null) browser.cancel();
@@ -176,15 +213,10 @@ class TreeViewerControl
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
         } else if (name.equals(CreateDataObject.CANCEL_CREATION_PROPERTY)) {
-            view.cancelDataObjectCreation();
+            model.removeEditor();
         } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
-            view.cancelDataObjectCreation();
-        } else if (name.equals(CreateDataObject.FINISH_PROPERTY)) {
-            DataObject object = (DataObject) pce.getNewValue();
-            model.createObject(object);
-        }
-            
-            
+            model.removeEditor();
+        }   
     }
 
     /**
