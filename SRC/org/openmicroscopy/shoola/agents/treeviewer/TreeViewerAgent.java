@@ -37,12 +37,14 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
  * 
@@ -69,6 +71,27 @@ public class TreeViewerAgent
      */
     public static Registry getRegistry() { return registry; }
     
+    /**
+     * Handles the {@link ShowProperties} event.
+     * 
+     * @param e The event to handle.
+     */
+    private void handleShowProperties(ShowProperties e)
+    {
+        int type = -1;
+        switch (e.getEditorType()) {
+            case ShowProperties.CREATE:
+                type = TreeViewer.CREATE_PROPERTIES;
+                break;
+            case ShowProperties.EDIT:
+                type = TreeViewer.EDIT_PROPERTIES;
+        }
+        if (type == -1) //shoudln't happen
+            throw new IllegalArgumentException("Properties type not supported");
+        TreeViewer viewer = TreeViewerFactory.getViewer();
+        if (viewer != null) viewer.showProperties(e.getUserObject(), type);
+    }
+    
     /** Implemented as specified by {@link Agent}. */
     public void activate() {}
 
@@ -79,7 +102,8 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
-        //EventBus bus = registry.getEventBus();
+        EventBus bus = registry.getEventBus();
+        bus.register(this, ShowProperties.class);
         TreeViewer viewer = TreeViewerFactory.getViewer();
         if (viewer != null) viewer.activate();
     }
@@ -91,10 +115,10 @@ public class TreeViewerAgent
      * Responds to an event fired trigger on the bus.
      * @see AgentEventListener#eventFired
      */
-    public void eventFired(AgentEvent e)
+    public void eventFired(AgentEvent ae)
     {
-        // TODO Auto-generated method stub
-        
+        if (ae instanceof ShowProperties)
+            handleShowProperties((ShowProperties) ae);   
     }
 
 }
