@@ -101,7 +101,7 @@ public class PropertiesCmd
         if (hierarchyObject == null) return;
         //post a show properties event.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-        eventBus.post(new ShowProperties(hierarchyObject, null)); 
+        eventBus.post(new ShowProperties(hierarchyObject, ShowProperties.EDIT)); 
     }
 
 }
