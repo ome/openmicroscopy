@@ -68,25 +68,26 @@ public class CreateAction
     private static final String NAME = "New...";
     
     /** The name of the action for the creation of a <code>Project</code>. */
-    private static final String NAME_PROJECT = "New Project...";
+    private static final String NAME_PROJECT = "Add new Project...";
     
     /** The name of the action for the creation of a <code>Dataset</code>. */
-    private static final String NAME_DATASET = "New Dataset...";
+    private static final String NAME_DATASET = "Add new Dataset...";
     
     /** 
      * The name of the action for the creation of a <code>CategoryGroup</code>.
      */
-    private static final String NAME_CATEGORY_GROUP = "New Category Group...";
+    private static final String NAME_CATEGORY_GROUP = "Add new Category " +
+                                                        "Group...";
     
     /** The name of the action for the creation of a <code>Category</code>. */
-    private static final String NAME_CATEGORY = "New Category...";
+    private static final String NAME_CATEGORY = "Add new Category...";
     
     /** The name of the action for the creation of a <code>Image</code>. */
-    private static final String NAME_IMAGE = "New Image...";
+    private static final String NAME_IMAGE = "Add new Image...";
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Adds a new element to the " +
-            "selected container.";
+    private static final String DESCRIPTION = "Add a new element to the " +
+                                                "selected container.";
     
     /** The type of node to create. */
     private int nodeType;

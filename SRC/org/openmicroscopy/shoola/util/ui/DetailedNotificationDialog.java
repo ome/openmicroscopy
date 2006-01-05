@@ -123,7 +123,8 @@ public class DetailedNotificationDialog
 	 *
 	 * @param component The component to go in the explanation panel.
 	 */
-	private void buildExplanationPanel(Component component) {
+	private void buildExplanationPanel(Component component)
+    {
 		JScrollPane scrollPane = new JScrollPane(component);
 		scrollPane.setPreferredSize(SCROLL_PANE_SIZE);
 		explanationPanel.setLayout(
@@ -184,9 +185,11 @@ public class DetailedNotificationDialog
 	 * Hooks up the {@link #detailsButton} and the {@link #explanationPanel} to
 	 * the parent's GUI.
 	 * 
-	 * @param component A component containing the description of the notification
+	 * @param component A component containing the description of the
+     *                  notification.
 	 */
-	private void buildGUI(Component component) {
+	private void buildGUI(Component component)
+    {
 		buttonPanel.add(detailsButton);
 		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		buildExplanationPanel(component);

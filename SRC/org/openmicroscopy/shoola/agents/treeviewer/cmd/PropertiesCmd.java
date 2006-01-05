@@ -86,7 +86,7 @@ public class PropertiesCmd
         Object ho = display.getUserObject();
         if (ho instanceof DataObject) {
             EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            bus.post(new ShowProperties((DataObject) ho, null));
+            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
         }
     }
     

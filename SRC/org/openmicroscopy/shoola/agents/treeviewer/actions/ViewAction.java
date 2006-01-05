@@ -38,6 +38,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -79,7 +80,16 @@ public class ViewAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        //if (model.getSelectedBrowser() == null) return;
+        //Shouldn't be null, better to fail here
+        if (model.getSelectedBrowser().getBrowserType() == 
+            Browser.IMAGES_EXPLORER && 
+            selectedDisplay.getParentDisplay() == null) { //root
+            setEnabled(true);
+            return;
+        }
         Object ho = selectedDisplay.getUserObject();
+        
         if (ho == null || !(ho instanceof DataObject)) setEnabled(false);
         else {
             if ((ho instanceof ImageData)) putValue(Action.NAME, VIEW);   

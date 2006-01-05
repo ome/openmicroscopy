@@ -147,7 +147,10 @@ class ClipBoardModel
     }
     
     /**
-     * @param component
+     * Called by the <code>ClipBoard</code> after creation to allow this
+     * object to store a back reference to the embedding component.
+     * 
+     * @param component The embedding component.
      */
     void initialize(ClipBoardComponent component)
     {
@@ -300,21 +303,6 @@ class ClipBoardModel
         List l = (List) annotations.get(new Integer(details.getUserID()));
         AnnotationData data = null;
         if (l != null) data = (AnnotationData) l.get(0);
-        /*
-        switch (annotatedObjectIndex) {
-            case AnnotationEditor.DATASET_ANNOTATION:
-                visitor = new ImgSetAnnotationVisitor(getParentModel(), data,
-                                                        annotatedObjectID);
-                break;
-            case AnnotationEditor.IMAGE_ANNOTATION:
-                visitor = new ImgNodeAnnotationVisitor(getParentModel(), data,
-                        annotatedObjectID);
-                break;
-        }
-        if (visitor != null) {
-            getParentModel().getBrowser().accept(visitor);
-        }
-        */
         int algoType = -1;
         switch (annotatedObjectIndex) {
             case AnnotationEditor.DATASET_ANNOTATION:

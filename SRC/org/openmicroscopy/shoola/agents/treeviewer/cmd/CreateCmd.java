@@ -35,9 +35,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
@@ -71,23 +76,26 @@ public class CreateCmd
     /** Reference to the model. */
     private TreeViewer  model;
     
-    /** The class corresponding to a constant defined by this class. */
-    private Class         nodeType;
+    /**
+     * The <code>DataObject</code> corresponding to a constant
+     * defined by this class.
+     */
+    private DataObject  userObject;
     
     /**
      * Checks that the specified type is currently supported
-     * and returns the corresponding class.
+     * and returns the corresponding <code>DataObject</code>.
      * 
      * @param type The type to check.
      * @return See above.
      */
-    private Class checkNodeType(int type)
+    private DataObject checkNodeType(int type)
     {
         switch (type) {
-            case PROJECT: return ProjectData.class;
-            case DATASET: return DatasetData.class; 
-            case CATEGORY_GROUP: return CategoryGroupData.class; 
-            case CATEGORY: return CategoryData.class; 
+            case PROJECT: return new ProjectData();
+            case DATASET: return new DatasetData(); 
+            case CATEGORY_GROUP: return new CategoryGroupData(); 
+            case CATEGORY: return new CategoryData(); 
             default:
                 throw new IllegalArgumentException("Type not supported");
         }
@@ -102,14 +110,19 @@ public class CreateCmd
     public CreateCmd(TreeViewer model, int type)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
-        nodeType = checkNodeType(type);
+        userObject = checkNodeType(type);
         this.model = model;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        model.createDataObject(nodeType);
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) return;
+        if (userObject == null) return; //shouldn't happen.
+        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        bus.post(new ShowProperties(userObject, ShowProperties.CREATE));
+        //model.createDataObject(DatasetData.class);
     }
     
 }
