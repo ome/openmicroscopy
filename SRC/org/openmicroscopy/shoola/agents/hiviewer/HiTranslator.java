@@ -191,6 +191,7 @@ public class HiTranslator
      * tree. 
      * 
      * @param projects  Collection of {@link ProjectData}s to transform.
+     *                  Mustn't be <code>null</code>.
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
     private static Set transformProjects(Set projects)
@@ -223,7 +224,7 @@ public class HiTranslator
      * Transforms the specified {@link DataObject} into its corresponding
      * visualisation element.
      * 
-     * @param project The {@link DataObject} to transform. 
+     * @param project   The {@link DataObject} to transform. 
      *                  Must be an instance of {@link ProjectData}.
      * @return See below.
      */
@@ -239,6 +240,7 @@ public class HiTranslator
      * tree. 
      * 
      * @param datasets  Collection of {@link DatasetData}s to transform.
+     *                  Mustn't be <code>null</code>.
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
     private static Set transformDatasets(Set datasets)
@@ -272,6 +274,7 @@ public class HiTranslator
      * tree. 
      * 
      * @param groups  Collection of {@link CategoryGroupData}s to transform.
+     *                Mustn't be <code>null</code>.
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
     private static Set transformCategoryGroups(Set groups)
@@ -358,7 +361,8 @@ public class HiTranslator
      * {@link CategoryData} or {@link ImageData}.
      * The {@link ImageData}s are added to an unclassified {@link ImageSet}.
      * 
-     * @param dataObjects The {@link DataObject}s to transform.
+     * @param dataObjects   The {@link DataObject}s to transform.
+     *                      Mustn't be <code>null</code>.
      * @return See above.
      */
     public static Set transformHierarchy(Set dataObjects)
@@ -400,7 +404,8 @@ public class HiTranslator
      * {@link CategoryData} or {@link ImageData}.
      * The {@link ImageData}s are added to an unclassified {@link ImageSet}.
      * 
-     * @param ho The {@link DataObject} to transform.
+     * @param ho    The {@link DataObject} to transform.
+     *              Mustn't be <code>null</code>.
      * @return See above.
      */
     public static Set transform(DataObject ho)
@@ -414,7 +419,7 @@ public class HiTranslator
     /**
      * Formats the toolTip of the specified {@link ImageDisplay} node.
      * 
-     * @param node The specified node.
+     * @param node The specified node. Mustn't be <code>null</code>.
      * @param data The annotation data.
      */
     public static void formatToolTipFor(ImageDisplay node, AnnotationData data)

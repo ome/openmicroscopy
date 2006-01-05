@@ -64,7 +64,7 @@ public class HiViewerAgent
 {
 
     /** Reference to the registry. */
-    private static Registry         registry;
+    private static Registry         registry; 
     
     /**
      * Helper method. 
@@ -73,6 +73,16 @@ public class HiViewerAgent
      */
     public static Registry getRegistry() { return registry; }
     
+    /**
+     * Handles the {@link Browse event}.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleBrowse(Browse evt)
+    {
+        if (evt == null) return;
+        browse(evt.getEventIndex(), evt.getHierarchyObjectID());
+    }
     
     /** Creates a new instance. */
     public HiViewerAgent() {}
@@ -106,13 +116,7 @@ public class HiViewerAgent
             handleBrowse((Browse) e);
     }
     
-    /** Handle browse project event. */
-    private void handleBrowse(Browse evt)
-    {
-        if (evt == null) return;
-        browse(evt.getEventIndex(), evt.getHierarchyObjectID());
-    }
-    
+
     /** 
      * Browse the specified element.
      * 

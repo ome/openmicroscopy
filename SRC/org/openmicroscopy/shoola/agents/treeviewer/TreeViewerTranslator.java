@@ -32,8 +32,12 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -44,6 +48,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -52,8 +60,13 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
+ * This class contains a collection of utility static methods that transform
+ * an hierarchy of {@link DataObject}s into a visualisation tree.
+ * The tree is then displayed in the TreeViewer. For example,
+ * A list of Projects-Datasets is passed to the 
+ * {@link #transformHierarchy(Set)} method and transforms into a set of 
+ * TreeImageSet-TreeImageSet.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -65,19 +78,67 @@ import pojos.ProjectData;
 public class TreeViewerTranslator
 {
 
+    private static ViewerSorter sorter = new ViewerSorter();
+    
+    /**
+     * Returns the first annotation of the specified set.
+     * Returns <code>null</code> if the set is empty or <code>null</code>.
+     * We first make sure that the annotations are ordered by date (ascending
+     * order).
+     * 
+     * @param set The set to analyse.
+     * @return See above.
+     */
+    private static AnnotationData getFirstAnnotation(Set set)
+    {
+        if (set == null || set.size() == 0) return null;
+        HashMap map = new HashMap(set.size());
+        Iterator i = set.iterator();
+        AnnotationData data;
+        HashSet timestamps = new HashSet(set.size());
+        while (i.hasNext()) {
+            data = (AnnotationData) i.next();
+            map.put(data.getLastModified(), data);
+            timestamps.add(data.getLastModified());
+        }
+        sorter.setAscending(false);
+        List l = sorter.sort(timestamps);
+        return (AnnotationData) map.get(l.get(0));
+    }
+    
+    /**
+     * Transforms a {@link DatasetData} into a visualisation object i.e.
+     * a {@link TreeImageSet}.
+     * 
+     * @param data  The {@link DatasetData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
     private static TreeImageDisplay transformDataset(DatasetData data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet dataset =  new TreeImageSet(data);
+        dataset.setNodeName(data.getName());
+        formatToolTipFor(dataset, getFirstAnnotation(data.getAnnotations()));
         return dataset;
     }
     
+    /**
+     * Transforms a {@link ProjectData} into a visualisation object i.e.
+     * a {@link TreeImageSet}. The {@link DatasetData datasets} are also
+     * transformed and linked to the newly created {@link TreeImageSet}.
+     * 
+     * @param data  The {@link ProjectData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
     private static TreeImageDisplay transformProject(ProjectData data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet project = new TreeImageSet(data);
+        project.setNodeName(data.getName());
         Set datasets = data.getDatasets();
         Iterator i = datasets.iterator();
         while (i.hasNext()) 
@@ -85,20 +146,39 @@ public class TreeViewerTranslator
         return project;
     }
     
+    /**
+     * Transforms a {@link CategoryData} into a visualisation object i.e.
+     * a {@link TreeImageSet}.
+     * 
+     * @param data  The {@link CategoryData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
     private static TreeImageDisplay transformCategory(CategoryData data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet category =  new TreeImageSet(data);
+        category.setNodeName(data.getName());
         return category;
     }
     
+    /**
+     * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
+     * a {@link TreeImageSet}. The {@link CategoryData categories} are also
+     * transformed and linked to the newly created {@link TreeImageSet}.
+     * 
+     * @param data  The {@link CategoryGroupData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
     private static TreeImageDisplay transformCategoryGroup(CategoryGroupData
                                                             data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet group = new TreeImageSet(data);
+        group.setNodeName(data.getName());
         Set categories = data.getCategories();
         Iterator i = categories.iterator();
         while (i.hasNext())
@@ -106,11 +186,22 @@ public class TreeViewerTranslator
         return group;
     }
     
+    /**
+     * Transforms a {@link ImageData} into a visualisation object i.e.
+     * a {@link TreeImageNode}.
+     * 
+     * @param data  The {@link ImageData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
     private static TreeImageDisplay transformImage(ImageData data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
-        return new TreeImageNode(data);
+        TreeImageNode node = new TreeImageNode(data);
+        node.setNodeName(data.getName());
+        formatToolTipFor(node, getFirstAnnotation(data.getAnnotations()));
+        return node;
     }
     
     /**
@@ -171,6 +262,14 @@ public class TreeViewerTranslator
         return results;
     }
     
+    /**
+     * Transforms the specified {@link DataObject} into a visualisation
+     * representation.
+     * 
+     * @param object    The {@link DataObject} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @return See above
+     */
     public static TreeImageDisplay transformDataObject(DataObject object)
     {
         if (object == null)
@@ -184,6 +283,33 @@ public class TreeViewerTranslator
         else if (object instanceof CategoryGroupData)
             return transformCategoryGroup((CategoryGroupData) object);
         throw new IllegalArgumentException("Data Type not supported.");
+    }
+    
+    /**
+     * Formats the toolTip of the specified {@link TreeImageDisplay} node.
+     * 
+     * @param node The specified node. Mustn't be <code>null</code>.
+     * @param data The annotation data.
+     */
+    public static void formatToolTipFor(TreeImageDisplay node,
+                                        AnnotationData data)
+    {
+        if (node == null) throw new IllegalArgumentException("No node");
+        String toolTip = null;
+        String title = null;
+        if (node.getUserObject() instanceof ImageData) {
+            Timestamp time = ((ImageData) node.getUserObject()).getInserted();
+            title = DateFormat.getDateInstance().format(time);   
+            if (data != null)
+                toolTip = UIUtilities.makeParagraph(title, data.getText(),
+                                                    UIUtilities.TABLE_WIDTH);
+            else toolTip = UIUtilities.formatToolTipText(title);  
+        }
+        
+        if ((node.getUserObject() instanceof DatasetData) && data != null)
+            toolTip = UIUtilities.makeParagraph(title, data.getText(),
+                    UIUtilities.TABLE_WIDTH);
+        node.setToolTip(toolTip);
     }
     
 }
