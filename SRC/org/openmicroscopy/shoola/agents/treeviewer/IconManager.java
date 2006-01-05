@@ -118,17 +118,32 @@ public class IconManager
     /** The <code>Annotated Image</code> icon. */
     public static int           ANNOTATED_IMAGE = 21;
     
-    /** The bigger version of the <code>Create</code> icon. */
+    /** A bigger version of the <code>Create</code> icon. */
     public static int           CREATE_BIG = 22;
     
     /** The <code>Error</code> icon. */
     public static int           ERROR = 23;
     
+    /** A bigger version of the <code>Properties</code> icon. */
+    public static int           PROPERTIES_BIG = 24;
+    
+    /** The <code>Owner</code> icon. */
+    public static int           OWNER = 25;
+    
+    /** The <code>Copy</code> icon. */
+    public static int           COPY = 26;
+    
+    /** The <code>Paste</code> icon. */
+    public static int           PASTE = 27;
+    
+    /** The <code>Delete</code> icon. */
+    public static int           DELETE = 28;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 23;
+    private static int          MAX_ID = 28;
     
     
     /** Paths of the icon files. */
@@ -159,7 +174,11 @@ public class IconManager
         relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
         relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
         relPaths[ERROR] = "eclipse_error_tsk16.png";
-        
+        relPaths[PROPERTIES_BIG] = "nuvola_filenew48.png";
+        relPaths[OWNER] = "nuvola_kdmconfig16.png";
+        relPaths[COPY] = "eclipse_error_tsk16.png";
+        relPaths[PASTE] = "eclipse_error_tsk16.png";
+        relPaths[DELETE] = "eclipse_error_tsk16.png";
     }
     
     /** The sole instance. */
