@@ -61,9 +61,10 @@ public class AnnotationSaver
     extends BatchCallTree
 {
     
-    /** Classify/declassify call. */
+    /** The save call. */
     private BatchCall       saveCall;
     
+    //TODO: remove asap
     private AnnotationData transformPojoAnnotationData(pojos.AnnotationData ad)
     {
         AnnotationData annotation = new AnnotationData(ad.getId(),

@@ -30,19 +30,18 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 
-
-
 //Java imports
+import java.util.Set;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Set;
-
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import pojos.DataObject;
 
 /** 
- * 
+ * Provides methods to support data management.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -92,5 +91,27 @@ public interface DataManagerView
      */
     public CallHandle getImages(Class nodeType, Set nodeIDs, 
                                 AgentEventListener observer);
+    
+    /**
+     * Creates a new <code>DataObject</code> whose parent is specified by the
+     * ID.
+     * 
+     * @param userObject    The type of <code>DataObject</code> to create.
+     * @param parentID      The ID of the parent.  
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle createDataObject(DataObject userObject, int parentID,
+                                        AgentEventListener observer);
+    
+    /**
+     * Updates the specified <code>DataObject</code>.
+     * 
+     * @param userObject    The <code>DataObject</code> to save.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle updateDataObject(DataObject userObject,
+                                        AgentEventListener observer);
     
 }

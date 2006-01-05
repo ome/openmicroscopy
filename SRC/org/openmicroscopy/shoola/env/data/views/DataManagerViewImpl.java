@@ -30,18 +30,19 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Set;
-
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import pojos.DataObject;
 
 /** 
- * 
+ * Implementation of the {@link DataManagerView} implementation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -92,6 +93,30 @@ class DataManagerViewImpl
         BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs);
         return cmd.exec(observer);
     }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#createDataObject(DataObject, int, 
+     *                                      AgentEventListener)
+     */
+    public CallHandle createDataObject(DataObject userObject, int parentID,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectSaver(userObject,
+                                    DataObjectSaver.CREATE, parentID);
+        return cmd.exec(observer);
+    } 
     
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#updateDataObject(DataObject, AgentEventListener)
+     */
+    public CallHandle updateDataObject(DataObject userObject,
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectSaver(userObject,
+                                            DataObjectSaver.UPDATE, -1);
+        return cmd.exec(observer);  
+    }
     
 }
