@@ -103,7 +103,6 @@ import tmp.RenderingDefConstants;
 class Renderer
 {
     private static Log log = LogFactory.getLog(Renderer.class);//j.m
-    static final String RGB_COLOR_DOMAIN = "RGB";
     
     /**
      * The {@link Pixels} object to access the metadata of the pixels
@@ -179,10 +178,9 @@ class Renderer
         computeLocationStats(getDefaultPlaneDef());
         
         //Create and configure the codomain chain.
-        /* FIXME don't have yet
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd.getCdStop().intValue(),
-                                          rndDef.getCodomainChainDef());
-        */
+                                          rndDef.getSpatialDomainEnhancement());
+        
         
         //Create an appropriate rendering strategy.
         int m = RenderingDefConstants.convertType(rndDef.getModel());
@@ -440,7 +438,8 @@ class Renderer
                 end = cb[i].getInputEnd();
                 //TODO: find a better way.
                 if (pixTStats.globalMax == end && pixTStats.globalMin == start)
-                    continue; // FIXME cb[i].setInputWindow(sf.getInputStart(), sf.getInputEnd());  
+                    cb[i].setInputStart(new Float(sf.getInputStart()));
+                	   cb[i].setInputEnd(new Float(sf.getInputEnd())); // TODO double / Float? 
             }
         } catch (Exception ioe) {
             throw new PixMetadataException("Cannot retrieve the file header "+

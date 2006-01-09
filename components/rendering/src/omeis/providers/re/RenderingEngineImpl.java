@@ -331,14 +331,13 @@ public class RenderingEngineImpl implements RenderingEngine
         newQd.setCdStart(Integer.valueOf(start));
         newQd.setCdStop(Integer.valueOf(end));
         rd.setQuantization(newQd);
-// FIXME
-//        CodomainMapContext mapCtx;
-//        Iterator i = rd.getCodomainChainDef().iterator();
-//        while (i.hasNext())
-//        {
-//            mapCtx = (CodomainMapContext) i.next();
-//            mapCtx.setCodomain(start, end);
-//        }
+        CodomainMapContext mapCtx;
+        Iterator i = rd.getSpatialDomainEnhancement().iterator();
+        while (i.hasNext())
+        {
+            mapCtx = (CodomainMapContext) i.next();
+            mapCtx.setCodomain(start, end);
+        }
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
@@ -353,7 +352,8 @@ public class RenderingEngineImpl implements RenderingEngine
         QuantumStrategy qs = renderer.getQuantumManager().getStrategyFor(w);
         qs.setWindow(start, end);
         ChannelBinding[] cb = renderer.getChannelBindings();
-        // FIXME cb[w].setInputWindow(start, end);
+        cb[w].setInputStart(new Float(start));
+        cb[w].setInputEnd(new Float(end)); // TODO double / Float
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
@@ -418,7 +418,7 @@ public class RenderingEngineImpl implements RenderingEngine
             int alpha)
     {
         ChannelBinding[] cb = renderer.getChannelBindings();
-        // FIXMEcb[w].setRGBA(red, green, blue, alpha);
+        // TODO cb[w].setRGBA(red, green, blue, alpha);
         Color c = cb[w].getColor();
         c.setRed(Integer.valueOf(red));
         c.setGreen(Integer.valueOf(green));
@@ -436,7 +436,7 @@ public class RenderingEngineImpl implements RenderingEngine
         // NOTE: The rgba is supposed to be read-only; however we make a
         // copy to be on the safe side.
         int[] rgba = new int[4];
-        // FIXME 
+        // TODO
         rgba[0] = cb[w].getColor().getRed().intValue();
         rgba[1] = cb[w].getColor().getGreen().intValue();
         rgba[2] = cb[w].getColor().getBlue().intValue();

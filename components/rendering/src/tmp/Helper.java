@@ -106,14 +106,14 @@ public class Helper
         for (int w = 0; w < c_size; ++w) {
             pixData = (Channel) map.get(new Integer(w));
             wGlobal = stats.getGlobalEntry(w);
-/* FIXME : very broken. ColorDomain and pixData.get_wave_lengths aren't there.*/
-//            if (pixData == null) rgb = ColorsFactory.getColor(w, -1);
-//            else  rgb = ColorsFactory.getColor(w, 0);// FIXME FIXME pixData.getEm...);
-//            if (pixData != null && 
-//                    pixData.getColorDomain() == RGB_COLOR_DOMAIN) {
-//                active = true;
-//                model = RenderingDefConstants.RGB;
-//            } 
+            if (pixData == null) rgb = ColorsFactory.getColor(w, -1);
+            else  rgb = ColorsFactory.getColor(w, pixData.getLogicalChannel().getEmissionWave());
+            if (pixData != null && 
+                    metadata.getAcquisitionContext().getPhotometricInterpretation().getValue() == "RGB") { 
+            	// FIXME this should be linked to the ModelType of RenderingDefConstant somehow
+                active = true;
+                model = RenderingDefConstants.RGB;
+            } 
             waves[w] = new ChannelBindings(w, wGlobal.globalMin, 
                                         wGlobal.globalMax, rgb, active, 
                                         QuantumFactory.LINEAR, 1);
