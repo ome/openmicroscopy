@@ -65,7 +65,11 @@
 #elseif($prop.one2Many)
 
 	<!-- bi-directional one-to-many association to $prop.name -->
+#if($prop.ordered)
+    <list
+#else
     <set
+#end
 		name="${prop.name}"
 		lazy="true"
 		inverse="true"
@@ -74,9 +78,15 @@
 		<key>
 			<column name="${table}" />
 		</key>
+#if($prop.ordered)
+       <list-index column="order"/>
+#end
 		<one-to-many class="${prop.type}"/>
+#if($prop.ordered)
+    </list>
+#else
     </set>
-
+#end
 #elseif($prop.foreignKey)
 
     <!-- bi-directional many-to-one association to $prop.name -->

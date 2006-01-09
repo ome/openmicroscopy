@@ -110,6 +110,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 	private Boolean unique;
 	private Boolean mutable;
 	private Boolean foreignKey;
+	private Boolean ordered;
 	
 	// Mappings
 	private Boolean one2Many;
@@ -122,6 +123,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 		setRequired(Boolean.valueOf(attrs.getProperty("required","false")));
 		setUnique(Boolean.valueOf(attrs.getProperty("unique","false"))); // TODO wanted to use KEYS.put(id,field) !! 
 		setMutable(Boolean.valueOf(attrs.getProperty("mutable","true")));
+		setOrdered(Boolean.valueOf(attrs.getProperty("ordered","false")));
 		
 		if (VALUES.containsKey(getType())){
 			setForeignKey(Boolean.FALSE);
@@ -211,6 +213,14 @@ public abstract class Property { // TODO need to define equality so that two wit
 		return mutable;
 	}
 
+	public void setOrdered(Boolean ordered) {
+		this.ordered = ordered;
+	}
+	
+	public Boolean getOrdered() {
+		return ordered;
+	}
+	
 	public void setForeignKey(Boolean foreignKey) {
 		this.foreignKey = foreignKey;
 	}
