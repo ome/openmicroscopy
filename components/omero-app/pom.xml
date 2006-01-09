@@ -26,7 +26,7 @@
               <bundleFileName>omero-3.0-alpha-SNAPSHOT.ejb3</bundleFileName>
             </ejbModule>
             <javaModule>
-              <groupId>springframework</groupId>
+              <groupId>org.springframework</groupId>
               <artifactId>spring</artifactId>
               <bundleFileName>
                 spring
