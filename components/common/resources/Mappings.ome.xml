@@ -298,12 +298,21 @@
 			<required name="index" type="int"/>
 			<optional name="statsInfo" type="ome.model.stats.StatsInfo"/>
 			<optional name="colorComponent" type="ome.model.display.Color"/>
-			<zeromany name="logicalChannels" type="ome.model.core.LogicalChannel"/>
+			<optional name="logicalChannel" type="ome.model.core.LogicalChannel"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.LogicalChannel">
 		<properties>
-			<!-- ## TODO -->
+			<optional name="name" type="string"/>
+			<optional name="pinHoleSize" type="int"/>
+			<!-- ##
+			<optional name="illumination" type="ome.model.enums.IlluminationType"/>
+			<optional name="contrastMethod" type="ome.model
+			-->
+			<optional name="excitationWave" type="int"/>
+			<optional name="emissionWave" type="int"/>
+			<optional name="fluor" type="string"/>
+			<optional name="ndFilter" type="float"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.PixelsDimensions">

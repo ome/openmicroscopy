@@ -13,8 +13,9 @@
 			<required name="defaultT" type="int"/>
 			<required name="model" type="ome.model.enums.ModelType"/>
 			<onemany name="waveRendering" type="ome.model.display.ChannelBinding" card="c"/>
-			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
+			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext"
+				ordered="true"/>
 		</properties>
 	</type>
 	<enum id="ome.model.enums.ModelType">
