@@ -74,7 +74,7 @@ class ${pojo.declarationName}Remote
 #set( $field = $property.name )
 #set( $value = $property.value )
 
-	//  $pojo.importType( $fulltype ) $property.name;
+	//  $fulltype $property.name;
 ##
 #if( $type == "String")
 	string $field;
@@ -90,7 +90,7 @@ class ${pojo.declarationName}Remote
 	long $field;
 #elseif ($type.endsWith("Map") )
 	dictionary $field;
-#elseif( $fulltype.contains("java.util.Set") || $fulltype.contains("[]")) 
+#elseif( $fulltype.contains("java.util.List") || $fulltype.contains("java.util.Set") || $fulltype.contains("[]")) 
 	${pojo.declarationName}Remote${field}Seq $field;
 #elseif ($fulltype.startsWith("ome") )
 	${fulltype.replaceAll("[.]","::")}Remote $field;
