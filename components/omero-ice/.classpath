@@ -9,11 +9,9 @@
   <classpathentry kind="var" path="M2_REPO/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/springframework/spring-mock/1.2.6/spring-mock-1.2.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
-  <classpathentry kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/springframework/spring/1.2.6/spring-1.2.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
   <classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/omero/ice/3.0.0/ice-3.0.0.jar"/>

@@ -15,10 +15,8 @@
   <classpathentry kind="var" path="M2_REPO/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/cglib/cglib/2.0.2/cglib-2.0.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/caucho/hessian/2.1.12/hessian-2.1.12.jar"/>
   <classpathentry kind="var" path="M2_REPO/omero/jboss-aop-jdk50-client/4.0.3SP1/jboss-aop-jdk50-client-4.0.3SP1.jar"/>
