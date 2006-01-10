@@ -55,7 +55,7 @@ $moduleStart
 #set( $field = $property.name )
 #set( $value = $property.value )
 #set( $seqName = "${pojo.declarationName}Remote${field}Seq;" )
-#if( $fulltype.contains("java.util.Set")) 
+#if( $fulltype.contains("java.util.Set")||$fulltype.contains("java.util.List")) 
 #set( $genericType = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
 #set( $genericTypeC = "${genericType.replaceAll('[.]','::')}Remote")
 ["java:type:java.util.ArrayList"] sequence<$genericTypeC> $seqName

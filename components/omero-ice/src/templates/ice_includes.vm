@@ -40,7 +40,7 @@
 #set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
-#if( $fulltype.endsWith("java.util.Set") || $type.contains("[]"))
+#if( $fulltype.endsWith("java.util.List") || $fulltype.endsWith("java.util.Set") || $type.contains("[]"))
 	
 sequence<string> ${pojo.declarationName}Remote${field}Seq;
 
@@ -62,7 +62,7 @@ class ${pojo.declarationName}Remote
 	bool $field;
 #elseif ( $type == "Double" )
 	double $field;
-#elseif( $fulltype.endsWith("java.util.Set") || $type.contains("[]") )
+#elseif( $fulltype.endsWith("java.util.List") || $fulltype.endsWith("java.util.Set") || $type.contains("[]") )
 	${pojo.declarationName}Remote${field}Seq $field;
 #elseif ($fulltype.endsWith("java.util.Map") )
 	dictionary $field;
@@ -150,7 +150,7 @@ class ${pojo.declarationName}Remote
 #set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
-#if( $type.endsWith("Set") )
+#if( $type.endsWith("List") || $type.endsWith("Set") )
 	sequence<string> ${pojo.declarationName}Remote${field}Seq;
 #end
 #end
@@ -170,7 +170,7 @@ class ${pojo.declarationName}Remote
 	bool $field;
 #elseif ( $type == "Double" )
 	double $field;
-#elseif( $type.endsWith("Set") )
+#elseif( $type.endsWith("List") || $type.endsWith("Set") )
 	${pojo.declarationName}Remote${field}Seq $field;
 #elseif ($type.endsWith("Map") )
 	dictionary $field;

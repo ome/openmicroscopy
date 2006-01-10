@@ -41,6 +41,11 @@
 #set( $suffix=" " )
 #if( $javaType.startsWith("ome"))
 #set( $javaType = "${javaType}Remote")
+#elseif( $javaType.startsWith("java.util.List"))
+#set( $open = "" )
+#set( $close = "" )
+#set( $prefix = "${property.name} == null ? new java.util.ArrayList() : " ) ## TODO or just null?
+#set( $suffix = "" )
 #elseif( $javaType.startsWith("java.util.Set"))
 #set( $open = "new java.util.HashSet(" )
 #set( $close = ")" )
