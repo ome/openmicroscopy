@@ -11,6 +11,7 @@ import org.apache.tools.ant.types.FileSet;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -90,16 +91,30 @@ public class DSLTask extends Task
 			vh.put("type",st);
 			try {
                 String file = _outputDir+File.separator+st.getId().replaceAll("[.]",File.separator)+".hbm.xml";
-                mkdir(file);
-                FileWriter fw = new FileWriter(file);
-				vh.invoke("ome/dsl/mapping.vm",fw);
-				fw.flush();
-				fw.close();
+                writeToFile(vh,file,"ome/dsl/mapping.vm");
 			} catch (Exception e){
 				throw new BuildException("Error while writing type:"+st,e);
 			}
 		}
         
+        VelocityHelper vh = new VelocityHelper();
+        vh.put("types",types);
+        try { // TODO fix ..
+            String file = _outputDir+File.separator+".."+File.separator+"data.sql";
+            writeToFile(vh, file, "ome/dsl/data.vm");
+        } catch (Exception e){
+            throw new BuildException("Error while writing data:",e);
+        }
+        
+    }
+
+    private void writeToFile(VelocityHelper vh, String file, String template) throws IOException
+    {
+        mkdir(file);
+        FileWriter fw = new FileWriter(file);
+        vh.invoke(template,fw);
+        fw.flush();
+        fw.close();
     }
     
     void mkdir(String file){

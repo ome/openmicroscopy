@@ -79,7 +79,7 @@
 			<column name="${table}" />
 		</key>
 #if($prop.ordered)
-       <list-index column="order"/>
+       <list-index column="index"/>
 #end
 		<one-to-many class="${prop.type}"/>
 #if($prop.ordered)

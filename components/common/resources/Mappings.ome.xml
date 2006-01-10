@@ -2,11 +2,10 @@
 	
 	<!-- ACQ CONTEXT 4 -->
 	<abstract id="ome.model.acquisition.Manufactured">
-		<!-- ## renamed , join table -->
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/> <!-- ## KEY?-->
+			<required name="serialNumber" type="string"/>
 		</properties>
 	</abstract>
 	<type id="ome.model.acquisition.Microscope"
@@ -15,9 +14,14 @@
 			<required name="type" type="ome.model.acquisition.MicroscopeType"/>
 		</properties>
 	</type>
-	<enum id="ome.model.acquisition.MicroscopeType"/>
-	<!-- ## note: we haven't filled any values as with some enums -->	
-	
+
+	<enum id="ome.model.acquisition.MicroscopeType">
+		<entry name="Upright"/>
+		<entry name="Inverted"/>
+		<entry name="Dissection"/>
+		<entry name="Electrophysiology"/>
+	</enum>
+
 	<type id="ome.model.acquisition.Detector"
 		subclasses="ome.model.acquisition.Manufactured">
 		<properties>
@@ -67,7 +71,7 @@
 	<type id="ome.model.acquisition.FilterSet"
 		subclass="ome.model.acquisition.FilterCombination"/>
 
-	<!-- ## New -->
+	<!-- ## TODO: Jean-Marie will make adjustments  -->
 	<type id="ome.model.acquisition.CustomizedFilterSet">
 		<properties>
 			<required name="excitationFilter" type="ome.model.acquisition.ExcitationFilter"/>
@@ -114,32 +118,12 @@
 			<required name="type" type="ome.model.acquisition.FilamentType"/>
 		</properties>
 	</type>
+
 	<enum id="ome.model.acquisition.FilamentType">
 		<entry name="Incandescent"/>
 		<entry name="Halogen"/>
 	</enum>
 	
-	<type id="ome.model.acquisition.Laser"
-		subclasses="ome.model.acquisition.LightSource">
-		<properties>
-			<required name="type" type="ome.model.acquisition.LaserType"/>
-			<required name="medium" type="ome.model.acquisition.LaserMedia"/>
-			<required name="frequencyDoubled" type="boolean"/>
-			<required name="tunable" type="boolean"/>
-			<optional name="pulse" type="ome.model.acquisition.PulseType"/>
-			<optional name="pump" type="ome.model.acquisition.Laser"/>
-		</properties>
-	</type>
-	<!-- ## Do we really need LaserType enum when that's represented by LaserMedia hierarchy-->
-	<enum id="ome.model.acquisition.LaserType">
-		<entry name="Excimer"/>
-		<entry name="Gas"/>
-		<entry name="MetalVapor"/>
-		<entry name="SolidState"/>
-		<entry name="Dye"/>
-		<entry name="Semicondusctor"/>
-		<entry name="FreeElectron"/>
-	</enum>
 	<enum id="ome.model.acquisition.PulseType">
 		<entry name="CW"/>
 		<entry name="Single"/>
@@ -147,7 +131,69 @@
 		<entry name="Repetitive"/>
 		<entry name="Mode-Locked"/>
 	</enum>
+	
+	<abstract id="ome.model.acquisition.Laser"
+		subclasses="ome.model.acquisition.LightSource">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.LaserMedia"/>
+			<required name="frequencyDoubled" type="boolean"/>
+			<required name="tunable" type="boolean"/>
+			<optional name="pulse" type="ome.model.acquisition.PulseType"/>
+			<optional name="pump" type="ome.model.acquisition.Laser"/>
+		</properties>
+	</abstract>
+
+	<type id="ome.model.acquisition.ExcimerLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.ExcimerLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.GasLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.GasLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.MetalVaporLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.MetalVaporLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.SolidStateLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.SolidStateLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.DyeLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.DyeLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.SemiConductorLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.SemiConductorLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.FreeElectronLaser"
+		subclasses="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.FreeElectronLaserMedia"/>
+		</properties>
+	</type>
+
 	<abstract id="ome.model.acquisition.LaserMedia"/>
+
 	<enum id="ome.model.acquisition.DyeLaserMedia"
 		subclasses="ome.model.acquisition.LaserMedia">
 		<entry name="Rhodamine-6G"/>
@@ -167,6 +213,9 @@
 		subclasses="ome.model.acquisition.LaserMedia">
 		<entry name="e-"/>
 	</enum>
+	<enum id="ome.model.acquisition.SolidStateLaserMedia"
+		subclasses="ome.model.acquisition.LaserMedia">
+	</enum>
 	<enum id="ome.model.acquisition.SemiConductorLaserMedia"
 		subclasses="ome.model.acquisition.LaserMedia">
 		<entry name="GaAs"/>
@@ -177,7 +226,7 @@
 		<entry name="Cu"/>
 		<entry name="Ag"/>
 	</enum>
-	<enum id="ome.model.acquisition.CasLaserMedia"
+	<enum id="ome.model.acquisition.GasLaserMedia"
 		subclasses="ome.model.acquisition.LaserMedia">
 		<entry name="Nitrogen"/>
 		<entry name="Argo"/>
@@ -191,8 +240,6 @@
 		<entry name="HFl"/>
 	</enum>
 	
-	
-		
 	<!-- ACQ CONTEXT 2 -->
 	<type id="ome.model.display.Color">
 		<properties>
@@ -216,7 +263,7 @@
 		<properties>
 			<required name="voltage" type="float"/>
 			<required name="gain" type="float"/>
-			<required name="offset" type="float"/>
+			<required name="offsetValue" type="float"/>
 			<required name="readRate" type="float"/>
 			<required name="detector" type="ome.model.acquisition.Detector"/>
 		</properties>
@@ -310,12 +357,17 @@
 	<type id="ome.model.core.OriginalFile">
 		<properties>
 			<required name="path" type="string"/>
-			<required name="format" type="string"/> <!-- ## enum ?? -->
 			<required name="name" type="string"/> <!--## named??-->
 			<required name="size" type="int"/>
                         <required name="sha1" type="string"/>
+			<required name="format" type="ome.model.enums.Format"/> 
 		</properties>
 	</type>
+
+	<enum id="ome.model.enums.Format">
+		<entry name="DV"/>
+		<entry name="STK"/>
+	</enum>
 	
 	<link id="ome.model.core.PixelsOrignalFileMap" 
 		from="ome.model.core.Pixels"

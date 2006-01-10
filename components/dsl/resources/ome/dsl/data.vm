@@ -1,0 +1,12 @@
+insert into experimenter (id,version,omename) values (0,0,'root');
+insert into event (id,version,name) values (0,0,'Initialization');
+
+## ENUMS
+#foreach($enum in $types)
+#foreach($prop in $enum.properties)
+#set($table = ${enum.typeToColumn($enum.id)} )
+#if($prop.class.name == "ome.dsl.EntryField")
+insert into $table (id,version,owner,creationevent,value) select nextval('seq_$table'),0,0,id,'$prop.name' from event where name = 'Initialization' ;
+#end
+#end
+#end
