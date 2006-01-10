@@ -72,7 +72,7 @@
 		<properties>
 			<required name="excitationFilter" type="ome.model.acquisition.ExcitationFilter"/>
 			<required name="dichroic" type="ome.model.acquisition.Dichroic"/>
-			<required name="emiisionFilter" type="ome.model.acquisition.EmissionFilter"/>
+			<required name="emissionFilter" type="ome.model.acquisition.EmissionFilter"/>
 		</properties>
 	</type>
 	
@@ -211,6 +211,34 @@
 			<required name="globalMax" type="double"/>
 		</properties>
 	</type>
+
+	<type id="ome.model.acquisition.DetectorSettings">
+		<properties>
+			<required name="voltage" type="float"/>
+			<required name="gain" type="float"/>
+			<required name="offset" type="float"/>
+			<required name="readRate" type="float"/>
+			<required name="detector" type="ome.model.acquisition.Detector"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.OTF">
+		<properties>
+			<required name="sizeX" type="int"/>
+			<required name="sizeY" type="int"/>
+			<required name="optionalAxisAvg" type="boolean"/>
+			<!--required name="pixelType" type="ANPixelsType"/>-->
+			<required name="path" type="string"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.LightSettings">
+		<properties>
+			<optional name="power" type="float"/>
+			<optional name="technique" type="string"/>
+			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
+		</properties>
+	</type>
 	
 	<!-- # acq. context 1 -->
 	<type id="ome.model.core.Image">
@@ -313,6 +341,8 @@
 			<optional name="emissionWave" type="int"/>
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="float"/>
+			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings"/>
+			<zeromany name="lightSettings" type="ome.model.acquisition.LightSettings"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.PixelsDimensions">
