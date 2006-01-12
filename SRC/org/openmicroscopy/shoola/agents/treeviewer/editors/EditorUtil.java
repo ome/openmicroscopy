@@ -65,6 +65,8 @@ class EditorUtil
      * a visualization form.
      * 
      * @param data The {@link ExperimenterData} object to transform.
+     * @return The map whose keys are the field names, and the values 
+     * 			the corresponding fields' values.
      */
     static Map transformExperimenterData(ExperimenterData data)
     {
@@ -89,6 +91,8 @@ class EditorUtil
      * a visualization form.
      * 
      * @param data The {@link PixelsData} object to transform.
+     * @return The map whose keys are the field names, and the values 
+     * 			the corresponding fields' values.
      */
     static Map transformPixelsData(PixelsData data)
     {

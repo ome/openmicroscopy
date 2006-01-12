@@ -78,7 +78,10 @@ public class CopyAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
     }
     
-    /** Creates a {@link CopyCmd} command to execute the action. */
+    /**
+     * Creates a {@link CopyCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         CopyCmd cmd = new CopyCmd(model);

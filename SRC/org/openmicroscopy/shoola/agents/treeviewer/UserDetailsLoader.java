@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction
+ * org.openmicroscopy.shoola.agents.treeviewer.UserDetailsLoader
  *
  *------------------------------------------------------------------------------
  *
@@ -27,67 +27,67 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.treeviewer.actions;
-
+package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Action to delete the selected element and {@link DeleteCmd} is executed.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision$Date: )
  * </small>
  * @since OME2.2
  */
-public class DeleteAction
-    extends TreeViewerAction
+public class UserDetailsLoader
+	extends DataTreeViewerLoader
 {
 
-    /** Name of the action. */
-    private static final String NAME = "Delete";
-    
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Delete the selected element.";
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
      */
-    public DeleteAction(TreeViewer model)
+    public UserDetailsLoader(TreeViewer viewer)
     {
-        super(model);
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.DELETE));
+        super(viewer);
     }
     
     /**
-     * Creates a {@link DeleteCmd} command to execute the action. 
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     * Retrieves the user's details.
+     * @see DataLoader#load()
      */
-    public void actionPerformed(ActionEvent e)
+    public void load()
     {
-        DeleteCmd cmd = new DeleteCmd(model);
-        cmd.execute();
+        handle = hiBrwView.loadUserDetails(this);
     }
+
+    /** Cancels the data loading. */
+    public void cancel() { handle.cancel(); }
     
+    /**
+     * Feeds the result back to the viewer.
+     * @see #handleResult(Object)
+     */
+    public void handleResult(Object result)
+    {
+        viewer.setUserDetails((UserDetails) result);
+    }
+
 }

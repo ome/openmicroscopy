@@ -82,7 +82,10 @@ public class SortByDateAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SORT_DATE));
     }
     
-    /** Creates a {@link SortCmd} command to execute the action. */
+    /**
+     * Creates a {@link SortCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     { 
         SortCmd cmd = new SortCmd(model, SortCmd.SORT_DATE);

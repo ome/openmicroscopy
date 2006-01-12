@@ -119,6 +119,7 @@ public class TreeCellRenderer
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
         }
+        setText(node.getNodeText());
         setToolTipText(node.getToolTip());
         setIcon(node.getUserObject());
         return this;

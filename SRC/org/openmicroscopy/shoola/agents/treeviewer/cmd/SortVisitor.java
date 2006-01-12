@@ -75,7 +75,10 @@ class SortVisitor
      */
     List getNodes() { return nodes; };
     
-    /** Retrieves all {@link TreeImageNode}s */
+    /** 
+     * Retrieves all {@link TreeImageNode}s.
+     * @see BrowserVisitor#visit(TreeImageNode)
+     */
     public void visit(TreeImageNode node) { nodes.add(node); }
     
 }

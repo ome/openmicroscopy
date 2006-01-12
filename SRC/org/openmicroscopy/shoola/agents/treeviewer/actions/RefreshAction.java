@@ -94,7 +94,10 @@ public class RefreshAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.REFRESH)); 
     }
 
-    /** Creates a {@link RefreshCmd} command to execute the action. */
+    /**
+     * Creates a {@link RefreshCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         RefreshCmd cmd = new RefreshCmd(model);

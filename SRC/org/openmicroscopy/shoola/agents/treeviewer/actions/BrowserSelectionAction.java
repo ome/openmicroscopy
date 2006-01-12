@@ -29,9 +29,10 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-import java.awt.event.ActionEvent;
+
 
 //Java imports
+import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -103,7 +104,10 @@ public class BrowserSelectionAction
         this.browserType = browserType;
     }
     
-    /** Creates a command to execute the action. */
+    /**
+     * Adds a new browser to the {@link TreeViewer}.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     { 
         model.addBrowser(browserType);

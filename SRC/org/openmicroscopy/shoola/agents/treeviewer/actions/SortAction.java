@@ -85,7 +85,10 @@ public class SortAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SORT));  
     }
     
-    /** Creates a {@link SortCmd} command to execute the action. */
+    /**
+     * Creates a {@link SortCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     { 
         SortCmd cmd = new SortCmd(model, SortCmd.SORT);

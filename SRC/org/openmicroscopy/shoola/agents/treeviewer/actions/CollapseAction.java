@@ -39,15 +39,13 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-
-
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CollapseCmd;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Collapses all nodes of the visualization tree hosting by the {@link Browser}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,7 +77,10 @@ public class CollapseAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.COLLAPSE));
     }
     
-    /** Creates a {@link CollapseCmd} command to execute the action. */
+    /**
+     * Creates a {@link CollapseCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         CollapseCmd cmd = new CollapseCmd(model);

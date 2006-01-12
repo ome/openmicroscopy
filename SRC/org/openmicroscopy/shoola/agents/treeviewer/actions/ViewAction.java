@@ -61,10 +61,10 @@ public class ViewAction
     extends TreeViewerAction
 {
 
-    /** Name of the action. */
+    /** Name of the action when the <code>DataObject</code> is an Image. */
     private static final String VIEW = "View";
     
-    /** Name of the action. */
+    /** Name of the action when the <code>DataObject</code> isn't an Image. */
     private static final String BROWSE = "Browse";
     
     /** Description of the action. */
@@ -80,8 +80,6 @@ public class ViewAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        //if (model.getSelectedBrowser() == null) return;
-        //Shouldn't be null, better to fail here
         if (model.getSelectedBrowser().getBrowserType() == 
             Browser.IMAGES_EXPLORER && 
             selectedDisplay.getParentDisplay() == null) { //root
@@ -89,7 +87,6 @@ public class ViewAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        
         if (ho == null || !(ho instanceof DataObject)) setEnabled(false);
         else {
             if ((ho instanceof ImageData)) putValue(Action.NAME, VIEW);   
@@ -113,7 +110,10 @@ public class ViewAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER)); 
     }
     
-    /** Creates a  {@link ViewCmd} command to execute the action. */
+    /**
+     * Creates a  {@link ViewCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
        ViewCmd cmd = new ViewCmd(model);

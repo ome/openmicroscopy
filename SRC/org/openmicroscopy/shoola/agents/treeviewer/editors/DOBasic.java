@@ -88,6 +88,12 @@ class DOBasic
     private static final String     HIDE_ANNOTATE = "<< Annotation";
     
     /** 
+     * The text displayed when the currently edited <code>DataObject</code>
+     * hasn't been annotated.
+     */
+    private static final String		NO_ANNOTATION_TEXT = "Not annotated";
+    
+    /** 
      * The preferred size of the scroll pane containing the explanation of
      * the notification message.
      */
@@ -181,9 +187,13 @@ class DOBasic
                 /** Required by I/F but no-op in our case. */
                 public void changedUpdate(DocumentEvent de) {}
             });
-            
+            if (!(editor.isEditable())) {
+                nameArea.setEditable(false);
+                descriptionArea.setEditable(false);
+             }
             if (editor.isAnnotable()) {
                 annotationArea = new MultilineLabel();
+                annotationArea.setEditable(editor.isEditable());
                 annotationArea.getDocument().addDocumentListener(
                         new DocumentListener() {
 
@@ -260,14 +270,8 @@ class DOBasic
         content.add(pane, c);
         if (editor.getEditorType() == DOEditor.EDIT && editor.isAnnotable()) {
             AnnotationData data = editor.getAnnotationData();
-            String s;
-            if (data == null) s = "Not annotated";
-            else {
-                DateFormat df = DateFormat.getDateInstance();
-                s = "Annotated: "+df.format(data.getLastModified());
-                annotationArea.setText(data.getText());
-            }
-            label = new JLabel(s);
+            if (data != null) annotationArea.setText(data.getText());
+            label = new JLabel(formatAnnotation(data));
             c.gridx = 0;
             c.gridy = 3;
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
@@ -311,6 +315,27 @@ class DOBasic
         setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
         add(contentPanel, BorderLayout.NORTH);
+    }
+    
+    /**
+     * Formats the specified annotation.
+     * 
+     * @param data The annotation to format.
+     * @return See above.
+     */
+    private String formatAnnotation(AnnotationData data)
+    {
+        if (data == null) return NO_ANNOTATION_TEXT;
+        StringBuffer buf = new StringBuffer();
+        buf.append("<html><body>");
+        DateFormat df = DateFormat.getDateInstance();
+        buf.append("<p>Last annotated: <br>");
+        buf.append(df.format(data.getLastModified()));
+        buf.append("<br>");
+        buf.append("by "+data.getOwner().getFirstName()+" "+
+                	data.getOwner().getLastName());
+        buf.append("</p></body></html>");
+        return buf.toString();
     }
     
     /**

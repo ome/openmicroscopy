@@ -79,7 +79,6 @@ public class ViewCmd
         this.model = model;
     }
     
-
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {

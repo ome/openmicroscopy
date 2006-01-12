@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Action to remove the specified {@link Browser} from the display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -74,7 +74,10 @@ public class CloseAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLOSE));
     }
     
-    /** Removes the {@link Browser} from the display. */
+    /** 
+     * Removes the {@link Browser} from the display. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e) { model.close(); }
     
 }

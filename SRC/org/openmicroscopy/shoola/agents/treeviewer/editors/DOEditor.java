@@ -519,6 +519,19 @@ public class DOEditor
     }
     
     /**
+     * Returns <code>true</code> if the current user can modify the 
+     * currently edited object, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isEditable()
+    {
+        ExperimenterData owner = getExperimenterData();
+        if (owner == null) return false;
+        return (owner.getId() == model.getUserDetails().getUserID());
+    }
+    
+    /**
      * Sets enabled the button listed below
      * {@link #finishButton}.
      * 

@@ -41,6 +41,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -114,8 +115,15 @@ class TreeViewerComponent
      */
     public void activate()
     {
-        // TODO Auto-generated method stub
-        
+        switch (model.getState()) {
+	        case NEW:
+	            model.fireUserDetailsLoading();
+                fireStateChange();
+	            break;
+	        case DISCARDED:
+                throw new IllegalStateException(
+                        "This method can't be invoked in the DISCARDED state.");
+        } 
     }
 
     /**
@@ -155,13 +163,13 @@ class TreeViewerComponent
     
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#getSelectedBrowser()
+     * @see TreeViewer#addBrowser(int)
      */
     public void addBrowser(int browserType)
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED state");
+                    "This method cannot be invoked in the DISCARDED state.");
         Map browsers = model.getBrowsers();
         Browser browser = (Browser) browsers.get(new Integer(browserType));
         if (browser != null) {
@@ -234,7 +242,9 @@ class TreeViewerComponent
      */
     public void setSaveResult(DataObject object)
     {
-        //Check state.
+        if (model.getState() != READY)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the READY state.");
         Browser browser = model.getSelectedBrowser();
         if (browser != null) {
             switch (model.getEditorType()) {
@@ -251,6 +261,33 @@ class TreeViewerComponent
         view.removeAllFromRightPane();
     }
 
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setUserDetails(UserDetails)
+     */
+    public void setUserDetails(UserDetails details)
+    {
+        if (model.getState() != LOADING_DETAILS)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the LOADING_DETAILS " +
+                    "state.");
+        if (details == null)
+            throw new IllegalArgumentException("details shouldn't be null.");
+        model.setUserDetails(details);
+        firePropertyChange(DETAILS_LOADED_PROPERTY, null, details);
+        fireStateChange();
+    }
 
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#getUserDetails()
+     */
+    public UserDetails getUserDetails()
+    {
+        if (model.getState() != READY)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the READY state.");
+        return model.getUserDetails();
+    }
     
 }

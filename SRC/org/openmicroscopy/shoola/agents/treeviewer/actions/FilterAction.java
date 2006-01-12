@@ -143,7 +143,10 @@ public class FilterAction
         setEnabled(model.getBrowserType() == Browser.IMAGES_EXPLORER);
     }
     
-    /** Creates a  command to execute the action. */
+    /** 
+     * Sets the selected type of filter. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     { 
         model.loadFilterData(type);

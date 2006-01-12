@@ -315,7 +315,8 @@ public class FilterWindow
      * Creates a new instance. 
      * 
      * @param owner The owner of the frame.
-     * @param containerType 
+     * @param containerType The type of container this window is for.
+     * @param nodes The nodes to display.
      */
     public FilterWindow(JFrame owner, int containerType, Set nodes)
     {

@@ -77,7 +77,10 @@ public class PasteAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.PASTE));
     }
     
-    /** Creates a {@link PasteCmd} command to execute the action. */
+    /**
+     * Creates a {@link PasteCmd} command to execute the action.  
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         PasteCmd cmd = new PasteCmd(model);

@@ -38,9 +38,13 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
-import org.openmicroscopy.shoola.agents.treeviewer.DataSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.UserDetailsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -77,7 +81,7 @@ class TreeViewerModel
      * Will either be a data loader or
      * <code>null</code> depending on the current state. 
      */
-    private DataSaver          currentLoader;
+    private DataTreeViewerLoader          currentLoader;
     
     /** The browsers controlled by the model. */
     private Map                 browsers;
@@ -186,6 +190,7 @@ class TreeViewerModel
     * and sets the state to {@link TreeViewer#SAVE}.
     * 
     * @param userObject The <code>DataObject</code> to create or update.
+    * @param parent
     */
    void fireDataObjectEdition(DataObject userObject, Object parent)
    {    
@@ -247,5 +252,39 @@ class TreeViewerModel
     * @return See above.
     */
    int getEditorType() { return editorType; }
+   
+   /**
+    * Starts an asynchronous data retrieval 
+    * and sets the state to {@link TreeViewer#LOADING_DETAILS}.
+    */
+   void fireUserDetailsLoading()
+   {
+       state = TreeViewer.LOADING_DETAILS;
+       currentLoader = new UserDetailsLoader(component);
+       currentLoader.load();
+   }
+   
+   /**
+    * Sets the user's details.
+    * The details should, in theory be already binded to the agent's registry.
+    * 
+    * @param details The details to set.
+    */
+   void setUserDetails(UserDetails details)
+   {
+       TreeViewerAgent.getRegistry().bind(LookupNames.USER_DETAILS, details);
+       state = TreeViewer.READY;
+   }
+   
+   /**
+    * Returns the current user's details.
+    * 
+    * @return See above.
+    */
+   UserDetails getUserDetails()
+   { 
+   		return (UserDetails) TreeViewerAgent.getRegistry().lookup(
+   			        LookupNames.USER_DETAILS);
+   }
    
 }

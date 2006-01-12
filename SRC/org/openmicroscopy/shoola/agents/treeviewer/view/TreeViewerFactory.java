@@ -95,6 +95,7 @@ public class TreeViewerFactory
     /**
      * Sets the {@link #viewer} to <code>null</code> when it is
      * {@link TreeViewer#DISCARDED discarded}. 
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */ 
     public void stateChanged(ChangeEvent ce)
     {

@@ -230,6 +230,7 @@ class LoadingWindow
     /** 
      * Overriden to reset the default message and title when the window
      * is closed.
+     * @see JDialog#setVisible(boolean)
      */
     public void setVisible(boolean b)
     {

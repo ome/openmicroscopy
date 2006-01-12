@@ -95,12 +95,14 @@ public abstract class TreeViewerAction
     }
     
     /** 
+     * Subclasses implement the method.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
 
     /**
      * Reacts to property changes in the {@link Browser}.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -108,7 +110,10 @@ public abstract class TreeViewerAction
         onDisplayChange((TreeImageDisplay) evt.getNewValue());
     }
     
-    /** Not yet implemented. */
+    /** 
+     * Not yet implemented. 
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent e)
     {
 

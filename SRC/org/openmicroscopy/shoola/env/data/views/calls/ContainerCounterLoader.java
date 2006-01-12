@@ -1,0 +1,147 @@
+/*
+ * org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.env.data.views.calls;
+
+//Java imports
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.CategoryData;
+import pojos.DataObject;
+import pojos.DatasetData;
+
+/** 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$Date: )
+ * </small>
+ * @since OME2.2
+ */
+public class ContainerCounterLoader
+	extends BatchCallTree
+{
+
+    /** The lastly retrieved map. */
+    private Map		currentMap;
+    
+    /** 
+     * The type of the root node. 
+     * Either <code>DatasetData</code> or <code>CategoryData</code>
+     */
+    private Class	rootType;
+    
+    /** The containers for which we need the value. */ 
+    private Set		rootIDs;
+    
+    
+    /**
+     * Adds a {@link BatchCall} to the tree for each value to retrieve.
+     * 
+     * @see BatchCallTree#buildTree()
+     */
+    protected void buildTree()
+    {
+        Iterator i = rootIDs.iterator();
+        Integer id = null;
+        String description;
+        int index = 0;
+        DataObject object;
+        while (i.hasNext()) {
+            object = (DataObject) i.next();
+            if (object instanceof DatasetData) 
+                id = new Integer(((DatasetData) object).getId());
+            else if (object instanceof CategoryData) 
+                id = new Integer(((CategoryData) object).getId());
+            if (id != null) {
+                description = "Loading number of items for container: " +
+				id.intValue();
+				final int j = index;
+				final Integer idFinal = id;
+				add(new BatchCall(description) {
+				    public void doCall() 
+				    { 
+				        currentMap = new HashMap(1);
+				        currentMap.put(idFinal, new Integer(j));
+				        //loadThumbail(index); 
+				    }
+				});
+				index++;
+            }
+        }
+    }
+    
+    /**
+     * Returns the lastly retrieved thumbnail.
+     * This will be packed by the framework into a feedback event and
+     * sent to the provided call observer, if any.
+     * 
+     * @return 	A Map whose key is the containerID and the value the number of 
+     * 			items contained in the container.
+     */
+    protected Object getPartialResult() { return currentMap; }
+
+    /**
+     * Returns <code>null</code> as there's no final result.
+     * In fact, values are progressively delivered with feedback events.
+     * 
+     * @see BatchCallTree#getResult()
+     */
+    protected Object getResult() { return null; }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param rootType 	The type of the root node, either {@link DatasetData}
+     * 					or {@link CategoryData}. Mustn't be <code>null</code>.
+     * @param rootIDs	Collection of root ids. Mustn't be <code>null</code>.
+     */
+    public ContainerCounterLoader(Class rootType, Set rootIDs)
+    {
+        if (rootType == null) throw new NullPointerException("No root type.");
+        if (rootIDs == null) throw new NullPointerException("No root nodes.");
+        if (rootType.equals(DatasetData.class) || 
+                rootType.equals(CategoryData.class)) {
+            this.rootIDs = rootIDs;
+            this.rootType = rootType;
+        } else
+            throw new IllegalArgumentException("Root type not supported");
+    }
+    
+}

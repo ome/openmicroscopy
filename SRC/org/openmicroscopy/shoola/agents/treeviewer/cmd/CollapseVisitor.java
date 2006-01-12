@@ -65,7 +65,10 @@ class CollapseVisitor
         super(model);
     }
 
-    /** Collapses the node. */
+    /** 
+     * Collapses the node. 
+     * @see BrowserVisitor#visit(TreeImageSet)
+     */
     public void visit(TreeImageSet node) { model.collapse(node); }
 
 }

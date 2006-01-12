@@ -50,7 +50,7 @@ import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Creates a new <code>DataObject</code> of the corresponding type.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -154,7 +154,10 @@ public class CreateAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
     } 
 
-    /** Creates a {@link CreateCmd} command to execute the action. */
+    /**
+     * Creates a {@link CreateCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
        CreateCmd cmd = new CreateCmd(model, nodeType);

@@ -71,6 +71,10 @@ public class BrowserAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay) {}
     
+    /**
+     * Reacts to state changes. Subclasses override the method.
+     *
+     */
     protected void onStateChange() {}
     
     /**
@@ -89,12 +93,14 @@ public class BrowserAction
     }
 
     /** 
+     * Subclasses need to override this method.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
     
     /**
      * Reacts to property changes in the {@link Browser}.
+     * @see #propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -102,7 +108,10 @@ public class BrowserAction
         onDisplayChange((TreeImageDisplay) evt.getNewValue());
     }
     
-    /** Not yet implemented. */
+    /** 
+     * Not yet implemented. 
+     * @see #stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent e) { onStateChange(); }
     
 }

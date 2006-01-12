@@ -66,6 +66,7 @@ class DOInfo
     /**
      * Builds the panel hosting the information
      * 
+     * @param details The information to display.
      * @return See above.
      */
     private JPanel buildContentPanel(Map details)

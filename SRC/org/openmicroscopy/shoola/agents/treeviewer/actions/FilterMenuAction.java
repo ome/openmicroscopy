@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.Action;
@@ -48,7 +47,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up on screen the filter menu.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,6 +65,7 @@ public class FilterMenuAction
     /** Description of the action. */
     private static final String DESCRIPTION = "Menu";
     
+    /** The location of the mouse pressed. */
     private Point pressedPoint;
     
     /**
@@ -81,18 +81,19 @@ public class FilterMenuAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.FILTER_MENU));  
         setEnabled(model.getBrowserType() == Browser.IMAGES_EXPLORER);
-    }
-    
-    /**  Not actually needed in our case, no op implementation. */   
-    public void actionPerformed(ActionEvent ae) {}  
+    } 
 
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
      * event occured. 
+     * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) { pressedPoint = me.getPoint(); }
 
-    /** Brings up the menu. */
+    /** 
+     * Brings up the menu. 
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
     public void mouseReleased(MouseEvent me)
     {
         Object source = me.getSource();
@@ -103,18 +104,21 @@ public class FilterMenuAction
     /** 
      * Required by {@link MouseListener }I/F but not actually needed in our
      * case, no op implementation.
+     * @see MouseListener#mouseEntered(MouseEvent)
      */   
     public void mouseEntered(MouseEvent e) {}
 
     /** 
      * Required by {@link MouseListener }I/F but not actually needed in our
      * case, no op implementation.
+     * @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
     
     /** 
      * Required by {@link MouseListener }I/F but not actually needed in our
      * case, no op implementation.
+     * @see MouseListener#mouseClicked(MouseEvent)
      */   
     public void mouseClicked(MouseEvent e) {}
     

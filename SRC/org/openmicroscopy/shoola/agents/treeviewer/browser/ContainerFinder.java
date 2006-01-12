@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.cmd.BrowserVisitor
+ * org.openmicroscopy.shoola.agents.treeviewer.browser.ContainerFinder
  *
  *------------------------------------------------------------------------------
  *
@@ -27,63 +27,80 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.treeviewer.cmd;
+package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
+import java.util.HashSet;
+import java.util.Set;
 
+import pojos.CategoryData;
+import pojos.DatasetData;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 
 /** 
- * SuperClass, that all visitors that need to know about the status of the
- * browser should extend.
- * For example, some visitors may need to know which node has been selected.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision$Date: )
  * </small>
  * @since OME2.2
  */
-public class BrowserVisitor
-    implements TreeImageDisplayVisitor
+public class ContainerFinder
+	implements TreeImageDisplayVisitor
 {
-    
-    /** Reference to the {@link Browser model}. */
-    protected Browser model;
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param model     Reference to the {@link Browser model}.
-     *                  Mustn't be <code>null</code>
-     */
-    public BrowserVisitor(Browser model)
+    /** Set of <code>TreeImageSet</code>s */
+    private Set containerNodes;
+    
+    /** Set of corresponding <code>DataObject</code>s */
+    private Set containers;
+    
+    /** Creates a new instance. */
+    public ContainerFinder()
     {
-        if (model == null) throw new IllegalArgumentException("No model.");
-        this.model = model;
+        containerNodes = new HashSet();
+        containers = new HashSet();
     }
+    
+    /**
+     * Returns the collection of found nodes.
+     * 
+     * @return See above.
+     */
+    public Set getContainerNodes() { return containerNodes; }
+    
+    /**
+     * Returns the collection of found nodes.
+     * 
+     * @return See above.
+     */
+    public Set getContainers() { return containers; }
+
     /** 
-     * Required by {@link TreeImageDisplayVisitor} I/F. Sub-classes
-     * will implement the method.
+     * Required by the {@link TreeImageDisplayVisitor} I/F but no-op 
+     * implementation in our case.
      * @see TreeImageDisplayVisitor#visit(TreeImageNode)
      */
     public void visit(TreeImageNode node) {}
 
     /** 
-     * Required by {@link TreeImageDisplayVisitor} I/F. Sub-classes
-     * will implement the method.
+     * Implemented as specified by the {@link TreeImageDisplayVisitor} I/F.
      * @see TreeImageDisplayVisitor#visit(TreeImageSet)
      */
-    public void visit(TreeImageSet node) {}
-    
+    public void visit(TreeImageSet node)
+    {
+        Object userObject = node.getUserObject();
+        if ((userObject instanceof DatasetData) || 
+            (userObject instanceof CategoryData)) {
+            containerNodes.add(node); 
+            containers.add(node.getUserObject());
+        }
+    }
+
 }
