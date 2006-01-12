@@ -52,7 +52,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class DataObjectEditor
-    extends DataSaver
+    extends DataTreeViewerLoader
 {
 
     /** Indicates to create a new {@link DataObject}. */
@@ -139,11 +139,15 @@ public class DataObjectEditor
 
     /**
      * Cancels the data loading.
-     * @see DataLoader#cancel()
+     * @see DataBrowserLoader#cancel()
      */
     public void cancel() { viewer.cancel(); }
 
-    /** Feeds the result back to the viewer. */
+    /** 
+     * Feeds the result back to the viewer.
+     * @see org.openmicroscopy.shoola.env.data.events.DSCallAdapter
+     * 		#handleResult(Object)
+     */
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.

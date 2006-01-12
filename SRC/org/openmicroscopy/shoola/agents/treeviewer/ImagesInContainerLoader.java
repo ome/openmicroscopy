@@ -53,7 +53,7 @@ import pojos.DatasetData;
  * @since OME2.2
  */
 public class ImagesInContainerLoader
-    extends DataLoader
+    extends DataBrowserLoader
 {
 
     public static final int DATASET = 0;
@@ -74,15 +74,16 @@ public class ImagesInContainerLoader
     
     /**
      * Returns the class corresponding to the specified type.
-     * Returns <code>null</code> if the type is not supported.
+     * Returns <code>true</code> if the type is supported,
+     * <code>false</code> otherwise.
      * 
      * @param type  The type of the root node.
+     * @return See above.
      */
     private boolean validate(Class type)
     {
-        if (type.equals(DatasetData.class) || type.equals(CategoryData.class))
-            return true;
-        return false;
+        return ((type.equals(DatasetData.class) || 
+                type.equals(CategoryData.class)));
     }
     
     /**
@@ -131,17 +132,24 @@ public class ImagesInContainerLoader
     
     /**
      * Retrieves the data.
-     * @see DataLoader#load()
+     * @see DataBrowserLoader#load()
      */
-    public void load() { handle = dmView.getImages(nodeType, nodeIDs, this); }
+    public void load()
+    { 
+        handle = dmView.getImages(nodeType, nodeIDs, viewer.getRootLevel(),
+                				  viewer.getRootID(), this); 
+    }
 
     /**
      * Retrieves the Category tree.
-     * @see DataLoader#load()
+     * @see DataBrowserLoader#load()
      */
     public void cancel() { handle.cancel(); }
 
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see DataBrowserLoader#handleResult(Object)
+     */
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.

@@ -86,19 +86,28 @@ public class TreeViewerAgent
             case ShowProperties.EDIT:
                 type = TreeViewer.EDIT_PROPERTIES;
         }
-        if (type == -1) //shoudln't happen
+        if (type == -1) //shouldn't happen
             throw new IllegalArgumentException("Properties type not supported");
         TreeViewer viewer = TreeViewerFactory.getViewer();
         if (viewer != null) viewer.showProperties(e.getUserObject(), type);
     }
     
-    /** Implemented as specified by {@link Agent}. */
+    /**
+     * Implemented as specified by {@link Agent}.
+     * @see Agent#activate()
+     */
     public void activate() {}
 
-    /** Implemented as specified by {@link Agent}. */
+    /**
+     * Implemented as specified by {@link Agent}.
+     * @see Agent#terminate()
+     */
     public void terminate() {}
 
-    /** Implemented as specified by {@link Agent}. */
+    /** 
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#setContext(Registry)
+     */
     public void setContext(Registry ctx)
     {
         registry = ctx;
@@ -108,12 +117,15 @@ public class TreeViewerAgent
         if (viewer != null) viewer.activate();
     }
 
-    /** Implemented as specified by {@link Agent}. */
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#canTerminate()
+     */
     public boolean canTerminate() { return true; }
 
     /**
      * Responds to an event fired trigger on the bus.
-     * @see AgentEventListener#eventFired
+     * @see AgentEventListener#eventFired(AgentEvent)
      */
     public void eventFired(AgentEvent ae)
     {

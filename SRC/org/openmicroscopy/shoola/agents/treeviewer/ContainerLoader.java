@@ -55,7 +55,7 @@ import pojos.ProjectData;
  * @since OME2.2
  */
 public class ContainerLoader
-    extends DataLoader
+    extends DataBrowserLoader
 {
  
     /** The set of node IDs. */
@@ -67,7 +67,11 @@ public class ContainerLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-    /** Checks if the specified class if supported. */
+    /** 
+     * Checks if the specified class if supported. 
+     * 
+     * @param type The type to control.
+     */
     private void checkClassType(Class type)
     {
         if ((type.equals(ProjectData.class)) ||
@@ -94,24 +98,28 @@ public class ContainerLoader
 
     /**
      * Retrieves the data.
-     * @see DataLoader#load()
+     * @see DataBrowserLoader#load()
      */
     public void load()
     {
-        handle = dmView.loadContainerHierarchy(nodeType, nodeIDs, false, this);
+        handle = dmView.loadContainerHierarchy(nodeType, nodeIDs, false, 
+                		viewer.getRootLevel(), viewer.getRootID(), this);
     }
 
     /**
      * Cancels the data loading.
-     * @see DataLoader#cancel()
+     * @see DataBrowserLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer. 
+     * @see DataBrowserLoader#handleResult(Object)
+     */
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setContainerNodes((Set) result);
+        viewer.setContainerNodes((Set) result, viewer.getSelectedDisplay());
     }
     
 }

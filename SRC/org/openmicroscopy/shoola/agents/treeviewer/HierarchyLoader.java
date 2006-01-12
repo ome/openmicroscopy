@@ -56,7 +56,7 @@ import pojos.ProjectData;
  * @since OME2.2
  */
 public class HierarchyLoader
-    extends DataLoader
+    extends DataBrowserLoader
 {
 
     /** Indicates that the root node is of type <code>Project</code>. */
@@ -93,9 +93,11 @@ public class HierarchyLoader
     
     /**
      * Returns the class corresponding to the specified type.
-     * Returns <code>null</code> if the type is not supported.
+     * Returns <code>null</code> if the type is not supported,
+     * otherwise the corresponding class.
      * 
      * @param type  The type of the root node.
+     * @return See above.
      */
     private Class getClassType(int type)
     {
@@ -150,26 +152,30 @@ public class HierarchyLoader
     
     /**
      * Retrieves the data.
-     * @see DataLoader#load()
+     * @see DataBrowserLoader#load()
      */
     public void load()
     {
         handle = dmView.loadContainerHierarchy(rootNodeType, null, images,
-                                                this);
+                                               viewer.getRootLevel(),
+                                               viewer.getRootID(), this);
     }
 
     /**
      * Cancels the data loading.
-     * @see DataLoader#cancel()
+     * @see DataBrowserLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see DataBrowserLoader#handleResult(Object)
+     */
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         if (filter) viewer.setFilterNodes((Set) result, containerType);
-        else viewer.setNodes((Set) result);
+        else viewer.setContainerNodes((Set) result, null);
     }
     
 }

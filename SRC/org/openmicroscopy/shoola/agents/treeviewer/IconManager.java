@@ -38,7 +38,14 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 /** 
- * 
+ * Provides the icons used by the TreeViewer.
+ * <p>The icons are retrieved by first calling the 
+ * {@link #getInstance() getInstance} method and then the 
+ * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
+ * by the static constants within this class &#151; icons will be retrieved
+ * from the HiViewer's graphics bundle, which implies that its
+ * configuration has been read in (this happens during the initialization
+ * procedure).</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -185,7 +192,11 @@ public class IconManager
     private static IconManager  singleton;
     
     
-    /** Returns the <code>IconManager</code> object. */
+    /** 
+     * Returns the <code>IconManager</code> object. 
+     * 
+     * @return See above.
+     */
     public static IconManager getInstance() 
     { 
         if (singleton == null) 
