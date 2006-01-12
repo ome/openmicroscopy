@@ -33,24 +33,30 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Point;
 import java.util.Set;
+import javax.swing.JTree;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.DataLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesInContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterAction;
-
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * The Model component in the <code>Browser</code> MVC triad.
+ * This class tracks the <code>Browser</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. However, this class doesn't know the actual hierarchy
+ * the <code>Browser</code> is for.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,12 +85,32 @@ class BrowserModel
      * Will either be a hierarchy loader or 
      * <code>null</code> depending on the current state. 
      */
-    private DataLoader          currentLoader;
+    private DataBrowserLoader	currentLoader;
     
+    /** The type of filter. */
     private int                 filterType;
     
+    /** 
+     * The level of the hierarchy root. One of the following constants:
+     * {@link TreeViewer#WORLD_ROOT}, {@link TreeViewer#GROUP_ROOT} and
+     * {@link TreeViewer#USER_ROOT}.
+     */
+    private int 				rootLevel;
+    
+    /** 
+     * The ID of the root. This parameter will be used only when the 
+     * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
+     */
+    private int					rootID;
+    
+    /** 
+     * Maps an container id to the list of number of items providers for that 
+     * container.
+     */
+    private ContainersManager	containersManager;
+    
     /** Reference to the component that embeds this model. */
-    protected Browser           component;
+    protected Browser           component; 
     
     /** 
      * Checks if the specified browser is valid.
@@ -191,6 +217,8 @@ class BrowserModel
     /**
      * Starts the asynchronous retrieval of the hierarchy objects needed
      * by this model and sets the state to {@link Browser#LOADING_DATA}. 
+     * 
+     * @param nodeIDs
      */
     void fireDataLoading(Set nodeIDs)
     {
@@ -236,6 +264,8 @@ class BrowserModel
     /**
      * Starts the asynchronous retrieval of the hierarchy objects needed
      * by this model and sets the state to {@link Browser#LOADING_DATA}. 
+     * 
+     * @param type The type of filter.
      */
     void fireFilterDataLoading(int type)
     {
@@ -271,6 +301,32 @@ class BrowserModel
             currentLoader.load();
             state = Browser.LOADING_DATA;
         }
+    }
+    
+    /**
+     * 
+     *
+     */
+    void fireContainerCountLoading()
+    {
+        Class rootType = null;
+        if (browserType == Browser.CATEGORY_EXPLORER) 
+            rootType = CategoryData.class;
+        else if (browserType == Browser.HIERARCHY_EXPLORER) 
+            rootType = DatasetData.class;
+        if (rootType == null) {
+            state = Browser.READY;
+            return;
+        }
+        Set containers = component.getContainersWithImages();
+        if (containers.size() == 0) {
+            state = Browser.READY;
+            return;
+        }
+        state = Browser.COUNTING_ITEMS;
+        currentLoader = new ContainerCounterLoader(component, rootType, 
+                									containers);
+        currentLoader.load();
     }
     
     /**
@@ -310,6 +366,11 @@ class BrowserModel
      */
     int getFilterType() { return filterType; }
     
+    /**
+     * Starts the asynchronous retrieval of the data 
+     * according to the <code>UserObject</code> type.
+     *
+     */
     void refreshSelectedDisplay()
     {
         if (selectedDisplay == null) return;
@@ -317,6 +378,58 @@ class BrowserModel
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData))
             fireLeavesLoading();
         else fireContainerLoading();
+    }
+    
+    /**
+     * Sets the root of the retrieved hierarchies. 
+     * The rootID is taken into account if and only if 
+     * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
+     * 
+     * @param rootLevel The level of the root. One of the following constants:
+     * 					{@link TreeViewer#WORLD_ROOT}, 
+     * 					{@link TreeViewer#GROUP_ROOT} and
+     * 					{@link TreeViewer#USER_ROOT}.
+     * @param rootID	The Id of the root.
+     */
+    void setHierarchyRoot(int rootLevel, int rootID)
+    {
+    	this.rootLevel = rootLevel;
+    	this.rootID = rootID;
+    }
+    
+    /**
+     * Returns the level of the root. 
+     * One of the following constants: {@link TreeViewer#WORLD_ROOT},
+     * {@link TreeViewer#GROUP_ROOT} and {@link TreeViewer#USER_ROOT}.
+     * 
+     * @return See above.
+     */
+    int getRootLevel() { return rootLevel; }
+    
+    /** 
+     * Returns the root ID.
+     * 
+     * @return See above.
+     */
+    int getRootID() { return rootID; }
+
+    /**
+     * Sets the number of items contained in the specified container.
+     *  
+     * @param tree
+     * @param containerID The ID of the container.
+     * @param value	The number of items.
+     */
+    void setContainerCountValue(JTree tree, int containerID, int value)
+    {
+        if (containersManager == null)
+            containersManager = new ContainersManager(tree, 
+                    			component.getContainersWithImagesNodes());
+        containersManager.setNumberItems(containerID, value);
+        if (containersManager.isDone()) {
+            state = Browser.READY;
+            containersManager = null;
+        }
     }
     
 }

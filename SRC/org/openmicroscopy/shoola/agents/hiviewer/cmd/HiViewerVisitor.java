@@ -77,12 +77,14 @@ class HiViewerVisitor
     /** 
      * Required by {@link ImageDisplayVisitor} I/F. Sub-classes
      * will implement the method.
+     * @see ImageDisplayVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) {}
 
     /** 
      * Required by {@link ImageDisplayVisitor} I/F. Sub-classes
      * will implement the method.
+     * @see ImageDisplayVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node) {}
     

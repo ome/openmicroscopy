@@ -88,7 +88,10 @@ public class ViewPDIAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));
     }
 
-    /** Creates a {@link ViewHierarchyCmd} command to execute the action. */
+    /** 
+     * Creates a {@link ViewHierarchyCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         ViewHierarchyCmd cmd = new ViewHierarchyCmd(model, 
@@ -96,7 +99,10 @@ public class ViewPDIAction
         cmd.execute();
     }
     
-    /** Overrides the method. */
+    /**
+     * Overrides the method.
+     * @see javax.swing.event.ChangeListener#stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent e)
     {
         super.stateChanged(e);

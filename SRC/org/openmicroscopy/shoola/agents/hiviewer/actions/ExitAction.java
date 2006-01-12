@@ -82,7 +82,10 @@ public class ExitAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.EXIT));
     }
 
-    /** Discards the model. */
+    /** 
+     * Discards the model. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e) { model.discard(); }
 
 }

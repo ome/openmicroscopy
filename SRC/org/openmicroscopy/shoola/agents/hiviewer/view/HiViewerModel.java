@@ -39,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.hiviewer.UserDetailsLoader;
@@ -50,6 +51,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 
 /** 
@@ -75,9 +77,6 @@ import org.openmicroscopy.shoola.env.data.model.UserDetails;
  */
 abstract class HiViewerModel
 {
-
-    /** The current user's details. */
-    private UserDetails         userDetails;
     
     /** Holds one of the state flags defined by {@link HiViewer}. */
     private int                 state;
@@ -113,14 +112,14 @@ abstract class HiViewerModel
     void initialize(HiViewer component) { this.component = component; }
     
     /**
-     * Sets the current user's details.
+     * Sets the user's details.
+     * The details should, in theory be already binded to the agent's registry.
      * 
-     * @param details The user's details.
+     * @param details The details to set.
      */
     void setUserDetails(UserDetails details)
-    { 
-        if (details == null) throw new NullPointerException("No details.");
-        userDetails = details;
+    {
+        HiViewerAgent.getRegistry().bind(LookupNames.USER_DETAILS, details);
     }
     
     /**
@@ -128,7 +127,11 @@ abstract class HiViewerModel
      * 
      * @return See above.
      */
-    UserDetails getUserDetails() { return userDetails; }
+    UserDetails getUserDetails()
+    { 
+    	return (UserDetails) 
+    			HiViewerAgent.getRegistry().lookup(LookupNames.USER_DETAILS);
+    }
     
     /**
      * Returns the current state.

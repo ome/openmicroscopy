@@ -98,6 +98,7 @@ public abstract class CBDataLoader
     
     /**
      * Notifies the user that an error has occurred.
+     * @see #handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

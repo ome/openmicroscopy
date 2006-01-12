@@ -266,6 +266,8 @@ class TinyPaneUI
     
     /**
      * Monitors frame's state changes and updates the UI accordingly.
+     * 
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
@@ -308,34 +310,44 @@ class TinyPaneUI
      * This is so because the frame doesn't get repainted when is dragged
      * out of the bounds of a desktop.
      * 
-     * @see ComponentListener#componentMoved(java.awt.event.ComponentEvent)
+     * @see ComponentListener#componentMoved(ComponentEvent)
      */
     public void componentMoved(ComponentEvent ce) { frame.repaint(); }
     
     /** 
-     * No-op implementation.
-     * Required by {@link ComponentListener}, but not needed here.
+     * Required by {@link ComponentListener} I/F but no-op implementation in our
+     * case. 
+     * 
+     * @see ComponentListener#componentHidden(ComponentEvent)
      */
     public void componentHidden(ComponentEvent ce) {}
 
     /** 
-     * No-op implementation.
-     * Required by {@link ComponentListener}, but not needed here.
+     * Required by {@link ComponentListener} I/F but no-op implementation in our
+     * case. 
+     * 
+     * @see ComponentListener#componentShown(ComponentEvent)
      */
     public void componentShown(ComponentEvent ce) {}
 
     /** 
      * Forwards <code>mouseClicked</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseListener#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent me) { borderListener.mouseClicked(me); }
 
     /** 
      * Forwards <code>mousePressed</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) { borderListener.mousePressed(me); }
 
     /** 
      * Forwards <code>mouseReleased</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseListener#mouseReleased(MouseEvent)
      */
     public void mouseReleased(MouseEvent me)
     {
@@ -344,21 +356,29 @@ class TinyPaneUI
 
     /** 
      * Forwards <code>mouseReleased</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseListener#mouseEntered(MouseEvent)
      */
     public void mouseEntered(MouseEvent me) { borderListener.mouseEntered(me); }
 
     /** 
      * Forwards <code>mouseExited</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseListener#mouseExited(MouseEvent)
      */
     public void mouseExited(MouseEvent me) { borderListener.mouseExited(me); }
 
     /** 
      * Forwards <code>mouseExited</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
      */
     public void mouseDragged(MouseEvent me) { borderListener.mouseDragged(me); }
 
     /** 
-     * Forwards <code>mouseExited</code> event to the {@link BorderListener}.
+     * Forwards <code>mouseMoved</code> event to the {@link BorderListener}.
+     * 
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
      */
     public void mouseMoved(MouseEvent me) { borderListener.mouseMoved(me); }
     

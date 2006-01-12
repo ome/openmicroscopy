@@ -71,7 +71,11 @@ class FindAnnotatedVisitor
     /** Set containing the nodes found. */
     private Set         foundNodes;
     
-    /** Sets the color of the titleBar of the specified node. */
+    /** 
+     * Sets the color of the titleBar of the specified node. 
+     * 
+     * @param node The node to highlight.
+     */
     private void setHighlight(ImageDisplay node)
     {
         foundNodes.add(node);
@@ -93,10 +97,17 @@ class FindAnnotatedVisitor
         foundNodes = new HashSet();
     }
     
-    /** Returns the set of nodes found. */
+    /** 
+     * Returns the set of nodes found. 
+     * 
+     * @return See above.
+     */
     public Set getFoundNodes() { return foundNodes; }
     
-    /** Highlights the annotated image.*/
+    /**
+     * Highlights the annotated image.
+     * @see HiViewerVisitor#visit(ImageNode)
+     */
     public void visit(ImageNode node)
     {
         Object ho = node.getHierarchyObject();
@@ -107,7 +118,10 @@ class FindAnnotatedVisitor
         }
     }
 
-    /** Highlights the annotated dataset.*/
+    /**
+     * Highlights the annotated dataset.
+     * @see HiViewerVisitor#visit(ImageSet)
+     */
     public void visit(ImageSet node)
     {
         Object ho = node.getHierarchyObject();

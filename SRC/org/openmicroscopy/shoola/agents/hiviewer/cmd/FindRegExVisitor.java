@@ -43,7 +43,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * 
+ * Top class. All visitors using dealing with regular expressions 
+ * should extend this class.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,16 +82,22 @@ class FindRegExVisitor
         foundNodes = new HashSet();
     }
     
-    /** Returns the nodes found. */
+    /** 
+     * Returns the nodes found. 
+     * 
+     * @return See above.
+     */
     public Set getFoundNodes() { return foundNodes; }
     
-    /** 
+    /**
      * Required by I/F. Sub-classes will implement the method.
+     * @see HiViewerVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) {}
 
     /** 
      * Required by I/F. Sub-classes will implement the method.
+     * @see HiViewerVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node) {}
 

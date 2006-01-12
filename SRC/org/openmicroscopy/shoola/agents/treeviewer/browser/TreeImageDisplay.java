@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import pojos.ImageData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -78,6 +80,9 @@ public abstract class TreeImageDisplay
      */
     private String              tooltip;
     
+    /** The number of items. */
+    protected int				numberItems;
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -111,9 +116,9 @@ public abstract class TreeImageDisplay
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
         if (hierarchyObject instanceof String) name = (String) hierarchyObject;
-        //setNodeValues(hierarchyObject);
         setUserObject(hierarchyObject);
         childrenDisplay = new HashSet();
+        numberItems = -1;
     }
     
     /**
@@ -160,6 +165,7 @@ public abstract class TreeImageDisplay
             child.parentDisplay.removeChildDisplay(child);
         child.parentDisplay = this;
         childrenDisplay.add(child);
+        numberItems = childrenDisplay.size();
     }
     
     /**
@@ -178,6 +184,7 @@ public abstract class TreeImageDisplay
             //the add method.
             child.parentDisplay.childrenDisplay.remove(child);
             child.parentDisplay = null;
+            numberItems = childrenDisplay.size();
         }
     }
     
@@ -281,7 +288,25 @@ public abstract class TreeImageDisplay
      */
     public String getNodeName() { return name; }
     
-    /** Overriden to return the name of the hierarchy object. */
+    /**
+     * Returns the name of the node and the number of items
+     * in the specified containers.
+     * 
+     * @return See above.
+     */
+    public String getNodeText()
+    {
+        if (getUserObject() instanceof ImageData) return name;
+        if (numberItems == -1) return (name+"    ...");
+        String s = "item";
+        if (numberItems > 1) s +="s";
+        return (name+"    "+numberItems+" "+s);
+    }
+    
+    /** 
+     * Overriden to return the name of the hierarchy object. 
+     * @see #toString()
+     */
     public String toString() { return name; }
     
     /**
@@ -289,6 +314,7 @@ public abstract class TreeImageDisplay
      * {@link #addChildDisplay(TreeImageDisplay) addChildDisplay} and
      * {@link #removeChildDisplay(TreeImageDisplay) removeChildDisplay} methods
      * will work fine.
+     * @see #equals(Object)
      */
     public final boolean equals(Object x) { return (this == x); }
     

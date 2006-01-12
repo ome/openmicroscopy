@@ -230,7 +230,11 @@ public class IconManager
     private static IconManager  singleton;
     
     
-    /** Returns the <code>IconManager</code> object. */
+    /**
+     * Returns the <code>IconManager</code> object. 
+     * 
+     * @return See above.
+     */
     public static IconManager getInstance() 
     { 
         if (singleton == null) 

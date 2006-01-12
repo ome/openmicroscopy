@@ -74,6 +74,7 @@ class ZoomVisitor
     /** 
      * Magnifies the {@link ImageNode} if and only if the 
      * magnification factor has been modified.
+     * @see HiViewerVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node)
     {

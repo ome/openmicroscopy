@@ -107,7 +107,10 @@ public class ZoomInAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ZOOM_IN));
     }
     
-    /** Creates a {@link ZoomCmd} command to execute the action. */
+    /**
+     * Creates a {@link ZoomCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         ZoomCmd cmd = new ZoomCmd(model, ZoomCmd.ZOOM_IN);

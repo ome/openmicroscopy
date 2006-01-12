@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
 
 /** 
- * Loads a Dataset/Image hierarchy rooted by a given Dataset.
+ * Loads asynchronously a Dataset/Image hierarchy rooted by a given Dataset.
  * This class calls the <code>loadHierarchy</code> method in the
  * <code>HierarchyBrowsingView</code>.
  *
@@ -93,7 +93,10 @@ public class DatasetLoader
     /** Cancels the data loading. */
     public void cancel() { handle.cancel(); }
     
-    /** Notifies the viewer of progress. */
+    /**
+     * Notifies the viewer of progress. 
+     * @see #update(DSCallFeedbackEvent)
+     */
     public void update(DSCallFeedbackEvent fe) 
     {
         String status = fe.getStatus();
@@ -106,9 +109,13 @@ public class DatasetLoader
         viewer.setStatus(status, percDone);
     }
     
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see #handleResult(Object)
+     */
     public void handleResult(Object result)
     {
+        if (viewer.getState() == HiViewer.DISCARDED) return;
         viewer.setHierarchyRoots((Set) result);
     }
     

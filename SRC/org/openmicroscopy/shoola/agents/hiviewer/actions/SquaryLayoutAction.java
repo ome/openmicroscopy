@@ -98,7 +98,10 @@ public class SquaryLayoutAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SQUARY_LAYOUT));
     }
 
-    /** Creates a {@link LayoutCmd} command to execute the action. */
+    /** 
+     * Creates a {@link LayoutCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         LayoutCmd cmd = new LayoutCmd(model, LayoutFactory.SQUARY_LAYOUT);

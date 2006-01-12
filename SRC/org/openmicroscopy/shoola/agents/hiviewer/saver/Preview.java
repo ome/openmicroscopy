@@ -189,7 +189,11 @@ class Preview
         c.add(buildToolBar(), BorderLayout.SOUTH);
     }
     
-    /** Builds the panel containing the preview controls. */
+    /** 
+     * Builds and returns the panel containing the preview controls. 
+     * 
+     * @return See above.
+     */
     private JPanel buildControlsPanel()
     {
         JPanel p = new JPanel();
@@ -217,7 +221,11 @@ class Preview
         return p;
     }
     
-    /** Builds the toolBar. */
+    /** 
+     * Builds and returns the tool bar. 
+     * 
+     * @return See above.
+     */
     private JToolBar buildToolBar()
     {
         JToolBar bar = new JToolBar();
@@ -226,7 +234,11 @@ class Preview
         return bar;
     }
     
-    /** Builds  a panel with buttons. */
+    /** 
+     * Builds and returns a panel with buttons. 
+     *
+     * @return See above.
+     */
     private JPanel buildButtonPanel()
     {
         JPanel p = new JPanel();

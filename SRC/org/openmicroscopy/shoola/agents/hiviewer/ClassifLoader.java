@@ -116,6 +116,7 @@ public abstract class ClassifLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #classifier}.
+     * @see #handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {
@@ -129,7 +130,7 @@ public abstract class ClassifLoader
         //made in the wrong place!
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

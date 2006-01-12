@@ -179,7 +179,11 @@ class PreviewMng
         });
     }
     
-    /** Attaches listeners to a JButton. */
+    /** Attaches listeners to a JButton. 
+     * 
+     * @param button 	The component to attach the listener to
+     * @param id		The action command id.
+     */
     private void attachButtonListener(JButton button, int id)
     {
         button.addActionListener(this);
@@ -213,7 +217,10 @@ class PreviewMng
         return image;
     }
     
-    /** Handles action fired by JButton. */
+    /** 
+     * Handles action fired by JButton. 
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         int index = -1;

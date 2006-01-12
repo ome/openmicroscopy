@@ -119,16 +119,32 @@ abstract class ClassifierWin
         c.add(getClassifPanel(), BorderLayout.CENTER);
     }
     
-    /** Title displays in the titlePanel*/
+    /** 
+     * Returns the title displayed in the titlePanel.
+     * 
+     * @return See above.
+     */
     protected abstract String getPanelTitle();
     
-    /** Text displays in the titlePanel*/
+    /** 
+     * Returns the text displayed in the titlePanel.
+     * 
+     * @return See above.
+     */
     protected abstract String getPanelText();
     
-    /** Note displays in the titlePanel*/
+    /**
+     * Returns the note displayed in the titlePanel.
+     * 
+     * @return See above.
+     */
     protected abstract String getPanelNote();
     
-    /** The main panel added to this window.*/
+    /** 
+     * Returns the main panel added to this window.
+     * 
+     * @return See above.
+     */
     protected abstract JComponent getClassifPanel();
     
     /**
@@ -156,6 +172,8 @@ abstract class ClassifierWin
     /** 
      * The category selected, either to classify or declassify the 
      * selected image.
+     * 
+     * @param category The selected category.
      */
     void setSelectedCategory(CategoryData category)
     {

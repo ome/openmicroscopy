@@ -103,7 +103,7 @@ class ClassifierComponent
     
     /**
      * Implemented as specified by the {@link Classifier} interface.
-     * @see Classifier#getState()
+     * @see Classifier#getMode()
      */
     public int getMode() { return model.getMode(); }
     

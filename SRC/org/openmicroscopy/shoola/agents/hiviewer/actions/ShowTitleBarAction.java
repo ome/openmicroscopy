@@ -88,7 +88,7 @@ public class ShowTitleBarAction
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model.  Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
     public ShowTitleBarAction(HiViewer model)
     {
@@ -98,7 +98,10 @@ public class ShowTitleBarAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
 
-    /** Creates a {@link ShowTitleBarCmd} command to execute the action. */
+    /** 
+     * Creates a {@link ShowTitleBarCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         ShowTitleBarCmd cmd = new ShowTitleBarCmd(model, true);

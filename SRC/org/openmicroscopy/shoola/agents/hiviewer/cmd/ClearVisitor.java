@@ -60,7 +60,11 @@ class ClearVisitor
 {
     
 
-    /** Highlights the titleBar of the specified node. */
+    /** 
+     * Highlights the titleBar of the specified node. 
+     * 
+     * @param node The {@link ImageDisplay node} to highlight.
+     */
     private void setHighlight(ImageDisplay node)
     {
         if (node.equals(model.getBrowser().getSelectedDisplay())) {
@@ -79,10 +83,16 @@ class ClearVisitor
         super(viewer);
     }
 
-    /** Sets the highlight color to <code>null</code>. */
+    /** 
+     * Sets the highlight color to <code>null</code>. 
+     * @see HiViewerVisitor#visit(ImageNode)
+     */
     public void visit(ImageNode node) { setHighlight(node); }
 
-    /** Sets the highlight color to <code>null</code>. */
+    /** 
+     * Sets the highlight color to <code>null</code>. 
+     * @see HiViewerVisitor#visit(ImageSet)
+     */
     public void visit(ImageSet node)
     {
         if (node.getParentDisplay() != null) setHighlight(node);

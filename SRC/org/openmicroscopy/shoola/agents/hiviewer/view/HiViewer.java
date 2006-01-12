@@ -89,58 +89,58 @@ public interface HiViewer
 {
     
     /** Flag to denote the <i>New</i> state. */
-    public static final int     NEW = 1;
+    public static final int     	NEW = 1;
     
     /** Flag to denote the <i>Loading User details</i> state. */
-    public static final int     LOADING_USER_DETAILS = 2;
+    public static final int     	LOADING_USER_DETAILS = 2;
     
     /** Flag to denote the <i>Loading Hierarchy</i> state. */
-    public static final int     LOADING_HIERARCHY = 3;
+    public static final int     	LOADING_HIERARCHY = 3;
     
     /** Flag to denote the <i>Loading Thumbnails</i> state. */
-    public static final int     LOADING_THUMBNAILS = 4;
+    public static final int     	LOADING_THUMBNAILS = 4;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 5;
+    public static final int     	READY = 5;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 6;
+    public static final int     	DISCARDED = 6;
     
     /** 
      * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
      * Project. 
      */
-    public static final int     PROJECT_HIERARCHY = 101;
+    public static final int     	PROJECT_HIERARCHY = 101;
     
     /** 
      * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
      * Dataset. 
      */
-    public static final int     DATASET_HIERARCHY = 102;
+    public static final int     	DATASET_HIERARCHY = 102;
     
     /** 
      * Flag to denote a Category Group/Category/Image hierarchy rooted by a 
      * given Category Group. 
      */
-    public static final int     CATEGORY_GROUP_HIERARCHY = 103;
+    public static final int     	CATEGORY_GROUP_HIERARCHY = 103;
     
     /** 
      * Flag to denote a Category Group/Category/Image hierarchy rooted by a 
      * given Category. 
      */
-    public static final int     CATEGORY_HIERARCHY = 104;
+    public static final int     	CATEGORY_HIERARCHY = 104;
     
     /** 
      * Flag to denote a Project/Dataset/Image hierarchy which contains a
      * given set of images. 
      */
-    public static final int     PDI_HIERARCHY = 105;
+    public static final int     	PDI_HIERARCHY = 105;
     
     /** 
      * Flag to denote a Category Group/Category/Image hierarchy which contains
      * a given set of images. 
      */
-    public static final int     CGCI_HIERARCHY = 106;
+    public static final int     	CGCI_HIERARCHY = 106;
     
     /** Identifies the Exit action in the Hierarchy menu. */
     public static final Integer     EXIT = new Integer(0);

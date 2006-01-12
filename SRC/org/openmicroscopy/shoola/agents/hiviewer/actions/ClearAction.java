@@ -96,7 +96,10 @@ public class ClearAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLEAR));
     }
     
-    /** Creates a {@link ClearCmd} command to execute the action. */
+    /**
+     * Creates a {@link ClearCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
        ClearCmd cmd = new ClearCmd(model);

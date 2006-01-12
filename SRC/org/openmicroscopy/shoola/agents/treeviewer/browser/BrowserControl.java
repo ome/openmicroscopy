@@ -136,7 +136,7 @@ class BrowserControl
         if ((state == Browser.LOADING_DATA) ||
              (state == Browser.LOADING_LEAVES)) return;
         Object ho = display.getUserObject();
-        model.setSelectedDisplay(display);
+        model.setSelectedDisplay(display); 
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
             if (display.getChildrenDisplay().size() == 0) {
                 view.loadAction(display);
@@ -179,6 +179,7 @@ class BrowserControl
     /**
      * Detects when the {@link Browser} is ready and then registers for
      * property change notification.
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)
     {
@@ -196,7 +197,10 @@ class BrowserControl
         }
     }
 
-    /** Reacts to {@link Browser} property changes. */
+    /**
+     * Reacts to {@link Browser} property changes.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent pce)
     {
         //We only listen to FILTER_NODES_PROPERTY

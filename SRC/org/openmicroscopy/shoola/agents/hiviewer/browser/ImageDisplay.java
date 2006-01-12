@@ -298,7 +298,10 @@ public abstract class ImageDisplay
         }
     }
     
-    /** Overriden to return the name of the hierarchy object. */
+    /** 
+     * Overriden to return the name of the hierarchy object. 
+     * @see #toString()
+     */
     public String toString()
     {
         String s = "";
@@ -320,6 +323,7 @@ public abstract class ImageDisplay
      * {@link #addChildDisplay(ImageDisplay) addChildDisplay} and
      * {@link #removeChildDisplay(ImageDisplay) removeChildDisplay} methods
      * will work fine.
+     * @see #equals(Object)
      */
     public final boolean equals(Object x) { return (this == x); }
     

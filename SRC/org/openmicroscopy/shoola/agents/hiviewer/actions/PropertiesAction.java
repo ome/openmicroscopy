@@ -31,9 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -100,7 +97,10 @@ public class PropertiesAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.PROPERTIES));
     }
     
-    /** Creates a {@link PropertiesCmd} command to execute the action. */
+    /** 
+     * Creates a {@link PropertiesCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
        PropertiesCmd cmd = new PropertiesCmd(model);

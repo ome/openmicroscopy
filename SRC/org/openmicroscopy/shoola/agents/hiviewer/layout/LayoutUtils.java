@@ -162,7 +162,7 @@ public class LayoutUtils
      * The size of each cell in the grid will be that of the largest child
      * in the parent <code>node</code>.
      * 
-     * @param node The parent node.  Mustn't be <code>null</code>.
+     * @param node The parent node. Mustn't be <code>null</code>.
      */
     public static void doSquareGridLayout(ImageDisplay node,
                                         ViewerSorter sorter)

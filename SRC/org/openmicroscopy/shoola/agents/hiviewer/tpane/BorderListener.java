@@ -103,7 +103,11 @@ class BorderListener
     /** The Model. */
     private TinyPane frame;
     
-    /** Creates a {@link DesktopManager}. */
+    /**
+     * Creates a {@link DesktopManager}. 
+     * 
+     * @return See above.
+     */
     protected DesktopManager getDesktopManager()
     {
         if (sharedDesktopManager == null)
@@ -115,7 +119,7 @@ class BorderListener
      * Creates a new instance.
      * 
      * @param frame Reference to the {@link TinyPane model}. Mustn't be 
-     *              <code>null</code>
+     *              <code>null</code>.
      */
     BorderListener(TinyPane frame)
     {
@@ -125,7 +129,10 @@ class BorderListener
           parentBounds = frame.getParent().getBounds();
     }
   
-    /** Handles <code>mouseReleased</code> event. */
+    /**
+     * Handles <code>mouseReleased</code> event. 
+     * @see MouseInputAdapter#mouseReleased(MouseEvent)
+     */
     public void mouseReleased(MouseEvent e)
     {
         if (discardRelease) {
@@ -147,7 +154,10 @@ class BorderListener
         resizeDir = RESIZE_NONE;
     }
      
-    /** Handles <code>mousePressed</code> event. */
+    /**
+     * Handles <code>mousePressed</code> event.
+     * @see MouseInputAdapter#mousePressed(MouseEvent)
+     */
     public void mousePressed(MouseEvent e)
     {
         Point p = SwingUtilities.convertPoint((Component)e.getSource(), 
@@ -212,7 +222,10 @@ class BorderListener
         }
     }
 
-    /** Handles <code>mouseDragged</code> event. */
+    /** 
+     * Handles <code>mouseDragged</code> event.
+     * @see MouseInputAdapter#mouseDragged(MouseEvent)
+     */
     public void mouseDragged(MouseEvent e)
     {   
         if (startingBounds == null) return;
@@ -392,7 +405,10 @@ class BorderListener
         getDesktopManager().resizeFrame(frame, newX, newY, newW, newH);
     }
 
-    /** Handles <code>mouseMoved</code> event. */
+    /** 
+     * Handles <code>mouseMoved</code> event. 
+     * @see MouseInputAdapter#mouseMoved(MouseEvent)
+     */
     public void mouseMoved(MouseEvent e)   
     {
         if (!frame.isResizable()) return;
@@ -408,10 +424,16 @@ class BorderListener
         }
     }
 
-    /** No-op implementation. */
+    /**
+     * Required but no-op implementation in our case.
+     * @see MouseInputAdapter#mouseExited(MouseEvent)
+     */
     public void mouseExited(MouseEvent e) {}
     
-    /** No-op implementation. */
+    /**
+     * Required but no-op implementation in our case.
+     * @see MouseInputAdapter#mouseClicked(MouseEvent)
+     */
     public void mouseClicked(MouseEvent e) {}
     
 }

@@ -62,7 +62,7 @@ public class ThumbnailLoader
 {
 
     /** 
-     * The <code>ImageSummary</code> objects for the images whose thumbnails 
+     * The <code>ImageData</code> objects for the images whose thumbnails 
      * have to be fetched.
      */
     private Set         images;
@@ -74,14 +74,17 @@ public class ThumbnailLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param images The <code>ImageSummary</code> objects for the images whose 
-     *               thumbnails have to be fetched. 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param images 	The <code>ImageData</code> objects for the images whose 
+     *               	thumbnails have to be fetched. 
+     * 					Mustn't be <code>null</code>.
      */
     public ThumbnailLoader(HiViewer viewer, Set images)
     {
         super(viewer);
+        if (images == null)
+            throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
     }
     
@@ -99,7 +102,10 @@ public class ThumbnailLoader
     /** Cancels the data loading. */
     public void cancel() { handle.cancel(); }
     
-    /** Feeds the thumbnails back to the viewer, as they arrive. */
+    /** 
+     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * @see DataLoader#update(DSCallFeedbackEvent)
+     */
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
@@ -123,6 +129,7 @@ public class ThumbnailLoader
     
     /**
      * Notifies the user that an error has occurred.
+     * @see DataLoader#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

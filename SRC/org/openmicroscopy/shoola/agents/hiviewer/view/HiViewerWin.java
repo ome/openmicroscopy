@@ -127,7 +127,14 @@ class HiViewerWin
         pane.setContinuousLayout(true);
         pane.setTopComponent(browserUI);
         pane.setBottomComponent(clipBoardUI);
-        return pane;
+        JSplitPane leftPane = new JSplitPane();
+        leftPane.setResizeWeight(1);
+        leftPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        leftPane.setOneTouchExpandable(true);
+        leftPane.setContinuousLayout(true);
+        leftPane.setLeftComponent(new JPanel());
+        leftPane.setRightComponent(pane);
+        return leftPane;
     }
     
     /** Builds and lays out the GUI. */
@@ -271,7 +278,8 @@ class HiViewerWin
     /**
      * Creates a new instance.
      * The {@link #initialize(HiViewerControl, HiViewerModel) initialize} method
-     * should be called straigh after to link this View to the Controller.
+     * should be called straigh after to link this View to the Controller
+     * and the Model.
      */
     HiViewerWin() 
     {
@@ -281,11 +289,11 @@ class HiViewerWin
         createWindowsMenu();
     }
 
-    
     /**
-     * Links this View to its Controller.
+     * Links this View to its Controller and Model.
      * 
      * @param controller The Controller.
+     * @param model The Model.
      */
     void initialize(HiViewerControl controller, HiViewerModel model)
     {
@@ -296,7 +304,11 @@ class HiViewerWin
         buildUI();
     }
 
-    /** Returns the windows menu. */
+    /** 
+     * Returns the <code>windows</code> menu. 
+     * 
+     * @return See above.
+     */
     JMenu getWindowsMenu() { return windowsMenu; }
     
     /** 
@@ -351,7 +363,7 @@ class HiViewerWin
         dispose();
     }
     
-    /** Set the title of the viewer. */
+    /** Sets the title of the viewer. */
     void setViewTitle()
     {
         String title = DEFAULT_TITLE+": ";
@@ -359,7 +371,11 @@ class HiViewerWin
         setTitle(title);
     }
     
-    /** Returns the title of the HiViewer. */
+    /** 
+     * Returns the title of the HiViewer. 
+     * 
+     * @return See above.
+     */
     public String getViewTitle()
     {
         Set roots = model.getBrowser().getRootNodes();

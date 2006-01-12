@@ -40,6 +40,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 
  * Command to find the Category Group/Category paths that end or don't end with
@@ -83,13 +84,26 @@ public class ClassificationLoader
     private boolean checkAlgorithmIndex(int i)
     {
         switch (i) {
-            case OmeroPojoService.DECLASSIFICATION:
-            case OmeroPojoService.CLASSIFICATION_ME:
-            case OmeroPojoService.CLASSIFICATION_NME:    
+            case HierarchyBrowsingView.DECLASSIFICATION:
+            case HierarchyBrowsingView.CLASSIFICATION_ME:
+            case HierarchyBrowsingView.CLASSIFICATION_NME:    
                 return true;
             default:
                 return false;
         }
+    }
+    
+    private int convertAlgo(int index)
+    {
+        switch (index) {
+	        case HierarchyBrowsingView.DECLASSIFICATION:
+	            return OmeroPojoService.DECLASSIFICATION;
+	        case HierarchyBrowsingView.CLASSIFICATION_ME:
+	            return OmeroPojoService.CLASSIFICATION_ME;
+	        case HierarchyBrowsingView.CLASSIFICATION_NME:
+	            return OmeroPojoService.CLASSIFICATION_NME;
+	    }
+        return 0;
     }
     
     /**
@@ -98,9 +112,9 @@ public class ClassificationLoader
      * 
      * @param imageIDs The set of image ids.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#DECLASSIFICATION},
-     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
+     *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
+     *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
+     *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadCGCPaths(final Set imageIDs, final int algorithm)
@@ -109,7 +123,7 @@ public class ClassificationLoader
             public void doCall() throws Exception
             {
                 OmeroPojoService os = context.getOmeroService();
-                rootNodes = os.findCGCPaths(imageIDs, algorithm);
+                rootNodes = os.findCGCPaths(imageIDs, convertAlgo(algorithm));
             }
         };
     }
@@ -134,9 +148,9 @@ public class ClassificationLoader
      * 
      * @param imageID   The id of the Image.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#DECLASSIFICATION},
-     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
+     *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
+     *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
+     *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
      */
     public ClassificationLoader(int imageID, int algorithm)
     {
@@ -157,9 +171,9 @@ public class ClassificationLoader
      * 
      * @param imageIDs   The collection of image's ids.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#DECLASSIFICATION},
-     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
+     *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
+     *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
+     *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
      */
     public ClassificationLoader(Set imageIDs, int algorithm)
     {

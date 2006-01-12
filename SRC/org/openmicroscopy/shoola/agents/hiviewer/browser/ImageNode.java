@@ -101,15 +101,15 @@ public class ImageNode
         thumbnail = t;
         canvas = new ThumbnailCanvas(this);
         getInternalDesktop().add(canvas);
-        int w = t.getWidth(), h = t.getHeight();
-        setCanvasSize(w, h);
-        //setResizable(false);
-        //setTitleBarType(SMALL_BAR);
+        setCanvasSize(t.getWidth(), t.getHeight());
     }
     
     /**
      * Spits out a runtime exception because it's not possible to add a
      * child to a leaf node.
+     * 
+     * @param child The child to add. In this case, a runtime exception is 
+     * 				thrown.
      */
     public void addChildDisplay(ImageDisplay child)
     {
@@ -119,7 +119,6 @@ public class ImageNode
     
     /**
      * Always returns <code>false</code> as this is not a container node.
-     * 
      * @see ImageDisplay#containsImages()
      */
     public boolean containsImages() { return false; }
@@ -133,7 +132,8 @@ public class ImageNode
     
     /** 
      * Overrides the #setSize(int, int) method, otherwise
-     * after collapsing the node, we can resize the imageNode
+     * after collapsing the node, we can resize the imageNode.
+     * @see ImageDisplay#setSize(int, int)
      */
     public void setSize(int w, int h)
     {

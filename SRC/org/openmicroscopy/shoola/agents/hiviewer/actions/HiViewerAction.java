@@ -91,6 +91,7 @@ public abstract class HiViewerAction
     }
  
     /** 
+     * Subclasses should implement the method.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
@@ -99,6 +100,7 @@ public abstract class HiViewerAction
      * Reacts to property changes in the {@link Browser}.
      * Highlights the selected node, and update the status of the
      * action.
+     * @see #propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -119,7 +121,10 @@ public abstract class HiViewerAction
         onDisplayChange(model.getBrowser().getSelectedDisplay());
     }
 
-    /** Listen to change events. */
+    /** 
+     * Listens to {@link Browser} change events. 
+     * @see #stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent e)
     {
         if (model.getState() == HiViewer.LOADING_THUMBNAILS) {

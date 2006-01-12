@@ -548,6 +548,7 @@ public class TinyPane
     
     /**
      * Overrides to return the title of the frame.
+     * @see JPanel#toString()
      */
     public String toString() { return getTitle(); }
     

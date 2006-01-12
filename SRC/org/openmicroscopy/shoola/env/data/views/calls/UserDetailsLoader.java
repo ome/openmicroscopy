@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -74,8 +74,8 @@ public class UserDetailsLoader
         return new BatchCall("Loading user's details") {
             public void doCall() throws Exception
             {
-                DataManagementService dms = context.getDataManagementService();
-                userDetails = dms.getUserDetails();
+                OmeroPojoService service = context.getOmeroService();
+                userDetails = service.getUserDetails();
             }
         };
     }

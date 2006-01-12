@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.Icon;
@@ -50,8 +49,14 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 /** 
- * 
+ * Implements the {@link Browser} interface to provide the functionality
+ * required of the tree viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -183,6 +188,7 @@ class BrowserComponent
         fireStateChange();
     }
 
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getBrowserType()
@@ -269,7 +275,7 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setLeaves(Set)
+     * @see Browser#setSelectedDisplay(TreeImageDisplay)
      */
     public void setSelectedDisplay(TreeImageDisplay display)
     {
@@ -398,11 +404,12 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getIcon()
+     * @see Browser#setSortedNodes(List)
      */
     public void setSortedNodes(List nodes)
     {
         switch (model.getState()) {
+        	case COUNTING_ITEMS:
             case LOADING_DATA:
             case LOADING_LEAVES:
             case DISCARDED:
@@ -444,7 +451,9 @@ class BrowserComponent
      */
     public void loadFilterData(int type)
     {
+        /*
         switch (model.getState()) {
+        	case COUNTING_ITEMS:
             case LOADING_DATA:
             case LOADING_LEAVES:
             case DISCARDED:
@@ -452,6 +461,7 @@ class BrowserComponent
                         "This method can only be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
+        */
         if (model.getBrowserType() != Browser.IMAGES_EXPLORER) 
             throw new IllegalStateException(
                     "This method can only be invoked in the Image Explorer.");
@@ -512,20 +522,22 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setContainerNodes(Set)
+     * @see Browser#setContainerNodes(Set, TreeImageDisplay)
      */
-    public void setContainerNodes(Set nodes)
+    public void setContainerNodes(Set nodes, TreeImageDisplay parent)
     {
         int state = model.getState();
-        System.out.println(state);
-        if (state != LOADING_DATA && state != LOADING_LEAVES)
+        if (state != LOADING_DATA)
             throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DATA or "+
-                    " LOADING_LEAVES state.");
+                    "This method can only be invoked in the LOADING_DATA "+
+                    "state.");
         if (nodes == null) throw new NullPointerException("No nodes.");
-        Set visNodes = TreeViewerTranslator.transformContainers(nodes);
-        view.setViews(visNodes, model.getSelectedDisplay());
-        model.setState(READY);
+        if (parent == null) {
+            view.setViews(TreeViewerTranslator.transformHierarchy(nodes));
+        } else view.setViews(TreeViewerTranslator.transformContainers(nodes), 
+                			model.getSelectedDisplay());
+        model.fireContainerCountLoading();
+        //model.setState(READY);
         fireStateChange();
     }
 
@@ -548,6 +560,95 @@ class BrowserComponent
     {
         // TODO Auto-generated method stub
         
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setHierarchyRoot(int, int)
+     */
+	public void setHierarchyRoot(int rootLevel, int rootID)
+	{
+		if (model.getState() != READY)
+		    throw new IllegalStateException(
+                    "This method can only be invoked in the READY state.");
+		model.setHierarchyRoot(rootLevel, rootID);
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getRootLevel()
+     */
+    public int getRootLevel()
+    {
+        if (model.getState() == DISCARDED)
+		    throw new IllegalStateException(
+                    "This method can't only be invoked in the DISCARDED " +
+                    "state.");
+        return model.getRootLevel();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getRootID()
+     */
+    public int getRootID()
+    {
+        if (model.getState() == DISCARDED)
+		    throw new IllegalStateException(
+                    "This method can't only be invoked in the DISCARDED " +
+                    "state.");
+        return model.getRootID();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setContainerCountValue(int, int)
+     */
+    public void setContainerCountValue(int containerID, int value)
+    {
+        int state = model.getState();
+        switch (state) {
+	        case COUNTING_ITEMS:
+	            model.setContainerCountValue(view.getTreeDisplay(), 
+	                    					containerID, value);
+	            if (model.getState() == READY) fireStateChange();
+	            break;
+	        case READY:
+	            model.setContainerCountValue(view.getTreeDisplay(), 
+    										containerID, value);
+	            break;
+	        default:
+	            throw new IllegalStateException(
+	                    "This method can only be invoked in the " +
+	                    "COUNTING_ITEMS or READY state.");
+        }
+        
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getContainersWithImagesNodes()
+     */
+    public Set getContainersWithImagesNodes()
+    {
+        //Note: avoid caching b/c we don't know yet what we are going
+        //to do with updates
+        ContainerFinder finder = new ContainerFinder();
+        accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+        return finder.getContainerNodes();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getContainersWithImages()
+     */
+    public Set getContainersWithImages()
+    {
+        //Note: avoid caching b/c we don't know yet what we are going
+        //to do with updates
+        ContainerFinder finder = new ContainerFinder();
+        accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+        return finder.getContainers();
     }
     
 }

@@ -85,7 +85,10 @@ public class RefreshAction
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REFRESH));
     }
 
-    /** Reloads the viewer. */
+    /**
+     * Reloads the viewer. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent ae) 
     { 
         HiViewer newOne = HiViewerFactory.reinstantiate(model);

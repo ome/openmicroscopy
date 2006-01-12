@@ -88,7 +88,10 @@ public class DatasetAnnotationLoader
     /** Cancels the data loading. */
     public void cancel() { handle.cancel(); }
     
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see #handleResult(Object)
+     */
     public void handleResult(Object result) 
     {
         clipBoard.setAnnotations((Map) result);

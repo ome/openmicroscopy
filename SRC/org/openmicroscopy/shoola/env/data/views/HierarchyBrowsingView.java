@@ -59,6 +59,21 @@ public interface HierarchyBrowsingView
     extends DataServicesView
 {
 
+    /** Identifies the <code>Declassification</code> algorithm. */
+    public static final int DECLASSIFICATION = 0;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm with
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_ME = 1;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm without
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_NME = 2;
+    
     /**
      * Loads a data hierarchy rooted by a given node.
      * <p>The root node can be one out of: Project, Dataset, Category Group, or
@@ -204,6 +219,7 @@ public interface HierarchyBrowsingView
      *                  {@link OmeroPojoService#DECLASSIFICATION},
      *                  {@link OmeroPojoService#CLASSIFICATION_ME},
      *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
+     * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadClassificationPaths(int imageID, int algorithm,

@@ -120,6 +120,7 @@ public abstract class DataLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #viewer}.
+     * @see #handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

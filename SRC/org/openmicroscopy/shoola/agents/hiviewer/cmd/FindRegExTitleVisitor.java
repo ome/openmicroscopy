@@ -96,12 +96,14 @@ class FindRegExTitleVisitor
     /** 
      * Highlights the titleBar of the imageNode 
      * if the title contains the specified regular expression.
+     * @see FindRegExVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) { setHighlight(node); }
 
     /** 
      * Highlights the titleBar of the container 
      * if the title contains the specified regular expression.
+     * @see FindRegExVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node) { setHighlight(node); }
 

@@ -40,7 +40,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+
 import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DatasetData;
 
 
@@ -65,6 +68,48 @@ public class ImagesLoader
     /** Loads the specified tree. */
     private BatchCall   loadCall;
     
+    /**
+     * Checks if the specified level is supported.
+     * 
+     * @param level The level to control.
+     */
+    private void checkRootLevel(int level)
+    {
+        switch (level) {
+	        case DataManagerView.WORLD_HIERARCHY_ROOT:
+	        case DataManagerView.GROUP_HIERARCHY_ROOT:
+	        case DataManagerView.USER_HIERARCHY_ROOT:
+	            return;
+	        default:
+	            throw new IllegalArgumentException("Root level not supported");
+        }
+    }
+    
+    /**
+     * Converts the specified level its corresponding value defined by
+     * {@link OmeroPojoService}.
+     * 
+     * @param level The level to convert.
+     * @return See above.
+     */
+    private int convertRootLevel(int level)
+    {
+        switch (level) {
+	        case DataManagerView.WORLD_HIERARCHY_ROOT:
+	            return OmeroPojoService.WORLD_HIERARCHY_ROOT;
+	        case DataManagerView.GROUP_HIERARCHY_ROOT:
+	            return OmeroPojoService.GROUP_HIERARCHY_ROOT;
+	        case DataManagerView.USER_HIERARCHY_ROOT:
+	            return OmeroPojoService.USER_HIERARCHY_ROOT;
+        }	
+        return -1;
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the user images.
+     * 
+     * @return The {@link BatchCall}.
+     */
     private BatchCall makeBatchCall()
     {
         return new BatchCall("Loading container tree: ") {
@@ -76,14 +121,34 @@ public class ImagesLoader
         };
     }
     
+    /**
+     * Creates a {@link BatchCall} to retrieve the images contained 
+     * in the container specified by the set of IDs.
+     * 
+     * @param nodeType  	The type of the node.
+     * @param nodeIDs   	A set of the IDs of top-most containers.
+     * @param rootLevel		The level of the hierarchy, one of the following
+     * 						constants:
+     * 						{@link DataManagerView#WORLD_HIERARCHY_ROOT},
+     * 						{@link DataManagerView#GROUP_HIERARCHY_ROOT},
+     * 						{@link DataManagerView#USER_HIERARCHY_ROOT}.
+     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
+     * 						if the rootLevel is either 
+     * 						{@link DataManagerView#WORLD_HIERARCHY_ROOT} or 
+     * 						{@link DataManagerView#USER_HIERARCHY_ROOT}.
+     * @return The {@link BatchCall}.
+     */
     private BatchCall makeImagesInContainerBatchCall(final Class nodeType,
-                                        final Set nodeIDs)
+                                        			final Set nodeIDs,
+                                        			final int rootLevel,
+                                        			final int rootLevelID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroPojoService os = context.getOmeroService();
-                results = os.getImages(nodeType, nodeIDs);
+                results = os.getImages(nodeType, nodeIDs, 
+                        		convertRootLevel(rootLevel), rootLevelID);
             }
         };
     }
@@ -102,21 +167,41 @@ public class ImagesLoader
      */
     protected Object getResult() { return results; }
     
+    /** Creates a new instance. */
     public ImagesLoader()
     {
         loadCall = makeBatchCall();
     }
 
-    public ImagesLoader(Class nodeType, Set nodeIDs)
+    /**
+     * Creates a new instance.
+     * 
+     * @param nodeType		The type of the root node. Can only be one out of:
+     * 						{@link DatasetData} or {@link CategoryGroupData}.
+     * @param nodeIDs		A set of the IDs of top-most containers.
+     * @param rootLevel		The level of the hierarchy, one of the following
+     * 						constants:
+     * 						{@link DataManagerView#WORLD_HIERARCHY_ROOT},
+     * 						{@link DataManagerView#GROUP_HIERARCHY_ROOT},
+     * 						{@link DataManagerView#USER_HIERARCHY_ROOT}.
+     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
+     * 						if the rootLevel is either 
+     * 						{@link DataManagerView#WORLD_HIERARCHY_ROOT} or 
+     * 						{@link DataManagerView#USER_HIERARCHY_ROOT}.
+     */
+    public ImagesLoader(Class nodeType, Set nodeIDs, int rootLevel,
+            			int rootLevelID)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
         if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("Collection of node ID" +
                                                 " not valid.");
+        checkRootLevel(rootLevel);
         if (nodeType.equals(DatasetData.class) || 
             nodeType.equals(CategoryData.class))
-            loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs);
+            loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
+                    								rootLevel, rootLevelID);
         else throw new IllegalArgumentException("Unsupported type: "+
                 nodeType);
     }

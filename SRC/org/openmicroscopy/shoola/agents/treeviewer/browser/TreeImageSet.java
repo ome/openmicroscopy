@@ -133,4 +133,12 @@ public class TreeImageSet
         return containsImages.booleanValue();
     }
 
+    /** 
+     * Sets the number of items contained in the container hosted 
+     * by this class.
+     * 
+     * @param value The number of items.
+     */
+    public void setNumberItems(int value) { numberItems = value; }
+    
 }

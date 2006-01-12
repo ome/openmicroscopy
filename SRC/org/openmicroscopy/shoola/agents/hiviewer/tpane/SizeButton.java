@@ -137,10 +137,16 @@ public class SizeButton
         model.setCollapsed(b);
     }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#isFocusable()
+     */
     public boolean isFocusable() { return false; }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /**
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#requestFocus()
+     */
     public void requestFocus() {}
     
 }

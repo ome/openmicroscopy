@@ -245,7 +245,10 @@ class TitleBar
      */
     int getFixedHeight() { return fixedHeight; }
     
-    /** Overridden to do custom painting required for this component. */
+    /** 
+     * Overridden to do custom painting required for this component. 
+     * @see JComponent#paintComponent(Graphics)
+     */
     public void paintComponent(Graphics g)  
     {   
         Graphics2D g2D = (Graphics2D) g;

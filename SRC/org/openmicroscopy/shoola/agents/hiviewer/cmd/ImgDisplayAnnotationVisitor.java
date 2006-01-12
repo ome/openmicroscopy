@@ -89,6 +89,7 @@ public class ImgDisplayAnnotationVisitor
     /**
      * Sets the annotation of the selected {@link ImageNode} and updates 
      * the tooltip.
+     * @see HiViewerVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node)
     {
@@ -104,6 +105,7 @@ public class ImgDisplayAnnotationVisitor
     /**
      * Sets the annotation of the selected {@link ImageSet} and updates 
      * the tooltip.
+     * @see HiViewerVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
     {

@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Retrieves asynchronously the user's details.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,7 +84,11 @@ public class UserDetailsLoader
         handle = hiBrwView.loadUserDetails(this);
     }
 
-    /** Notifies the viewer of progress. */
+    /** 
+     * Notifies the viewer of progress.
+     * @see org.openmicroscopy.shoola.env.data.events.
+     * 		DSCallAdapter#update(DSCallFeedbackEvent)
+     */
     public void update(DSCallFeedbackEvent fe) 
     {
         String status = fe.getStatus();
@@ -94,9 +98,14 @@ public class UserDetailsLoader
     /** Cancels the data loading. */
     public void cancel() { handle.cancel(); }
 
-    /** Feeds the result back to the viewer. */
+    /** 
+     * Feeds the result back to the viewer.
+     * @see org.openmicroscopy.shoola.env.data.events.
+     * 		DSCallAdapter#handleResult(Object)
+     */
     public void handleResult(Object result)
     {
+        if (viewer.getState() == HiViewer.DISCARDED) return; //Async cancel.
         viewer.setUserDetails((UserDetails) result);
     }
     

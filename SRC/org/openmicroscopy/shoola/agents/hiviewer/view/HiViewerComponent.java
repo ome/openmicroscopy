@@ -129,8 +129,7 @@ class HiViewerComponent
      */
     public void activate()
     {
-        int state = model.getState();
-        switch (state) {
+        switch (model.getState()) {
             case NEW:
                 model.fireUserDetailsLoading();
                 view.setOnScreen();
@@ -178,10 +177,7 @@ class HiViewerComponent
                 if (model.getState() == READY) fireStateChange();
                 break;
             case READY:
-
                 model.setThumbnail(imageID, thumb);
-
-                    
                 break;
             default:
                 throw new IllegalStateException(
@@ -291,6 +287,9 @@ class HiViewerComponent
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_HIERARCHY "+
                     "state.");
+        if (details == null) 
+        	throw new IllegalArgumentException("User's details shouldn't be " +
+        			"null.");
         model.setUserDetails(details);
         model.fireHierarchyLoading();
         fireStateChange();

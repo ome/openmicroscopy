@@ -30,10 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
-
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -42,7 +38,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -71,11 +66,6 @@ public class ActivationAction
     
     
     /**
-     * Does nothing in this case.
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
-    
-    /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -91,7 +81,10 @@ public class ActivationAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));
     }
 
-    /** Activates the model. */
+    /** 
+     * Activates the model. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e) { model.activate(); }
 
 }

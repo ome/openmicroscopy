@@ -99,7 +99,8 @@ public class HierarchyLoader
             {
                 OmeroPojoService os = context.getOmeroService();
                 rootNodes = os.loadContainerHierarchy(rootNodeType,
-                                                    rootNodeIDs, true);
+                                                    rootNodeIDs, true,
+                                OmeroPojoService.USER_HIERARCHY_ROOT, -1);
             }
         };
     }

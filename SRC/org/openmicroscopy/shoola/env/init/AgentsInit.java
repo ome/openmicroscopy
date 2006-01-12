@@ -61,49 +61,6 @@ import org.openmicroscopy.shoola.env.config.RegistryFactory;
 public final class AgentsInit
 	extends InitializationTask
 {
-
-	/**
-	 * Constructor required by superclass.
-	 */
-	public AgentsInit() {}
-
-	/**
-	 * Returns the name of this task.
-	 * @see InitializationTask#getName()
-	 */
-	String getName()
-	{
-		return "Loading Agents";
-	}
-
-	/** 
-	 * Does nothing, as this task requires no set up.
-	 * @see InitializationTask#configure()
-	 */
-	void configure() {}
-
-	/** 
-	 * Carries out this task.
-	 * @see InitializationTask#execute()
-	 */
-	void execute() 
-		throws StartupException
-	{
-		Registry reg = container.getRegistry();
-		List agents = (List) reg.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
-		AgentInfo agentInfo;
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			createAgent(agentInfo);
-		}
-	}
-
-	/** 
-	 * Does nothing.
-	 * @see InitializationTask#rollback()
-	 */
-	void rollback() {}
 	
 	/**
 	 * Instantiates, by reflection, the specified agent and populates its
@@ -179,5 +136,46 @@ public final class AgentsInit
 		//TODO: Link Image Service when ready.
 		return agentReg;
 	}
+	
+	/**
+	 * Constructor required by superclass.
+	 */
+	public AgentsInit() {}
+
+	/**
+	 * Returns the name of this task.
+	 * @see InitializationTask#getName()
+	 */
+	String getName()
+	{
+		return "Loading Agents";
+	}
+
+	/** 
+	 * Does nothing, as this task requires no set up.
+	 * @see InitializationTask#configure()
+	 */
+	void configure() {}
+
+	/** 
+	 * Carries out this task.
+	 * @see InitializationTask#execute()
+	 */
+	void execute() 
+		throws StartupException
+	{
+		Registry reg = container.getRegistry();
+		List agents = (List) reg.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		while (i.hasNext()) 
+			createAgent((AgentInfo) i.next());
+	}
+
+	/** 
+	 * Does nothing.
+	 * @see InitializationTask#rollback()
+	 */
+	void rollback() {}
+
 
 }

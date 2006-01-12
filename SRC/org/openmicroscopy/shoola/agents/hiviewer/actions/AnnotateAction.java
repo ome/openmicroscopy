@@ -83,9 +83,7 @@ public class AnnotateAction
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
-            if ((ho instanceof ImageData) || (ho instanceof DatasetData))
-                setEnabled(true);
-            else setEnabled(false);
+            setEnabled(((ho instanceof ImageData) || (ho instanceof DatasetData)));
         }
     }
     
@@ -104,7 +102,10 @@ public class AnnotateAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATE));
     }
     
-    /** Creates a {@link AnnotateCmd} command to execute the action. */
+    /** 
+     * Creates a {@link AnnotateCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         AnnotateCmd cmd = new AnnotateCmd(model, null);

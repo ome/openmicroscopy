@@ -188,14 +188,21 @@ public class ThumbnailProvider
         computeDims();
     }
     
-    /** Implemented as specified by {@link Thumbnail}. */
+    /** 
+     * Implemented as specified by {@link Thumbnail}. 
+     * @see Thumbnail#setImageNode(ImageNode)
+     */
     public void setImageNode(ImageNode node)
     {
         if (node == null) throw new IllegalArgumentException("No Image node");
         display = node;
     }
     
-    /** Sets the thumbnail retrieved from the server. */
+    /** 
+     * Sets the thumbnail retrieved from the server. 
+     * 
+     * @param t The Thumbnail to set.
+     */
     public void setFullScaleThumb(BufferedImage t)
     {
         if (t == null) throw new NullPointerException("No thumbnail.");

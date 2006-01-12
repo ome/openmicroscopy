@@ -106,7 +106,10 @@ public class ViewAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER)); 
     }
  
-    /** Creates a {@link ViewCmd} command to execute the action. */
+    /** 
+     * Creates a {@link ViewCmd} command to execute the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
        ViewCmd cmd = new ViewCmd(model);

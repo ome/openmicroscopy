@@ -98,7 +98,10 @@ public class HideTitleBarAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
 
-    /** Creates a {@link ShowTitleBarCmd} command to execute the action. */
+    /** 
+     * Creates a {@link ShowTitleBarCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         ShowTitleBarCmd cmd = new ShowTitleBarCmd(model, false);

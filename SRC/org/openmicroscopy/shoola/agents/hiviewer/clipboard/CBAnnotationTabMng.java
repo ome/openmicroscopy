@@ -114,6 +114,7 @@ class CBAnnotationTabMng
 
     /**
      * Handles actions.
+     * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {

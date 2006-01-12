@@ -225,6 +225,7 @@ class TinyPaneModel
      * model will be in multi-view mode and the internal desktop will be 
      * installed.  
      * 
+     * @param contentPane	The container hosting the display.
      * @param title         The frame's title.
      * @param restoreSize   The initial frame's size. 
      *                      Mustn't be <code>null</code>.
@@ -254,7 +255,6 @@ class TinyPaneModel
         if (uiDelegate == null) 
             throw new NullPointerException("No UI delegate.");
         Rectangle r = contentPane.getBounds();
-        
         contentPane.removeAll();
         changeDisplayDesktop = new JLayeredPane();
         contentPane.removeAll();
@@ -292,7 +292,11 @@ class TinyPaneModel
         contentPane.repaint();
     }
     
-    /** Tells if we're in single or multi-view mode. */
+    /**
+     * Tells if we're in single or multi-view mode. 
+     * 
+     * @return See above.
+     */
     boolean isSingleViewMode() { return singleViewMode; }
     
     /**
@@ -374,9 +378,7 @@ class TinyPaneModel
             }
             //Need to set the size of the child after setting the title bar.
             Dimension d = child.getPreferredSize();
-            //child.setSize(child.getPreferredSize());
             child.setBounds(2, 2, d.width, d.height);
-            //child.setLocation(2, 2);
             //Do it this way otherwise the methods are called at init time.
             //contentPane.validate();
             //contentPane.repaint(); 
@@ -567,6 +569,5 @@ class TinyPaneModel
      * @return See above.
      */
     public Container getContentPane() { return contentPane; }
-    
     
 }

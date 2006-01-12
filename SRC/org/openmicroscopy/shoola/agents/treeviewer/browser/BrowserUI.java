@@ -256,9 +256,10 @@ class BrowserUI
     }
     
     /**
-     * Links this View to its Controller.
+     * Links this View to its Controller and its Model.
      * 
      * @param controller The Controller.
+     * @param model		The Model
      */
     void initialize(BrowserControl controller, BrowserModel model)
     {
@@ -279,7 +280,7 @@ class BrowserUI
         DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
         parent.removeAllChildren();
         tm.insertNodeInto(new DefaultMutableTreeNode(LOADING_MSG), parent,
-                parent.getChildCount());
+                			parent.getChildCount());
         tm.reload(parent);
     }
     

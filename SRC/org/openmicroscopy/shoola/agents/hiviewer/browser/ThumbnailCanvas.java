@@ -74,7 +74,10 @@ class ThumbnailCanvas
         setDoubleBuffered(true);
     }
     
-    /** Overridden to paint the image. */
+    /** 
+     * Overridden to paint the image. 
+     * @see #paintComponent(Graphics)
+     */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

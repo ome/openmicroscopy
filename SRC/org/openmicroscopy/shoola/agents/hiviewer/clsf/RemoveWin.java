@@ -89,8 +89,15 @@ class RemoveWin
                                             "hasn't been classified";
 
 
-    
-    /** Add a row to the the GridBagLayout. */
+    /**
+     * Adds a new row. 
+     * 
+     * @param gridbag 	The layout selected.
+     * @param c			The constraints.
+     * @param main		The component to add to.
+     * @param index		The row's index.
+     * @param data		The data object to handle.
+     */
     private void addRow(GridBagLayout gridbag, GridBagConstraints c, 
                         JPanel main, int index, DataObject data)
     {
@@ -138,13 +145,32 @@ class RemoveWin
         main.add(label);
     }
     
+    /**
+     * Overriden to return the title associated to this component.
+     * 
+     * @see ClassifierWin#getPanelTitle()
+     */
     protected String getPanelTitle() { return PANEL_TITLE; }
 
+    /**
+     * Overriden to return the tetx associated to this component.
+     * 
+     * @see ClassifierWin#getPanelText()
+     */
     protected String getPanelText() { return PANEL_TEXT; }
     
+    /**
+     * Overriden to return the note associated to this component.
+     * 
+     * @see ClassifierWin#getPanelNote()
+     */
     protected String getPanelNote() { return PANEL_NOTE; }
     
-    /** Builds the main panel displayed in ClassifierWin. */
+    /** 
+     * Builds and returns the main panel displayed in ClassifierWin. 
+     * 
+     * @return The newly built component. 
+     */
     protected JComponent getClassifPanel()
     {
         JPanel main = new JPanel();

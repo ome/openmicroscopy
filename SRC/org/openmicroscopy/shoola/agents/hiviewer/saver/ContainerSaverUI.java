@@ -68,7 +68,11 @@ class ContainerSaverUI
     /** The summary's text. */
     private static final String         SUMMARY = "";
     
-    /** Builds and lays out the GUI. */
+    /** 
+     * Builds and lays out the GUI. 
+     * 
+     * @param saver The component to host.
+     */
     private void buildGUI(ContainerSaver saver)
     {
         Container c = saver.getContentPane();

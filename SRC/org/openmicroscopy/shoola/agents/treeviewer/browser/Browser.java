@@ -37,7 +37,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
@@ -45,7 +44,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -76,11 +75,14 @@ public interface Browser
     /** Flag to denote the <i>Loading Data</i> state. */
     public static final int     LOADING_LEAVES = 3;
     
+    /** Flag to denote the <i>Counting items</i> state. */
+    public static final int     COUNTING_ITEMS = 4;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 4;
+    public static final int     READY = 5;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 5;
+    public static final int     DISCARDED = 6;
    
     /** 
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
@@ -230,7 +232,7 @@ public interface Browser
      * 
      * @param done  Passes <code>true</code> to indicate that the data retrieval
      *              is finished.
-     * @see org.openmicroscopy.shoola.agents.treeviewer.DataLoader
+     * @see org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader
      */
     public void setStatus(boolean done);
     
@@ -248,16 +250,28 @@ public interface Browser
      */
     public TreeImageDisplay getSelectedDisplay();
     
-    /** Collapses the specified node. */
+    /** 
+     * Collapses the specified node. 
+     * 
+     * @param node The node to collapse.
+     */
     public void collapse(TreeImageDisplay node);
     
     /** Removes the {@link Browser} from the display. */
     public void close();
     
-    /** Returns the title of this browser. */
+    /** 
+     * Returns the title of this browser.
+     * 
+     * @return The browser's title.
+     */
     public String getTitle();
     
-    /** Returns the icon of this browser. */
+    /** 
+     * Returns the icon of this browser. 
+     * 
+     * @return The browser's icon.
+     */
     public Icon getIcon();
     
     /**
@@ -276,8 +290,8 @@ public interface Browser
      * @param visitor   The visitor.  Mustn't be <code>null</code>.
      * @param algoType  The algorithm selected to visit the visualization trees.
      *                  One of the constants defined by
-     *                  {@link TreeImageDisplayVisitor}
-     * @see ImageDisplayVisitor
+     *                  {@link TreeImageDisplayVisitor}.
+     * @see TreeImageDisplayVisitor
      */
     public void accept(TreeImageDisplayVisitor visitor, int algoType);
     
@@ -301,6 +315,10 @@ public interface Browser
      */
     public void loadData();
     
+    /**
+     * 
+     * @param nodeIDs
+     */
     public void loadData(Set nodeIDs);
 
     /**
@@ -312,8 +330,17 @@ public interface Browser
     /** Brings up on screen the popup menu. */
     public void showPopupMenu();   
     
+    /**
+     * 
+     * @param nodes
+     * @param type
+     */
     public void setFilterNodes(Set nodes, int type);
     
+    /**
+     * 
+     * @param type
+     */
     public void loadFilterData(int type);
     
     /** 
@@ -333,12 +360,71 @@ public interface Browser
      * {@link TreeImageDisplay}.
      * 
      * @param nodes Collection to set.
+     * @param parent 	The parent hosting the nodes if <code>null</code> the 
+     * 					nodes will be added to the root node.
      */
-    public void setContainerNodes(Set nodes);
+    public void setContainerNodes(Set nodes, TreeImageDisplay parent);
     
     /** Deletes the currently selected nodes. */
     public void deleteNodes();
     
+    /**
+     * 
+     * @param node
+     */
     public void setCreatedNode(TreeImageDisplay node);
+    
+    /**
+     * Sets the root of the retrieved hierarchies. 
+     * The rootID is taken into account if and only if the passed 
+     * <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
+     * 
+     * @param rootLevel The level of the root. One of the following constants:
+     * 					{@link TreeViewer#WORLD_ROOT}, 
+     * 					{@link TreeViewer#GROUP_ROOT} and
+     * 					{@link TreeViewer#USER_ROOT}.
+     * @param rootID	The Id of the root.
+     */
+    public void setHierarchyRoot(int rootLevel, int rootID);
+    
+    /**
+     * Returns the level of the root. One of the following constants:
+     * {@link TreeViewer#WORLD_ROOT}, {@link TreeViewer#GROUP_ROOT} and
+     * {@link TreeViewer#USER_ROOT}. 
+     * 
+     * @return See above.
+     */
+    public int getRootLevel();
+    
+    /**
+     * The id of the root level.
+     * 
+     * @return See above.
+     */
+    public int getRootID();
+    
+    /**
+     * Sets the number of items contained in the specified container.
+     * 
+     * @param containerID 	The id of the container.
+     * @param value			The number of items contained in the container.
+     */
+    public void setContainerCountValue(int containerID, int value);
+    
+    /**
+     * Returns a collection of containers which contain <code>Image</code>s
+     * e.g. a <code>Dataset</code>.
+     * 
+     * @return See above.
+     */
+    public Set getContainersWithImagesNodes();
+    
+    /**
+     * Returns a collection of containers which contain <code>Image</code>s
+     * e.g. a <code>Dataset</code>.
+     * 
+     * @return See above.
+     */
+    public Set getContainersWithImages();
     
 }

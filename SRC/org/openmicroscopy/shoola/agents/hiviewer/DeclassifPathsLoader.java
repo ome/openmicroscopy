@@ -86,9 +86,13 @@ public class DeclassifPathsLoader
     /** Cancels the data loading. */
     public void cancel() { handle.cancel(); }
     
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see #handleResult(Object)
+     */
     public void handleResult(Object result)
     {
+        if (classifier.getState() == Classifier.DISCARDED) return; 
         classifier.setMetadata((Set) result);
     }
     

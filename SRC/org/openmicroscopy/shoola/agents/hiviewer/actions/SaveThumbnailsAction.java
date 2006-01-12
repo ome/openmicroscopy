@@ -106,7 +106,10 @@ public class SaveThumbnailsAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SAVE));
     }
 
-    /** Creates a {@link SaveThumbnailsCmd} command to execute the action. */
+    /**
+     * Creates a {@link SaveThumbnailsCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         SaveThumbnailsCmd cmd = new SaveThumbnailsCmd(model);

@@ -35,6 +35,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
@@ -62,14 +63,17 @@ class DataManagerViewImpl
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#loadContainerHierarchy(Class, Set, boolean, 
-     * AgentEventListener)
+     * 						int, int, AgentEventListener)
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set rootNodeIDs,
                                             boolean withLeaves,
+                                            int rootLevel,
+                                            int rootLevelID,
                                             AgentEventListener observer)
     {
-        BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves);
+        BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves,
+                						rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
 
@@ -85,19 +89,20 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#getImages(Class, Set, AgentEventListener)
+     * @see DataManagerView#getImages(Class, Set, int, int, AgentEventListener)
      */
-    public CallHandle getImages(Class nodeType, Set nodeIDs,
-                                AgentEventListener observer)
+    public CallHandle getImages(Class nodeType, Set nodeIDs, int rootLevel,
+            					int rootLevelID, AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs);
+        BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, rootLevel, 
+                							rootLevelID);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#createDataObject(DataObject, int, 
-     *                                      AgentEventListener)
+     * 										AgentEventListener)
      */
     public CallHandle createDataObject(DataObject userObject, int parentID,
                                         AgentEventListener observer)
@@ -116,6 +121,17 @@ class DataManagerViewImpl
     {
         BatchCallTree cmd = new DataObjectSaver(userObject,
                                             DataObjectSaver.UPDATE, -1);
+        return cmd.exec(observer);  
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#countContainerItems(Class, Set, AgentEventListener)
+     */
+    public CallHandle countContainerItems(Class rootType, Set rootIDs, 
+            							AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ContainerCounterLoader(rootType, rootIDs);
         return cmd.exec(observer);  
     }
     

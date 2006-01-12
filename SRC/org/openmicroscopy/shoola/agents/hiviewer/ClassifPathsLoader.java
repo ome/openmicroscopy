@@ -37,8 +37,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 
  * Loads, asynchronously, the metadata needed by a given {@link Classifier} to
@@ -74,21 +74,23 @@ public class ClassifPathsLoader
      */
     public ClassifPathsLoader(Classifier classifier) { super(classifier); }
     
-    /**
-     * Retrieves all the metadata needed by the {@link #classifier}.
-     */
+    /** Retrieves all the metadata needed by the {@link #classifier}. */
     public void load()
     {
         handle = hiBrwView.loadClassificationPaths(classifier.getImageID(),
-                                OmeroPojoService.CLASSIFICATION_ME, this);
+                		HierarchyBrowsingView.CLASSIFICATION_ME, this);
     }
     
     /** Cancels the data loading. */
     public void cancel() { handle.cancel(); }
     
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see #handleResult(Object)
+     */
     public void handleResult(Object result) 
     {
+        if (classifier.getState() == Classifier.DISCARDED) return;
         classifier.setMetadata((Set) result);
     }
     

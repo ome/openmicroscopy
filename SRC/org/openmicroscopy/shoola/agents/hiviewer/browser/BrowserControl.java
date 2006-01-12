@@ -141,10 +141,10 @@ class BrowserControl
         node.getInternalDesktop().addMouseListener(this);
     }
     
-
     /** 
      * Listens to the {@link Browser#SELECTED_DISPLAY_PROPERTY} property.
      * Necessary for clarity.
+     * @see #propertyChange(PropertyChangeEvent)
      */ 
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -153,7 +153,7 @@ class BrowserControl
     
     /**
      * Sets the currently selected display.
-     * @see MouseListener#mousePressed(java.awt.event.MouseEvent)
+     * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me)
     {
@@ -166,7 +166,7 @@ class BrowserControl
     /**
      * Tells the model that either a popup point or a thumbnail selection
      * was detected.
-     * @see MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     * @see MouseListener#mouseReleased(MouseEvent)
      */
     public void mouseReleased(MouseEvent me) 
     {
@@ -182,20 +182,23 @@ class BrowserControl
     }
     
     /**
-     * No-op implementation.
-     * @see MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     * Required by the {@link MouseListener} I/F but no-op implementation
+     * in our case.
+     * @see MouseListener#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent me) {}
     
     /**
-     * No-op implementation.
-     * @see MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     * Required by the {@link MouseListener} I/F but no-op implementation
+     * in our case.
+     * @see MouseListener#mouseEntered(MouseEvent)
      */
     public void mouseEntered(MouseEvent e) {}
 
     /**
-     * No-op implementation.
-     * @see MouseListener#mouseExited(java.awt.event.MouseEvent)
+     * Required by the {@link MouseListener} I/F but no-op implementation
+     * in our case.
+     * @see MouseListener#mouseExited(MouseEvent)
      */
     public void mouseExited(MouseEvent me) {}
 

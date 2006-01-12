@@ -205,7 +205,11 @@ class ViewModeButton
          */
         private JList list;
         
-        /** Creates a new intance. */
+        /** 
+         * Creates a new intance. 
+         * 
+         * @param list The list to listen to. Mustn't be <code>null</code>.
+         */
         ListListener(JList list) {
             if (list == null)
                 throw new IllegalArgumentException("no list specified");
@@ -213,7 +217,8 @@ class ViewModeButton
         }
 
         /**
-         * Listen to the List selection
+         * Listens to the selection 
+         * @see ListSelectionListener#valueChanged(ListSelectionEvent)
          */
         public void valueChanged(ListSelectionEvent e)
         {
@@ -224,7 +229,6 @@ class ViewModeButton
             model.setChildView(child); 
             dropDownMenu.setVisible(false);
         }
-        
     }
     
     /**
@@ -249,7 +253,6 @@ class ViewModeButton
     
     /**
      * Registers this button with the Model.
-     * 
      * @see TinyObserver#attach()
      */
     public void attach() 
@@ -261,7 +264,6 @@ class ViewModeButton
 
     /**
      * Detaches this button from the Model's change notification registry.
-     * 
      * @see TinyObserver#detach()
      */
     public void detach() 
@@ -269,10 +271,16 @@ class ViewModeButton
         model.removePropertyChangeListener(TinyPane.SINGLE_VIEW_PROPERTY, this); 
     }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#isFocusable()
+     */
     public boolean isFocusable() { return false; }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#requestFocus()
+     */
     public void requestFocus() {}
     
     /**
@@ -298,7 +306,6 @@ class ViewModeButton
     /**
      * Switches to single-view mode or displays the drop down menu if we're
      * already in single-view mode.
-     * 
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent ae)

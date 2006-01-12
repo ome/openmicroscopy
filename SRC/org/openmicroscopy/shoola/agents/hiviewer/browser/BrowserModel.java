@@ -97,7 +97,11 @@ class BrowserModel
         rootDisplay = view;
     }
     
-    /** Returns the set with all the children of the root node. */
+    /** 
+     * Returns the set with all the children of the root node. 
+     * 
+     * @return See above.
+     */
     public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
     
     /**
@@ -182,7 +186,7 @@ class BrowserModel
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getSelectedDisplay()
+     * @see Browser#getImages()
      */
     public Set getImages()
     { 
@@ -195,7 +199,7 @@ class BrowserModel
     
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getSelectedDisplay()
+     * @see Browser#getImageNodes()
      */
     public Set getImageNodes()
     { 

@@ -72,20 +72,34 @@ public class ImageFinder
         imageNodes = new HashSet();
     }
     
-    /** Returns the set of {@link ImageNode}s displayed. */
+    /** 
+     * Returns the set of {@link ImageNode}s displayed. 
+     * 
+     * @return See above.
+     */
     public Set getImageNodes() { return imageNodes; }
     
-    /** Returns the set of corresponding <code>DataObject</code>s. */
+    /** 
+     * Returns the set of corresponding <code>DataObject</code>s. 
+     * 
+     * @return See above.
+     */
     public Set getImages() { return images; }
     
-    /** Implemented as specified by {@link ImageDisplayVisitor}. */
+    /** 
+     * Implemented as specified by {@link ImageDisplayVisitor}. 
+     * @see ImageDisplayVisitor#visit(ImageNode)
+     */
     public void visit(ImageNode node)
     {
         imageNodes.add(node);
         images.add(node.getHierarchyObject());
     }
 
-    /** Implemented as specified by {@link ImageDisplayVisitor}. */
+    /** 
+     * Required by the {@link ImageDisplayVisitor} I/F but no-op in our case. 
+     * @see ImageDisplayVisitor#visit(ImageSet)
+     */
     public void visit(ImageSet node) {}
 
 }

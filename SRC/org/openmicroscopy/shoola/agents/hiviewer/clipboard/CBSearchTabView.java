@@ -412,7 +412,10 @@ class CBSearchTabView
         searchPanel.setBorder(new TitledBorder("Search '"+title+"' for: ")); 
     }
     
-    /** Overriden to size the tree hosting the result. */
+    /**
+     * Overriden to size the tree hosting the result. 
+     * @see #setBounds(int, int, int, int)
+     */
     public void setBounds(int x, int y, int w, int h)
     {
         Rectangle r = view.getVisibleRect();
@@ -429,3 +432,4 @@ class CBSearchTabView
     }
     
 }
+

@@ -62,6 +62,7 @@ public class TinyPaneLayout
      * Returns the {@link TinyPane#getPreferredSize() preferredSize} of the 
      * container.
      * 
+     * @param c The component to lay out.
      * @return See above.
      */
     public Dimension preferredLayoutSize(Container c)
@@ -72,6 +73,9 @@ public class TinyPaneLayout
 
     /**
      * Returns the minimum size of the <code>TitleBar</code>.
+     * 
+     * @param c The component to lay out.
+     * @return See above.
      */
     public Dimension minimumLayoutSize(Container c)
     {
@@ -83,9 +87,10 @@ public class TinyPaneLayout
         return d;
     }
 
-
     /**
      * Lays out the {@link TinyPane}'s components.
+     * 
+     * @param c The component to lay out.
      */
     public void layoutContainer(Container c)
     {
@@ -108,14 +113,14 @@ public class TinyPaneLayout
     }
 
     /**
-     * No-op implementation.
-     * Required by {@link LayoutManager}, but not needed here.
+     * Required by {@link LayoutManager} but no-op implementation in our case.
+     * @see LayoutManager#addLayoutComponent(String, Component)
      */
     public void addLayoutComponent(String name, Component c) {}
     
     /**
-     * No-op implementation.
-     * Required by {@link LayoutManager}, but not needed here.
+     * Required by {@link LayoutManager} but no-op implementation in our case.
+     * @see LayoutManager#removeLayoutComponent(Component)
      */
     public void removeLayoutComponent(Component c) {} 
     

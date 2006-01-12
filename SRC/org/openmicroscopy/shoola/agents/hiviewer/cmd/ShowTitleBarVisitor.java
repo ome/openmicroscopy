@@ -36,7 +36,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -80,14 +79,12 @@ class ShowTitleBarVisitor
     /** 
      * Sets the title bar to be the small bar (if we're showing the bar) or
      * the header bar (if hiding). 
+     * @see HiViewerVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node)
     { 
         if (show) node.setTitleBarType(ImageNode.SMALL_BAR);
         else node.setTitleBarType(ImageNode.HEADER_BAR);
     }
-
-    /** Does nothing. */
-    public void visit(ImageSet node) {}
 
 }

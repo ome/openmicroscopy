@@ -92,17 +92,23 @@ class AddWin
     private JTree                   tree;
     
     /**
-     * Returns the title text. 
+     * Overriden to return the title associated to this component.
+     * 
+     * @see ClassifierWin#getPanelTitle()
      */
     protected String getPanelTitle() { return PANEL_TITLE; }
 
     /**
-     * Returns the panel text. 
+     * Overriden to return the tetx associated to this component.
+     * 
+     * @see ClassifierWin#getPanelText()
      */
     protected String getPanelText() { return PANEL_TEXT; }
     
     /**
-     * Returns the note text. 
+     * Overriden to return the note associated to this component.
+     * 
+     * @see ClassifierWin#getPanelNote()
      */
     protected String getPanelNote() { return PANEL_NOTE; }
 
@@ -165,8 +171,11 @@ class AddWin
         }
     }
     
-
-    /** Sets the selected category. */
+    /** 
+     * Handles the mouse click event. 
+     * 
+     * @param me The Mouse event.
+     */
     private void onClick(MouseEvent me)
     {
         int row = tree.getRowForLocation(me.getX(), me.getY());

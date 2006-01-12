@@ -102,7 +102,10 @@ public class DeclassifyAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
 
-    /** Creates a {@link ClassifyCmd} command to execute the action. */
+    /**
+     * Creates a {@link ClassifyCmd} command to execute the action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
        ClassifyCmd cmd = new ClassifyCmd(model, 

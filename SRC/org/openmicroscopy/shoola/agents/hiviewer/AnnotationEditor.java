@@ -201,6 +201,7 @@ public class AnnotationEditor
     }
     
     /**
+     * Creates a new instance.
      * 
      * @param clipBoard
      * @param actionIndex
@@ -254,7 +255,10 @@ public class AnnotationEditor
     /** Cancels the data saving. */
     public void cancel() { handle.cancel(); }
     
-    /** Feeds the result back to the viewer. */
+    /**
+     * Feeds the result back to the viewer.
+     * @see DataLoader#handleResult(Object)
+     */
     public void handleResult(Object result) 
     {
         clipBoard.manageAnnotationEditing(((Boolean) result).booleanValue());

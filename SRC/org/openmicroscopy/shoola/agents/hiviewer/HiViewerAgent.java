@@ -87,13 +87,22 @@ public class HiViewerAgent
     /** Creates a new instance. */
     public HiViewerAgent() {}
     
-    /** Implemented as specified by {@link Agent}. */
+    /**
+     * Implemented as specified by {@link Agent}.
+     * @see Agent#activate()
+     */
     public void activate() {}
     
-    /** Implemented as specified by {@link Agent}. */
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#terminate()
+     */
     public void terminate() {}
 
-    /** Implemented as specified by {@link Agent}. */
+    /** 
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#setContext(Registry)
+     */
     public void setContext(Registry ctx)
     {
         registry = ctx;
@@ -101,14 +110,17 @@ public class HiViewerAgent
         bus.register(this, Browse.class);
     }
 
-    /** Implemented as specified by {@link Agent}. */
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#canTerminate()
+     */
     public boolean canTerminate() { return true; }
 
     /**
      * Responds to an event fired trigger on the bus.
      * Listens to BrowseProject, BrowseDataset, BrowseCategoryGroup, 
      * BrowseCategory.
-     * @see AgentEventListener#eventFired
+     * @see AgentEventListener#eventFired(AgentEvent)
      */
     public void eventFired(AgentEvent e)
     {
@@ -120,10 +132,10 @@ public class HiViewerAgent
     /** 
      * Browse the specified element.
      * 
-     * @param eventIndex one of the constant defined by the {@link Browser}
-     * class event.
+     * @param eventIndex 	One of the constant defined by the {@link Browser}
+     * 						class event.
      * 
-     * @param id    id of the dataObject to browse.
+     * @param id    		The id of the dataObject to browse.
      */
     public static void browse(int eventIndex, int id)
     {

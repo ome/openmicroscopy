@@ -77,6 +77,7 @@ public class TreeImageNode
     /**
      * Spits out a runtime exception because it's not possible to add a
      * child to a leaf node.
+     * @see TreeImageDisplay#addChildDisplay(TreeImageDisplay)
      */
     public void addChildDisplay(TreeImageDisplay child)
     {
@@ -86,7 +87,6 @@ public class TreeImageNode
     
     /**
      * Always returns <code>false</code> as this is not a container node.
-     * 
      * @see TreeImageDisplay#containsImages()
      */
     public boolean containsImages() { return false; }

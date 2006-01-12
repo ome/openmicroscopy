@@ -64,39 +64,80 @@ public class AgentInfo
 	/** The value of the <code>config</code> tag. */
 	private String				configPath;
 	
+	/** The Agent. */
 	private Agent				agent;
 	
+	/** The Agent's registry. */
 	private Registry			registry;
-	
-    
-	/** Returns the value of the <code>name</code> tag. */
+	 
+	/** 
+	 * Returns the value of the <code>name</code> tag. 
+	 * 
+	 * @return See above.
+	 */
 	public String getName() { return name; }
     
-	/** Returns the value of the <code>class</code> tag. */
+	/** 
+	 * Returns the value of the <code>class</code> tag. 
+	 * 
+	 * @return See above.
+	 */
     public String getAgentClass() { return agentClass; }
         
-	/** Returns the value of the <code>config</code> tag. */
+	/** 
+	 * Returns the value of the <code>config</code> tag. 
+	 * 
+	 * @return See above.
+	 */
     public String getConfigPath() { return configPath;}
     
-	/** Return the {@link Agent}. */
+	/** 
+	 * Returns the {@link Agent}. 
+	 * 
+	 * @return See above.
+	 */
 	public Agent getAgent() { return agent; }
 
-	/** Return the  {@link Registry}. */
+	/** 
+	 * Returns the  {@link Registry}. 
+	 * 
+	 * @return See above.
+	 */
 	public Registry getRegistry() { return registry; }
 
-	/** Set the {@link Registry}. */
+	/** 
+	 * Sets the {@link Registry}. 
+	 * 
+	 * @param registry The {@link Registry}.
+	 */
 	public void setRegistry(Registry registry) { this.registry = registry; }
 	
-	/** Set the {@link Agent}. */
+	/** 
+	 * Sets the {@link Agent}. 
+	 * 
+	 * @param agent The {@link Agent}. 
+	 */
 	public void setAgent(Agent agent) { this.agent = agent; }
 	
-	/** Setter for the {@link #name} field. */
+	/** 
+	 * Setter for the {@link #name} field. 
+	 * 
+	 * @param name The field to set.
+	 */
 	void setName(String name) { this.name = name; }
 	
-	/** Setter for the {@link #agentClass} field. */
+	/** 
+	 * Setter for the {@link #agentClass} field.
+	 * 
+	 * @param agentClass The field to set.
+	 */
 	void setAgentClass(String agentClass) { this.agentClass = agentClass; }
 
-	/** Setter for the {@link #configPath} field. */
+	/** 
+	 * Setter for the {@link #configPath} field.
+	 * 
+	 * @param configPath The field to set.
+	 */
 	void setConfigPath(String configPath) { this.configPath = configPath; }
 
 }

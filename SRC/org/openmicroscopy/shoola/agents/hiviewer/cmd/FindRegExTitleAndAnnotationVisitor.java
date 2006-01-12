@@ -123,6 +123,7 @@ public class FindRegExTitleAndAnnotationVisitor
     /** 
      * Highlights the titleBar of the imageNode 
      * if the title contains the specified regular expression.
+     * @see FindRegExVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) 
     { 
@@ -138,6 +139,7 @@ public class FindRegExTitleAndAnnotationVisitor
     /** 
      * Highlights the titleBar of the container 
      * if the title contains the specified regular expression.
+     * @see FindRegExVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node) 
     { 
