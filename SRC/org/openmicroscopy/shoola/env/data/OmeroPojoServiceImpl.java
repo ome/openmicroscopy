@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +46,7 @@ import java.util.Set;
 import ome.util.builders.PojoOptions;
 
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
@@ -108,9 +111,14 @@ class OmeroPojoServiceImpl
         this.gateway = gateway;
     }
     
-    /** Implemented as specified by {@link OmeroPojoService}. */
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}. 
+     * @see OmeroPojoService#loadContainerHierarchy(Class, Set, boolean, int, 
+     * 												int)
+     */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-                                    boolean withLeaves)
+                                    boolean withLeaves, int rootLevel, 
+                                    int rootLevelID)
         throws DSOutOfServiceException, DSAccessException 
     {
         PojoOptions po = new PojoOptions();
@@ -123,8 +131,12 @@ class OmeroPojoServiceImpl
                                             po.map());
     }
 
-    /** Implemented as specified by {@link OmeroPojoService}. */
-    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs)
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}. 
+     * @see OmeroPojoService#findContainerHierarchy(Class, Set, int, int)
+     */
+    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs, 
+            						int rootLevel, int rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
@@ -136,7 +148,10 @@ class OmeroPojoServiceImpl
                         po.map());
     }
 
-    /** Implemented as specified by {@link OmeroPojoService}. */
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}.
+     * @see OmeroPojoService#findAnnotations(Class, Set, boolean)
+     */
     public Map findAnnotations(Class nodeType, Set nodeIDs, boolean history)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -146,7 +161,10 @@ class OmeroPojoServiceImpl
         return gateway.findAnnotations(nodeType, nodeIDs, po.map());
     }
 
-    /** Implemented as specified by {@link OmeroPojoService}. */
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}. 
+     * @see OmeroPojoService#findCGCPaths(Set, int)
+     */
     public Set findCGCPaths(Set imgIDs, int algorithm)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -159,8 +177,12 @@ class OmeroPojoServiceImpl
         return gateway.findCGCPaths(imgIDs, algorithm, po.map());
     }
     
-    /** Implemented as specified by {@link OmeroPojoService}. */
-    public Set getImages(Class nodeType, Set nodeIDs)
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}. 
+     * @see OmeroPojoService#getImages(Class, Set, int, int)
+     */
+    public Set getImages(Class nodeType, Set nodeIDs, int rootLevel, 
+            			int rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
@@ -170,7 +192,10 @@ class OmeroPojoServiceImpl
         return gateway.getImages(nodeType, nodeIDs, po.map());
     }
     
-    /** Implemented as specified by {@link OmeroPojoService}. */
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}.
+     * @see OmeroPojoService#getUserImages()
+     */
     public Set getUserImages()
         throws DSOutOfServiceException, DSAccessException
     {
@@ -181,7 +206,10 @@ class OmeroPojoServiceImpl
         return gateway.getUserImages(po.map());
     }
     
-    //TODO: TO BE MODIFIED WHEN WE GET RID OF OME_JAVA
+    /** 
+     * Implemented as specified by {@link OmeroPojoService}. 
+     * @see OmeroPojoService#getUserDetails()
+     */
     public UserDetails getUserDetails()
     {
         UserDetails ud = (UserDetails) context.lookup(LookupNames.USER_DETAILS);
@@ -198,6 +226,15 @@ class OmeroPojoServiceImpl
                 groups.add(new Integer(data.getId()));
                 ud = new UserDetails(data.getId(), data.getFirstName(),
                                 data.getLastName(), groups);
+                context.bind(LookupNames.USER_DETAILS, ud);
+                //Bind user details to all agents' registry.
+                List agents = (List) context.lookup(LookupNames.AGENTS);
+        		Iterator i = agents.iterator();
+        		AgentInfo agentInfo;
+        		while (i.hasNext()) {
+        			agentInfo = (AgentInfo) i.next();
+					agentInfo.getRegistry().bind(LookupNames.USER_DETAILS, ud);
+				}
             }
             return ud;
         } catch (Exception e) {

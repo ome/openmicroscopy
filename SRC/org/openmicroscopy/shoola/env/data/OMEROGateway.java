@@ -112,7 +112,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         //TODO: handle errors
-        e.printStackTrace();
+        e.printStackTrace(); 
         throw new DSAccessException(contextMessage, e);
         //if (e instanceof AuthenticationE)
         //TODO
