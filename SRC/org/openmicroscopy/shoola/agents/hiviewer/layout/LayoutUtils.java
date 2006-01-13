@@ -163,6 +163,7 @@ public class LayoutUtils
      * in the parent <code>node</code>.
      * 
      * @param node The parent node. Mustn't be <code>null</code>.
+     * @param sorter The sorter.
      */
     public static void doSquareGridLayout(ImageDisplay node,
                                         ViewerSorter sorter)

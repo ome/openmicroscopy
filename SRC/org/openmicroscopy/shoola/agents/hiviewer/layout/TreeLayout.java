@@ -123,7 +123,7 @@ class TreeLayout
     {
         treeDisplay = new JTree();
         treeDisplay.setShowsRootHandles(true);
-        treeDisplay.setCellRenderer(new TreeCellRenderer(true));
+        treeDisplay.setCellRenderer(new TreeCellRenderer(true, true));
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -169,11 +169,11 @@ class TreeLayout
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
      */
-    TreeLayout(Browser observer)
+    TreeLayout()
     {
-        if (observer == null) 
-            throw new IllegalArgumentException("No observer.");
-        this.observer = observer;
+        //if (observer == null) 
+        //    throw new IllegalArgumentException("No observer.");
+        //this.observer = observer;
         sorter = new ViewerSorter();
     }
 
@@ -189,7 +189,7 @@ class TreeLayout
             DefaultMutableTreeNode root = createTree();
             buildTreeNode(root, sorter.sort(node.getChildrenDisplay()));
         }
-        observer.setTreeDisplay(treeDisplay);
+        //observer.setTreeDisplay(treeDisplay);
     }
 
     /**
