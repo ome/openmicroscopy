@@ -78,6 +78,9 @@ public class HiTranslator
     /** Message for unclassified images. */
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
       
+    /** Message to indicate the number of items. */
+    private static final String	NUMBER_ITEMS = "   #items: ";
+        
     private static ViewerSorter sorter = new ViewerSorter();
     
     /** 
@@ -172,16 +175,23 @@ public class HiTranslator
     private static ImageDisplay linkImages(DataObject uo)
     {
         ImageSet node = null;
+        Set images;
         if (uo instanceof DatasetData) {
             DatasetData ds = (DatasetData) uo;
-            node = new ImageSet(ds.getName(), ds);
+            images = ds.getImages();
+            String note = "";
+            if (images != null) note = NUMBER_ITEMS+images.size();
+            node = new ImageSet(ds.getName(), note, ds);
             formatToolTipFor(node, getFirstAnnotation(ds.getAnnotations()));
-            linkImagesTo(ds.getImages(), node);
+            linkImagesTo(images, node);
         } else if (uo instanceof CategoryData) {
             CategoryData data = (CategoryData) uo;
-            node = new ImageSet(data.getName(), data);
+            String note = "";
+            images = data.getImages();
+            if (images != null) note = NUMBER_ITEMS+images.size();
+            node = new ImageSet(data.getName(), note, data);
             formatToolTipFor(node, null);
-            linkImagesTo(data.getImages(), node);
+            linkImagesTo(images, node);
         }
         return node;
     }
@@ -205,11 +215,13 @@ public class HiTranslator
         //Visualisation object.
         ImageSet project;  
         Set datasets;
+        String note = "";
         while (i.hasNext()) {
             ps = (ProjectData) i.next();
-            project = new ImageSet(ps.getName(), ps);
-            formatToolTipFor(project, null);
             datasets = ps.getDatasets();
+            if (datasets != null) note += NUMBER_ITEMS+datasets.size();
+            project = new ImageSet(ps.getName(), note, ps);
+            formatToolTipFor(project, null);
             if (datasets != null) {
                 j = datasets.iterator();
                 while (j.hasNext())
@@ -287,11 +299,14 @@ public class HiTranslator
         //Visualisation object.
         ImageSet group;  
         Set categories;
+        String note = "";
         while (i.hasNext()) {
             cgData = (CategoryGroupData) i.next();
-            group = new ImageSet(cgData.getName(), cgData);
-            formatToolTipFor(group, null);
             categories = cgData.getCategories();
+            if (categories != null) note = NUMBER_ITEMS+categories.size();
+            group = new ImageSet(cgData.getName(), note, cgData);
+            formatToolTipFor(group, null);
+            
             if (categories != null) {
                 j = categories.iterator();
                 while (j.hasNext())
@@ -330,11 +345,15 @@ public class HiTranslator
         Iterator i = categories.iterator();
         CategoryData data;
         ImageSet parent;
+        Set images;
+        String note = "";
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            parent = new ImageSet(data.getName(), data);
+            images = data.getImages();
+            if (images != null) note = NUMBER_ITEMS+images.size();
+            parent = new ImageSet(data.getName(), note, data);
             formatToolTipFor(parent, null);
-            linkImagesTo(data.getImages(), parent);
+            linkImagesTo(images, parent);
             results.add(parent);
         }
         return results;
