@@ -104,7 +104,7 @@ class TinyPaneTitle
     public void propertyChange(PropertyChangeEvent pce)
     {
         //NOTE: We can only receive TITLE_PROPERTY changes, see attach().
-        titlePainter.setTitle(model.getTitle());
+        titlePainter.setTitle(model.getTitle()+model.getNote());
         repaint();
     }
     

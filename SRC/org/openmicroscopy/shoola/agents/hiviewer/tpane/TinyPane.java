@@ -186,20 +186,32 @@ public class TinyPane
     protected TinyPaneUI createUIDelegate() { return new TinyPaneUI(this); }
     
     /** Creates a new instance. */
-    public TinyPane() { this(null); }
+    public TinyPane() { this(null, null); }
     
     /**
      * Creates a new instance.
      * 
      * @param title The title displayed in the <code>TitleBar</code>.
      */
-    public TinyPane(String title) 
+    public TinyPane(String title)
+    {
+        this(title, null);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param title The title displayed in the <code>TitleBar</code>.
+     * @param note The note added to the <code>TitleBar</code>.
+     */
+    public TinyPane(String title, String note) 
     {
         super();
         model = null;
         Container container = createContentPane();
         model = new TinyPaneModel(container, title, 
                                 new Dimension(getWidth(), getHeight()));
+        model.setNote(note);
         uiDelegate = createUIDelegate();
         setLayout(new TinyPaneLayout());
         add(uiDelegate.getTitleBar());
@@ -230,6 +242,13 @@ public class TinyPane
      * @param child The child component. 
      */
     void setChildView(Component child) { model.setChildView(child); }
+    
+    /** 
+     * Returns the note added to the <code>TitleBar</code>.
+     * 
+     * @return See above.
+     */
+    String getNote() { return model.getNote(); }
     
     /** Resizes and repaints the component. */
     public void pack()

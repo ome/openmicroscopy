@@ -128,6 +128,9 @@ class TinyPaneModel
     /** The title of the component. */
     private String          title;
     
+    /** The note displayed in the titleBar e.g. # of items. */
+    private String			note;
+    
     /** 
      * Flag to indicate if the frame is resizable. Default value is
      * <code>false</code>.
@@ -241,6 +244,7 @@ class TinyPaneModel
         setTitleBarType(TinyPane.FULL_BAR);
         resizable = true;
         listenToBorder = true;
+        note = "";
     }
     
     /**
@@ -411,6 +415,20 @@ class TinyPaneModel
      * @param title The title to set.
      */
     void setTitle(String title) { this.title = title; }
+    
+    /**
+     * Returns the note added to the <code>TitleBar</code>.
+     * 
+     * @return See above.
+     */
+    String getNote() { return note; }
+    
+    /**
+     * Sets the note added to the <code>TitleBar</code>.
+     * 
+     * @param note The note to set.
+     */
+    void setNote(String note) { this.note = note; }
     
     /** 
      * Returns the title bar type.
