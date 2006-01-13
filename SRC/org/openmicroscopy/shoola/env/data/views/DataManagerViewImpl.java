@@ -126,12 +126,12 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#countContainerItems(Class, Set, AgentEventListener)
+     * @see DataManagerView#countContainerItems(Set, AgentEventListener)
      */
-    public CallHandle countContainerItems(Class rootType, Set rootIDs, 
-            							AgentEventListener observer)
+    public CallHandle countContainerItems(Set rootIDs, 
+            								AgentEventListener observer)
     {
-        BatchCallTree cmd = new ContainerCounterLoader(rootType, rootIDs);
+        BatchCallTree cmd = new ContainerCounterLoader(rootIDs);
         return cmd.exec(observer);  
     }
     

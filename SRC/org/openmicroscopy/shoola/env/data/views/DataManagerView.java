@@ -150,13 +150,11 @@ public interface DataManagerView
     /**
      * Counts the number of items contained in the specified containers.
      * 
-     * @param rootType 		The type of the root node. Can only be one out of:
-     *                      <code>DatasetData, CategoryData</code>.
-     * @param rootNodeIDs   A set of the IDs of top-most containers.
+     * @param rootNodeIDs   Collection of top-most containers.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle countContainerItems(Class rootType, Set rootNodeIDs, 
-            							AgentEventListener observer);
+    public CallHandle countContainerItems(Set rootNodeIDs, 
+            								AgentEventListener observer);
     
 }
