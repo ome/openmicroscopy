@@ -88,7 +88,22 @@ public class ImageSet
      */
     public ImageSet(String title, Object hierarchyObject)
     {
-        super(title, hierarchyObject);
+        super(title, "", hierarchyObject);
+        setResizable(true);
+    }
+    
+    /**
+     * Creates a new container node.
+     * 
+     * @param title The frame's title.
+     * @param note	The node to add to the frame's title.
+     * @param hierarchyObject The original object in the image hierarchy which
+     *                        is visualized by this node.  
+     *                        Never pass <code>null</code>.
+     */
+    public ImageSet(String title, String note, Object hierarchyObject)
+    {
+        super(title, note, hierarchyObject);
         setResizable(true);
     }
     

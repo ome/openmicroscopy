@@ -147,13 +147,14 @@ public abstract class ImageDisplay
      * Constructor used by subclasses.
      * 
      * @param title The frame's title. 
+     * @param note	The note added to the frame's title.
      * @param hierarchyObject The original object in the image hierarchy which
      *                        is visualized by this node.  
      *                        Never pass <code>null</code>. 
      */
-    protected ImageDisplay(String title, Object hierarchyObject)
+    protected ImageDisplay(String title, String note, Object hierarchyObject)
     {
-        super(title);
+        super(title, note);
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
