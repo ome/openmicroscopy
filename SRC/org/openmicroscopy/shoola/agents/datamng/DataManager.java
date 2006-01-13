@@ -160,7 +160,7 @@ public class DataManager
         
         EventBus bus = registry.getEventBus();
         bus.register(this, ServiceActivationResponse.class);
-        bus.register(this, ShowProperties.class);
+        //bus.register(this, ShowProperties.class);
         bus.register(this, ClassifyImage.class);
 	}
 	
@@ -230,12 +230,14 @@ public class DataManager
             if (set == null) {
                 HashSet id = new HashSet(1);
                 id.add(new Integer(dataset.getId())); 
+                /*
                 try {
                     set = registry.getOmeroService().loadContainerHierarchy(
                             pojos.DatasetData.class, id, true);
                 } catch (Exception e) {
                     // TODO: handle exception
                 }
+                */
                 if (set != null) {
                     Iterator i = set.iterator();
                     while (i.hasNext()) {
@@ -251,12 +253,14 @@ public class DataManager
             if (set == null) {
                 HashSet id = new HashSet(1);
                 id.add(new Integer(category.getId())); 
+                /*
                 try {
                     set = registry.getOmeroService().loadContainerHierarchy(
                             pojos.CategoryData.class, id, true);
                 } catch (Exception e) {
                     // TODO: handle exception
                 }
+                */
                 if (set != null) {
                     Iterator i = set.iterator();
                     while (i.hasNext()) {
@@ -640,6 +644,7 @@ public class DataManager
         throws DSAccessException
 	{
         if (projectSummaries.size() == 0) {
+            /*
             try { 
                 OmeroPojoService os = registry.getOmeroService();
                 projectSummaries = os.loadContainerHierarchy(
@@ -650,6 +655,7 @@ public class DataManager
                                     ServiceActivationRequest.DATA_SERVICES);
                 registry.getEventBus().post(request);
             }
+            */
 
         }
         return projectSummaries;
@@ -710,6 +716,7 @@ public class DataManager
 	Set getUserDatasets()
         throws DSAccessException
 	{
+	    /*
         if (datasetSummaries.size() == 0) {
             try { 
                 OmeroPojoService os = registry.getOmeroService();
@@ -721,6 +728,7 @@ public class DataManager
                 registry.getEventBus().post(request);
             } 
         }
+        */
         return datasetSummaries;
 	}
 	
@@ -769,6 +777,7 @@ public class DataManager
     Set getUsedImages()
         throws DSAccessException
     {
+        /*
         try { 
             OmeroPojoService os = registry.getOmeroService();
             if (projectSummaries.size() == 0)  
@@ -796,6 +805,7 @@ public class DataManager
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
+        */
         return new HashSet();
         
         
@@ -842,6 +852,7 @@ public class DataManager
     Set getImagesInDatasets(List datasets, Map filters, Map complexFilters)
         throws DSAccessException
     {
+        /*
         try { 
             if (datasets == null || datasets.size() == 0) return new HashSet();
             OmeroPojoService os = registry.getOmeroService();
@@ -855,7 +866,8 @@ public class DataManager
             ServiceActivationRequest request = new ServiceActivationRequest(
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
-        } 
+        }
+        */ 
         return new HashSet();
         
         /*
@@ -955,6 +967,7 @@ public class DataManager
 	Set getImages(int datasetID) 
         throws DSAccessException
 	{
+	    /*
         try { 
             OmeroPojoService os = registry.getOmeroService();
             HashSet set = new HashSet(1);
@@ -965,6 +978,7 @@ public class DataManager
                                         ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return new HashSet();
         /*
 		try { 
@@ -1010,6 +1024,7 @@ public class DataManager
     {
         OmeroPojoService os = registry.getOmeroService();
         pojos.ProjectData data = null;
+        /*
         HashSet ids = new HashSet(1);
         ids.add(new Integer(ps.getID()));
         Set set = null;
@@ -1026,6 +1041,7 @@ public class DataManager
             data = (pojos.ProjectData) i.next();
             break;
         }
+        */
         return data;
     }
     
@@ -1105,6 +1121,7 @@ public class DataManager
     {
         OmeroPojoService os = registry.getOmeroService();
         pojos.DatasetData data = null;
+        /*
         HashSet ids = new HashSet(1);
         ids.add(new Integer(ds.getID()));
         Set set = null;
@@ -1121,6 +1138,7 @@ public class DataManager
             data = (pojos.DatasetData) i.next();
             break;
         }
+        */
         return data;
     }
     
@@ -1502,6 +1520,7 @@ public class DataManager
     Set getAvailableGroups()
         throws DSAccessException
     {
+        /*
         try { 
             OmeroPojoService os = registry.getOmeroService();
             return os.loadContainerHierarchy(pojos.CategoryGroupData.class, null,
@@ -1512,6 +1531,7 @@ public class DataManager
                                 ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return new HashSet();
         
         /*
@@ -1532,6 +1552,7 @@ public class DataManager
     Set getCategoryGroups()
         throws DSAccessException
     {
+        /*
         try { 
             OmeroPojoService os = registry.getOmeroService();
             return os.loadContainerHierarchy(pojos.CategoryGroupData.class, null,
@@ -1542,6 +1563,7 @@ public class DataManager
                                 ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         }
+        */
         return new HashSet();
 
         /*
@@ -1859,6 +1881,7 @@ public class DataManager
     {
         OmeroPojoService os = registry.getOmeroService();
         pojos.CategoryGroupData data = null;
+        /*
         HashSet ids = new HashSet(1);
         ids.add(new Integer(cg.getID()));
         Set set = null;
@@ -1874,6 +1897,7 @@ public class DataManager
             data = (pojos.CategoryGroupData) i.next();
             break;
         }
+        */
         return data;
     }
     
@@ -1881,6 +1905,7 @@ public class DataManager
     {
         OmeroPojoService os = registry.getOmeroService();
         pojos.CategoryData data = null;
+        /*
         HashSet ids = new HashSet(1);
         ids.add(new Integer(c.getID()));
         Set set = null;
@@ -1896,6 +1921,7 @@ public class DataManager
             data = (pojos.CategoryData) i.next();
             break;
         }
+        */
         return data;
     }
     
