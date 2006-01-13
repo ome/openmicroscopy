@@ -4,20 +4,14 @@
 	<type id="ome.model.meta.ExperimenterGroup" named="true" described="true">
 		<properties>
 			<onemany name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"/>
-			<optional name="leader" type="ome.model.meta.ContactDetails"/>
-			<optional name="contact" type="ome.model.meta.ContactDetails"/>
 		</properties>
 	</type>
-	<type id="ome.model.meta.Experimenter">
+	
+	<type id="ome.model.meta.Experimenter" global="true">
 		<!-- ## needs to be ome_name -->
 		<properties>
 			<required name="omeName" type="string" unique="true"/>
 			<zeromany name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"/>
-			<required name="details" type="ome.model.meta.ContactDetails"/>
-		</properties>
-	</type>
-	<type id="ome.model.meta.ContactDetails">
-		<properties>
 			<required name="firstName" type="string"/>
 			<optional name="middleName" type="string"/>
 			<required name="lastName" type="string"/>
@@ -25,18 +19,19 @@
 			<component id="ome.model.internal.Email" required="true">
 				<required name="email" type="string"/>
 			</component>
-			<!-- ## add to dsl [email/] -->
+			<!-- ## add to dsl [email/] -->		
 		</properties>
 	</type>
+	
 	<link id="ome.model.meta.GroupExperimenterMap" 
 		from="ome.model.meta.ExperimenterGroup"
 		to="ome.model.meta.Experimenter"/>
 	
 	<!-- EVENTS -->
 
-	<type id="ome.model.meta.Event" named="true" mutable="false"/>
+	<type id="ome.model.meta.Event" named="true" mutable="false" global="true"/>
 
-	<type id="ome.model.meta.EventDiff" mutable="false">
+	<type id="ome.model.meta.EventDiff" mutable="false" global="true">
 		<properties>
 			<manyone name="logs" type="ome.model.meta.EventLog"/>
 			<required name="type" type="string"/>
@@ -47,7 +42,7 @@
 		</properties>
 	</type>
 
-	<type id="ome.model.meta.EventLog" mutable="false">
+	<type id="ome.model.meta.EventLog" mutable="false" global="true">
 		<properties>
 			<required name="experimenter" type="ome.model.meta.Experimenter"/>
 			<manyone name="events" type="ome.model.meta.Event"/>

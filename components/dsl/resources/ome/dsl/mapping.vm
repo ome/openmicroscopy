@@ -5,21 +5,24 @@
     
 <hibernate-mapping>
 #set($table = ${type.typeToColumn($type.id)} )
+#set($cascade_settings = "persist,merge,replicate,refresh,save-update")
 <class 
     name="${type.id}" 
-    table="${table}">
-	
+    table="${table}"
+	abstract="$type.abstract">
+#*	
 #if($type.abstract)
 	<meta attribute="scope-class" inherit="false">public abstract</meta>
 #end
-    <meta attribute="implement-equals" inherit="false">true</meta>
+*#
+	<meta attribute="implement-equals" inherit="false">true</meta>
 
 	
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 COMMON
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	
-	 <id name="id" type="java.lang.Long" column="id">
+	<id name="id" type="java.lang.Long" column="id">
 		<generator class="sequence">
 			<param name="sequence">seq_$table</param>
 		</generator>
@@ -29,9 +32,16 @@
 	<version name="version" type="java.lang.Integer" column="version" unsaved-value="negative"/>
 	<many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
 #end
-#if(! ${type.id.startsWith("ome.model.meta")})
-	<many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="save-update"/>		
+
+#if(!$type.global)	
+	<many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="$cascade_settings"/>		
+	<many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="$cascade_settings"/>
+	<component name="permissions" class="ome.model.internal.Permissions">
+		<property name="bytes" type="binary" column="permissions"/> 
+		<!-- TODO possibly just default CHMOD here -->
+	</component>
 #end
+
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 INTERFACE-BASED
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -39,18 +49,9 @@
 #if($type.named)
 	<property name="name" type="java.lang.String" column="name" not-null="true" length="256"/>
 #end
-#if($type.described)
-   <property name="description" type="java.lang.String" column="description" length="256"/>
-#end
 
-#if(!$type.global)	
-#if(! ${type.id.startsWith("ome.model.meta")} )
-	<many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="save-update"/>
-#end
-	<component name="permissions" class="ome.model.internal.Permissions">
-		<property name="bytes" type="binary" column="permissions"/> 
-		<!-- TODO possibly just default CHMOD here -->
-	</component>
+#if($type.described)
+	<property name="description" type="java.lang.String" column="description" length="256"/>
 #end
 	
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +75,7 @@
 		lazy="true"
 		inverse="true"
 ##TODO		mutable="${prop.mutable}"
-		cascade="save-update">
+		cascade="$cascade_settings">
 		<key>
 			<column name="${table}" />
 		</key>
