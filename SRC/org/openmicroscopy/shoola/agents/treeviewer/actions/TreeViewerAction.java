@@ -75,6 +75,14 @@ public abstract class TreeViewerAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay) {}
     
+    /** 
+     * Callback to notify a state change in the {@link Browser}. 
+     * Subclasses override the method.
+     * 
+     * @param browser The browser which fired the state change.
+     */
+    protected void onBrowserStateChange(Browser browser) {} ;
+    
     /**
      * Creates a new instance.
      * 
@@ -89,9 +97,13 @@ public abstract class TreeViewerAction
         //Attaches listener property change listener to each browser.
         Map browsers = model.getBrowsers();
         Iterator i = browsers.values().iterator();
-        while (i.hasNext())
-            ((Browser) i.next()).addPropertyChangeListener(
+        Browser browser;
+        while (i.hasNext()) {
+            browser = (Browser) i.next();
+            browser.addPropertyChangeListener(
                     Browser.SELECTED_DISPLAY_PROPERTY, this);
+            browser.addChangeListener(this);
+        }    
     }
     
     /** 
@@ -116,7 +128,9 @@ public abstract class TreeViewerAction
      */
     public void stateChanged(ChangeEvent e)
     {
-
+        Object source = e.getSource();
+        if (source instanceof Browser) 
+            onBrowserStateChange((Browser) source);
     }
     
 }

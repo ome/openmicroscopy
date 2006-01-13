@@ -38,6 +38,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RootLevelCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -126,6 +127,17 @@ public class RootLevelAction
     		        UIUtilities.formatToolTipText(DESCRIPTION_GROUP));
 	            break;
         }
+    }
+    
+    /** 
+     * Sets the action enabled depending on the 
+     * {@link Browser}'s state. 
+     * @see TreeViewerAction#onBrowserStateChange(Browser)
+     */
+    protected void onBrowserStateChange(Browser browser)
+    {
+        int state = browser.getState();
+        setEnabled((state == Browser.READY) || (state == Browser.NEW));
     }
     
     /**
