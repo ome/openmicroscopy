@@ -42,11 +42,7 @@ import java.awt.Paint;
 
 /** 
  * Paints an highlighted background for the <code>TitleBar</code> of 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane}.
- * 
- * This is a gradient paint. 
+ * {@link TinyPane}. This is a gradient paint. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,19 +78,19 @@ public class HiBgPainter
     
     /**
      * Paints an highlighted background.
-     * @see Painter#doPaint(java.awt.Graphics2D, int, int)
+     * @see Painter#doPaint(Graphics2D, int, int)
      */
     protected void doPaint(Graphics2D g2D, int width, int height)
     {
         //Top half.
-        Paint p = new GradientPaint(0, height/2, Color.WHITE, 
-                                    0, 0, highlightColor);
+        Paint p = new GradientPaint(0, height/2, Color.WHITE, 0, 0,
+                					highlightColor);
         g2D.setPaint(p);
         g2D.fillRect(0, 0, width, height/2);
         
         //Bottom half.
-        p = new GradientPaint(0, height/2, Color.WHITE, 
-                              0, height, highlightColor);
+        p = new GradientPaint(0, height/2, Color.WHITE, 0, height,
+                				highlightColor);
         g2D.setPaint(p);
         g2D.fillRect(0, height/2, width, height/2);
     }

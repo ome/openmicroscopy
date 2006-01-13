@@ -67,66 +67,67 @@ public interface Browser
 {
 
     /** Flag to denote the <i>New</i> state. */
-    public static final int     NEW = 1;
+    public static final int     	NEW = 1;
     
     /** Flag to denote the <i>Loading Data</i> state. */
-    public static final int     LOADING_DATA = 2;
+    public static final int     	LOADING_DATA = 2;
     
     /** Flag to denote the <i>Loading Data</i> state. */
-    public static final int     LOADING_LEAVES = 3;
+    public static final int     	LOADING_LEAVES = 3;
     
     /** Flag to denote the <i>Counting items</i> state. */
-    public static final int     COUNTING_ITEMS = 4;
+    public static final int     	COUNTING_ITEMS = 4;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 5;
+    public static final int     	READY = 5;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 6;
+    public static final int     	DISCARDED = 6;
    
     /** 
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.
      */
-    public static final int     HIERARCHY_EXPLORER = 100;
+    public static final int     	HIERARCHY_EXPLORER = 100;
     
     /** 
      * Indicates that the browser corresponds to an <code>Category</code>
      * explorer.
      */
-    public static final int     CATEGORY_EXPLORER = 101;
+    public static final int     	CATEGORY_EXPLORER = 101;
     
     /** 
      * Indicates that the browser corresponds to an <code>Images</code>
      * explorer.
      */
-    public static final int     IMAGES_EXPLORER = 102;
+    public static final int     	IMAGES_EXPLORER = 102;
     
     /** 
      * Bound property name indicating a data retrieval cancellation occured. 
      */
-    public static final String  CANCEL_PROPERTY = "cancel";
+    public static final String  	CANCEL_PROPERTY = "cancel";
     
     /** 
      * Bound property name indicating the data retrieval is finished. 
      */
-    public static final String  ON_END_LOADING_PROPERTY = "onEndLoading";
+    public static final String  	ON_END_LOADING_PROPERTY = "onEndLoading";
     
     /** 
      * Bound property name indicating a new node is selected. 
      */
-    public static final String  SELECTED_DISPLAY_PROPERTY = "selectedDisplay";
+    public static final String  	SELECTED_DISPLAY_PROPERTY = 
+        								"selectedDisplay";
     
     /** 
      * Bound property name indicating to remove the browser from the display. 
      */
-    public static final String  CLOSE_PROPERTY = "close";
+    public static final String  	CLOSE_PROPERTY = "close";
     
     /** Bound property name indicating to bring up the popup menu.  */
-    public static final String  POPUP_MENU_PROPERTY = "popupMenu";
+    public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
     
     /** Bound property name indicating to set the filters nodes.  */
-    public static final String  FILTER_NODES_PROPERTY = "filterNodes";
+    public static final String  	FILTER_NODES_PROPERTY = "filterNodes";
     
     /** Identifies the Collapse action in the Actions menu. */
     public static final Integer     COLLAPSE = new Integer(0);

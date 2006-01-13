@@ -39,14 +39,53 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import pojos.ImageData;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ImageData;
 
 /** 
- * 
+ * Represents a component in the composite structure used to visualize an
+ * image hierarchy. 
+ * <p>A concrete component can be either a {@link TreeImageNode}, to represent a
+ * single image, or an {@link TreeImageSet}, to represent a collection of 
+ * images. An {@link TreeImageSet} can also contain other image sets, thus 
+ * leading to a composite structure. This is a tree whose leaf nodes are 
+ * {@link TreeImageNode} objects and internal nodes are {@link TreeImageSet} 
+ * objects.</p>
+ * <p>So we have a general purpose, set-based structure we can use to visualize 
+ * any image hierarchy: Project/Dataset/Image, Category Group/Category/Image, 
+ * or Screen/Plate/Well/Image. The original data hierarchy translates into
+ * a visualization tree as follows. Each image object corresponds to an
+ * {@link TreeImageNode} and an image container, such as Dataset or Category, 
+ * corresponds to an {@link TreeImageSet}. All {@link TreeImageNode} objects
+ * that are created for the images in a given image container are added to the 
+ * {@link TreeImageSet} object created for that image container. Nested
+ * containers translate into nested {@link TreeImageSet}s. For example, say you 
+ * have a Project <code>p_1</code> and two datasets in it, <code>d_1</code> 
+ * and <code>d_2</code>. The former contains image <code>i_1</code> and 
+ * <code>i_2</code>, as the latter only has one image, <code>i_3</code>. 
+ * This would translate into three {@link TreeImageNode}s 
+ * <code>in_1, in_2, in_3</code>, respectively for <code>i_1, i_2, i_3</code>.
+ * You would then create two {@link TreeImageSet}s <code>ds_1, ds_2</code>,
+ * respectively for <code>d_1, d_2</code>, and add <code>in_1, in_2</code> to 
+ * <code>ds_1</code> and <code>in_3</code> to <code> ds_2</code>. Finally you
+ * would create a third {@link TreeImageSet} <code>ps_1</code> for the Project 
+ * and add <code>ds_1, ds_2</code> to it.</p> 
+ * <p>Operations on a visualization tree are performed through visitors.  The
+ * {@link TreeImageDisplayVisitor} interface allows you to define arbitrary 
+ * operations that can then be applied to the tree by calling the 
+ * {@link #accept(TreeImageDisplayVisitor) accept} method, usually on the root 
+ * node.
+ * An example of this is layout management. In fact, an {@link TreeImageSet} can
+ * contain other nodes &#151; this class inherits from 
+ * {@link DefaultMutableTreeNode} and nodes are added to its internal desktop,
+ * which has no layout manager. In order to position the contained nodes
+ * properly, you can write a layout class that implements the 
+ * {@link TreeImageDisplayVisitor} interface to lay out the contents of
+ * every {@link TreeImageSet} node in a visualization tree.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

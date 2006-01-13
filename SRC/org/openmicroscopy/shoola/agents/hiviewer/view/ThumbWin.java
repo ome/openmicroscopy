@@ -37,7 +37,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -87,6 +86,8 @@ class ThumbWin
      * Intercepts popup triggers on this window.
      * If the mouse event is a popup trigger, then we register the popup point
      * and display the popup menu.
+     * 
+     * @param me The mouse click event.
      */
     private void onClick(MouseEvent me)
     {
@@ -103,7 +104,8 @@ class ThumbWin
      * @param fullScaleThumb The thumbnail. Mustn't be <code>null</code>.
      * @param image The Image object the thumbnail is for.
      *              Mustn't be <code>null</code>.
-     * @param model A reference to the model.
+     * @param model A reference to the model. Mustn't be <code>null</code>.
+     * @param node The node hosting the display. Mustn't be <code>null</code>.
      */
     ThumbWin(JFrame parent, BufferedImage fullScaleThumb, DataObject image, 
              HiViewer model, ImageDisplay node)
@@ -162,34 +164,47 @@ class ThumbWin
      * Intercepts popup triggers on this window.
      * If the mouse event is a popup trigger, then we register the popup point
      * and display the popup menu.
+     * @see MouseListener#mouseReleased(MouseEvent)
      */
     public void mouseReleased(MouseEvent me) { onClick(me); }
     
-    /** Hides the menu when a mousePressed event occurs. */
+    /** 
+     * Hides the menu when a mousePressed event occurs.
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
     public void mousePressed(MouseEvent me)
     { 
         ThumbWinPopupMenu.hideMenu();
         onClick(me); //needed for Mac
     }
     
-    /** Hides the menu when the window is closed. */
+    /** 
+     * Hides the menu when the window is closed.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         ThumbWinPopupMenu.hideMenu();
     }
     
     /**
-     * No-op implementation.
+     * Required by the {@link MouseListener} I/F but no-op implementation in our
+     * case.
+     * @see MouseListener#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent me) {}
 
     /**
-     * No-op implementation.
+     * Required by the {@link MouseListener} I/F but no-op implementation in our
+     * case.
+     * @see MouseListener#mouseEntered(MouseEvent)
      */
     public void mouseEntered(MouseEvent me) {}
 
     /**
-     * No-op implementation.
+     * Required by the {@link MouseListener} I/F but no-op implementation in our
+     * case.
+     * @see MouseListener#mouseExited(MouseEvent)
      */
     public void mouseExited(MouseEvent me) {}
     

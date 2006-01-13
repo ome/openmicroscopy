@@ -29,6 +29,7 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
+
 //Java imports
 
 //Third-party libraries
@@ -36,8 +37,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Application-internal dependencies
 
 /** 
- * 
+ * Represents a container in the composite structure used to visualize an
+ * image hierarchy.
+ * A <code>TreeImageSet</code> may contain either {@link TreeImageNode}s or 
+ * other {@link TreeImageSet}s, but not both.
  *
+ * @see TreeImageDisplay
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -55,7 +61,7 @@ public class TreeImageSet
      * This field will be <code>null</code> until the first call to
      * {@link #addChildDisplay(TreeImageDisplay)}. In fact, until then
      * we can't tell if this node is meant to contain {@link TreeImageNode}s
-     * or other <code>ImageSet</code>s. 
+     * or other {@link TreeImageSet}s. 
      */
     private Boolean     containsImages;
     
@@ -70,7 +76,7 @@ public class TreeImageSet
     }
     
     /**
-     * Creates a new leaf node.
+     * Creates a new container node.
      *  
      * @param hierarchyObject The original object in the image hierarchy which
      *                        is visualized by this node. It has to be an image

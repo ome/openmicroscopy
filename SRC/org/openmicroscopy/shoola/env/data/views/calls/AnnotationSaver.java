@@ -77,6 +77,7 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to remove the specified annotation.
      * 
+     * @param data The annotation to save.
      * @return The {@link BatchCall}.
      */
     private BatchCall removeDatasetAnnotation(final AnnotationData data)
@@ -93,6 +94,7 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to remove the specified annotation.
      * 
+     * @param data The annotation to remove.
      * @return The {@link BatchCall}.
      */
     private BatchCall removeImageAnnotation(final AnnotationData data)
@@ -109,6 +111,8 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to update the specified annotation.
      * 
+     * @param nodeID 	The id to the <code>DataObject</code>.
+     * @param data 		The updated annotation.
      * @return The {@link BatchCall}.
      */
     private BatchCall updateImageAnnotation(final int nodeID, 
@@ -126,6 +130,8 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to update the specified annotation.
      * 
+     * @param nodeID 	The id to the <code>DataObject</code>.
+     * @param data 		The updated annotation.
      * @return The {@link BatchCall}.
      */
     private BatchCall updateDatasetAnnotation(final int nodeID, 
@@ -143,6 +149,8 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to update the specified annotation.
      * 
+     * @param id 	The id to the <code>DataObject</code>.
+     * @param data 		The updated annotation.
      * @return The {@link BatchCall}.
      */
     private BatchCall createImageAnnotation(final int id, final String data)
@@ -159,6 +167,8 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to create a dataset annotation.
      * 
+     * @param id 	The id to the <code>DataObject</code>.
+     * @param data 		The updated annotation.
      * @return The {@link BatchCall}.
      */
     private BatchCall createDatasetAnnotation(final int id, final String data)

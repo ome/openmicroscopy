@@ -133,7 +133,7 @@ class BrowserModel
      * Creates a new object and sets its state to {@link Browser#NEW}.
      * 
      * @param browserType   The browser's type. One of the type defined by
-     *                      {@link Browser}.
+     *                      the {@link Browser}.
      */
     protected BrowserModel(int browserType)
     { 
@@ -184,8 +184,18 @@ class BrowserModel
         this.selectedDisplay = selectedDisplay;
     }
     
+    /**
+     * Returns the location of the mouse click.
+     * 
+     * @return See above.
+     */
     Point getClickPoint() { return clickPoint; }
     
+    /**
+     * Sets the location of the mouse click.
+     * 
+     * @param p The location to set.
+     */
     void setClickPoint(Point p) { clickPoint = p; }
     
     /**
@@ -218,7 +228,7 @@ class BrowserModel
      * Starts the asynchronous retrieval of the hierarchy objects needed
      * by this model and sets the state to {@link Browser#LOADING_DATA}. 
      * 
-     * @param nodeIDs
+     * @param nodeIDs Collection of containers' IDs.
      */
     void fireDataLoading(Set nodeIDs)
     {
@@ -304,28 +314,19 @@ class BrowserModel
     }
     
     /**
-     * 
-     *
+     * Starts the asynchronous retrieval of the number of items contained 
+     * in the <code>TreeImageSet</code> containing images e.g. a 
+     * <code>Dataset</code>.
      */
     void fireContainerCountLoading()
     {
-        Class rootType = null;
-        if (browserType == Browser.CATEGORY_EXPLORER) 
-            rootType = CategoryData.class;
-        else if (browserType == Browser.HIERARCHY_EXPLORER) 
-            rootType = DatasetData.class;
-        if (rootType == null) {
-            state = Browser.READY;
-            return;
-        }
         Set containers = component.getContainersWithImages();
         if (containers.size() == 0) {
             state = Browser.READY;
             return;
         }
         state = Browser.COUNTING_ITEMS;
-        currentLoader = new ContainerCounterLoader(component, rootType, 
-                									containers);
+        currentLoader = new ContainerCounterLoader(component, containers);
         currentLoader.load();
     }
     
@@ -369,7 +370,6 @@ class BrowserModel
     /**
      * Starts the asynchronous retrieval of the data 
      * according to the <code>UserObject</code> type.
-     *
      */
     void refreshSelectedDisplay()
     {
@@ -416,7 +416,7 @@ class BrowserModel
     /**
      * Sets the number of items contained in the specified container.
      *  
-     * @param tree
+     * @param tree The component hosting the node.
      * @param containerID The ID of the container.
      * @param value	The number of items.
      */

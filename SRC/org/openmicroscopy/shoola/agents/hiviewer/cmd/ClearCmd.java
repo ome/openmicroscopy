@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -75,8 +75,12 @@ public class ClearCmd
     {
         Browser browser = model.getBrowser();
         browser.accept(new ClearVisitor(model));
+        TreeView tree = model.getTreeView();
+        if (tree != null) tree.repaint();
+        /*
         if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT)
             browser.getTreeDisplay().repaint();
+            */
     }
 
 }

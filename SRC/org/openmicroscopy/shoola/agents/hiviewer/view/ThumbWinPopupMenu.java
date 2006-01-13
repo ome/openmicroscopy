@@ -102,6 +102,8 @@ class ThumbWinPopupMenu
     /**
      * Helper method to create the Classify submenu.
      * 
+     * @param classify The Classify item to add to the submenu.
+     * @param declassify The Declassify item to add to the submenu.
      * @return  The Classify submenu.
      */
     private JMenu createClassifySubMenu(JMenuItem classify, 
@@ -116,9 +118,7 @@ class ThumbWinPopupMenu
         return menu;
     }
     
-    /**
-     * Creates a new instance.
-     */
+    /** Creates a new instance. */
     private ThumbWinPopupMenu()
     {
         IconManager im = IconManager.getInstance();
@@ -178,9 +178,7 @@ class ThumbWinPopupMenu
         });
     }
     
-    /**
-     * Brings up the menu for the {@link #currentWin}.
-     */
+    /** Brings up the menu for the {@link #currentWin}. */
     private void showMenu()
     {
         Point p = currentWin.getPopupPoint();

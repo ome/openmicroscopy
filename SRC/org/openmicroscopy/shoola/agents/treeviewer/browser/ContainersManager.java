@@ -50,8 +50,8 @@ import pojos.DatasetData;
 
 /** 
  * Manages the process of assigning the number of items to 
- * {@link TreeImageSet}s whose userObject is 
- * <code>Dataset</code> or <code>CategoryGroup</code>, in a visualization tree. 
+ * {@link TreeImageSet}s whose userObject is <code>Dataset</code> or 
+ * <code>CategoryGroup</code>, in a visualization tree. 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,6 +78,7 @@ public class ContainersManager
     /**
      * Creates a new instance.
      * 
+     * @param tree				The component hosting the nodes.
      * @param containerNodes 	All the {@link TreeImageSet}s containing Images
      * 							in a given visualization tree. 
      * 							Mustn't be <code>null</code>.

@@ -42,10 +42,7 @@ import java.awt.geom.Rectangle2D;
 //Application-internal dependencies
 
 /** 
- * Paints the title string on the <code>TitleBar</code> of 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane}.
+ * Paints the title string on the {@link TitleBar} of {@link TinyPane}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -162,7 +159,7 @@ public class TitlePainter
     /**
      * Sets the title string.
      * 
-     * @param t The string to paint.  If <code>null</code>, nothing will
+     * @param t The string to paint. If <code>null</code>, nothing will
      *          be painted.
      */
     public void setTitle(String t) 
@@ -174,7 +171,7 @@ public class TitlePainter
     /**
      * Paints the title string on <code>area</code>.
      *  
-     * @see Painter#doPaint(java.awt.Graphics2D, int, int)
+     * @see Painter#doPaint(Graphics2D, int, int)
      */
     protected void doPaint(Graphics2D g2D, int width, int height)
     {

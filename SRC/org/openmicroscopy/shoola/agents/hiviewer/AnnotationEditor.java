@@ -232,7 +232,7 @@ public class AnnotationEditor
     /**
      * Creates or updates the annotation.
      * 
-     * @see DataLoader#load()
+     * @see CBDataLoader#load()
      */
     public void load()
     {
@@ -257,7 +257,7 @@ public class AnnotationEditor
     
     /**
      * Feeds the result back to the viewer.
-     * @see DataLoader#handleResult(Object)
+     * @see CBDataLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {

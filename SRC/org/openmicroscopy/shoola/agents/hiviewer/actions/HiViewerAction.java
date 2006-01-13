@@ -65,6 +65,20 @@ public abstract class HiViewerAction
     implements ChangeListener, PropertyChangeListener
 {
     
+    private void onSelectedDisplay(Object newValue, Object oldValue)
+    {
+        if (!(newValue.equals(oldValue)) && newValue != null) {
+            ImageDisplay oldNode, newNode;
+            Colors colors = Colors.getInstance();
+            newNode = (ImageDisplay) newValue;
+            newNode.setHighlight(colors.getSelectedHighLight(newNode));
+            if (oldValue != null) {
+                oldNode = (ImageDisplay) oldValue;
+                oldNode.setHighlight(colors.getDeselectedHighLight(oldNode));
+            }
+        }
+    }
+    
     /** A reference to the Model. */
     protected HiViewer      model;
     
@@ -75,6 +89,12 @@ public abstract class HiViewerAction
      * @param selectedDisplay The newly selected display node.
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    
+    /**
+     * Callback to notify of a state change in the  {@link Browser}.
+     * Subclasses override the method.
+     */
+    protected void onStateChange() {}
     
     /**
      * Creates a new instance.
@@ -104,19 +124,9 @@ public abstract class HiViewerAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (evt.getPropertyName().equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
-            if (!(evt.getNewValue().equals(evt.getOldValue())) 
-                    && evt.getNewValue() != null) {
-                ImageDisplay oldNode, newNode;
-                Colors colors = Colors.getInstance();
-                newNode = (ImageDisplay) evt.getNewValue();
-                newNode.setHighlight(colors.getSelectedHighLight(newNode));
-                if (evt.getOldValue() != null) {
-                    oldNode = (ImageDisplay) evt.getOldValue();
-                    oldNode.setHighlight(
-                            colors.getDeselectedHighLight(oldNode));
-                }
-            }
+        String propName = evt.getPropertyName();
+        if (propName.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+            onSelectedDisplay(evt.getNewValue(), evt.getOldValue());
         }
         onDisplayChange(model.getBrowser().getSelectedDisplay());
     }
@@ -132,6 +142,7 @@ public abstract class HiViewerAction
                     Browser.SELECTED_DISPLAY_PROPERTY, this);
             model.getBrowser().addPropertyChangeListener(
                     Browser.LAYOUT_PROPERTY, this);
+            onStateChange();
         } 
     }
     

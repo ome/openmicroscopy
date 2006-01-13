@@ -78,15 +78,14 @@ public abstract class Painter
      * but this method makes sure only the specified <code>area</code> is 
      * affected by the painting operation.
      *  
-     * @param g2D   The graphics context.  Mustn't be <code>null</code>.
-     * @param area  The area to paint.  Mustn't be <code>null</code>.
+     * @param g2D   The graphics context. Mustn't be <code>null</code>.
+     * @param area  The area to paint. Mustn't be <code>null</code>.
      */
     public void paint(Graphics2D g2D, Rectangle area)
     {
         if (g2D == null) throw new NullPointerException("No graphics context.");
         if (area == null) throw new NullPointerException("No area.");
-        Graphics2D scratchGraphics = (Graphics2D) g2D.create(
-                                                      area.x, area.y,
+        Graphics2D scratchGraphics = (Graphics2D) g2D.create(area.x, area.y,
                                                       area.width, area.height);
         doPaint(scratchGraphics, area.width, area.height);
         scratchGraphics.dispose();

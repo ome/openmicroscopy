@@ -71,9 +71,12 @@ public class AnnotationLoader
     /**
      * Creates {@link BatchCall} if the type is supported.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                 {@link DatasetData}, {@link ImageData}.
-     * @param nodeIDs  Collection of node's ids.
+     * @param nodeType 	The type of the node. Can only be one out of:
+     *                 	{@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  	Collection of node's ids.
+     * @param history  	Pass <code>true</code> to retrieve all the annotations
+     * 					related to the specified rootNode even if they are
+     * 					no longer valid.
      */
     private void validate(Class nodeType, Set nodeIDs, boolean history)
     {
@@ -94,11 +97,14 @@ public class AnnotationLoader
     
     /**
      * Creates a {@link BatchCall} to retrieve the annotation, either 
-     * datasetAnnoation or imageAnnotation.
+     * dataset's Annotation or image's Annotation.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                 {@link DatasetData}, {@link ImageData}.
-     * @param nodeIDs  Collection of node's ids.
+     * @param nodeType 	The type of the node. Can only be one out of:
+     *                 	{@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  	Collection of node's ids.
+     * @param history  	Pass <code>true</code> to retrieve all the annotations
+     * 					related to the specified rootNode even if they are
+     * 					no longer valid.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeAnnotationBatchCall(final Class nodeType,
@@ -133,11 +139,12 @@ public class AnnotationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                 {@link DatasetData}, {@link ImageData}.
-     * @param nodeID  The id of the node.
-     * @param history Pass <code>true</code> to retrieve all the annotations
-     * related to the specified rootNode even if they are no longer valid.
+     * @param nodeType 	The type of the node. Can only be one out of:
+     *                 	{@link DatasetData}, {@link ImageData}.
+     * @param nodeID  	The id of the node.
+     * @param history 	Pass <code>true</code> to retrieve all the annotations
+     * 					related to the specified rootNode even if they are no 
+     * 					longer valid.
      */
     public AnnotationLoader(Class nodeType, int nodeID, boolean history)
     {
@@ -153,11 +160,12 @@ public class AnnotationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                 {@link DatasetData}, {@link ImageData}.
-     * @param nodeIDs  Collection of node's ids.
-     * @param history Pass <code>true</code> to retrieve all the annotations
-     * related to the specified rootNode even if they are no longer valid.
+     * @param nodeType 	The type of the node. Can only be one out of:
+     *                 	{@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  	Collection of node's ids.
+     * @param history 	Pass <code>true</code> to retrieve all the annotations
+     * 					related to the specified rootNode even if they are no 
+     * 					longer valid.
      */
     public AnnotationLoader(Class nodeType, Set nodeIDs, boolean history)
     {

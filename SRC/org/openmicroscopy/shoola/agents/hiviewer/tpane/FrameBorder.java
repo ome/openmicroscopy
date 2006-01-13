@@ -46,7 +46,7 @@ import javax.swing.border.AbstractBorder;
 /** 
  * A line border with an optional margin.
  * This class paints a 1-pixel line around a component and optionally an outer
- * line of a specified thickness.  This outer line usually serves as a margin
+ * line of a specified thickness. This outer line usually serves as a margin
  * around the component and the 1-pixel line.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

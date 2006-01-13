@@ -40,10 +40,7 @@ import java.awt.Graphics2D;
 
 /** 
  * Paints the normal background of the <code>TitleBar</code> of 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane}.
- * 
+ * {@link TinyPane}.
  * This is a three-line repeated pattern.
  * This class is stateless and can be shared among all instances of the frame.
  *

@@ -100,10 +100,12 @@ class ClipBoardControl
     
     /**
      * Brings on screen the selected node. The nodes containing the child
-     * are visited i.e. parent then grandparent up to the root node.
+     * are visited i.e. parent then grandparent all the way up to the root node.
      * 
-     * @param childBounds The bounds of the selected node.
-     * @param parent The node containing the child.
+     * @param childBounds 	The bounds of the selected node.
+     * @param parent 		The node containing the child.
+     * @param isRoot		<code>true</code> if its the root node, 
+     * 						<code>false</code> otherwise.	
      */
     private void scrollToNode(Rectangle childBounds, ImageDisplay parent,
                                 boolean isRoot)
@@ -204,6 +206,7 @@ class ClipBoardControl
     /**
      * Reacts to a specific property change fired by the browser.
      * and the component hosting the result of a <code>Search</code> action.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
@@ -218,7 +221,10 @@ class ClipBoardControl
         }
     }
 
-    /** Listens to change events. */
+    /**
+     * Listens to change events. 
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent ce)
     {
         Object source = ce.getSource();

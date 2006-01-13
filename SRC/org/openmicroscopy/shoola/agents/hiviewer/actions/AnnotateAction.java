@@ -39,7 +39,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -48,7 +47,8 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * This action is enabled if the hierarchy node is an image or dataset.
+ * This action is enabled if the hierarchy node is an <code>Image</code> or
+ * <code>Dataset</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,10 +73,8 @@ public class AnnotateAction
                                                 "or dataset.";
     
     /**
-     * Callback to notify of a change in the currently selected display
-     * in the {@link Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
+     * Sets the action enabled depending on the currently selected display
+     * @see HiViewerAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {

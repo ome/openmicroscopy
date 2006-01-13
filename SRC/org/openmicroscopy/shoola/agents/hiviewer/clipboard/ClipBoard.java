@@ -64,8 +64,7 @@ public interface ClipBoard
 {
  
     /** 
-     * Bound property name to bring on screen the selected 
-     * {@link ImageDisplay}. 
+     * Bound property name to bring on screen the selected {@link ImageDisplay}. 
      */
     public static final String LOCALIZE_IMAGE_DISPLAY = "localize";
     
@@ -87,9 +86,7 @@ public interface ClipBoard
     /** Identifies the <i>Discarded annotations</i> state. */
     public static final int     DISCARDED_ANNOTATIONS = 203;
     
-    /**
-     * Any ongoing data loading is cancelled.
-     */
+    /** Any ongoing data loading is cancelled. */
     public void discard();
     
     /**
@@ -155,10 +152,9 @@ public interface ClipBoard
      * Sets the result of the creation, update or deletion of an annotation.
      * 
      * @param b Flag to indicate if the operation was successful.
-     * Right now it is always true b/c of OME-Java
+     * 			Right now it is always true b/c of OME-Java
      */
     public void manageAnnotationEditing(boolean b);
-
 
     /**
      * Sets the selected panel.

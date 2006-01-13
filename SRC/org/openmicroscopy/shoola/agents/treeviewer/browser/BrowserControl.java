@@ -55,7 +55,7 @@ import pojos.CategoryData;
 import pojos.DatasetData;
 
 /** 
- * 
+ * The Browser's Controller.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,7 +79,7 @@ class BrowserControl
     private BrowserUI   view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map             actionsMap;
+    private Map			actionsMap;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -98,8 +98,8 @@ class BrowserControl
     /**
      * Creates a new instance.
      * The {@link #initialize(BrowserUI) initialize} method 
-     * should be called straight 
-     * after to link this Controller to the other MVC components.
+     * should be called straight after to link this Controller to the other 
+     * MVC components.
      * 
      * @param model  Reference to the {@link Browser} component, which, in 
      *               this context, is regarded as the Model.
@@ -116,7 +116,7 @@ class BrowserControl
     /**
      * Links this Controller to its Model and its View.
      * 
-     * @param view   Reference to the View.  Mustn't be <code>null</code>.
+     * @param view   Reference to the View. Mustn't be <code>null</code>.
      */
     void initialize(BrowserUI view)
     {

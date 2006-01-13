@@ -46,7 +46,10 @@ import javax.swing.JButton;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
- * 
+ * The size button in the {@link TitleBar}.
+ * This is a small MVC component that is aggregated into the bigger MVC set
+ * of the {@link TinyPane}. The MVC parts of this button are all collapsed
+ * in this class.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,10 +64,10 @@ public class SizeButton
     implements TinyObserver, PropertyChangeListener, ActionListener
 {
  
-    /** Tooltip text when the button repsents the collapse action. */
+    /** Tooltip text when the button represents the collapse action. */
     static final String COLLAPSE_TOOLTIP = "Collapse";
     
-    /** Tooltip text when the button repsents the expand action. */
+    /** Tooltip text when the button represents the expand action. */
     static final String EXPAND_TOOLTIP = "Expand";
     
     /** The Model this button is working with. */

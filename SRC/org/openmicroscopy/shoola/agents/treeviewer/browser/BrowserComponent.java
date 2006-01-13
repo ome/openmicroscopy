@@ -568,7 +568,8 @@ class BrowserComponent
      */
 	public void setHierarchyRoot(int rootLevel, int rootID)
 	{
-		if (model.getState() != READY)
+	    int state = model.getState();
+		if (state != READY && state != NEW)
 		    throw new IllegalStateException(
                     "This method can only be invoked in the READY state.");
 		model.setHierarchyRoot(rootLevel, rootID);

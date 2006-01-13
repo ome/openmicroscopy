@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -202,6 +203,8 @@ public interface HiViewer
     /** Identifies the Save thumbnails action in the Actions menu. */
     public static final Integer     SAVE_THUMB = new Integer(19);
       
+    /** Identifies the Tree view action in the Actions menu. */
+    public static final Integer     TREE_VIEW = new Integer(20);
     
     /** 
      * The message displayed in the status bar when the metadata retrieval 
@@ -330,5 +333,23 @@ public interface HiViewer
      *                               {@link #READY}.
      */
     public UserDetails getUserDetails();
+    
+    /** 
+     * Shows or hides a tree representation of the data
+     * displayed in the <code>Browser</code>.
+     * 
+     * @param b Passed <code>true</code> to show the tree, <code>false</code>
+     * 			otherwise.
+     */
+    public void showTreeView(boolean b);
+    
+    /**
+     * The component hosting a tree representation of the data 
+     * displayed in the {@link Browser}. Returns <code>null</code>
+     * if the component hasn't be created.
+     * 
+     * @return See above.
+     */
+    public TreeView getTreeView();
     
 }

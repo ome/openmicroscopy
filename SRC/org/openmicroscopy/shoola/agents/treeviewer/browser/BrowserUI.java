@@ -187,8 +187,7 @@ class BrowserUI
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
                                 root.getChildCount());
-        DefaultTreeModel dtm = new DefaultTreeModel(root);
-        treeDisplay.setModel(dtm);
+        treeDisplay.setModel(new DefaultTreeModel(root));
         treeDisplay.collapsePath(new TreePath(root.getPath()));
         
         //Add Listeners
@@ -225,10 +224,9 @@ class BrowserUI
                 children = display.getChildrenDisplay();
                 if (children.size() != 0)
                     buildTreeNode(display, sorter.sort(children));
-                else {
+                else 
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                                    display, display.getChildCount());
-                }
             }
         } 
     }

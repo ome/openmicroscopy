@@ -71,6 +71,13 @@ public class TreeCellRenderer
     /** Flag to determine if the background color is modified. */
     private boolean             visibleColor;
     
+    /** 
+     * Value set to <code>true</code> to display a thumbnail of the image,
+     * <code>false</code> otherwise.
+     */
+    private boolean				thumbnail;
+    
+    
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
     
@@ -94,7 +101,10 @@ public class TreeCellRenderer
             setIcon(icon);
         } else if (usrObject instanceof ImageData) {
             setText(((ImageData) usrObject).getName());
-            if (icon == null) icon = icons.getIcon(IconManager.IMAGE_MEDIUM);
+            if (icon == null) {
+                if (thumbnail) icon = icons.getIcon(IconManager.IMAGE_MEDIUM);
+                else icon = icons.getIcon(IconManager.IMAGE);
+            }
             setIcon(icon);
         } else if (usrObject instanceof CategoryGroupData) {
             setText(((CategoryGroupData) usrObject).getName());
@@ -110,7 +120,7 @@ public class TreeCellRenderer
     /** Creates a new instance. */
     public TreeCellRenderer()
     {
-        this(false);
+        this(false, false);
     }
     
     /**
@@ -119,16 +129,21 @@ public class TreeCellRenderer
      * @param visibleColor  <code>true</code> to modify the backgroundColor
      *                      according to the highlight color of the node.,
      *                      <code>false</code> otherwise.
-     *                      
+     * @param thumbnail		<code>true</code> to display a thumbnail of the 
+     * 						image, <code>false</code> otherwise.                     
      */
-    public TreeCellRenderer(boolean visibleColor)
+    public TreeCellRenderer(boolean visibleColor, boolean thumbnail)
     {
         this.visibleColor = visibleColor;
+        this.thumbnail = thumbnail;
         icons = IconManager.getInstance();
     }
     
+    
     /**
-     * Sets the icon and the text.
+     * Overriden to set the icon and the text.
+     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+     * 								boolean, boolean, boolean, int, boolean)
      */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
                         boolean sel, boolean expanded, boolean leaf,
@@ -138,11 +153,11 @@ public class TreeCellRenderer
                                                 row, hasFocus);
         
         DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
-        
         if (node.getLevel() == 0) {
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
         }
+        
         Object usrObject = node.getUserObject();
         Color c = null;
         if (usrObject instanceof ImageSet) {
@@ -154,8 +169,9 @@ public class TreeCellRenderer
             }
         } else if (usrObject instanceof ImageNode) {
             ImageNode imgNode = (ImageNode) usrObject;
-            setValues(imgNode.getHierarchyObject(),
-                        imgNode.getThumbnail().getIcon());
+            if (thumbnail) setValues(imgNode.getHierarchyObject(),
+                    					imgNode.getThumbnail().getIcon());
+            else setValues(imgNode.getHierarchyObject(), null);
             if (visibleColor) {
                 c = imgNode.getHighlight();
                 if (c == null) c = getForeground();

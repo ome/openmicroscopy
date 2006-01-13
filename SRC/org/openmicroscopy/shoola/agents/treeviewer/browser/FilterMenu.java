@@ -44,7 +44,7 @@ import javax.swing.border.BevelBorder;
 //Application-internal dependencies
 
 /** 
- * 
+ * A popup menu to display the possible filters for image filtering.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,8 +57,7 @@ import javax.swing.border.BevelBorder;
 class FilterMenu
     extends JPopupMenu
 {
-
-    
+ 
     /** Button to retrieve the images in datasets. */
     private JMenuItem   dataset;
     
@@ -70,10 +69,7 @@ class FilterMenu
      * 
      * @param item The menu item.
      */
-    private void initMenuItem(JMenuItem item)
-    {
-        item.setBorder(null);
-    }
+    private void initMenuItem(JMenuItem item) { item.setBorder(null); }
     
     /**
      * Creates the menu items with the given actions.

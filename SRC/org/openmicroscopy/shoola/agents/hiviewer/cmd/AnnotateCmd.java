@@ -82,27 +82,25 @@ public class AnnotateCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        if (model != null) {
-            boolean b = false;
-            if (node == null) {
-                node = model.getBrowser().getSelectedDisplay();
-                b = true;
-            }     
-            if (node == null) return;
-            if (node.getHierarchyObject() == null) return;
-            DataObject hierarchyObject = (DataObject) node.getHierarchyObject();
-            if ((hierarchyObject instanceof DatasetData) ||
-                    (hierarchyObject instanceof ImageData)) {
-                if (b) {
-                    model.getClipBoard().setPaneIndex(
-                            ClipBoard.ANNOTATION_PANEL, null);
-                } else {
-                    model.getClipBoard().setPaneIndex(
-                            ClipBoard.ANNOTATION_PANEL, node);
-                    model.getBrowser().setSelectedDisplay(node);
-                }
-            } 
-        }
+        boolean b = false;
+        if (node == null) {
+            node = model.getBrowser().getSelectedDisplay();
+            b = true;
+        }     
+        if (node == null) return;
+        if (node.getHierarchyObject() == null) return;
+        DataObject hierarchyObject = (DataObject) node.getHierarchyObject();
+        if ((hierarchyObject instanceof DatasetData) ||
+                (hierarchyObject instanceof ImageData)) {
+            if (b) {
+                model.getClipBoard().setPaneIndex(
+                        ClipBoard.ANNOTATION_PANEL, null);
+            } else {
+                model.getClipBoard().setPaneIndex(
+                        ClipBoard.ANNOTATION_PANEL, node);
+                model.getBrowser().setSelectedDisplay(node);
+            }
+        } 
     }
 
 }

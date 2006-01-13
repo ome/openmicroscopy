@@ -108,10 +108,13 @@ class TreeViewerModel
         Browser browser = 
                 BrowserFactory.createBrowser(Browser.HIERARCHY_EXPLORER);
         selectedBrowser = browser;
+        browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
         browsers.put(new Integer(Browser.HIERARCHY_EXPLORER), browser);
         browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER);
+        browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
         browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
         browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER);
+        browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
         browsers.put(new Integer(Browser.IMAGES_EXPLORER), browser);
     }
     

@@ -37,7 +37,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
@@ -74,10 +73,8 @@ public class DeclassifyAction
     
     
     /**
-     * Callback to notify of a change in the currently selected display
-     * in the {@link Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
+     * Sets the action enabled depending on the currently selected display
+     * @see HiViewerAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {

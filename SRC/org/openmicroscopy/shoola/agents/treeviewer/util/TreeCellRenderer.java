@@ -104,7 +104,11 @@ public class TreeCellRenderer
         icons = IconManager.getInstance();
     }
     
-    /** Overriden to set the icon and the text displayed in a tool tip. */
+    /**
+     * Overriden to set the icon and the text.
+     * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+     * 								boolean, boolean, boolean, int, boolean)
+     */
     public Component getTreeCellRendererComponent(JTree tree, Object value,
                         boolean sel, boolean expanded, boolean leaf,
                         int row, boolean hasFocus)

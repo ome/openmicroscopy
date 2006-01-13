@@ -149,7 +149,7 @@ public class ZoomCmd
         selectedDisplay.accept(visitor);
         if (selectedDisplay instanceof ImageSet) {
             Layout layout = LayoutFactory.createLayout(
-                                LayoutFactory.SQUARY_LAYOUT, null);
+                    			LayoutFactory.SQUARY_LAYOUT);
             layout.visit((ImageSet) selectedDisplay);
         } 
     }

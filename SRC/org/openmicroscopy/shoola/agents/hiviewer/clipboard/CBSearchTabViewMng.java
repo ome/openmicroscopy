@@ -158,6 +158,7 @@ class CBSearchTabViewMng
 
     /**
      * Reacts to the actions.
+     * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {

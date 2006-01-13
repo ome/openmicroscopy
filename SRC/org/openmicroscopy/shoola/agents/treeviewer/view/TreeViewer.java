@@ -41,7 +41,6 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.DataObject;
 
 
@@ -109,13 +108,22 @@ public interface TreeViewer
     /** Identifies the <code>No Editor</code> type for the editor. */
     public static final int         NO_EDITOR = 102;
     
-    /** Indicates that the root of the retrieved hierarchy is the <code>World</code>. */
+    /** 
+     * Indicates that the root of the retrieved hierarchy is the 
+     * <code>World</code>. 
+     */
     public static final int			WORLD_ROOT = 200;
     
-    /** Indicates that the root of the retrieved hierarchy is an OME <code>Group</code>. */
+    /** 
+     * Indicates that the root of the retrieved hierarchy is an OME 
+     * <code>Group</code>.
+     */
     public static final int			GROUP_ROOT = 201;
     
-    /** Indicates that the root of the retrieved hierarchy is a <code>User</code>. */
+    /** 
+     * Indicates that the root of the retrieved hierarchy is a
+     * <code>User</code>. 
+     */
     public static final int			USER_ROOT = 202;
     
     /** Identifies the Properties action in the Actions menu. */

@@ -61,12 +61,6 @@ public class ContainerCounterLoader
     /** The lastly retrieved map. */
     private Map		currentMap;
     
-    /** 
-     * The type of the root node. 
-     * Either <code>DatasetData</code> or <code>CategoryData</code>
-     */
-    private Class	rootType;
-    
     /** The containers for which we need the value. */ 
     private Set		rootIDs;
     
@@ -128,20 +122,12 @@ public class ContainerCounterLoader
     /**
      * Creates a new instance.
      * 
-     * @param rootType 	The type of the root node, either {@link DatasetData}
-     * 					or {@link CategoryData}. Mustn't be <code>null</code>.
      * @param rootIDs	Collection of root ids. Mustn't be <code>null</code>.
      */
-    public ContainerCounterLoader(Class rootType, Set rootIDs)
+    public ContainerCounterLoader(Set rootIDs)
     {
-        if (rootType == null) throw new NullPointerException("No root type.");
         if (rootIDs == null) throw new NullPointerException("No root nodes.");
-        if (rootType.equals(DatasetData.class) || 
-                rootType.equals(CategoryData.class)) {
-            this.rootIDs = rootIDs;
-            this.rootType = rootType;
-        } else
-            throw new IllegalArgumentException("Root type not supported");
+        this.rootIDs = rootIDs;
     }
     
 }

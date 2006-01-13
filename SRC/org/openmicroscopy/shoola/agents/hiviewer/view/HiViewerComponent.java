@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -312,6 +313,43 @@ class HiViewerComponent
                    "This method can only be invoked in the" +
                    "LOADING_HIERARCHY, LOADING_THUMBNAILS or READY state.");
         }
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#showTreeView(boolean)
+     */
+    public void showTreeView(boolean b)
+    {
+        int state = model.getState();
+        if (state != LOADING_THUMBNAILS && state != READY)
+            throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        if (getBrowser() == null) return;
+        TreeView treeView = model.getTreeView();
+        if (treeView == null) {
+            model.createTreeView();
+            treeView = model.getTreeView();
+            treeView.addPropertyChangeListener(controller);
+        }
+        if (treeView.isDisplay() == b) return;
+        treeView.setDisplay(b);
+        view.showTreeView(b);
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getTreeView()
+     */
+    public TreeView getTreeView()
+    {
+        int state = model.getState();
+        if (state != LOADING_THUMBNAILS && state != READY)
+            throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        return model.getTreeView();
     }
 
 }

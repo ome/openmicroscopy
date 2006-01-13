@@ -44,7 +44,7 @@ import javax.swing.event.ChangeListener;
 /** 
  * Factory to create {@link HiViewer} components.
  * This class keeps track of all {@link HiViewer} instances that have been
- * created and are not yet {@link HiViewer#DISCARDED discarded}.  A new
+ * created and are not yet {@link HiViewer#DISCARDED discarded}. A new
  * component is only created if none of the <i>tracked</i> ones is already
  * displaying the given hierarchy.  Otherwise, the existing component is
  * recycled.
@@ -138,9 +138,8 @@ public class HiViewerFactory
      */
     public static HiViewer getPDIViewer(Set images)
     {
-        //HiViewerModel model = new PDIModel(images);
-        HiViewerModel model = new HierarchyModel(images,
-                                HiViewer.PDI_HIERARCHY);
+        HiViewerModel model = new HierarchyModel(images, 
+                								HiViewer.PDI_HIERARCHY);
         return singleton.getViewer(model);
     }
     
@@ -181,9 +180,7 @@ public class HiViewerFactory
     private Set     viewers;
     
     
-    /**
-     * Creates a new instance.
-     */
+    /** Creates a new instance. */
     private HiViewerFactory() 
     {
         viewers = new HashSet();
@@ -234,6 +231,7 @@ public class HiViewerFactory
     /**
      * Removes a viewer from the {@link #viewers} set when it is
      * {@link HiViewer#DISCARDED discarded}. 
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */ 
     public void stateChanged(ChangeEvent ce)
     {

@@ -152,10 +152,13 @@ class ClipBoardUI
         });
     }
     
-    /** Returns the popup menu. */
+    /** 
+     * Returns the popup menu. 
+     * 
+     * @return See above.
+     */
     TreePopupMenu getPopupMenu() { return popupMenu; }
 
-    
     /** Displays the retrieved annotations. */
     void showAnnotations() { annotationView.showAnnotations(); }
     

@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -141,10 +141,14 @@ public class FindRegExCmd
             if (selectedDisplay instanceof ImageSet)
                 selectedDisplay.accept(visitor);
         } 
+        TreeView tree = model.getTreeView();
+        if (tree != null) tree.repaint();
+        /*
         if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT) {
             if (browser.getTreeDisplay() != null)
                 browser.getTreeDisplay().repaint();
         }
+        */
         model.getClipBoard().setSearchResults(visitor.getFoundNodes());
     }
 

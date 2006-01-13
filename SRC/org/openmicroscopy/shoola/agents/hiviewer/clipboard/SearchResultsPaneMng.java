@@ -90,15 +90,20 @@ class SearchResultsPaneMng
         });
     }
     
-    /** Pops up the menu. */
+    /**
+     * Sets the selected node and brings up on screen 
+     * the popup menu if the {@link MouseEvent} is the popup menu event 
+     * for the platform.
+     * 
+     * @param me The mouse event to handle.
+     */
     private void onClick(MouseEvent me)
     {
         int row = view.getRowForLocation(me.getX(), me.getY());
         if (row != -1) {
             view.setSelectionRow(row);
             view.setSelectedNode();
-            if (me.isPopupTrigger())
-                view.showMenu(me.getX(), me.getY());
+            if (me.isPopupTrigger()) view.showMenu(me.getX(), me.getY());
         }
     }
     
@@ -113,7 +118,6 @@ class SearchResultsPaneMng
         DefaultTreeModel tm = (DefaultTreeModel) view.getModel();
         dtn = (DefaultMutableTreeNode) identityMap.get(node);
         if (dtn == null) { // create a tree node
-            //dtn = new DefaultMutableTreeNode(node.getHierarchyObject());
             dtn = new DefaultMutableTreeNode(node);
             identityMap.put(node, dtn);
         }
@@ -126,7 +130,6 @@ class SearchResultsPaneMng
             DefaultMutableTreeNode 
                 pdtn = (DefaultMutableTreeNode) identityMap.get(parent);
             if (pdtn == null) { // create a tree node
-                //pdtn = new DefaultMutableTreeNode(parent.getHierarchyObject());
                 pdtn = new DefaultMutableTreeNode(parent);
                 identityMap.put(parent, pdtn);
             }
@@ -137,14 +140,15 @@ class SearchResultsPaneMng
     }
     
     /** 
-     * Checkes if the specified child as already been added to the 
+     * Controls if the specified child as already been added to the 
      * specified parent. 
      * 
      * @param tm The tree model
      * @param child The specified {@link DefaultMutableTreeNode child}.
      * @param parent The specified {@link DefaultMutableTreeNode parent}.
-     * 
-     * */
+     * @return 	<code>true</code> if the specified child has already been added
+     * 			to the specified parent, <code>false</code> otherwise.
+     */
     private boolean hasBeenAdded(DefaultTreeModel tm, 
                     DefaultMutableTreeNode child, DefaultMutableTreeNode parent)
     {
@@ -174,7 +178,11 @@ class SearchResultsPaneMng
         view.setTreeModel(root);
     }
     
-    /** Builds the results tree. */
+    /** 
+     * Builds the results tree. 
+     * 
+     * @param nodes Collection of nodes to add to the tree.
+     */
     void buildTree(Set nodes)
     {
         if (nodes.size() == 0) {

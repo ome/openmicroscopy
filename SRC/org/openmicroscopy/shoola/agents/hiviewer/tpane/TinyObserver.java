@@ -37,43 +37,25 @@ package org.openmicroscopy.shoola.agents.hiviewer.tpane;
 
 /** 
  * Defines an Observer contract for UI components that make up the 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}'s
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane}'s View.
+ * {@link TinyPane}'s View.
  * The View is built by aggregating smaller UI components,
- * like buttons and icons in the title bar.  Each of those usually observes one
- * bound property of the 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane}
- * and updates itself upon change notifications. So this interface defines a 
+ * like buttons and icons in the title bar. Each of those usually observes one
+ * bound property of the {@link TinyPane} and updates itself upon change
+ * notifications. So this interface defines a 
  * method that such components implement to {@link #attach() register} 
- * with the {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane},
- * the Model.  After adding a sub-component to the View, this method is called
- * to allow the component to start observing the Model.  When the component is
- * removed from the View, the {@link #detach() detach} method is
- * called so that the component can remove itself from the Model's change
- * notification register.  This is critical to avoid memory leaks.  In fact,
- * the title bar's components (icon, buttons, etc.) can be replaced multiple
- * times during the life-cycle of a 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame}
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane} &#151; 
- * every time a different title bar the <code>TitleBar type</code>
- * of
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame} 
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane}
- * is specified.
+ * with the {@link TinyPane}, the Model. After adding a sub-component to the 
+ * View, this method is calledto allow the component to start observing the 
+ * Model. When the component isremoved from the View, the 
+ * {@link #detach() detach} method is called so that the component can remove
+ * itself from the Model's change notification register. This is critical to
+ * avoid memory leaks. In fact, the title bar's components (icon, buttons, etc.)
+ * can be replaced multiple times during the life-cycle of a {@link TinyPane} 
+ * &#151; every time a different title bar the <code>TitleBar type</code>
+ * {@link TinyPane} is specified.
  * Now if those components in the old title bar didn't remove themselves from 
  * the change notification register, they would keep on being reachable from the
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame} 
- * or 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane} object
- * and, for this reason, even if logically discarded, they would never be 
- * garbage-collected. 
+ * {@link TinyPane} object and, for this reason, even if logically discarded,
+ * they would never be garbage-collected. 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

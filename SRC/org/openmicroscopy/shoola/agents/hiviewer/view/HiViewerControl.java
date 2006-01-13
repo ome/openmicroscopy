@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeLayoutAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewCGCIAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewPDIAction;
@@ -79,7 +80,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.SelectedNodeVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 
 /** 
  * The HiViewer's Controller.
@@ -136,6 +138,7 @@ class HiViewerControl
         actionsMap.put(HiViewer.ZOOM_FIT, new ZoomFitAction(model));
         actionsMap.put(HiViewer.FIND_W_ST, new FindwSTAction(model));
         actionsMap.put(HiViewer.SAVE_THUMB, new SaveThumbnailsAction(model));
+        actionsMap.put(HiViewer.TREE_VIEW, new TreeViewAction(model));
     }
   
     /** Creates the windowsMenuItems. */
@@ -211,10 +214,11 @@ class HiViewerControl
     private void setViews()
     {
         Browser browser = model.getBrowser();
-        browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, 
-                                      this);
-        browser.addPropertyChangeListener(
-                Browser.THUMB_SELECTED_PROPERTY, this); 
+        browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, this);
+        browser.addPropertyChangeListener(Browser.THUMB_SELECTED_PROPERTY, 
+                							this); 
+        browser.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY, 
+											this); 
         view.setViews(browser.getUI(), model.getClipBoard().getUI());
         view.setViewTitle();
     }
@@ -269,6 +273,7 @@ class HiViewerControl
     /**
      * Detects when the {@link Browser} is ready and then registers for
      * property change notification.
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent ce)
     {
@@ -289,7 +294,10 @@ class HiViewerControl
         historyState = state;
     }
     
-    /** Reacts to property changes in the {@link Browser}. */
+    /**
+     * Reacts to property changes in the {@link Browser}.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent pce)
     {
         Browser browser = model.getBrowser();
@@ -297,14 +305,24 @@ class HiViewerControl
         String propName = pce.getPropertyName();
         if (Browser.POPUP_POINT_PROPERTY.equals(propName)) {
             Point p = browser.getPopupPoint();
-            if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT) {
-                JComponent c = browser.getTreeDisplay();
-                if (c != null && p != null) view.showPopup(c, p);
-            } else {
-                if (d != null && p != null) view.showPopup(d, p);
-            }
+            if (d != null && p != null) view.showPopup(d, p);
         } else if (Browser.THUMB_SELECTED_PROPERTY.equals(propName)) {  
             ThumbWinManager.display((ImageNode) d, model);
+        } else if (TreeView.TREE_POPUP_POINT_PROPERTY.equals(propName))  {
+            TreeView treeView = model.getTreeView();
+            if (treeView == null) return; //tree shouldn't be null
+            Point p = treeView.getPopupPoint();
+            if (p != null) view.showPopup(((JComponent) pce.getNewValue()), p);
+        } else if (TreeView.CLOSE_PROPERTY.equals(propName)) {
+            model.showTreeView(false);
+        } else if (TreeView.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
+            TreeView treeView = model.getTreeView();
+            if (treeView == null) return; //tree shouldn't be null
+            browser.setSelectedDisplay((ImageDisplay) pce.getNewValue());
+        } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
+            TreeView treeView = model.getTreeView();
+            if (treeView == null) return; 
+            treeView.accept(new SelectedNodeVisitor(treeView, d)); 
         }
     }
     

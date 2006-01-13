@@ -41,7 +41,22 @@ import java.awt.LayoutManager;
 //Application-internal dependencies
 
 /** 
- * 
+ * The {@link TitleBar}s layout manager.
+ * This class makes sure the minimum dimension of the title bar is always
+ * {@link TitleBar#MIN_WIDTH}x{@link TitleBar#getFixedHeight()}.
+ * This is possible because the title bar has a <code>null</code> UI delegate
+ * and its dimensions are never set. So every call to a <code>getXXXSize</code>
+ * method will eventually be answered by this class' 
+ * {@link #minimumLayoutSize(Container) minimumLayoutSize} method.
+ * This class lays out all the components found in the {@link TitleBar} from
+ * left to right, leaving {@link TitleBar#H_SPACING} pixels between them and
+ * centering them along the <code>y</code> axis. Every component is sized to
+ * its preferred dimensions, unless its height exceeds the title bar's fixed 
+ * height less <code>2</code> pixels; in this case the latter value is used
+ * instead. If a {@link TinyPane} component is found, then it receives
+ * a special treatment: it's given all available width in the bar after all
+ * other components have been laid out.  The layout assumes the title bar has
+ * no borders.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

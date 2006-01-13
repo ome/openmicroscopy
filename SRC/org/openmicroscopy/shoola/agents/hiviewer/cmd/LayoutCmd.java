@@ -105,14 +105,14 @@ public class LayoutCmd
         switch (layoutIndex) {
             case LayoutFactory.SQUARY_LAYOUT:
                 browser.accept(LayoutFactory.createLayout(
-                        LayoutFactory.SQUARY_LAYOUT, null),
+                        LayoutFactory.SQUARY_LAYOUT),
                         ImageDisplayVisitor.IMAGE_SET_ONLY);
-                browser.setTreeDisplay(null);
+                //browser.setTreeDisplay(null);
                 browser.setSelectedLayout(LayoutFactory.SQUARY_LAYOUT);
                 break;
             case LayoutFactory.TREE_LAYOUT:
                 browser.accept(LayoutFactory.createLayout(
-                        LayoutFactory.TREE_LAYOUT, browser),
+                        		LayoutFactory.TREE_LAYOUT),
                         ImageDisplayVisitor.IMAGE_SET_ONLY);
                 browser.setSelectedLayout(LayoutFactory.TREE_LAYOUT);
         }

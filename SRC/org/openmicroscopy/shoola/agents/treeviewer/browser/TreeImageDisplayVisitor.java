@@ -62,7 +62,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
  * <pre>
  *   img = node.getHierarchyObject()
  *   if img has annotation
- *   then node.setHighlight(color)
+ *   then node.setTooltip(text)
  * </pre>
  * 
  * @see TreeImageDisplay

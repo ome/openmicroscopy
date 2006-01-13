@@ -73,16 +73,14 @@ public class ShowTitleBarAction
 
     
     /**
-     * Callback to notify of a change in the currently selected display
-     * in the {@link Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
+     * Sets the action enabled depending on the currently selected display
+     * @see HiViewerAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
         if (selectedDisplay != null)
             setEnabled(!(model.getBrowser().getSelectedLayout() == 
-                LayoutFactory.TREE_LAYOUT));
+                		LayoutFactory.TREE_LAYOUT));
     }
     
     /**

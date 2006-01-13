@@ -67,6 +67,15 @@ abstract class ClipBoardTab
     protected ClipBoardControl  controller;
     
     /**
+     * The class implementing the I/F should override the 
+     * method.
+     * 
+     * @param selectedDisplay   The selected {@link ImageDisplay} node in the
+     *                          <code>Browser</code>.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -83,14 +92,5 @@ abstract class ClipBoardTab
         this.view = view;
         this.controller = controller;
     }
-    
-    /**
-     * The class implementing the I/F should override the 
-     * method.
-     * 
-     * @param selectedDisplay   The selected {@link ImageDisplay} node in the
-     *                          <code>Browser</code>.
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
-    
+
 }

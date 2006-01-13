@@ -388,6 +388,7 @@ class CBSearchTabView
     /**
      * Updates the UI components when a node is selected in the
      * <code>Browser</code>.
+     * @see ClipBoardTab#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
@@ -414,7 +415,7 @@ class CBSearchTabView
     
     /**
      * Overriden to size the tree hosting the result. 
-     * @see #setBounds(int, int, int, int)
+     * @see ClipBoardTab#setBounds(int, int, int, int)
      */
     public void setBounds(int x, int y, int w, int h)
     {

@@ -170,7 +170,6 @@ class BorderListener
         resizeDir = RESIZE_NONE;
         
         Insets i = frame.getInsets();
-
         Point ep = new Point(__x, __y);
         JComponent titleBar = frame.getTitleBar();
         if (e.getSource() == frame.getTitleBar()) {

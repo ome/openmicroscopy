@@ -103,6 +103,12 @@ class HiViewerWin
     /** The windows menu. */
     private JMenu               windowsMenu;
     
+    /** 
+     * The main pane hosting the <code>Browser</code> and 
+     * the <code>ClipBoard</code>
+     */
+    private JSplitPane			mainPane;
+    
     /** The Controller. */
     private HiViewerControl     controller;
     
@@ -120,21 +126,14 @@ class HiViewerWin
     private JSplitPane createSplitPane(JComponent browserUI,
                                         JComponent clipBoardUI)
     {
-        JSplitPane pane = new JSplitPane();
-        pane.setResizeWeight(1);
-        pane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        pane.setOneTouchExpandable(true);
-        pane.setContinuousLayout(true);
-        pane.setTopComponent(browserUI);
-        pane.setBottomComponent(clipBoardUI);
-        JSplitPane leftPane = new JSplitPane();
-        leftPane.setResizeWeight(1);
-        leftPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        leftPane.setOneTouchExpandable(true);
-        leftPane.setContinuousLayout(true);
-        leftPane.setLeftComponent(new JPanel());
-        leftPane.setRightComponent(pane);
-        return leftPane;
+        mainPane = new JSplitPane();
+        mainPane.setResizeWeight(1);
+        mainPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        mainPane.setOneTouchExpandable(true);
+        mainPane.setContinuousLayout(true);
+        mainPane.setTopComponent(browserUI);
+        mainPane.setBottomComponent(clipBoardUI);
+        return mainPane;
     }
     
     /** Builds and lays out the GUI. */
@@ -235,7 +234,7 @@ class HiViewerWin
         JMenu menu = new JMenu("Layout");
         menu.setMnemonic(KeyEvent.VK_L);
         menu.add(new JMenuItem(controller.getAction(HiViewer.SQUARY)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.TREE)));
+        menu.add(new JMenuItem(controller.getAction(HiViewer.TREE_VIEW)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.SHOW_TITLEBAR)));
         menu.add(new JMenuItem(
@@ -369,6 +368,33 @@ class HiViewerWin
         String title = DEFAULT_TITLE+": ";
         title += getViewTitle();
         setTitle(title);
+    }
+    
+    /**
+     * Shows or hides the component depending on the stated of the frame.
+     * 
+     * @param b Passed <code>true</code> to show the component, 
+     * 			<code>false</code> otherwise.
+     */
+    void showTreeView(boolean b)
+    {
+        Container container = getContentPane();
+        if (b) {
+            JSplitPane pane = new JSplitPane();
+            pane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+            pane.setOneTouchExpandable(true);
+            pane.setContinuousLayout(true);
+            pane.setLeftComponent(model.getTreeView());
+            pane.setRightComponent(mainPane);
+            container.remove(mainPane);
+            container.add(pane, BorderLayout.CENTER);
+        } else {
+            container.removeAll();
+            container.add(mainPane, BorderLayout.CENTER);
+            container.add(statusBar, BorderLayout.SOUTH); 
+        }
+        container.validate();
+        container.repaint();
     }
     
     /** 

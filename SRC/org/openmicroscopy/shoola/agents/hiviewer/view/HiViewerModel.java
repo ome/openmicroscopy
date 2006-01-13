@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.UserDetails;
 
@@ -86,6 +87,12 @@ abstract class HiViewerModel
     
     /** The sub-component that controls the display. */
     private ClipBoard           clipBoard;
+    
+    /** 
+     * The sub-component that presents a tree view of the data displayed
+     * in the <code>Browser</code>.
+     */
+    private TreeView			treeView;
     
     /** 
      * Will either be a hierarchy loader, a thumbnail loader, or 
@@ -211,6 +218,19 @@ abstract class HiViewerModel
      *         {@link HiViewer#NEW} or {@link HiViewer#LOADING_HIERARCHY}.
      */
     ClipBoard getClipBoard() { return clipBoard; }
+    
+    /**
+     * Returns the component that hosts a tree representation of the
+     * data displayed in the <code>Browser</code>.
+     * 
+     * @return See above.
+     */
+    TreeView getTreeView() { return treeView; }
+    
+    void createTreeView()
+    {
+        if (treeView == null) treeView = new TreeView(browser.getUI());
+    }
     
     /**
      * Starts the asynchronous retrieval of the thumbnails needed for the

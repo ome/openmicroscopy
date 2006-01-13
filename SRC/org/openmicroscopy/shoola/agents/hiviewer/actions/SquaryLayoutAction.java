@@ -40,7 +40,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
@@ -70,14 +70,12 @@ public class SquaryLayoutAction
 
     
     /**
-     * Callback to notify of a change in the currently selected display
-     * in the {@link Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
+     * Sets the action enabled depending on the currently selected display
+     * @see HiViewerAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay != null) setEnabled(true);
+        setEnabled(selectedDisplay != null);
     }
     
     /**

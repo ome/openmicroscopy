@@ -457,6 +457,7 @@ class CBAnnotationTabView
     /**
      * Updates the UI components and retrieves the annotation when a node is
      * selected in the <code>Browser</code>.
+     * @see ClipBoardTab#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {

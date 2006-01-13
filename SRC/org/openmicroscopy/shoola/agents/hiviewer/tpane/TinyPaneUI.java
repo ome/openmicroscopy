@@ -181,7 +181,6 @@ class TinyPaneUI
         border = makeBorder();
         frame.setBorder(border);
         frame.setOpaque(false);
-        
         frame.addPropertyChangeListener(this);
         frame.addComponentListener(this);
         attachBorderListener();
@@ -191,7 +190,7 @@ class TinyPaneUI
      * Decorates the frame's internal desktop with a scroll pane.
      * 
      * @param dp The internal desktop.
-     * @return A scroll pane enclosing <code>dp</code>.
+     * @return A scroll pane enclosing the <code>JLayeredPane</code>.
      */
     JScrollPane decorateDesktopPane(JLayeredPane dp)
     {
@@ -241,15 +240,12 @@ class TinyPaneUI
         //System.out.println("ideal Size:"+dskDecorator.getPreferredSize()+" "+internalDesktopSz);
         Insets scrollPaneInsets = dskDecorator.getInsets(),
                 frameInsets = frame.getInsets();
-        sz.width = frameInsets.left + scrollPaneInsets.left + 
-                    internalDesktopSz.width + 
-                    scrollPaneInsets.right + frameInsets.right;
-        sz.height = frameInsets.top +  
-                    scrollPaneInsets.top +
-                    internalDesktopSz.height + 
-                    scrollPaneInsets.bottom +
-                    frameInsets.bottom +
-                    h;
+        sz.width = frameInsets.left+scrollPaneInsets.left+
+        			internalDesktopSz.width+ 
+                    scrollPaneInsets.right+frameInsets.right;
+        sz.height = frameInsets.top+scrollPaneInsets.top+
+                    internalDesktopSz.height+scrollPaneInsets.bottom+
+                    frameInsets.bottom+h;
         return sz;
     }
     
