@@ -176,11 +176,17 @@ public class IconManager
     /** ID of the image medium icon. */
     public static final int     IMAGE_MEDIUM = 37;
     
+    /** ID of the collapse icon. */
+    public static final int     COLLAPSE = 38;
+    
+    /** ID of the cloase icon. */
+    public static final int     CLOSE_VIEW = 39;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 37;
+    private static int          MAX_ID = 39;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -224,6 +230,8 @@ public class IconManager
         relPaths[SAVE_AS_BIG] = "nuvola_filesaveas48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[IMAGE_MEDIUM] = "nuvola_image26.png";
+        relPaths[CLOSE_VIEW] = "eclipse_close_view16.png";
+        relPaths[COLLAPSE] = "eclipse_collapseall16.png";
     }
     
     /** The sole instance. */

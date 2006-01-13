@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
@@ -71,6 +72,27 @@ public abstract class DataBrowserLoader
     
     /** Convenience reference for subclasses. */
     protected final DataManagerView dmView;
+    
+    /**
+     * Converts the specified UI rootLevel into its corresponding 
+     * constant defined by the {@link DataManagerView}.
+     * 
+     * @param level The level to convert.
+     * @return See above.
+     */
+    protected int convertRootLevel(int level)
+    {
+        switch (level) {
+	        case TreeViewer.WORLD_ROOT:
+	            return DataManagerView.WORLD_HIERARCHY_ROOT;
+	        case TreeViewer.USER_ROOT:
+	            return DataManagerView.USER_HIERARCHY_ROOT;
+	        case TreeViewer.GROUP_ROOT:
+	            return DataManagerView.GROUP_HIERARCHY_ROOT;
+	        default:
+	            throw new IllegalArgumentException("Level not supported");
+        }
+    }
     
     /**
      * Creates a new instance.

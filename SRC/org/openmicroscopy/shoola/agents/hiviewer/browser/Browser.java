@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Point;
 import java.util.Set;
 import javax.swing.JComponent;
-import javax.swing.JTree;
 
 
 //Third-party libraries
@@ -232,7 +231,7 @@ public interface Browser
      * 
      * @return See above.
      */
-    public JTree getTreeDisplay();
+    //public JTree getTreeDisplay();
     
     /**
      * Sets the tree hosting the display. The value is <code>null</code>
@@ -240,6 +239,6 @@ public interface Browser
      * 
      * @param tree The tree hosting the display or <code>null</code>.
      */
-    public void setTreeDisplay(JTree tree);
+    //public void setTreeDisplay(JTree tree);
     
 }

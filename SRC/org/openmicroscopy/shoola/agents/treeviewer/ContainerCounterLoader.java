@@ -42,9 +42,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.CategoryData;
-import pojos.DatasetData;
-
 /** 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,52 +59,32 @@ public class ContainerCounterLoader
     /** The collection of containers we want to analyse. */
     private Set			rootIDs;
     
-    /** The type of the root node. */
-    private Class		rootType;
-    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
     /**
-     * Controls if the specified type is supported.
-     * 
-     * @param type The type to control.
-     * @return 	<code>true</code> if the type is supported, <code>false</code>
-     * 			otherwise.
-     */
-    private boolean checkRootType(Class type)
-    {
-        if ((type.equals(DatasetData.class)) || 
-            (type.equals(CategoryData.class)))
-            return true;
-        return false;
-    }
-    
-    /**
      * Creates a new instance.
      * 
-     * @param viewer
-     * @param rootType
-     * @param rootIDs
+     * @param viewer 	Reference to the Model. Mustn't be <code>null</code>.
+     * @param rootIDs 	Collection of 
+     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet}s 
+     * which contain <code>Images</code> e.g. <code>Dataset</code>.
      */
-    public ContainerCounterLoader(Browser viewer, Class rootType, Set rootIDs)
+    public ContainerCounterLoader(Browser viewer, Set rootIDs)
     {
         super(viewer);
         if (rootIDs == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
-        if (!(checkRootType(rootType)))
-            throw new IllegalArgumentException("Root type not supported");
         this.rootIDs = rootIDs;
-        this.rootType = rootType;
     }
 
     /**
-     *  Retrieves the number of items contained in each specified container.
+     * Retrieves the number of items contained in each specified container.
      * @see DataBrowserLoader#load()
      */
     public void load()
     {
-        handle = dmView.countContainerItems(rootType, rootIDs, this);
+        handle = dmView.countContainerItems(rootIDs, this);
     }
 
     /** Cancels the data loading. */

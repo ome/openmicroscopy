@@ -59,13 +59,13 @@ public class UserDetails
     private int     userID;
     
     /** The user's First name. */
-    private String userFirstName;
+    private String 	userFirstName;
     
     /** The user's Last name. */
-    public String userLastName;
+    public String	userLastName;
     
     /** A list of group id, the user may belong to more than a group. */
-    private List         groupIDs;
+    private List	groupIDs;			
     
     public UserDetails(int id, String firstName, String lastName, List groupIDs)
     {
@@ -75,16 +75,32 @@ public class UserDetails
         this.groupIDs = groupIDs;
     }
 
-    /** Returns the user's first name. */
+    /** 
+     * Returns the user's ID.
+     * 
+     * @return See above. 
+     */
     public int getUserID() { return userID; }
        
-    /** Returns the user's ID. */
+    /** 
+     * Returns the user's first name.
+     * 
+     * @return See above. 
+     */
     public String getUserFirstName() { return userFirstName; }
     
-    /** Returns the user's last name. */
+    /** 
+     * Returns the user's last name.
+     * 
+     * @return See above. 
+     */
     public String getUserLastName() { return userLastName; }
     
-    /** Returns the list of group's id, the user belongs to. */
+    /** 
+     * Returns the list of group's id, the user belongs to. 
+     * 
+     * @return See above.
+     */
     public List getGroupIDs() { return groupIDs; }
     
 }

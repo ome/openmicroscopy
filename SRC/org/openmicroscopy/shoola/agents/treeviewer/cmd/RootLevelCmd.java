@@ -103,8 +103,6 @@ public class RootLevelCmd
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         checkLevel(rootLevel);
-        if (rootID < 0) 
-            throw new IllegalArgumentException("Root ID not valid.");
         this.model = model;
         this.rootLevel = rootLevel;
         this.rootID = rootID;

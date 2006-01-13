@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Point;
 import java.util.Set;
 import javax.swing.JComponent;
-import javax.swing.JTree;
 
 //Third-party libraries
 
@@ -263,18 +262,22 @@ class BrowserModel
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getTreeDisplay()
      */
+    /*
     public JTree getTreeDisplay()
     {
         return rootDisplay.getSelectedTreeComponent();
     }
+    */
 
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setTreeDisplay(JTree)
      */
+    /*
     public void setTreeDisplay(JTree tree)
     {
         rootDisplay.setTreeView(tree);
     }
+    */
 
 }

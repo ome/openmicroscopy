@@ -157,7 +157,7 @@ public class HierarchyLoader
     public void load()
     {
         handle = dmView.loadContainerHierarchy(rootNodeType, null, images,
-                                               viewer.getRootLevel(),
+                					convertRootLevel(viewer.getRootLevel()),
                                                viewer.getRootID(), this);
     }
 
