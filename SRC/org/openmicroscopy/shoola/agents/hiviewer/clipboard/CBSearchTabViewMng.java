@@ -37,7 +37,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import javax.swing.JButton;
 
 //Third-party libraries
@@ -47,8 +46,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.RegExFactory;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.RegExFactory;
 
 /** 
  * The {@link CBSearchTabView}'s controller. 
