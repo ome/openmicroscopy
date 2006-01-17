@@ -300,13 +300,14 @@ class HiViewerControl
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
-        Browser browser = model.getBrowser();
-        ImageDisplay d = browser.getSelectedDisplay();
         String propName = pce.getPropertyName();
         if (Browser.POPUP_POINT_PROPERTY.equals(propName)) {
+            Browser browser = model.getBrowser();
+            ImageDisplay d = browser.getSelectedDisplay();
             Point p = browser.getPopupPoint();
             if (d != null && p != null) view.showPopup(d, p);
         } else if (Browser.THUMB_SELECTED_PROPERTY.equals(propName)) {  
+            ImageDisplay d = model.getBrowser().getSelectedDisplay();
             ThumbWinManager.display((ImageNode) d, model);
         } else if (TreeView.TREE_POPUP_POINT_PROPERTY.equals(propName))  {
             TreeView treeView = model.getTreeView();
@@ -318,10 +319,12 @@ class HiViewerControl
         } else if (TreeView.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; //tree shouldn't be null
-            browser.setSelectedDisplay((ImageDisplay) pce.getNewValue());
+            model.getBrowser().setSelectedDisplay(
+                    (ImageDisplay) pce.getNewValue());
         } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; 
+            ImageDisplay d = model.getBrowser().getSelectedDisplay();
             treeView.accept(new SelectedNodeVisitor(treeView, d)); 
         }
     }
