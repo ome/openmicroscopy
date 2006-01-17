@@ -117,11 +117,10 @@ public class UIUtilities
      * for the specified parent.
      * The newly created dialog is then centered on the screen and made visible.
 	 *
-     *@param parent The parent component.
-     *@param title  The title of the dialog.
-     *@param c      The component to display.
-     *
-     *@see #centerAndShow(Component)
+     * @param parent The parent component.
+     * @param title  The title of the dialog.
+     * @param c      The component to display.
+     * @see #centerAndShow(Component)
 	 */
     public static void makeForDialog(Component parent, String title, 
                                     JComponent c)
@@ -144,9 +143,11 @@ public class UIUtilities
     }
     
     /** 
-     * Create a modal JDialog with no title. 
+     * Creates a modal JDialog with no title. 
      * 
-     * @see #makeForDialog(Component, String, JComponent)
+     * @param parent The parent component.
+     * @param c      The component to display.
+     * @see #makeForDialog(Component, JComponent)
      */
     public static void makeForDialog(Component parent, JComponent c)
     {

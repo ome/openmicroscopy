@@ -64,7 +64,7 @@ import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
 
 /** 
- * The Ui delegate of the {@link TreeView}.
+ * The UI delegate of the {@link TreeView}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -74,7 +74,7 @@ import org.openmicroscopy.shoola.env.ui.ViewerSorter;
  * </small>
  * @since OME2.2
  */
-public class TreeViewUI
+class TreeViewUI
 {
     
     /** 
@@ -220,7 +220,7 @@ public class TreeViewUI
      * Creates a new instance.
      * 
      * @param model	Reference to the Model. Mustn't be <code>null</code>.
-     * @param rootNode The root node.
+     * @param rootNode The root node. Mustn't be <code>null</code>.
      */
     TreeViewUI(TreeView model, ImageDisplay rootNode)
     {
@@ -269,7 +269,6 @@ public class TreeViewUI
         if (newNode != null) {
             TreePath path = new TreePath(newNode.getPath());
             tree.setSelectionPath(path);
-            //tree.getE
             renderer.getTreeCellRendererComponent(tree, newNode, 
                     	tree.isPathSelected(path),
                     	false, true, 0, false);

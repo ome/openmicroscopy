@@ -66,7 +66,7 @@ class CloseButton
     /**
      * Creates a new instance.
      * 
-     * @param model The Model this button will be working with.
+     * @param model The Model this button is working with.
      *              Mustn't be <code>null</code>.
      */
     CloseButton(TreeView model)
