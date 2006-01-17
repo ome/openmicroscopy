@@ -103,6 +103,12 @@ public class Bugzilla600Test
         }
     }
 
+    public void testOutOfMemoryError() throws Exception
+    {
+        Object o = psrv.getUserImages(new PojoOptions().exp(642).map());
+        System.out.println(ome.util.Utils.structureSize(o));
+    }
+    
     public void setPsrv(Pojos psrv)
     {
         this.psrv = psrv;

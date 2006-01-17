@@ -46,9 +46,12 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
 import ome.api.OMEModel;
@@ -67,6 +70,22 @@ import ome.dao.GenericDao;
  */
 public class GenericDaoHibernate extends HibernateDaoSupport implements GenericDao {
 
+    public boolean checkType(String type) {
+        ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
+        return meta == null ? false : true;
+    }
+    
+    public boolean checkProperty(String type, String property) {
+        ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
+        String[] names = meta.getPropertyNames();
+        for (int i = 0; i < names.length; i++)
+        {
+            // TODO: possibly with caching and Arrays.sort/search
+            if (names[i].equals(property)) return true;
+        }
+        return false;
+    }
+    
 	public Object getUniqueByExample(final Object example) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)

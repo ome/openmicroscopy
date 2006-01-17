@@ -179,31 +179,28 @@ select ${abbrev} from ${class} ${abbrev}
 #end
 #end
 #####################################################
+#macro(exp_select $exp)
+#if($doGroup)
+		and ( $exp is null or $exp in (select user.id from Experimenter user where user.group = :grp ) )
+#elseif($doExperimenter)
+		and ( $exp is null or $exp = :exp )
+#else 
+## This should only output if doGroup or doExperimenter
+#end
+#end
+
 #macro(typeExperimenter)
-#if($doExperimenter)
 ## TODO or just the top level here?	
-#if($doProject)
-		and ( p_exp = :exp or p_exp is null )
+#if($doProject)#exp_select("p_exp")#end
+#if($doDataset)#exp_select("d_exp")#end
+#if($doCategoryGroup)#exp_select("cg_exp")#end
+#if($doCategory)#exp_select("c_exp")#end
+#if($doClassification)#exp_select("cla_exp")#end
 #end
-#if($doDataset)
-		and ( d_exp = :exp or d_exp is null )
-#end
-#if($doCategoryGroup)
-		and ( cg_exp = :exp or cg_exp is null )
-#end
-#if($doCategory)
-		and ( c_exp = :exp or c_exp is null )		
-#end
-#if($doClassification)
-		and ( cla_exp = :exp or cla_exp is null )
-#end
-#end
-#end
+
 #macro(imageExperimenter)
 #if(!$noLeaves)
-#if($doExperimenter)
-		and ( i_exp = :exp or i_exp is null )
-#end
+#exp_select("i_exp")
 #end
 #end
 #####################################################

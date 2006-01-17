@@ -29,9 +29,12 @@
 package ome.server.itests;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
+import ome.api.Pojos;
 import ome.dao.GenericDao;
 import ome.dao.hibernate.queries.PojosQueryBuilder;
 import ome.model.Category;
@@ -96,6 +100,55 @@ public class PojosDaoTest
     	m.put("exp",po.getExperimenter());
     }
 
+    // ----------------------------------------------------
+    // Checking values
+    // ----------------------------------------------------
+    
+    public void testClassifications(){
+        // determine target category group
+        List l = gdao.queryList("select cg from CategoryGroup cg where cg.categories.classifications.image.id = 1430",new Object[]{});
+        
+        // use Query Builder to get selected
+        String q_NME = PojosQueryBuilder.buildPathsQuery(Pojos.CLASSIFICATION_NME, po.map());
+        String q_ME = PojosQueryBuilder.buildPathsQuery(Pojos.CLASSIFICATION_ME, po.map());
+        
+        // run query
+        List cgc_ids = new ArrayList();
+        cgc_ids.add(1430);
+        Map params = new HashMap();
+        params.put("id_list",cgc_ids);
+        List<List> results_NME = gdao.queryListMap(q_NME,params);
+        List<List> results_ME = gdao.queryListMap(q_ME,params);
+        
+        // parse
+        Map<CategoryGroup, Set<Category>> parsed_NME = parse_cgc_paths(results_NME);
+        Map<CategoryGroup, Set<Category>> parsed_ME = parse_cgc_paths(results_ME);
+        System.out.println(parsed_NME);
+        System.out.println(parsed_ME);
+
+        CategoryGroup cg = (CategoryGroup) results_NME.get(0).get(0);
+        System.out.println(cg);
+        assertTrue(parsed_NME.containsKey(cg));
+        assertTrue(parsed_ME.containsKey(cg));
+    }
+
+    private Map<CategoryGroup, Set<Category>> parse_cgc_paths(List results_NME)
+    {
+        Map<CategoryGroup,Set<Category>> parsed_NME = new HashMap<CategoryGroup,Set<Category>>();
+        for (Iterator it = results_NME.iterator(); it.hasNext();)
+        {
+            List element = (List) it.next();
+            CategoryGroup cg = (CategoryGroup) element.get(0);
+            Category c = (Category) element.get(1);
+            if (!parsed_NME.containsKey(cg))
+                parsed_NME.put(cg,new HashSet<Category>());
+            parsed_NME.get(cg).add(c);
+        }
+        return parsed_NME;
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
+    
     public void runLoad(String name, Class c){
     	// Class, Set<Container>, options
     	q = PojosQueryBuilder.buildLoadQuery(c,false,po.map());
@@ -190,12 +243,16 @@ public class PojosDaoTest
     	n = name;go();
     }
     
-    public void testPathsInc() {
-    	runPaths("inc_path","INCLUSIVE");
+    public void testPathsClassME() {
+    	runPaths("class_me_path",Pojos.CLASSIFICATION_ME);
 	}
 
-    public void testPathsExc() {
-    	runPaths("exc_path","EXCLUSIVE");
+    public void testPathsClassNME() {
+        runPaths("class_nme_path",Pojos.CLASSIFICATION_NME);
+    }
+    
+    public void testPathsDeClass() {
+    	runPaths("declass_path",Pojos.DECLASSIFICATION);
 	}
     
     //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`

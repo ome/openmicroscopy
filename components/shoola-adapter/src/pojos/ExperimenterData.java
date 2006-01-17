@@ -29,9 +29,10 @@
 
 package pojos;
 
+import java.util.Set;
+
 import ome.api.OMEModel;
 import ome.model.Experimenter;
-import ome.model.Group;
 import ome.util.ModelMapper;
 
 
@@ -75,11 +76,11 @@ public class ExperimenterData
     /** The Experimenter's institution. */
     private String      institution;
     
-    /** The ID of the Group this Experimenter belongs in. */
-    private int         groupID;
+    /** The main Group this Experimenter belongs in. */
+    private GroupData   group;
     
-    /** The name of the Group this Experimenter belongs in. */
-    private String      groupName;
+    /** The other Groups this Experimenter belongs in. */
+    private Set         groups;
      
     public void copy(OMEModel model, ModelMapper mapper) {
     	if (model instanceof Experimenter) {
@@ -91,11 +92,8 @@ public class ExperimenterData
 			this.setLastName(exp.getLastname());
 			this.setEmail(exp.getEmail());
 			this.setInstitution(exp.getInstitution());
-			if (exp.getGroup()!=null){
-				Group g = exp.getGroup();
-				this.setGroupID(mapper.nullSafeInt(g.getAttributeId()));
-				this.setGroupName(g.getName());
-			}
+            this.setGroup((GroupData) mapper.findTarget(exp.getGroup()));
+            this.setGroups((Set) mapper.findCollection(exp.getGroups()));
 		} else {
 			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
 		}
@@ -141,20 +139,20 @@ public class ExperimenterData
 		return institution;
 	}
 
-	public void setGroupID(int groupID) {
-		this.groupID = groupID;
+	public void setGroup(GroupData group) {
+		this.group = group;
 	}
 
-	public int getGroupID() {
-		return groupID;
+	public GroupData getGroup() {
+		return group;
 	}
 
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setGroups(Set groups) {
+		this.groups = groups;
 	}
 
-	public String getGroupName() {
-		return groupName;
+	public Set getGroups() {
+		return groups;
 	}
 	
 	public String toString() {

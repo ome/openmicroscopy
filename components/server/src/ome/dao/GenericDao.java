@@ -51,6 +51,8 @@ import java.util.Map;
  */
 public interface GenericDao {
     
+    public boolean checkType(String type);
+    public boolean checkProperty(String type, String property);
 	public Object getUniqueByExample(Object example);
 	public List getListByExample(Object example);
 	public Object getUniqueByFieldILike(Class klazz, String field, String value);

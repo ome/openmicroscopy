@@ -31,23 +31,20 @@ package ome.testing;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
-//Third-party libraries
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
 //Application-internal dependencies
 
@@ -210,12 +207,30 @@ public class OMEData {
         return values.get(key);
     }
     
+    /** returns a list of results from the sql statement. 
+     * if there is more than one column in the result set, a map
+     * from column name to Object is returned, else the Object itself.
+     * @param sql
+     * @return
+     */
     List runSql(String sql){
         JdbcTemplate jt = new JdbcTemplate(ds);
         SqlRowSet rows = jt.queryForRowSet(sql);
         List result = new ArrayList();
         while (rows.next()){
-            result.add(rows.getObject(1));
+            SqlRowSetMetaData meta = rows.getMetaData();
+            int count = meta.getColumnCount();
+            if (count > 1) {
+                Map cols = new HashMap();
+                String[] names = meta.getColumnNames();
+                for (int i = 0; i < names.length; i++)
+                {
+                    cols.put(names[i],rows.getObject(names[i]));
+                }
+                result.add(cols);
+            } else {
+                result.add(rows.getObject(1));
+            }
         }
         log.debug("SQL:"+sql+"\n\nResult:"+result);
         return result;

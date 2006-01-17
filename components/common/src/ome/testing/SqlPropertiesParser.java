@@ -41,6 +41,9 @@ import java.util.Properties;
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
 // Application-internal dependencies
 
@@ -58,6 +61,20 @@ public abstract class SqlPropertiesParser
 
     private static Log log = LogFactory.getLog(SqlPropertiesParser.class);
 
+    static class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer{
+        protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props) 
+            throws BeansException {}
+        public String doIt(String property) {
+            try {
+                return parseStringValue(property,this.mergeProperties(),null);
+            } catch (Exception e) {
+                throw new RuntimeException("Error in evaluating embedded properties.",e);
+            }
+        }
+    }
+        
+    static MyPropertyPlaceholderConfigurer prc = new MyPropertyPlaceholderConfigurer();
+    
     protected static void load(Properties props, String filename)
     {
         InputStream is = SqlPropertiesParser.class.getClassLoader()
@@ -89,6 +106,7 @@ public abstract class SqlPropertiesParser
     /* last one wins */
     public static Map parse(String[] filenames)
     {
+        // Get strings from files
         Map result = new HashMap();
         Properties props = new Properties();
         for (int i = 0; i < filenames.length; i++)
@@ -96,12 +114,16 @@ public abstract class SqlPropertiesParser
             load(props, filenames[i]);
         }
 
+        // Put them into a map converting embedded ${...}
+        prc.setProperties(props);
+        prc.postProcessBeanFactory(null);
         for (Enumeration en = props.propertyNames(); en.hasMoreElements();)
         {
             String name = (String) en.nextElement();
-            result.put(name, props.getProperty(name));
+            result.put(name, prc.doIt(props.getProperty(name)));
         }
 
+        // Do extra parsing where necessary
         for (Iterator it = result.keySet().iterator(); it.hasNext();)
         {
             String name = (String) it.next();

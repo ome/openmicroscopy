@@ -40,6 +40,7 @@ package ome.logic;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +92,7 @@ public class PojosImpl implements Pojos {
 		//if (po.isExperimenter() && (po.isLeaves() || coll == null)) m.put("exp",po.getExperimenter()); 
         // ignoring unknown parameters for now. need to fix
         if (po.isExperimenter()) m.put("exp",po.getExperimenter()); 
+        if (po.isGroup()) m.put("grp",po.getGroup());
     
         // TODO : this needs to be checked against both pojos_macros and pojos_load
         // specifically for variables: noIds, noLeaves, & doExperimenter. Tricky logic.
@@ -105,9 +107,9 @@ public class PojosImpl implements Pojos {
         
         PojoOptions po = new PojoOptions(options);
         
-        if (null==rootNodeIds && po.getExperimenter()==null) 
+        if (null==rootNodeIds && !po.isExperimenter() && !po.isGroup()) 
         	throw new IllegalArgumentException(
-        			"Set of ids for loadContainerHierarchy() may not be null if experimenter option is null.");
+        			"Set of ids for loadContainerHierarchy() may not be null if experimenter and group options are null.");
 
         if (Project.class.equals(rootNodeType) ||
         		Dataset.class.equals(rootNodeType) ) {
@@ -221,16 +223,36 @@ public class PojosImpl implements Pojos {
 
 		if (! Pojos.ALGORITHMS.contains(algorithm)) {
 			throw new IllegalArgumentException(
-					"No such algorithm known");
+					"No such algorithm known:"+algorithm);
 		}
 		
 		PojoOptions po = new PojoOptions(options);
 		
 		String q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
 		Map m = getParameters(imgIds,po);
-		return new HashSet(daos.generic().queryListMap(q,m));
-		
-		
+        
+		List<List> result_set = daos.generic().queryListMap(q,m);
+        Map<CategoryGroup,Set<Category>> map = new HashMap<CategoryGroup,Set<Category>>();
+        Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
+        
+        // Parse
+        for (List result_row : result_set)
+        {
+            CategoryGroup cg = (CategoryGroup) result_row.get(0);
+            Category c = (Category) result_row.get(1);
+
+            if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
+            map.get(cg).add(c);
+         
+        }
+        
+        for (CategoryGroup cg : map.keySet())
+        {
+            cg.setCategories(map.get(cg));
+            returnValues.add(cg);
+        }
+        
+		return returnValues;
 		
 	}
 
@@ -257,9 +279,9 @@ public class PojosImpl implements Pojos {
 		
 		PojoOptions po = new PojoOptions(options);
 		
-		if (po.getExperimenter()==null){
+		if (!po.isExperimenter() && !po.isGroup()){
 			throw new IllegalArgumentException(
-					"experimenter option is required for getUserImages().");
+					"experimenter or group option is required for getUserImages().");
 		}
 	
 		String q = PojosQueryBuilder.buildGetQuery(Image.class,po.map());
@@ -314,6 +336,44 @@ public class PojosImpl implements Pojos {
         
         return map;
         
+    }
+    
+    public Map getCollectionCount(@NotNull String type, @NotNull String property, @NotNull @Validate(Integer.class) Set ids, Map options)
+    {
+        Map results = new HashMap();
+        String alphaNumeric = "^\\w+$";
+        String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
+        
+        if (!type.matches(alphaNumericDotted))
+        {
+            throw new IllegalArgumentException("Type argument to getCollectionCount may ONLY be alpha-numeric with dots ("+alphaNumericDotted+")");
+        }
+        
+        if (!property.matches(alphaNumeric))
+        {
+            throw new IllegalArgumentException("Property argument to getCollectionCount may ONLY be alpha-numeric ("+alphaNumeric+")");
+        }
+                
+        if (!daos.generic().checkType(type)) 
+        {
+            throw new IllegalArgumentException(type+"."+property+" is an unknown type.");
+        }
+        
+        if (!daos.generic().checkProperty(type,property))
+        {
+            throw new IllegalArgumentException(type+"."+property+" is an unknown property on type "+type);
+        }
+        
+        String query = "select size(table."+property+") from "+type+" table where table.id = ?";
+        // FIXME: optimize by doing new list(id,size(table.property)) ... group by id
+        for (Iterator iter = ids.iterator(); iter.hasNext();)
+        {
+            Integer id = (Integer) iter.next();
+            Integer count = (Integer) daos.generic().queryUnique(query,new Object[]{id});
+            results.put(id,count);
+        }
+        
+        return results;
     }
 
 }

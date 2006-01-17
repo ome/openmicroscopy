@@ -192,13 +192,6 @@ public abstract class ModelMapper extends ContextFilter {
 	}
 	
 	//	FIXME need to unify Filterable and OMEModel (inheritance?)
-	// TODO no longer need context !
-	public Object currentContext(){
-		// TODO in ContextFilter filter out getContext(); and getCurrent!
-		if (context.get() == null) newContext();
-		LinkedList ll = (LinkedList) context.get();
-		return ll.size()>0 ? ll.getLast() : null;
-	}
 	
 	public Timestamp date2timestamp(Date date){
 		if (date==null) return null;

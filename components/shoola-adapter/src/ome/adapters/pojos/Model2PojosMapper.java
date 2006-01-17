@@ -44,6 +44,7 @@ import ome.model.CategoryGroup;
 import ome.model.Dataset;
 import ome.model.DatasetAnnotation;
 import ome.model.Experimenter;
+import ome.model.Group;
 import ome.model.Image;
 import ome.model.ImageAnnotation;
 import ome.model.ImagePixel;
@@ -54,6 +55,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
@@ -83,7 +85,8 @@ public class Model2PojosMapper extends ome.util.ModelMapper {
 		_c2c.put(Category.class,CategoryData.class);
 		_c2c.put(CategoryGroup.class, CategoryGroupData.class);
 		_c2c.put(ImagePixel.class,PixelsData.class);
-	}
+		_c2c.put(Group.class, GroupData.class);
+    }
 	
 	protected Map c2c() {
 		return _c2c;

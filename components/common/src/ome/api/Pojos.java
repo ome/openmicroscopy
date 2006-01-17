@@ -75,6 +75,10 @@ import java.util.Set;
  * 	<li><b>experimenter</b>(Integer): inables filtering on a per-experimenter basis.
  * 	This option has a method-specific (and possibly context-specific) meaning. Please 
  * 	see the individual methods.</li>
+ *  <li><b>group</b>(Integer): inables filtering on a per-group basis. The <b>experimenter</b>
+ *  value is ignored if present and instead a similar filtering is done using all <b>experimenter</b>s
+ *  in the given group.
+ * 
  * </p>
  *  
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -118,11 +122,11 @@ public interface Pojos {
 	 *      	from being downloaded.
 	 * @param options
 	 * 			Map as above. <code>annotator</code> and <code>leaves</code> used. 
-	 * 			If <code>rootNodeIds==null</code>, <code>experimenter</code> must
-	 * 			be set and filtering will be applied at the <i>Class</i>-level; i.e 
+	 * 			If <code>rootNodeIds==null</code>, <code>experimenter|group</code>
+     *          must be set and filtering will be applied at the <i>Class</i>-level;
 	 * 			e.g. to retrieve a user's Projects, or user's Datasets. 
 	 * 			If <code>rootNodeIds!=null</code>, the result will be filtered
-	 * 			by the <code>experimenter</code> at the <code>Image</code> and
+	 * 			by the <code>experimenter|group</code> at the <code>Image</code> and
 	 * 			intermediate levels <i>if available</i>.
 	 * @DEV.TODO should it be applied at all levels?
 	 * @return  a set of hierarchy trees.
@@ -184,7 +188,7 @@ public interface Pojos {
 	 *      	trees. Not null.
 	 * @param options
 	 * 			Map as above. <code>annotator</code> used.
-	 * 			<code>experimenter</code> may be applied at the top-level only
+	 * 			<code>experimenter|group</code> may be applied at the top-level only
 	 * 			or at each level in the hierarchy, but will not apply to the 
 	 * 			leaf (Image) level.
 	 * @return A <code>Set</code> with all root nodes that were found.
@@ -209,7 +213,7 @@ public interface Pojos {
 	 *            Ids of the objects of type <code>rootNodeType</code>. Not null.
 	 * @param options
 	 *            Map as above. <code>annotator</code> used to filter. 
-	 *            No notion of <code>experimenter</code> or <code>leaves</code>
+	 *            No notion of <code>experimenter|group</code> or <code>leaves</code>
 	 * @return A map whose key is rootNodeId and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 */
@@ -235,7 +239,7 @@ public interface Pojos {
 	 * @param algorithm, specify the search algorithm for finding paths.
 	 * @param options
 	 *            Map as above. No notion of <code>annotator</code> or <code>leaves</code>.
-	 *            <code>experimenter</code> is as 
+	 *            <code>experimenter & group</code> are as 
 	 *            {@link #findContainerHierarchies(Class, Set, Map)}
 	 * @return A <code>Set</code> of hierarchy trees with all root nodes that were found.
 	 */
@@ -253,7 +257,7 @@ public interface Pojos {
      * algorithm which given a set of images ids retrieves the CG-C where 
      * category doesn't contain the image.
      **/
-    public final static String CLASSIFICATION_NME = "CLASSIFICAITON_NME";
+    public final static String CLASSIFICATION_NME = "CLASSIFICATION_NME";
 
     /** 
      * algorithm which given a set of image ids retrieves the CG-C containing the images.
@@ -271,7 +275,7 @@ public interface Pojos {
 	 * 			A set of ids of type <code>rootNodeType</code> Not null.
 	 * @param options
 	 *            Map as above. No notion of <code>leaves</code>.
-	 *            <code>experimenter</code> applies at the Image level. 
+	 *            <code>experimenter|group</code> apply at the Image level. 
 	 * @return A set of images.
 	 */
 	public Set getImages(Class rootNodeType, Set rootNodeIds, Map options);
@@ -281,7 +285,7 @@ public interface Pojos {
 	 *  
 	 * @param options
 	 *            Map as above. No notion of <code>leaves</code>.
-	 *            <code>experimenter</code> applies at the Image level and
+	 *            <code>experimenter|group</code> apply at the Image level and
 	 *            <b>must be present</b>. 
 	 * @return A set of images.
 	 */
@@ -296,5 +300,19 @@ public interface Pojos {
      * @return A map from username to <code>Experimenter</code>
      */
     public Map getUserDetails(Set names, Map options);
+
+    /**
+     * Counts the number of members in a collection for a given object
+     * @param class
+     *          Class type of the object to be tested
+     * @param property
+     *          Name of the property on that class
+     * @param ids
+     *          Set of Integers, the ids of the objects to test
+     * @param options
+     *          Map. Unused.
+     * @return A map from id integer to count integer
+     */
+     public Map getCollectionCount(String type, String property, Set ids, Map options);
 
 }

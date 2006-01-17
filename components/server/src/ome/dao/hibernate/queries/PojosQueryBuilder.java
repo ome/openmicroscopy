@@ -175,7 +175,8 @@ public abstract class PojosQueryBuilder {
 		VContext noIds(){ return turnOn("noIds");}
         VContext noLeaves() { return turnOn("noLeaves").turnOff("doImage"); }
 		VContext doExperimenter(){ return turnOn("doExperimenter");}
-		VContext doAnnotationOwner(){ return turnOn("doAnnotationOwner)");}
+        VContext doGroup(){ return turnOn("doGroup");}
+        VContext doAnnotationOwner(){ return turnOn("doAnnotationOwner)");}
 		
 		// Class based
 		VContext doProject(){ return turnOn("doProject");}
@@ -205,6 +206,7 @@ public abstract class PojosQueryBuilder {
 			if (po.isAnnotation()) doClassList(anns);
 			if (! po.isAllAnnotations()) doAnnotationOwner();
 			if (po.isExperimenter()) doExperimenter();
+            if (po.isGroup()) doGroup();
             if (!po.isLeaves()) noLeaves();
 		}
 

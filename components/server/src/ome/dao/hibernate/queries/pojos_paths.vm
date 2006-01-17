@@ -1,12 +1,16 @@
 ## PATHS	
 
-#select()	  
+select new list(cg,c) from CategoryGroup cg
 #ifCategoryGroup()
-#ifCategory()	
-#ifClassification()	
+#ifCategory()
+#ifClassification()
 #if($doDECLASSIFICATION)
-	where  
+	where 
 #imagelist()
+#elseif($doCLASSIFICATION_NME)
+	where not (
+#imagelist()
+	)
 #elseif($doCLASSIFICATION_ME)
 	where cg not in ( 
 		select cg from CategoryGroup cg
