@@ -339,9 +339,9 @@
 		<entry name="int8"/>
 		<entry name="int16"/>
 		<entry name="int32"/>
-		<entry name="Uint8"/>
-		<entry name="Uint16"/>
-		<entry name="Uint32"/>
+		<entry name="uint8"/>
+		<entry name="uint16"/>
+		<entry name="uint32"/>
 		<entry name="float"/>
 		<entry name="double"/>
 		<entry name="complex"/>
