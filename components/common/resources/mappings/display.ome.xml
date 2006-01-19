@@ -19,7 +19,9 @@
 		</properties>
 	</type>
 	<enum id="ome.model.enums.ModelType">
-		<entry name="EMPTY"/><!--##-->
+		<entry name="RGB"/>
+		<entry name="GS"/>
+		<entry name="HSB"/>
 	</enum>
 	<type id="ome.model.display.QuantumDef">
 		<properties>

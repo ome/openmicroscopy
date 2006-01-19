@@ -16,8 +16,8 @@
 			<optional name="middleName" type="string"/>
 			<required name="lastName" type="string"/>
 			<optional name="institution" type="string"/>
-			<component id="ome.model.internal.Email" required="true">
-				<required name="email" type="string"/>
+			<component id="ome.model.internal.Email" required="false">
+				<optional name="email" type="string"/>
 			</component>
 			<!-- ## add to dsl [email/] -->		
 		</properties>

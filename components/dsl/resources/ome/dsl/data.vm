@@ -1,4 +1,4 @@
-insert into experimenter (id,version,omename) values (0,0,'root');
+insert into experimenter (id,version,omename,firstname,lastname) values (0,0,'root','root','root');
 insert into event (id,version,name) values (0,0,'Initialization');
 
 ## ENUMS

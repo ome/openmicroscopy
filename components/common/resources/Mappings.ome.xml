@@ -347,12 +347,20 @@
 		<entry name="complex"/>
 		<entry name="double-complex"/>
 	</enum>
+
 	<type id="ome.model.acquisition.AcquisitionContext">
 		<properties>
 			<required name="photometricInterpretation" type="ome.model.enums.PIType"/>
 		</properties>
 	</type>
-	<enum id="ome.model.enums.PIType"/>
+
+	<enum id="ome.model.enums.PIType">
+		<entry name="RGB"/>
+		<entry name="ARGB"/>
+		<entry name="CMYK"/>
+		<entry name="HSV"/>
+		<entry name="monochrome"/>
+	</enum>
 	
 	<type id="ome.model.core.OriginalFile">
 		<properties>
