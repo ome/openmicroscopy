@@ -105,17 +105,23 @@ public class PixelsTrans extends Transformer
         // Add the channels to the pixels set
         p.setChannels(channelList);
         
-        // Add the acquisition context of the pixels set
+        // Build an acquisiton context from the logical channel
         ome.model.LogicalChannel lc = getFirstLogicalChannel();
         
+        AcquisitionContext ac = null;
         if (lc != null)
         {
             AcquisitionContextTrans actransform =
                 new AcquisitionContextTrans(this, lc);
             toSave = actransform.transmute();
+            ac = (AcquisitionContext) toSave.get(toSave.size() - 1);
         }
         else
-            toSave.add(new AcquisitionContext());
+            ac = new AcquisitionContext();
+            toSave.add(ac);
+            
+        // Add the acquistion context to the pixels set
+        p.setAcquisitionContext(ac);
         
         // Finish up by adding this object to the toSave list and returning
         toSave.add(p);
