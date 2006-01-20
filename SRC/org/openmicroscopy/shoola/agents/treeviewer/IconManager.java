@@ -146,11 +146,26 @@ public class IconManager
     /** The <code>Delete</code> icon. */
     public static int           DELETE = 28;
     
+    /** The <code>Find Next</code> icon. */
+    public static int           FIND_NEXT = 29;
+    
+    /** The <code>Find Previous</code> icon. */
+    public static int           FIND_PREVIOUS = 30;
+    
+    /** The <code>Highlight</code> icon. */
+    public static int           HIGHLIGHT = 31;
+    
+    /** The <code>Highlight</code> icon. */
+    public static int           FINDER = 32;
+    
+    /** The <code>Warning</code> icon. */
+    public static int           WARNING = 33;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 28;
+    private static int          MAX_ID = 33;
     
     
     /** Paths of the icon files. */
@@ -183,9 +198,15 @@ public class IconManager
         relPaths[ERROR] = "eclipse_error_tsk16.png";
         relPaths[PROPERTIES_BIG] = "nuvola_filenew48.png";
         relPaths[OWNER] = "nuvola_kdmconfig16.png";
-        relPaths[COPY] = "eclipse_error_tsk16.png";
-        relPaths[PASTE] = "eclipse_error_tsk16.png";
-        relPaths[DELETE] = "eclipse_error_tsk16.png";
+        relPaths[COPY] = "eclipse_copy_edit16.png";
+        relPaths[PASTE] = "eclipse_paste_edit16.png";
+        relPaths[DELETE] = "eclipse_delete_edit16.png";
+        relPaths[FIND_NEXT] = "eclipse_SelectNextBottomMappedObject16.png";
+        relPaths[FIND_PREVIOUS] = 
+            		"eclipse_SelectPreviousBottomMappedObject16.png";
+        relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
+        relPaths[FINDER] = "eclipse_searchrecord16.png";
+        relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
     }
     
     /** The sole instance. */
