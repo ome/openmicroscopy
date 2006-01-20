@@ -34,14 +34,20 @@ package org.openmicroscopy.shoola.env.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+
+import pojos.ExperimenterData;
 
 /** 
  * A factory for the {@link DataManagementService} and the
@@ -146,8 +152,18 @@ public class DataServicesFactory
 	{
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
-        omeroGateway.login(uc.getUserName(), uc.getPassword());
-        
+        ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
+                									uc.getPassword());
+        registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+        //Bind user details to all agents' registry.
+        List agents = (List) registry.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			agentInfo.getRegistry().bind(
+			        LookupNames.CURRENT_USER_DETAILS, exp);
+		}
         gateway.login(uc.getUserName(), uc.getPassword());
 	}
 	
