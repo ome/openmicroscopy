@@ -42,6 +42,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -345,10 +346,15 @@ public class DOEditor
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
                 tabs.addTab(PROPERTIES_TITLE, 
                             im.getIcon(IconManager.PROPERTIES), doBasic);
-                Map details = EditorUtil.transformExperimenterData(
-                                        getExperimenterData());
+                ExperimenterData exp = getExperimenterData();
+                Map details = EditorUtil.transformExperimenterData(exp);
+                Set groups = exp.getGroups();
+                if (groups == null || groups.size() == 0) {
+                    groups = new HashSet(1);
+                    groups.add(exp.getGroup());
+                }
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
-                            new DOInfo(details));
+                            new DOInfo(details, groups));
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());
@@ -528,7 +534,7 @@ public class DOEditor
     {
         ExperimenterData owner = getExperimenterData();
         if (owner == null) return false;
-        return (owner.getId() == model.getUserDetails().getUserID());
+        return (owner.getId() == model.getUserDetails().getId());
     }
     
     /**

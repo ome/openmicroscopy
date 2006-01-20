@@ -40,6 +40,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.PixelsData;
 
 /** 
@@ -57,6 +58,9 @@ import pojos.PixelsData;
 class EditorUtil
 {
     
+    /** Text displayed before the list of existing groups. */
+    static final String	GROUPS = "Belongs to the following groups: ";
+    
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
 
@@ -70,17 +74,15 @@ class EditorUtil
      */
     static Map transformExperimenterData(ExperimenterData data)
     {
-        HashMap details = new HashMap(4);
+        HashMap details = new HashMap(3);
         if (data == null) {
             details.put("Name", "");
             details.put("Email", "");
-            details.put("Group", "");
             details.put("Institution", "");
             
         } else {
             details.put("Name", data.getFirstName()+" "+data.getLastName());
             details.put("Email", data.getEmail());
-            details.put("Group", data.getGroupName());
             details.put("Institution", data.getInstitution());
         }
         return details;
@@ -122,6 +124,28 @@ class EditorUtil
             details.put("Timepoints", ""+data.getSizeT());
             details.put("Emission wavelength", "");
             details.put("Pixel Type", ""+data.getPixelType());  
+        }
+        return details;
+    }
+    
+    /**
+     * Transforms the specified {@link GroupData} object into 
+     * a visualization form.
+     * 
+     * @param data The {@link GroupData} object to transform.
+     * @return The map whose keys are the field names, and the values 
+     * 			the corresponding fields' values.
+     */
+    static Map transformGroup(GroupData data)
+    {
+        HashMap details = new HashMap(2);
+        if (data == null) {
+            details.put("Name", "");
+            details.put("Leader", "");
+        } else {
+            details.put("Name", data.getName());
+            ExperimenterData exp = data.getLeader();
+            details.put("Leader", exp.getFirstName()+" "+exp.getLastName());
         }
         return details;
     }
