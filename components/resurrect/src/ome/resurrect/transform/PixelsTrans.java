@@ -34,11 +34,14 @@ import java.util.Set;
 
 import org.hibernate.Session;
 
+import ome.model.AnalysisChain;
+import ome.model.ImageDimension;
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
+import ome.model.core.PixelsDimensions;
 
 
 /**
@@ -122,6 +125,15 @@ public class PixelsTrans extends Transformer
             
         // Add the acquistion context to the pixels set
         p.setAcquisitionContext(ac);
+        
+    
+        // Transform the PixelsDimensions and add them to the save list
+        
+        ome.model.ImageDimension imageD = (ome.model.ImageDimension) getModel();
+        PixelsDimensionsTrans pdtransform = new PixelsDimensionsTrans(this, imageD);
+        toSave = pdtransform.transmute();
+        PixelsDimensions pixelsDimensions = (PixelsDimensions) toSave.get(toSave.size() - 1);
+        p.setPixelsDimensions(pixelsDimensions);
         
         // Finish up by adding this object to the toSave list and returning
         toSave.add(p);
