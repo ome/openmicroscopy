@@ -304,13 +304,4 @@ public interface HierarchyBrowsingView
     public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
                                         AgentEventListener observer);
     
-    
-    /**
-     * Retrieves the details of the current user.
-     * 
-     * @param observer Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadUserDetails(AgentEventListener observer);
-    
 }

@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.UserDetailsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -198,16 +197,6 @@ class HierarchyBrowsingViewImpl
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new AnnotationSaver(nodeType, data);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadUserDetails(AgentEventListener)
-     */
-    public CallHandle loadUserDetails(AgentEventListener observer)
-    {
-        BatchCallTree cmd = new UserDetailsLoader();
         return cmd.exec(observer);
     }
     
