@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -198,6 +199,11 @@ public class ImagesLoader
             throw new IllegalArgumentException("Collection of node ID" +
                                                 " not valid.");
         checkRootLevel(rootLevel);
+        Iterator i = nodeIDs.iterator();
+        while (i.hasNext()) {
+            System.out.println(i.next());
+            
+        }
         if (nodeType.equals(DatasetData.class) || 
             nodeType.equals(CategoryData.class))
             loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
