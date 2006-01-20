@@ -41,8 +41,8 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.ExperimenterData;
 
 /** 
  * Implements the {@link HiViewer} interface to provide the functionality
@@ -132,9 +132,7 @@ class HiViewerComponent
     {
         switch (model.getState()) {
             case NEW:
-                model.fireUserDetailsLoading();
                 view.setOnScreen();
-                fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -194,8 +192,7 @@ class HiViewerComponent
     public void setStatus(String description, int perc)
     {
         int state = model.getState();
-        if (state == LOADING_USER_DETAILS || state == LOADING_HIERARCHY ||
-                state == LOADING_THUMBNAILS)
+        if (state == LOADING_HIERARCHY || state == LOADING_THUMBNAILS)
             view.setStatus(description, false, perc);
         else view.setStatus(description, true, perc);
     }
@@ -280,39 +277,11 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setUserDetails(UserDetails)
-     */
-    public void setUserDetails(UserDetails details)
-    {
-        if (model.getState() != LOADING_USER_DETAILS)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_HIERARCHY "+
-                    "state.");
-        if (details == null) 
-        	throw new IllegalArgumentException("User's details shouldn't be " +
-        			"null.");
-        model.setUserDetails(details);
-        model.fireHierarchyLoading();
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#getUserDetails()
      */
-    public UserDetails getUserDetails()
+    public ExperimenterData getUserDetails()
     {
-        int state = model.getState();
-        switch (state) {
-            case LOADING_HIERARCHY:
-            case LOADING_THUMBNAILS:
-            case READY:
-                return model.getUserDetails();
-            default:
-                throw new IllegalStateException(
-                   "This method can only be invoked in the" +
-                   "LOADING_HIERARCHY, LOADING_THUMBNAILS or READY state.");
-        }
+        return model.getUserDetails();
     }
 
     /**

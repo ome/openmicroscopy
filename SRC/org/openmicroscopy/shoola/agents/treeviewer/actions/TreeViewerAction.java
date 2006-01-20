@@ -123,7 +123,7 @@ public abstract class TreeViewerAction
     }
     
     /** 
-     * Not yet implemented. 
+     * Reacts to state changes in the {@link Browser}. 
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)

@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailsManager;
-import org.openmicroscopy.shoola.agents.hiviewer.UserDetailsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
@@ -53,7 +52,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
+import pojos.ExperimenterData;
 
 /** 
  * The Model component in the <code>HiViewer</code> MVC triad.
@@ -124,9 +123,10 @@ abstract class HiViewerModel
      * 
      * @param details The details to set.
      */
-    void setUserDetails(UserDetails details)
+    void setUserDetails(ExperimenterData details)
     {
-        HiViewerAgent.getRegistry().bind(LookupNames.USER_DETAILS, details);
+        HiViewerAgent.getRegistry().bind(LookupNames.CURRENT_USER_DETAILS,
+                						details);
     }
     
     /**
@@ -134,10 +134,10 @@ abstract class HiViewerModel
      * 
      * @return See above.
      */
-    UserDetails getUserDetails()
+    ExperimenterData getUserDetails()
     { 
-    	return (UserDetails) 
-    			HiViewerAgent.getRegistry().lookup(LookupNames.USER_DETAILS);
+    	return (ExperimenterData) HiViewerAgent.getRegistry().lookup(
+    			        LookupNames.CURRENT_USER_DETAILS);
     }
     
     /**
@@ -146,17 +146,6 @@ abstract class HiViewerModel
      * @return One of the flags defined by the {@link HiViewer} interface.  
      */
     int getState() { return state; }
-    
-    /**
-     * Starts the asynchronous retrieval of the user's details needed
-     * by this model and sets the state to {@link HiViewer#LOADING_USER_DETAILS}. 
-     */
-    void fireUserDetailsLoading()
-    {
-        state = HiViewer.LOADING_USER_DETAILS;
-        currentLoader = new UserDetailsLoader(component);
-        currentLoader.load();
-    }
     
     /**
      * Starts the asynchronous retrieval of the hierarchy objects needed

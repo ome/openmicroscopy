@@ -43,7 +43,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
- * 
+ * Selects the type of <code>Browser</code>. Three types are actually 
+ * implemented and defined by the following contants:
+ * {@link Browser#CATEGORY_EXPLORER}, {@link Browser#HIERARCHY_EXPLORER} and
+ * {@link Browser#IMAGES_EXPLORER}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -93,8 +96,12 @@ public class BrowserSelectionAction
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be null.
-     * @param browserType
+     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param browserType 	The Browser's type. One of the following constants:
+     * 						{@link Browser#CATEGORY_EXPLORER},
+     * 						{@link Browser#HIERARCHY_EXPLORER} and 
+     * 						{@link Browser#IMAGES_EXPLORER}.
+     * 						 
      */
     public BrowserSelectionAction(TreeViewer model, int browserType)
     {

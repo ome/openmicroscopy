@@ -92,6 +92,25 @@ public class CreateAction
     /** The type of node to create. */
     private int nodeType;
     
+    /** 
+     * Sets the action enabled dependong on the state of the {@link Browser}.
+     * @see TreeViewerAction#onBrowserStateChange(Browser)
+     */
+    protected void onBrowserStateChange(Browser browser)
+    {
+        if (browser == null) return;
+        switch (browser.getState()) {
+	        case Browser.LOADING_DATA:
+	        case Browser.LOADING_LEAVES:
+	        case Browser.COUNTING_ITEMS:  
+	            setEnabled(false);
+	            break;
+	        default:
+	            setEnabled(true);
+	            break;
+        }
+    }
+    
     /**
      * Callback to notify of a change in the currently selected display
      * in the currently selected 

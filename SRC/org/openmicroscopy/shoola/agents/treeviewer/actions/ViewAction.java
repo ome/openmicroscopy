@@ -47,7 +47,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * Views or browses the selected node according to the hierarchy object type.
+ * Views or browses the selected node depending on the hierarchy object type.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,11 +72,10 @@ public class ViewAction
             "browse the selected project, dataset, categoryGroup or category";
     
     /**
-     * Callback to notify of a change in the currently selected display
-     * in the currently selected 
-     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
+     * Sets the action enabled depending on the browser's type and 
+     * the currenlty selected node. Sets the name of the action depending on 
+     * the <code>DataObject</code> hosted by the currenlty selected node.
+     * @see ViewAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {

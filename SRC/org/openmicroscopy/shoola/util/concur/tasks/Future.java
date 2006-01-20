@@ -185,7 +185,7 @@ public class Future
     /**
      * Not implemented yet.
      * @param msec
-     * @return
+     * @return See above.
      * @throws ExecException
      * @throws InterruptedException
      */

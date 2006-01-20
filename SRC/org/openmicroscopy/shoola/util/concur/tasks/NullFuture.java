@@ -56,23 +56,30 @@ class NullFuture
     extends Future
 {
 
-    /**
-     * Creates a no-op {@link Future}.
-     */
+    /** Creates a no-op {@link Future}. */
     NullFuture() {}
     
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see Future#setResult(Object)
+     */
     void setResult(Object r) {}
     
+    /** 
+     * No-op implementation. 
+     * @see Future#setException(Throwable)
+     */
     void setException(Throwable t) {}
     
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see Future#getResult()
+     */
     public Object getResult() { return null; }
    
     /** 
-     * No-op implementation.
-     * 
-     * @return <code>null</code>. 
+     * No-op implementation. 
+     * @see Future#getResult(long)
      */
     public Object getResult(long msec) { return null; }
     

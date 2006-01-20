@@ -62,7 +62,7 @@ public class FilterMenuAction
     implements MouseListener
 {
 
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Menu";
     
     /** The location of the mouse pressed. */
@@ -103,21 +103,21 @@ public class FilterMenuAction
 
     /** 
      * Required by {@link MouseListener }I/F but not actually needed in our
-     * case, no op implementation.
+     * case, no-op implementation.
      * @see MouseListener#mouseEntered(MouseEvent)
      */   
     public void mouseEntered(MouseEvent e) {}
 
     /** 
      * Required by {@link MouseListener }I/F but not actually needed in our
-     * case, no op implementation.
+     * case, no-op implementation.
      * @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
     
     /** 
      * Required by {@link MouseListener }I/F but not actually needed in our
-     * case, no op implementation.
+     * case, no-op implementation.
      * @see MouseListener#mouseClicked(MouseEvent)
      */   
     public void mouseClicked(MouseEvent e) {}

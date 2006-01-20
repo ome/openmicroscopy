@@ -45,7 +45,7 @@ import pojos.DataObject;
 
 /** 
  * Brings up the property widget.
- * This action is enabled on all display node, expected on the root node.
+ * This action is enabled on all display nodes, expected on the root node.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

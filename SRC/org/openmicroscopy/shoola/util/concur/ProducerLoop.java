@@ -384,13 +384,15 @@ class ProducerLoop
     /**
      * No-op implementation.
      * Required by the {@link ExecMonitor} interface but not actually needed.
+     * @see ExecMonitor#onStart()
      */
     public void onStart() {}
     
     /**
      * No-op implementation.
      * Required by the {@link ExecMonitor} interface but not actually needed.
-     * Replced by {@link #updateBytesWritten(int)}.
+     * Replaced by {@link #updateBytesWritten(int)}.
+     * @see ExecMonitor#update(int)
      */
     public void update(int step) {}
     
@@ -398,7 +400,6 @@ class ProducerLoop
      * Just calls {@link #onAbort(Throwable)} with a 
      * {@link BufferWriteException} argument to specifiy that the 
      * producer loop was cancelled.
-     * 
      * @see ExecMonitor#onCancel()
      */
     public void onCancel() 
@@ -443,7 +444,6 @@ class ProducerLoop
      * of the working memory and make the new state available to consumer 
      * threads.  It also notifies any consumer thread waiting for a data 
      * segment.
-     * 
      * @see ExecMonitor#onEnd(Object)
      */
     public synchronized void onEnd(Object result) 

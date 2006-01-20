@@ -299,7 +299,7 @@ public class CompositeTask
      * exception will be thrown.  The list contains no <code>null</code>
      * elements; however its elements may differ from the objects that were
      * initially added.  In fact, whenever you add a {@link Runnable} or 
-     * {@link Invokation} object, this is turned into a {@link MultiStepTask}
+     * {@link Invocation} object, this is turned into a {@link MultiStepTask}
      * object before adding it to the list.  {@link MultiStepTask} objects
      * remains untouched though.
      * 
@@ -314,7 +314,7 @@ public class CompositeTask
      * Returns the child node that is currently processed by the execution
      * algorithm.  The returned object may differ from the object that was
      * originally added.  In fact, whenever you add a {@link Runnable} or 
-     * {@link Invokation} object, this is turned into a {@link MultiStepTask}
+     * {@link Invocation} object, this is turned into a {@link MultiStepTask}
      * object before adding it to the list.  {@link MultiStepTask} objects
      * remains untouched though.
      * 

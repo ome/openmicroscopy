@@ -79,7 +79,7 @@ public abstract class CmdProcessor
      * method twice or by more than one thread &#151; an {@link Error}
      * would be thrown.  A concrete <code>CmdProcessor</code> should also
      * check the interrupted status of the executing thread after the 
-     * {@link #run() run} method returns as cancellation results in the 
+     * <code>run</code> method returns as cancellation results in the 
      * interrupted status being set.
      * 
      * @param cmd   Enapsulates the service workflow.

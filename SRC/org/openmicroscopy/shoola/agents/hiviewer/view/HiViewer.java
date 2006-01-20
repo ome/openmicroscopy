@@ -41,8 +41,8 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+import pojos.ExperimenterData;
 
 /** 
  * Defines the interface provided by the hierarchy viewer component.
@@ -92,20 +92,17 @@ public interface HiViewer
     /** Flag to denote the <i>New</i> state. */
     public static final int     	NEW = 1;
     
-    /** Flag to denote the <i>Loading User details</i> state. */
-    public static final int     	LOADING_USER_DETAILS = 2;
-    
     /** Flag to denote the <i>Loading Hierarchy</i> state. */
-    public static final int     	LOADING_HIERARCHY = 3;
+    public static final int     	LOADING_HIERARCHY = 2;
     
     /** Flag to denote the <i>Loading Thumbnails</i> state. */
-    public static final int     	LOADING_THUMBNAILS = 4;
+    public static final int     	LOADING_THUMBNAILS = 43;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     	READY = 5;
+    public static final int     	READY = 4;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     	DISCARDED = 6;
+    public static final int     	DISCARDED = 5;
     
     /** 
      * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
@@ -313,26 +310,13 @@ public interface HiViewer
      *                               {@link #READY}.
      */
     public String getViewTitle();
-
-    /**
-     * Sets the user's details.
-     * 
-     * @param details The user's details.
-     * @throws IllegalStateException If the current state is not
-     *                               {@link #LOADING_USER_DETAILS}.
-     */
-    public void setUserDetails(UserDetails details);
     
     /**
-     * Returns the current user's details.
+     * Returns the current user's details. Helper method
      * 
      * @return See above.
-     * @throws IllegalStateException If the current state is not
-     *                               {@link #LOADING_THUMBNAILS},
-     *                               {@link #LOADING_HIERARCHY} nor 
-     *                               {@link #READY}.
      */
-    public UserDetails getUserDetails();
+    public ExperimenterData getUserDetails();
     
     /** 
      * Shows or hides a tree representation of the data

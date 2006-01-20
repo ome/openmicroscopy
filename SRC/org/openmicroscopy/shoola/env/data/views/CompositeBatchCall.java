@@ -124,7 +124,7 @@ class CompositeBatchCall
     
     /**
      * Forwards the call to its {@link CompositeTask} delegate.
-     * @see CompositeTask#doStep()
+     * @see BatchCall#doStep()
      */
     public Object doStep()
         throws Exception
@@ -134,7 +134,7 @@ class CompositeBatchCall
     
     /**
      * Forwards the call to its {@link CompositeTask} delegate.
-     * @see CompositeTask#isDone()
+     * @see BatchCall#isDone()
      */
     public boolean isDone() { return delegate.isDone(); }
     

@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Action to load the data corresponding the specified filter's type.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,35 +55,29 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class FilterAction
     extends BrowserAction
 {
-
-    /** Indicates that the container is of type <code>Dataset</code>.*/
-    public static final int     DATASET_CONTAINER = 0;
-    
-    /** Indicates that the container is of type <code>Category</code>.*/
-    public static final int     CATEGORY_CONTAINER = 1;
     
     /**
      * Name of the action if the {@link #type} is
-     * {@link #DATASET_CONTAINER}.
+     * {@link Browser#DATASET_CONTAINER}.
      */
     private static final String NAME_DATASET = "Images in datasets";
     
     /**
      * Description of the action if the {@link #type} is
-     * {@link #DATASET_CONTAINER}.
+     * {{@link Browser#DATASET_CONTAINER}.
      */
     private static final String DESCRIPTION_DATASET = "Retrieve images " +
             "contained in the selected datasets.";
     
     /**
      * Name of the action if the {@link #type} is
-     * {@link #CATEGORY_CONTAINER}.
+     * {@link Browser#CATEGORY_CONTAINER}.
      */
     private static final String NAME_CATEGORY = "Images in categories";
     
     /**
      * Description of the action if the {@link #type} is
-     * {@link #CATEGORY_CONTAINER}.
+     * {@link Browser#CATEGORY_CONTAINER}.
      */
     private static final String DESCRIPTION_CATEGORY = "Retrieve images " +
             "contained in the selected categories.";
@@ -99,8 +93,8 @@ public class FilterAction
     private void checkType(int type)
     {
         switch (type) {
-            case DATASET_CONTAINER:
-            case CATEGORY_CONTAINER:    
+            case Browser.DATASET_CONTAINER:
+            case Browser.CATEGORY_CONTAINER:    
                 break;
             default:
                 throw new IllegalArgumentException("Type not supported");
@@ -114,12 +108,12 @@ public class FilterAction
     private void setValues()
     {
         switch (type) {
-            case DATASET_CONTAINER:
+            case Browser.DATASET_CONTAINER:
                 putValue(Action.NAME, NAME_DATASET);
                 putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
                 break;
-            case CATEGORY_CONTAINER:  
+            case Browser.CATEGORY_CONTAINER:  
                 putValue(Action.NAME, NAME_CATEGORY);
                 putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));

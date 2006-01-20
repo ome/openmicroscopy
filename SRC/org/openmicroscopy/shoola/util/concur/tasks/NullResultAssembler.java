@@ -54,13 +54,15 @@ public class NullResultAssembler
     implements ResultAssembler
 {
 
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see ResultAssembler#add(Object)
+     */
     public void add(Object partialResult) {}
 
     /** 
-     * No-op implementation.
-     * 
-     * @return <code>null</code>. 
+     * No-op implementation. 
+     * @see ResultAssembler#assemble()
      */
     public Object assemble() { return null; }
 

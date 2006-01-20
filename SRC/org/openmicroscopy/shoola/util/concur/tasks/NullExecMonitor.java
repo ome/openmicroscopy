@@ -54,19 +54,34 @@ public class NullExecMonitor
     implements ExecMonitor
 {
 
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see ExecMonitor#onStart()
+     */
     public void onStart() {}
 
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see ExecMonitor#update(int)
+     */
     public void update(int step) {}
 
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see ExecMonitor#onStart()
+     */
     public void onCancel() {}
 
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see ExecMonitor#onAbort(Throwable)
+     */
     public void onAbort(Throwable cause) {}
 
-    /** No-op implementation. */
+    /** 
+     * No-op implementation. 
+     * @see ExecMonitor#onEnd(Object)
+     */
     public void onEnd(Object result) {}
 
 }

@@ -38,13 +38,15 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RootLevelCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- *
+ * Action to select the root of the retrieved hierarchy e.g. if the level 
+ * selected is {@link TreeViewer#USER_ROOT}, the user's hierarchies will
+ * be loaded.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -85,16 +87,16 @@ public class RootLevelAction
      * Name of the action if the {@link #rootLevel} is 
      * {@link TreeViewer#GROUP_ROOT}. 
      */
-    private static final String NAME_GROUP = "Group name ";
+    private static final String NAME_GROUP = "Group ";
     
     /** 
      * Description of the action if the {@link #rootLevel} is 
      * {@link TreeViewer#GROUP_ROOT}. 
      */
-    private static final String DESCRIPTION_GROUP = "Reads any hierarchy within" +
-    												"the specified group.";
+    private static final String DESCRIPTION_GROUP = "Reads any hierarchy " +
+    											"within the specified group.";
     
-    /** Identifies the type of root. */
+    /** Identifies the root's level. */
     private int rootLevel;
     
     /**
@@ -129,24 +131,13 @@ public class RootLevelAction
         }
     }
     
-    /** 
-     * Sets the action enabled depending on the 
-     * {@link Browser}'s state. 
-     * @see TreeViewerAction#onBrowserStateChange(Browser)
-     */
-    protected void onBrowserStateChange(Browser browser)
-    {
-        int state = browser.getState();
-        setEnabled((state == Browser.READY) || (state == Browser.NEW));
-    }
-    
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param rootLevel One of the following constants:
-     * 					 	{@link TreeViewer#WORLD_ROOT}, 
-     * 						{@link TreeViewer#USER_ROOT},
+     * 					 	{@link TreeViewer#WORLD_ROOT} and
+     * 						{@link TreeViewer#USER_ROOT}.
      */
     public RootLevelAction(TreeViewer model, int rootLevel)
     {

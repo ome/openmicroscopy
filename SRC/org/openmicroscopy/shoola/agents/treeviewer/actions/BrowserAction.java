@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 
 
 /** 
- * 
+ * Top class that each action should extend.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,10 +71,7 @@ public class BrowserAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay) {}
     
-    /**
-     * Reacts to state changes. Subclasses override the method.
-     *
-     */
+    /** Reacts to state changes. Subclasses override the method. */
     protected void onStateChange() {}
     
     /**
@@ -109,7 +106,7 @@ public class BrowserAction
     }
     
     /** 
-     * Not yet implemented. 
+     * Reacts to state changes in the {@link Browser}.
      * @see #stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e) { onStateChange(); }

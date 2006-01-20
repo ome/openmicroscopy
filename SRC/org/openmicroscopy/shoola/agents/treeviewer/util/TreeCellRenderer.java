@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.util.Set;
 import javax.swing.Icon;
@@ -126,6 +127,9 @@ public class TreeCellRenderer
         setText(node.getNodeText());
         setToolTipText(node.getToolTip());
         setIcon(node.getUserObject());
+        Color c = node.getHighLight();
+        if (c == null) c = tree.getForeground();
+        setForeground(c);
         return this;
     }
     
