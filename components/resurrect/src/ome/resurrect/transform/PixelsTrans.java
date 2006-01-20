@@ -128,11 +128,11 @@ public class PixelsTrans extends Transformer
         
     
         // Transform the PixelsDimensions and add them to the save list
-        
-        ome.model.ImageDimension imageD = (ome.model.ImageDimension) getModel();
-        PixelsDimensionsTrans pdtransform = new PixelsDimensionsTrans(this, imageD);
+        PixelsDimensionsTrans pdtransform = new PixelsDimensionsTrans(this, 
+        		oldPixels.getImage().getImageDimensions().iterator().next());
         toSave = pdtransform.transmute();
-        PixelsDimensions pixelsDimensions = (PixelsDimensions) toSave.get(toSave.size() - 1);
+        PixelsDimensions pixelsDimensions = 
+        	    (PixelsDimensions) toSave.get(toSave.size() - 1);
         p.setPixelsDimensions(pixelsDimensions);
         
         // Finish up by adding this object to the toSave list and returning

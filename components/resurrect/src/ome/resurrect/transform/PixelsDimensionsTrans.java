@@ -62,7 +62,7 @@ public class PixelsDimensionsTrans extends Transformer
         List toSave = getToSave();
         Event creationEvent = getCreationEvent();
 
-    		ome.model.ImageDimension oldDimensions = (ome.model.ImageDimension) getModel();
+        ome.model.ImageDimension oldDimensions = (ome.model.ImageDimension) getModel();
         PixelsDimensions p = new PixelsDimensions();
         p.setOwner(getOwner());
         p.setCreationEvent(creationEvent);
