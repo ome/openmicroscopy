@@ -32,7 +32,7 @@ ome.util.Filterable {
      private Set features;
      private Set moduleExecutions;
      private Set imageAnnotations;
-     private Set imageDimensions;
+     private ImageDimension imageDimension;
      private Set imageInfos;
      private Set channelComponents;
      private Group group;
@@ -234,12 +234,12 @@ ome.util.Filterable {
     /**
      * 
      */
-    public Set getImageDimensions() {
-        return this.imageDimensions;
+    public ImageDimension getImageDimension() {
+        return this.imageDimension;
     }
     
-    public void setImageDimensions(Set imageDimensions) {
-        this.imageDimensions = imageDimensions;
+    public void setImageDimension(ImageDimension imageDimension) {
+        this.imageDimension = imageDimension;
     }
 
     /**
@@ -454,15 +454,15 @@ ome.util.Filterable {
 
 	  setImageAnnotations((Set) filter.filter(IMAGEANNOTATIONS,_ImageAnnotations)); 
 
-	  // Visiting: ImageDimensions ------------------------------------------
-	  Set _ImageDimensions = null;
+	  // Visiting: ImageDimension ------------------------------------------
+	  ImageDimension _ImageDimension = null;
 	  try {
-	     _ImageDimensions = getImageDimensions();
+	     _ImageDimension = getImageDimension();
 	  } catch (Exception e) {
-		 setImageDimensions(null);
+		 setImageDimension(null);
 	  }
 
-	  setImageDimensions((Set) filter.filter(IMAGEDIMENSIONS,_ImageDimensions)); 
+	  setImageDimension((ImageDimension) filter.filter(IMAGEDIMENSION,_ImageDimension)); 
 
 	  // Visiting: ImageInfos ------------------------------------------
 	  Set _ImageInfos = null;
@@ -528,7 +528,7 @@ ome.util.Filterable {
 	public final static String FEATURES = "Image_Features";
 	public final static String MODULEEXECUTIONS = "Image_ModuleExecutions";
 	public final static String IMAGEANNOTATIONS = "Image_ImageAnnotations";
-	public final static String IMAGEDIMENSIONS = "Image_ImageDimensions";
+	public final static String IMAGEDIMENSION = "Image_ImageDimension";
 	public final static String IMAGEINFOS = "Image_ImageInfos";
 	public final static String CHANNELCOMPONENTS = "Image_ChannelComponents";
 	public final static String GROUP = "Image_Group";
@@ -551,7 +551,7 @@ ome.util.Filterable {
 	   FIELDS.add(FEATURES);
 	   FIELDS.add(MODULEEXECUTIONS);
 	   FIELDS.add(IMAGEANNOTATIONS);
-	   FIELDS.add(IMAGEDIMENSIONS);
+	   FIELDS.add(IMAGEDIMENSION);
 	   FIELDS.add(IMAGEINFOS);
 	   FIELDS.add(CHANNELCOMPONENTS);
 	   FIELDS.add(GROUP);

@@ -191,20 +191,13 @@
             class="ome.model.ImageAnnotation"
         />
     </set>
-    <!-- bi-directional one-to-many association to ImageDimension -->
-    <set
-        name="imageDimensions"
-        lazy="true"
-        inverse="true"
-		cascade="all"
-    >
-        <key>
-            <column name="image_id" />
-        </key>
-        <one-to-many 
-            class="ome.model.ImageDimension"
-        />
-    </set>
+    <!-- j.m one-to-one association to ImageDimension -->
+    <one-to-one
+        name="imageDimension"
+	class="ome.model.ImageDimension"
+	cascade="all"
+        property-ref="image"
+    />
     <!-- bi-directional one-to-many association to ImageInfo -->
     <set
         name="imageInfos"
