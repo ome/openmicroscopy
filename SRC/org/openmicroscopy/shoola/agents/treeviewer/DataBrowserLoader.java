@@ -109,9 +109,6 @@ public abstract class DataBrowserLoader
             registry.getDataServicesView(DataManagerView.class);
     }
     
-    /** Notifies the {@link #viewer} that the data retrieval is finished. */
-    public void onEnd() { viewer.setStatus(true); }
-    
     /**
      * Notifies the user that it wasn't possible to retrieve the data and
      * and discards the {@link #viewer}.
@@ -141,7 +138,6 @@ public abstract class DataBrowserLoader
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
-        viewer.setStatus(true);
         viewer.cancel();
     }
     

@@ -55,9 +55,11 @@ import pojos.DatasetData;
 public class ImagesInContainerLoader
     extends DataBrowserLoader
 {
-
+    
+    /** Indicates that the container is a <code>Dataset</code>. */
     public static final int DATASET = 0;
     
+    /** Indicates that the container is a <code>Category</code>. */
     public static final int CATEGORY = 1;
     
     /** Collection of the ID of the selected nodes. */
@@ -136,7 +138,8 @@ public class ImagesInContainerLoader
      */
     public void load()
     { 
-        handle = dmView.getImages(nodeType, nodeIDs, viewer.getRootLevel(),
+        handle = dmView.getImages(nodeType, nodeIDs,
+                				convertRootLevel(viewer.getRootLevel()),
                 				  viewer.getRootID(), this); 
     }
 

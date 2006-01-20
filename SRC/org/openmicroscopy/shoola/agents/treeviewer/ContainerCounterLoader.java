@@ -121,16 +121,4 @@ public class ContainerCounterLoader
      */
     public void handleNullResult() {}
     
-    /**
-     * Notifies the user that an error has occurred.
-     * @see DataBrowserLoader#handleException(Throwable)
-     */
-    public void handleException(Throwable exc) 
-    {
-        String s = "Thumbnail Retrieval Failure: ";
-        registry.getLogger().error(this, s+exc);
-        registry.getUserNotifier().notifyError("Thumbnail Retrieval Failure", 
-                                               s, exc);
-    }
-    
 }
