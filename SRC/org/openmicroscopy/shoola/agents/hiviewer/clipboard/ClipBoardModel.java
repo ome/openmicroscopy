@@ -47,10 +47,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgDisplayAnnotationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
-
 import pojos.AnnotationData;
+import pojos.ExperimenterData;
 
 /** 
  * The Model component in the <code>ClipBoard</code> MVC triad.
@@ -298,9 +297,9 @@ class ClipBoardModel
     {
         if (annotationStatus == INITIAL) return;
         //Visit the tree.
-        UserDetails details = getParentModel().getUserDetails();
+        ExperimenterData details = getParentModel().getUserDetails();
         Map annotations = getAnnotations();
-        List l = (List) annotations.get(new Integer(details.getUserID()));
+        List l = (List) annotations.get(new Integer(details.getId()));
         AnnotationData data = null;
         if (l != null) data = (AnnotationData) l.get(0);
         int algoType = -1;

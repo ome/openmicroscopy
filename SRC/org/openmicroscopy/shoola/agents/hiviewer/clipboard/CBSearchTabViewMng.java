@@ -114,8 +114,8 @@ class CBSearchTabViewMng
             cmd.execute();
         } catch (PatternSyntaxException pse) {
             UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Search", "The expression entered contains non " +
-                    "valid characters.");
+            un.notifyInfo("Search", "The phrase contains non valid" +
+            					"characters.");
             view.clearSearchValue();
         }
         

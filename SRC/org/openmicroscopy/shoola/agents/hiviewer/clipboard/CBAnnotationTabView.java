@@ -31,9 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 
-
-
-
 //Java imports
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -61,7 +58,6 @@ import javax.swing.border.TitledBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -320,9 +316,8 @@ class CBAnnotationTabView
     {
         int index = annotatedByList.getSelectedIndex();
         if (index == -1) {
-            UserDetails details = model.getParentModel().getUserDetails();
-            String name = details.getUserLastName();
-            annotationText.setText("No annotations for "+name); 
+            ExperimenterData details = model.getParentModel().getUserDetails();
+            annotationText.setText("No annotations for "+details.getLastName()); 
             annotated = false;
             return;
         }
@@ -375,7 +370,7 @@ class CBAnnotationTabView
     /** Displays the annotations. */
     void showAnnotations()
     {
-        UserDetails userDetails = model.getParentModel().getUserDetails();
+        ExperimenterData userDetails = model.getParentModel().getUserDetails();
         if (userDetails == null) return;
         Map annotations = model.getAnnotations();
         if (annotations == null) return;
@@ -390,7 +385,7 @@ class CBAnnotationTabView
             id = (Integer) i.next();
             list = (List) annotations.get(id);
             data = ((AnnotationData) list.get(0)).getOwner();
-            if (userDetails.getUserID() == id.intValue()) userIndex = index;
+            if (userDetails.getId() == id.intValue()) userIndex = index;
             owners[index] = data.getLastName();
             ownersMap.put(new Integer(index), id);
             index++;
