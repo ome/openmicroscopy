@@ -70,15 +70,13 @@ public class Omero3Connector
         ht = (HibernateTemplate) ctx.getBean("hibernateTemplate");
     }
     
-    public void save(final Event creationEvent, final Object[] objects)
+    public void save(final Object[] objects)
     {
         ht.execute(new HibernateCallback()
         {
             public Object doInHibernate(org.hibernate.Session session)
                 throws org.hibernate.HibernateException, java.sql.SQLException
             {
-                session.save(creationEvent);
-                
                 for (Object o : objects)
                     session.save(o);
 
@@ -87,14 +85,13 @@ public class Omero3Connector
         });
     }
 
-    public void save(final Event creationEvent, final Object object)
+    public void save(final Object object)
     {
         ht.execute(new HibernateCallback()
         {
             public Object doInHibernate(org.hibernate.Session session)
                 throws org.hibernate.HibernateException, java.sql.SQLException
             {
-                session.save(creationEvent);
                 session.save(object);
 
                 return null;

@@ -62,6 +62,7 @@ public class Resurrect
         
         event = new Event();
         event.setName("Transmutted by Resurrect");
+        c3.save(event);
         
         transmuteAllExperimenters();
         transmutePixels(73);
@@ -77,7 +78,7 @@ public class Resurrect
             ExperimenterTrans transform =
                 new ExperimenterTrans(e, null, null, event, null);
             toSave = transform.transmute();
-            c3.save(event, toSave.toArray());
+            c3.save(toSave.toArray());
         }
     }
     
@@ -86,6 +87,6 @@ public class Resurrect
         Experimenter e = c3.getExperimenter(1);
         List l = c2.transmutePixels(e, event, id);
         
-        c3.save(event, l.toArray());
+        c3.save(l.toArray());
     }
 }
