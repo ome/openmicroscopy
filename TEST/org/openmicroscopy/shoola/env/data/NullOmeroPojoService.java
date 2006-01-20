@@ -57,41 +57,80 @@ public class NullOmeroPojoService
     implements OmeroPojoService
 {
 
-    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-                                    boolean withLeaves)
-            throws DSOutOfServiceException, DSAccessException
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#loadContainerHierarchy(Class, Set, boolean, int,
+     * 												int)
+     */
+    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs, 
+            boolean withLeaves, int rootLevel, int rootLevelID)
+    	throws DSOutOfServiceException, DSAccessException
     {
         return null;
     }
 
-    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs)
-            throws DSOutOfServiceException, DSAccessException
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#findContainerHierarchy(Class, Set, int, int)
+     */
+    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
+            						int rootLevel, int rootLevelID)
+    	throws DSOutOfServiceException, DSAccessException
     {
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#findAnnotations(Class, Set, boolean)
+     */
     public Map findAnnotations(Class nodeType, Set nodeIDs, boolean history)
-            throws DSOutOfServiceException, DSAccessException
+    	throws DSOutOfServiceException, DSAccessException
     {
         return null;
     }
 
-    public Set findCGCPaths(Set imgIDs, int algorithm)
-            throws DSOutOfServiceException, DSAccessException
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#findCGCPaths(Set, int)
+     */
+    public Set findCGCPaths(Set imgIDs, int algorithm) 
+    	throws DSOutOfServiceException, DSAccessException 
     {
         return null;
     }
 
-    public Set getImages(Class nodeType, Set nodeIDs)
-            throws DSOutOfServiceException, DSAccessException
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#getImages(Class, Set, int, int)
+     */
+    public Set getImages(Class nodeType, Set nodeIDs, int rootLevel, 
+            			int rootLevelID)
+    	throws DSOutOfServiceException, DSAccessException
     {
         return null;
     }
-    
+
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#getUserImages()
+     */
     public Set getUserImages()
-            throws DSOutOfServiceException, DSAccessException
+    	throws DSOutOfServiceException, DSAccessException
     {
         return null;
     }
+
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#getCollectionCount(Class, String, Set)
+     */
+    public Map getCollectionCount(Class rootNodeType, String property,
+            						Set rootNodeIDs)
+    	throws DSOutOfServiceException, DSAccessException
+    {
+        return null;
+    }
+
 
 }
