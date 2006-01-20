@@ -111,7 +111,7 @@ class DatasetOwnerPane
         ExperimenterData owner = dd.getOwner();
 		private Object[] data = {owner.getFirstName(),
 								owner.getLastName(), owner.getEmail(),
-								owner.getInstitution(), owner.getGroupName()
+								owner.getInstitution(), ""
 								};		
 		private OwnerTableModel() {}
 	

@@ -112,7 +112,7 @@ class ProjectOwnerPane
         ExperimenterData owner = pd.getOwner();
 		private Object[] data = {owner.getFirstName(),
                 owner.getLastName(), owner.getEmail(),
-                owner.getInstitution(), owner.getGroupName()
+                owner.getInstitution(), ""//owner.getGroupName()
 								};
 								
 		private OwnerTableModel() {}

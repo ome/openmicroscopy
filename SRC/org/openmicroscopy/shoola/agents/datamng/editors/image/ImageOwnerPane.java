@@ -119,7 +119,7 @@ class ImageOwnerPane
             data[1] = owner.getLastName();
             data[2] = owner.getEmail();
             data[3] = owner.getInstitution();
-            data[4] = owner.getGroupName();
+            data[4] = "";//owner.getGroupName();
         }
  								
 		private OwnerTableModel()
