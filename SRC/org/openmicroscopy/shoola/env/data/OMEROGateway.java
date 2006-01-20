@@ -53,9 +53,11 @@ import ome.model.CategoryGroup;
 import ome.model.Dataset;
 import ome.model.Image;
 import ome.model.Project;
+import ome.util.builders.PojoOptions;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -171,6 +173,41 @@ class OMEROGateway
     }
     
     /**
+     * Converts the specified POJO into a String corresponding model.
+     *  
+     * @param nodeType The POJO class.
+     * @return The corresponding string.
+     */
+    private String convertPojosToString(Class nodeType)
+    {
+        if (nodeType.equals(ProjectData.class))
+            return Project.class.getName();
+        else if (nodeType.equals(DatasetData.class))
+            return Dataset.class.getName();
+        else if (nodeType.equals(ImageData.class))
+            return Image.class.getName();
+        else if (nodeType.equals(CategoryData.class)) 
+            return Category.class.getName();
+        else if (nodeType.equals(CategoryGroupData.class))
+            return CategoryGroup.class.getName();
+        throw new IllegalArgumentException("NodeType not supported");
+    }
+    
+    private String convertProperty(Class nodeType, String property)
+    {
+        if (nodeType.equals(DatasetData.class)) {
+            if (property.equals(OmeroPojoService.IMAGES_PROPERTY))
+                return "images";
+        } else if (nodeType.equals(CategoryData.class)) {
+            if (property.equals(OmeroPojoService.IMAGES_PROPERTY))
+                return "classifications";
+        }
+        else throw new IllegalArgumentException("NodeType or " +
+        										"property not supported");
+        return null;
+    }
+    
+    /**
      * Converts the specified POJO into the corresponding model.
      *  
      * @param nodeType The POJO class.
@@ -187,6 +224,40 @@ class OMEROGateway
         else throw new IllegalArgumentException("NodeType not supported");
     }
     
+    /**
+     * Retrieves the details on the current user.
+     * 
+     * @param name The user's name.
+     * @return A <code>Map</code> whose key are users' ID and values the 
+     *         {@link pojos.ExperimenterData}
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     */
+    private ExperimenterData getUserDetails(String name)
+        throws DSOutOfServiceException
+    {
+        try {
+            Pojos service = getPojosService();
+            Set set = new HashSet(1);
+            set.add(name);
+            Map m = mapper.map(service.getUserDetails(set, 
+                    (new PojoOptions()).map()));
+            ExperimenterData data = (ExperimenterData) m.get(name);
+            if (data == null) 
+                throw new DSOutOfServiceException("Cannot retrieve user's " +
+                								"data");
+            //TODO: clarify this point with Josh
+            Set groups = data.getGroups();
+            if (groups == null || groups.size() == 0) {
+                groups = new HashSet(1);
+                groups.add(data.getGroup());
+                data.setGroups(groups);
+            }
+            return data;
+        } catch (Exception e) {
+            throw new DSOutOfServiceException("Cannot retrieve user's " +
+                    						"data", e);
+        }
+    }
     /**
      * Returns the {@link Pojos} service.
      * 
@@ -229,10 +300,11 @@ class OMEROGateway
      * 
      * @param userName  The user name to be used for login.
      * @param password  The password to be used for login.
+     * @return The user's details.
      * @throws DSOutOfServiceException If the connection can't be established
      *                                  or the credentials are invalid.
      */
-    void login(String userName, String password)
+    ExperimenterData login(String userName, String password)
         throws DSOutOfServiceException
     {
         System.setProperty("omeds.user", userName);
@@ -241,6 +313,7 @@ class OMEROGateway
             entry = new ServiceFactory();
             mapper = new Model2PojosMapper();
             connected = true;
+            return getUserDetails(userName);
         } catch (Exception e) {
             connected = false;
             String s = "Can't connect to OMERO. OMERO info not valid.";
@@ -459,27 +532,38 @@ class OMEROGateway
         return new HashSet();
     }
     
+
+    
     /**
-     * Retrieves the details on users specified by ID.
+     * Counts the number of items in a collection for a given object.
+     * Returns a map which key is the passed rootNodeID and the value is 
+     * the number of items contained in this object.
      * 
-     * @param names The collection of users' ome-name.
-     * @param options Options to retrieve the data.
-     * @return A <code>Map</code> whose key are users' ID and values the 
-     *         {@link pojos.ExperimenterData}
+     * @param rootNodeType 	The type of container. Can either be Dataset 
+     * 						and Category.
+     * @param property		One of the properties defined by this class.
+     * @param options		Options to retrieve the data.		
+     * @param rootNodeIDs	Set of root node IDs.
+     * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service.
+     * retrieve data from OMEDS service. 
      */
-    Map getUserDetails(Set names, Map options)
-        throws DSOutOfServiceException, DSAccessException
-    {
+    Map getCollectionCount(Class rootNodeType, String property, Set rootNodeIDs,
+            				Map options)
+    	throws DSOutOfServiceException, DSAccessException
+	{
         try {
             Pojos service = getPojosService();
-            return mapper.map(service.getUserDetails(names, options));
+            String p = convertProperty(rootNodeType, property);
+            if (p == null) return null;
+            return mapper.map(service.getCollectionCount(
+                    convertPojosToString(rootNodeType), p, rootNodeIDs, 
+                    options));
         } catch (Exception e) {
-            handleException(e, "Cannot retrieve user details.");
+            handleException(e, "Cannot count the collection.");
         }
         return new HashMap();
-    }
+	}
     
 }

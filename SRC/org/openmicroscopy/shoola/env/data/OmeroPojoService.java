@@ -37,8 +37,6 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -92,6 +90,11 @@ public interface OmeroPojoService
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_NME = 2;
+    
+    /** 
+     * Identifies the count property.
+     */
+    public static final String IMAGES_PROPERTY = "images";
     
     /**
      * Retrieves hierarchy trees rooted by a given node.
@@ -286,14 +289,21 @@ public interface OmeroPojoService
         throws DSOutOfServiceException, DSAccessException;
     
     /**
-     * Retrieves the user's details.
+     * Counts the number of items in a collection for a given object.
+     * Returns a map which key is the passed rootNodeID and the value is 
+     * the number of items contained in this object.
      * 
+     * @param rootNodeType 	The type of container. Can either be Dataset 
+     * 						and Category.
+     * @param property		One of the properties defined by this class.
+     * @param rootNodeIDs	Set of root node IDs.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public UserDetails getUserDetails()
+    public Map getCollectionCount(Class rootNodeType, String property,
+            						Set rootNodeIDs)
     	throws DSOutOfServiceException, DSAccessException;
     
 }

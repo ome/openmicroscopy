@@ -33,10 +33,6 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,17 +40,12 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.util.builders.PojoOptions;
-
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
-
 import pojos.ExperimenterData;
 
 /** 
- * 
+ * Implementation of the {@link OmeroPojoService} I/F.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -77,6 +68,40 @@ class OmeroPojoServiceImpl
     /** Reference to the entry point to access the <i>OMERO</i> services. */
     private OMEROGateway    gateway;
 
+    /**
+     * Helper method to return the user's details.
+     * 
+     * @return See above.
+     */
+    private ExperimenterData getUserDetails()
+    {
+        return (ExperimenterData) context.lookup(
+                					LookupNames.CURRENT_USER_DETAILS);
+    }
+    
+    /**
+     * Sets the root context of the options depending on the specified
+     * level and ID.
+     * 
+     * @param po		The {@link PojoOptions} to handle.
+     * @param rootLevel	The level of the root. One of the following constants:
+     * 					{@link OmeroPojoService#WORLD_HIERARCHY_ROOT},
+     * 					{@link OmeroPojoService#GROUP_HIERARCHY_ROOT} and
+     * 					{@link OmeroPojoService#USER_HIERARCHY_ROOT}.
+     * @param rootID	The ID of the root if needed.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    private void setRootOptions(PojoOptions po, int rootLevel, int rootID)
+    	throws DSOutOfServiceException, DSAccessException 
+    {
+        if (rootLevel == OmeroPojoService.GROUP_HIERARCHY_ROOT)
+            po.grp(new Integer(rootID));
+        else if (rootLevel == OmeroPojoService.USER_HIERARCHY_ROOT)            
+            po.exp(new Integer(getUserDetails().getId()));
+    }
+    
     /**
      * Checks if the specified classification algorithm is supported.
      * 
@@ -122,10 +147,9 @@ class OmeroPojoServiceImpl
         throws DSOutOfServiceException, DSAccessException 
     {
         PojoOptions po = new PojoOptions();
-        UserDetails ud = getUserDetails();
-        Integer id = new Integer(ud.getUserID());
+        Integer id = new Integer(getUserDetails().getId());
         po.annotationsFor(id);
-        po.exp(id);
+        setRootOptions(po, rootLevel, rootLevelID);
         if (!withLeaves) po.noLeaves();
         return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
                                             po.map());
@@ -140,10 +164,9 @@ class OmeroPojoServiceImpl
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
-        UserDetails ud = getUserDetails();
-        Integer id = new Integer(ud.getUserID());
+        Integer id = new Integer(getUserDetails().getId());
         po.annotationsFor(id);
-        po.exp(id);
+        setRootOptions(po, rootLevel, rootLevelID);
         return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
                         po.map());
     }
@@ -173,7 +196,7 @@ class OmeroPojoServiceImpl
                     "supported.");
         PojoOptions po = new PojoOptions();
         po.noAnnotations();
-        po.exp(new Integer(getUserDetails().getUserID()));
+        po.exp(new Integer(getUserDetails().getId()));
         return gateway.findCGCPaths(imgIDs, algorithm, po.map());
     }
     
@@ -186,9 +209,9 @@ class OmeroPojoServiceImpl
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
-        Integer id = new Integer(getUserDetails().getUserID());
+        Integer id = new Integer(getUserDetails().getId());
         po.annotationsFor(id);
-        po.exp(id);
+        setRootOptions(po, rootLevel, rootLevelID);
         return gateway.getImages(nodeType, nodeIDs, po.map());
     }
     
@@ -201,46 +224,22 @@ class OmeroPojoServiceImpl
     {
         PojoOptions po = new PojoOptions();
         po.noAnnotations();
-        Integer id = new Integer(getUserDetails().getUserID());
+        Integer id = new Integer(getUserDetails().getId());
         po.exp(id);
         return gateway.getUserImages(po.map());
     }
-    
-    /** 
-     * Implemented as specified by {@link OmeroPojoService}. 
-     * @see OmeroPojoService#getUserDetails()
+  
+    /**
+     * Implemented as specified by {@link OmeroPojoService}.
+     * @see OmeroPojoService#getCollectionCount(Class, String, Set)
      */
-    public UserDetails getUserDetails()
+    public Map getCollectionCount(Class rootNodeType, String property, Set 
+            						rootNodeIDs)
+    	throws DSOutOfServiceException, DSAccessException
     {
-        UserDetails ud = (UserDetails) context.lookup(LookupNames.USER_DETAILS);
-        try {
-            if (ud == null) {
-                UserCredentials uc = (UserCredentials) 
-                            context.lookup(LookupNames.USER_CREDENTIALS);
-                String name = uc.getUserName();
-                Set set = new HashSet(1);
-                set.add(name);
-                Map m = gateway.getUserDetails(set, (new PojoOptions()).map());
-                ExperimenterData data = (ExperimenterData) m.get(name);
-                ArrayList groups = new ArrayList(1);
-                groups.add(new Integer(data.getId()));
-                ud = new UserDetails(data.getId(), data.getFirstName(),
-                                data.getLastName(), groups);
-                context.bind(LookupNames.USER_DETAILS, ud);
-                //Bind user details to all agents' registry.
-                List agents = (List) context.lookup(LookupNames.AGENTS);
-        		Iterator i = agents.iterator();
-        		AgentInfo agentInfo;
-        		while (i.hasNext()) {
-        			agentInfo = (AgentInfo) i.next();
-					agentInfo.getRegistry().bind(LookupNames.USER_DETAILS, ud);
-				}
-            }
-            return ud;
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-        return null;
+        PojoOptions po = new PojoOptions();
+        return gateway.getCollectionCount(rootNodeType, property, rootNodeIDs,
+                						po.map());
     }
     
 }
