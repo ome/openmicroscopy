@@ -143,6 +143,7 @@ public class TreeViewerTranslator
         Iterator i = datasets.iterator();
         while (i.hasNext()) 
             project.addChildDisplay(transformDataset((DatasetData) i.next()));
+        project.setNumberItems(datasets.size());
         return project;
     }
     
@@ -183,6 +184,7 @@ public class TreeViewerTranslator
         Iterator i = categories.iterator();
         while (i.hasNext())
             group.addChildDisplay(transformCategory((CategoryData) i.next()));
+        group.setNumberItems(categories.size());
         return group;
     }
     
