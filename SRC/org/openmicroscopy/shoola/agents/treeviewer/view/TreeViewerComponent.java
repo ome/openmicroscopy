@@ -41,10 +41,11 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
+import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -94,6 +95,9 @@ class TreeViewerComponent
         this.model = model;
         controller = new TreeViewerControl(this);
         view = new TreeViewerWin();
+        Finder f = new Finder(this);
+        model.setFinder(f);
+        f.addPropertyChangeListener(controller);
     }
     
     /** Links up the MVC triad. */
@@ -117,8 +121,6 @@ class TreeViewerComponent
     {
         switch (model.getState()) {
 	        case NEW:
-	            model.fireUserDetailsLoading();
-                fireStateChange();
 	            break;
 	        case DISCARDED:
                 throw new IllegalStateException(
@@ -157,8 +159,11 @@ class TreeViewerComponent
     public void setSelectedBrowser(Browser browser)
     {
         //check state
+        Browser oldBrowser = model.getSelectedBrowser();
+        if (oldBrowser.equals(browser)) return;
         model.setSelectedBrowser(browser);
         removeEditor();
+        firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
     }
     
     /**
@@ -233,7 +238,7 @@ class TreeViewerComponent
     {
         //TODO: check state 
         model.setEditorType(NO_EDITOR);
-        view.removeAllFromRightPane();
+        view.removeAllFromWorkingPane();
     }
 
     /**
@@ -242,9 +247,9 @@ class TreeViewerComponent
      */
     public void setSaveResult(DataObject object)
     {
-        if (model.getState() != READY)
+        if (model.getState() != SAVE)
             throw new IllegalStateException(
-                    "This method can only be invoked in the READY state.");
+                    "This method can only be invoked in the SAVE state.");
         Browser browser = model.getSelectedBrowser();
         if (browser != null) {
             switch (model.getEditorType()) {
@@ -258,36 +263,40 @@ class TreeViewerComponent
         }  
         if (view.getLoadingWindow().isVisible())
             view.getLoadingWindow().setVisible(false);
-        view.removeAllFromRightPane();
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setUserDetails(UserDetails)
-     */
-    public void setUserDetails(UserDetails details)
-    {
-        if (model.getState() != LOADING_DETAILS)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_DETAILS " +
-                    "state.");
-        if (details == null)
-            throw new IllegalArgumentException("details shouldn't be null.");
-        model.setUserDetails(details);
-        firePropertyChange(DETAILS_LOADED_PROPERTY, null, details);
-        fireStateChange();
+        view.removeAllFromWorkingPane();
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#getUserDetails()
      */
-    public UserDetails getUserDetails()
+    public ExperimenterData getUserDetails()
     {
-        if (model.getState() != READY)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the READY state.");
         return model.getUserDetails();
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#showFinder(boolean)
+     */
+    public void showFinder(boolean b)
+    {
+        // Check state.
+        if (model.getSelectedBrowser() == null) return;
+        Finder finder = model.getFinder();
+        if (b == finder.isDisplay())  return;
+        finder.setDisplay(b);
+        view.showFinder(b);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#closing()
+     */
+    public void closing()
+    {
+        cancel();
+		view.setVisible(false);	 
     }
     
 }

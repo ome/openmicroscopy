@@ -39,9 +39,9 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 
 /** 
@@ -90,14 +90,11 @@ public interface TreeViewer
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int         DISCARDED = 2;
     
-    /** Flag to denote the <i>Create</i> state. */
+    /** Flag to denote the <i>Save</i> state. */
     public static final int         SAVE = 3;
     
-    /** Flag to denote the <i>Loading Details</i> state. */
-    public static final int			LOADING_DETAILS = 4;
-    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 5;
+    public static final int         READY = 4;
     
     /** Identifies the <code>Create</code> type for the editor. */
     public static final int         CREATE_PROPERTIES = 100;
@@ -126,44 +123,13 @@ public interface TreeViewer
      */
     public static final int			USER_ROOT = 202;
     
-    /** Identifies the Properties action in the Actions menu. */
-    public static final Integer     PROPERTIES = new Integer(0);
-    
-    /** Identifies the View action in the Actions menu. */
-    public static final Integer     VIEW = new Integer(1);
-    
-    /** Identifies the Refresh action in the Actions menu. */
-    public static final Integer     REFRESH = new Integer(2);
-    
-    /** Identifies the Create object action in the Actions menu. */
-    public static final Integer     CREATE_OBJECT = new Integer(3);
-    
-    /** Identifies the Copy object action in the Actions menu. */
-    public static final Integer     COPY_OBJECT = new Integer(4);
-    
-    /** Identifies the Paste object action in the Actions menu. */
-    public static final Integer     PASTE_OBJECT = new Integer(5);
-    
-    /** Identifies the Delete object action in the Actions menu. */
-    public static final Integer     DELETE_OBJECT = new Integer(6);
-    
-    /** Identifies the Hierarchy Explorer action in the Views menu. */
-    public static final Integer     HIERARCHY_EXPLORER = new Integer(7);
-    
-    /** Identifies the Category Explorer action in the Views menu. */
-    public static final Integer     CATEGORY_EXPLORER = new Integer(8);
-    
-    /** Identifies the Images Explorer action in the Views menu. */
-    public static final Integer     IMAGES_EXPLORER = new Integer(9);
-    
-    /** Identifies the World root level action in the Hierarchy*/
-    public static final Integer		WORLD_ROOT_LEVEL = new Integer(10);
-    
-    /** Identifies the User root level action in the Hierarchy*/
-    public static final Integer		USER_ROOT_LEVEL = new Integer(11);
-    
-    /** Bound property indicating that the user's details have been loaded. */
-    public static final String		DETAILS_LOADED_PROPERTY = "detailsLoaded";
+    /** 
+     * Bound properties indicating that {@link Browser} is selected or 
+     * <code>null</code> if no there is no {@link Browser} currently selected.
+     * 
+     */
+    public static final String		SELECTED_BROWSER_PROPERTY = 
+        									"selectedBrowser";
     
     /**
      * Queries the current state.
@@ -228,18 +194,23 @@ public interface TreeViewer
     public void setSaveResult(DataObject object);
     
     /**
-     * Sets the user details.
-     * 
-     * @param details The details to set.
-     */
-    public void setUserDetails(UserDetails details);
-    
-    /**
-     * Returns the user's details.
+     * Returns the user's details. Helper method
      * 
      * @return See above.
      */
-    public UserDetails getUserDetails();
+    public ExperimenterData getUserDetails();
+    
+    /**
+     * Shows if the passed parameter is <code>true</code>, hides
+     * otherwise.
+     * 
+     * @param b <code>true</code> to show the component, <code>false</code>
+     * 			to hide.
+     */
+    public void showFinder(boolean b);
+    
+    /** Hides the window and cancels any on-going data loading. */
+    public void closing();
     
     /**
      * Returns the currently selected {@link Browser} or <code>null</code>

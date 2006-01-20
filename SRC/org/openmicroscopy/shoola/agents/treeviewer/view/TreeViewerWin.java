@@ -39,8 +39,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -49,6 +49,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
@@ -61,9 +62,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UtilConstants;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /**
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>
@@ -96,8 +98,11 @@ class TreeViewerWin
     /** The Model. */
     private TreeViewerModel 	model;
 
+    /** The split pane hosting the display. */
+    private JSplitPane			splitPane;
+    
     /** The component hosting the working pane. */
-    private JScrollPane 		rightPane;
+    private JScrollPane 		workingPane;
 
     /** The tabbed pane hosting the {@link Browser}s. */
     private JTabbedPane 		tabs;
@@ -110,6 +115,7 @@ class TreeViewerWin
 
     /** The menu hosting the root levels. */
     private JMenu 				rootLevel;
+    
 
     /**
      * Checks if the specified {@link Browser} is already visible.
@@ -125,12 +131,8 @@ class TreeViewerWin
         return false;
     }
 
-    /**
-     * Creates the {@link JTabbedPane} hosting the browser.
-     * 
-     * @return See above.
-     */
-    private JTabbedPane createTabbedPane()
+    /** Creates the {@link JTabbedPane} hosting the browsers. */
+    private void createTabbedPane()
     {
         tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
@@ -143,8 +145,6 @@ class TreeViewerWin
         Browser browser = (Browser) browsers.get(new Integer(
                 Browser.HIERARCHY_EXPLORER));
         tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-
-        return tabs;
     }
 
     /**
@@ -155,11 +155,70 @@ class TreeViewerWin
     private JMenuBar createMenuBar()
     {
         JMenuBar menuBar = new JMenuBar();
-        menuBar.add(createRootMenu());
+        menuBar.add(createFileMenu());
+        menuBar.add(createEditMenu());
         menuBar.add(createViewsMenu());
+        menuBar.add(createHelpMenu());
         return menuBar;
     }
 
+    /**
+     * Helper method to create the <code>Help</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createHelpMenu()
+    {
+        JMenu file = new JMenu("Help");
+        return file;
+    }
+    
+    /**
+     * Helper method to create the <code>File</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createFileMenu()
+    {
+        JMenu file = new JMenu("File");
+        file.add(createRootMenu());
+        file.add(new JSeparator(JSeparator.HORIZONTAL));
+        JMenuItem item = new JMenuItem(
+                	controller.getAction(TreeViewerControl.PROPERTIES));
+        file.add(item);
+        item = new JMenuItem(
+            	controller.getAction(TreeViewerControl.VIEW));
+        file.add(item);
+        return file;
+    }
+    
+    /**
+     * Helper method to create the <code>Edit</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createEditMenu()
+    {
+        JMenu edit = new JMenu("Edit");
+        JMenuItem item = new JMenuItem(
+                controller.getAction(TreeViewerControl.FIND));
+        edit.add(item);
+        edit.add(new JSeparator(JSeparator.HORIZONTAL));
+        item = new JMenuItem(
+                controller.getAction(TreeViewerControl.CREATE_OBJECT));
+        edit.add(item);
+        item = new JMenuItem(
+                controller.getAction(TreeViewerControl.COPY_OBJECT));
+        edit.add(item);
+        item = new JMenuItem(
+                controller.getAction(TreeViewerControl.PASTE_OBJECT));
+        edit.add(item);
+        item = new JMenuItem(
+                controller.getAction(TreeViewerControl.DELETE_OBJECT));
+        edit.add(item);
+        return edit;
+    }
+    
     /**
      * Helper method to create the Hierarchy root menu.
      * 
@@ -168,7 +227,30 @@ class TreeViewerWin
     private JMenu createRootMenu()
     {
         rootLevel = new JMenu("Hierarchy root");
-        rootLevel.setEnabled(false);
+        ButtonGroup bGroup = new ButtonGroup();
+        JRadioButtonMenuItem item;
+        /*
+        JRadioButtonMenuItem item = new JRadioButtonMenuItem(
+                controller.getAction(TreeViewerControl.WORLD_ROOT_LEVEL));
+        rootLevel.add(item);
+        bGroup.add(item);
+        */
+        ExperimenterData details = model.getUserDetails();
+        Set groups = details.getGroups();
+        Iterator i = groups.iterator();
+        GroupData group;
+        while (i.hasNext()) {
+            group = (GroupData) i.next();
+            item = new JRadioButtonMenuItem(
+                    controller.getGroupLevelAction(new Integer(group.getId())));
+            bGroup.add(item);
+            rootLevel.add(item);
+        }
+        item = new JRadioButtonMenuItem(
+                controller.getAction(TreeViewerControl.USER_ROOT_LEVEL));
+        bGroup.add(item);
+        rootLevel.add(item);
+        item.setSelected(true);
         return rootLevel;
     }
 
@@ -181,12 +263,13 @@ class TreeViewerWin
     {
         JMenu views = new JMenu("Views");
         JMenuItem item = new JMenuItem(
-                controller.getAction(TreeViewer.HIERARCHY_EXPLORER));
+                controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         views.add(item);
         item = new JMenuItem(
-                controller.getAction(TreeViewer.CATEGORY_EXPLORER));
+                controller.getAction(TreeViewerControl.CATEGORY_EXPLORER));
         views.add(item);
-        item = new JMenuItem(controller.getAction(TreeViewer.IMAGES_EXPLORER));
+        item = new JMenuItem(
+                controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
         views.add(item);
         return views;
     }
@@ -194,26 +277,27 @@ class TreeViewerWin
     /** Initializes the UI components. */
     private void initComponents()
     {
-        rightPane = new JScrollPane();
+        createTabbedPane();
+        workingPane = new JScrollPane();
         JPanel p = new JPanel();
         p.setBackground(Color.RED);
-        rightPane.add(p);
+        workingPane.add(p);
     }
 
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        JSplitPane pane = new JSplitPane();
-        pane.setResizeWeight(1);
-        pane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        pane.setOneTouchExpandable(true);
-        pane.setContinuousLayout(true);
-        pane.setLeftComponent(createTabbedPane());
-        pane.setRightComponent(rightPane);
-        pane.setDividerLocation(DIVIDER_LOCATION);
+        splitPane = new JSplitPane();
+        splitPane.setResizeWeight(1);
+        splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setContinuousLayout(true);
+        splitPane.setLeftComponent(tabs);
+        splitPane.setRightComponent(workingPane);
+        splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
-        c.add(pane, BorderLayout.CENTER);
+        c.add(splitPane, BorderLayout.CENTER);
     }
 
     /**
@@ -327,7 +411,7 @@ class TreeViewerWin
     void showPopup(Component c, Point p) { popupMenu.show(c, p.x, p.y); }
 
     /**
-     * Adds the specified component to the {@link #rightPane}.
+     * Adds the specified component to the {@link #workingPane}.
      * 
      * @param component The component to add.
      */
@@ -335,46 +419,46 @@ class TreeViewerWin
     {
         if (component instanceof DOEditor)
             ((DOEditor) component)
-                    .setComponentsSize(rightPane.getBounds().width);
-        JViewport viewPort = rightPane.getViewport();
+                    .setComponentsSize(workingPane.getBounds().width);
+        JViewport viewPort = workingPane.getViewport();
         viewPort.removeAll();
         viewPort.add(component);
         viewPort.validate();
     }
 
-    /** Removes all the components from the {@link #rightPane}. */
-    void removeAllFromRightPane()
+    /** Removes all the components from the {@link #workingPane}. */
+    void removeAllFromWorkingPane()
     {
-        JViewport viewPort = rightPane.getViewport();
+        JViewport viewPort = workingPane.getViewport();
         if (viewPort.getComponents().length != 0) {
             viewPort.removeAll();
             viewPort.repaint();
         }
     }
-
-    /** Adds items to the {@link #rootLevel} menu. */
-    void fillRootLevelMenu()
+    
+    /**
+     * Shows or hides the component depending on the stated of the frame.
+     * 
+     * @param b Passed <code>true</code> to show the component, 
+     * 			<code>false</code> otherwise.
+     */
+    void showFinder(boolean b)
     {
-        rootLevel.setEnabled(true);
-        ButtonGroup group = new ButtonGroup();
-        JRadioButtonMenuItem item = new JRadioButtonMenuItem(
-                			controller.getAction(TreeViewer.WORLD_ROOT_LEVEL));
-        rootLevel.add(item);
-        group.add(item);
-        UserDetails details = model.getUserDetails();
-        List ids = details.getGroupIDs();
-        Iterator i = ids.iterator();
-        while (i.hasNext()) {
-            item = new JRadioButtonMenuItem(
-                    controller.getGroupLevelAction((Integer) i.next()));
-            group.add(item);
-            rootLevel.add(item);
+        if (b) { //finder visible.
+            JSplitPane pane = new JSplitPane();
+            pane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+            pane.setResizeWeight(1);
+            pane.setOneTouchExpandable(true);
+            pane.setContinuousLayout(true);
+            pane.setTopComponent(workingPane);
+            pane.setBottomComponent(model.getFinder());
+            splitPane.setRightComponent(pane);
+        } else {
+            splitPane.remove(splitPane.getRightComponent());
+            splitPane.setRightComponent(workingPane);
         }
-        item = new JRadioButtonMenuItem(controller
-                .getAction(TreeViewer.USER_ROOT_LEVEL));
-        group.add(item);
-        rootLevel.add(item);
-        item.setSelected(true);
+        splitPane.setDividerLocation(splitPane.getDividerLocation());
+        splitPane.repaint();
     }
 
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */

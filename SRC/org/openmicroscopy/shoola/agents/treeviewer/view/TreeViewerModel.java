@@ -40,15 +40,15 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.UserDetailsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.model.UserDetails;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -75,32 +75,38 @@ class TreeViewerModel
 {
 
     /** Holds one of the state flags defined by {@link TreeViewer}. */
-    private int                 state;
+    private int                 	state;
     
     /** 
      * Will either be a data loader or
      * <code>null</code> depending on the current state. 
      */
-    private DataTreeViewerLoader          currentLoader;
+    private DataTreeViewerLoader	currentLoader;
     
     /** The browsers controlled by the model. */
-    private Map                 browsers;
+    private Map                 	browsers;
     
     /** The currently selected {@link Browser}. */
-    private Browser             selectedBrowser;
+    private Browser             	selectedBrowser;
     
     /** The <code>DataObject</code> to edit. */
-    private DataObject          dataObject;
+    private DataObject          	dataObject;
     
     /** 
      * The type of editor. One of the following constants:
      * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
      * or {@link TreeViewer#NO_EDITOR}.
      */
-    private int                 editorType;
+    private int                 	editorType;
+    
+    /**
+     * The component to find a given phrase in the currently selected
+     * {@link Browser}.
+     */
+    private Finder					finder;
     
     /** Reference to the component that embeds this model. */
-    protected TreeViewer        component;
+    protected TreeViewer        	component;
     
     /** Creates the browsers controlled by this model. */
     private void createBrowsers()
@@ -108,6 +114,7 @@ class TreeViewerModel
         Browser browser = 
                 BrowserFactory.createBrowser(Browser.HIERARCHY_EXPLORER);
         selectedBrowser = browser;
+        browser.setSelected(true);
         browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
         browsers.put(new Integer(Browser.HIERARCHY_EXPLORER), browser);
         browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER);
@@ -136,7 +143,7 @@ class TreeViewerModel
      * @param component The embedding component.
      */
     void initialize(TreeViewer component) { this.component = component; }
-
+    
     /**
      * Sets the currently selected {@link Browser}.
      * 
@@ -255,39 +262,32 @@ class TreeViewerModel
     * @return See above.
     */
    int getEditorType() { return editorType; }
+
    
-   /**
-    * Starts an asynchronous data retrieval 
-    * and sets the state to {@link TreeViewer#LOADING_DETAILS}.
-    */
-   void fireUserDetailsLoading()
-   {
-       state = TreeViewer.LOADING_DETAILS;
-       currentLoader = new UserDetailsLoader(component);
-       currentLoader.load();
-   }
-   
-   /**
-    * Sets the user's details.
-    * The details should, in theory be already binded to the agent's registry.
+   /** 
+    * Returns the {@link Finder} component.
     * 
-    * @param details The details to set.
+    * @return See above.
     */
-   void setUserDetails(UserDetails details)
-   {
-       TreeViewerAgent.getRegistry().bind(LookupNames.USER_DETAILS, details);
-       state = TreeViewer.READY;
-   }
+   Finder getFinder() { return finder; }
+   
+   /** 
+    * Sets the finder component.
+    * 
+    * @param finder The component to set.
+    */
+   void setFinder(Finder finder) { this.finder = finder; }
    
    /**
     * Returns the current user's details.
     * 
     * @return See above.
     */
-   UserDetails getUserDetails()
+   ExperimenterData getUserDetails()
    { 
-   		return (UserDetails) TreeViewerAgent.getRegistry().lookup(
-   			        LookupNames.USER_DETAILS);
+   	return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
+   			        LookupNames.CURRENT_USER_DETAILS);
    }
+   
    
 }

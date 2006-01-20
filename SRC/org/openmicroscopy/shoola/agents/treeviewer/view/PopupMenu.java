@@ -43,7 +43,6 @@ import javax.swing.border.BevelBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.util.UtilConstants;
 
 
 /** 
@@ -96,7 +95,6 @@ class PopupMenu
         item.setFont((Font) 
                 TreeViewerAgent.getRegistry().lookup(
                         "/resources/fonts/Labels"));
-        item.setForeground(UtilConstants.STEELBLUE);
     }
     
     /**
@@ -107,23 +105,24 @@ class PopupMenu
     private void createMenuItems(TreeViewerControl controller)
     {
         properties = new JMenuItem(
-                            controller.getAction(TreeViewer.PROPERTIES));
+                	controller.getAction(TreeViewerControl.PROPERTIES));
         initMenuItem(properties);
-        view = new JMenuItem(controller.getAction(TreeViewer.VIEW));
+        view = new JMenuItem(controller.getAction(TreeViewerControl.VIEW));
         initMenuItem(view);
-        refresh = new JMenuItem(controller.getAction(TreeViewer.REFRESH));
+        refresh = new JMenuItem(
+                	controller.getAction(TreeViewerControl.REFRESH));
         initMenuItem(refresh);
         newElement = new JMenuItem(
-                        controller.getAction(TreeViewer.CREATE_OBJECT));
+                	controller.getAction(TreeViewerControl.CREATE_OBJECT));
         initMenuItem(newElement);
         copyElement = new JMenuItem(
-                        controller.getAction(TreeViewer.COPY_OBJECT)); 
+                	controller.getAction(TreeViewerControl.COPY_OBJECT)); 
         initMenuItem(newElement);
         pasteElement = new JMenuItem(
-                controller.getAction(TreeViewer.PASTE_OBJECT)); 
+                	controller.getAction(TreeViewerControl.PASTE_OBJECT)); 
         initMenuItem(newElement);
         deleteElement = new JMenuItem(
-                controller.getAction(TreeViewer.DELETE_OBJECT)); 
+                	controller.getAction(TreeViewerControl.DELETE_OBJECT)); 
         initMenuItem(newElement);
     }
     
