@@ -102,6 +102,13 @@ public interface Browser
      */
     public static final int     	IMAGES_EXPLORER = 102;
     
+
+    /** Indicates that the container is of type <code>Dataset</code>.*/
+    public static final int     	DATASET_CONTAINER = 200;
+    
+    /** Indicates that the container is of type <code>Category</code>.*/
+    public static final int     	CATEGORY_CONTAINER = 201;
+    
     /** 
      * Bound property name indicating a data retrieval cancellation occured. 
      */
@@ -129,27 +136,9 @@ public interface Browser
     /** Bound property name indicating to set the filters nodes.  */
     public static final String  	FILTER_NODES_PROPERTY = "filterNodes";
     
-    /** Identifies the Collapse action in the Actions menu. */
-    public static final Integer     COLLAPSE = new Integer(0);
-    
-    /** Identifies the Close action in the Actions menu. */
-    public static final Integer     CLOSE = new Integer(1);
-    
-    /** Identifies the Sort action in the Actions menu. */
-    public static final Integer     SORT = new Integer(2);
-    
-    /** Identifies the Sort by Date action in the Actions menu. */
-    public static final Integer     SORT_DATE = new Integer(3);
-    
-    /** Identifies the Filter in Dataset action in the Actions menu. */
-    public static final Integer     FILTER_IN_DATASET = new Integer(4);
-    
-    /** Identifies the Filter in Category action in the Actions menu. */
-    public static final Integer     FILTER_IN_CATEGORY = new Integer(5);
-    
-    /** Identifies the Filter Menu action in the Actions menu. */
-    public static final Integer     FILTER_MENU = new Integer(6);
-    
+    /** Bound property indicating to change the root of the hierarchy. */
+    public static final String		HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
+  
     /** 
      * The browser's title corresponding to {@link #HIERARCHY_EXPLORER} type.
      */
@@ -226,16 +215,6 @@ public interface Browser
     
     /** Cancels any ongoing data loading. */
     public void cancel();   
-    
-    /**
-     * Callback used by data loaders to provide the viewer with feedback about
-     * the data retrieval.
-     * 
-     * @param done  Passes <code>true</code> to indicate that the data retrieval
-     *              is finished.
-     * @see org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader
-     */
-    public void setStatus(boolean done);
     
     /**
      * Returns the location of the mouse click event occured.
@@ -317,8 +296,10 @@ public interface Browser
     public void loadData();
     
     /**
+     * Loads the children of the nodes specified by the collection 
+     * of nodeIDs.
      * 
-     * @param nodeIDs
+     * @param nodeIDs The collection of IDs.
      */
     public void loadData(Set nodeIDs);
 
@@ -332,15 +313,19 @@ public interface Browser
     public void showPopupMenu();   
     
     /**
+     * Sets the nodes retrieved using a filtering data loading.
      * 
-     * @param nodes
-     * @param type
+     * @param nodes The collection of nodes to set.
+     * @param type	The type of filter used.
      */
     public void setFilterNodes(Set nodes, int type);
     
     /**
+     * Loads the data for the specified type of filter.
      * 
-     * @param type
+     * @param type 	The type of container the data is for. One of the following
+     * 				constants: {@link #DATASET_CONTAINER} or 
+     * 				{@link #CATEGORY_CONTAINER}
      */
     public void loadFilterData(int type);
     
@@ -353,8 +338,18 @@ public interface Browser
      */
     public void showFilterMenu(Component c, Point p);
     
-    /** Refresh the currently selected node. */
+    /** 
+     * Reloads the children of the currently selected node and rebuilds
+     * the display.
+     */
     public void refresh();
+    
+    /** 
+     * Reloads children of the currently selected node and rebuilds
+     * the display if the <code>Browser</code> is currently selected, 
+     * if not, all the chidren are removed and there is no data loading.
+     */
+    public void refreshTree();
     
     /** 
      * Adds the specified nodes to the currently selected
@@ -427,5 +422,27 @@ public interface Browser
      * @return See above.
      */
     public Set getContainersWithImages();
+    
+    /**
+     * Sets the nodes found corresponding to a pattern.
+     * 
+     * @param nodes The collection of found nodes.
+     */
+    public void setFoundInBrowser(Set nodes);
+
+    /** Finds the next occurence of the phrase. */
+    public void findNext();
+    
+    /** Finds the previous occurence of the phrase. */
+    public void findPrevious();
+    
+    /**
+     * Sets the value to <code>true</code> if currently selected.
+     * <code>false</code> otherwise.
+     * 
+     * @param b <code>true</code> if the browser is selected.
+     * 			<code>false</code> otherwise.
+     */
+    public void setSelected(boolean b);
     
 }

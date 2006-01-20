@@ -33,22 +33,33 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.DataObject;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -202,28 +213,13 @@ class BrowserComponent
     public void cancel()
     { 
         int state = model.getState();
-        if ((state == LOADING_DATA) || (state == LOADING_LEAVES)) { 
-            if (state == LOADING_DATA) view.cancelDataLoading();
-            else if (state == LOADING_LEAVES) view.cancelLeavesLoading();
+        if ((state == LOADING_DATA) || (state == LOADING_LEAVES) ||
+             (state == COUNTING_ITEMS)) {
+            System.out.println("cancel");
             model.cancel();
+            view.cancel(model.getSelectedDisplay()); 
             fireStateChange();
         }
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setStatus(boolean)
-     */
-    public void setStatus(boolean done)
-    {
-        /*
-        int state = model.getState();
-        if ((state == LOADING_DATA) || (state == LOADING_LEAVES)) {
-            if (done) 
-                firePropertyChange(ON_END_LOADING_PROPERTY, Boolean.FALSE,
-                                Boolean.TRUE);
-        }
-        */
     }
     
     /**
@@ -351,7 +347,7 @@ class BrowserComponent
     public void collapse(TreeImageDisplay node)
     {
         if (node == null) return;
-        view.collapse(node);
+        view.collapsePath(node);
     }
 
     /**
@@ -510,16 +506,44 @@ class BrowserComponent
         }
         TreeImageDisplay display = model.getSelectedDisplay();
         if (display == null) return;
+        if (display.getChildrenDisplay().size() == 0) return;
         DefaultTreeModel dtm = (DefaultTreeModel) 
                                 view.getTreeDisplay().getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         display.removeAllChildrenDisplay();
-        view.loadAction(display);
-        if (root.equals(display)) model.fireDataLoading();
+        //view.loadAction(display);
+        if (root.equals(display)) loadData();
         else model.refreshSelectedDisplay();
         fireStateChange();
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#refreshTree()
+     */
+    public void refreshTree()
+    {
+        switch (model.getState()) {
+	        case LOADING_DATA:
+	        case LOADING_LEAVES:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	                    "This method cannot be invoked in the LOADING_DATA, "+
+	                    " LOADING_LEAVES or DISCARDED state.");
+        }
+        DefaultTreeModel dtm = (DefaultTreeModel) 
+        view.getTreeDisplay().getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        if (root.getChildrenDisplay().size() == 0) return;
+	    if (!model.isSelected()) {
+	        view.clearTree();
+	        return;
+	    }
+	    root.removeAllChildrenDisplay();
+	    model.setSelectedDisplay(root);
+	    loadData();
+    }
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setContainerNodes(Set, TreeImageDisplay)
@@ -537,7 +561,6 @@ class BrowserComponent
         } else view.setViews(TreeViewerTranslator.transformContainers(nodes), 
                 			model.getSelectedDisplay());
         model.fireContainerCountLoading();
-        //model.setState(READY);
         fireStateChange();
     }
 
@@ -572,7 +595,10 @@ class BrowserComponent
 		if (state != READY && state != NEW)
 		    throw new IllegalStateException(
                     "This method can only be invoked in the READY state.");
+		int oldLevel = model.getRootLevel();
 		model.setHierarchyRoot(rootLevel, rootID);
+		firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
+		        				new Integer(rootLevel));
 	}
 
     /**
@@ -650,6 +676,106 @@ class BrowserComponent
         ContainerFinder finder = new ContainerFinder();
         accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
         return finder.getContainers();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setFoundInBrowser(Set)
+     */
+    public void setFoundInBrowser(Set nodes)
+    {
+        if (nodes == null || nodes.size() == 0) {
+            model.setFoundNodes(null); // reset default value.
+            model.setFoundNodeIndex(-1); // reset default value.
+            view.getTreeDisplay().repaint();
+            return;
+        }
+        ArrayList list = new ArrayList(nodes.size());
+        Iterator i = nodes.iterator();
+        
+        final JTree tree = view.getTreeDisplay();
+        while (i.hasNext()) list.add(i.next());
+        Comparator c = new Comparator() {
+            public int compare(Object o1, Object o2)
+            {
+                TreeImageDisplay node1 = (TreeImageDisplay) o1;
+                TreeImageDisplay node2 = (TreeImageDisplay) o2;
+                int i1 = tree.getRowForPath(new TreePath(node1.getPath()));
+                int i2 = tree.getRowForPath(new TreePath(node2.getPath()));
+                return (i1-i2);
+            }
+        };
+        Collections.sort(list, c);
+        model.setFoundNodes(list);
+        model.setFoundNodeIndex(0);
+        TreeImageDisplay node = (TreeImageDisplay) list.get(0);
+        view.selectFoundNode(node);
+        Object ho = node.getUserObject();
+        if (ho instanceof DataObject) {
+            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
+        }
+        tree.repaint();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#findNext()
+     */
+    public void findNext()
+    {
+        List l = model.getFoundNodes();
+        if (l == null || l.size() == 0) return;
+        int index = model.getFoundNodeIndex();
+        int n = l.size()-1;
+        if (index < n) index++; //not last element
+        else if (index == n) index = 0;
+        model.setFoundNodeIndex(index);
+        TreeImageDisplay node = (TreeImageDisplay) l.get(index);
+        view.selectFoundNode(node);
+        Object ho = node.getUserObject();
+        if (ho instanceof DataObject) {
+            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#findPrevious()
+     */
+    public void findPrevious()
+    {
+        List l = model.getFoundNodes();
+        if (l == null || l.size() == 0) return;
+        int index = model.getFoundNodeIndex();
+        if (index > 0)  index--; //not last element
+        else if (index == 0)  index = l.size()-1;
+        TreeImageDisplay node = (TreeImageDisplay) l.get(index);
+        view.selectFoundNode(node);
+        Object ho = node.getUserObject();
+        if (ho instanceof DataObject) {
+            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelected(boolean)
+     */
+    public void setSelected(boolean b)
+    {
+        switch (model.getState()) {
+	        case LOADING_DATA:
+	        case LOADING_LEAVES:
+	        case COUNTING_ITEMS:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	                    "This method can only be invoked in the " +
+	                    "NEW or READY state.");
+        }
+        model.setSelected(b);
     }
     
 }

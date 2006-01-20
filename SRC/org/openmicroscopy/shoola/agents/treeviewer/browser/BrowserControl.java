@@ -69,6 +69,27 @@ class BrowserControl
     implements ChangeListener, PropertyChangeListener
 {
 
+    /** Identifies the Collapse action in the Actions menu. */
+    static final Integer     COLLAPSE = new Integer(0);
+    
+    /** Identifies the Close action in the Actions menu. */
+    static final Integer     CLOSE = new Integer(1);
+    
+    /** Identifies the Sort action in the Actions menu. */
+    static final Integer     SORT = new Integer(2);
+    
+    /** Identifies the Sort by Date action in the Actions menu. */
+    static final Integer     SORT_DATE = new Integer(3);
+    
+    /** Identifies the Filter in Dataset action in the Actions menu. */
+    static final Integer     FILTER_IN_DATASET = new Integer(4);
+    
+    /** Identifies the Filter in Category action in the Actions menu. */
+    static final Integer     FILTER_IN_CATEGORY = new Integer(5);
+    
+    /** Identifies the Filter Menu action in the Actions menu. */
+    static final Integer     FILTER_MENU = new Integer(6);
+       
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -84,15 +105,33 @@ class BrowserControl
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
-        actionsMap.put(Browser.COLLAPSE, new CollapseAction(model));
-        actionsMap.put(Browser.CLOSE, new CloseAction(model));
-        actionsMap.put(Browser.SORT, new SortAction(model));
-        actionsMap.put(Browser.SORT_DATE, new SortByDateAction(model));
-        actionsMap.put(Browser.FILTER_IN_DATASET, new FilterAction(model,
-                                            FilterAction.DATASET_CONTAINER));
-        actionsMap.put(Browser.FILTER_IN_CATEGORY, new FilterAction(model,
-                                            FilterAction.CATEGORY_CONTAINER));
-        actionsMap.put(Browser.FILTER_MENU, new FilterMenuAction(model));
+        actionsMap.put(COLLAPSE, new CollapseAction(model));
+        actionsMap.put(CLOSE, new CloseAction(model));
+        actionsMap.put(SORT, new SortAction(model));
+        actionsMap.put(SORT_DATE, new SortByDateAction(model));
+        actionsMap.put(FILTER_IN_DATASET, new FilterAction(model,
+                                            Browser.DATASET_CONTAINER));
+        actionsMap.put(FILTER_IN_CATEGORY, new FilterAction(model,
+                							Browser.CATEGORY_CONTAINER));
+        actionsMap.put(FILTER_MENU, new FilterMenuAction(model));
+    }
+    
+    /**
+     * Loads the children of nodes contained in the specified in collection.
+     * 
+     * @param nodes The collection of nodes.
+     */
+    private void filterNodes(Set nodes)
+    {
+        if (nodes == null || nodes.size() == 0) return;
+        if (model.getBrowserType() != Browser.IMAGES_EXPLORER) return;
+        //We should be in the ready state.
+        DefaultTreeModel dtm = (DefaultTreeModel) 
+                                view.getTreeDisplay().getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        root.removeAllChildrenDisplay() ;
+        view.loadAction(root);
+        model.loadData(nodes);
     }
     
     /**
@@ -122,21 +161,25 @@ class BrowserControl
     {
         if (view == null) throw new NullPointerException("No view.");
         this.view = view;
+        model.addPropertyChangeListener(this);
     }
 
     /**
      * Reacts to tree expansion events.
      * 
      * @param display The selected node.
+     * @param expanded 	<code>true</code> if the node is expanded,
+     * 					<code>false</code> otherwise.
      */
-    void onNodeNavigation(TreeImageDisplay display)
+    void onNodeNavigation(TreeImageDisplay display, boolean expanded)
     {
         int state = model.getState();
-        //Might a collapse event fired the data loading is cancelled.
         if ((state == Browser.LOADING_DATA) ||
-             (state == Browser.LOADING_LEAVES)) return;
+             (state == Browser.LOADING_LEAVES) || 
+             (state == Browser.COUNTING_ITEMS)) return;
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
+        if (!expanded) return;
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
             if (display.getChildrenDisplay().size() == 0) {
                 view.loadAction(display);
@@ -203,17 +246,11 @@ class BrowserControl
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
-        //We only listen to FILTER_NODES_PROPERTY
-        Set set = (Set) pce.getNewValue();
-        if (set == null || set.size() == 0) return;
-        if (model.getBrowserType() != Browser.IMAGES_EXPLORER) return;
-        //We should be in the ready state.
-        DefaultTreeModel dtm = (DefaultTreeModel) 
-                                view.getTreeDisplay().getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        root.removeAllChildrenDisplay() ;
-        view.loadAction(root);
-        model.loadData(set);
+        String name = pce.getPropertyName();
+        if (name.equals(Browser.FILTER_NODES_PROPERTY)) 
+            filterNodes((Set) pce.getNewValue());
+        else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
+            model.refreshTree();
     }
     
 }

@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.Point;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JTree;
 
@@ -44,7 +45,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesInContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterAction;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -103,11 +103,20 @@ class BrowserModel
      */
     private int					rootID;
     
+    /** List of founds nodes. */
+    private List				foundNodes;
+    
+    /** The index of the currently selected found node. */
+    private int					foundNodeIndex;
+    
     /** 
      * Maps an container id to the list of number of items providers for that 
      * container.
      */
     private ContainersManager	containersManager;
+    
+    /** Indicates if the browser is currently selected. */
+    private boolean				selected;
     
     /** Reference to the component that embeds this model. */
     protected Browser           component; 
@@ -142,6 +151,7 @@ class BrowserModel
         this.browserType = browserType;
         clickPoint = null;
         filterType = -1;
+        foundNodeIndex = -1;
     }
 
     /**
@@ -279,10 +289,10 @@ class BrowserModel
      */
     void fireFilterDataLoading(int type)
     {
-        if (type == FilterAction.DATASET_CONTAINER)
+        if (type == Browser.DATASET_CONTAINER)
             currentLoader = new HierarchyLoader(component,
                                     HierarchyLoader.DATASET, false, true);
-        else if (type == FilterAction.CATEGORY_CONTAINER)
+        else if (type == Browser.CATEGORY_CONTAINER)
             currentLoader = new HierarchyLoader(component,
                     HierarchyLoader.CATEGORY, false, true);
         currentLoader.load();
@@ -316,7 +326,7 @@ class BrowserModel
     /**
      * Starts the asynchronous retrieval of the number of items contained 
      * in the <code>TreeImageSet</code> containing images e.g. a 
-     * <code>Dataset</code>.
+     * <code>Dataset</code> and sets the state to {@link Browser#COUNTING_ITEMS}
      */
     void fireContainerCountLoading()
     {
@@ -431,5 +441,37 @@ class BrowserModel
             containersManager = null;
         }
     }
+    
+    /**
+     * Sets the value of the {@link #selected} field.
+     * 
+     * @param selected The value to set.
+     */
+    void setSelected(boolean selected) { this.selected = selected; }
+    
+    /**
+     * Returns <code>true</code> if the {@link Browser} is selected, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSelected() { return selected; }
+    
+    
+    /**
+     * Sets the list of found nodes.
+     * 
+     * @param nodes The collection of found nodes.
+     */
+    void setFoundNodes(List nodes)
+    {
+        foundNodes = nodes;
+    }
+    
+    void setFoundNodeIndex(int i) { foundNodeIndex = i; }
+    
+    int getFoundNodeIndex() { return foundNodeIndex; }
+    
+    List getFoundNodes() { return foundNodes; }
     
 }

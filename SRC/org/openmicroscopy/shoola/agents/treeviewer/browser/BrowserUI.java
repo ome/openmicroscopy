@@ -89,25 +89,28 @@ class BrowserUI
     private static final String     EMPTY_MSG = "Empty";
     
     /** The tree hosting the display. */
-    private JTree           treeDisplay;
+    private JTree           		treeDisplay;
     
-    /** The toolBar. */
-    private JToolBar        menuBar;
+    /** The tool bar hosting the controls. */
+    private JToolBar				menuBar;
     
     /** The Controller. */
-    private BrowserControl  controller;
+    private BrowserControl  		controller;
     
     /** The model. */
-    private BrowserModel    model;
+    private BrowserModel    		model;
     
     /** The popup menu. */
-    private FilterMenu      filterMenu;
+    private FilterMenu      		filterMenu;
     
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
      */
-    private ViewerSorter    sorter;
+    private ViewerSorter    		sorter;
+    
+    /** Reference to the listner. */
+    private TreeExpansionListener	listener;
     
     /** Builds and lays out the UI. */
     private void buildGUI()
@@ -129,18 +132,18 @@ class BrowserUI
         menuBar.setBorder(null);
         menuBar.setRollover(true);
         menuBar.setFloatable(false);
-        JButton button = new JButton(controller.getAction(Browser.SORT));
+        JButton button = new JButton(controller.getAction(BrowserControl.SORT));
         menuBar.add(button);
-        button = new JButton(controller.getAction(Browser.SORT_DATE));
+        button = new JButton(controller.getAction(BrowserControl.SORT_DATE));
         menuBar.add(button);
-        button = new JButton(controller.getAction(Browser.FILTER_MENU));
+        button = new JButton(controller.getAction(BrowserControl.FILTER_MENU));
         button.addMouseListener((FilterMenuAction) 
-                                controller.getAction(Browser.FILTER_MENU));
+                            controller.getAction(BrowserControl.FILTER_MENU));
         menuBar.add(button);
         menuBar.add(new JSeparator(SwingConstants.VERTICAL));
-        button = new JButton(controller.getAction(Browser.COLLAPSE));
+        button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         menuBar.add(button);
-        button = new JButton(controller.getAction(Browser.CLOSE));
+        button = new JButton(controller.getAction(BrowserControl.CLOSE));
         menuBar.add(button);
     }
     
@@ -148,13 +151,14 @@ class BrowserUI
      * Reacts to node expansion event.
      * 
      * @param tee The event to handle.
+     * @param expanded 	<code>true</code> is the node is expanded,
+     * 					<code>false</code> otherwise.
      */
-    private void onNodeNavigation(TreeExpansionEvent tee)
+    private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
     {
-        TreePath path = tee.getPath();
         TreeImageDisplay node = (TreeImageDisplay) 
-                                        path.getLastPathComponent();
-        controller.onNodeNavigation(node);
+        							tee.getPath().getLastPathComponent();
+        controller.onNodeNavigation(node, expanded);
     }
     
     /**
@@ -195,14 +199,7 @@ class BrowserUI
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onClick(e); }
         });
-        treeDisplay.addTreeExpansionListener(new TreeExpansionListener() {
-            public void treeCollapsed(TreeExpansionEvent e) {
-                onNodeNavigation(e);
-            }
-            public void treeExpanded(TreeExpansionEvent e) {
-                onNodeNavigation(e);  
-            }   
-        });
+        treeDisplay.addTreeExpansionListener(listener);
     }
     
     /**
@@ -246,11 +243,20 @@ class BrowserUI
     /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
-     * should be called straigh after to link this View to the Controller.
+     * should be called straight after to link this View to the Controller.
      */
     BrowserUI()
     {
         sorter = new ViewerSorter();
+        listener = new TreeExpansionListener() {
+            public void treeCollapsed(TreeExpansionEvent e) {
+                System.out.println("HERE");
+                onNodeNavigation(e, false);
+            }
+            public void treeExpanded(TreeExpansionEvent e) {
+                onNodeNavigation(e, true);  
+            }   
+        };
     }
     
     /**
@@ -354,31 +360,6 @@ class BrowserUI
         dtm.reload(node);
     }
     
-    /** Collapses the tree when a data retrieval is cancelled. */
-    void cancelDataLoading()
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
-        treeDisplay.collapsePath(new TreePath(root.getPath()));
-    }
-    
-    /** Collapses the node when a data retrieval is cancelled. */
-    void cancelLeavesLoading()
-    {
-        TreeImageDisplay node = model.getSelectedDisplay();
-        treeDisplay.collapsePath(new TreePath(node.getPath()));
-    }
-    
-    /**
-     * Collapses the specified node.
-     * 
-     * @param node The node.
-     */
-    void collapse(TreeImageDisplay node)
-    {
-        treeDisplay.collapsePath(new TreePath(node.getPath()));
-    }  
-    
     /**
      * Returns the tree hosting the display.
      * 
@@ -434,6 +415,67 @@ class BrowserUI
     {
         if (filterMenu == null) filterMenu = new FilterMenu(controller);
         filterMenu.show(c, p.x, p.y);
+    }
+    
+    /**
+     * Selects the sepcified node.
+     * 
+     * @param node The node to select.
+     */
+    void selectFoundNode(TreeImageDisplay node)
+    {
+        TreePath path = new TreePath(node.getPath());
+        treeDisplay.setSelectionPath(path);
+        TreeCellRenderer renderer = (TreeCellRenderer) 
+        			treeDisplay.getCellRenderer();
+        treeDisplay.requestFocus();
+        renderer.getTreeCellRendererComponent(treeDisplay, node, 
+                					treeDisplay.isPathSelected(path),
+                					false, true, 0, false);
+    }
+    
+    /** Removes all the nodes from the tree, excepted the root node. */
+    void clearTree()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        root.removeAllChildren();
+        root.removeAllChildrenDisplay();
+        buildEmptyNode(root);
+        dtm.reload();
+        collapsePath(root);
+    }
+    
+    /**
+     * Collapses the specified node. To avoid loop, we first need to 
+     * remove the <code>TreeExpansionListener</code>.
+     * 
+     * @param node The node to collapse.
+     */
+    void collapsePath(DefaultMutableTreeNode node)
+    {
+        //First remove listener otherwise an event is fired.
+        treeDisplay.removeTreeExpansionListener(listener);
+        treeDisplay.collapsePath(new TreePath(node.getPath()));
+        treeDisplay.addTreeExpansionListener(listener);
+    }
+    
+    /** 
+     * Collapses the node when an on-going data loading is cancelled.
+     * 
+     * @param node The node to collapse.
+     */
+    void cancel(DefaultMutableTreeNode node)
+    {
+        if (node.getChildCount() <= 1) {
+            if (node.getUserObject() instanceof String) {
+                node.removeAllChildren(); 
+                buildEmptyNode(node);
+            }
+        }
+        //in this order otherwise the node is not collapsed.
+        ((DefaultTreeModel) treeDisplay.getModel()).reload(node);
+        collapsePath(node);
     }
     
 }

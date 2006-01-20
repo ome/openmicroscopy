@@ -79,10 +79,10 @@ class FilterMenu
     private void createMenuItems(BrowserControl controller)
     {
         dataset = new JMenuItem(
-                            controller.getAction(Browser.FILTER_IN_DATASET));
+                	controller.getAction(BrowserControl.FILTER_IN_DATASET));
         initMenuItem(dataset);
         category = new JMenuItem(
-                controller.getAction(Browser.FILTER_IN_CATEGORY));
+                	controller.getAction(BrowserControl.FILTER_IN_CATEGORY));
         initMenuItem(category);
     }
     

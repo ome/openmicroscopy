@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -99,6 +100,9 @@ public abstract class TreeImageDisplay
     extends DefaultMutableTreeNode
 {
     
+    /** The gap between the number of items and the name. */
+    private static final String SPACE = "    ";
+    
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -118,6 +122,14 @@ public abstract class TreeImageDisplay
      * can be annotated and the inserted date if any.
      */
     private String              tooltip;
+    
+    /** 
+     * Tells if the node has to be highlighted.
+     * If <code>null</code>, the node will display the normal
+     * background. If a color is specified, the node will be highlighted
+     * using the specified color. 
+     */
+    private Color				highlight;
     
     /** The number of items. */
     protected int				numberItems;
@@ -336,11 +348,25 @@ public abstract class TreeImageDisplay
     public String getNodeText()
     {
         if (getUserObject() instanceof ImageData) return name;
-        if (numberItems == -1) return (name+"    ...");
+        if (numberItems == -1) return (name+SPACE+"...");
         String s = "item";
         if (numberItems > 1) s +="s";
-        return (name+"    "+numberItems+" "+s);
+        return (name+SPACE+numberItems+" "+s);
     }
+    
+    /**
+     * Sets the highlight color. 
+     * 
+     * @param highlight The color to set.
+     */
+    public void setHighLight(Color highlight) { this.highlight = highlight; }
+    
+    /**
+     * Returns the highlight color.
+     * 
+     * @return See above.
+     */
+    public Color getHighLight() { return highlight; }
     
     /** 
      * Overriden to return the name of the hierarchy object. 
