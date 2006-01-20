@@ -61,7 +61,7 @@ public class Omero3Connector
         return soleInstance;
     }
     
-    public Omero3Connector()
+    private Omero3Connector()
     {
         String[] paths = new String[] { "omero3/config.xml", "omero3/data.xml",
                                         "omero3/hibernate.xml" };

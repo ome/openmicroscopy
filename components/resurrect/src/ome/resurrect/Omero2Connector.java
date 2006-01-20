@@ -60,7 +60,7 @@ public class Omero2Connector
         return soleInstance;
     }
     
-    public Omero2Connector()
+    private Omero2Connector()
     {
         String[] paths = new String[] { "omero2/config.xml", "omero2/data.xml",
                                         "omero2/hibernate.xml" };

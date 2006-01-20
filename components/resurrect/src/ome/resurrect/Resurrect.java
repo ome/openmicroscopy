@@ -57,8 +57,8 @@ public class Resurrect
 
     public Resurrect()
     {
-        c2 = new Omero2Connector();
-        c3 = new Omero3Connector();
+        c2 = Omero2Connector.getInstance();
+        c3 = Omero3Connector.getInstance();
         
         event = new Event();
         event.setName("Transmutted by Resurrect");
