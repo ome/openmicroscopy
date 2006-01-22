@@ -133,6 +133,6 @@
     </repository>
   </distributionManagement>
   <scm>
-    <connection>http://cvs.openmicroscopy.org.uk/svn/omero/trunk</connection>
+    <connection>scm:svn:http://cvs.openmicroscopy.org.uk/svn/omero/trunk</connection>
   </scm>
 </project>
