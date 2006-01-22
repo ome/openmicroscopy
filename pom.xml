@@ -132,4 +132,7 @@
       <url>scpexe://cvs.openmicroscopy.org.uk/var/www/cvs.openmicroscopy.org.uk/html/maven</url>
     </repository>
   </distributionManagement>
+  <scm>
+    <connection>http://cvs.openmicroscopy.org.uk/svn/omero/trunk</connection>
+  </scm>
 </project>
