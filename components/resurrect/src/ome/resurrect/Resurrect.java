@@ -30,10 +30,11 @@ package ome.resurrect;
 
 import java.util.List;
 
+import org.eclipse.swt.*;
+import org.eclipse.swt.widgets.*;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.resurrect.transform.ExperimenterTrans;
-
 
 /**
  * @author callan
@@ -58,19 +59,54 @@ public class Resurrect
     public Resurrect()
     {
         c2 = Omero2Connector.getInstance();
+
+        List<ome.model.Experimenter> l = c2.getExperimenters();
+
+        displayGui(l);
+
         c3 = Omero3Connector.getInstance();
         
         event = new Event();
         event.setName("Transmutted by Resurrect");
-        c3.save(event);
+        c3.save(event);        
         
-        transmuteAllExperimenters();
+        transmuteAllExperimenters(l);
         transmutePixels(73);
     }
 
-    private void transmuteAllExperimenters()
+    private void displayGui(List<ome.model.Experimenter> l)
     {
-        List<ome.model.Experimenter> l = c2.getExperimenters();
+        Display display = new Display();
+        //Shell shell = new Shell(display);
+        Shell shell = new Shell(display, SWT.CLOSE | SWT.MIN);
+        Table table = new Table 
+            (shell, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        for (ome.model.Experimenter e : l) {
+            TableItem item = new TableItem (table, SWT.NONE);
+            item.setText (e.getFirstname() + " " + e.getLastname());
+        }
+        table.setSize (200, 244);
+        
+        Button button = new Button(shell, SWT.PUSH);
+        button.setBounds(50, 246, 100, 26);
+        button.setText("Import");
+        
+        table.addListener (SWT.Selection, new org.eclipse.swt.widgets.Listener () {
+            public void handleEvent (org.eclipse.swt.widgets.Event ev) {
+                if (ev.detail == SWT.CHECK)
+                    System.out.println (ev.item + " checked");
+            }
+        });
+        shell.setSize (200, 300);
+        shell.open();
+        while(!shell.isDisposed())
+            if (!display.readAndDispatch())
+                display.sleep();
+        display.dispose();
+    }
+
+    private void transmuteAllExperimenters(List<ome.model.Experimenter> l)
+    {
 
         List toSave = null;
         for (ome.model.Experimenter e : l)
@@ -90,3 +126,4 @@ public class Resurrect
         c3.save(l.toArray());
     }
 }
+
