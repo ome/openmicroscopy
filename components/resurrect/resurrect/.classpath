@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/1.2.6/spring-1.2.6.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.0.5/hibernate-3.0.5.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-common-2.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6/dom4j-1.6.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/omero/jars/omero-server-2.5.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/ehcache/ehcache/1.1/ehcache-1.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/cglib/cglib/2.0.2/cglib-2.0.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/asm/asm/1.4.3/asm-1.4.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/hibernate/antlr/2.7.5H3/antlr-2.7.5H3.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
