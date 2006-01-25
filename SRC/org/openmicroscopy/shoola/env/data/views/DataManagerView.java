@@ -37,6 +37,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import pojos.AnnotationData;
 import pojos.DataObject;
 
 /** 
@@ -56,7 +57,7 @@ import pojos.DataObject;
 public interface DataManagerView
     extends DataServicesView
 {
-
+    
     /** 
      * Indicates the root of the retrieved data is the <code>World</code>
      * i.e. any user in the system.
@@ -74,6 +75,24 @@ public interface DataManagerView
      * i.e. the current user.
      */
     public static final int	USER_HIERARCHY_ROOT = 2;
+    
+    /** 
+     * Indicates to create an annotation for the <code>DataObject</code> to
+     * update.
+     */
+    public static final int CREATE_ANNOTATION = 100;
+    
+    /** 
+     * Indicates to update the annotation for the <code>DataObject</code> to
+     * update.
+     */
+    public static final int UPDATE_ANNOTATION = 101;
+    
+    /** 
+     * Indicates to delete the annotation for the <code>DataObject</code> to
+     * update.
+     */
+    public static final int DELETE_ANNOTATION = 102;
     
     /**
      * Retrieves the hierarchies specified by the 
@@ -130,11 +149,11 @@ public interface DataManagerView
      * ID.
      * 
      * @param userObject    The type of <code>DataObject</code> to create.
-     * @param parentID      The ID of the parent.  
+     * @param parent 		The parent of the <code>DataObject</code>.  
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle createDataObject(DataObject userObject, int parentID,
+    public CallHandle createDataObject(DataObject userObject, Object parent,
                                         AgentEventListener observer);
     
     /**
@@ -148,6 +167,18 @@ public interface DataManagerView
                                         AgentEventListener observer);
     
     /**
+     * Removes the specified <code>DataObject</code> from the specified 
+     * parents.
+     * 
+     * @param userObject 	The <code>DataObject</code> to remove.
+     * @param parent 		The parent of the <code>DataObject</code>.  
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle removeDataObject(DataObject userObject, Object parent, 
+            						AgentEventListener observer);
+    
+    /**
      * Counts the number of items contained in the specified containers.
      * 
      * @param rootNodeIDs   Collection of top-most containers.
@@ -155,6 +186,27 @@ public interface DataManagerView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle countContainerItems(Set rootNodeIDs, 
+            								AgentEventListener observer);
+    
+    /**
+     * Updates the specified <code>DataObject</code> and creates, deletes or
+     * updates the specified <code>Annotation</code> depending on the 
+     * type of operation.
+     * 
+     * @param userObject 	The {@link DataObject} to update. Must be an 
+     * 						instance of <code>DatasetData</code> or
+     * 						<code>ImageData</code>.
+     * @param data			The {@link AnnotationData} to handle.
+     * @param operation 	The type of operation to perform. One of the 
+     * 						following constants: 
+     * 						{@link #CREATE_ANNOTATION},
+     * 						{@link #UPDATE_ANNOTATION} or
+     * 						{@link #DELETE_ANNOTATION}.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle updateObjectAndAnnotation(DataObject userObject, 
+            								AnnotationData data, int operation,
             								AgentEventListener observer);
     
 }

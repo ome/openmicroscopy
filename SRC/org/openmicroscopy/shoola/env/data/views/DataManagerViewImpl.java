@@ -37,9 +37,12 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.DataObjectEditor;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.AnnotationData;
 import pojos.DataObject;
 
 /** 
@@ -101,14 +104,14 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#createDataObject(DataObject, int, 
+     * @see DataManagerView#createDataObject(DataObject, Object, 
      * 										AgentEventListener)
      */
-    public CallHandle createDataObject(DataObject userObject, int parentID,
+    public CallHandle createDataObject(DataObject userObject, Object parent,
                                         AgentEventListener observer)
     {
         BatchCallTree cmd = new DataObjectSaver(userObject,
-                                    DataObjectSaver.CREATE, parentID);
+                                    DataObjectSaver.CREATE, parent);
         return cmd.exec(observer);
     } 
     
@@ -120,10 +123,24 @@ class DataManagerViewImpl
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new DataObjectSaver(userObject,
-                                            DataObjectSaver.UPDATE, -1);
+                                            DataObjectSaver.UPDATE, null);
         return cmd.exec(observer);  
     }
 
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#removeDataObject(DataObject, Object, 
+     * 										AgentEventListener)
+     */
+    public CallHandle removeDataObject(DataObject userObject, Object parent, 
+            						AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectSaver(userObject,
+                							DataObjectSaver.REMOVE, parent);
+        return cmd.exec(observer);  
+    }
+    
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#countContainerItems(Set, AgentEventListener)
@@ -133,6 +150,22 @@ class DataManagerViewImpl
     {
         BatchCallTree cmd = new ContainerCounterLoader(rootIDs);
         return cmd.exec(observer);  
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#updateObjectAndAnnotation(DataObject, 
+     * 					AnnotationData, int, AgentEventListener)
+     */
+    public CallHandle updateObjectAndAnnotation(DataObject userObject,
+            AnnotationData data, int operation, AgentEventListener observer)
+    {
+        int op = -1;
+        if (operation == CREATE_ANNOTATION) op = DataObjectEditor.CREATE;
+        else if (operation == UPDATE_ANNOTATION) op = DataObjectEditor.UPDATE;
+        else if (operation == DELETE_ANNOTATION) op = DataObjectEditor.REMOVE;
+        BatchCallTree cmd = new DataObjectEditor(userObject, data, op);
+        return cmd.exec(observer); 
     }
     
 }
