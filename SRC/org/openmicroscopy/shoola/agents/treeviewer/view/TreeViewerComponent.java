@@ -44,8 +44,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -201,24 +205,6 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#saveObject(DataObject)
-     */
-    public void saveObject(DataObject object)
-    {
-        //check state and editor type.
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null) return;
-        Object userObject = browser.getSelectedDisplay().getUserObject();
-        model.fireDataObjectEdition(object, userObject);
-        LoadingWindow window = view.getLoadingWindow();
-        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
-                                LoadingWindow.SAVING_MSG);
-        UIUtilities.centerAndShow(window);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#cancel()
      */
     public void cancel()
@@ -250,6 +236,7 @@ class TreeViewerComponent
         if (model.getState() != SAVE)
             throw new IllegalStateException(
                     "This method can only be invoked in the SAVE state.");
+        //NEED TO REVIEW THAT CODE.
         Browser browser = model.getSelectedBrowser();
         if (browser != null) {
             switch (model.getEditorType()) {
@@ -270,10 +257,7 @@ class TreeViewerComponent
      * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#getUserDetails()
      */
-    public ExperimenterData getUserDetails()
-    {
-        return model.getUserDetails();
-    }
+    public ExperimenterData getUserDetails() { return model.getUserDetails(); }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
@@ -297,6 +281,62 @@ class TreeViewerComponent
     {
         cancel();
 		view.setVisible(false);	 
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#saveObject(DataObject, int)
+     */
+    public void saveObject(DataObject object, int algorithm)
+    {
+        //Check state.
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) return;
+        switch (algorithm) {
+	        case CREATE_OBJECT:
+	            model.fireDataObjectCreation(object);
+	        case UPDATE_OBJECT:
+	        case DELETE_OBJECT:
+	            model.fireDataObjectUpdate(object, algorithm);
+	            break;
+	        default:
+	            throw new IllegalArgumentException("Save object: Algorithm " +
+	            		"not supported.");
+        }
+        LoadingWindow window = view.getLoadingWindow();
+        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
+                                LoadingWindow.SAVING_MSG);
+        UIUtilities.centerAndShow(window);
+        fireStateChange();
+    }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#saveObject(DataObject, AnnotationData, int)
+     */
+    public void saveObject(DataObject object, AnnotationData annotation, int op)
+    {
+        switch (op) {
+	        case CREATE_ANNOTATION:
+	        case UPDATE_ANNOTATION:
+	        case DELETE_ANNOTATION:
+	            break;
+	        default:
+	            throw new IllegalArgumentException("Save object: Annotation " +
+	            		"algorithm not supported.");
+        }
+        if (annotation == null) 
+            throw new IllegalArgumentException("No annotation to save.");
+        if (object == null) model.fireAnnotationEdition(annotation, op);
+        else {
+            if ((object instanceof DatasetData) || 
+                (object instanceof ImageData))
+                    model.fireDataObjectAndAnnotationEdition(object, annotation,
+                            op);
+            else throw new IllegalArgumentException("DataObject not " +
+            										"supported.");
+        }
+                										
     }
     
 }

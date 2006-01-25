@@ -42,6 +42,7 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 
@@ -134,6 +135,9 @@ class PopupMenu
     private JMenu createManagementMenu()
     {
         JMenu managementMenu = new JMenu("Manage");
+        initMenuItem(managementMenu);
+        IconManager im = IconManager.getInstance();
+        managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         managementMenu.add(newElement);
         managementMenu.add(copyElement);
         managementMenu.add(pasteElement);

@@ -40,6 +40,8 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -124,6 +126,36 @@ public interface TreeViewer
     public static final int			USER_ROOT = 202;
     
     /** 
+     * Indicates to create an annotation  when editing the 
+     * <code>DataObject</code>.
+     */
+    public static final int			CREATE_ANNOTATION = 100;
+    
+    /** 
+     * Indicates to update an annotation  when editing the 
+     * <code>DataObject</code>.
+     */
+    public static final int			UPDATE_ANNOTATION = 101;
+    
+    /** 
+     * Indicates to delete an annotation  when editing the 
+     * <code>DataObject</code>.
+     */
+    public static final int			DELETE_ANNOTATION = 102;
+    
+    /** 
+     * Indicates that no-operation for the annotation when editing the 
+     * <code>DataObject</code>.
+     */
+    public static final int			NO_ANNOTATION_OP = 103;
+    
+    public static final int			CREATE_OBJECT = 300;
+    
+    public static final int			UPDATE_OBJECT = 301;
+    
+    public static final int			DELETE_OBJECT = 302;
+    
+    /** 
      * Bound properties indicating that {@link Browser} is selected or 
      * <code>null</code> if no there is no {@link Browser} currently selected.
      * 
@@ -178,12 +210,32 @@ public interface TreeViewer
     public void showProperties(DataObject object, int editorType);
     
     /**
-     * Saves the specified {@link DataObject} according to the 
-     * type of editor.
+     * Saves the specified {@link DataObject} depending on the speficied
+     * algorithm.
      * 
-     * @param object The {@link DataObject} to save.
+     * @param object 	The {@link DataObject} to save.
+     * @param algorithm Identifies the type of operations to perform.
+     * 					One of the folllowing constants: 
+     * 					{@link TreeViewer#CREATE_OBJECT},
+     * 					{@link TreeViewer#UPDATE_OBJECT},
+     * 					{@link TreeViewer#DELETE_OBJECT}.
      */
-    public void saveObject(DataObject object);
+    public void saveObject(DataObject object, int algorithm);
+    
+    /**
+     * Updates the specified <code>DataObject</code>, and creates/updates or 
+     * deletes the specified <code>Annotation</code> depending on the specified
+     * algorithm.
+     * @param object		The {@link DataObject} to save.
+     * @param annotation 	The {@link AnnotationData} to handle. 
+     * @param algorithm 	Identifies the type of operations to perform.
+     * 						One of the folllowing constants: 
+     * 						{@link TreeViewer#CREATE_ANNOTATION},
+     * 						{@link TreeViewer#UPDATE_ANNOTATION},
+     * 						{@link TreeViewer#DELETE_ANNOTATION}.
+     */
+    public void saveObject(DataObject object, AnnotationData annotation,
+            				int algorithm);
     
     /** Cancels any ongoing data loading. */
     public void cancel();

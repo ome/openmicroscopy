@@ -68,8 +68,8 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /**
- * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>
- * 's UI to display the various visualization trees. Also provides a menu bar
+ * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
+ * to display the various visualization trees. Also provides a menu bar
  * and a working pane. After creation this window will display an empty panel as
  * a placeholder for the working pane UI.
  * 

@@ -70,11 +70,11 @@ class LoadingWindow
 {
     
     /** The default message displayed during the saving process. */
-    public static final String          SAVING_MSG = "Creating the data and " +
-                                                        "Building the display.";
+    public static final String          SAVING_MSG = "Saving the data and " +
+                                                        "Updating the display.";
         
     /** The title displayed during the saving process. */
-    public static final String          SAVING_TITLE = "Creating Data";
+    public static final String          SAVING_TITLE = "Saving Data";
     
     
     /** The default message displayed during the loading process */

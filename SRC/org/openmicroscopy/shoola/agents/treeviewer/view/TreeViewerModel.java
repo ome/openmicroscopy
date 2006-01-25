@@ -37,13 +37,19 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.AnnotationEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ObjectAnnotationEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -88,9 +94,6 @@ class TreeViewerModel
     
     /** The currently selected {@link Browser}. */
     private Browser             	selectedBrowser;
-    
-    /** The <code>DataObject</code> to edit. */
-    private DataObject          	dataObject;
     
     /** 
      * The type of editor. One of the following constants:
@@ -196,53 +199,87 @@ class TreeViewerModel
    }
    
    /**
-    * Starts the asynchronous retrieval of the data 
+    * Starts the asynchronous creation of the data 
     * and sets the state to {@link TreeViewer#SAVE}.
     * 
-    * @param userObject The <code>DataObject</code> to create or update.
-    * @param parent
+    * @param userObject The <code>DataObject</code> to create.
     */
-   void fireDataObjectEdition(DataObject userObject, Object parent)
+   void fireDataObjectCreation(DataObject userObject)
    {    
-       if (editorType == TreeViewer.CREATE_PROPERTIES) {
-           int parentID = -1;
-           if (parent instanceof ProjectData)
-               parentID = ((ProjectData) parent).getId();
-           else if (parent instanceof DatasetData)
-               parentID = ((DatasetData) parent).getId();
-           else if (parent instanceof CategoryData)
-               parentID = ((CategoryData) parent).getId();
-           else if (parent instanceof CategoryGroupData)
-               parentID = ((CategoryGroupData) parent).getId();
-           currentLoader = new DataObjectEditor(component, userObject, 
-                                           DataObjectEditor.CREATE, parentID);
-           currentLoader.load();
-       } else if (editorType == TreeViewer.EDIT_PROPERTIES) {
-           currentLoader = new DataObjectEditor(component, userObject, 
-                                           DataObjectEditor.EDIT);
-           currentLoader.load();
-       }
+       state = TreeViewer.SAVE;
+       Object parent = selectedBrowser.getSelectedDisplay().getUserObject();
+       currentLoader = new DataObjectCreator(component, userObject, parent);
+       currentLoader.load();
    }
    
-   /** 
-    * Sets the type of the <code>DataObject</code> to edit.
+   /**
+    * Starts the asynchronous creation of the data 
+    * and sets the state to {@link TreeViewer#SAVE}.
     * 
-    * @param object The <code>DataObject</code> to edit
-    *               The following types are currently supported:
-    *               {@link ProjectData}, {@link DatasetData},
-    *               {@link CategoryGroupData} and {@link CategoryData}.
+    * @param userObject The <code>DataObject</code> to update or delete
+    * 					depending on the algorithm.
+    * @param algorithm	The type of operation to perform.
     */
-   void setDataObject(DataObject object)
-   { 
-       if (object == null)
-           throw new IllegalArgumentException("DataObject cannot be null");
-       if ((object instanceof ProjectData) || (object instanceof DatasetData) ||
-            (object instanceof CategoryData) ||
-            (object instanceof CategoryGroupData) ||
-            (object instanceof ImageData)) 
-           dataObject = object;
-       else throw new IllegalArgumentException("DataObject type not supported");
+   void fireDataObjectUpdate(DataObject userObject, int algorithm)
+   {
+       state = TreeViewer.SAVE;
+       if (algorithm == TreeViewer.UPDATE_OBJECT) 
+           currentLoader = new DataObjectEditor(component, userObject);
+       else if (algorithm == TreeViewer.DELETE_OBJECT)  {
+           TreeImageDisplay parent = 
+               selectedBrowser.getSelectedDisplay().getParentDisplay();
+           Object po = parent.getUserObject();
+           if (po instanceof String) po = null; //root.
+           currentLoader = new DataObjectEditor(component, userObject, po);
+       }
+       currentLoader.load();
    }
+   
+   /**
+    * Starts the asynchronous creation/update/deletion of the annotation data. 
+    * and sets the state to {@link TreeViewer#SAVE}.
+    * 
+    * @param annotation The annotation to handle.
+    * @param operation	The type of operation to perform.
+    */
+   void fireAnnotationEdition(AnnotationData annotation, int operation)
+   {
+       int op = AnnotationEditor.CREATE;
+       if (operation == TreeViewer.UPDATE_ANNOTATION)
+           op = AnnotationEditor.UPDATE;
+       else if (operation == TreeViewer.DELETE_ANNOTATION)
+           op = AnnotationEditor.DELETE;
+       DataObject obj = (DataObject) 
+       				selectedBrowser.getSelectedDisplay().getUserObject();
+       state = TreeViewer.SAVE;
+       currentLoader = new AnnotationEditor(component, obj, annotation, op);
+       currentLoader.load();
+   }
+   
+   /**
+    * Starts the asynchronous update of the specifed {@link DataObject}
+    * and create/update/delete operation for the specified annotation. 
+    * and sets the state to {@link TreeViewer#SAVE}.
+    * 
+    * @param object The {@link DataObject} to update.
+    * @param data The {@link AnnotationData} to handle.
+    * @param operation The operation to perform.
+    */
+   void fireDataObjectAndAnnotationEdition(DataObject object,
+           		AnnotationData data, int operation)
+   {
+       int op = -1;
+       if (operation == TreeViewer.CREATE_ANNOTATION)
+           op = ObjectAnnotationEditor.CREATE;
+       else if (operation == TreeViewer.UPDATE_ANNOTATION)
+           op = ObjectAnnotationEditor.UPDATE;
+       else if (operation == TreeViewer.DELETE_ANNOTATION)
+           op = ObjectAnnotationEditor.DELETE;
+       state = TreeViewer.SAVE;
+       currentLoader = new ObjectAnnotationEditor(component, object, data, op);
+       currentLoader.load();
+   }
+
    
    /**
     * Sets the type of editor. One of the following constants 
