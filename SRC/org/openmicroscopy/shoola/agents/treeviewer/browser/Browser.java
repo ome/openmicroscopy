@@ -361,9 +361,6 @@ public interface Browser
      */
     public void setContainerNodes(Set nodes, TreeImageDisplay parent);
     
-    /** Deletes the currently selected nodes. */
-    public void deleteNodes();
-    
     /**
      * 
      * @param node

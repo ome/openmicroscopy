@@ -506,12 +506,11 @@ class BrowserComponent
         }
         TreeImageDisplay display = model.getSelectedDisplay();
         if (display == null) return;
-        if (display.getChildrenDisplay().size() == 0) return;
+        if (!display.hasChildrenDisplay()) return;
         DefaultTreeModel dtm = (DefaultTreeModel) 
                                 view.getTreeDisplay().getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         display.removeAllChildrenDisplay();
-        //view.loadAction(display);
         if (root.equals(display)) loadData();
         else model.refreshSelectedDisplay();
         fireStateChange();
@@ -534,7 +533,7 @@ class BrowserComponent
         DefaultTreeModel dtm = (DefaultTreeModel) 
         view.getTreeDisplay().getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        if (root.getChildrenDisplay().size() == 0) return;
+        if (!root.hasChildrenDisplay()) return;
 	    if (!model.isSelected()) {
 	        view.clearTree();
 	        return;
@@ -573,16 +572,6 @@ class BrowserComponent
         if (display == null) 
             throw new IllegalArgumentException("No node");
         view.setCreatedNode(display, model.getSelectedDisplay());
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#deleteNodes()
-     */
-    public void deleteNodes()
-    {
-        // TODO Auto-generated method stub
-        
     }
 
     /**
