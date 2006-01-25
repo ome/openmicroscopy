@@ -112,11 +112,9 @@ public class CreateAction
     }
     
     /**
-     * Callback to notify of a change in the currently selected display
-     * in the currently selected 
-     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
-     * 
-     * @param selectedDisplay The newly selected display node.
+     * Modifies the name of the action and sets it enabled depending on
+     * the selected type.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
@@ -141,11 +139,13 @@ public class CreateAction
                 } 
             } else setEnabled(false);
         } else if (ho instanceof ProjectData) {
-            setEnabled(true);
+            setEnabled(((ProjectData) ho).getOwner().getId() == 
+                		model.getUserDetails().getId());
             putValue(Action.NAME, NAME_DATASET); 
             nodeType = CreateCmd.DATASET;
         } else if (ho instanceof CategoryGroupData) {
-            setEnabled(true);
+            setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
+        		model.getUserDetails().getId());
             putValue(Action.NAME, NAME_CATEGORY);
             nodeType = CreateCmd.CATEGORY;
         } else if ((ho instanceof CategoryData) ||

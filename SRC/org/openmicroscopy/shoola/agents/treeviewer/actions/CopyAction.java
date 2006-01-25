@@ -38,7 +38,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -64,23 +64,14 @@ public class CopyAction
     /** Description of the action. */
     private static final String DESCRIPTION = "Copy the selected element.";
     
-    /** 
-     * Sets the action enabled dependong on the state of the {@link Browser}.
-     * @see TreeViewerAction#onBrowserStateChange(Browser)
+    /**
+     * Sets the action enabled depending on the selected type.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
-    protected void onBrowserStateChange(Browser browser)
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        if (browser == null) return;
-        switch (browser.getState()) {
-	        case Browser.LOADING_DATA:
-	        case Browser.LOADING_LEAVES:
-	        case Browser.COUNTING_ITEMS:  
-	            setEnabled(false);
-	            break;
-	        default:
-	            setEnabled(true);
-	            break;
-        }
+        Object ho = selectedDisplay.getUserObject();
+        setEnabled(!(ho instanceof String)); // false if root.
     }
     
     /**
