@@ -161,11 +161,14 @@ public class IconManager
     /** The <code>Warning</code> icon. */
     public static int           WARNING = 33;
     
+    /** The <code>Blank</code> icon. */
+    public static int           TRANSPARENT = 34;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 33;
+    private static int          MAX_ID = 34;
     
     
     /** Paths of the icon files. */
@@ -207,6 +210,7 @@ public class IconManager
         relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
         relPaths[FINDER] = "eclipse_searchrecord16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
+        relPaths[TRANSPARENT] = "eclipse_transparent16.png";
     }
     
     /** The sole instance. */
