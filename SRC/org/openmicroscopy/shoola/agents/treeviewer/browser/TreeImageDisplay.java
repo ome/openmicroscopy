@@ -195,6 +195,17 @@ public abstract class TreeImageDisplay
     }
     
     /**
+     * Returns <code>true</code> if the nodes contain children,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasChildrenDisplay()
+    { 
+        return (childrenDisplay.size() != 0);
+    }
+    
+    /**
      * Adds a node to the visualization tree as a child of this node.
      * The node is added to the internal desktop of this node, but you
      * will have to set its bounds for it to show up &#151; this is a
