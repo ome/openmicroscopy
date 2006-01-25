@@ -38,10 +38,11 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
 /** 
- * 
+ * Updates or deletes a <code>DataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,40 +55,25 @@ import pojos.DataObject;
 public class DataObjectEditor
     extends DataTreeViewerLoader
 {
-
-    /** Indicates to create a new {@link DataObject}. */
-    public static final int CREATE = 0;
     
-    /** Indicates to update the {@link DataObject}. */
-    public static final int EDIT = 1;
+    /** Identifies the <code>Update</code> operation. */
+    private static final int	UPDATE_OBJECT = 0;
+    
+    /** Identifies the <code>Delete</code> operation. */
+    private static final int	DELETE_OBJECT = 1;
+    
     
     /** The {@link DataObject} to handle. */
     private DataObject      userObject;
     
-    /** 
-     * The ID of the parent of the {@link DataObject}. The value is 
-     * set to -1, if it's an object without parent.
-     */
-    private int             parentID;
+    /** The operation to perform on the data object. */
+    private int				operation;
     
-    /** One of the constant defined by this class. */
-    private int             index;
+    /** The parent of the {@link #userObject}. */
+    private Object			parent;
     
-    /**
-     * Checks if the specified index is valid.
-     * 
-     * @param i The index to control.
-     */
-    private void checkIndex(int i)
-    {
-        switch (i) {
-            case CREATE:
-            case EDIT:    
-                return;
-            default:
-                throw new IllegalArgumentException("Index not valid");
-        }
-    }
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  	handle;
     
     /**
      * Creates a new instance.
@@ -95,63 +81,59 @@ public class DataObjectEditor
      * @param viewer The TreeViewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param userObject The {@link DataObject} to handle. 
-     * @param index The index of the loader. One of the constants defined by 
-     *              this class.
      */
-    public DataObjectEditor(TreeViewer viewer, DataObject userObject, int index)
-    {
-        this(viewer, userObject, index, -1);
-    }
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param userObject The {@link DataObject} to handle. 
-     * @param index The index of the loader. One of the constants defined by 
-     *              this class.
-     * @param parentID The ID of the parent.
-     */
-    public DataObjectEditor(TreeViewer viewer, DataObject userObject, int index, 
-                            int parentID)
+    public DataObjectEditor(TreeViewer viewer, DataObject userObject)
     {
         super(viewer);
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject");
-        checkIndex(index);
-        this.parentID = parentID;
-        this.index = index;
         this.userObject = userObject;
+        parent = null;
+        operation = UPDATE_OBJECT;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer 	The TreeViewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param userObject The {@link DataObject} to handle. 
+     * @param parent 	 The parent of the {@link DataObject} to handle.
+     */
+    public DataObjectEditor(TreeViewer viewer, DataObject userObject,
+            				Object parent)
+    {
+        super(viewer);
+        if (userObject == null)
+            throw new IllegalArgumentException("No DataObject");
+        this.userObject = userObject;
+        this.parent = parent;
+        operation = DELETE_OBJECT;
     }
     
     /** Saves the data.*/
     public void load()
     {
-        switch (index) {
-            case CREATE:
-                dmView.createDataObject(userObject, parentID, this);
-                break;
-            case EDIT:
-                dmView.updateDataObject(userObject, this);
-        }
+        if (operation == UPDATE_OBJECT)
+            handle = dmView.updateDataObject(userObject, this);
+        else if (operation == DELETE_OBJECT)   
+            handle = dmView.removeDataObject(userObject, parent, this);
     }
 
     /**
      * Cancels the data loading.
      * @see DataBrowserLoader#cancel()
      */
-    public void cancel() { viewer.cancel(); }
+    public void cancel() { handle.cancel(); }
 
     /** 
      * Feeds the result back to the viewer.
-     * @see org.openmicroscopy.shoola.env.data.events.DSCallAdapter
-     * 		#handleResult(Object)
+     * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result);
+        //viewer.setSaveResult((DataObject) result);
     }
     
 }
