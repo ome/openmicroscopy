@@ -48,6 +48,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -82,34 +83,40 @@ class DOBasic
 {
     
     /** Used as text of the {@link #annotationButton}. */
-    private static final String     SHOW_ANNOTATE = "Annotation >>";
+    private static final String     	SHOW_ANNOTATE = "Annotation >>";
     
     /** Used as text of the {@link #annotationButton}. */
-    private static final String     HIDE_ANNOTATE = "<< Annotation";
+    private static final String     	HIDE_ANNOTATE = "<< Annotation";
+    
+    /** The label of the {@link #deleteBox}. */
+    private static final String			DELETE_ANNOTATION = "Delete " +
+    													"the annotation";
     
     /** 
      * The text displayed when the currently edited <code>DataObject</code>
      * hasn't been annotated.
      */
-    private static final String		NO_ANNOTATION_TEXT = "Not annotated";
+    private static final String			NO_ANNOTATION_TEXT = "Not annotated";
     
     /** 
      * The preferred size of the scroll pane containing the explanation of
      * the notification message.
      */
-    private static final Dimension  SCROLL_PANE_SIZE = new Dimension(300, 150);
+    private static final Dimension  	SCROLL_PANE_SIZE = 
+        										new Dimension(300, 150);
     
     /**
      * A reduced size for the invisible components used to separate widgets
      * vertically.
      */
-    private static final Dimension  SMALL_V_SPACER_SIZE = new Dimension(1, 6);
+    private static final Dimension  	SMALL_V_SPACER_SIZE = 
+        										new Dimension(1, 6);
     
     /** 
      * The size of the invisible components used to separate widgets
      * vertically.
      */
-    protected static final Dimension    V_SPACER_SIZE = new Dimension(1, 20);
+    protected static final Dimension	V_SPACER_SIZE = new Dimension(1, 20);
     
     /** Area where to enter the name of the <code>DataObject</code>. */
     JTextArea           nameArea;
@@ -120,12 +127,16 @@ class DOBasic
     /** Area where to annotate the <code>DataObject</code>. */
     JTextArea           annotationArea;
     
+    /** Box to delete the annotation. */
+    JCheckBox			deleteBox;
+    
     /** Button to show or hide the {@link #annotationPanel}. */
     private JButton     annotationButton;
     
     /** Panel hosting the {@link #annotationArea}. */
     private JPanel      annotationPanel;
     
+    /** Flag to control is the annotation is shown or hidden. */
     private boolean     isAnnotationShowing;
     
     /** Reference to the parent. */
@@ -178,7 +189,7 @@ class DOBasic
 
                 public void insertUpdate(DocumentEvent de)
                 {
-                    editor.setButtonsEnabled(true);
+                    editor.handleDescriptionAreaInsert();
                 }
                 
                 /** Required by I/F but no-op in our case. */
@@ -190,8 +201,10 @@ class DOBasic
             if (!(editor.isEditable())) {
                 nameArea.setEditable(false);
                 descriptionArea.setEditable(false);
-             }
+            }
             if (editor.isAnnotable()) {
+                deleteBox = new JCheckBox(DELETE_ANNOTATION);
+                deleteBox.setSelected(false);
                 annotationArea = new MultilineLabel();
                 annotationArea.setEditable(editor.isEditable());
                 annotationArea.getDocument().addDocumentListener(
@@ -199,8 +212,7 @@ class DOBasic
 
                     public void insertUpdate(DocumentEvent de)
                     {
-                        editor.setButtonsEnabled(true);
-                        editor.setAnnotated(true);
+                        editor.handleAnnotationAreaInsert();
                     }
                     
                     /** Required by I/F but no-op in our case. */
@@ -298,6 +310,7 @@ class DOBasic
         annotationPanel.setBorder(
                                 BorderFactory.createEmptyBorder(0, 10, 0, 10));
         annotationPanel.add(Box.createRigidArea(V_SPACER_SIZE));
+        annotationPanel.add(UIUtilities.buildComponentPanel(deleteBox));
         annotationPanel.add(new JSeparator());
         annotationPanel.add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
         annotationPanel.add(scrollPane);
@@ -325,15 +338,16 @@ class DOBasic
      */
     private String formatAnnotation(AnnotationData data)
     {
+        deleteBox.setEnabled(data != null);
         if (data == null) return NO_ANNOTATION_TEXT;
         StringBuffer buf = new StringBuffer();
         buf.append("<html><body>");
         DateFormat df = DateFormat.getDateInstance();
         buf.append("<p>Last annotated: <br>");
         buf.append(df.format(data.getLastModified()));
-        buf.append("<br>");
-        buf.append("by "+data.getOwner().getFirstName()+" "+
-                	data.getOwner().getLastName());
+        //buf.append("<br>");
+        //buf.append("by "+data.getOwner().getFirstName()+" "+
+        //        	data.getOwner().getLastName());
         buf.append("</p></body></html>");
         return buf.toString();
     }

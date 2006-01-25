@@ -97,7 +97,7 @@ public class DOEditor
     public static final String  CANCEL_CREATION_PROPERTY = "cancelCreation";
     
     /** The default height of the <code>TitlePanel</code>. */
-    public static final int    TITLE_HEIGHT = 80;
+    public static final int    	TITLE_HEIGHT = 80;
     
     /** The text corresponding to the creation of a <code>Project</code>. */
     private static final String PROJECT_MSG = "Project";
@@ -167,6 +167,12 @@ public class DOEditor
      * otherwise.
      */
     private boolean         annotated;
+    
+    /**
+     * <code>true</code> if the name or description is modified.
+     * <code>false</code> otherwise;
+     */
+    private boolean			edit;
     
     /**
      * The component hosting the name and the description of the 
@@ -386,40 +392,82 @@ public class DOEditor
     {
         switch (editorType) {
             case CREATE:
-                finishCreate();
+                model.saveObject(fillDataObject(), TreeViewer.CREATE_OBJECT);
                 break;
             case EDIT:
                 finishEdit();
         }
     }
     
-    /** 
-     * Handles the <code>finish</code> action for the {@link #CREATE} editor
-     * type.
+    /** Creates, updates or deletes the annotation. */
+    private void annotateOnly()
+    {
+        AnnotationData data = getAnnotationData();
+        int algorithm = TreeViewer.UPDATE_ANNOTATION; 
+        if (doBasic.deleteBox.isSelected())
+            algorithm = TreeViewer.DELETE_ANNOTATION;
+        else { 
+            if (data == null) {
+                data = new AnnotationData();
+                algorithm = TreeViewer.CREATE_ANNOTATION;
+            }
+            data.setText(doBasic.annotationArea.getText());
+        }
+        model.saveObject(null, data, algorithm);
+    }
+    
+    /** Edits and annotates the object. */
+    private void editAndAnnotate()
+    {
+        AnnotationData data = getAnnotationData();
+        int algorithm = TreeViewer.UPDATE_ANNOTATION; 
+        if (doBasic.deleteBox.isSelected())
+            algorithm = TreeViewer.DELETE_ANNOTATION;
+        else { 
+            if (data == null) {
+                data = new AnnotationData();
+                algorithm = TreeViewer.CREATE_ANNOTATION;
+            }
+            data.setText(doBasic.annotationArea.getText());
+        }
+        model.saveObject(fillDataObject(), data, algorithm);
+    }
+    
+    /**
+     * Fills the <code>name</code> and <code>description</code> of the 
+     * <code>DataObject</code>.
+     * 
+     * @return See above.
      */
-    private void finishCreate()
+    private DataObject fillDataObject()
     {
         if (hierarchyObject instanceof ProjectData) {
             ProjectData p = (ProjectData) hierarchyObject;
             p.setName(doBasic.nameArea.getText());
             p.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(p);
+            return p;
         } else if (hierarchyObject instanceof DatasetData) {
             DatasetData d = (DatasetData) hierarchyObject;
             d.setName(doBasic.nameArea.getText());
             d.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(d);
+            return d;
         } else if (hierarchyObject instanceof CategoryData) {
             CategoryData c = (CategoryData) hierarchyObject;
             c.setName(doBasic.nameArea.getText());
             c.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(c);
+            return c;
         } else if (hierarchyObject instanceof CategoryGroupData) {
             CategoryGroupData cg = (CategoryGroupData) hierarchyObject;
             cg.setName(doBasic.nameArea.getText());
             cg.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(cg);
-        }
+            return cg;
+        } else if (hierarchyObject instanceof ImageData) {
+            ImageData i = (ImageData) hierarchyObject;
+            i.setName(doBasic.nameArea.getText());
+            i.setDescription(doBasic.descriptionArea.getText());
+            return i;
+        } 
+        return null;
     }
     
     /** 
@@ -428,27 +476,13 @@ public class DOEditor
      */
     private void finishEdit()
     {
-        if (hierarchyObject instanceof ProjectData) {
-            ProjectData p = (ProjectData) hierarchyObject;
-            p.setName(doBasic.nameArea.getText());
-            p.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(p);
-        } else if (hierarchyObject instanceof DatasetData) {
-            DatasetData d = (DatasetData) hierarchyObject;
-            d.setName(doBasic.nameArea.getText());
-            d.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(d);
-        } else if (hierarchyObject instanceof CategoryData) {
-            CategoryData c = (CategoryData) hierarchyObject;
-            c.setName(doBasic.nameArea.getText());
-            c.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(c);
-        } else if (hierarchyObject instanceof CategoryGroupData) {
-            CategoryGroupData cg = (CategoryGroupData) hierarchyObject;
-            cg.setName(doBasic.nameArea.getText());
-            cg.setDescription(doBasic.descriptionArea.getText());
-            model.saveObject(cg);
+        if (edit) {
+            if (annotated) editAndAnnotate();
+            else model.saveObject(fillDataObject(), TreeViewer.UPDATE_OBJECT);
+        } else {
+            if (annotated) annotateOnly();
         }
+
     }
     
     /**
@@ -491,15 +525,37 @@ public class DOEditor
     /**
      * Enables the {@link #finishButton} and removes the warning message
      * when the name of the <code>DataObject</code> is valid.
+     * Sets the {@link #edit} flag to <code>true</code>.
      */
     void handleNameAreaInsert()
     {
         finishButton.setEnabled(true);
+        edit = true;
         if (warning) {
             titleLayer.remove(emptyMessagePanel);
             titleLayer.repaint();
         }
         warning = false;
+    }
+    
+    /**
+     * Enables the {@link #finishButton} and sets the {@link #edit} flag
+     * to <code>true</code>.
+     */
+    void handleDescriptionAreaInsert()
+    {
+        finishButton.setEnabled(true);
+        edit = true;
+    }
+    
+    /**
+     * Enables the {@link #finishButton} and sets the {@link #edit} flag
+     * to <code>true</code>.
+     */
+    void handleAnnotationAreaInsert()
+    {
+        finishButton.setEnabled(true);
+        annotated = true;
     }
     
     /**
@@ -535,17 +591,6 @@ public class DOEditor
         ExperimenterData owner = getExperimenterData();
         if (owner == null) return false;
         return (owner.getId() == model.getUserDetails().getId());
-    }
-    
-    /**
-     * Sets enabled the button listed below
-     * {@link #finishButton}.
-     * 
-     * @param b The boolean value to set.
-     */
-    void setButtonsEnabled(boolean b)
-    {
-        finishButton.setEnabled(b);
     }
     
     /** 
@@ -627,14 +672,6 @@ public class DOEditor
                     ((DatasetData) hierarchyObject).getAnnotations());
         return null;
     }
-    
-    /**
-     * Passes <code>true</code> if the annotation area is filled up.
-     * <code>false</code> otherwise.
-     * 
-     * @param b The value to set.
-     */
-    void setAnnotated(boolean b) { annotated = b; }
      
     /**
      * Sets the size of the {@link #titlePanel} and the {@link #titleLayer}.
