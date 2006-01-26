@@ -39,8 +39,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -48,7 +48,9 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- *
+ * Retrieves the nodes hosting the same <code>DataObject</code> than the 
+ * specified {@link #originalNode}.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -65,7 +67,7 @@ public class EditVisitor
     private int 				originalNodeID;
     
     /** The original node. */
-    private TreeImageDisplay 	originalNode;
+    private Object              originalNode;
     
     /** The set of nodes found. */
     private Set					foundNodes;
@@ -93,20 +95,34 @@ public class EditVisitor
     }
     
     /**
+     * Analyses the specified node.
+     * 
+     * @param node The node to analyse.
+     */
+    private void analyse(TreeImageDisplay node)
+    {
+        Object object = node.getUserObject();
+        if (object.getClass().equals(originalNode.getClass()) && 
+            originalNodeID == getNodeID(object)) {
+            foundNodes.add(node);
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the {@link Browser}.
      * 				Mustn't be <code>null</code>.
-     * @param originalNode 	The node hosting the <code>DataObject</code>.
+     * @param originalNode 	The object hosted by the tree node.
      * 						Mustn't be <code>null</code>.
      */
-    public EditVisitor(Browser model, TreeImageDisplay originalNode)
+    public EditVisitor(Browser model, Object originalNode)
     {
         super(model);
         if (originalNode == null) 
             throw new IllegalArgumentException("No node.");
         this.originalNode = originalNode;
-        originalNodeID = getNodeID(originalNode.getUserObject());
+        originalNodeID = getNodeID(originalNode);
         foundNodes = new HashSet();
     }
     
@@ -121,13 +137,16 @@ public class EditVisitor
      * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
      * than {@link #originalNodeID}.
      * 
+     * @see BrowserVisitor#visit(TreeImageNode)
+     */
+    public void visit(TreeImageNode node) { analyse(node); }
+    
+    /**
+     * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
+     * than {@link #originalNodeID}.
+     * 
      * @see BrowserVisitor#visit(TreeImageSet)
      */
-    public void visit(TreeImageSet node)
-    {
-        if (node.getClass().equals(originalNode.getClass()) && 
-            originalNodeID == getNodeID(node.getUserObject()))
-            foundNodes.add(node);
-    }
+    public void visit(TreeImageSet node) { analyse(node); }
     
 }
