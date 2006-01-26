@@ -76,6 +76,23 @@ public class DataObjectEditor
     private CallHandle  	handle;
     
     /**
+     * Returns the contant corresponding the the {@link #operation}.
+     * 
+     * @return See above.
+     */
+    private int getViewerOp()
+    {
+        switch (operation) {
+            case UPDATE_OBJECT:
+                return TreeViewer.UPDATE_OBJECT;
+            case DELETE_OBJECT:
+                return TreeViewer.DELETE_OBJECT;
+            default:
+                throw new IllegalArgumentException("Operation not valid.");
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param viewer The TreeViewer this data loader is for.
@@ -133,7 +150,7 @@ public class DataObjectEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        //viewer.setSaveResult((DataObject) result);
+        viewer.setSaveResult((DataObject) result, getViewerOp());
     }
     
 }

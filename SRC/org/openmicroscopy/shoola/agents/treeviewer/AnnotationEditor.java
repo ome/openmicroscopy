@@ -181,7 +181,9 @@ public class AnnotationEditor
      */
     public void handleResult(Object result)
     {
-        //TODO:
+        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        viewer.setSaveResult(annotatedObject, TreeViewer.UPDATE_OBJECT);
+        
     }
     
 }

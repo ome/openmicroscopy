@@ -104,7 +104,7 @@ public class DataObjectCreator
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        //viewer.setSaveResult((DataObject) result);
+        viewer.setSaveResult((DataObject) result, TreeViewer.CREATE_OBJECT);
     }
     
 }
