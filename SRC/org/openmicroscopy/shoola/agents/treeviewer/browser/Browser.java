@@ -47,6 +47,8 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.DataObject;
+
 /** 
  * Defines the interface provided by the browser component.
  * The browser provides a <code>JComponent</code> to host and display one
@@ -362,12 +364,6 @@ public interface Browser
     public void setContainerNodes(Set nodes, TreeImageDisplay parent);
     
     /**
-     * 
-     * @param node
-     */
-    public void setCreatedNode(TreeImageDisplay node);
-    
-    /**
      * Sets the root of the retrieved hierarchies. 
      * The rootID is taken into account if and only if the passed 
      * <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
@@ -441,5 +437,18 @@ public interface Browser
      * 			<code>false</code> otherwise.
      */
     public void setSelected(boolean b);
+    
+    /**
+     * Refreshes the nodes hosting the specified <code>DataObject</code>.
+     * If the <code>op</code> parameter is {@link TreeViewer#CREATE_OBJECT}
+     * The currently selected node is the parent of the <code>DataObject</code>.
+     * 
+     * @param object    The <code>DataObject</code> to handle.
+     * @param op        One of the following constants: 
+     *                  {@link TreeViewer#CREATE_OBJECT}, 
+     *                  {@link TreeViewer#DELETE_OBJECT} or
+     *                  {@link TreeViewer#UPDATE_OBJECT}.
+     */
+    public void refreshEdit(DataObject object, int op);
     
 }

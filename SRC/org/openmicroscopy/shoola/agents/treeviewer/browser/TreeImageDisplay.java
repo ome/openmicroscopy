@@ -45,7 +45,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -114,9 +118,6 @@ public abstract class TreeImageDisplay
      */
     private Set                 childrenDisplay;
     
-    /** The name of the hierarchy object. */
-    private String              name;
-    
     /**
      * The tooltip: annotation if the <code>DataObject</code>
      * can be annotated and the inserted date if any.
@@ -166,7 +167,6 @@ public abstract class TreeImageDisplay
         super();
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
-        if (hierarchyObject instanceof String) name = (String) hierarchyObject;
         setUserObject(hierarchyObject);
         childrenDisplay = new HashSet();
         numberItems = -1;
@@ -337,18 +337,25 @@ public abstract class TreeImageDisplay
     public String getToolTip() { return tooltip; }
     
     /**
-     * Sets the name of the node.
-     * 
-     * @param name The name of the node.
-     */
-    public void setNodeName(String name) { this.name = name; }
-    
-    /**
      * Returns the name of the node.
      * 
      * @return See above.
      */
-    public String getNodeName() { return name; }
+    public String getNodeName()
+    { 
+        Object obj = getUserObject();
+        if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
+        else if (obj instanceof DatasetData) 
+            return ((DatasetData) obj).getName();
+        else if (obj instanceof ImageData) 
+            return ((ImageData) obj).getName();
+        else if (obj instanceof CategoryGroupData) 
+            return ((CategoryGroupData) obj).getName();
+        else if (obj instanceof CategoryData) 
+            return ((CategoryData) obj).getName();
+        else if (obj instanceof String) return (String) obj;
+        return "";
+    }
     
     /**
      * Returns the name of the node and the number of items
@@ -358,6 +365,7 @@ public abstract class TreeImageDisplay
      */
     public String getNodeText()
     {
+        String name = getNodeName();
         if (getUserObject() instanceof ImageData) return name;
         if (numberItems == -1) return (name+SPACE+"...");
         String s = "item";
@@ -383,7 +391,17 @@ public abstract class TreeImageDisplay
      * Overriden to return the name of the hierarchy object. 
      * @see #toString()
      */
-    public String toString() { return name; }
+    public String toString() { return getNodeName(); }
+    
+    /**
+     * Overriden to make sure that the userObject is not <code>null</code>.
+     */
+    public void setUserObject(Object userObject)
+    {
+        if (userObject == null)
+            throw new NullPointerException("No userObject.");
+        super.setUserObject(userObject);
+    }
     
     /**
      * Made final to ensure objects are compared by reference so that the

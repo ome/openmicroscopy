@@ -64,8 +64,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 
+import pojos.DataObject;
+
 /** 
- * 
+ * The Browser's View.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -241,6 +243,20 @@ class BrowserUI
     }
     
     /**
+     * Expands the specified node. To avoid loop, we first need to 
+     * remove the <code>TreeExpansionListener</code>.
+     * 
+     * @param node The node to expand.
+     */
+    private void expandNode(DefaultMutableTreeNode node)
+    {
+        //First remove listener otherwise an event is fired.
+        treeDisplay.removeTreeExpansionListener(listener);
+        treeDisplay.expandPath(new TreePath(node.getPath()));
+        treeDisplay.addTreeExpansionListener(listener);
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
@@ -250,7 +266,6 @@ class BrowserUI
         sorter = new ViewerSorter();
         listener = new TreeExpansionListener() {
             public void treeCollapsed(TreeExpansionEvent e) {
-                System.out.println("HERE");
                 onNodeNavigation(e, false);
             }
             public void treeExpanded(TreeExpansionEvent e) {
@@ -324,16 +339,6 @@ class BrowserUI
             buildTreeNode(parent, sorter.sort(nodes));
         }
         else buildEmptyNode(parent);
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        dtm.reload(parent);
-    }
-    
-    void setCreatedNode(TreeImageDisplay node, TreeImageDisplay parent)
-    {
-        parent.addChildDisplay(node);
-        Set children = parent.getChildrenDisplay();
-        parent.removeAllChildren();
-        buildTreeNode(parent, sorter.sort(children));
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         dtm.reload(parent);
     }
@@ -476,6 +481,73 @@ class BrowserUI
         //in this order otherwise the node is not collapsed.
         ((DefaultTreeModel) treeDisplay.getModel()).reload(node);
         collapsePath(node);
+    }
+    
+    /**
+     * Update the specified set of nodes.
+     * 
+     * @param nodes The set of nodes to update.
+     * @param object The <code>DataObject</code> to update.
+     */
+    void updateNodes(Set nodes, DataObject object)
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        Iterator i = nodes.iterator(); 
+        TreeImageDisplay node;
+        while (i.hasNext()) {
+            node = (TreeImageDisplay) i.next();
+            node.setUserObject(object);
+            dtm.reload(node);
+        }
+    }
+    
+    /**
+     * Removes the specified set of nodes from the tree.
+     * 
+     * @param nodes The set of nodes to remove.
+     */
+    void removeNodes(Set nodes)
+    {
+        Iterator i = nodes.iterator(); 
+        TreeImageDisplay node;
+        TreeImageDisplay parent;
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        while (i.hasNext()) {
+            node = (TreeImageDisplay) i.next();
+            parent = node.getParentDisplay();
+            parent.removeChildDisplay(node);
+            parent.remove(node);
+            dtm.reload(parent);
+        }
+    }
+    
+    /**
+     * Adds the newly created node to the tree.
+     * 
+     * @param nodes     The collection of the parent nodes.
+     * @param newNode   The node to add to the parent.
+     */
+    void createNodes(Set nodes, TreeImageDisplay newNode)
+    {
+        Iterator i = nodes.iterator();
+        TreeImageDisplay parent;
+        List list;
+        Iterator j;
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        buildEmptyNode(newNode);
+        while (i.hasNext()) {
+            parent = (TreeImageDisplay) i.next();
+            parent.addChildDisplay(newNode);
+            list = sorter.sort(parent.getChildrenDisplay());
+            parent.removeAllChildren();
+            j = list.iterator();
+            while (j.hasNext()) {
+                dtm.insertNodeInto((TreeImageDisplay) j.next(), parent,
+                                parent.getChildCount());
+            }
+            dtm.reload(parent);
+            expandNode(parent);
+        }
     }
     
 }
