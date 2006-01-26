@@ -68,7 +68,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 
 /** 
- * 
+ * Component displaying the minimum information on the currently edited 
+ * <code>DataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -156,6 +157,26 @@ class DOBasic
         area.setEditable(true);
     }
     
+    
+    /** Adds a {@link DocumentListener} to the {@link #annotationArea}. */
+    private void attachAnnotationAreaListener()
+    {
+        annotationArea.getDocument().addDocumentListener(
+                new DocumentListener() {
+
+            public void insertUpdate(DocumentEvent de)
+            {
+                editor.handleAnnotationAreaInsert();
+            }
+            
+            /** Required by I/F but no-op in our case. */
+            public void removeUpdate(DocumentEvent de) {}
+
+            /** Required by I/F but no-op in our case. */
+            public void changedUpdate(DocumentEvent de) {}
+        });
+    }
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -163,24 +184,6 @@ class DOBasic
         setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         setTextAreaDefault(descriptionArea);
-        nameArea.getDocument().addDocumentListener(
-                new DocumentListener() {
-
-            public void insertUpdate(DocumentEvent de)
-            {
-                editor.handleNameAreaInsert();
-            }
-
-            public void removeUpdate(DocumentEvent de)
-            {
-                if (de.getDocument().getLength() == 0)
-                    editor.handleEmptyNameArea();
-            }
-
-            /** Required by I/F but no-op in our case. */
-            public void changedUpdate(DocumentEvent de) {}
-        });
-        
         if (editor.getEditorType() == DOEditor.EDIT) {
             nameArea.setText(editor.getDataObjectName());
             descriptionArea.setText(editor.getDataObjectDescription());
@@ -207,20 +210,6 @@ class DOBasic
                 deleteBox.setSelected(false);
                 annotationArea = new MultilineLabel();
                 annotationArea.setEditable(editor.isEditable());
-                annotationArea.getDocument().addDocumentListener(
-                        new DocumentListener() {
-
-                    public void insertUpdate(DocumentEvent de)
-                    {
-                        editor.handleAnnotationAreaInsert();
-                    }
-                    
-                    /** Required by I/F but no-op in our case. */
-                    public void removeUpdate(DocumentEvent de) {}
-
-                    /** Required by I/F but no-op in our case. */
-                    public void changedUpdate(DocumentEvent de) {}
-                });
                 setTextAreaDefault(annotationArea);
                 annotationButton = new JButton(SHOW_ANNOTATE);
                 annotationButton.addActionListener(new ActionListener() {
@@ -232,6 +221,23 @@ class DOBasic
                 buildAnnotationPanel();
             }
         }
+        nameArea.getDocument().addDocumentListener(
+                new DocumentListener() {
+
+            public void insertUpdate(DocumentEvent de)
+            {
+                editor.handleNameAreaInsert();
+            }
+
+            public void removeUpdate(DocumentEvent de)
+            {
+                if (de.getDocument().getLength() == 0)
+                    editor.handleEmptyNameArea();
+            }
+
+            /** Required by I/F but no-op in our case. */
+            public void changedUpdate(DocumentEvent de) {}
+        });
     }   
     
     /**
@@ -283,6 +289,9 @@ class DOBasic
         if (editor.getEditorType() == DOEditor.EDIT && editor.isAnnotable()) {
             AnnotationData data = editor.getAnnotationData();
             if (data != null) annotationArea.setText(data.getText());
+            //in this order otherwise and event is fired when we insert the 
+            //text.
+            attachAnnotationAreaListener();
             label = new JLabel(formatAnnotation(data));
             c.gridx = 0;
             c.gridy = 3;
