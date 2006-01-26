@@ -22,6 +22,15 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.hbm.xml</include>
+          <include>**/*.hbm.xml.bin</include>    
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 </project>
