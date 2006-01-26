@@ -132,7 +132,9 @@ class HiViewerComponent
     {
         switch (model.getState()) {
             case NEW:
+                model.fireHierarchyLoading();
                 view.setOnScreen();
+                fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
