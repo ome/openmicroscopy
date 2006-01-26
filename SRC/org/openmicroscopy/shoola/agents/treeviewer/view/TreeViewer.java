@@ -40,7 +40,6 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -149,10 +148,13 @@ public interface TreeViewer
      */
     public static final int			NO_ANNOTATION_OP = 103;
     
+    /** Identifies the <code>Create Object</code> operation. */
     public static final int			CREATE_OBJECT = 300;
     
+    /** Identifies the <code>Update Object</code> operation. */
     public static final int			UPDATE_OBJECT = 301;
     
+    /** Identifies the <code>Delete Object</code> operation. */
     public static final int			DELETE_OBJECT = 302;
     
     /** 
@@ -243,7 +245,16 @@ public interface TreeViewer
     /** Removes the displayed editor from the panel. */
     public void removeEditor();
     
-    public void setSaveResult(DataObject object);
+    /** 
+     * Sets the results of a save action i.e. delete or update 
+     * operation. 
+     * 
+     * @param object    The <code>DataObject</code> to update or to delete.
+     * @param op        The type of operation performed, either
+     *                  {@link #DELETE_OBJECT}, {@link #UPDATE_OBJECT} or 
+     *                  {@link #CREATE_OBJECT}.
+     */
+    public void setSaveResult(DataObject object, int op);
     
     /**
      * Returns the user's details. Helper method

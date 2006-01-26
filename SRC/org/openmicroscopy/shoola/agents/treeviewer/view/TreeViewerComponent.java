@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -209,11 +208,11 @@ class TreeViewerComponent
      */
     public void cancel()
     {
-        //TODO: check state.
-        //Remove loading window.
-        model.cancel();
-        if (view.getLoadingWindow().isVisible())
-            view.getLoadingWindow().setVisible(false);
+        if (model.getState() != DISCARDED) {
+            model.cancel();
+            if (view.getLoadingWindow().isVisible())
+                view.getLoadingWindow().setVisible(false); 
+        }
     }
 
     /**
@@ -229,32 +228,6 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setSaveResult(DataObject)
-     */
-    public void setSaveResult(DataObject object)
-    {
-        if (model.getState() != SAVE)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the SAVE state.");
-        //NEED TO REVIEW THAT CODE.
-        Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-            switch (model.getEditorType()) {
-                case TreeViewer.CREATE_PROPERTIES:
-                    browser.setCreatedNode(
-                            TreeViewerTranslator.transformDataObject(object));
-                    break;
-                case TreeViewer.EDIT_PROPERTIES:
-                    break;
-            }
-        }  
-        if (view.getLoadingWindow().isVisible())
-            view.getLoadingWindow().setVisible(false);
-        view.removeAllFromWorkingPane();
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#getUserDetails()
      */
     public ExperimenterData getUserDetails() { return model.getUserDetails(); }
@@ -265,7 +238,7 @@ class TreeViewerComponent
      */
     public void showFinder(boolean b)
     {
-        // Check state.
+        int state = model.getState();
         if (model.getSelectedBrowser() == null) return;
         Finder finder = model.getFinder();
         if (b == finder.isDisplay())  return;
@@ -289,12 +262,16 @@ class TreeViewerComponent
      */
     public void saveObject(DataObject object, int algorithm)
     {
-        //Check state.
+        int state = model.getState();
+        if (state != NEW && state != READY)
+            throw new IllegalStateException("This method should only be " +
+                    "invoked in the NEW or READY state.");
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         switch (algorithm) {
 	        case CREATE_OBJECT:
 	            model.fireDataObjectCreation(object);
+                break;
 	        case UPDATE_OBJECT:
 	        case DELETE_OBJECT:
 	            model.fireDataObjectUpdate(object, algorithm);
@@ -314,8 +291,12 @@ class TreeViewerComponent
      * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#saveObject(DataObject, AnnotationData, int)
      */
-    public void saveObject(DataObject object, AnnotationData annotation, int op)
+    public void saveObject(DataObject o, AnnotationData annotation, int op)
     {
+        int state = model.getState();
+        if (state != NEW && state != READY)
+            throw new IllegalStateException("This method should only be " +
+                    "invoked in the NEW or READY state.");
         switch (op) {
 	        case CREATE_ANNOTATION:
 	        case UPDATE_ANNOTATION:
@@ -327,16 +308,36 @@ class TreeViewerComponent
         }
         if (annotation == null) 
             throw new IllegalArgumentException("No annotation to save.");
-        if (object == null) model.fireAnnotationEdition(annotation, op);
+        if (o == null) model.fireAnnotationEdition(annotation, op);
         else {
-            if ((object instanceof DatasetData) || 
-                (object instanceof ImageData))
-                    model.fireDataObjectAndAnnotationEdition(object, annotation,
-                            op);
+            if ((o instanceof DatasetData) || (o instanceof ImageData)) {
+                model.fireDataObjectAndAnnotationEdition(o, annotation, op);
+                fireStateChange();   
+            }
             else throw new IllegalArgumentException("DataObject not " +
             										"supported.");
-        }
-                										
+        }									
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setSaveResult(DataObject, int)
+     */
+    public void setSaveResult(DataObject object, int op)
+    {
+        if (model.getState() != SAVE)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the SAVE state."); 
+        if (op != DELETE_OBJECT && op != UPDATE_OBJECT && op != CREATE_OBJECT) 
+            throw new IllegalArgumentException(
+                "The operations supported are DELETE and UPDATE."); 
+        Browser browser = model.getSelectedBrowser();
+        browser.refreshEdit(object, op);
+        if (view.getLoadingWindow().isVisible())
+            view.getLoadingWindow().setVisible(false);
+        view.removeAllFromWorkingPane();
+        model.setState(READY);
+        fireStateChange();
     }
     
 }

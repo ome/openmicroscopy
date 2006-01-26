@@ -48,15 +48,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
-
 import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 
 /** 
@@ -208,6 +202,7 @@ class TreeViewerModel
    {    
        state = TreeViewer.SAVE;
        Object parent = selectedBrowser.getSelectedDisplay().getUserObject();
+       if (parent instanceof String) parent = null;
        currentLoader = new DataObjectCreator(component, userObject, parent);
        currentLoader.load();
    }
@@ -326,5 +321,11 @@ class TreeViewerModel
    			        LookupNames.CURRENT_USER_DETAILS);
    }
    
+   /**
+    * Sets the current state.
+    * 
+    * @param state The state to set.
+    */
+   void setState(int state) { this.state = state; }
    
 }
