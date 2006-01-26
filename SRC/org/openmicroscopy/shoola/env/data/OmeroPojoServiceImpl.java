@@ -89,12 +89,8 @@ class OmeroPojoServiceImpl
      * 					{@link OmeroPojoService#GROUP_HIERARCHY_ROOT} and
      * 					{@link OmeroPojoService#USER_HIERARCHY_ROOT}.
      * @param rootID	The ID of the root if needed.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
      */
     private void setRootOptions(PojoOptions po, int rootLevel, int rootID)
-    	throws DSOutOfServiceException, DSAccessException 
     {
         if (rootLevel == OmeroPojoService.GROUP_HIERARCHY_ROOT)
             po.grp(new Integer(rootID));
@@ -149,6 +145,7 @@ class OmeroPojoServiceImpl
         PojoOptions po = new PojoOptions();
         Integer id = new Integer(getUserDetails().getId());
         po.annotationsFor(id);
+        System.out.println("rootID: "+rootLevelID);
         setRootOptions(po, rootLevel, rootLevelID);
         if (!withLeaves) po.noLeaves();
         return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
