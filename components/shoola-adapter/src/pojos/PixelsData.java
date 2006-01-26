@@ -176,9 +176,8 @@ public class PixelsData
 				this.setImageServerURL(rep.getImageServerUrl());
 			}
 			if (pix.getImage()!=null){
-				Set dims = pix.getImage().getImageDimensions();
-				if (dims !=null && dims.size()>0){
-					ImageDimension dim = (ImageDimension) dims.iterator().next();
+				ImageDimension dim = pix.getImage().getImageDimension();
+				if (dim !=null){
 					this.setPixelSizeX(mapper.nullSafeFloat(dim.getPixelSizeX()));
 					this.setPixelSizeY(mapper.nullSafeFloat(dim.getPixelSizeY()));
 					this.setPixelSizeZ(mapper.nullSafeFloat(dim.getPixelSizeZ())); 

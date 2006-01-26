@@ -93,6 +93,11 @@ public class CategoryGroupData
 			this.setName(cg.getName());
 			this.setDescription(cg.getDescription());
 			this.setCategories((Set) mapper.findCollection(cg.getCategories()));
+			if (cg.getModuleExecution()!=null){
+			    this.setOwner((ExperimenterData) 
+                        mapper.findTarget(
+                                cg.getModuleExecution().getExperimenter()));
+			}
 		} else {
 			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
 		}
