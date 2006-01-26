@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -86,8 +88,18 @@ public class DataObjectSaver
     private ProjectData daToProjectData(pojos.ProjectData data)
     {
         ProjectData d = new ProjectData();
+        d.setID(data.getId());
         d.setName(data.getName());
         d.setDescription(data.getDescription());
+        Set set = data.getDatasets();
+        Iterator i = set.iterator();
+        DatasetSummary summary;
+        ArrayList datasets = new ArrayList(set.size());
+        while (i.hasNext()) {
+            summary = daToDatasetSummary((pojos.DatasetData) i.next());
+            datasets.add(summary);
+        }
+        d.setDatasets(datasets);
         return d;
     }
     
@@ -103,6 +115,7 @@ public class DataObjectSaver
     private DatasetData daToDatasetData(pojos.DatasetData data)
     {
         DatasetData d = new DatasetData();
+        d.setID(data.getId());
         d.setName(data.getName());
         d.setDescription(data.getDescription());
         return d;
@@ -111,6 +124,7 @@ public class DataObjectSaver
     private ImageData daToImageData(pojos.ImageData data)
     {
         ImageData i = new ImageData();
+        i.setID(data.getId());
         i.setName(data.getName());
         i.setDescription(data.getDescription());
         return i;
@@ -130,6 +144,14 @@ public class DataObjectSaver
         c.setName(d.getName());
         c.setDescription(d.getDescription());
         return c;
+    }
+    
+    private DatasetSummary daToDatasetSummary(pojos.DatasetData d)
+    {
+        DatasetSummary summary = new DatasetSummary();
+        summary.setID(d.getId());
+        summary.setName(d.getName());
+        return summary;
     }
     
     private pojos.CategoryGroupData reverseCategoryGroup(CategoryGroupData c)
@@ -175,7 +197,7 @@ public class DataObjectSaver
                     ProjectSummary p = new ProjectSummary();
                     p.setID(((pojos.ProjectData) parent).getId());
                     ArrayList l = new ArrayList(1);
-                    l.add(parent);
+                    l.add(p);
                     result = summaryToDataObject(
                                     dms.createDataset(l, null, data));
                 } else if (userObject instanceof pojos.CategoryGroupData) {
@@ -245,7 +267,19 @@ public class DataObjectSaver
         return new BatchCall("Update Data object.") {
             public void doCall() throws Exception
             {
-                
+                DataManagementService dms = context.getDataManagementService();
+                if (userObject instanceof pojos.DatasetData) {
+                    DatasetSummary summary = daToDatasetSummary(
+                                                (pojos.DatasetData) userObject);
+                    ArrayList l = new ArrayList(1);
+                    l.add(summary);
+                    ProjectData p = daToProjectData(
+                                    (pojos.ProjectData) parent);
+                    result = userObject;
+                    dms.updateProject(p, l, null);
+                } else if (userObject instanceof pojos.CategoryData) {
+                    
+                }
             }
         };
     }
@@ -259,10 +293,7 @@ public class DataObjectSaver
     /**
      * TODO: modified code.
      */
-    protected Object getResult()
-    {
-        return Boolean.TRUE;
-    }
+    protected Object getResult() { return result; }
 
     /**
      * Creates a new instance.
@@ -288,6 +319,7 @@ public class DataObjectSaver
                     throw new IllegalArgumentException("Parent not valid.");
             }
         }
+        
         switch (index) {
             case CREATE:
                 saveCall = create(userObject, parent);

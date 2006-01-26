@@ -217,10 +217,7 @@ public class DataObjectEditor
      *  Returns the result of the call.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult()
-    { 
-        //TODO: MODIFY ASAP
-        return Boolean.TRUE; }
+    protected Object getResult() { return result; }
     
     /**
      * Creates a new instance. 
@@ -241,6 +238,7 @@ public class DataObjectEditor
         if (!(userObject instanceof ImageData) && 
                 (userObject instanceof DatasetData))
             throw new IllegalArgumentException("DataObject not supported.");
+        result = userObject;
         if (data == null)
             throw new IllegalArgumentException("No Annotation.");
         switch (op) {
