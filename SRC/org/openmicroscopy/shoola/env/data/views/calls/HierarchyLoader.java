@@ -77,8 +77,19 @@ public class HierarchyLoader
     extends BatchCallTree
 {
 
+    /** 
+     * The rootLevel, one of the following constants:
+     * {@link OmeroPojoService#WORLD_HIERARCHY_ROOT},
+     * {@link OmeroPojoService#GROUP_HIERARCHY_ROOT},
+     * {@link OmeroPojoService#USER_HIERARCHY_ROOT}.
+     */
+    private int         rootLevel;
+    
+    /** The Id of the root level. */
+    private int         rootLevelID;
+    
     /** The root nodes of the found trees. */
-    private Set      rootNodes;
+    private Set         rootNodes;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
@@ -100,9 +111,27 @@ public class HierarchyLoader
                 OmeroPojoService os = context.getOmeroService();
                 rootNodes = os.loadContainerHierarchy(rootNodeType,
                                                     rootNodeIDs, true,
-                                OmeroPojoService.USER_HIERARCHY_ROOT, -1);
+                                                    rootLevel, rootLevelID);
             }
         };
+    }
+    
+    /**
+     * Controls if the specified level is supported.
+     * 
+     * @param level The level to control.
+     */
+    private void validateRootLevel(int level)
+    {
+        switch (level) {
+            case OmeroPojoService.WORLD_HIERARCHY_ROOT:
+            case OmeroPojoService.GROUP_HIERARCHY_ROOT:
+            case OmeroPojoService.USER_HIERARCHY_ROOT:
+                return;
+            default:
+                throw new IllegalArgumentException("Root level not supported.");
+        }
+        
     }
     
     /**
@@ -159,28 +188,19 @@ public class HierarchyLoader
      *                      {@link ProjectData}, {@link DatasetData},
      *                      {@link CategoryGroupData} or {@link CategoryData}.
      * @param rootNodeID    The id of the root node.
+     * @param rootLevel     The Level of the root.
+     * @param rootLevelID   The id of the root's level.
      */
-    public HierarchyLoader(Class rootNodeType, int rootNodeID)
+    public HierarchyLoader(Class rootNodeType, int rootNodeID, 
+                            int rootLevel, int rootLevelID)
     {
+        validateRootLevel(rootLevel);
+        this.rootLevel = rootLevel;
+        this.rootLevelID = rootLevelID;
         HashSet set = new HashSet(1);
         set.add(new Integer(rootNodeID));
         validate(rootNodeType, set);
-    }
-    
-    /**
-     * Creates a new instance to load a tree rooted by the object having the
-     * specified type and id.
-     * If bad arguments are passed, we throw a runtime exception so to fail
-     * early and in the caller's thread.
-     * 
-     * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData} or {@link CategoryData}.
-     * @param rootNodeIDs   Collection of root node ids.
-     */
-    public HierarchyLoader(Class rootNodeType, Set rootNodeIDs)
-    {
-        validate(rootNodeType, rootNodeIDs);
+        
     }
     
 }

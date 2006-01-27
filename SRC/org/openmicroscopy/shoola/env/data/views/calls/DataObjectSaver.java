@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.CategoryGroupData;
 import org.openmicroscopy.shoola.env.data.model.DatasetData;
 import org.openmicroscopy.shoola.env.data.model.DatasetSummary;
 import org.openmicroscopy.shoola.env.data.model.ImageData;
+import org.openmicroscopy.shoola.env.data.model.ImageSummary;
 import org.openmicroscopy.shoola.env.data.model.ProjectData;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -133,6 +134,7 @@ public class DataObjectSaver
     private CategoryGroupData daToCategoryGroupData(pojos.CategoryGroupData d)
     {
         CategoryGroupData c = new CategoryGroupData();
+        c.setID(d.getId());
         c.setName(d.getName());
         c.setDescription(d.getDescription());
         return c;
@@ -141,6 +143,7 @@ public class DataObjectSaver
     private CategoryData daToCategoryData(pojos.CategoryData d)
     {
         CategoryData c = new CategoryData();
+        c.setID(d.getId());
         c.setName(d.getName());
         c.setDescription(d.getDescription());
         return c;
@@ -149,6 +152,14 @@ public class DataObjectSaver
     private DatasetSummary daToDatasetSummary(pojos.DatasetData d)
     {
         DatasetSummary summary = new DatasetSummary();
+        summary.setID(d.getId());
+        summary.setName(d.getName());
+        return summary;
+    }
+    
+    private ImageSummary daToImageSummary(pojos.ImageData d)
+    {
+        ImageSummary summary = new ImageSummary();
         summary.setID(d.getId());
         summary.setName(d.getName());
         return summary;
@@ -268,6 +279,7 @@ public class DataObjectSaver
             public void doCall() throws Exception
             {
                 DataManagementService dms = context.getDataManagementService();
+                SemanticTypesService sts = context.getSemanticTypesService();
                 if (userObject instanceof pojos.DatasetData) {
                     DatasetSummary summary = daToDatasetSummary(
                                                 (pojos.DatasetData) userObject);
@@ -279,6 +291,24 @@ public class DataObjectSaver
                     dms.updateProject(p, l, null);
                 } else if (userObject instanceof pojos.CategoryData) {
                     
+                } else if (userObject instanceof pojos.ImageData) {
+                    result = userObject; 
+                    if (parent instanceof pojos.DatasetData) {
+                        ImageSummary summary = daToImageSummary(
+                                (pojos.ImageData) userObject);
+                        ArrayList l = new ArrayList(1);
+                        l.add(summary);
+                        DatasetData d = daToDatasetData(
+                                (pojos.DatasetData) parent);
+                        dms.updateDataset(d, l, null);
+                    } else if (parent instanceof pojos.CategoryData) {
+                        CategoryData c = daToCategoryData(
+                                        (pojos.CategoryData) parent);
+                        ArrayList l = new ArrayList(1);
+                        int id = ((pojos.ImageData) userObject).getId();
+                        l.add(new Integer(id));
+                        sts.updateCategory(c, l, null);
+                    }
                 }
             }
         };

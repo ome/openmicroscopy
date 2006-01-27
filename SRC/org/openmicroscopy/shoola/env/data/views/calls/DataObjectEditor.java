@@ -202,7 +202,6 @@ public class DataObjectEditor
                     dms.updateImage(i);
                     sts.removeImageAnnotation(annotation);
                 }
-
             }
         };
     }
