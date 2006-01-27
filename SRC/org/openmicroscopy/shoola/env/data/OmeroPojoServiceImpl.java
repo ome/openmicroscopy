@@ -145,7 +145,6 @@ class OmeroPojoServiceImpl
         PojoOptions po = new PojoOptions();
         Integer id = new Integer(getUserDetails().getId());
         po.annotationsFor(id);
-        System.out.println("rootID: "+rootLevelID);
         setRootOptions(po, rootLevel, rootLevelID);
         if (!withLeaves) po.noLeaves();
         return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
