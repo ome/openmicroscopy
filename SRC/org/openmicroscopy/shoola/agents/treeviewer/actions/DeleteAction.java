@@ -88,16 +88,12 @@ public class DeleteAction
             setEnabled(((ImageData) ho).getOwner().getId() == 
         		model.getUserDetails().getId());
         else if (ho instanceof CategoryData) {
-            System.out.println("owner: "+((CategoryData) ho).getOwner());
             setEnabled(((CategoryData) ho).getOwner().getId() == 
                 model.getUserDetails().getId());
         } else if (ho instanceof CategoryGroupData) {
-            System.out.println("owner: "+((CategoryGroupData) ho).getOwner());
-            //setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
-            //    model.getUserDetails().getId());
-        }
-            
-        else setEnabled(false);
+            setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
+                model.getUserDetails().getId());
+        } else setEnabled(false);
     }
     
     /**
