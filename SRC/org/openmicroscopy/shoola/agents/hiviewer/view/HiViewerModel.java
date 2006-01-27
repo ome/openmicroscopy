@@ -78,6 +78,12 @@ import pojos.ExperimenterData;
 abstract class HiViewerModel
 {
     
+    /** The level of the root. */
+    private int                 rootLevel;
+    
+    /** The id of the root. */
+    private int                 rootID;
+
     /** Holds one of the state flags defined by {@link HiViewer}. */
     private int                 state;
     
@@ -128,6 +134,32 @@ abstract class HiViewerModel
         HiViewerAgent.getRegistry().bind(LookupNames.CURRENT_USER_DETAILS,
                 						details);
     }
+    
+    /**
+     * Sets the root level and its id.
+     * 
+     * @param rootLevel The root level.
+     * @param rootID    The root ID.
+     */
+    void setRootLevel(int rootLevel, int rootID)
+    {
+        this.rootLevel = rootLevel;
+        this.rootID = rootID;
+    }
+    
+    /**
+     * Returns the level of the root. 
+     * 
+     * @return See above.
+     */
+    int getRootLevel() { return rootLevel; }
+    
+    /**
+     * Returns the ID of the root. 
+     * 
+     * @return See above.
+     */
+    int getRootID() { return rootID; }
     
     /**
      * Returns the current user's details.
@@ -216,6 +248,7 @@ abstract class HiViewerModel
      */
     TreeView getTreeView() { return treeView; }
     
+    /** Creates a new {@link TreeView}. */
     void createTreeView()
     {
         if (treeView == null) treeView = new TreeView(browser.getUI());

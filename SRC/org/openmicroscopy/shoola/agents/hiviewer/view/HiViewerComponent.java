@@ -323,4 +323,28 @@ class HiViewerComponent
         return model.getTreeView();
     }
 
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getRootLevel()
+     */
+    public int getRootLevel()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        return model.getRootLevel();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getRootID()
+     */
+    public int getRootID()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        return model.getRootID();
+    }
+
 }

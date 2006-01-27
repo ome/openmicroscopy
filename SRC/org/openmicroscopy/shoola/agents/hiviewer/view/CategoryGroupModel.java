@@ -113,7 +113,9 @@ class CategoryGroupModel
      */
     protected HiViewerModel reinstantiate()
     {
-        return new CategoryGroupModel(cgID);
+        HiViewerModel model = new CategoryGroupModel(cgID);
+        model.setRootLevel(getRootLevel(), getRootID());
+        return model;
     }
 
 }

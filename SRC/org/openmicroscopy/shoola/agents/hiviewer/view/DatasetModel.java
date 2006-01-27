@@ -109,7 +109,9 @@ class DatasetModel
      */
     protected HiViewerModel reinstantiate()
     {
-        return new DatasetModel(datasetID);
+        HiViewerModel model = new DatasetModel(datasetID);
+        model.setRootLevel(getRootLevel(), getRootID());
+        return model;
     }
 
 }

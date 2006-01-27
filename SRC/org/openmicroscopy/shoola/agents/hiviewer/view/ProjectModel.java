@@ -109,7 +109,9 @@ class ProjectModel
      */
     protected HiViewerModel reinstantiate()
     {
-        return new ProjectModel(projectID);
+        HiViewerModel model = new ProjectModel(projectID);
+        model.setRootLevel(getRootLevel(), getRootID());
+        return model;
     }
 
 }

@@ -71,8 +71,8 @@ public class DatasetLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
+     * @param viewer    The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>.
      * @param datasetID The id of the root dataset.
      */
     public DatasetLoader(HiViewer viewer, int datasetID)
@@ -87,7 +87,8 @@ public class DatasetLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(DatasetData.class, datasetID, this);
+        handle = hiBrwView.loadHierarchy(DatasetData.class, datasetID, 
+                              viewer.getRootLevel(), viewer.getRootID(), this);
     }
     
     /** Cancels the data loading. */

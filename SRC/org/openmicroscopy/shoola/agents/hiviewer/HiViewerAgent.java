@@ -46,8 +46,9 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
+ * The HiViewer agent. This agent manages and presents a <code>DataObject</code>
+ * and its children.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -81,7 +82,8 @@ public class HiViewerAgent
     private void handleBrowse(Browse evt)
     {
         if (evt == null) return;
-        browse(evt.getEventIndex(), evt.getHierarchyObjectID());
+        browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
+                evt.getRootLevel(), evt.getRootID());
     }
     
     /** Creates a new instance. */
@@ -134,24 +136,29 @@ public class HiViewerAgent
      * 
      * @param eventIndex 	One of the constant defined by the {@link Browser}
      * 						class event.
-     * 
      * @param id    		The id of the dataObject to browse.
+     * @param rootLevel     The level of the root.
+     * @param rootID        The Id of the root.
      */
-    public static void browse(int eventIndex, int id)
+    public static void browse(int eventIndex, int id, int rootLevel, int rootID)
     {
         HiViewer viewer = null;
         switch (eventIndex) {
             case Browse.PROJECT:
-                viewer = HiViewerFactory.getProjectViewer(id);
+                viewer = HiViewerFactory.getProjectViewer(id, rootLevel, 
+                                                            rootID);
                 break;
             case Browse.DATASET:
-                viewer = HiViewerFactory.getDatasetViewer(id);
+                viewer = HiViewerFactory.getDatasetViewer(id, rootLevel, 
+                                                        rootID);
                 break;
             case Browse.CATEGORY_GROUP:
-                viewer = HiViewerFactory.getCategoryGroupViewer(id);
+                viewer = HiViewerFactory.getCategoryGroupViewer(id, rootLevel, 
+                                                                rootID);
                 break;
             case Browse.CATEGORY:
-                viewer = HiViewerFactory.getCategoryViewer(id);  
+                viewer = HiViewerFactory.getCategoryViewer(id, rootLevel, 
+                                                            rootID);  
         }
         if (viewer != null) viewer.activate();
     }

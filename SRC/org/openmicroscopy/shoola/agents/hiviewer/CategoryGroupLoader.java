@@ -88,7 +88,8 @@ public class CategoryGroupLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(CategoryGroupData.class, cgID, this);
+        handle = hiBrwView.loadHierarchy(CategoryGroupData.class, cgID, 
+                            viewer.getRootLevel(), viewer.getRootID(), this);
     }
     
     /** Cancels the data loading. */

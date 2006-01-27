@@ -110,16 +110,20 @@ public class ViewCmd
         if (hierarchyObject == null) return;
         if (hierarchyObject instanceof DatasetData)
             HiViewerAgent.browse(Browse.DATASET, 
-                    ((DatasetData) hierarchyObject).getId());
+                    ((DatasetData) hierarchyObject).getId(), 
+                    model.getRootLevel(), model.getRootID());
         else if (hierarchyObject instanceof ProjectData)
             HiViewerAgent.browse(Browse.PROJECT, 
-                    ((ProjectData) hierarchyObject).getId());
+                    ((ProjectData) hierarchyObject).getId(),
+                    model.getRootLevel(), model.getRootID());
         else if (hierarchyObject instanceof CategoryGroupData)
             HiViewerAgent.browse(Browse.CATEGORY_GROUP, 
-                    ((CategoryGroupData) hierarchyObject).getId());
+                    ((CategoryGroupData) hierarchyObject).getId(),
+                    model.getRootLevel(), model.getRootID());
         else if (hierarchyObject instanceof CategoryData)
             HiViewerAgent.browse(Browse.CATEGORY, 
-                    ((CategoryData) hierarchyObject).getId());
+                    ((CategoryData) hierarchyObject).getId(),
+                    model.getRootLevel(), model.getRootID());
         else if (hierarchyObject instanceof ImageData) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
             ImageData is = (ImageData) hierarchyObject;

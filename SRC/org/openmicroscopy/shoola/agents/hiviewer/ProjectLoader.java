@@ -72,8 +72,8 @@ public class ProjectLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
+     * @param viewer    The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>.
      * @param projectID The id of the root project.
      */
     public ProjectLoader(HiViewer viewer, int projectID)
@@ -88,7 +88,8 @@ public class ProjectLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(ProjectData.class, projectID, this);
+        handle = hiBrwView.loadHierarchy(ProjectData.class, projectID,
+                            viewer.getRootLevel(), viewer.getRootID(), this);
     }
     
     /** Cancels the data loading. */

@@ -81,11 +81,15 @@ public class HiViewerFactory
      * rooted by the specified Project.
      * 
      * @param projectID The id of the Project root node.
+     * @param rootLevel The level of the root.
+     * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Project.
      */
-    public static HiViewer getProjectViewer(int projectID)
+    public static HiViewer getProjectViewer(int projectID, int rootLevel,
+                                            int rootID)
     {
         HiViewerModel model = new ProjectModel(projectID);
+        model.setRootLevel(rootLevel, rootID);
         return singleton.getViewer(model);
     }
     
@@ -94,11 +98,15 @@ public class HiViewerFactory
      * rooted by the specified Dataset.
      * 
      * @param datasetID The id of the Dataset root node.
+     * @param rootLevel The level of the root.
+     * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Dataset.
      */
-    public static HiViewer getDatasetViewer(int datasetID)
+    public static HiViewer getDatasetViewer(int datasetID, int rootLevel,
+                                            int rootID)
     {
         HiViewerModel model = new DatasetModel(datasetID);
+        model.setRootLevel(rootLevel, rootID);
         return singleton.getViewer(model);
     }
     
@@ -107,11 +115,15 @@ public class HiViewerFactory
      * rooted by the specified Category Group.
      * 
      * @param cgID The id of the Category Group root node.
+     * @param rootLevel The level of the root.
+     * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Category Group.
      */
-    public static HiViewer getCategoryGroupViewer(int cgID)
+    public static HiViewer getCategoryGroupViewer(int cgID, int rootLevel,
+                                                int rootID)
     {
         HiViewerModel model = new CategoryGroupModel(cgID);
+        model.setRootLevel(rootLevel, rootID);
         return singleton.getViewer(model);
     }
     
@@ -120,11 +132,15 @@ public class HiViewerFactory
      * rooted by the specified Category.
      * 
      * @param categoryID The id of the Category root node.
+     * @param rootLevel The level of the root.
+     * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Category.
      */
-    public static HiViewer getCategoryViewer(int categoryID)
+    public static HiViewer getCategoryViewer(int categoryID, int rootLevel,
+                                            int rootID)
     {
         HiViewerModel model = new CategoryModel(categoryID);
+        model.setRootLevel(rootLevel, rootID);
         return singleton.getViewer(model);
     }
     

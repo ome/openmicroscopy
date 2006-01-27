@@ -71,9 +71,9 @@ public class CategoryLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param categoryID  The id of the root Category.
+     * @param viewer        The viewer this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param categoryID    The id of the root Category.
      */
     public CategoryLoader(HiViewer viewer, int categoryID)
     {
@@ -87,7 +87,8 @@ public class CategoryLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(CategoryData.class, categoryID, this);
+        handle = hiBrwView.loadHierarchy(CategoryData.class, categoryID,
+                               viewer.getRootLevel(), viewer.getRootID(), this);
     }
     
     /** Cancels the data loading. */

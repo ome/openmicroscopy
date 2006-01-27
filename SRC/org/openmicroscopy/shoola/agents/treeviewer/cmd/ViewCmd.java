@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import pojos.CategoryData;
@@ -69,6 +70,27 @@ public class ViewCmd
     private TreeViewer model;
     
     /**
+     * Converts the specified UI rootLevel into its corresponding 
+     * constant defined by the {@link OmeroPojoService}.
+     * 
+     * @param level The level to convert.
+     * @return See above.
+     */
+    private int convertRootLevel(int level)
+    {
+        switch (level) {
+            case TreeViewer.WORLD_ROOT:
+                return OmeroPojoService.WORLD_HIERARCHY_ROOT;
+            case TreeViewer.USER_ROOT:
+                return OmeroPojoService.USER_HIERARCHY_ROOT;
+            case TreeViewer.GROUP_ROOT:
+                return OmeroPojoService.GROUP_HIERARCHY_ROOT;
+            default:
+                throw new IllegalArgumentException("Level not supported");
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -88,19 +110,23 @@ public class ViewCmd
         if (display == null) return;
         Object ho = display.getUserObject();
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        int root = convertRootLevel(browser.getRootLevel());
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
             bus.post(new LoadImage(data.getId(), 
                     data.getDefaultPixels().getId(), data.getName()));
         } else if (ho instanceof DatasetData)
-            bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET)); 
+            bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
+                    root, browser.getRootID())); 
         else if (ho instanceof ProjectData)
-            bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT)); 
+            bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
+                    root, browser.getRootID())); 
         else if (ho instanceof CategoryData)
-            bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY)); 
+            bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
+                    root, browser.getRootID())); 
         else if (ho instanceof CategoryGroupData)
             bus.post(new Browse(((CategoryGroupData) ho).getId(),
-                                Browse.CATEGORY_GROUP)); 
+                          Browse.CATEGORY_GROUP, root, browser.getRootID())); 
     }
     
 }
