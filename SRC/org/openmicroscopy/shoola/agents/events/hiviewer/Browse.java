@@ -35,10 +35,11 @@ package org.openmicroscopy.shoola.agents.events.hiviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * 
+ * Event to browse a given <code>Data Object</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,35 +79,98 @@ public class Browse
      */
     private int eventIndex;
     
-    public Browse(int hierarchyObjectID, int index)
-    {
-        if (!checkEventIndex(index))
-            throw new IllegalArgumentException("event index not vali");
-        this.hierarchyObjectID = hierarchyObjectID;
-        eventIndex = index;
-    }
+    /** 
+     * The level of the root. One of the constants defined by
+     * {@link OmeroPojoService}.
+     */
+    private int rootLevel;
     
-    /** Check if the specified index is valid. */
-    private boolean checkEventIndex(int index)
+    /** The Id of the root. */
+    private int rootID;
+    
+    /**
+     * Controls if the specified index is supported.
+     * 
+     * @param index The index to control.
+     */
+    private void checkEventIndex(int index)
     {
-        boolean b = false;
         switch (index) {
             case PROJECT:
-                b = true; break;
             case DATASET:
-                b = true; break;
             case CATEGORY_GROUP:
-                b = true; break;
             case CATEGORY:
-                b = true; break;    
+                return; 
+            default:
+                throw new IllegalArgumentException("Event index not valid.");
         }
-        return b;
     }
     
-    /** Returns the browse event index. */
+    /**
+     * Controls if the specified level is supported.
+     * 
+     * @param level The level to control.
+     */
+    private void checkRootLevel(int level)
+    {
+        switch (level) {
+            case OmeroPojoService.WORLD_HIERARCHY_ROOT:
+            case OmeroPojoService.GROUP_HIERARCHY_ROOT:
+            case OmeroPojoService.USER_HIERARCHY_ROOT:
+                return; 
+            default:
+                throw new IllegalArgumentException("Root level not valid.");
+        }
+    }
+    
+    /**
+     * Cretaes a new instance.
+     * 
+     * @param hierarchyObjectID The Id of the <code>Data Object</code> to 
+     *                          browse.
+     * @param index             The index of the browser. One of the constants
+     *                          defined by this class.
+     * @param rootLevel         The root level i.e. group, user, etc.
+     * @param rootID            The id of the root level. The value is taken
+     *                          into account if only if the root level is a 
+     *                          group.
+     */
+    public Browse(int hierarchyObjectID, int index, int rootLevel, int rootID)
+    {
+        checkEventIndex(index); 
+        checkRootLevel(rootLevel);
+        this.hierarchyObjectID = hierarchyObjectID;
+        eventIndex = index;
+        this.rootLevel = rootLevel;
+        this.rootID = rootID;
+    }
+
+    /**
+     * Returns the browse event index. 
+     * 
+     * @return See above.
+     */
     public int getEventIndex() { return eventIndex; }
     
-    /** Returns the id of the corresponding dataObject. */
+    /** 
+     * Returns the id of the <code>dataObject</code>.
+     * 
+     * @return See above.
+     */
     public int getHierarchyObjectID() { return hierarchyObjectID; }
+    
+    /**
+     * Returns the root level.
+     * 
+     * @return See above.
+     */
+    public int getRootLevel() { return rootLevel; }
+    
+    /**
+     * Returns the root Id.
+     * 
+     * @return See above.
+     */
+    public int getRootID() { return rootID; }
     
 }
