@@ -95,10 +95,13 @@ public interface HierarchyBrowsingView
      *                      <code>ProjectData, DatasetData, 
      *                      CategoryGroupData, CategoryData</code>.
      * @param nodeID        The id of the root node.
+     * @param rootLevel     The Level of the root.
+     * @param rootID        The Id of the root.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadHierarchy(Class rootNodeType, int nodeID,
+    public CallHandle loadHierarchy(Class rootNodeType, int nodeID, 
+                                    int rootLevel, int rootID,
                                     AgentEventListener observer);
     
     /**
