@@ -69,6 +69,7 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -356,8 +357,11 @@ public class DOEditor
                 Map details = EditorUtil.transformExperimenterData(exp);
                 Set groups = exp.getGroups();
                 if (groups == null || groups.size() == 0) {
-                    groups = new HashSet(1);
-                    groups.add(exp.getGroup());
+                    GroupData group = exp.getGroup();
+                    if (group != null) {
+                        groups = new HashSet(1);
+                        groups.add(group);
+                    } 
                 }
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
                             new DOInfo(details, groups));
