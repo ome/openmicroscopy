@@ -1432,9 +1432,11 @@ public class DataManager
      */
 	void browseDataset(pojos.DatasetData data)
 	{
+        /*
         if (data != null)
             registry.getEventBus().post(new Browse(data.getId(),
                                         Browse.DATASET)); 
+                                        */
 	}
 
     /** 
@@ -1446,9 +1448,11 @@ public class DataManager
      */
     void browseProject(pojos.ProjectData data)
     {
+        /*
         if (data != null)
             registry.getEventBus().post(new Browse(data.getId(),
                                         Browse.PROJECT));
+                                        */
     }
 
     /** 
@@ -1458,9 +1462,11 @@ public class DataManager
      */
     void browseCategoryGroup(pojos.CategoryGroupData data)
     {
+        /*
         if (data != null)
             registry.getEventBus().post(
                     new Browse(data.getId(), Browse.CATEGORY_GROUP));
+                    */
     }
     
     /** 
@@ -1471,9 +1477,11 @@ public class DataManager
      */
     void browseCategory(pojos.CategoryData data)
     {
+        /*
         if (data != null)
             registry.getEventBus().post(
                     new Browse(data.getId(), Browse.CATEGORY));
+                    */
     }
     
     //Post an event to bring the ZoomBrowser. ???
