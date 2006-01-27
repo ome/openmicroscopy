@@ -30,10 +30,6 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-
-
-
-
 //Java imports
 import java.util.HashMap;
 import java.util.HashSet;
@@ -193,6 +189,15 @@ class OMEROGateway
         throw new IllegalArgumentException("NodeType not supported");
     }
     
+    /**
+     * Transforms the specified <code>property</code> into the 
+     * corresponding server value.
+     * The transformation depends on the specified class.
+     * 
+     * @param nodeType The type of node this property corresponds to.
+     * @param property The name of the property.
+     * @return See above.
+     */
     private String convertProperty(Class nodeType, String property)
     {
         if (nodeType.equals(DatasetData.class)) {
@@ -281,6 +286,7 @@ class OMEROGateway
             throw new IllegalArgumentException("No Data service factory.");
         System.setProperty("server.host", ""+hostName);
         System.setProperty("server.port", ""+port);
+        
         this.dsFactory = dsFactory;
     }
     

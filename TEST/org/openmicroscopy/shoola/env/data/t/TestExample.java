@@ -90,7 +90,7 @@ public class TestExample
         //Note that because the Container is in test mode, this call is 
         //run in this thread.
         long start = System.currentTimeMillis(), end;
-        hbw.loadHierarchy(ProjectSummary.class, 1, observer);
+        //hbw.loadHierarchy(ProjectSummary.class, 1, observer);
         end = System.currentTimeMillis();
         assertTrue("The call took too long: "+(end-start)+"ms.", 
                    end-start < 300);
