@@ -197,7 +197,7 @@ class TreeViewerComponent
         else return;
         //model.setDataObject(object);
         DOEditor panel = new DOEditor(this, object, editorType);
-        panel.addPropertyChangeListener(DOEditor.CANCEL_CREATION_PROPERTY, 
+        panel.addPropertyChangeListener(DOEditor.CANCEL_EDITION_PROPERTY, 
                                         controller);;
         view.addComponent(panel); 
     }

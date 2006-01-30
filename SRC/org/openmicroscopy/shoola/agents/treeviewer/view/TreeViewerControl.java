@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.CreateDataObject;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -308,7 +308,7 @@ class TreeViewerControl
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
-        } else if (name.equals(CreateDataObject.CANCEL_EDITION_PROPERTY)) {
+        } else if (name.equals(DOEditor.CANCEL_EDITION_PROPERTY)) {
             model.removeEditor();
         } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
             model.removeEditor();
