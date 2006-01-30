@@ -95,7 +95,7 @@ public class DOEditor
     public static final int     CREATE = TreeViewer.CREATE_PROPERTIES;
     
     /** Bounds property to indicate that the creation is cancelled. */
-    public static final String  CANCEL_CREATION_PROPERTY = "cancelCreation";
+    public static final String  CANCEL_EDITION_PROPERTY = "cancelEdition";
     
     /** The default height of the <code>TitlePanel</code>. */
     public static final int    	TITLE_HEIGHT = 80;
@@ -241,7 +241,7 @@ public class DOEditor
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {  
-                firePropertyChange(CANCEL_CREATION_PROPERTY, Boolean.FALSE,
+                firePropertyChange(CANCEL_EDITION_PROPERTY, Boolean.FALSE,
                         Boolean.TRUE);
             }
         });
