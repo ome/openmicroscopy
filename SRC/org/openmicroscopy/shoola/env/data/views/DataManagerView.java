@@ -209,4 +209,43 @@ public interface DataManagerView
             								AnnotationData data, int operation,
             								AgentEventListener observer);
     
+    
+    /** 
+     * Creates an annotation of the specified type for the specified node.
+     * 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>.   
+     * @param nodeID The id of the node.
+     * @param txt The textual annotation.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle createAnnotation(Class nodeType, int nodeID, String txt,  
+                                        AgentEventListener observer);
+    
+    /**
+     * Updates the specified annotation.
+     * 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>.  
+     * @param nodeID The id of the node.
+     * @param data The Annotation object to update.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle updateAnnotation(Class nodeType, int nodeID, 
+                             AnnotationData data, AgentEventListener observer);
+    
+    /**
+     * Deletes the specified annotation.
+     * 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>. 
+     * @param data The Annotation object to delete.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
+                                        AgentEventListener observer);
+    
 }

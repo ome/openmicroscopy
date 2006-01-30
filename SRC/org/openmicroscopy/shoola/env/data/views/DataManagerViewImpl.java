@@ -35,6 +35,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectEditor;
@@ -166,6 +167,42 @@ class DataManagerViewImpl
         else if (operation == DELETE_ANNOTATION) op = DataObjectEditor.REMOVE;
         BatchCallTree cmd = new DataObjectEditor(userObject, data, op);
         return cmd.exec(observer); 
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#createAnnotation(Class, int, String,
+     *                                      AgentEventListener)
+     */
+    public CallHandle createAnnotation(Class nodeType, int nodeID, String txt,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(nodeType, nodeID, txt);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#updateAnnotation(Class, int, AnnotationData,
+     *                                      AgentEventListener)
+     */
+    public CallHandle updateAnnotation(Class nodeType, int nodeID,
+                        AnnotationData data, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(nodeType, nodeID, data);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#deleteAnnotation(Class, AnnotationData,
+     *                                              AgentEventListener)
+     */
+    public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(nodeType, data);
+        return cmd.exec(observer);
     }
     
 }
