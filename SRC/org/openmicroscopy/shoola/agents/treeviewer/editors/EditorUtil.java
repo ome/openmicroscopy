@@ -141,11 +141,13 @@ class EditorUtil
         HashMap details = new HashMap(2);
         if (data == null) {
             details.put("Name", "");
-            details.put("Leader", "");
+            
         } else {
             details.put("Name", data.getName());
             ExperimenterData exp = data.getLeader();
-            details.put("Leader", exp.getFirstName()+" "+exp.getLastName());
+            if (exp != null)
+                details.put("Leader", exp.getFirstName()+" "+exp.getLastName());
+            else details.put("Leader", "");
         }
         return details;
     }

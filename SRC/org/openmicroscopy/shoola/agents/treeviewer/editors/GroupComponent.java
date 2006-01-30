@@ -34,8 +34,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Map;
 import javax.swing.JButton;
 
@@ -58,7 +56,7 @@ import pojos.GroupData;
  */
 class GroupComponent
 	extends JButton
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener
 {
 
     /** 
@@ -126,16 +124,6 @@ class GroupComponent
             info.hideGroupDetails();
         }
         detailsVisible = !detailsVisible;
-    }
-
-    /**
-     * Reacts to changes fired by {@link DOInfo}.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        // TODO Auto-generated method stub
-        
     }
     
 }

@@ -116,7 +116,6 @@ class TreeViewerWin
     /** The menu hosting the root levels. */
     private JMenu 				rootLevel;
     
-
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 

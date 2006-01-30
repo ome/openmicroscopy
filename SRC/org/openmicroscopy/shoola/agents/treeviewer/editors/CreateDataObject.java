@@ -85,8 +85,10 @@ public class CreateDataObject
     extends JPanel
 {
 
-    public static final String  CANCEL_CREATION_PROPERTY = "cancelCreation";
+    /** Bounds property indicating the <code>EDIT</code> action is cancelled. */
+    public static final String  CANCEL_EDITION_PROPERTY = "cancelEdtion";
     
+    /** Bounds property indicating the <code>EDIT</code> action is finished. */
     public static final String  FINISH_PROPERTY = "finish";
     
     /** The default height of the {@link TitlePanel}. */
@@ -185,7 +187,7 @@ public class CreateDataObject
 
             public void actionPerformed(ActionEvent e)
             {
-                firePropertyChange(CANCEL_CREATION_PROPERTY, Boolean.FALSE,
+                firePropertyChange(CANCEL_EDITION_PROPERTY, Boolean.FALSE,
                                     Boolean.TRUE);
             }
         });

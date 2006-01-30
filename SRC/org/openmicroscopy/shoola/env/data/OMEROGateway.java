@@ -313,8 +313,8 @@ class OMEROGateway
     ExperimenterData login(String userName, String password)
         throws DSOutOfServiceException
     {
-        System.setProperty("omeds.user", userName);
-        System.setProperty("omeds.pass", password);
+        System.getProperties().setProperty("omeds.user", userName);
+        System.getProperties().setProperty("omeds.pass", password);
         try {
             entry = new ServiceFactory();
             mapper = new Model2PojosMapper();

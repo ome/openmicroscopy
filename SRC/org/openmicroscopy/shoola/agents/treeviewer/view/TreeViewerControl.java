@@ -308,7 +308,7 @@ class TreeViewerControl
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
-        } else if (name.equals(CreateDataObject.CANCEL_CREATION_PROPERTY)) {
+        } else if (name.equals(CreateDataObject.CANCEL_EDITION_PROPERTY)) {
             model.removeEditor();
         } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
             model.removeEditor();
