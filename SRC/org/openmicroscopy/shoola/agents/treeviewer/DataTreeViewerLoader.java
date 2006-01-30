@@ -41,10 +41,17 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 
- * 
+ * Parent of all classes that load data asynchronously for a {@link TreeViewer}.
+ * All these classes invoke methods of the {@link DataManagerView},
+ * which this class makes available through a <code>protected</code> field.
+ * Also, this class extends {@link DSCallAdapter} so that subclasses
+ * automatically become observers to an asynchronous call. This class provides
+ * default implementations of some of the callbacks to notify the 
+ * {@link TreeViewer} of the progress and the user in the case of errors. 
+ * Subclasses should at least implement the <code>handleResult</code> method 
+ * to feed the {@link TreeViewer} back with the results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -67,9 +74,6 @@ public abstract class DataTreeViewerLoader
     /** Convenience reference for subclasses. */
     protected final DataManagerView 		dmView;
     
-    /** Convenience reference for subclasses. */
-    protected final HierarchyBrowsingView	hiBrwView;
-    
     /**
      * Creates a new instance.
      * 
@@ -83,8 +87,6 @@ public abstract class DataTreeViewerLoader
         registry = TreeViewerAgent.getRegistry();
         dmView = (DataManagerView) 
                 registry.getDataServicesView(DataManagerView.class);
-        hiBrwView = (HierarchyBrowsingView) registry.
-        			getDataServicesView(HierarchyBrowsingView.class);
     }
     
     /** Notifies the {@link #viewer} that the data retrieval is finished. */

@@ -154,16 +154,16 @@ public class AnnotationEditor
     {
         switch (operation) {
 	        case CREATE:
-	            handle = hiBrwView.createAnnotation(annotatedObject.getClass(),
+	            handle = dmView.createAnnotation(annotatedObject.getClass(),
                         				getAnnotatedObjectID(), data.getText(),
                         				this);
 	            break;
 	        case UPDATE:
-	            handle = hiBrwView.updateAnnotation(annotatedObject.getClass(),
+	            handle = dmView.updateAnnotation(annotatedObject.getClass(),
         								getAnnotatedObjectID(), data, this);
 	            break;
 	        case DELETE:
-	            handle = hiBrwView.deleteAnnotation(annotatedObject.getClass(),
+	            handle = dmView.deleteAnnotation(annotatedObject.getClass(),
 	                    					data, this);
 	            break;
         }
