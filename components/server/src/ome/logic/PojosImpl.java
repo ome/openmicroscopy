@@ -314,7 +314,10 @@ public class PojosImpl implements Pojos {
             params.put("name_list",names);
         
             results = daos.generic().queryListMap(
-                    "select e from Experimenter e left outer join fetch e.group where e.omeName in ( :name_list )",
+                    "select e from Experimenter e " +
+                    "left outer join fetch e.group " +
+                    "left outer join fetch e.groups " +
+                    "where e.omeName in ( :name_list )",
                     params
             );
             
