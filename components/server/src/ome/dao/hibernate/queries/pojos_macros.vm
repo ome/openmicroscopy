@@ -13,21 +13,31 @@
 select ${abbrev} from ${class} ${abbrev}
 #end
 #####################################################
+## USERS/GROUPS
+#####################################################
+#macro(user $abbrev)left outer join fetch ${abbrev}.experimenter as ${abbrev}_exp
+	left outer join fetch ${abbrev}.experimenter.group as ${abbrev}_exp_grp
+	left outer join fetch ${abbrev}.experimenter.groups as ${abbrev}_exp_grps	
+#end
+#macro(mexuser $abbrev)left outer join fetch ${abbrev}.moduleExecution as ${abbrev}_mex
+	left outer join fetch ${abbrev}_mex.experimenter as ${abbrev}_exp
+	left outer join fetch ${abbrev}_mex.experimenter.group as ${abbrev}_exp_grp
+	left outer join fetch ${abbrev}_mex.experimenter.groups as ${abbrev}_exp_grps	
+#end
+#####################################################
 ## ANNOTATIONS
 #####################################################
 #macro(ifDatasetAnnotation)
 #if($doDatasetAnnotation)
 	left outer join fetch d.datasetAnnotations as d_ann
-	left outer join fetch d_ann.moduleExecution as d_ann_mex
-	left outer join fetch d_ann_mex.experimenter as d_ann_exp
+	#mexuser("d_ann")
 #end
 #end
 #####################################################
 #macro(ifImageAnnotation)
 #if($doImageAnnotation)
 	left outer join fetch i.imageAnnotations as i_ann
-	left outer join fetch i_ann.moduleExecution as i_ann_mex
-	left outer join fetch i_ann_mex.experimenter as i_ann_exp
+	#mexuser("i_ann")
 #end
 #end
 #####################################################
@@ -36,9 +46,9 @@ select ${abbrev} from ${class} ${abbrev}
 #macro(ifImage)
 #if($doImage)
 	left outer join fetch i.group as i_g
-	left outer join fetch i.experimenter as i_exp
 	left outer join fetch i.imagePixel as i_pix
 	left outer join fetch i_pix.repository as i_pix_rep
+	#user("i")
 #ifImageAnnotation()
 #end
 #end
@@ -47,41 +57,38 @@ select ${abbrev} from ${class} ${abbrev}
 #####################################################
 #macro(ifCategoryGroup)
 #if($doCategoryGroup)
-	left outer join fetch cg.moduleExecution as cg_mex 
-	left outer join fetch cg_mex.experimenter as cg_exp
 	left outer join fetch cg.categories as c
+	#mexuser("cg")
 #end
 #end
 #####################################################
 #macro(ifCategory)
 #if($doCategory)
-	left outer join fetch c.moduleExecution as c_mex
-	left outer join fetch c_mex.experimenter as c_exp
+	#mexuser("c")
 #end
 #end
 #####################################################
 #macro(ifClassification)
 #if($doClassification)
 	left outer join fetch c.classifications as cla
-	left outer join fetch cla.moduleExecution as cla_mex
-	left outer join fetch cla_mex.experimenter as cla_exp
 	left outer join fetch cla.image as i
+	#mexuser("cla")
 #ifImage()
 #end
 #end
 #####################################################
 #macro(ifProject)
 #if($doProject)
-	left outer join fetch p.experimenter as p_exp
 	left outer join fetch p.group as p_g
 	left outer join fetch p.datasets as d
+	#user("p")
 #end
 #end
 #####################################################
 #macro(ifDataset)
 #if($doDataset)
-	left outer join fetch d.experimenter as d_exp
 	left outer join fetch d.group as d_g
+	#user("d")
 #if(!$noLeaves)
 	left outer join fetch d.images as i
 #ifImage()
@@ -104,27 +111,24 @@ select ${abbrev} from ${class} ${abbrev}
 #ifImage()
 #if($doDataset)
 	left outer join fetch i.datasets as d
-	left outer join fetch d.experimenter as d_exp
 	left outer join fetch d.group as d_g	  
+	#user("d")
 #ifDatasetAnnotation()	
 #if($doProject)	
 	left outer join fetch d.projects as p
-	left outer join fetch p.experimenter as p_exp
 	left outer join fetch p.group as p_g 
+	#user("p")
 #end
 #end
 #if($doClassification)
 	left outer join fetch i.classifications as cla 
-	left outer join fetch cla.moduleExecution as cla_mex
-	left outer join fetch cla_mex.experimenter as cla_exp
+	#mexuser("cla")
 #if($doCategory)	
 	left outer join fetch cla.category as c
-	left outer join fetch c.moduleExecution as c_mex
-	left outer join fetch c_mex.experimenter as c_exp
+	#mexuser("c")
 #if($doCategoryGroup)	
 	left outer join fetch c.categoryGroup as cg
-	left outer join fetch cg.moduleExecution as cg_mex
-	left outer join fetch cg_mex.experimenter as cg_exp
+	#mexuser("cg")
 #end
 #end
 #end
