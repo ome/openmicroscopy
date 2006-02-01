@@ -355,6 +355,7 @@ public class DOEditor
                             im.getIcon(IconManager.PROPERTIES), doBasic);
                 ExperimenterData exp = getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
+                /*
                 Set groups = exp.getGroups();
                 if (groups == null || groups.size() == 0) {
                     GroupData group = exp.getGroup();
@@ -363,8 +364,9 @@ public class DOEditor
                         groups.add(group);
                     } 
                 }
+                */
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
-                            new DOInfo(details, groups));
+                            new DOInfo(details));
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());

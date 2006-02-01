@@ -186,13 +186,15 @@ class DOInfo
      * @param details 	The visualization map. Mustn't be <code>null</code>.
      * @param groups	Collection of groups.
      */
+    /*
     DOInfo(Map details, Set groups)
     {
         if (details == null) 
             throw new IllegalArgumentException("Visualization map cannot be" +
                     " null");
-        buildGUI(details, groups);
+        buildGUI(details, null);
     }
+    */
     
     /**
      * Shows the specified group's details.
