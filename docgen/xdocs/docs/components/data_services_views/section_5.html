@@ -28,7 +28,7 @@
 <p>The next diagram analyzes a concrete call to a view to exemplify the pattern followed 
   by all asynchronous calls in the various views. The call is mapped onto a command, 
   the command is transferred to a processor for asynchronous execution, a handle to 
-  the call is returned to to invoker.</p>
+  the call is returned to the invoker.</p>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
   <tr>
     <td align="center"><img src="images/invocation.gif" width="700" height="532" /></td>
@@ -42,7 +42,7 @@
     <td height="40"><hr width="80%" align="center"/></td></tr>
 </table>
 <p>As the computation proceeds asynchronously, the processor sends execution events. 
-  This last diagram shows how they're captrued and relayed to the listener specified 
+  This last diagram shows how they're captured and relayed to the listener specified 
   by the invoker.</p>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
   <tr>

@@ -106,7 +106,10 @@ class RegistryImpl
         entriesMap = new HashMap();
     }
     
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}. 
+     * @see Registry#bind(String, Object)
+     */
 	public void bind(String name, Object value)
 	{
 		if (name != null) {
@@ -116,7 +119,10 @@ class RegistryImpl
 		}
 	}
 	
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#lookup(String)
+     */
     public Object lookup(String name)
     {
         Entry entry = (Entry) entriesMap.get(name);
@@ -125,31 +131,58 @@ class RegistryImpl
         return ret;
     }
     
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getEventBus()
+     */
     public EventBus getEventBus() { return eb; }
     
-	/** Implemented as specified by {@link Registry}. */
+	/**
+     * Implemented as specified by {@link Registry}. 
+     * @see Registry#getDataManagementService()
+     */
 	public DataManagementService getDataManagementService() { return dms; }
 	
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}. 
+     * @see Registry#getSemanticTypesService()
+     */
 	public SemanticTypesService getSemanticTypesService() { return sts; }
 	
-	/** Implemented as specified by {@link Registry}. */
+	/**
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getLogger()
+     */
 	public Logger getLogger() { return logger; }
 	
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getTaskBar()
+     */
 	public TaskBar getTaskBar() { return tb; }
 	
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getUserNotifier()
+     */
 	public UserNotifier getUserNotifier() { return un; }
    	
-	/** Implemented as specified by {@link Registry}. */
+	/** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getPixelsService()
+     */
     public PixelsService getPixelsService() { return ps; }
     
-    /** Implemented as specified by {@link Registry}. */
+    /** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getOmeroService()
+     */
     public OmeroPojoService getOmeroService() { return os; }
     
-    /** Implemented as specified by {@link Registry}. */
+    /** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getDataServicesView(Class)
+     */
     public DataServicesView getDataServicesView(Class view)
     {
         return DataViewsFactory.makeView(view);
