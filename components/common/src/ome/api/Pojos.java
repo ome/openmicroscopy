@@ -75,7 +75,7 @@ import java.util.Set;
  * 	<li><b>experimenter</b>(Integer): inables filtering on a per-experimenter basis.
  * 	This option has a method-specific (and possibly context-specific) meaning. Please 
  * 	see the individual methods.</li>
- *  <li><b>group</b>(Integer): inables filtering on a per-group basis. The <b>experimenter</b>
+ *  <li><b>group</b>(Integer): enables filtering on a per-group basis. The <b>experimenter</b>
  *  value is ignored if present and instead a similar filtering is done using all <b>experimenter</b>s
  *  in the given group.
  * 
@@ -302,11 +302,11 @@ public interface Pojos {
     public Map getUserDetails(Set names, Map options);
 
     /**
-     * Counts the number of members in a collection for a given object
+     * Counts the number of members in a collection for a given object. For example, if you wanted to retrieve the number of Images contained in a Dataset you would pass TODO.
      * @param class
-     *          Class type of the object to be tested
+     *          The fully-qualified classname of the object to be tested
      * @param property
-     *          Name of the property on that class
+     *          Name of the property on that class, omitting getters and setters.
      * @param ids
      *          Set of Integers, the ids of the objects to test
      * @param options
