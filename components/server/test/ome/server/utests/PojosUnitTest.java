@@ -43,16 +43,7 @@ import org.jmock.MockObjectTestCase;
 //Application-internal dependencies
 import ome.dao.AnnotationDao;
 import ome.dao.ContainerDao;
-import ome.dao.DaoFactory;
-import ome.logic.HierarchyBrowsingImpl;
 import ome.logic.PojosImpl;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.ImageAnnotation;
-import ome.model.Project;
 
 /**
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -72,8 +63,7 @@ public class PojosUnitTest extends MockObjectTestCase {
         
         annotationDao = new Mock(AnnotationDao.class);
         containerDao = new Mock(ContainerDao.class);
-        DaoFactory factory = new DaoFactory(null,(AnnotationDao) annotationDao.proxy(), (ContainerDao) containerDao.proxy(),null,null);
-        manager = new PojosImpl(factory);
+        manager = new PojosImpl();
     }
     
     protected void tearDown() throws Exception {

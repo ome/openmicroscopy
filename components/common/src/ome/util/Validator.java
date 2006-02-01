@@ -38,7 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.api.OMEModel;
+import ome.model.IObject;
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.ImagingEnvironment;
@@ -58,7 +58,7 @@ public abstract class Validator
 
     protected static Log log = LogFactory.getLog(Validator.class);
 
-    public static Validation validate(OMEModel obj)
+    public static Validation validate(IObject obj)
     {
         return Validation.VALID();
     }

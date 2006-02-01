@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO add properties goal to update pref.properties -->
+<project name="policy" default="check-policy" basedir=".">
+    
+	<dirname property="up-one" file="${basedir}"/>
+	<import file="${up-one}/antlib/resources/build.xml"/>
+	
+	<target name="prepare" depends="global.prepare,loadHibernate"/>
+	
+	<target name="check-policy" depends="prepare"/>
+
+</project>

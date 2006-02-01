@@ -89,6 +89,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public final static String INTEGER = "int";
 	public final static String FLOAT = "float";
 	public final static String DOUBLE = "double";
+    public final static String LONG = "long";
 	public final static String TIMESTAMP = "timestamp";
 	public final static Map VALUES = new HashMap(); 
 	static {
@@ -97,6 +98,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 		VALUES.put(INTEGER,Integer.class);
 		VALUES.put(FLOAT,Float.class);
 		VALUES.put(DOUBLE,Double.class);
+        VALUES.put(LONG,Long.class);
 		VALUES.put(TIMESTAMP,Timestamp.class);
 	}
 	

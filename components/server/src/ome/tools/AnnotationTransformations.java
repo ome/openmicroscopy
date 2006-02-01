@@ -35,8 +35,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import ome.model.DatasetAnnotation;
-import ome.model.ImageAnnotation;
+import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
 
 //Third-party libraries
 
@@ -52,7 +52,7 @@ public class AnnotationTransformations {
         Iterator i = result.iterator();
         while (i.hasNext()) {
             DatasetAnnotation ann = (DatasetAnnotation) i.next();
-            Integer ds_id = ann.getDataset().getDatasetId();
+            Long ds_id = ann.getDataset().getId();
             if (!map.containsKey(ds_id)) {
                 map.put(ds_id, new HashSet());
             }
@@ -70,7 +70,7 @@ public class AnnotationTransformations {
 		Iterator i = result.iterator();
 		while (i.hasNext()) {
 			ImageAnnotation ann = (ImageAnnotation) i.next();
-			Integer img_id = ann.getImage().getImageId();
+			Long img_id = ann.getImage().getId();
 			if (!map.containsKey(img_id)) {
 				map.put(img_id, new HashSet());
 			}

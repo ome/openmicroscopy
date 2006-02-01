@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-import ome.api.Analysis;
+import ome.api.IAnalysis;
 import ome.dao.AnalysisDao;
 
 import org.apache.commons.logging.Log;
@@ -54,12 +54,10 @@ import org.apache.commons.logging.LogFactory;
 //Application-internal dependencies
 import ome.dao.AnnotationDao;
 import ome.dao.ContainerDao;
-import ome.dao.GenericDao;
-import ome.model.AnalysisChainExecution;
 
-import ome.model.Dataset;
-import ome.model.Experimenter;
-import ome.model.Project;
+import ome.model.containers.Dataset;
+import ome.model.meta.Experimenter;
+import ome.model.containers.Project;
 
 
 /**
@@ -72,102 +70,80 @@ import ome.model.Project;
  * </small>
  * @since OMERO 1.0
  */
-public class AnalysisImpl implements Analysis {
+public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 
     private static Log log = LogFactory.getLog(AnalysisImpl.class);
 
-    AnalysisDao aDao;
-    
-    AnnotationDao annDao;
-
-    ContainerDao cDao;
-
-    GenericDao gDao;
-    
-    public void setAnalysisDao(AnalysisDao analysisDao){
-    	this.aDao = analysisDao;
-    }
-    
-    public void setAnnotationDao(AnnotationDao annotationDao) {
-        this.annDao = annotationDao; 
-    }
-
-    public void setContainerDao(ContainerDao containerDao) {
-        this.cDao = containerDao;
-    }
-
-    public void setGenericDao(GenericDao genericDao){
-    	this.gDao = genericDao;
-    }
-
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-	public Set getProjectsForUser(int experimenterId) {
+	public Set getProjectsForUser(long experimenterId) {
 		//return aDao.getProjectsForUser(experimenterId); TODO remove from Analysis Dao?
 
 		// Criteria
 		Experimenter exp = new Experimenter();
-		exp.setAttributeId(experimenterId);
+		exp.setId(experimenterId);
 		
 		// Example
 		Project prj = new Project();
-		prj.setExperimenter(exp);
+		prj.getDetails().setOwner(exp);
 		
-		return new HashSet(gDao.getListByExample(prj));
+		return new HashSet(_query.getListByExample(prj)); 
+        // FIXME does this work. if not:
+        // "from Project p where p.experimenter = :expId"
 	}
 
 	public Set getAllDatasets() {
-		return new HashSet(gDao.getListByExample(new Dataset()));
+		return new HashSet(_query.getListByExample(new Dataset()));
 	}
 
-	public Set getAllForImage(int imageId) {
+	public Set getAllForImage(long imageId) {
 		// TODO Auto-generated method stub
 		//return null;
 		throw new RuntimeException("Not implemented yet.");
 	}
 
-	public Set getChainExecutionsForDataset(int datasetId) {
-
-		// Criteria
-		Dataset ds = new Dataset();
-		ds.setDatasetId(datasetId);
-		
-		// Example
-		AnalysisChainExecution ace = new AnalysisChainExecution();
-		ace.setDataset(ds);
-		
-		return new HashSet(gDao.getListByExample(ace));
-	}
- 
+//	public Set getChainExecutionsForDataset(int datasetId) {
+//
+//		// Criteria
+//		Dataset ds = new Dataset();
+//		ds.setId(datasetId);
+//		
+//		// Example
+//		AnalysisChainExecution ace = new AnalysisChainExecution();
+//		ace.setDataset(ds);
+//		
+//		return new HashSet(_query.getListByExample(ace));
+//	}
+// 
 	// Criteria is a set ~~~~~~~~~~~~~~~~~~~~~~~`
 	
-	public Set getDatasetsForProject(int projectId) {
+	public Set getDatasetsForProject(long projectId) {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(" select d from Dataset d ");
 		sb.append("  left outer join fetch d.projects p ");
 		sb.append("  where p.projectId = ?");
 		
-		return new HashSet(gDao.queryList(sb.toString(),new Object[]{projectId}));
+		return new HashSet(_query.queryList(sb.toString(),new Object[]{projectId}));
 		
 	}
 
-	public Set getProjectsForDataset(int datasetId) {
+	public Set getProjectsForDataset(long datasetId) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" select p from Project p ");
 		sb.append("  left outer join fetch p.datasets d ");
 		sb.append("  where d.datasetId = ?");
 		
-		return new HashSet(gDao.queryList(sb.toString(),new Object[]{datasetId}));
+		return new HashSet(_query.queryList(sb.toString(),new Object[]{datasetId}));
 	}
 
-	public Set getImagesForDataset(int datasetId) {
+	public Set getImagesForDataset(long datasetId) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" select i from Image i ");
 		sb.append("  left outer join fetch i.datasets d ");
 		sb.append("  where d.datasetId = ?");
 		
-		return new HashSet(gDao.queryList(sb.toString(),new Object[]{datasetId}));
+		return new HashSet(_query.queryList(sb.toString(),new Object[]{datasetId}));
 	}
 
 	

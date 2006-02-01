@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.api.OMEModel;
+import ome.model.IObject;
 
 /** data access object for various hierarchies of OME objects.
  * 
@@ -49,7 +49,7 @@ import ome.api.OMEModel;
  * @since 1.0
  */
 public interface ContainerDao {
-    public OMEModel loadHierarchy(final Class containerType, final int containerId, final int experimenterId, final boolean annotated);
+    public IObject loadHierarchy(final Class containerType, final int containerId, final int experimenterId, final boolean annotated);
     public List findPDIHierarchies(final Set imgIds, final int experimenterId, final boolean annotated);
     public List findCGCIHierarchies(final Set imgIds, final int experimenterId, final boolean annotated);
     public List findCGCPaths(final Set imgIds, final boolean contained);

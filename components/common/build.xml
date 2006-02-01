@@ -63,8 +63,13 @@
 			<hbm2cfgXml destdir="${hbm.dir}"/>
 		</hibernate>
 		<done name="hib"/>
+		<delete>
+			<fileset dir="${dest.dir}/jdk14" includes="**/*.java">
+				<present present="both" targetdir="${src.dir}"/>
+			</fileset>
+		</delete>
 	</target>
-	
+
     <!-- = = = = = = = = = = = = = = = = =
           misc          
          = = = = = = = = = = = = = = = = = -->

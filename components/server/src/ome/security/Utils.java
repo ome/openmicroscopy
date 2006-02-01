@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.omero.logic.util.Utils
+ * ome.security.Utils
  *
  *------------------------------------------------------------------------------
  *
@@ -32,11 +32,11 @@ package ome.security;
 //Java imports
 
 //Third-party libraries
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 //Application-internal dependencies
 
@@ -68,8 +68,8 @@ public class Utils {
     }
     
     public static void setAuth(Authentication auth){
-        SecureContext secureContext = new SecureContextImpl();
+        SecurityContext secureContext = new SecurityContextImpl();
         secureContext.setAuthentication(auth);
-        ContextHolder.setContext(secureContext);
+        SecurityContextHolder.setContext(secureContext);
     }
 }

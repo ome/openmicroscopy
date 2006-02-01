@@ -36,13 +36,13 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.PasswordAuthenticationDao;
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.jdbc.JdbcDaoImpl;
 
 //Application-internal dependencies
 
@@ -58,9 +58,9 @@ import net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl;
  * @since 1.0
  */
 
-public class AuthenticationDao extends JdbcDaoImpl implements
-		PasswordAuthenticationDao {
-
+public class AuthenticationDao extends JdbcDaoImpl 
+    //FIXME implements AuthenticationProvider Password { 
+    {
 	public UserDetails loadUserByUsernameAndPassword(String username, String password){
         
 		UserDetails user = super.loadUserByUsername(username);

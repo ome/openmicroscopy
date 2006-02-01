@@ -1,0 +1,12 @@
+<types>
+  <type id="ome.model.annotations.ImageAnnotation">
+	  <properties>
+		  <required name="image" type="ome.model.core.Image"/>
+	  </properties>
+  </type>
+  <type id="ome.model.annotations.DatasetAnnotation">
+	  <properties>
+		  <required name="dataset" type="ome.model.containers.Dataset"/>
+	  </properties>
+  </type>
+</types>

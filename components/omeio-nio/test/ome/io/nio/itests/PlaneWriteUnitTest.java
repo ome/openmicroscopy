@@ -30,7 +30,6 @@ package ome.io.nio.itests;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
 import ome.io.nio.DimensionsOutOfBoundsException;

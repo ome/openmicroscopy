@@ -29,43 +29,30 @@
 package ome.server.itests;
 
 //Java imports
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
-import ome.dao.GenericDao;
+import ome.api.IQuery;
 import ome.dao.hibernate.queries.PojosQueryBuilder;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.Project;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+import ome.model.containers.Project;
 import ome.util.builders.PojoOptions;
 
 /** 
  * tests for an up-and-coming pojos data access
- *  
+ *  TODO rename "PojosQuerySourceTest"
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -79,12 +66,7 @@ public class PojosDaoTest
             AbstractDependencyInjectionSpringContextTests {
 
     private static Log log = LogFactory.getLog(PojosDaoTest.class);
-    private GenericDao gdao;
-    
-    public void setGDao(GenericDao dao){
-    	gdao = dao;
-    }
-    
+
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
@@ -92,6 +74,8 @@ public class PojosDaoTest
 
         return ConfigHelper.getDaoConfigLocations(); 
     }
+
+    IQuery _q;
 
     Set s;
 	String q;
@@ -102,6 +86,7 @@ public class PojosDaoTest
     
     @Override
     protected void onSetUp() throws Exception {
+        _q = (IQuery) applicationContext.getBean("updateService");
         po = new PojoOptions().exp(1);
     	ids = new HashSet<Integer>(Arrays.asList(new Integer[]{1,2,3,4,5,6,250,253,249,258}));
     	m = new HashMap();
@@ -215,7 +200,7 @@ public class PojosDaoTest
     
     private void go(){
     	log.info(String.format("%n1)NAME: %s%n2)QUERY: %s",n,q));
-    	s = new HashSet(gdao.queryListMap(q,m));
+    	s = new HashSet(_q.queryListMap(q,m));
     	log.info(String.format("%n3)RESULT: %s",s));
     }
     

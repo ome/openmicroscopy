@@ -1,5 +1,5 @@
 /*
- * ome.aop.DaoCleanUpHibernate
+ * ome.aop.ExceptionHandler
  *
  *------------------------------------------------------------------------------
  *

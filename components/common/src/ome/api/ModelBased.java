@@ -34,6 +34,7 @@ package ome.api;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
 import ome.util.ModelMapper;
 
 /** 
@@ -46,6 +47,6 @@ import ome.util.ModelMapper;
  * @since 1.0
  */
 public interface ModelBased  {
-	public void copy(OMEModel model, ModelMapper mapper);
-	// TODO public OMEModel fill(OMEModel model, ModelMapper mapper);
+	public void copy(IObject model, ModelMapper mapper);
+	// TODO public IObject fill(IObject model, ModelMapper mapper);
 }

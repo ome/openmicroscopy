@@ -1,12 +1,25 @@
-insert into experimenter (id,version,omename,firstname,lastname) values (0,0,'root','root','root');
-insert into event (id,version,name) values (0,0,'Initialization');
+begin;
+set constraints all deferred;
+
+insert into experimenter (id,version,omename,firstname,lastname)
+	values (0,0,'root','root','root');
+insert into event (id,version,time) values (0,0,now());
+insert into eventtype (id,owner,creationevent,value) values
+	(0,0,0,'Bootstrap');
+update event set type = 0;
+	
+##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
+##  as name, next from (select nextval('seq_event') as next) as nv;
 
 ## ENUMS
 #foreach($enum in $types)
 #foreach($prop in $enum.properties)
 #set($table = ${enum.typeToColumn($enum.id)} )
 #if($prop.class.name == "ome.dsl.EntryField")
-insert into $table (id,version,owner,creationevent,value) select nextval('seq_$table'),0,0,id,'$prop.name' from event where name = 'Initialization' ;
+insert into $table (id,owner,creationevent,value)
+	select nextval('seq_$table'),0,0,'$prop.name';
 #end
 #end
 #end
+
+commit;

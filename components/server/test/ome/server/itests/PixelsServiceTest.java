@@ -39,9 +39,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
-import ome.api.Pixels;
-import ome.model.ImagePixel;
-import ome.model.RenderingSetting;
+import ome.api.IPixels;
+import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
 
 /** 
  * 
@@ -59,7 +59,7 @@ public class PixelsServiceTest
 
     private static Log log = LogFactory.getLog(PixelsServiceTest.class);
 
-    private Pixels pix;
+    private IPixels pix;
     
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
@@ -72,17 +72,17 @@ public class PixelsServiceTest
     protected void onSetUp() throws Exception {
     	super.onSetUp();
     	ome.security.Utils.setUserAuth();
-    	pix = (Pixels) applicationContext.getBean("pixelsService");
+    	pix = (IPixels) applicationContext.getBean("pixelsService");
     }
     
     public void testPix(){
-    	ImagePixel p = pix.retrievePixDescription(5);
+    	Pixels p = pix.retrievePixDescription(5);
     	assertNotNull(p);
     	log.info(p);
     }
     
     public void test1() {
-    	RenderingSetting r = pix.retrieveRndSettings(5);
+    	RenderingDef r = pix.retrieveRndSettings(5);
     	assertNotNull(r);
     	log.info(r);
     }

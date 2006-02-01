@@ -32,12 +32,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.Project;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.model.containers.CategoryImageLink;
+import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
+import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Image;
+import ome.model.containers.Project;
 
 //Java imports
 
@@ -52,30 +55,39 @@ public class HierarchyTransformations {
         Iterator i = imagesAll.iterator();
         while (i.hasNext()) {
             Image img = (Image) i.next();
-            Set datasets = img.getDatasets();
+            Set datasets = img.getDatasetLinks();
 
             if (datasets == null || datasets.size() < 1) {
                 hierarchies.add(img);
             } else {
                 Iterator d = datasets.iterator();
                 while (d.hasNext()) {
-                    Dataset ds = (Dataset) d.next();
+                    DatasetImageLink dil = (DatasetImageLink) d.next();
+                    Dataset ds = dil.getDataset();
 
-                    if (!(ds.getImages() instanceof HashSet))
-                        ds.setImages(new HashSet());
-                    ds.getImages().add(img);
+                    if (!(ds.getImageLinks() instanceof HashSet))
+                        ds.setImageLinks(new HashSet());
+                    DatasetImageLink idl = new DatasetImageLink();
+                    idl.setImage(img);
+                    idl.setDataset(ds);
+                    ds.getImageLinks().add(idl); // TODO addXXX meth.
 
-                    Set projects = ds.getProjects();
+                    Set projects = ds.getProjectLinks();
                     if (projects == null || projects.size() < 1) {
                         hierarchies.add(ds);
                     } else {
                         Iterator p = projects.iterator();
                         while (p.hasNext()) {
-                            Project prj = (Project) p.next();
+                            ProjectDatasetLink pdl = 
+                                (ProjectDatasetLink) p.next();
+                            Project prj = pdl.getProject();
 
-                            if (!(prj.getDatasets() instanceof HashSet))
-                                prj.setDatasets(new HashSet());
-                            prj.getDatasets().add(ds);
+                            if (!(prj.getDatasetLinks() instanceof HashSet))
+                                prj.setDatasetLinks(new HashSet());
+                            ProjectDatasetLink dpl = new ProjectDatasetLink();
+                            dpl.setDataset(ds);
+                            dpl.setProject(prj);
+                            prj.getDatasetLinks().add(dpl); // TODO addXXX meth
 
                             hierarchies.add(prj);
                         }
@@ -93,33 +105,41 @@ public class HierarchyTransformations {
         Iterator i = imagesAll.iterator();
         while (i.hasNext()) {
             Image img = (Image) i.next();
-            Set classifications = img.getClassifications();
+            Set categories = img.getCategoryLinks();
 
-            if (classifications == null || classifications.size() < 1) {
+            if (categories == null || categories.size() < 1) {
                 hierarchies.add(img);
             } else {
-                Iterator c = classifications.iterator();
+                Iterator c = categories.iterator();
                 while (c.hasNext()) {
-                    Classification cla = (Classification) c.next();
+                    CategoryImageLink cil = (CategoryImageLink) c.next();
+                    Category ca = cil.getCategory();
 
-                    cla.setImage(img);
-
-                    Category ca = cla.getCategory();
-                    if (null == ca) {
-                        hierarchies.add(cla);
+                    if (!(ca.getImageLinks() instanceof HashSet))
+                        ca.setImageLinks(new HashSet());
+                    CategoryImageLink icl = new CategoryImageLink();
+                    icl.setCategory(ca);
+                    icl.setImage(img);
+                    ca.getImageLinks().add(icl);
+                    
+                    Set cgroups = ca.getCategoryGroupLinks();
+                    if (cgroups == null || cgroups.size() < 1) {
+                        hierarchies.add(ca);
                     } else {
-                        if (!(ca.getClassifications() instanceof HashSet))
-                            ca.setClassifications(new HashSet());
-                        ca.getClassifications().add(cla);
-                        
-                        CategoryGroup cg = ca.getCategoryGroup();
-                        if (cg == null) {
-                            hierarchies.add(ca);
-                        } else {
-                            if (!(cg.getCategories() instanceof HashSet))
-                                cg.setCategories(new HashSet());
-                            cg.getCategories().add(ca);
-                            hierarchies.add(cg);
+                        Iterator g = cgroups.iterator();
+                        while (g.hasNext()){
+                            CategoryGroupCategoryLink cgcl =
+                                (CategoryGroupCategoryLink) g.next();
+                            CategoryGroup cg = cgcl.getCategorygroup();
+                            
+                            if (!(cg.getCategoryLinks() instanceof HashSet))
+                                cg.setCategoryLinks(new HashSet());
+                            CategoryGroupCategoryLink ccgl =
+                                new CategoryGroupCategoryLink();
+                            ccgl.setCategory(ca);
+                            ccgl.setCategorygroup(cg);
+                            cg.getCategoryLinks().add(ccgl);
+                            
                         }
                     }
                 }

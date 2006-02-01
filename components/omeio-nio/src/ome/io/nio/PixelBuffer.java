@@ -40,7 +40,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
 
 
 /**

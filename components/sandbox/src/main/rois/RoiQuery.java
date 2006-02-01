@@ -3,8 +3,10 @@ package main.rois;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -28,83 +30,47 @@ import ome.model.roi.RoiMap;
 import ome.model.roi.RoiSet;
 
 import sun.security.krb5.internal.crypto.h;
+import utils.OmeroSupport;
 
-public class RoiQuery
+public class RoiQuery extends OmeroSupport
 {
-
-    private ApplicationContext ctx;
-
-    private HibernateTemplate  ht;
-
-    private JdbcTemplate       jt;
 
     public static void main(final String[] args) throws Exception
     {
         new RoiQuery().run();
     }
 
-    public RoiQuery() throws Exception
-    {
-
-        String[] paths = new String[] { "config.xml", "data.xml",
-                "hibernate.xml" };
-        ctx = new ClassPathXmlApplicationContext(paths);
-
-        ht = (HibernateTemplate) ctx.getBean("hibernateTemplate");
-
-        jt = (JdbcTemplate) ctx.getBean("jdbcTemplate");
-
-    }
-
     public void run()
     {
 
-        ht.execute(new HibernateCallback()
-        {
+        String q;
+        Map params = new HashMap();
+        List l;
 
-            public Object doInHibernate(org.hibernate.Session session)
-                    throws org.hibernate.HibernateException,
-                    java.sql.SQLException
-            {
-                Query q;
-                List l;
+        /*
+         * For the biggest roiset, get a list of all pixels that are attached.
+         */
+        q = " select p from RoiSet s " + " left outer join s.roiMaps m "
+                + " left outer join m.roi5d r "
+                + " left outer join r.pixels p " + " where s.id = :id ";
 
-                /*
-                 * For the biggest roiset, get a list of all pixels 
-                 * that are attached.
-                 */
-                q = session
-                        .createQuery(" select p from RoiSet s "
-                                + " left outer join s.roiMaps m "
-                                + " left outer join m.roi5d r "
-                                + " left outer join r.pixels p "
-                                + " where s.id = :id ");
-                q.setInteger("id", getSetWithMostMaps());
+        params.put("id", new Integer(getSetWithMostMaps()));
 
-                l = q.list();
-                System.out.println("Pixels count:" + l.size());
+        l = _q.queryListMap(q, params);
+        System.out.println("Pixels count:" + l.size());
 
-                /*
-                 * For some pixel in that list, find all roisets
-                 * that contain it.
-                 */
-                int which = new Random().nextInt(l.size());
-                int id = ((Pixels)l.get(which)).getId().intValue();
-                q = session
-                        .createQuery(" select s from RoiSet s "
-                                + " left outer join s.roiMaps m "
-                                + " left outer join m.roi5d r "
-                                + " left outer join r.pixels p "
-                                + " where p.id = :id ");
-                q.setInteger("id", id);
+        /*
+         * For some pixel in that list, find all roisets that contain it.
+         */
+        int which = new Random().nextInt(l.size());
+        int id = ((Pixels) l.get(which)).getId().intValue();
+        q = " select s from RoiSet s " + " left outer join s.roiMaps m "
+                + " left outer join m.roi5d r "
+                + " left outer join r.pixels p " + " where p.id = :id ";
+        params.put("id", new Integer(id));
 
-                l = q.list();
-                System.out.println("Set count:" + l.size());
-
-                return null;
-
-            };
-        });
+        l = _q.queryListMap(q, params);
+        System.out.println("Set count:" + l.size());
 
     }
 

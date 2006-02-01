@@ -285,6 +285,7 @@ class EnumType extends SemanticType {
         props.setProperty("type","string");
         RequiredField value = new RequiredField(props);
         getProperties().add(value);
+        setImmutable(Boolean.TRUE);
     }
 	
 //  TODO: only value? at least value? 

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<configs>
-		<config>resources/data.xml</config>
-		<config>resources/hibernate.xml</config>
-		<config>resources/config.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

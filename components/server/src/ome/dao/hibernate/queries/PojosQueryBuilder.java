@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.registry.infomodel.Classification;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -49,9 +51,13 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.Project;
+import ome.model.containers.Dataset;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Category;
+import ome.model.core.Image;
 import ome.tools.StringUtils;
 import ome.util.builders.PojoOptions;
 

@@ -21,20 +21,93 @@
       <artifactId>hibernate</artifactId>
       <version>3.0.5</version>
     </dependency>
+    <dependency> 
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.2.1</version>
+    </dependency>      
     <dependency>
       <groupId>omero</groupId>
       <artifactId>postgresql</artifactId>
       <version>7.4.1-jdbc3</version>
     </dependency>
+    
+    <!-- FROM project.xml -->
+    <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+      <version>1.0.0-RC1</version>
+    </dependency>
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>1.4-rc4</version>
+    </dependency>
+    <dependency>
+      <groupId>drools</groupId>
+      <artifactId>drools-all-jdk5</artifactId>
+      <version>2.5-beta-2</version>
+    </dependency>
+   <dependency>
+      <groupId>lucene</groupId>
+      <artifactId>lucene</artifactId>
+      <version>1.4.3</version>
+    </dependency>
+   <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.4</version>
+    </dependency>
+   <dependency>
+      <groupId>dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <version>2.1</version>
+      <scope>test</scope>
+    </dependency>
+   <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>1.0.1</version>
+      <scope>test</scope>
+    </dependency>
+<!-- BROKEN
+    <dependency>
+      <groupId>activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+      <version>3.2.1</version>
+    </dependency>
+   <dependency>
+      <groupId>dwr</groupId>
+      <artifactId>dwr</artifactId>
+      <version>1.0rc1</version>
+      <scope>test</scope>
+    </dependency>
+-->
+  <!-- FOR INTERNAL COMPILATION -->
+  <dependency>
+      <groupId>eclipse</groupId>
+      <artifactId>jdtcore</artifactId>
+      <version>3.1.0</version>
+  </dependency>
+  <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant-launcher</artifactId>
+      <version>1.6.5</version>
+  </dependency>
   </dependencies>
   <build>
-    <sourceDirectory>_src</sourceDirectory>
-    <testSourceDirectory>_test</testSourceDirectory>
-    <resources>
-      <resource><directory>resources</directory></resource>
-    </resources>
-    <testResources>
-      <testResource><directory>test-resources</directory></testResource>
-    </testResources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>5</source>
+          <target>5</target>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>

@@ -1,0 +1,76 @@
+<types>
+<!--
+  <abstract id="ome.model.containers.AbstractContainer">
+    <properties>
+      <required name="name" type="string"/>
+      <optional name="description" type="string"/>
+      <zeromany name="parents" type="ome.model.containers.ContainerLink"/>
+    </properties>
+  </abstract>
+
+  <abstract id="ome.model.containers.NodeContainer">
+    <properties>
+      <zeromany name="children" type="ome.model.containers.ContainerLink"/>
+    </properties>
+  </abstract>
+
+  <abstract id="ome.model.containers.LeafContainer">
+    <properties>
+      <zeromany name="children" type="ome.model.containers.ImageLink"/>
+    </properties>
+  </abstract>
+  
+  <link id="ome.model.containers.ContainerLink"
+    to="ome.model.containers.AbstractContainer"
+    from="ome.model.containers.AbstractContainer"/>
+
+  <link id="ome.model.containers.ImageLink"
+    to="ome.model.core.Image"
+    from="ome.model.containers.LeafContainer"/>
+
+  <type id="ome.model.containers.Dataset"
+    superclass="ome.model.containers.LeafContainer"/>
+
+  <type id="ome.model.containers.Project"
+    superclass="ome.model.containers.NodeContainer"/>
+-->
+  <!-- PDI -->
+  <type id="ome.model.containers.Project">
+	  <properties>
+		  <zeromany name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"/>
+	  </properties>
+  </type>
+  <type id="ome.model.containers.Dataset">
+	  <properties>
+		  <zeromany name="projectLinks" type="ome.model.containers.ProjectDatasetLink"/>
+		  <zeromany name="imageLinks" type="ome.model.containers.DatasetImageLink"/>		  
+		  <zeromany name="annotations" type="ome.model.annotations.DatasetAnnotation"/>
+	  </properties>
+  </type>
+  <link id="ome.model.containers.ProjectDatasetLink"
+	  	from="ome.model.containers.Project"
+	  	to="ome.model.containers.Dataset"/>
+  <link id="ome.model.containers.DatasetImageLink"
+	  	from="ome.model.containers.Dataset"
+	  	to="ome.model.core.Image"/>	
+
+  <!-- CGCI -->
+  <type id="ome.model.containers.CategoryGroup">
+	  <properties>
+		  <zeromany name="categoryLinks" type="ome.model.containers.CategoryGroupCategoryLink"/>
+	  </properties>
+  </type>
+  <type id="ome.model.containers.Category">
+	  <properties>
+		  <zeromany name="categoryGroupLinks" type="ome.model.containers.CategoryGroupCategoryLink"/>
+		  <zeromany name="imageLinks" type="ome.model.containers.CategoryImageLink"/>		  
+	  </properties>
+  </type>
+  <link id="ome.model.containers.CategoryGroupCategoryLink"
+	  	from="ome.model.containers.CategoryGroup"
+	  	to="ome.model.containers.Category"/>
+  <link id="ome.model.containers.CategoryImageLink"
+	  	from="ome.model.containers.Category"
+	  	to="ome.model.core.Image"/>	
+
+</types>

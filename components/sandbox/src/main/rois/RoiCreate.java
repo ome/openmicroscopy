@@ -1,7 +1,9 @@
 package main.rois;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.context.ApplicationContext;
@@ -17,12 +19,10 @@ import ome.model.roi.RoiExtent;
 import ome.model.roi.RoiMap;
 import ome.model.roi.RoiSet;
 
-public class RoiCreate
+import utils.OmeroSupport;
+
+public class RoiCreate extends OmeroSupport
 {
-
-    private ApplicationContext ctx;
-
-    private HibernateTemplate  ht;
 
     public static void main(final String[] args) throws Exception
     {
@@ -31,72 +31,35 @@ public class RoiCreate
 
     public RoiCreate() throws Exception
     {
+        super();
 
-        String[] paths = new String[] { "config.xml", "data.xml",
-                "hibernate.xml" };
-        ctx = new ClassPathXmlApplicationContext(paths);
-
-        ht = (HibernateTemplate) ctx.getBean("hibernateTemplate");
-
-        ht.execute(new HibernateCallback()
+        // Create lots of sets
+        for (int i = 0; i < 10; i++)
         {
+            RoiSet s = createSet();
 
-            public Object doInHibernate(org.hibernate.Session session)
-                    throws org.hibernate.HibernateException,
-                    java.sql.SQLException
+            // for each set make lots of images with a single roi5d
+            for (int j = 0; j < 10; j++)
             {
+                Pixels p = createPixels();
+                RoiMap m = createMap();
+                Roi5D r = createRoi();
+                RoiExtent re = createExtent();
 
-                Experimenter o = (Experimenter) session.get(Experimenter.class,
-                        new Integer(1));
-                if (o == null)
-                {
-                    o = new Experimenter();
-                    o.setOmeName("test");
-                    session.save(o);
-                }
+                // Linking
+                link(p, s, m, r, re);
 
-                Event e = (Event) session.get(Event.class, new Integer(1));
-                if (e == null)
-                {
-                    e = new Event();
-                    e.setName("test");
-                    session.save(e);
-                }
+            }
 
-                // Create lots of sets
-                for (int i = 0; i < 1000; i++)
-                {
-                    RoiSet s = createSet(o, e);
-
-                    // for each set make lots of images with a single roi5d
-                    for (int j = 0; j < 1000; j++)
-                    {
-                        Pixels p = createPixels(o, e);
-                        RoiMap m = createMap(o, e);
-                        Roi5D r = createRoi(o, e);
-                        RoiExtent re = createExtent(o, e);
-
-                        // Linking
-                        link(session, p, s, m, r, re);
-
-                    }
-                    
-                    session.flush();                    
-                
-                }
-
-                return null;
-
-            };
-        });
+            _u.saveObject(s);
+            
+        }
 
     }
 
-    private RoiExtent createExtent(Experimenter o, Event e)
+    private RoiExtent createExtent()
     {
         RoiExtent re = new RoiExtent();
-        re.setCreationEvent(e);
-        re.setOwner(o);
         re.setCindexMax(new Integer(5));
         re.setCindexMin(new Integer(1));
         re.setTindexMax(new Integer(10));
@@ -106,46 +69,37 @@ public class RoiCreate
         return re;
     }
 
-    private Pixels createPixels(Experimenter o, Event e)
+    private Pixels createPixels()
     {
         Pixels p = new Pixels();
-        p.setCreationEvent(e);
-        p.setOwner(o);
-        p.setBigEndian(Boolean.TRUE);
         p.setSizeX(new Integer(64));
         p.setSizeY(new Integer(64));
         p.setSizeZ(new Integer(10));
         p.setSizeC(new Integer(3));
         p.setSizeT(new Integer(100));
+        p.setSha1("This is a test");
         return p;
     }
 
-    private RoiSet createSet(Experimenter o, Event e)
+    private RoiSet createSet()
     {
         RoiSet s = new RoiSet();
-        s.setCreationEvent(e);
-        s.setOwner(o);
         return s;
     }
 
-    private RoiMap createMap(Experimenter o, Event e)
+    private RoiMap createMap()
     {
         RoiMap m = new RoiMap();
-        m.setCreationEvent(e);
-        m.setOwner(o);
         return m;
     }
 
-    private Roi5D createRoi(Experimenter o, Event e)
+    private Roi5D createRoi()
     {
         Roi5D r = new Roi5D();
-        r.setCreationEvent(e);
-        r.setOwner(o);
         return r;
     }
 
-    private void link(org.hibernate.Session session, Pixels p, RoiSet s,
-            RoiMap m, Roi5D r, RoiExtent re)
+    private void link(Pixels p, RoiSet s, RoiMap m, Roi5D r, RoiExtent re)
     {
         // ROI
         r.setPixels(p);
@@ -159,12 +113,6 @@ public class RoiCreate
         // SET
         if (null == s.getRoiMaps()) s.setRoiMaps(new HashSet());
         s.getRoiMaps().add(m);
-
-        session.save(s);
-        session.save(m);
-        session.save(p);
-        session.save(r);
-        session.save(re);
 
     }
 

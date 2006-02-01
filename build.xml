@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="main" default="help" basedir=".">
+    
+	<!-- DOCUMENTATION:
+	     =================================================
+
+		ASSUMPTIONS:
+		To use this script you must have minimally acquired
+		the source code (either from subversion or as
+		distribution) and have installed ant. 
+
+	-->
+
+	<import file="components/antlib/resources/build.xml"/>
+
+	<target name="help" depends="msg"
+		description="Usage information">
+		<echo>
+			${msg.main.help}
+		</echo>
+	</target>
+
+	<!-- 	===============================================
+		CHECK SYSTEM 
+	==================================================  -->
+	<target name="check-system" 
+		depends="check-java5,check-maven,check-jboss,check-htools"
+		description="Verifies that system is ready to build">
+
+		<echo>
+${msg.check.report}
+1) Java5: ${check-java5-value}
+2) Maven: ${check-maven-value}
+3) JBoss: ${check-jboss-value}
+4) HTool: ${check-htool-value}
+
+		</echo>
+
+		<fail message="Check failed. See report.">
+			<condition><or>
+				<not><length string="${check-java5-value}" length="3"/></not>
+				<not><length string="${check-maven-value}" length="3"/></not>
+				<not><length string="${check-jboss-value}" length="3"/></not>
+				<not><length string="${check-htool-value}" length="3"/></not>
+			</or></condition>
+		</fail>
+
+	</target>
+
+	<target name="check-java5" depends="msg">
+		<sys_test name="java5">
+			<not>
+			<equals arg1="${ant.java.version}" arg2="1.5"/>
+			</not>
+		</sys_test>
+	</target>
+
+	<target name="check-maven" depends="msg">
+		<sys_test name="maven">
+		<not><or>
+			<available filepath="${env.PATH}" file="mvn" />
+			<available filepath="${env.PATH}" file="mvn.bat" />
+		</or></not>
+		</sys_test>
+	</target>
+
+	<target name="check-jboss" depends="msg">
+		<sys_test name="jboss">
+			<not>
+			<isset property="env.JBOSS_HOME"/>
+			</not>
+		</sys_test>
+	</target>
+	
+	<target name="check-htools" depends="msg">
+		<sys_test name="htool">
+			<not>
+			<available file="${basedir}/lib/htool"/>
+			</not>
+		</sys_test>
+	</target>
+	
+	<!-- 	===============================================
+		SETUP
+	==================================================  -->
+	<target name="setup" 
+		depends="warning,copy-examples,prompt-for-config"
+		description="Prepares code base for compilation"/>
+		
+	<target name="warning" depends="msg">
+		<input
+			message="${msg.setup.warning}"
+			validargs="y,n"
+			addproperty="do.abort"/>
+
+  		<fail>
+			<condition>
+				<equals arg1="y" arg2="${do.abort}"/>
+			</condition>
+			${msg.setup.aborted}
+		</fail>
+	</target>
+
+	<target name="checkout-omero">
+		<svn command="co ${subversion.url}"/>
+	</target>
+
+	<target name="update-omero">
+		<svn command="up"/>
+	</target>
+
+	<target name="checkout-htool">
+		<svn command="co http://cvs.openmicroscopy.org.uk/lib/htool lib/htool"/>
+	</target>
+
+	<target name="database-exists">
+		<sql_run>
+			<transaction> select 'database exists.' </transaction>
+		</sql_run>
+	</target>
+
+	<target name="copy-examples">
+		<copy todir="${basedir}" verbose="true">
+			<fileset dir="${basedir}/docs/examples/" includes="*.properties.examples"/>
+			<globmapper from="*.properties.examples" to="*.properties"/>
+		</copy>
+	</target>
+
+	<target name="prompt-for-config" depends="msg">
+		<input>
+			${msg.setup.prompt}
+		</input>
+	</target>
+
+	<!-- 	===============================================
+		BUILD
+	==================================================  -->
+	<target name="fullbuild" depends="clean,build,reload-db"/>
+
+	<target name="build" depends="install-dsl,install-all"/>
+
+	<target name="clean">
+		<mvn targets="clean"/>
+	</target>
+
+	<target name="install-dsl">
+		<mvn dir="components/dsl" targets="install"/>	
+	</target>
+
+	<target name="install-model" depends="install-dsl">
+		<mvn dir="components/common" targets="clean install"/>
+	</target>
+
+	<target name="install-ear">
+		<mvn dir="components/omero-ejb" targets="install"/>
+		<mvn dir="components/omero-app" targets="install"/>
+		<antcall target="deploy-ear-jboss"/>
+	</target>
+
+	<target name="install-all">
+		<mvn dir="components/common" targets="install"/>	
+		<mvn dir="components/omeio-nio" targets="install"/>	
+		<mvn dir="components/resurrect" targets="install"/>	
+		<mvn dir="components/server" targets="install"/>	
+		<!-- TODO mvn targets="install"/ -->
+	</target>
+
+	<target name="reload-db"><!-- TODO move this to common and on creation pow -->
+		<property name="ddl.dir" value="components/common/target/generated-sources"/>
+		<sql_run>
+  			<transaction src="${ddl.dir}/ddl.sql"/>
+  			<transaction src="${ddl.dir}/data.sql"/>
+		</sql_run>
+	</target>
+
+	<!-- 	===============================================
+		APPLICATION SERVER (AS) 
+	==================================================  -->
+	<target name="deploy-ear-jboss">
+		<ant dir="${basedir}/components/omero-app" target="deploy"/>
+	</target>
+
+	<target name="undeploy-ear-jboss">
+		<ant dir="${basedir}/components/omero-app" target="undeploy"/>
+	</target>
+
+	<target name="start-as-jboss">
+		<exec executable="${env.JBOSS_HOME}/bin/run.sh"/>
+	</target>
+
+	<target name="stop-as-jboss">
+		<exec executable="${env.JBOSS_HOME}/bin/shutdown.sh">
+			<arg value="-S"/>
+		</exec>
+	</target>
+
+	<target name="fake.local.classpath">
+		<path id="local.classpath">
+			<pathelement location="/home/josh/.m2/repository/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
+		</path>
+	</target>
+
+	<target name="wait-on-as-jboss" 
+		depends="fake.local.classpath,loadGroovy"
+		description="Tries to contact JBoss with increasing intervals">
+		<groovy>
+			jboss_home = properties["env.JBOSS_HOME"]
+			status = ["${jboss_home}/bin/twiddle.sh","serverinfo","-l"]
+			int ret = -1;
+			[0,1,2,4,8,16].each { |i|
+			  if (ret != 0) {
+			    println "Waiting on JBoss..."
+			    Thread.currentThread().sleep(i*1000)
+			    p = status.execute()
+			    p.waitFor()
+			    ret = p.exitValue()
+			  }
+			}
+		</groovy>
+	</target>
+
+</project>

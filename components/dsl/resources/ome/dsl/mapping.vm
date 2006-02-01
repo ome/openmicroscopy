@@ -1,20 +1,29 @@
+## SETUP
+#set($table = ${type.typeToColumn($type.id)} )
+#set($cascade_settings = "persist,merge,replicate,refresh,save-update")
+##
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
     
 <hibernate-mapping>
-#set($table = ${type.typeToColumn($type.id)} )
-#set($cascade_settings = "persist,merge,replicate,refresh,save-update")
-<class 
+#if($type.superclass)<subclass
+#else<class
+#end
     name="${type.id}" 
     table="${table}"
-	abstract="$type.abstract">
-#*	
+    abstract="$type.abstract"
+    #if($type.superclass)extends="$type.superclass"#end
+    >
+
 #if($type.abstract)
 	<meta attribute="scope-class" inherit="false">public abstract</meta>
 #end
-*#
+	<meta attribute="implements">ome.model.IObject</meta>
+#if(!$type.immutable)
+	<meta attribute="implements">ome.model.IMutable</meta>
+#end
 	<meta attribute="implement-equals" inherit="false">true</meta>
 
 	
@@ -29,29 +38,42 @@
 	</id>
 
 #if(!$type.immutable)
-	<version name="version" type="java.lang.Integer" column="version" unsaved-value="negative"/>
-	<many-to-one name="updateEvent" class="ome.model.meta.Event" not-null="false"/>	
+	<version name="version" type="java.lang.Integer" 
+		column="version" unsaved-value="negative"/>
 #end
 
 #if(!$type.global)	
-	<many-to-one name="creationEvent" class="ome.model.meta.Event" not-null="true" cascade="$cascade_settings"/>		
-	<many-to-one name="owner" class="ome.model.meta.Experimenter" not-null="true" cascade="$cascade_settings"/>
-	<component name="permissions" class="ome.model.internal.Permissions">
+	<component name="details" class="ome.model.internal.Details">
+	  <many-to-one name="owner" class="ome.model.meta.Experimenter" 
+	  	not-null="true" cascade="$cascade_settings"/>
+	  <many-to-one name="creationEvent" class="ome.model.meta.Event" 
+	  	not-null="true" cascade="$cascade_settings"/>		
+#if(!$type.immutable)
+	  <many-to-one name="updateEvent" class="ome.model.meta.Event" 
+	  	not-null="false"/>	
+#end
+#else
+	<component name="details" class="ome.model.internal.Details"> ## FIXME
+#end
+	  <component name="permissions" class="ome.model.internal.Permissions">
 		<property name="bytes" type="binary" column="permissions"/> 
 		<!-- TODO possibly just default CHMOD here -->
+	  </component>
 	</component>
-#end
+
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 INTERFACE-BASED
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 #if($type.named)
-	<property name="name" type="java.lang.String" column="name" not-null="true" length="256"/>
+	<property name="name" type="java.lang.String" 
+		column="name" not-null="true" unique="true" length="256"/>
 #end
 
 #if($type.described)
-	<property name="description" type="java.lang.String" column="description" length="256"/>
+	<property name="description" type="java.lang.String" 
+		column="description" length="256"/>
 #end
 	
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,14 +117,17 @@
         name="${prop.name}"
         class="${prop.type}"
         not-null="${prop.required}"
-		unique="${prop.unique}"
-		update="${prop.mutable}">
+	unique="${prop.unique}"
+	update="${prop.mutable}"
+	cascade="$cascade_settings">
         <column name="${prop.name}" />
     </many-to-one>
 
 #else
 
-	<property name="${prop.name}" type="${prop.type}" not-null="${prop.required}" unique="${prop.unique}" update="${prop.mutable}"/>
+	<property name="${prop.name}" type="${prop.type}" 
+		not-null="${prop.required}" unique="${prop.unique}" 
+		update="${prop.mutable}"/>
 
 #end
 #end

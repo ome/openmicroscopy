@@ -1,0 +1,75 @@
+/*
+ * ome.logic.AbstractLevel1Service
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+/*------------------------------------------------------------------------------
+ *
+ * Written by:    Josh Moore <josh.moore@gmx.de>
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package ome.logic;
+
+//Java imports
+
+//Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+//Application-internal dependencies
+
+
+
+/**
+ * service level 1
+ * 
+ * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0
+ * <small>
+ * (<b>Internal version:</b> $Rev$ $Date$)
+ * </small>
+ * @since OMERO 3.0
+ */
+public class AbstractLevel1Service extends HibernateDaoSupport 
+    implements ApplicationContextAware {
+
+    private static Log log = LogFactory.getLog(AbstractLevel1Service.class);
+    
+    protected ApplicationContext ctx;
+
+    public void setApplicationContext(ApplicationContext appCtx) throws BeansException
+    {
+        this.ctx = appCtx;
+    }
+}
+

@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>omero</groupId>
+    <artifactId>main</artifactId>
+    <version>3.0-alpha-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>web</artifactId>
+  <packaging>war</packaging>
+  <name>Omero - Web Component
+  <dependencies>
+    <dependency>
+      <!-- Provides extended build functionality -->
+      <groupId>omero</groupId>
+      <artifactId>antlib</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
+      <groupId>omero</groupId>
+      <artifactId>common</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <!-- Uses antlib above -->
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

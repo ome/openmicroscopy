@@ -58,7 +58,6 @@ public class Helper
         }
 
         String type = pixels.getPixelsType().getValue();
-        boolean bigEndian = pixels.getBigEndian().booleanValue();
 
         // BytesConverter strategy = BytesConverter.makeNew(
         // pixFileHeader.pixelType,
@@ -91,9 +90,9 @@ public class Helper
         int z_size = metadata.getSizeZ().intValue();
         
         QuantumDef qDef = new QuantumDef();
-        qDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
-        qDef.setCdStart(0);
-        qDef.setCdStop(QuantumFactory.DEPTH_8BIT);
+        qDef.setBitResolution(new Integer(QuantumFactory.DEPTH_8BIT));
+        qDef.setCdStart(new Integer(0));
+        qDef.setCdStop(new Integer(QuantumFactory.DEPTH_8BIT));
         
         ChannelBindings[] waves = new ChannelBindings[c_size];
         PixTStatsEntry wGlobal;
@@ -107,7 +106,8 @@ public class Helper
             pixData = (Channel) map.get(new Integer(w));
             wGlobal = stats.getGlobalEntry(w);
             if (pixData == null) rgb = ColorsFactory.getColor(w, -1);
-            else  rgb = ColorsFactory.getColor(w, pixData.getLogicalChannel().getEmissionWave());
+            else  rgb = ColorsFactory.getColor(w, 
+                    pixData.getLogicalChannel().getEmissionWave().intValue());
             if (pixData != null && 
                     metadata.getAcquisitionContext().getPhotometricInterpretation().getValue() == "RGB") { 
             	// FIXME this should be linked to the ModelType of RenderingDefConstant somehow

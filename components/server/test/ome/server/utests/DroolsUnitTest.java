@@ -38,13 +38,12 @@ import org.drools.spi.ConsequenceException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Experimenter;
-import ome.model.Image;
-import ome.model.ModuleExecution;
-import ome.model.Project;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.model.meta.Event;
+import ome.model.meta.Experimenter;
 import ome.rules.RulesEngine;
 
 /**
@@ -86,13 +85,12 @@ public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTest
 	public void testWithGraph() throws Exception {
 		Project p = new Project();
 		Experimenter e = new Experimenter();
-		ModuleExecution mex = new ModuleExecution();
+		Event ev = new Event();
 		Date d = new Date(System.currentTimeMillis());
 		String description = "blah blah";
-		p.setExperimenter(e);
-		p.setDescription(description);
-		e.setModuleExecution(mex);
-		mex.setTimestamp(d);
+		p.getDetails().setOwner(e);
+		e.getDetails().setCreationEvent(ev);
+		// TODO ev.setTime
 		
 		re.evaluate(p);
 		
@@ -107,33 +105,12 @@ public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTest
 		CategoryGroup cg = new CategoryGroup();
 		Category c1 = new Category();
 		Category c2 = new Category();
-		Classification cla1 = new Classification();
-		Classification cla2 = new Classification();
 		Image i = new Image();
-		
-		cla1.setCategory(c1);
-		cla1.setImage(i);
-		
-		cla2.setCategory(c2);
-		cla2.setImage(i);
 
-		c1.setCategoryGroup(cg);
-		Set c1_cla = new HashSet();
-		c1_cla.add(cla1);
-		c1.setClassifications(c1_cla);
-		c2.setCategoryGroup(cg);
-		Set c2_cla = new HashSet();
-		c2_cla.add(cla2);
-		c2.setClassifications(c2_cla);
-		
-		Set s = new HashSet();
-		s.add(c1);
-		s.add(c2);
-		
-		cg.setCategories(s);
-		
+        // FIXME link them up
+        
 		try { 
-			re.evaluate(cla1);
+			re.evaluate(c1);
 			fail("Rule did not catch the error.");
 		} catch (ConsequenceException e){
 			// good.

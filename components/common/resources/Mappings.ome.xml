@@ -299,10 +299,16 @@
 			<optional name="context" type="ome.model.experiment.Experiment"/>
 			<onemany name="relatedTo" type="ome.model.core.Pixels"/>
 			<required name="active" type="ome.model.core.Pixels"/><!-- ## added -->
+			<!-- Containers -->
+			<zeromany name="categoryLinks" type="ome.model.containers.CategoryImageLink"/>
+			<zeromany name="datasetLinks" type="ome.model.containers.DatasetImageLink"/>			
+			<!-- Annotations -->
+            <zeromany name="annotations" type="ome.model.annotations.ImageAnnotation"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.Pixels">
 		<properties>
+			<manyone name="image" type="ome.model.core.Image"/>
 			<optional name="relatedTo" type="ome.model.core.Pixels"/>
 			<!-- ## seems insufficient -->
 			<required name="sizeX" type="int"/>
@@ -310,9 +316,8 @@
 			<required name="sizeZ" type="int"/>
 			<required name="sizeC" type="int"/>
 			<required name="sizeT" type="int"/>
-                        <required name="sha1" type="string"/>
+			<required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
-			<required name="bigEndian" type="boolean"/>
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>			
 			<optional name="methodology" type="string"/>
 			<optional name="acquisitionContext"

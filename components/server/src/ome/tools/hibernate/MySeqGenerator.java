@@ -1,4 +1,4 @@
-package ome.hibernate;
+package ome.tools.hibernate;
 
 import java.util.Properties;
 

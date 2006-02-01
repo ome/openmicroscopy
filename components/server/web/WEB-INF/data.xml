@@ -47,10 +47,10 @@
 	</bean>
 	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-	    <property name="driverClassName"><value>${database.driver}</value></property>
-    	<property name="url"><value>${database.url}</value></property>
-	    <property name="username"><value>${database.username}</value></property>
-	    <property name="password"><value>${database.password}</value></property>
+	    <property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
+    	<property name="url"><value>${hibernate.connection.url}</value></property>
+	    <property name="username"><value>${hibernate.connection.username}</value></property>
+	    <property name="password"><value>${hibernate.connection.password}</value></property>
 	</bean>
 
 </beans>

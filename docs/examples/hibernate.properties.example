@@ -4,3 +4,4 @@ hibernate.connection.url=jdbc\:postgresql\://localhost/omero3
 hibernate.connection.username=user
 hibernate.connection.password=secret
 hibernate.cglib.use_reflection_optimizer=false
+hibernate.show_sql=false

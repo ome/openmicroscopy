@@ -11,21 +11,6 @@ import java.util.Set;
 ###########################################################
 
 $templates.PojoTypeDeclaration 
-###########################################################
-## <CustomCode>
-###########################################################
-, ome.api.OMEModel
-#if ( $pojo.getPackageDeclaration().contains("ome.model.meta") )
-## TODO specifically defined
-## meta.java (interface)
-#elseif( $pojo.getPackageDeclaration().contains("ome.model.internal") )
-## TODO component.java
-#else
-, ome.api.NewModel 
-#end 
-###########################################################
-## </CustomCode>
-###########################################################
 {
 
 #if(!$pojo.isInterface())
@@ -77,7 +62,7 @@ $templates.PojoExtraClassCode
 	  } catch (Exception e) {
 		 $set(null);
 	  }
-// TODO catch class cast?
+## TODO catch class cast?
 	  $set(($type) filter.filter(${field.toUpperCase()},_$field)); 
 ##if( $pkg.startsWith("ome."))
 ##elseif($type.equals("Set"))

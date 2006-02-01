@@ -35,18 +35,17 @@ package ome.logic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.providers.dao.User;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.userdetails.User;
+import org.hibernate.Query;
 
 //Application-internal dependencies
-import ome.api.Pixels;
-import ome.dao.DaoFactory;
-import ome.model.Experimenter;
-import ome.model.Image;
-import ome.model.ImagePixel;
-import ome.model.RenderingSetting;
+import ome.model.meta.Experimenter;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
 
 /** 
  * 
@@ -62,46 +61,51 @@ import ome.model.RenderingSetting;
  * </small>
  * @since OME2.2
  */
-class PixelsImpl
-    implements Pixels
+class PixelsImpl extends AbstractLevel2Service
+    implements ome.api.IPixels
 {
 
 	private static Log log = LogFactory.getLog(PixelsImpl.class);
 	
-	DaoFactory daos;
-	
-	public PixelsImpl(DaoFactory factory){
-		this.daos = factory;
-	}
-	
-	public ImagePixel retrievePixDescription(int pixId) {
-		ImagePixel p = (ImagePixel) daos.generic().getById(ImagePixel.class, pixId);
+	public Pixels retrievePixDescription(long pixId) {
+		Pixels p = (Pixels) _query.getById(Pixels.class, pixId);
 		return p;
 	}
 
 	//FIXME current user!
-	public RenderingSetting retrieveRndSettings(int pixId) {
+	public RenderingDef retrieveRndSettings(long pixId) {
 
+        /* FROM earlier DAO
+        Pixels pix = (Pixels) session.load(Pixels.class,pixId);
+        Experimenter user = (Experimenter) session.load(Experimenter.class,userId);
+        
+        Query q = session.createQuery("from RenderingSetting r where r.image = :img and r.moduleExecution.experimenter = :exp");
+        q.setEntity("img",pix.getImage());
+        q.setEntity("exp",user);
+        return q.uniqueResult(); */
+        
 		// Get User Id
-		SecureContext ctx = (SecureContext) ContextHolder.getContext();
+		SecurityContext ctx = SecurityContextHolder.getContext();
 		Authentication auth = ctx.getAuthentication();
 		User u = (User) auth.getPrincipal();
-		Experimenter user = (Experimenter) daos.generic().getUniqueByFieldEq(Experimenter.class, "omeName", u.getUsername());
+		Experimenter user = (Experimenter) _query.getUniqueByFieldEq(Experimenter.class, "omeName", u.getUsername());
 		// TODO user needs to be lazy loaded and cached.
-		return daos.pixels().retrieveRndSettings(user.getAttributeId(),pixId);
+		//return daos.pixels().retrieveRndSettings(user.getId().longValue(),pixId);
+        
+        throw new UnsupportedOperationException("Doesn't work yet");
 
 	}
 
-	public void saveRndSettings(int pixId, RenderingSetting rndSettings) {
+	public void saveRndSettings(RenderingDef rndSettings) {
 		//pdao.saveRndSettings(1,pixId,rndSettings);
 		
-		RenderingSetting rnd = retrieveRndSettings(pixId);
+		// RenderingDef rnd = retrieveRndSettings(pixId);
 		
-		if (null==rnd){
-			
-		} else {
-			
-		}
+//		if (null==rnd){
+//			
+//		} else {
+//			
+//		}
 		
 		throw new UnsupportedOperationException("No writes!!!");
 		

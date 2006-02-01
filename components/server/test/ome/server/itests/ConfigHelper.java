@@ -59,7 +59,6 @@ public class ConfigHelper {
         		"WEB-INF/aop.xml",
                 "WEB-INF/services.xml",
                 "WEB-INF/security.xml",
-                "WEB-INF/dao.xml",
                 "WEB-INF/hibernate.xml",
                 "WEB-INF/dbcp.xml", 
                 "WEB-INF/config-local.xml",
@@ -70,7 +69,6 @@ public class ConfigHelper {
 
         return new String[] { 
         		"WEB-INF/aop.xml",
-                "WEB-INF/dao.xml",
                 "WEB-INF/hibernate.xml",
                 "WEB-INF/dbcp.xml", 
                 "WEB-INF/config-local.xml",
@@ -81,7 +79,6 @@ public class ConfigHelper {
 
         return new String[] { 
         		"WEB-INF/aop.xml",
-                "WEB-INF/dao.xml",
                 "WEB-INF/hibernate.xml",
                 "WEB-INF/test/dbcp.xml", 
                 "WEB-INF/config-local.xml",

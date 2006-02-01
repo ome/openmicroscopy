@@ -34,69 +34,85 @@
 
 <!--
 
-	Configuration of top-level services.
+	Configuration for services.
 	TODO add log4j configuration (e.g. update intervals)
  
 -->
 
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
-<beans>	
-	
-	<!-- Aspects/Interceptors which catch ALL calls to our service methods
-		 =================================================================
-		 Possibilities are: tracing, logging, security, transactions, etc.
-	 -->
-	<bean id="serviceBeanNameProxyCreator"
-		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
-		<property name="beanNames"><value>*Service</value></property>
+<beans default-lazy-init="true">	
+
+<!--	Aspects/Interceptors which catch ALL calls to our service methods
+			=================================================================
+			Possibilities are: tracing, logging, security, transactions, etc.
+	-->
+    
+	<bean 
+    				id="abstractService" 
+    	abstract="true"
+				 class="org.springframework.aop.framework.ProxyFactoryBean">
+    
 		<property name="interceptorNames">
-		<list>
-			<value>serviceSecurity</value>
+			<list>
+      <!-- FIXME <value>serviceSecurity</value> -->
 			<value>exceptionHandling</value>
 			<value>logging</value>	
+      <value>hibernateFilter</value>
 <!--			
 			<value>serviceTracing</value>
 			<value>serviceTransactions</value> 
+  		<value>aop.*</value>
 -->
-		</list>
-		</property>
+    	</list>
+    </property>
+	</bean>
+	
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				SERVICE LEVEL ONE
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+  <bean id="level1">
+		<property name="hibernateTemplate" ref="hibernateTemplate"/>
+  </bean>
+
+  <bean id="internal.update" 	class="ome.logic.UpdateImpl" parent="level1"/>
+  <bean id="updateService" 		parent="abstractService">
+  	<property name="target" 					ref="internal.update"/>
+    <property name="proxyInterfaces" 	value="ome.api.IUpdate"/>
+  </bean>
+
+  <bean id="internal.query"  class="ome.logic.QueryImpl" parent="level1"/>
+  <bean id="queryService"  		parent="abstractService">
+    <property name="target" 					ref="internal.query"/>
+    <property name="proxyInterfaces" 	value="ome.api.IQuery"/>
 	</bean>
 
-	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<!-- SERVICES -->
-	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<bean id="analysisService" class="ome.logic.AnalysisImpl">
-		<property name="analysisDao" ref="analysisDao"/>		
-		<property name="annotationDao" ref="annotationDao"/>
-		<property name="containerDao" ref="containerDao"/>
-		<property name="genericDao" ref="genericDao"/>		
-	</bean>		
-				
-	<bean id="hierarchyBrowsingService" class="ome.logic.HierarchyBrowsingImpl">
-		<property name="annotationDao" ref="annotationDao"/>
-		<property name="containerDao" ref="containerDao"/>
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				SERVICE LEVEL TWO
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+  <bean id="level2">
+		<property name="updateService" 	ref="internal.update"/>
+    <property name="queryService"		ref="internal.query"/>	
+  </bean>
+
+  <bean id="internal.analysis" class="ome.logic.AnalysisImpl" parent="level2"/>
+	<bean id="analysisService" parent="abstractService">
+    <property name="target" 					ref="internal.analysis"/>
+    <property name="proxyInterfaces" 	value="ome.api.IAnalysis"/>
 	</bean>		
 
-	<bean id="writeService" class="ome.logic.WriteImpl">
-		<property name="jdbcTemplate" ref="jdbcTemplate"/>
-		<property name="genericDao" ref="genericDao"/>		
-	</bean>		
-
-	<bean id="pixelsService" class="ome.logic.PixelsImpl">
-		<constructor-arg index="0" ref="daoFactory"/>
+  <bean id="internal.pixels" class="ome.logic.PixelsImpl" parent="level2"/>
+  <bean id="pixelsService" parent="abstractService">
+	  <property name="target" ref="internal.pixels"/>
+    <property name="proxyInterfaces" 	value="ome.api.IPixels"/>
 	</bean>			
     	
-	<bean id="pojosService" class="ome.logic.PojosImpl">
-		<constructor-arg index="0" ref="daoFactory"/>
-	</bean>		
-   	
-	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<!-- FACADES -->
-	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<bean id="primitiveHierarchyBrowsingFacade" class="ome.facade.PrimitiveHierarchyBrowsingImpl">
-		<property name="hierarchyBrowsingService" ref="hierarchyBrowsingService"/>
+  <bean id="internal.pojos" class="ome.logic.PojosImpl" parent="level2"/>
+	<bean id="pojosService" parent="abstractService">
+		<property name="target" 					ref="internal.pojos"/>
+		<property name="proxyInterfaces" 	value="ome.api.IPojos"/>
 	</bean>		
 
-		
 </beans>

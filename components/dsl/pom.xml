@@ -34,4 +34,7 @@
   </dependencies>
   <build>
   </build>
+  <scm>
+    <connection>scm:svn:http://cvs.openmicroscopy.org.uk/svn/omero/trunk/components/dsl</connection>
+  </scm>
 </project>

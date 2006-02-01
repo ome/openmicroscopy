@@ -87,7 +87,7 @@
     }
 #end
 
-    public void copy(ome.api.OMEModel model, ome.util.ModelMapper mapper){
+    public void copy(ome.model.IObject model, ome.util.ModelMapper mapper){
 		if (model instanceof $pojo.declarationName){
             $pojo.declarationName source = ($pojo.declarationName) model;
 #foreach($property in $pojo.getAllPropertiesIterator())

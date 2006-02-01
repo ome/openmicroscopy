@@ -41,10 +41,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Image;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.model.containers.CategoryImageLink;
+import ome.model.core.Image;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 
@@ -74,23 +75,13 @@ public class ClassificationExclusivityRule {
     private static Log log = LogFactory.getLog(ClassificationExclusivityRule.class);
     
     @Condition
-    public boolean classification(Classification cla) {
-    	Set<Image> images = new HashSet<Image>();
-    	Image i = cla.getImage();
-    	Category c = cla.getCategory();
-    	CategoryGroup cg = c.getCategoryGroup();
+    public boolean category(Category c) {
+    	Set<CategoryImageLink> images = c.getImageLinks();
+        Set<CategoryGroupCategoryLink> cgs = c.getCategoryGroupLinks();
+
+        // TODO
     	
-    	Set<Category> cs = cg.getCategories();
-    	for (Category _c : cs) {
-    		if (_c != c) {
-    			Set<Classification> clas = _c.getClassifications();
-    			for (Classification _cla : clas) {
-    				images.add(_cla.getImage());
-    			}
-    		}
-    	}
-    	
-    	return images.contains(i);
+    	return false; // TODO images.contains(i);
 	}
 
 	@Consequence

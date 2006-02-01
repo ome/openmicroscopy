@@ -1,10 +1,9 @@
-package ome.hibernate;
+package ome.tools.hibernate;
 
 import java.util.Map;
 import java.util.Set;
 
-import ome.NewModel;
-import ome.api.OMEModel;
+import ome.model.IObject;
 import ome.model.meta.Event;
 import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
@@ -20,12 +19,12 @@ public class EventCreator {
 
     		// Get CurrentModule here
     		Event e = new Event();
-    		e.setName("test");
+    //		e.setName("test");
     		s.save(e);
     		
     		EventLog l = new EventLog();
     		l.setEvent(e);
-    		l.setExperimenter(1);
+    		l.getDetails().setOwner(null); // TODO null? and current user
     		s.save(l);
     		
     		makeDiffs(s,l,events.inserts,"INSERT");
@@ -33,21 +32,21 @@ public class EventCreator {
     		makeDiffs(s,l,events.deletes,"DELETES");
     }
 	
-    private void makeDiffs(Session s, EventLog l, Map<Class,Set<NewModel>> m, String action){
+    private void makeDiffs(Session s, EventLog l, Map<Class,Set<IObject>> m, String action){
 		for (Class key : m.keySet()){
-			Set<NewModel> ids = m.get(key);
+			Set<IObject> ids = m.get(key);
 			if (ids.size()>0) {
 				EventDiff d = new EventDiff();
-				d.setAction(action);
-				d.setEventLog(l);
+				// TODO Delete. Broken. d.setAction(action);
+				d.setLogs(l);
 				int[] ints = new int[ids.size()];
-				NewModel omes[] = (NewModel[]) ids.toArray(new NewModel[ids.size()]);
+				IObject omes[] = (IObject[]) ids.toArray(new IObject[ids.size()]);
 				for (int i = 0; i < ints.length; i++) {
 					ints[i] = omes[i].getId().intValue(); 
 				}
-				d.setIds(ints);
-				d.setType(key.getName());
-				s.save(d);
+//				d.setIdList("CONVERTED TO STRING"); // FIXME (ints); 
+//				d.setType(key.getName());
+//				s.save(d); TODO Delete. Broken.
 			}
 		}
     }

@@ -9,7 +9,7 @@
 	
 	<!-- Define properties -->
 	<property environment="env" />
-	<property file="${hibernate.properties}" />
+	<property file="${root.dir}/hibernate.properties" />
 	
 	<target name="help">
 		<echo>
@@ -28,6 +28,11 @@
                   export CLASSPATH=${this.path}
                 </echo>
 	</target>
+
+	<target name="msg">
+		<property file="${import.dir}/messages.properties" />
+	</target>
+		
 
 	<target name="loadHibernate">
 		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="local.classpath" />

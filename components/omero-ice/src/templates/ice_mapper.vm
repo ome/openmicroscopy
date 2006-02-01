@@ -77,7 +77,7 @@ public class Model2IceMapper extends ome.util.ModelMapper {
 	private void fillTarget(Filterable source, Object target){
 		if (source!=null && target != null){
 			try {
-			    java.lang.reflect.Method m = target.getClass().getMethod("copy", new Class[]{ome.api.OMEModel.class,ome.util.ModelMapper.class});
+			    java.lang.reflect.Method m = target.getClass().getMethod("copy", new Class[]{ome.model.IObject.class,ome.util.ModelMapper.class});
 				m.invoke(target,new Object[]{source,this});
 			} catch (Exception e) {
 			    throw new RuntimeException("Error in invoking copy on "+target,e);

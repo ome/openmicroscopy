@@ -44,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 import ome.api.ModelBased;
-import ome.api.OMEModel;
+import ome.model.IObject;
 
 
 /** 
@@ -169,7 +169,7 @@ public abstract class ModelMapper extends ContextFilter {
 
 	private void fillTarget(Filterable source, ModelBased target){
 		if (source!=null && target != null){
-			target.copy(((OMEModel)source),this);		
+			target.copy(((IObject)source),this);		
 		}
 	}
 	
@@ -191,28 +191,31 @@ public abstract class ModelMapper extends ContextFilter {
 		}
 	}
 	
-	//	FIXME need to unify Filterable and OMEModel (inheritance?)
-	// TODO no longer need context !
-	public Object currentContext(){
-		// TODO in ContextFilter filter out getContext(); and getCurrent!
-		if (context.get() == null) newContext();
-		LinkedList ll = (LinkedList) context.get();
-		return ll.size()>0 ? ll.getLast() : null;
-	}
+	//	FIXME need to unify Filterable and IObject (inheritance?)
 	
 	public Timestamp date2timestamp(Date date){
 		if (date==null) return null;
 		return new Timestamp(date.getTime());
 	}
 	
-	public int nullSafeInt(Integer id){
-		if (id==null) return 0;
-		return id.intValue();
+	public int nullSafeInt(Integer i){
+		if (i==null) return 0;
+		return i.intValue();
 	}
 	
-	public long nullSafeLong(Long id){
-		if (id==null) return 0;
-		return id.longValue();
+	public long nullSafeLong(Long l){
+		if (l==null) return 0;
+		return l.longValue();
 	}
+    
+    public double nullSafeDouble(Double d){
+        if (d==null) return 0.0;
+        return d.doubleValue();
+    }
+    
+    public float nullSafeFloat(Float f){
+        if (f==null) return 0.0F;
+        return f.floatValue();
+    }
 
 }

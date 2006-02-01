@@ -1,4 +1,4 @@
-package ome.hibernate;
+package ome.tools.hibernate;
 
 import java.io.File;
 import java.io.Serializable;
@@ -8,12 +8,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import ome.NewModel;
-import ome.api.OMEModel;
+import ome.model.IObject;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Event;
-import ome.security.CurrentEvent;
-import ome.security.CurrentUser;
 
 import org.hibernate.CallbackException;
 import org.hibernate.EntityMode;
@@ -31,9 +28,9 @@ public class EventInterceptor implements Interceptor {
 	
 	// http://www.jroller.com/page/ksevindik/20050417
     class Events {
-        public Map<Class,Set<NewModel>> inserts  = new HashMap<Class,Set<NewModel>>();
-        public Map<Class,Set<NewModel>> updates = new HashMap<Class,Set<NewModel>>();
-        public Map<Class,Set<NewModel>> deletes = new HashMap<Class,Set<NewModel>>();
+        public Map<Class,Set<IObject>> inserts  = new HashMap<Class,Set<IObject>>();
+        public Map<Class,Set<IObject>> updates = new HashMap<Class,Set<IObject>>();
+        public Map<Class,Set<IObject>> deletes = new HashMap<Class,Set<IObject>>();
     }
 
     private ThreadLocal eventSetHolder = new ThreadLocal();
@@ -51,13 +48,13 @@ public class EventInterceptor implements Interceptor {
     	eventSetHolder.remove();
     }
     
-    private void add(Map<Class, Set<NewModel>> m, Object entity, Serializable id){
-    	if (entity instanceof NewModel) {
-    		NewModel ome = (NewModel) entity;
+    private void add(Map<Class, Set<IObject>> m, Object entity, Serializable id){
+    	if (entity instanceof IObject) {
+    		IObject ome = (IObject) entity;
     		Class c = ome.getClass();
 			Object key = m.get(c);
 			if (null == key) 
-				m.put(c,new HashSet<NewModel>());
+				m.put(c,new HashSet<IObject>());
 
 			if (ome.getId() == null) throw new RuntimeException("null id on "+ome);
 			m.get(c).add(ome);
@@ -77,14 +74,14 @@ public class EventInterceptor implements Interceptor {
     }
 
     public boolean onSave(Object entity, Serializable id, Object[] arg2, String[] arg3, Type[] arg4) throws CallbackException {
-    	if (entity instanceof NewModel) {
-			NewModel ome = (NewModel) entity;
-			Experimenter ex = CurrentUser.asExperimenter();
-			saveOrUpdate(ex);
-			ome.setOwner(ex);
-			Event ev = CurrentEvent.getEvent();
-			saveOrUpdate(ev);
-			ome.setCreationEvent(ev);
+    	if (entity instanceof IObject) {
+//			IObject ome = (IObject) entity;
+//			Experimenter ex = CurrentUser.asExperimenter();
+//			saveOrUpdate(ex);
+//			ome.getDetails().setOwner(ex); // TODO null pointer? check all!
+//			Event ev = CurrentEvent.getEvent();
+//			saveOrUpdate(ev);
+//			ome.getDetails().setCreationEvent(ev); // TODO null pointer?
 		}
    		add(events().inserts,entity,id);
    		return true;
@@ -94,7 +91,7 @@ public class EventInterceptor implements Interceptor {
    		add(events().deletes,entity,id);
    	}
 
-    public void saveOrUpdate(OMEModel ome){ // refactor to Current* TODO
+    public void saveOrUpdate(IObject ome){ // refactor to Current* TODO
 		SessionFactory sf = t.getSessionFactory();
 		Session s = SessionFactoryUtils.getNewSession(sf,new NullInterceptor());
 		s.saveOrUpdate(ome);

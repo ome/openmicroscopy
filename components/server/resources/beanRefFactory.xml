@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="ome"
+        class="org.springframework.context.support.ClassPathXmlApplicationContext">
+    <constructor-arg>
+      <list>
+	<!-- Arranged roughly in stack order -->
+        <value>WEB-INF/config-local.xml</value>
+	<value>WEB-INF/aop.xml</value>
+	<value>WEB-INF/security.xml</value>
+	<value>WEB-INF/services.xml</value>
+	<value>WEB-INF/hibernate.xml</value>
+	<value>WEB-INF/dbcp.xml</value>
+      </list>
+    </constructor-arg>
+  </bean> 
+ </beans>

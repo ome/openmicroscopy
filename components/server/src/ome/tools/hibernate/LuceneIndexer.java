@@ -1,9 +1,9 @@
-package ome.hibernate;
+package ome.tools.hibernate;
 
 import java.io.File;
 import java.io.IOException;
 
-import ome.NewModel;
+import ome.model.IObject;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -23,18 +23,18 @@ public class LuceneIndexer {
     public void doIt(EventInterceptor.Events events){
     	try {
     		for (Class c: events.inserts.keySet()){
-    			for (NewModel o: events.inserts.get(c)){
+    			for (IObject o: events.inserts.get(c)){
     				add(o,o.getId());
     			}
     		}
     		for (Class c: events.updates.keySet()){
-    			for (NewModel o: events.updates.get(c)){
+    			for (IObject o: events.updates.get(c)){
     				drop(o,o.getId());
     				add(o,o.getId());
     			}
     		}
     		for (Class c: events.deletes.keySet()){
-    			for (NewModel o: events.deletes.get(c)){
+    			for (IObject o: events.deletes.get(c)){
     				drop(o,o.getId());
     			}
     		}
@@ -50,7 +50,7 @@ public class LuceneIndexer {
     /**
      * Drop object from Lucene index
      */
-    public void drop(NewModel entity, Integer id) throws IOException {
+    public void drop(IObject entity, Long id) throws IOException {
        IndexReader reader = IndexReader.open(index);// TODO entity.getIndexReader();
        reader.delete(new Term("id", id.toString()));
     }
@@ -58,7 +58,7 @@ public class LuceneIndexer {
     /**
      * Add object to Lucene index
      */
-    public void add(NewModel entity, Integer id) throws IOException {
+    public void add(IObject entity, Long id) throws IOException {
        Document doc = new Document();// TODO entity.getDocument();
        doc.add(Field.Keyword("id", id.toString()));
        doc.add(Field.Keyword("string", entity.toString()));

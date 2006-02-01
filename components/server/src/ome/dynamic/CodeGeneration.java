@@ -18,10 +18,9 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import junit.framework.TestCase;
 
 /**
  * deals with runtime-generated SemanticTypes
@@ -49,7 +48,7 @@ import junit.framework.TestCase;
  * 
  * @author josh
  */
-public class CodeGeneration extends TestCase {
+public class CodeGeneration { // FIXME extends TestCase {
 
 	private static Log log = LogFactory.getLog(CodeGeneration.class);
 	
@@ -57,8 +56,6 @@ public class CodeGeneration extends TestCase {
 	
 	public void test1() {
 		try {
-			sun.tools.javac.Main comp = new sun.tools.javac.Main(System.out,
-					null);
 			File file = File.createTempFile("jav", ".java", new File(tmp));
 			file.deleteOnExit();
 
@@ -81,12 +78,7 @@ public class CodeGeneration extends TestCase {
 			out.flush();
 			out.close();
 
-			String[] args = new String[] { 
-					"-d",
-					tmp,
-					file.getAbsolutePath() };
-
-			boolean status = comp.compile(args);
+			boolean status = Main.compile("-d "+tmp+" "+file.getAbsolutePath());
 
 			if (status) {
 				File clazzFile = new File(file.getParent(), classname + ".class");

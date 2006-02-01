@@ -32,7 +32,7 @@ package ome.server.itests;
 import java.util.Set;
 
 //Third-party libraries
-import ome.api.Analysis;
+import ome.api.IAnalysis;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,13 +56,13 @@ public class AnalysisLogicTest
             AbstractDependencyInjectionSpringContextTests {
 
     private static Log log = LogFactory.getLog(AnalysisLogicTest.class);
-    Analysis ae;
+    IAnalysis ae;
 
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
-        ae = (Analysis) applicationContext.getBean("analysisService");
+        ae = (IAnalysis) applicationContext.getBean("analysisService");
     }
     
     /**
@@ -82,11 +82,12 @@ public class AnalysisLogicTest
     	Set s = ae.getAllDatasets();
     	assertTrue(notNull,s.size()>0);
     }
-    
-	public void testChainExecutionsForDataset() {
-		Set s = ae.getChainExecutionsForDataset(1);
-		assertTrue(notNull,s.size()>0);
-	}
+
+// TODO    
+//	public void testChainExecutionsForDataset() {
+//		Set s = ae.getChainExecutionsForDataset(1);
+//		assertTrue(notNull,s.size()>0);
+//	}
 	
 	public void testDsFromPs(){
 		Set s = ae.getDatasetsForProject(1);

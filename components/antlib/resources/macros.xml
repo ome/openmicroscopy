@@ -2,11 +2,65 @@
 <project name="macros" basedir="." default="">
 	
     <!-- = = = = = = = = = = = = = = = = =
+          build tools
+         = = = = = = = = = = = = = = = = = -->
+
+	<macrodef name="sys_test">
+		<attribute name="name"/>
+		<element name="tests" implicit="yes"/>
+		<sequential>
+                <condition
+			property="check-@{name}-value"
+                           value="${msg.check.@{name}}"
+                           else="ok.">
+			<tests/>
+		</condition>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="svn">
+		<attribute name="command"/>
+		<sequential>
+		<exec executable="svn" failonerror="true">
+			<arg line="@{command}"/>
+		</exec>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="mvn">
+		<attribute name="targets"/>
+		<attribute name="dir" default="${basedir}"/>
+		<sequential>
+		<exec executable="mvn" dir="@{dir}" failonerror="true">
+			<arg line="@{targets}"/>
+		</exec>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="sql_run">
+		<attribute name="print" default="false"/>
+		<element name="commands" implicit="yes"/>
+		<sequential>
+                <sql
+                        driver="${hibernate.connection.driver_class}"
+                        url="${hibernate.connection.url}"
+                        userid="${hibernate.connection.username}"
+                        password="${hibernate.connection.password}" 
+			print="@{print}" >
+                        <classpath>
+                                <pathelement location="${basedir}/lib/htool/postgresql-7.4.1-jdbc3.jar"/>
+                        </classpath>
+			<commands/>
+		</sql>
+		</sequential>
+	</macrodef>
+
+    <!-- = = = = = = = = = = = = = = = = =
           define CLASSPATH          
          = = = = = = = = = = = = = = = = = -->
 	<macrodef name="definePath">
 	  <sequential>
-		<pathconvert property="maven.path" refid="maven.dependency.classpath"/>
+		<pathconvert property="maven.path" refid="maven.compile.classpath"/>
 		<path id="local.classpath">
 			<pathelement path="${maven.path}"/>
 			<pathelement location="${basedir}" />

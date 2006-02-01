@@ -109,7 +109,7 @@ public class ModelUtilsTexenTask extends TexenTask {
 
 	public void loadSpring(){
 		ctx = new ClassPathXmlApplicationContext(
-	            new String[] {"WEB-INF/aop.xml", "WEB-INF/dbcp.xml", "WEB-INF/dao.xml","WEB-INF/hibernate.xml","WEB-INF/config-local.xml"});//TODO ConfigHelper
+	            new String[] {"WEB-INF/aop.xml", "WEB-INF/dbcp.xml", "WEB-INF/hibernate.xml","WEB-INF/config-local.xml"});//TODO ConfigHelper
 	}
 	
 	public void loadContext() {

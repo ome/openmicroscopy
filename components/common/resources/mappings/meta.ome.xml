@@ -28,26 +28,39 @@
 		to="ome.model.meta.Experimenter"/>
 	
 	<!-- EVENTS -->
+	<enum id="ome.model.enums.EventType">
+		<entry name="Import"/>
+		<entry name="Internal"/>
+		<entry name="User"/>
+		<entry name="Test"/>
+	</enum>
 
-	<type id="ome.model.meta.Event" named="true" mutable="false" global="true"/>
-
-	<type id="ome.model.meta.EventDiff" mutable="false" global="true">
+	<type id="ome.model.meta.Event" mutable="false" global="true">
 		<properties>
-			<manyone name="logs" type="ome.model.meta.EventLog"/>
+			<required name="type" type="ome.model.enums.EventType"/>
+			<required name="time" type="timestamp"/>
+			<optional name="status" type="string"/>
+			<onemany name="logs" type="ome.model.meta.EventLog"/>
+		</properties>
+	</type>    
+
+	<type id="ome.model.meta.EventLog" mutable="false">
+		<properties>
 			<required name="type" type="string"/>
 			<required name="action" type="string"/>
 			<component id="ome.model.internal.StringArray" required="true">
 				<required name="idList" type="string"/>
 			</component>
-		</properties>
-	</type>
-
-	<type id="ome.model.meta.EventLog" mutable="false" global="true">
-		<properties>
-			<required name="experimenter" type="ome.model.meta.Experimenter"/>
-			<manyone name="events" type="ome.model.meta.Event"/>
+			<manyone name="event" type="ome.model.meta.Event"/>
 			<onemany name="diffs" type="ome.model.meta.EventDiff"/>
 		</properties>
 	</type>
 	
+
+	<type id="ome.model.meta.EventDiff" mutable="false">
+		<properties>
+			<manyone name="logs" type="ome.model.meta.EventLog"/>
+		</properties>
+	</type>
+
 </types>

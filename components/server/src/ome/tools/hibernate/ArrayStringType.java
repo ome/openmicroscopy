@@ -51,8 +51,8 @@ public class ArrayStringType implements UserType {
 	}
 
 	public Class returnedClass() {
-		return int[].class;
-	}
+    return int[].class;
+    }
 
 	public boolean equals(Object arg0, Object arg1) throws HibernateException {
 		return Arrays.equals((int[])arg0,(int[])arg1);

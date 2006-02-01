@@ -24,7 +24,7 @@
    <property name="groovy.jar" value=".m2/repository/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
 
    <target name="filelist">
-     <path id="maven.dependency.classpath">
+     <path id="maven.compile.classpath">
        <pathelement location="${env.HOME}/${groovy.jar}"/>
      </path>
      <definePath/>

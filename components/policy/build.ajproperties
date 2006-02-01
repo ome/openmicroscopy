@@ -1,0 +1,17 @@
+src.includes = src/,\
+               test/unit/,\
+               server_src/,\
+               resources/,\
+               dsl_src/,\
+               common_src/,\
+               sandbox_src/,\
+               nio_src/,\
+               resurrect_src/,\
+               ice_src/,\
+               sandbox_generated/,\
+               nio_test/,\
+               server_test/,\
+               ejb_src/,\
+               ejb_test/,\
+               rendering_src/,\
+               rendering_test/

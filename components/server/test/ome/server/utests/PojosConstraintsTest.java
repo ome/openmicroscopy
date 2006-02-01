@@ -40,10 +40,10 @@ import junit.framework.TestCase;
 
 //Application-internal dependencies
 import ome.logic.PojosImpl;
-import ome.model.CategoryGroup;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.Project;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+import ome.model.containers.Project;
 import ome.util.builders.PojoOptions;
 
 /**
@@ -60,7 +60,7 @@ public class PojosConstraintsTest extends TestCase {
     
     protected void setUp() throws Exception {
         super.setUp();
-        manager = new PojosImpl(null);
+        manager = new PojosImpl();
     }
     
     protected void tearDown() throws Exception {

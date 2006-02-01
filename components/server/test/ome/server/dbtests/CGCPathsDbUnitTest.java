@@ -32,7 +32,6 @@ package ome.server.dbtests;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -40,7 +39,6 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 
 //Application-internal dependencies
-import ome.model.CategoryGroup;
 import ome.server.itests.*;
 
 /**

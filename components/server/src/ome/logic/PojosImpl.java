@@ -40,7 +40,6 @@ package ome.logic;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,22 +49,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
-
-import ome.api.OMEModel;
-import ome.api.HierarchyBrowsing;
-import ome.api.Pojos;
-import ome.dao.AnnotationDao;
-import ome.dao.ContainerDao;
-import ome.dao.DaoFactory;
+import ome.api.IPojos;
 import ome.dao.hibernate.queries.PojosQueryBuilder;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Classification;
-import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
-import ome.model.Image;
-import ome.model.ImageAnnotation;
-import ome.model.Project;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+import ome.model.containers.Project;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
 import ome.util.builders.PojoOptions;
@@ -81,18 +71,12 @@ import ome.util.builders.PojoOptions;
  * </small>
  * @since OMERO 2.0
  */
-public class PojosImpl implements Pojos {
+public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
     private enum ALGORITHM {INCLUSIVE,EXCLUSIVE};
     
-    private DaoFactory daos;
-    
-    public PojosImpl(DaoFactory daoFactory){
-    	this.daos = daoFactory;
-    }
-
     private Map<String, Object> getParameters(Collection coll, PojoOptions po){ 
     	Map<String, Object> m = new HashMap<String, Object>();
     	if (null != coll) m.put("id_list",coll);
@@ -126,7 +110,7 @@ public class PojosImpl implements Pojos {
 
         Map m = getParameters(rootNodeIds, po);
     	String q = PojosQueryBuilder.buildLoadQuery(rootNodeType,rootNodeIds==null,po.map());//TODO and rootNodeIds.size()==0
-    	List   l = daos.generic().queryListMap(q,m); // TODO make queryList and all generic calls parameterizeable
+    	List   l = _query.queryListMap(q,m); // TODO make queryList and all generic calls parameterizeable
     	return new HashSet(l);
         
 	}
@@ -148,7 +132,7 @@ public class PojosImpl implements Pojos {
 				return new HashSet();
 			}
 
-			l = daos.generic().queryListMap(q,m);
+			l = _query.queryListMap(q,m);
 			return HierarchyTransformations.invertPDI(new HashSet(l)); // logging, null checking. daos should never return null TODO then size!
 			
 		}
@@ -158,7 +142,7 @@ public class PojosImpl implements Pojos {
 				return new HashSet();
 			}
 			
-			l = daos.generic().queryListMap(q,m);
+			l = _query.queryListMap(q,m);
 			return HierarchyTransformations.invertCGCI(new HashSet(l)); 
 			// TODO; this if-else statement could be removed if Transformations did their own dispatching 
 		}
@@ -185,7 +169,7 @@ public class PojosImpl implements Pojos {
 
 	        Map m = getParameters(rootNodeIds, po);m.remove("exp");//FIXME
 	    	String q = PojosQueryBuilder.buildAnnsQuery(rootNodeType,po.map());
-	    	List   l = daos.generic().queryListMap(q,m); 
+	    	List   l = _query.queryListMap(q,m); 
 	    	return AnnotationTransformations.sortDatasetAnnotatiosn(new HashSet(l));
 
 		} 
@@ -197,7 +181,7 @@ public class PojosImpl implements Pojos {
 
 	        Map m = getParameters(rootNodeIds, po);m.remove("exp");//FIXME
 	    	String q = PojosQueryBuilder.buildAnnsQuery(rootNodeType,po.map());
-	    	List   l = daos.generic().queryListMap(q,m); 
+	    	List   l = _query.queryListMap(q,m); 
 	    	return AnnotationTransformations.sortImageAnnotatiosn(new HashSet(l));
 		}
 
@@ -228,7 +212,7 @@ public class PojosImpl implements Pojos {
 		
 		String q = PojosQueryBuilder.buildPathsQuery(ALGORITHM.values()[algorithm].toString(),po.map());
 		Map m = getParameters(imgIds,po);
-		return new HashSet(daos.generic().queryListMap(q,m));
+		return new HashSet(_query.queryListMap(q,m));
 		
 		
 		
@@ -248,7 +232,7 @@ public class PojosImpl implements Pojos {
 		
 		String q = PojosQueryBuilder.buildGetQuery(rootNodeType,po.map());
 		Map m = getParameters(rootNodeIds,po);
-		return new HashSet(daos.generic().queryListMap(q,m));
+		return new HashSet(_query.queryListMap(q,m));
 		
 	}
 
@@ -263,7 +247,7 @@ public class PojosImpl implements Pojos {
 	
 		String q = PojosQueryBuilder.buildGetQuery(Image.class,po.map());
 		Map m = getParameters(null,po);
-		return new HashSet(daos.generic().queryListMap(q,m));
+		return new HashSet(_query.queryListMap(q,m));
 		
 	}
 

@@ -28,7 +28,6 @@
  */
 package ome.io.nio.itests;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

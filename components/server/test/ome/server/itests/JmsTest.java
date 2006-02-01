@@ -36,10 +36,11 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.activemq.message.ActiveMQQueue;
+// FIXME import org.activemq.message.ActiveMQQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -94,7 +95,8 @@ public class JmsTest
     }
 
     public void testWithNewQueue() throws Throwable{
-    	ActiveMQQueue q = new ActiveMQQueue("TEST");
+    	// FIXME ActiveMQQueue q = new ActiveMQQueue("TEST");
+        Queue q = null;
     	jt.send(q,new MessageCreator(){
     	      public Message createMessage(Session session) throws JMSException {
     	          return session.createTextMessage("hello queue world");

@@ -47,20 +47,25 @@ import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
+import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
 
 import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.metadata.PixMetadataException;
 import omeis.providers.re.metadata.PixTStatsEntry;
+import omeis.providers.re.metadata.PixelsChannelData;
 import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
+import omeis.providers.re.quantum.QuantumStrategy;
 
+import tmp.Helper;
 import tmp.RenderingDefConstants;
 
 /** 
@@ -100,7 +105,7 @@ import tmp.RenderingDefConstants;
  * </small>
  * @since OME2.2
  */
-class Renderer
+public class Renderer
 {
     private static Log log = LogFactory.getLog(Renderer.class);//j.m
     
@@ -198,7 +203,7 @@ class Renderer
      * @param model Identifies the color space model.  One of the constants
      *              defined by {@link RenderingDef}.
      */
-	void setModel(int model)
+	public void setModel(int model)
 	{
         rndDef.setModel(RenderingDefConstants.convertToType(model));
 		renderingStrategy = RenderingStrategy.makeNew(model);
@@ -212,7 +217,7 @@ class Renderer
      * @see #setDefaultT(int)
      * @see #getDefaultPlaneDef()
      */
-    void setDefaultZ(int z) 
+    public void setDefaultZ(int z) 
     {
         rndDef.setDefaultZ(Integer.valueOf(z));
     }
@@ -225,7 +230,7 @@ class Renderer
      * @see #setDefaultZ(int)
      * @see #getDefaultPlaneDef()
      */
-    void setDefaultT(int t) 
+    public void setDefaultT(int t) 
     {
         rndDef.setDefaultT(Integer.valueOf(t));
     }
@@ -236,7 +241,7 @@ class Renderer
      * 
      * @return Said plane definition.
      */
-    PlaneDef getDefaultPlaneDef()
+    public PlaneDef getDefaultPlaneDef()
     {
         PlaneDef pd = new PlaneDef(PlaneDef.XY, rndDef.getDefaultT().intValue());
         pd.setZ(rndDef.getDefaultZ().intValue());
@@ -247,7 +252,7 @@ class Renderer
 	 * Updates the {@link QuantumManager} and configures it according to the
 	 * current quantum definition.
 	 */
-	void updateQuantumManager()
+    public void updateQuantumManager()
 	{
         QuantumDef qd = rndDef.getQuantization();
 		ChannelBinding[] cb = getChannelBindings();
@@ -270,7 +275,7 @@ class Renderer
      *                               pixels raw data.
      * @throws NullPointerException If <code>pd</code> is <code>null</code>.
 	 */
-	RGBBuffer render(PlaneDef pd)
+    public RGBBuffer render(PlaneDef pd)
 		throws IOException, QuantizationException
 	{
 		if (pd == null)
@@ -299,7 +304,7 @@ class Renderer
      * @return  See above.
      * @throws NullPointerException If <code>pd</code> is <code>null</code>.
      */
-    int getImageSize(PlaneDef pd)
+    public int getImageSize(PlaneDef pd)
     {
         if (pd == null)
             throw new NullPointerException("No plane definition.");
@@ -323,7 +328,7 @@ class Renderer
      * @return See above.
      * @throws NullPointerException If <code>pd</code> is <code>null</code>.
      */
-    String getPlaneDimsAsString(PlaneDef pd)
+    public String getPlaneDimsAsString(PlaneDef pd)
     {
         if (pd == null)
             throw new NullPointerException("No plane definition.");
@@ -331,7 +336,7 @@ class Renderer
                 metadata.getPixelsDimensions());
     }
         
-    ChannelBinding[] getChannelBindings()
+    public ChannelBinding[] getChannelBindings()
     {
         Set bindings = rndDef.getWaveRendering();
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings.size()]);
@@ -343,7 +348,7 @@ class Renderer
      * 
      * @return  See above.
      */
-	PixelsDimensions getPixelsDims() { return metadata.getPixelsDimensions(); }
+    public PixelsDimensions getPixelsDims() { return metadata.getPixelsDimensions(); }
 
     /**
      * Returns statistic measurements on the the pixels set this object 
@@ -351,7 +356,7 @@ class Renderer
      * 
      * @return  See above.
      */
-	PixelsStats getPixelsStats() 
+    public PixelsStats getPixelsStats() 
     { 
         return pixelStats;
     }
@@ -363,7 +368,7 @@ class Renderer
      * 
      * @return  See above.
      */
-	RenderingDef getRenderingDef() { return rndDef; }
+    public RenderingDef getRenderingDef() { return rndDef; }
 
     /**
      * Returns the object that manages and allows to retrieve the objects 
@@ -371,22 +376,22 @@ class Renderer
      * 
      * @return  See above.
      */
-	QuantumManager getQuantumManager() { return quantumManager; }
+    public QuantumManager getQuantumManager() { return quantumManager; }
 
     /**
      * Returns the object that allows to access the pixels raw data.
      * 
      * @return  See above.
      */
-	PixelBuffer getPixels() { return buffer; }
-    Pixels getMetadata() { return metadata; }
+    public PixelBuffer getPixels() { return buffer; }
+    public Pixels getMetadata() { return metadata; }
     
     /**
      * Returns the string identifier of the pixels type.
      * 
      * @return One of the string identifiers: "UINT8", "INT8", etc. 
      */
-    String getPixelsType()
+    public String getPixelsType()
     {
         return metadata.getPixelsType().getValue();
     }
@@ -397,7 +402,7 @@ class Renderer
      * 
      * @return  See above.
      */
-	CodomainChain getCodomainChain() { return codomainChain; }   
+    public CodomainChain getCodomainChain() { return codomainChain; }   
     
     /**
      * Returns a {@link RenderingStats} object that the rendering strategy
@@ -407,7 +412,7 @@ class Renderer
      * 
      * @return The stats object.
      */
-    RenderingStats getStats() { return stats; }
+    public RenderingStats getStats() { return stats; }
 
     /*
      * 
@@ -429,22 +434,132 @@ class Renderer
             double start, end;
             PixTStatsEntry pixTStats;
             for (int i = 0; i < cb.length; i++) {
-                pixTStats = pixelStats.getGlobalEntry(cb[i].getIndex());
-                sf.computeLocationStats(metadata, buffer, pixelStats, 
-                                        pd, cb[i].getIndex());
-                // FIXME cb[i].setStats(sf.getLocationStats());
-                cb[i].setNoiseReduction(sf.isNoiseReduction());
-                start = cb[i].getInputStart();
-                end = cb[i].getInputEnd();
+//                pixTStats = pixelStats.getGlobalEntry(cb[i].getIndex());
+//                sf.computeLocationStats(metadata, buffer, pixelStats, 
+//                                        pd, cb[i].getIndex());
+//                // FIXME cb[i].setStats(sf.getLocationStats());
+//                cb[i].setNoiseReduction(sf.isNoiseReduction());
+//                start = cb[i].getInputStart();
+//                end = cb[i].getInputEnd();
                 //TODO: find a better way.
-                if (pixTStats.globalMax == end && pixTStats.globalMin == start)
-                    cb[i].setInputStart(new Float(sf.getInputStart()));
-                	   cb[i].setInputEnd(new Float(sf.getInputEnd())); // TODO double / Float? 
+//                if (pixTStats.globalMax == end && pixTStats.globalMin == start)
+//                    cb[i].setInputStart(new Float(sf.getInputStart()));
+//                	   cb[i].setInputEnd(new Float(sf.getInputEnd())); // TODO double / Float? 
             }
         } catch (Exception ioe) {
             throw new PixMetadataException("Cannot retrieve the file header "+
                                         "to compute the location stats.", ioe);
         }
+    }
+    
+    //
+    // Methods pushed down from RenderingBean
+    //
+    public void setQuantumStrategy(int bitResolution)
+    {
+        RenderingDef rd = getRenderingDef();
+        QuantumDef qd = rd.getQuantization(), newQd;
+        newQd = new QuantumDef();
+        newQd.setBitResolution(Integer.valueOf(bitResolution));
+        newQd.setCdStart(qd.getCdStart());
+        newQd.setCdStop(qd.getCdStop());
+        rd.setQuantization(newQd);
+        updateQuantumManager();
+    }
+    
+    public void setCodomainInterval(int start, int end)
+    {
+        CodomainChain chain = getCodomainChain();
+        chain.setInterval(start, end);
+        RenderingDef rd = getRenderingDef();
+        QuantumDef qd = rd.getQuantization(), newQd;
+        newQd = new QuantumDef();
+        newQd.setBitResolution(qd.getBitResolution());
+        newQd.setCdStart(Integer.valueOf(start));
+        newQd.setCdStop(Integer.valueOf(end));
+        rd.setQuantization(newQd);
+        CodomainMapContext mapCtx;
+        Iterator i = rd.getSpatialDomainEnhancement().iterator();
+        while (i.hasNext())
+        {
+            mapCtx = (CodomainMapContext) i.next();
+            mapCtx.setCodomain(start, end);
+        }
+
+    }
+    
+    public void setChannelWindow(int w, double start, double end)
+    {
+        QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
+        qs.setWindow(start, end);
+        ChannelBinding[] cb = getChannelBindings();
+        cb[w].setInputStart(new Float(start));
+        cb[w].setInputEnd(new Float(end)); // TODO double / Float
+    }
+    
+    public void setQuantizationMap(int w, int family,
+            double coefficient, boolean noiseReduction)
+    {
+        QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
+        qs.setQuantizationMap(family, coefficient, noiseReduction);
+        ChannelBinding[] cb = getChannelBindings();
+        // FIXME cb[w].setQuantizationMap(family, coefficient, noiseReduction);
+    }
+
+    public void setRGBA(int w, int red, int green, int blue, int alpha)
+    {
+        ChannelBinding[] cb = getChannelBindings();
+        // TODO cb[w].setRGBA(red, green, blue, alpha);
+        Color c = cb[w].getColor();
+        c.setRed(Integer.valueOf(red));
+        c.setGreen(Integer.valueOf(green));
+        c.setBlue(Integer.valueOf(blue));
+        c.setAlpha(Integer.valueOf(alpha));
+    }
+    
+    public void resetDefaults()
+    {
+        // Reset the bit resolution.
+        setQuantumStrategy(QuantumFactory.DEPTH_8BIT); // NB: Java locks are
+        setCodomainInterval(0, QuantumFactory.DEPTH_8BIT); // re-entrant.
+
+        // Set the each channel's window to the channel's [min, max].
+        // Make active only the first channel.
+        ChannelBinding[] cb = getChannelBindings();
+        PixelsStats stats = getPixelsStats();
+        Map map = Helper.getPixelsChannelData(getMetadata());
+        PixelsChannelData pixData;
+        boolean active = false;
+        int model = RenderingDefConstants.GS;
+        int[] c;
+        for (int w = 0; w < cb.length; w++)
+        {
+            pixData = (PixelsChannelData) map
+                    .get(cb[w].getIndex());
+            if (pixData != null
+                    && pixData.getColorDomain() == "RGB") // FIXME
+            {
+                active = true;
+                model = RenderingDefConstants.RGB;
+            }
+            cb[w].setActive(Boolean.valueOf(active));
+            double start = stats.getGlobalEntry(w).globalMin, end = stats
+                    .getGlobalEntry(w).globalMax;
+            setChannelWindow(w, start, end);
+            if (pixData == null) c = ColorsFactory.getColor(cb[w].getIndex().intValue(),
+                    -1);
+            else
+                c = ColorsFactory.getColor(cb[w].getIndex().intValue(), pixData
+                        .getEmWavelenght());
+            setRGBA(w, c[ColorsFactory.RED], c[ColorsFactory.GREEN],
+                    c[ColorsFactory.BLUE], c[ColorsFactory.ALPHA]);
+        }
+        cb[0].setActive(Boolean.valueOf(active));
+        // Remove all the codomainMapCtx except the identity.
+        getCodomainChain().remove();
+
+        // Fall back to the default strategy.
+        setModel(model);
     }
     
 }
