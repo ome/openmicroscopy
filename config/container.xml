@@ -146,11 +146,6 @@
         <class>org.openmicroscopy.shoola.agents.annotator.Annotator</class>
         <config>annotator.xml</config>
       </agent>
-      <agent>
-        <name>Data Manager</name>
-        <class>org.openmicroscopy.shoola.agents.datamng.DataManager</class>
-        <config>dm.xml</config>
-      </agent>
  	    <agent>
         <name>Viewer</name>
         <class>org.openmicroscopy.shoola.agents.viewer.Viewer</class>
