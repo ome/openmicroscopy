@@ -69,8 +69,7 @@ class TitleBarLayout
     
     /**
      * Returns the {@link #minimumLayoutSize(Container) minimumLayoutSize}.
-     * 
-     * @return See above.
+     * @see LayoutManager#preferredLayoutSize(Container)
      */
     public Dimension preferredLayoutSize(Container c)  
     {
@@ -80,8 +79,7 @@ class TitleBarLayout
     /**
      * Returns the {@link TitleBar}'s minimum layout size according to the
      * {@link TitleBar#MIN_WIDTH} and {@link TitleBar#HEIGHT} constants.
-     * 
-     * @return See above.
+     * @see LayoutManager#minimumLayoutSize(Container)
      */
     public Dimension minimumLayoutSize(Container c) 
     {
@@ -90,6 +88,8 @@ class TitleBarLayout
 
     /**
      * Lays out the {@link TitleBar}'s components.
+     * 
+     * @param c The container to lay out.
      */
     public void layoutContainer(Container c) 
     {
@@ -110,12 +110,14 @@ class TitleBarLayout
     /**
      * No-op implementation.
      * Required by {@link LayoutManager}, but not needed here.
+     * @see LayoutManager#addLayoutComponent(String, Component)
      */
     public void addLayoutComponent(String name, Component c) {}
     
     /**
      * No-op implementation.
      * Required by {@link LayoutManager}, but not needed here.
+     * @see LayoutManager#removeLayoutComponent(Component)
      */
     public void removeLayoutComponent(Component c) {} 
     

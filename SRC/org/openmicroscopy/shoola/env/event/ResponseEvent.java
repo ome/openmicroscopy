@@ -56,21 +56,30 @@ public abstract class ResponseEvent
     extends AgentEvent
 {
     
+    /** The object that originated this event. */
     private RequestEvent    act;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param act The object that originated this event.
+     */
     protected ResponseEvent(RequestEvent act)
     {
         this.act = act;
     }
     
+    /** Represents the completion of an operation. */
     public void complete()
     {
-        if (act != null)	act.handleCompletion(this);
+        if (act != null) act.handleCompletion(this);
     }
     
-    public RequestEvent getACT()
-    {
-    	return act;    
-    }
+    /**
+     * Returns the {@link RequestEvent} that originated this event.
+     * 
+     * @return See above.
+     */
+    public RequestEvent getACT() { return act; }
     
 }

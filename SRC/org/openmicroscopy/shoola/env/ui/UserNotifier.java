@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
 import java.awt.Component;
-
 import javax.swing.Icon;
 
 //Third-party libraries

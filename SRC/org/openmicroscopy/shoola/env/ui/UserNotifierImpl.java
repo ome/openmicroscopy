@@ -139,7 +139,10 @@ public class UserNotifierImpl
     	}
     }
     
-	/** Implemented as specified by {@link UserNotifier}. */     
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyError(String, String)
+     */     
 	public void notifyError(String title, String summary)
 	{
 		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
@@ -147,32 +150,44 @@ public class UserNotifierImpl
 								IconManager.getDefaultErrorIcon());
 	}
 	
-	/** Implemented as specified by {@link UserNotifier}. */       
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyError(String, String, Throwable)
+     */       
     public void notifyError(String title, String summary, Throwable detail)
     {
 		notifyError(title, summary, 
 						detail == null ? null : detail.getMessage());
     }
     
-	/** Implemented as specified by {@link UserNotifier}. */     
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyError(String, String, String)
+     */     
 	public void notifyError(String title, String summary, String detail)
 	{
-		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
+		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
 		showDetailedNotificationDialog(title, summary, 
 										IconManager.getDefaultErrorIcon(),
 										detail);
 	}
 	
-	/** Implemented as specified by {@link UserNotifier}. */     
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyError(String, String, Component)
+     */     
 	public void notifyError(String title, String summary, Component component)
 	{
-		if (title == null || title.length() == 0)	title = DEFAULT_ERROR_TITLE;
+		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
 		showDetailedNotificationDialog(title, summary, 
 										IconManager.getDefaultErrorIcon(),
 										component);
 	}
     
-	/** Implemented as specified by {@link UserNotifier}. */ 
+	/**
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyWarning(String, String)
+     */ 
 	public void notifyWarning(String title, String message)
 	{
 		if (title == null || title.length() == 0)
@@ -181,7 +196,10 @@ public class UserNotifierImpl
 								IconManager.getDefaultWarnIcon());
 	}
 	
-	/** Implemented as specified by {@link UserNotifier}. */ 
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyWarning(String, String, String)
+     */ 
 	public void notifyWarning(String title, String summary, String detail) 
 	{
 		if (title == null || title.length() == 0)
@@ -191,7 +209,10 @@ public class UserNotifierImpl
 										detail);
 	}
     
-	/** Implemented as specified by {@link UserNotifier}. */ 
+	/**
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyWarning(String, String, Component)
+     */ 
 	public void notifyWarning(String title, String summary, Component component) 
 	{
 		if (title == null || title.length() == 0)
@@ -202,14 +223,20 @@ public class UserNotifierImpl
 	}
     
 	
-	/** Implemented as specified by {@link UserNotifier}. */ 
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyWarning(String, String, Throwable)
+     */ 
 	public void notifyWarning(String title, String summary, Throwable detail) 
 	{
 		notifyWarning(title, summary, 
 						detail == null ? null : detail.getMessage());
 	}
 
-	/** Implemented as specified by {@link UserNotifier}. */ 
+	/** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyInfo(String, String)
+     */ 
 	public void notifyInfo(String title, String message)
 	{  
 		if (title == null || title.length() == 0)
@@ -218,7 +245,10 @@ public class UserNotifierImpl
 								IconManager.getDefaultInfoIcon());
 	}
     
-    /** Implemented as specified by {@link UserNotifier}. */ 
+    /** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#notifyInfo(String, String, Icon)
+     */ 
     public void notifyInfo(String title, String message, Icon icon)
     {  
         if (title == null || title.length() == 0)

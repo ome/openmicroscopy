@@ -77,18 +77,13 @@ public final class SplashScreenInit
 	/** 
 	 * Returns an empty string, as this task does nothing but configuration
 	 * (we don't want a name to pop up in the splash screen for nothing).
-	 * 
 	 * @see InitializationTask#getName()
 	 */
-	String getName()
-	{
-		return "";
-	}
+	String getName() { return ""; }
 
 	/**
 	 * Registers for initialization progress notification and
 	 * pops up the splash screen.
-	 * 
 	 * @see InitializationTask#configure()
 	 */
 	void configure()
@@ -136,7 +131,6 @@ public final class SplashScreenInit
 	/** 
 	 * Waits until user's credentials are available and then tries to log onto
 	 * <i>OMEDS</i>.
-	 * 
 	 * @see InitializationListener#onEnd()
 	 */
 	public void onEnd()

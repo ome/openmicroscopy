@@ -41,8 +41,9 @@ import org.openmicroscopy.shoola.env.data.login.LoginManager;
 import org.openmicroscopy.shoola.env.data.login.LoginServiceImpl;
 
 /** 
- * This task intializes the {@link LoginService} the Container will use
- * to manage the link to <i>OMEDS</i>.
+ * This task intializes the 
+ * {@link org.openmicroscopy.shoola.env.data.login.LoginService}.
+ * The Container will use to manage the link to <i>OMEDS</i>.
  * This task has to be run after reading in the Container's configuration and
  * after intializing the Event Bus.
  *
@@ -61,9 +62,7 @@ public final class LoginServiceInit
     extends InitializationTask
 {
 
-    /**
-     * Constructor required by superclass.
-     */
+    /** Constructor required by superclass. */
     LoginServiceInit() {}
     
     /**

@@ -43,7 +43,7 @@ import java.awt.geom.Rectangle2D;
 //Application-internal dependencies
 
 /** 
- * 
+ * Paints the title string on the {@link TitleBar} of the {@link TinyDialog}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -176,7 +176,13 @@ class TitlePainter
         title = t;
     }
     
-    /** Paints the background on <code>area</code>. */
+    /** 
+     * Paints the background on <code>area</code>. 
+     * 
+     * @param g2D The graphics context.
+     * @param width The width of the area.
+     * @param height The height of the area.
+     */
     protected void doPaintBg(Graphics2D g2D, int width, int height)
     {
         //Draw the pattern.
@@ -196,7 +202,13 @@ class TitlePainter
         //to Rect[0, 0, width, height].
     }
     
-    /** Paints the background on <code>area</code>. */
+    /** 
+     * Paints the title on <code>area</code>. 
+     * 
+     * @param g2D The graphics context.
+     * @param width The width of the area.
+     * @param height The height of the area.
+     */
     protected void doPaintTitle(Graphics2D g2D, int width, int height)
     {
         //Make sure we have a font such that title's height will fit into area.

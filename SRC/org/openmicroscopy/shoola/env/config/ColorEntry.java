@@ -125,7 +125,11 @@ class ColorEntry
      */  
     Object getValue() { return value; }
     
-    /** Implemented as specified by {@link Entry}. */  
+    /** 
+     * Implemented as specified by {@link Entry}. 
+     * @see Entry#setContent(Node)
+     * @throws ConfigException If the configuration entry couldn't be handled.
+     */   
     protected void setContent(Node tag)
             throws ConfigException
     {
@@ -195,7 +199,16 @@ class ColorEntry
         return parseValue(value, DEFAULT_BLUE);
     }
     
-    /** Parse the value. */
+    /** 
+     * Parse the specified value, if the specified value doesn't correspond 
+     * to a value in the range 
+     * <code>[{@link #MIN_VALUE}, {@link #MAX_VALUE}]</code>,
+     * the specifed default value is returned.
+     * 
+     * @param value The value to parse.
+     * @param defaultValue The default value to set.
+     * @return See above.
+     */
     private int parseValue(String value, int defaultValue)
     {
         int v = defaultValue;

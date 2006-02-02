@@ -60,19 +60,14 @@ public final class EventBusInit
 	extends InitializationTask
 {
 
-	/**
-	 * Constructor required by superclass.
-	 */
+    /** Constructor required by superclass. */
 	public EventBusInit() {}
 
 	/**
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName() 
-	{
-		return "Starting Event Bus";
-	}
+	String getName()  { return "Starting Event Bus"; }
 
 	/** 
 	 * Does nothing, as this task requires no set up.

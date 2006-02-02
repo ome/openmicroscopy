@@ -128,8 +128,7 @@ class TaskBarView
 	 * Allows to size the {@link #buttons} array correctly.
 	 */
 	private static final int	MAX_ID = 11;
-	
-	
+		
 	/**
 	 * All the button-like objects used by this view.
 	 * These are all the menu items within the various menus in the menu bar
@@ -137,14 +136,14 @@ class TaskBarView
 	 * We do direct indexing on this array by using the constants specified by
 	 * this class.
 	 */
-	private AbstractButton[]	buttons;
+	private AbstractButton[]   buttons;
 	
 	/** 
 	 * The menus specified by {@link TaskBar}.
 	 * We do direct indexing on this array by using the constants specified by
 	 * {@link TaskBar}.
 	 */
-	private JMenu[]			menus;
+	private JMenu[]            menus;
 	
 	/**
 	 * The toolbars specified by {@link TaskBar}.
@@ -153,11 +152,10 @@ class TaskBarView
 	 * We do direct indexing on this array by using the constants specified by
 	 * {@link TaskBar}.
 	 */
-	private JToolBar[]		toolbars;
+	private JToolBar[]		   toolbars;
 	
 	/** Cached reference to the {@link IconManager} singleton.*/
-	private IconManager		iconManager;
-	
+	private IconManager        iconManager;
 	
 	/**
 	 * Helper method to create all menu items for the various menus within
@@ -266,13 +264,11 @@ class TaskBarView
 		menus[WINDOW_MENU] = createWindowMenu();
 		menus[HELP_MENU] = createHelpMenu();
 		JMenuBar bar = new JMenuBar();
-		for(int i = 0; i < menus.length; ++i)	bar.add(menus[i]);
+		for (int i = 0; i < menus.length; ++i)	bar.add(menus[i]);
 		return bar;
 	}
 	
-	/**
-	 * Helper method to create all buttons for the main toolbar.
-	 */
+	/** Helper method to create all buttons for the main toolbar. */
 	private void createButtons()
 	{
 		buttons[CONNECT_BTN] = new JButton(
@@ -338,9 +334,7 @@ class TaskBarView
 		return outerPanel;
 	}
 	
-	/**
-	 * Builds and lays out the UI.
-	 */
+	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setIconImage(IconManager.getOMEImageIcon());
@@ -381,7 +375,7 @@ class TaskBarView
 
 	/**
 	 * Implemented as specifed by {@link TaskBar}.
-	 * @see TaskBar#addToMenu(int, javax.swing.JMenuItem)
+	 * @see TaskBar#addToMenu(int, JMenuItem)
 	 */
 	public void addToMenu(int menuID, JMenuItem entry) 
 	{
@@ -394,7 +388,7 @@ class TaskBarView
 
 	/**
 	 * Implemented as specifed by {@link TaskBar}.
-	 * @see TaskBar#removeFromMenu(int, javax.swing.JMenuItem)
+	 * @see TaskBar#removeFromMenu(int, JMenuItem)
 	 */
 	public void removeFromMenu(int menuID, JMenuItem entry) 
 	{
@@ -405,7 +399,7 @@ class TaskBarView
 
 	/**
 	 * Implemented as specifed by {@link TaskBar}.
-	 * @see TaskBar#addToToolBar(int, javax.swing.AbstractButton)
+	 * @see TaskBar#addToToolBar(int, AbstractButton)
 	 */
 	public void addToToolBar(int toolBarID, AbstractButton entry) 
 	{
@@ -419,7 +413,7 @@ class TaskBarView
 
 	/**
 	 * Implemented as specifed by {@link TaskBar}.
-	 * @see TaskBar#removeFromToolBar(int, javax.swing.AbstractButton)
+	 * @see TaskBar#removeFromToolBar(int, AbstractButton)
 	 */
 	public void removeFromToolBar(int toolBarID, AbstractButton entry)
 	{
@@ -431,7 +425,7 @@ class TaskBarView
 
 	/** 
 	 * Implemented as specifed by {@link TaskBar}.
-	 * @see org.openmicroscopy.shoola.env.ui.TaskBar#open()
+	 * @see TaskBar#open()
 	 */
 	public void open() 
 	{
@@ -442,11 +436,8 @@ class TaskBarView
 
     /**
      * Implemented as specifed by {@link TaskBar}.
-     * @see org.openmicroscopy.shoola.env.ui.TaskBar#getFrame()
+     * @see TaskBar#getFrame()
      */
-    public JFrame getFrame()
-    {
-        return this;
-    }
+    public JFrame getFrame() { return this; }
 
 }

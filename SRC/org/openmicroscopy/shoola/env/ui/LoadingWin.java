@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Tiny window displayed during data loading.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,10 +58,9 @@ public class LoadingWin
     extends TinyDialog
 {
 
-    /** Dimension of the loading window. */
+    /** The dimension of the loading window. */
     private static final Dimension WIN_DIMENSION = new Dimension(200, 30);
 
-    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -83,7 +82,7 @@ public class LoadingWin
         buildGUI();
     }
 
-    /** Brings up the window on screen and centers it. */
+    /** Brings the window up on screen and centers it. */
     public void setOnScreen()
     {
         setSize(WIN_DIMENSION);

@@ -47,9 +47,10 @@ package org.openmicroscopy.shoola.env;
  * <b>NOTE</b>: If no exception hanlder is attached to the AWT event-dispatch
  * thread, then any {@link RuntimeException} or {@link Error}, which is thrown
  * by a non-modal component, is re-thrown for the thread group to handle &#151;
- * see {@link EventDispatchThread#processException(Throwable, boolean)}.
+ * see 
+ * {@link java.awt.EventDispatchThread#processException(Throwable, boolean)}.
  * Because of the way container initialization happens, the AWT event-dispatch
- * thread is part of the {@link RootThreadGroup}.  This means, that any such
+ * thread is part of the {@link RootThreadGroup}. This means, that any such
  * exception would be forwarded to the {@link AbnormalExitHandler} anyway.  So
  * do we need this class?  Unfortunately yes.  In fact, if no exception handler
  * is specified, any {@link Throwable} thrown within a modal dialog results in

@@ -66,7 +66,11 @@ class FloatEntry
 	/** Creates a new instance. */
     FloatEntry() {}
     
-	/** Implemented as specified by {@link Entry}. */  
+    /** 
+     * Implemented as specified by {@link Entry}. 
+     * @see Entry#setContent(Node)
+     * @throws ConfigException If the configuration entry couldn't be handled.
+     */  
     protected void setContent(Node node)
     	throws ConfigException
     { 

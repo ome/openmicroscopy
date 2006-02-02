@@ -68,6 +68,7 @@ public class LoggerFactory
 	/**
 	 * Creates a new {@link Logger}.
 	 * 
+     * @param c Reference to the container.
 	 * @return	See above.
 	 */
 	public static Logger makeNew(Container c)
@@ -80,7 +81,7 @@ public class LoggerFactory
 		//If logging is off, then we return the no-op adapter.
 		Registry reg = c.getRegistry();
 		Boolean isLoggingOn = (Boolean) reg.lookup(LookupNames.LOG_ON);
-		if (!isLoggingOn.booleanValue())	return makeNoOpLogger();
+		if (!isLoggingOn.booleanValue()) return makeNoOpLogger();
 		
 		//Ok we have to log, so try and read the config file.
 		Properties config = loadConfig(c.resolveConfigFile(LOG_CONFIG_FILE));
@@ -91,8 +92,8 @@ public class LoggerFactory
 				logFileName = (String) reg.lookup(LookupNames.LOG_FILE);
 		File logDir = new File(c.getHomeDir(), logDirName), logFile;
 		logDir.mkdir();
-		if (logDir.isDirectory())	logFile = new File(logDir, logFileName);
-		else	logFile = new File(c.getHomeDir(), logFileName);
+		if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
+		else logFile = new File(c.getHomeDir(), logFileName);
 		return new LoggerImpl(config, logFile.getAbsolutePath());
 	}
 	

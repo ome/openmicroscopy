@@ -58,16 +58,24 @@ public abstract class StateChangeEvent
     extends AgentEvent
 {
         
+    /** Carries all state-change information. */
     private Object stateChange;
     
+    /**
+     * Sets the <code>stateChange</code> object.
+     * 
+     * @param stateChange The object to set.
+     */
     public void setStateChange(Object stateChange)
-    {
+    { 
         this.stateChange = stateChange;
     }
     
-    public Object getStateChange()
-    {
-        return stateChange;
-    }
+    /**
+     * Returns the <code>stateChange</code> obejct.
+     * 
+     * @return See above.
+     */
+    public Object getStateChange() { return stateChange; }
       
 }

@@ -72,8 +72,10 @@ import javax.swing.border.BevelBorder;
 public class TinyDialogUI
 {
     
+    /** The maximum of width of the window. */
     public static final int MAX_WIDTH = 300;
     
+    /** The maximum of height of the window. */
     public static final int MAX_HEIGHT = 300;
     
     /** The thickness of the frame's border. */
@@ -94,6 +96,7 @@ public class TinyDialogUI
      */
     static final Color      INNER_BORDER_SHADOW = new Color(200, 200, 200);
 
+    /** The inner padding value. */
     static final int        INNER_PADDING = 1;
     
     /** The window that owns this UI delegate. */
@@ -104,11 +107,8 @@ public class TinyDialogUI
     
     /** The component that displays the image. */
     private JComponent      canvas;
-    
-    
-    /**
-     * Creates and sets the window and its content's borders.
-     */
+      
+    /** Creates and sets the window and its content's borders. */
     private void makeBorders()
     {
         JRootPane rootPane = window.getRootPane();
@@ -121,13 +121,18 @@ public class TinyDialogUI
         }
     }
     
-    /** Set the size to the content. */
-    private void makeComponentsSize(BufferedImage image)
+    /** 
+     * Sets the size and preferred size of the canvas. 
+     * 
+     * @param w The width of the image.
+     * @param h The height of the image.
+     */
+    private void makeComponentsSize(int w, int h)
     {
         if (canvas == null) return;
         Insets i = canvas.getInsets();
-        int width = image.getWidth()+i.right+i.left;
-        int height = image.getHeight()+i.top+i.bottom;
+        int width = w+i.right+i.left;
+        int height = h+i.top+i.bottom;
         Dimension d = new Dimension(width, height);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
@@ -141,7 +146,11 @@ public class TinyDialogUI
         if (canvas != null) container.add(canvas, BorderLayout.CENTER);
     }
     
-    /** Adds the specified component to the container. */
+    /** 
+     * Adds the specified component to the container. 
+     * 
+     * @param c The component to add.
+     */
     private void addComponent(JComponent c)
     {
         Container container = window.getContentPane();
@@ -167,7 +176,6 @@ public class TinyDialogUI
     private void removeComponent(JComponent c)
     {
         window.getContentPane().remove(c);
-        //window.repaint();
     }
 
     /** 
@@ -179,13 +187,17 @@ public class TinyDialogUI
      * @param id            Action command ID.
      */ 
     private void attachButtonListener(ActionListener controller, 
-            JButton b, int id)
+                                        JButton b, int id)
     {
         b.addActionListener(controller);
         b.setActionCommand(""+id);
     }
     
-    /** Set the window and initializes the TitleBar. */
+    /** 
+     * Sets the window and initializes the title bar.
+     * 
+     * @param window The window to set.
+     */
     private void initialize(TinyDialog window)
     {
         if (window == null) throw new NullPointerException("No window.");
@@ -205,7 +217,7 @@ public class TinyDialogUI
     {
         initialize(window);
         canvas = new ThumbnailCanvas(image);
-        makeComponentsSize(image); 
+        makeComponentsSize(image.getWidth(), image.getHeight()); 
         makeBorders();
         buildUI();
     }
@@ -286,31 +298,11 @@ public class TinyDialogUI
             Dimension dW = window.getRestoreSize();
             window.setSize(dT.width, dW.height);
         }
-        /*
-        if (window.isCollapsed()) {
-            removeComponent(canvas);
-            Dimension d = new Dimension(window.getWidth(), 
-                    TitleBar.HEIGHT+2*BORDER_THICKNESS);
-            titleBar.setPreferredSize(d);
-            titleBar.sizeButton.setActionType(SizeButton.EXPAND);
-        } else {
-            addComponent(canvas);
-            titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
-        }
-        Dimension d = window.getContentPane().getPreferredSize();
-        Dimension dT = titleBar.getPreferredSize();
-        int h = d.height;
-        if (h > MAX_HEIGHT) h = MAX_HEIGHT;
-        window.setSize(dT.width, h);
-        */
         window.validate();
         window.repaint();
     }
 
-    /** 
-     * Shows or not the window according to whether the window is currently 
-     * closed or opened. 
-     */
+    /** Hides and disposes depending on the state of the window. */
     void updateClosedState()
     {
         if (window.isClosed()) {
@@ -319,7 +311,11 @@ public class TinyDialogUI
         }
     }
      
-    /** Set the canvas. */
+    /** 
+     * Sets the canvas. 
+     * 
+     * @param c The component to set.
+     */
     public void setCanvas(JComponent c)
     { 
         canvas = c;

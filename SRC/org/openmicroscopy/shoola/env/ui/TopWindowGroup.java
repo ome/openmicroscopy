@@ -53,9 +53,10 @@ import org.openmicroscopy.shoola.util.ui.ToolBarButtonMenu;
  * <p>Rather than adding a quick-launch button in the 
  * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and an entry in the
  * {@link TaskBar#WINDOW_MENU} for each window in the group, the constructor of
- * this class adds a drop-down {@link ToolBarButtonMenu button} (a button that triggers
- * the display of a popup menu) to the {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and
- * a sub-menu to the {@link TaskBar#WINDOW_MENU}.  These menus contain an entry
+ * this class adds a drop-down {@link ToolBarButtonMenu button}
+ * (a button that triggers the display of a popup menu) to the
+ * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and
+ * a sub-menu to the {@link TaskBar#WINDOW_MENU}. These menus contain an entry
  * for each window in the group and are populated/depopulated via the
  * {@link #add(JFrame, String, Icon) add}/{@link #remove(JFrame) remove}
  * methods.</p>
@@ -200,12 +201,12 @@ public class TopWindowGroup
 		makeCloseAllButtons();
 	}
 
-        /**
-         * get the win menu entry 
-         */
-         public JMenu getWinMenuEntry() {
-	     return winSubMenu;
-	 } 
+    /**
+     * Returns the window sub-menu entry.
+     * 
+     * @return See above.
+     */
+     public JMenu getWinMenuEntry() { return winSubMenu; } 
 	
 	/**
 	 * Adds the specified window to this group.

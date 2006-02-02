@@ -157,7 +157,50 @@ public class Initializer
 	
 	/** A reference to the singleton {@link Container}. */
 	private Container			container;
-	
+	 
+    /**
+     * Calls the <code>onStart</code> method of each subscriber in the
+     * notification set.
+     */
+    private void notifyStart()
+    {
+        int size = processingQueue.size();
+        Iterator i = initListeners.iterator();
+        InitializationListener subscriber;
+        while (i.hasNext()) {
+            subscriber = (InitializationListener) i.next();
+            subscriber.onStart(size);
+        }
+    }
+    
+    /**
+     * Calls the <code>onExecute</code> method of each subscriber in the
+     * notification set.
+     */
+    private void notifyExecute()
+    {
+        String name = currentTask.getName();
+        Iterator i = initListeners.iterator();
+        InitializationListener subscriber;
+        while (i.hasNext()) {
+            subscriber = (InitializationListener) i.next();
+            subscriber.onExecute(name);
+        }
+    }
+    
+    /**
+     * Calls the <code>onEnd</code> method of each subscriber in the
+     * notification set.
+     */
+    private void notifyEnd()
+    {
+        Iterator i = initListeners.iterator();
+        InitializationListener subscriber;
+        while (i.hasNext()) {
+            subscriber = (InitializationListener) i.next();
+            subscriber.onEnd();
+        }
+    }
     
     /**
      * Only for the benefit of subclasses that want to modifiy the
@@ -245,8 +288,9 @@ public class Initializer
 	public void rollback()
 	{
 		Iterator i = doneTasks.iterator();
+        InitializationTask task;
 		while (i.hasNext()) {
-			InitializationTask task = (InitializationTask) i.next();
+			task = (InitializationTask) i.next();
 			task.rollback();
 		}
 	}
@@ -261,52 +305,9 @@ public class Initializer
 	 */
 	public boolean register(InitializationListener subscriber) 
 	{
-		if (subscriber == null)		throw new NullPointerException();
+		if (subscriber == null) throw new NullPointerException();
 		return initListeners.add(subscriber);
 	}
-	
-	/**
-	 * Calls the <code>onStart</code> method of each subscriber in the
-	 * notification set.
-	 */
-	private void notifyStart()
-	{
-		int	size = processingQueue.size();
-		Iterator i = initListeners.iterator();
-		InitializationListener subscriber;
-		while (i.hasNext()) {
-			subscriber = (InitializationListener) i.next();
-			subscriber.onStart(size);
-		}
-	}
-	
-	/**
-	 * Calls the <code>onExecute</code> method of each subscriber in the
-	 * notification set.
-	 */
-	private void notifyExecute()
-	{
-		String name = currentTask.getName();
-		Iterator i = initListeners.iterator();
-		InitializationListener subscriber;
-		while (i.hasNext()) {
-			subscriber = (InitializationListener) i.next();
-			subscriber.onExecute(name);
-		}
-	}
-	
-	/**
-	 * Calls the <code>onEnd</code> method of each subscriber in the
-	 * notification set.
-	 */
-	private void notifyEnd()
-	{
-		Iterator i = initListeners.iterator();
-		InitializationListener subscriber;
-		while (i.hasNext()) {
-			subscriber = (InitializationListener) i.next();
-			subscriber.onEnd();
-		}
-	}
+
 	
 }

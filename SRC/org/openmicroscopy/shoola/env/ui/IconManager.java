@@ -328,6 +328,7 @@ public class IconManager
 	/**
 	 * Returns the <code>IconManager</code> object. 
 	 * 
+     * @param registry Reference to the {@link Registry}.
 	 * @return	See above.
 	 */
 	static IconManager getInstance(Registry registry)
@@ -345,6 +346,5 @@ public class IconManager
     {
         super(registry, LookupNames.ICONS_FACTORY, relPaths);
     }
-
 	
 }

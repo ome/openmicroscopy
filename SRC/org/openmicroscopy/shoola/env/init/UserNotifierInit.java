@@ -59,19 +59,14 @@ public final class UserNotifierInit
 	extends InitializationTask
 {
 
-	/**
-	 * Constructor required by superclass.
-	 */
+	/** Constructor required by superclass. */
 	public UserNotifierInit() {}
 
 	/**
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName() 
-	{
-		return "Starting User Notification Service";
-	}
+	String getName()  { return "Starting User Notification Service"; }
 
 	/** 
 	 * Does nothing, as this task requires no set up.

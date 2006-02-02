@@ -98,11 +98,16 @@ class DialogControl
         view.attachMouseMotionListener(this);
     }
 
-    /** Returns the <code>model</code>. */
+    /** 
+     * Returns the <code>Model</code>.
+     * 
+     * @return See above.
+     */
     TinyDialog getModel() { return model; }
     
     /**
      * Monitors frame's state changes and updates the UI accordingly.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
@@ -119,19 +124,20 @@ class DialogControl
             view.updateCollapsedState();
     }
 
-    /** Reacts to input events in the UI. */
+    /** 
+     * Reacts to input events in the UI. 
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent ae)
     {  
         try {
             int index = Integer.parseInt(ae.getActionCommand());
             switch (index) {
                 case SIZE:  //The size button has been pressed.
-                    if (model.isCollapsed()) model.setCollapsed(false);
-                    else model.setCollapsed(true);
+                    model.setCollapsed(!model.isCollapsed());
                     break;
                 case CLOSE:
-                    if (model.isClosed()) model.setClosed(false);
-                    else model.setClosed(true);
+                    model.setClosed(!model.isClosed());
                     break;
             }
         }  catch(NumberFormatException nfe) { 
@@ -139,36 +145,49 @@ class DialogControl
         }        
     }
 
-    /** Forward event to the <code>Screen control</code>. */
+    /** 
+     * Forward event to the <code>Screen control</code>. 
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
     public void mousePressed(MouseEvent e) { sControl.mousePressed(e); }
 
-    /** Forward event to the <code>Screen control</code>. */
+    /** 
+     * Forward event to the <code>Screen control</code>. 
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
     public void mouseReleased(MouseEvent e) { sControl.mouseReleased(e); }
 
-    /** Forward event to the <code>Screen control</code>. */
-    public void mouseDragged(MouseEvent e) { sControl.mouseDragged(e); }
-    
     /** 
-     * Required by {@link MouseListener} I/F but not actually needed in 
-     * our case, no op implementation.
-     */  
-    public void mouseClicked(MouseEvent e) {}
+     * Forward event to the <code>Screen control</code>. 
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
+    public void mouseDragged(MouseEvent e) { sControl.mouseDragged(e); }
     
     /** 
      * Required by {@link MouseMotionListener} I/F but not actually needed in 
      * our case, no op implementation.
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
      */  
     public void mouseMoved(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in 
+     * our case, no op implementation.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */  
+    public void mouseClicked(MouseEvent e) {}
 
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in 
      * our case, no op implementation.
+     * @see MouseListener#mouseEntered(MouseEvent)
      */  
     public void mouseEntered(MouseEvent e) {}
 
     /** 
      * Required by {@link MouseListener} I/F but not actually needed in 
      * our case, no op implementation.
+     *  @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
     

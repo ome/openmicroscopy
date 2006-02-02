@@ -83,66 +83,95 @@ class LoggerImpl
      */
     LoggerImpl(Properties config, String absFile)
     {
-		config.put("log4j.appender.BASE.File", 
-					absFile);
+		config.put("log4j.appender.BASE.File", absFile);
 		PropertyConfigurator.configure(config);
     }
     
-	/** Implemented as specified by {@link Logger}. */     
+	/** 
+     * Implemented as specified by {@link Logger}. 
+     * @see Logger#debug(Object, String)
+     */     
     public void debug(Object c, String logMsg)
     {
 		getAdaptee(c).debug(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}. */     
+	/** 
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#debug(Object, LogMessage)
+     */     
 	public void debug(Object c, LogMessage msg)
 	{
 		getAdaptee(c).debug(msg == null ? null : msg.toString());
 	}
     
-	/** Implemented as specified by {@link Logger}. */ 
+	/**
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#error(Object, String)
+     */ 
     public void error(Object c, String logMsg)
     {
 		getAdaptee(c).error(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}. */     
+	/** 
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#error(Object, LogMessage)
+     */     
 	public void error(Object c, LogMessage msg)
 	{
 		getAdaptee(c).error(msg == null ? null : msg.toString());
 	}
     
-	/** Implemented as specified by {@link Logger}.*/ 
+	/** 
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#fatal(Object, String)
+     */ 
     public void fatal(Object c, String logMsg)
     {
 		getAdaptee(c).fatal(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}. */     
+	/** 
+     * Implemented as specified by {@link Logger}. 
+     * @see Logger#fatal(Object, LogMessage)
+     */     
 	public void fatal(Object c, LogMessage msg)
 	{
 		getAdaptee(c).fatal(msg == null ? null : msg.toString());
 	}
     
-	/** Implemented as specified by {@link Logger}. */ 
+	/** 
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#info(Object, String)
+     */ 
     public void info(Object c, String logMsg)
     {
 		getAdaptee(c).info(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}. */     
+	/**
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#info(Object, LogMessage)
+     */     
 	public void info(Object c, LogMessage msg)
 	{
 		getAdaptee(c).info(msg == null ? null : msg.toString());
 	}
     
-	/** Implemented as specified by {@link Logger}. */ 
+	/**
+     * Implemented as specified by {@link Logger}. 
+     * @see Logger#warn(Object, String)
+     */ 
     public void warn(Object c, String logMsg)
     {
 		getAdaptee(c).warn(logMsg);
     }
     
-	/** Implemented as specified by {@link Logger}. */     
+	/**
+     * Implemented as specified by {@link Logger}.
+     * @see Logger#warn(Object, LogMessage)
+     */     
 	public void warn(Object c, LogMessage msg)
 	{
 		getAdaptee(c).warn(msg == null ? null : msg.toString());

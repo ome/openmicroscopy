@@ -52,6 +52,12 @@ package org.openmicroscopy.shoola.env.event;
 public interface CompletionHandler
 {
     
+    /**
+     * Handles the completion of an asynchronous operation.
+     * 
+     * @param request The event resquesting the operation.
+     * @param response The response event.
+     */
     public void handle(RequestEvent request, ResponseEvent response);
     
 }

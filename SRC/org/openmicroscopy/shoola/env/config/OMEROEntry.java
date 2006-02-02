@@ -83,6 +83,7 @@ class OMEROEntry
      * @param tag The structured entry tag.
      * @return An object that holds the contents of the tag.
      * @throws ConfigException If the tag is malformed.
+     * @throws DOMException If the specified tag cannot be parsed.
      */
     private static OMEROInfo parseTag(Node tag)
         throws DOMException, ConfigException
@@ -128,7 +129,11 @@ class OMEROEntry
      */     
     Object getValue() { return value; }
     
-    /** Implemented as specified by {@link Entry}. */  
+    /** 
+     * Implemented as specified by {@link Entry}. 
+     * @see Entry#setContent(Node)
+     * @throws ConfigException If the configuration entry couldn't be handled.
+     */  
     protected void setContent(Node node)
         throws ConfigException
     { 

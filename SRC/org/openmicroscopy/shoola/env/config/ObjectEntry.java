@@ -97,7 +97,10 @@ class ObjectEntry
 	 */
 	void setContent(Object content) { value = content; }
 	
-	/** Overrides the superclass method to return the correct value. */
+	/** 
+     * Overrides the superclass method to return the correct value. 
+     * @see Entry#getName()
+     */
 	String getName() { return name; }
 
 }

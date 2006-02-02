@@ -56,7 +56,7 @@ public interface EventBus
     
 
 	/** 
-	 * Add the subscriber to the List.
+	 * Adds the subscriber to the List.
 	 * An agent uses the register method in order to be notified  
 	 * of occurences of the specified event types.
 	 *
@@ -66,7 +66,7 @@ public interface EventBus
     public void register(AgentEventListener  subscriber, Class[] events);
     
 	/** 
-	 * Add the subscriber to the List.
+	 * Adds the subscriber to the List.
 	 * An agent uses the register method in order to be notified  
 	 * of occurences of the specified event types.
 	 *
@@ -76,15 +76,14 @@ public interface EventBus
     public void register(AgentEventListener  subscriber, Class event);
     
 	/** 
-	 * Remove the subscriber to the List.
+	 * Removes the subscriber from the List.
 	 *
 	 * @param subscriber	AgentListener objet to remove.
-	 * @param events		list of classes. 
 	 */    
     public void remove(AgentEventListener  subscriber);
     
 	/** 
-	 * Remove the subscriber to the List.
+	 * Removes the subscriber from the List.
 	 *
 	 * @param subscriber     AgentListener objet to remove.
 	 * @param event          a class.
@@ -92,7 +91,7 @@ public interface EventBus
     public void remove(AgentEventListener  subscriber, Class event);
     
 	/** 
-	 * Remove the subscriber to the List.
+	 * Removes the subscriber from the List.
 	 *
 	 * @param subscriber	AgentListener objet to remove.
 	 * @param events		list of classes. 
@@ -100,8 +99,11 @@ public interface EventBus
     public void remove(AgentEventListener  subscriber, Class[] events);
     
     /**
-     * Indicate whether or not there are any listeners for a type of event
-     * @param e
+     * Indicates whether or not there are any listeners for a type of event.
+     * 
+     * @param event a class.
+     * @return  <code>true</code> if there is a listener for that event,
+     *          <code>false</code> otherwise.
      */
     public boolean hasListenerFor(Class event);
     

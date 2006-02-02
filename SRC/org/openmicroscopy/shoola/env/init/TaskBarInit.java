@@ -66,19 +66,14 @@ public final class TaskBarInit
 	private static final String		SYSTEM_LF = "system";
 	
 
-	/**
-	 * Constructor required by superclass.
-	 */
+	/** Constructor required by superclass. */
 	public TaskBarInit() {}
 
 	/**
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName() 
-	{
-		return "Creating Task Bar";
-	}
+	String getName()  { return "Creating Task Bar"; }
 
 	/** 
 	 * Does nothing, as this task requires no set up.
@@ -98,7 +93,6 @@ public final class TaskBarInit
 	 *  loaded.</li>
 	 *  <li>Failing the above, the dafault L&F is loaded.</li>
 	 * </ul>
-	 * 
 	 * @see InitializationTask#execute()
 	 */
 	void execute() 

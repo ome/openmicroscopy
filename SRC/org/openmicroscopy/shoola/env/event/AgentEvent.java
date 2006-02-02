@@ -53,16 +53,21 @@ package org.openmicroscopy.shoola.env.event;
 public abstract class AgentEvent
 {
     
+    /** The srouce of the event. */
     private Object source;
     
-    public void setSource(Object source)
-    {
-        this.source = source;
-    }
+    /**
+     * Sets the source.
+     * 
+     * @param source The source to set.
+     */
+    public void setSource(Object source) { this.source = source; }
     
-    public Object getSource()
-    {
-        return source;
-    }
+    /**
+     * Returns the source.
+     * 
+     * @return See above.
+     */
+    public Object getSource() { return source; }
       
 }

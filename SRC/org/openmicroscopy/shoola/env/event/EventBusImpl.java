@@ -61,10 +61,10 @@ class EventBusImpl
     implements EventBus
 {
     
-    /** State id flag. */
+    /** Identifies the <code>IDLE</code> state. */
 	private static final int	IDLE = 0;   
 	
-	/** State id flag. */
+    /** Identifies the <code>DISPATCHING</code> state. */
 	private static final int	DISPATCHING = 1;
 	
 	/** Sequence of events to be dispatched. */
@@ -81,6 +81,44 @@ class EventBusImpl
     /** Marks the current state. */
     private int             state;
     
+    /** Dispatches the next event. */
+    private void dispatch()
+    {
+        //Grab the oldest event on the queue.
+        AgentEvent e = (AgentEvent) eventQueue.removeLast();
+        Class eventType = e.getClass();
+        LinkedList evNotifList = (LinkedList) deMultiplexTable.get(eventType);
+        if (evNotifList != null) {
+            Iterator i = evNotifList.iterator();
+            AgentEventListener listener;
+            while (i.hasNext()) {
+                listener = (AgentEventListener) i.next();
+                if (!listener.equals(e.getSource())) listener.eventFired(e);
+            }
+        }  //else nobody registered for this event type.
+    }
+    
+    /** 
+     * Tells whether a given class inherits from {@link AgentEvent}.
+     *
+     * @param eventClass    The class to verify.
+     * @return <code>true</code> if {@link AgentEvent} is an ancestor of 
+     *          <code>eventClass</code>, <code>false</code> otherwise.
+     */
+    private boolean verifyInheritance(Class eventClass)
+    {
+        Class agtEvent = AgentEvent.class;
+        boolean b = false;
+        //Percolate inheritance hierarchy.
+        while (eventClass != null) {   
+            if (eventClass == agtEvent) {
+                b = true;
+                break;
+            }
+            eventClass = eventClass.getSuperclass();
+        } 
+        return b;
+    }
     
 	/** Creates a new instance. */
     EventBusImpl()
@@ -90,7 +128,10 @@ class EventBusImpl
         state = IDLE;
     }    
     
-	/** Implemented as specified by {@link EventBus}. */    
+	/** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#register(AgentEventListener, Class[])
+     */    
     public void register(AgentEventListener subscriber, Class[] eventTypes)
     {
 		if (eventTypes == null)
@@ -99,7 +140,10 @@ class EventBusImpl
 			register(subscriber, eventTypes[i]);
     }
     
-	/** Implemented as specified by {@link EventBus}. */    
+	/** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#register(AgentEventListener, Class)
+     */    
     public void register(AgentEventListener subscriber, Class eventType)
     {
     	if (subscriber == null)	
@@ -117,7 +161,10 @@ class EventBusImpl
         }     
     } 
     
-	/** Implemented as specified by {@link EventBus}. */ 
+	/** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#remove(AgentEventListener, Class)
+     */ 
 	public void remove(AgentEventListener subscriber, Class eventType)
 	{
 		if (subscriber == null)	
@@ -131,7 +178,10 @@ class EventBusImpl
 		}     
 	}
 	
-	/** Implemented as specified by {@link EventBus}. */    
+    /** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#remove(AgentEventListener, Class[])
+     */    
     public void remove(AgentEventListener subscriber, Class[] eventTypes)
     {
 		if (eventTypes == null)
@@ -140,21 +190,29 @@ class EventBusImpl
 			remove(subscriber, eventTypes[i]);   
     }
 
-	/** Implemented as specified by {@link EventBus}.*/ 
+    /** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#remove(AgentEventListener)
+     */ 
     public void remove(AgentEventListener subscriber)
     {
         Iterator e = deMultiplexTable.keySet().iterator();
         while (e.hasNext())	remove(subscriber, (Class) e.next());
     }
     
-	/** Implemented as specified by {@link EventBus}. */  
-    public boolean hasListenerFor(Class eventType) {
-    		Object evNotifList = deMultiplexTable.get(eventType);
-    		return (evNotifList != null);
+    /** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#hasListenerFor(Class)
+     */ 
+    public boolean hasListenerFor(Class eventType)
+    {
+    		return (deMultiplexTable.get(eventType) != null);
     }
     
-    
-	/** Implemented as specified by {@link EventBus}. */  
+    /** 
+     * Implemented as specified by {@link EventBus}. 
+     * @see EventBus#post(AgentEvent)
+     */ 
     public void post(AgentEvent e)
     {
         if (e == null)	throw new NullPointerException("No event.");
@@ -169,44 +227,6 @@ class EventBusImpl
                 eventQueue.addFirst(e);                
         }
     }
-    
-	/** Dispatch the next event. */
-    private void dispatch()
-    {
-        //Grab the oldest event on the queue.
-        AgentEvent e = (AgentEvent) eventQueue.removeLast();
-        Class eventType = e.getClass();
-        LinkedList evNotifList = (LinkedList) deMultiplexTable.get(eventType);
-        if (evNotifList != null) {
-			Iterator i = evNotifList.iterator();
-			AgentEventListener listener;
-			while (i.hasNext()) {
-				listener = (AgentEventListener) i.next();
-				if (!listener.equals(e.getSource())) listener.eventFired(e);
-			}
-        }  //else nobody registered for this event type.
-    }
-    
-	/** 
-	 * Tells whether a given class inherits from {@link AgentEvent}.
-	 *
-	 * @param eventClass	The class to verify.
-	 * @return <code>true</code> if {@link AgentEvent} is an ancestor of 
-	 * 			<code>eventClass</code>, <code>false</code> otherwise.
-	 */
-	private boolean verifyInheritance(Class eventClass)
-	{
-		Class agtEvent = AgentEvent.class;
-		boolean b = false;
-		//Percolate inheritance hierarchy.
-		while (eventClass != null) {   
-		    if (eventClass == agtEvent) {
-		        b = true;
-		        break;
-		    }
-            eventClass = eventClass.getSuperclass();
-		} 
-        return b;
-    }
+
         
 }

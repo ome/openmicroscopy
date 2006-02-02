@@ -71,8 +71,7 @@ class TaskBarManager
 	
 	/** Reference to the container. */
 	private Container		container;
-	
-	
+
 	/**
 	 * Synchronizes the enabled state of the connection-related buttons
 	 * according to the current connection state. 
@@ -91,9 +90,7 @@ class TaskBarManager
 		view.getButton(TaskBarView.DISCONNECT_MI).setEnabled(connected);	
 	}
 	
-	/**
-	 * The action assocaiated to the connection-related buttons.
-	 */
+	/** The action associated to the connection-related buttons. */
 	private void doManageConnection()
 	{
 		try {
@@ -116,10 +113,7 @@ class TaskBarManager
 	 * The exit action.
 	 * Just forwards to the container.
 	 */
-	private void doExit()
-	{
-		container.exit();
-	}
+	private void doExit() { container.exit(); }
 	
 	/**
 	 * Temporary action to notify the user that the action associated to a
@@ -217,19 +211,17 @@ class TaskBarManager
 	 * 
 	 * @return	See above.
 	 */
-	TaskBar getView()
-	{
-		return view;
-	}
+	TaskBar getView() { return view; }
 	
 	/**
 	 * Intercepts {@link ServiceActivationResponse} events in order to keep
 	 * the connection-related buttons in synch with the actual state of the
 	 * connection.
+     * @see AgentEventListener#eventFired(AgentEvent)
 	 */
 	public void eventFired(AgentEvent e) 
 	{
-		if(e instanceof ServiceActivationResponse)	synchConnectionButtons();	
+		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();	
 	}
 
 }

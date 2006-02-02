@@ -78,10 +78,7 @@ abstract class InitializationTask
 	 * 
 	 * @param c	Reference to the singleton {@link Container}.
 	 */
-	void linkContainer(Container c)
-	{
-		container = c;
-	}
+	void linkContainer(Container c) { container = c; }
     
     /**
      * Links this object to the {@link Initializer}.
@@ -90,10 +87,7 @@ abstract class InitializationTask
      * 
      * @param i Reference to the {@link Initializer}.
      */
-    void linkInitializer(Initializer i)
-    {
-        initializer = i;
-    }
+    void linkInitializer(Initializer i) { initializer = i; }
 	
 	/**
 	 * Returns the name of this task.

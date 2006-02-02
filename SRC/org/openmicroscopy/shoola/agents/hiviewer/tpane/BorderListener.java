@@ -67,7 +67,8 @@ import javax.swing.event.MouseInputAdapter;
  * @since OME2.2
  */
 class BorderListener
-    extends MouseInputAdapter implements SwingConstants
+    extends MouseInputAdapter
+    implements SwingConstants
 {
 
     /** Identifies the resizing zone. */

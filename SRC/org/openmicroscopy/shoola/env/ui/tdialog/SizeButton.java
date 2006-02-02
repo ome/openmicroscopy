@@ -37,11 +37,11 @@ import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
-import org.openmicroscopy.shoola.env.ui.IconManager;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.ui.IconManager;
+
 
 /** 
  * The sizing button in the {@link TitleBar}.
@@ -79,9 +79,7 @@ class SizeButton
     /** Tooltip text when the button repsents the expand action. */
     static final String EXPAND_TOOLTIP = "Expand";
        
-    /**
-     * Creates a new instance.
-     */
+    /** Creates a new instance. */
     SizeButton() 
     {
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
@@ -112,10 +110,16 @@ class SizeButton
         }
     }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#isFocusable()
+     */
     public boolean isFocusable() { return false; }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon.
+     * @see JButton#requestFocus()
+     */
     public void requestFocus() {}
 
 }

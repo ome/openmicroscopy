@@ -72,19 +72,58 @@ class ScreenControl
     /** Dragging control. */
     private boolean         dragging;
     
+    /** The initial cursor. */
     private Cursor          initialCursor;
     
     /** The controller. */
     private DialogControl   controller;
     
+    /** 
+     * Sets the mouse cursor. 
+     * 
+     * @param c The cursor to set.
+     */
+    private void setCursor(Cursor c)
+    {
+        controller.getModel().getRootPane().setCursor(c);
+    }
+    
+    /** 
+     * Sets the location of the {@link TinyDialog window}. 
+     * 
+     * @param e The mouse event.
+     */
+    private void moveFrame(MouseEvent e)
+    {
+        Point p = SwingUtilities.convertPoint((Component) e.getSource(), 
+                e.getX(), e.getY(), null); 
+        int deltaX = xAbs-p.x;
+        int deltaY = yAbs-p.y;
+        Rectangle r = controller.getModel().getBounds();
+        int newX = r.x-deltaX;
+        int newY = r.y-deltaY;
+        controller.getModel().setLocation(newX, newY);
+    }
+    
+    /**
+     * Creates a new instance.
+     * @param controller    Back pointer to the main Controller.   
+     *                      Mustn't be <code>null</code>.
+     */
     ScreenControl(DialogControl controller)
     {
+        if (controller == null)
+            throw new IllegalArgumentException("No control.");
         this.controller = controller;
         dragging = false;
         initialCursor = controller.getModel().getRootPane().getCursor();
     }
     
-    /** Handles the moussePressed event. */
+    /** 
+     * Handles the <code>moussePressed</code> event. 
+     * 
+     * @param e The event to handle.
+     */
     void mousePressed(MouseEvent e)
     {
         Point p = SwingUtilities.convertPoint((Component) e.getSource(), 
@@ -103,17 +142,24 @@ class ScreenControl
         }
     }
     
-    /** Handles the mouseReleased event. */
+    /** 
+     * Handles the <code>mouseReleased</code> event. 
+     * 
+     * @param e The event to handle.
+     */
     void  mouseReleased(MouseEvent e)
     {
-        if (dragging) {
-            moveFrame(e);
-            setCursor(initialCursor);
-            dragging = false;
-        }
+        if (!dragging) return;
+        moveFrame(e);
+        setCursor(initialCursor);
+        dragging = false;
     }
     
-    /** Handles the mouseDragged event. */
+    /** 
+     * Handles the <code>mouseDragged</code> event. 
+     * 
+     * @param e The event to handle.
+     */
     void mouseDragged(MouseEvent e)
     {
         if (!dragging) return;
@@ -122,25 +168,6 @@ class ScreenControl
            InputEvent.BUTTON1_MASK) != InputEvent.BUTTON1_MASK)) return;
         setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
         moveFrame(e);
-    }
-    
-    /** Set the mouse cursor. */
-    private void setCursor(Cursor c)
-    {
-        controller.getModel().getRootPane().setCursor(c);
-    }
-    
-    /** Set the location of the {@link TinyDialog window}. */
-    private void moveFrame(MouseEvent e)
-    {
-        Point p = SwingUtilities.convertPoint((Component) e.getSource(), 
-                e.getX(), e.getY(), null); 
-        int deltaX = xAbs-p.x;
-        int deltaY = yAbs-p.y;
-        Rectangle r = controller.getModel().getBounds();
-        int newX = r.x-deltaX;
-        int newY = r.y-deltaY;
-        controller.getModel().setLocation(newX, newY);
     }
     
 }

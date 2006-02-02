@@ -90,9 +90,7 @@ public abstract class TopWindow
 	/** Cached reference to the {@link TaskBar}. */
 	private TaskBar		taskBar;
 	
-	/**
-	 * Adds the display buttons to the task bar and enables them.
-	 */
+	/** Adds the display buttons to the task bar and enables them. */
 	private void configureButtons()
 	{
 		taskBar.addToMenu(TaskBar.WINDOW_MENU, winMenuEntry);
@@ -185,7 +183,7 @@ public abstract class TopWindow
 		winMenuEntry.setEnabled(b);
 	}
 	
-	/** Brings up the window on screen. */
+	/** Shows the window. */
 	public void open() { quickLaunchBtn.doClick(); }
 	
 	/**
@@ -199,9 +197,7 @@ public abstract class TopWindow
 		taskBar.removeFromToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
 	}
 	
-	/**
-	 * A call for post-processing after the window is shown
-	 */
+	/** A call for post-processing after the window is shown */
 	 public void postHandleDisplay() {}
      
 }

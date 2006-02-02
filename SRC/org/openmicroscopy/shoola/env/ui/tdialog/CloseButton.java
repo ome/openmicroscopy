@@ -30,18 +30,15 @@
 package org.openmicroscopy.shoola.env.ui.tdialog;
 
 
-
-
 //Java imports
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
-import org.openmicroscopy.shoola.env.ui.IconManager;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.ui.IconManager;
 
 /** 
  * The close button in the {@link TitleBar}.
@@ -96,10 +93,16 @@ class CloseButton
         }
     }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#isFocusable()
+     */
     public boolean isFocusable() { return false; }
     
-    /** Overridden to make sure no focus is painted on top of the icon. */
+    /** 
+     * Overridden to make sure no focus is painted on top of the icon. 
+     * @see JButton#requestFocus()
+     */
     public void requestFocus() {}
 
 }

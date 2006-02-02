@@ -61,19 +61,14 @@ public final class LoggerInit
 	extends InitializationTask
 {
 
-	/**
-	 * Constructor required by superclass.
-	 */
+	/** Constructor required by superclass. */
 	public LoggerInit() {}
 
 	/**
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName()
-	{
-		return "Starting Log Service";
-	}
+	String getName() { return "Starting Log Service"; }
 	
 	/** 
 	 * Does nothing, as this task requires no set up.

@@ -287,9 +287,15 @@ public class TinyDialog
      */
     public boolean isClosed() { return closed; }
     
+    /** Closes and disposes. */
     public void closeWindow() { uiDelegate.updateClosedState(); }
     
-    /** Overrides the method. Attaches a borderListener if <code>true</code>. */
+    /** 
+     * Overrides the method. 
+     * If the specified flag is <code>true</code>, we attach a 
+     * {@link BorderListener}.
+     * @see JDialog#setResizable(boolean)
+     */
     public void setResizable(boolean b)
     {
         super.setResizable(b);
@@ -297,7 +303,10 @@ public class TinyDialog
             getRootPane().addMouseMotionListener(new BorderListener(this));
     }
     
-    /** Overrides the method to make sure that we have no decoration. */
+    /** 
+     * Overrides the method to make sure that we have no decoration. 
+     * @see JDialog#setUndecorated(boolean)
+     */
     public void setUndecorated(boolean b)
     {
         super.setUndecorated(true);

@@ -41,7 +41,7 @@ package org.openmicroscopy.shoola.env.event;
  * Every <code>RequestEvent</code> object is linked to the processing action 
  * that has to be dispatched upon completion of the asynchronous operation.
  * The <code>RequestEvent</code> class factors out the association as well as 
- * the dispatching logic. The processing action is encapsulated by a class 
+ * the dispatching logic.The processing action is encapsulated by a class 
  * that implements the <code>CompletionHandler</code> interface.
  *
  *
@@ -60,17 +60,30 @@ public abstract class RequestEvent
     extends AgentEvent
 {
     
+    /** Reference to the completion Handler. */
     private CompletionHandler completionHandler;
     
+    /**
+     * Handles the completion of the asynchronous operation.
+     * 
+     * @param response The response.
+     */
+    void handleCompletion(ResponseEvent response)
+    {
+        if (completionHandler != null)
+            completionHandler.handle(this, response);
+    }
+    
+    /**
+     * Sets the completion handler.
+     * 
+     * @param cHandler The object to set.
+     */
     public void setCompletionHandler(CompletionHandler cHandler)
     {
         completionHandler = cHandler;
     }
     
-    void handleCompletion(ResponseEvent response)
-    {
-        if (completionHandler != null)
-        	completionHandler.handle(this, response);
-    }
+
         
 }

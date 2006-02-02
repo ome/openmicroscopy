@@ -46,7 +46,7 @@ import javax.swing.SwingUtilities;
 //Application-internal dependencies
 
 /** 
- * We no longer use the usual decoration of a JDialog so we need to 
+ * We no longer use the usual decoration of a <code>JDialog</code> so we need to 
  * provide our own border listener.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -60,21 +60,22 @@ import javax.swing.SwingUtilities;
  * </small>
  * @since OME2.2
  */
-public class BorderListener
+class BorderListener
     implements MouseMotionListener
 {
 
+    /** The default border thickness. */
     private static int THICKNESS = 10;
     
     /** Reference to the model. */
     private TinyDialog  model;
     
-    BorderListener(TinyDialog  model)
-    {
-        this.model = model;
-    }
 
-    /** Sets the bounds of the model .*/
+    /** 
+     * Sets the bounds of the model.
+     * 
+     * @param bounds The bounds to set.
+     */
     private void setModelBounds(Rectangle bounds)
     {
         model.setBounds(bounds);
@@ -82,7 +83,22 @@ public class BorderListener
         model.validate();
     }
     
-    /** Handles mouseDragged events. */
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+    BorderListener(TinyDialog  model)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.model = model;
+    }
+
+    
+    /**
+     * Handles mouseDragged events. 
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
     public void mouseDragged(MouseEvent e)
     {
         Rectangle bounds = model.getBounds();
@@ -121,6 +137,7 @@ public class BorderListener
     /** 
      * Required by {@link MouseMotionListener} I/F but not actually needed in 
      * our case, no op implementation.
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
      */  
     public void mouseMoved(MouseEvent e) {}
     

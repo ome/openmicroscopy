@@ -28,6 +28,8 @@
  */
 
 package org.openmicroscopy.shoola.env;
+
+
 // Java Imports;
 
 //Third-party libraries
@@ -38,7 +40,8 @@ package org.openmicroscopy.shoola.env;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 
-/** The <code>Agent</code> interface plays the role of Separated interface, 
+/** 
+ * The <code>Agent</code> interface plays the role of Separated interface, 
  * decoupling the container from knowledge of concrete agents.
  *
  *
@@ -67,10 +70,16 @@ public interface Agent
 	 * Container create a Registry  from entries in agent's configuration 
 	 * file and add entries for services that can be accessed by agent. 
 	 * It then passes  this to setContext
+     * 
+     * @param ctx The Registry to set.
 	 */
     public void setContext(Registry ctx);
     
-	/** Container tells agent to release acquired resources and stop service. */
+	/**
+     * Container tells agent to release acquired resources and stop service. 
+     * 
+     * @return See above.
+     */
     public boolean canTerminate();
     
 }

@@ -155,6 +155,7 @@ class SplashScreenManager
      * the user's credentials when available.
      * 
      * @param future The Future to collect the credentials.
+     * @param init   Flag to control if it's the first attempt. 
      */
     void collectUserCredentials(SplashScreenFuture future, boolean init)
     {
@@ -177,10 +178,8 @@ class SplashScreenManager
     void collectUserCredentialsInit(SplashScreenFuture future)
     {
         userCredentials = future;
-        //view.user.setText("");
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
-        //view.pass.setText("");
         view.login.setEnabled(true);
     }
     
@@ -188,6 +187,7 @@ class SplashScreenManager
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
 	 * button will be disabled. 
+     * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{

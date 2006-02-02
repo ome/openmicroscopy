@@ -44,7 +44,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 
 /** 
- * 
+ * Custom <code>JComponent</code> to paint the thumbnail.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,7 +82,7 @@ class ThumbnailCanvas
         if (image != null) {
             Insets i = getInsets();
             g2D.drawImage(image, null, i.left+TinyDialogUI.INNER_PADDING, 
-            i.top+TinyDialogUI.INNER_PADDING);
+                            i.top+TinyDialogUI.INNER_PADDING);
         }  
     }
     
