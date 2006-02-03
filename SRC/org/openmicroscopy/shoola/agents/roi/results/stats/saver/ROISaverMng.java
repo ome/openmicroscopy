@@ -137,7 +137,7 @@ class ROISaverMng
         if (encoder == null) 
             WriterImage.saveImage(f, img, format);
         else  
-            WriterImage.saveImage(f, encoder, img);
+            WriterImage.saveImage(encoder);
     }
     
 }

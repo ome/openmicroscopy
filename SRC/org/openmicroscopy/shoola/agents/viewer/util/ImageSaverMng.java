@@ -33,7 +33,10 @@ package org.openmicroscopy.shoola.agents.viewer.util;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 
@@ -94,7 +97,7 @@ class ImageSaverMng
     
     private BufferedImage           lensImage, image;
     
-    private Encoder                 encoder;
+    //private Encoder                 encoder;
     
     private ViewerCtrl              control;
     
@@ -122,7 +125,7 @@ class ImageSaverMng
     
     BufferedImage getPinImage() { return control.getPinImage(); }
     
-    /** Bring up the selection dialog. */
+    /** Brings up the selection dialog. */
     void showSelectionDialog(String format, String fileName, String message)
     {
         if (format == null || fileName == null) {
@@ -211,7 +214,6 @@ class ImageSaverMng
         this.message = message;
         JComboBox box = view.selection.imageTypes;
         int index = box.getSelectedIndex();
-        encoder = createEncoder(format);
         switch (index) {
             case ImageSaver.IMAGE:
                 handleSaveImage();
@@ -433,10 +435,11 @@ class ImageSaverMng
         name +="."+format; //Add extension
         File f = new File(name);
         try {
+            Encoder encoder = createEncoder(img, f);
             if (encoder == null) 
                 WriterImage.saveImage(f, img, format);
             else  
-                WriterImage.saveImage(f, encoder, img);
+                WriterImage.saveImage(encoder);
             un.notifyInfo("Image saved", message);
         } catch (Exception e) {
             f.delete();
@@ -451,11 +454,19 @@ class ImageSaverMng
      * @param format
      * @return The appropriated encoder. 
      */
-    private Encoder createEncoder(String format)
+    private Encoder createEncoder(BufferedImage img, File f)
     {
         Encoder encoder = null;
-        if (format.equals(TIFFFilter.TIF)) encoder = new TIFFEncoder();
-        else if (format.equals(BMPFilter.BMP)) encoder = new BMPEncoder();
+        try {
+            if (format.equals(TIFFFilter.TIF)) 
+                encoder = new TIFFEncoder(img, 
+                            new DataOutputStream(new FileOutputStream(f)));
+            else if (format.equals(BMPFilter.BMP)) 
+                encoder = new BMPEncoder(img, 
+                    new DataOutputStream(new FileOutputStream(f)));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         return encoder;
     }
     
