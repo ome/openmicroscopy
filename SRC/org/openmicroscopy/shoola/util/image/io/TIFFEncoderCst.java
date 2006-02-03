@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.util.image.io;
 //Application-internal dependencies
 
 /** 
- * Constant used to save a buffered image as a TIFF.
+ * Constants used by the {@link TIFFEncoder}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

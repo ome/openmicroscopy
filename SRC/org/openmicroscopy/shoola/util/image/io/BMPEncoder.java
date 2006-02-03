@@ -41,7 +41,7 @@ import java.io.IOException;
 //Application-internal dependencies
 
 /** 
- * A bitmap encoder.
+ * A <code>bitmap</code> encoder.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,109 +55,121 @@ import java.io.IOException;
  * @since OME2.2
  */
 public class BMPEncoder 
-	implements Encoder
+	extends Encoder
 {
-								
-	private DataOutputStream	output;
-	
-	private BufferedImage		image;
-	
-	private int					imageWidth, imageHeight;
-	
-	//file header
+
+	/** The size of the header. */
 	private int 				headerSize = BMPEncoderCst.FILEHEADER_SIZE + 
 											BMPEncoderCst.INFOHEADER_SIZE;
-  	//info header
+  	/** The number of bits for the info. */
   	private int 				infoBitCount = BMPEncoderCst.BITCOUNT;
+    
+    /** The size image's information.*/
   	private int 				infoSizeImage = BMPEncoderCst.SIZE_IMAGE;
-  	private int 				infoClrUsed = 0;
-  	
-	/** Initializate the encoder. */
-	public void initialization(BufferedImage image, DataOutputStream output)
-		throws IllegalArgumentException
-	{
-		EncoderUtils.checkColorModel(image);
-		EncoderUtils.checkOutput(output);
-		this.image = image;
-		this.output = output;
-		init();
-	}
-	
-	/** Write the image. */
-	public void write()
-		throws IOException
-	{
-		writeFileHeader();
-		writeInfoHeader();
-		writeRGB();
-	}
-	
-	/** Initialize the values. */
-	private void init()
-	{
-		imageWidth = image.getWidth();
-		imageHeight = image.getHeight();
-		infoSizeImage = imageWidth*imageHeight*3
-						+(4-((imageWidth*3)%4))*imageHeight;
-		headerSize = infoSizeImage + BMPEncoderCst.FILEHEADER_SIZE + 
-							BMPEncoderCst.INFOHEADER_SIZE;
-	}
 
+    /** 
+     * Writes the plane.
+     * @throws IOException Exception thrown if an error occured during the
+     * encoding process.
+     */
+    private void writeRGB()
+        throws IOException
+    {
+        int pad = 4-((imageWidth*3)% 4);
+        if (pad == 4) pad = 0;
+        DataBufferByte 
+            bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
+        //model chosen          
+        byte[] red = bufferByte.getData(Encoder.RED_BAND);
+        byte[] green = bufferByte.getData(Encoder.GREEN_BAND);
+        byte[] blue = bufferByte.getData(Encoder.BLUE_BAND);
+        
+        int i, v, row, col;
+        for (row = imageHeight; row > 0; row--) {
+            for (col = 0; col < imageWidth; col++) {
+                v = (row-1)*imageWidth+col;
+                output.write(blue[v]);
+                output.write(green[v]);
+                output.write(red[v]);               
+            }
+            for (i = 1; i <= pad; i++) output.write(0x00);
+       }
+    }
+    
+    /** 
+     * Writes the file header.
+     * @throws IOException Exception thrown if an error occured during the
+     * encoding process.
+     */
+    private void writeFileHeader()
+        throws IOException
+    {
+        output.write(BMPEncoderCst.TYPE);
+        output.write(BMPEncoderCst.intToDWord(headerSize));
+        output.write(BMPEncoderCst.intToWord(BMPEncoderCst.RESERVED_1));
+        output.write(BMPEncoderCst.intToWord(BMPEncoderCst.RESERVED_2));
+        output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.OFFBITS));
+    }
+    
+    /** 
+     * Writes the info header.
+     * @throws IOException Exception thrown if an error occured during the
+     * encoding process.
+     */
+    private void writeInfoHeader()
+        throws IOException
+    {
+        output.write(BMPEncoderCst.intToDWord(
+                        BMPEncoderCst.INFOHEADER_SIZE));
+        output.write(BMPEncoderCst.intToDWord(imageWidth));
+        output.write(BMPEncoderCst.intToDWord(imageHeight));
+        output.write(BMPEncoderCst.intToWord(BMPEncoderCst.PLANES));
+        output.write(BMPEncoderCst.intToWord(infoBitCount));
+        output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.COMPRESSION));
+        output.write(BMPEncoderCst.intToDWord(infoSizeImage));
+        output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.XPELSPERMETER));
+        output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.YPELSPERMETER));
+        output.write(BMPEncoderCst.intToDWord(0));
+        output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.CLR_IMPORTANT));
+    }
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param image The image to encode. Mustn't be <code>null</code>.
+     * @param output The output stream. Mustn't be <code>null</code>.
+     */
+	public BMPEncoder(BufferedImage image, DataOutputStream output)
+    {
+        super(image, output);
+    }
+    
 	/** 
-	 * Write the plane.
-	 * @throws IOException
-	 */
-	private void writeRGB()
-		throws IOException
+     * Writes the image. 
+     * @see Encoder#write()
+     */
+	public void write()
+		throws EncoderException
 	{
-		int pad = 4-((imageWidth*3)% 4);
-		if (pad == 4) pad = 0;
-		DataBufferByte 
-			bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
-		//model chosen			
-		byte[] red = bufferByte.getData(EncoderUtils.RED_BAND);
-		byte[] green = bufferByte.getData(EncoderUtils.GREEN_BAND);
-		byte[] blue = bufferByte.getData(EncoderUtils.BLUE_BAND);
-		
-		int i, v, row, col;
-	  	for (row = imageHeight; row > 0; row--) {
-			for (col = 0; col < imageWidth; col++) {
-				v = (row-1)*imageWidth+col;
-				output.write(blue[v]);
-				output.write(green[v]);
-		  		output.write(red[v]);				
-			}
-		   	for (i = 1; i <= pad; i++) output.write(0x00);
-	   }
+        try {
+            writeFileHeader();
+            writeInfoHeader();
+            writeRGB();
+        } catch (IOException e) {
+            throw new EncoderException("Cannot encode the image.", e);
+        }
 	}
-	
-	/** Write the file header. */
-	private void writeFileHeader()
-		throws IOException
-	{
-		output.write(BMPEncoderCst.TYPE);
-		output.write(BMPEncoderCst.intToDWord(headerSize));
-		output.write(BMPEncoderCst.intToWord(BMPEncoderCst.RESERVED_1));
-		output.write(BMPEncoderCst.intToWord(BMPEncoderCst.RESERVED_2));
-		output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.OFFBITS));
-	}
-	
-	/** Write the information header. */
-	private void writeInfoHeader()
-		throws IOException
-	{
-		output.write(BMPEncoderCst.intToDWord(
-						BMPEncoderCst.INFOHEADER_SIZE));
-		output.write(BMPEncoderCst.intToDWord(imageWidth));
-		output.write(BMPEncoderCst.intToDWord(imageHeight));
-		output.write(BMPEncoderCst.intToWord(BMPEncoderCst.PLANES));
-		output.write(BMPEncoderCst.intToWord(infoBitCount));
-		output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.COMPRESSION));
-		output.write(BMPEncoderCst.intToDWord(infoSizeImage));
-		output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.XPELSPERMETER));
-		output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.YPELSPERMETER));
-		output.write(BMPEncoderCst.intToDWord(infoClrUsed));
-		output.write(BMPEncoderCst.intToDWord(BMPEncoderCst.CLR_IMPORTANT));
-	}
-	
+    
+    /**
+     * Initializes the values needed by this encoder
+     * @see Encoder#init()
+     */
+    public void init()
+    {
+        infoSizeImage = imageWidth*imageHeight*3
+                        +(4-((imageWidth*3)%4))*imageHeight;
+        headerSize = infoSizeImage + BMPEncoderCst.FILEHEADER_SIZE + 
+                            BMPEncoderCst.INFOHEADER_SIZE;
+    }
+    
 }

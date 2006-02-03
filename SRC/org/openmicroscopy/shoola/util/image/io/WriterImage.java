@@ -34,9 +34,7 @@ package org.openmicroscopy.shoola.util.image.io;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -48,7 +46,7 @@ import javax.imageio.stream.ImageOutputStream;
 //Application-internal dependencies
 
 /** 
- * 
+ * Utility class to encode images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,27 +62,47 @@ import javax.imageio.stream.ImageOutputStream;
 public class WriterImage
 {
     
-    /** Create a <code>JPEG</code> or <code>PNG</code>. */
+    /**
+     * Encodes the specified image. Depending on the specified format
+     * a <code>JPEG</code> or <code>PNG</code> image is created.
+     * 
+     * @param f The file used to create the outpu stream.
+     * @param img The image to encode.
+     * @param format The file format.
+     * @throws EncoderException Exception thrown if an error occured during the
+     * encoding process.
+     */
     public static void saveImage(File f, BufferedImage img, String format)
-        throws Exception
+        throws EncoderException
     {
-        Iterator writers = ImageIO.getImageWritersByFormatName(format);
-        ImageWriter writer = (ImageWriter) writers.next();
-        ImageOutputStream ios = ImageIO.createImageOutputStream(f);
-        writer.setOutput(ios);
-        writer.write(img);
-        ios.close();
+        try {
+            Iterator writers = ImageIO.getImageWritersByFormatName(format);
+            ImageWriter writer = (ImageWriter) writers.next();
+            ImageOutputStream ios = ImageIO.createImageOutputStream(f);
+            writer.setOutput(ios);
+            writer.write(img);
+            ios.close();
+        } catch (Exception e) {
+            throw new EncoderException("Cannot encode the image.", e);
+        }
     }
 
-    /** Internal encoder. Create a <code>TIFF</code> or <code>BMP</code>. */
-    public static void saveImage(File f, Encoder encoder, BufferedImage img)
-        throws Exception
+    /** 
+     * Encodes the specified image.
+     * 
+     * @param encoder The encoder to use.
+     * @throws EncoderException Exception thrown if an error occured during the
+     * encoding process.
+     */
+    public static void saveImage(Encoder encoder)
+        throws EncoderException
     {   
-        DataOutputStream dos = 
-                        new DataOutputStream(new FileOutputStream(f));
-        encoder.initialization(img, dos);
-        encoder.write();
-        dos.close();                
+        try {
+            encoder.write();
+            encoder.getOutput().close();   
+        } catch (Exception e) {
+            throw new EncoderException("Cannot encode the image.", e);
+        }      
     }  
     
 }

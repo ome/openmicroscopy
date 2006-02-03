@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.util.image.io;
 //Application-internal dependencies
 
 /** 
- * 
+ * Constants used by the {@link BMPEncoder}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,7 +52,10 @@ package org.openmicroscopy.shoola.util.image.io;
 class BMPEncoderCst
 {
 
+    /** The space allocated for the file header. */
 	static final int 	FILEHEADER_SIZE = 14;
+    
+    /** The space allocated for the info header. */
 	static final int	INFOHEADER_SIZE = 40;
 	
 	//file header
@@ -71,8 +74,11 @@ class BMPEncoderCst
 	static final int	SIZE_IMAGE = 0x030000;
 	
 	/**
-	 * intToWord converts an int to a word, where the return
+	 * Converts an int to a word, where the return
 	 * value is stored in a 2-byte array.
+     * 
+     * @param value The value to convert.
+     * @return The byte array storing the converted value.
 	 */
 	static byte [] intToWord (int value)
 	{
@@ -83,8 +89,11 @@ class BMPEncoderCst
 	}
 
 	/**
-	 * intToDWord converts an int to a double word, where the return
+	 * Converts an int to a double word, where the return
 	 * value is stored in a 4-byte array.
+     * 
+     * @param value The value to convert.
+     * @return The byte array storing the converted value.
 	 */
 	static byte [] intToDWord (int value)
 	{
