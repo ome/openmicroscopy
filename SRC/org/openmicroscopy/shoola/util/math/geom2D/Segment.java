@@ -59,6 +59,12 @@ public class Segment
     /** The end point of the segment. */
     public final PlanePoint  direction;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param o The origin of the segment.
+     * @param e The end of the segment.
+     */
     public Segment(PlanePoint o, PlanePoint e)
     {
         if (o == null) throw new NullPointerException("No origin.");
@@ -121,6 +127,7 @@ public class Segment
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#equals(Object)
      */
     public boolean equals(Object o)
     {
@@ -135,6 +142,7 @@ public class Segment
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#hashCode()
      */
     public int hashCode() { return origin.hashCode(); }
     

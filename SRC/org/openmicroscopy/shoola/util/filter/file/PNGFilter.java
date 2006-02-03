@@ -39,7 +39,7 @@ import javax.swing.filechooser.FileFilter;
 
 /** 
  * 
- * Filter the file which extension is <code>png</code>.
+ * Filters the <code>PNG</code> files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,11 +56,19 @@ public class PNGFilter
 	extends FileFilter
 {
 	
-	/** Possible format extensions. */
+	/** Possible file extension. */
 	public static final String 	PNG = "png";
 	
-	public String getDescription() { return PNG; }
+    /**
+     * Overriden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+	public String getDescription() { return "PNG images"; }
 		
+    /**
+     * Overriden to accept file with the declared file extensions.
+     * @see FileFilter#accept(File)
+     */
 	public boolean accept(File f)
 	{
 		if (f.isDirectory()) return true;
@@ -69,11 +77,8 @@ public class PNGFilter
 		int i = s.lastIndexOf('.');
 		if (i > 0 && i < s.length()-1)
 			extension = s.substring(i+1).toLowerCase();
-		if (extension != null) {
-			boolean b = false;
-			if (extension.equals(PNG)) b =  true;
-			return b;
-		}
+		if (extension != null)
+			return (extension.equals(PNG));
 		return false;
 	}
 	

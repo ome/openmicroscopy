@@ -47,8 +47,7 @@ import org.openmicroscopy.shoola.util.mem.CopiableArray;
  * by {@link CopiableArray} are overriden for type-safety.
  * <p>
  * A {@link ROI3D} can be seen as a <code>stack of ROIs</code> 
- * i.e. a collection of {@link 2D-ROIs PlaneArea} 
- * (i.e. a ROI drawn on a 2D-plane).
+ * i.e. a collection of {@link PlaneArea} (i.e. a ROI drawn on a 2D-plane).
  * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,7 +65,11 @@ public class ROI3D
     extends CopiableArray
 {
 
-    /** Public constructor. */
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param size The size of the array.
+     */
     public ROI3D(int size)
     {
         super(size);
@@ -76,15 +79,20 @@ public class ROI3D
      * Constructs a new {@link CopiableArray} of the specified size.
      * 
      * @param size number of elements in the array.
+     * @return See above.
      */
     protected CopiableArray makeNew(int size) { return new ROI3D(size); }
 
-    /** Set the {@link PlaneArea} at the specified z-section. */
+    /** Sets the {@link PlaneArea} at the specified z-section. 
+     * 
+     * @param pa The 2D-ROI to set.
+     * @param z The z-section.
+     */
     public void setPlaneArea(PlaneArea pa, int z) { set(pa, z); }
     
     /** 
      * Overrides the {@link #set(Copiable, int)} method of 
-     * {@link CopiableArray}. Check if the element is an instance of 
+     * {@link CopiableArray}. Controls if the element is an instance of 
      * the excepted type i.e. {@link PlaneArea}.
      * Note that a {@link PlaneArea} object can be set to <code>null</code>.
      */
@@ -96,10 +104,10 @@ public class ROI3D
     }
     
     /** 
-     * Return an element of the correct type i.e. {@link PlaneArea} at the
+     * Returns an element of the correct type i.e. {@link PlaneArea} at the
      * specified z-section.
      * 
-     * @param z specified z-section.
+     * @param z The specified z-section.
      * @return  See above.
      */
     public PlaneArea getPlaneArea(int z) { return (PlaneArea) get(z); }

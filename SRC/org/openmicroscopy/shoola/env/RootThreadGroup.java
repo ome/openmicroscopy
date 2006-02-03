@@ -59,9 +59,7 @@ final class RootThreadGroup
 	private static final String	NAME = "Shoola";
 	
 
-	/**
-	 * Creates a new instance.
-	 */
+	/** Creates a new instance. */
 	RootThreadGroup()
 	{
 		super(NAME);
@@ -70,6 +68,7 @@ final class RootThreadGroup
 	/**
 	 * Overrides the parent's method to activate the abnormal exit procedure
 	 * in the case of an uncaught exception.
+     * @see ThreadGroup#uncaughtException(Thread, Throwable)
 	 */
 	public void uncaughtException(Thread t, Throwable e)
 	{

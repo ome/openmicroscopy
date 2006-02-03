@@ -39,7 +39,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 /** 
- * 
+ * Filters the <code>Text</code> files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,13 +56,19 @@ public class TEXTFilter
     extends FileFilter
 {
     
-    /** Possible format extensions. */
+    /** Possible file extension. */
     public static final String  TEXT = "txt";
-    
-    private String description = TEXT;
+
+    /**
+     * Overriden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+    public String getDescription() { return "Text file"; }
         
-    public String getDescription() { return description; }
-        
+    /**
+     * Overriden to accept file with the declared file extensions.
+     * @see FileFilter#accept(File)
+     */
     public boolean accept(File f)
     {
         if (f.isDirectory()) return true;
@@ -71,11 +77,8 @@ public class TEXTFilter
         int i = s.lastIndexOf('.');
         if (i > 0 && i < s.length()-1)
             extension = s.substring(i+1).toLowerCase();
-        if (extension != null) {
-            boolean b = false;
-            if (extension.equals(TEXT)) b =  true;
-            return b;
-        }
+        if (extension != null)
+            return (extension.equals(TEXT));
         return false;
     }
     

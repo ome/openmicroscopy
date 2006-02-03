@@ -51,7 +51,7 @@ import org.openmicroscopy.shoola.env.ui.TaskBar;
  * Oversees the functioning of the whole container, holds the container's
  * configuration and manages agents life-cycle. 
  * Also delegates intitialization tasks to 
- * {@link org.openmicroscopy.shoola.config.Initializer}.
+ * {@link org.openmicroscopy.shoola.env.init.Initializer}.
  * 
  * <p>This class is a Singleton.  The singleton object can't be retrieved by 
  * arbitrary classes, it's only meant to be used during initialization and

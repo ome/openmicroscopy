@@ -174,6 +174,7 @@ public class Line
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#equals(Object)
      */
     public boolean equals(Object o)
     {
@@ -188,6 +189,7 @@ public class Line
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#hashCode()
      */
     public int hashCode() { return origin.hashCode(); }
     

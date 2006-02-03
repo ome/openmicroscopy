@@ -40,7 +40,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 /** 
- * 
+ * Filters the <code>BMP</code> files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,14 +57,22 @@ public class BMPFilter
 	extends FileFilter
 {
 	
-	/** Possible format extensions. */
+	/** Possible file extensions. */
 	public static final String 	BMP = "bmp";
+    
+    /** Possible file extensions. */
 	public static final String 	DIB = "dib";
-	
-	private String description = BMP;
 		
-	public String getDescription() { return description; }
+    /**
+     * Overriden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+	public String getDescription() { return "BMP images."; }
 		
+    /**
+     * Overriden to accept file with the declared file extensions.
+     * @see FileFilter#accept(File)
+     */
 	public boolean accept(File f)
 	{
 		if (f.isDirectory()) return true;
@@ -73,11 +81,8 @@ public class BMPFilter
 		int i = s.lastIndexOf('.');
 		if (i > 0 && i < s.length()-1)
 			extension = s.substring(i+1).toLowerCase();
-		if (extension != null) {
-			boolean b = false;
-			if (extension.equals(BMP) || extension.equals(DIB)) b =  true;
-			return b;
-		}
+		if (extension != null)
+			return ((extension.equals(BMP) || extension.equals(DIB)));
 		return false;
 	}
 	

@@ -75,7 +75,7 @@ public class Factory
             0.1f, 0.1f, 0.1f};
     
     /** 
-     * Magnify the selected {@link BufferedImage}.
+     * Magnifies the selected {@link BufferedImage}.
      * 
      * @param img       BufferedImage to zoom in or out.
      * @param level     magnification factor.
@@ -105,7 +105,13 @@ public class Factory
         return rescaleBuff;
     } 
     
-    /** Apply a sharpen filter or a low_pass filter. */
+    /** 
+     * Applies a sharpen filter or a low_pass filter. 
+     * 
+     * @param img       The image to transform.
+     * @param filter    The filter to apply.
+     * @return The transformed image.
+     */
     public static BufferedImage convolveImage(BufferedImage img, float[] filter)
     {
         int width = img.getWidth(), height = img.getHeight();

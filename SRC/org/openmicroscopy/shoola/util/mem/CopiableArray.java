@@ -62,9 +62,14 @@ public abstract class CopiableArray
     implements Copiable
 {
     
+    /** The array of {@link Copiable}s. */
     private Copiable[]  elements;
     
-    /** Constructor. */
+    /**
+     * Creates a new instance.
+     * 
+     * @param size The size of the array.
+     */
     protected CopiableArray(int size)
     {
         if (size <= 0) 
@@ -72,10 +77,19 @@ public abstract class CopiableArray
         elements = new Copiable[size];
     }
     
-    /** Contruct a new array of the speficied size. */
+    /** 
+     * Contructs a new array of the speficied size. 
+     * 
+     * @param size The size of the array.
+     * @return See above.
+     */
     protected abstract CopiableArray makeNew(int size);
     
-    /** Return the number of elements in the array. */
+    /** 
+     * Returns the number of elements in the array. 
+     * 
+     * @return See above.
+     */
     public int getSize() { return elements.length; }
     
     /** 
@@ -93,9 +107,10 @@ public abstract class CopiableArray
     }
     
     /** 
-     * Return the {@link Copiable} at the specified position.
+     * Returns the {@link Copiable} at the specified position.
      * 
-     * @param position.
+     * @param index The position in the array.
+     * @return See above.
      */
     public Copiable get(int index)
     {
@@ -105,11 +120,11 @@ public abstract class CopiableArray
     }
  
     /** 
-     * Copy the {@link Copiable} from the specified position <code>from</code>
+     * Copies the {@link Copiable} from the specified position <code>from</code>
      * into the specified position <code>to</code>.
      * 
-     * @param from  position.
-     * @param to    position.
+     * @param from  The start position.
+     * @param to    The end position.
      */
     public void copy(int from, int to)
     {
@@ -130,7 +145,10 @@ public abstract class CopiableArray
         }
     }
     
-    /** Implements the method as specified by {@link Copiable}. */
+    /**
+     * Implements the method as specified by {@link Copiable}. 
+     * @see Copiable#copy()
+     */
     public Object copy()
     {
         CopiableArray copy = makeNew(elements.length);

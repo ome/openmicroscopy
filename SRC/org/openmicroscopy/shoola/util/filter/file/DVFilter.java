@@ -39,8 +39,7 @@ import javax.swing.filechooser.FileFilter;
 
 /** 
  * 
- * Filter the file which extension is <code>tiff</code> or 
- * <code>tif</code>.
+ * Filters the <code>DV</code> files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,11 +56,19 @@ public class DVFilter
 	extends FileFilter
 {
 	
-	/** Possible format extensions. */
+	/** File extension. */
 	public static final String 	DV = "dv";
+	
+    /**
+     * Overriden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+	public String getDescription() { return "DV images"; }
 		
-	public String getDescription() { return DV; }
-		
+    /**
+     * Overriden to accept file with the declared file extensions.
+     * @see FileFilter#accept(File)
+     */
 	public boolean accept(File f)
 	{
 		if (f.isDirectory()) return true;
@@ -70,11 +77,8 @@ public class DVFilter
 		int i = s.lastIndexOf('.');
 		if (i > 0 && i < s.length()-1)
 			extension = s.substring(i+1).toLowerCase();
-		if (extension != null) {
-			boolean b = false;
-			if (extension.equals(DV)) b =  true;
-			return b;
-		}
+		if (extension != null)
+			return (extension.equals(DV));
 		return false;
 	}
 	

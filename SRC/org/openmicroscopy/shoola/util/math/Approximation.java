@@ -55,6 +55,9 @@ public class Approximation
 	/** 
 	 * Returns the nearest integer e.g. 
 	 * 1.2 returns 1, 1.6 returns 2.
+     * 
+     * @param v The value to check.
+     * @return See above.
 	 */
 	public static double nearestInteger(double v)
 	{
@@ -65,10 +68,20 @@ public class Approximation
 		return value;
 	}
     
-	/** Returns the smallest integer. */
+	/** 
+     * Returns the smallest integer. 
+     * 
+     * @param v The value to check
+     * @return See above.
+     */
 	public static double smallestInteger(double v) { return Math.floor(v); }
 	
-	/**Returns the largest integer. */    
+    /** 
+     * Returns the largest integer. 
+     * 
+     * @param v The value to check
+     * @return See above.
+     */ 
 	public static double largestInteger(double v) { return Math.ceil(v); }
 
 }

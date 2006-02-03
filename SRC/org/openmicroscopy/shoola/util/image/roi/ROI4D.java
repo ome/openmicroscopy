@@ -64,7 +64,11 @@ public class ROI4D
     extends CopiableArray
 {
 
-    /** Public constructor. */
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param size The size of the array.
+     */
     public ROI4D(int size)
     {
         super(size);
@@ -74,15 +78,13 @@ public class ROI4D
      * Constructs a new {@link CopiableArray} of the specified size.
      * 
      * @param size number of elements in the array.
+     * @return See above.
      */
-    protected CopiableArray makeNew(int size)
-    {
-        return new ROI4D(size);
-    }
+    protected CopiableArray makeNew(int size) { return new ROI4D(size); }
 
     /** 
      * Overrides the {@link #set(Copiable, int)} method of 
-     * {@link CopiableArray}. Check if the element is an instance of 
+     * {@link CopiableArray}. Controls if the element is an instance of 
      * the excepted type i.e. {@link ROI3D}. 
      * Note that a {@link ROI3D} object cannot be set to <code>null</code>.
      */
@@ -93,22 +95,29 @@ public class ROI4D
         super.set(roi3D, t);
     }
     
-    /** Return an element of the correct type i.e. {@link ROI3D}. */
-    public ROI3D getStack(int t) 
-    {
-        return (ROI3D) get(t);
-    }
+    /** 
+     * Returns the stack i.e. {@link ROI3D} for the specified timepoint.
+     * 
+     * @param t The timepoint.
+     * @return See above.
+     */
+    public ROI3D getStack(int t)  { return (ROI3D) get(t); }
     
-    /** Set the element i.e. {@link ROI3D} at the specified timepoint. */
+    /**
+     * Sets the element i.e. {@link ROI3D} for the specified timepoint. 
+     * 
+     * @param stackROI The element to set.
+     * @param t The timepoint.
+     */
     public void setStack(ROI3D stackROI, int t) { set(stackROI, t); }
     
     /** 
      * Return the {@link PlaneArea leaf} at the specified position in the 
      * hierarchy.
      * 
-     * @param z         specified z-section.
-     * @param t         speficied timepoint.         
-     * @return          See above.
+     * @param z The specified z-section.
+     * @param t The speficied timepoint.         
+     * @return See above.
      */
     public PlaneArea getPlaneArea(int z, int t)
     {
@@ -121,9 +130,9 @@ public class ROI4D
      * Replaces the {@link PlaneArea leaf} at the specified position with
      * the specified element.
      *  
-     * @param pa        new {@link PlaneArea}.
-     * @param z         specified z-section.
-     * @param t         speficied timepoint.         
+     * @param pa The {@link PlaneArea} to set.
+     * @param z The specified z-section.
+     * @param t The speficied timepoint.         
      */
     public void setPlaneArea(PlaneArea pa, int z, int t)
     {

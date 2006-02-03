@@ -71,13 +71,21 @@ class RectangleAreaAdapter
      * Constructs a new {@link Rectangle} whose top-left corner is specified 
      * as (x, y) and whose width and height are specified by 
      * the arguments of the same name.
+     * 
+     * @param x The x-coordinate of the top-left corner.
+     * @param y The y-coordinate of the top-left corner.
+     * @param width The width of the rectangle.
+     * @param height The height of the rectangle.
      */
     RectangleAreaAdapter(int x, int y, int width, int height)
     {
         super(x, y, width, height);
     }
     
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /** 
+     * Implemented as specified in the {@link PlaneArea} I/F.
+     * @see PlaneArea#scale(double)
+     */
     public void scale(double factor)
     {
         Rectangle r = getBounds();
@@ -85,7 +93,10 @@ class RectangleAreaAdapter
                   (int) (r.width*factor), (int) (r.height*factor)); 
     }
 
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /**
+     * Implemented as specified by the {@link PlaneArea} I/F.
+     * @see PlaneArea#getPoints()
+     */
     public PlanePoint[] getPoints()
     {
         Rectangle r = getBounds();
@@ -98,7 +109,10 @@ class RectangleAreaAdapter
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
     
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /** 
+     * Implemented as specified in the {@link PlaneArea} I/F. 
+     * @see PlaneArea#onBoundaries(double, double)
+     */
     public boolean onBoundaries(double x, double y)
     {
         double xCorner = getX(), yCorner = getY();
@@ -112,6 +126,7 @@ class RectangleAreaAdapter
     /** 
      * Implemented as specified in the 
      * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 
+     * @see org.openmicroscopy.shoola.util.mem.Copiable#copy()
      */
     public Object copy() { return super.clone(); }
 

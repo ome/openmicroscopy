@@ -71,7 +71,11 @@ public class ROI5D
     extends CopiableArray
 {
 
-    /** Public constructor. */
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param size The size of the array.
+     */
     public ROI5D(int size)
     {
         super(size);
@@ -80,12 +84,10 @@ public class ROI5D
     /** 
      * Constructs a new {@link CopiableArray} of the specified size.
      * 
-     * @param size number of elements in the array. 
+     * @param size number of elements in the array.
+     * @return See above.
      */
-    protected CopiableArray makeNew(int size)
-    {
-        return new ROI5D(size);
-    }
+    protected CopiableArray makeNew(int size) { return new ROI5D(size); }
 
     /** 
      * Overrides the {@link #set(Copiable, int)} method of 
@@ -104,24 +106,29 @@ public class ROI5D
      * Set an element of the correct type i.e. {@link ROI4D} 
      * at the specified channel. 
      * 
-     * @param stackAcrossTimeROI    {@link ROI4D} objet.
-     * @param channel               specified channel.             
+     * @param stackAcrossTimeROI The {@link ROI4D} objet to set.
+     * @param channel The specified channel.             
      * */
     public void setChannel(ROI4D stackAcrossTimeROI, int channel)
     {
         set(stackAcrossTimeROI, channel);
     }
     
-    /** Return an element of the correct type i.e. {@link ROI4D}. */
+    /** 
+     * Returns an {@link ROI4D} for the specified channel.
+     * 
+     * @param channel The specified channel.
+     * @return See above.
+     */
     public ROI4D getChannel(int channel) { return (ROI4D) get(channel); }
     
     /** 
-     * Return the {@link PlaneArea leaf} at the specified position in the 
+     * Returns the {@link PlaneArea leaf} at the specified position in the 
      * hierarchy.
      * 
-     * @param z         specified z-section.
-     * @param t         speficied timepoint.         
-     * @param channel   specified channel.
+     * @param z The specified z-section.
+     * @param t The speficied timepoint.         
+     * @param channel The specified channel.
      * @return See above.
      */
     public PlaneArea getPlaneArea(int z, int t, int channel)
@@ -137,10 +144,10 @@ public class ROI5D
      * Replaces the {@link PlaneArea leaf} at the specified positioned with
      * the specified element.
      *  
-     * @param pa        new {@link PlaneArea}.
-     * @param z         specified z-section.
-     * @param t         speficied timepoint.         
-     * @param channel   specified channel.
+     * @param pa The {@link PlaneArea} to set.
+     * @param z The specified z-section.
+     * @param t The speficied timepoint.         
+     * @param channel The specified channel.
      */
     public void setPlaneArea(PlaneArea pa, int z, int t, int channel)
     {

@@ -40,8 +40,7 @@ import javax.swing.filechooser.FileFilter;
 
 /** 
  * 
- * Filter the file which extension is <code>jpeg</code> or 
- * <code>jpg</code>.
+ * Filters the <code>JPEG</code> files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,15 +57,25 @@ public class JPEGFilter
 	extends FileFilter
 {
 	
-	/** Possible format extensions. */
+	/** Possible file extension. */
 	public static final String 	JPEG = "jpeg";
+    
+    /** Possible file extension. */
 	public static final String 	JPG = "jpg";
+    
+    /** Possible file extension. */
 	public static final String 	JPE = "jpe";
+		
+    /**
+     * Overriden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+	public String getDescription() { return "JPEG images"; }
 	
-	private String description = JPEG;
-		
-	public String getDescription() { return description; }
-		
+    /**
+     * Overriden to accept file with the declared file extensions.
+     * @see FileFilter#accept(File)
+     */
 	public boolean accept(File f)
 	{
 		if (f.isDirectory()) return true;
@@ -75,12 +84,9 @@ public class JPEGFilter
 		int i = s.lastIndexOf('.');
 		if (i > 0 && i < s.length()-1)
 			extension = s.substring(i+1).toLowerCase();
-		if (extension != null) {
-			boolean b = false;
-			if (extension.equals(JPEG) || extension.equals(JPG) ||
-				extension.equals(JPE)) b =  true;
-			return b;
-		}
+		if (extension != null)
+			return ((extension.equals(JPEG) || extension.equals(JPG) ||
+			        extension.equals(JPE)));
 		return false;
 	}
 	

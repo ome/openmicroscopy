@@ -185,8 +185,8 @@ public class PlanePoint
     
     /**
      * Calculates the Euclidian norm of this vector.
-     * That is, the square root of the {@link #dot(Point) dot} product of this
-     * vector by itself.
+     * That is, the square root of the {@link #dot(PlanePoint) dot} product of 
+     * this vector by itself.
      * 
      * @return  The norm of this vector.
      */
@@ -238,6 +238,7 @@ public class PlanePoint
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#equals(Object)
      */
     public boolean equals(Object o)
     {
@@ -252,6 +253,7 @@ public class PlanePoint
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#hashCode()
      */
     public int hashCode() 
     {

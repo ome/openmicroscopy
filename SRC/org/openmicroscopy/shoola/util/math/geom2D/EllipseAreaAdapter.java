@@ -59,14 +59,26 @@ class EllipseAreaAdapter
     implements PlaneArea
 {
     
+    /** Space used to determine if a point is on the boundaries. */
     private static double           epsilon = 1.0;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param x The x-coordinate of the top-left corner.
+     * @param y The y-coordinate of the top-left corner.
+     * @param width The width of the ellipse.
+     * @param height The height of the ellipse.
+     */
     EllipseAreaAdapter(float x, float y, float width, float height)
     {
         super(x, y, width, height);
     }
 
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /** 
+     * Implemented as specified in the {@link PlaneArea} I/F.
+     * @see PlaneArea#scale(double)
+     */
     public void scale(double factor)
     {
         Rectangle r = getBounds();
@@ -74,7 +86,10 @@ class EllipseAreaAdapter
                   (int) (r.width*factor), (int) (r.height*factor));
     }
 
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /**
+     * Implemented as specified by the {@link PlaneArea} I/F.
+     * @see PlaneArea#getPoints()
+     */
     public PlanePoint[] getPoints()
     {
         Rectangle r = getBounds();
@@ -87,7 +102,10 @@ class EllipseAreaAdapter
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
 
-    /** Implemented as specified in the {@link PlaneArea} I/F. */
+    /**
+     * Implemented as specified by the {@link PlaneArea} I/F.
+     * @see PlaneArea#setBounds(int, int, int, int)
+     */
     public void setBounds(int x, int y, int width, int height)
     {
         setFrame(x, y, width, height); 
@@ -101,7 +119,8 @@ class EllipseAreaAdapter
      * </p>
      * where a = getWidth()/2, b = getHeight()/2, x0 = getX()+a, y0 = getY()+b.
      * 
-     * */
+     * @see PlaneArea#onBoundaries(double, double)
+     */
     public boolean onBoundaries(double x, double y)
     {
         
@@ -115,6 +134,7 @@ class EllipseAreaAdapter
     /** 
      * Implemented as specified in the 
      * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 
+     * @see org.openmicroscopy.shoola.util.mem.Copiable#copy()
      */
     public Object copy() { return super.clone(); }
     

@@ -54,29 +54,47 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
 
+    /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	
+    /** Field to access the user credentials. */
     public static final String USER_CREDENTIALS = "/user/credentials";
     
+    /**
+     * Field to access the user credentials. To remove when we have no
+     * dependencies to OME-JAVA.
+     */
     public static final String CURRENT_USER_DETAILS = "/current_user/details";
     
+    /** Field to access the user's details.*/
 	public static final String USER_DETAILS = "/user/details";
     
+    /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";
 	
+    /** Field to access the <code>OMEDS</code> service information. */
 	public static final String OMEDS = "/services/OMEDS";
 	
+    /** Field to access the <code>OMEIS</code> service information. */
 	public static final String OMEIS = "/services/OMEIS";
     
+    /** Field to access the <code>OMERO</code> service information. */
     public static final String OMERODS = "/services/OMERODS";
 	
+    /** Field to access the <code>L&F</code> information. */
 	public static final String LOOK_N_FEEL = "LookAndFeel";	
 	
+    /** Field to access the <code>Icons factory</code> information. */
 	public static final String ICONS_FACTORY = 
 											"/resources/icons/DefaultFactory";
 	
+    /** Field to access the <code>Log on</code> information. */
 	public static final String LOG_ON = "/services/LOG/on";
+    
+    /** Field to access the <code>Log directory</code> information. */
 	public static final String LOG_DIR = "/services/LOG/dir";
+    
+    /** Field to access the <code>Log file</code> information. */
 	public static final String LOG_FILE = "/services/LOG/file";
 	
 	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
