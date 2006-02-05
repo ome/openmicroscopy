@@ -76,17 +76,19 @@
 		<property name="hibernateTemplate" ref="hibernateTemplate"/>
   </bean>
 
-  <bean id="internal.update" 	class="ome.logic.UpdateImpl" parent="level1"/>
-  <bean id="updateService" 		parent="abstractService">
-  	<property name="target" 					ref="internal.update"/>
-    <property name="proxyInterfaces" 	value="ome.api.IUpdate"/>
-  </bean>
-
   <bean id="internal.query"  class="ome.logic.QueryImpl" parent="level1"/>
   <bean id="queryService"  		parent="abstractService">
     <property name="target" 					ref="internal.query"/>
     <property name="proxyInterfaces" 	value="ome.api.IQuery"/>
 	</bean>
+  
+  <bean id="internal.update" 		class="ome.logic.UpdateImpl" parent="level1">
+    <constructor-arg ref="internal.query"/>
+  </bean>
+  <bean id="updateService" 		parent="abstractService">
+  	<property name="target" 					ref="internal.update"/>
+    <property name="proxyInterfaces" 	value="ome.api.IUpdate"/>
+  </bean>
 
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL TWO

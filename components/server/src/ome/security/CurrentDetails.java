@@ -45,6 +45,7 @@ import ome.model.meta.Event;
 import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 /** Stores information related to the security context of the current thread.
  * Code calling into the server must setup CurrentDetails properly. An existing
@@ -91,7 +92,7 @@ public abstract class CurrentDetails
 
     // ~ Main methods
     // =================================================================
-    public static void newEvent(EventType type)
+    public static void newEvent(EventType type) // TODO keep up with stack here?
     {
         Event e = new Event();
         e.setType(type);
@@ -127,6 +128,7 @@ public abstract class CurrentDetails
         Details d = new Details();
         d.setCreationEvent(getCreationEvent());
         d.setOwner(getOwner());
+        d.setGroup(getGroup());
         d.setPermissions(getUmask());
         return d;
     }
@@ -154,7 +156,7 @@ public abstract class CurrentDetails
         umaskHolder.set(umask);
     }
     
-    // ~ Delegation
+    // ~ Delegation FIXME possibly remove setters for set(Exp,Grp)
     // =================================================================
     
     public static Event getCreationEvent()
@@ -196,6 +198,16 @@ public abstract class CurrentDetails
     public static void setUpdateEvent(Event e)
     {
         getDetails().setUpdateEvent(e);
+    }
+    
+    public static ExperimenterGroup getGroup()
+    {
+        return getDetails().getGroup();
+    }
+    
+    public static void setGroup(ExperimenterGroup group)
+    {
+        getDetails().setGroup(group);
     }
     
 }

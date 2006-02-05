@@ -392,6 +392,7 @@
 			<optional name="statsInfo" type="ome.model.stats.StatsInfo"/>
 			<optional name="colorComponent" type="ome.model.display.Color"/>
 			<optional name="logicalChannel" type="ome.model.core.LogicalChannel"/>
+			<required name="pixels" type="ome.model.core.Pixels"/>
 		</properties>
 	</type>
 	<type id="ome.model.core.LogicalChannel">

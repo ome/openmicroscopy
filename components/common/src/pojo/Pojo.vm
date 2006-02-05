@@ -4,8 +4,7 @@ $secondpassclassimports
 ###########################################################
 ## <CustomCode>
 ###########################################################
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 ###########################################################
 ## </CustomCode>
 ###########################################################
@@ -83,6 +82,11 @@ $templates.PojoExtraClassCode
   
   // FIELD-FIELDS
   
+  	public Set fields()
+    {
+	    return new HashSet(${pojo.getDeclarationName()}.FIELDS);
+    }
+  
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $field = $property.name )
 	public final static String ${field.toUpperCase()} = "${pojo.declarationName}_${field}";
@@ -94,6 +98,55 @@ $templates.PojoExtraClassCode
 	   FIELDS.add(${field.toUpperCase()});
 #end ## foreach
 	}
+	
+	
+	// Dynamic Getter/Setter
+	protected Map _dynamicFields;
+	public Object retrieve(String field)
+	{
+		if (field == null)
+		{
+			return null;
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $field = $property.name )
+#set( $get = "$pojo.getGetterSignature($property)()" )
+		}
+		else if (field.equals(${field.toUpperCase()})) ## use == here first??
+		{
+			return $get;
+#end ## forech
+		} else {
+			if (_dynamicFields != null)
+			{
+				return _dynamicFields.get(field);
+			}
+			return null;
+		}
+	}
+	
+	public void putAt(String field, Object value)
+	{
+		if (field == null)
+		{
+			return;
+#foreach($property in $pojo.allPropertiesIterator)
+#set( $field = $property.name )
+#set( $set = "set$pojo.getPropertyName($property)" )
+#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $type = $c2j.unqualify($fulltype) )
+		}
+		else if (field.equals(${field.toUpperCase()}))
+		{
+			${set}(($type)value);
+#end ## foreach			
+		} else {
+			if (_dynamicFields == null)
+				_dynamicFields = new HashMap();
+			
+			_dynamicFields.put(field,value);
+		}
+	}
+
 ##parse( "$clazz.vm" ) TODO
 ##parse( "pojo/test.vm" )
 ##$templates.get("pojo/test.vm")

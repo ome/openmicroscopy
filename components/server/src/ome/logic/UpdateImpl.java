@@ -46,23 +46,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.engine.EntityEntry;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.engine.Cascades.CascadingAction;
-import org.hibernate.event.def.AbstractSaveEventListener;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 // Application-internal dependencies
+import ome.api.IQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
-import ome.model.internal.Details;
-import ome.model.meta.Event;
-import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
 import ome.security.CurrentDetails;
 import ome.tools.hibernate.UpdateFilter;
-import ome.util.ContextFilter;
-import ome.util.Filterable;
+
 
 /**
  * implementation of the IUpdate service interface
@@ -75,52 +68,48 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 {
 
     private static Log log = LogFactory.getLog(UpdateImpl.class);
+    
+    protected IQuery query;
+    
+    private UpdateImpl(){}; // We need the query
+    public UpdateImpl(IQuery query)
+    {
+        this.query = query;
+    }
 
     public void saveObject(IObject arg0)
     {
-        saveAndReturnObject(arg0);
+        arg0 = beforeSave(arg0);
+        arg0 = internalSave(arg0);
+        arg0 = afterSave(arg0);
     }
     
     public IObject saveAndReturnObject(IObject arg0)
     {
-        log.info("Saving ..."+arg0);
-        arg0 = (IObject) new UpdateFilter().filter("in UpdateImpl",arg0); 
-        // TODO optimize by passing around the update filter in side of a single call.
-        //arg0 = (IObject) getHibernateTemplate().merge(arg0);
-        getHibernateTemplate().save(arg0);
-        getHibernateTemplate().flush(); // FIXME uh oh.
-        
-        if (arg0 instanceof Event || arg0 instanceof EventLog || arg0 instanceof EventDiff)
-        {
-        
-        } else {
-            saveCollection(CurrentDetails.getCreationEvent().getLogs()); // TODO in AOP please
-        }
-        
+        arg0 = beforeSave(arg0);
+        arg0 = internalSave(arg0);
+        arg0 = afterSave(arg0);
         return arg0;
     }
 
     public void saveCollection(Collection graph)
     {
-        for (Object object : graph)
+        for (Object _object : graph)
         {
-            saveAndReturnObject((IObject)object);
+            IObject obj = (IObject) _object;
+            obj = beforeSave(obj);
+            obj = internalSave(obj);
+            obj = afterSave(obj);
         }
     }
     
     public Collection saveAndReturnCollection(Collection graph)
     {
-        for (Object object : graph)
-        {
-            saveAndReturnObject((IObject)object);
-        }
-        return graph; // FIXME
+        throw new RuntimeException("Not implemented yet.");
     }
     
     public void saveMap(Map graph)
     {
-        // TODO Auto-generated method stub
-        //
         throw new RuntimeException("Not implemented yet.");
     }
 
@@ -128,7 +117,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     {
         for (int i = 0; i < graph.length; i++)
         {
-            graph[i] = saveAndReturnObject(graph[i]);
+            graph[i] = beforeSave(graph[i]);
+            graph[i] = internalSave(graph[i]);
+            graph[i] = afterSave(graph[i]);
         }
         return graph;
     }
@@ -137,7 +128,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     {
         for (int i = 0; i < graph.length; i++)
         {
-            saveObject(graph[i]);
+            graph[i] = beforeSave(graph[i]);
+            graph[i] = internalSave(graph[i]);
+            graph[i] = afterSave(graph[i]);
         }
     }
 
@@ -162,5 +155,30 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
             translate("Attempting to rollback from SessionFactory",null,sqle);
         }
     }
-     
+
+    // ~ Internals
+    // =========================================================
+    private IObject internalSave(IObject obj)
+    {
+        //obj = (IObject) getHibernateTemplate().merge(obj);
+        getHibernateTemplate().saveOrUpdate(obj);
+        //getHibernateTemplate().flush(); // FIXME uh oh.
+        return obj;
+    }
+
+    private IObject beforeSave(IObject obj)
+    {
+        // TODO optimize by passing around the update filter in side of a single call.
+        return (IObject) new UpdateFilter(query).filter("in UpdateImpl",obj);
+    }
+
+    private IObject afterSave(IObject obj)
+    {
+        for (Object log : CurrentDetails.getCreationEvent().getLogs())
+        {
+            internalSave((EventLog) log);
+        }
+        return obj;
+    }
+    
 }

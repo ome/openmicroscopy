@@ -45,11 +45,17 @@
 #if(!$type.global)	
 	<component name="details" class="ome.model.internal.Details">
 	  <many-to-one name="owner" class="ome.model.meta.Experimenter" 
+		column="owner_id" update="false"
+	  	not-null="true" cascade="$cascade_settings"/>
+	  <many-to-one name="group" class="ome.model.meta.ExperimenterGroup" 
+		column="group_id" update="false"
 	  	not-null="true" cascade="$cascade_settings"/>
 	  <many-to-one name="creationEvent" class="ome.model.meta.Event" 
+		column="creation_id" update="false"
 	  	not-null="true" cascade="$cascade_settings"/>		
 #if(!$type.immutable)
 	  <many-to-one name="updateEvent" class="ome.model.meta.Event" 
+		column="update_id" 
 	  	not-null="false"/>	
 #end
 #else
@@ -99,7 +105,7 @@
 ##TODO		mutable="${prop.mutable}"
 		cascade="$cascade_settings">
 		<key>
-			<column name="${table}" />
+			<column name="${table}" not-null="${prop.required}"/>
 		</key>
 #if($prop.ordered)
        <list-index column="index"/>

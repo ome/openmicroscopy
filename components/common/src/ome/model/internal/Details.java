@@ -1,8 +1,12 @@
 package ome.model.internal;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ome.model.IDetails;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 
 public class Details implements IDetails
@@ -12,6 +16,37 @@ public class Details implements IDetails
     Event _creation;
     Event _update;
     Experimenter _owner;
+    ExperimenterGroup _group;
+    Set _filteredCollections;
+
+    // Loaded&Filtering methods
+    // ===========================================================
+    public void addFiltered(String collectionName)
+    {
+        if (_filteredCollections == null)
+            _filteredCollections = new HashSet();
+        
+        _filteredCollections.add(collectionName);
+    }
+    
+    public boolean isFiltered(String collectionName)
+    {
+        if (_filteredCollections == null) return false;
+        if (_filteredCollections.contains(collectionName)) return true;
+        return false;
+    }
+    
+    public void clearFiltered(){
+        _filteredCollections = null;
+    }
+    
+    public Set filteredSet(){
+        if (_filteredCollections == null) return new HashSet();
+        return new HashSet(_filteredCollections);
+    }
+    
+    // Getters & Setters
+    // ===========================================================
     
     public Permissions getPermissions()
     {
@@ -51,6 +86,16 @@ public class Details implements IDetails
     public void setUpdateEvent(Event e)
     {
         _update = e;
+    }
+    
+    public ExperimenterGroup getGroup()
+    {
+        return _group;
+    }
+
+    public void setGroup(ExperimenterGroup _group)
+    {
+        this._group = _group;
     }
 
 }
