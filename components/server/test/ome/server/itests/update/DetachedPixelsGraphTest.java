@@ -180,5 +180,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         }
     }
     
+    // TODO need to check that for detached that the version is not 
+    // incremented unless we really change something!
+    
 
 }
