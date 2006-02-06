@@ -121,8 +121,8 @@ ${msg.check.report}
 
 	<target name="copy-examples">
 		<copy todir="${basedir}" verbose="true">
-			<fileset dir="${basedir}/docs/examples/" includes="*.properties.examples"/>
-			<globmapper from="*.properties.examples" to="*.properties"/>
+			<fileset dir="${basedir}/docs/examples/" includes="*.properties.example"/>
+			<globmapper from="*.properties.example" to="*.properties"/>
 		</copy>
 	</target>
 

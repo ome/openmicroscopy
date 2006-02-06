@@ -42,7 +42,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 
 	static {
-		BuildRunner.load("build.xml");
+		// TODO BuildRunner.load("build.xml");
 		//BuildRunner.run("build.xml"); 
 		//BuildRunner.launch("build.xml");
 	}

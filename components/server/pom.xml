@@ -96,6 +96,15 @@
   </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource><directory>web</directory></resource><!-- TODO fix -->
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+        <includes><include>**/*.xml</include></includes>
+      </testResource>
+    </testResources>
     <plugins>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
