@@ -22,7 +22,7 @@ import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
-public class EventInterceptor implements Interceptor {
+public class EventInterceptor { // FIXME implements Interceptor {
 
 	//http://www.hibernate.org/195.html !!! TODO
 	
@@ -93,9 +93,9 @@ public class EventInterceptor implements Interceptor {
 
     public void saveOrUpdate(IObject ome){ // refactor to Current* TODO
 		SessionFactory sf = t.getSessionFactory();
-		Session s = SessionFactoryUtils.getNewSession(sf,new NullInterceptor());
-		s.saveOrUpdate(ome);
-		s.flush();s.close();
+		// FIXME Session s = SessionFactoryUtils.getNewSession(sf,new NullInterceptor());
+		// s.saveOrUpdate(ome);
+		// s.flush();s.close();
     }
     
     
@@ -104,9 +104,9 @@ public class EventInterceptor implements Interceptor {
     		
     		// AUDIT
     		SessionFactory sf = t.getSessionFactory();
-    		Session s = SessionFactoryUtils.getNewSession(sf,new NullInterceptor());//null);//TODO unneeded? 
-    		new EventCreator().doIt(s,events());
-    		s.flush(); s.close();
+    		// FIXME Session s = SessionFactoryUtils.getNewSession(sf,new NullInterceptor());//null);//TODO unneeded? 
+    		// new EventCreator().doIt(s,events());
+    		//s.flush(); s.close();
     		//TODOSessionFactoryUtils.releaseSession(s, sf);
     		
     		// INDEX

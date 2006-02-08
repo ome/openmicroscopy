@@ -85,12 +85,6 @@ public class AbstractUpdateTest
         CurrentDetails.newEvent(test);
     }
 
-    @Override
-    protected void onTearDownAfterTransaction() throws Exception
-    {
-        clear();
-    }
-    
     protected void openSession()
     {
         _s = SessionFactoryUtils.getSession(_sf,true);

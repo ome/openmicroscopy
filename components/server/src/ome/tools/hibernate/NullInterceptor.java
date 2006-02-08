@@ -9,7 +9,7 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
-public class NullInterceptor implements Interceptor {
+public class NullInterceptor { // FIXME del implements Interceptor {
 
     public boolean onFlushDirty(Object entity, Serializable id, Object[] arg2, Object[] arg3, String[] arg4, Type[] arg5) throws CallbackException {
     	return false;

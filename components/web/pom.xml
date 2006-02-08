@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>web</artifactId>
   <packaging>war</packaging>
-  <name>Omero - Web Component
+  <name>Omero - Web Component</name>
   <dependencies>
     <dependency>
       <!-- Provides extended build functionality -->
@@ -17,9 +17,11 @@
       <artifactId>antlib</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
+    <dependency>
       <groupId>omero</groupId>
       <artifactId>common</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

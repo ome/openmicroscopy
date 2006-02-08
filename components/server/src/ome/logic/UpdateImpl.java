@@ -39,11 +39,14 @@ package ome.logic;
 // Java imports
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -52,6 +55,7 @@ import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import ome.api.IQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
+import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.security.CurrentDetails;
 import ome.tools.hibernate.UpdateFilter;
@@ -158,27 +162,52 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     // ~ Internals
     // =========================================================
-    private IObject internalSave(IObject obj)
+    private IObject beforeSave(IObject obj)
     {
-        //obj = (IObject) getHibernateTemplate().merge(obj);
-        getHibernateTemplate().saveOrUpdate(obj);
-        //getHibernateTemplate().flush(); // FIXME uh oh.
+        Event currentEvent = CurrentDetails.getCreationEvent(); 
+        getHibernateTemplate().saveOrUpdate(currentEvent);
+        currentSession().setFlushMode(FlushMode.COMMIT);
         return obj;
     }
 
-    private IObject beforeSave(IObject obj)
+    private IObject internalSave(IObject obj)
     {
-        // TODO optimize by passing around the update filter in side of a single call.
-        return (IObject) new UpdateFilter(query).filter("in UpdateImpl",obj);
+        //obj = (IObject) getHibernateTemplate().merge(obj);
+        //getHibernateTemplate().saveOrUpdate(obj);
+        //getHibernateTemplate().flush(); // FIXME uh oh.
+
+        UpdateFilter f = new UpdateFilter(getHibernateTemplate()); 
+        IObject result = (IObject) f.filter("in UpdateImpl",obj); 
+        return (IObject) getHibernateTemplate().merge(result);
     }
 
     private IObject afterSave(IObject obj)
     {
-        for (Object log : CurrentDetails.getCreationEvent().getLogs())
+        Set<EventLog> logs = CurrentDetails.getCreationEvent().getLogs();
+        CurrentDetails.getCreationEvent().setLogs(new HashSet());
+        
+        for (EventLog log : logs)
         {
-            internalSave((EventLog) log);
+            getHibernateTemplate().saveOrUpdate(log);
         }
+        
+        logs = CurrentDetails.getCreationEvent().getLogs();
+        if (logs.size() > 0)
+            log.error("New logs created on update.afterSave:\n"+logs);
+        // FIXME we shouldn't be updating experimenter etc. here.
+     
+        getHibernateTemplate().flush();
+        currentSession().setFlushMode(FlushMode.AUTO);
+        
         return obj;
     }
+
+    private Session currentSession()
+    {
+        Session s = SessionFactoryUtils.getSession(
+                getHibernateTemplate().getSessionFactory(),false);
+        return s;
+    }
+
     
 }

@@ -34,10 +34,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 // Third-party libraries
 
@@ -53,6 +56,7 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.ContextFilter;
 import ome.util.Filter;
 import ome.util.Filterable;
+import ome.util.Validation;
 
 /**
  * enforces the detached-graph re-attachment "Commandments" as outlined in TODO.
@@ -68,13 +72,13 @@ import ome.util.Filterable;
 public class UpdateFilter extends ContextFilter 
 {
 
-    protected IQuery q;
+    protected HibernateTemplate ht;
 
-    private UpdateFilter(){} // We need the IQuery
+    private UpdateFilter(){} // We need the template
     
-    public UpdateFilter(IQuery query)
+    public UpdateFilter(HibernateTemplate template)
     {
-        this.q = query;
+        this.ht = template;
     }
 
     @Override
@@ -107,7 +111,10 @@ public class UpdateFilter extends ContextFilter
     @Override
     public Filterable filter(String fieldId, Filterable f)
     {
-        if (f instanceof IObject)
+        // Depth first        
+        Filterable result = super.filter(fieldId, f);
+        
+        if (result instanceof IObject)
         {
             IObject obj = (IObject) f;
             switch (getEntityState(obj))
@@ -115,35 +122,42 @@ public class UpdateFilter extends ContextFilter
                 case NULL:
                     return null;
                 case UNLOADED:
-                    return entityIsUnloaded(fieldId);
+                    result = loadUnloadedEntityFromContext(fieldId);
                 case TRANSIENT:
                     transferDetails(obj);
+                    saveTransientEntity(obj);
+                    result = obj;
                     break;
                 case MANAGED:
                     reloadDetails(obj);
-                    break;
+                    result = mergeDetachedEntity(obj);
                 default:
                     break;
             }
 
-            // FOR ALL OBJECTS
-            // FIXME this may need to happen AFTER merging. obj.validate();
+            // FOR ALL OBJECTS now that in session!
+            Validation v = Validation.VALID(); // FIXME result.validate();
+            if (!v.isValid())
+                throw new RuntimeException(v.toString()); // TODO validation exception
             
-            // TODO
-            if (!(currentContext() instanceof Details) 
-                    && (obj instanceof Event 
-                    || obj instanceof EventLog 
-                    || obj instanceof EventDiff))
-                throw new RuntimeException(
-                        "Events can only be managed through the Details object"); 
+//            // TODO DELETE PERHAPS?
+//            if (!(currentContext() instanceof Details) 
+//                    && (obj instanceof Event 
+//                    || obj instanceof EventLog 
+//                    || obj instanceof EventDiff))
+//                throw new RuntimeException(
+//                        "Events can only be managed through the Details object"); 
 
         }
-        return super.filter(fieldId, f);
+        return result;
     }
 
     @Override
     public Collection filter(String fieldId, Collection c)
     {
+        // Depth first
+        c = super.filter(fieldId, c);
+        
         Object o = this.currentContext();
         if (o instanceof IObject) // TODO and if not??
         {
@@ -161,7 +175,7 @@ public class UpdateFilter extends ContextFilter
                     break;
             }
         }
-        return super.filter(fieldId, c);
+        return c;
     }
 
     // State Detection
@@ -206,7 +220,7 @@ public class UpdateFilter extends ContextFilter
     // Actions
     // ====================================================
 
-    protected Filterable entityIsUnloaded(String fieldId)
+    protected Filterable loadUnloadedEntityFromContext(String fieldId)
     {
         if (currentContext() instanceof IObject)
         {
@@ -225,6 +239,16 @@ public class UpdateFilter extends ContextFilter
             throw new RuntimeException("Not yet handled.    "
                     + "filter(Collection) will need to check for this");
         }
+    }
+    
+    protected void saveTransientEntity(IObject entity)
+    {
+        //ht.save(entity);
+    }
+    
+    protected IObject mergeDetachedEntity(IObject entity)
+    {
+        return entity;//(IObject) ht.merge(entity);
     }
 
     private Collection collectionIsUnloaded(String fieldId, IObject ctx)
@@ -257,7 +281,7 @@ public class UpdateFilter extends ContextFilter
     
     protected void reloadDetails(IObject m)
     {
-        IObject obj = (IObject) q.getById(m.getClass(),m.getId());
+        IObject obj = (IObject) ht.load(m.getClass(),m.getId());
         Details template = obj.getDetails();
         copyAllowedDetails(template, m.getDetails());
         m.setDetails(template);
@@ -299,13 +323,13 @@ public class UpdateFilter extends ContextFilter
      */
     protected Object loadFromEntityField(IObject ctx, String fieldId)
     {
-        // TODO could add to IQuery.options (JOINED_FIELDS)
-        IObject context = (IObject) q.queryUnique(
-                " select target from "+ctx.getClass().getName()+
-                " target left outer join fetch target."+
-                LsidUtils.parseField(fieldId)+
-                " where target.id = ?",new Object[]{ctx.getId()});
-        // IObject context = (IObject) q.getById(ctx.getClass(),ctx.getId());
+
+// TODO test       IObject context = (IObject) ht.find(
+//                " select target from "+ctx.getClass().getName()+
+//                " target left outer join fetch target."+
+//                LsidUtils.parseField(fieldId)+
+//                " where target.id = ?",ctx.getId()).get(0);//TODO error checking.
+        IObject context = (IObject) ht.load(ctx.getClass(),ctx.getId());
         return context.retrieve(fieldId);
     }
     

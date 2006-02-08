@@ -31,6 +31,7 @@
 			<required name="tindexMax" type="int"/>
 			<required name="cindexMin" type="int"/>
 			<required name="cindexMax" type="int"/>
+			<manyone name="roi5d" type="ome.model.roi.Roi5D"/><!--TODO-->
 			<onemany name="shapes" type="ome.model.roi.ShapeArea"/>
 		</properties>
 	</type>	

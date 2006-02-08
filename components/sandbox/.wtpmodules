@@ -5,5 +5,7 @@
     </module-type>
     <wb-resource deploy-path="/" source-path="resources"/>
     <wb-resource deploy-path="/" source-path="src"/>
+    <wb-resource deploy-path="/" source-path="target/generated-sources/resources"/>
+    <wb-resource deploy-path="/" source-path="target/generated-sources/slice2java"/>
   </wb-module>
 </project-modules>

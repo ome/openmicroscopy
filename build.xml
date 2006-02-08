@@ -24,7 +24,7 @@
 		CHECK SYSTEM 
 	==================================================  -->
 	<target name="check-system" 
-		depends="check-java5,check-maven,check-jboss,check-htools"
+		depends="check-java5,check-maven,check-jboss"
 		description="Verifies that system is ready to build">
 
 		<echo>
@@ -32,7 +32,6 @@ ${msg.check.report}
 1) Java5: ${check-java5-value}
 2) Maven: ${check-maven-value}
 3) JBoss: ${check-jboss-value}
-4) HTool: ${check-htool-value}
 
 		</echo>
 
@@ -41,7 +40,6 @@ ${msg.check.report}
 				<not><length string="${check-java5-value}" length="3"/></not>
 				<not><length string="${check-maven-value}" length="3"/></not>
 				<not><length string="${check-jboss-value}" length="3"/></not>
-				<not><length string="${check-htool-value}" length="3"/></not>
 			</or></condition>
 		</fail>
 
@@ -68,14 +66,6 @@ ${msg.check.report}
 		<sys_test name="jboss">
 			<not>
 			<isset property="env.JBOSS_HOME"/>
-			</not>
-		</sys_test>
-	</target>
-	
-	<target name="check-htools" depends="msg">
-		<sys_test name="htool">
-			<not>
-			<available file="${basedir}/lib/htool"/>
 			</not>
 		</sys_test>
 	</target>
@@ -107,10 +97,6 @@ ${msg.check.report}
 
 	<target name="update-omero">
 		<svn command="up"/>
-	</target>
-
-	<target name="checkout-htool">
-		<svn command="co http://cvs.openmicroscopy.org.uk/lib/htool lib/htool"/>
 	</target>
 
 	<target name="database-exists">
@@ -195,9 +181,10 @@ ${msg.check.report}
 	</target>
 
 	<target name="fake.local.classpath">
-		<path id="local.classpath">
+		<path id="maven.compile.classpath">
 			<pathelement location="/home/josh/.m2/repository/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
 		</path>
+		<path id="maven.test.classpath"/>
 	</target>
 
 	<target name="wait-on-as-jboss" 

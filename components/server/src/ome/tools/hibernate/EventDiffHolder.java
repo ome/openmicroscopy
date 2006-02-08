@@ -112,6 +112,8 @@ public class EventDiffHolder// FIXME Rename
         // perform inserting audit logs for entities those were enlisted in
         // inserts, updates, and deletes sets...
 
+        if (entity.getClass() != EventLog.class 
+                && entity.getClass() != EventDiff.class) // FIXME got to get this centralized!
         CurrentDetails.addLog(action,entity.getClass().getName(),(Long)id);
         
     }

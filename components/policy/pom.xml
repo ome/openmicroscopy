@@ -20,7 +20,7 @@
     <dependency><groupId>omero</groupId><artifactId>rendering</artifactId><version>${version}</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>sandbox</artifactId><version>${version}</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>server</artifactId><version>${version}</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>shoola-adapter</artifactId><version>${version}</version></dependency>
+<!--<dependency><groupId>omero</groupId><artifactId>shoola-adapter</artifactId><version>${version}</version></dependency>TODO-->
     <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjlib</artifactId>

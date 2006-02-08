@@ -164,7 +164,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         pi1.setExposureTime(new Float(10));
         pi1.setTimestamp(new Float(-11));
         pi2.setExposureTime(new Float(100));
-        pi2.setTimestamp(new Float(-193)); 
+        pi2.setTimestamp(new Float(-193));
         // TODO case of only inverse!
         
         p.setPlaneInfo(infos);
@@ -183,5 +183,5 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     // TODO need to check that for detached that the version is not 
     // incremented unless we really change something!
     
-
+    // TODO assumptions about Experimenter.version increasing, security, etc.
 }

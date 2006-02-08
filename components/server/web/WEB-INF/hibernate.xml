@@ -84,31 +84,22 @@
 		</property>
 		<property name="dataSource" ref="dataSource"/>
 		<property name="eventListeners">
-			<map>
-				<entry key="auto-flush" value-ref="globalListener"/>
-				<entry key="create" value-ref="globalListener"/>
-				<entry key="delete" value-ref="globalListener"/>
-				<entry key="dirty-check" value-ref="globalListener"/>
-				<entry key="evict" value-ref="globalListener"/>
-				<entry key="flush" value-ref="globalListener"/>
-				<entry key="flush-entity" value-ref="globalListener"/>
-				<entry key="load" value-ref="globalListener"/>
-				<entry key="load-collection" value-ref="globalListener"/>
-				<entry key="lock" value-ref="globalListener"/>
-				<entry key="merge" value-ref="globalListener"/>
+      <!-- Possible listeners as of 3.1.2:
+ 					  auto-flush merge create create-onflush delete
+						dirty-check evict flush flush-entity load
+						load-collection lock refresh replicate
+						save-update save update pre-load pre-update
+					  pre-delete pre-insert post-load post-update
+						post-delete post-insert post-commit-update
+ 					  post-commit-delete post-commit-insert
+			-->
+ 			<map>
+				<entry key="merge">
+					<bean class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/>          
+        </entry> 
 				<entry key="post-delete" value-ref="globalListener"/>
 				<entry key="post-insert" value-ref="globalListener"/>
-				<entry key="post-load" value-ref="globalListener"/>
 				<entry key="post-update" value-ref="globalListener"/>
-				<entry key="pre-delete" value-ref="globalListener"/>
-				<entry key="pre-insert" value-ref="globalListener"/>
-				<entry key="pre-load" value-ref="globalListener"/>
-				<entry key="pre-update" value-ref="globalListener"/>
-				<entry key="refresh" value-ref="globalListener"/>
-				<entry key="replicate" value-ref="globalListener"/>
-				<entry key="save" value-ref="globalListener"/>
-				<entry key="save-update" value-ref="globalListener"/>
-				<entry key="update" value-ref="globalListener"/>
 			</map>
 		</property>
 	</bean>

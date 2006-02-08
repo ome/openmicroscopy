@@ -20,19 +20,23 @@
 	<target name="prepare">
 		<mkdir dir="${dest.dir}" />
 		<mkdir dir="${done.dir}" />
+		<mkdir dir="${genresrc.dir}" />
 		<copyResource file="${root.dir}/hibernate.properties"/>
 		<copyResource file="${root.dir}/log4j.properties"/>
 		<copyResource file="${root.dir}/jndi.properties"/>
 		<definePath/>
-                <echo file="${genresrc.dir}/Classpath.sh">
-                  export CLASSPATH=${this.path}
-                </echo>
 	</target>
 
 	<target name="msg">
 		<property file="${import.dir}/messages.properties" />
 	</target>
-		
+
+	<target name="generate" depends="prepare,loadGroovy">
+                <echo file="${genresrc.dir}/Classpath.sh">
+                  export CLASSPATH=${this.path}
+                </echo>
+		<eclipseClasspath/>
+	</target>
 
 	<target name="loadHibernate">
 		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="local.classpath" />

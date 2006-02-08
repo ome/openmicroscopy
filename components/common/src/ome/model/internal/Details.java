@@ -1,5 +1,6 @@
 package ome.model.internal;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,6 +45,22 @@ public class Details implements IDetails
         if (_filteredCollections == null) return new HashSet();
         return new HashSet(_filteredCollections);
     }
+ 
+    // ~ Other
+    // ===========================================================
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer(128);
+        sb.append("Details:{");
+        sb.append("user=");sb.append(_owner.getId());
+        sb.append(";group=");sb.append(_group.getId());
+        sb.append(";perm=");sb.append(Arrays.toString(_perms.getBytes()));
+        sb.append(";create=");sb.append(_creation.getId());
+        sb.append(";update=");sb.append(_update.getId());
+        sb.append("}");
+        return sb.toString();
+    }
+    
     
     // Getters & Setters
     // ===========================================================

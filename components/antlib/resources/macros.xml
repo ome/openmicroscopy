@@ -48,10 +48,54 @@
                         password="${hibernate.connection.password}" 
 			print="@{print}" >
                         <classpath>
-                                <pathelement location="${basedir}/lib/htool/postgresql-7.4.1-jdbc3.jar"/>
+                                <pathelement location="${user.home}/.m2/repository/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
                         </classpath>
 			<commands/>
 		</sql>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="eclipseClasspath">
+		<sequential>
+                <groovy><![CDATA[
+		genresrc = properties["genresrc.dir"]	
+		basedir  = properties["basedir"]	
+                new File("${genresrc}/.classpath").withOutputStream{|o|
+                        def entryMaker = {|extras|
+                          return {|path|
+                            f = new File(basedir+"/"+path)
+                            if (f.isDirectory())
+                              o << """\t<classpathentry excluding="**/.svn" kind="src" path="${path}" ${extras}/>\n"""
+                          }
+                          
+                        }
+                        o << "<classpath>\n"
+                        o << """\t<classpathentry kind="output" path="target/classes"/>\n"""
+                        o << """\t<classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>\n"""
+
+                        // 
+                        ["web","resources","src","meta","sql"].each(entryMaker(""))
+                        [
+			  "target/generated-sources/resources",
+			  "target/generated-sources/slice2java",
+			  "target/generated-sources/jdk14",
+			].each(entryMaker(""))
+                        ["test","test-resources"].each(entryMaker("output=\"target/test-classes\""))
+
+			paths = []
+                        properties["this.path"].split(":").each{ |x|
+                          repo = "repository/"
+                          if (x.contains(repo))  {
+                            paths << x.substring(x.lastIndexOf(repo)+repo.length())
+                          }
+                        }
+
+			paths.sort().each{|path|
+                          o << """\t<classpathentry kind="var" path="M2_REPO/${path}"/>\n"""
+			}
+                        o << "</classpath>\n"
+                }
+                ]]></groovy>
 		</sequential>
 	</macrodef>
 
@@ -60,15 +104,16 @@
          = = = = = = = = = = = = = = = = = -->
 	<macrodef name="definePath">
 	  <sequential>
-		<pathconvert property="maven.path" refid="maven.compile.classpath"/>
 		<path id="local.classpath">
-			<pathelement path="${maven.path}"/>
+			<path refid="maven.compile.classpath"/>
+			<path refid="maven.test.classpath"/>
 			<pathelement location="${basedir}" />
 			<pathelement location="${dest.dir}/" />
 			<pathelement location="${target.dir}/" />
-			<fileset dir="${lib.dir}/htool" includes="**/*.jar" />
 		</path>
 		<pathconvert property="this.path" refid="local.classpath"/>
+		<pathconvert property="compile.path" refid="maven.compile.classpath"/>
+		<pathconvert property="test.path" refid="maven.test.classpath"/>
 	  </sequential>
 	</macrodef>
 			

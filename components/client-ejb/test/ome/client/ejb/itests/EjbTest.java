@@ -3,9 +3,9 @@ package ome.client.ejb.itests;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import junit.framework.TestCase;
+import ome.api.IQuery;
 
-import ome.ro.ejb.Generic;
+import junit.framework.TestCase;
 
 public class EjbTest extends TestCase
 {
@@ -14,8 +14,8 @@ public class EjbTest extends TestCase
     {
         
         Context ctx = new InitialContext();
-        Generic g = (Generic) ctx.lookup(Generic.class.getName());
-        g.run("from Object");
+        IQuery g = (IQuery) ctx.lookup(IQuery.class.getName());
+        g.queryList("from Object",null);
         
     }
     

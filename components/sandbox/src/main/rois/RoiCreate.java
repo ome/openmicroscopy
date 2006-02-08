@@ -34,12 +34,12 @@ public class RoiCreate extends OmeroSupport
         super();
 
         // Create lots of sets
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
         {
             RoiSet s = createSet();
 
             // for each set make lots of images with a single roi5d
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < 1; j++)
             {
                 Pixels p = createPixels();
                 RoiMap m = createMap();
@@ -54,6 +54,8 @@ public class RoiCreate extends OmeroSupport
             _u.saveObject(s);
             
         }
+        
+        super.commit();
 
     }
 
@@ -105,7 +107,8 @@ public class RoiCreate extends OmeroSupport
         r.setPixels(p);
         if (null == r.getExtents()) r.setExtents(new HashSet());
         r.getExtents().add(re);
-
+        re.setRoi5d(r);
+        
         // MAP
         m.setRoi5d(r);
         m.setRoiset(s);

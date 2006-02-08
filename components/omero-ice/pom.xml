@@ -21,6 +21,12 @@
       <artifactId>antlib</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-tools</artifactId>
+      <version>3.1.0.beta4</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

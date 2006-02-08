@@ -13,6 +13,11 @@
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
+      <artifactId>antlib</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>omero</groupId>
       <artifactId>omeio-nio</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
@@ -23,5 +28,10 @@
     </dependency>
   </dependencies>
   <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 </project>
