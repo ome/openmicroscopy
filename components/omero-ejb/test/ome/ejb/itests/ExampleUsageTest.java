@@ -52,14 +52,16 @@ public class ExampleUsageTest extends TestCase
     
     public void testDirectConstruction() throws Exception
     {
-        Pixels p = new Pixels(1l);
+        Pixels p = new Pixels();
+        p.setId(1l);
         p.setSizeX(new Integer(64));
         p.setSizeY(new Integer(64));
         p.setSizeZ(new Integer(64));
         p.setSizeC(new Integer(64));
         p.setSizeT(new Integer(64));
         
-        RenderingDef def = new RenderingDef(1l);
+        RenderingDef def = new RenderingDef();
+        def.setId(1l);
         def.setDefaultT(new Integer(1));
         // etc
         RenderingBean re = new RenderingBean();
