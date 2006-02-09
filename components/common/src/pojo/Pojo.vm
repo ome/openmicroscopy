@@ -48,7 +48,7 @@ $templates.PojoExtraClassCode
   public boolean acceptFilter(ome.util.Filter filter){
 
 #foreach($property in $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $get = "$pojo.getGetterSignature($property)()" )
 #set( $set = "set$pojo.getPropertyName($property)" )
@@ -132,7 +132,7 @@ $templates.PojoExtraClassCode
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $field = $property.name )
 #set( $set = "set$pojo.getPropertyName($property)" )
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 		}
 		else if (field.equals(${field.toUpperCase()}))

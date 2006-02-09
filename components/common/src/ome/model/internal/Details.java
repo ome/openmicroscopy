@@ -52,11 +52,11 @@ public class Details implements IDetails
     {
         StringBuffer sb = new StringBuffer(128);
         sb.append("Details:{");
-        sb.append("user=");sb.append(_owner.getId());
-        sb.append(";group=");sb.append(_group.getId());
-        sb.append(";perm=");sb.append(Arrays.toString(_perms.getBytes()));
-        sb.append(";create=");sb.append(_creation.getId());
-        sb.append(";update=");sb.append(_update.getId());
+        sb.append("user=");sb.append(_owner==null?null:_owner.getId());
+        sb.append(";group=");sb.append(_group==null?null:_group.getId());
+        sb.append(";perm=");sb.append(_perms==null?null:Arrays.toString(_perms.getBytes()));
+        sb.append(";create=");sb.append(_creation==null?null:_creation.getId());
+        sb.append(";update=");sb.append(_update==null?null:_update.getId());
         sb.append("}");
         return sb.toString();
     }

@@ -101,6 +101,18 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <includes>
+              <include>**/utest*/*Test*.java</include>
+            </includes>
+            <excludes>
+              <exclude>**/Abstract*.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
           <executions>
             <execution>

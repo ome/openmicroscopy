@@ -37,7 +37,7 @@
 ##########################################################################
 #macro(classBody $pojo)
 #foreach($property in  $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
 #if( $fulltype.endsWith("java.util.List") || $fulltype.endsWith("java.util.Set") || $type.contains("[]"))
@@ -50,7 +50,7 @@ sequence<string> ${pojo.declarationName}Remote${field}Seq;
 class ${pojo.declarationName}Remote
 {
 #foreach($property in $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
 	//  $pojo.importType( $fulltype ) $property.name;
@@ -147,7 +147,7 @@ class ${pojo.declarationName}Remote
 #moduleStart(${pojo.packageDeclaration})
 
 #foreach($property in  $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
 #if( $type.endsWith("List") || $type.endsWith("Set") )
@@ -158,7 +158,7 @@ class ${pojo.declarationName}Remote
 class ${pojo.declarationName}Remote
 {
 #foreach($property in $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
 	//  $pojo.importType( $fulltype ) $property.name;

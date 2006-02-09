@@ -50,7 +50,7 @@ $secondpassclassimports$importModify
 
 $moduleStart
 #foreach($property in $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
 #set( $value = $property.value )
@@ -69,7 +69,7 @@ sequence<byte> $seqName
 class ${pojo.declarationName}Remote
 {
 #foreach($property in $pojo.allPropertiesIterator)
-#set( $fulltype = $c2j.getJavaTypeName($property) ) ## , $generics)
+#set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $field = $property.name )
 #set( $value = $property.value )
