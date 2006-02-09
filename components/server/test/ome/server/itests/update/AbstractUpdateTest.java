@@ -128,7 +128,8 @@ public class AbstractUpdateTest
         Channel c = new Channel();
         c.setIndex(1);
     
-        Pixels p = new Pixels(pixelsId);
+        Pixels p = new Pixels();
+        p.setId(pixelsId);
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
         p.setSizeZ(new Integer(1));

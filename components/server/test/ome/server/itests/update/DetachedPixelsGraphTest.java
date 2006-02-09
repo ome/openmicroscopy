@@ -107,7 +107,9 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     {
         // PREPARE -------------------------------------------------
         //      TODO or bool flag?
-        p.setAcquisitionContext(new AcquisitionContext(-1l));
+        AcquisitionContext ac = new AcquisitionContext();
+        ac.setId(-1l);
+        p.setAcquisitionContext(ac);
         _up.saveAndReturnObject(p);
         flush();
         clear();
