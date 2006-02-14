@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
-import org.openmicroscopy.shoola.agents.treeviewer.util.UtilConstants;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -138,11 +137,14 @@ class TreeViewerWin
         Font font = (Font) TreeViewerAgent.getRegistry().lookup(
                 "/resources/fonts/Titles");
         tabs.setFont(font);
-        tabs.setForeground(UtilConstants.STEELBLUE);
+        tabs.setForeground(UIUtilities.STEELBLUE);
 
         Map browsers = model.getBrowsers();
         Browser browser = (Browser) browsers.get(new Integer(
-                Browser.HIERARCHY_EXPLORER));
+                                            Browser.HIERARCHY_EXPLORER));
+        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        browser = (Browser) browsers.get(new Integer(
+                                            Browser.CATEGORY_EXPLORER));
         tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
     }
 

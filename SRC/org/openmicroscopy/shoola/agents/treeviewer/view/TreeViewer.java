@@ -30,10 +30,10 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
-
-
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 
 /** 
@@ -91,20 +92,38 @@ public interface TreeViewer
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int         DISCARDED = 2;
     
-    /** Flag to denote the <i>Save</i> state. */
-    public static final int         SAVE = 3;
+    /** Flag to denote the <i>Loading Annotation</i> state. */
+    public static final int         LOADING_ANNOTATION = 3;
+    
+    /** Flag to denote the <i>Loading Thumbnail</i> state. */
+    public static final int         LOADING_THUMBNAIL = 4;
+    
+    /** Flag to denote the <i>Loading Classification</i> state. */
+    public static final int         LOADING_CLASSIFICATION = 5;
+    
+    /** Flag to denote the <i>Loading Classification path</i> state. */
+    public static final int         LOADING_CLASSIFICATION_PATH = 6;
+    
+    /** Flag to denote the <i>Save Edition</i> state. */
+    public static final int         SAVE_EDITION = 7;
+    
+    /** Flag to denote the <i>Save Edition</i> state. */
+    public static final int         SAVE_CLASSIFICATION = 8;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 4;
+    public static final int         READY = 9;
     
     /** Identifies the <code>Create</code> type for the editor. */
-    public static final int         CREATE_PROPERTIES = 100;
+    public static final int         CREATE_EDITOR = 100;
     
     /** Identifies the <code>Edit</code> type for the editor. */
-    public static final int         EDIT_PROPERTIES = 101;
+    public static final int         PROPERTIES_EDITOR = 101;
+    
+    /** Identifies the <code>Edit</code> type for the editor. */
+    public static final int         CLASSIFIER_EDITOR = 102;
     
     /** Identifies the <code>No Editor</code> type for the editor. */
-    public static final int         NO_EDITOR = 102;
+    public static final int         NO_EDITOR = 103;
     
     /** 
      * Indicates that the root of the retrieved hierarchy is the 
@@ -164,6 +183,10 @@ public interface TreeViewer
      */
     public static final String		SELECTED_BROWSER_PROPERTY = 
         									"selectedBrowser";
+    /**
+     * Bound properties to indicate to remove the currently displayed editor.
+     */
+    public static final String      REMOVE_EDITOR_PROPERTY = "removeEditor";
     
     /**
      * Queries the current state.
@@ -274,6 +297,83 @@ public interface TreeViewer
     
     /** Hides the window and cancels any on-going data loading. */
     public void closing();
+    
+    /**
+     * Sets the annotations retrieved.
+     * 
+     * @param map The annotations.
+     */
+    public void setAnnotations(Map map);
+    
+    /**
+     * Sets the thumbnail associated to the currently edited Image.
+     * 
+     * @param thumbnail The thumbnail to set.
+     */
+    public void setDataObjectThumbnail(BufferedImage thumbnail);
+    
+    /**
+     * Retrieves the CategoryGroup/Categories containing the specified 
+     * image.
+     *  
+     * @param imageID The id of the image.
+     */
+    public void retrieveClassification(int imageID);
+    
+    /**
+     * Sets the retrieved classfication paths.
+     * 
+     * @param paths The paths to set.
+     */
+    public void setRetrievedClassification(Set paths);
+    
+    /**
+     * Browses the specified data object.
+     * 
+     * @param object The object to browse.
+     */
+    public void browse(DataObject object);
+    
+    /**
+     * Sets the available classifications paths.
+     * 
+     * @param mode  The type of classifier.
+     * @param paths The paths to set.
+     */
+    public void setClassificationPaths(int mode, Set paths);
+    
+    /**
+     * Brings up the classifier corresponding to the specified mode.
+     * 
+     * @param object The image object to classify or declassify.
+     * @param mode The type of classifier. 
+     */
+    public void showClassifier(ImageData object, int mode);
+    
+    /**
+     * Adds the currently selected image to selected categories.
+     * 
+     * @param map   Collection of selected categories, the key is the
+     *              <code>image</code>, the value is the set of categories.
+     */
+    public void classifyImage(Map map);
+    
+    /**
+     * Removes the currently selected image from selected categories.
+     * 
+     * @param map   Collection of selected categories, the key is the
+     *              <code>image</code>, the value is the set of categories.
+     */
+    public void declassifyImage(Map map);
+    
+    /**
+     * Indicates that the classification was successful or not and removes
+     * the UI classification component from the display.
+     * 
+     * @param b Passed <code>true</code> if the save action was successful.
+     *          <code>false</code> otherwise.
+     */
+    public void saveClassification(boolean b);
     
     /**
      * Returns the currently selected {@link Browser} or <code>null</code>

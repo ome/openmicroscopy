@@ -32,19 +32,31 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
+import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -84,6 +96,27 @@ class TreeViewerComponent
     
     /** The View sub-component. */
     private TreeViewerWin       view;
+    
+    /**
+     * Converts the specified UI rootLevel into its corresponding 
+     * constant defined by the {@link OmeroPojoService}.
+     * 
+     * @param level The level to convert.
+     * @return See above.
+     */
+    private int convertRootLevel(int level)
+    {
+        switch (level) {
+            case WORLD_ROOT:
+                return OmeroPojoService.WORLD_HIERARCHY_ROOT;
+            case USER_ROOT:
+                return OmeroPojoService.USER_HIERARCHY_ROOT;
+            case GROUP_ROOT:
+                return OmeroPojoService.GROUP_HIERARCHY_ROOT;
+            default:
+                throw new IllegalArgumentException("Level not supported");
+        }
+    }
     
     /**
      * Creates a new instance.
@@ -192,14 +225,18 @@ class TreeViewerComponent
      */
     public void showProperties(DataObject object, int editorType)
     {
-        if (editorType == EDIT_PROPERTIES || editorType == CREATE_PROPERTIES)
+        if (editorType == PROPERTIES_EDITOR || editorType == CREATE_EDITOR)
             model.setEditorType(editorType);
         else return;
-        //model.setDataObject(object);
-        DOEditor panel = new DOEditor(this, object, editorType);
+        model.setDataObject(object);
+        DOEditor panel = EditorFactory.getEditor(this, object, editorType);
         panel.addPropertyChangeListener(DOEditor.CANCEL_EDITION_PROPERTY, 
-                                        controller);;
-        view.addComponent(panel); 
+                                        controller);
+        if ((object instanceof ImageData) || (object instanceof DatasetData)) {
+            model.fireAnnotationLoading(object); 
+            fireStateChange();
+            UIUtilities.centerAndShow(view.getLoadingWindow());
+        } else view.addComponent(panel); 
     }
 
     /**
@@ -223,7 +260,9 @@ class TreeViewerComponent
     {
         //TODO: check state 
         model.setEditorType(NO_EDITOR);
+        model.setDataObject(null);
         view.removeAllFromWorkingPane();
+        firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
     /**
@@ -238,7 +277,6 @@ class TreeViewerComponent
      */
     public void showFinder(boolean b)
     {
-        int state = model.getState();
         if (model.getSelectedBrowser() == null) return;
         Finder finder = model.getFinder();
         if (b == finder.isDisplay())  return;
@@ -325,7 +363,7 @@ class TreeViewerComponent
      */
     public void setSaveResult(DataObject object, int op)
     {
-        if (model.getState() != SAVE)
+        if (model.getState() != SAVE_EDITION)
             throw new IllegalStateException(
                     "This method can only be invoked in the SAVE state."); 
         if (op != DELETE_OBJECT && op != UPDATE_OBJECT && op != CREATE_OBJECT) 
@@ -336,6 +374,215 @@ class TreeViewerComponent
         if (view.getLoadingWindow().isVisible())
             view.getLoadingWindow().setVisible(false);
         view.removeAllFromWorkingPane();
+        model.setState(READY);
+        fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setAnnotations(Map)
+     */
+    public void setAnnotations(Map map)
+    {
+        if (model.getState() != LOADING_ANNOTATION)
+            throw new IllegalStateException("This method can only be invoked" +
+                    " in the LOADING_ANNOTATION state.");
+        if (map == null) throw new IllegalArgumentException("No annotations.");
+        DOEditor editor = EditorFactory.getEditor();
+        if (editor == null) return;
+        editor.setAnnotations(map);
+        view.getLoadingWindow().setVisible(false);
+        if (editor.hasThumbnail()) 
+            model.fireThumbnailLoading();
+        else model.setState(READY);
+        fireStateChange();
+        view.addComponent(editor); 
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setDataObjectThumbnail(BufferedImage)
+     */
+    public void setDataObjectThumbnail(BufferedImage thumbnail)
+    {
+        if (model.getState() != LOADING_THUMBNAIL)
+            throw new IllegalStateException("This method can only be invoked" +
+                    " in the LOADING_THUMBNAIL state.");
+        if (thumbnail == null)
+            throw new IllegalArgumentException("No thumbnail.");
+        if (model.getEditorType() == CLASSIFIER_EDITOR) {
+            Classifier classifier = ClassifierFactory.getClassifier();
+            if (classifier == null) return;
+            classifier.setThumbnail(thumbnail);
+        } else {
+            DOEditor editor = EditorFactory.getEditor();
+            if (editor == null) return;
+            editor.setThumbnail(thumbnail);
+        }
+        model.setState(READY);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#retrieveClassification(int)
+     */
+    public void retrieveClassification(int imageID)
+    {
+        if (model.getEditorType() != PROPERTIES_EDITOR) 
+            throw new IllegalStateException("This method should only be " +
+                    "invoked in the editing state.");
+        model.fireClassificationLoading(imageID);
+        fireStateChange();
+        UIUtilities.centerAndShow(view.getLoadingWindow());
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setRetrievedClassification(Set)
+     */
+    public void setRetrievedClassification(Set paths)
+    {
+        if (model.getState() != LOADING_CLASSIFICATION)
+            throw new IllegalStateException("This method should only be " +
+                    "invoked in the LOADING_CLASSIFICATION state.");
+        if (paths == null)
+            throw new IllegalArgumentException("No paths to set.");
+        DOEditor editor = EditorFactory.getEditor();
+        if (editor == null) return;
+        Set set = TreeViewerTranslator.transformHierarchy(paths);
+        editor.setClassifiedNodes(set);
+        model.setState(READY);
+        view.getLoadingWindow().setVisible(false);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#browse(DataObject)
+     */
+    public void browse(DataObject object)
+    {
+        if (object instanceof ImageData) {
+            ImageData image = (ImageData) object;
+            LoadImage evt = new LoadImage(image.getId(), 
+                    image.getDefaultPixels().getId(), image.getName());
+            TreeViewerAgent.getRegistry().getEventBus().post(evt);
+            return;
+        }
+        int id = -1;
+        int index = -1;
+        if (object instanceof CategoryData) {
+            id =  ((CategoryData) object).getId();
+            index = Browse.CATEGORY;
+        } else if (object instanceof CategoryGroupData) {
+            id =  ((CategoryGroupData) object).getId();
+            index = Browse.CATEGORY_GROUP;
+        }
+        if (id == -1) 
+            throw new IllegalArgumentException("Can only browse category or " +
+                    "category group.");
+        int rootID = model.getSelectedBrowser().getRootID();
+        int rootLevel = model.getSelectedBrowser().getRootLevel();
+        Browse event = new Browse(id, index, convertRootLevel(rootLevel), 
+                                rootID);
+        TreeViewerAgent.getRegistry().getEventBus().post(event);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#setClassificationPaths(int, Set)
+     */
+    public void setClassificationPaths(int m, Set paths)
+    {
+        if (model.getState() != LOADING_CLASSIFICATION_PATH)
+            throw new IllegalStateException("This method should only be " +
+                    "invoked in the LOADING_CLASSIFICATION_PATH state.");
+        if (paths == null)
+            throw new IllegalArgumentException("No paths to set.");
+        Set nodes = TreeViewerTranslator.transformClassificationPaths(paths);
+        view.getLoadingWindow().setVisible(false);
+        model.setEditorType(CLASSIFIER_EDITOR);
+        Classifier classifier = ClassifierFactory.getClassifier(this, m, nodes,
+                                 (ImageData) model.getDataObject());
+        classifier.addPropertyChangeListener(controller);
+        view.addComponent(classifier); 
+        model.fireThumbnailLoading();
+        fireStateChange();
+    }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#showClassifier(ImageData, int)
+     */
+    public void showClassifier(ImageData object, int mode)
+    {
+        if (model.getState() != READY)
+            throw new IllegalStateException("This method should only be " +
+                "invoked in the READY state.");
+        if (object == null) 
+            throw new IllegalArgumentException("Object cannot be null.");
+        view.removeAllFromWorkingPane();
+        firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        model.fireClassificationPathsLoading(object, mode);
+        fireStateChange();
+        UIUtilities.centerAndShow(view.getLoadingWindow());
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#classifyImage(Map)
+     */
+    public void classifyImage(Map categories)
+    {
+        if (model.getState() != READY)
+            throw new IllegalStateException("This method should only be " +
+                "invoked in the READY state.");
+        if (categories == null)
+            throw new IllegalArgumentException("No categories.");
+        model.fireClassification(categories);
+        fireStateChange();
+        LoadingWindow window = view.getLoadingWindow();
+        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
+                                LoadingWindow.SAVING_MSG);
+        UIUtilities.centerAndShow(window);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#declassifyImage(Map)
+     */
+    public void declassifyImage(Map categories)
+    {
+        if (model.getState() != READY)
+            throw new IllegalStateException("This method should only be " +
+                "invoked in the READY state.");
+        if (categories == null) 
+            throw new IllegalArgumentException("No categories.");
+        
+        model.fireDeclassification(categories);
+        fireStateChange(); 
+        LoadingWindow window = view.getLoadingWindow();
+        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
+                                LoadingWindow.SAVING_MSG);
+        UIUtilities.centerAndShow(window);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#saveClassification(boolean)
+     */
+    public void saveClassification(boolean b)
+    {
+        if (model.getState() != SAVE_CLASSIFICATION)
+            throw new IllegalStateException("This method should only be " +
+                "invoked in the SAVE_CLASSIFICATION state.");
+        if (!b) {
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Classification", "The classification wasn't" +
+                    "successful in the databasse. Please try again.");
+        }
+        view.getLoadingWindow().setVisible(false);
+        view.removeAllFromWorkingPane();
+        firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
         model.setState(READY);
         fireStateChange();
     }

@@ -32,16 +32,23 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.AnnotationLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ClassificationSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.ClassifierPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ObjectAnnotationEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
@@ -51,6 +58,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 
 /** 
@@ -91,10 +99,13 @@ class TreeViewerModel
     
     /** 
      * The type of editor. One of the following constants:
-     * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
+     * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR}
      * or {@link TreeViewer#NO_EDITOR}.
      */
     private int                 	editorType;
+    
+    /** The currently edited DataObject. */
+    private DataObject              objectEdit;
     
     /**
      * The component to find a given phrase in the currently selected
@@ -194,13 +205,13 @@ class TreeViewerModel
    
    /**
     * Starts the asynchronous creation of the data 
-    * and sets the state to {@link TreeViewer#SAVE}.
+    * and sets the state to {@link TreeViewer#SAVE_EDITION}.
     * 
     * @param userObject The <code>DataObject</code> to create.
     */
    void fireDataObjectCreation(DataObject userObject)
    {    
-       state = TreeViewer.SAVE;
+       state = TreeViewer.SAVE_EDITION;
        Object parent = selectedBrowser.getSelectedDisplay().getUserObject();
        if (parent instanceof String) parent = null;
        currentLoader = new DataObjectCreator(component, userObject, parent);
@@ -209,7 +220,7 @@ class TreeViewerModel
    
    /**
     * Starts the asynchronous creation of the data 
-    * and sets the state to {@link TreeViewer#SAVE}.
+    * and sets the state to {@link TreeViewer#SAVE_EDITION}.
     * 
     * @param userObject The <code>DataObject</code> to update or delete
     * 					depending on the algorithm.
@@ -217,7 +228,7 @@ class TreeViewerModel
     */
    void fireDataObjectUpdate(DataObject userObject, int algorithm)
    {
-       state = TreeViewer.SAVE;
+       state = TreeViewer.SAVE_EDITION;
        if (algorithm == TreeViewer.UPDATE_OBJECT) 
            currentLoader = new DataObjectEditor(component, userObject);
        else if (algorithm == TreeViewer.DELETE_OBJECT)  {
@@ -232,7 +243,7 @@ class TreeViewerModel
    
    /**
     * Starts the asynchronous creation/update/deletion of the annotation data. 
-    * and sets the state to {@link TreeViewer#SAVE}.
+    * and sets the state to {@link TreeViewer#SAVE_EDITION}.
     * 
     * @param annotation The annotation to handle.
     * @param operation	The type of operation to perform.
@@ -246,7 +257,7 @@ class TreeViewerModel
            op = AnnotationEditor.DELETE;
        DataObject obj = (DataObject) 
        				selectedBrowser.getSelectedDisplay().getUserObject();
-       state = TreeViewer.SAVE;
+       state = TreeViewer.SAVE_EDITION;
        currentLoader = new AnnotationEditor(component, obj, annotation, op);
        currentLoader.load();
    }
@@ -254,7 +265,7 @@ class TreeViewerModel
    /**
     * Starts the asynchronous update of the specifed {@link DataObject}
     * and create/update/delete operation for the specified annotation. 
-    * and sets the state to {@link TreeViewer#SAVE}.
+    * and sets the state to {@link TreeViewer#SAVE_EDITION}.
     * 
     * @param object The {@link DataObject} to update.
     * @param data The {@link AnnotationData} to handle.
@@ -270,15 +281,27 @@ class TreeViewerModel
            op = ObjectAnnotationEditor.UPDATE;
        else if (operation == TreeViewer.DELETE_ANNOTATION)
            op = ObjectAnnotationEditor.DELETE;
-       state = TreeViewer.SAVE;
+       state = TreeViewer.SAVE_EDITION;
        currentLoader = new ObjectAnnotationEditor(component, object, data, op);
        currentLoader.load();
    }
 
+   /**
+    * Fires an asynchronous annotation retrieval for the specified
+    * <code>DataObject</code>.
+    * 
+    * @param object The object to retrieve the annotations for.
+    */
+   void fireAnnotationLoading(DataObject object)
+   {
+       state = TreeViewer.LOADING_ANNOTATION;
+       currentLoader = new AnnotationLoader(component, object);
+       currentLoader.load();
+   }
    
    /**
     * Sets the type of editor. One of the following constants 
-    * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
+    * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR}
     * or {@link TreeViewer#NO_EDITOR}.
     * 
     * @param editorType The type of the editor.
@@ -288,7 +311,7 @@ class TreeViewerModel
    /**
     * Returns the type of editor.
     * One of the following constants 
-    * {@link TreeViewer#CREATE_PROPERTIES}, {@link TreeViewer#EDIT_PROPERTIES}
+    * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR}
     * or {@link TreeViewer#NO_EDITOR}.
     * 
     * @return See above.
@@ -317,7 +340,7 @@ class TreeViewerModel
     */
    ExperimenterData getUserDetails()
    { 
-   	return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
+       return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
    			        LookupNames.CURRENT_USER_DETAILS);
    }
    
@@ -327,5 +350,102 @@ class TreeViewerModel
     * @param state The state to set.
     */
    void setState(int state) { this.state = state; }
+
+   /**
+    * Sets the currently edited DataObject.
+    * 
+    * @param object The object to set.
+    */
+   void setDataObject(DataObject object) { objectEdit = object; }
+   
+   /**
+    * Returns the currently edited data object.
+    * 
+    * @return See above.
+    */
+   DataObject getDataObject() { return objectEdit; }
+   
+   /**
+    * Fires an asynchronous thumbnail retrieval for the currently edited image.
+    */
+   void fireThumbnailLoading()
+   {
+       state = TreeViewer.LOADING_THUMBNAIL;
+       currentLoader = new ThumbnailLoader(component, (ImageData) objectEdit);
+       currentLoader.load();
+   }
+   
+   /**
+    * Fires an asynchronous retrieval of the CategoryGroup/Category paths 
+    * containing the specified image.
+    * 
+    * @param imageID The id of the image.
+    */
+   void fireClassificationLoading(int imageID)
+   {
+        state = TreeViewer.LOADING_CLASSIFICATION;
+        currentLoader = new ClassificationPathsLoader(component, imageID);
+        currentLoader.load();
+   }
+   
+   /**
+    * Fires an asynchronous retrieval of the CategoryGroup/Category paths 
+    * 
+    * @param object The image to classify or declassify.
+    * @param m      The type of classifier.
+    */
+   void fireClassificationPathsLoading(ImageData object, int m)
+   {
+       setDataObject(object);
+       state = TreeViewer.LOADING_CLASSIFICATION_PATH;
+       currentLoader = new ClassifierPathsLoader(component, object.getId(), m);
+       currentLoader.load();
+   }
+   
+   /**
+    * Fires an asynchronous call to classify the currently selected image
+    * in the specified categories.
+    * 
+    * @param categories Collection of selected categories.
+    */
+   void fireClassification(Map categories)
+   {
+       if (categories.size() == 1) {
+           Iterator i = categories.keySet().iterator();
+           ImageData data = null;
+           Set set = null;
+           while (i.hasNext()) {
+               data = (ImageData) i.next();
+               set = (Set) categories.get(data);
+           }
+           state = TreeViewer.SAVE_CLASSIFICATION;
+           currentLoader = new ClassificationSaver(component, 
+                           ClassificationSaver.CLASSIFY, data.getId(), set);
+           currentLoader.load();
+        }       
+   }
+   
+   /**
+    * Fires an asynchronous call to remove the currently selected image
+    * from the specified categories.
+    * 
+    * @param categories Collection of selected categories.
+    */
+   void fireDeclassification(Map categories)
+   {
+       if (categories.size() == 1) {
+           Iterator i = categories.keySet().iterator();
+           ImageData data = null;
+           Set set = null;
+           while (i.hasNext()) {
+               data = (ImageData) i.next();
+               set = (Set) categories.get(data);
+           }
+           state = TreeViewer.SAVE_CLASSIFICATION;
+           currentLoader = new ClassificationSaver(component, 
+                           ClassificationSaver.DECLASSIFY, data.getId(), set);
+           currentLoader.load();
+        }       
+   }
    
 }

@@ -50,8 +50,10 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
@@ -60,10 +62,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.GroupData;
 
 
@@ -121,6 +126,12 @@ class TreeViewerControl
     /** Identifies the Find action in the Edit menu. */
     static final Integer	FIND = new Integer(12);
     
+    /** Identifies the Classify action in the Edit menu. */
+    static final Integer    CLASSIFY = new Integer(13);
+    
+    /** Identifies the Find action in the Edit menu. */
+    static final Integer    DECLASSIFY = new Integer(14);
+    
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
@@ -157,6 +168,8 @@ class TreeViewerControl
         actionsMap.put(USER_ROOT_LEVEL, 
                 new RootLevelAction(model, TreeViewer.USER_ROOT));
         actionsMap.put(FIND,  new FinderAction(model));
+        actionsMap.put(CLASSIFY,  new ClassifyAction(model));
+        actionsMap.put(DECLASSIFY,  new DeclassifyAction(model));
     }
     
     /** Helper method to create the actions for the group level hierarchy. */
@@ -308,9 +321,9 @@ class TreeViewerControl
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
-        } else if (name.equals(DOEditor.CANCEL_EDITION_PROPERTY)) {
-            model.removeEditor();
-        } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+        } else if (name.equals(DOEditor.CANCEL_EDITION_PROPERTY) ||
+                name.equals(Classifier.CANCEL_CLASSIFICATION_PROPERTY) ||
+                name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
             model.removeEditor();
         } else if (name.equals(Finder.CLOSE_FINDER_PROPERTY)) {
             clearFind();
@@ -323,6 +336,14 @@ class TreeViewerControl
                 browser = (Browser) i.next();
                 browser.setSelected(browser.equals(b));
             }
+        } else if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) {
+            model.cancel();
+        } else if (name.equals(Classifier.CLASSIFY_PROPERTY)) {
+            model.classifyImage((Map) pce.getNewValue());
+        } else if (name.equals(Classifier.DECLASSIFY_PROPERTY)) {
+            model.declassifyImage((Map) pce.getNewValue());
+        } else if (name.equals(Classifier.BROWSE_PROPERTY)) {
+            model.browse((DataObject) pce.getNewValue());
         }
     }
 
