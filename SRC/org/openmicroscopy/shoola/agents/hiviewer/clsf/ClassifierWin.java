@@ -44,13 +44,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -208,7 +206,8 @@ abstract class ClassifierWin
             finishButton.setEnabled(false);
             JPanel p = new JPanel();
             p.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 10));
-            p.add(new JLabel(getUnclassifiedNote()), BorderLayout.CENTER);
+            p.add(UIUtilities.setTextFont(getUnclassifiedNote()),
+                    BorderLayout.CENTER);
             return p;
         }
         //populates the tree
