@@ -30,10 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
-
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -65,13 +61,12 @@ public class SaveLayoutAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Save current";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Save the current layout.";
-
-    
+ 
     /**
      * Callback to notify of a change in the currently selected display
      * in the {@link Browser}.
@@ -80,7 +75,7 @@ public class SaveLayoutAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay != null) setEnabled(true);
+        setEnabled(selectedDisplay != null);
     }
     
     /**

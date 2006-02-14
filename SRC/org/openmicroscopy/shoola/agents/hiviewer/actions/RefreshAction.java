@@ -62,12 +62,11 @@ public class RefreshAction
     extends HiViewerAction
 {
 
-    /** The text to display as the button label. */
+    /** The name of the action. */
     private static final String NAME = "Refresh";
     
-    /** The text to use as the button tooltip. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Refresh this window.";
-    
     
     /**
      * Creates a new instance.

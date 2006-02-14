@@ -42,7 +42,10 @@ import pojos.CategoryData;
 import pojos.DatasetData;
 
 /** 
- * 
+ * Loads the images contained in the specified container i.e. 
+ * Images in a given Dataset or Category.
+ * This class calls the <code>getImages</code> method in the
+ * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -143,9 +146,9 @@ public class ImagesInContainerLoader
                 				  viewer.getRootID(), this); 
     }
 
-    /**
-     * Retrieves the Category tree.
-     * @see DataBrowserLoader#load()
+    /** 
+     * Cancels the data loading. 
+     * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 

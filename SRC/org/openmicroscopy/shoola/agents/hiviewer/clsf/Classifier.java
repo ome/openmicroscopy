@@ -37,7 +37,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.CategoryData;
 
 /** 
  * Defines the interface provided by the classifier component.
@@ -179,13 +178,14 @@ public interface Classifier
      * instead, then the Image will be removed from the specified <code>
      * category</code>.
      *
-     * @param category The data object that represents the Category to/from
-     *                 which this Model's Image should be added/removed.
-     *                 Mustn't be <code>null</code> and should come from one
-     *                 of the {@link #getMetadata() available} paths.
+     * @param categories    The data object that represents the categories
+     *                      to/from which this Model's Image should be 
+     *                      added/removed. Mustn't be <code>null</code> and 
+     *                      should come from the {@link #getMetadata() 
+     *                      available} paths.
      * @throws IllegalStateException If the current state is not {@link #READY}.
      */
-    public void save(CategoryData category);
+    public void save(Set categories);
     
     /**
      * Transitions the classifier to the {@link #DISCARDED} state.

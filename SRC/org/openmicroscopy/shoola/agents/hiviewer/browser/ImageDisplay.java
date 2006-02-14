@@ -80,7 +80,7 @@ import pojos.ProjectData;
  * {@link #accept(ImageDisplayVisitor) accept} method, usually on the root node.
  * An example of this is layout management.  In fact, an {@link ImageSet} can
  * contain other nodes &#151; this class inherits from 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame} and
+ * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane} and
  * nodes are added to its internal desktop, which has no layout manager.  In
  * order to position the contained nodes properly, you can write a layout class
  * that implements the {@link ImageDisplayVisitor} interface to lay out the
@@ -159,7 +159,6 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet();
-        //setFrameIcon(null);  //Get rid of default Java ugly icon.
     }
     
     /**

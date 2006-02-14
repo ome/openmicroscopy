@@ -61,9 +61,8 @@ public class ActivationAction
 {
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Bring up the selected " +
-                        "hierarchy viewer.";
-    
+    private static final String DESCRIPTION = "Brings up the selected " +
+                                                "hierarchy viewer.";
     
     /**
      * Creates a new instance.

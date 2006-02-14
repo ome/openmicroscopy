@@ -65,10 +65,9 @@ public class SquaryLayoutAction
     extends HiViewerAction
 {
     
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Squary";
 
-    
     /**
      * Sets the action enabled depending on the currently selected display
      * @see HiViewerAction#onDisplayChange(ImageDisplay)

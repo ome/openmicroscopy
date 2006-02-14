@@ -45,8 +45,10 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * declassify an Image.
  * That is, all the paths in the Category Group trees that contain the Image
  * the {@link Classifier} is working with, and so can be used to declassify
- * the Image.  Every path is rooted by a Category Group object.
- *
+ * the Image. Every path is rooted by a Category Group object.
+ * This class calls the <code>loadClassificationPaths</code> method in the
+ * <code>HierarchyBrowsingView</code>.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -65,7 +67,6 @@ public class DeclassifPathsLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle            handle;
     
-    
     /**
      * Creates a new instance.
      * 
@@ -76,6 +77,7 @@ public class DeclassifPathsLoader
     
     /**
      * Retrieves all the metadata needed by the {@link #classifier}.
+     * @see DataLoader#load()
      */
     public void load()
     {
@@ -83,7 +85,10 @@ public class DeclassifPathsLoader
                              OmeroPojoService.DECLASSIFICATION, this);
     }
     
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**

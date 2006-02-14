@@ -47,7 +47,8 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
- * 
+ * The HiViewer agent.This agent manages and presents the
+ * Project/Dataset/Image, CategoryGroup/Category/Image and Image hierarchy.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,10 +82,10 @@ public class TreeViewerAgent
         int type = -1;
         switch (e.getEditorType()) {
             case ShowProperties.CREATE:
-                type = TreeViewer.CREATE_PROPERTIES;
+                type = TreeViewer.CREATE_EDITOR;
                 break;
             case ShowProperties.EDIT:
-                type = TreeViewer.EDIT_PROPERTIES;
+                type = TreeViewer.PROPERTIES_EDITOR;
         }
         if (type == -1) //shouldn't happen
             throw new IllegalArgumentException("Properties type not supported");

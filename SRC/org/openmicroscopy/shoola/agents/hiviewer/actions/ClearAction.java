@@ -62,11 +62,11 @@ public class ClearAction
     extends HiViewerAction
 {
     
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Clear";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Clear previous search.";
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Clear the previous search.";
 
     
     /**

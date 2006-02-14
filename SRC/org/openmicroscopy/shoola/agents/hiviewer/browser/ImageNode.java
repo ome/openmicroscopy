@@ -65,7 +65,6 @@ public class ImageNode
     /** The component on which the thumbnail is painted. */
     private ThumbnailCanvas canvas;
     
-    
     /**
      * Implemented as specified by superclass.
      * @see ImageDisplay#doAccept(ImageDisplayVisitor)
@@ -85,13 +84,14 @@ public class ImageNode
     /**
      * Creates a new leaf node.
      * 
-     * @param title The frame's title.
-     * @param hierarchyObject The original object in the image hierarchy which
-     *                        is visualized by this node.  It has to be an image
-     *                        object in this case. 
-     *                        Never pass <code>null</code>.
-     * @param t The thumbnail this node is going to display.  This is obviously
-     *          a thumbnail for the image object this node represents.
+     * @param title             The frame's title.
+     * @param hierarchyObject   The original object in the image hierarchy which
+     *                          is visualized by this node. It has to be an 
+     *                          image object in this case. 
+     *                          Never pass <code>null</code>.
+     * @param t                 The thumbnail this node is going to display. 
+     *                          This is obviously a thumbnail for the image
+     *                          object this node represents.
      */
     public ImageNode(String title, Object hierarchyObject, Thumbnail t)
     {

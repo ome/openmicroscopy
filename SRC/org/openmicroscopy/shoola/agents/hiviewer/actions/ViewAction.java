@@ -63,13 +63,13 @@ public class ViewAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action if the currently selected node is an Image. */
     private static final String VIEW = "View";
     
-    /** Name of the action. */
+    /** The name of the action if the currently selected node isn't an Image. */
     private static final String BROWSE = "Browse";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "View the selected image or" +
             "browse the selected project, dataset, categoryGroup or category";
 

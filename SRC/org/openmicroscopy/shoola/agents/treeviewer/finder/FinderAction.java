@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.finder;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
 
 //Third-party libraries
@@ -53,16 +55,32 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
  */
 public class FinderAction
 	extends AbstractAction
+    implements PropertyChangeListener
 {
 
     /** Reference to the Model. */
     protected Finder	model;
     
     /** 
-     * Callback to notify a property change in the {@link Finder}. 
+     * Callback to notify a {@link Finder#TEXT_ENTERED_PROPERTY} property change
+     * in the {@link Finder}. 
      * Subclasses override the method.
      */
     protected void onTextChanged() {} ;
+    
+    /** 
+     * Callback to notify a {@link Finder#LEVEL_PROPERTY} property change
+     * in the {@link Finder}. 
+     * Subclasses override the method.
+     */
+    protected void onLevelChanged() {};
+    
+    /** 
+     * Callback to notify a {@link Finder#RETRIEVED_PROPERTY} property change
+     * in the {@link Finder}. 
+     * Subclasses override the method.
+     */
+    protected void onRetrievedChanged(int n) {};
     
     /**
      * Creates a new instance. 
@@ -77,9 +95,22 @@ public class FinderAction
     }
     
     /** 
-     * Subclasses need to override this method.
+     * Subclasses override this method.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
+    
+    /** 
+     * Reacts to property changes fired by {@link Finder}. 
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent pce) 
+    {
+        String name = pce.getPropertyName();
+        if (name.equals(Finder.TEXT_ENTERED_PROPERTY)) onTextChanged();
+        else if (name.equals(Finder.LEVEL_PROPERTY)) onLevelChanged();
+        else if (name.equals(Finder.RETRIEVED_PROPERTY)) 
+            onRetrievedChanged(((Integer) pce.getNewValue()).intValue()); 
+    }
 
 }

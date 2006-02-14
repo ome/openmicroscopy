@@ -81,7 +81,7 @@ public class RegExVisitor
     /**
      * Returns the name of the specified object.
      * 
-     * @param userObject The dataobject hosted by the visited node.
+     * @param userObject The <code>DataObject</code> hosted by the visited node.
      * @return See above.
      */
     private String getName(Object userObject)
@@ -102,7 +102,7 @@ public class RegExVisitor
     /**
      * Returns the description of the specified object.
      * 
-     * @param userObject The dataobject hosted by the visited node.
+     * @param userObject The <code>DataObject</code> hosted by the visited node.
      * @return See above.
      */
     private String getDescription(Object userObject)
@@ -123,7 +123,7 @@ public class RegExVisitor
     /**
      * Returns the annotation for the specified object.
      * 
-     * @param userObject The dataobject hosted by the visited node.
+     * @param userObject The <code>DataObject</code> hosted by the visited node.
      * @return See above.
      */
     private String getAnnotation(Object userObject)
@@ -200,15 +200,15 @@ public class RegExVisitor
     public Set getFoundNodes() { return foundNodes; }
     
     /**
-     * Finds the pattern in the specified node. If the pattern is found
-     * the node is then highlighted.
+     * Finds the pattern in the specified node. If the pattern is found,
+     * the node is highlighted.
      * @see TreeImageDisplayVisitor#visit(TreeImageNode)
      */
     public void visit(TreeImageNode node) { setFoundNode(node); }
 
     /**
-     * Finds the pattern in the specified node. If the pattern is found
-     * the node is then highlighted.
+     * Finds the pattern in the specified node. If the pattern is found,
+     * the node is highlighted.
      * @see TreeImageDisplayVisitor#visit(TreeImageSet)
      */
     public void visit(TreeImageSet node) { setFoundNode(node); }

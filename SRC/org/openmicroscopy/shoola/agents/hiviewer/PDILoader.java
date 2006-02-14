@@ -91,7 +91,10 @@ public class PDILoader
         handle = hiBrwView.findPDIHierarchies(images, this);
     }
     
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /** 

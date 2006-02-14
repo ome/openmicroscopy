@@ -541,10 +541,9 @@ class BrowserUI
             list = sorter.sort(parent.getChildrenDisplay());
             parent.removeAllChildren();
             j = list.iterator();
-            while (j.hasNext()) {
+            while (j.hasNext())
                 dtm.insertNodeInto((TreeImageDisplay) j.next(), parent,
                                 parent.getChildCount());
-            }
             dtm.reload(parent);
             expandNode(parent);
         }

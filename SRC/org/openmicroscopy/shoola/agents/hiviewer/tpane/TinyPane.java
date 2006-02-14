@@ -137,10 +137,10 @@ public class TinyPane
     public final static String  RESIZABLE_PROPERTY = "resizable";  
     
     /** The View component that renders this frame. */
-    private TinyPaneUI     uiDelegate;
+    private TinyPaneUI      uiDelegate;
     
     /** This component's Model. */
-    private TinyPaneModel  model;
+    private TinyPaneModel   model;
     
     /**
      * Contains the Component that focus is to go when
@@ -148,7 +148,7 @@ public class TinyPane
      * <code>restoreSubcomponentFocus</code> sets this to the value returned
      * from <code>getMostRecentFocusOwner</code>.
      */
-    private Component lastFocusOwner;
+    private Component       lastFocusOwner;
 
     /**
      * Called by the constructor methods to create the default 
@@ -193,10 +193,7 @@ public class TinyPane
      * 
      * @param title The title displayed in the <code>TitleBar</code>.
      */
-    public TinyPane(String title)
-    {
-        this(title, null);
-    }
+    public TinyPane(String title) { this(title, null); }
     
     /**
      * Creates a new instance.

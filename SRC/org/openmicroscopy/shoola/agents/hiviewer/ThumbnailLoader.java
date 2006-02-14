@@ -70,7 +70,6 @@ public class ThumbnailLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-    
     /**
      * Creates a new instance.
      * 
@@ -99,7 +98,10 @@ public class ThumbnailLoader
                                 ThumbnailProvider.THUMB_MAX_HEIGHT, this);
     }
     
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /** 

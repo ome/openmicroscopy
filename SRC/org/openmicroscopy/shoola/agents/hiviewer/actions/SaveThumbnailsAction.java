@@ -65,12 +65,12 @@ public class SaveThumbnailsAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Save thumbnails";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Save the thumbnails.";
-    
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Save the thumbnails as a " +
+            "single image. ";
     
     /**
      * Sets the action enabled depending on the currently selected display

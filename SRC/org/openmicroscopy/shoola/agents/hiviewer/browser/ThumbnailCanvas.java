@@ -61,11 +61,11 @@ class ThumbnailCanvas
     /** The node for which we're painting the image. */
     private ImageNode   imageFrame;
     
-    
     /**
      * Creates a new instance.
      * 
-     * @param node The node on which to paint the image.
+     * @param node  The node on which the image is painted.
+     *              Mustn't be <code>null</code>.
      */
     ThumbnailCanvas(ImageNode node)
     {
@@ -84,8 +84,7 @@ class ThumbnailCanvas
         Thumbnail thumb = imageFrame.getThumbnail();
         BufferedImage img = thumb.getDisplayedImage();
         if (img == null) return;
-        Graphics2D g2D = (Graphics2D) g;
-        g2D.drawImage(img, null, 0, 0);
+        ((Graphics2D) g).drawImage(img, null, 0, 0);
     }
     
 }

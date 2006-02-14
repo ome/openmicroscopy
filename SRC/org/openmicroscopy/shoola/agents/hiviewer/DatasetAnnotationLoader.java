@@ -41,7 +41,9 @@ import pojos.DatasetData;
 
 /** 
  * Loads, asynchronously, the annotation linked to the specified dataset.
- *
+ * This class calls the <code>loadAnnotations</code> method in the
+ * <code>HierarchyBrowsingView</code>.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -76,16 +78,19 @@ public class DatasetAnnotationLoader
         this.datasetID = datasetID;
     }
     
-    /**
-     * Retrieves all the annotations linked to the specified image.
+    /** 
+     * Retrieves all the annotations linked to the specified dataset. 
+     * @see DataLoader#load()
      */
     public void load()
     {
-        handle = hiBrwView.loadAnnotations(DatasetData.class, datasetID,
-                                            false, this);
+        handle = hiBrwView.loadAnnotations(DatasetData.class, datasetID, this);
     }
 
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**

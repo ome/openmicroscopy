@@ -151,9 +151,8 @@ class HiViewerControl
         HiViewer viewer;
         while (i.hasNext()) {
             viewer = (HiViewer) i.next();
-            if (!(viewer == model)) {
+            if (!(viewer == model))
                 menu.add(new JMenuItem(new ActivationAction(viewer)));
-            }
         }
     }
     
@@ -169,16 +168,19 @@ class HiViewerControl
             public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }
             
             /** 
-             * Required but not actually needed in our case, 
+             * Required by I/F but not actually needed in our case, 
              * no op implementation.
+             * @see MenuListener#menuCanceled(MenuEvent)
              */ 
             public void menuCanceled(MenuEvent e) {}
 
             /** 
-             * Required but not actually needed in our case, 
+             * Required by I/F but not actually needed in our case, 
              * no op implementation.
+             * @see MenuListener#menuDeselected(MenuEvent)
              */ 
             public void menuDeselected(MenuEvent e) {}
+            
         });
         
         //Listen to keyboard selection
@@ -191,16 +193,19 @@ class HiViewerControl
             }
             
             /** 
-             * Required but not actually needed in our case, 
+             * Required by I/F but not actually needed in our case, 
              * no op implementation.
+             * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
              */
             public void menuKeyPressed(MenuKeyEvent e) {}
   
             /** 
-             * Required but not actually needed in our case, 
+             * Required by I/F but not actually needed in our case, 
              * no op implementation.
-             */ 
+             * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
+             */
             public void menuKeyTyped(MenuKeyEvent e) {}
+            
         });
         
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -210,7 +215,7 @@ class HiViewerControl
         
     }
     
-    /** Sets the browser UI, the clipboard UI and attach listeners. */
+    /** Sets the browser UI, the clipboard UI and attaches listeners. */
     private void setViews()
     {
         Browser browser = model.getBrowser();

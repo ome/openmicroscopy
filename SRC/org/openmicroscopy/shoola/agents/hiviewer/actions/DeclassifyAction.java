@@ -64,13 +64,12 @@ public class DeclassifyAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Remove from category";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Remove the selected image" +
-            " from a category.";
-    
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Remove the selected image " +
+                                                "from a category.";
     
     /**
      * Sets the action enabled depending on the currently selected display
@@ -80,10 +79,9 @@ public class DeclassifyAction
     {
         if (selectedDisplay.getParentDisplay() == null) 
             setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            setEnabled(ho instanceof ImageData);
-        }
+        else
+            setEnabled(selectedDisplay.getHierarchyObject()
+                        instanceof ImageData);
     }
     
     /**

@@ -63,13 +63,12 @@ public class ViewCGCIAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "View in CG/C/I";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "View the images on screen " +
             "in a CategoryGroup-Category-Images hierarchy.";
-    
     
     /**
      * Creates a new instance.
@@ -98,7 +97,8 @@ public class ViewCGCIAction
     }
     
     /**
-     * Overrides the method.
+     * Overrides the method to set the action enabled depending on the 
+     * state of the {@link HiViewer}.
      * @see javax.swing.event.ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)

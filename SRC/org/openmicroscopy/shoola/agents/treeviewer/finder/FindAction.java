@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.finder;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -55,7 +53,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class FindAction 
 	extends FinderAction
-	implements PropertyChangeListener
 {
     
     /** The name of the action. */
@@ -71,6 +68,17 @@ public class FindAction
      */
     protected void onTextChanged() { setEnabled(!model.isTextEmpty()); }
     
+    /** 
+     * Sets the action enabled depending on the level selected.
+     * @see FinderAction#onLevelChanged()
+     */
+    protected void onLevelChanged() 
+    {
+        if (!model.isNameSelected() && !model.isDescriptionSelected()
+                && !model.isAnnotationSelected())
+            setEnabled(false);
+        else  setEnabled(true);  
+    }
     
     /**
      * Creates a new instance. 
@@ -93,22 +101,5 @@ public class FindAction
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) { model.find(); }
-    
-    /** 
-     * Reacts to property changes fired by {@link Finder}. 
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent pce) 
-    {
-        String name = pce.getPropertyName();
-        if (name.equals(Finder.TEXT_ENTERED_PROPERTY))
-            setEnabled(!model.isTextEmpty());
-        else if (name.equals(Finder.LEVEL_PROPERTY))  {
-            if (!model.isNameSelected() && !model.isDescriptionSelected()
-                	&& !model.isAnnotationSelected())
-                setEnabled(false);
-            else  setEnabled(true);  
-        }      
-    }
     
 }

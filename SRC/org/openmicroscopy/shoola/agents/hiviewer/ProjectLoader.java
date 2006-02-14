@@ -92,7 +92,10 @@ public class ProjectLoader
                             viewer.getRootLevel(), viewer.getRootID(), this);
     }
     
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**

@@ -64,10 +64,10 @@ public class ShowTitleBarAction
     extends HiViewerAction
 {
 
-    /** The text used for the button. */
+    /** The name of the action. */
     private static final String NAME = "Show Title Bars";
     
-    /** The text used for the tooltip. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Show the title bar of every "+
                                     "image below the currently selected node.";
 

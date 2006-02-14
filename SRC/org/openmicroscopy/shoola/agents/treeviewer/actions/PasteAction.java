@@ -70,6 +70,7 @@ public class PasteAction
     public PasteAction(TreeViewer model)
     {
         super(model);
+        setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

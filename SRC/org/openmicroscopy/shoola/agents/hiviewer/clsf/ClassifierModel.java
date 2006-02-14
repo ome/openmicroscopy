@@ -37,7 +37,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
-import pojos.CategoryData;
 
 /** 
  * The Model component in the {@link Classifier} MVC triad.
@@ -192,13 +191,13 @@ abstract class ClassifierModel
     /**
      * Saves the classification state back to the DB.
      * This operation depends on the classification mode and thus is left
-     * to concrete models.  A classification Model will classify the Image
-     * this Model is working with.  A declassification Model will declassify
+     * to concrete models. A classification Model will classify the Image
+     * this Model is working with. A declassification Model will declassify
      * it. 
      *
-     * @param category The data object that represents the Category to/from
-     *                 which this Model's Image should be added/removed.
+     * @param categories Collection of categories to add the image to or 
+     *                   remove the image from.
      */
-    protected abstract void save(CategoryData category);
+    protected abstract void save(Set categories);
     
 }

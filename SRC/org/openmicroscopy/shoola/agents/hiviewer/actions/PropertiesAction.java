@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Brings up the property widget.
- * This action is enabled on all display node, expected on the root node.
+ * This action is enabled on all display nodes, expected on the root node.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,13 +63,12 @@ public class PropertiesAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Properties";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Display properties.";
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Show the object properties.";
 
-    
     /**
      * Sets the action enabled depending on the currently selected display
      * @see HiViewerAction#onDisplayChange(ImageDisplay)

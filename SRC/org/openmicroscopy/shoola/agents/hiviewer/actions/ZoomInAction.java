@@ -65,13 +65,12 @@ public class ZoomInAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Zoom in";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Zoom in all imageNodes" +
-            " within the selected container.";
-    
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Zoom in all images " +
+                                    "within the selected container.";
     
     /**
      * Sets the action enabled depending on the currently selected display

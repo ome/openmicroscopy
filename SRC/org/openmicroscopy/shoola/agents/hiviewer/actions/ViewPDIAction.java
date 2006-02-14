@@ -65,13 +65,12 @@ public class ViewPDIAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "View in P/D/I";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "View the images on screen " +
-        "in a Project-Dataset-Images hierarchy.";
-    
+                                    "in a Project-Dataset-Images hierarchy.";
     
     /**
      * Creates a new instance.
@@ -100,7 +99,8 @@ public class ViewPDIAction
     }
     
     /**
-     * Overrides the method.
+     * Overrides the method to set the action enabled depending on the 
+     * state of the {@link HiViewer}.
      * @see javax.swing.event.ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)

@@ -45,6 +45,9 @@ import pojos.ImageData;
 
 /** 
  * Creates, updates or deletes the specified annotation.
+ * This class calls the <code>createAnnotation</code>, 
+ * <code>deleteAnnotation</code> or <code>updateAnnotation</code> methods in the
+ * <code>DataManagerView</code>.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -126,12 +129,12 @@ public class AnnotationEditor
     /**
      * Creates a new instance.
      * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param annotatedObject The {@link DataObject} to annotate.
-     * @param data The {@link AnnotationData}.
-     * @param operation The type of operation to perform. One of the constants
-     * 					defined by this class.
+     * @param viewer            The TreeViewer this data loader is for.
+     *                          Mustn't be <code>null</code>.
+     * @param annotatedObject   The {@link DataObject} to annotate.
+     * @param data              The {@link AnnotationData} to handle.
+     * @param operation         The type of operation to perform.
+     *                          One of the constants defined by this class.
      */
     public AnnotationEditor(TreeViewer viewer, DataObject annotatedObject, 
             				AnnotationData data, int operation)
@@ -170,7 +173,7 @@ public class AnnotationEditor
     }
 
     /** 
-     * Cancels any on-going data loading
+     * Cancels the data loading
      * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
@@ -182,8 +185,7 @@ public class AnnotationEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult(annotatedObject, TreeViewer.UPDATE_OBJECT);
-        
+        viewer.setSaveResult(annotatedObject, TreeViewer.UPDATE_OBJECT); 
     }
     
 }

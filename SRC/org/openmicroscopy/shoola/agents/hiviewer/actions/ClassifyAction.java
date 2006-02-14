@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 
 /** 
- * Brings up the classification widget if required.
+ * Brings up the classification widget.
  * This action is enabled if the hierarchy object is an image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,12 +62,12 @@ public class ClassifyAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Add to category";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Classify the selected image" +
-            " in a category.";
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Classify the selected image " +
+                                                "in a category.";
     
     
     /**
@@ -77,10 +77,9 @@ public class ClassifyAction
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
-        else {
-            Object ho = selectedDisplay.getHierarchyObject();
-            setEnabled(ho instanceof ImageData);
-        }
+        else
+            setEnabled(selectedDisplay.getHierarchyObject() 
+                        instanceof ImageData);
     }
     
     /**

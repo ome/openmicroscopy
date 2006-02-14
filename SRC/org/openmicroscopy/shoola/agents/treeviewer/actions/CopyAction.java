@@ -58,10 +58,10 @@ public class CopyAction
     extends TreeViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Copy";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Copy the selected element.";
     
     /**
@@ -71,7 +71,7 @@ public class CopyAction
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
         Object ho = selectedDisplay.getUserObject();
-        setEnabled(!(ho instanceof String)); // false if root.
+        //setEnabled(!(ho instanceof String)); // false if root.
     }
     
     /**

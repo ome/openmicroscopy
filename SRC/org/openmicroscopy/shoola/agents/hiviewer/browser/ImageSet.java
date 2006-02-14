@@ -68,7 +68,6 @@ public class ImageSet
      */
     private Boolean     containsImages;
     
-    
     /**
      * Implemented as specified by superclass.
      * @see ImageDisplay#doAccept(ImageDisplayVisitor)
@@ -81,10 +80,10 @@ public class ImageSet
     /**
      * Creates a new container node.
      * 
-     * @param title The frame's title.
-     * @param hierarchyObject The original object in the image hierarchy which
-     *                        is visualized by this node.  
-     *                        Never pass <code>null</code>.
+     * @param title             The frame's title.
+     * @param hierarchyObject   The original object in the image hierarchy which
+     *                          is visualized by this node.  
+     *                          Never pass <code>null</code>.
      */
     public ImageSet(String title, Object hierarchyObject)
     {

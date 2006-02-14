@@ -84,7 +84,6 @@ public class CGCILoader
     
     /**
      * Retrieves the tree.
-     * 
      * @see DataLoader#load()
      */
     public void load()
@@ -92,7 +91,10 @@ public class CGCILoader
         handle = hiBrwView.findCGCIHierarchies(images, this);
     }
     
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**

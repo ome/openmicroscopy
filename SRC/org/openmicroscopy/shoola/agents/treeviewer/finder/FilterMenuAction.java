@@ -65,17 +65,11 @@ public class FilterMenuAction
 {
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Menu. (Shift) to keep the " +
-    										"menu on screen during selection";
+    private static final String DESCRIPTION = "Menu. Press (Shift) to keep " +
+                                        "the menu on screen during selection";
     
     /** The location of the mouse pressed. */
     private Point pressedPoint;
-
-    /** 
-     * Sets the action enabled depending on the text entered.
-     * @see FinderAction#onTextChanged()
-     */
-    protected void onTextChanged() {  }
     
     /**
      * Creates a new instance. 
@@ -95,7 +89,8 @@ public class FilterMenuAction
     
     /** 
      * Reacts to property changes fired by {@link Finder}. 
-     * The component only registers for the {@link Finder#TEXT_ENTERED_PROPERTY}
+     * The component only registers for the 
+     * {@link Finder#TEXT_ENTERED_PROPERTY}.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt) 

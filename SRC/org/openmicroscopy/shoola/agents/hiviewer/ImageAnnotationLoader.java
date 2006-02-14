@@ -41,6 +41,8 @@ import pojos.ImageData;
 
 /** 
  * Loads, asynchronously, the annotation linked to the specified image.
+ * This class calls the <code>loadAnnotations</code> method in the
+ * <code>HierarchyBrowsingView</code>.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,14 +80,17 @@ public class ImageAnnotationLoader
     
     /**
      * Retrieves all the annotations linked to the specified image.
+     * @see DataLoader#load()
      */
     public void load()
     {
-        handle = hiBrwView.loadAnnotations(ImageData.class, imageID, false,
-                                            this);
+        handle = hiBrwView.loadAnnotations(ImageData.class, imageID, this);
     }
 
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**

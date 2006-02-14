@@ -45,7 +45,18 @@ import pojos.ProjectData;
 
 
 /** 
- * 
+ * Loads a Project/Dataset/(Image) hierarchy rooted by a given Project
+ * if the {@link #containerType} is {@link #PROJECT}.
+ * Loads a Dataset/(Image) hierarchy rooted by a given Dataset
+ * if the {@link #containerType} is {@link #DATASET}.
+ * Loads a CategoryGroup/Category/(Image) hierarchy rooted by a given 
+ * CategoryGroup if the {@link #containerType} is {@link #CATEGORY_GROUP}.
+ * Loads a Category/(Image) hierarchy rooted by a given 
+ * Category if the {@link #containerType} is {@link #CATEGORY}.
+ * Note that Images are retrieved if the {@link #images} flag is set to
+ * <code>true</code>.
+ * This class calls the <code>loadContainerHierarchy</code> method in the
+ * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,15 +81,18 @@ public class HierarchyLoader
     
     /** Indicates that the root node is of type <code>Category</code>. */
     public static final int CATEGORY = 3;
+    
     /** 
-     * <code>true</code> to retrieve the images,
+     * Flag to indicate if the images are also retrieved.
+     * Value set to <code>true</code> to retrieve the images,
      * <code>false</code> otherwise.
      */
     private boolean     images;
     
     /**
-     * <code>true</code> to indicate that the output is displayed in a 
-     * filtering widget, <code>false</code> otherwise.
+     * Flag to indicate that the output is for the filter component.
+     * Value set to <code>true</code> to indicate that the output is displayed 
+     * in a filtering widget, <code>false</code> otherwise.
      */
     private boolean     filter;
     
@@ -102,14 +116,10 @@ public class HierarchyLoader
     private Class getClassType(int type)
     {
         switch (type) {
-            case PROJECT:
-                return ProjectData.class;
-            case CATEGORY_GROUP:
-                return CategoryGroupData.class;
-            case CATEGORY:
-                return CategoryData.class;
-            case DATASET:
-                return DatasetData.class;    
+            case PROJECT: return ProjectData.class;
+            case CATEGORY_GROUP: return CategoryGroupData.class;
+            case CATEGORY: return CategoryData.class;
+            case DATASET: return DatasetData.class;    
         }
         return null;
     }

@@ -41,7 +41,9 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
 /** 
- * Creates a <code>DataObject</code>.
+ * Creates a <code>DataObject</code> of the specified type.
+ * This class calls the <code>createDataObject</code> method in the
+ * <code>DataManagerView</code>.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -85,7 +87,10 @@ public class DataObjectCreator
         this.userObject = userObject;
     }
     
-    /** Creates the object.*/
+    /** 
+     * Creates the object.
+     * @see DataBrowserLoader#load()
+     */
     public void load()
     {
         handle = dmView.createDataObject(userObject, parent, this);

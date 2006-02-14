@@ -75,34 +75,34 @@ class BorderListener
     private static final int RESIZE_NONE  = 0;
     
     /** Flag to discard the release action. */
-    private boolean discardRelease;
+    private boolean                 discardRelease;
        
     /** Value added to resize the corner of the frame. */
-    private int resizeCornerSize = 16;
+    private int                     resizeCornerSize = 16;
     
     /** Reference to the desktopManager. */
-    private static DesktopManager sharedDesktopManager;
+    private static DesktopManager   sharedDesktopManager;
     
     /** Flag to control the dragging events. */
-    private boolean dragging;
+    private boolean                 dragging;
     
     /** The mousePressed location in absolute coordinate system. */
-    private int _x, _y;
+    private int                     _x, _y;
     
     /** The mousePressed location in source view's coordinate system. */
-    private int __x, __y;
+    private int                     __x, __y;
     
     /** The starting rectangle. */
-    private Rectangle startingBounds;
+    private Rectangle               startingBounds;
     
     /** The bounds of the parent of the {@link TinyPane} frame. */
-    private Rectangle parentBounds;
+    private Rectangle               parentBounds;
     
     /** The direction of a move. */
-    private int resizeDir;
+    private int                     resizeDir;
     
-    /** The Model. */
-    private TinyPane frame;
+    /** The Model this listener is for. */
+    private TinyPane                frame;
     
     /**
      * Creates a {@link DesktopManager}. 

@@ -31,28 +31,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 
 //Java imports
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.Iterator;
 import java.util.Set;
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
-import pojos.ImageData;
+
 
 /** 
  * Builds a Panel displaying the CategoryGroup>Category in which the 
@@ -77,7 +62,8 @@ class RemoveWin
     private static final String     PANEL_TITLE = "Remove From Category";
     
     /** Text displayed in the text panel. */
-    private static final String     PANEL_TEXT = "Deselect to declassify.";
+    private static final String     PANEL_TEXT = "Select the categories to " +
+                                                "remove the image from.";
     
     /** Text displayed in the note panel. */
     private static final String     PANEL_NOTE = 
@@ -88,114 +74,35 @@ class RemoveWin
     private static final String     UNCLASSIFIED_TEXT = "The selected image " +
                                             "hasn't been classified";
 
-
-    /**
-     * Adds a new row. 
-     * 
-     * @param gridbag 	The layout selected.
-     * @param c			The constraints.
-     * @param main		The component to add to.
-     * @param index		The row's index.
-     * @param data		The data object to handle.
-     */
-    private void addRow(GridBagLayout gridbag, GridBagConstraints c, 
-                        JPanel main, int index, DataObject data)
-    {
-        //The image has not been classified.
-        if (data instanceof ImageData) {
-            main.add(new JLabel(UNCLASSIFIED_TEXT));
-            return;
-        }
-        JCheckBox box = new JCheckBox();
-        box.setSelected(true);
-        String name = "";
-        if (data instanceof CategoryGroupData) {
-            CategoryGroupData cg = (CategoryGroupData) data;
-            name += cg.getName()+">";
-            Set set = cg.getCategories();
-            if (set.size() == 1) {
-                final CategoryData category = (CategoryData) (set.toArray()[0]);
-                name += category.getName();
-                box.addItemListener(new ItemListener() {
-                    public void itemStateChanged(ItemEvent e)
-                    {
-                        setSelectedCategory(category);
-                    }
-                });
-            }
-        } else if (data instanceof CategoryData) { 
-            //i.e. the Category is orphan, shouldn't happen
-            final CategoryData category = (CategoryData) data;
-            name += category.getName();
-            box.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e)
-                {
-                    setSelectedCategory(category);
-                }
-            });
-        }
-        //init JLabel
-        JLabel label = new JLabel(name);
-        c.gridx = 0;
-        c.gridy = index;
-        gridbag.setConstraints(box, c);
-        main.add(box);
-        c.gridx = 1;
-        gridbag.setConstraints(label, c);
-        main.add(label);
-    }
-    
     /**
      * Overriden to return the title associated to this component.
-     * 
      * @see ClassifierWin#getPanelTitle()
      */
     protected String getPanelTitle() { return PANEL_TITLE; }
 
     /**
      * Overriden to return the tetx associated to this component.
-     * 
      * @see ClassifierWin#getPanelText()
      */
     protected String getPanelText() { return PANEL_TEXT; }
     
     /**
      * Overriden to return the note associated to this component.
-     * 
      * @see ClassifierWin#getPanelNote()
      */
     protected String getPanelNote() { return PANEL_NOTE; }
     
-    /** 
-     * Builds and returns the main panel displayed in ClassifierWin. 
-     * 
-     * @return The newly built component. 
+    /**
+     * Overriden to return the note associated to this component.
+     * @see ClassifierWin#getUnclassifiedNote()
      */
-    protected JComponent getClassifPanel()
-    {
-        JPanel main = new JPanel();
-        main.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagLayout gridbag = new GridBagLayout();
-        main.setLayout(gridbag);
-        GridBagConstraints cst = new GridBagConstraints();
-        cst.ipadx = ClassifierWin.H_SPACE;
-        cst.anchor = GridBagConstraints.EAST;
-        Iterator i = availablePaths.iterator();
-        int index = 0;
-        while (i.hasNext()) {
-            addRow(gridbag, cst, main, index, (DataObject) i.next());
-            index++;
-        } 
-        return new JScrollPane(UIUtilities.buildComponentPanel(main));
-    }
-
-
-    
+    protected String getUnclassifiedNote() { return UNCLASSIFIED_TEXT; }
+ 
     /**
      * Creates a new instance.
      * 
-     * @param availablePaths Teh available paths to the images.
-     * Mustn't be <code>null</code>.
+     * @param availablePaths    The available paths to the images.
+     *                          Mustn't be <code>null</code>.
      * @param owner The owner of this frame.
      */
     RemoveWin(Set availablePaths, JFrame owner)
@@ -203,4 +110,5 @@ class RemoveWin
         super(availablePaths, owner);
         buildGUI();
     }
+    
 }

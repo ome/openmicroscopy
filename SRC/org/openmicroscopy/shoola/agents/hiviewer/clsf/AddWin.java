@@ -31,27 +31,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 
 //Java imports
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Iterator;
 import java.util.Set;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DataObject;
 
 /** 
  * The <code>ADD</code> dialog widget.
@@ -70,9 +55,6 @@ import pojos.DataObject;
 class AddWin
     extends ClassifierWin
 {
-
-    /** Text for the root node. */
-    private static final String     ROOT = "Available categories";
     
     /** Text displayed in the title panel. */
     private static final String     PANEL_TITLE = "Add To Category";
@@ -83,13 +65,13 @@ class AddWin
     /** Text displayed in the note panel. */
     private static final String     PANEL_NOTE = 
                                          "The image can be classified "+
-                                         "under the following categories.";
+                                         "under the following categories." +
+                                         "Note that only one category can " +
+                                         "be selected within a group.";
     
-    /** Root of the tree. */
-    private DefaultMutableTreeNode  root;
-    
-    /** The tree hosting the hierarchy. */
-    private JTree                   tree;
+    /** Message displayed if the image is unclassified. */
+    private static final String     UNCLASSIFIED_TEXT = "The image cannot be " +
+            "classified because there is no category available.";
     
     /**
      * Overriden to return the title associated to this component.
@@ -111,96 +93,24 @@ class AddWin
      * @see ClassifierWin#getPanelNote()
      */
     protected String getPanelNote() { return PANEL_NOTE; }
-
-    /**
-     * Adds the tree to a scrollPane.
-     * 
-     * @return The component hosting the tree.
-     */
-    protected JComponent getClassifPanel() { return new JScrollPane(tree); }
-    
-
-    /** Initializes the JTree. */
-    private void initTree()
-    {
-        tree = new JTree();
-        tree.putClientProperty("JTree.lineStyle", "Angled");
-        tree.setCellRenderer(new TreeCellRenderer());
-        tree.getSelectionModel().setSelectionMode(
-                                    TreeSelectionModel.SINGLE_TREE_SELECTION);
-        root = new DefaultMutableTreeNode(ROOT);
-        DefaultTreeModel dtm = new DefaultTreeModel(root);
-        tree.setModel(dtm);
-        tree.setShowsRootHandles(true);
-        tree.expandPath(new TreePath(root.getPath()));
-        //Attach a tree listener.
-        tree.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(e); }
-            public void mouseReleased(MouseEvent e) { onClick(e); }
-        });
-    }
     
     /**
-     * Builds the tree displaying the hierarchy CategoryGroup - Category.
+     * Overriden to return the note associated to this component.
+     * @see ClassifierWin#getUnclassifiedNote()
      */
-    private void buildTreeNodes()
-    {
-        if (availablePaths.size() == 0) {
-            DefaultTreeModel tm = (DefaultTreeModel) tree.getModel();
-            tm.insertNodeInto(new DefaultMutableTreeNode("Empty"), root, 
-                            root.getChildCount());
-            return;
-        }
-        Iterator i = availablePaths.iterator();
-        DataObject data;
-        DefaultMutableTreeNode child, parent;
-        DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
-        while (i.hasNext()) {
-            data = (DataObject) i.next();
-            parent = new DefaultMutableTreeNode(data);
-            treeModel.insertNodeInto(parent, root, root.getChildCount());
-            if (data instanceof CategoryGroupData) {
-                Iterator j = 
-                    ((CategoryGroupData) data).getCategories().iterator();
-                while (j.hasNext()) {
-                    child = new DefaultMutableTreeNode(j.next());
-                    treeModel.insertNodeInto(child, parent, 
-                                parent.getChildCount());
-                } 
-            }
-        }
-    }
-    
-    /** 
-     * Handles the mouse click event. 
-     * 
-     * @param me The Mouse event.
-     */
-    private void onClick(MouseEvent me)
-    {
-        int row = tree.getRowForLocation(me.getX(), me.getY());
-        if (row != -1) {
-            tree.setSelectionRow(row);
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                        tree.getLastSelectedPathComponent();
-            Object usrObj = node.getUserObject();
-            if (usrObj instanceof CategoryData) 
-                setSelectedCategory((CategoryData) usrObj);
-        }
-    }
-    
+    protected String getUnclassifiedNote() { return UNCLASSIFIED_TEXT; }
+
     /**
      * Creates a new instance. 
      * 
-     * @param availablePaths The paths to the images. Mustn't be 
-     * <code>null</code>.
-     * @param owner. The owner of the frame.
+     * @param availablePaths    The paths to the images. Mustn't be 
+     *                          <code>null</code>.
+     * @param owner             The owner of the frame.
      */
     AddWin(Set availablePaths, JFrame owner)
     {
         super(availablePaths, owner);
-        initTree();
-        buildTreeNodes();
+        tree.setSingleSelectionInParent(true);
         buildGUI();
     }
     

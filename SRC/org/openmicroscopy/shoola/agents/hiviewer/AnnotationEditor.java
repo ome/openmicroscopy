@@ -44,7 +44,11 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Creates, deletes or updates the annotations linked to the specified Dataset 
+ * or Image.
+ * This class calls the <code>createAnnotation</code>, 
+ * <code>updateAnnotation</code> or <code>deleteAnnotation</code> methods in the
+ * <code>HierarchyBrowsingView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -98,36 +102,38 @@ public class AnnotationEditor
     private CallHandle  handle;
     
     /**
-     * Checks if the action index is valid.
+     * Controls if the action index is valid.
      * 
-     * @param i The passed index.
-     * @return <code>true</code> if valid, <code>false</code> otherwise.
+     * @param i The index to control.
      */
-    private boolean checkActionIndex(int i)
+    private void checkActionIndex(int i)
     {
         switch (i) {
             case CREATE:
             case UPDATE:
             case DELETE:    
-                return true;
+                return;
+            default:
+                throw new IllegalArgumentException("Action not supported: "
+                        +i);
         }
-        return false;
     }
     
     /**
-     * Checks if the annotation index is valid.
+     * Controls if the annotation index is valid.
      * 
-     * @param i The passed index
-     * @return <code>true</code> if valid, <code>false</code> otherwise.
+     * @param i The index to control.
      */
-    private boolean checkAnnotationIndex(int i)
+    private void checkAnnotationIndex(int i)
     {
         switch (i) {
             case IMAGE_ANNOTATION:
             case DATASET_ANNOTATION:  
-                return true;
+                return;
+            default:
+                throw new IllegalArgumentException("Annotation not supported: "
+                        +i);
         }
-        return false;
     }
     
     /**
@@ -148,22 +154,24 @@ public class AnnotationEditor
     }
     
     /**
+     * Creates a new instance. 
      * 
-     * @param clipBoard
-     * @param actionIndex
-     * @param annotationIndex
-     * @param data
+     * @param clipBoard         The viewer this data loader is for.
+     *                          Mustn't be <code>null</code>.
+     * @param actionIndex       The action index. One of the following constants
+     *                          {@link #CREATE}, {@link #DELETE} or
+     *                          {@link #UPDATE}.
+     * @param annotationIndex   The annotation index. One of the following 
+     *                          constants: {@link #IMAGE_ANNOTATION} or 
+     *                          {@link #DATASET_ANNOTATION}.
+     * @param data              The annotation to handle.
      */
     public AnnotationEditor(ClipBoard clipBoard, int actionIndex, 
                             int annotationIndex, AnnotationData data)
     {
         super(clipBoard);
-        if (!checkActionIndex(actionIndex))
-            throw new IllegalArgumentException("Action not supported: "
-                    +actionIndex);
-        if (!checkAnnotationIndex(annotationIndex))
-            throw new IllegalArgumentException("Annotation not supported: "
-                    +annotationIndex);
+        checkActionIndex(actionIndex);
+        checkAnnotationIndex(annotationIndex);
         if (data == null)
             throw new IllegalArgumentException("Annotation not valid");
         this.annotationIndex = annotationIndex;
@@ -172,24 +180,26 @@ public class AnnotationEditor
     }
 
     /**
+     * Creates a new instance. 
      * 
-     * @param clipBoard
-     * @param actionIndex
-     * @param annotationIndex
-     * @param objectID
-     * @param data
+     * @param clipBoard         The viewer this data loader is for.
+     *                          Mustn't be <code>null</code>.
+     * @param actionIndex       The action index. One of the following constants
+     *                          {@link #CREATE}, {@link #DELETE} or
+     *                          {@link #UPDATE}.
+     * @param annotationIndex   The annotation index. One of the following 
+     *                          constants: {@link #IMAGE_ANNOTATION} or 
+     *                          {@link #DATASET_ANNOTATION}.
+     * @param objectID          The id of the object to annotate.
+     * @param data              The annotation to handle.
      */
     public AnnotationEditor(ClipBoard clipBoard, int actionIndex, 
                             int annotationIndex, int objectID,
                             AnnotationData data)
     {
         super(clipBoard);
-        if (!checkActionIndex(actionIndex))
-            throw new IllegalArgumentException("Action not supported: "
-                    +actionIndex);
-        if (!checkAnnotationIndex(annotationIndex))
-            throw new IllegalArgumentException("Annotation not supported: "
-                    +annotationIndex);
+        checkActionIndex(actionIndex);
+        checkAnnotationIndex(annotationIndex);
         if (data == null)
             throw new IllegalArgumentException("Annotation not valid");
         if (objectID < 0)
@@ -201,24 +211,25 @@ public class AnnotationEditor
     }
     
     /**
-     * Creates a new instance.
+     * Creates a new instance. 
      * 
-     * @param clipBoard
-     * @param actionIndex
-     * @param annotationIndex
-     * @param objectID
-     * @param text
+     * @param clipBoard         The viewer this data loader is for.
+     *                          Mustn't be <code>null</code>.
+     * @param actionIndex       The action index. One of the following constants
+     *                          {@link #CREATE}, {@link #DELETE} or
+     *                          {@link #UPDATE}.
+     * @param annotationIndex   The annotation index. One of the following 
+     *                          constants: {@link #IMAGE_ANNOTATION} or 
+     *                          {@link #DATASET_ANNOTATION}.
+     * @param objectID          The id of the object to annotate.
+     * @param text              The text of the annotation.
      */
     public AnnotationEditor(ClipBoard clipBoard, int actionIndex, 
                             int annotationIndex, int objectID, String text)
     {
         super(clipBoard);
-        if (!checkActionIndex(actionIndex))
-            throw new IllegalArgumentException("Action not supported: "
-                    +actionIndex);
-        if (!checkAnnotationIndex(annotationIndex))
-            throw new IllegalArgumentException("Annotation not supported: "
-                    +annotationIndex);
+        checkActionIndex(actionIndex);
+        checkAnnotationIndex(annotationIndex);
         if (text == null)
             throw new IllegalArgumentException("Annotation not valid");
         if (objectID < 0)
@@ -230,8 +241,7 @@ public class AnnotationEditor
     }
     
     /**
-     * Creates or updates the annotation.
-     * 
+     * Creates, deletes or updates the annotation.
      * @see CBDataLoader#load()
      */
     public void load()
@@ -252,7 +262,10 @@ public class AnnotationEditor
         }
     }
 
-    /** Cancels the data saving. */
+    /** 
+     * Cancels the data saving. 
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**

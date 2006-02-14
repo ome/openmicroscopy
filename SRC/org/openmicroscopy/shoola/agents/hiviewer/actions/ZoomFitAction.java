@@ -65,13 +65,12 @@ public class ZoomFitAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Resize";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Reset the size of all " +
-            "imageNodes within the selected container.";
-    
+                            "images within the selected container.";
     
     /**
      * Sets the action enabled depending on the currently selected display

@@ -29,20 +29,22 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-import java.util.Set;
-
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 
 /** 
- * 
+ * Loads the images.
+ * This class calls the <code>loadImages</code> method in the
+ * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,41 +61,22 @@ public class ImagesLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-    private Set         nodeIDs;
     /**
      * Creates a new instance. 
      * 
-     * @param viewer        The viewer this data loader is for.
-     *                      Mustn't be <code>null</code>.
+     * @param viewer    The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>.
      */
     public ImagesLoader(Browser viewer)
     { 
-        this(viewer, null);
-    }
-    
-    /**
-     * Creates a new instance. 
-     * 
-     * @param viewer        The viewer this data loader is for.
-     *                      Mustn't be <code>null</code>.
-     * @param nodeIDs       The collection of root node IDs, either 
-     *                      <code>Dataset</code> or <code>Category</code>.
-     */
-    public ImagesLoader(Browser viewer, Set nodeIDs)
-    {
         super(viewer);
-        this.nodeIDs = nodeIDs;
     }
     
     /**
      * Retrieves the data.
      * @see DataBrowserLoader#load()
      */
-    public void load()
-    { 
-        if (nodeIDs == null) handle = dmView.loadImages(this);
-        else handle = dmView.loadImages(this);
-    }
+    public void load() { handle = dmView.loadImages(this); }
 
     /**
      * Retrieves the Category tree.

@@ -70,6 +70,9 @@ public class TreeCellRenderer
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
     
+    /** Flag to indicate if the number of children is visible. */
+    private boolean             numberChildrenVisible;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * If an icon is passed, the passed icon is set
@@ -99,11 +102,20 @@ public class TreeCellRenderer
         setIcon(icon);
     }
 
-    /** Creates a new instance. */
-    public TreeCellRenderer()
+    /**
+     * Creates a new instance.
+     * 
+     * @param b Passed <code>true</code> to show the number of children,
+     *          <code>false</code> otherwise.
+     */ 
+    public TreeCellRenderer(boolean b)
     {
+        numberChildrenVisible = b;
         icons = IconManager.getInstance();
     }
+    
+    /** Creates a new instance. */
+    public TreeCellRenderer() { this(true); }
     
     /**
      * Overriden to set the icon and the text.
@@ -124,7 +136,8 @@ public class TreeCellRenderer
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
         }
-        setText(node.getNodeText());
+        if (numberChildrenVisible) setText(node.getNodeText());
+        else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
         setIcon(node.getUserObject());
         Color c = node.getHighLight();

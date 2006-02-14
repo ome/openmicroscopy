@@ -42,8 +42,16 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 
+ * Parent of all classes that load data asynchronously for a {@link ClipBoard}.
+ * All these classes invoke methods of the {@link HierarchyBrowsingView},
+ * which this class makes available through a <code>protected</code> field.
+ * Also, this class extends {@link DSCallAdapter} so that subclasses
+ * automatically become observers to an asynchronous call. This class provides
+ * default implementations of some of the callbacks to notify the 
+ * {@link ClipBoard} of the progress and the user in the case of errors. 
+ * Subclasses should at least implement the <code>handleResult</code> method 
+ * to feed the {@link ClipBoard} back with the results.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -68,6 +76,12 @@ public abstract class CBDataLoader
     /** Convenience reference. */
     protected HierarchyBrowsingView hiBrwView;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param clipBoard The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>. 
+     */
     public CBDataLoader(ClipBoard clipBoard)
     {
         if (clipBoard == null) throw new NullPointerException("No clipBoard.");

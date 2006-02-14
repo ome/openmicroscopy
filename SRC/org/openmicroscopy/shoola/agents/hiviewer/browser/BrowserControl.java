@@ -75,6 +75,7 @@ class BrowserControl
     /** The View controlled by this Controller.*/
     private RootDisplay     view;
     
+    /** Flag to indicate that a popupTrigger event occured. */
     private boolean         popupTrigger;
     
     /**
@@ -175,7 +176,8 @@ class BrowserControl
         else {
             Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
-            if (d instanceof ImageNode && !(d.getTitleBar() == src))
+            if (d instanceof ImageNode && !(d.getTitleBar() == src) 
+                && me.getClickCount() == 2)
                 model.setThumbSelected(true);   
         }
         popupTrigger = false; 

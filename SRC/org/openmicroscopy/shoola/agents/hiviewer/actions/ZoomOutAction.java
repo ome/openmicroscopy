@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -68,14 +66,13 @@ public class ZoomOutAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Zoom out";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Zoom out all imageNodes " +
-            "within the selected container.";
-    
-    
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Zoom out all images " +
+                                "within the selected container.";
+     
     /**
      * Sets the action enabled depending on the currently selected display
      * @see HiViewerAction#onDisplayChange(ImageDisplay)

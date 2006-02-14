@@ -164,11 +164,20 @@ public class IconManager
     /** The <code>Blank</code> icon. */
     public static int           TRANSPARENT = 34;
     
+    /** The <code>Annotation</code> icon. */
+    public static int           ANNOTATION = 35;
+    
+    /** The <code>Classification</code> icon. */
+    public static int           CLASSIFY = 36;
+    
+    /** The <code>Classification</code> icon. */
+    public static int           CATEGORY_BIG = 37;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 34;
+    private static int          MAX_ID = 37;
     
     
     /** Paths of the icon files. */
@@ -211,6 +220,9 @@ public class IconManager
         relPaths[FINDER] = "eclipse_searchrecord16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
+        relPaths[ANNOTATION] = "nuvola_kwrite16.png";
+        relPaths[CLASSIFY] = "category16.png";
+        relPaths[CATEGORY_BIG] = "nuvola_filenew48.png";
     }
     
     /** The sole instance. */

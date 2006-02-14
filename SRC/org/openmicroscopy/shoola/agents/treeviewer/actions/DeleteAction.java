@@ -66,10 +66,11 @@ public class DeleteAction
 {
 
     /** Name of the action. */
-    private static final String NAME = "Delete";
+    private static final String NAME = "Remove";
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Delete the selected element.";
+    private static final String DESCRIPTION = "Remove the selected element " +
+            "from the current container.";
     
     /**
      * Sets the action enabled depending on the selected type.

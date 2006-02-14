@@ -36,19 +36,38 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
+import javax.swing.tree.DefaultTreeModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
+
 import pojos.CategoryData;
 
 /** 
@@ -84,6 +103,17 @@ abstract class ClassifierWin
     /** Horizontal space between the cells in the grid. */
     static final int                H_SPACE = 5;
     
+    /** Button to finish the operation. */
+    private JButton                 finishButton;
+    
+    /** Button to cancel the object creation. */
+    private JButton                 cancelButton;
+    
+    /** The tree hosting the hierarchical structure. */
+    protected TreeCheck             tree;
+    
+    /** Component used to sort the nodes. */
+    protected ViewerSorter          sorter;
     
     /** 
      * The selected category to classify the image into or to remove the
@@ -97,6 +127,46 @@ abstract class ClassifierWin
      */
     protected Set                   availablePaths;
     
+    /** 
+     * Adds the image to the selected categories or removes the image from
+     * the selected categories.
+     */
+    private void finish()
+    {
+        Set nodes = tree.getSelectedNodes();
+        if (nodes == null || nodes.size() == 0) {
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Classification", "No category selected.");
+            return;
+        }
+        Set paths = new HashSet(nodes.size());
+        Iterator i = nodes.iterator();
+        Object object;
+        while (i.hasNext()) {
+            object = ((TreeCheckNode) i.next()).getUserObject();
+            if (object instanceof CategoryData) paths.add(object);
+        } 
+        firePropertyChange(SELECTED_CATEGORY_PROPERTY, null, paths);
+    }
+    
+    /** Initializes the GUI components. */
+    private void initComponents()
+    {
+        sorter = new ViewerSorter();
+        IconManager im = IconManager.getInstance();
+        tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
+        finishButton = new JButton("Finish");
+        finishButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { finish(); }
+        });
+        cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {  
+                setClosed();
+            }
+        });
+    }
     
     /** Fires a property change event and closes the window. */ 
     private void setClosed()
@@ -104,6 +174,68 @@ abstract class ClassifierWin
         firePropertyChange(CLOSED_PROPERTY, Boolean.TRUE, Boolean.FALSE);
         setVisible(false);
         dispose();
+    }
+    
+    /**
+     * Adds the nodes to the specified parent.
+     * 
+     * @param parent    The parent node.
+     * @param nodes     The list of nodes to add.
+     */
+    private void buildTreeNode(TreeCheckNode parent, List nodes)
+    {
+        DefaultTreeModel tm = (DefaultTreeModel) tree.getModel();
+        Iterator i = nodes.iterator();
+        TreeCheckNode display;
+        Set children;
+        while (i.hasNext()) {
+            display = (TreeCheckNode) i.next();
+            tm.insertNodeInto(display, parent, parent.getChildCount());
+            children = display.getChildrenDisplay();
+            if (children.size() != 0)
+                buildTreeNode(display, sorter.sort(children));
+        }  
+    }
+    
+    /** 
+     * Returns the main panel added to this window.
+     * 
+     * @return See above.
+     */
+    private JComponent getClassifPanel()
+    {
+        if (availablePaths.size() == 0) {
+            finishButton.setEnabled(false);
+            JPanel p = new JPanel();
+            p.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 10));
+            p.add(new JLabel(getUnclassifiedNote()), BorderLayout.CENTER);
+            return p;
+        }
+        //populates the tree
+        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
+        Iterator i = availablePaths.iterator();
+        while (i.hasNext())
+            root.addChildDisplay((TreeCheckNode) i.next()) ;
+        buildTreeNode(root, sorter.sort(availablePaths));
+        dtm.reload();
+        return new JScrollPane(tree);
+    }
+    
+    /**
+     * Builds the tool bar hosting the {@link #cancelButton} and
+     * {@link #finishButton}.
+     * 
+     * @return See above;
+     */
+    private JToolBar buildToolBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setRollover(true);
+        bar.setFloatable(false);
+        bar.add(finishButton);
+        bar.add(cancelButton);
+        return bar;
     }
     
     /** Builds and lays out the GUI. */
@@ -117,6 +249,9 @@ abstract class ClassifierWin
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
         c.add(getClassifPanel(), BorderLayout.CENTER);
+        JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
+        p.setBorder(BorderFactory.createEtchedBorder());
+        c.add(p, BorderLayout.SOUTH);
     }
     
     /** 
@@ -140,18 +275,18 @@ abstract class ClassifierWin
      */
     protected abstract String getPanelNote();
     
-    /** 
-     * Returns the main panel added to this window.
+    /**
+     * Returns the note displaying the unclassified message.
      * 
      * @return See above.
      */
-    protected abstract JComponent getClassifPanel();
+    protected abstract String getUnclassifiedNote();
     
     /**
      * Creates a new instance.
      * 
-     * @param availablePaths The available paths to the images.
-     * Mustn't be <code>null</code>.
+     * @param availablePaths    The available paths to the images.
+     *                          Mustn't be <code>null</code>.
      * @param owner The owner of this frame.
      */
     ClassifierWin(Set availablePaths, JFrame owner)
@@ -160,6 +295,7 @@ abstract class ClassifierWin
         if (availablePaths == null)
             throw new IllegalArgumentException("no paths");
         this.availablePaths = availablePaths;
+        initComponents();
         setModal(true);
         setTitle("Classification");
         

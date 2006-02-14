@@ -57,22 +57,22 @@ class FinderControl
 	implements PropertyChangeListener
 {
 
-    /** Identifies the Close action in the Actions menu. */
+    /** Identifies the <code>Close</code> action in the Actions menu. */
     static final Integer     CLOSE = new Integer(0);
     
-    /** Identifies the Find action in the Actions menu. */
+    /** Identifies the <code>Find</code> action in the Actions menu. */
     static final Integer     FIND = new Integer(1);
     
-    /** Identifies the Find next action in the Actions menu. */
+    /** Identifies the <code>Find Next</code> action in the Actions menu. */
     static final Integer     FIND_NEXT = new Integer(2);
     
-    /** Identifies the Find previous action in the Actions menu. */
+    /** Identifies the <code>Find Previous</code> action in the Actions menu. */
     static final Integer     FIND_PREVIOUS = new Integer(3);
     
-    /** Identifies the Highlight action in the Actions menu. */
+    /** Identifies the <code>Highlight</code> action in the Actions menu. */
     static final Integer     HIGHLIGHT = new Integer(4);
     
-    /** Identifies the Filter action in the Actions menu. */
+    /** Identifies the <code>Filter</code> action in the Actions menu. */
     static final Integer     FILTER_MENU = new Integer(5);
     
     /** Reference to the {@link Finder}, viewed as the Model. */
@@ -97,6 +97,7 @@ class FinderControl
     
     /**
      * Creates a new instance.
+     * 
      * @param model Reference to the {@link Finder}.
      * 				Mustn't be <code>null</code>.
      */

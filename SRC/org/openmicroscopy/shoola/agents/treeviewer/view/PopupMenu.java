@@ -65,25 +65,28 @@ class PopupMenu
      * Button to bring up the property sheet of a hierarchy object &#151; 
      * project, dataset, category group, category, or image.
      */
-    private JMenuItem   properties;
+    private JMenuItem           properties;
     
     /** Button to browse a container or bring up the Viewer for an image. */
-    private JMenuItem   view;
+    private JMenuItem           view;
     
     /** Button to reload the data. */
-    private JMenuItem   refresh;
+    private JMenuItem           refresh;
     
     /** Button to add element to the specified container. */
-    private JMenuItem   newElement;
+    private JMenuItem           newElement;
     
     /** Button to copy the selected elements. */
-    private JMenuItem   copyElement;
+    private JMenuItem           copyElement;
     
     /** Button to paste the selected elements. */
-    private JMenuItem   pasteElement;
+    private JMenuItem           pasteElement;
     
     /** Button to delete the selected elements. */
-    private JMenuItem   deleteElement;
+    private JMenuItem           deleteElement;
+    
+    /** Reference to the control. */
+    private TreeViewerControl   controller;
     
     /**
      * Sets the defaults of the specified menu item.
@@ -98,12 +101,8 @@ class PopupMenu
                         "/resources/fonts/Labels"));
     }
     
-    /**
-     * Creates the menu items with the given actions.
-     * 
-     * @param controller The Controller.
-     */
-    private void createMenuItems(TreeViewerControl controller)
+    /** Helper method to create the menu items with the given actions. */
+    private void createMenuItems()
     {
         properties = new JMenuItem(
                 	controller.getAction(TreeViewerControl.PROPERTIES));
@@ -126,6 +125,23 @@ class PopupMenu
                 	controller.getAction(TreeViewerControl.DELETE_OBJECT)); 
         initMenuItem(newElement);
     }
+      
+    /**
+     * Helper method to create the Classify submenu.
+     * 
+     * @return  The Classify submenu.
+     */
+    private JMenu createClassifySubMenu()
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Classify");
+        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CLASSIFY))); 
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.DECLASSIFY))); 
+        return menu;
+    }
     
     /**
      * Creates the sub-menu to manage the data.
@@ -142,6 +158,7 @@ class PopupMenu
         managementMenu.add(copyElement);
         managementMenu.add(pasteElement);
         managementMenu.add(deleteElement);
+        managementMenu.add(createClassifySubMenu());
         return managementMenu;
     }
     
@@ -164,7 +181,8 @@ class PopupMenu
     {
         if (controller == null) 
             throw new IllegalArgumentException("No control.");
-        createMenuItems(controller);
+        this.controller = controller;
+        createMenuItems();
         buildGUI() ;
     }
     

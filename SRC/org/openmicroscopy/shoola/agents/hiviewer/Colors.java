@@ -95,8 +95,13 @@ public class Colors
      */
     public static final int     ANNOTATED_HIGHLIGHT = 6;
     
+    /** Identifies the color of the annotated elements. */
     public static final int     ANNOTATED = 7;
     
+    /** 
+     * Identifies the color of the elements where the regular expression is
+     * found. 
+     */
     public static final int     REGEX_TITLE_AND_ANNOTATION = 8;
     
     /** The sole instance. */
@@ -107,13 +112,11 @@ public class Colors
     
     /** Convenience reference. */
     private Registry        registry;
-
-
     
     /**
      * Creates a new instance and configures the parameters.
      * 
-     * @param registry  Reference to the registry.
+     * @param registry  Reference to the registry. Mustn't be <code>null</code>.
      */
     private Colors(Registry registry)
     {

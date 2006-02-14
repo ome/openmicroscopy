@@ -124,7 +124,7 @@ public class Browse
     }
     
     /**
-     * Cretaes a new instance.
+     * Creates a new instance.
      * 
      * @param hierarchyObjectID The Id of the <code>Data Object</code> to 
      *                          browse.

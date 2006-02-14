@@ -29,23 +29,28 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import pojos.AnnotationData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
- *
+ * Creates, updates or deletes the specified <code>DataObject</code>
+ * and its related annotation. The <code>DataObject</code> is an instance of 
+ * Dataset or Image.
+ * This class calls the <code>updateObjectAndAnnotation</code> method in the
+ * <code>DataManagerView</code>.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -99,12 +104,12 @@ public class ObjectAnnotationEditor
     /**
      * Creates a new instance.
      * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param annotatedObject The {@link DataObject} to annotate.
-     * @param data 	The {@link AnnotationData}.
-     * @param op 	The type of operation to perform. One of the constants
-     * 					defined by this class.
+     * @param viewer            The TreeViewer this data loader is for.
+     *                          Mustn't be <code>null</code>.
+     * @param annotatedObject   The {@link DataObject} to annotate.
+     * @param data              The {@link AnnotationData}.
+     * @param op                The type of operation to perform.
+     *                          One of the constants defined by this class.
      */
     public ObjectAnnotationEditor(TreeViewer viewer, DataObject annotatedObject, 
 									AnnotationData data, int op)
@@ -134,7 +139,7 @@ public class ObjectAnnotationEditor
     }
 
     /** 
-     * Cancels any on-going data loading
+     * Cancels the data loading
      * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }

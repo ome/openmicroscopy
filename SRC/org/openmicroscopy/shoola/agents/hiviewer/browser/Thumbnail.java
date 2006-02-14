@@ -89,7 +89,7 @@ public interface Thumbnail
     public void scale(double f);
     
     /** 
-     * Returns the current scaling factor. 
+     * Returns the current magnification factor. 
      * 
      * @return The magnification factor.
      */
@@ -112,7 +112,7 @@ public interface Thumbnail
     /**
      * Sets the node hosting the display.
      * 
-     * @param node See above.
+     * @param node The node to set.
      */
     public void setImageNode(ImageNode node);
     

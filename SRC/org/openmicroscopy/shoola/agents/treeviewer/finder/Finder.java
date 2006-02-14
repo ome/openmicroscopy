@@ -51,7 +51,8 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 
 
 /** 
- *
+ * The Finder component.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -224,10 +225,7 @@ public class Finder
      * 
      * @return See above.
      */
-    boolean isDescriptionSelected()
-    { 
-        return model.isDescriptionSelected();
-    }
+    boolean isDescriptionSelected() {  return model.isDescriptionSelected(); }
     
     /**
      * Returns <code>true</code> if the find action applies to the annotation
@@ -235,10 +233,7 @@ public class Finder
      * 
      * @return See above.
      */
-    boolean isAnnotationSelected()
-    {
-        return model.isAnnotationSelected();
-    }
+    boolean isAnnotationSelected() { return model.isAnnotationSelected(); }
     
     /**
      * Brings up the popup menu on top of the specified component at the
@@ -261,11 +256,11 @@ public class Finder
         try {
             TreeViewer pc = model.getParentComponent();
             if (pc.getSelectedBrowser() == null) return;
+            String findText = model.getFindText();
             Pattern p;
             if (!model.isCaseSensitive())
-                p = RegExFactory.createCaseInsensitivePattern(
-                    		model.getFindText());
-            else p = RegExFactory.createPattern(model.getFindText());
+                p = RegExFactory.createCaseInsensitivePattern(findText);
+            else p = RegExFactory.createPattern(findText);
             RegExVisitor visitor = new RegExVisitor(this, p);
             pc.getSelectedBrowser().accept(visitor);
             Set set = visitor.getFoundNodes();
@@ -293,7 +288,6 @@ public class Finder
         if (pc.getSelectedBrowser() == null) return;
         pc.getSelectedBrowser().findPrevious();
     }
-    
     
     /**
      * Sets the following value.

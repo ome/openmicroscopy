@@ -67,7 +67,6 @@ public class DatasetLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-    
     /**
      * Creates a new instance.
      * 

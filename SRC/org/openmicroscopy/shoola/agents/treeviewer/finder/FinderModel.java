@@ -29,16 +29,19 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.finder;
 
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
- *
+ * The Model component in the <code>Finder</code> MVC triad. 
+ * This component keeps track of the parameters necessary to retrieve a phrase
+ * in the currently selected browser.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -54,18 +57,21 @@ class FinderModel
     private String		findText;
     
     /**
+     * Flag to indicate if the name is selected for the find action.
      * <code>true</code> if the name field is selected, <code>false</code>
      * otherwise.
      */
     private boolean		nameSelected;
     
     /**
+     * Flag to indicate if the description is selected for the find action.
      * <code>true</code> if the description field is selected,
      * <code>false</code> otherwise.
      */
     private boolean		descriptionSelected;
     
     /**
+     * Flag to indicate if the annotation is selected for the find action.
      * <code>true</code> if the annotation field is selected, <code>false</code>
      * otherwise.
      */
@@ -196,7 +202,7 @@ class FinderModel
     boolean isCaseSensitive() { return caseSensitive; }
     
     /**
-     * Returns the {@link TreeViewer}.
+     * Returns the back pointer to the {@link TreeViewer}.
      * 
      * @return See above.
      */

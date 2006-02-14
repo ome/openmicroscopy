@@ -81,7 +81,8 @@ public class AnnotateAction
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
-            setEnabled(((ho instanceof ImageData) || (ho instanceof DatasetData)));
+            setEnabled(((ho instanceof ImageData) || 
+                        (ho instanceof DatasetData)));
         }
     }
     

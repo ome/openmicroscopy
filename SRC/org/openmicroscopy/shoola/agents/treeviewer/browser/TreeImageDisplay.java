@@ -105,7 +105,7 @@ public abstract class TreeImageDisplay
 {
     
     /** The gap between the number of items and the name. */
-    private static final String SPACE = "    ";
+    private static final String SPACE = " ";
     
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
@@ -201,7 +201,7 @@ public abstract class TreeImageDisplay
      * @return See above.
      */
     public boolean hasChildrenDisplay()
-    { 
+    {
         return (childrenDisplay.size() != 0);
     }
     
@@ -367,10 +367,8 @@ public abstract class TreeImageDisplay
     {
         String name = getNodeName();
         if (getUserObject() instanceof ImageData) return name;
-        if (numberItems == -1) return (name+SPACE+"...");
-        String s = "item";
-        if (numberItems > 1) s +="s";
-        return (name+SPACE+numberItems+" "+s);
+        if (numberItems == -1) return (name+SPACE+"[...]");
+        return (name+SPACE+"["+numberItems+"]");
     }
     
     /**
@@ -395,6 +393,7 @@ public abstract class TreeImageDisplay
     
     /**
      * Overriden to make sure that the userObject is not <code>null</code>.
+     * @see DefaultMutableTreeNode#setUserObject(Object)
      */
     public void setUserObject(Object userObject)
     {

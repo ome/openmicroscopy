@@ -116,7 +116,7 @@ public class ZoomCmd
     /**
      * Updates the passed magnification factor according to the index. 
      * 
-     * @param currentScale. The current magnification factor.
+     * @param currentScale The current magnification factor.
      * @return The updated magnification factor.
      */
     static double calculateFactor(double currentScale)

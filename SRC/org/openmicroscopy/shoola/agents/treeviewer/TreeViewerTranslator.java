@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -161,6 +161,51 @@ public class TreeViewerTranslator
         TreeImageSet category =  new TreeImageSet(data);
         category.setNumberItems(0);
         return category;
+    }
+    
+    /**
+     * Transforms a {@link CategoryData} into a visualisation object i.e.
+     * a {@link TreeCheckNode}.
+     * 
+     * @param data  The {@link CategoryData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeCheckNode transformCategoryPath(CategoryData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        IconManager im = IconManager.getInstance();      
+        TreeCheckNode category =  new TreeCheckNode(data, 
+                                    im.getIcon(IconManager.CATEGORY),
+                                    data.getName(), true);
+        return category;
+    }
+    
+    /**
+     * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
+     * a {@link TreeCheckNode}. The {@link CategoryData categories} are also
+     * transformed and linked to the newly created {@link TreeCheckNode}.
+     * 
+     * @param data  The {@link CategoryGroupData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeCheckNode transformCategoryGroupPath(CategoryGroupData
+                                                            data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        IconManager im = IconManager.getInstance();
+        TreeCheckNode group = new TreeCheckNode(data, 
+                                im.getIcon(IconManager.CATEGORY_GROUP), 
+                                data.getName(), false);
+        Set categories = data.getCategories();
+        Iterator i = categories.iterator();
+        while (i.hasNext())
+            group.addChildDisplay(
+                    transformCategoryPath((CategoryData) i.next()));
+        return group;
     }
     
     /**
@@ -282,6 +327,34 @@ public class TreeViewerTranslator
         else if (object instanceof CategoryGroupData)
             return transformCategoryGroup((CategoryGroupData) object);
         throw new IllegalArgumentException("Data Type not supported.");
+    }
+    
+    /**
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set can either be
+     * {@link CategoryGroupData} or {@link CategoryData}.
+     * 
+     * @param dataObjects The collection of {@link DataObject}s to transform.
+     * @return A set of visualization objects.
+     */
+    public static Set transformClassificationPaths(Set dataObjects)
+    {
+        if (dataObjects == null)
+            throw new IllegalArgumentException("No objects.");
+        Set results = new HashSet(dataObjects.size());
+        Iterator i = dataObjects.iterator();
+        DataObject ho;
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (ho instanceof CategoryGroupData) {
+                Set categories = ((CategoryGroupData) ho).getCategories();
+                if (categories != null && categories.size() != 0)
+                    results.add(transformCategoryGroupPath(
+                            (CategoryGroupData) ho));
+            } else if (ho instanceof CategoryData)
+                results.add(transformCategoryPath((CategoryData) ho));
+        }
+        return results;
     }
     
     /**

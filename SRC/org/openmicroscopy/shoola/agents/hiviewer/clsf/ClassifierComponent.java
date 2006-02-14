@@ -37,8 +37,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.CategoryData;
 
 /** 
  * Implements the {@link Classifier} interface to provide the functionality
@@ -137,7 +137,7 @@ class ClassifierComponent
 
     /**
      * Implemented as specified by the {@link Classifier} interface.
-     * @see Classifier#setMetadata(java.util.Set)
+     * @see Classifier#setMetadata(Set)
      */
     public void setMetadata(Set availablePaths)
     {
@@ -145,7 +145,8 @@ class ClassifierComponent
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_METADATA "+
                     "state.");
-        model.setMetadata(availablePaths);
+        Set paths = HiTranslator.transformClassificationPaths(availablePaths);
+        model.setMetadata(paths);
         fireStateChange();
     }
 
@@ -163,14 +164,14 @@ class ClassifierComponent
     
     /**
      * Implemented as specified by the {@link Classifier} interface.
-     * @see Classifier#save(CategoryData)
+     * @see Classifier#save(Set)
      */
-    public void save(CategoryData category)
+    public void save(Set categories)
     {
         if (model.getState() != READY)
             throw new IllegalStateException(
                     "This method can only be invoked in the READY state.");
-        model.save(category);
+        model.save(categories);
     }
 
     /**

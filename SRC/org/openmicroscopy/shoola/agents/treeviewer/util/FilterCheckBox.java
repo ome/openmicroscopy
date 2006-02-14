@@ -45,7 +45,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 
 /** 
- * 
+ * A selection box hosting a <code>DataObject</code> to be selected.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,7 +59,7 @@ public class FilterCheckBox
     extends JCheckBox
 {
 
-    
+    /** The <code>Data Object</code> to handle. */
     private DataObject dataObject;
     
     /** 
@@ -79,7 +79,8 @@ public class FilterCheckBox
     /**
      * Creates a new instance.
      * 
-     * @param object 
+     * @param object    The <code>DataObject</code> to handle. Mustn't be 
+     *                  <code>null</code>.
      */
     public FilterCheckBox(DataObject object)
     {

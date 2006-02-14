@@ -43,8 +43,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -77,10 +79,20 @@ public class HiTranslator
     
     /** Message for unclassified images. */
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
-      
-    /** Message to indicate the number of items. */
-    private static final String	NUMBER_ITEMS = "   #items: ";
         
+    /** 
+     * The left element displayed before the number of items contained in a 
+     * given container. 
+     */
+    private static final String LEFT = "[";
+    
+    /** 
+     * The left element displayed before the number of items contained in a 
+     * given container. 
+     */
+    private static final String RIGHT = "]";
+    
+    /** Helper class to sort elements. */
     private static ViewerSorter sorter = new ViewerSorter();
     
     /** 
@@ -180,7 +192,7 @@ public class HiTranslator
             DatasetData ds = (DatasetData) uo;
             images = ds.getImages();
             String note = "";
-            if (images != null) note = NUMBER_ITEMS+images.size();
+            if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(ds.getName(), note, ds);
             formatToolTipFor(node, getFirstAnnotation(ds.getAnnotations()));
             linkImagesTo(images, node);
@@ -188,7 +200,7 @@ public class HiTranslator
             CategoryData data = (CategoryData) uo;
             String note = "";
             images = data.getImages();
-            if (images != null) note = NUMBER_ITEMS+images.size();
+            if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(data.getName(), note, data);
             formatToolTipFor(node, null);
             linkImagesTo(images, node);
@@ -219,7 +231,7 @@ public class HiTranslator
         while (i.hasNext()) {
             ps = (ProjectData) i.next();
             datasets = ps.getDatasets();
-            if (datasets != null) note += NUMBER_ITEMS+datasets.size();
+            if (datasets != null) note += LEFT+datasets.size()+RIGHT;
             project = new ImageSet(ps.getName(), note, ps);
             formatToolTipFor(project, null);
             if (datasets != null) {
@@ -303,7 +315,7 @@ public class HiTranslator
         while (i.hasNext()) {
             cgData = (CategoryGroupData) i.next();
             categories = cgData.getCategories();
-            if (categories != null) note = NUMBER_ITEMS+categories.size();
+            if (categories != null) note = LEFT+categories.size()+RIGHT;
             group = new ImageSet(cgData.getName(), note, cgData);
             formatToolTipFor(group, null);
             
@@ -350,7 +362,7 @@ public class HiTranslator
         while (i.hasNext()) {
             data = (CategoryData) i.next();
             images = data.getImages();
-            if (images != null) note = NUMBER_ITEMS+images.size();
+            if (images != null) note = LEFT+images.size()+RIGHT;
             parent = new ImageSet(data.getName(), note, data);
             formatToolTipFor(parent, null);
             linkImagesTo(images, parent);
@@ -371,6 +383,52 @@ public class HiTranslator
         Set set = new HashSet(1);
         set.add(data);
         return transformCategories(set);
+    }
+    
+    
+    /**
+     * Transforms a {@link CategoryData} into a visualisation object i.e.
+     * a {@link TreeCheckNode}.
+     * 
+     * @param data  The {@link CategoryData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeCheckNode transformCategoryPath(CategoryData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        IconManager im = IconManager.getInstance();      
+        TreeCheckNode category =  new TreeCheckNode(data, 
+                                    im.getIcon(IconManager.CATEGORY),
+                                    data.getName(), true);
+        return category;
+    }
+    
+    /**
+     * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
+     * a {@link TreeCheckNode}. The {@link CategoryData categories} are also
+     * transformed and linked to the newly created {@link TreeCheckNode}.
+     * 
+     * @param data  The {@link CategoryGroupData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeCheckNode transformCategoryGroupPath(CategoryGroupData
+                                                            data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        IconManager im = IconManager.getInstance();
+        TreeCheckNode group = new TreeCheckNode(data, 
+                                im.getIcon(IconManager.CATEGORY_GROUP), 
+                                data.getName(), false);
+        Set categories = data.getCategories();
+        Iterator i = categories.iterator();
+        while (i.hasNext())
+            group.addChildDisplay(
+                    transformCategoryPath((CategoryData) i.next()));
+        return group;
     }
     
     /** 
@@ -435,6 +493,34 @@ public class HiTranslator
         return transformHierarchy(s);
     }
      
+    /**
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set can either be
+     * {@link CategoryGroupData} or {@link CategoryData}.
+     * 
+     * @param paths The collection of {@link DataObject}s to transform.
+     * @return A set of visualization objects.
+     */
+    public static Set transformClassificationPaths(Set paths)
+    {
+        if (paths == null)
+            throw new IllegalArgumentException("No objects.");
+        Set results = new HashSet(paths.size());
+        Iterator i = paths.iterator();
+        DataObject ho;
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (ho instanceof CategoryGroupData) {
+                Set categories = ((CategoryGroupData) ho).getCategories();
+                if (categories != null && categories.size() != 0)
+                    results.add(transformCategoryGroupPath(
+                            (CategoryGroupData) ho));
+            } else if (ho instanceof CategoryData)
+                results.add(transformCategoryPath((CategoryData) ho));
+        }
+        return results;
+    }
+    
     /**
      * Formats the toolTip of the specified {@link ImageDisplay} node.
      * 

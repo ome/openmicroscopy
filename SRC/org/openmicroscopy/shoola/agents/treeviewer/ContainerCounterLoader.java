@@ -43,7 +43,12 @@ import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- *
+ * Loads the number of elements contained in the specified nodes. 
+ * The nodes should correspond to either <code>Dataset</code> or 
+ * <code>Image</code>.
+ * This class calls the <code>countContainerItems</code> method in the
+ * <code>DataManagerView</code>.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -68,7 +73,7 @@ public class ContainerCounterLoader
      * @param viewer 	Reference to the Model. Mustn't be <code>null</code>.
      * @param rootIDs 	Collection of 
      * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet}s 
-     * which contain <code>Images</code> e.g. <code>Dataset</code>.
+     * containing <code>Images</code> e.g. <code>Dataset</code>.
      */
     public ContainerCounterLoader(Browser viewer, Set rootIDs)
     {
@@ -87,7 +92,10 @@ public class ContainerCounterLoader
         handle = dmView.countContainerItems(rootIDs, this);
     }
 
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading. 
+     * @see DataTreeViewerLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /** 
@@ -113,10 +121,9 @@ public class ContainerCounterLoader
         }
     }
 
-    
     /**
      * Does nothing as the async call returns <code>null</code>.
-     * The actual payload (thumbnails) is delivered progressively
+     * The actual payload (number of items) is delivered progressively
      * during the updates.
      */
     public void handleNullResult() {}

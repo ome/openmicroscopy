@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 
 
 //Java imports
-import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -42,7 +41,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.DeclassifPathsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
-import pojos.CategoryData;
 
 /** 
  * The concrete Model used by a {@link Classifier} component that was created
@@ -85,19 +83,15 @@ class RemoveModel
 
     /**
      * Removes the Image this Model is working with from the specified
-     * Category.
-     * 
-     * @param category Data object representing the Category.
-     * @see ClassifierModel#save(CategoryData)
+     * categories.
+     * @see ClassifierModel#save(Set)
      */
-    protected void save(CategoryData category)
+    protected void save(Set categories)
     {
         HierarchyBrowsingView hbw = (HierarchyBrowsingView) 
             HiViewerAgent.getRegistry().getDataServicesView(
                     HierarchyBrowsingView.class);
-        Set ids = new HashSet(1);
-        ids.add(new Integer(imageID));
-        hbw.declassify(category, ids, new DSCallAdapter() {});
+        hbw.declassify(imageID, categories, new DSCallAdapter() {});
     }
     
     /**

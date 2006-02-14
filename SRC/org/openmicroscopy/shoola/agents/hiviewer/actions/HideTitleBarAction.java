@@ -64,10 +64,10 @@ public class HideTitleBarAction
     extends HiViewerAction
 {
 
-    /** The text used for the button. */
+    /** The name of the action. */
     private static final String NAME = "Hide Title Bars";
     
-    /** The text used for the tooltip. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Hides the title bar of every "+
                                     "image below the currently selected node.";
 

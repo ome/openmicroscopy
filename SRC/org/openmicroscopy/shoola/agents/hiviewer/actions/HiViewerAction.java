@@ -65,6 +65,12 @@ public abstract class HiViewerAction
     implements ChangeListener, PropertyChangeListener
 {
     
+    /**
+     * Handles the selection of a node.
+     * 
+     * @param newValue The new value.
+     * @param oldValue The old value.
+     */
     private void onSelectedDisplay(Object newValue, Object oldValue)
     {
         if (!(newValue.equals(oldValue)) && newValue != null) {

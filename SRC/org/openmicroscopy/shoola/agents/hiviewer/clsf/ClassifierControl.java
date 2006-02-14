@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clsf;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -41,7 +42,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
-import pojos.CategoryData;
 
 /** 
  * The Controller component in the {@link Classifier} MVC triad.
@@ -161,7 +161,7 @@ class ClassifierControl
                 //The user selected a Category for (de-)classification.
                 //The classifWin automatically closes itself after selection,
                 //so we're about to get a CLOSED_PROPERTY notification.
-                model.save((CategoryData) pce.getNewValue());
+                model.save((Set) pce.getNewValue());
             else  //Must be the CLOSED_PROPERTY.
                 //Either the user selected a Category or just pressed the
                 //close button.

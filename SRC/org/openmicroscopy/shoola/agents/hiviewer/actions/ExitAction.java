@@ -59,10 +59,10 @@ public class ExitAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Exit";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Close the window.";
     
     

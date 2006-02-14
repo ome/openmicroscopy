@@ -42,7 +42,10 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
 /** 
- * Updates or deletes a <code>DataObject</code>.
+ * Updates or deletes the specified <code>DataObject</code>.
+ * This class calls the <code>updateDataObject</code> method in the
+ * <code>DataManagerView</code> to update and <code>removeDataObject</code> 
+ * method in the <code>DataManagerView</code> to delete.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,8 +64,7 @@ public class DataObjectEditor
     
     /** Identifies the <code>Delete</code> operation. */
     private static final int	DELETE_OBJECT = 1;
-    
-    
+
     /** The {@link DataObject} to handle. */
     private DataObject      userObject;
     
@@ -95,9 +97,9 @@ public class DataObjectEditor
     /**
      * Creates a new instance.
      * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param userObject The {@link DataObject} to handle. 
+     * @param viewer        The TreeViewer this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param userObject    The {@link DataObject} to handle. 
      */
     public DataObjectEditor(TreeViewer viewer, DataObject userObject)
     {
@@ -112,10 +114,10 @@ public class DataObjectEditor
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The TreeViewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param userObject The {@link DataObject} to handle. 
-     * @param parent 	 The parent of the {@link DataObject} to handle.
+     * @param viewer        The TreeViewer this data loader is for.
+     *               	    Mustn't be <code>null</code>.
+     * @param userObject    The {@link DataObject} to handle. 
+     * @param parent        The parent of the {@link DataObject} to handle.
      */
     public DataObjectEditor(TreeViewer viewer, DataObject userObject,
             				Object parent)
@@ -128,7 +130,10 @@ public class DataObjectEditor
         operation = DELETE_OBJECT;
     }
     
-    /** Saves the data.*/
+    /** 
+     * Saves the data.
+     * @see DataBrowserLoader#load()
+     */
     public void load()
     {
         if (operation == UPDATE_OBJECT)

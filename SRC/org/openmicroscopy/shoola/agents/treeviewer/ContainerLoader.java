@@ -44,7 +44,10 @@ import pojos.CategoryGroupData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Loads the data trees in the Project/Dataset hierarchy  or
+ * in the CategoryGroup/Category hierarchy.
+ * This class calls the <code>loadContainerHierarchy</code> method in the
+ * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

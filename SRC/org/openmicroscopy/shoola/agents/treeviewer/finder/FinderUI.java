@@ -42,7 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
@@ -94,7 +94,7 @@ class FinderUI
     private FinderModel		model;
     
     /** The text area hosting the pattern to find. */
-    private JTextArea		findArea;
+    private JTextField      findArea;
     
     /** Check box to match the case or not. */
     private JCheckBox		caseSensitive;
@@ -124,7 +124,7 @@ class FinderUI
             }
         });
         infoComponent = new JPanel();
-        findArea = new JTextArea();
+        findArea = new JTextField();
         findArea.setBorder(BorderFactory.createBevelBorder(
                 			BevelBorder.LOWERED));
         findArea.setBackground(Color.WHITE);
@@ -133,6 +133,11 @@ class FinderUI
         int h = getFontMetrics(getFont()).getHeight()+4;
         findArea.setPreferredSize(new Dimension(WIDTH, h));
         findArea.getDocument().addDocumentListener(new DocumentListener() {
+            
+            /**
+             * Sets the finder's controls enabled if no phrase entered.
+             * @see DocumentListener#removeUpdate(DocumentEvent)
+             */
             public void insertUpdate(DocumentEvent de)
             {
                 Document d = de.getDocument();
@@ -141,6 +146,10 @@ class FinderUI
                 } catch (Exception e) {}
             }
 
+            /**
+             * Sets the finder's controls enabled if no phrase entered.
+             * @see DocumentListener#removeUpdate(DocumentEvent)
+             */
             public void removeUpdate(DocumentEvent de)
             { 
                 Document d = de.getDocument();
@@ -149,8 +158,12 @@ class FinderUI
                 } catch (Exception e) {}
             }
 
-            /** Required by I/F but no-op in our case. */
+            /** 
+             * Required by I/F but no-op implementation in our case. 
+             * @see DocumentListener#changedUpdate(DocumentEvent)
+             */
             public void changedUpdate(DocumentEvent de) {}
+            
         });
     }
     
@@ -268,4 +281,5 @@ class FinderUI
         validate();
         repaint();
     }
+    
 }

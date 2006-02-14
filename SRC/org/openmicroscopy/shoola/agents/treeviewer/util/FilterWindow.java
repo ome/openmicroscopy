@@ -68,7 +68,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 
 /** 
- * 
+ * This Component is used to select the containers from which the images are
+ * retrieved. The containers are either <code>Dataset</code> or 
+ * <code>Category</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -117,7 +119,6 @@ public class FilterWindow
     
     /** The border color. */
     private static final Color      BORDER_COLOR = Color.GRAY;
-    
 
     /** Default background color. */
     public static final Color       BACKGROUND = Color.WHITE;
@@ -125,10 +126,10 @@ public class FilterWindow
     /** The specified type of container. */
     private int             containerType;
     
-    /** To close the window. */
+    /** Button to close the window. */
     private JButton         cancelButton;
     
-    /** To set the containers' selection. */ 
+    /** Button to set the containers' selection. */ 
     private JButton         setButton;
     
     /** The panel hosting the available containers. */
@@ -144,9 +145,9 @@ public class FilterWindow
     private Set             selectedNodes;
     
     /** 
-     * Checks if the supported type is supported.
+     * Controls if the supported type is supported.
      * 
-     * @param type The type to check.
+     * @param type The type to control.
      */
     private void checkType(int type)
     {
@@ -168,10 +169,8 @@ public class FilterWindow
     private String getContainerString()
     {
         switch (containerType) {
-            case DATASET:
-                return DATASET_MSG;
-            case CATEGORY:
-                return CATEGORY_MSG;
+            case DATASET: return DATASET_MSG;
+            case CATEGORY: return CATEGORY_MSG;
         }
         return "";
     }
@@ -266,8 +265,7 @@ public class FilterWindow
         return label;
     }
     
-    /**
-     * Builds and lays out the GUI. */
+    /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         JPanel contentPanel = new JPanel();
@@ -286,9 +284,7 @@ public class FilterWindow
         getContentPane().add(contentPanel);
     }
     
-    /**
-     * Binds the {@link #close() close} action to the exit event generated
-     */
+    /** Binds the {@link #close() close} action to the exit event generated. */
     private void attachListeners()
     {
         addWindowListener(new WindowAdapter() {
@@ -316,12 +312,11 @@ public class FilterWindow
      * 
      * @param owner The owner of the frame.
      * @param containerType The type of container this window is for.
-     * @param nodes The nodes to display.
+     * @param nodes The nodes to display. Mustn't be <code>null</code>.
      */
     public FilterWindow(JFrame owner, int containerType, Set nodes)
     {
         super(owner, "Filter Images Retrieval", true);
-        
         if (nodes == null) 
             throw new IllegalArgumentException("No nodes");
         checkType(containerType);
