@@ -35,16 +35,21 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectEditor;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Implementation of the {@link DataManagerView} implementation.
@@ -202,6 +207,64 @@ class DataManagerViewImpl
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new AnnotationSaver(nodeType, data);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadAnnotations(Class, int, 
+     *                                          AgentEventListener)
+     */
+    public CallHandle loadAnnotations(Class nodeType, int nodeID,
+                                       AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadThumbnail(ImageData, int, int,
+     *                                          AgentEventListener)
+     */
+    public CallHandle loadThumbnail(ImageData image, int maxWidth, 
+            int maxHeight, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ThumbnailLoader(image, maxWidth, maxHeight);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadClassificationPaths(int, int, 
+     *                                              AgentEventListener)
+     */
+    public CallHandle loadClassificationPaths(int imageID, int algorithm,
+            AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ClassificationLoader(imageID, algorithm);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#classify(int, Set, AgentEventListener)
+     */
+    public CallHandle classify(int imageID, Set categories, 
+                                AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ClassificationSaver(imageID, categories, true);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#declassify(int, Set, AgentEventListener)
+     */
+    public CallHandle declassify(int imageID, Set categories, 
+                                AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ClassificationSaver(imageID, categories, false);
         return cmd.exec(observer);
     }
     

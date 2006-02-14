@@ -36,9 +36,11 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Provides methods to support data management.
@@ -57,6 +59,25 @@ import pojos.DataObject;
 public interface DataManagerView
     extends DataServicesView
 {
+    
+
+    /** Identifies the <code>Declassification</code> algorithm. */
+    public static final int DECLASSIFICATION = 
+                                OmeroPojoService.DECLASSIFICATION;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm with
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_ME = 
+                                OmeroPojoService.CLASSIFICATION_ME;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm without
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_NME = 
+                            OmeroPojoService.CLASSIFICATION_NME;
     
     /** 
      * Indicates the root of the retrieved data is the <code>World</code>
@@ -208,8 +229,7 @@ public interface DataManagerView
     public CallHandle updateObjectAndAnnotation(DataObject userObject, 
             								AnnotationData data, int operation,
             								AgentEventListener observer);
-    
-    
+      
     /** 
      * Creates an annotation of the specified type for the specified node.
      * 
@@ -247,5 +267,106 @@ public interface DataManagerView
      */
     public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
                                         AgentEventListener observer);
+    
+    
+    /**
+     * Retrieves all the annotations linked to the specified node type.
+     * 
+     * @param nodeType The type of the node. Can only be one out of:
+     *                      <code>DatasetData, ImageData</code>.       
+     * @param nodeID The id of the node.
+     * @param observer Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadAnnotations(Class nodeType, int nodeID,
+                                        AgentEventListener observer);
+    
+    /**
+     * Loads a thumbnail for each specified <code>ImageData</code> object.
+     * As thumbnails are retrieved from <i>OMEIS</i>, they're posted back to
+     * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
+     * Each thumbnail will be posted in a single event; the <code>observer
+     * </code> can then call the <code>getPartialResult</code> method to 
+     * retrieve a <code>ThumbnailData</code> object for that thumbnail. The 
+     * final <code>DSCallOutcomeEvent</code> will have no result.
+     * Thumbnails are generated respecting the <code>X/Y</code> ratio of the
+     * original image and so that their area doesn't exceed <code>maxWidth*
+     * maxHeight</code>.
+     * 
+     * @param image The <code>ImageData</code> object the thumbnail is for.
+     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param maxHeight The maximum acceptable height of the thumbnails.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadThumbnail(ImageData image, int maxWidth, 
+                                     int maxHeight, 
+                                     AgentEventListener observer);
+    
+    /**
+     * Loads all Category Group/Category paths that end or don't end with the 
+     * specified Image, depending on the value of the <code>classified</code>
+     * argument.
+     * <p>If the <code>classified</code> argument is <code>true</code>, this 
+     * method loads all the Category nodes under which was classified the Image
+     * whose id is <code>imageID</code>, and then all the Category Group nodes
+     * that contain those Categories.  If <code>false</code>, then it does the
+     * opposite: it loads all the Categories the given Image doesn't belong in,
+     * and then all the Category Groups that contain those Categories.
+     * This method returns all the matching Category Groups (as <code>
+     * CategoryGroupData</code> objects) in a <code>Set</code>, which is the
+     * result object of the <code>DSCallOutcomeEvent</code>.
+     * Those objects will also be linked to the matching Categories (represented
+     * by <code>CategoryData</code> objects).  For example, assume the CG/C/I 
+     * hierarchy in the DB looks like this:</p>
+     * <pre>        
+     *           cg1       cg2
+     *             \      /   \    
+     *             c1    c2    c3      
+     *               \  /  \    \
+     *                i1    i2   i3    
+     * </pre>
+     * <p>Then if you specify the id of Image <code>i1</code> and pass 
+     * <code>true</code> for <code>classified</code> to this method, the 
+     * returned set will contain <code>cg1, cg2</code>.  Moreover, <code>cg1
+     * </code> will be linked to <code>c1</code> and <code>cg2</code> to <code>
+     * c2</code>.  If you specify <code>false</code> for <code>classified</code>
+     * (and again the id of Image <code>i1</code>), then you will get <code>
+     * cg2</code> and it will be linked to <code>c3</code>.</p> 
+     * 
+     * @param imageID   The id of the Image.
+     * @param algorithm  One of the following constants:
+     *                  {@link OmeroPojoService#DECLASSIFICATION},
+     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
+     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadClassificationPaths(int imageID, int algorithm,
+                                              AgentEventListener observer);
+    
+    /**
+     * Classifies the image identified by the Id in the collection of 
+     * categories.
+     * 
+     * @param imageID       The id of the image to classify.      
+     * @param categories    Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle classify(int imageID, Set categories, 
+                                AgentEventListener observer);
+    
+    /**
+     * Removes the image identified by the Id from the collection of 
+     * categories.
+     * 
+     * @param imageID       The id of the image to classify.      
+     * @param categories    Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle declassify(int imageID, Set categories, 
+                                AgentEventListener observer);
     
 }
