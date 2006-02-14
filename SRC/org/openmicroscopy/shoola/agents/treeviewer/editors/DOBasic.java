@@ -34,35 +34,30 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DateFormat;
+import java.util.Set;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.util.UtilConstants;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.AnnotationData;
 
 /** 
  * Component displaying the minimum information on the currently edited 
@@ -80,65 +75,35 @@ class DOBasic
     extends JPanel
 {
     
-    /** Used as text of the {@link #annotationButton}. */
-    private static final String     	SHOW_ANNOTATE = "Annotation >>";
+    /** Title of the annotation pane. */
+    static final String     ANNOTATION = "Annotation";
     
-    /** Used as text of the {@link #annotationButton}. */
-    private static final String     	HIDE_ANNOTATE = "<< Annotation";
-    
-    /** The label of the {@link #deleteBox}. */
-    private static final String			DELETE_ANNOTATION = "Delete " +
-    													"the annotation";
-    
-    /** 
-     * The text displayed when the currently edited <code>DataObject</code>
-     * hasn't been annotated.
-     */
-    private static final String			NO_ANNOTATION_TEXT = "Not annotated";
-    
-    /** 
-     * The preferred size of the scroll pane containing the explanation of
-     * the notification message.
-     */
-    private static final Dimension  	SCROLL_PANE_SIZE = 
-        										new Dimension(300, 150);
-    
-    /**
-     * A reduced size for the invisible components used to separate widgets
-     * vertically.
-     */
-    private static final Dimension  	SMALL_V_SPACER_SIZE = 
-        										new Dimension(1, 6);
-    
-    /** 
-     * The size of the invisible components used to separate widgets
-     * vertically.
-     */
-    protected static final Dimension	V_SPACER_SIZE = new Dimension(1, 20);
+    /** Title of the classification pane. */
+    static final String     CLASSIFICATION = "Classification";   
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    JTextArea           nameArea;
+    JTextArea                   nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
-    JTextArea           descriptionArea;
+    JTextArea                   descriptionArea;
     
-    /** Area where to annotate the <code>DataObject</code>. */
-    JTextArea           annotationArea;
+    /** The tabbed pane hosting the annotation pane or classified pane. */
+    private JTabbedPane         tabbedPane;
     
-    /** Box to delete the annotation. */
-    JCheckBox			deleteBox;
+    /** 
+     * The component hosting the annotation. <code>null</code> if the data 
+     * object is not annotable.
+     */
+    private DOAnnotation        annotator;
     
-    /** Button to show or hide the {@link #annotationPanel}. */
-    private JButton     annotationButton;
-    
-    /** Panel hosting the {@link #annotationArea}. */
-    private JPanel      annotationPanel;
-    
-    /** Flag to control is the annotation is shown or hidden. */
-    private boolean     isAnnotationShowing;
+    /** 
+     * The component hosting the classification. <code>null</code> if the data 
+     * object hasn't been clasified.
+     */
+    private DOClassification    classifier;
     
     /** Reference to the parent. */
-    private DOEditor    editor;
+    private DOEditor            editor;
     
     /**
      * Sets the defaults for the specified area.
@@ -148,35 +113,16 @@ class DOBasic
     private void setTextAreaDefault(JTextArea area)
     {
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        area.setForeground(UtilConstants.STEELBLUE);
+        area.setForeground(UIUtilities.STEELBLUE);
         area.setBackground(Color.WHITE);
         area.setOpaque(true);
         area.setEditable(true);
     }
     
-    
-    /** Adds a {@link DocumentListener} to the {@link #annotationArea}. */
-    private void attachAnnotationAreaListener()
-    {
-        annotationArea.getDocument().addDocumentListener(
-                new DocumentListener() {
-
-            public void insertUpdate(DocumentEvent de)
-            {
-                editor.handleAnnotationAreaInsert();
-            }
-            
-            /** Required by I/F but no-op in our case. */
-            public void removeUpdate(DocumentEvent de) {}
-
-            /** Required by I/F but no-op in our case. */
-            public void changedUpdate(DocumentEvent de) {}
-        });
-    }
-    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+        tabbedPane = new JTabbedPane();
         nameArea = new MultilineLabel();
         setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
@@ -203,37 +149,46 @@ class DOBasic
                 descriptionArea.setEditable(false);
             }
             if (editor.isAnnotable()) {
-                deleteBox = new JCheckBox(DELETE_ANNOTATION);
-                deleteBox.setSelected(false);
-                annotationArea = new MultilineLabel();
-                annotationArea.setEditable(editor.isEditable());
-                setTextAreaDefault(annotationArea);
-                annotationButton = new JButton(SHOW_ANNOTATE);
-                annotationButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e)
-                    { 
-                        handleClick();
-                    }
-                });
-                buildAnnotationPanel();
+                annotator = new DOAnnotation(editor);
+                IconManager im = IconManager.getInstance();
+                tabbedPane.addTab(ANNOTATION, 
+                            im.getIcon(IconManager.ANNOTATION), annotator);
+            }
+            if (editor.isClassified()) {
+                classifier = new DOClassification(editor);
+                tabbedPane.addTab(CLASSIFICATION, 
+                      IconManager.getInstance().getIcon(IconManager.CATEGORY),
+                      classifier);
             }
         }
         nameArea.getDocument().addDocumentListener(
                 new DocumentListener() {
 
+            /** 
+             * Updates the editor's controlswhen some text is inserted. 
+             * @see DocumentListener#insertUpdate(DocumentEvent)
+             */
             public void insertUpdate(DocumentEvent de)
             {
                 editor.handleNameAreaInsert();
             }
-
+            
+            /** 
+             * Displays an error message when the data object has no name. 
+             * @see DocumentListener#removeUpdate(DocumentEvent)
+             */
             public void removeUpdate(DocumentEvent de)
             {
                 if (de.getDocument().getLength() == 0)
                     editor.handleEmptyNameArea();
             }
 
-            /** Required by I/F but no-op in our case. */
+            /** 
+             * Required by I/F but no-op implementation in our case. 
+             * @see DocumentListener#changedUpdate(DocumentEvent)
+             */
             public void changedUpdate(DocumentEvent de) {}
+            
         });
     }   
     
@@ -241,7 +196,7 @@ class DOBasic
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
      * is annotable and if we are in the {@link DOEditor#EDIT} mode,
-     * the {@link #annotationButton} is shown. 
+     * twe display the annotation pane. 
      * 
      * @return See above.
      */
@@ -283,44 +238,7 @@ class DOBasic
         pane  = new JScrollPane(descriptionArea);
         label.setLabelFor(pane);
         content.add(pane, c);
-        if (editor.getEditorType() == DOEditor.EDIT && editor.isAnnotable()) {
-            AnnotationData data = editor.getAnnotationData();
-            if (data != null) annotationArea.setText(data.getText());
-            //in this order otherwise and event is fired when we insert the 
-            //text.
-            attachAnnotationAreaListener();
-            label = new JLabel(formatAnnotation(data));
-            c.gridx = 0;
-            c.gridy = 3;
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            c.ipadx = 0;
-            c.ipady = 0; 
-            content.add(label, c);
-            c.gridx = 1;
-            label.setLabelFor(annotationButton);
-            content.add(annotationButton, c);
-        }
         return content;
-    }
-    
-    /** Builds the panel hosting the {@link #annotationArea}. */
-    private void buildAnnotationPanel()
-    {
-        annotationPanel = new JPanel();
-        JScrollPane scrollPane = new JScrollPane(annotationArea);
-        scrollPane.setPreferredSize(SCROLL_PANE_SIZE);
-        annotationPanel.setLayout(
-                            new BoxLayout(annotationPanel, BoxLayout.Y_AXIS));
-        annotationPanel.setBorder(
-                                BorderFactory.createEmptyBorder(0, 10, 0, 10));
-        annotationPanel.add(Box.createRigidArea(V_SPACER_SIZE));
-        annotationPanel.add(UIUtilities.buildComponentPanel(deleteBox));
-        annotationPanel.add(new JSeparator());
-        annotationPanel.add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
-        annotationPanel.add(scrollPane);
-        annotationPanel.add(Box.createVerticalGlue());
     }
     
     /**
@@ -334,49 +252,7 @@ class DOBasic
         setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
         add(contentPanel, BorderLayout.NORTH);
-    }
-    
-    /**
-     * Formats the specified annotation.
-     * 
-     * @param data The annotation to format.
-     * @return See above.
-     */
-    private String formatAnnotation(AnnotationData data)
-    {
-        deleteBox.setEnabled(data != null);
-        if (data == null) return NO_ANNOTATION_TEXT;
-        StringBuffer buf = new StringBuffer();
-        buf.append("<html><body>");
-        DateFormat df = DateFormat.getDateInstance();
-        buf.append("<p>Last annotated: <br>");
-        buf.append(df.format(data.getLastModified()));
-        //buf.append("<br>");
-        //buf.append("by "+data.getOwner().getFirstName()+" "+
-        //        	data.getOwner().getLastName());
-        buf.append("</p></body></html>");
-        return buf.toString();
-    }
-    
-    /**
-     * Handles mouse clicks on the {@link #annotationButton}.
-     * The {@link #annotationPanel} is shown/hidden depending on the current 
-     * value of {@link #isAnnotationShowing}, which is then modified to
-     * reflect the new state. Also the {@link #annotationButton} text is changed
-     * accordingly.
-     */
-    private void handleClick()
-    {
-        if (isAnnotationShowing) {
-            annotationButton.setText(SHOW_ANNOTATE);
-            remove(annotationPanel);
-        } else {
-            annotationButton.setText(HIDE_ANNOTATE);
-            add(annotationPanel, BorderLayout.CENTER);
-        }
-        isAnnotationShowing = !isAnnotationShowing;
-        validate();
-        repaint();
+        add(tabbedPane, BorderLayout.CENTER);
     }
     
     /**
@@ -394,4 +270,83 @@ class DOBasic
         buildGUI();
     }   
 
+    /**
+     * Returns <code>true</code> if the data object can be annotated.
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isAnnotable()
+    { 
+        if (annotator == null) return false;
+        return annotator.isAnnotable();
+    }
+    
+    /**
+     * Returns <code>true</code> if the data object has to be deleted,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isAnnotationDeleted()
+    {  
+        if (annotator == null) return false;
+        return annotator.isAnnotationDeleted();
+    }
+    
+    /** 
+     * Returns the text of the annotation. 
+     * 
+     * @return See above. 
+     */
+    String getAnnotationText()
+    { 
+        if (annotator == null) return null;
+        return annotator.getAnnotationText();
+    }
+    
+    /** Displays the annotations. */
+    void showAnnotations()
+    { 
+        if (annotator == null) return;
+        annotator.showAnnotations();
+    }
+
+    /**
+     * Displays the specified set of nodes.
+     * 
+     * @param nodes The nodes to display
+     */
+    void setClassifiedNodes(Set nodes)
+    {
+        if (classifier == null) return;
+        classifier.setNodes(nodes);
+    }
+    
+    /** 
+     * Adds a listener to the {@link #tabbedPane} as soon as the thumbnail
+     * is ready.
+     */
+    void addListeners()
+    {
+        //Add listener to the tabbed pane,
+        tabbedPane.addChangeListener(new ChangeListener() {
+            
+            /**
+             * Retrieves the classification when the classification tabbed pane
+             * is selected for the first time.
+             * @see ChangeListener#stateChanged(ChangeEvent)
+             */
+            public void stateChanged(ChangeEvent ce)
+            {
+                JTabbedPane pane = (JTabbedPane) ce.getSource();
+                Component c = pane.getSelectedComponent();
+                if (c instanceof DOClassification) {
+                    if (!classifier.isNodesDisplayed())
+                        editor.retrieveClassification();
+                }
+            };
+        });
+    }
+    
 }

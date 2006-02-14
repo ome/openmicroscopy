@@ -181,22 +181,6 @@ class DOInfo
     }
     
     /**
-     * Creates a new instance.
-     * 
-     * @param details 	The visualization map. Mustn't be <code>null</code>.
-     * @param groups	Collection of groups.
-     */
-    /*
-    DOInfo(Map details, Set groups)
-    {
-        if (details == null) 
-            throw new IllegalArgumentException("Visualization map cannot be" +
-                    " null");
-        buildGUI(details, null);
-    }
-    */
-    
-    /**
      * Shows the specified group's details.
      * 
      * @param details The details to display.
@@ -245,9 +229,7 @@ class DOInfo
         repaint();
     }
 
-    /**
-     * 
-     */
+    /** Hides the details of the group. */
     void hideGroupDetails()
     {
         groupPanel.removeAll();

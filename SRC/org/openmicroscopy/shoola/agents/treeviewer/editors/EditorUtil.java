@@ -36,6 +36,7 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -107,7 +108,7 @@ class EditorUtil
             details.put("Pixel size Z "+MICRONS, "");
             details.put("Sections", "");
             details.put("Timepoints", "");
-            details.put("Emission wavelength", "");
+            //details.put("Emission wavelength", "");
             details.put("Pixel Type", "");  
         } else {
             NumberFormat    nf = NumberFormat.getInstance();
@@ -122,7 +123,7 @@ class EditorUtil
                         nf.format(data.getPixelSizeZ()));
             details.put("Sections", ""+data.getSizeZ());
             details.put("Timepoints", ""+data.getSizeT());
-            details.put("Emission wavelength", "");
+            //details.put("Emission wavelength", "");
             details.put("Pixel Type", ""+data.getPixelType());  
         }
         return details;
@@ -151,5 +152,5 @@ class EditorUtil
         }
         return details;
     }
-    
+      
 }

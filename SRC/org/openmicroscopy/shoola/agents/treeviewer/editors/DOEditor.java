@@ -38,16 +38,21 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -60,7 +65,9 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -69,7 +76,6 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -89,12 +95,12 @@ public class DOEditor
 {
 
     /** Indicates that this class is hosting the <code>Edit</code> UI. */
-    public static final int     EDIT = TreeViewer.EDIT_PROPERTIES;
+    public static final int     EDIT = TreeViewer.PROPERTIES_EDITOR;
     
     /** Indicates that this class is hosting the <code>Create</code> UI. */
-    public static final int     CREATE = TreeViewer.CREATE_PROPERTIES;
+    public static final int     CREATE = TreeViewer.CREATE_EDITOR;
     
-    /** Bounds property to indicate that the creation is cancelled. */
+    /** Bounds property to indicate that the edition is cancelled. */
     public static final String  CANCEL_EDITION_PROPERTY = "cancelEdition";
     
     /** The default height of the <code>TitlePanel</code>. */
@@ -163,12 +169,6 @@ public class DOEditor
     /** One of the types defined by this class. */
     private int             editorType;
     
-    /** 
-     * <code>true</code> if the annotationArea is filled, <code>false</code> 
-     * otherwise.
-     */
-    private boolean         annotated;
-    
     /**
      * <code>true</code> if the name or description is modified.
      * <code>false</code> otherwise;
@@ -184,8 +184,11 @@ public class DOEditor
     /** Reference to the Model. */
     private TreeViewer      model;
     
-    /** The currently selected {@link DataObject}. */
+    /** The currently edited {@link DataObject}. */
     private DataObject      hierarchyObject;
+    
+    /** The annotations related to the currently edited {@link DataObject}. */ 
+    private Map             annotations;
     
     /** 
      * Returns the last annotation.
@@ -355,16 +358,6 @@ public class DOEditor
                             im.getIcon(IconManager.PROPERTIES), doBasic);
                 ExperimenterData exp = getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
-                /*
-                Set groups = exp.getGroups();
-                if (groups == null || groups.size() == 0) {
-                    GroupData group = exp.getGroup();
-                    if (group != null) {
-                        groups = new HashSet(1);
-                        groups.add(group);
-                    } 
-                }
-                */
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
                             new DOInfo(details));
                 if (hierarchyObject instanceof ImageData) {
@@ -410,14 +403,14 @@ public class DOEditor
     {
         AnnotationData data = getAnnotationData();
         int algorithm = TreeViewer.UPDATE_ANNOTATION; 
-        if (doBasic.deleteBox.isSelected())
+        if (doBasic.isAnnotationDeleted())
             algorithm = TreeViewer.DELETE_ANNOTATION;
         else { 
             if (data == null) {
                 data = new AnnotationData();
                 algorithm = TreeViewer.CREATE_ANNOTATION;
             }
-            data.setText(doBasic.annotationArea.getText());
+            data.setText(doBasic.getAnnotationText());
         }
         model.saveObject(null, data, algorithm);
     }
@@ -427,14 +420,14 @@ public class DOEditor
     {
         AnnotationData data = getAnnotationData();
         int algorithm = TreeViewer.UPDATE_ANNOTATION; 
-        if (doBasic.deleteBox.isSelected())
+        if (doBasic.isAnnotationDeleted())
             algorithm = TreeViewer.DELETE_ANNOTATION;
         else { 
             if (data == null) {
                 data = new AnnotationData();
                 algorithm = TreeViewer.CREATE_ANNOTATION;
             }
-            data.setText(doBasic.annotationArea.getText());
+            data.setText(doBasic.getAnnotationText());
         }
         model.saveObject(fillDataObject(), data, algorithm);
     }
@@ -483,12 +476,11 @@ public class DOEditor
     private void finishEdit()
     {
         if (edit) {
-            if (annotated) editAndAnnotate();
+            if (doBasic.isAnnotable()) editAndAnnotate();
             else model.saveObject(fillDataObject(), TreeViewer.UPDATE_OBJECT);
         } else {
-            if (annotated) annotateOnly();
+            if (doBasic.isAnnotable()) annotateOnly();
         }
-
     }
     
     /**
@@ -561,7 +553,6 @@ public class DOEditor
     void handleAnnotationAreaInsert()
     {
         finishButton.setEnabled(true);
-        annotated = true;
     }
     
     /**
@@ -663,7 +654,7 @@ public class DOEditor
     }
     
     /**
-     * Returns the annotation of the currenlty edited <code>DataObject</code>.
+     * Returns the annotation of the currently edited <code>DataObject</code>.
      *  
      * @return See above.
      */
@@ -679,6 +670,168 @@ public class DOEditor
         return null;
     }
      
+    /**
+     * Returns the annotations for the currently edited object, 
+     * <code>null</code> it there is no annotation for that object.
+     * 
+     * @return See above.
+     */
+    Map getAnnotations() { return annotations; }
+    
+    /**
+     * Returns <code>true</code> if the <code>DataObject</code> has been 
+     * classified, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isClassified()
+    {
+        if (hierarchyObject == null) return false;
+        else if (hierarchyObject instanceof ImageData)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Returns the user's details.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getUserDetails() { return model.getUserDetails(); }
+    
+    /** 
+     * Browses the specified node.
+     * 
+     * @param node The node to browse.
+     */
+    void browse(TreeImageDisplay node)
+    {
+        Object object = node.getUserObject();
+        if (object instanceof DataObject) model.browse((DataObject) object);
+    }
+    
+    /** Retrieves the classification for the currently edited object. */
+    void retrieveClassification()
+    {
+        if (hierarchyObject == null || !(hierarchyObject instanceof ImageData))
+            throw new IllegalArgumentException("The method can only be" +
+                    "invoked for Image.");
+        model.retrieveClassification(((ImageData) hierarchyObject).getId());
+    }
+    
+    /**
+     * Returns <code>true</code> if the DataObject is an Image,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasThumbnail()
+    {
+        if (hierarchyObject == null) return false;
+        else if (hierarchyObject instanceof ImageData)
+            return true;
+        return false;
+    }
+    
+    /**
+     * Sets the specified thumbnail 
+     * 
+     * @param thumbnail The thumbnail to set.
+     */
+    public void setThumbnail(BufferedImage thumbnail)
+    {
+        if (thumbnail ==  null) return;
+        if (hasThumbnail()) {
+            JLabel label = new JLabel(new ImageIcon(thumbnail));
+            label.addMouseListener(new MouseAdapter() {
+                
+                /**
+                 * Views the image if the user double-clicks on the thumbnail.
+                 */
+                public void mouseClicked(MouseEvent e)
+                {
+                    if (e.getClickCount() == 2) model.browse(hierarchyObject);
+                }
+            });
+            titlePanel.setIconComponent(label);
+            doBasic.addListeners();
+        }
+    }
+    
+    /**
+     * Sets the retrieved annotations.
+     * 
+     * @param map The map with the annotations.
+     */
+    public void setAnnotations(Map map)
+    {
+        if (map == null) throw new NullPointerException("No annotations");
+        if (!isAnnotable())
+            throw new IllegalArgumentException("This mehod should only be " +
+                    "invoked for annotable Data object.");
+        ViewerSorter sorter = new ViewerSorter();
+        sorter.setAscending(false);
+        HashMap sortedAnnotations = new HashMap();
+        Set set;
+        Integer index;
+        Iterator i = map.keySet().iterator();
+        Iterator j;
+        AnnotationData annotation;
+        Integer ownerID;
+        List userAnnos;
+        while (i.hasNext()) {
+            index = (Integer) i.next();
+            set = (Set) map.get(index);
+            j = set.iterator();
+            while (j.hasNext()) {
+                annotation = (AnnotationData) j.next();;
+                ownerID = new Integer(annotation.getOwner().getId());
+                userAnnos = (List) sortedAnnotations.get(ownerID);
+                if (userAnnos == null) {
+                    userAnnos = new ArrayList();
+                    sortedAnnotations.put(ownerID, userAnnos);
+                }
+                userAnnos.add(annotation);
+            }
+        }
+        i = sortedAnnotations.keySet().iterator();
+        List timestamps, annotations, results, list;
+        HashMap m;
+        Iterator k, l;
+        AnnotationData data;
+        while (i.hasNext()) {
+            ownerID = (Integer) i.next();
+            annotations = (List) sortedAnnotations.get(ownerID);
+            k = annotations.iterator();
+            m = new HashMap(annotations.size());
+            timestamps = new ArrayList(annotations.size());
+            while (k.hasNext()) {
+                data = (AnnotationData) k.next();
+                m.put(data.getLastModified(), data);
+                timestamps.add(data.getLastModified());
+            }
+            results = sorter.sort(timestamps);
+            l = results.iterator();
+            list = new ArrayList(results.size());
+            while (l.hasNext())
+                list.add(m.get(l.next()));
+            sortedAnnotations.put(ownerID, list);
+        }
+        this.annotations = sortedAnnotations;
+        doBasic.showAnnotations();
+    }
+    
+    /**
+     * Displays the specified set of nodes.
+     * 
+     * @param nodes The nodes to set.
+     */ 
+    public void setClassifiedNodes(Set nodes)
+    {
+        if (nodes == null) throw new IllegalArgumentException("No nodes");
+        doBasic.setClassifiedNodes(nodes);      
+    }
+    
     /**
      * Sets the size of the {@link #titlePanel} and the {@link #titleLayer}.
      * 
