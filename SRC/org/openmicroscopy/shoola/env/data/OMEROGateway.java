@@ -250,7 +250,8 @@ class OMEROGateway
             if (data == null) 
                 throw new DSOutOfServiceException("Cannot retrieve user's " +
                 								"data");
-            //TODO: clarify this point with Josh
+            
+            //TODO: remove this code asap.
             Set groups = data.getGroups();
             if (groups == null || groups.size() == 0) {
                 groups = new HashSet(1);
