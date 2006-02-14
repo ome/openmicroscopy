@@ -13,9 +13,11 @@ select new list(cg,c) from CategoryGroup cg
 	)
 #elseif($doCLASSIFICATION_ME)
 	where cg not in ( 
-		select cg from CategoryGroup cg
+		select cg2 from CategoryGroup cg2
 			where
-				cg.categories.classifications.image in ( :id_list )
+				cg2.categories.classifications.image in ( :id_list )
+				and 
+				cg2.categories.classifications.valid = true 
 	)
 #else
 	#error("No known algorithm.")
