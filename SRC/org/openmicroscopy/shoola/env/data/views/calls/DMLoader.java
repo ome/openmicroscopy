@@ -41,14 +41,17 @@ import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Command to find the data trees of a given <i>OME</i> hierarchy type 
+ * i.e. Project/Dataset/(Image), Dataset/(Image),
+ * CategoryGroup/Category/(Image), Category/(Image).
+ * Note that the images are not always retrieved depending on the specified
+ * flag.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

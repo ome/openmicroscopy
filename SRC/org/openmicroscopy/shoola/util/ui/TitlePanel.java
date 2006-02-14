@@ -77,28 +77,24 @@ public class TitlePanel
 {
     
     /** Default background color. */
-    private static final Color  DEFAULT_BG = Color.WHITE;
-    
+    private static final Color  DEFAULT_BG = Color.WHITE;  
     
     /** The component embedding the panel's title. */
-    private JComponent  title;
+    private JComponent      title;
     
     /** The component embedding the panel's sub-title. */
-    private JComponent  subTitle;
+    private JComponent      subTitle;
     
     /** The component embedding the panel's text. */
-    private JComponent  text;
-    
-    /** The component embedding the panel's graphics. */
-    private JComponent  graphx;
+    private JComponent      text;
     
     /** The horizontal line at the bottom of the panel. */
-    private JSeparator  hLine;
+    private JSeparator      hLine;
     
+    /** The component embedding the panel's graphics. */
+    protected JComponent    graphx;
     
-    /**
-     * Sets up all sub-components.
-     */
+    /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         add(title);
@@ -179,6 +175,19 @@ public class TitlePanel
         this(title, subTitle, null, new JLabel(icon));
     }
     
+    /** 
+     * Replaces the {@link #graphx} by the specified component.
+     * 
+     * @param c The component to set as icon.
+     */
+    public void setIconComponent(JComponent c)
+    {
+        if (c == null)
+            throw new IllegalArgumentException("No component no set.");
+        remove(graphx);
+        graphx = c;
+        add(graphx);
+    }
     
     /**
      * Lays out the sub-components of this title panel. 
@@ -193,7 +202,6 @@ public class TitlePanel
         /** Left indent for the sub-title and text. */
         private static final int    INDENT = 10;
         
-        
         /**
          * The area that is currently available to lay out a component.
          * When the layout starts, this is set to be the title panel minus
@@ -201,8 +209,7 @@ public class TitlePanel
          * updated to subtract the area occupied by that component.
          */
         private Rectangle   curLayoutBounds;
-        
-        
+         
         /**
          * Utility method to subtract <code>r</code> to the 
          * {@link #curLayoutBounds}.
@@ -311,7 +318,10 @@ public class TitlePanel
             updateLayoutBounds(r);
         }
         
-        /** Returns the preferred layout space. */
+        /** 
+         * Returns the preferred layout space. 
+         * @see LayoutManager#minimumLayoutSize(Container)
+         */
         public Dimension minimumLayoutSize(Container c) 
         {
             return preferredLayoutSize(c);
@@ -320,6 +330,7 @@ public class TitlePanel
         /**
          * Returns the amount of space needed to layout all components at
          * their preferred size.
+         * @see LayoutManager#preferredLayoutSize(Container)
          */
         public Dimension preferredLayoutSize(Container c)  
         {
@@ -336,7 +347,11 @@ public class TitlePanel
             return new Dimension(w, h);
         }
         
-        /** Lays out the components. */
+        /** 
+         * Lays out the components. 
+         * 
+         * @param c The container to lay out.
+         */
         public void layoutContainer(Container c) 
         {
             Insets i = getInsets();
@@ -348,17 +363,19 @@ public class TitlePanel
             layoutTitle();
             layoutSubTitle();
             layoutText();
-        }
+        }   
         
         /**
-         * No-op implementation.
-         * Required by {@link LayoutManager}, but not needed here.
+         * Required by {@link LayoutManager}, but no-op implementation in our 
+         * case.
+         * @see LayoutManager#addLayoutComponent(String, Component)
          */
         public void addLayoutComponent(String name, Component c) {}
         
         /**
-         * No-op implementation.
-         * Required by {@link LayoutManager}, but not needed here.
+         * Required by {@link LayoutManager}, but no-op implementation in our 
+         * case.
+         * @see LayoutManager#removeLayoutComponent(Component)
          */
         public void removeLayoutComponent(Component c) {} 
         

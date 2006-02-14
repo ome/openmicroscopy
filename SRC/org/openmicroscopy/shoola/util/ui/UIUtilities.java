@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
@@ -71,6 +72,9 @@ import javax.swing.SwingConstants;
 public class UIUtilities
 {
 
+    /** The Steelblue color. */
+    public static final Color   STEELBLUE = new Color(0x4682B4);
+    
     /** Width of the dialog window. */
     public static final int                 DIALOG_WIDTH = 500;
     

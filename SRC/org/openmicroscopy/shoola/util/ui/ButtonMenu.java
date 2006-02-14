@@ -98,23 +98,50 @@ public class ButtonMenu
 	private static final int	ARROW_BUTTON_WIDTH = 18;
 	
 
-	/**
-	 * Custom layout manager to display the arrow and icon buttons properly.
-	 */
+	/** Custom layout manager to display the arrow and icon buttons properly. */
 	private class DefaultLayoutManager 
 		implements LayoutManager
 	{
+        /**
+         * Creates a new instance.
+         * 
+         * @param parent The container the layout is for.
+         */
 		public void layoutContainer(Container parent) 
 		{
 			Dimension d = iconButton.getPreferredSize();
 			iconButton.setBounds(0, 0, d.width, d.height);
 			arrowButton.setBounds(d.width, 0, ARROW_BUTTON_WIDTH, d.height);
 		}
+        
+        /**
+         * Implemented as specified by the I/F.
+         * @see LayoutManager#minimumLayoutSize(Container)
+         */
 		public Dimension minimumLayoutSize(Container parent)
-		{ return preferredLayoutSize(parent); }
+		{ 
+            return preferredLayoutSize(parent);
+        }
+        
+        /**
+         * Implemented as specified by the I/F.
+         * @see LayoutManager#preferredLayoutSize(Container)
+         */
 		public Dimension preferredLayoutSize(Container parent)
-		{ return getPreferredSize(); }
+		{
+            return getPreferredSize();
+        }
+        
+        /**
+         * Required by the I/F but no-op implementation in our case.
+         * @see LayoutManager#removeLayoutComponent(Component)
+         */
 		public void removeLayoutComponent(Component comp) {}
+        
+        /**
+         * Required by the I/F but no-op implementation in our case.
+         * @see LayoutManager#addLayoutComponent(String, Component)
+         */
 		public void addLayoutComponent(String name, Component comp) {}	
 	}
 	
@@ -137,7 +164,6 @@ public class ButtonMenu
 	 * reset to <code>null</code>. 
 	 */
 	private AbstractButton	lastClickedItem;
-	
 	
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
@@ -165,7 +191,11 @@ public class ButtonMenu
 		menu.show(iconButton, 0, d.height);
 	}
 	
-	/** Sets {@link #lastClickedItem} to <code>src</code>. */
+	/** 
+     * Sets {@link #lastClickedItem} to <code>src</code>. 
+     * 
+     * @param src The source of the event. 
+     */
 	private void handleMenuButtonClick(AbstractButton src) 
 	{
 		lastClickedItem = src;
@@ -175,6 +205,7 @@ public class ButtonMenu
 	/**
 	 * Overridden to make sure that no component other than the
 	 * {@link #iconButton} or {@link #arrowButton} can be added.
+     * @see AbstractButton#addImpl(Component, Object, int)
 	 */
 	protected void addImpl(Component comp, Object constraints, int index)
 	{
@@ -204,7 +235,7 @@ public class ButtonMenu
 	/**
 	 * Adds the specified component to the drop-down menu.
 	 * 
-	 * @param item	The component to add.  Normally a <code>JMenuItem</code> or
+	 * @param item	The component to add. Normally a <code>JMenuItem</code> or
 	 * 				a <code>JSeparator</code>.
 	 */
 	public void addToMenu(Component item)
@@ -224,9 +255,7 @@ public class ButtonMenu
 		if (trackClick) btn.addActionListener(this);
 	}
 	
-	/**
-	 * Appends a new separator at the end of the drop-down menu.
-	 */
+	/** Appends a new separator at the end of the drop-down menu. */
 	public void addSeparator() { menu.addSeparator(); }
 	
 	/**
@@ -252,16 +281,17 @@ public class ButtonMenu
 		}
 	}
 	
-	/**
-	 * Removes all components from the drop-down menu.
-	 */
+	/** Removes all components from the drop-down menu. */
 	public void clearMenu()
 	{
 		Component[] items = menu.getComponents();
 		for (int i = 0; i < items.length; ++i) removeFromMenu(items[i]);
 	}
 	
-	/** Demultiplexes the event to the right handler. */
+	/**
+     * Demultiplexes the event to the right handler. 
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
 	public void actionPerformed(ActionEvent ae) 
 	{	
 		Object src = ae.getSource();
@@ -271,33 +301,54 @@ public class ButtonMenu
 		//NOTE: we only register with AbstractButtons, so this is safe.
 	}
 	
-	/** Overridden to return the right size. */
+	/** 
+     * Overridden to return the right size. 
+     * @see AbstractButton#getPreferredSize()
+     */
 	public Dimension getPreferredSize()
 	{
 		Dimension d = iconButton.getPreferredSize();
 		return new Dimension(d.width+ARROW_BUTTON_WIDTH, d.height);
 	}
 	
-	/** Overridden to return the preferred size. */
+	/** 
+     * Overridden to return the preferred size. 
+     * @see AbstractButton#getMaximumSize()
+     */
 	public Dimension getMaximumSize() { return getPreferredSize(); }
 	
-	/** Overridden to return the preferred size. */
+	/** 
+     * Overridden to return the preferred size. 
+     * @see AbstractButton#getMinimumSize()
+     */
 	public Dimension getMinimumSize() { return getPreferredSize(); }
 	
-	/** Overridden to trigger the display of the drop-down menu. */
+	/** 
+     * Overridden to trigger the display of the drop-down menu. 
+     * @see AbstractButton#doClick()
+     */
 	public void doClick() { arrowButton.doClick(); }
 	
-	/** Overridden to trigger the display of the drop-down menu. */
+	/**
+     * Overridden to trigger the display of the drop-down menu. 
+     * @see AbstractButton#doClick(int)
+     */
 	public void doClick(int pressTime) { arrowButton.doClick(pressTime); }
 	
-	/** Overridden to set the border of the two sub-buttons. */
+	/** 
+     * Overridden to set the border of the two sub-buttons. 
+     * @see AbstractButton#setBorder(Border)
+     */
 	public void setBorder(Border b)
 	{
 		iconButton.setBorder(b);
 		arrowButton.setBorder(b);
 	}
 	
-	/** Overridden to set the rollover property of the two sub-buttons. */
+	/**
+     * Overridden to set the rollover property of the two sub-buttons. 
+     * @see AbstractButton#setRolloverEnabled(boolean)
+     */
 	public void setRolloverEnabled(boolean enable)
 	{
 		super.setRolloverEnabled(enable);

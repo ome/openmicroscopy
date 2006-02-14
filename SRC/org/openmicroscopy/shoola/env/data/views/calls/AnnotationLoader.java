@@ -45,7 +45,8 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Command to load the annotations linked to the specified nodes.
+ * The nodes can either be <code>Dataset</code> or <code>Image</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -74,11 +75,8 @@ public class AnnotationLoader
      * @param nodeType 	The type of the node. Can only be one out of:
      *                 	{@link DatasetData}, {@link ImageData}.
      * @param nodeIDs  	Collection of node's ids.
-     * @param history  	Pass <code>true</code> to retrieve all the annotations
-     * 					related to the specified rootNode even if they are
-     * 					no longer valid.
      */
-    private void validate(Class nodeType, Set nodeIDs, boolean history)
+    private void validate(Class nodeType, Set nodeIDs)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
@@ -92,7 +90,7 @@ public class AnnotationLoader
         }  
         if (nodeType.equals(DatasetData.class) ||
             nodeType.equals(ImageData.class))
-            loadCall = makeAnnotationBatchCall(nodeType, nodeIDs, history);
+            loadCall = makeAnnotationBatchCall(nodeType, nodeIDs);
     }
     
     /**
@@ -102,19 +100,16 @@ public class AnnotationLoader
      * @param nodeType 	The type of the node. Can only be one out of:
      *                 	{@link DatasetData}, {@link ImageData}.
      * @param nodeIDs  	Collection of node's ids.
-     * @param history  	Pass <code>true</code> to retrieve all the annotations
-     * 					related to the specified rootNode even if they are
-     * 					no longer valid.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeAnnotationBatchCall(final Class nodeType,
-                                  final Set nodeIDs, final boolean history)
+                                  final Set nodeIDs)
     {
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroPojoService os = context.getOmeroService();
-                annotations = os.findAnnotations(nodeType, nodeIDs, history);
+                annotations = os.findAnnotations(nodeType, nodeIDs, false);
             }
         };
     }
@@ -142,15 +137,12 @@ public class AnnotationLoader
      * @param nodeType 	The type of the node. Can only be one out of:
      *                 	{@link DatasetData}, {@link ImageData}.
      * @param nodeID  	The id of the node.
-     * @param history 	Pass <code>true</code> to retrieve all the annotations
-     * 					related to the specified rootNode even if they are no 
-     * 					longer valid.
      */
-    public AnnotationLoader(Class nodeType, int nodeID, boolean history)
+    public AnnotationLoader(Class nodeType, int nodeID)
     {
         HashSet set = new HashSet(1);
         set.add(new Integer(nodeID));
-        validate(nodeType, set, history);
+        validate(nodeType, set);
     }
     
     /**
@@ -163,13 +155,10 @@ public class AnnotationLoader
      * @param nodeType 	The type of the node. Can only be one out of:
      *                 	{@link DatasetData}, {@link ImageData}.
      * @param nodeIDs  	Collection of node's ids.
-     * @param history 	Pass <code>true</code> to retrieve all the annotations
-     * 					related to the specified rootNode even if they are no 
-     * 					longer valid.
      */
-    public AnnotationLoader(Class nodeType, Set nodeIDs, boolean history)
+    public AnnotationLoader(Class nodeType, Set nodeIDs)
     {
-        validate(nodeType, nodeIDs, history);
+        validate(nodeType, nodeIDs);
     }
     
 }

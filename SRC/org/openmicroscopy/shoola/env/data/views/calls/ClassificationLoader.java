@@ -93,19 +93,6 @@ public class ClassificationLoader
         }
     }
     
-    private int convertAlgo(int index)
-    {
-        switch (index) {
-	        case HierarchyBrowsingView.DECLASSIFICATION:
-	            return OmeroPojoService.DECLASSIFICATION;
-	        case HierarchyBrowsingView.CLASSIFICATION_ME:
-	            return OmeroPojoService.CLASSIFICATION_ME;
-	        case HierarchyBrowsingView.CLASSIFICATION_NME:
-	            return OmeroPojoService.CLASSIFICATION_NME;
-	    }
-        return 0;
-    }
-    
     /**
      * Creates a {@link BatchCall} to load all Category Group/Category paths
      * that don't end with the specified Image.
@@ -123,7 +110,7 @@ public class ClassificationLoader
             public void doCall() throws Exception
             {
                 OmeroPojoService os = context.getOmeroService();
-                rootNodes = os.findCGCPaths(imageIDs, convertAlgo(algorithm));
+                rootNodes = os.findCGCPaths(imageIDs, algorithm);
             }
         };
     }

@@ -39,7 +39,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
-import pojos.CategoryData;
 
 /** 
  * Provides methods to support browsing of image hierarchies.
@@ -60,19 +59,22 @@ public interface HierarchyBrowsingView
 {
 
     /** Identifies the <code>Declassification</code> algorithm. */
-    public static final int DECLASSIFICATION = 0;
+    public static final int DECLASSIFICATION = 
+                                OmeroPojoService.DECLASSIFICATION;
     
     /**
      * Identifies the <code>Classification</code> algorithm with
      * mutually exclusive rule.
      */
-    public static final int CLASSIFICATION_ME = 1;
+    public static final int CLASSIFICATION_ME = 
+                                OmeroPojoService.CLASSIFICATION_ME;
     
     /**
      * Identifies the <code>Classification</code> algorithm without
      * mutually exclusive rule.
      */
-    public static final int CLASSIFICATION_NME = 2;
+    public static final int CLASSIFICATION_NME = 
+                            OmeroPojoService.CLASSIFICATION_NME;
     
     /**
      * Loads a data hierarchy rooted by a given node.
@@ -229,30 +231,28 @@ public interface HierarchyBrowsingView
                                               AgentEventListener observer);
     
     /**
-     * Classifies the specified Images under the given Category.
-     * This method has no return value, so the result object of the <code>
-     * DSCallOutcomeEvent</code> will be <code>null</code>.
+     * Classifies the image identified by the Id in the collection of 
+     * categories.
      * 
-     * @param category  The data object that represents the Category.
-     * @param imgIDs    The ids of the Images to classify.
-     * @param observer  Callback handler.
+     * @param imageID       The id of the image to classify.      
+     * @param categories    Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle classify(CategoryData category, Set imgIDs, 
-                               AgentEventListener observer);
+    public CallHandle classify(int imageID, Set categories, 
+                                AgentEventListener observer);
     
     /**
-     * Removes the specified Images from the specified Category.
-     * This method has no return value, so the result object of the <code>
-     * DSCallOutcomeEvent</code> will be <code>null</code>.
+     * Removes the image identified by the Id from the collection of 
+     * categories.
      * 
-     * @param data  The data object that represents the Category.
-     * @param imgIDs    The ids of the Images to declassify.
-     * @param observer  Callback handler.
+     * @param imageID       The id of the image to classify.      
+     * @param categories    Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle declassify(CategoryData data, Set imgIDs, 
-                                 AgentEventListener observer);
+    public CallHandle declassify(int imageID, Set categories, 
+                                AgentEventListener observer);
     
     /**
      * Retrieves all the annotations linked to the specified node type.
@@ -260,13 +260,10 @@ public interface HierarchyBrowsingView
      * @param nodeType The type of the node. Can only be one out of:
      *                      <code>DatasetData, ImageData</code>.       
      * @param nodeID The id of the node.
-     * @param history Pass <code>true</code> to retrieve all the annotations
-     * related to the specified rootNode even if they are no longer valid.
      * @param observer Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadAnnotations(Class nodeType, int nodeID,
-                                        boolean history,
                                         AgentEventListener observer);
     
     /** 

@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -64,14 +65,17 @@ public class ClassificationSaver
     extends BatchCallTree
 {
 
-    /** The ids of the Images to classify/declassify. */
-    private Set             imgIDs;
+    /** The category to add to or remove from. */
+    private Set             categories;
     
-    /** The Category this command is for. */
-    private CategoryData    category;
+    /** The image to classifiy or declassify. */
+    private int             imageID;
     
     /** Classify/declassify call. */
     private BatchCall       saveCall;
+    
+    /** The result of the save action. */
+    private Object          result;
     
     //Tempo method: To remove when we use OMERO to write 
     private CategoryData transformPojoCategoryData(pojos.CategoryData data)
@@ -92,8 +96,16 @@ public class ClassificationSaver
             public void doCall() throws Exception
             {
                 SemanticTypesService sts = context.getSemanticTypesService();
-                ArrayList list = new ArrayList(imgIDs);
-                sts.updateCategory(category, null, list);
+                ArrayList list = new ArrayList(1);
+                list.add(new Integer(imageID));
+                Iterator i = categories.iterator();
+                CategoryData data;
+                while (i.hasNext()) {
+                    data = transformPojoCategoryData(
+                                (pojos.CategoryData) i.next());
+                    sts.updateCategory(data, null, list);
+                }
+                result = Boolean.TRUE;
             }
         };
     }
@@ -110,8 +122,16 @@ public class ClassificationSaver
             public void doCall() throws Exception
             {
                 SemanticTypesService sts = context.getSemanticTypesService();
-                ArrayList list = new ArrayList(imgIDs);
-                sts.updateCategory(category, list, null);
+                ArrayList list = new ArrayList(1);
+                list.add(new Integer(imageID));
+                Iterator i = categories.iterator();
+                CategoryData data;
+                while (i.hasNext()) {
+                    data = transformPojoCategoryData(
+                                (pojos.CategoryData) i.next());
+                    sts.updateCategory(data, list, null);
+                }
+                result = Boolean.TRUE;
             }
         };
     }
@@ -127,33 +147,31 @@ public class ClassificationSaver
      * <code>void</code>.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return null; }
-
+    protected Object getResult() { return result; }
+    
     /**
-     * Creates a new instance to classify or declassify the given Images.
+     * Classifies or declassifies the specified image.
      * 
-     * @param category The Category to/from which the given Images should be
-     *                 added/removed.
-     * @param imgIDs   The ids of the Images to add/remove.
-     * @param classify Pass <code>true</code> to add the given Images to
-     *                 <code>category</code> or <code>false</code> to remove
-     *                 them from <code>category</code>.
+     * @param imageID       The id of the image.
+     * @param categories    The categories to add the image to or remove the
+     *                      image from.
+     * @param classify      Passed <code>true</code> to classify, 
+     *                      <code>false</code> to declassify.
      */
-    public ClassificationSaver(pojos.CategoryData category, Set imgIDs, 
-                               boolean classify)
+    public ClassificationSaver(int imageID, Set categories, boolean classify)
     {
-        if (category == null) 
+        if (imageID < 0)
+            throw new IllegalArgumentException("Image id not valid.");
+        if (categories == null)
             throw new NullPointerException("No category.");
-        if (imgIDs == null)
-            throw new NullPointerException("No image ids.");
         try {
-            imgIDs.toArray(new Integer[] {});
+            categories.toArray(new pojos.CategoryData[] {});
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException(
-                    "imgIDs can only contain Integer objects.");
+                    "categories has only CategoryData elements.");
         }
-        this.category = transformPojoCategoryData(category);
-        this.imgIDs = imgIDs;
+        this.imageID = imageID;
+        this.categories = categories;
         if (classify) saveCall = classify();
         else saveCall = declassify();
     }

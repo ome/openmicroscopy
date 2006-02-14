@@ -180,4 +180,28 @@ public class ThumbnailLoader
         this.maxHeight = maxHeight;
     }
 
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param image The {@link ImageData}, the thumbnail
+     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param maxHeight The maximum acceptable height of the thumbnails.
+     */
+    public ThumbnailLoader(ImageData image, int maxWidth, int maxHeight)
+    {
+        if (image == null) throw new IllegalArgumentException("No image.");
+        if (maxWidth <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive width: "+maxWidth+".");
+        if (maxHeight <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive height: "+maxHeight+".");
+        images = new ImageData[1];
+        images[0] = image;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+    }
+    
 }

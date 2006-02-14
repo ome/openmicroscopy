@@ -65,25 +65,31 @@ class ColorBar
 	private static final int	triangleW = ColorPalette.triangleW, 
 								triangleH = ColorPalette.triangleH;
 						
-	/** The width and height of the panel. */
+	/** The height of the panel. */
 	private static final int	w = ColorPalette.WIDTH_BAR; 
+    
+    /** The width of the panel. */
 	private static final int 	h = ColorPalette.HEIGHT_BAR;
 
 	/** Knobs' coordinate. */
 	private int 				xKnob;
 	private int					yKnob;
 	
-	/** paint from colorStart to colorEnd. */
-	private Color 				colorEnd, colorStart;
+	/** The color of the start knob.*/
+	private Color 				colorStart;
    
+    /** The color of the end knob.*/
+    private Color               colorEnd;
+    
 	private String				type;
     
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param x				x-coordinate of the knob in the range [0, w].
-	 * @param colorStart	color.
-	 * @param colorEnd		color.
+	 * @param x				The x-coordinate of the knob in the range [0, w].
+	 * @param colorStart	The color of the start knob.
+	 * @param colorEnd		The color of the end knob.
+     * @param type          
 	 */
 	ColorBar(int x, Color colorStart, Color colorEnd, String type)
 	{
@@ -97,14 +103,14 @@ class ColorBar
 	/** 
 	 * Positions the line on the color panel.
 	 * 
-	 * @param x		x-coordinate.
+	 * @param x The x-coordinate.
 	 */
 	void setLineLocation(int x) { xKnob = x; }
     
 	/** 
-	 * Set the colorEnd. 
+	 * Sets the colorEnd. 
 	 * 
-	 * @param c		color's value.
+	 * @param c The color's value.
 	 */
 	void setColor(Color c)
 	{
@@ -112,7 +118,10 @@ class ColorBar
 		repaint();
 	}
     
-	/** Overrides the paintComponent method. */
+	/** 
+     * Overriden to paint the knobs and the palette. 
+     * @see JPanel#paintComponent(Graphics)
+     */
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
@@ -125,7 +134,7 @@ class ColorBar
 													  h, colorEnd);
 		g2D.setPaint(startToEnd);
 		g2D.fillRect(ColorPalette.leftBorder, 0, w, h);
-		// draw cursor
+		// draw knobs
 		g2D.setColor(KNOB_COLOR);
 		g2D.drawLine(xKnob, yKnob, xKnob, yKnob+h);
 		int xPoints[] = {xKnob, xKnob-triangleW, xKnob+triangleW};
