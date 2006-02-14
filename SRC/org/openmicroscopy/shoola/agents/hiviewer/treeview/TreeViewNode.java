@@ -38,14 +38,53 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
 
 
 /** 
- *
+ * Represents a component in the composite structure used to visualize an
+ * image hierarchy.
+ * <p>A concrete component can be either a {@link TreeViewImageNode}, to 
+ * represent a single image, or an {@link TreeViewImageSet}, to represent a 
+ * collection of images.
+ * An {@link TreeViewImageSet} can also contain other image sets, 
+ * thus leading to a composite structure. This is a tree whose leaf nodes are
+ * {@link TreeViewImageNode} objects and internal nodes are
+ * {@link TreeViewImageSet} objects.</p>
+ * <p>So we have a general purpose, set-based structure we can use to visualize 
+ * any image hierarchy: Project/Dataset/Image, Category Group/Category/Image, 
+ * or Screen/Plate/Well/Image. The original data hierarchy translates into
+ * a visualization tree as follows. Each image object corresponds to an
+ * {@link TreeViewImageNode} and an image container, such as Dataset or 
+ * Category, corresponds to an {@link TreeViewImageSet}. All 
+ * {@link TreeViewImageNode} objects that are created for the images in a given
+ * image container are added to the {@link TreeViewImageSet} object created for
+ * that image container. Nested containers translate into nested
+ * {@link TreeViewImageSet}s. For example, say you have a 
+ * Project <code>p_1</code> and two datasets in it, <code>d_1</code> and <code>
+ * d_2</code>.  The former contains image <code>i_1</code> and <code>i_2</code>,
+ * as the latter only has one image, <code>i_3</code>.  This would translate
+ * into three {@link TreeViewImageNode}s <code>in_1, in_2, in_3</code>,
+ * respectively for <code>i_1, i_2, i_3</code>. You would then create two
+ * {@link TreeViewImageSet}s <code>ds_1, ds_2</code>, respectively for
+ * <code>d_1, d_2</code>, and add <code>in_1, in_2</code> to <code>ds_1</code> 
+ * and <code>in_3</code> to <code> ds_2</code>. Finally you would create a third
+ * {@link TreeViewImageSet} <code>ps_1</code> for the Project and add
+ * <code>ds_1, ds_2</code> to it.</p> 
+ * <p>Operations on a visualization tree are performed through visitors.  The
+ * {@link TreeViewNodeVisitor} interface allows you to define arbitrary 
+ * operations that can then be applied to the tree by calling the 
+ * {@link #accept(TreeViewNodeVisitor) accept} method, usually on the root node.
+ * An example of this is layout management. In fact, an {@link TreeViewImageSet}
+ * can contain other nodes &#151; this class inherits from 
+ * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame} and
+ * nodes are added to its internal desktop, which has no layout manager. In
+ * order to position the contained nodes properly, you can write a layout class
+ * that implements the {@link TreeViewNodeVisitor} interface to lay out the
+ * contents of every {@link TreeViewImageSet} node in a visualization tree.</p>
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
@@ -74,18 +113,16 @@ public abstract class TreeViewNode
      * defined by {@link TreeViewNodeVisitor}.
      * 
      * @param type The algorithm type.
-     * @return  Returns <code>true</code> if the type is supported,
-     *          <code>false</code> otherwise.
      */
-    private boolean checkAlgoType(int type)
+    private void checkAlgoType(int type)
     {
         switch (type) {
             case TreeViewNodeVisitor.IMAGE_NODE_ONLY:
             case TreeViewNodeVisitor.IMAGE_SET_ONLY:    
             case TreeViewNodeVisitor.ALL_NODES:
-                return true;
+                return;
             default:
-                return false;
+                throw new IllegalArgumentException("Algorithm not supported.");
         }
     }
     
@@ -211,8 +248,7 @@ public abstract class TreeViewNode
     public void accept(TreeViewNodeVisitor visitor, int algoType)
     {
         if (visitor == null) throw new NullPointerException("No visitor.");
-        if (!checkAlgoType(algoType))
-            throw new IllegalArgumentException("Algorithm not supported.");
+        checkAlgoType(algoType);
         Iterator i = childrenNode.iterator();
         TreeViewNode child;
         switch (algoType) {
@@ -257,7 +293,7 @@ public abstract class TreeViewNode
      * the nodes iteration.  Subclasses will just call the <code>visit</code>
      * method passing a reference to <code>this</code>.
      * 
-     * @param visitor The visitor.  Will never be <code>null</code>.
+     * @param visitor The visitor. Will never be <code>null</code>.
      */
     protected abstract void doAccept(TreeViewNodeVisitor visitor);
     

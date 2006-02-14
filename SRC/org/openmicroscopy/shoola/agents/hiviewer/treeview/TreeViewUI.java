@@ -89,6 +89,7 @@ class TreeViewUI
     /** The tool bar. */
     private JToolBar        toolBar;
     
+    /** The menu bar. */
     private JPanel			menuBar;
     
     /** The number of visible images displayed in the tree. */
@@ -270,10 +271,8 @@ class TreeViewUI
             TreePath path = new TreePath(newNode.getPath());
             tree.setSelectionPath(path);
             renderer.getTreeCellRendererComponent(tree, newNode, 
-                    	tree.isPathSelected(path),
-                    	false, true, 0, false);
-        }
-            
+                    	tree.isPathSelected(path), false, true, 0, false);
+        }   
     }
     
 }

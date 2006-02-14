@@ -74,7 +74,10 @@ public class TreeViewImageSet
     }
     
     /**
-     * @param userObject
+     * Creates a new instance.
+     * 
+     * @param userObject    The object hosted by this node.
+     *                      Mustn't be <code>null</code>.
      */
     protected TreeViewImageSet(Object userObject)
     {

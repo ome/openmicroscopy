@@ -79,7 +79,6 @@ class CollapseButton
     
     /**
      * Collapses all the nodes of the tree displayed in the model.
-     * 
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

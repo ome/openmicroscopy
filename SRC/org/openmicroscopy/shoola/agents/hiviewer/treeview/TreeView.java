@@ -113,7 +113,6 @@ public class TreeView
 	        case TreeViewNodeVisitor.IMAGE_SET_ONLY:  
 	        case TreeViewNodeVisitor.ALL_NODES:
 	            return;
-	
 	        default:
 	            throw new IllegalArgumentException("Algo not supported.");
         }
@@ -145,7 +144,7 @@ public class TreeView
         }      
     }
     
-    /** Builds and lays out the UI. */
+    /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         setLayout(new BorderLayout(5, 5));
@@ -157,7 +156,8 @@ public class TreeView
     /**
      * Creates a new instance. 
      * 
-     * @param rootNode The root node of the tree. Mustn't be <code>null</code>;
+     * @param rootNode  The root node of the tree. Mustn't be <code>null</code>
+     *                  and must be an instance of {@link ImageDisplay}.
      */
     public TreeView(JComponent rootNode)
     {
@@ -236,7 +236,7 @@ public class TreeView
     public boolean isDisplay() { return display; }
 
     /**
-     * Returns the location of mouse click.
+     * Returns the location of the mouse click.
      * 
      * @return See above.
      */
@@ -254,7 +254,7 @@ public class TreeView
      * Has the specified object visit all the visualization nodes hosted by
      * the tree.
      * 
-     * @param visitor The visitor.
+     * @param visitor The visitor to accept.
      * @see TreeViewNodeVisitor
      */
     public void accept(TreeViewNodeVisitor visitor)
@@ -266,7 +266,7 @@ public class TreeView
      * Has the specified object visit all the visualization nodes hosted by
      * the tree.
      * 
-     * @param visitor 	The visitor.
+     * @param visitor 	The visitor to accept.
      * @param algo 		The algorithm selected to visit the visualization trees.
      *                  One of the constants defined by 
      * 					{@link TreeViewNodeVisitor}.
