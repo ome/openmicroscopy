@@ -37,7 +37,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -80,6 +84,9 @@ class FinderUI
     
     /** The message displayed when the phrase is found 0 or 1 time. */
     private static final String OCCURENCE_MSG = " occurence found";
+    
+    /** The horizontal space. */
+    private static final Dimension H_SPACE_DIM = new Dimension(10, 5);
     
     /** The default width of the {@link #findArea}. */
     private static final int WIDTH = 100;
@@ -132,6 +139,22 @@ class FinderUI
         findArea.setEditable(true);
         int h = getFontMetrics(getFont()).getHeight()+4;
         findArea.setPreferredSize(new Dimension(WIDTH, h));
+        findArea.addKeyListener(new KeyAdapter() {
+
+            /** Finds the phrase. */
+            public void keyPressed(KeyEvent e)
+            {
+                if ((e.getKeyCode() == KeyEvent.VK_ENTER)) {
+                    Object source = e.getSource();
+                    if (source instanceof JTextField) {
+                        JTextField field = (JTextField) source;
+                        if (field.getText() != null && 
+                                field.getText().length() > 0)
+                            finder.find();
+                    }
+                }
+            }
+        });
         findArea.getDocument().addDocumentListener(new DocumentListener() {
             
             /**
@@ -176,8 +199,8 @@ class FinderUI
         leftBar.setFloatable(false);
         JButton button = new JButton(controller.getAction(FinderControl.CLOSE));	
         leftBar.add(button);
-        button = new JButton(controller.getAction(FinderControl.FIND));	
-        leftBar.add(button);
+        //button = new JButton(controller.getAction(FinderControl.FIND));	
+        //leftBar.add(button);
     }
     
     /** Helper method to create the menu bar. */
@@ -208,6 +231,8 @@ class FinderUI
     {
         JPanel p = new JPanel();
         p.add(leftBar);
+        p.add(Box.createRigidArea(H_SPACE_DIM));
+        p.add(new JLabel("Find: "));
         p.add(findArea);
         p.add(controlsBar);
         p.add(caseSensitive);
