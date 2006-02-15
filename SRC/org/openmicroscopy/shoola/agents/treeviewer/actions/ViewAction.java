@@ -79,6 +79,10 @@ public class ViewAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         if (model.getSelectedBrowser().getBrowserType() == 
             Browser.IMAGES_EXPLORER && 
             selectedDisplay.getParentDisplay() == null) { //root

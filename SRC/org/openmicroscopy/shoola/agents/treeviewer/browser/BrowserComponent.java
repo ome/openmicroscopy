@@ -755,6 +755,9 @@ class BrowserComponent
 	                    "This method can only be invoked in the " +
 	                    "NEW or READY state.");
         }
+        boolean old = model.isSelected();
+        if (old == b) return;
+        setSelectedDisplay(null);
         model.setSelected(b);
     }
 

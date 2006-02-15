@@ -101,6 +101,10 @@ public class BrowserAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
+        if (evt.getNewValue() == null) {
+            onDisplayChange(null);
+            return;
+        }
         if (evt.getNewValue().equals(evt.getOldValue())) return;
         onDisplayChange((TreeImageDisplay) evt.getNewValue());
     }

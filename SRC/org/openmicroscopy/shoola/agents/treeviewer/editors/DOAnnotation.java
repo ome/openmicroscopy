@@ -111,7 +111,7 @@ class DOAnnotation
     private int                 userIndex;
     
     /** Reference to the parent. */
-    private DOEditor            editor;
+    private EditorUI            editor;
     
     /** Initializes the UI components. */
     private void initComponents()
@@ -254,7 +254,7 @@ class DOAnnotation
      * @param editor    Reference to the viewer this component is for.
      *                  Mustn't be <code>null</code>.
      */
-    DOAnnotation(DOEditor editor)
+    DOAnnotation(EditorUI editor)
     {
         if (editor == null)  throw new IllegalArgumentException("No parent.");
         this.editor = editor;

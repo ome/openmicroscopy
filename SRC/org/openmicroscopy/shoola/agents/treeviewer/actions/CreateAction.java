@@ -118,6 +118,10 @@ public class CreateAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String) { // root
             Browser browser = model.getSelectedBrowser();
@@ -148,9 +152,13 @@ public class CreateAction
         		model.getUserDetails().getId());
             putValue(Action.NAME, NAME_CATEGORY);
             nodeType = CreateCmd.CATEGORY;
-        } else if ((ho instanceof CategoryData) ||
-                (ho instanceof DatasetData)) {
-            setEnabled(false);
+        } else if (ho instanceof CategoryData) {
+            setEnabled(((CategoryData) ho).getOwner().getId() == 
+                model.getUserDetails().getId());
+            putValue(Action.NAME, NAME_IMAGE);
+        } else if (ho instanceof DatasetData) {
+            setEnabled(((DatasetData) ho).getOwner().getId() == 
+                model.getUserDetails().getId());
             putValue(Action.NAME, NAME_IMAGE);
         } else {
             setEnabled(false);

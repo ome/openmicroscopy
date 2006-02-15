@@ -70,6 +70,10 @@ public class CopyAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         Object ho = selectedDisplay.getUserObject();
         //setEnabled(!(ho instanceof String)); // false if root.
     }

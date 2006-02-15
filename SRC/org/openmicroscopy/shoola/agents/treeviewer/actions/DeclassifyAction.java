@@ -73,8 +73,11 @@ public class DeclassifyAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        Object ho = selectedDisplay.getUserObject();
-        setEnabled(ho instanceof ImageData);
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
+        setEnabled(selectedDisplay.getUserObject() instanceof ImageData);
     }
     
     /**

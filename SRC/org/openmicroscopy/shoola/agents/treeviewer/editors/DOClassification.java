@@ -83,7 +83,7 @@ class DOClassification
     private static final String     ROOT = "Classification";
     
     /** Reference to the parent. */
-    private DOEditor            editor;
+    private EditorUI            editor;
     
     /** The tree hosting the classification. */
     private JTree               treeDisplay;
@@ -173,7 +173,7 @@ class DOClassification
      * 
      * @param editor
      */
-    DOClassification(DOEditor editor)
+    DOClassification(EditorUI editor)
     {
         if (editor == null) throw new IllegalArgumentException("No parent.");
         this.editor = editor;

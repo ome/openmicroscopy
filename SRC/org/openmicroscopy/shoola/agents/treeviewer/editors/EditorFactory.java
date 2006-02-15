@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.DataObject;
 
 /** 
- * Factory to create and keep track of the {@link DOEditor editor}.
+ * Factory to create and keep track of the {@link EditorUI editor}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,16 +62,16 @@ public class EditorFactory
     private static final EditorFactory singleton = new EditorFactory();
 
     /**
-     * Returns the {@link DOEditor}.
+     * Returns the {@link EditorUI}.
      * 
      * @param model Reference to {@link TreeViewer}.
      *              Mustn't be <code>null</code>.
      * @param hierarchyObject The {@link DataObject} to edit.
      * @param editorType    The type of editor. One of the following constants:
-     *                      {@link DOEditor#CREATE}, {@link DOEditor#EDIT}.
-     * @return A {@link DOEditor}
+     *                      {@link EditorUI#CREATE}, {@link EditorUI#EDIT}.
+     * @return A {@link EditorUI}
      */
-    public static DOEditor getEditor(TreeViewer model,
+    public static EditorUI getEditor(TreeViewer model,
                                     DataObject hierarchyObject,
                                     int editorType)
     { 
@@ -79,14 +79,14 @@ public class EditorFactory
     }
     
     /**
-     * Returns the {@link DOEditor}.
+     * Returns the {@link EditorUI}.
      * 
-     * @return A {@link DOEditor}
+     * @return A {@link EditorUI}
      */
-    public static DOEditor getEditor() { return singleton.editor; }
+    public static EditorUI getEditor() { return singleton.editor; }
     
     /** The tracked component. */
-    private DOEditor editor;
+    private EditorUI editor;
     
     /** Creates a new instance. */
     private EditorFactory()
@@ -101,15 +101,15 @@ public class EditorFactory
      *              Mustn't be <code>null</code>.
      * @param hierarchyObject The {@link DataObject} to edit.
      * @param editorType    The type of editor. One of the following constants:
-     *                      {@link DOEditor#CREATE}, {@link DOEditor#EDIT}.
-     * @return A {@link DOEditor}
+     *                      {@link EditorUI#CREATE}, {@link EditorUI#EDIT}.
+     * @return A {@link EditorUI}
      */
-    private DOEditor getDOEditor(TreeViewer model, DataObject hierarchyObject,
+    private EditorUI getDOEditor(TreeViewer model, DataObject hierarchyObject,
                                 int editorType)
     { 
         model.addPropertyChangeListener(this);
         if (editor != null) return editor;
-        editor = new DOEditor(model, hierarchyObject, editorType);
+        editor = new EditorUI(model, hierarchyObject, editorType);
         return editor;
     }
     

@@ -103,7 +103,7 @@ class DOBasic
     private DOClassification    classifier;
     
     /** Reference to the parent. */
-    private DOEditor            editor;
+    private EditorUI            editor;
     
     /**
      * Sets the defaults for the specified area.
@@ -127,7 +127,7 @@ class DOBasic
         setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         setTextAreaDefault(descriptionArea);
-        if (editor.getEditorType() == DOEditor.EDIT) {
+        if (editor.getEditorType() == EditorUI.EDIT) {
             nameArea.setText(editor.getDataObjectName());
             descriptionArea.setText(editor.getDataObjectDescription());
             descriptionArea.getDocument().addDocumentListener(
@@ -195,7 +195,7 @@ class DOBasic
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
-     * is annotable and if we are in the {@link DOEditor#EDIT} mode,
+     * is annotable and if we are in the {@link EditorUI#EDIT} mode,
      * twe display the annotation pane. 
      * 
      * @return See above.
@@ -258,10 +258,10 @@ class DOBasic
     /**
      * Creates a new instance.
      * 
-     * @param editor    Reference to the {@link DOEditor}.
+     * @param editor    Reference to the {@link EditorUI}.
      *                  Mustn't be <code>null</code>.
      */
-    DOBasic(DOEditor editor)
+    DOBasic(EditorUI editor)
     {
         if (editor == null) 
             throw new IllegalArgumentException("No editor.");

@@ -59,11 +59,10 @@ public class SortByDateAction
     /** Description of the action. */
     private static final String DESCRIPTION = "Sort by date";
     
+    /** Reacts to {@link Browser}'s state change  */
     protected void onStateChange()
     {
-        int state = model.getState();
-        
-        if (state == Browser.READY)
+        if (model.getState() == Browser.READY)
             setEnabled(model.getBrowserType() == Browser.IMAGES_EXPLORER);
         else setEnabled(false);
     }

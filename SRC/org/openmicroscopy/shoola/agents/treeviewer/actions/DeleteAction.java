@@ -78,6 +78,10 @@ public class DeleteAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         Object ho = selectedDisplay.getUserObject(); 
         if (ho instanceof ProjectData)
             setEnabled(((ProjectData) ho).getOwner().getId() == 
