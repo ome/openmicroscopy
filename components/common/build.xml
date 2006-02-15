@@ -58,7 +58,7 @@
 		<hibernate>			
 			<hbm2java destdir="${src.dest}"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
-			<hbm2ddl destdir="${resrc.dest}" outputfilename="${ddl.file}" drop="true" console="false" format="true" export="false" />
+			<hbm2ddl destdir="${resrc.dest}" outputfilename="${ddl.file}" drop="false" console="false" format="true" export="false" />
 			<hbm2cfgXml destdir="${resrc.dest}"/>
 		</hibernate>
 		<done name="hib"/>
