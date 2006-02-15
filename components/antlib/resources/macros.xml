@@ -4,6 +4,17 @@
     <!-- = = = = = = = = = = = = = = = = =
           build tools
          = = = = = = = = = = = = = = = = = -->
+	<macrodef name="iterate">
+		<attribute name="target"/>
+		<sequential>
+		<antRun component="common">    <target name="@{target}"/> </antRun>
+		<antRun component="server">    <target name="@{target}"/> </antRun>
+		<antRun component="omeio-nio"> <target name="@{target}"/> </antRun>
+		<antRun component="rendering"> <target name="@{target}"/> </antRun>
+		<antRun component="client">    <target name="@{target}"/> </antRun>
+		<antRun component="shoola-adapter"><target name="@{target}"/> </antRun>
+		</sequential>
+	</macrodef>
 
 	<macrodef name="sys_test">
 		<attribute name="name"/>
@@ -27,6 +38,19 @@
 		</sequential>
 	</macrodef>
 
+	<macrodef name="antRun">
+		<attribute name="component"/>
+		<element name="targets" implicit="yes"/>
+		<sequential>
+		<echo> ================================= Running @{component}...  ================================= </echo>
+		<ant dir="${components.dir}/@{component}" inheritAll="false" inheritRefs="false">
+			<property name="test.skip" value="${test.skip}"/>
+			<property name="generate.skip" value="${generate.skip}"/>
+			<targets/>
+		</ant>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="mvn">
 		<attribute name="targets"/>
 		<attribute name="dir" default="${basedir}"/>
@@ -46,44 +70,106 @@
                         url="${hibernate.connection.url}"
                         userid="${hibernate.connection.username}"
                         password="${hibernate.connection.password}" 
-			print="@{print}" >
-                        <classpath>
-                                <pathelement location="${user.home}/.m2/repository/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
-                        </classpath>
+			print="@{print}" 
+			classpathref="omero.classpath">
 			<commands/>
 		</sql>
 		</sequential>
 	</macrodef>
 
+        <macrodef name="antClasspath">
+                <sequential>
+                <groovy><![CDATA[
+                genresrc  = properties["resrc.dest"]   
+                group     = properties["mvn.group"]   
+                artifact  = properties["mvn.artifact"]   
+                version   = properties["mvn.version"]   
+                packaging = properties["mvn.packaging"]   
+                new File("${genresrc}/classpath.xml").withOutputStream{|o|
+
+		  repo = "repository/"
+		  def entry = {|x|
+		    if (x.contains(repo))  {
+		      path = x.substring(x.lastIndexOf(repo)+repo.length())
+		      o << """\n\t<file name="${path}"/>"""
+                    }
+		  }
+
+		  def get = {|x|
+		    if (x.contains(repo))  {
+		      path = x.substring(x.lastIndexOf(repo)+repo.length())
+		      o << """\n\t<get src="\${omero.repo.remote}/${path}" dest="\${omero.repo.local}/${path}" usetimestamp="true"/>"""
+                    }
+		  }
+
+		  o << """
+<!-- Code-generated ant classpath for ${artifact} component -->
+<project name="${artifact}_classpath" default="classpath-generate" basedir=".">
+  <property name="artifact.name" value="${artifact}"/>
+  <property name="artifact.group" value="${group}"/>
+  <property name="artifact.version" value="${version}"/>
+  <property name="artifact.packaging" value="${packaging}"/>
+  <property name="artifact.final.name" value="${artifact}-${version}.${packaging}"/>
+  <property name="artifact.path" value="${group}/${artifact}/${version}/\${artifact.final.name}"/>
+  <path id="generated.compile.classpath">
+    <filelist dir="\${omero.repo.local}">"""
+
+		  properties["compile.path"].split(":").each(entry)
+
+		  o << """
+    </filelist>
+  </path>
+  <path id="generated.test.classpath">
+    <filelist dir="\${omero.repo.local}">"""
+
+		  properties["test.path"].split(":").each(entry)
+
+		  o << """
+    </filelist>
+  </path>
+
+  <target name="classpath-download">"""
+
+		  properties["omero.path"].split(":").each(get)
+
+		o << """
+  </target>
+</project>"""
+		}
+                ]]></groovy>
+                </sequential>
+        </macrodef>
+
 	<macrodef name="eclipseClasspath">
 		<sequential>
                 <groovy><![CDATA[
-		genresrc = properties["genresrc.dir"]	
+		src      = properties["src.dir"]	
+		resrc    = properties["resrc.dir"]	
+		gensrc   = properties["src.dest"]	
+		genresrc = properties["resrc.dest"]	
+		test     = properties["test.dir"]
+		classrel = properties["classes.rel"]
 		basedir  = properties["basedir"]	
                 new File("${genresrc}/.classpath").withOutputStream{|o|
                         def entryMaker = {|extras|
                           return {|path|
-                            f = new File(basedir+"/"+path)
+			    path = path.substring(basedir.size()+1,path.size())
+                            f = new File(path)
                             if (f.isDirectory())
                               o << """\t<classpathentry excluding="**/.svn" kind="src" path="${path}" ${extras}/>\n"""
                           }
                           
                         }
                         o << "<classpath>\n"
-                        o << """\t<classpathentry kind="output" path="target/classes"/>\n"""
+                        o << """\t<classpathentry kind="output" path="${classrel}"/>\n"""
                         o << """\t<classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>\n"""
 
                         // 
-                        ["web","resources","src","meta","sql"].each(entryMaker(""))
-                        [
-			  "target/generated-sources/resources",
-			  "target/generated-sources/slice2java",
-			  "target/generated-sources/jdk14",
-			].each(entryMaker(""))
-                        ["test","test-resources"].each(entryMaker("output=\"target/test-classes\""))
+                        [src,resrc,gensrc,genresrc].each(entryMaker(""))
+                        [test].each(entryMaker("output=\"target/test-classes\""))
 
 			paths = []
-                        properties["this.path"].split(":").each{ |x|
+                        properties["omero.path"].split(":").each{ |x|
                           repo = "repository/"
                           if (x.contains(repo))  {
                             paths << x.substring(x.lastIndexOf(repo)+repo.length())
@@ -100,24 +186,6 @@
 	</macrodef>
 
     <!-- = = = = = = = = = = = = = = = = =
-          define CLASSPATH          
-         = = = = = = = = = = = = = = = = = -->
-	<macrodef name="definePath">
-	  <sequential>
-		<path id="local.classpath">
-			<path refid="maven.compile.classpath"/>
-			<path refid="maven.test.classpath"/>
-			<pathelement location="${basedir}" />
-			<pathelement location="${dest.dir}/" />
-			<pathelement location="${target.dir}/" />
-		</path>
-		<pathconvert property="this.path" refid="local.classpath"/>
-		<pathconvert property="compile.path" refid="maven.compile.classpath"/>
-		<pathconvert property="test.path" refid="maven.test.classpath"/>
-	  </sequential>
-	</macrodef>
-			
-    <!-- = = = = = = = = = = = = = = = = =
           copy resource files to generated-sources          
          = = = = = = = = = = = = = = = = = -->
     <macrodef name="copyResource">
@@ -125,33 +193,13 @@
         <sequential>
 			<basename property="props.file.prop" file="@{file}"/>
 			<available file="@{file}" property="${props.file.prop}.exists"/>
-        	<fail unless="${props.file.prop}.exists"><![CDATA[
-        			!
-        			!
-        			!
-        			!
-        			=====================================================================	
-        			Missing @{file} !
-        			
-        			Please copy from ${root.dir}/docs/examples/ to
-        			${root.dir} and change the properties.
-        			=====================================================================
-        			!
-        			!
-        			!
-        		]]>
+        	<fail unless="${props.file.prop}.exists">
+			${msg.macro.missing_file}
       		</fail>    
-           <copy file="@{file}" todir="${genresrc.dir}" failonerror="true" />
-		   <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
+           <copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
+	   <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
         </sequential>
     </macrodef>
-	
-	<!-- = = = = = = = = = = = = = = = = =
-          error messages          
-         = = = = = = = = = = = = = = = = = -->
-	<!-- Add to localized properties -->
-	<property name="fail_message" value="FAILURE: Item missing from your PATH. Please install: "/>
-	<property name="skip_message" value="WARNING: Skipping step because item missing from your path: "/>
 	
     <!-- = = = = = = = = = = = = = = = = =
           checks if a build step is needed    
@@ -186,16 +234,16 @@
           hibernate code-gen          
          = = = = = = = = = = = = = = = = = -->
     <macrodef name="hibernate">
-		<attribute name="mappings" default="${hbm.dir}"/>
+	<attribute name="mappings" default="${resrc.dest}"/>
     	<element name="templates" implicit="yes"/>
         <sequential>
-    		<hibernatetool destdir="${dest.dir}" templatepath="${src.dir}"><!-- TODO RESOURCE.dir-->
-    			<classpath refid="local.classpath"/>
+    		<hibernatetool destdir="${generated.dir}" templatepath="${resrc.dir}">
+    			<classpath refid="omero.classpath"/>
     			
     			<configuration propertyfile="${hibernate.properties}">
-    				<fileset dir="${src.dir}" includes="${hbm.pat}"/>
+    				<fileset dir="${resrc.dir}" includes="${hbm.pat}"/>
     				<fileset dir="@{mappings}" includes="${hbm.pat}">
-    					<not><present targetdir="${src.dir}"/></not>
+    					<not><present targetdir="${resrc.dir}"/></not>
     				</fileset>
     			</configuration>
     	
@@ -214,12 +262,11 @@
 		<attribute name="files"/>
 		<attribute name="suffix" default=""/>
 		<sequential>
-		  <mkdir dir="${dest.dir}/@{exec}/@{suffix}"/>
+		  <mkdir dir="${src.dest}/@{suffix}"/>
 		  <exec executable="@{exec}" failonerror="true" logError="true">
 		 	<arg value="--output-dir"/>
-			<arg value="${dest.dir}/@{exec}/@{suffix}"/>
-			<arg value="-I${dest.dir}"/>
-			<arg value="-I${dest.dir}/slice"/>
+			<arg value="${src.dest}/@{exec}/@{suffix}"/>
+			<arg value="-I${resrc.dest}"/>
 			<arg line="@{files}"/>
 		  </exec>            
         </sequential>
@@ -230,7 +277,7 @@
 	   <attribute name="files"/>
 	   <attribute name="suffix" default=""/>
 	   <sequential>
-	   	 <run exec="slice2@{lang}" files="${dest.dir}/${ice.file}"/>
+	   	 <run exec="slice2@{lang}" files="${resrc.dest}/${ice.file}"/>
 		 <run exec="slice2@{lang}" files="@{files}" suffix="@{suffix}"/>
 	   	 <done name="slice2@{lang}"/>
 	   </sequential>

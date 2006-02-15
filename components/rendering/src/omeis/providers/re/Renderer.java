@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -338,7 +339,7 @@ public class Renderer
         
     public ChannelBinding[] getChannelBindings()
     {
-        Set bindings = rndDef.getWaveRendering();
+        List bindings = rndDef.getWaveRendering();
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings.size()]);
     }
     
@@ -534,8 +535,7 @@ public class Renderer
         int[] c;
         for (int w = 0; w < cb.length; w++)
         {
-            pixData = (PixelsChannelData) map
-                    .get(cb[w].getIndex());
+            pixData = (PixelsChannelData) map.get(new Integer(w));
             if (pixData != null
                     && pixData.getColorDomain() == "RGB") // FIXME
             {
@@ -546,10 +546,10 @@ public class Renderer
             double start = stats.getGlobalEntry(w).globalMin, end = stats
                     .getGlobalEntry(w).globalMax;
             setChannelWindow(w, start, end);
-            if (pixData == null) c = ColorsFactory.getColor(cb[w].getIndex().intValue(),
+            if (pixData == null) c = ColorsFactory.getColor(w,
                     -1);
             else
-                c = ColorsFactory.getColor(cb[w].getIndex().intValue(), pixData
+                c = ColorsFactory.getColor(w, pixData
                         .getEmWavelenght());
             setRGBA(w, c[ColorsFactory.RED], c[ColorsFactory.GREEN],
                     c[ColorsFactory.BLUE], c[ColorsFactory.ALPHA]);

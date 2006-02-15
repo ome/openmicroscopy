@@ -10,6 +10,8 @@ insert into eventtype (id,owner_id,group_id,creation_id,value) values
         (0,0,0,0,'Bootstrap');
 
 update event set type = 0;
+
+alter table event alter column type set not null;
 	
 ##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
 ##  as name, next from (select nextval('seq_event') as next) as nv;

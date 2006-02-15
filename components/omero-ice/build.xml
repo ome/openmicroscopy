@@ -3,23 +3,22 @@
 
 	<dirname property="up-one" file="${basedir}"/>
 	<import file="${up-one}/antlib/resources/build.xml"/>
+	<import file="classpath.xml"/>
 	            
     <!-- Local properties -->
     <property name="ice.file" value="ome.ice"/>
 	
-	<target name="slice-all" depends="makeSlice,sliceJava,patchJava,sliceCs,compileCs,slicePy">
+	<target name="slice-all" depends="makeSlice,sliceJava,sliceCs,compileCs">
 		<done name="slice"/>
 	</target>
 	      		
-	<target name="prepare" depends="global.prepare,loadGroovy">
+	<target name="prepare" depends="lifecycle.prepare,load-groovy">
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
 		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py" />
 		<available property="slice2py-exists" filepath="${env.PATH}" file="slice2py.exe" />
 		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs" />
 		<available property="slice2cs-exists" filepath="${env.PATH}" file="slice2cs.exe" />
-		<available property="perl-exists" filepath="${env.PATH}" file="perl" />
-		<available property="perl-exists" filepath="${env.PATH}" file="perl.exe" />
 		<condition property="csharp-exists">
 		  <or>
 			<available filepath="${env.PATH}" file="mcs" />
@@ -27,10 +26,10 @@
 			<available filepath="${env.PATH}" file="csc.exe" />
 		  </or>
 		</condition>
-		<fail unless="slice2java-exists" message="${fail_message} slice2java"/>	
+		<fail unless="slice2java-exists" message="${msg.macro.missing_fail} slice2java"/>	
 		<groovy>
-			msg = properties["skip_message"]
-			["slice2cs","slice2py","perl","csharp"].each { |cmd|
+			msg = properties["msg.macro.missing_warn"]
+			["slice2cs","slice2py","csharp"].each { |cmd|
 				if (!properties["${cmd}-exists"])
 					println "${msg} ${cmd}"
 			}
@@ -42,17 +41,15 @@
          = = = = = = = = = = = = = = = = = -->
 	
 	<target name="make-init" depends="prepare">
-		<is-done name="make" srcdir="${common.comp}/${hbm.path}" includes="${hbm.pat}"/>
+		<is-done name="make" srcdir="${common.comp}/${generated.rel}/resources}" includes="${hbm.pat}"/>
 	</target>
 	
-	<target name="makeSlice" depends="make-init,loadHibernate" unless="make.not.required">
-		<mkdir dir="${dest.dir}/slice"/>
-		<mkdir dir="${dest.dir}/slice_exts"/>
-		<hibernate mappings="${common.comp}/${hbm.path}">			
-			<hbmtemplate template="templates/ice_includes.vm" filepattern="${ice.file}" />
-			<hbmtemplate template="templates/ice_defs.vm" filepattern="slice/{package-name}/{class-name}.ice" />
-			<hbmtemplate template="templates/ice_exts.vm" filepattern="slice_exts/{package-name}/{class-name}Remote.ext" />
-			<hbmtemplate template="templates/ice_mapper.vm" filepattern="jdk14/ome/model/adapters/Model2IceMapper.java" />
+	<target name="makeSlice" depends="make-init,load-hibernate" unless="make.not.required">
+		<hibernate mappings="${common.comp}/${generared.rel}/resources}">			
+			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/${ice.file}" />
+			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{package-name}/{class-name}.ice" />
+			<hbmtemplate template="templates/ice_exts.vm"     filepattern="resources/{package-name}/{class-name}Remote.ext" />
+			<hbmtemplate template="templates/ice_mapper.vm"   filepattern="src/ome/model/adapters/Model2IceMapper.java" />
 		</hibernate>
 		<done name="hib"/>
 	</target>
@@ -63,13 +60,13 @@
          = = = = = = = = = = = = = = = = = -->
 	
 	<target name="slice-init" depends="prepare">
-		<fileset dir="${dest.dir}/slice" id="slice.generated">
+		<fileset dir="${resrc.dest}" id="slice.generated">
 			<include name="${ice.pat}"/>
 		</fileset>
-		<pathconvert pathsep=" " property="slice.files" refid="slice.generated"/>
-		<is-done name="slice2java" srcdir="${dest.dir}/slice" includes="${ice.pat}" />
-		<is-done name="slice2cs" srcdir="${dest.dir}/slice" includes="${ice.pat}" />
-		<is-done name="slice2py" srcdir="${dest.dir}/slice" includes="${ice.pat}"/>
+		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
+		<is-done name="slice2java" srcdir="${resrc.dest}" includes="${ice.pat}" />
+		<is-done name="slice2cs"   srcdir="${resrc.dest}" includes="${ice.pat}" />
+		<is-done name="slice2py"   srcdir="${resrc.dest}" includes="${ice.pat}"/>
 	</target>
 	
 	<target name="sliceJava" depends="slice-init" if="slice2java-exists" unless="slice2java.not.required">
@@ -80,8 +77,9 @@
 			<slice lang="cs" files="${slice.files}"/>
 		</target>
 	
+<!-- FIXME 
 	<target name="slicePy" depends="slice-init" if="slice2py-exists" unless="slice2py.not.required">
-		<!-- slice lang="py" files="${slice.files}"/-->
+		<!- slice lang="py" files="${slice.files}"/->
 		<mkdir dir="${dest.dir}/slice2py"/>
 		<groovy><![CDATA[
 			
@@ -122,7 +120,8 @@
 
     		]]></groovy>
 	</target>
-		
+-->	
+	
 	<target name="compileCs" depends="sliceCs" if="csharp-exists,slice2cs-exists">
 		<exec executable="mcs" dir="${dest.dir}/slice2cs">
 			<arg value="/t:library"/>
@@ -132,24 +131,7 @@
 		</exec>
 	</target>
 	
-	<target name="patchJava" depends="sliceJava" if="perl-exists,slice2java-exists" unless="slice2java.not.required">
-		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
-    			<include name="**/*Remote.java"/>
-		</fileset>
-
-		<pathconvert pathsep=":" property="ice.files" refid="ice.generated"/>
-		
-		<exec executable="perl">
-			<arg value="../scripts/perl/replace.pl"/>
-			<arg value="${ice.files}"/>
-		</exec>
-	</target>
-	
-
-	<!-- TODO: Groovy -->
-	<!--
-		ant project properties target task
-	-->
+<!-- TODO -->
 	<target name="groovy" depends="sliceJava">
 		<fileset dir="${dest.dir}/slice2java" id="ice.generated">
     			<include name="**/*Remote.java"/>

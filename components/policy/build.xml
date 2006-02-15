@@ -5,7 +5,7 @@
 	<dirname property="up-one" file="${basedir}"/>
 	<import file="${up-one}/antlib/resources/build.xml"/>
 	
-	<target name="prepare" depends="global.prepare,loadHibernate"/>
+	<target name="prepare" depends="lifecycle.prepare,load-hibernate"/>
 	
 	<target name="check-policy" depends="prepare"/>
 

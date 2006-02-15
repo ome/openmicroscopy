@@ -7,32 +7,89 @@
 	<dirname property="components.dir" file="${antlib.dir}"/>
 	<dirname property="root.dir"       file="${components.dir}"/>
 
+	<!-- Absolute paths: same for all components -->
+	<property name="omero.home" value="${root.dir}"/>
+	<property name="lib.dir"    value="${root.dir}/lib" />
+	
 	<!-- Components -->
+	<property name="dsl.comp"    value="${components.dir}/dsl"/>
 	<property name="common.comp" value="${components.dir}/common"/>
+	<property name="server.comp" value="${components.dir}/server"/>
+	<property name="nio.comp"    value="${components.dir}/omeio-nio"/>
 	
 	<!-- Relative paths -->
-	<property name="target.path"    value="target"/>
-	<property name="generated.path" value="${target.path}/generated-sources"/>	
-	<property name="hbm.path"       value="${generated.path}/hbm"/>
+	<property name="target.rel"    value="target"/>
+	<property name="classes.rel"   value="${target.rel}/classes"/>
+	<property name="generated.rel" value="${target.rel}/generated"/>	
+	<property name="testclasses.rel" value="${target.rel}/test-classes"/>
+	<property name="testreports.rel" value="${target.rel}/test-reports"/>
 		
-	<!-- Absolute paths: same for all components -->
-	<property name="lib.dir"   value="${root.dir}/lib" />
-	
 	<!-- Directories relative to basedir: different for each component -->
-	<!-- top-level -->
-	<property name="src.dir" value="${basedir}/src" />
-	<property name="resrc.dir" value="${basedir}/resources" />
-	<property name="target.dir" value="${basedir}/${target.path}" />
-	<!-- target -->
-	<property name="classes.dir" value="${target.dir}/classes" />
-	<property name="dest.dir" value="${target.dir}/generated-sources" />
-	<!-- generated -->
-	<property name="hbm.dir" value="${dest.dir}/hbm"/>
-	<property name="api.dir" value="${dest.dir}/api"/>
-	<property name="genresrc.dir" value="${dest.dir}/resources"/>
-	<property name="done.dir" value="${dest.dir}/.done"/>
+	<property name="src.dir"         value="${basedir}/src" />
+	<property name="resrc.dir"       value="${basedir}/resources"/>
+	<property name="test.dir"        value="${basedir}/test"/>
 
-		<!-- Files relative to basedir: different for each component -->
-	<property name="hibernate.properties" value="${genresrc.dir}/hibernate.properties"/>
+	<!-- Target destinations for generated code-->
+	<property name="target.dir"      value="${basedir}/${target.rel}" />
+	<property name="generated.dir"   value="${basedir}/${generated.rel}"/>
+	<property name="classes.dir"     value="${basedir}/${classes.rel}"/>
+	<property name="testclasses.dir" value="${basedir}/${testclasses.rel}"/>
+	<property name="testreports.dir" value="${basedir}/${testreports.rel}"/>
+	<property name="src.dest"        value="${generated.dir}/src" />
+	<property name="resrc.dest"      value="${generated.dir}/resources"/>
+	<property name="done.dir"        value="${generated.dir}/.done"/>
+
+	<!-- Files relative to basedir: different for each component -->
+	<property name="hibernate.properties" value="${resrc.dest}/hibernate.properties"/>
+
+	<path id="source.path">
+		<fileset dir="${src.dir}">
+			<include name="**/*.java"/>
+			<exclude name="**/.svn"/>
+		</fileset>
+		<fileset dir="${src.dest}">
+			<include name="**/*.java"/>
+		</fileset>
+	</path>
+
+	<macrodef name="copyResourceDir">
+		<attribute name="todir"/>
+		<attribute name="fromdir"/>
+		<sequential>
+		<copy todir="@{todir}">
+		<fileset dir="@{fromdir}">
+			<include name="**/*.properties"/>
+			<include name="**/*.vm"/>
+			<include name="**/*.xml"/>
+			<exclude name="**/.svn"/>
+		</fileset>
+		</copy>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="copyResources">
+		<sequential>
+		<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dir}"/>
+		<copyResourceDir todir="${classes.dir}" fromdir="${resrc.dest}"/>
+		</sequential>
+	</macrodef>
+		
+	<macrodef name="copyTestResources">
+		<sequential>
+		<copyResourceDir todir="${testclasses.dir}" fromdir="${test.dir}"/>
+		</sequential>
+	</macrodef>
+		
+	<macrodef name="makeDirectories">
+		<sequential>
+		<mkdir dir="${target.dir}" />
+		<mkdir dir="${done.dir}" />
+		<mkdir dir="${src.dest}" />
+		<mkdir dir="${resrc.dest}" />
+		<mkdir dir="${classes.dir}" />
+		<mkdir dir="${testclasses.dir}" />
+		<mkdir dir="${testreports.dir}" />
+		</sequential>
+	</macrodef>
 
 </project>

@@ -13,10 +13,13 @@
 
 	<import file="components/antlib/resources/build.xml"/>
 
-	<target name="help" depends="msg"
+	<target name="help" depends="usage"/>
+
+	<target name="usage"
 		description="Usage information">
 		<echo>
-			${msg.main.help}
+			${msg.main.usage}
+			${msg.lifecycle.usage}
 		</echo>
 	</target>
 
@@ -45,7 +48,7 @@ ${msg.check.report}
 
 	</target>
 
-	<target name="check-java5" depends="msg">
+	<target name="check-java5">
 		<sys_test name="java5">
 			<not>
 			<equals arg1="${ant.java.version}" arg2="1.5"/>
@@ -53,7 +56,7 @@ ${msg.check.report}
 		</sys_test>
 	</target>
 
-	<target name="check-maven" depends="msg">
+	<target name="check-maven">
 		<sys_test name="maven">
 		<not><or>
 			<available filepath="${env.PATH}" file="mvn" />
@@ -62,7 +65,7 @@ ${msg.check.report}
 		</sys_test>
 	</target>
 
-	<target name="check-jboss" depends="msg">
+	<target name="check-jboss">
 		<sys_test name="jboss">
 			<not>
 			<isset property="env.JBOSS_HOME"/>
@@ -77,7 +80,7 @@ ${msg.check.report}
 		depends="warning,copy-examples,prompt-for-config"
 		description="Prepares code base for compilation"/>
 		
-	<target name="warning" depends="msg">
+	<target name="warning">
 		<input
 			message="${msg.setup.warning}"
 			validargs="y,n"
@@ -112,7 +115,7 @@ ${msg.check.report}
 		</copy>
 	</target>
 
-	<target name="prompt-for-config" depends="msg">
+	<target name="prompt-for-config">
 		<input>
 			${msg.setup.prompt}
 		</input>
@@ -123,87 +126,72 @@ ${msg.check.report}
 	==================================================  -->
 	<target name="fullbuild" depends="clean,build,reload-db"/>
 
-	<target name="build" depends="install-dsl,install-all"/>
+	<target name="build" depends="dsl,model,install"/>
+
+	<!-- Special Components -->
+	<property name="target" value="install"/>
+
+	<target name="dsl">
+		<antRun component="dsl">
+			<target name="${target}"/>
+		</antRun>
+	</target>
+
+	<target name="model" depends="dsl">
+		<antRun component="common">
+			<target name="clean"/>
+			<target name="${target}"/>
+		</antRun>
+	</target>
+
+	<!-- Multiproject -->
+	<target name="quick">
+		<property name="test.skip" value="true"/>
+		<property name="generate.skip" value="true"/>
+	</target>
+
+	<target name="prepare">
+		<iterate target="prepare"/>
+	</target>
+
+	<target name="generate">
+		<iterate target="generate"/>
+	</target>
+
+	<target name="compile">
+		<iterate target="compile"/>
+	</target>
+
+	<target name="test">
+		<iterate target="test"/>
+	</target>
+
+	<target name="package">
+		<iterate target="package"/>
+	</target>
+
+	<target name="install">
+		<iterate target="install"/>
+	</target>
+
+	<target name="integration">
+		<iterate target="integration"/>
+	</target>
 
 	<target name="clean">
-		<mvn targets="clean"/>
+		<iterate target="clean"/>
 	</target>
 
-	<target name="install-dsl">
-		<mvn dir="components/dsl" targets="install"/>	
+	<target name="classpath-download">
+		<iterate target="classpath-download"/>
 	</target>
-
-	<target name="install-model" depends="install-dsl">
-		<mvn dir="components/common" targets="clean install"/>
-	</target>
-
-	<target name="install-ear">
-		<mvn dir="components/omero-ejb" targets="install"/>
-		<mvn dir="components/omero-app" targets="install"/>
-		<antcall target="deploy-ear-jboss"/>
-	</target>
-
-	<target name="install-all">
-		<mvn dir="components/common" targets="install"/>	
-		<mvn dir="components/omeio-nio" targets="install"/>	
-		<mvn dir="components/resurrect" targets="install"/>	
-		<mvn dir="components/server" targets="install"/>	
-		<!-- TODO mvn targets="install"/ -->
-	</target>
-
-	<target name="reload-db"><!-- TODO move this to common and on creation pow -->
-		<property name="ddl.dir" value="components/common/target/generated-sources"/>
-		<sql_run>
-  			<transaction src="${ddl.dir}/ddl.sql"/>
-  			<transaction src="${ddl.dir}/data.sql"/>
-		</sql_run>
-	</target>
-
 	<!-- 	===============================================
-		APPLICATION SERVER (AS) 
+		Quick Links
 	==================================================  -->
-	<target name="deploy-ear-jboss">
-		<ant dir="${basedir}/components/omero-app" target="deploy"/>
-	</target>
-
-	<target name="undeploy-ear-jboss">
-		<ant dir="${basedir}/components/omero-app" target="undeploy"/>
-	</target>
-
-	<target name="start-as-jboss">
-		<exec executable="${env.JBOSS_HOME}/bin/run.sh"/>
-	</target>
-
-	<target name="stop-as-jboss">
-		<exec executable="${env.JBOSS_HOME}/bin/shutdown.sh">
-			<arg value="-S"/>
-		</exec>
-	</target>
-
-	<target name="fake.local.classpath">
-		<path id="maven.compile.classpath">
-			<pathelement location="/home/josh/.m2/repository/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
-		</path>
-		<path id="maven.test.classpath"/>
-	</target>
-
-	<target name="wait-on-as-jboss" 
-		depends="fake.local.classpath,loadGroovy"
-		description="Tries to contact JBoss with increasing intervals">
-		<groovy>
-			jboss_home = properties["env.JBOSS_HOME"]
-			status = ["${jboss_home}/bin/twiddle.sh","serverinfo","-l"]
-			int ret = -1;
-			[0,1,2,4,8,16].each { |i|
-			  if (ret != 0) {
-			    println "Waiting on JBoss..."
-			    Thread.currentThread().sleep(i*1000)
-			    p = status.execute()
-			    p.waitFor()
-			    ret = p.exitValue()
-			  }
-			}
-		</groovy>
+	<target name="reload-db">
+		<antRun component="common">
+			<target name="reload-db"/>
+		</antRun>
 	</target>
 
 </project>

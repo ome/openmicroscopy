@@ -61,6 +61,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public final static String MANYONE = "manyone";
 	public final static String MANYZERO = "manyzero";
 	public final static String ENTRY = "entry";
+    
 	public final static Set FIELDS = new HashSet();
 	static {
 		FIELDS.add(REQUIRED);
@@ -70,7 +71,6 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS.add(MANYONE);
 		FIELDS.add(MANYZERO);
 		FIELDS.add(ENTRY);
-		
 	}
 	public final static Map FIELDS2CLASSES = new HashMap();
 	static {
@@ -113,28 +113,10 @@ public abstract class Property { // TODO need to define equality so that two wit
 	private Boolean mutable;
 	private Boolean foreignKey;
 	private Boolean ordered;
+    private Boolean inverse;
 	
 	// Mappings
 	private Boolean one2Many;
-
-	/** creates a Property and sets fields based on attributes USING DEFAULT VALUES. Subclassees may override these values */
-	public Property(Properties attrs){
-		setName(attrs.getProperty("name",null));
-		setType(attrs.getProperty("type",null));
-		setDefaultValue(attrs.getProperty("default",null));//TODO currently no way to use this!!
-		setRequired(Boolean.valueOf(attrs.getProperty("required","false")));
-		setUnique(Boolean.valueOf(attrs.getProperty("unique","false"))); // TODO wanted to use KEYS.put(id,field) !! 
-		setMutable(Boolean.valueOf(attrs.getProperty("mutable","true")));
-		setOrdered(Boolean.valueOf(attrs.getProperty("ordered","false")));
-		
-		if (VALUES.containsKey(getType())){
-			setForeignKey(Boolean.FALSE);
-            setType(((Class)VALUES.get(getType())).getName());
-		} else {
-			setForeignKey(Boolean.TRUE);
-		}
-		
-	}
 	
 	public void validate(){
 		if (null==getName() || null==getType()){
@@ -222,7 +204,15 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public Boolean getOrdered() {
 		return ordered;
 	}
-	
+
+    public void setInverse(Boolean inverse) {
+        this.inverse = inverse;
+    }
+    
+    public Boolean getInverse() {
+        return inverse;
+    }
+    
 	public void setForeignKey(Boolean foreignKey) {
 		this.foreignKey = foreignKey;
 	}
@@ -238,53 +228,86 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public Boolean getOne2Many() {
 		return one2Many;
 	}
-	
+
+    /** creates a Property and sets fields based on attributes USING DEFAULT VALUES. Subclassees may override these values */
+    public Property(Properties attrs){
+        setName(attrs.getProperty("name",null));
+        setType(attrs.getProperty("type",null));
+        setDefaultValue(attrs.getProperty("default",null));//TODO currently no way to use this!!
+        setRequired(Boolean.valueOf(attrs.getProperty("required","false")));
+        setUnique(Boolean.valueOf(attrs.getProperty("unique","false"))); // TODO wanted to use KEYS.put(id,field) !! 
+        setMutable(Boolean.valueOf(attrs.getProperty("mutable","true")));
+        setOrdered(Boolean.valueOf(attrs.getProperty("ordered","false")));
+        setInverse(Boolean.valueOf(attrs.getProperty("inverse","false")));
+        
+        if (VALUES.containsKey(getType())){
+            setForeignKey(Boolean.FALSE);
+            setType(((Class)VALUES.get(getType())).getName());
+        } else {
+            setForeignKey(Boolean.TRUE);
+        }
+        
+    }
+    
 }
 
-class RequiredField extends Property {
+// NOTE: For all the following be sure to check the defaults set on Property!
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class OptionalField extends Property {
+    public OptionalField(Properties attrs){
+        super(attrs);
+    }
+}
+
+class RequiredField extends OptionalField {
 	public RequiredField(Properties attrs){
 		super(attrs);
 		setRequired(Boolean.TRUE);
 	}
 }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class OptionalField extends Property {
-	public OptionalField(Properties attrs){
-		super(attrs);
-		setRequired(Boolean.FALSE);
-	}
+class ZeroManyField extends Property {
+    public ZeroManyField(Properties attrs){
+        super(attrs);
+        setRequired(Boolean.FALSE);
+        setOne2Many(Boolean.TRUE);
+        
+        /* see ch. 7 hibernate doc on association mappings */
+        if (getOrdered().booleanValue()) 
+        {
+            setRequired(Boolean.TRUE); // FIXME here we need to change the many2one!!
+        } else {
+            setInverse(Boolean.valueOf(attrs.getProperty("inverse","true")));    
+        }
+        
+    }
 }
 
-class OneManyField extends Property {
+class OneManyField extends ZeroManyField {
 	public OneManyField(Properties attrs){
 		super(attrs);
 		setRequired(Boolean.TRUE);
-		setOne2Many(Boolean.TRUE);
 	}
 }
 
-class ZeroManyField extends Property {
-	public ZeroManyField(Properties attrs){
-		super(attrs);
-		setRequired(Boolean.FALSE);
-		setOne2Many(Boolean.TRUE);
-	}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class ManyZeroField extends Property {
+    public ManyZeroField(Properties attrs){
+        super(attrs);
+    }
 }
 
-class ManyOneField extends Property {
+class ManyOneField extends ManyZeroField {
 	public ManyOneField(Properties attrs){
 		super(attrs);
 		setRequired(Boolean.TRUE);
 	}
 }
 
-class ManyZeroField extends Property {
-	public ManyZeroField(Properties attrs){
-		super(attrs);
-		setRequired(Boolean.FALSE);	
-	}
-}
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// DIFFERENT SEMANTICS!!!
 class EntryField extends Property {
 	public EntryField(Properties attrs){
 		super(attrs);
@@ -298,4 +321,17 @@ class EntryField extends Property {
 		}
 		super.validate();
 	}
+}
+class ParentLink extends Property {
+    public ParentLink(Properties attrs){
+        super(attrs);
+        setName("parent");
+    }
+}
+
+class ChildLink extends Property {
+    public ChildLink(Properties attrs){
+        super(attrs);
+        setName("child");
+    }
 }

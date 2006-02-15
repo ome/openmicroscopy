@@ -29,24 +29,17 @@
 
 package pojos;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import ome.adapters.pojos.Model2PojosMapper;
-import ome.adapters.pojos.PojoAdapterUtils;
-import ome.api.OMEModel;
-import ome.model.ImageDimension;
-import ome.model.ImagePixel;
-import ome.model.Repository;
-import ome.util.ModelMapper;
-
-
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.Model2PojosMapper;
+import ome.model.IObject;
+import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
@@ -118,13 +111,13 @@ public class PixelsData
     
     
     /** The Pixels ID. */
-    private int          id;
+    private long         id;
     
     /** The ID used by <i>OMEIS</i> to identify these Pixels. */
-    private long         imageServerID;
+    // private long         imageServerID;
     
     /** The URL of the <i>OMEIS</i> instance that manages these Pixels. */
-    private String       imageServerURL;
+    // private String       imageServerURL;
     
     /** 
      * The X dimension of the 5D data array.
@@ -171,60 +164,54 @@ public class PixelsData
     /** The Image these Pixels belong to. */
     private ImageData    image;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
-		if (model instanceof ImagePixel) {
-			ImagePixel pix = (ImagePixel) model;
-			this.setId(mapper.nullSafeInt(pix.getAttributeId()));
+    public void copy(IObject model, ModelMapper mapper) {
+		if (model instanceof Pixels) {
+			Pixels pix = (Pixels) model;
+			this.setId(mapper.nullSafeLong(pix.getId()));
 			this.setImage((ImageData)mapper.findTarget(pix.getImage()));
-			this.setImageServerID(mapper.nullSafeLong(pix.getImageServerId()));
-			Repository rep = pix.getRepository();
-			if (rep!=null){
-				this.setImageServerURL(rep.getImageServerUrl());
+			PixelsDimensions dim = pix.getPixelsDimensions();
+			if (dim !=null){
+			    this.setPixelSizeX(mapper.nullSafeFloat(dim.getSizeX()));
+			    this.setPixelSizeY(mapper.nullSafeFloat(dim.getSizeY()));
+				this.setPixelSizeZ(mapper.nullSafeFloat(dim.getSizeZ())); 
 			}
-			if (pix.getImage()!=null){
-				Set dims = pix.getImage().getImageDimensions();
-				if (dims !=null && dims.size()>0){
-					ImageDimension dim = (ImageDimension) dims.iterator().next();
-					this.setPixelSizeX(dim.getPixelSizeX().doubleValue());
-					this.setPixelSizeY(dim.getPixelSizeY().doubleValue());
-					this.setPixelSizeZ(dim.getPixelSizeZ().doubleValue()); // TODO can explode
-				}
-			}
-			this.setPixelType(Model2PojosMapper.getPixelTypeID(pix.getPixelType()));
-			this.setSizeC(mapper.nullSafeInt(pix.getSizeC()));
-			this.setSizeT(mapper.nullSafeInt(pix.getSizeT().intValue()));
-			this.setSizeX(mapper.nullSafeInt(pix.getSizeX().intValue()));
-			this.setSizeY(mapper.nullSafeInt(pix.getSizeY().intValue()));
-			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ().intValue())); // TODO null error here?
+			if (pix.getPixelsType() != null){
+			    this.setPixelType(Model2PojosMapper.getPixelTypeID(pix.getPixelsType().getValue()));
+            }
+            this.setSizeC(mapper.nullSafeInt(pix.getSizeC()));
+			this.setSizeT(mapper.nullSafeInt(pix.getSizeT()));
+			this.setSizeX(mapper.nullSafeInt(pix.getSizeX()));
+			this.setSizeY(mapper.nullSafeInt(pix.getSizeY()));
+			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ())); 
 			
 		} else {
 			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setImageServerID(long imageServerID) {
-		this.imageServerID = imageServerID;
-	}
+//	public void setImageServerID(long imageServerID) {
+//		this.imageServerID = imageServerID;
+//	}
+//
+//	public long getImageServerID() {
+//		return imageServerID;
+//	}
 
-	public long getImageServerID() {
-		return imageServerID;
-	}
-
-	public void setImageServerURL(String imageServerURL) {
-		this.imageServerURL = imageServerURL;
-	}
-
-	public String getImageServerURL() {
-		return imageServerURL;
-	}
+//	public void setImageServerURL(String imageServerURL) {
+//		this.imageServerURL = imageServerURL;
+//	}
+//
+//	public String getImageServerURL() {
+//		return imageServerURL;
+//	}
 
 	public void setSizeX(int sizeX) {
 		this.sizeX = sizeX;
@@ -306,4 +293,7 @@ public class PixelsData
 		return image;
 	}
     
+	public String toString() {
+		return getClass().getName()+" (id="+getId()+")";
+	}
 }

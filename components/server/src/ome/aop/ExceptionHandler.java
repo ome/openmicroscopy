@@ -35,15 +35,13 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.exception.NestableException;
-
-import com.caucho.hessian.io.HessianProtocolException;
 
 //Application-internal dependencies
+import ome.conditions.Policy;
+import ome.conditions.RootException;
 
 /** 
- * method interceptor to log all result objects. 
+ * ExceptionHandler which maps all server-side exceptions to something 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 
@@ -57,6 +55,8 @@ public class ExceptionHandler implements MethodInterceptor {
 
 	private static Log log = LogFactory.getLog(ExceptionHandler.class);
 	
+    private final static String MESSAGE = "Internal server error";
+    
     /**
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
@@ -65,30 +65,28 @@ public class ExceptionHandler implements MethodInterceptor {
     		Object o = arg0.proceed();
     		return o;
     	} catch (Throwable t) {
-    		if (filter_p(t)){
-    			throw new RuntimeException("Internal server error.",t);//TODO
-    		}
-    		throw t;
-    	}
-    }
-
-    protected boolean filter_p(Throwable t){
-    	if (t == null) {
-    		return true;
-    	} else if (t instanceof HibernateException) {
-			return true;
-    	} else {
-    		return false;
-		}
+    	    throw getAndLogException(t);
+        }
     }
     
-    protected Throwable makeException(String msg, Throwable t){
-    	Throwable newT = new RuntimeException(msg);
-    	Throwable cause = t.getCause();
-    	if (cause!=null){
-    		newT.initCause(makeException(t.getMessage(),t.getCause()));	
-    	}
-    	return newT;
+    Throwable getAndLogException(Throwable t){
+        if (null == t)
+        {
+            log.error("Exception thrown. (null)");
+            return new RootException(MESSAGE+"(null)");
+        } 
+        else {
+            String msg = " ("+t.getClass().getName()+"):"+t.getMessage();
+            log.error("Exception thrown "+msg);
+            
+            if ( Policy.thrownByServer(t) ) return t;
+            RootException re = new RootException(MESSAGE+msg);
+            re.setStackTrace(t.getStackTrace());
+            return re;
+        }
+            
     }
+
+
     
 }

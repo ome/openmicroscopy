@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="lifecycle" default="help" basedir=".">
+
+	<target name="help">
+		<echo>
+			This build file is intended for import only.
+		</echo>
+	</target>
+
+	<target name="quick">
+		<property name="test.skip" value="true"/>
+		<property name="generate.skip" value="true"/>
+	</target>
+
+	<target name="prepare" depends="classpath-define">
+		<makeDirectories/>
+		<copyResource file="${root.dir}/omero.properties"/>
+		<copyResource file="${root.dir}/hibernate.properties"/>
+		<copyResource file="${root.dir}/log4j.properties"/>
+		<copyResource file="${root.dir}/jndi.properties"/>
+	</target>
+
+
+	<target name="generate" depends="prepare"/>
+
+	<target name="compile" depends="generate">
+		<copyResources/>
+		<javac 
+			destdir="${classes.dir}"
+			classpathref="omero.classpath" >
+			<src path="${src.dir}"/>
+			<src path="${src.dest}"/>
+		</javac>
+	</target>
+
+
+	<target name="test" depends="compile" unless="test.skip">
+		<copyTestResources/>
+		<javac 
+			destdir="${testclasses.dir}"
+			classpathref="omero.classpath" >
+			<src path="${test.dir}"/>
+		</javac>
+		<junit printsummary="yes" haltonfailure="no">
+ 			<classpath>
+				<path refid="omero.classpath"/>
+				<pathelement location="${testclasses.dir}"/>
+			</classpath>
+
+			<formatter type="plain"/>
+
+			<batchtest fork="no" todir="${testreports.dir}">
+				<fileset dir="${testclasses.dir}">
+					<include name="**/*Test*.class"/>
+					<exclude name="**/AllTests.class"/>
+					<exclude name="**/Abstract*.class"/>
+					<exclude name="**/itests/*"/>
+				</fileset>
+			</batchtest>
+		</junit>	
+	</target>
+		
+	<target name="package" depends="test">
+		<jar destfile="${target.dir}/${artifact.final.name}">
+			<fileset dir="${classes.dir}">	
+				<exclude name="omero.properties"/>
+				<exclude name="hibernate.properties"/>
+				<exclude name="jndi.properties"/>
+				<exclude name="log4j.properties"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="install" depends="package">
+		<property name="dest.file" value="${omero.repo.local}/${artifact.path}"/>
+		<dirname property="dest.dir" file="${dest.file}"/>
+		<mkdir dir="${dest.dir}"/>
+		<copy 
+			file="${target.dir}/${artifact.final.name}"
+			todir="${dest.dir}"
+			overwrite="true"
+			verbose="true"
+		/>
+	</target>
+
+	<target name="integration" depends="install">
+		
+	</target>
+
+	<target name="clean">
+		<delete dir="${target.dir}"/>
+	</target>
+
+	<target name="refresh" if="eclipse.running">
+		<eclipse.refreshLocal resource="omero-dsl" depth="infinite"/>
+		<eclipse.refreshLocal resource="omero-common" depth="infinite"/>
+		<eclipse.refreshLocal resource="omero-server" depth="infinite"/>
+		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
+	</target>
+  
+</project>

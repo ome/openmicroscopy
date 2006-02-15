@@ -99,8 +99,8 @@ public class DSLTask extends Task
         
         VelocityHelper vh = new VelocityHelper();
         vh.put("types",types);
-        try { // TODO fix ..
-            String file = _outputDir+File.separator+".."+File.separator+"data.sql";
+        try { 
+            String file = _outputDir+File.separator+File.separator+"data.sql";
             writeToFile(vh, file, "ome/dsl/data.vm");
         } catch (Exception e){
             throw new BuildException("Error while writing data:",e);

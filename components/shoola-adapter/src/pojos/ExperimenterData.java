@@ -29,17 +29,18 @@
 
 package pojos;
 
-import ome.api.OMEModel;
-import ome.model.Experimenter;
-import ome.model.Group;
-import ome.util.ModelMapper;
-
-
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.meta.Experimenter;
+import ome.model.meta.GroupExperimenterMap;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Experimenter along with information
@@ -61,7 +62,7 @@ public class ExperimenterData
 {
 
     /** The Experimenter ID. */
-    private int         id;
+    private long         id;
     
     /** The Experimenter's first name. */
     private String      firstName;
@@ -75,37 +76,39 @@ public class ExperimenterData
     /** The Experimenter's institution. */
     private String      institution;
     
-    /** The ID of the Group this Experimenter belongs in. */
-    private int         groupID;
+    /** The main Group this Experimenter belongs in. */
+    // TODO private GroupData   group;
     
-    /** The name of the Group this Experimenter belongs in. */
-    private String      groupName;
+    /** The other Groups this Experimenter belongs in. */
+    private Set         groups;
      
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Experimenter) {
 			Experimenter exp = (Experimenter) model;
-			if (exp.getAttributeId()!=null){
-				this.setId(exp.getAttributeId().intValue());
-			}
-			this.setFirstName(exp.getFirstname());
-			this.setLastName(exp.getLastname());
+            this.setId(mapper.nullSafeLong(exp.getId()));
+			this.setFirstName(exp.getFirstName());
+			this.setLastName(exp.getLastName());
 			this.setEmail(exp.getEmail());
 			this.setInstitution(exp.getInstitution());
-			if (exp.getGroup()!=null){
-				Group g = exp.getGroup();
-				this.setGroupID(mapper.nullSafeInt(g.getAttributeId()));
-				this.setGroupName(g.getName());
-			}
+            if (exp.getGroupExperimenterMap() != null){
+                Set groups = new HashSet();
+                for (Iterator i = exp.getGroupExperimenterMap().iterator(); i.hasNext();)
+                {
+                    GroupExperimenterMap map = (GroupExperimenterMap) i.next();
+                    groups.add(map.parent());
+                }
+                this.setGroups((Set) mapper.findCollection(groups));
+            }
 		} else {
 			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -141,19 +144,23 @@ public class ExperimenterData
 		return institution;
 	}
 
-	public void setGroupID(int groupID) {
-		this.groupID = groupID;
+//	public void setGroup(GroupData group) {
+//		this.group = group;
+//	}
+//
+//	public GroupData getGroup() {
+//		return group;
+//	}
+
+	public void setGroups(Set groups) {
+		this.groups = groups;
 	}
 
-	public int getGroupID() {
-		return groupID;
+	public Set getGroups() {
+		return groups;
 	}
-
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
-	}
-
-	public String getGroupName() {
-		return groupName;
+	
+	public String toString() {
+		return getClass().getName()+":"+getFirstName()+" "+getLastName()+" (id="+getId()+")";
 	}
 }

@@ -111,26 +111,22 @@ public class UpdateFilter extends ContextFilter
     @Override
     public Filterable filter(String fieldId, Filterable f)
     {
-        // Depth first        
-        Filterable result = super.filter(fieldId, f);
-        
+        Filterable result = f; // Don't reuse f
         if (result instanceof IObject)
         {
-            IObject obj = (IObject) f;
-            switch (getEntityState(obj))
+            IObject obj = (IObject) result;
+            switch (getEntityState(obj)) // can't be null
             {
-                case NULL:
-                    return null;
                 case UNLOADED:
-                    result = loadUnloadedEntityFromContext(fieldId);
+                    result = loadUnloadedEntity(fieldId,obj);
+                    break;
                 case TRANSIENT:
                     transferDetails(obj);
-                    saveTransientEntity(obj);
-                    result = obj;
+                    result = super.filter(fieldId,obj);
                     break;
                 case MANAGED:
                     reloadDetails(obj);
-                    result = mergeDetachedEntity(obj);
+                    result = super.filter(fieldId,obj);
                 default:
                     break;
             }
@@ -139,6 +135,11 @@ public class UpdateFilter extends ContextFilter
             Validation v = Validation.VALID(); // FIXME result.validate();
             if (!v.isValid())
                 throw new RuntimeException(v.toString()); // TODO validation exception
+            
+            /*
+             * Need to check if it's a hibernate proxy and NOT walk it,
+             * but otherwise validate! 
+             */
             
 //            // TODO DELETE PERHAPS?
 //            if (!(currentContext() instanceof Details) 
@@ -149,33 +150,41 @@ public class UpdateFilter extends ContextFilter
 //                        "Events can only be managed through the Details object"); 
 
         }
+
         return result;
+        
     }
 
     @Override
     public Collection filter(String fieldId, Collection c)
     {
-        // Depth first
-        c = super.filter(fieldId, c);
-        
+        Collection result = c; // Don't reuse c
         Object o = this.currentContext();
-        if (o instanceof IObject) // TODO and if not??
+        if (o instanceof IObject) 
         {
             IObject ctx = (IObject) o;
-            switch (getCollectionState(ctx, fieldId, c))
+            switch (getCollectionState(ctx, fieldId, result))
             {
                 case MANAGED:   // Don't need to load.
                 case TRANSIENT: // Can't load.
+                    result = super.filter(fieldId, result);
                     break;
                 case NULL:
                 case FILTERED:
                     // TODO possible check for NEW items
-                    return collectionIsUnloaded(fieldId, ctx);
+                    result = collectionIsUnloaded(fieldId, ctx);
                 default:
                     break;
             }
+        } 
+        else
+        {
+            throw new RuntimeException("Not handled yet: nonIObject context");
         }
-        return c;
+        
+        
+        return result;
+        
     }
 
     // State Detection
@@ -183,14 +192,13 @@ public class UpdateFilter extends ContextFilter
 
     public enum EntityState
     {
-        NULL, MANAGED, TRANSIENT, UNLOADED
+        MANAGED, TRANSIENT, UNLOADED
     };
 
     public EntityState getEntityState(IObject obj)
     {
-        if (obj == null) return EntityState.NULL;
         if (obj.getId() == null) return EntityState.TRANSIENT;
-        if (obj.getId() < 0) return EntityState.UNLOADED;
+        if (!obj.isLoaded()) return EntityState.UNLOADED;
         return EntityState.MANAGED;
     }
 
@@ -205,8 +213,14 @@ public class UpdateFilter extends ContextFilter
         if (ctx == null) 
             return CollectionState.TRANSIENT;
 
-        if (EntityState.TRANSIENT.equals(getEntityState(ctx)))
-            return CollectionState.TRANSIENT;
+        switch (getEntityState(ctx))
+        {
+            case TRANSIENT:
+            case UNLOADED:
+                return CollectionState.TRANSIENT;
+            default:
+                break;
+        }
         
         if (ctx.getDetails().isFiltered(fieldId))
             return CollectionState.FILTERED;
@@ -220,9 +234,14 @@ public class UpdateFilter extends ContextFilter
     // Actions
     // ====================================================
 
-    protected Filterable loadUnloadedEntityFromContext(String fieldId)
+    protected Filterable loadUnloadedEntity(String fieldId, IObject obj)
     {
-        if (currentContext() instanceof IObject)
+        if ( obj != null && obj.getId() != null)
+        {
+           return loadFromUnloaded(obj); 
+        }
+        
+        else if (currentContext() instanceof IObject)
         {
             IObject ctx = (IObject) currentContext();
             EntityState ctxState = getEntityState(ctx);
@@ -234,10 +253,14 @@ public class UpdateFilter extends ContextFilter
             // EARLY EXIT!
             return (IObject) loadFromEntityField(ctx, fieldId);
 
-        } else
+        } 
+        
+        else  
         {
-            throw new RuntimeException("Not yet handled.    "
-                    + "filter(Collection) will need to check for this");
+            // TODO: InvalidException?
+            throw new IllegalStateException(
+                "Impossible to load an entity from a collection without an id."
+            ); 
         }
     }
     
@@ -331,6 +354,12 @@ public class UpdateFilter extends ContextFilter
 //                " where target.id = ?",ctx.getId()).get(0);//TODO error checking.
         IObject context = (IObject) ht.load(ctx.getClass(),ctx.getId());
         return context.retrieve(fieldId);
+    }
+
+    protected IObject loadFromUnloaded(IObject ctx)
+    {
+        IObject result = (IObject) ht.load(ctx.getClass(),ctx.getId());
+        return result;
     }
     
     // Helpers

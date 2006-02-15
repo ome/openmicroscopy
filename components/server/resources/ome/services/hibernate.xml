@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+
+	Configuration of all things dao. It should be possible to drop in
+	a new dao.xml for JDOs or whatever, and have things work seamlessly.
+ 
+-->
+
+
+<beans>	
+
+  <bean id="eventHandling" class="ome.tools.hibernate.EventHandler">
+    <constructor-arg ref="sessionFactory"/>
+    <constructor-arg ref="internal.query"/>
+  </bean>
+  
+	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter"/>
+
+  <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  		
+	<bean id="transactionManager" 
+    	class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="matchAllWithPropReq" 
+      class="org.springframework.transaction.interceptor.MatchAlwaysTransactionAttributeSource">
+    	<property name="transactionAttribute" value="PROPAGATION_REQUIRED"/>
+  	</bean>
+	
+    <bean id="transactions" 
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+		<property name="transactionAttributeSource" ref="matchAllWithPropReq"/>
+    </bean>
+
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<bean id="globalListener" class="ome.tools.hibernate.GlobalListener">
+    <constructor-arg>
+      <bean class="ome.tools.hibernate.EventDiffHolder"/>
+    </constructor-arg>
+  </bean>
+	
+	<!-- TODO ome.tools.hibernate.OmeroSessionFactoryBean -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+		<property name="hibernateProperties">
+  		<props>
+      	<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+      </props>      
+		</property>
+		<property name="dataSource" ref="dataSource"/>
+		<property name="eventListeners">
+      <!-- Possible listeners as of 3.1.2:
+ 					  auto-flush merge create create-onflush delete
+						dirty-check evict flush flush-entity load
+						load-collection lock refresh replicate
+						save-update save update pre-load pre-update
+					  pre-delete pre-insert post-load post-update
+						post-delete post-insert post-commit-update
+ 					  post-commit-delete post-commit-insert
+			-->
+ 			<map>
+				<entry key="merge">
+					<bean class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/>          
+        </entry> 
+				<entry key="post-delete" value-ref="globalListener"/>
+				<entry key="post-insert" value-ref="globalListener"/>
+				<entry key="post-update" value-ref="globalListener"/>
+			</map>
+		</property>
+	</bean>
+
+</beans>

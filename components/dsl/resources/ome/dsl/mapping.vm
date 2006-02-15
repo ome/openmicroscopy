@@ -1,6 +1,7 @@
 ## SETUP
 #set($table = ${type.typeToColumn($type.id)} )
-#set($cascade_settings = "persist,merge,replicate,refresh,save-update")
+#set($cascade_settings = "evict,lock,merge,persist,replicate,refresh,save-update")
+## No cascade on delete.
 ##
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
@@ -8,7 +9,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
     
 <hibernate-mapping>
-#if($type.superclass)<subclass
+#if($type.superclass)<joined-subclass
 #else<class
 #end
     name="${type.id}" 
@@ -17,57 +18,104 @@
     #if($type.superclass)extends="$type.superclass"#end
     >
 
+	<meta attribute="extra-import">ome.model.IObject</meta>
+
+#if($type.class.name.equals("ome.dsl.LinkType"))
+	<meta attribute="implements">ome.model.ILink</meta>
+#else
+	<meta attribute="implements">ome.model.IObject</meta>
+#end
+
 #if($type.abstract)
 	<meta attribute="scope-class" inherit="false">public abstract</meta>
 #end
-	<meta attribute="implements">ome.model.IObject</meta>
+
 #if(!$type.immutable)
 	<meta attribute="implements">ome.model.IMutable</meta>
 #end
 	<meta attribute="implement-equals" inherit="false">true</meta>
 
+        <meta attribute="class-code">
+#foreach($prop in $type.properties) ########################################EACH        
+#if($prop.class.name == "ome.dsl.ParentLink") 
+        public $prop.type parent(){ 
+        	return ($prop.type) getParent();
+        }
+#set($parentLinkType = $prop.type)                
+#elseif($prop.class.name == "ome.dsl.ChildLink")         
+        public $prop.type child(){ 
+        	return ($prop.type) getChild();
+        }
+#set($childLinkType = $prop.type)        
+#end
+#end #######################################################################EACH        
+#if($parentLinkType && $childLinkType)
+	public void link($parentLinkType parent, $childLinkType child) {
+		setParent(parent); setChild(child);
+	}
+## TODO: if double pass in DSLTask then retrieve name of target and do
+#*
+	public void link(){
+		parent.get$Property().add(this); // null checks of course.
+		child.get$Propert2().add(this);
+*#	
+#end
 	
+        </meta>
+
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 COMMON
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	
-	<id name="id" type="java.lang.Long" column="id">
-		<generator class="sequence">
-			<param name="sequence">seq_$table</param>
-		</generator>
-	</id>
+#####################################################################INHERITANCE
+#if(!$type.superclass) 
+        <id name="id" type="java.lang.Long" column="id">
+            <generator class="sequence">
+                <param name="sequence">seq_$table</param>
+            </generator>
+        </id>
 
 #if(!$type.immutable)
-	<version name="version" type="java.lang.Integer" 
-		column="version" unsaved-value="negative"/>
+        <version name="version" type="java.lang.Integer" 
+                column="version" unsaved-value="negative"/>
 #end
 
 #if(!$type.global)	
-	<component name="details" class="ome.model.internal.Details">
-	  <many-to-one name="owner" class="ome.model.meta.Experimenter" 
-		column="owner_id" update="false"
-	  	not-null="true" cascade="$cascade_settings"/>
-	  <many-to-one name="group" class="ome.model.meta.ExperimenterGroup" 
-		column="group_id" update="false"
-	  	not-null="true" cascade="$cascade_settings"/>
-	  <many-to-one name="creationEvent" class="ome.model.meta.Event" 
-		column="creation_id" update="false"
-	  	not-null="true" cascade="$cascade_settings"/>		
+        <component name="details" class="ome.model.internal.Details">
+            <many-to-one name="owner" class="ome.model.meta.Experimenter" 
+                column="owner_id" update="false"
+                not-null="true" cascade="$cascade_settings"/>
+            <many-to-one name="group" class="ome.model.meta.ExperimenterGroup" 
+                column="group_id" update="false"
+                not-null="true" cascade="$cascade_settings"/>
+            <many-to-one name="creationEvent" class="ome.model.meta.Event" 
+                column="creation_id" update="false"
+                not-null="true" cascade="$cascade_settings"/>		
 #if(!$type.immutable)
-	  <many-to-one name="updateEvent" class="ome.model.meta.Event" 
-		column="update_id" 
-	  	not-null="false"/>	
+            <many-to-one name="updateEvent" class="ome.model.meta.Event" 
+                column="update_id" update="true"
+                not-null="false" cascade="$cascade_settings"/>			
 #end
 #else
-	<component name="details" class="ome.model.internal.Details"> ## FIXME
+        <component name="details" class="ome.model.internal.Details"> ## FIXME
 #end
-	  <component name="permissions" class="ome.model.internal.Permissions">
-		<property name="bytes" type="binary" column="permissions"/> 
-		<!-- TODO possibly just default CHMOD here -->
-	  </component>
-	</component>
-
-
+            <component name="permissions" class="ome.model.internal.Permissions">
+                <property name="bytes" type="binary" column="permissions"/> 
+                <!-- TODO possibly just default CHMOD here -->
+            </component>
+	  
+            <dynamic-component name="counts" insert="false" update="false">
+                <property name="test" insert="false" update="false" 
+                    lazy="false" type="java.lang.Integer">
+                    <formula>(select 1)</formula>
+                </property>
+            </dynamic-component>
+	  
+        </component>
+#else ###############################################################INHERITANCE
+#set($superId = ${type.typeToColumn($type.superclass)} )
+	<key column="${superId}_id"/>
+#end 
+#####################################################################INHERITANCE
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 INTERFACE-BASED
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -88,54 +136,107 @@
 	 
     <!-- Associations -->
 	 
-#foreach($prop in $type.properties)
-#if($prop.class.name == "ome.dsl.EntryField")
-<!-- TODO: need EnmerationInitialTask -->
-#elseif($prop.one2Many)
+#foreach($prop in $type.properties) ########################################EACH
+#if($prop.class.name == "ome.dsl.EntryField") #############################TYPE
+## This is handled by ome/dsl/data.vm
+#elseif($prop.class.name == "ome.dsl.ParentLink") #########################TYPE
+#set($parentTable = ${type.typeToColumn($prop.type)})
+    <many-to-one
+        name="parent"
+        class="${prop.type}"
+        column="parent"
+        not-null="true"
+        cascade="$cascade_settings"
+        insert="true"
+        update="true"        
+    >
+        <meta attribute="property-type">IObject</meta>
+        <meta attribute="class-code">
+        public $prop.type parent(){ 
+        	return ($prop.type) getParent();
+        }
+        </meta>
+    </many-to-one>
+#elseif($prop.class.name == "ome.dsl.ChildLink") ##########################TYPE
+#set($childTable = ${type.typeToColumn($prop.type)})
+    <many-to-one
+        name="child"
+        class="${prop.type}"
+        column="child"
+        not-null="true"
+        cascade="$cascade_settings"
+        insert="true"
+        update="true"        
+    >
+        <meta attribute="property-type">IObject</meta>
+        <meta attribute="class-code">
+        public $prop.type child(){ 
+        	return ($prop.type) getChild();
+        }
+        </meta>
+    </many-to-one>
+#elseif($prop.one2Many) ###################################################TYPE
+	<!-- one-to-many association to $prop.name -->
 
-	<!-- bi-directional one-to-many association to $prop.name -->
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
 #if($prop.ordered)
     <list
 #else
     <set
-#end
-		name="${prop.name}"
-		lazy="true"
-		inverse="true"
+#end 
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
+        name="${prop.name}"
+        lazy="true"
+        inverse="${prop.inverse}"
 ##TODO		mutable="${prop.mutable}"
-		cascade="$cascade_settings">
-		<key>
-			<column name="${table}" not-null="${prop.required}"/>
-		</key>
+        cascade="$cascade_settings">
+        <key>
+                <column name="${table}" not-null="${prop.required}"/>
+        </key>
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
 #if($prop.ordered)
-       <list-index column="index"/>
+        <list-index column="index"/>
 #end
-		<one-to-many class="${prop.type}"/>
-#if($prop.ordered)
+        <one-to-many class="${prop.type}"/>
+#if($prop.ordered) 
     </list>
 #else
     </set>
 #end
-#elseif($prop.foreignKey)
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
 
-    <!-- bi-directional many-to-one association to $prop.name -->
+#elseif($prop.foreignKey) #################################################TYPE
+
+    <!-- many-to-one association to $prop.name -->
     <many-to-one
         name="${prop.name}"
         class="${prop.type}"
+        column="${prop.name}"
         not-null="${prop.required}"
-	unique="${prop.unique}"
-	update="${prop.mutable}"
-	cascade="$cascade_settings">
-        <column name="${prop.name}" />
-    </many-to-one>
-
+        unique="${prop.unique}"
+        cascade="$cascade_settings"
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST        
+## Allows for ordered collections in the bidirectional many-to-one case 
+#if($prop.inverse) ## TODO move this logic to Property!!! 
+        insert="false"
+        update="false"        
 #else
+        update="${prop.mutable}"
+#end ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
+        
+     />
 
-	<property name="${prop.name}" type="${prop.type}" 
-		not-null="${prop.required}" unique="${prop.unique}" 
-		update="${prop.mutable}"/>
+#else #####################################################################TYPE
+
+    <property name="${prop.name}" type="${prop.type}" 
+        not-null="${prop.required}" unique="${prop.unique}" 
+        update="${prop.mutable}"
+     />
 
 #end
+#end #######################################################################EACH
+
+#if($type.superclass)</joined-subclass>
+#else</class>
 #end
- </class>
 </hibernate-mapping>

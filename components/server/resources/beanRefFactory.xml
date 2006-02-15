@@ -6,12 +6,12 @@
     <constructor-arg>
       <list>
 	<!-- Arranged roughly in stack order -->
-        <value>WEB-INF/config-local.xml</value>
-	<value>WEB-INF/aop.xml</value>
-	<value>WEB-INF/security.xml</value>
-	<value>WEB-INF/services.xml</value>
-	<value>WEB-INF/hibernate.xml</value>
-	<value>WEB-INF/dbcp.xml</value>
+        <value>ome/services/config-local.xml</value>
+	<value>ome/services/aop.xml</value>
+	<value>ome/services/security.xml</value>
+	<value>ome/services/services.xml</value>
+	<value>ome/services/hibernate.xml</value>
+	<value>ome/services/dbcp.xml</value>
       </list>
     </constructor-arg>
   </bean> 

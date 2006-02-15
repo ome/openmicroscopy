@@ -35,15 +35,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import ome.api.OMEModel;
-import ome.model.Category;
-import ome.model.Classification;
-import ome.model.ModuleExecution;
-import ome.util.ModelMapper;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.model.containers.CategoryImageLink;
+import ome.model.internal.Details;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Category along with a back pointer
@@ -68,7 +68,7 @@ public class CategoryData
 {
 
     /** The Category ID. */
-    private int      id;
+    private long      id;
     
     /** 
      * The Category's name.
@@ -96,35 +96,45 @@ public class CategoryData
      */
     private ExperimenterData owner;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Category) {
 			Category c = (Category) model;
-			this.setId(mapper.nullSafeInt(c.getAttributeId()));
+			this.setId(mapper.nullSafeLong(c.getId()));
 			this.setName(c.getName());
 			this.setDescription(c.getDescription());
 			Set _images = new HashSet();
-			for (Iterator i = c.getClassifications().iterator(); i.hasNext();) {
-				Classification cla = (Classification) i.next();
-				if (cla.getImage()!=null){
-					_images.add(mapper.findTarget(cla.getImage()));
+            if (null != c.getImageLinks()) {
+			for (Iterator i = c.getImageLinks().iterator(); i.hasNext();) {
+                CategoryImageLink cil = (CategoryImageLink) i.next();
+				if (cil.child()!=null){
+					_images.add(mapper.findTarget(cil.child()));
 				}
 			}
+            }
 			this.setImages(_images);
-			this.setGroup((CategoryGroupData) mapper.findTarget(c.getCategoryGroup()));
-			ModuleExecution mex = c.getModuleExecution();
-			if (mex!=null){
-				this.setOwner((ExperimenterData) mapper.findTarget(mex.getExperimenter()));
+            
+            Set _categories = c.getCategoryGroupLinks();
+            if (_categories != null && _categories.size() > 0) {
+                // FIXME and if size > 1
+                CategoryGroupCategoryLink cgcl = 
+                    (CategoryGroupCategoryLink)_categories.iterator().next(); 
+                this.setGroup((CategoryGroupData) 
+                        mapper.findTarget(cgcl.parent()));    
+            }
+			Details details = c.getDetails();
+			if (details!=null){
+				this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
 			}
 		} else {
 			throw new IllegalArgumentException("CategoryData can only copy Category type.");
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -166,6 +176,10 @@ public class CategoryData
 
 	public ExperimenterData getOwner() {
 		return owner;
+	}
+	
+	public String toString() {
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
 	}
     
 }

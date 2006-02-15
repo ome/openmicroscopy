@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -125,7 +126,7 @@ public class Helper
         newRD.setDefaultT(Integer.valueOf(0));
         newRD.setModel(RenderingDefConstants.convertToType(model));
         newRD.setQuantization(qDef);
-        newRD.setWaveRendering(new HashSet(Arrays.asList(waves)));
+        newRD.setWaveRendering(Arrays.asList(waves));
         return newRD;
     }
     
@@ -136,12 +137,11 @@ public class Helper
      */
     public static Map getPixelsChannelData(Pixels metadata) {
         Map result = new HashMap();
-        Set channels = metadata.getChannels();
-        for (Iterator it = channels.iterator(); it.hasNext();)
+        List channels = metadata.getChannels();
+        for (int i = 0; i < channels.size(); i++)
         {
-            Channel channel = (Channel) it.next();
-            Integer idx = channel.getIndex();
-            result.put(idx,channel);
+            Channel channel = (Channel) channels.get(i);
+            result.put(new Integer(i),channel);
         }
         return result; 
     }

@@ -45,6 +45,7 @@ import org.apache.commons.logging.LogFactory;
 //Application-internal dependencies
 import ome.api.ModelBased;
 import ome.model.IObject;
+import ome.model.meta.Event;
 
 
 /** 
@@ -191,13 +192,12 @@ public abstract class ModelMapper extends ContextFilter {
 		}
 	}
 	
-	//	FIXME need to unify Filterable and IObject (inheritance?)
-	
-	public Timestamp date2timestamp(Date date){
-		if (date==null) return null;
-		return new Timestamp(date.getTime());
+	public Timestamp event2timestamp(Event event){
+		if (event==null) return null;
+        if (event.getTime()==null) return null;
+		return event.getTime();
 	}
-	
+    
 	public int nullSafeInt(Integer i){
 		if (i==null) return 0;
 		return i.intValue();

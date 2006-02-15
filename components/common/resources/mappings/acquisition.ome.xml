@@ -1,0 +1,608 @@
+<types>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 1 
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+	<type id="ome.model.core.Image" named="true" described="true"><!--TODO named/desc-->
+		<properties>
+			<!-- Acquisition Context 1 -->      
+			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/>
+			<optional name="acquisition" type="ome.model.acquisition.Objective">
+				<rule id="INS_OBJ_SYNCH" description="only if instrument defined"/>
+			</optional>
+			<optional name="setup" type="ome.model.acquisition.Instrument"/>
+			<optional name="position" type="ome.model.acquisition.StageLabel"/>
+			<optional name="context" type="ome.model.experiment.Experiment"/>
+      <!-- TODO: name switch and active Pixels isn't really optional! -->      
+			<onemany name="relatedPixels" type="ome.model.core.Pixels"/>
+			<optional name="activePixels" type="ome.model.core.Pixels"/>
+
+      <!-- Containers -->
+			<zeromany name="categoryLinks" type="ome.model.containers.CategoryImageLink"/>
+			<zeromany name="datasetLinks" type="ome.model.containers.DatasetImageLink"/>			
+
+      <!-- Annotations -->
+			<zeromany name="annotations" type="ome.model.annotations.ImageAnnotation"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.core.Pixels">
+		<properties>
+      <!-- Acquisition Context 1 -->      
+			<manyone name="image" type="ome.model.core.Image"/>
+			<optional name="relatedTo" type="ome.model.core.Pixels"/>
+			<!-- TODO: seems insufficient -->
+ 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>		
+			<required name="sizeX" type="int"/>
+			<required name="sizeY" type="int"/>
+			<required name="sizeZ" type="int"/>
+			<required name="sizeC" type="int"/>
+			<required name="sizeT" type="int"/>
+			<required name="sha1" type="string"/>
+      <required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
+			<optional name="methodology" type="string"/>
+ 			<onemany name="planeInfo" type="ome.model.core.PlaneInfo">
+      	<rule id="PLANE_INFO_CARDINALITY" description="0|sizez*sizey*sizec"/>
+      </onemany>
+			<required name="pixelsDimensions" type="ome.model.core.PixelsDimensions"/>
+			<!-- TODO: storage -->
+            
+      <!-- Acquisition Context 2 -->            
+			<optional name="acquisitionContext"
+				type="ome.model.acquisition.AcquisitionContext"/>
+			<onemany name="channels" type="ome.model.core.Channel" ordered="true">
+        <rule id="CHANNEL_CARDINALITY" description="Must be sizeC channels"/>
+      </onemany>
+      
+			<!--Display Settings 1-->
+			<zeromany name="settings" type="ome.model.display.RenderingDef"/>
+			<zeromany name="thumbnails" type="ome.model.display.Thumbnail"/>
+		</properties>
+	</type>
+
+	<link id="ome.model.core.PixelsOrignalFileMap" 
+		from="ome.model.core.Pixels"
+		to="ome.model.core.OriginalFile"/><!-- TODO: using Link -->
+	      
+	<type id="ome.model.core.OriginalFile">
+		<properties>
+			<required name="path" type="string"/>
+			<required name="name" type="string"/>
+			<required name="size" type="int"/>
+      <required name="sha1" type="string"/>
+			<required name="format" type="ome.model.enums.Format"/> 
+		</properties>
+	</type>        
+  
+  <type id="ome.model.core.PixelsDimensions">
+		<properties>
+			<required name="sizeX" type="float"/>
+			<required name="sizeY" type="float"/>
+			<required name="sizeZ" type="float"/>
+			<rule id="DEFAULT_MICRONS" type="default" desc="for all default = 1"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.core.PlaneInfo">
+		<properties>
+			<required name="timestamp" type="float"/>
+			<optional name="exposureTime" type="float"/><!-- TODO: see mac notes -->
+		</properties>
+	</type>
+  
+	<type id="ome.model.experiment.Experiment" described="true">
+		<properties>
+			<required name="type" type="ome.model.enums.ExperimentType"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.StageLabel">
+		<properties>
+      <required name="name" type="string"/>
+			<required name="positionX" type="float"/>
+			<required name="positionY" type="float"/>
+			<required name="positionZ" type="float"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.acquisition.ImagingEnvironment">
+		<properties>
+			<optional name="temperature" type="float"/>
+			<optional name="airPressure" type="float"/>
+			<optional name="humidity" type="float">
+				<rule id="HUMIDITY_RANGE" type="range" description="0-1"/>
+			</optional>
+			<optional name="co2percent" type="float">
+				<rule id="CO2_RANGE" type="range" description="0-1"/>
+			</optional>
+		</properties>
+	</type>		
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 2
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <type id="ome.model.acquisition.AcquisitionContext">
+		<properties>
+			<required name="photometricInterpretation" type="ome.model.enums.PIType"/>
+			<required name="mode" type="ome.model.enums.Mode"/>      
+		</properties>
+	</type>
+
+	<type id="ome.model.core.Channel" >
+		<properties>
+			<optional name="statsInfo" type="ome.model.stats.StatsInfo">
+        <rule id="STATSINFO_DEP" type="dependency" 
+          description="depends on pixelType"/><!--TODO: depends how?-->
+      </optional>
+			<optional name="colorComponent" type="ome.model.display.Color">
+        <rule id="COLOR_REQ" type="conditionalNull"
+          description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
+      </optional>
+			<optional name="logicalChannel" type="ome.model.core.LogicalChannel"/>
+			<required name="pixels" type="ome.model.core.Pixels"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.core.LogicalChannel">
+		<properties>
+			<optional name="name" type="string"/>
+			<optional name="pinHoleSize" type="int"/>
+			<optional name="illumination" type="ome.model.enums.IlluminationType"/>
+ 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
+			<optional name="excitationWave" type="int"/>
+			<optional name="emissionWave" type="int"/>
+			<optional name="fluor" type="string"/>
+			<optional name="ndFilter" type="float"/>
+			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings">
+        <rule id="DETECTOR_SETTINGS_REQ" type="conditionalNull"
+          description="if defined, the instrument must be defined"/>
+      </optional>
+			<zeromany name="lightSettings" type="ome.model.acquisition.LightSettings">
+        <rule id="LIGHT_SETTINGS_CARDINALITY" type="cardinality"
+          description="0-2"/> <!-- TODO: should we not have two nullabls? -->
+      </zeromany>
+		</properties>
+	</type>
+	
+	<type id="ome.model.stats.StatsInfo">
+		<properties>
+			<required name="globalMin" type="double"/>
+			<required name="globalMax" type="double"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.DetectorSettings">
+		<properties>
+			<required name="voltage" type="float"/>
+			<required name="gain" type="float"/>
+			<required name="offsetValue" type="float"/>
+			<required name="readRate" type="float"/>
+			<required name="detector" type="ome.model.acquisition.Detector"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.OTF">
+		<properties>
+			<required name="sizeX" type="int"/>
+			<required name="sizeY" type="int"/>
+			<required name="optionalAxisAvg" type="boolean"/>
+			<required name="pixelType" type="ome.model.enums.PixelsType"/>
+			<required name="path" type="string"/><!-- TODO: no FK? -->
+      <!-- TODO: rule to check image_link_objective ? -->
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.LightSettings">
+		<properties>
+			<optional name="power" type="float"/>
+			<optional name="technique" type="string"/>
+			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
+		</properties>
+	</type>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 3
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+	<abstract id="ome.model.acquisition.LightSource"
+		superclass="ome.model.acquisition.Manufactured"/>
+  
+	<type id="ome.model.acquisition.Arc"
+		superclass="ome.model.acquisition.LightSource">
+		<properties>
+			<required name="type" type="ome.model.enums.ArcType"/>
+		</properties>
+	</type>
+	
+	<type id="ome.model.acquisition.Filament"
+		superclass="ome.model.acquisition.LightSource">
+		<properties>
+			<required name="type" type="ome.model.enums.FilamentType"/>
+		</properties>
+	</type>
+	
+	<abstract id="ome.model.acquisition.Laser"
+		superclass="ome.model.acquisition.LightSource">
+		<properties>
+			<required name="frequencyDoubled" type="boolean"/>
+			<required name="tunable" type="boolean"/>
+			<optional name="pulse" type="ome.model.enums.PulseType"/>
+			<optional name="pump" type="ome.model.acquisition.Laser"/>
+		</properties>
+	</abstract>
+  
+	<type id="ome.model.acquisition.DyeLaser"
+		superclass="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.DyeLaserMedia"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.acquisition.ExcimerLaser"
+		superclass="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.ExcimerLaserMedia"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.acquisition.FreeElectronLaser"
+		superclass="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.FreeElectronLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.GasLaser"
+		superclass="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.GasLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.MetalVaporLaser"
+		superclass="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.MetalVaporLaserMedia"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.SemiConductorLaser"
+		superclass="ome.model.acquisition.Laser">
+		<properties>
+			<required name="medium" type="ome.model.acquisition.SemiConductorLaserMedia"/>
+		</properties>
+	</type>
+  	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 4
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <abstract id="ome.model.acquisition.Manufactured">
+		<properties>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
+		</properties>
+	</abstract>
+
+	<type id="ome.model.acquisition.Detector"
+		superclass="ome.model.acquisition.Manufactured">
+		<properties>
+			<required name="type" type="ome.model.enums.DetectorType"/>
+		</properties>
+	</type>
+	  
+	<type id="ome.model.acquisition.Microscope"
+		superclass="ome.model.acquisition.Manufactured">
+		<properties>
+			<required name="type" type="ome.model.enums.MicroscopeType"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.Objective"
+		superclass="ome.model.acquisition.Manufactured">
+		<properties>
+			<required name="magnificiation" type="double"/>
+			<required name="lensNA" type="float"/>
+			<optional name="aberrationCorrection"
+				type="ome.model.enums.ACType"/>
+			<optional name="correctionCollar" type="ome.model.enums.CCType"/>
+			<optional name="irisDiaphragm" type="ome.model.enums.IDType"/>
+			<optional name="immersionMedium" type="ome.model.enums.IMType"/>
+			<optional name="phaseCondenserAnnulus" type="int"/>
+		</properties>
+	</type>
+  
+	<type id="ome.model.acquisition.Instrument">
+		<properties>
+			<required name="microscope" type="ome.model.acquisition.Microscope"/>
+			<onemany name="detector" type="ome.model.acquisition.Detector"/>
+			<onemany name="objective" type="ome.model.acquisition.Objective"/>
+			<onemany name="lightSource" type="ome.model.acquisition.LightSource"/>
+			<onemany name="filter" type="ome.model.acquisition.Filter"/>
+		</properties>
+	</type>
+	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 5
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  
+	<type id="ome.model.acquisition.Filter">
+		<properties>
+			<optional name="customized" type="boolean"/>
+      <optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
+      <optional name="customizedFilterSet" 
+        type="ome.model.acquisition.CustomizedFilterSet"/>
+      <rule id="FILTER_XOR" type="xor" 
+        description="either filter set or customized filter set"/>
+		</properties>
+	</type>
+	
+	<type id="ome.model.acquisition.FilterSet"
+    superclass="ome.model.acquisition.Manufactured"/>
+  
+  <type id="ome.model.acquisition.CustomizedFilterSet"
+		superclass="ome.model.acquisition.Manufactured">
+		<properties>
+			<required name="excitationFilter" type="ome.model.acquisition.ExcitationFilter"/>
+			<required name="dichroic" type="ome.model.acquisition.Dichroic"/>
+			<required name="emissionFilter" type="ome.model.acquisition.EmissionFilter"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.acquisition.Dichroic"/>
+  	
+	<type id="ome.model.acquisition.ExcitationFilter">
+		<properties>
+			<required name="type" type="ome.model.enums.FilterType"/>
+		</properties>
+	</type>
+	
+	<type id="ome.model.acquisition.EmissionFilter">
+		<properties>
+			<required name="type" type="ome.model.enums.FilterType"/>
+		</properties>
+	</type>
+  	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 1 Enumerations 
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <!-- ExperimentType -->
+	<enum id="ome.model.enums.ExperimentType">
+		<entry name="FP"/>
+		<entry name="FRET"/>
+		<entry name="Time-lapse"/>
+		<entry name="4-D+"/>
+		<entry name="Screen"/>
+		<entry name="Immunocytopchemistry"/>
+		<entry name="Immunofluroescence"/>
+		<entry name="FISH"/>
+		<entry name="Electropyhsiology"/>
+		<entry name="Ion-Imaging"/>
+		<entry name="Colocalization"/>
+		<entry name="PGI/Documentation"/>
+		<entry name="FRAP"/>
+		<entry name="Photablation"/>
+		<entry name="Photoactivation"/>
+		<entry name="Uncaging"/>
+		<entry name="Optical-Trapping"/>
+		<entry name="Fluorescence-Lifetime"/>
+		<entry name="Spectral-Imaging"/>
+		<entry name="Other"/>
+	</enum>                
+        
+  <!-- Microscope Entity -->
+	<enum id="ome.model.enums.MicroscopeType">
+		<entry name="Upright"/>
+		<entry name="Inverted"/>
+		<entry name="Dissection"/>
+		<entry name="Electrophysiology"/>
+	</enum>  
+    
+  <!-- Object Entity -->
+  <enum id="ome.model.enums.ACType">
+		<entry name="Achro"/>
+		<entry name="Achromat"/>
+		<entry name="Fluor"/>
+    <entry name="Fl"/>
+    <entry name="Fluar"/>
+    <entry name="Neofluar"/>
+    <entry name="Fluotar"/>
+    <entry name="Apo"/>
+	</enum>
+  
+  <enum id="ome.model.enums.CCType">
+		<entry name="Corr"/>
+		<entry name="W/Corr"/>
+		<entry name="CR"/>
+	</enum>
+  
+	<enum id="ome.model.enums.IDType">
+		<entry name="I"/>
+		<entry name="Iris"/>
+		<entry name="W/Iris"/>
+	</enum>
+
+	<enum id="ome.model.enums.IMType">
+		<entry name="Oil"/>
+		<entry name="Oel"/>
+		<entry name="Water"/>
+		<entry name="Wasser"/>
+		<entry name="Hl"/>
+    <entry name="Gly"/>
+  </enum>
+  
+  <!-- OriginalFile Entity -->
+	<enum id="ome.model.enums.Format">
+		<entry name="DV"/>
+		<entry name="STK"/>
+	</enum>
+
+  <!-- Pixels Entity -->
+  <enum id="ome.model.enums.DimensionOrder">
+		<entry name="XYZCT"/>
+		<entry name="XYZTC"/>
+		<entry name="XYCTZ"/>
+		<entry name="XYCZT"/>
+		<entry name="XYTCZ"/>
+		<entry name="XYTZC"/>
+	</enum>
+  
+	<enum id="ome.model.enums.PixelsType">
+		<entry name="int8"/>
+		<entry name="int16"/>
+		<entry name="int32"/>
+		<entry name="uint8"/>
+		<entry name="uint16"/>
+		<entry name="uint32"/>
+		<entry name="float"/>
+		<entry name="double"/>
+		<entry name="complex"/>
+		<entry name="double-complex"/>
+	</enum>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 2 Enumerations 
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <!-- AcquisitionContext Entity -->    
+	<enum id="ome.model.enums.PIType">
+		<entry name="RGB"/>
+		<entry name="ARGB"/>
+		<entry name="CMYK"/>
+		<entry name="HSV"/>
+		<entry name="Monochrome"/>
+	</enum>
+
+  <enum id="ome.model.enums.Mode">
+		<entry name="Wide-field"/>
+		<entry name="LaserScanningMicroscopy"/>
+		<entry name="LaserScanningConfocal"/>
+		<entry name="SpinningDiskConfocal"/>
+		<entry name="SlitScanConfocal"/>
+    <entry name="MultiPhotonMicroscopy"/>
+    <entry name="StructuredIllumination"/>
+    <entry name="SingleMoleculeImaging"/>
+    <entry name="TotalInternalReflection"/>
+    <entry name="FluorescenceLifetime"/>
+    <entry name="SpectralImaging"/>
+    <entry name="FluorescenceCorrelationSpectroscopy"/>
+    <entry name="NearFieldScanningOpticalMicroscopy"/>
+    <entry name="SecondHarmonicGenerationImaging"/>
+	</enum>
+
+  <!-- Detector Entity -->  
+  <enum id="ome.model.enums.DetectorType">
+		<entry name="CCD"/>
+    <entry name="Intensified-CCD"/>
+    <entry name="Analog-Video"/>
+    <entry name="PMT"/>
+    <entry name="Photodiode"/>
+    <entry name="Spectroscopy"/>
+    <entry name="Life-time-Imaging"/>
+    <entry name="Correlation-Spectroscopy"/>
+    <entry name="FTIR"/>
+  </enum>
+
+  <!-- Detector Entity -->    
+  <enum id="ome.model.enums.IlluminationType">
+    <entry name="Transmitted"/>
+    <entry name="Epifluorescence"/>
+    <entry name="Oblique"/>
+  </enum>
+  
+  <enum id="ome.model.enums.ContrastMethod">
+    <entry name="Brightfield"/>
+    <entry name="Phase"/>
+    <entry name="DIC"/>
+    <entry name="HoffmanModulation"/>
+    <entry name="ObliqueIllumination"/>
+    <entry name="PolarizedLight"/>
+    <entry name="Darkfield"/>
+    <entry name="Fluorescence"/>
+  </enum>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 3 Enumerations 
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <!-- Arc Entity -->
+	<enum id="ome.model.enums.ArcType">
+		<entry name="Hg"/>
+		<entry name="Xe"/>
+		<entry name="Hg-Xe"/>
+		<entry name="Other"/>
+	</enum>
+
+  <!-- Filament Entity -->
+	<enum id="ome.model.enums.FilamentType">
+		<entry name="Incandescent"/>
+		<entry name="Halogen"/>
+	</enum>
+	
+  <!-- Laser Entity -->
+	<enum id="ome.model.enums.PulseType">
+		<entry name="CW"/>
+		<entry name="Single"/>
+		<entry name="Q-Switched"/>
+		<entry name="Repetitive"/>
+		<entry name="Mode-Locked"/>
+	</enum>
+
+	<enum id="ome.model.acquisition.DyeLaserMedia">
+		<entry name="Rhodamine-6G"/>
+		<entry name="Coumarin-C30"/>
+	</enum>
+  
+	<enum id="ome.model.acquisition.ExcimerLaserMedia">
+		<entry name="ArFl"/>
+		<entry name="ArCl"/>
+		<entry name="KrFl"/>
+		<entry name="KrCl"/>
+		<entry name="XeFl"/>
+		<entry name="XeCl"/>
+		<entry name="XeBr"/>
+	</enum>
+  
+	<enum id="ome.model.acquisition.FreeElectronLaserMedia">
+		<entry name="e-"/>
+	</enum>
+
+	<enum id="ome.model.acquisition.SemiConductorLaserMedia">
+		<entry name="GaAs"/>
+		<entry name="GaAlAs"/>
+	</enum>
+  
+	<enum id="ome.model.acquisition.MetalVaporLaserMedia">
+		<entry name="Cu"/>
+		<entry name="Ag"/>
+	</enum>
+  
+	<enum id="ome.model.acquisition.GasLaserMedia">
+		<entry name="Nitrogen"/>
+		<entry name="Argo"/>
+		<entry name="Krypton"/>
+		<entry name="Xenon"/>
+		<entry name="HeNe"/>
+		<entry name="HeCd"/>
+		<entry name="CO"/>
+		<entry name="CO2"/>
+		<entry name="H2O"/>
+		<entry name="HFl"/>
+	</enum>
+  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Acquisition Context 5 Enumerations 
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    
+  <enum id="ome.model.enums.FilterType">
+		<entry name="LongPass"/>
+    <entry name="ShortPass"/>
+    <entry name="BandPass"/>
+    <entry name="MultiPass"/>
+	</enum>
+	    
+</types>

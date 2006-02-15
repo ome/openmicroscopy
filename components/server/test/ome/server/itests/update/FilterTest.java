@@ -1,8 +1,8 @@
 package ome.server.itests.update;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
@@ -51,12 +51,12 @@ public class FilterTest
     
     public void testDetachedWithNewCollection()
     {
-        final Channel c1 = new Channel();
-        c1.setIndex(new Integer(6));
+        Channel c1 = new Channel();
+        List channels = new ArrayList();
+        channels.add(c1);
                 
         ome.model.core.Pixels p = (ome.model.core.Pixels) ht.find(" from Pixels ").iterator().next();
-        p.setChannels(new HashSet());
-        p.getChannels().add(c1);
+        p.setChannels(channels);
 
         // FIXME We can do one of two things; make this use the Daos and 
         // remove this here or use this here to show full usage.
@@ -70,8 +70,9 @@ public class FilterTest
     public void testNewWithNewCollection()
     {
         
-        final Channel c1 = new Channel();
-        c1.setIndex(new Integer(6));
+        Channel c1 = new Channel();
+        List channels = new ArrayList();
+        channels.add(c1);
         
         Pixels p = new Pixels();
         p.setSizeX(new Integer(1));
@@ -80,9 +81,7 @@ public class FilterTest
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");  // "pixels"
-        
-        p.setChannels(new HashSet());
-        p.getChannels().add(c1);        
+        p.setChannels(channels);
         
         test(p);
     }

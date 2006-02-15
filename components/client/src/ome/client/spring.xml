@@ -48,6 +48,7 @@
 	<!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
 		<property name="locations">
 		<list>
 			<value>classpath:spring.properties</value>
@@ -58,23 +59,23 @@
 	-->
 	</bean>
 	
-	<bean id="hierarchyBrowsingFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
-	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/HierarchyBrowsing</value></property>
-	    <property name="serviceInterface"><value>ome.api.HierarchyBrowsing</value></property>
-		<property name="username" value="${omeds.user}"/>
-		<property name="password" value="${omeds.pass}"/>
+	<bean id="auth" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="name" value="${omeds.user}"/>
+				<entry key="pass" value="${omeds.pass}"/>
+			</map>
+		</constructor-arg>
 	</bean>
-
+		
+	<bean id="remoteAuthenticationFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/RemoteAuthentication</value></property>
+	    <property name="serviceInterface"><value>net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManager</value></property>
+	</bean>
+		
 	<bean id="pojosFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/Pojos</value></property>
 	    <property name="serviceInterface"><value>ome.api.Pojos</value></property>
-		<property name="username" value="${omeds.user}"/>
-		<property name="password" value="${omeds.pass}"/>
-	</bean>
-		
-	<bean id="writeFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
-	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/Write</value></property>
-	    <property name="serviceInterface"><value>ome.api.Write</value></property>
 		<property name="username" value="${omeds.user}"/>
 		<property name="password" value="${omeds.pass}"/>
 	</bean>

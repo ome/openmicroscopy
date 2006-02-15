@@ -2,7 +2,7 @@ package ome.model;
 
 import ome.model.meta.Event;
 
-public interface IMutable {
+public interface IMutable { // TODO extends IObject? fix mapping.vm then.
 	
 	public Integer getVersion();
 	// TODO public Event getUpdateEvent();

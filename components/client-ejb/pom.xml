@@ -13,7 +13,7 @@
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>omero-ejb</artifactId>
+      <artifactId>common</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
     <dependency>

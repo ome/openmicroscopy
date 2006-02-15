@@ -63,13 +63,12 @@ public class HierarchyTransformations {
                 Iterator d = datasets.iterator();
                 while (d.hasNext()) {
                     DatasetImageLink dil = (DatasetImageLink) d.next();
-                    Dataset ds = dil.getDataset();
+                    Dataset ds = dil.parent();
 
                     if (!(ds.getImageLinks() instanceof HashSet))
                         ds.setImageLinks(new HashSet());
                     DatasetImageLink idl = new DatasetImageLink();
-                    idl.setImage(img);
-                    idl.setDataset(ds);
+                    idl.link(ds,img);
                     ds.getImageLinks().add(idl); // TODO addXXX meth.
 
                     Set projects = ds.getProjectLinks();
@@ -80,13 +79,12 @@ public class HierarchyTransformations {
                         while (p.hasNext()) {
                             ProjectDatasetLink pdl = 
                                 (ProjectDatasetLink) p.next();
-                            Project prj = pdl.getProject();
+                            Project prj = pdl.parent();
 
                             if (!(prj.getDatasetLinks() instanceof HashSet))
                                 prj.setDatasetLinks(new HashSet());
                             ProjectDatasetLink dpl = new ProjectDatasetLink();
-                            dpl.setDataset(ds);
-                            dpl.setProject(prj);
+                            dpl.link(prj,ds);
                             prj.getDatasetLinks().add(dpl); // TODO addXXX meth
 
                             hierarchies.add(prj);
@@ -113,13 +111,12 @@ public class HierarchyTransformations {
                 Iterator c = categories.iterator();
                 while (c.hasNext()) {
                     CategoryImageLink cil = (CategoryImageLink) c.next();
-                    Category ca = cil.getCategory();
+                    Category ca = cil.parent();
 
                     if (!(ca.getImageLinks() instanceof HashSet))
                         ca.setImageLinks(new HashSet());
                     CategoryImageLink icl = new CategoryImageLink();
-                    icl.setCategory(ca);
-                    icl.setImage(img);
+                    icl.link(ca,img);
                     ca.getImageLinks().add(icl);
                     
                     Set cgroups = ca.getCategoryGroupLinks();
@@ -130,14 +127,13 @@ public class HierarchyTransformations {
                         while (g.hasNext()){
                             CategoryGroupCategoryLink cgcl =
                                 (CategoryGroupCategoryLink) g.next();
-                            CategoryGroup cg = cgcl.getCategorygroup();
+                            CategoryGroup cg = cgcl.parent();
                             
                             if (!(cg.getCategoryLinks() instanceof HashSet))
                                 cg.setCategoryLinks(new HashSet());
                             CategoryGroupCategoryLink ccgl =
                                 new CategoryGroupCategoryLink();
-                            ccgl.setCategory(ca);
-                            ccgl.setCategorygroup(cg);
+                            ccgl.link(cg,ca);
                             cg.getCategoryLinks().add(ccgl);
                             
                         }

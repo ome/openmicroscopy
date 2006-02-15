@@ -35,15 +35,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import ome.api.OMEModel;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.util.ModelMapper;
-import sun.security.krb5.internal.crypto.t;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Category Group along with links to its
@@ -66,7 +64,7 @@ public class CategoryGroupData
 {
     
     /** The Category Group ID. */
-    private int      id;
+    private long      id;
     
     /** 
      * The Category Group's name.
@@ -91,23 +89,39 @@ public class CategoryGroupData
      */
     private ExperimenterData owner;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof CategoryGroup) {
 			CategoryGroup cg = (CategoryGroup) model;
-			this.setId(mapper.nullSafeInt(cg.getAttributeId()));
+			this.setId(mapper.nullSafeLong(cg.getId()));
 			this.setName(cg.getName());
 			this.setDescription(cg.getDescription());
-			this.setCategories((Set) mapper.findCollection(cg.getCategories()));
+			if (cg.getCategoryLinks() != null){
+			    Set categories = new HashSet();
+                for (Iterator i = cg.getCategoryLinks().iterator(); i.hasNext();)
+                {
+                    CategoryGroupCategoryLink cgcl = (CategoryGroupCategoryLink) i.next();
+                    categories.add(cgcl.child());
+                }
+                this.setCategories((Set) mapper.findCollection(categories));
+                // FIXME this won't work. Needs CGCL as pointer to original
+                // otherwise you get non-referential integrity
+            }
+
+			if (cg.getDetails()!=null){
+			    this.setOwner((ExperimenterData) 
+                        mapper.findTarget(
+                                cg.getDetails().getOwner()));
+			}
 		} else {
 			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -142,4 +156,9 @@ public class CategoryGroupData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+	
+	public String toString() {
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
+	}
+	
 }

@@ -17,6 +17,11 @@ public interface IObject extends Filterable{
 	public Details getDetails();
     public void setDetails(Details details);
     
+    //  ~ Lifecycle
+    // ==============================================
+    public boolean isLoaded();
+    public void unload();
+   
     // ~ Validation
     // ==============================================    
     public boolean isValid();

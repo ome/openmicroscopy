@@ -31,16 +31,17 @@ package pojos;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
-
-import ome.api.OMEModel;
-import ome.model.Experimenter;
-import ome.model.Project;
-import ome.util.ModelMapper;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Project along with links to its
@@ -62,7 +63,7 @@ public class ProjectData
 {
     
     /** The Project ID. */
-    private int      id;
+    private long     id;
     
     /** 
      * The Project's name.
@@ -87,24 +88,36 @@ public class ProjectData
      */
     private ExperimenterData owner;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Project) {
 			Project p = (Project) model;
-			this.setId(mapper.nullSafeInt(p.getProjectId()));
+			this.setId(mapper.nullSafeLong(p.getId()));
 			this.setName(p.getName());
 			this.setDescription(p.getDescription());
-			this.setDatasets((Set) mapper.findCollection(p.getDatasets()));
-			this.setOwner((ExperimenterData) mapper.findTarget(p.getExperimenter()));
+            if (p.getDetails() != null){
+                this.setOwner((ExperimenterData) 
+                        mapper.findTarget(p.getDetails().getOwner()));
+            }
+            if (p.getDatasetLinks() != null){
+                Set datasets = new HashSet();
+                for (Iterator it = p.getDatasetLinks().iterator(); it.hasNext();)
+                {
+                    ProjectDatasetLink pdl = (ProjectDatasetLink) it.next();
+                    datasets.add(pdl.child());
+                }
+                this.setDatasets((Set) mapper.findCollection(datasets));
+            }
+
 		} else { 
 			throw new IllegalArgumentException("ProjectData copies only from Project");
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -139,4 +152,9 @@ public class ProjectData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+
+	public String toString(){
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
+	}
+
 }

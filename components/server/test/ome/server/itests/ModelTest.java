@@ -94,7 +94,7 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 	}
 	
 	public void testRetrieveAll(){
-		q.queryList("from java.lang.Object",null);
+		q.queryList("from IObject",null);
 	}
 	
 	public void testCreatingOneLink(){
@@ -102,10 +102,18 @@ public class ModelTest extends AbstractDependencyInjectionSpringContextTests {
 		final Dataset ds = new Dataset();
 		final DatasetImageLink link = new DatasetImageLink();
 		
-		link.setImage(img);
-		link.setDataset(ds);
-		
-		up.saveArray(new IObject[]{img, ds, link});
+		// TODO all in link. possibly with flag (link="true")
+		/* 
+         * ds.imagesAdd(image)
+         * ds.imagesRemove(image)
+         * ds.imagesGet()
+         * ds.imagesNull()
+         */
+        ds.getImageLinks().add(link);
+        img.getDatasetLinks().add(link);
+        link.link(ds,img);
+	
+		up.saveObject(link);
 		
 	}
 	

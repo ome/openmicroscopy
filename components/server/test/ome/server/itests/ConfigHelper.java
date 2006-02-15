@@ -56,33 +56,33 @@ public class ConfigHelper {
     public static String[] getConfigLocations() {
 
         return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/services.xml",
-                "WEB-INF/security.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
+        		"ome/services/aop.xml",
+                "ome/services/services.xml",
+                "ome/services/security.xml",
+                "ome/services/hibernate.xml",
+                "ome/services/dbcp.xml", 
+                "ome/services/config-local.xml",
+                "ome/services/test/test.xml"};
     }
 
     public static String[] getDaoConfigLocations() {
 
         return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
+        		"ome/services/aop.xml",
+                "ome/services/hibernate.xml",
+                "ome/services/dbcp.xml", 
+                "ome/services/config-local.xml",
+                "ome/services/test/test.xml"};
     }
 
     public static String[] getDbUnitConfigLocations() {
 
         return new String[] { 
-        		"WEB-INF/aop.xml",
-                "WEB-INF/hibernate.xml",
-                "WEB-INF/test/dbcp.xml", 
-                "WEB-INF/config-local.xml",
-                "WEB-INF/test/test.xml"};
+        		"ome/services/aop.xml",
+                "ome/services/hibernate.xml",
+                "ome/services/test/dbcp.xml", 
+                "ome/services/config-local.xml",
+                "ome/services/test/test.xml"};
     }    
     
     

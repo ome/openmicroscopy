@@ -62,6 +62,7 @@ public class PojoOptions
     private static final String ANNOTATOR = "annotator";
     private static final String LEAF = "leaves";
     private static final String EXPERIMENTER = "experimenter";
+    private static final String GROUP = "group";
     
     private Map options = new HashMap();
 
@@ -75,7 +76,7 @@ public class PojoOptions
      */
     public PojoOptions(Map map){ 
     	if (null != map){
-    		String[] s = new String[]{ANNOTATOR,LEAF,EXPERIMENTER};
+    		String[] s = new String[]{ANNOTATOR,LEAF,EXPERIMENTER,GROUP};
     		for (int i = 0; i < s.length; i++) {
     			if (map.containsKey(s[i]))
     				this.options.put(s[i], map.get(s[i]));
@@ -155,6 +156,27 @@ public class PojoOptions
     	return (Integer) options.get(EXPERIMENTER);
     }
 
+    /* ==============================
+     * Filtered by Group
+     * ============================== */
+    
+    public PojoOptions grp(Integer i){
+        options.put(GROUP,i);
+        return this;
+    }
+    
+    public PojoOptions allGrps(){
+        remove(GROUP);
+        return this;
+    }
+    
+    public boolean isGroup(){
+        return options.containsKey(GROUP);
+    }
+    
+    public Integer getGroup(){
+        return (Integer) options.get(GROUP);
+    }
     
     /* ==============================
      * Helpers

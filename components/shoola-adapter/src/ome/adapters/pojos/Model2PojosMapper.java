@@ -30,13 +30,8 @@
 package ome.adapters.pojos;
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 
 //Third-party libraries
@@ -44,23 +39,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
-import ome.model.Experimenter;
-import ome.model.Image;
-import ome.model.ImageAnnotation;
-import ome.model.ImagePixel;
-import ome.model.Project;
-import ome.util.Filterable;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.annotations.DatasetAnnotation;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.model.core.Image;
+import ome.model.annotations.ImageAnnotation;
+import ome.model.core.Pixels;
+import ome.model.containers.Project;
 
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
@@ -89,8 +84,9 @@ public class Model2PojosMapper extends ome.util.ModelMapper {
 		_c2c.put(DatasetAnnotation.class,AnnotationData.class);
 		_c2c.put(Category.class,CategoryData.class);
 		_c2c.put(CategoryGroup.class, CategoryGroupData.class);
-		_c2c.put(ImagePixel.class,PixelsData.class);
-	}
+		_c2c.put(Pixels.class,PixelsData.class);
+		_c2c.put(ExperimenterGroup.class, GroupData.class);
+    }
 	
 	protected Map c2c() {
 		return _c2c;
@@ -110,9 +106,14 @@ public class Model2PojosMapper extends ome.util.ModelMapper {
 	}
 	
 	static public int getPixelTypeID(String pixelType) {
-		if (!pixelTypesMap.containsKey(pixelType))
+		if (null==pixelType){
+			throw new IllegalArgumentException("Null values not excepted");
+		}
+		
+		if (!pixelTypesMap.containsKey(pixelType.toUpperCase()))
 			throw new IllegalArgumentException("Unknown pixel type:"+pixelType);
-		return ((Integer)pixelTypesMap.get(pixelType)).intValue();
+		
+		return ((Integer)pixelTypesMap.get(pixelType.toUpperCase())).intValue();
 	}
 	
 }

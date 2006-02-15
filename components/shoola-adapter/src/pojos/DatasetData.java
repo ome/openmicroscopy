@@ -35,16 +35,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import ome.api.OMEModel;
-import ome.model.Dataset;
-import ome.model.DatasetAnnotation;
-import ome.model.Image;
-import ome.model.Project;
-import ome.util.ModelMapper;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
+import ome.model.containers.ProjectDatasetLink;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Dataset along with links to its
@@ -67,7 +65,7 @@ public class DatasetData
 {
 
     /** The Dataset ID. */
-    private int      id;
+    private long      id;
     
     /** 
      * The Dataset's name.
@@ -108,26 +106,48 @@ public class DatasetData
      */
     private ExperimenterData owner;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Dataset) {
 			Dataset d = (Dataset) model;
-			this.setId(mapper.nullSafeInt(d.getDatasetId()));
+			this.setId(mapper.nullSafeLong(d.getId()));
 			this.setName(d.getName());
 			this.setDescription(d.getDescription());
-			this.setImages((Set)mapper.findCollection(d.getImages()));
-			this.setProjects((Set)mapper.findCollection(d.getProjects()));
-			this.setAnnotations((Set)mapper.findCollection(d.getDatasetAnnotations()));
-			this.setOwner((ExperimenterData)mapper.findTarget(d.getExperimenter()));
+            if (d.getImageLinks() != null){
+                Set images = new HashSet();
+                for (Iterator i = d.getImageLinks().iterator(); i.hasNext();)
+                {
+                    DatasetImageLink dil = (DatasetImageLink) i.next();
+                    images.add(dil.child());
+                }
+                this.setImages((Set)mapper.findCollection(images)); // FIXME
+            }
+            if (d.getProjectLinks() != null){
+                Set projects = new HashSet();
+                for (Iterator i = d.getProjectLinks().iterator(); i.hasNext();)
+                {
+                    ProjectDatasetLink pdl = (ProjectDatasetLink) i.next();
+                    projects.add(pdl.parent());
+                }
+                this.setProjects((Set)mapper.findCollection(projects));    
+            }
+			
+            this.setAnnotations((Set)mapper.findCollection(d.getAnnotations()));
+			if (d.getDetails() != null){
+                 this.setOwner((ExperimenterData)mapper.findTarget(
+                         d.getDetails().getOwner()));         
+            }
+       
+            
 		} else {
 			throw new IllegalArgumentException("DatasetData can only copy from Dataset");
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -178,4 +198,9 @@ public class DatasetData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+
+	public String toString() {
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
+	}
+	
 }

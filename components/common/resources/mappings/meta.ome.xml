@@ -37,7 +37,9 @@
 
 	<type id="ome.model.meta.Event" mutable="false" global="true">
 		<properties>
-			<required name="type" type="ome.model.enums.EventType"/>
+      <!-- Type is not really optional. Needed to bootstrap.
+        Constraint is added later -->
+			<optional name="type" type="ome.model.enums.EventType"/>
 			<required name="time" type="timestamp"/>
 			<optional name="status" type="string"/>
 			<onemany name="logs" type="ome.model.meta.EventLog"/>

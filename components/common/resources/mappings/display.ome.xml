@@ -1,28 +1,33 @@
 <types>
-	
-	<!-- RENDERING SETTINGS -->
-	<type id="ome.model.display.Thumbnail">
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Display Settings 1
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  
+  <type id="ome.model.display.Thumbnail">
 		<properties>
-			<required name="mimeType" type="int"/>
+			<required name="mimeType" type="int"/><!--TODO: MimeType or string -->
 			<optional name="ref" type="string"/>
 		</properties>
 	</type>
+  
 	<type id="ome.model.display.RenderingDef">
 		<properties>
 			<required name="defaultZ" type="int"/>
 			<required name="defaultT" type="int"/>
 			<required name="model" type="ome.model.enums.ModelType"/>
-			<onemany name="waveRendering" type="ome.model.display.ChannelBinding" card="c"/>
+			<onemany name="waveRendering" 
+        type="ome.model.display.ChannelBinding" ordered="true">
+        <rule id="CHANNEL_BINDING_CARD" type="cardinality"
+          description="c"/>
+      </onemany> 
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
-			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext"
+			<zeromany name="spatialDomainEnhancement" 
+        type="ome.model.display.CodomainMapContext"
 				ordered="true"/>
 		</properties>
 	</type>
-	<enum id="ome.model.enums.ModelType">
-		<entry name="RGB"/>
-		<entry name="GS"/>
-		<entry name="HSB"/>
-	</enum>
+  
 	<type id="ome.model.display.QuantumDef">
 		<properties>
 			<required name="cdStart" type="int"/>
@@ -31,21 +36,19 @@
 			<rules/>
 		</properties>
 	</type>
+  
 	<type id="ome.model.display.ChannelBinding">
 		<properites>
 			<required name="family" type="ome.model.enums.FamilyType"/>
 			<required name="coefficient" type="double"/>
-			<required name="index" type="int"/>
 			<required name="inputStart" type="float"/>
 			<required name="inputEnd" type="float"/>
 			<required name="active" type="boolean"/>
-			<optional name="noiseReduction" type="boolean"/><!--here's a case of opt prim. !! -->
+			<required name="noiseReduction" type="boolean"/>
 			<required name="color" type="ome.model.display.Color"/>
 		</properites>
 	</type>
-	<enum id="ome.model.enums.FamilyType">
-		<entry name="XXXEmpty"/>
-	</enum>
+  
 	<type id="ome.model.display.Color">
 		<properties>
 			<required name="red" type="int"/>
@@ -53,15 +56,25 @@
 			<required name="blue" type="int"/>
 			<required name="alpha" type="int"/>
 		</properties>
+		<rule id="COLOR_RANGE" type="range" 
+      description="rule0_255 all values between 0-255"/>    
 	</type>
-	
+  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Display Settings 2
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  
 	<abstract id="ome.model.display.CodomainMapContext"/>
-	<type id="ome.model.display.RIContext" subclasses="ome.model.display.CodomainMapContext">
+  
+	<type id="ome.model.display.RIContext" 
+    superclass="ome.model.display.CodomainMapContext">
 		<properties>
 			<required name="reverse" type="boolean"/>
 		</properties>
 	</type>
-	<type id="ome.model.display.PSContext" subclasses="ome.model.display.CodomainMapContext">
+  
+	<type id="ome.model.display.PSContext" 
+    superclass="ome.model.display.CodomainMapContext">
 		<properties>
 			<required name="upperLimit" type="int"/>
 			<required name="lowerLimit" type="int"/>
@@ -70,7 +83,9 @@
 			<required name="constant" type="boolean"/>
 		</properties>
 	</type>
-	<type id="ome.model.display.CSContext" subclasses="ome.model.display.CodomainMapContext">
+  
+	<type id="ome.model.display.CSContext" 
+    superclass="ome.model.display.CodomainMapContext">
 		<properties>
 			<required name="xstart" type="int"/>
 			<required name="ystart" type="int"/>
@@ -78,5 +93,24 @@
 			<required name="yend" type="int"/>
 		</properties>
 	</type>
-	
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Display Settings Enumerations
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  
+	<enum id="ome.model.enums.ModelType">
+		<entry name="rgb"/>
+		<entry name="hsb"/>
+		<entry name="greyscale"/>
+	</enum>  
+  
+	<enum id="ome.model.enums.FamilyType">
+		<entry name="linear"/>
+		<entry name="polynomial"/>
+		<entry name="exponential"/>        
+		<entry name="logarithmic"/>            
+	</enum>
+  
+    	
 </types>

@@ -1,7 +1,9 @@
 package ome.model.internal;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import ome.model.IDetails;
@@ -19,7 +21,8 @@ public class Details implements IDetails
     Experimenter _owner;
     ExperimenterGroup _group;
     Set _filteredCollections;
-
+    Map _counts;
+    
     // Loaded&Filtering methods
     // ===========================================================
     public void addFiltered(String collectionName)
@@ -115,4 +118,14 @@ public class Details implements IDetails
         this._group = _group;
     }
 
+    public Map getCounts()
+    {
+        return _counts; // TODO unmodifiable?
+    }
+    
+    public void setCounts(Map counts)
+    {
+        _counts = counts;
+    }
+    
 }

@@ -27,7 +27,7 @@ public class UpdateTest extends AbstractUpdateTest
                 " left outer join fetch p.channels " +
                 "  where p.id = ?",new Object[]{p.getId()});
                 
-        assertTrue("channel ids differ",equalSets(p.getChannels(),check.getChannels()));
+        assertTrue("channel ids differ",equalCollections(p.getChannels(),check.getChannels()));
         assertTrue("acq ctx differ",
                 p.getAcquisitionContext().getId().equals(
                         check.getAcquisitionContext().getId()));

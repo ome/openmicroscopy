@@ -33,16 +33,15 @@ package pojos;
 //Java imports
 import java.sql.Timestamp;
 
-import ome.api.OMEModel;
-import ome.model.DatasetAnnotation;
-import ome.model.ImageAnnotation;
-import ome.model.ModuleExecution;
-import ome.util.ModelMapper;
-import sun.security.krb5.internal.crypto.t;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
+import ome.model.internal.Details;
+import ome.util.ModelMapper;
+
 
 /** 
  * Holds a textual annotation of a given data object and a reference to the
@@ -64,7 +63,7 @@ public class AnnotationData
 {
     
     /** The annotation ID. */
-    private int          id;
+    private long         id;
     
     /** The annotation textual description. */
     private String       text;
@@ -87,25 +86,25 @@ public class AnnotationData
      */
     private ExperimenterData owner;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof ImageAnnotation) {
 			ImageAnnotation iann = (ImageAnnotation) model;
-			this.setId(mapper.nullSafeInt(iann.getAttributeId()));
+			this.setId(mapper.nullSafeLong(iann.getId()));
 			this.setText(iann.getContent());
-			ModuleExecution mex = iann.getModuleExecution();
-			if (mex!=null){
-				this.setLastModified(mapper.date2timestamp(mex.getTimestamp()));
-				this.setOwner((ExperimenterData) mapper.findTarget(mex.getExperimenter()));
+			Details details = iann.getDetails();
+			if (details!=null){
+				this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
+				this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
 			}
 			this.setAnnotatedObject((DataObject) mapper.findTarget(iann.getImage()));
     	} else if (model instanceof DatasetAnnotation) {
 			DatasetAnnotation dann = (DatasetAnnotation) model;
-			this.setId(mapper.nullSafeInt(dann.getAttributeId()));
+			this.setId(mapper.nullSafeLong(dann.getId()));
 			this.setText(dann.getContent());
-			ModuleExecution mex = dann.getModuleExecution();
-			if (mex!=null){
-				this.setLastModified(mapper.date2timestamp(mex.getTimestamp()));
-				this.setOwner((ExperimenterData) mapper.findTarget(mex.getExperimenter()));
+			Details details = dann.getDetails();
+			if (details!=null){
+				this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
+				this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
 			}
 			this.setAnnotatedObject((DataObject) mapper.findTarget(dann.getDataset()));
 		} else {
@@ -113,11 +112,11 @@ public class AnnotationData
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -151,6 +150,10 @@ public class AnnotationData
 
 	public ExperimenterData getOwner() {
 		return owner;
+	}
+	
+	public String toString() {
+		return getClass().getName()+" (id="+getId()+")";
 	}
     
 }

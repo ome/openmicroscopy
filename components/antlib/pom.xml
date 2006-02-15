@@ -12,11 +12,6 @@
   <name>Omero Library of Ant Build Scripts</name>
   <dependencies>
     <dependency>
-      <groupId>omero</groupId>
-      <artifactId>dsl</artifactId>
-      <version>3.0-alpha-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>groovy</groupId>
       <artifactId>groovy-all-1.0-jsr</artifactId>
       <version>04</version>

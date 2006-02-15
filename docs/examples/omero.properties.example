@@ -1,0 +1,11 @@
+omero.version=3.0-alpha-SNAPSHOT
+omero.repo.local=${user.home}/.m2/repository
+omero.repo.remote=http://cvs.openmicroscopy.org.uk/maven
+
+############################################
+# Shoola connection
+############################################
+omeds.url=http://localhost/shoola/
+omeds.user=user
+omeds.pass=secret
+

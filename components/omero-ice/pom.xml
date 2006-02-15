@@ -38,7 +38,7 @@
             <phase>generate-sources</phase>
             <goals><goal>run</goal></goals>
             <configuration>
-              <sourceRoot>target/generated-sources/slice2java</sourceRoot>
+              <sourceRoot>target/generated/src</sourceRoot>
               <tasks>
                 <ant antfile="build.xml" inheritRefs="true"/>
               </tasks>

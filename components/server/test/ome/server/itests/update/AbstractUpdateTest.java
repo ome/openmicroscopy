@@ -1,6 +1,9 @@
 package ome.server.itests.update;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -18,9 +21,14 @@ import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
+import ome.model.enums.DimensionOrder;
 import ome.model.enums.EventType;
+import ome.model.enums.Mode;
 import ome.model.enums.PIType;
+import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -31,10 +39,6 @@ import ome.server.itests.ConfigHelper;
 public class AbstractUpdateTest
         extends AbstractTransactionalDataSourceSpringContextTests
 {
-
-    AbstractUpdateTest(){
-        setDefaultRollback(false);
-    }
     
     @Override
     protected String[] getConfigLocations()
@@ -42,7 +46,6 @@ public class AbstractUpdateTest
         return ConfigHelper.getConfigLocations();
     }
 
-    protected HibernateTransactionManager   _tm;
     protected SessionFactory                _sf;
     protected Session                       _s;
     protected IQuery                        _qu;
@@ -52,10 +55,9 @@ public class AbstractUpdateTest
     @Override
     protected void onSetUpBeforeTransaction() throws Exception
     {
-        _tm = (HibernateTransactionManager) applicationContext.getBean("transactionManager");
         _sf = (SessionFactory) applicationContext.getBean("sessionFactory");
-        _qu = (IQuery) applicationContext.getBean("queryService");
-        _up = (IUpdate) applicationContext.getBean("updateService");
+        _qu = (IQuery) applicationContext.getBean("internal.query");
+        _up = (IUpdate) applicationContext.getBean("internal.update");
         _jt = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
 
     }
@@ -63,12 +65,11 @@ public class AbstractUpdateTest
     @Override
     protected void onSetUpInTransaction() throws Exception
     {
-
         /* make sure the whole test runs within a single session,
          * unless closeSession() is called */
+        setComplete();
         openSession();
         prepareCurrentDetails();
-
     }
 
     protected void prepareCurrentDetails()
@@ -115,21 +116,59 @@ public class AbstractUpdateTest
     /** this method serves as our client and as our test data store.
      * An object that has no id is "new"; an object with an id is detached
      * and can represent something serialized from IQuery.
+     * TODO put this into ome.testing.ObjectFactory
      */
-    protected Pixels createPixelGraph(Long pixelsId)
+    protected Pixels createPixelGraph(Pixels example)
     {
-        // TODO put this into ome.testing.ObjectFactory
-        PIType pi = new PIType();
-        pi.setValue("test");
-    
-        AcquisitionContext ac = new AcquisitionContext();
-        ac.setPhotometricInterpretation(pi);
-    
-        Channel c = new Channel();
-        c.setIndex(1);
-    
+
         Pixels p = new Pixels();
-        p.setId(pixelsId);
+        AcquisitionContext ac = new AcquisitionContext();
+        PIType pi = new PIType();
+        Mode mode = new Mode();
+        PixelsType pt = new PixelsType();
+        DimensionOrder dO = new DimensionOrder();
+        PixelsDimensions pd = new PixelsDimensions();
+        Image i = new Image();
+        Channel c = new Channel();
+        
+        if (example != null)
+        {
+            p.setId(example.getId());
+            
+            // everything else unloaded.
+            ac.setId(example.getAcquisitionContext().getId());
+            ac.unload();
+            pt.setId(example.getPixelsType().getId());
+            pt.unload();
+            dO.setId(example.getDimensionOrder().getId());
+            dO.unload();
+            pd.setId(example.getPixelsDimensions().getId());
+            pd.unload();
+            i.setId(example.getImage().getId());
+            i.unload();
+            c.setId(((Channel)example.getChannels().get(0)).getId());
+            c.unload();
+        }
+        
+        else
+        {
+        
+            mode.setValue("test"+System.currentTimeMillis());
+            pi.setValue("test"+System.currentTimeMillis());                    
+            ac.setPhotometricInterpretation(pi);
+            ac.setMode(mode);
+        
+            pt.setValue("test"+System.currentTimeMillis());
+            
+            dO.setValue("XXXX"+System.currentTimeMillis());
+            
+            pd.setSizeX(1.0f);
+            pd.setSizeY(1.0f);
+            pd.setSizeZ(1.0f);
+        
+            c.setPixels(p);
+        
+        }
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
         p.setSizeZ(new Integer(1));
@@ -137,16 +176,23 @@ public class AbstractUpdateTest
         p.setSizeT(new Integer(1));
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
         p.setAcquisitionContext(ac);
-        p.setChannels(new HashSet());
-        p.getChannels().add(c);
-    
-        c.setPixels(p);
+        p.setPixelsType(pt);
+        p.setDimensionOrder(dO);
+        p.setPixelsDimensions(pd);
+        p.setImage(i);
         
+        List channels = new ArrayList();
+        channels.add(c);
+        p.setChannels(channels);
+
+        // Reverse links
+        // FIXME i.setActivePixels(p);
         p.setDetails(new Details());
+
         return p;
     }
 
-    protected boolean equalSets(Set<IObject> before, Set<IObject> after)
+    protected boolean equalCollections(Collection<IObject> before, Collection<IObject> after)
     {
         Set<Long> beforeIds = new HashSet<Long>();
         for (IObject object : before)

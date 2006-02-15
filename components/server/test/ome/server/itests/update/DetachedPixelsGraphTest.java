@@ -1,6 +1,7 @@
 package ome.server.itests.update;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ome.model.acquisition.AcquisitionContext;
@@ -36,13 +37,13 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
 
         prepareCurrentDetails(); // Need new event now
 
-        p = createPixelGraph(example.getId());
+        p = createPixelGraph(example);
         assertTrue("Starting off empty", p.getChannels() != null);
         channelsSizeBefore = p.getChannels().size();
         assertTrue("Starting off empty", channelsSizeBefore > 0);
         
     }
-
+    
     public void testNewRecursiveEntityFieldOnDetachedPixels() throws Exception
     {
         // PREPARE ----------------------------------------------
@@ -70,7 +71,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         flush();
         clear();
         prepareCurrentDetails();
-        Pixels p2 = createPixelGraph(example2.getId());
+        Pixels p2 = createPixelGraph(example2);
         
         p.setRelatedTo(p2);
         p = (Pixels) _up.saveAndReturnObject(p);
@@ -107,8 +108,10 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     {
         // PREPARE -------------------------------------------------
         //      TODO or bool flag?
-        AcquisitionContext ac = new AcquisitionContext();
-        ac.setId(-1l);
+        AcquisitionContext ac = 
+            new AcquisitionContext(example.getAcquisitionContext().getId());
+        ac.unload();
+        
         p.setAcquisitionContext(ac);
         _up.saveAndReturnObject(p);
         flush();
@@ -131,7 +134,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         // TEST -------------------------------------------------
         assertTrue("Didn't get re-filled", p.getChannels() != null);
         assertTrue("channel ids aren't the same", 
-                equalSets(example.getChannels(),p.getChannels()));
+                equalCollections(example.getChannels(),p.getChannels()));
     }
     
     public void testFilteredCollectionFieldOnDetachedPixels() throws Exception
@@ -149,14 +152,14 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         // TEST -------------------------------------------------        
         int channelsSizeAfter = p.getChannels().size();
         assertTrue("Filtered channels not refilled",channelsSizeAfter == channelsSizeBefore);
-        for (Channel c : (Set<Channel>) p.getChannels())
+        for (Channel c : (List<Channel>) p.getChannels())
         {
             assertTrue("Channel missing a valid id.", c.getId().longValue() > 0);
         }
         
     }
     
-    public void testNewCollectionFieldOnDetachedPixels() throws Exception
+    public void tesxNewCollectionFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------
         Set infos = new HashSet();

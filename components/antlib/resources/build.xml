@@ -3,53 +3,112 @@
 
 	<!-- Imports -->
 	<dirname property="import.dir"  file="${ant.file.global}"/>
-	<import file="${import.dir}/macros.xml"/>
 	<import file="${import.dir}/directories.xml"/>
 	<import file="${import.dir}/patterns.xml"/>
+	<import file="${import.dir}/macros.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
+	<import file="${import.dir}/server.xml"/>
 	
 	<!-- Define properties -->
 	<property environment="env" />
+	<property file="${root.dir}/omero.properties" />
 	<property file="${root.dir}/hibernate.properties" />
+	<property file="${import.dir}/messages.properties" />
 	
+    <!-- = = = = = = = = = = = = = = = = =
+          help 
+         = = = = = = = = = = = = = = = = = -->
 	<target name="help">
 		<echo>
 			This build file is intended for import only.
 		</echo>
 	</target>
 
-	<target name="prepare">
-		<mkdir dir="${dest.dir}" />
-		<mkdir dir="${done.dir}" />
-		<mkdir dir="${genresrc.dir}" />
-		<copyResource file="${root.dir}/hibernate.properties"/>
-		<copyResource file="${root.dir}/log4j.properties"/>
-		<copyResource file="${root.dir}/jndi.properties"/>
-		<definePath/>
+    <!-- = = = = = = = = = = = = = = = = =
+          classpath
+         = = = = = = = = = = = = = = = = = -->
+	<target name="classpath-check">
+		<condition property="maven.classpath.defined">
+			<and>
+				<isreference refid="maven.compile.classpath"/>
+				<isreference refid="maven.test.classpath"/>
+			</and>
+		</condition>
+		<condition property="generated.classpath.defined">
+			<and>
+				<isreference refid="generated.compile.classpath"/>
+				<isreference refid="generated.test.classpath"/>
+			</and>
+		</condition>
+		<fail>
+			<condition>
+			<not><or>
+				<isset property="maven.classpath.defined"/>
+				<isset property="generated.classpath.defined"/>
+			</or></not>
+			</condition>
+			${msg.global.no.classpath}
+		</fail>
 	</target>
 
-	<target name="msg">
-		<property file="${import.dir}/messages.properties" />
+	<target name="classpath-ant" unless="maven.classpath.defined">
+		<path id="omero.compile.classpath">
+			<path refid="generated.compile.classpath"/>
+		</path>
+		<path id="omero.test.classpath">
+			<path refid="generated.test.classpath"/>
+		</path>
 	</target>
 
-	<target name="generate" depends="prepare,loadGroovy">
-                <echo file="${genresrc.dir}/Classpath.sh">
-                  export CLASSPATH=${this.path}
+	<target name="classpath-maven" if="maven.classpath.defined">
+		<path id="omero.compile.classpath">
+			<path refid="maven.compile.classpath"/>
+		</path>
+		<path id="omero.test.classpath">
+			<path refid="maven.test.classpath"/>
+		</path>
+	</target>
+
+	<target name="classpath-define" depends="classpath-check,classpath-maven,classpath-ant">
+		<path id="omero.classpath">
+			<path refid="omero.compile.classpath"/>
+			<path refid="omero.test.classpath"/>
+			<pathelement location="${classes.dir}/" />
+			<pathelement location="${resrc.dir}/" />
+			<pathelement location="${resrc.dest}/" />
+		</path>
+		<pathconvert property="omero.path" refid="omero.classpath"/>
+		<pathconvert property="compile.path" refid="omero.compile.classpath"/>
+		<pathconvert property="test.path" refid="omero.test.classpath"/>
+	</target>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          common tasks
+         = = = = = = = = = = = = = = = = = -->
+	<target name="load-hibernate">
+		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="omero.classpath" />
+		<available property="hibernate.ext-exists" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
+		<fail unless="hibernate-exists" message="Hibernate ${fail.message}"/>
+		<fail unless="hibernate.ext-exists" message="Hibernate Tools ${fail.message}"/>
+		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" name="hibernatetool"/>
+	</target>
+	
+	<target name="load-groovy">
+		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" />
+		<fail unless="groovy-exists" message="Groovy ${msg.macro.missing_fail}"/>
+		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" name="groovy"/>
+	</target>
+		
+    <!-- = = = = = = = = = = = = = = = = =
+          maven tools
+         = = = = = = = = = = = = = = = = = -->
+	<target name="build-build" depends="prepare,load-groovy"
+		description="Generates files for ant usage">
+                <echo file="${resrc.dest}/Classpath.sh">
+                  export CLASSPATH=${omero.path}
                 </echo>
+		<antClasspath/>
 		<eclipseClasspath/>
 	</target>
 
-	<target name="loadHibernate">
-		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="local.classpath" />
-		<available property="hibernate.ext-exists" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" />
-		<fail unless="hibernate-exists" message="Hibernate ${fail.message}"/>
-		<fail unless="hibernate.ext-exists" message="Hibernate Tools ${fail.message}"/>
-		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="local.classpath" name="hibernatetool"/>
-	</target>
-	
-	<target name="loadGroovy">
-		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" />
-		<fail unless="groovy-exists" message="Groovy ${fail_message}"/>
-		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="local.classpath" name="groovy"/>
-	</target>
-		
 </project>

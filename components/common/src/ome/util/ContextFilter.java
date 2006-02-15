@@ -217,12 +217,18 @@ public class ContextFilter implements Filter {
 		return true;
 	}
 
-    // TODO no longer need context !
     public Object currentContext(){
-        // TODO in ContextFilter filter out getContext(); and getCurrent!
-        if (context.get() == null) newContext();
+        if (context.get() == null) return null;
         LinkedList ll = (LinkedList) context.get();
         return ll.size()>0 ? ll.getLast() : null;
+    }
+    
+    public Object previousContext(int index)
+    {
+        if (context.get() == null) return null;
+        LinkedList ll = (LinkedList) context.get();
+        if (index < 0 || index >= ll.size()) return null;
+        return ll.get(ll.size() - index - 1);
     }
     
 	protected void newContext(){

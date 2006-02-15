@@ -30,12 +30,24 @@
 package ome.client;
 
 //Java imports
+import java.net.URL;
+import java.util.Map;
 
 //Third-party libraries
+//import net.sf.acegisecurity.AuthenticationException;
+//import net.sf.acegisecurity.providers.rcp.RemoteAuthenticationException;
+//import net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManager;
+
+import org.springframework.beans.factory.access.BeanFactoryLocator;
+import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 //Application-internal dependencies
-import ome.api.HierarchyBrowsing;
-import ome.api.Pojos;
+import ome.api.IPojos;
+import ome.api.IQuery;
+import ome.api.IUpdate;
 
 /** 
  * Entry point for all client calls. Provides methods to 
@@ -49,14 +61,78 @@ import ome.api.Pojos;
  * </small>
  * @since 1.0
  */
-public class ServiceFactory {
+public abstract class ServiceFactory {
 
-    public HierarchyBrowsing getHierarchyBrowsingService(){
-        return (HierarchyBrowsing) SpringHarness.ctx.getBean("hierarchyBrowsingFacade");
+	public final static String SPRING_CONF_FILE = "ome/client/spring.xml";
+    public ApplicationContext ctx;
+    
+    protected ServiceFactory(){};
+    
+    public static ServiceFactory makeLocalServiceFactory()
+    {
+        return new LocalServiceFactory();
+	}
+    
+    public static ServiceFactory makeRemoteServiceFactory()
+    {
+        return new RemoteServiceFactory();
+    }
+
+//	public RemoteAuthenticationManager getRemoteAuthenticationManager(){
+//        return (RemoteAuthenticationManager) this.ctx.getBean("remoteAuthenticationFacade");
+//    }
+    
+    public IPojos getPojosService(){
+        return (IPojos) this.ctx.getBean("pojosService");
     }
     
-    public Pojos getPojosService(){
-        return (Pojos) SpringHarness.ctx.getBean("pojosFacade");
+    public IQuery getQueryService(){
+        return (IQuery) this.ctx.getBean("queryService");
     }
     
+    public IUpdate getUpdateService(){
+        return (IUpdate) this.ctx.getBean("updateService");
+    }
+    
+}
+
+class LocalServiceFactory extends ServiceFactory
+{
+    private BeanFactoryLocator   bfl = SingletonBeanFactoryLocator.getInstance();
+
+    private BeanFactoryReference bf  = bfl.useBeanFactory("ome");
+    
+    protected LocalServiceFactory()
+    {
+        ctx = (ApplicationContext) bf.getFactory();
+    }
+
+}
+
+class RemoteServiceFactory extends ServiceFactory 
+{
+    protected RemoteServiceFactory()
+    {
+        super();
+        URL path = ServiceFactory.class.getClassLoader().getResource(SPRING_CONF_FILE);
+        if (path==null){
+            throw new RuntimeException(
+                    "Client jar corrupted. " +
+                    "Can't find internal configuration file:\n" +
+                    SPRING_CONF_FILE);
+        }
+        try {
+            ctx = new FileSystemXmlApplicationContext(path.toString());
+        } catch (Exception e) {
+            throw new RuntimeException("Can't load file: "+path,e);
+        }
+        
+        Map auth = (Map) ctx.getBean("auth");
+    //  try {
+    //      getRemoteAuthenticationManager().attemptAuthentication((String)auth.
+    //    get("name"),(String)auth.get("pass"));
+    //  } catch (AuthenticationException authEx){
+    //        throw new RemoteAuthenticationException(authEx.getMessage());         
+    //  }
+    }
 }

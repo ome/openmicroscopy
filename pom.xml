@@ -121,18 +121,18 @@
               <goals><goal>run</goal></goals>
               <configuration>
                 <tasks>
-                  <ant antfile="${basedir}/../antlib/resources/build.xml" target="generate" inheritRefs="true"/>
+                  <ant antfile="${basedir}/../antlib/resources/build.xml" inheritRefs="true">
+                    <property name="mvn.group" value="${pom.groupId}"/>
+                    <property name="mvn.artifact" value="${pom.artifactId}"/>
+                    <property name="mvn.version" value="${pom.artifact.version}"/>
+                    <property name="mvn.packaging" value="${pom.packaging}"/>
+                    <target name="build-build"/>
+                    <target name="generate"/>
+                  </ant>
                 </tasks>
               </configuration>
             </execution>
           </executions>
-          <dependencies><!-- TODO -->
-            <dependency>
-              <groupId>groovy</groupId>
-              <artifactId>groovy-all-1.0-jsr</artifactId>
-              <version>04</version>
-            </dependency>
-          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>

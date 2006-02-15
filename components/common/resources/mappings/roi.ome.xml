@@ -36,7 +36,7 @@
 		</properties>
 	</type>	
 	<abstract id="ome.model.roi.ShapeArea"/>
-	<type id="ome.model.roi.Square" subclasses="ome.model.roi.ShapeArea">
+	<type id="ome.model.roi.Square" superclass="ome.model.roi.ShapeArea">
 		<properties>
 			<required name="upperLeftX" type="int"/>
 			<required name="upperLeftY" type="int"/>

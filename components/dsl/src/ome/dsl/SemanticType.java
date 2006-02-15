@@ -103,6 +103,8 @@ public abstract class SemanticType {
 			throw new IllegalStateException("All types must have an id");
 		}
 		
+        setSuperclass(attrs.getProperty("superclass"));
+        
 		setAbstract(Boolean.valueOf(attrs.getProperty("abstract","false")));
 		setDescribed(Boolean.valueOf(attrs.getProperty("described","false")));	
 		setGlobal(Boolean.valueOf(attrs.getProperty("global","false")));
@@ -247,25 +249,21 @@ class ContainerType extends SemanticType {
 	}
 }
 
+// TODO should handle ordered?
 class LinkType extends SemanticType {	
 	public LinkType(Properties attrs){
 		super(attrs);
-		String to = attrs.getProperty("to");
-		String from = attrs.getProperty("from");
-		String to_suffix="";
-		String from_suffix="";
-		if (to.equals(from)){
-			to_suffix="1";
-			from_suffix="2";
-		}
-		ManyOneField toMap = new ManyOneField(new Properties());
-		toMap.setName(typeToColumn(to)+to_suffix);
-		toMap.setType(to);
-		ManyOneField fromMap = new ManyOneField(new Properties());
-		fromMap.setName(typeToColumn(from)+from_suffix);
-		fromMap.setType(from);
-		getProperties().add(toMap);
-		getProperties().add(fromMap);
+
+        String from = attrs.getProperty("from");
+        ParentLink parent = new ParentLink(new Properties());
+		parent.setType(from);
+        getProperties().add(parent);
+
+        String to = attrs.getProperty("to");
+        ChildLink child = new ChildLink(new Properties());
+        child.setType(to);
+        getProperties().add(child);
+
 	}
 }
 

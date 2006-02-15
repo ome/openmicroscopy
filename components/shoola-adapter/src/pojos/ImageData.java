@@ -32,21 +32,17 @@ package pojos;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import ome.api.OMEModel;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.ImagePixel;
-import ome.model.ModuleExecution;
-import ome.util.ModelMapper;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.DatasetImageLink;
+import ome.model.core.Image;
+import ome.util.ModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Image along with links to its
@@ -68,7 +64,7 @@ public class ImageData
 {
 
     /** The Image ID. */
-    private int      id;
+    private long     id;
     
     /** 
      * The Image's name.
@@ -139,27 +135,42 @@ public class ImageData
      */
     private ExperimenterData owner;
     
-    public void copy(OMEModel model, ModelMapper mapper) {
+    public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Image) {
 			Image i = (Image) model;
-			this.setId(mapper.nullSafeInt(i.getImageId()));
+			this.setId(mapper.nullSafeLong(i.getId()));
 			this.setName(i.getName());
 			this.setDescription(i.getDescription());
-			this.setCreated(mapper.date2timestamp(i.getCreated()));
-			this.setInserted(mapper.date2timestamp(i.getInserted()));
-			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getImagePixel()));
-			this.setAllPixels((Set) mapper.findCollection(i.getImagePixels()));
-			this.setDatasets((Set) mapper.findCollection(i.getDatasets()));
+            if (i.getDetails() != null){
+                this.setCreated(mapper.event2timestamp(i.getDetails().getCreationEvent()));
+                this.setInserted(mapper.event2timestamp(i.getDetails().getUpdateEvent()));//TODO
+                this.setOwner((ExperimenterData) mapper.findTarget(i.getDetails().getOwner()));
+            }
+			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getActivePixels()));
+			this.setAllPixels((Set) mapper.findCollection(i.getRelatedPixels()));
+			this.setAnnotations((Set) mapper.findCollection(i.getAnnotations()));
+            if (i.getDatasetLinks() != null){
+                Set datasets = new HashSet();
+                for (Iterator it = i.getDatasetLinks().iterator(); it.hasNext();)
+                {
+                    DatasetImageLink dil = (DatasetImageLink) it.next();
+                    datasets.add(dil.parent());
+                }
+                this.setDatasets((Set) mapper.findCollection(datasets));
+                // TODO mapper.parentLinks()
+                // mapper.childLinks();
+            }
+            
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");
 		}
     }
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -234,4 +245,9 @@ public class ImageData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+
+	public String toString() {
+		return getClass().getName()+":"+getName()+" (id="+getId()+")";
+	}
+
 }
