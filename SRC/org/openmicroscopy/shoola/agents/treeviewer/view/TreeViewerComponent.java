@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.data.OmeroPojoService;
@@ -228,9 +228,10 @@ class TreeViewerComponent
         if (editorType == PROPERTIES_EDITOR || editorType == CREATE_EDITOR)
             model.setEditorType(editorType);
         else return;
+        removeEditor();
         model.setDataObject(object);
-        DOEditor panel = EditorFactory.getEditor(this, object, editorType);
-        panel.addPropertyChangeListener(DOEditor.CANCEL_EDITION_PROPERTY, 
+        EditorUI panel = EditorFactory.getEditor(this, object, editorType);
+        panel.addPropertyChangeListener(EditorUI.CANCEL_EDITION_PROPERTY, 
                                         controller);
         if ((object instanceof ImageData) || (object instanceof DatasetData)) {
             model.fireAnnotationLoading(object); 
@@ -388,7 +389,7 @@ class TreeViewerComponent
             throw new IllegalStateException("This method can only be invoked" +
                     " in the LOADING_ANNOTATION state.");
         if (map == null) throw new IllegalArgumentException("No annotations.");
-        DOEditor editor = EditorFactory.getEditor();
+        EditorUI editor = EditorFactory.getEditor();
         if (editor == null) return;
         editor.setAnnotations(map);
         view.getLoadingWindow().setVisible(false);
@@ -415,7 +416,7 @@ class TreeViewerComponent
             if (classifier == null) return;
             classifier.setThumbnail(thumbnail);
         } else {
-            DOEditor editor = EditorFactory.getEditor();
+            EditorUI editor = EditorFactory.getEditor();
             if (editor == null) return;
             editor.setThumbnail(thumbnail);
         }
@@ -447,7 +448,7 @@ class TreeViewerComponent
                     "invoked in the LOADING_CLASSIFICATION state.");
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
-        DOEditor editor = EditorFactory.getEditor();
+        EditorUI editor = EditorFactory.getEditor();
         if (editor == null) return;
         Set set = TreeViewerTranslator.transformHierarchy(paths);
         editor.setClassifiedNodes(set);

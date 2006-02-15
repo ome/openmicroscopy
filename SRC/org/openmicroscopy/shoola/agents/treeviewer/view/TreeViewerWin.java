@@ -60,7 +60,7 @@ import javax.swing.JViewport;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.DOEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -418,8 +418,8 @@ class TreeViewerWin
      */
     void addComponent(JComponent component)
     {
-        if (component instanceof DOEditor)
-            ((DOEditor) component)
+        if (component instanceof EditorUI)
+            ((EditorUI) component)
                     .setComponentsSize(workingPane.getBounds().width);
         JViewport viewPort = workingPane.getViewport();
         viewPort.removeAll();
