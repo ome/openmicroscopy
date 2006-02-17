@@ -43,6 +43,7 @@ import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Category Group along with links to its
@@ -124,6 +125,22 @@ public class CategoryGroupData
 			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
 		}
     }
+    
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        CategoryGroup cg = new CategoryGroup();
+        if (super.fill(cg)) {
+            cg.setName(this.getName());
+            cg.setDescription(this.getDescription());
+            for (Iterator it = this.getCategories().iterator(); it.hasNext();)
+            {
+                CategoryData c = (CategoryData) it.next();
+                cg.addCategory((Category)mapper.map(c));
+            }
+        }
+        return cg;
+    }
+
 
 	public void setName(String name) {
 		this.name = name;

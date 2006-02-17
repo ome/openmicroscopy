@@ -39,6 +39,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
+import ome.api.IPojos;
 import ome.logic.PojosImpl;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -93,14 +94,15 @@ public class PojosConstraintsTest extends TestCase {
 		T t = new T(IllegalArgumentException.class){
 			@Override
 			public void doTest(Object[] arg) {
-				manager.findCGCPaths((Set)arg[0],((Integer)arg[1]).intValue(), (Map)arg[2]);
+				manager.findCGCPaths((Set)arg[0],(String)arg[1], (Map)arg[2]);
 			}
 		};
 		
 		// param1: not null
-		t.blowup(true,null,1,new HashMap());
-		t.blowup(false,new HashSet(),1,new HashMap());
-		
+		t.blowup(true,null,IPojos.CLASSIFICATION_ME,new HashMap());
+		t.blowup(false,new HashSet(),IPojos.CLASSIFICATION_NME,new HashMap());
+        t.blowup(false,new HashSet(),IPojos.DECLASSIFICATION,new HashMap());
+		// TODO merge changes from omero2.
 		// param2: 
 		// TODO
 		

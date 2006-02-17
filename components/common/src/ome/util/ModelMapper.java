@@ -69,7 +69,7 @@ public abstract class ModelMapper extends ContextFilter {
 
 	protected Map model2target = new HashMap();//FIXME not thread safe. 
 	
-	public ModelBased map (Filterable source){ // TODO take any object. just like filter()
+	public ModelBased map (Filterable source){
 		Filterable o = this.filter("MAPPING...",source);
 		return (ModelBased) model2target.get(o);
 	}

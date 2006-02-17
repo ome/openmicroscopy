@@ -39,8 +39,11 @@ import java.sql.Timestamp;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 
 /** 
@@ -121,6 +124,37 @@ public class AnnotationData
 		} else {
 			throw new IllegalArgumentException("AnnotationData can only copy from ImageAnnotation and DatasetAnnotations");
 		}
+    }
+    
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        if (this.annotatedObject instanceof ImageData)
+        {
+            ImageAnnotation iann = new ImageAnnotation();
+            if (super.fill(iann)) {
+                iann.setContent(this.getText());
+                iann.setImage((Image) mapper.map(this.getAnnotatedObject()));
+            }
+            return iann;
+            
+        } else if (this.annotatedObject instanceof DatasetData) 
+        {
+            DatasetAnnotation dann = new DatasetAnnotation();
+            if (super.fill(dann)) {
+                dann.setContent(this.getText());
+                dann.setDataset((Dataset) mapper.map(this.getAnnotatedObject()));
+            }
+            
+            return dann;
+        
+        } else {
+            
+            throw new IllegalStateException(
+                    "Can't create IObject without knowing annotation type.");
+            
+        }
+            
+        
     }
 
 	public void setText(String text) {

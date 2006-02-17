@@ -38,9 +38,12 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Experimenter along with information
@@ -111,6 +114,24 @@ public class ExperimenterData
 		} else {
 			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
 		}
+    }
+    
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        Experimenter e = new Experimenter();
+        if (super.fill(e)) {
+            e.setFirstName(this.getFirstName());
+            e.setLastName(this.getLastName());
+            e.setEmail(this.getEmail());
+            e.setInstitution(this.getInstitution());
+            
+            for (Iterator it = this.getGroups().iterator(); it.hasNext();)
+            {
+                GroupData g = (GroupData) it.next();
+                e.addExperimenterGroup((ExperimenterGroup) mapper.map(g));
+            }
+        }
+        return e;
     }
 
 	public void setFirstName(String firstName) {

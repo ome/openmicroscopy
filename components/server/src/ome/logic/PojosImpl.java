@@ -395,9 +395,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     
     public IObject createDataObject(IObject arg0, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+       return _update.saveAndReturnObject(arg0);
     }
 
     public IObject[] createDataObjects(IObject[] arg0, Map arg1)

@@ -44,6 +44,7 @@
 		<sequential>
 		<echo> ================================= Running @{component}...  ================================= </echo>
 		<ant dir="${components.dir}/@{component}" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="@{component}"/>
 			<property name="test.skip" value="${test.skip}"/>
 			<property name="generate.skip" value="${generate.skip}"/>
 			<targets/>
@@ -102,6 +103,14 @@
                     }
 		  }
 
+		  def dist = {|x|
+		    if (x.contains(repo))  {
+		      path = x.substring(x.lastIndexOf(repo)+repo.length())
+		      o << """
+	<copy file="\${omero.repo.local}/${path}" todir="\${dist.dir}/repository/${path.substring(0,path.lastIndexOf("/"))}"/>"""
+                    }
+		  }
+
 		  o << """
 <!-- Code-generated ant classpath for ${artifact} component -->
 <project name="${artifact}_classpath" default="classpath-generate" basedir=".">
@@ -131,6 +140,13 @@
   <target name="classpath-download">"""
 
 		  properties["omero.path"].split(":").each(get)
+
+		o << """
+  </target>
+
+  <target name="dist-copy">"""
+
+		  properties["omero.path"].split(":").each(dist)
 
 		o << """
   </target>

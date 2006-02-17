@@ -40,9 +40,13 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Image along with links to its
@@ -174,6 +178,35 @@ public class ImageData
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");
 		}
+    }
+    
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        Image i = new Image();
+        if (super.fill(i)) {
+            i.setName(this.getName());
+            i.setDescription(this.getDescription());
+            i.setDescription(this.getDescription());
+            i.setActivePixels((Pixels) mapper.map(this.getDefaultPixels()));
+            i.setRelatedPixels(new HashSet());
+            for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
+            {
+                PixelsData p = (PixelsData) it.next();
+                i.getRelatedPixels().add(mapper.map(p));
+            }
+            i.setAnnotations(new HashSet());
+            for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
+            {
+                AnnotationData ann = (AnnotationData) it.next();
+                i.getAnnotations().add(mapper.map(ann));
+            }
+            for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
+            {
+                DatasetData d = (DatasetData) it.next();
+                i.addDataset((Dataset) mapper.map(d));
+            }
+        }
+        return i;
     }
 
 	public void setName(String name) {

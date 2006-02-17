@@ -40,10 +40,13 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.CategoryImageLink;
+import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Category along with a back pointer
@@ -139,6 +142,22 @@ public class CategoryData
 		}
     }
 
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        Category c = new Category();
+        if (super.fill(c)) {
+            c.setName(this.getName());
+            c.setDescription(this.getDescription());
+            c.addCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
+            for (Iterator it = this.getImages().iterator(); it.hasNext();)
+            {
+                ImageData i = (ImageData) it.next();
+                c.addImage((Image) mapper.map(i));
+            }
+        }
+        return c;
+    }
+    
 	public void setName(String name) {
 		this.name = name;
 	}

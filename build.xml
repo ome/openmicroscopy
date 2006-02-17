@@ -179,7 +179,13 @@ ${msg.check.report}
 	</target>
 
 	<target name="clean">
+		<delete dir="${dist.dir}"/>
 		<iterate target="clean"/>
+	</target>
+
+	<target name="dist">
+		<mkdir dir="${dist.dir}"/>
+		<iterate target="dist"/>
 	</target>
 
 	<target name="classpath-download">

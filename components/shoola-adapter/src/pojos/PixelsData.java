@@ -37,9 +37,11 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
@@ -190,6 +192,16 @@ public class PixelsData
 		}
     }
 
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        Pixels p = new Pixels();
+        if (super.fill(p)){
+            // Pixels is immutable. No reason to be screwing around with it.
+            p.unload(); 
+        }
+        return p;
+    }
+    
 //	public void setImageServerID(long imageServerID) {
 //		this.imageServerID = imageServerID;
 //	}

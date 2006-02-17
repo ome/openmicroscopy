@@ -34,10 +34,12 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Iterator;
 import java.util.Set;
 
 import ome.api.ModelBased;
 import ome.model.IObject;
+import ome.model.internal.Details;
 import ome.util.ModelMapper;
 
 /** 
@@ -113,6 +115,26 @@ public abstract class DataObject implements ModelBased
                 null : model.getDetails().filteredSet());
     }
     
+    /** 
+     * 
+     * @param model
+     * @return continue tells whether object should be further filled.
+     */
+    public boolean fill(IObject model)
+    {
+        model.setId(this.getId());
+        model.setDetails(new Details());
+        if (!this.isLoaded()){
+            model.unload();
+            return false;
+        } else {
+            for (Iterator it = this.filtered.iterator(); it.hasNext();)
+            {
+                model.getDetails().addFiltered((String)it.next());
+            }
+            return true;
+        }
+    }
 
     
 }

@@ -54,6 +54,7 @@ import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.testing.OMEData;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -80,6 +81,7 @@ public class PojosServiceTest extends TestCase {
     IQuery q;
     IUpdate u;
     ModelMapper mapper;
+    ReverseModelMapper reverse;
     
     protected void setUp() throws Exception
     {
@@ -90,6 +92,7 @@ public class PojosServiceTest extends TestCase {
         q = factory.getQueryService();
         u = factory.getUpdateService();
         mapper = new Model2PojosMapper();
+        reverse = new ReverseModelMapper();
     }
     
     public void testGetSomethingThatsAlwaysThere() throws Exception
@@ -113,7 +116,14 @@ public class PojosServiceTest extends TestCase {
         imgData.setDescription("My test description");
         
         // convert it
-        // FIXME mapper.reverse
+        Image img = (Image) reverse.map(imgData);
+
+        img = (Image) psrv.createDataObject(img,null);
+        assertNotNull("We should get something back",img);
+        assertNotNull("Should have an id",img.getId());
+        
+        Image img2 = (Image) q.getById(Image.class,img.getId());
+        assertNotNull("And we should be able to find it again.",img2);
         
     }
     

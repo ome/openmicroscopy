@@ -54,7 +54,7 @@
 	<file name="org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
 	<file name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
-	<file name="dom4j/dom4j/1.6/dom4j-1.6.jar"/>
+	<file name="dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
 	<file name="ehcache/ehcache/1.1/ehcache-1.1.jar"/>
 	<file name="cglib/cglib/2.1_3/cglib-2.1_3.jar"/>
 	<file name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
@@ -82,7 +82,8 @@
 	<get
 src="${omero.repo.remote}/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar" dest="${omero.repo.local}/org/hibernate/hibernate/3.1/hibernate-3.1.2.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/qdox/qdox/1.5/qdox-1.5.jar" dest="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/dom4j/dom4j/1.6/dom4j-1.6.jar" dest="${omero.repo.local}/dom4j/dom4j/1.6/dom4j-1.6.jar" usetimestamp="true"/>
+	<get
+src="${omero.repo.remote}/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" dest="${omero.repo.local}/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/ehcache/ehcache/1.1/ehcache-1.1.jar" dest="${omero.repo.local}/ehcache/ehcache/1.1/ehcache-1.1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/cglib/cglib/2.1_3/cglib-2.1_3.jar" dest="${omero.repo.local}/cglib/cglib/2.1_3/cglib-2.1_3.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" dest="${omero.repo.local}/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" usetimestamp="true"/>
@@ -93,5 +94,33 @@ src="${omero.repo.remote}/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar" des
 	<get src="${omero.repo.remote}/junit/junit/3.8.1/junit-3.8.1.jar" dest="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" dest="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" dest="${omero.repo.local}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" usetimestamp="true"/>
+  </target>
+  <target name="dist-copy">
+	<copy file="${omero.repo.local}/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar" todir="${dist.dir}/repository/javax/transaction/jta/1.0.1B"/>
+	<copy file="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" todir="${dist.dir}/repository/log4j/log4j/1.2.8"/>
+	<copy file="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" todir="${dist.dir}/repository/ant/ant/1.6.5"/>
+	<copy file="${omero.repo.local}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" todir="${dist.dir}/repository/commons-logging/commons-logging/1.0.4"/>
+	<copy file="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" todir="${dist.dir}/repository/velocity-tools/velocity-tools-generic/1.1"/>
+	<copy file="${omero.repo.local}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/antlib/3.0-alpha-SNAPSHOT"/>
+	<copy file="${omero.repo.local}/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" todir="${dist.dir}/repository/commons-lang/commons-lang/2.1"/>
+	<copy file="${omero.repo.local}/org/springframework/spring/2.0-m2/spring-2.0-m2.jar" todir="${dist.dir}/repository/org/springframework/spring/2.0-m2"/>
+	<copy file="${omero.repo.local}/asm/asm/1.5.3/asm-1.5.3.jar" todir="${dist.dir}/repository/asm/asm/1.5.3"/>
+	<copy file="${omero.repo.local}/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" todir="${dist.dir}/repository/commons-collections/commons-collections/3.1"/>
+	<copy file="${omero.repo.local}/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar" todir="${dist.dir}/repository/groovy/groovy-all-1.0-jsr/04"/>
+	<copy file="${omero.repo.local}/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar" todir="${dist.dir}/repository/antlr/antlr/2.7.6rc1"/>
+	<copy file="${omero.repo.local}/com/caucho/hessian/2.1.12/hessian-2.1.12.jar" todir="${dist.dir}/repository/com/caucho/hessian/2.1.12"/>
+	<copy file="${omero.repo.local}/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar" todir="${dist.dir}/repository/org/hibernate/hibernate/3.1.2"/>
+	<copy file="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" todir="${dist.dir}/repository/qdox/qdox/1.5"/>
+	<copy file="${omero.repo.local}/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" todir="${dist.dir}/repository/dom4j/dom4j/1.6.1"/>
+	<copy file="${omero.repo.local}/ehcache/ehcache/1.1/ehcache-1.1.jar" todir="${dist.dir}/repository/ehcache/ehcache/1.1"/>
+	<copy file="${omero.repo.local}/cglib/cglib/2.1_3/cglib-2.1_3.jar" todir="${dist.dir}/repository/cglib/cglib/2.1_3"/>
+	<copy file="${omero.repo.local}/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar" todir="${dist.dir}/repository/org/hibernate/jtidy/r8-21122004"/>
+	<copy file="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" todir="${dist.dir}/repository/velocity/velocity/1.4"/>
+	<copy file="${omero.repo.local}/com/caucho/burlap/2.1.12/burlap-2.1.12.jar" todir="${dist.dir}/repository/com/caucho/burlap/2.1.12"/>
+	<copy file="${omero.repo.local}/org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar" todir="${dist.dir}/repository/org/hibernate/hibernate-tools/3.1.0.beta4"/>
+	<copy file="${omero.repo.local}/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/dsl/3.0-alpha-SNAPSHOT"/>
+	<copy file="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" todir="${dist.dir}/repository/junit/junit/3.8.1"/>
+	<copy file="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" todir="${dist.dir}/repository/omero/postgresql/7.4.1-jdbc3"/>
+	<copy file="${omero.repo.local}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" todir="${dist.dir}/repository/org/springframework/spring-mock/2.0-m2"/>
   </target>
 </project>

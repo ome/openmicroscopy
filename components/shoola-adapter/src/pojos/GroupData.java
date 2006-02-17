@@ -38,9 +38,12 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
+import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Group along with the various members
@@ -105,6 +108,21 @@ public class GroupData
 		}
     }
 
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        ExperimenterGroup g = new ExperimenterGroup();
+        if (super.fill(g)) {
+            g.setName(this.getName());
+            // TODO what to do with DESCRIPTION and other missing fields
+            
+            for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
+            {
+                ExperimenterData e = (ExperimenterData) it.next();
+                g.addExperimenter((Experimenter) mapper.map(e));
+            }
+        }
+        return g;
+    }
     
 //    public ExperimenterData getContact()
 //    {

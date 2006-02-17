@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="global" default="help" basedir=".">
 
-	<!-- Imports -->
+	<!-- Where to find things -->
 	<dirname property="import.dir"  file="${ant.file.global}"/>
 	<import file="${import.dir}/directories.xml"/>
-	<import file="${import.dir}/patterns.xml"/>
-	<import file="${import.dir}/macros.xml"/>
-	<import file="${import.dir}/lifecycle.xml"/>
-	<import file="${import.dir}/server.xml"/>
-	
+
 	<!-- Define properties -->
 	<property environment="env" />
 	<property file="${root.dir}/omero.properties" />
 	<property file="${root.dir}/hibernate.properties" />
 	<property file="${import.dir}/messages.properties" />
+	
+	<!-- Imports -->
+	<import file="${import.dir}/patterns.xml"/>
+	<import file="${import.dir}/macros.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
+	<import file="${import.dir}/server.xml"/>
 	
     <!-- = = = = = = = = = = = = = = = = =
           help 
@@ -88,8 +90,8 @@
 	<target name="load-hibernate">
 		<available property="hibernate-exists" classname="org.hibernate.Hibernate" classpathref="omero.classpath" />
 		<available property="hibernate.ext-exists" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
-		<fail unless="hibernate-exists" message="Hibernate ${fail.message}"/>
-		<fail unless="hibernate.ext-exists" message="Hibernate Tools ${fail.message}"/>
+		<fail unless="hibernate-exists" message="${msg.macro.missing_fail} Hibernate"/>
+		<fail unless="hibernate.ext-exists" message="${msg.macro.missing_fail} Hibernate Tools"/>
 		<taskdef classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" name="hibernatetool"/>
 	</target>
 	

@@ -10,12 +10,14 @@
 	<!-- Absolute paths: same for all components -->
 	<property name="omero.home" value="${root.dir}"/>
 	<property name="lib.dir"    value="${root.dir}/lib" />
+	<property name="dist.dir"   value="${root.dir}/dist" />
 	
 	<!-- Components -->
-	<property name="dsl.comp"    value="${components.dir}/dsl"/>
-	<property name="common.comp" value="${components.dir}/common"/>
-	<property name="server.comp" value="${components.dir}/server"/>
-	<property name="nio.comp"    value="${components.dir}/omeio-nio"/>
+	<property name="dsl.comp"       value="${components.dir}/dsl"/>
+	<property name="common.comp"    value="${components.dir}/common"/>
+	<property name="server.comp"    value="${components.dir}/server"/>
+	<property name="nio.comp"       value="${components.dir}/omeio-nio"/>
+	<property name="render.comp" value="${components.dir}/rendering"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

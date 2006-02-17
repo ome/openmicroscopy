@@ -39,10 +39,14 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
+import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Image;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
 
 /** 
  * The data that makes up an <i>OME</i> Dataset along with links to its
@@ -150,6 +154,32 @@ public class DatasetData
 		}
     }
 
+    public IObject asIObject(ReverseModelMapper mapper)
+    {
+        Dataset d = new Dataset();
+        if (super.fill(d)) {
+            d.setName(this.getName());
+            d.setDescription(this.getDescription());
+            for (Iterator it = this.getImages().iterator(); it.hasNext();)
+            {
+                ImageData i = (ImageData) it.next();
+                d.addImage((Image) mapper.map(i));
+            }
+            for (Iterator it = this.getProjects().iterator(); it.hasNext();)
+            {
+                ProjectData p = (ProjectData) it.next();
+                d.addProject((Project) mapper.map(p));
+            }
+            d.setAnnotations(new HashSet());
+            for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
+            {
+                AnnotationData ann = (AnnotationData) it.next();
+                d.getAnnotations().add(mapper.map(ann));
+            }
+        }
+        return d;
+    }
+    
 	public void setName(String name) {
 		this.name = name;
 	}
