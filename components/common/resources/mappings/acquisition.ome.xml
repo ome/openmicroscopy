@@ -19,8 +19,10 @@
 			<optional name="activePixels" type="ome.model.core.Pixels"/>
 
       <!-- Containers -->
-			<zeromany name="categoryLinks" type="ome.model.containers.CategoryImageLink"/>
-			<zeromany name="datasetLinks" type="ome.model.containers.DatasetImageLink"/>			
+			<parent name="categoryLinks" type="ome.model.containers.CategoryImageLink"
+				target="ome.model.containers.Category"/>
+			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink"
+				target="ome.model.containers.Dataset"/>			
 
       <!-- Annotations -->
 			<zeromany name="annotations" type="ome.model.annotations.ImageAnnotation"/>
@@ -40,13 +42,15 @@
 			<required name="sizeC" type="int"/>
 			<required name="sizeT" type="int"/>
 			<required name="sha1" type="string"/>
-      <required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
+			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
 			<optional name="methodology" type="string"/>
  			<onemany name="planeInfo" type="ome.model.core.PlaneInfo">
-      	<rule id="PLANE_INFO_CARDINALITY" description="0|sizez*sizey*sizec"/>
-      </onemany>
+				<rule id="PLANE_INFO_CARDINALITY" description="0|sizez*sizey*sizec"/>
+			</onemany>
 			<required name="pixelsDimensions" type="ome.model.core.PixelsDimensions"/>
 			<!-- TODO: storage -->
+			<parent name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap"
+        target="ome.model.core.OriginalFile"/>
             
       <!-- Acquisition Context 2 -->            
 			<optional name="acquisitionContext"
@@ -61,16 +65,18 @@
 		</properties>
 	</type>
 
-	<link id="ome.model.core.PixelsOrignalFileMap" 
-		from="ome.model.core.Pixels"
-		to="ome.model.core.OriginalFile"/><!-- TODO: using Link -->
+	<link id="ome.model.core.PixelsOriginalFileMap" 
+		from="ome.model.core.OriginalFile"
+		to="ome.model.core.Pixels"/>
 	      
 	<type id="ome.model.core.OriginalFile">
 		<properties>
+			<child name="pixelsFileMaps" type="ome.model.core.PixelsOriginalFileMap"
+        target="ome.model.core.Pixels"/>
 			<required name="path" type="string"/>
 			<required name="name" type="string"/>
 			<required name="size" type="int"/>
-      <required name="sha1" type="string"/>
+      			<required name="sha1" type="string"/>
 			<required name="format" type="ome.model.enums.Format"/> 
 		</properties>
 	</type>        

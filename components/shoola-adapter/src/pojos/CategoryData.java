@@ -64,12 +64,13 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class CategoryData
-    implements DataObject
+    extends DataObject
 {
+    public final static String NAME = Category.NAME;
+    public final static String DESCRIPTION = Category.DESCRIPTION;
+    public final static String IMAGES = Category.IMAGELINKS;
+    public final static String CATEGORY_GROUP_LINKS = Category.CATEGORYGROUPLINKS;
 
-    /** The Category ID. */
-    private long      id;
-    
     /** 
      * The Category's name.
      * This field may not be <code>null</code>.  
@@ -99,20 +100,31 @@ public class CategoryData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Category) {
 			Category c = (Category) model;
-			this.setId(mapper.nullSafeLong(c.getId()));
+			super.copy(model,mapper);
+
+            // Details
+            Details details = c.getDetails();
+            if (details!=null){
+                this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
+            }
+            
+            // Fields
 			this.setName(c.getName());
 			this.setDescription(c.getDescription());
-			Set _images = new HashSet();
-            if (null != c.getImageLinks()) {
-			for (Iterator i = c.getImageLinks().iterator(); i.hasNext();) {
-                CategoryImageLink cil = (CategoryImageLink) i.next();
-				if (cil.child()!=null){
-					_images.add(mapper.findTarget(cil.child()));
-				}
-			}
-            }
-			this.setImages(_images);
             
+            // Collections
+			if (null != c.getImageLinks()) {
+			    Set _images = new HashSet();
+                
+			    for (Iterator i = c.getImageLinks().iterator(); i.hasNext();) {
+			        CategoryImageLink cil = (CategoryImageLink) i.next();
+			        if (cil.child()!=null){
+			            _images.add(mapper.findTarget(cil.child()));
+			        }
+			    }
+                this.setImages(_images);
+            }
+			
             Set _categories = c.getCategoryGroupLinks();
             if (_categories != null && _categories.size() > 0) {
                 // FIXME and if size > 1
@@ -121,22 +133,11 @@ public class CategoryData
                 this.setGroup((CategoryGroupData) 
                         mapper.findTarget(cgcl.parent()));    
             }
-			Details details = c.getDetails();
-			if (details!=null){
-				this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
-			}
+            
 		} else {
 			throw new IllegalArgumentException("CategoryData can only copy Category type.");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -176,10 +177,6 @@ public class CategoryData
 
 	public ExperimenterData getOwner() {
 		return owner;
-	}
-	
-	public String toString() {
-		return getClass().getName()+":"+getName()+" (id="+getId()+")";
 	}
     
 }

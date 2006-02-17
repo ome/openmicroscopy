@@ -29,6 +29,13 @@ $templates.PojoFields
 		setId(id);
 		setDetails(new ome.model.internal.Details());
 	}
+	public $pojo.getDeclarationName()(Long id, boolean loaded)
+	{
+		this(id);
+		if (!loaded){
+			unload();
+		}
+	}
 #end
 
 ###########################################################

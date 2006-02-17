@@ -61,11 +61,13 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class DatasetData
-    implements DataObject
+    extends DataObject
 {
-
-    /** The Dataset ID. */
-    private long      id;
+    public final static String NAME = Dataset.NAME;
+    public final static String DESCRIPTION = Dataset.DESCRIPTION;
+    public final static String IMAGE_LINKS = Dataset.IMAGELINKS;
+    public final static String PROJECT_LINKS = Dataset.PROJECTLINKS;
+    public final static String ANNOTATIONS = Dataset.ANNOTATIONS;
     
     /** 
      * The Dataset's name.
@@ -109,9 +111,19 @@ public class DatasetData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Dataset) {
 			Dataset d = (Dataset) model;
-			this.setId(mapper.nullSafeLong(d.getId()));
+            super.copy(model,mapper);
+
+            // Details
+            if (d.getDetails() != null){
+                this.setOwner((ExperimenterData)mapper.findTarget(
+                        d.getDetails().getOwner()));         
+           }
+            
+            // Fields
 			this.setName(d.getName());
 			this.setDescription(d.getDescription());
+            
+            // Collections
             if (d.getImageLinks() != null){
                 Set images = new HashSet();
                 for (Iterator i = d.getImageLinks().iterator(); i.hasNext();)
@@ -132,24 +144,11 @@ public class DatasetData
             }
 			
             this.setAnnotations((Set)mapper.findCollection(d.getAnnotations()));
-			if (d.getDetails() != null){
-                 this.setOwner((ExperimenterData)mapper.findTarget(
-                         d.getDetails().getOwner()));         
-            }
-       
             
 		} else {
 			throw new IllegalArgumentException("DatasetData can only copy from Dataset");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -197,10 +196,6 @@ public class DatasetData
 
 	public ExperimenterData getOwner() {
 		return owner;
-	}
-
-	public String toString() {
-		return getClass().getName()+":"+getName()+" (id="+getId()+")";
 	}
 	
 }

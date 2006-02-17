@@ -58,11 +58,16 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class ExperimenterData
-    implements DataObject
+    extends DataObject
 {
-
-    /** The Experimenter ID. */
-    private long         id;
+    
+    public final static String FIRSTENAME = Experimenter.FIRSTNAME;
+    public final static String MIDDLENAME = Experimenter.MIDDLENAME;
+    public final static String LASTNAME = Experimenter.LASTNAME;
+    public final static String EMAIL = Experimenter.EMAIL;
+    public final static String OMENAME = Experimenter.OMENAME;
+    public final static String INSTITUTION = Experimenter.INSTITUTION;
+    public final static String GROUP_EXPERIMENTER_MAP = Experimenter.GROUPEXPERIMENTERMAP;
     
     /** The Experimenter's first name. */
     private String      firstName;
@@ -85,11 +90,15 @@ public class ExperimenterData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Experimenter) {
 			Experimenter exp = (Experimenter) model;
-            this.setId(mapper.nullSafeLong(exp.getId()));
+            super.copy(model,mapper);
+            
+            // Fields
 			this.setFirstName(exp.getFirstName());
 			this.setLastName(exp.getLastName());
 			this.setEmail(exp.getEmail());
 			this.setInstitution(exp.getInstitution());
+            
+            // Collections
             if (exp.getGroupExperimenterMap() != null){
                 Set groups = new HashSet();
                 for (Iterator i = exp.getGroupExperimenterMap().iterator(); i.hasNext();)
@@ -103,14 +112,6 @@ public class ExperimenterData
 			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
@@ -160,7 +161,4 @@ public class ExperimenterData
 		return groups;
 	}
 	
-	public String toString() {
-		return getClass().getName()+":"+getFirstName()+" "+getLastName()+" (id="+getId()+")";
-	}
 }

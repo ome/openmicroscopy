@@ -58,8 +58,10 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class PixelsData
-    implements DataObject
+    extends DataObject
 {
+    
+    public final static String IMAGE = Pixels.IMAGE;
     
     /** 
      * Identifies the type used to store pixel values.
@@ -108,10 +110,6 @@ public class PixelsData
      * Maps onto the <i>OME</i> <code>"DOUBLE"</code> string identifier. 
      */
     public static final int     DOUBLE_TYPE = 7;
-    
-    
-    /** The Pixels ID. */
-    private long         id;
     
     /** The ID used by <i>OMEIS</i> to identify these Pixels. */
     // private long         imageServerID;
@@ -167,7 +165,9 @@ public class PixelsData
     public void copy(IObject model, ModelMapper mapper) {
 		if (model instanceof Pixels) {
 			Pixels pix = (Pixels) model;
-			this.setId(mapper.nullSafeLong(pix.getId()));
+            super.copy(model,mapper);
+            
+            // Fields
 			this.setImage((ImageData)mapper.findTarget(pix.getImage()));
 			PixelsDimensions dim = pix.getPixelsDimensions();
 			if (dim !=null){
@@ -176,7 +176,8 @@ public class PixelsData
 				this.setPixelSizeZ(mapper.nullSafeFloat(dim.getSizeZ())); 
 			}
 			if (pix.getPixelsType() != null){
-			    this.setPixelType(Model2PojosMapper.getPixelTypeID(pix.getPixelsType().getValue()));
+			    this.setPixelType(Model2PojosMapper.getPixelTypeID(
+                        pix.getPixelsType().getValue()));
             }
             this.setSizeC(mapper.nullSafeInt(pix.getSizeC()));
 			this.setSizeT(mapper.nullSafeInt(pix.getSizeT()));
@@ -188,14 +189,6 @@ public class PixelsData
 			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 //	public void setImageServerID(long imageServerID) {
 //		this.imageServerID = imageServerID;
@@ -293,7 +286,4 @@ public class PixelsData
 		return image;
 	}
     
-	public String toString() {
-		return getClass().getName()+" (id="+getId()+")";
-	}
 }

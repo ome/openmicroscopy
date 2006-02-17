@@ -19,7 +19,7 @@
     >
 
 	<meta attribute="extra-import">ome.model.IObject</meta>
-
+## Can move Interfaces to a list in Type (user can add their own!)
 #if($type.class.name.equals("ome.dsl.LinkType"))
 	<meta attribute="implements">ome.model.ILink</meta>
 #else
@@ -36,32 +36,12 @@
 	<meta attribute="implement-equals" inherit="false">true</meta>
 
         <meta attribute="class-code">
-#foreach($prop in $type.properties) ########################################EACH        
-#if($prop.class.name == "ome.dsl.ParentLink") 
-        public $prop.type parent(){ 
-        	return ($prop.type) getParent();
-        }
-#set($parentLinkType = $prop.type)                
-#elseif($prop.class.name == "ome.dsl.ChildLink")         
-        public $prop.type child(){ 
-        	return ($prop.type) getChild();
-        }
-#set($childLinkType = $prop.type)        
-#end
-#end #######################################################################EACH        
-#if($parentLinkType && $childLinkType)
-	public void link($parentLinkType parent, $childLinkType child) {
-		setParent(parent); setChild(child);
-	}
-## TODO: if double pass in DSLTask then retrieve name of target and do
-#*
-	public void link(){
-		parent.get$Property().add(this); // null checks of course.
-		child.get$Propert2().add(this);
-*#	
-#end
-	
+#foreach($prop in $type.properties)
+	${prop.extracode}
+#end 
+	${type.extracode}
         </meta>
+
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 COMMON
@@ -104,10 +84,20 @@
             </component>
 	  
             <dynamic-component name="counts" insert="false" update="false">
-                <property name="test" insert="false" update="false" 
+## TODO: again don't support multiple Links from a single type.
+#foreach($prop in $type.properties)
+#set($klass = ${prop.class.name})
+#if($klass.contains("Link"))
+                <property name="${prop.type}" insert="false" update="false" 
                     lazy="false" type="java.lang.Integer">
-                    <formula>(select 1)</formula>
+                    <formula>
+                    	(select count(link.id) from ${type.typeToColumn($prop.type)} link
+                    	##where
+                    	)
+                    </formula>
                 </property>
+#end
+#end 
             </dynamic-component>
 	  
         </component>
@@ -133,49 +123,23 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 SPECIFIC
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	 
+
     <!-- Associations -->
-	 
+    
 #foreach($prop in $type.properties) ########################################EACH
+
+##.......................................................................SETUP
+#if($prop.class.name == "ome.dsl.LinkParent" || $prop.class.name == "ome.dsl.LinkChild") 
+#set($propertyType = '<meta attribute="property-type">IObject</meta>')
+#else
+#set($propertyType = "")
+#end
+##.......................................................................SETUP
+
 #if($prop.class.name == "ome.dsl.EntryField") #############################TYPE
 ## This is handled by ome/dsl/data.vm
-#elseif($prop.class.name == "ome.dsl.ParentLink") #########################TYPE
-#set($parentTable = ${type.typeToColumn($prop.type)})
-    <many-to-one
-        name="parent"
-        class="${prop.type}"
-        column="parent"
-        not-null="true"
-        cascade="$cascade_settings"
-        insert="true"
-        update="true"        
-    >
-        <meta attribute="property-type">IObject</meta>
-        <meta attribute="class-code">
-        public $prop.type parent(){ 
-        	return ($prop.type) getParent();
-        }
-        </meta>
-    </many-to-one>
-#elseif($prop.class.name == "ome.dsl.ChildLink") ##########################TYPE
-#set($childTable = ${type.typeToColumn($prop.type)})
-    <many-to-one
-        name="child"
-        class="${prop.type}"
-        column="child"
-        not-null="true"
-        cascade="$cascade_settings"
-        insert="true"
-        update="true"        
-    >
-        <meta attribute="property-type">IObject</meta>
-        <meta attribute="class-code">
-        public $prop.type child(){ 
-        	return ($prop.type) getChild();
-        }
-        </meta>
-    </many-to-one>
-#elseif($prop.one2Many) ###################################################TYPE
+###########################################################################TYPE
+#elseif($prop.one2Many) 
 	<!-- one-to-many association to $prop.name -->
 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
@@ -222,9 +186,11 @@
         update="false"        
 #else
         update="${prop.mutable}"
-#end ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
-        
-     />
+#end 
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
+     >
+     $propertyType
+     </many-to-one>
 
 #else #####################################################################TYPE
 

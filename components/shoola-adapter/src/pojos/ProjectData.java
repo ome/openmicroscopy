@@ -39,6 +39,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.util.ModelMapper;
@@ -59,11 +60,12 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class ProjectData
-    implements DataObject
+    extends DataObject
 {
     
-    /** The Project ID. */
-    private long     id;
+    public final static String NAME = Project.NAME;
+    public final static String DESCRIPTION = Project.DESCRIPTION;
+    public final static String DATASET_LINKS = Project.DATASETLINKS;
     
     /** 
      * The Project's name.
@@ -91,13 +93,20 @@ public class ProjectData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Project) {
 			Project p = (Project) model;
-			this.setId(mapper.nullSafeLong(p.getId()));
-			this.setName(p.getName());
-			this.setDescription(p.getDescription());
+            
+            super.copy(model,mapper);
+
+            // Details 
             if (p.getDetails() != null){
                 this.setOwner((ExperimenterData) 
                         mapper.findTarget(p.getDetails().getOwner()));
             }
+            
+            // Fields
+            this.setName(p.getName());
+            this.setDescription(p.getDescription());
+
+            // Collections
             if (p.getDatasetLinks() != null){
                 Set datasets = new HashSet();
                 for (Iterator it = p.getDatasetLinks().iterator(); it.hasNext();)
@@ -112,14 +121,6 @@ public class ProjectData
 			throw new IllegalArgumentException("ProjectData copies only from Project");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -151,10 +152,6 @@ public class ProjectData
 
 	public ExperimenterData getOwner() {
 		return owner;
-	}
-
-	public String toString(){
-		return getClass().getName()+":"+getName()+" (id="+getId()+")";
 	}
 
 }

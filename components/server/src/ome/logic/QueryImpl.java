@@ -30,13 +30,15 @@
 package ome.logic;
 
 //Java imports
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +50,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
 import ome.api.IQuery;
@@ -68,6 +71,32 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
 
     private static Log log = LogFactory.getLog(QueryImpl.class);
 
+    // ~ NON-INTERFACE PUBLIC METHODS
+    // =========================================================================
+    
+    public void evict(Object obj){
+        getHibernateTemplate().evict(obj);
+    }
+    
+    public boolean checkType(String type) {
+        ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
+        return meta == null ? false : true;
+    }
+    
+    public boolean checkProperty(String type, String property) {
+        ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
+        String[] names = meta.getPropertyNames();
+        for (int i = 0; i < names.length; i++)
+        {
+            // TODO: possibly with caching and Arrays.sort/search
+            if (names[i].equals(property)) return true;
+        }
+        return false;
+    }
+
+    // ~ INTERFACE METHODS
+    // =========================================================================
+    
 	public Object getUniqueByExample(final Object example) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -180,7 +209,6 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
         });
 	}
 	
-	@Deprecated
 	public Object queryUnique(final String query, final Object[] params) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -194,7 +222,6 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
         });
 	}
 	
-	@Deprecated
 	public List queryList(final String query, final Object[] params) {
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -208,7 +235,6 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
         });
 	}
 
-	@Deprecated
 	public Object queryUniqueMap(final String query, final Map params) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -222,7 +248,6 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
         });
 	}
 	
-	@Deprecated
 	public List queryListMap(final String query, final Map params) {
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -261,7 +286,10 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
             }
         });
 	}
-	
+
+    // ~ HELPERS
+    // =========================================================================
+    
 	private void fillParams(Query q, final Object[] params) {
 		if (null!=params){
 			for (int i = 0; i < params.length; i++) {
@@ -272,6 +300,7 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
 
 	private void fillParamsMap(Query q, final Map params) {
 		if (null!=params){
+            Set availableParameters = new HashSet(Arrays.asList(q.getNamedParameters()));
 			for (Object o : params.keySet()) {
 				String s = (String) o;
 				if (s.endsWith("_list")){ 
@@ -279,7 +308,8 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
 					// TODO only take the existing parameters
 					q.setParameterList(s,(Collection)params.get(o));
 				} else {
-					q.setParameter(s,params.get(o));
+                    if (availableParameters.contains(s))
+                        q.setParameter(s,params.get(o));
 				}
 			}
 		}

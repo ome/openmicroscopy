@@ -3,15 +3,17 @@
 	<!-- MANAGEMENT -->
 	<type id="ome.model.meta.ExperimenterGroup" named="true" described="true">
 		<properties>
-			<onemany name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"/>
+			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"
+        target="ome.model.meta.Experimenter"/>
 		</properties>
 	</type>
 	
 	<type id="ome.model.meta.Experimenter" global="true">
 		<!-- ## needs to be ome_name -->
 		<properties>
+			<parent name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"
+        target="ome.model.meta.ExperimenterGroup"/>
 			<required name="omeName" type="string" unique="true"/>
-			<zeromany name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"/>
 			<required name="firstName" type="string"/>
 			<optional name="middleName" type="string"/>
 			<required name="lastName" type="string"/>

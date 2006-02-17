@@ -5,14 +5,17 @@
   <!-- PDI -->
   <type id="ome.model.containers.Project" named="true" described="true">
 	  <properties>
-		  <zeromany name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"/>
+		  <child name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"
+        target="ome.model.containers.Dataset"/>
 	  </properties>
   </type>
   
   <type id="ome.model.containers.Dataset" named="true" described="true">
 	  <properties>
-		  <zeromany name="projectLinks" type="ome.model.containers.ProjectDatasetLink"/>
-		  <zeromany name="imageLinks" type="ome.model.containers.DatasetImageLink"/>		  
+		  <parent name="projectLinks" type="ome.model.containers.ProjectDatasetLink"
+        target="ome.model.containers.Project"/>
+		  <child name="imageLinks" type="ome.model.containers.DatasetImageLink"
+        target="ome.model.core.Image"/>
 		  <zeromany name="annotations" type="ome.model.annotations.DatasetAnnotation"/>
 	  </properties>
   </type>
@@ -28,14 +31,17 @@
   <!-- CGCI -->
   <type id="ome.model.containers.CategoryGroup" named="true" described="true">
 	  <properties>
-		  <zeromany name="categoryLinks" type="ome.model.containers.CategoryGroupCategoryLink"/>
+		  <child name="categoryLinks" type="ome.model.containers.CategoryGroupCategoryLink"
+        target="ome.model.containers.Category"/>
 	  </properties>
   </type>
   
   <type id="ome.model.containers.Category" named="true" described="true">
 	  <properties>
-		  <zeromany name="categoryGroupLinks" type="ome.model.containers.CategoryGroupCategoryLink"/>
-		  <zeromany name="imageLinks" type="ome.model.containers.CategoryImageLink"/>		  
+		  <parent name="categoryGroupLinks" type="ome.model.containers.CategoryGroupCategoryLink"
+        target="ome.model.containers.CategoryGroup"/>
+		  <child name="imageLinks" type="ome.model.containers.CategoryImageLink"
+        target="ome.model.core.Image"/>
 	  </properties>
   </type>
   

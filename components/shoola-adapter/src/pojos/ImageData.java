@@ -60,11 +60,15 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class ImageData
-    implements DataObject
+    extends DataObject
 {
-
-    /** The Image ID. */
-    private long     id;
+    
+    public final static String NAME = Image.NAME;
+    public final static String DESCRIPTION = Image.DESCRIPTION;
+    public final static String PIXELS = Image.RELATEDPIXELS;
+    public final static String ANNOTATIONS = Image.ANNOTATIONS;
+    public final static String DATASET_LINKS = Image.DATASETLINKS;
+    
     
     /** 
      * The Image's name.
@@ -138,17 +142,23 @@ public class ImageData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Image) {
 			Image i = (Image) model;
-			this.setId(mapper.nullSafeLong(i.getId()));
-			this.setName(i.getName());
-			this.setDescription(i.getDescription());
+            super.copy(model,mapper);
+            
+            // Details
             if (i.getDetails() != null){
                 this.setCreated(mapper.event2timestamp(i.getDetails().getCreationEvent()));
                 this.setInserted(mapper.event2timestamp(i.getDetails().getUpdateEvent()));//TODO
                 this.setOwner((ExperimenterData) mapper.findTarget(i.getDetails().getOwner()));
             }
+
+            // Fields
+            this.setName(i.getName());
+            this.setDescription(i.getDescription());
 			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getActivePixels()));
 			this.setAllPixels((Set) mapper.findCollection(i.getRelatedPixels()));
 			this.setAnnotations((Set) mapper.findCollection(i.getAnnotations()));
+            
+            // Collections
             if (i.getDatasetLinks() != null){
                 Set datasets = new HashSet();
                 for (Iterator it = i.getDatasetLinks().iterator(); it.hasNext();)
@@ -165,14 +175,6 @@ public class ImageData
 			throw new IllegalArgumentException("ImageData copies only from Image");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -245,9 +247,4 @@ public class ImageData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
-
-	public String toString() {
-		return getClass().getName()+":"+getName()+" (id="+getId()+")";
-	}
-
 }

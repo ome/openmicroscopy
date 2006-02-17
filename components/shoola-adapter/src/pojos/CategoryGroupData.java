@@ -39,6 +39,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
 import ome.util.ModelMapper;
@@ -60,11 +61,12 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class CategoryGroupData
-    implements DataObject
+    extends DataObject
 {
-    
-    /** The Category Group ID. */
-    private long      id;
+
+    public final static String NAME = CategoryGroup.NAME;
+    public final static String DESCRIPTION = CategoryGroup.DESCRIPTION;
+    public final static String CATEGORY_LINKS = CategoryGroup.CATEGORYLINKS;
     
     /** 
      * The Category Group's name.
@@ -92,9 +94,20 @@ public class CategoryGroupData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof CategoryGroup) {
 			CategoryGroup cg = (CategoryGroup) model;
-			this.setId(mapper.nullSafeLong(cg.getId()));
+			super.copy(model,mapper);
+
+            // Details
+            if (cg.getDetails()!=null){
+                this.setOwner((ExperimenterData) 
+                        mapper.findTarget(
+                                cg.getDetails().getOwner()));
+            }
+            
+            // Fields
 			this.setName(cg.getName());
 			this.setDescription(cg.getDescription());
+            
+            // Collections 
 			if (cg.getCategoryLinks() != null){
 			    Set categories = new HashSet();
                 for (Iterator i = cg.getCategoryLinks().iterator(); i.hasNext();)
@@ -107,23 +120,10 @@ public class CategoryGroupData
                 // otherwise you get non-referential integrity
             }
 
-			if (cg.getDetails()!=null){
-			    this.setOwner((ExperimenterData) 
-                        mapper.findTarget(
-                                cg.getDetails().getOwner()));
-			}
 		} else {
 			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -155,10 +155,6 @@ public class CategoryGroupData
 
 	public ExperimenterData getOwner() {
 		return owner;
-	}
-	
-	public String toString() {
-		return getClass().getName()+":"+getName()+" (id="+getId()+")";
 	}
 	
 }

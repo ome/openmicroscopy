@@ -40,6 +40,7 @@ package ome.logic;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,15 +48,22 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.api.IPojos;
 import ome.dao.hibernate.queries.PojosQueryBuilder;
+import ome.model.ILink;
+import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.model.meta.Experimenter;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
 import ome.util.builders.PojoOptions;
@@ -75,22 +83,33 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
-    private enum ALGORITHM {INCLUSIVE,EXCLUSIVE};
+    // ~ READ
+    // =========================================================================
     
     private Map<String, Object> getParameters(Collection coll, PojoOptions po){ 
     	Map<String, Object> m = new HashMap<String, Object>();
     	if (null != coll) m.put("id_list",coll);
-		if (po.isExperimenter()) m.put("exp",po.getExperimenter());
+		//if (po.isExperimenter() && (po.isLeaves() || coll == null)) m.put("exp",po.getExperimenter()); 
+        // ignoring unknown parameters for now. need to fix
+        if (po.isExperimenter()) m.put("exp",po.getExperimenter()); 
+        if (po.isGroup()) m.put("grp",po.getGroup());
+    
+        // TODO : this needs to be checked against both pojos_macros and pojos_load
+        // specifically for variables: noIds, noLeaves, & doExperimenter. Tricky logic.
+        // Explanation: When noLeaves then image-based items are turned off. However, when experimenter
+        // is on and collection is null, then we have to check the images for their owner. Fallicacy.
+        // Possibly need to throw IllegalArgumentException.
+        // FIXME this logic really needs to be in XXXDao closer to the queries.
 		return m;
     }
-
-    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds, Map options) {
-
+    
+    public Set loadContainerHierarchy(Class rootNodeType, @Validate(Integer.class) Set rootNodeIds, Map options) {
+        
         PojoOptions po = new PojoOptions(options);
         
-        if (null==rootNodeIds && po.getExperimenter()==null) 
+        if (null==rootNodeIds && !po.isExperimenter() && !po.isGroup()) 
         	throw new IllegalArgumentException(
-        			"Set of ids for loadContainerHierarchy() may not be null if experimenter option is null.");
+        			"Set of ids for loadContainerHierarchy() may not be null if experimenter and group options are null.");
 
         if (Project.class.equals(rootNodeType) ||
         		Dataset.class.equals(rootNodeType) ) {
@@ -114,10 +133,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     	return new HashSet(l);
         
 	}
-
-	public Set findContainerHierarchies(Class rootNodeType, Set imageIds, Map options) {
+    
+	public Set findContainerHierarchies(Class rootNodeType, @NotNull @Validate(Integer.class) Set imageIds, Map options) {
 		
-		if (null == rootNodeType || null == imageIds)
+        if (null == rootNodeType || null == imageIds)
 			throw new IllegalArgumentException(
 					"rootNodeType and set of ids for findContainerHierarcheies() may not be null.");
 
@@ -125,7 +144,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         Map m = getParameters(imageIds, po);
     	String q = PojosQueryBuilder.buildFindQuery(rootNodeType,po.map());
     	List   l;
-    	Set s;
     	
 		if (Project.class.equals(rootNodeType)) {
 			if (imageIds.size()==0){
@@ -154,7 +172,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 	}
 
-	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, Map options) {
+	public Map findAnnotations(Class rootNodeType, @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
 		
 		if (null == rootNodeIds)
 			throw new IllegalArgumentException(
@@ -193,8 +211,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
 	}
 
-	public Set findCGCPaths(Set imgIds, int algorithm, Map options) {
-		if (null == imgIds){
+	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, String algorithm, Map options) {
+        if (null == imgIds){
 			throw new IllegalArgumentException(
 					"Set of ids for findCGCPaths() may not be null");
 		}
@@ -203,23 +221,48 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 			return new HashSet();
 		}
 
-		if (algorithm >= ALGORITHM.values().length) {
+		if (! IPojos.ALGORITHMS.contains(algorithm)) {
 			throw new IllegalArgumentException(
-					"No such algorithm known");
+					"No such algorithm known:"+algorithm);
 		}
 		
 		PojoOptions po = new PojoOptions(options);
 		
-		String q = PojosQueryBuilder.buildPathsQuery(ALGORITHM.values()[algorithm].toString(),po.map());
+		String q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
 		Map m = getParameters(imgIds,po);
-		return new HashSet(_query.queryListMap(q,m));
-		
-		
+        
+		List<List> result_set = _query.queryListMap(q,m);
+        Map<CategoryGroup,Set<Category>> map 
+        = new HashMap<CategoryGroup,Set<Category>>();
+        Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
+        
+        // Parse
+        for (List result_row : result_set)
+        {
+            CategoryGroup cg = (CategoryGroup) result_row.get(0);
+            Category c = (Category) result_row.get(1);
+
+            if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
+            map.get(cg).add(c);
+        }
+
+        for (CategoryGroup cg : map.keySet())
+        {
+            for (Category c : map.get(cg))
+            {
+                ((QueryImpl)_query).evict(cg); // FIXME does this suffice?
+                cg.addCategory(c);
+            }
+            returnValues.add(cg);
+        }
+        
+		return returnValues;
 		
 	}
 
-	public Set getImages(Class rootNodeType, Set rootNodeIds, Map options) {
-		if (null == rootNodeType || null == rootNodeIds){
+	public Set getImages(Class rootNodeType, @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
+		
+        if (null == rootNodeType || null == rootNodeIds){
 			throw new IllegalArgumentException(
 					"rootNodeType and set of ids for getImages() may not be null");
 		}
@@ -240,9 +283,9 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 		PojoOptions po = new PojoOptions(options);
 		
-		if (po.getExperimenter()==null){
+		if (!po.isExperimenter() && !po.isGroup()){
 			throw new IllegalArgumentException(
-					"experimenter option is required for getUserImages().");
+					"experimenter or group option is required for getUserImages().");
 		}
 	
 		String q = PojosQueryBuilder.buildGetQuery(Image.class,po.map());
@@ -250,6 +293,161 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		return new HashSet(_query.queryListMap(q,m));
 		
 	}
+    
+    /**
+     * @DEV.TODO move query to queryBuilder
+     */
+    public Map getUserDetails(@Validate(String.class) Set names, Map options)
+    {
+        
+        /* test for type guarantee and non-null*/
+        for (Object object : names)
+        {
+            if (!(object instanceof String)){
+                throw new IllegalArgumentException("names parameter to getUserDetails may only contain Strings.");    
+            }
+        }
+        
+        List results;
+        Map<String, Experimenter> map = new HashMap<String, Experimenter>();
+        
+        /* query only if we have some ids */
+        if (names.size() > 0)
+        {
+            Map<String, Set> params = new HashMap<String, Set>();
+            params.put("name_list",names);
+        
+            results = _query.queryListMap(
+                    "select e from Experimenter e " +
+                    "left outer join fetch e.group " +
+                    "left outer join fetch e.groups " +
+                    "where e.omeName in ( :name_list )",
+                    params
+            );
+            
+            for (Object object : results)
+            {
+                Experimenter e = (Experimenter) object;
+                map.put(e.getOmeName(),e);
+            }
+        }
+        
+        /* ensures all ids appear in map */
+        for (Object object : names)
+        {
+            String name = (String) object;
+            if (! map.containsKey(name)){
+                map.put(name,null);
+            }
+        }        
+        
+        return map;
+        
+    }
+    
+    public Map getCollectionCount(@NotNull String type, @NotNull String property, @NotNull @Validate(Integer.class) Set ids, Map options)
+    {
+        Map results = new HashMap();
+        String alphaNumeric = "^\\w+$";
+        String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
+        
+        if (!type.matches(alphaNumericDotted))
+        {
+            throw new IllegalArgumentException("Type argument to getCollectionCount may ONLY be alpha-numeric with dots ("+alphaNumericDotted+")");
+        }
+        
+        if (!property.matches(alphaNumeric))
+        {
+            throw new IllegalArgumentException("Property argument to getCollectionCount may ONLY be alpha-numeric ("+alphaNumeric+")");
+        }
+                
+        if (((QueryImpl)_query).checkType(type)) 
+        {
+            throw new IllegalArgumentException(type+"."+property+" is an unknown type.");
+        }
+        
+        if (((QueryImpl)_query).checkProperty(type,property))
+        {
+            throw new IllegalArgumentException(type+"."+property+" is an unknown property on type "+type);
+        }
+        
+        String query = "select size(table."+property+") from "+type+" table where table.id = ?";
+        // FIXME: optimize by doing new list(id,size(table.property)) ... group by id
+        for (Iterator iter = ids.iterator(); iter.hasNext();)
+        {
+            Integer id = (Integer) iter.next();
+            Integer count = (Integer) _query.queryUnique(query,new Object[]{id});
+            results.put(id,count);
+        }
+        
+        return results;
+    }
 
+    public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    // ~ WRITE
+    // =========================================================================
+    
+    public IObject createDataObject(IObject arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public IObject[] createDataObjects(IObject[] arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public int unlink(ILink[] arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return 0;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public ILink[] link(ILink[] arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public IObject updateDataObject(IObject arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public IObject[] udpateDataObjects(IObject[] arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public int deleteDataObject(IObject arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return 0;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public int deleteDataObjects(IObject[] arg0, Map arg1)
+    {
+        // TODO Auto-generated method stub
+        //return 0;
+        throw new RuntimeException("Not implemented yet.");
+    }
+    
 }
 

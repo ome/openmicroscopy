@@ -34,11 +34,15 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Set;
+
 import ome.api.ModelBased;
+import ome.model.IObject;
+import ome.util.ModelMapper;
 
 /** 
- * Marker interface for objects that hold <i>OMEDS</i> data.
- * Classes implementing this interface should be struct-like,
+ * Abstract superclass for objects that hold <i>OMEDS</i> data.
+ * Subclasses should be struct-like,
  * with <code>public</code> fields to hold the data.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,7 +56,63 @@ import ome.api.ModelBased;
  * </small>
  * @since OME2.2
  */
-public interface DataObject extends ModelBased
+public abstract class DataObject implements ModelBased
 {
+    
+    private long id;
+    
+    private boolean loaded;
+    
+    private Set filtered;
 
+    public long getId()
+    {
+        return id;
+    }
+    
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+    
+    public boolean isLoaded()
+    {
+        return loaded;
+    }
+    
+    public void setLoaded(boolean loaded)
+    {
+        this.loaded = loaded;
+    }
+
+    protected Set getFiltered()
+    {
+        return filtered;
+    }
+    
+    protected void setFiltered(Set filtered)
+    {
+        this.filtered = filtered;
+    }
+    
+    public boolean isFiltered(String fieldName)
+    {
+        if (getFiltered() == null) return false;
+        return getFiltered().contains(fieldName);
+    }
+    
+    public String toString() {
+        return getClass().getName()+" (id="+getId()+")";
+    }
+    
+    public void copy(IObject model, ModelMapper mapper)
+    {
+        this.setId(mapper.nullSafeLong(model.getId()));
+        this.setLoaded(model.isLoaded());
+        this.setFiltered(model.getDetails()==null ? 
+                null : model.getDetails().filteredSet());
+    }
+    
+
+    
 }

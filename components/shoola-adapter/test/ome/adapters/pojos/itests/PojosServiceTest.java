@@ -56,6 +56,7 @@ import ome.testing.OMEData;
 import ome.util.ModelMapper;
 
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 
 /** 
@@ -102,6 +103,17 @@ public class PojosServiceTest extends TestCase {
         assertNotNull("And something should still be there",expData);
         assertNotNull("And it should have an id",expData.getId());
         assertNotNull("And various other things",expData.getFirstName());
+    }
+    
+    public void testNowLetsTryToSaveSomething() throws Exception
+    {
+        // prepare data
+        ImageData imgData = new ImageData();
+        imgData.setName("My test image");
+        imgData.setDescription("My test description");
+        
+        // convert it
+        // FIXME mapper.reverse
         
     }
     

@@ -59,11 +59,13 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class AnnotationData
-    implements DataObject
+    extends DataObject
 {
     
-    /** The annotation ID. */
-    private long         id;
+    public final static String IMAGE_ANNOTATION_CONTENT = ImageAnnotation.CONTENT;
+    public final static String IMAGE_ANNOTATION_IMAGE = ImageAnnotation.IMAGE;
+    public final static String DATASET_ANNOTATION_CONTENT = DatasetAnnotation.CONTENT;
+    public final static String DATASET_ANNOTATION_IMAGE = DatasetAnnotation.DATASET;
     
     /** The annotation textual description. */
     private String       text;
@@ -89,36 +91,37 @@ public class AnnotationData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof ImageAnnotation) {
 			ImageAnnotation iann = (ImageAnnotation) model;
-			this.setId(mapper.nullSafeLong(iann.getId()));
+			super.copy(model,mapper);
+
+            // Details
+            Details details = iann.getDetails();
+            if (details!=null){
+                this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
+                this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
+            }
+
+            // Fields
 			this.setText(iann.getContent());
-			Details details = iann.getDetails();
-			if (details!=null){
-				this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
-				this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
-			}
 			this.setAnnotatedObject((DataObject) mapper.findTarget(iann.getImage()));
+            
     	} else if (model instanceof DatasetAnnotation) {
 			DatasetAnnotation dann = (DatasetAnnotation) model;
-			this.setId(mapper.nullSafeLong(dann.getId()));
+            super.copy(model,mapper);
+
+            // Details
+            Details details = dann.getDetails();
+            if (details!=null){
+                this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
+                this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
+            }
+            
+            // Fields
 			this.setText(dann.getContent());
-			Details details = dann.getDetails();
-			if (details!=null){
-				this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
-				this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
-			}
-			this.setAnnotatedObject((DataObject) mapper.findTarget(dann.getDataset()));
+            this.setAnnotatedObject((DataObject) mapper.findTarget(dann.getDataset()));
 		} else {
 			throw new IllegalArgumentException("AnnotationData can only copy from ImageAnnotation and DatasetAnnotations");
 		}
     }
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getId() {
-		return id;
-	}
 
 	public void setText(String text) {
 		this.text = text;
@@ -152,8 +155,4 @@ public class AnnotationData
 		return owner;
 	}
 	
-	public String toString() {
-		return getClass().getName()+" (id="+getId()+")";
-	}
-    
 }

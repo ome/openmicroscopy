@@ -61,6 +61,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public final static String MANYONE = "manyone";
 	public final static String MANYZERO = "manyzero";
 	public final static String ENTRY = "entry";
+    public final static String CHILD = "child";
+    public final static String PARENT = "parent";
     
 	public final static Set FIELDS = new HashSet();
 	static {
@@ -71,6 +73,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS.add(MANYONE);
 		FIELDS.add(MANYZERO);
 		FIELDS.add(ENTRY);
+        FIELDS.add(CHILD);
+        FIELDS.add(PARENT);
 	}
 	public final static Map FIELDS2CLASSES = new HashMap();
 	static {
@@ -81,6 +85,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS2CLASSES.put(MANYONE,ManyOneField.class);
 		FIELDS2CLASSES.put(MANYZERO,ManyZeroField.class);
 		FIELDS2CLASSES.put(ENTRY,EntryField.class);
+        FIELDS2CLASSES.put(PARENT,ParentLink.class);
+        FIELDS2CLASSES.put(CHILD,ChildLink.class);
 	}
 	
 	// VALUE-Type identifiers
@@ -106,6 +112,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 	private String name;
 	private String type;
 	private String defaultValue;
+    private String extracode;
 	
 	// Specialties
 	private Boolean required;
@@ -165,6 +172,14 @@ public abstract class Property { // TODO need to define equality so that two wit
 		return type;
 	}
 
+    public void setExtracode(String extracode) {
+        this.extracode = extracode;
+    }
+
+    public String getExtracode() {
+        return extracode;
+    }
+    
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
@@ -239,7 +254,7 @@ public abstract class Property { // TODO need to define equality so that two wit
         setMutable(Boolean.valueOf(attrs.getProperty("mutable","true")));
         setOrdered(Boolean.valueOf(attrs.getProperty("ordered","false")));
         setInverse(Boolean.valueOf(attrs.getProperty("inverse","false")));
-        
+        setExtracode("");
         if (VALUES.containsKey(getType())){
             setForeignKey(Boolean.FALSE);
             setType(((Class)VALUES.get(getType())).getName());
@@ -322,16 +337,74 @@ class EntryField extends Property {
 		super.validate();
 	}
 }
-class ParentLink extends Property {
-    public ParentLink(Properties attrs){
+/** property from a link to a parent iobject */
+class LinkParent extends Property {
+    public LinkParent(Properties attrs){
         super(attrs);
         setName("parent");
+	setRequired(Boolean.TRUE);
+        setExtracode(
+                "public "+getType()+" parent(){"+ 
+                    "return ("+getType()+") getParent();}");
+
     }
 }
 
-class ChildLink extends Property {
-    public ChildLink(Properties attrs){
+/** property from a link to a child iobject */
+class LinkChild extends Property {
+    public LinkChild(Properties attrs){
         super(attrs);
         setName("child");
+	setRequired(Boolean.TRUE);
+        setExtracode(
+        "public "+getType()+" child(){"+ 
+            "return ("+getType()+") getChild();}");
+    }
+}
+
+abstract class AbstractLink extends Property {
+    protected abstract void linkStep(StringBuffer sb);
+    public AbstractLink(Properties attrs){
+        super(attrs);
+        setOne2Many(Boolean.TRUE);
+        
+        String target = attrs.getProperty("target",null);
+        if (target == null){
+            throw new IllegalArgumentException(
+                    "Target must be set on all parent/child properties:"+this);
+        }
+
+        // TODO Not managing two links to same table!!
+        String simpleName = target.substring(
+                target.lastIndexOf(".")+1,target.length());
+        
+        StringBuffer sb = new StringBuffer();
+        sb.append("public void add"); sb.append(simpleName);
+        sb.append(" (");sb.append(target);sb.append(" addition){\n");
+        sb.append(getType());sb.append(" link = new ");
+        sb.append(getType());sb.append("();\n");
+        linkStep(sb);
+        sb.append("}\n");
+        setExtracode(sb.toString());
+    }
+}
+
+/** property from a child iobject to a link */
+class ChildLink extends AbstractLink {
+    protected void linkStep(StringBuffer sb){
+        sb.append("\tlink.link(this, addition);\n");
+    }
+    public ChildLink(Properties attrs){
+        super(attrs);
+    }
+}
+
+/** property from a parent iobject to a link */
+class ParentLink extends AbstractLink {
+    protected void linkStep(StringBuffer sb){
+        sb.append("\tlink.link(addition,this);\n");
+    }
+    public ParentLink(Properties attrs){
+        super(attrs);
     }
 }

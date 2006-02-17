@@ -58,11 +58,12 @@ import ome.util.ModelMapper;
  * @since OME2.2
  */
 public class GroupData
-    implements DataObject
+    extends DataObject
 {
-
-    /** The Grop ID. */
-    private long        id;
+    
+    public final static String NAME = ExperimenterGroup.NAME;
+    public final static String DESCRIPTION = ExperimenterGroup.DESCRIPTION;
+    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterGroup.GROUPEXPERIMENTERMAP;
     
     /** The Group's name. */
     private String      name;
@@ -79,11 +80,17 @@ public class GroupData
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof ExperimenterGroup) {
 			ExperimenterGroup grp = (ExperimenterGroup) model;
-			this.setId(mapper.nullSafeLong(grp.getId()));
-			this.setName(grp.getName());
+            super.copy(model,mapper);
+
+            // Details
             if (grp.getDetails() != null){
                 this.setOwner((ExperimenterData) mapper.findTarget(grp.getDetails().getOwner()));
             }
+            
+            // Fields
+			this.setName(grp.getName());
+
+            // Collections
             if (grp.getGroupExperimenterMap() != null){
                 Set experimenters = new HashSet();
                 for (Iterator i = grp.getGroupExperimenterMap().iterator(); i.hasNext();)
@@ -97,10 +104,6 @@ public class GroupData
 			throw new IllegalArgumentException("GroupData can only copy from Group, not "+model.getClass().getName());
 		}
     }
-	
-	public String toString() {
-		return getClass().getName()+":"+getName()+" (id="+getId()+")";
-	}
 
     
 //    public ExperimenterData getContact()
@@ -125,19 +128,6 @@ public class GroupData
     {
         this.experimenters = experimenters;
     }
-
-    
-    public long getId()
-    {
-        return id;
-    }
-
-    
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
     
     public ExperimenterData getOwner()
     {
