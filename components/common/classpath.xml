@@ -22,7 +22,7 @@
 	<file name="groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
 	<file name="antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
 	<file name="com/caucho/hessian/2.1.12/hessian-2.1.12.jar"/>
-	<file name="org/hibernate/hibernate/3.1/hibernate-3.1.jar"/>
+	<file name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
 	<file name="dom4j/dom4j/1.6/dom4j-1.6.jar"/>
 	<file name="ehcache/ehcache/1.1/ehcache-1.1.jar"/>
@@ -52,7 +52,7 @@
 	<file name="antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
 	<file name="com/caucho/hessian/2.1.12/hessian-2.1.12.jar"/>
 	<file name="org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
-	<file name="org/hibernate/hibernate/3.1/hibernate-3.1.jar"/>
+	<file name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
 	<file name="dom4j/dom4j/1.6/dom4j-1.6.jar"/>
 	<file name="ehcache/ehcache/1.1/ehcache-1.1.jar"/>
@@ -79,7 +79,8 @@
 	<get src="${omero.repo.remote}/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar" dest="${omero.repo.local}/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar" dest="${omero.repo.local}/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/com/caucho/hessian/2.1.12/hessian-2.1.12.jar" dest="${omero.repo.local}/com/caucho/hessian/2.1.12/hessian-2.1.12.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/org/hibernate/hibernate/3.1/hibernate-3.1.jar" dest="${omero.repo.local}/org/hibernate/hibernate/3.1/hibernate-3.1.jar" usetimestamp="true"/>
+	<get
+src="${omero.repo.remote}/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar" dest="${omero.repo.local}/org/hibernate/hibernate/3.1/hibernate-3.1.2.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/qdox/qdox/1.5/qdox-1.5.jar" dest="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/dom4j/dom4j/1.6/dom4j-1.6.jar" dest="${omero.repo.local}/dom4j/dom4j/1.6/dom4j-1.6.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/ehcache/ehcache/1.1/ehcache-1.1.jar" dest="${omero.repo.local}/ehcache/ehcache/1.1/ehcache-1.1.jar" usetimestamp="true"/>
