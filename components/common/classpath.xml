@@ -24,7 +24,7 @@
 	<file name="com/caucho/hessian/2.1.12/hessian-2.1.12.jar"/>
 	<file name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
-	<file name="dom4j/dom4j/1.6/dom4j-1.6.jar"/>
+	<file name="dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
 	<file name="ehcache/ehcache/1.1/ehcache-1.1.jar"/>
 	<file name="cglib/cglib/2.1_3/cglib-2.1_3.jar"/>
 	<file name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
