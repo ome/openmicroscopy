@@ -105,6 +105,25 @@ public abstract class ModelMapper extends ContextFilter {
 		return o;
 	}
 	
+    protected final static String CGLIB = "$$EnhancerByCGLIB$$";
+    
+    protected Class findClass(Class source){
+        Class result = source;
+        String s = source.getName();
+        if (s.contains(CGLIB)) { // TODO any other test?
+            try
+            {
+                result = Class.forName(s.substring(0,s.indexOf(CGLIB)));
+            } catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException( /* TODO */
+                        "Classname contains "+CGLIB+
+                        " but base class cannout be found.");
+            }
+        }
+        return (Class) c2c().get(result);
+    }
+    
 	public Object findTarget(Object current){
 		// IMMUTABLES
 		if (null == current |
@@ -120,7 +139,7 @@ public abstract class ModelMapper extends ContextFilter {
 		
 		Object target = model2target.get(current);
 		if (null == target) {
-			Class targetType = (Class) c2c().get(current.getClass());
+			Class targetType = findClass(current.getClass());
 			if (null != targetType){
 				try {
 					target = targetType.newInstance();
