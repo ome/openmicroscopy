@@ -25,9 +25,16 @@
 
 	<target name="compile" depends="generate">
 		<copyResources/>
+
+		<!-- Defaults: override in build.xml files -->
+		<property name="javac.source" value="1.5"/>
+		<property name="javac.target" value="1.5"/>
 		<javac 
 			destdir="${classes.dir}"
-			classpathref="omero.classpath" >
+			classpathref="omero.classpath" 
+			source="${javac.source}"
+			target="${javac.target}"
+		>
 			<src path="${src.dir}"/>
 			<src path="${src.dest}"/>
 		</javac>

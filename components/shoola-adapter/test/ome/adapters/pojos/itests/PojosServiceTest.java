@@ -99,12 +99,15 @@ public class PojosServiceTest extends TestCase {
     {
         List l = q.getListByExample(new Experimenter());
         assertTrue("Root has to exist.",l.size()>0);
+        Experimenter exp = (Experimenter) l.get(0);
+        assertNotNull("Must have an id",exp.getId());
+        assertNotNull("And a name",exp.getFirstName());
         
         // Now let's try to map it.
         ExperimenterData expData = 
             (ExperimenterData) mapper.map((Experimenter)l.get(0));
         assertNotNull("And something should still be there",expData);
-        assertNotNull("And it should have an id",expData.getId());
+        assertTrue("And it should have an id",expData.getId()>-1);
         assertNotNull("And various other things",expData.getFirstName());
     }
     
@@ -122,7 +125,7 @@ public class PojosServiceTest extends TestCase {
         assertNotNull("We should get something back",img);
         assertNotNull("Should have an id",img.getId());
         
-        Image img2 = (Image) q.getById(Image.class,img.getId());
+        Image img2 = (Image) q.getById(Image.class,img.getId().longValue());
         assertNotNull("And we should be able to find it again.",img2);
         
     }

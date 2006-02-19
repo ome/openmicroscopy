@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="client" default="install" basedir=".">
+
+	<!-- Default overrides -->
+	<property name="javac.source" value="1.4"/>
+	<property name="javac.target" value="1.4"/>
     
 	<dirname property="up-one" file="${basedir}"/>
 	<import file="${up-one}/antlib/resources/build.xml"/>

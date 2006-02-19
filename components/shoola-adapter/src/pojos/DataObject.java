@@ -122,7 +122,7 @@ public abstract class DataObject implements ModelBased
      */
     public boolean fill(IObject model)
     {
-        model.setId(this.getId());
+        model.setId(new Long(this.getId()));
         model.setDetails(new Details());
         if (!this.isLoaded()){
             model.unload();
