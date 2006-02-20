@@ -62,88 +62,88 @@ public class IconManager
     extends AbstractIconManager
 { 
     
-    /** ID of the minus icon of the browser's internal frame. */
+    /** ID of the <code>Minus</code> icon. */
     public static final int     MINUS = 0;
     
-    /** ID of the minus over icon of the browser's internal frame. */
+    /** ID of the <code>Minus Over</code> icon. */
     public static final int     MINUS_OVER = 1;
   
-    /** ID of the plus icon of the browser's internal frame. */
+    /** ID of the <code>Plus</code> icon. */
     public static final int     PLUS = 2;
     
-    /** ID of the plus over icon of the browser's internal frame. */
+    /** ID of the <code>Plus Over</code> icon. */
     public static final int     PLUS_OVER = 3;
     
-    /** ID of the close over icon of the browser's window. */
+    /** ID of the <code>Close</code> icon. */
     public static final int     CLOSE = 4;
     
-    /** ID of the close over icon of the browser's window. */
+    /** ID of the <code>Close over</code> icon. */
     public static final int     CLOSE_OVER = 5;
     
-    /** ID of the properties icon used by the popup menu. */
+    /** ID of the <code>Properties</code> icon. */
     public static final int     PROPERTIES = 6;
     
-    /** ID of the viewer icon used by the popup menu. */
+    /** ID of the <code>Viewer</code> icon. */
     public static final int     VIEWER = 7;
 
-    /** ID of the annotate icon used by the popup menu. */
+    /** ID of the <code>Annotate</code> icon. */
     public static final int     ANNOTATE = 8;
     
-    /** ID of the zoomIn icon used by the popup menu. */
+    /** ID of the <code>Zoom In</code> icon. */
     public static final int     ZOOM_IN = 9;
     
-    /** ID of the zoomOut icon used by the popup menu. */
+    /** ID of the <code>Zoom Out</code> icon. */
     public static final int     ZOOM_OUT = 10;
     
-    /** ID of the zoomOut icon used by the popup menu. */
+    /** ID of the <code>Zoom Fit</code> icon. */
     public static final int     ZOOM_FIT = 11;
     
-    /** ID of the exit icon. */
+    /** ID of the <code>Exit</code> icon. */
     public static final int     EXIT = 12;
     
-    /** ID of the save icon. */
+    /** ID of the <code>Save</code> icon. */
     public static final int     SAVE = 13;
     
-    /** ID of the find annotated icon. */
+    /** ID of the <code>Annotated</code> icon. */
     public static final int     ANNOTATED = 14;
     
-    /** ID of the clear icon. */
+    /** ID of the <code>Clear</code> icon. */
     public static final int     CLEAR = 15;
     
-    /** ID of the classify icon. */
+    /** ID of the <code>Classify</code> icon. */
     public static final int     CLASSIFY = 16;
     
-    /** ID of the find with annotation icon. */
+    /** ID of the <code>Filter with annotation</code> icon. */
     public static final int     FILTER_W_ANNOTATION = 17;
     
-    /** ID of the find with title icon. */
+    /** ID of the <code>Filter with Title</code> icon. */
     public static final int     FILTER_W_TITLE = 18;
     
-    /** ID of the squary layout icon. */
+    /** ID of the <code>Squary Layout</code> icon. */
     public static final int     SQUARY_LAYOUT = 19;
     
-    /** ID of the tree layout icon. */
+    /** ID of the <code>Tree Layout</code> icon. */
     public static final int     TREE_LAYOUT = 20;
     
-    /** ID of the status icon. */
+    /** ID of the <code>Status Info</code> icon. */
     public static final int     STATUS_INFO = 21;
     
-    /** ID of the root icon. */
+    /** ID of the <code>Root</code> icon. */
     public static final int     ROOT = 22;
     
-    /** ID of the project icon. */
+    /** ID of the <code>Project</code> icon. */
     public static final int     PROJECT = 23;
     
-    /** ID of the dataset icon. */
+    /** ID of the <code>Dataset</code> icon. */
     public static final int     DATASET = 24;
     
-    /** ID of the category group icon. */
+    /** ID of the <code>CategoryGroup</code> icon. */
     public static final int     CATEGORY_GROUP = 25;
     
-    /** ID of the category icon. */
+    /** ID of the <code>Category</code> icon. */
     public static final int     CATEGORY = 26;
     
-    /** ID of the image icon. */
+    /** ID of the <code>Image</code> icon. */
     public static final int     IMAGE = 27;
     
     /** ID of the single-view icon in the browser's internal frame. */
@@ -161,32 +161,41 @@ public class IconManager
     /** ID of the views list over icon in the browser's internal frame. */
     public static final int     VIEWS_LIST_OVER = 32;
     
-    /** ID of the category big icon. */
+    /** ID of the big <code>Category</code> icon. */
     public static final int     CATEGORY_BIG = 33;
     
-    /** ID of the refresh icon. */
+    /** ID of the <code>Refresh</code> icon. */
     public static final int     REFRESH = 34;
     
-    /** ID of the save big icon. */
+    /** ID of the big <code>Save As</code> icon. */
     public static final int     SAVE_AS_BIG = 35;
     
-    /** ID of the question icon. */
+    /** ID of the <code>Question</code> icon. */
     public static final int     QUESTION = 36;
     
-    /** ID of the image medium icon. */
+    /** ID of the <code>Image medium</code> icon. */
     public static final int     IMAGE_MEDIUM = 37;
     
-    /** ID of the collapse icon. */
+    /** ID of the <code>Collapse</code> icon. */
     public static final int     COLLAPSE = 38;
     
-    /** ID of the cloase icon. */
+    /** ID of the <code>Close View</code> icon. */
     public static final int     CLOSE_VIEW = 39;
+    
+    /** ID of the <code>Exit Application</code> icon. */
+    public static final int     EXIT_APPLICATION = 40;
+    
+    /** ID of the <code>Transparent</code> icon. */
+    public static final int     TRANSPARENT = 41;
+    
+    /** ID of the <code>Find</code> icon. */
+    public static final int     FIND = 42;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 39;
+    private static int          MAX_ID = 42;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -204,7 +213,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
-        relPaths[EXIT] = "OpenOffice_stock_exit-16.png";
+        relPaths[EXIT] = "eclipse_close_view16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
         relPaths[ANNOTATED] = "annotated_image16.png";
         relPaths[CLEAR] = "eclipse_clear_co16.png";
@@ -232,6 +241,9 @@ public class IconManager
         relPaths[IMAGE_MEDIUM] = "nuvola_image26.png";
         relPaths[CLOSE_VIEW] = "eclipse_close_view16.png";
         relPaths[COLLAPSE] = "eclipse_collapseall16.png";
+        relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
+        relPaths[TRANSPARENT] = "eclipse_transparent16.png";
+        relPaths[FIND] = "eclipse_searchrecord16.png";
     }
     
     /** The sole instance. */
