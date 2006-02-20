@@ -384,6 +384,10 @@ abstract class AbstractLink extends Property {
         sb.append(getType());sb.append(" link = new ");
         sb.append(getType());sb.append("();\n");
         linkStep(sb);
+        
+        String getter = attrs.getProperty("name");
+        getter = getter.substring(0,1).toUpperCase()+getter.substring(1);
+        sb.append("\tthis.get"+getter+"().add(link);");
         sb.append("}\n");
         setExtracode(sb.toString());
     }
