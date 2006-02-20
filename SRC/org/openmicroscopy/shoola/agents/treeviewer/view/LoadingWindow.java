@@ -51,7 +51,6 @@ import javax.swing.JProgressBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 
 /** 
@@ -65,17 +64,14 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
  * </small>
  * @since OME2.2
  */
-class LoadingWindow
+public class LoadingWindow
     extends JDialog
 {
     
     /** The default message displayed during the saving process. */
-    public static final String          SAVING_MSG = "Saving the data and " +
+    private static final String         SAVING_MSG = "Saving the data and " +
                                                         "Updating the display.";
         
-    /** The title displayed during the saving process. */
-    public static final String          SAVING_TITLE = "Saving Data";
-    
     
     /** The default message displayed during the loading process */
     private static final String         LOADING_MSG = "Loading Data and " +
@@ -147,7 +143,7 @@ class LoadingWindow
     private void close()
     {
         setVisible(false);
-        firePropertyChange(Browser.CANCEL_PROPERTY, Boolean.FALSE, 
+        firePropertyChange(TreeViewer.CANCEL_LOADING_PROPERTY, Boolean.FALSE, 
                             Boolean.TRUE);
     }
     
@@ -205,7 +201,7 @@ class LoadingWindow
      * 
      * @param owner The owner of the frame.
      */
-    LoadingWindow(JFrame owner)
+    public LoadingWindow(JFrame owner)
     {
         super(owner, LOADING_TITLE, true);
         setResizable(false);
@@ -216,15 +212,15 @@ class LoadingWindow
     }
     
     /**
-     * Sets the title of this window and the text displayed.
-     * 
-     * @param title The window's title.
-     * @param text  The text to display.
+     * Overrides the method to set the message corresponding to the title.
+     * @see JDialog#setTitle(String)
      */
-    void setTitleAndText(String title, String text)
+    public void setTitle(String title)
     {
-        setTitle(title);
-        messageLabel.setText(text);
+        super.setTitle(title);
+        if (title.equals(TreeViewer.SAVING_TITLE)) 
+            messageLabel.setText(SAVING_MSG);
+        else if (title.equals(LOADING_TITLE)) messageLabel.setText(LOADING_MSG);
     }
     
     /** 
@@ -235,7 +231,7 @@ class LoadingWindow
     public void setVisible(boolean b)
     {
         super.setVisible(b);
-        if (!b) setTitleAndText(LOADING_TITLE, LOADING_MSG);
+        if (!b) setTitle(LOADING_TITLE);
     }
     
 }

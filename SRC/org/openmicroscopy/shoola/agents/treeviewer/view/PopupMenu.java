@@ -36,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
 
 
@@ -66,6 +67,12 @@ class PopupMenu
      * project, dataset, category group, category, or image.
      */
     private JMenuItem           properties;
+    
+    /** 
+     * Button to bring up the property sheet of a hierarchy object &#151; 
+     * project, dataset, category group, category, or image.
+     */
+    private JMenuItem           annotate;
     
     /** Button to browse a container or bring up the Viewer for an image. */
     private JMenuItem           view;
@@ -107,6 +114,9 @@ class PopupMenu
         properties = new JMenuItem(
                 	controller.getAction(TreeViewerControl.PROPERTIES));
         initMenuItem(properties);
+        annotate = new JMenuItem(
+                controller.getAction(TreeViewerControl.ANNOTATE));
+        initMenuItem(annotate);
         view = new JMenuItem(controller.getAction(TreeViewerControl.VIEW));
         initMenuItem(view);
         refresh = new JMenuItem(
@@ -166,9 +176,13 @@ class PopupMenu
     private void buildGUI()
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        add(properties);
         add(view);
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(createManagementMenu());
+        add(annotate);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(properties);
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(refresh);
     }
     

@@ -113,7 +113,7 @@ class TreeViewerWin
     private LoadingWindow 		loadingWin;
 
     /** The menu hosting the root levels. */
-    private JMenu 				rootLevel;
+    private JMenu 				rootLevelMenu;
     
     /**
      * Checks if the specified {@link Browser} is already visible.
@@ -158,7 +158,7 @@ class TreeViewerWin
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
-        menuBar.add(createViewsMenu());
+        menuBar.add(createViewMenu());
         menuBar.add(createHelpMenu());
         return menuBar;
     }
@@ -182,14 +182,18 @@ class TreeViewerWin
     private JMenu createFileMenu()
     {
         JMenu file = new JMenu("File");
+        file.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CREATE_OBJECT)));
         file.add(createRootMenu());
         file.add(new JSeparator(JSeparator.HORIZONTAL));
-        JMenuItem item = new JMenuItem(
-                	controller.getAction(TreeViewerControl.PROPERTIES));
-        file.add(item);
-        item = new JMenuItem(
-            	controller.getAction(TreeViewerControl.VIEW));
-        file.add(item);
+        file.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CLOSE)));
+        file.add(new JSeparator(JSeparator.HORIZONTAL));
+        file.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.REFRESH)));
+        file.add(new JSeparator(JSeparator.HORIZONTAL));
+        file.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.EXIT)));
         return file;
     }
     
@@ -201,23 +205,45 @@ class TreeViewerWin
     private JMenu createEditMenu()
     {
         JMenu edit = new JMenu("Edit");
-        JMenuItem item = new JMenuItem(
-                controller.getAction(TreeViewerControl.FIND));
-        edit.add(item);
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.COPY_OBJECT)));
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.PASTE_OBJECT)));
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.DELETE_OBJECT)));
         edit.add(new JSeparator(JSeparator.HORIZONTAL));
-        item = new JMenuItem(
-                controller.getAction(TreeViewerControl.CREATE_OBJECT));
-        edit.add(item);
-        item = new JMenuItem(
-                controller.getAction(TreeViewerControl.COPY_OBJECT));
-        edit.add(item);
-        item = new JMenuItem(
-                controller.getAction(TreeViewerControl.PASTE_OBJECT));
-        edit.add(item);
-        item = new JMenuItem(
-                controller.getAction(TreeViewerControl.DELETE_OBJECT));
-        edit.add(item);
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.FIND)));
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CLEAR)));
+        edit.add(new JSeparator(JSeparator.HORIZONTAL));
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.VIEW)));
+        edit.add(new JSeparator(JSeparator.HORIZONTAL));
+        edit.add(createClassifySubMenu());
+        edit.add( new JMenuItem(
+                controller.getAction(TreeViewerControl.ANNOTATE)));
+        edit.add(new JSeparator(JSeparator.HORIZONTAL));
+        edit.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.PROPERTIES)));
         return edit;
+    }
+    
+    /**
+     * Helper method to create the Classify submenu.
+     * 
+     * @return  The Classify submenu.
+     */
+    private JMenu createClassifySubMenu()
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Classify");
+        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CLASSIFY))); 
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.DECLASSIFY))); 
+        return menu;
     }
     
     /**
@@ -227,7 +253,9 @@ class TreeViewerWin
      */
     private JMenu createRootMenu()
     {
-        rootLevel = new JMenu("Hierarchy root");
+        rootLevelMenu = new JMenu("Hierarchy root");
+        IconManager im = IconManager.getInstance();
+        rootLevelMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         ButtonGroup bGroup = new ButtonGroup();
         JRadioButtonMenuItem item;
         /*
@@ -245,14 +273,14 @@ class TreeViewerWin
             item = new JRadioButtonMenuItem(
                     controller.getGroupLevelAction(new Integer(group.getId())));
             bGroup.add(item);
-            rootLevel.add(item);
+            rootLevelMenu.add(item);
         }
         item = new JRadioButtonMenuItem(
                 controller.getAction(TreeViewerControl.USER_ROOT_LEVEL));
         bGroup.add(item);
-        rootLevel.add(item);
+        rootLevelMenu.add(item);
         item.setSelected(true);
-        return rootLevel;
+        return rootLevelMenu;
     }
 
     /**
@@ -260,9 +288,9 @@ class TreeViewerWin
      * 
      * @return The Views menu.
      */
-    private JMenu createViewsMenu()
+    private JMenu createViewMenu()
     {
-        JMenu views = new JMenu("Views");
+        JMenu views = new JMenu("View");
         JMenuItem item = new JMenuItem(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         views.add(item);
