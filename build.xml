@@ -145,50 +145,47 @@ ${msg.check.report}
 	</target>
 
 	<!-- Multiproject -->
-	<target name="quick">
-		<property name="test.skip" value="true"/>
-		<property name="generate.skip" value="true"/>
-	</target>
+	<target name="multiproject" depends="variables-define"/>
 
-	<target name="prepare">
+	<target name="prepare" depends="multiproject">
 		<iterate target="prepare"/>
 	</target>
 
-	<target name="generate">
+	<target name="generate" depends="multiproject">
 		<iterate target="generate"/>
 	</target>
 
-	<target name="compile">
+	<target name="compile" depends="multiproject">
 		<iterate target="compile"/>
 	</target>
 
-	<target name="test">
+	<target name="test" depends="multiproject">
 		<iterate target="test"/>
 	</target>
 
-	<target name="package">
+	<target name="package" depends="multiproject">
 		<iterate target="package"/>
 	</target>
 
-	<target name="install">
+	<target name="install" depends="multiproject">
 		<iterate target="install"/>
 	</target>
 
-	<target name="integration">
+	<target name="integration" depends="multiproject">
 		<iterate target="integration"/>
 	</target>
 
-	<target name="clean">
+	<target name="clean" depends="multiproject">
 		<delete dir="${dist.dir}"/>
 		<iterate target="clean"/>
 	</target>
 
-	<target name="dist">
+	<target name="dist" depends="multiproject">
 		<mkdir dir="${dist.dir}"/>
 		<iterate target="dist"/>
 	</target>
 
-	<target name="classpath-download">
+	<target name="classpath-download" depends="multiproject">
 		<iterate target="classpath-download"/>
 	</target>
 	<!-- 	===============================================

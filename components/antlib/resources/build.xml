@@ -26,6 +26,19 @@
 		</echo>
 	</target>
 
+
+    <!-- = = = = = = = = = = = = = = = = =
+          variables
+         = = = = = = = = = = = = = = = = = -->
+	<target name="variables-define">
+		<condition property="test.skip">
+			<equals arg1="${multi.test.skip}" arg2="true"/>
+		</condition>
+		<condition property="generate.skip">
+			<equals arg1="${multi.generate.skip}" arg2="true"/>
+		</condition>
+	</target>
+
     <!-- = = = = = = = = = = = = = = = = =
           classpath
          = = = = = = = = = = = = = = = = = -->

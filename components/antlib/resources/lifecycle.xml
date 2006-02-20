@@ -12,7 +12,7 @@
 		<property name="generate.skip" value="true"/>
 	</target>
 
-	<target name="prepare" depends="classpath-define">
+	<target name="prepare" depends="variables-define,classpath-define">
 		<makeDirectories/>
 		<copyResource file="${root.dir}/omero.properties"/>
 		<copyResource file="${root.dir}/hibernate.properties"/>

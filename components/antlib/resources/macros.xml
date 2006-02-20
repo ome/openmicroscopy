@@ -45,8 +45,8 @@
 		<echo> ================================= Running @{component}...  ================================= </echo>
 		<ant dir="${components.dir}/@{component}" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="@{component}"/>
-			<property name="test.skip" value="${test.skip}"/>
-			<property name="generate.skip" value="${generate.skip}"/>
+			<property name="multi.test.skip" value="${test.skip}"/>
+			<property name="multi.generate.skip" value="${generate.skip}"/>
 			<targets/>
 		</ant>
 		</sequential>
