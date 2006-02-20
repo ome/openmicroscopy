@@ -173,11 +173,20 @@ public class IconManager
     /** The <code>Classification</code> icon. */
     public static int           CATEGORY_BIG = 37;
     
+    /** The <code>Classified Image</code> icon. */
+    public static int           CLASSIFIED_IMAGE = 38;
+    
+    /** The <code>Classified and Annotated Image</code> icon. */
+    public static int           CLASSIFIED_ANNOTATED_IMAGE = 39;
+    
+    /** The <code>Exit Application</code> icon. */
+    public static int           EXIT_APPLICATION = 40;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 37;
+    private static int          MAX_ID = 40;
     
     
     /** Paths of the icon files. */
@@ -223,6 +232,9 @@ public class IconManager
         relPaths[ANNOTATION] = "nuvola_kwrite16.png";
         relPaths[CLASSIFY] = "category16.png";
         relPaths[CATEGORY_BIG] = "nuvola_filenew48.png";
+        relPaths[CLASSIFIED_ANNOTATED_IMAGE] = "nuvola_filenew48.png";
+        relPaths[CLASSIFIED_IMAGE] = "nuvola_filenew48.png";
+        relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
     }
     
     /** The sole instance. */

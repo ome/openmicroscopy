@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
@@ -54,7 +55,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class DataObjectCreator
-	extends DataTreeViewerLoader
+	extends EditorLoader
 {
     
     /** The {@link DataObject} to handle. */
@@ -69,13 +70,13 @@ public class DataObjectCreator
     /**
      * Creates a new instance.
      * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param userObject The {@link DataObject} to handle. 
-     * @param parent	The parent of the object to create. <code>null</code> 
-     * 					if no parent.
+     * @param viewer        The Editor this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param userObject    The {@link DataObject} to handle. 
+     * @param parent        The parent of the object to create,
+     *                      <code>null</code> if no parent.
      */
-    public DataObjectCreator(TreeViewer viewer, DataObject userObject, 
+    public DataObjectCreator(Editor viewer, DataObject userObject, 
             				Object parent)
     {
         super(viewer);
@@ -89,7 +90,7 @@ public class DataObjectCreator
     
     /** 
      * Creates the object.
-     * @see DataBrowserLoader#load()
+     * @see EditorLoader#load()
      */
     public void load()
     {
@@ -98,18 +99,18 @@ public class DataObjectCreator
 
     /**
      * Cancels the data loading.
-     * @see DataBrowserLoader#cancel()
+     * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /** 
      * Feeds the result back to the viewer.
-     * @see DataTreeViewerLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result, TreeViewer.CREATE_OBJECT);
+        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
+        viewer.setSaveResult((DataObject) result, Editor.CREATE_OBJECT);
     }
     
 }

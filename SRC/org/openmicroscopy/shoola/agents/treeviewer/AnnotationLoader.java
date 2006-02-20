@@ -36,7 +36,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -56,7 +56,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 public class AnnotationLoader
-    extends DataTreeViewerLoader
+    extends EditorLoader
 {
 
     /** The {@link DataObject} to handle. */
@@ -82,11 +82,11 @@ public class AnnotationLoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer The TreeViewer this data loader is for.
+     * @param viewer The Editor this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param object The {@link DataObject} to handle. 
      */
-    public AnnotationLoader(TreeViewer viewer, DataObject object)
+    public AnnotationLoader(Editor viewer, DataObject object)
     {
         super(viewer);
         checkDataObject(object);
@@ -95,7 +95,7 @@ public class AnnotationLoader
     
     /** 
      * Retrieves all annotations linked to the <code>DataObject</code>. 
-     * @see DataTreeViewerLoader#load()
+     * @see EditorLoader#load()
      */
     public void load()
     {
@@ -109,7 +109,7 @@ public class AnnotationLoader
 
     /** 
      * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+     * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
@@ -119,7 +119,7 @@ public class AnnotationLoader
      */
     public void handleResult(Object result) 
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
         viewer.setAnnotations((Map) result);
     }
     

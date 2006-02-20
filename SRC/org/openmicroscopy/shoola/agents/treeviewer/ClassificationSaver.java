@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @since OME2.2
  */
 public class ClassificationSaver
-    extends DataTreeViewerLoader
+    extends ClassifierLoader
 {
     
     /** Indicates to classify the specified image. */
@@ -109,7 +109,7 @@ public class ClassificationSaver
      * @param categories    The categories to add to or remove from.
      *                      Mustn't be <code>null</code>.
      */
-    public ClassificationSaver(TreeViewer viewer, int mode, int imageID, 
+    public ClassificationSaver(Classifier viewer, int mode, int imageID, 
                             Set categories)
     {
         super(viewer);
@@ -150,8 +150,8 @@ public class ClassificationSaver
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return; 
-        viewer.saveClassification(((Boolean) result).booleanValue());
+        if (viewer.getState() == Classifier.DISCARDED) return; 
+        viewer.saveClassification(((Set) result));
     }
 
 }

@@ -37,7 +37,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 
@@ -58,7 +57,7 @@ import org.openmicroscopy.shoola.env.data.views.DataManagerView;
  * @since OME2.2
  */
 public class ClassifierPathsLoader
-    extends DataTreeViewerLoader
+    extends ClassifierLoader
 {
 
     /** The id of the image to classify or declassify. */
@@ -96,7 +95,7 @@ public class ClassifierPathsLoader
      *                  {@link Classifier#DECLASSIFY_MODE} or 
      *                  {@link Classifier#CLASSIFY_MODE}.
      */
-    public ClassifierPathsLoader(TreeViewer viewer, int imageID, int mode)
+    public ClassifierPathsLoader(Classifier viewer, int imageID, int mode)
     {
         super(viewer);
         if (imageID < 0) 
@@ -138,7 +137,7 @@ public class ClassifierPathsLoader
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return; //Async cancel.
-        viewer.setClassificationPaths(mode, (Set) result);
+        if (viewer.getState() == Classifier.DISCARDED) return; //Async cancel.
+        viewer.setClassifications((Set) result);
     }
 }

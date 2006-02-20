@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
@@ -60,7 +61,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 public class ObjectAnnotationEditor
-	extends DataTreeViewerLoader
+	extends EditorLoader
 {
 
     /** Identifies the <code>CREATE</code> annotation action. */
@@ -104,14 +105,14 @@ public class ObjectAnnotationEditor
     /**
      * Creates a new instance.
      * 
-     * @param viewer            The TreeViewer this data loader is for.
+     * @param viewer            The Editor this data loader is for.
      *                          Mustn't be <code>null</code>.
      * @param annotatedObject   The {@link DataObject} to annotate.
      * @param data              The {@link AnnotationData}.
      * @param op                The type of operation to perform.
      *                          One of the constants defined by this class.
      */
-    public ObjectAnnotationEditor(TreeViewer viewer, DataObject annotatedObject, 
+    public ObjectAnnotationEditor(Editor viewer, DataObject annotatedObject, 
 									AnnotationData data, int op)
     {
         super(viewer);
@@ -130,7 +131,7 @@ public class ObjectAnnotationEditor
     
     /**
      * Saves the data
-     * @see DataTreeViewerLoader#load()
+     * @see EditorLoader#load()
      */
     public void load()
     {
@@ -140,18 +141,18 @@ public class ObjectAnnotationEditor
 
     /** 
      * Cancels the data loading
-     * @see DataTreeViewerLoader#cancel()
+     * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /** 
      * Feeds the result back to the viewer.
-     * @see DataTreeViewerLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result, TreeViewer.UPDATE_OBJECT);
+        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
+        viewer.setSaveResult((DataObject) result, Editor.UPDATE_OBJECT);
     }
 
 }

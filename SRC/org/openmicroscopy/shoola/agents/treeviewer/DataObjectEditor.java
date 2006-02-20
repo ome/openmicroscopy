@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -56,14 +56,8 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class DataObjectEditor
-    extends DataTreeViewerLoader
+    extends EditorLoader
 {
-    
-    /** Identifies the <code>Update</code> operation. */
-    private static final int	UPDATE_OBJECT = 0;
-    
-    /** Identifies the <code>Delete</code> operation. */
-    private static final int	DELETE_OBJECT = 1;
 
     /** The {@link DataObject} to handle. */
     private DataObject      userObject;
@@ -78,48 +72,31 @@ public class DataObjectEditor
     private CallHandle  	handle;
     
     /**
-     * Returns the contant corresponding the the {@link #operation}.
-     * 
-     * @return See above.
-     */
-    private int getViewerOp()
-    {
-        switch (operation) {
-            case UPDATE_OBJECT:
-                return TreeViewer.UPDATE_OBJECT;
-            case DELETE_OBJECT:
-                return TreeViewer.DELETE_OBJECT;
-            default:
-                throw new IllegalArgumentException("Operation not valid.");
-        }
-    }
-    
-    /**
      * Creates a new instance.
      * 
-     * @param viewer        The TreeViewer this data loader is for.
+     * @param viewer        The Editor this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param userObject    The {@link DataObject} to handle. 
      */
-    public DataObjectEditor(TreeViewer viewer, DataObject userObject)
+    public DataObjectEditor(Editor viewer, DataObject userObject)
     {
         super(viewer);
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject");
         this.userObject = userObject;
         parent = null;
-        operation = UPDATE_OBJECT;
+        operation = Editor.UPDATE_OBJECT;
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer        The TreeViewer this data loader is for.
+     * @param viewer        The Editor this data loader is for.
      *               	    Mustn't be <code>null</code>.
      * @param userObject    The {@link DataObject} to handle. 
      * @param parent        The parent of the {@link DataObject} to handle.
      */
-    public DataObjectEditor(TreeViewer viewer, DataObject userObject,
+    public DataObjectEditor(Editor viewer, DataObject userObject,
             				Object parent)
     {
         super(viewer);
@@ -127,35 +104,35 @@ public class DataObjectEditor
             throw new IllegalArgumentException("No DataObject");
         this.userObject = userObject;
         this.parent = parent;
-        operation = DELETE_OBJECT;
+        operation = Editor.DELETE_OBJECT;
     }
     
     /** 
      * Saves the data.
-     * @see DataBrowserLoader#load()
+     * @see EditorLoader#load()
      */
     public void load()
     {
-        if (operation == UPDATE_OBJECT)
+        if (operation == Editor.UPDATE_OBJECT)
             handle = dmView.updateDataObject(userObject, this);
-        else if (operation == DELETE_OBJECT)   
+        else if (operation == Editor.DELETE_OBJECT)   
             handle = dmView.removeDataObject(userObject, parent, this);
     }
 
     /**
      * Cancels the data loading.
-     * @see DataBrowserLoader#cancel()
+     * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /** 
      * Feeds the result back to the viewer.
-     * @see DataTreeViewerLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result, getViewerOp());
+        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
+        viewer.setSaveResult((DataObject) result, operation);
     }
     
 }

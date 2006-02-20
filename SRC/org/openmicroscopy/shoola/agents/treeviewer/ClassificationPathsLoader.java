@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * @since OME2.2
  */
 public class ClassificationPathsLoader
-    extends DataTreeViewerLoader
+    extends EditorLoader
 {
     
     /** The id of the image. */
@@ -66,11 +66,11 @@ public class ClassificationPathsLoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer    The TreeViewer this data loader is for.
+     * @param viewer    The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
      * @param imageID   The id of the image. 
      */
-    public ClassificationPathsLoader(TreeViewer viewer, int imageID)
+    public ClassificationPathsLoader(Editor viewer, int imageID)
     {
         super(viewer);
         if (imageID < 0) 
@@ -80,7 +80,7 @@ public class ClassificationPathsLoader
 
     /** 
      * Retrieves the CategoryGroup/Category paths containing the image. 
-     * @see DataTreeViewerLoader#load()
+     * @see EditorLoader#load()
      */
     public void load()
     {
@@ -90,7 +90,7 @@ public class ClassificationPathsLoader
 
     /** 
      * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+     * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
@@ -100,7 +100,7 @@ public class ClassificationPathsLoader
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
         viewer.setRetrievedClassification((Set) result);
     }
 

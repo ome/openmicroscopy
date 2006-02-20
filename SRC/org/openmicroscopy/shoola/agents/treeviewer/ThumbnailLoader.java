@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -88,7 +86,7 @@ public class ThumbnailLoader
 
     /** 
      * Retrieves the thumbnail. 
-     * @see DataBrowserLoader#load()
+     * @see DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -111,7 +109,7 @@ public class ThumbnailLoader
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
         if (td != null)  //Last fe has null object.
-            viewer.setDataObjectThumbnail(td.getThumbnail());
+            viewer.setThumbnail(td.getThumbnail());
     }
     
     /**
@@ -123,7 +121,7 @@ public class ThumbnailLoader
     
     /**
      * Notifies the user that an error has occurred.
-     * @see DataTreeViewerLoader#handleException(Throwable)
+     * @see EditorLoader#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {
