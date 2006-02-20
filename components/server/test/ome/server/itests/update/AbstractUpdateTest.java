@@ -167,6 +167,8 @@ public class AbstractUpdateTest
             pd.setSizeZ(1.0f);
         
             c.setPixels(p);
+            
+            i.setName("test");
         
         }
         p.setSizeX(new Integer(1));

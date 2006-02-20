@@ -159,7 +159,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
     }
     
-    public void tesxNewCollectionFieldOnDetachedPixels() throws Exception
+    public void testNewCollectionFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------
         Set infos = new HashSet();
