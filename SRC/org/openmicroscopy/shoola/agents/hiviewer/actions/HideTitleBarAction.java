@@ -37,6 +37,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ShowTitleBarCmd;
@@ -96,6 +97,8 @@ public class HideTitleBarAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.TRANSPARENT));
     }
 
     /** 

@@ -58,7 +58,7 @@ public class TreeViewAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Tree view";
+    private static final String NAME = "Show/Hide Tree Pane";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Display a representation of " +

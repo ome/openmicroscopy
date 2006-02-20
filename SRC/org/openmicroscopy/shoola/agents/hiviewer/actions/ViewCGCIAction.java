@@ -64,7 +64,7 @@ public class ViewCGCIAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "View in CG/C/I";
+    private static final String NAME = "View as CategoryGroup/Category/Image";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "View the images on screen " +

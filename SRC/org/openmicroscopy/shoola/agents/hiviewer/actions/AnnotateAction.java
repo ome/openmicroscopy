@@ -65,10 +65,10 @@ public class AnnotateAction
     extends HiViewerAction
 {
 
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Annotate";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Annotate the selected image " +
                                                 "or dataset.";
     

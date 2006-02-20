@@ -66,7 +66,7 @@ public class ViewPDIAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "View in P/D/I";
+    private static final String NAME = "View as Project/Dataset/Image";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "View the images on screen " +

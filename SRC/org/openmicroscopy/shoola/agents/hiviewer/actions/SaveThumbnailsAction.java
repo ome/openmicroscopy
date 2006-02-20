@@ -66,7 +66,7 @@ public class SaveThumbnailsAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Save thumbnails";
+    private static final String NAME = "Export as";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Save the thumbnails as a " +

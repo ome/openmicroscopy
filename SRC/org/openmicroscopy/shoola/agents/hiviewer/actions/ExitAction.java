@@ -60,7 +60,7 @@ public class ExitAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Exit";
+    private static final String NAME = "Close";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Close the window.";
