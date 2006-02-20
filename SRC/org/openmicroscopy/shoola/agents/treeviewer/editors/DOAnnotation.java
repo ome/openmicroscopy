@@ -110,8 +110,11 @@ class DOAnnotation
     /** The index of the current user.*/
     private int                 userIndex;
     
-    /** Reference to the parent. */
-    private EditorUI            editor;
+    /** Reference to the View. */
+    private EditorUI            view;
+    
+    /** Reference to the Model. */
+    private EditorModel         model;
     
     /** Initializes the UI components. */
     private void initComponents()
@@ -209,7 +212,7 @@ class DOAnnotation
      */
     private List getOwnerAnnotation(int index)
     { 
-        Map annotations = editor.getAnnotations();
+        Map annotations = model.getAnnotations();
         Integer ownerID = (Integer) ownersMap.get(new Integer(index));
         if (ownerID == null) return new ArrayList();    //empty list
         return (List) annotations.get(ownerID);
@@ -234,10 +237,12 @@ class DOAnnotation
     private void showSingleAnnotation()
     {
         int index = annotatedByList.getSelectedIndex();
-        editor.handleAnnotationAreaInsert();
+        view.handleAnnotationAreaInsert();
         if (index == -1) {
-            ExperimenterData details = editor.getUserDetails();
+            ExperimenterData details = model.getUserDetails();
             annotationArea.setText("No annotations for "+details.getLastName()); 
+            setComponentsEnabled(true);
+            deleteBox.setEnabled(false);
             return;
         }
         List list = getOwnerAnnotation(index);
@@ -251,13 +256,16 @@ class DOAnnotation
     /**
      * Creates a new instance.
      * 
-     * @param editor    Reference to the viewer this component is for.
-     *                  Mustn't be <code>null</code>.
+     * @param view      Reference to the View. Mustn't be <code>null</code>.
+     * @param model     Reference to the Model. Mustn't be <code>null</code>.
      */
-    DOAnnotation(EditorUI editor)
+    DOAnnotation(EditorUI view, EditorModel model)
     {
-        if (editor == null)  throw new IllegalArgumentException("No parent.");
-        this.editor = editor;
+        if (view == null)  throw new IllegalArgumentException("No View.");
+        if (model == null)  throw new IllegalArgumentException("No Model.");
+        this.view = view;
+        this.model = model;
+        userIndex = -1;
         initComponents();
         buildGUI();
     }
@@ -265,10 +273,9 @@ class DOAnnotation
     /** Shows the annotations. */
     void showAnnotations()
     {
-        ExperimenterData userDetails = editor.getUserDetails();
+        ExperimenterData userDetails = model.getUserDetails();
         if (userDetails == null) return;
-        Map annotations = editor.getAnnotations();
-        if (annotations == null) return;
+        Map annotations = model.getAnnotations();
         String[] owners = new String[annotations.size()];
         Iterator i = annotations.keySet().iterator();
         Integer id;
@@ -302,6 +309,7 @@ class DOAnnotation
      */
     boolean isAnnotable()
     { 
+        if (userIndex == -1) return true;//no annotation for current user
         return (annotatedByList.getSelectedIndex() == userIndex); 
     }
     

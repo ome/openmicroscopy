@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.clsf;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Set;
-
 
 //Third-party libraries
 
@@ -71,22 +69,14 @@ public class ClassifierFactory
      * @param m     The type of classifier. One of the following constants:
      *              {@link Classifier#CLASSIFY_MODE}, 
      *              {@link Classifier#DECLASSIFY_MODE}.
-     * @param paths The available paths.
      * @param image The image to classify or declassify.
      * @return See above.
      */
-    public static Classifier getClassifier(TreeViewer model, int m, Set paths,
+    public static Classifier getClassifier(TreeViewer model, int m,
                                             ImageData image)
     {
-        return singleton.createClassifier(model, m, paths, image);
+        return singleton.createClassifier(model, m, image);
     }
-    
-    /**
-     * Returns the tracked component.
-     * 
-     * @return See above.
-     */
-    public static Classifier getClassifier() { return singleton.classifier; }
     
     /** The tracked component. */
     private Classifier classifier;
@@ -105,26 +95,24 @@ public class ClassifierFactory
      * @param mode  The type of classifier. One of the following constants:
      *              {@link Classifier#CLASSIFY_MODE}, 
      *              {@link Classifier#DECLASSIFY_MODE}.
-     * @param paths The available paths.
      * @param image The image to classify or declassify.
      * @return See above.
      */
-    private Classifier createClassifier(TreeViewer model, int mode, Set paths,
+    private Classifier createClassifier(TreeViewer model, int mode,
                                         ImageData image)
     {
-        if (classifier != null) return classifier;
-        model.addPropertyChangeListener(this);
-        switch (mode) {
-            case Classifier.CLASSIFY_MODE:
-                classifier = new AddWin(paths, image);
-                return classifier;
-            case Classifier.DECLASSIFY_MODE:
-                classifier = new RemoveWin(paths, image);
-                return classifier;
-            default:
-                throw new IllegalArgumentException(
-                        "Unsupported classification mode: "+mode+".");
+        if (classifier != null) {
+            if (mode == classifier.getMode()) return classifier;
+            classifier.discard();
+            classifier = null;
         }
+        model.addPropertyChangeListener(this);
+        ClassifierModel m = new ClassifierModel(model, mode, image);
+        ClassifierComponent component = new ClassifierComponent(m);
+        m.initialize(component);
+        component.initialize();
+        classifier = component;
+        return classifier;
     }
     
     /** 
@@ -134,7 +122,12 @@ public class ClassifierFactory
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
-        if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) classifier = null;
+        if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) {
+            if (classifier != null) {
+                classifier.discard();
+                classifier = null;
+            }
+        }
     }
 
 }

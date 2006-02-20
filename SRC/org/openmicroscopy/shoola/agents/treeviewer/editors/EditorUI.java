@@ -41,15 +41,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -65,9 +58,6 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -93,15 +83,6 @@ import pojos.ProjectData;
 public class EditorUI
     extends JPanel
 {
-
-    /** Indicates that this class is hosting the <code>Edit</code> UI. */
-    public static final int     EDIT = TreeViewer.PROPERTIES_EDITOR;
-    
-    /** Indicates that this class is hosting the <code>Create</code> UI. */
-    public static final int     CREATE = TreeViewer.CREATE_EDITOR;
-    
-    /** Bounds property to indicate that the edition is cancelled. */
-    public static final String  CANCEL_EDITION_PROPERTY = "cancelEdition";
     
     /** The default height of the <code>TitlePanel</code>. */
     public static final int    	TITLE_HEIGHT = 80;
@@ -166,9 +147,6 @@ public class EditorUI
     /** Indicates that a warning message is displayed if <code>true</code>. */
     private boolean         warning;
     
-    /** One of the types defined by this class. */
-    private int             editorType;
-    
     /**
      * <code>true</code> if the name or description is modified.
      * <code>false</code> otherwise;
@@ -182,57 +160,10 @@ public class EditorUI
     private DOBasic         doBasic;
     
     /** Reference to the Model. */
-    private TreeViewer      model;
+    private EditorModel     model;
     
-    /** The currently edited {@link DataObject}. */
-    private DataObject      hierarchyObject;
-    
-    /** The annotations related to the currently edited {@link DataObject}. */ 
-    private Map             annotations;
-    
-    /** 
-     * Returns the last annotation.
-     * 
-     * @param annotations Collection of {@link AnnotationData} 
-     *                      related to the {@link DataObject} if any
-     * @return See above.
-     */
-    private AnnotationData getLastAnnotation(Set annotations)
-    {
-        if (annotations == null || annotations.size() == 0) return null;
-        List list = new ArrayList(annotations);
-        Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                Timestamp t1 = ((AnnotationData) o1).getLastModified(),
-                          t2 = ((AnnotationData) o2).getLastModified();
-                long n1 = t1.getTime();
-                long n2 = t2.getTime();
-                int v = 0;
-                if (n1 < n2) v = -1;
-                else if (n1 > n2) v = 1;
-                return v;
-            }
-        };
-        Collections.sort(list, c);
-        return (AnnotationData) list.get(list.size()-1);
-    }
-    
-    /** 
-     * Checks if the specified type is supported by this class.
-     * 
-     * @param type The type to control.
-     */
-    private void checkEditorType(int type)
-    {
-        switch (type) {
-            case EDIT:
-            case CREATE:     
-                return;
-            default:
-                throw new IllegalArgumentException("Type not supported.");
-        }
-    }
+    /** Reference to the Control. */
+    private EditorControl   controller;
     
     /** Initializes the components. */
     private void initComponents()
@@ -240,12 +171,11 @@ public class EditorUI
         //TitleBar
         titleLayer = new JLayeredPane();
         
-        cancelButton = new JButton("Cancel");
+        cancelButton = new JButton("Close");
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {  
-                firePropertyChange(CANCEL_EDITION_PROPERTY, Boolean.FALSE,
-                        Boolean.TRUE);
+                controller.close(true);
             }
         });
         finishButton = new JButton("Finish");
@@ -253,18 +183,16 @@ public class EditorUI
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  finish(); }
         });
-        doBasic = new DOBasic(this); 
+        doBasic = new DOBasic(this, model); 
     }
     
     /** 
      * Sets the {@link #message} corresponding to 
      * the <code>Dataobject</code>. 
-     * 
-     * @param nodeType  The specified class identifying the
-     *                  <code>Dataobject</code>.
      */
-    private void getMessage(Class nodeType)
+    private void getMessage()
     {
+        Class nodeType = model.getHierarchyObject().getClass();
         if (nodeType.equals(ProjectData.class))
             message = PROJECT_MSG;
         else if (nodeType.equals(DatasetData.class))
@@ -285,16 +213,16 @@ public class EditorUI
     private void buildTitlePanel()
     {
         IconManager im = IconManager.getInstance();
-        switch (editorType) {
-            case CREATE:
+        switch (model.getEditorType()) {
+            case Editor.CREATE_EDITOR:
                 titlePanel = new TitlePanel(message, 
                         "Create a new "+ message.toLowerCase()+".", 
                         im.getIcon(IconManager.CREATE_BIG));
                 break;
-            case EDIT:
+            case Editor.PROPERTIES_EDITOR:
                 titlePanel = new TitlePanel(message, 
                         "Edit the "+ message.toLowerCase()+": "+
-                         getDataObjectName(), 
+                         model.getDataObjectName(), 
                         im.getIcon(IconManager.PROPERTIES_BIG));
         }
         titleLayer.add(titlePanel, 0);
@@ -346,20 +274,21 @@ public class EditorUI
      */
     private JComponent buildCenterComponent()
     {
-        switch (editorType) {
-            case CREATE:
+        switch (model.getEditorType()) {
+            case Editor.CREATE_EDITOR:
                 return doBasic;
-            case EDIT:
+            case Editor.PROPERTIES_EDITOR:
                 IconManager im = IconManager.getInstance();
                 JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
                                                    JTabbedPane.WRAP_TAB_LAYOUT);
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
                 tabs.addTab(PROPERTIES_TITLE, 
                             im.getIcon(IconManager.PROPERTIES), doBasic);
-                ExperimenterData exp = getExperimenterData();
+                ExperimenterData exp = model.getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
                             new DOInfo(details));
+                DataObject hierarchyObject = model.getHierarchyObject();
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());
@@ -384,16 +313,15 @@ public class EditorUI
     }
     
     /**
-     * Handles the <code>finish</code> action according to the
-     * {@link #editorType}.
+     * Handles the <code>finish</code> action depending on the type of editor.
      */
     private void finish()
     {
-        switch (editorType) {
-            case CREATE:
-                model.saveObject(fillDataObject(), TreeViewer.CREATE_OBJECT);
+        switch (model.getEditorType()) {
+            case Editor.CREATE_EDITOR:
+                controller.createObject(fillDataObject());
                 break;
-            case EDIT:
+            case Editor.PROPERTIES_EDITOR:
                 finishEdit();
         }
     }
@@ -401,36 +329,57 @@ public class EditorUI
     /** Creates, updates or deletes the annotation. */
     private void annotateOnly()
     {
-        AnnotationData data = getAnnotationData();
-        int algorithm = TreeViewer.UPDATE_ANNOTATION; 
-        if (doBasic.isAnnotationDeleted())
-            algorithm = TreeViewer.DELETE_ANNOTATION;
-        else { 
+        AnnotationData data = null;
+        int userID = model.getUserDetails().getId();
+        List l = model.getAnnotations(userID);
+        if (l != null && l.size() != 0) 
+            data = model.getAnnotationData();
+        if (doBasic.isAnnotationDeleted()) {
+            if (data != null) controller.deleteAnnotation(data);
+        } else { 
             if (data == null) {
                 data = new AnnotationData();
-                algorithm = TreeViewer.CREATE_ANNOTATION;
+                data.setText(doBasic.getAnnotationText());
+                controller.createAnnotation(data);
+            } else {
+                data.setText(doBasic.getAnnotationText());
+                controller.updateAnnotation(data);
             }
-            data.setText(doBasic.getAnnotationText());
         }
-        model.saveObject(null, data, algorithm);
     }
     
     /** Edits and annotates the object. */
     private void editAndAnnotate()
     {
-        AnnotationData data = getAnnotationData();
-        int algorithm = TreeViewer.UPDATE_ANNOTATION; 
-        if (doBasic.isAnnotationDeleted())
-            algorithm = TreeViewer.DELETE_ANNOTATION;
-        else { 
-            if (data == null) {
+        AnnotationData data = model.getAnnotationData();
+        if (doBasic.isAnnotationDeleted()) {
+            if (data != null) 
+                controller.deleteAnnotation(fillDataObject(), data);
+        } else {  
+            if (data == null) { 
                 data = new AnnotationData();
-                algorithm = TreeViewer.CREATE_ANNOTATION;
+                data.setText(doBasic.getAnnotationText());
+                controller.createAnnotation(fillDataObject(), data);
+            } else {
+                data.setText(doBasic.getAnnotationText());
+                controller.updateAnnotation(fillDataObject(), data);
             }
-            data.setText(doBasic.getAnnotationText());
-        }
-        model.saveObject(fillDataObject(), data, algorithm);
+        }  
     }
+
+    /** 
+     * Handles the <code>finish</code> action for the 
+     * {@link Editor#PROPERTIES_EDITOR} editortype.
+     */
+    private void finishEdit()
+    {
+        if (edit) {
+            if (doBasic.isAnnotable()) editAndAnnotate();
+            else controller.updateObject(fillDataObject());
+        } else {
+            if (doBasic.isAnnotable()) annotateOnly();
+        }
+    } 
     
     /**
      * Fills the <code>name</code> and <code>description</code> of the 
@@ -440,6 +389,7 @@ public class EditorUI
      */
     private DataObject fillDataObject()
     {
+        DataObject hierarchyObject = model.getHierarchyObject();
         if (hierarchyObject instanceof ProjectData) {
             ProjectData p = (ProjectData) hierarchyObject;
             p.setName(doBasic.nameArea.getText());
@@ -469,42 +419,26 @@ public class EditorUI
         return null;
     }
     
-    /** 
-     * Handles the <code>finish</code> action for the {@link #EDIT} editor
-     * type.
-     */
-    private void finishEdit()
+    /** Creates a new instance. */
+    EditorUI()
     {
-        if (edit) {
-            if (doBasic.isAnnotable()) editAndAnnotate();
-            else model.saveObject(fillDataObject(), TreeViewer.UPDATE_OBJECT);
-        } else {
-            if (doBasic.isAnnotable()) annotateOnly();
-        }
+        warning = false;
+        edit = false;
     }
     
     /**
-     * Creates a new instance.
      * 
-     * @param model Reference to {@link TreeViewer}.
-     *              Mustn't be <code>null</code>.
-     * @param hierarchyObject The {@link DataObject} to edit.
-     * @param editorType    The type of editor. One of the following constants:
-     *                      {@link #CREATE}, {@link #EDIT}.
+     * @param controller
+     * @param model
      */
-    public EditorUI(TreeViewer model, DataObject hierarchyObject,
-                        int editorType)
+    void initialize(EditorControl controller, EditorModel model)
     {
-        if (hierarchyObject == null)
-            throw new IllegalArgumentException("No User object not supported.");
-        if (model == null)
-            throw new IllegalArgumentException("No model.");
-        checkEditorType(editorType);
+        if (controller == null) throw new NullPointerException("No control.");
+        if (model == null) throw new NullPointerException("No model.");
+        this.controller = controller;
         this.model = model;
-        this.hierarchyObject = hierarchyObject;
-        this.editorType = editorType;
         initComponents();
-        getMessage(hierarchyObject.getClass());
+        getMessage();
         buildGUI(); 
     }
     
@@ -556,280 +490,38 @@ public class EditorUI
     }
     
     /**
-     * Returns the editor type.
-     * 
-     * @return See above.
-     */
-    int getEditorType() { return editorType; }
-    
-    /**
-     * Returns <code>true</code> if it's possible to annotate 
-     * the currenlty edited <code>DataObject</code>, <code>false</code>
-     * otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isAnnotable()
-    { 
-        if (hierarchyObject == null) return false;
-        else if ((hierarchyObject instanceof DatasetData) ||
-                (hierarchyObject instanceof ImageData)) return true; 
-        return false;
-    }
-    
-    /**
-     * Returns <code>true</code> if the current user can modify the 
-     * currently edited object, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isEditable()
-    {
-        ExperimenterData owner = getExperimenterData();
-        if (owner == null) return false;
-        return (owner.getId() == model.getUserDetails().getId());
-    }
-    
-    /** 
-     * Returns the name of the currenlty edited <code>DataObject</code>.
-     * 
-     * @return See above.
-     */
-    String getDataObjectName()
-    { 
-        if (hierarchyObject == null) return null;
-        else if (hierarchyObject instanceof DatasetData)
-            return ((DatasetData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof ProjectData)
-            return ((ProjectData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof CategoryData)
-            return ((CategoryData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof CategoryGroupData)
-            return ((CategoryGroupData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof ImageData)
-            return ((ImageData) hierarchyObject).getName();
-        return null;
-    }
-    
-    /** 
-     * Returns the description of the currenlty edited <code>DataObject</code>.
-     * 
-     * @return See above.
-     */
-    String getDataObjectDescription()
-    { 
-        if (hierarchyObject == null) return null;
-        else if (hierarchyObject instanceof DatasetData)
-            return ((DatasetData) hierarchyObject).getDescription();
-        else if (hierarchyObject instanceof ProjectData)
-            return ((ProjectData) hierarchyObject).getDescription();
-        else if (hierarchyObject instanceof CategoryData)
-            return ((CategoryData) hierarchyObject).getDescription();
-        else if (hierarchyObject instanceof CategoryGroupData)
-            return ((CategoryGroupData) hierarchyObject).getDescription();
-        else if (hierarchyObject instanceof ImageData)
-            return ((ImageData) hierarchyObject).getDescription();
-        return null;
-    }
-    
-    /**
-     * Returns the information on the owner of the {@link DataObject}. 
-     * 
-     * @return See above.
-     */
-    ExperimenterData getExperimenterData()
-    {
-        if (hierarchyObject == null) return null;
-        else if (hierarchyObject instanceof DatasetData)
-            return ((DatasetData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof ProjectData)
-            return ((ProjectData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof CategoryData)
-            return ((CategoryData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof CategoryGroupData)
-            return ((CategoryGroupData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof ImageData)
-            return ((ImageData) hierarchyObject).getOwner();
-        return null;
-    }
-    
-    /**
-     * Returns the annotation of the currently edited <code>DataObject</code>.
-     *  
-     * @return See above.
-     */
-    AnnotationData getAnnotationData()
-    {
-        if (hierarchyObject == null) return null;
-        else if (hierarchyObject instanceof ImageData)
-            return getLastAnnotation(
-                    ((ImageData) hierarchyObject).getAnnotations());
-        else if (hierarchyObject instanceof DatasetData)
-            return getLastAnnotation(
-                    ((DatasetData) hierarchyObject).getAnnotations());
-        return null;
-    }
-     
-    /**
-     * Returns the annotations for the currently edited object, 
-     * <code>null</code> it there is no annotation for that object.
-     * 
-     * @return See above.
-     */
-    Map getAnnotations() { return annotations; }
-    
-    /**
-     * Returns <code>true</code> if the <code>DataObject</code> has been 
-     * classified, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isClassified()
-    {
-        if (hierarchyObject == null) return false;
-        else if (hierarchyObject instanceof ImageData)
-            return true;
-        return false;
-    }
-    
-    /**
-     * Returns the user's details.
-     * 
-     * @return See above.
-     */
-    ExperimenterData getUserDetails() { return model.getUserDetails(); }
-    
-    /** 
-     * Browses the specified node.
-     * 
-     * @param node The node to browse.
-     */
-    void browse(TreeImageDisplay node)
-    {
-        Object object = node.getUserObject();
-        if (object instanceof DataObject) model.browse((DataObject) object);
-    }
-    
-    /** Retrieves the classification for the currently edited object. */
-    void retrieveClassification()
-    {
-        if (hierarchyObject == null || !(hierarchyObject instanceof ImageData))
-            throw new IllegalArgumentException("The method can only be" +
-                    "invoked for Image.");
-        model.retrieveClassification(((ImageData) hierarchyObject).getId());
-    }
-    
-    /**
-     * Returns <code>true</code> if the DataObject is an Image,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean hasThumbnail()
-    {
-        if (hierarchyObject == null) return false;
-        else if (hierarchyObject instanceof ImageData)
-            return true;
-        return false;
-    }
-    
-    /**
      * Sets the specified thumbnail 
      * 
      * @param thumbnail The thumbnail to set.
      */
-    public void setThumbnail(BufferedImage thumbnail)
+    void setThumbnail(BufferedImage thumbnail)
     {
-        if (thumbnail ==  null) return;
-        if (hasThumbnail()) {
-            JLabel label = new JLabel(new ImageIcon(thumbnail));
-            label.addMouseListener(new MouseAdapter() {
-                
-                /**
-                 * Views the image if the user double-clicks on the thumbnail.
-                 */
-                public void mouseClicked(MouseEvent e)
-                {
-                    if (e.getClickCount() == 2) model.browse(hierarchyObject);
-                }
-            });
-            titlePanel.setIconComponent(label);
-            doBasic.addListeners();
-        }
+        JLabel label = new JLabel(new ImageIcon(thumbnail));
+        label.addMouseListener(new MouseAdapter() {
+            
+            /**
+             * Views the image if the user double-clicks on the thumbnail.
+             */
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getClickCount() == 2) 
+                    model.browse(model.getHierarchyObject());
+            }
+        });
+        titlePanel.setIconComponent(label);
+        doBasic.addListeners();
+    }
+
+    /** Shows the retrieves annotations.  */
+    void showAnnotations()
+    {
+        if (doBasic != null) doBasic.showAnnotations();
     }
     
-    /**
-     * Sets the retrieved annotations.
-     * 
-     * @param map The map with the annotations.
-     */
-    public void setAnnotations(Map map)
-    {
-        if (map == null) throw new NullPointerException("No annotations");
-        if (!isAnnotable())
-            throw new IllegalArgumentException("This mehod should only be " +
-                    "invoked for annotable Data object.");
-        ViewerSorter sorter = new ViewerSorter();
-        sorter.setAscending(false);
-        HashMap sortedAnnotations = new HashMap();
-        Set set;
-        Integer index;
-        Iterator i = map.keySet().iterator();
-        Iterator j;
-        AnnotationData annotation;
-        Integer ownerID;
-        List userAnnos;
-        while (i.hasNext()) {
-            index = (Integer) i.next();
-            set = (Set) map.get(index);
-            j = set.iterator();
-            while (j.hasNext()) {
-                annotation = (AnnotationData) j.next();;
-                ownerID = new Integer(annotation.getOwner().getId());
-                userAnnos = (List) sortedAnnotations.get(ownerID);
-                if (userAnnos == null) {
-                    userAnnos = new ArrayList();
-                    sortedAnnotations.put(ownerID, userAnnos);
-                }
-                userAnnos.add(annotation);
-            }
-        }
-        i = sortedAnnotations.keySet().iterator();
-        List timestamps, annotations, results, list;
-        HashMap m;
-        Iterator k, l;
-        AnnotationData data;
-        while (i.hasNext()) {
-            ownerID = (Integer) i.next();
-            annotations = (List) sortedAnnotations.get(ownerID);
-            k = annotations.iterator();
-            m = new HashMap(annotations.size());
-            timestamps = new ArrayList(annotations.size());
-            while (k.hasNext()) {
-                data = (AnnotationData) k.next();
-                m.put(data.getLastModified(), data);
-                timestamps.add(data.getLastModified());
-            }
-            results = sorter.sort(timestamps);
-            l = results.iterator();
-            list = new ArrayList(results.size());
-            while (l.hasNext())
-                list.add(m.get(l.next()));
-            sortedAnnotations.put(ownerID, list);
-        }
-        this.annotations = sortedAnnotations;
-        doBasic.showAnnotations();
-    }
-    
-    /**
-     * Displays the specified set of nodes.
-     * 
-     * @param nodes The nodes to set.
-     */ 
-    public void setClassifiedNodes(Set nodes)
-    {
-        if (nodes == null) throw new IllegalArgumentException("No nodes");
-        doBasic.setClassifiedNodes(nodes);      
+    /** Displays the classifications. */ 
+    void showClassifications()
+    { 
+        if (doBasic != null) doBasic.showClassifications();
     }
     
     /**

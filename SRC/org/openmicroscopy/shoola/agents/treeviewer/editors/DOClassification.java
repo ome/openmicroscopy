@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
 
 /** 
  * The component hosting the classification. 
@@ -82,14 +83,12 @@ class DOClassification
     /** The root object. */
     private static final String     ROOT = "Classification";
     
-    /** Reference to the parent. */
-    private EditorUI            editor;
+    /** Reference to the Model. */
+    private EditorModel         model;
     
     /** The tree hosting the classification. */
     private JTree               treeDisplay;
     
-    /** Flag indicating that the nodes are displayed. */
-    private boolean             nodesDisplayed;
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
@@ -134,7 +133,9 @@ class DOClassification
             if (me.getClickCount() != 2) return;
             Object node = treeDisplay.getLastSelectedPathComponent();
             if (!(node instanceof TreeImageDisplay)) return;
-            editor.browse((TreeImageDisplay) node);
+            Object userObject = ((TreeImageDisplay) node).getUserObject();
+            if (userObject instanceof DataObject) 
+                model.browse((DataObject) userObject);
         }
     }
     
@@ -171,26 +172,22 @@ class DOClassification
     /**
      * Creates a new instance.
      * 
-     * @param editor
+     * @param model     Reference to the Model. Mustn't be <code>null</code>.
      */
-    DOClassification(EditorUI editor)
+    DOClassification(EditorModel model)
     {
-        if (editor == null) throw new IllegalArgumentException("No parent.");
-        this.editor = editor;
+        if (model == null)  throw new IllegalArgumentException("No Model.");
+        this.model = model;
         sorter = new ViewerSorter();
-        nodesDisplayed = false;
         initComponents();
         buildGUI();
     }
     
-    /**
-     * Adds the specified nodes to the tree.
-     * 
-     * @param nodes The nodes to add to the tree.
-     */
-    void setNodes(Set nodes)
+    /** Adds the classifications nodes to the tree. */
+    void showClassifications()
     {
-        nodesDisplayed = true;
+        if (!model.isClassificationLoaded()) return;
+        Set nodes = model.getClassifications();
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         if (nodes.size() != 0) {
@@ -201,13 +198,5 @@ class DOClassification
         }
         dtm.reload();
     }
-    
-    /**
-     * Returns <code>true</code> if the nodes are displayed, <code>false</code>
-     * otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isNodesDisplayed() { return nodesDisplayed; }
     
 }

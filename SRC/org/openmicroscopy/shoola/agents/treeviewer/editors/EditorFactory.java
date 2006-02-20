@@ -33,13 +33,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.DataObject;
 
@@ -62,31 +61,26 @@ public class EditorFactory
     private static final EditorFactory singleton = new EditorFactory();
 
     /**
-     * Returns the {@link EditorUI}.
+     * Returns the {@link Editor}.
      * 
-     * @param model Reference to {@link TreeViewer}.
-     *              Mustn't be <code>null</code>.
-     * @param hierarchyObject The {@link DataObject} to edit.
-     * @param editorType    The type of editor. One of the following constants:
-     *                      {@link EditorUI#CREATE}, {@link EditorUI#EDIT}.
-     * @return A {@link EditorUI}
+     * @param model             Reference to {@link TreeViewer}.
+     *                          Mustn't be <code>null</code>.
+     * @param hierarchyObject   The {@link DataObject} to edit.
+     * @param editorType        The type of editor. 
+     *                          One of the following constants:
+     *                          {@link Editor#CREATE_EDITOR}, 
+     *                          {@link Editor#PROPERTIES_EDITOR}.
+     * @return A {@link Editor}
      */
-    public static EditorUI getEditor(TreeViewer model,
+    public static Editor getEditor(TreeViewer model,
                                     DataObject hierarchyObject,
                                     int editorType)
     { 
         return singleton.getDOEditor(model, hierarchyObject, editorType);
     }
-    
-    /**
-     * Returns the {@link EditorUI}.
-     * 
-     * @return A {@link EditorUI}
-     */
-    public static EditorUI getEditor() { return singleton.editor; }
-    
+
     /** The tracked component. */
-    private EditorUI editor;
+    private Editor editor;
     
     /** Creates a new instance. */
     private EditorFactory()
@@ -97,19 +91,25 @@ public class EditorFactory
     /**
      * Creates a editor.
      * 
-     * @param model Reference to {@link TreeViewer}.
-     *              Mustn't be <code>null</code>.
-     * @param hierarchyObject The {@link DataObject} to edit.
-     * @param editorType    The type of editor. One of the following constants:
-     *                      {@link EditorUI#CREATE}, {@link EditorUI#EDIT}.
-     * @return A {@link EditorUI}
+     * @param model             Reference to {@link TreeViewer}.
+     *                          Mustn't be <code>null</code>.
+     * @param hierarchyObject   The {@link DataObject} to edit.
+     * @param editorType        The type of editor. 
+     *                          One of the following constants:
+     *                          {@link Editor#CREATE_EDITOR}, 
+     *                          {@link Editor#PROPERTIES_EDITOR}.
+     * @return A {@link Editor}
      */
-    private EditorUI getDOEditor(TreeViewer model, DataObject hierarchyObject,
+    private Editor getDOEditor(TreeViewer model, DataObject hierarchyObject,
                                 int editorType)
     { 
         model.addPropertyChangeListener(this);
         if (editor != null) return editor;
-        editor = new EditorUI(model, hierarchyObject, editorType);
+        EditorModel m = new EditorModel(model, editorType, hierarchyObject);
+        EditorComponent component = new EditorComponent(m);
+        m.initialize(component);
+        component.initialize();
+        editor = component;
         return editor;
     }
     
@@ -120,7 +120,12 @@ public class EditorFactory
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
-        if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) editor = null;  
+        if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) {
+            if (editor != null) {
+                editor.discard();
+                editor = null;  
+            }
+        }
     }
     
 }

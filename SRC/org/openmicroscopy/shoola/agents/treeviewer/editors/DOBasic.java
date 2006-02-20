@@ -102,8 +102,11 @@ class DOBasic
      */
     private DOClassification    classifier;
     
-    /** Reference to the parent. */
-    private EditorUI            editor;
+    /** Reference to the View. */
+    private EditorUI            view;
+    
+    /** Reference to the Model. */
+    private EditorModel         model;
     
     /**
      * Sets the defaults for the specified area.
@@ -127,35 +130,43 @@ class DOBasic
         setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         setTextAreaDefault(descriptionArea);
-        if (editor.getEditorType() == EditorUI.EDIT) {
-            nameArea.setText(editor.getDataObjectName());
-            descriptionArea.setText(editor.getDataObjectDescription());
+        if (model.getEditorType() == Editor.PROPERTIES_EDITOR) {
+            nameArea.setText(model.getDataObjectName());
+            descriptionArea.setText(model.getDataObjectDescription());
             descriptionArea.getDocument().addDocumentListener(
                     new DocumentListener() {
 
                 public void insertUpdate(DocumentEvent de)
                 {
-                    editor.handleDescriptionAreaInsert();
+                    view.handleDescriptionAreaInsert();
                 }
                 
-                /** Required by I/F but no-op in our case. */
+                /** 
+                 * Required by I/F but no-op implementation in our case. 
+                 * @see DocumentListener#removeUpdate(DocumentEvent)
+                 */
                 public void removeUpdate(DocumentEvent de) {}
 
-                /** Required by I/F but no-op in our case. */
+                /** 
+                 * Required by I/F but no-op implementation in our case. 
+                 * @see DocumentListener#removeUpdate(DocumentEvent)
+                 */
                 public void changedUpdate(DocumentEvent de) {}
+                
             });
-            if (!(editor.isEditable())) {
+            if (!(model.isEditable())) {
                 nameArea.setEditable(false);
                 descriptionArea.setEditable(false);
             }
-            if (editor.isAnnotable()) {
-                annotator = new DOAnnotation(editor);
+            if (model.isAnnotable()) {
+                annotator = new DOAnnotation(view, model);
                 IconManager im = IconManager.getInstance();
+                //tabbedPane.ins
                 tabbedPane.addTab(ANNOTATION, 
                             im.getIcon(IconManager.ANNOTATION), annotator);
             }
-            if (editor.isClassified()) {
-                classifier = new DOClassification(editor);
+            if (model.isClassified()) {
+                classifier = new DOClassification(model);
                 tabbedPane.addTab(CLASSIFICATION, 
                       IconManager.getInstance().getIcon(IconManager.CATEGORY),
                       classifier);
@@ -170,7 +181,7 @@ class DOBasic
              */
             public void insertUpdate(DocumentEvent de)
             {
-                editor.handleNameAreaInsert();
+                view.handleNameAreaInsert();
             }
             
             /** 
@@ -180,7 +191,7 @@ class DOBasic
             public void removeUpdate(DocumentEvent de)
             {
                 if (de.getDocument().getLength() == 0)
-                    editor.handleEmptyNameArea();
+                    view.handleEmptyNameArea();
             }
 
             /** 
@@ -195,7 +206,7 @@ class DOBasic
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
-     * is annotable and if we are in the {@link EditorUI#EDIT} mode,
+     * is annotable and if we are in the {@link Editor#PROPERTIES_EDITOR} mode,
      * twe display the annotation pane. 
      * 
      * @return See above.
@@ -258,14 +269,19 @@ class DOBasic
     /**
      * Creates a new instance.
      * 
-     * @param editor    Reference to the {@link EditorUI}.
+     * @param view      Reference to the {@link EditorUI}.
      *                  Mustn't be <code>null</code>.
+     * @param model     Reference to the {@link EditorModel}.
+     *                  Mustn't be <code>null</code>.            
      */
-    DOBasic(EditorUI editor)
+    DOBasic(EditorUI view, EditorModel model)
     {
-        if (editor == null) 
-            throw new IllegalArgumentException("No editor.");
-        this.editor = editor;
+        if (view == null) 
+            throw new IllegalArgumentException("No view.");
+        if (model == null) 
+            throw new IllegalArgumentException("No model.");
+        this.view = view;
+        this.model = model;
         initComponents();
         buildGUI();
     }   
@@ -312,15 +328,11 @@ class DOBasic
         annotator.showAnnotations();
     }
 
-    /**
-     * Displays the specified set of nodes.
-     * 
-     * @param nodes The nodes to display
-     */
-    void setClassifiedNodes(Set nodes)
+    /** Shows the classifications. */
+    void showClassifications()
     {
         if (classifier == null) return;
-        classifier.setNodes(nodes);
+        classifier.showClassifications();
     }
     
     /** 
@@ -342,8 +354,8 @@ class DOBasic
                 JTabbedPane pane = (JTabbedPane) ce.getSource();
                 Component c = pane.getSelectedComponent();
                 if (c instanceof DOClassification) {
-                    if (!classifier.isNodesDisplayed())
-                        editor.retrieveClassification();
+                    if (!model.isClassificationLoaded())
+                        model.fireClassificationLoading();
                 }
             };
         });
