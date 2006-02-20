@@ -61,9 +61,9 @@ import ome.util.ModelMapper;
 public abstract class DataObject implements ModelBased
 {
     
-    private long id;
+    private long id = -1;
     
-    private boolean loaded;
+    private boolean loaded = true;
     
     private Set filtered;
 
@@ -122,15 +122,19 @@ public abstract class DataObject implements ModelBased
      */
     public boolean fill(IObject model)
     {
-        model.setId(new Long(this.getId()));
+        if (this.getId() > -1)
+            model.setId(new Long(this.getId()));
+        
         model.setDetails(new Details());
         if (!this.isLoaded()){
             model.unload();
             return false;
         } else {
-            for (Iterator it = this.filtered.iterator(); it.hasNext();)
-            {
-                model.getDetails().addFiltered((String)it.next());
+            if (this.filtered != null) {
+                for (Iterator it = this.filtered.iterator(); it.hasNext();)
+                {
+                    model.getDetails().addFiltered((String)it.next());
+                }
             }
             return true;
         }

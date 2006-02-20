@@ -189,21 +189,30 @@ public class ImageData
             i.setDescription(this.getDescription());
             i.setActivePixels((Pixels) mapper.map(this.getDefaultPixels()));
             i.setRelatedPixels(new HashSet());
-            for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
-            {
-                PixelsData p = (PixelsData) it.next();
-                i.getRelatedPixels().add(mapper.map(p));
+            
+            if (this.getAllPixels() != null){
+                for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
+                {
+                    PixelsData p = (PixelsData) it.next();
+                    i.getRelatedPixels().add(mapper.map(p));
+                }
             }
-            i.setAnnotations(new HashSet());
-            for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
-            {
-                AnnotationData ann = (AnnotationData) it.next();
-                i.getAnnotations().add(mapper.map(ann));
+            
+            if (this.getAnnotations() != null){
+                i.setAnnotations(new HashSet());
+                for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
+                    {
+                    AnnotationData ann = (AnnotationData) it.next();
+                    i.getAnnotations().add(mapper.map(ann));
+                    }
             }
-            for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
-            {
-                DatasetData d = (DatasetData) it.next();
-                i.addDataset((Dataset) mapper.map(d));
+            
+            if (this.getDatasets() != null){
+                for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
+                {
+                    DatasetData d = (DatasetData) it.next();
+                    i.addDataset((Dataset) mapper.map(d));
+                }
             }
         }
         return i;

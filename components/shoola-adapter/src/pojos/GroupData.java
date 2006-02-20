@@ -115,11 +115,14 @@ public class GroupData
             g.setName(this.getName());
             // TODO what to do with DESCRIPTION and other missing fields
             
-            for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
-            {
-                ExperimenterData e = (ExperimenterData) it.next();
-                g.addExperimenter((Experimenter) mapper.map(e));
+            if (this.getExperimenters() != null){
+                for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
+                {
+                    ExperimenterData e = (ExperimenterData) it.next();
+                    g.addExperimenter((Experimenter) mapper.map(e));
+                }
             }
+            
         }
         return g;
     }

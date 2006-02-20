@@ -71,7 +71,9 @@ public class ReverseModelMapper { // extends ContextFilter {
 	protected Map target2model = new IdentityHashMap();//FIXME not thread safe. 
 	
     public IObject map(ModelBased source){
-        if (target2model.containsKey(source)){
+        if (source == null) {
+            return null;
+        } else if (target2model.containsKey(source)){
             return (IObject) target2model.get(source);
         } else {
             IObject model = source.asIObject(this);

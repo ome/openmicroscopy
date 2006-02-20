@@ -149,10 +149,12 @@ public class CategoryData
             c.setName(this.getName());
             c.setDescription(this.getDescription());
             c.addCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
-            for (Iterator it = this.getImages().iterator(); it.hasNext();)
-            {
-                ImageData i = (ImageData) it.next();
-                c.addImage((Image) mapper.map(i));
+            if (this.getImages() != null) {
+                for (Iterator it = this.getImages().iterator(); it.hasNext();)
+                {
+                    ImageData i = (ImageData) it.next();
+                    c.addImage((Image) mapper.map(i));
+                }
             }
         }
         return c;

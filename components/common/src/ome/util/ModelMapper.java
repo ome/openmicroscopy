@@ -147,7 +147,9 @@ public abstract class ModelMapper extends ContextFilter {
 					throw new RuntimeException("Internal error: could not instantiate object of type "+targetType+" while trying to map "+current,e);
 				}
 				model2target.put(current,target);
-			}
+			} else {
+			    throw new RuntimeException("Internal error: could not find target class type for "+current.getClass());
+            }
 		}
 		return target;
 	}

@@ -124,12 +124,15 @@ public class ExperimenterData
             e.setLastName(this.getLastName());
             e.setEmail(this.getEmail());
             e.setInstitution(this.getInstitution());
-            
-            for (Iterator it = this.getGroups().iterator(); it.hasNext();)
-            {
-                GroupData g = (GroupData) it.next();
-                e.addExperimenterGroup((ExperimenterGroup) mapper.map(g));
+     
+            if (this.getGroups() != null) {
+                for (Iterator it = this.getGroups().iterator(); it.hasNext();)
+                {
+                    GroupData g = (GroupData) it.next();
+                    e.addExperimenterGroup((ExperimenterGroup) mapper.map(g));
+                }
             }
+            
         }
         return e;
     }

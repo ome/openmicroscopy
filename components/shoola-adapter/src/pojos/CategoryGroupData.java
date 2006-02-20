@@ -132,10 +132,12 @@ public class CategoryGroupData
         if (super.fill(cg)) {
             cg.setName(this.getName());
             cg.setDescription(this.getDescription());
-            for (Iterator it = this.getCategories().iterator(); it.hasNext();)
-            {
-                CategoryData c = (CategoryData) it.next();
-                cg.addCategory((Category)mapper.map(c));
+            if (this.getCategories() != null) {
+                for (Iterator it = this.getCategories().iterator(); it.hasNext();)
+                {
+                    CategoryData c = (CategoryData) it.next();
+                    cg.addCategory((Category)mapper.map(c));
+                }
             }
         }
         return cg;

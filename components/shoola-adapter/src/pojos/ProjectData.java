@@ -130,11 +130,18 @@ public class ProjectData
         if (super.fill(p)) {
             p.setName(this.getName());
             p.setDescription(this.getDescription());
-            for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
-            {
-                DatasetData d = (DatasetData) it.next();
-                p.addDataset((Dataset) mapper.map(d));
+            
+            // TODO / NOTE: could also take care of this in the getters and setters.
+            // further we could just store the IObject and put all the logic in 
+            // the getters/setters!
+            if (this.getDatasets() != null) {
+                for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
+                {
+                    DatasetData d = (DatasetData) it.next();
+                    p.addDataset((Dataset) mapper.map(d));
+                }
             }
+            
         }
         return p;
     }
