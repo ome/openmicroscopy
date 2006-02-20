@@ -130,11 +130,12 @@ class ThumbWinPopupMenu
                   annotate = new JMenuItem("Annotate", 
                           im.getIcon(IconManager.ANNOTATE));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        add(properties);
-        add(annotate);
-        add(createClassifySubMenu(classify, declassify));
-        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(createClassifySubMenu(classify, declassify));
+        add(annotate);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(properties);
         properties.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {

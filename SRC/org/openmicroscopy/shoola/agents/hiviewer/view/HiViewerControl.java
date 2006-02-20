@@ -61,6 +61,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitApplicationAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.HideTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
@@ -139,6 +141,8 @@ class HiViewerControl
         actionsMap.put(HiViewer.FIND_W_ST, new FindwSTAction(model));
         actionsMap.put(HiViewer.SAVE_THUMB, new SaveThumbnailsAction(model));
         actionsMap.put(HiViewer.TREE_VIEW, new TreeViewAction(model));
+        actionsMap.put(HiViewer.FIND, new FindAction(model));
+        actionsMap.put(HiViewer.EXIT_APPLICATION, new ExitApplicationAction());
     }
   
     /** Creates the windowsMenuItems. */

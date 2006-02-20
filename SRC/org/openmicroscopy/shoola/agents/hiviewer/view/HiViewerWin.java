@@ -48,7 +48,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -92,7 +91,6 @@ class HiViewerWin
     
     /** The default title of the window. */
     private static final String DEFAULT_TITLE = "Hierarchy Viewer";
-    
     
     /** The status bar. */
     private StatusBar           statusBar;
@@ -155,11 +153,11 @@ class HiViewerWin
     private JMenuBar createMenuBar()
     {
         JMenuBar menuBar = new JMenuBar(); 
-        menuBar.add(createHierarchyMenu());
-        menuBar.add(createFindMenu());
-        menuBar.add(createLayoutMenu());
-        menuBar.add(createActionsMenu());
+        menuBar.add(createFileMenu());
+        menuBar.add(createEditMenu());
+        menuBar.add(createViewMenu());
         menuBar.add(windowsMenu);
+        menuBar.add(createHelpMenu());
         return menuBar;
     }
     
@@ -182,85 +180,69 @@ class HiViewerWin
     }
     
     /**
-     * Helper method to create the Hierarchy menu.
+     * Helper method to create the File menu.
      * 
-     * @return  The Hierarchy menu.
+     * @return  The File menu.
      */
-    private JMenu createHierarchyMenu()
+    private JMenu createFileMenu()
     {
-        JMenu menu = new JMenu("Hierarchy");
+        JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_H);
         menu.add(new JMenuItem(
-                controller.getAction(HiViewer.VIEW_PDI)));
+                controller.getAction(HiViewer.SAVE_THUMB)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
-                controller.getAction(HiViewer.VIEW_CGCI)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+                controller.getAction(HiViewer.EXIT)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewer.REFRESH)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.EXIT)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(controller.getAction(
+                                HiViewer.EXIT_APPLICATION)));
         return menu;
     }
     
     /**
-     * Helper method to create the Find menu.
+     * Helper method to create the Edit menu.
      * 
-     * @return  The Find menu.
+     * @return  The Edit menu.
      */
-    private JMenu createFindMenu()
+    private JMenu createEditMenu()
     {
-        JMenu menu = new JMenu("Find");
-        menu.setMnemonic(KeyEvent.VK_F);
-        /*
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.FIND_ANNOTATED)));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.FIND_W_TITLE)));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.FIND_W_ANNOTATION)));
-        */
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.FIND_W_ST)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        JMenu menu = new JMenu("Edit");
+        menu.setMnemonic(KeyEvent.VK_E);
+        menu.add(new JMenuItem(controller.getAction(HiViewer.FIND)));
         menu.add(new JMenuItem(controller.getAction(HiViewer.CLEAR)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewer.VIEW)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(createClassifySubMenu());
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewer.ANNOTATE)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewer.PROPERTIES)));
         return menu;
     }
     
     /**
-     * Helper method to create the Layout menu.
+     * Helper method to create the View menu.
      * 
      * @return  The Layout menu.
      */
-    private JMenu createLayoutMenu()
+    private JMenu createViewMenu()
     {
-        JMenu menu = new JMenu("Layout");
-        menu.setMnemonic(KeyEvent.VK_L);
-        menu.add(new JMenuItem(controller.getAction(HiViewer.SQUARY)));
+        JMenu menu = new JMenu("View");
+        menu.setMnemonic(KeyEvent.VK_V);
+        menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW_PDI)));
+        menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW_CGCI)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewer.TREE_VIEW)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.SHOW_TITLEBAR)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.HIDE_TITLEBAR)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.SAVE)));
-        return menu;
-    }
-    
-    /**
-     * Helper method to create the Actions menu.
-     * 
-     * @return  The Actions menu.
-     */
-    private JMenu createActionsMenu()
-    {
-        JMenu menu = new JMenu("Actions");
-        menu.setMnemonic(KeyEvent.VK_A);
-        menu.add(new JMenuItem(controller.getAction(HiViewer.PROPERTIES)));
-        //menu.add(new JMenuItem(controller.getAction(HiViewer.ANNOTATE)));
-        
-        menu.add(createClassifySubMenu());
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.SAVE_THUMB)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewer.ZOOM_IN)));
         menu.add(new JMenuItem(controller.getAction(HiViewer.ZOOM_OUT)));
         menu.add(new JMenuItem(controller.getAction(HiViewer.ZOOM_FIT)));
@@ -272,6 +254,17 @@ class HiViewerWin
     {
         windowsMenu = new JMenu("Windows");
         windowsMenu.setMnemonic(KeyEvent.VK_W);
+    }
+    
+    /**
+     * Helper method to create the <code>Help</code> menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createHelpMenu()
+    {
+        JMenu file = new JMenu("Help");
+        return file;
     }
     
     /**

@@ -140,19 +140,19 @@ public interface HiViewer
      */
     public static final int     	CGCI_HIERARCHY = 106;
     
-    /** Identifies the Exit action in the Hierarchy menu. */
+    /** Identifies the <code>Exit action</code> in the File menu. */
     public static final Integer     EXIT = new Integer(0);
     
-    /** Identifies the View P/D/I action in the Hierarchy menu. */
+    /** Identifies the <code>View P/D/I</code> action in the View menu. */
     public static final Integer     VIEW_PDI = new Integer(1);
     
-    /** Identifies the View CG/C/I action in the hierarchy menu. */
+    /** Identifies the <code>View CG/C/I</code> action in the View menu. */
     public static final Integer     VIEW_CGCI = new Integer(2);
     
     /** Identifies the Find With ST action in the Find menu. */
     public static final Integer     FIND_W_ST = new Integer(3);
     
-    /** Identifies the Clear action in the Find menu. */
+    /** Identifies the <code>Clear action</code> in the Edit menu. */
     public static final Integer     CLEAR = new Integer(4);
     
     /** Identifies the Squary Layout action in the Layout menu. */
@@ -161,7 +161,7 @@ public interface HiViewer
     /** Identifies the Tree Layout action in the Layout menu. */
     public static final Integer     TREE = new Integer(6);
     
-    /** Identifies the Show Title Bar action in the Layout menu. */
+    /** Identifies the <code>Show Title Bar</code> action in the View menu. */
     public static final Integer     SHOW_TITLEBAR = new Integer(7);
     
     /** Identifies the Hide Title Bar action in the Layout menu. */
@@ -170,38 +170,44 @@ public interface HiViewer
     /** Identifies the Save Layout action in the Layout menu. */
     public static final Integer     SAVE = new Integer(9);
     
-    /** Identifies the Properties action in the Actions menu. */
+    /** Identifies the <code>Properties</code> action in the Edit menu. */
     public static final Integer     PROPERTIES = new Integer(10);
     
-    /** Identifies the Annotate action in the Actions menu. */
+    /** Identifies the <code>Annotate</code> action in the Edit menu. */
     public static final Integer     ANNOTATE = new Integer(11);
     
-    /** Identifies the Classify action in the Actions menu. */
+    /** Identifies the <code>Classify</code> action in the Edit menu. */
     public static final Integer     CLASSIFY = new Integer(12);
     
-    /** Identifies the Declassify action in the Actions menu. */
+    /** Identifies the <code>Declassify</code> action in the Edit menu. */
     public static final Integer     DECLASSIFY = new Integer(13);
     
-    /** Identifies the View action in the Actions menu. */
+    /** Identifies the <code>View</code> action in the Edit menu. */
     public static final Integer     VIEW = new Integer(14);
     
-    /** Identifies the Zoom In action in the Actions menu. */
+    /** Identifies the <code>Zoom In</code> action in the View menu. */
     public static final Integer     ZOOM_IN = new Integer(15);
     
-    /** Identifies the Zoom Out action in the Actions menu. */
+    /** Identifies the <code>Zoom Out</code> action in the View menu. */
     public static final Integer     ZOOM_OUT = new Integer(16);
     
-    /** Identifies the Zoom Fit action in the Actions menu. */
+    /** Identifies the <code>Zoom Fit</code> action in the View menu. */
     public static final Integer     ZOOM_FIT = new Integer(17);
     
-    /** Identifies the Refresh action in the Hierarchy menu. */
+    /** Identifies the <code>Refresh</code> action in the File menu. */
     public static final Integer     REFRESH = new Integer(18);
     
-    /** Identifies the Save thumbnails action in the Actions menu. */
+    /** Identifies the <code>Save thumbnails</code> action in the File menu. */
     public static final Integer     SAVE_THUMB = new Integer(19);
       
-    /** Identifies the Tree view action in the Actions menu. */
+    /** Identifies the <code>ree view</code>T action in the View menu. */
     public static final Integer     TREE_VIEW = new Integer(20);
+    
+    /** Identifies the <code>Exit Application</code> action in the File menu. */
+    public static final Integer     EXIT_APPLICATION = new Integer(21);
+    
+    /** Identifies the <code>Find</code> action in the Edit menu. */
+    public static final Integer     FIND = new Integer(22);
     
     /** 
      * The message displayed in the status bar when the metadata retrieval 
