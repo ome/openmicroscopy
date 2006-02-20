@@ -21,6 +21,11 @@
       <artifactId>server</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>rendering</artifactId>
+      <version>3.0-alpha-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

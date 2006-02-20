@@ -56,6 +56,7 @@ import ome.testing.OMEData;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -82,6 +83,9 @@ public class PojosServiceTest extends TestCase {
     IUpdate u;
     ModelMapper mapper;
     ReverseModelMapper reverse;
+    
+    Image img;
+    ImageData imgData ;
     
     protected void setUp() throws Exception
     {
@@ -113,20 +117,40 @@ public class PojosServiceTest extends TestCase {
     
     public void testNowLetsTryToSaveSomething() throws Exception
     {
-        // prepare data
-        ImageData imgData = new ImageData();
-        imgData.setName("My test image");
-        imgData.setDescription("My test description");
+        imgData = simpleImageData();
+        img = (Image) reverse.map(imgData);
         
-        // convert it
-        Image img = (Image) reverse.map(imgData);
-
         img = (Image) psrv.createDataObject(img,null);
         assertNotNull("We should get something back",img);
         assertNotNull("Should have an id",img.getId());
         
         Image img2 = (Image) q.getById(Image.class,img.getId().longValue());
         assertNotNull("And we should be able to find it again.",img2);
+        
+    }
+    
+    public void testAndSaveSomtheingWithParents() throws Exception
+    {
+        DatasetData dd = simpleDatasetData();
+        Set ds = new HashSet();
+        ds.add(dd);
+        imgData = simpleImageData();
+        imgData.setDatasets(ds);
+        
+        img = (Image) reverse.map(imgData);
+        img = (Image) u.saveAndReturnObject(img);
+    }
+    
+    // semantic check for unspported
+    
+    public void testNowOnToSavingAndDeleting() throws Exception
+    {
+        imgData = simpleImageData();
+        img = (Image) reverse.map(imgData);
+        
+        img = (Image) psrv.createDataObject(img,null);
+        int count = psrv.deleteDataObject(img,null);
+        assertTrue("we should have deleted something",count>0);
         
     }
     
@@ -144,6 +168,23 @@ public class PojosServiceTest extends TestCase {
     	Map m = new Model2PojosMapper().map(psrv.findAnnotations(Image.class,ids,null)); 
     	log.info(m);
     }
-   
+
+    private ImageData simpleImageData(){
+        // prepare data
+        ImageData id = new ImageData();
+        id.setName("My test image");
+        id.setDescription("My test description");
+        return id;
+    }
+
+
+    private DatasetData simpleDatasetData()
+    {
+        DatasetData dd = new DatasetData();
+        dd.setName("t1");
+        dd.setDescription("t1");
+        return dd;
+    }
+
 }
 

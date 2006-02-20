@@ -123,7 +123,7 @@
   <path id="generated.compile.classpath">
     <filelist dir="\${omero.repo.local}">"""
 
-		  properties["compile.path"].split(":").each(entry)
+		  properties["compile.path"].split(":").toList().sort().each(entry)
 
 		  o << """
     </filelist>
@@ -131,7 +131,7 @@
   <path id="generated.test.classpath">
     <filelist dir="\${omero.repo.local}">"""
 
-		  properties["test.path"].split(":").each(entry)
+		  properties["test.path"].split(":").toList().sort().each(entry)
 
 		  o << """
     </filelist>
@@ -139,14 +139,14 @@
 
   <target name="classpath-download">"""
 
-		  properties["omero.path"].split(":").each(get)
+		  properties["omero.path"].split(":").toList().sort().each(get)
 
 		o << """
   </target>
 
   <target name="dist-copy">"""
 
-		  properties["omero.path"].split(":").each(dist)
+		  properties["omero.path"].split(":").toList().sort().each(dist)
 
 		o << """
   </target>

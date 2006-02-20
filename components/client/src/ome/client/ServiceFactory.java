@@ -48,6 +48,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import omeis.providers.re.RenderingEngine;
 
 /** 
  * Entry point for all client calls. Provides methods to 
@@ -92,6 +93,10 @@ public abstract class ServiceFactory {
     
     public IUpdate getUpdateService(){
         return (IUpdate) this.ctx.getBean("updateService");
+    }
+    
+    public RenderingEngine getRenderingService(){
+        return (RenderingEngine) this.ctx.getBean("renderingService");
     }
     
 }
