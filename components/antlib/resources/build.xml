@@ -122,8 +122,8 @@
                 <echo file="${resrc.dest}/Classpath.sh">
                   export CLASSPATH=${omero.path}
                 </echo>
-		<antClasspath/>
-		<eclipseClasspath/>
+		<groovy src="${import.dir}/groovy/antClasspath.groovy"/>
+		<groovy src="${import.dir}/groovy/eclipseClasspath.groovy"/>
 	</target>
 
 </project>
