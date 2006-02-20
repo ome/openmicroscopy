@@ -49,6 +49,9 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.client.ServiceFactory;
+import ome.model.ILink;
+import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
@@ -86,6 +89,9 @@ public class PojosServiceTest extends TestCase {
     
     Image img;
     ImageData imgData ;
+    
+    Dataset ds;
+    DatasetData dsData;
     
     protected void setUp() throws Exception
     {
@@ -132,27 +138,68 @@ public class PojosServiceTest extends TestCase {
     public void testAndSaveSomtheingWithParents() throws Exception
     {
         DatasetData dd = simpleDatasetData();
-        Set ds = new HashSet();
-        ds.add(dd);
+        Set dss = new HashSet();
+        dss.add(dd);
         imgData = simpleImageData();
-        imgData.setDatasets(ds);
+        imgData.setDatasets(dss);
         
         img = (Image) reverse.map(imgData);
         img = (Image) u.saveAndReturnObject(img);
+        assertTrue("It better have a dataset link",
+                img.getDatasetLinks().size()>0);
+        ILink link = (ILink) img.getDatasetLinks().iterator().next();
+        ds = (Dataset) link.getParent();
+        Long id = ds.getId();
+        
+        // another copy
+        Image img2 = (Image) q.queryUnique(
+                "select i from Image i " +
+                "left outer join fetch i.datasetLinks " +
+                "where i.id = ?",
+                new Object[]{img.getId()});
+        assertTrue("It better have a dataset link too",
+                img2.getDatasetLinks().size()>0);
+        ILink link2 = (ILink) img2.getDatasetLinks().iterator().next();
+        Dataset ds2 = (Dataset) link2.getParent();
+        assertTrue("And the ids have to be the same",id.equals(ds2.getId()));
     }
-    
-    // semantic check for unspported
     
     public void testNowOnToSavingAndDeleting() throws Exception
     {
         imgData = simpleImageData();
         img = (Image) reverse.map(imgData);
         
+        assertNull("Image doesn't have an id.",img.getId());
         img = (Image) psrv.createDataObject(img,null);
-        int count = psrv.deleteDataObject(img,null);
-        assertTrue("we should have deleted something",count>0);
+        assertNotNull("Presto change-o, now it does.",img.getId());
+        psrv.deleteDataObject(img,null);
+        
+        img = (Image) q.getById(Image.class,img.getId().longValue());
+        assertNull("we should have deleted it ",img);
         
     }
+    
+    public void testLetsTryToLinkTwoThingsTogether() throws Exception
+    {
+        imgData = simpleImageData();
+        dsData = simpleDatasetData();
+        
+        img = (Image) reverse.map(imgData);
+        ds = (Dataset) reverse.map(dsData);
+        
+        DatasetImageLink link = new DatasetImageLink();
+        link.link(ds,img);
+        
+        ILink test = psrv.link(new ILink[]{link},null)[0];
+        assertNotNull("ILink should be there",test);
+        
+    }
+    
+    public void testLetsCheckThatWeOnlyAcceptTheSupportedTypes() throws Exception
+    {
+        fail();
+    }
+    
     
     public void testMappingFindContainerHierarchies(){
         ids = new HashSet(data.getMax("Project.ids",2)); // TODO possibly convert to "Set get*"

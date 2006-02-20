@@ -385,9 +385,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        IObject context = (IObject) _query.getById(arg0.getClass(),arg0.getId());
+        return (Collection) context.retrieve(arg1); // FIXME not type.o.null safe
     }
 
     // ~ WRITE
@@ -400,51 +399,41 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     public IObject[] createDataObjects(IObject[] arg0, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        return _update.saveAndReturnArray(arg0); 
     }
 
-    public int unlink(ILink[] arg0, Map arg1)
+    public void unlink(ILink[] arg0, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return 0;
-        throw new RuntimeException("Not implemented yet.");
+        deleteDataObjects(arg0,arg1);
     }
 
     public ILink[] link(ILink[] arg0, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        return (ILink[])_update.saveAndReturnArray(arg0);
     }
 
     public IObject updateDataObject(IObject arg0, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        return _update.saveAndReturnObject(arg0);
     }
 
     public IObject[] udpateDataObjects(IObject[] arg0, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return null;
-        throw new RuntimeException("Not implemented yet.");
+        return _update.saveAndReturnArray(arg0);
     }
 
-    public int deleteDataObject(IObject arg0, Map arg1)
+    public void deleteDataObject(IObject row, Map arg1)
     {
-        // TODO Auto-generated method stub
-        //return 0;
-        throw new RuntimeException("Not implemented yet.");
+        _update.deleteObject(row);
     }
 
-    public int deleteDataObjects(IObject[] arg0, Map arg1)
+    public void deleteDataObjects(IObject[] rows, Map options)
     {
-        // TODO Auto-generated method stub
-        //return 0;
-        throw new RuntimeException("Not implemented yet.");
+        for (IObject object : rows)
+        {
+            deleteDataObject(object,options);    
+        }
+        
     }
     
 }

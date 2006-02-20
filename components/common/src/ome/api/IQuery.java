@@ -51,18 +51,23 @@ import java.util.Map;
  */
 public interface IQuery {
     
-	public Object getUniqueByExample(Object example);
-	public List getListByExample(Object example);
-	public Object getUniqueByFieldILike(Class klazz, String field, String value);
-	public List getListByFieldILike(Class klazz, String field, String value);
-	public Object getUniqueByFieldEq(Class klazz, String field, Object value);
-	public List getListByFieldEq(Class klazz, String field, Object value);
-	public Object getById(Class klazz, long id);
-	public void persist(Object[] objects);
-	public Object getUniqueByMap(Class klazz, Map constraints);
-	public List getListByMap(Class klazz, Map constraints);
-	public Object queryUnique(String query, Object[] params);
-	public List queryList(String query, Object[] params);
-	public Object queryUniqueMap(String query, Map params);
-	public List queryListMap(String query, Map params);
+    // ~ Simple Queries
+    Object getById(Class klazz, long id);
+    List getByClass(Class klazz);
+    
+    // ~ Field-based Queries
+	Object getUniqueByExample(Object example);
+	List getListByExample(Object example);
+	Object getUniqueByFieldILike(Class klazz, String field, String value);
+	List getListByFieldILike(Class klazz, String field, String value);
+	Object getUniqueByFieldEq(Class klazz, String field, Object value);
+	List getListByFieldEq(Class klazz, String field, Object value);
+	Object getUniqueByMap(Class klazz, Map constraints);
+	List getListByMap(Class klazz, Map constraints);
+	
+    // ~ String-based Queries
+    Object queryUnique(String query, Object[] params);
+	List queryList(String query, Object[] params);
+	Object queryUniqueMap(String query, Map params);
+	List queryListMap(String query, Map params);
 }

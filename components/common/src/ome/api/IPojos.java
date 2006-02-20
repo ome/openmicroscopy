@@ -411,9 +411,8 @@ public interface IPojos {
      *      Not null.
      * @param options
      *      Map as above.
-     * @return count of removed links
      */
-    public int unlink(ILink[] dataOjectLinks, Map options);
+    public void unlink(ILink[] dataOjectLinks, Map options);
     
     /** typed convenience method for creating links. Functionality also availeble
      * from {@see createDataObject}
@@ -464,10 +463,8 @@ public interface IPojos {
      * 
      * @param dataObject
      * @param options
-     * @return number of objects deteled (may be more than one if cascades
-     * are in effect)
      */
-    public int deleteDataObject(IObject dataObject, Map options);
+    public void deleteDataObject(IObject dataObject, Map options);
     
     /**
      * convenience method to save network calls. Loops over the array of IObjects
@@ -476,8 +473,7 @@ public interface IPojos {
      * @param dataObjects
      * @param options
      *      Map as above.
-     * @return number of objects deleted.
      */
-    public int deleteDataObjects(IObject[] dataObjects, Map options);
+    public void deleteDataObjects(IObject[] dataObjects, Map options);
     
 }

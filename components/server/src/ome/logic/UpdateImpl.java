@@ -47,8 +47,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 // Application-internal dependencies
@@ -81,6 +83,26 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         this.query = query;
     }
 
+    // ~ NON-INTERFACE PUBLIC METHODS
+    // =========================================================================
+
+    public void rollback()
+    {
+        SessionFactory sf = 
+            getHibernateTemplate().getSessionFactory();
+        Session s = SessionFactoryUtils.getSession(sf,false);
+        
+        try {
+            s.connection().rollback();
+        } catch (SQLException sqle){
+            getHibernateTemplate().getJdbcExceptionTranslator().
+            translate("Attempting to rollback from SessionFactory",null,sqle);
+        }
+    }
+    
+    // ~ INTERFACE METHODS
+    // =========================================================================
+    
     public void saveObject(IObject arg0)
     {
         arg0 = beforeSave(arg0);
@@ -145,21 +167,11 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         throw new RuntimeException("Not implemented yet.");
     }
 
-    
-    public void rollback()
+    public void deleteObject(IObject row)
     {
-        SessionFactory sf = 
-            getHibernateTemplate().getSessionFactory();
-        Session s = SessionFactoryUtils.getSession(sf,false);
-        
-        try {
-            s.connection().rollback();
-        } catch (SQLException sqle){
-            getHibernateTemplate().getJdbcExceptionTranslator().
-            translate("Attempting to rollback from SessionFactory",null,sqle);
-        }
+        getHibernateTemplate().delete(row);
     }
-
+    
     // ~ Internals
     // =========================================================
     private IObject beforeSave(IObject obj)

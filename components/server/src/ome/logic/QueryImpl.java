@@ -96,6 +96,33 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
 
     // ~ INTERFACE METHODS
     // =========================================================================
+
+    /*
+     * @see ome.api.IQuery#getById(java.lang.Class, long)
+     * @DEV.TODO weirdness here; learn more about CGLIB initialization.
+     */
+    public Object getById(final Class klazz, final long id) {
+        return getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                IObject o = (IObject) session.get(klazz,id); 
+                // TODO boolean for get vs. load (get vs. "find") ?? 
+                Hibernate.initialize(o);
+                return o;
+                
+                
+            }
+        });
+    }
+    
+    /*
+     * @see ome.api.IQuery#getByClass(java.lang.Class)
+     */
+    public List getByClass(Class klass)
+    {
+        return getHibernateTemplate().loadAll(klass);
+    }
     
 	public Object getUniqueByExample(final Object example) {
         return getHibernateTemplate().execute(new HibernateCallback() {
@@ -175,24 +202,6 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
             }
         });
 	}	
-	
-	/*
-	 * @see ome.api.IQuery#getById(java.lang.Class, long)
-	 * @DEV.TODO weirdness here; learn more about CGLIB initialization.
-	 */
-	public Object getById(final Class klazz, final long id) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                IObject o = (IObject) session.load(klazz,id);
-                Hibernate.initialize(o);
-                return o;
-                
-                
-            }
-        });
-	}
 	
 	public void persist(final Object[] objects) {
         getHibernateTemplate().execute(new HibernateCallback() {

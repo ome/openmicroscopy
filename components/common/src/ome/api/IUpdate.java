@@ -33,11 +33,10 @@ package ome.api;
 import java.util.Collection;
 import java.util.Map;
 
-import ome.model.IObject;
-
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.IObject;
 
 /**
  * Provides methods for directly updating object graphs. 
@@ -61,4 +60,6 @@ public interface IUpdate {
     IObject     saveAndReturnObject(IObject graph);
     IObject[]   saveAndReturnArray(IObject[] graph);
 
+    void deleteObject(IObject row);
+    
 }
