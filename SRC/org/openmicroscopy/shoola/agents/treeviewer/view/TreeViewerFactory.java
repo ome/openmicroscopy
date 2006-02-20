@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import javax.swing.JDialog;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -65,9 +66,19 @@ public class TreeViewerFactory
      * @return See above.
      */
     public static TreeViewer getViewer() { return singleton.getTreeViewer(); }
+
+    /**
+     * Helper method to retrieve the {@link LoadingWindow}.
+     * 
+     * @return See above.
+     */
+    public static JDialog getLoadingWindow() 
+    {
+        return singleton.getTreeViewer().getLoadingWindow();
+    }
     
     /** The tracked component. */
-    private TreeViewer viewer;
+    private TreeViewer  viewer;
     
     /** Creates a new instance. */
     private TreeViewerFactory()

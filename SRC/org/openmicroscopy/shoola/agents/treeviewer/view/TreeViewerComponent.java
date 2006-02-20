@@ -33,32 +33,25 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.data.OmeroPojoService;
-import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -194,7 +187,13 @@ class TreeViewerComponent
      */
     public void setSelectedBrowser(Browser browser)
     {
-        //check state
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:
+                throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED or SAVE " +
+                    "state.");
+        }
         Browser oldBrowser = model.getSelectedBrowser();
         if (oldBrowser.equals(browser)) return;
         model.setSelectedBrowser(browser);
@@ -208,9 +207,13 @@ class TreeViewerComponent
      */
     public void addBrowser(int browserType)
     {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED state.");
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:
+                throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED or SAVE " +
+                    "state.");
+        }
         Map browsers = model.getBrowsers();
         Browser browser = (Browser) browsers.get(new Integer(browserType));
         if (browser != null) {
@@ -225,19 +228,27 @@ class TreeViewerComponent
      */
     public void showProperties(DataObject object, int editorType)
     {
-        if (editorType == PROPERTIES_EDITOR || editorType == CREATE_EDITOR)
-            model.setEditorType(editorType);
-        else return;
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:
+                throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED or SAVE " +
+                    "state.");
+        }
+        switch (editorType) {
+            case PROPERTIES_EDITOR:
+            case CREATE_EDITOR:  
+                break;
+            default:
+                throw new IllegalArgumentException("This method only " +
+                        "supports the PROPERTIES_EDITOR and CREATE_EDITOR.");
+        }
         removeEditor();
-        model.setDataObject(object);
-        EditorUI panel = EditorFactory.getEditor(this, object, editorType);
-        panel.addPropertyChangeListener(EditorUI.CANCEL_EDITION_PROPERTY, 
-                                        controller);
-        if ((object instanceof ImageData) || (object instanceof DatasetData)) {
-            model.fireAnnotationLoading(object); 
-            fireStateChange();
-            UIUtilities.centerAndShow(view.getLoadingWindow());
-        } else view.addComponent(panel); 
+        model.setEditorType(editorType);
+        Editor editor = EditorFactory.getEditor(this, object, editorType);
+        editor.addPropertyChangeListener(controller);
+        editor.activate();
+        view.addComponent(editor.getUI());
     }
 
     /**
@@ -248,20 +259,23 @@ class TreeViewerComponent
     {
         if (model.getState() != DISCARDED) {
             model.cancel();
-            if (view.getLoadingWindow().isVisible())
-                view.getLoadingWindow().setVisible(false); 
+            fireStateChange(); 
         }
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#cancel()
+     * @see TreeViewer#removeEditor()
      */
     public void removeEditor()
     {
-        //TODO: check state 
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:  
+                throw new IllegalStateException("This method cannot be " +
+                        "invoked in the DISCARDED, SAVE state.");
+        }
         model.setEditorType(NO_EDITOR);
-        model.setDataObject(null);
         view.removeAllFromWorkingPane();
         firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -278,18 +292,28 @@ class TreeViewerComponent
      */
     public void showFinder(boolean b)
     {
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:
+                throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED or SAVE " +
+                    "state.");
+        }
         if (model.getSelectedBrowser() == null) return;
         Finder finder = model.getFinder();
         if (b == finder.isDisplay())  return;
-        finder.setDisplay(b);
+        Boolean oldValue = 
+            finder.isDisplay() ? Boolean.TRUE : Boolean.FALSE,
+        newValue = b ? Boolean.TRUE : Boolean.FALSE;
         view.showFinder(b);
+        firePropertyChange(FINDER_VISIBLE_PROPERTY, oldValue, newValue);
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#closing()
+     * @see TreeViewer#closeWindow()
      */
-    public void closing()
+    public void closeWindow()
     {
         cancel();
 		view.setVisible(false);	 
@@ -297,65 +321,16 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#saveObject(DataObject, int)
+     * @see TreeViewer#removeObject(DataObject)
      */
-    public void saveObject(DataObject object, int algorithm)
+    public void removeObject(DataObject object)
     {
         int state = model.getState();
         if (state != NEW && state != READY)
             throw new IllegalStateException("This method should only be " +
                     "invoked in the NEW or READY state.");
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null) return;
-        switch (algorithm) {
-	        case CREATE_OBJECT:
-	            model.fireDataObjectCreation(object);
-                break;
-	        case UPDATE_OBJECT:
-	        case DELETE_OBJECT:
-	            model.fireDataObjectUpdate(object, algorithm);
-	            break;
-	        default:
-	            throw new IllegalArgumentException("Save object: Algorithm " +
-	            		"not supported.");
-        }
-        LoadingWindow window = view.getLoadingWindow();
-        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
-                                LoadingWindow.SAVING_MSG);
-        UIUtilities.centerAndShow(window);
+        model.fireDataObjectDeletion(object);
         fireStateChange();
-    }
-    
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#saveObject(DataObject, AnnotationData, int)
-     */
-    public void saveObject(DataObject o, AnnotationData annotation, int op)
-    {
-        int state = model.getState();
-        if (state != NEW && state != READY)
-            throw new IllegalStateException("This method should only be " +
-                    "invoked in the NEW or READY state.");
-        switch (op) {
-	        case CREATE_ANNOTATION:
-	        case UPDATE_ANNOTATION:
-	        case DELETE_ANNOTATION:
-	            break;
-	        default:
-	            throw new IllegalArgumentException("Save object: Annotation " +
-	            		"algorithm not supported.");
-        }
-        if (annotation == null) 
-            throw new IllegalArgumentException("No annotation to save.");
-        if (o == null) model.fireAnnotationEdition(annotation, op);
-        else {
-            if ((o instanceof DatasetData) || (o instanceof ImageData)) {
-                model.fireDataObjectAndAnnotationEdition(o, annotation, op);
-                fireStateChange();   
-            }
-            else throw new IllegalArgumentException("DataObject not " +
-            										"supported.");
-        }									
     }
 
     /**
@@ -364,149 +339,16 @@ class TreeViewerComponent
      */
     public void setSaveResult(DataObject object, int op)
     {
-        if (model.getState() != SAVE_EDITION)
+        if (model.getState() != SAVE)
             throw new IllegalStateException(
                     "This method can only be invoked in the SAVE state."); 
-        if (op != DELETE_OBJECT && op != UPDATE_OBJECT && op != CREATE_OBJECT) 
-            throw new IllegalArgumentException(
-                "The operations supported are DELETE and UPDATE."); 
-        Browser browser = model.getSelectedBrowser();
-        browser.refreshEdit(object, op);
-        if (view.getLoadingWindow().isVisible())
-            view.getLoadingWindow().setVisible(false);
-        view.removeAllFromWorkingPane();
+        if (op != REMOVE_OBJECT) 
+            throw new IllegalArgumentException("Operation not supported."); 
+        
+        HashMap map = new HashMap(1);
+        map.put(new Integer(op), object);
         model.setState(READY);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setAnnotations(Map)
-     */
-    public void setAnnotations(Map map)
-    {
-        if (model.getState() != LOADING_ANNOTATION)
-            throw new IllegalStateException("This method can only be invoked" +
-                    " in the LOADING_ANNOTATION state.");
-        if (map == null) throw new IllegalArgumentException("No annotations.");
-        EditorUI editor = EditorFactory.getEditor();
-        if (editor == null) return;
-        editor.setAnnotations(map);
-        view.getLoadingWindow().setVisible(false);
-        if (editor.hasThumbnail()) 
-            model.fireThumbnailLoading();
-        else model.setState(READY);
-        fireStateChange();
-        view.addComponent(editor); 
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setDataObjectThumbnail(BufferedImage)
-     */
-    public void setDataObjectThumbnail(BufferedImage thumbnail)
-    {
-        if (model.getState() != LOADING_THUMBNAIL)
-            throw new IllegalStateException("This method can only be invoked" +
-                    " in the LOADING_THUMBNAIL state.");
-        if (thumbnail == null)
-            throw new IllegalArgumentException("No thumbnail.");
-        if (model.getEditorType() == CLASSIFIER_EDITOR) {
-            Classifier classifier = ClassifierFactory.getClassifier();
-            if (classifier == null) return;
-            classifier.setThumbnail(thumbnail);
-        } else {
-            EditorUI editor = EditorFactory.getEditor();
-            if (editor == null) return;
-            editor.setThumbnail(thumbnail);
-        }
-        model.setState(READY);
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#retrieveClassification(int)
-     */
-    public void retrieveClassification(int imageID)
-    {
-        if (model.getEditorType() != PROPERTIES_EDITOR) 
-            throw new IllegalStateException("This method should only be " +
-                    "invoked in the editing state.");
-        model.fireClassificationLoading(imageID);
-        fireStateChange();
-        UIUtilities.centerAndShow(view.getLoadingWindow());
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setRetrievedClassification(Set)
-     */
-    public void setRetrievedClassification(Set paths)
-    {
-        if (model.getState() != LOADING_CLASSIFICATION)
-            throw new IllegalStateException("This method should only be " +
-                    "invoked in the LOADING_CLASSIFICATION state.");
-        if (paths == null)
-            throw new IllegalArgumentException("No paths to set.");
-        EditorUI editor = EditorFactory.getEditor();
-        if (editor == null) return;
-        Set set = TreeViewerTranslator.transformHierarchy(paths);
-        editor.setClassifiedNodes(set);
-        model.setState(READY);
-        view.getLoadingWindow().setVisible(false);
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#browse(DataObject)
-     */
-    public void browse(DataObject object)
-    {
-        if (object instanceof ImageData) {
-            ImageData image = (ImageData) object;
-            LoadImage evt = new LoadImage(image.getId(), 
-                    image.getDefaultPixels().getId(), image.getName());
-            TreeViewerAgent.getRegistry().getEventBus().post(evt);
-            return;
-        }
-        int id = -1;
-        int index = -1;
-        if (object instanceof CategoryData) {
-            id =  ((CategoryData) object).getId();
-            index = Browse.CATEGORY;
-        } else if (object instanceof CategoryGroupData) {
-            id =  ((CategoryGroupData) object).getId();
-            index = Browse.CATEGORY_GROUP;
-        }
-        if (id == -1) 
-            throw new IllegalArgumentException("Can only browse category or " +
-                    "category group.");
-        int rootID = model.getSelectedBrowser().getRootID();
-        int rootLevel = model.getSelectedBrowser().getRootLevel();
-        Browse event = new Browse(id, index, convertRootLevel(rootLevel), 
-                                rootID);
-        TreeViewerAgent.getRegistry().getEventBus().post(event);
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setClassificationPaths(int, Set)
-     */
-    public void setClassificationPaths(int m, Set paths)
-    {
-        if (model.getState() != LOADING_CLASSIFICATION_PATH)
-            throw new IllegalStateException("This method should only be " +
-                    "invoked in the LOADING_CLASSIFICATION_PATH state.");
-        if (paths == null)
-            throw new IllegalArgumentException("No paths to set.");
-        Set nodes = TreeViewerTranslator.transformClassificationPaths(paths);
-        view.getLoadingWindow().setVisible(false);
-        model.setEditorType(CLASSIFIER_EDITOR);
-        Classifier classifier = ClassifierFactory.getClassifier(this, m, nodes,
-                                 (ImageData) model.getDataObject());
-        classifier.addPropertyChangeListener(controller);
-        view.addComponent(classifier); 
-        model.fireThumbnailLoading();
+        firePropertyChange(SAVE_EDITION_PROPERTY, null, map);
         fireStateChange();
     }
     
@@ -521,71 +363,159 @@ class TreeViewerComponent
                 "invoked in the READY state.");
         if (object == null) 
             throw new IllegalArgumentException("Object cannot be null.");
-        view.removeAllFromWorkingPane();
-        firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-        model.fireClassificationPathsLoading(object, mode);
-        fireStateChange();
-        UIUtilities.centerAndShow(view.getLoadingWindow());
+        removeEditor();
+        model.setEditorType(CLASSIFIER_EDITOR);
+        Classifier classifier = ClassifierFactory.getClassifier(this, mode, 
+                                                    object);
+        classifier.addPropertyChangeListener(controller);
+        classifier.activate();
+        view.addComponent(classifier.getUI());
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#classifyImage(Map)
+     * @see TreeViewer#getLoadingWindow()
      */
-    public void classifyImage(Map categories)
+    public JDialog getLoadingWindow()
     {
-        if (model.getState() != READY)
+        if (model.getState() == DISCARDED)
             throw new IllegalStateException("This method should only be " +
-                "invoked in the READY state.");
-        if (categories == null)
-            throw new IllegalArgumentException("No categories.");
-        model.fireClassification(categories);
-        fireStateChange();
-        LoadingWindow window = view.getLoadingWindow();
-        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
-                                LoadingWindow.SAVING_MSG);
-        UIUtilities.centerAndShow(window);
+                "invoked in the DISCARDED state.");
+        return view.getLoadingWindow();
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#declassifyImage(Map)
+     * @see TreeViewer#setThumbnail(BufferedImage)
      */
-    public void declassifyImage(Map categories)
+    public void setThumbnail(BufferedImage thumbnail)
     {
-        if (model.getState() != READY)
-            throw new IllegalStateException("This method should only be " +
-                "invoked in the READY state.");
-        if (categories == null) 
-            throw new IllegalArgumentException("No categories.");
-        
-        model.fireDeclassification(categories);
-        fireStateChange(); 
-        LoadingWindow window = view.getLoadingWindow();
-        window.setTitleAndText(LoadingWindow.SAVING_TITLE,
-                                LoadingWindow.SAVING_MSG);
-        UIUtilities.centerAndShow(window);
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#saveClassification(boolean)
-     */
-    public void saveClassification(boolean b)
-    {
-        if (model.getState() != SAVE_CLASSIFICATION)
-            throw new IllegalStateException("This method should only be " +
-                "invoked in the SAVE_CLASSIFICATION state.");
-        if (!b) {
-            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Classification", "The classification wasn't" +
-                    "successful in the databasse. Please try again.");
+        if (model.getState() == LOADING_THUMBNAIL) {
+            if (thumbnail == null)
+                throw new IllegalArgumentException("No thumbnail.");
+            model.setState(READY);
+            firePropertyChange(THUMBNAIL_LOADED_PROPERTY, null, thumbnail);
+            fireStateChange();
         }
-        view.getLoadingWindow().setVisible(false);
-        view.removeAllFromWorkingPane();
-        firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-        model.setState(READY);
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#retrieveThumbnail(ImageData)
+     */
+    public void retrieveThumbnail(ImageData image)
+    {
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:  
+            case LOADING_THUMBNAIL:
+                throw new IllegalStateException("This method cannot be " +
+                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
+                        "state");
+        }
+        if (image == null)
+            throw new IllegalArgumentException("No image.");
+        model.fireThumbnailLoading(image);
         fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#onSelectedDisplay()
+     */
+    public void onSelectedDisplay()
+    {
+        switch (model.getState()) {
+            case DISCARDED:
+            case SAVE:  
+                throw new IllegalStateException("This method cannot be " +
+                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
+                        "state");
+        }
+        int editor = model.getEditorType();
+        removeEditor(); //remove the currently selected editor.
+        if (editor == TreeViewer.PROPERTIES_EDITOR) {
+            PropertiesCmd cmd = new PropertiesCmd(this);
+            cmd.execute();
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#onDataObjectSave(Map)
+     */
+    public void onDataObjectSave(Map map)
+    {
+        switch (model.getState()) {
+            case DISCARDED:
+                throw new IllegalStateException("This method cannot be " +
+                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
+                        "state");
+        }
+        if (map == null) throw new IllegalArgumentException("No Object.");
+        if (map.size() != 1) 
+            throw new IllegalArgumentException("This method only supports " +
+                                                "map of size 1.");
+        Integer key = null;
+        DataObject data = null;
+        Iterator i = map.keySet().iterator();
+        while (i.hasNext()) {
+            key = (Integer) i.next();
+            data = (DataObject) map.get(key);
+        }
+        int operation = key.intValue();
+        switch (operation) {
+            case Editor.CREATE_OBJECT:
+            case Editor.UPDATE_OBJECT: 
+            case REMOVE_OBJECT:  
+                break;
+            default:
+                throw new IllegalArgumentException("Save operation not " +
+                        "supported.");
+        }
+        if (data == null) 
+            throw new IllegalArgumentException("No data object. ");
+            
+        int editor = model.getEditorType();
+        removeEditor(); //remove the currently selected editor.
+        Browser browser = model.getSelectedBrowser();
+        browser.refreshEdit(data, operation);
+        if (operation == Editor.UPDATE_OBJECT) {
+            Map browsers = model.getBrowsers();
+            i = browsers.keySet().iterator();
+            while (i.hasNext()) {
+                browser = (Browser) browsers.get(i.next());
+                if (!(browser.equals(model.getSelectedBrowser())))
+                    browser.refreshEdit(data, operation);
+            }
+        }
+        if (editor == TreeViewer.CREATE_EDITOR) {
+
+            PropertiesCmd cmd = new PropertiesCmd(this);
+            cmd.execute();
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#onDataObjectSave(Map)
+     */
+    public void clearFoundResults()
+    {
+        switch (model.getState()) {
+            case LOADING_THUMBNAIL:
+            case DISCARDED:
+            case SAVE:  
+                throw new IllegalStateException("This method cannot be " +
+                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
+                        "state");
+        }
+        removeEditor(); //remove the currently selected editor.
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+            browser.accept(new ClearVisitor());
+            browser.setFoundInBrowser(null); 
+        }
     }
     
 }

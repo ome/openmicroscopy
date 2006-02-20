@@ -33,14 +33,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.Map;
-import java.util.Set;
+import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -92,26 +91,14 @@ public interface TreeViewer
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int         DISCARDED = 2;
     
-    /** Flag to denote the <i>Loading Annotation</i> state. */
-    public static final int         LOADING_ANNOTATION = 3;
+    /** Flag to denote the <i>Save Edition</i> state. */
+    public static final int         SAVE = 3;
     
     /** Flag to denote the <i>Loading Thumbnail</i> state. */
     public static final int         LOADING_THUMBNAIL = 4;
     
-    /** Flag to denote the <i>Loading Classification</i> state. */
-    public static final int         LOADING_CLASSIFICATION = 5;
-    
-    /** Flag to denote the <i>Loading Classification path</i> state. */
-    public static final int         LOADING_CLASSIFICATION_PATH = 6;
-    
-    /** Flag to denote the <i>Save Edition</i> state. */
-    public static final int         SAVE_EDITION = 7;
-    
-    /** Flag to denote the <i>Save Edition</i> state. */
-    public static final int         SAVE_CLASSIFICATION = 8;
-    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 9;
+    public static final int         READY = 5;
     
     /** Identifies the <code>Create</code> type for the editor. */
     public static final int         CREATE_EDITOR = 100;
@@ -143,38 +130,22 @@ public interface TreeViewer
      */
     public static final int			USER_ROOT = 202;
     
-    /** 
-     * Indicates to create an annotation  when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int			CREATE_ANNOTATION = 100;
-    
-    /** 
-     * Indicates to update an annotation  when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int			UPDATE_ANNOTATION = 101;
-    
-    /** 
-     * Indicates to delete an annotation  when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int			DELETE_ANNOTATION = 102;
-    
-    /** 
-     * Indicates that no-operation for the annotation when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int			NO_ANNOTATION_OP = 103;
-    
-    /** Identifies the <code>Create Object</code> operation. */
-    public static final int			CREATE_OBJECT = 300;
-    
-    /** Identifies the <code>Update Object</code> operation. */
-    public static final int			UPDATE_OBJECT = 301;
+
     
     /** Identifies the <code>Delete Object</code> operation. */
-    public static final int			DELETE_OBJECT = 302;
+    public static final int         REMOVE_OBJECT = 302;
+
+    
+    /** Bounds property to indicate that the data retrieval is cancelled. */
+    public static final String      CANCEL_LOADING_PROPERTY = "cancelLoading";
+    
+    /** Bounds property to indicate to load a thumbnail for a given image. */
+    public static final String      THUMBNAIL_LOADING_PROPERTY = 
+                                                    "thumbnailLoading";
+    
+    /** Bounds property to indicate that the thumbanil is loaded. */
+    public static final String      THUMBNAIL_LOADED_PROPERTY = 
+                                                    "thumbnailLoaded";
     
     /** 
      * Bound properties indicating that {@link Browser} is selected or 
@@ -187,6 +158,44 @@ public interface TreeViewer
      * Bound properties to indicate to remove the currently displayed editor.
      */
     public static final String      REMOVE_EDITOR_PROPERTY = "removeEditor";
+    
+    /** Bounds property to indicate that the data object has been saved. */
+    public static final String      SAVE_EDITION_PROPERTY = "saveEdition";
+    
+    /** 
+     * Bound property name indicating to show/hide the component from the
+     * display.
+     */
+    public static final String      FINDER_VISIBLE_PROPERTY = "finderVisible";
+    
+    /** 
+     * The title displayed in the {@link LoadingWindow} during the saving 
+     * process.
+     */
+    public static final String      SAVING_TITLE = "Saving Data";
+    
+    /**
+     * Returns the currently selected {@link Browser} or <code>null</code>
+     * if no {@link Browser} is selected.
+     * 
+     * @return See above.
+     */
+    Browser getSelectedBrowser();
+    
+    /**
+     * Sets the currently selected {@link Browser} or <code>null</code>
+     * if no {@link Browser} is selected.
+     * 
+     * @param browser The currently selected {@link Browser}.
+     */
+    void setSelectedBrowser(Browser browser);
+    
+    /**
+     * Retrieves the thumbnail for the specified image.
+     * 
+     * @param image The image the thumbnail is for.
+     */
+    void retrieveThumbnail(ImageData image);
     
     /**
      * Queries the current state.
@@ -235,32 +244,11 @@ public interface TreeViewer
     public void showProperties(DataObject object, int editorType);
     
     /**
-     * Saves the specified {@link DataObject} depending on the speficied
-     * algorithm.
+     * Removes the specified {@link DataObject}.
      * 
-     * @param object 	The {@link DataObject} to save.
-     * @param algorithm Identifies the type of operations to perform.
-     * 					One of the folllowing constants: 
-     * 					{@link TreeViewer#CREATE_OBJECT},
-     * 					{@link TreeViewer#UPDATE_OBJECT},
-     * 					{@link TreeViewer#DELETE_OBJECT}.
+     * @param object The {@link DataObject} to save.
      */
-    public void saveObject(DataObject object, int algorithm);
-    
-    /**
-     * Updates the specified <code>DataObject</code>, and creates/updates or 
-     * deletes the specified <code>Annotation</code> depending on the specified
-     * algorithm.
-     * @param object		The {@link DataObject} to save.
-     * @param annotation 	The {@link AnnotationData} to handle. 
-     * @param algorithm 	Identifies the type of operations to perform.
-     * 						One of the folllowing constants: 
-     * 						{@link TreeViewer#CREATE_ANNOTATION},
-     * 						{@link TreeViewer#UPDATE_ANNOTATION},
-     * 						{@link TreeViewer#DELETE_ANNOTATION}.
-     */
-    public void saveObject(DataObject object, AnnotationData annotation,
-            				int algorithm);
+    public void removeObject(DataObject object);
     
     /** Cancels any ongoing data loading. */
     public void cancel();
@@ -269,13 +257,11 @@ public interface TreeViewer
     public void removeEditor();
     
     /** 
-     * Sets the results of a save action i.e. delete or update 
-     * operation. 
+     * Sets the results of a delete action.
      * 
      * @param object    The <code>DataObject</code> to update or to delete.
      * @param op        The type of operation performed, either
-     *                  {@link #DELETE_OBJECT}, {@link #UPDATE_OBJECT} or 
-     *                  {@link #CREATE_OBJECT}.
+     *                  {@link #REMOVE_OBJECT}.
      */
     public void setSaveResult(DataObject object, int op);
     
@@ -296,51 +282,7 @@ public interface TreeViewer
     public void showFinder(boolean b);
     
     /** Hides the window and cancels any on-going data loading. */
-    public void closing();
-    
-    /**
-     * Sets the annotations retrieved.
-     * 
-     * @param map The annotations.
-     */
-    public void setAnnotations(Map map);
-    
-    /**
-     * Sets the thumbnail associated to the currently edited Image.
-     * 
-     * @param thumbnail The thumbnail to set.
-     */
-    public void setDataObjectThumbnail(BufferedImage thumbnail);
-    
-    /**
-     * Retrieves the CategoryGroup/Categories containing the specified 
-     * image.
-     *  
-     * @param imageID The id of the image.
-     */
-    public void retrieveClassification(int imageID);
-    
-    /**
-     * Sets the retrieved classfication paths.
-     * 
-     * @param paths The paths to set.
-     */
-    public void setRetrievedClassification(Set paths);
-    
-    /**
-     * Browses the specified data object.
-     * 
-     * @param object The object to browse.
-     */
-    public void browse(DataObject object);
-    
-    /**
-     * Sets the available classifications paths.
-     * 
-     * @param mode  The type of classifier.
-     * @param paths The paths to set.
-     */
-    public void setClassificationPaths(int mode, Set paths);
+    public void closeWindow();
     
     /**
      * Brings up the classifier corresponding to the specified mode.
@@ -349,46 +291,41 @@ public interface TreeViewer
      * @param mode The type of classifier. 
      */
     public void showClassifier(ImageData object, int mode);
-    
+
     /**
-     * Adds the currently selected image to selected categories.
-     * 
-     * @param map   Collection of selected categories, the key is the
-     *              <code>image</code>, the value is the set of categories.
-     */
-    public void classifyImage(Map map);
-    
-    /**
-     * Removes the currently selected image from selected categories.
-     * 
-     * @param map   Collection of selected categories, the key is the
-     *              <code>image</code>, the value is the set of categories.
-     */
-    public void declassifyImage(Map map);
-    
-    /**
-     * Indicates that the classification was successful or not and removes
-     * the UI classification component from the display.
-     * 
-     * @param b Passed <code>true</code> if the save action was successful.
-     *          <code>false</code> otherwise.
-     */
-    public void saveClassification(boolean b);
-    
-    /**
-     * Returns the currently selected {@link Browser} or <code>null</code>
-     * if no {@link Browser} is selected.
+     * Returns the dialog indicating a data retrieval.
      * 
      * @return See above.
+     * @throws IllegalStateException If the current state is
+     *                               {@link #DISCARDED}.
      */
-    Browser getSelectedBrowser();
+    public JDialog getLoadingWindow();
+
+    /**
+     * Sets the thumbnail associated to the currently edited Image.
+     * 
+     * @param thumbnail The thumbnail to set.
+     */
+    public void setThumbnail(BufferedImage thumbnail); 
     
     /**
-     * Sets the currently selected {@link Browser} or <code>null</code>
-     * if no {@link Browser} is selected.
-     * 
-     * @param browser The currently selected {@link Browser}.
+     * Reacts to a node selection in the currently selected {@link Browser}.
      */
-    void setSelectedBrowser(Browser browser);
+    public void onSelectedDisplay();
+    
+    /**
+     * Updates the views when the data object is save.
+     * The method only supports map of size one. 
+     * The key is one the following constants: 
+     * <code>CREATE_OBJECT</code>, <code>UPDATE_OBJECT</code> or
+     * <code>REMOVE_OBJECT</code>.
+     * The value is the <code>DataObject</code> created, removed or updated.
+     * 
+     * @param map The map to handle.
+     */
+    public void onDataObjectSave(Map map);
+    
+    /** Clears the result of a previous find action. */
+    public void clearFoundResults();
     
 }

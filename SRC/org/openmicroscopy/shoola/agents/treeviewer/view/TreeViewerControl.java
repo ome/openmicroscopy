@@ -49,12 +49,16 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseTreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
@@ -63,13 +67,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DataObject;
 import pojos.GroupData;
+import pojos.ImageData;
 
 
 /** 
@@ -87,50 +90,66 @@ class TreeViewerControl
     implements ChangeListener, PropertyChangeListener
 {
 
-    /** Identifies the Properties action in the Actions menu. */
+    /** Identifies the <code>Properties action</code> in the Edit menu. */
     static final Integer	PROPERTIES = new Integer(0);
     
-    /** Identifies the View action in the Actions menu. */
+    /** Identifies the <code>View action</code> in the Edit menu. */
     static final Integer	VIEW = new Integer(1);
     
-    /** Identifies the Refresh action in the Actions menu. */
+    /** Identifies the <code>Refresh action</code> in the File menu. */
     static final Integer	REFRESH = new Integer(2);
     
-    /** Identifies the Create object action in the Actions menu. */
+    /** Identifies the <code>Create object action</code> in the Edit menu. */
     static final Integer	CREATE_OBJECT = new Integer(3);
     
-    /** Identifies the Copy object action in the Actions menu. */
+    /** Identifies the <code>Copy object action</code> in the Edit menu. */
     static final Integer	COPY_OBJECT = new Integer(4);
     
-    /** Identifies the Paste object action in the Actions menu. */
+    /** Identifies the <code>Paste object action</code> in the Edit menu. */
     static final Integer	PASTE_OBJECT = new Integer(5);
     
-    /** Identifies the Delete object action in the Actions menu. */
+    /** Identifies the <code>Delete object action</code> in the Edit menu. */
     static final Integer	DELETE_OBJECT = new Integer(6);
     
-    /** Identifies the Hierarchy Explorer action in the Views menu. */
+    /** 
+     * Identifies the <code>Hierarchy Explorer</code> action in the View menu. 
+     */
     static final Integer	HIERARCHY_EXPLORER = new Integer(7);
     
-    /** Identifies the Category Explorer action in the Views menu. */
+    /** 
+     * Identifies the <code>Category Explorer</code> action in the View menu.
+     */
     static final Integer	CATEGORY_EXPLORER = new Integer(8);
     
-    /** Identifies the Images Explorer action in the Views menu. */
+    /** Identifies the <code>Images Explorer</code> action in the View menu. */
     static final Integer	IMAGES_EXPLORER = new Integer(9);
     
-    /** Identifies the World root level action in the Hierarchy menu. */
+    /** Identifies the <code>World root level</code> action in the File menu. */
     static final Integer	WORLD_ROOT_LEVEL = new Integer(10);
     
-    /** Identifies the User root level action in the Hierarchy menu. */
+    /** Identifies the <code>User root level</code> action in the File menu. */
     static final Integer	USER_ROOT_LEVEL = new Integer(11);
     
-    /** Identifies the Find action in the Edit menu. */
+    /** Identifies the <code>Find action </code>in the Edit menu. */
     static final Integer	FIND = new Integer(12);
     
-    /** Identifies the Classify action in the Edit menu. */
+    /** Identifies the <code>Classify action</code> in the Edit menu. */
     static final Integer    CLASSIFY = new Integer(13);
     
-    /** Identifies the Find action in the Edit menu. */
+    /** Identifies the <code>Declassify action</code> in the Edit menu. */
     static final Integer    DECLASSIFY = new Integer(14);
+    
+    /** Identifies the <code>Annotate action</code> in the Edit menu. */
+    static final Integer    ANNOTATE = new Integer(15);
+    
+    /** Identifies the <code>Exit action</code> in the File menu. */
+    static final Integer    EXIT = new Integer(16);
+    
+    /** Identifies the <code>Close action</code> in the File menu. */
+    static final Integer    CLOSE = new Integer(17);
+    
+    /** Identifies the <code>Clear action</code> in the Edit menu. */
+    static final Integer    CLEAR = new Integer(18);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
@@ -170,6 +189,10 @@ class TreeViewerControl
         actionsMap.put(FIND,  new FinderAction(model));
         actionsMap.put(CLASSIFY,  new ClassifyAction(model));
         actionsMap.put(DECLASSIFY,  new DeclassifyAction(model));
+        actionsMap.put(ANNOTATE,  new AnnotateAction(model));
+        actionsMap.put(CLOSE,  new CloseTreeViewerAction(model));
+        actionsMap.put(CLEAR,  new ClearAction(model));
+        actionsMap.put(EXIT,  new ExitApplicationAction());
     }
     
     /** Helper method to create the actions for the group level hierarchy. */
@@ -203,18 +226,8 @@ class TreeViewerControl
         model.addPropertyChangeListener(this);
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) { model.closing(); }
+            public void windowClosing(WindowEvent e) { model.closeWindow(); }
         });
-    }
-    
-    /** Clears the results of a previous search action. */
-    private void clearFind()
-    {
-        Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-            browser.accept(new ClearVisitor());
-            browser.setFoundInBrowser(null); 
-        }
     }
     
     /**
@@ -235,6 +248,7 @@ class TreeViewerControl
         groupLevelActionsMap = new HashMap();
         createActions();
         createGroupLevelActions();
+        model.addChangeListener(this);
     }
     
     /**
@@ -249,7 +263,7 @@ class TreeViewerControl
             // This method is called whenever the selected tab changes
             public void stateChanged(ChangeEvent ce) {
                 JTabbedPane pane = (JTabbedPane) ce.getSource();
-                clearFind();
+                model.clearFoundResults();
                 Component c = pane.getSelectedComponent();
                 if (c == null) {
                     model.setSelectedBrowser(null);
@@ -302,7 +316,7 @@ class TreeViewerControl
     { 
         return (Action) groupLevelActionsMap.get(id);
     }
-      
+    
     /**
      * Reacts to property changed. 
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -310,7 +324,7 @@ class TreeViewerControl
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
-        if (name.equals(Browser.CANCEL_PROPERTY)) {
+        if (name.equals(TreeViewer.CANCEL_LOADING_PROPERTY)) {
             Browser browser = model.getSelectedBrowser();
             if (browser != null) browser.cancel();
         } else if (name.equals(Browser.POPUP_MENU_PROPERTY)) {
@@ -321,13 +335,13 @@ class TreeViewerControl
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
-        } else if (name.equals(EditorUI.CANCEL_EDITION_PROPERTY) ||
-                name.equals(Classifier.CANCEL_CLASSIFICATION_PROPERTY) ||
-                name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+        } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY) ||
+                name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY) ||
+                name.equals(Classifier.SAVE_CLASSIFICATION_PROPERTY)) {
             model.removeEditor();
-        } else if (name.equals(Finder.CLOSE_FINDER_PROPERTY)) {
-            clearFind();
-            model.showFinder(false);
+        } else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
+            Boolean b = (Boolean) pce.getNewValue();
+            if (!b.booleanValue()) model.clearFoundResults();
         } else if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
             Browser  b = model.getSelectedBrowser();
             Iterator i = model.getBrowsers().values().iterator();
@@ -338,12 +352,12 @@ class TreeViewerControl
             }
         } else if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) {
             model.cancel();
-        } else if (name.equals(Classifier.CLASSIFY_PROPERTY)) {
-            model.classifyImage((Map) pce.getNewValue());
-        } else if (name.equals(Classifier.DECLASSIFY_PROPERTY)) {
-            model.declassifyImage((Map) pce.getNewValue());
-        } else if (name.equals(Classifier.BROWSE_PROPERTY)) {
-            model.browse((DataObject) pce.getNewValue());
+        } else if (name.equals(TreeViewer.THUMBNAIL_LOADING_PROPERTY)) {
+            model.retrieveThumbnail((ImageData) pce.getNewValue());
+        } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+            model.onSelectedDisplay();
+        } else if (name.equals(TreeViewer.SAVE_EDITION_PROPERTY)) {
+            model.onDataObjectSave((Map) pce.getNewValue()) ;
         }
     }
 
@@ -358,22 +372,14 @@ class TreeViewerControl
             case TreeViewer.DISCARDED:
                 view.closeViewer();
                 break;
-            default:
+            case TreeViewer.SAVE:
+                LoadingWindow window = view.getLoadingWindow();
+                window.setTitle(TreeViewer.SAVING_TITLE);
+                UIUtilities.centerAndShow(window);
                 break;
-        }
-        Browser browser = model.getSelectedBrowser();
-        if (browser != null) {
-            switch (browser.getState()) {
-                case Browser.LOADING_DATA:
-                case Browser.LOADING_LEAVES:    
-                    UIUtilities.centerAndShow(view.getLoadingWindow());
-                    break;
-                case Browser.COUNTING_ITEMS:
-                case Browser.READY:
-                    if (view.getLoadingWindow().isVisible())
-                        view.getLoadingWindow().setVisible(false);
-                    break;
-            }
+            case TreeViewer.READY:
+                view.getLoadingWindow().setVisible(false); 
+                break;  
         }
     }
     
