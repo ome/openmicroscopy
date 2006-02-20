@@ -137,7 +137,7 @@ class CBSearchTabView
     /** Initializes the UI components. */
     private void initComponents()
     {
-        searchButton = new JButton("Search");
+        searchButton = new JButton("Find");
         clearButton = new JButton("Clear");
         searchString = new JTextField();
         searchType = new JComboBox(searchChoices);
@@ -287,7 +287,7 @@ class CBSearchTabView
     private JPanel buildTreePanel()
     {
         treeHolder = new JPanel();
-        treeHolder.setBorder(new TitledBorder("Tree of search results"));
+        treeHolder.setBorder(new TitledBorder("Tree of found results"));
         treeHolder.setLayout(new BorderLayout());        
         return treeHolder;
     }
@@ -410,7 +410,7 @@ class CBSearchTabView
                 title = selectedDisplay.getTitle();
         }
         setComponentsEnabled(true);
-        searchPanel.setBorder(new TitledBorder("Search '"+title+"' for: ")); 
+        searchPanel.setBorder(new TitledBorder("Find '"+title+"' for: ")); 
     }
     
     /**

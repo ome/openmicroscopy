@@ -38,6 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * 
@@ -106,11 +108,14 @@ public class DataObjectSaver
     
     private pojos.ProjectData summaryToDataObject(ProjectSummary s)
     {
-        pojos.ProjectData data = new pojos.ProjectData();
-        data.setId(s.getID());
-        data.setName(s.getName());
-        data.setDescription(((pojos.ProjectData) objectToSave).getDescription());
-        return data;
+        pojos.ProjectData pojo = new pojos.ProjectData();
+        pojo.setId(s.getID());
+        pojo.setName(s.getName());
+        pojo.setDescription(
+                ((pojos.ProjectData) objectToSave).getDescription());
+        pojo.setOwner((ExperimenterData) 
+                context.lookup(LookupNames.CURRENT_USER_DETAILS));
+        return pojo;
     }
     
     private DatasetData daToDatasetData(pojos.DatasetData data)
@@ -171,16 +176,21 @@ public class DataObjectSaver
         pojo.setId(c.getID());
         pojo.setName(c.getName());
         pojo.setDescription(c.getDescription());
+        pojo.setOwner((ExperimenterData) 
+                context.lookup(LookupNames.CURRENT_USER_DETAILS));
         return pojo;
     }
     
     private pojos.DatasetData summaryToDataObject(DatasetSummary s)
     {
-        pojos.DatasetData data = new pojos.DatasetData();
-        data.setId(s.getID());
-        data.setName(s.getName());
-        data.setDescription(((pojos.DatasetData) objectToSave).getDescription());
-        return data;
+        pojos.DatasetData pojo = new pojos.DatasetData();
+        pojo.setId(s.getID());
+        pojo.setName(s.getName());
+        pojo.setDescription((
+                (pojos.DatasetData) objectToSave).getDescription());
+        pojo.setOwner((ExperimenterData) 
+                        context.lookup(LookupNames.CURRENT_USER_DETAILS));
+        return pojo;
     }
     
     /**

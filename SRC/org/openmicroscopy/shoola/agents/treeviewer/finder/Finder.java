@@ -68,7 +68,7 @@ public class Finder
     /** 
      * Bound property name indicating to remove the component from the display.
      */
-    public static final String	CLOSE_FINDER_PROPERTY = "closeFinder";
+    //public static final String	CLOSE_FINDER_PROPERTY = "closeFinder";
     
     /** Bound property indicating that some text has been entered. */
     public static final String 	TEXT_ENTERED_PROPERTY = "textEntered";
@@ -88,6 +88,9 @@ public class Finder
     /** The control. */
     private FinderControl	controller;
     
+    /** Indicates if they already search for the phrase. */
+    private boolean         found;
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -106,8 +109,11 @@ public class Finder
     {
         if (parentComponent == null)
             throw new IllegalArgumentException("No parent component.");
+        found = false;
         model = new FinderModel(parentComponent);
         controller = new FinderControl(this);
+        parentComponent.addPropertyChangeListener(
+                TreeViewer.FINDER_VISIBLE_PROPERTY, controller);
         uiDelegate = new FinderUI(this, controller, model);
         controller.initialize(uiDelegate);
         buildGUI();
@@ -169,6 +175,7 @@ public class Finder
      */
     void setTextUpdate(String text)
     {
+        found = false;
         String oldValue = model.getFindText();
         model.setFindText(text);
         firePropertyChange(TEXT_ENTERED_PROPERTY, oldValue, text);
@@ -207,8 +214,7 @@ public class Finder
     void close()
     {
         if (!model.isDisplay()) return;
-        firePropertyChange(CLOSE_FINDER_PROPERTY, Boolean.FALSE,
-                    			Boolean.TRUE);
+        model.getParentComponent().showFinder(false);
     }
 
     /**
@@ -265,6 +271,7 @@ public class Finder
             pc.getSelectedBrowser().accept(visitor);
             Set set = visitor.getFoundNodes();
             pc.getSelectedBrowser().setFoundInBrowser(set);
+            found = true;
             firePropertyChange(RETRIEVED_PROPERTY, new Integer(-1), 
                     			new Integer(set.size()));
         } catch (PatternSyntaxException pse) {
@@ -276,17 +283,23 @@ public class Finder
     /** Finds the next occurence of the phrase. */
     void findNext()
     {
-        TreeViewer pc = model.getParentComponent();
-        if (pc.getSelectedBrowser() == null) return;
-        pc.getSelectedBrowser().findNext();
+        if (!found) find();
+        else {
+            TreeViewer pc = model.getParentComponent();
+            if (pc.getSelectedBrowser() == null) return;
+            pc.getSelectedBrowser().findNext();
+        }
     }
     
     /** Finds the previous occurence of the phrase. */
     void findPrevious()
     {
-        TreeViewer pc = model.getParentComponent();
-        if (pc.getSelectedBrowser() == null) return;
-        pc.getSelectedBrowser().findPrevious();
+        if (!found) find();
+        else {
+            TreeViewer pc = model.getParentComponent();
+            if (pc.getSelectedBrowser() == null) return;
+            pc.getSelectedBrowser().findPrevious();
+        }
     }
     
     /**
@@ -294,7 +307,7 @@ public class Finder
      * 
      * @param b The value to set.
      */
-    public void setDisplay(boolean b) { model.setDisplay(b); }
+    void setDisplay(boolean b) { model.setDisplay(b); }
     
     /**
      * Returns <code>true</code> if the {@link Finder} is visible, 

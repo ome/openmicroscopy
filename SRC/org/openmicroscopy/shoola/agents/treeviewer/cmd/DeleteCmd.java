@@ -76,7 +76,7 @@ public class DeleteCmd
         if (browser == null) return;
         Object userObject = browser.getSelectedDisplay().getUserObject();
         if (userObject instanceof DataObject)
-            model.saveObject((DataObject) userObject, TreeViewer.DELETE_OBJECT);
+            model.removeObject((DataObject) userObject);
     }
     
 }

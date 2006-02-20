@@ -59,10 +59,10 @@ public class PropertiesAction
     extends TreeViewerAction
 {
     
-    /** Name of the action. */
+    /** The name of the action. */
     private static final String NAME = "Properties";
     
-    /** Description of the action. */
+    /** The description of the action. */
     private static final String DESCRIPTION = "Display properties.";
     
     /**

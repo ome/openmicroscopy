@@ -55,6 +55,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -217,7 +219,6 @@ class BrowserComponent
         int state = model.getState();
         if ((state == LOADING_DATA) || (state == LOADING_LEAVES) ||
              (state == COUNTING_ITEMS)) {
-            System.out.println("cancel");
             model.cancel();
             view.cancel(model.getSelectedDisplay()); 
             fireStateChange();
@@ -277,8 +278,7 @@ class BrowserComponent
      */
     public void setSelectedDisplay(TreeImageDisplay display)
     {
-        int state = model.getState();
-        switch (state) {
+        switch (model.getState()) {
             case LOADING_DATA:
             case LOADING_LEAVES:
             case DISCARDED:
@@ -768,16 +768,19 @@ class BrowserComponent
     public void refreshEdit(DataObject object, int op)
     {
         Object o = object;
-        if (op == TreeViewer.CREATE_OBJECT)
+        if (op == Editor.CREATE_OBJECT)
             o = getSelectedDisplay().getUserObject();
         EditVisitor visitor = new EditVisitor(this, o);
         accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
         Set nodes = visitor.getFoundNodes();
-        if (op == TreeViewer.UPDATE_OBJECT) view.updateNodes(nodes, object);
-        else if (op == TreeViewer.DELETE_OBJECT) view.removeNodes(nodes);
-        else if (op == TreeViewer.CREATE_OBJECT)
-            view.createNodes(nodes,
-                    TreeViewerTranslator.transformDataObject(object));
+        if (op == Editor.UPDATE_OBJECT) view.updateNodes(nodes, object);
+        else if (op == TreeViewer.REMOVE_OBJECT) view.removeNodes(nodes);
+        else if (op == Editor.CREATE_OBJECT) {
+            TreeImageDisplay display = 
+                    TreeViewerTranslator.transformDataObject(object);
+            setSelectedDisplay(display);
+            view.createNodes(nodes, display);
+        }  
     }
     
 }

@@ -105,7 +105,7 @@ public class ClassificationSaver
                                 (pojos.CategoryData) i.next());
                     sts.updateCategory(data, null, list);
                 }
-                result = Boolean.TRUE;
+                result = categories;
             }
         };
     }
@@ -131,7 +131,7 @@ public class ClassificationSaver
                                 (pojos.CategoryData) i.next());
                     sts.updateCategory(data, list, null);
                 }
-                result = Boolean.TRUE;
+                result = categories;
             }
         };
     }

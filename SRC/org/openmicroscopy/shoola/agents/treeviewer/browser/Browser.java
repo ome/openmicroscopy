@@ -114,7 +114,7 @@ public interface Browser
     /** 
      * Bound property name indicating a data retrieval cancellation occured. 
      */
-    public static final String  	CANCEL_PROPERTY = "cancel";
+    //public static final String  	CANCEL_PROPERTY = "cancel";
     
     /** 
      * Bound property name indicating the data retrieval is finished. 
@@ -446,7 +446,7 @@ public interface Browser
      * @param object    The <code>DataObject</code> to handle.
      * @param op        One of the following constants: 
      *                  {@link TreeViewer#CREATE_OBJECT}, 
-     *                  {@link TreeViewer#DELETE_OBJECT} or
+     *                  {@link TreeViewer#REMOVE_OBJECT} or
      *                  {@link TreeViewer#UPDATE_OBJECT}.
      */
     public void refreshEdit(DataObject object, int op);

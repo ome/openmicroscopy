@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -68,6 +69,9 @@ public class ViewCmd
 
     /** Reference to the model. */
     private TreeViewer model;
+    
+    /** The <code>DataObject</code> to browse or view depending on the type. */
+    private DataObject  hierarchyObject;
     
     /**
      * Converts the specified UI rootLevel into its corresponding 
@@ -101,14 +105,36 @@ public class ViewCmd
         this.model = model;
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
+     * @param hierarchyObject   The object to browse or view.
+     *                          Mustn't be <code>null</code>.
+     *                          
+     */
+    public ViewCmd(TreeViewer model, DataObject hierarchyObject)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.model = model;
+        if (hierarchyObject == null) 
+            throw new IllegalArgumentException("No hierarchyObject.");
+        this.hierarchyObject = hierarchyObject;
+    }
+    
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
-        TreeImageDisplay display = browser.getSelectedDisplay();
-        if (display == null) return;
-        Object ho = display.getUserObject();
+        Object ho;
+        if (hierarchyObject != null) ho = hierarchyObject;
+        else {
+            TreeImageDisplay display = browser.getSelectedDisplay();
+            if (display == null) return;
+            ho = display.getUserObject();
+        }
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
         int root = convertRootLevel(browser.getRootLevel());
         if (ho instanceof ImageData) {

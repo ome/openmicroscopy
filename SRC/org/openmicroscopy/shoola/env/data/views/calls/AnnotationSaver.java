@@ -247,6 +247,7 @@ public class AnnotationSaver
      */
     public AnnotationSaver(Class nodeType, pojos.AnnotationData data)
     {
+        System.out.println("data: " +data);
         if (data == null) throw new IllegalArgumentException("no annotation."); 
         if (nodeType.equals(DatasetData.class))
             saveCall = removeDatasetAnnotation(

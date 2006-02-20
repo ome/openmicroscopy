@@ -51,6 +51,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.CategoryData;
 import pojos.DatasetData;
 
@@ -229,11 +232,11 @@ class BrowserControl
         int state = model.getState();
         switch (state) {
             case Browser.LOADING_DATA:
-                break;
             case Browser.LOADING_LEAVES:
+                UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
                 break;
             case Browser.READY:
-                
+                TreeViewerFactory.getLoadingWindow().setVisible(false);
                 break;
             case Browser.DISCARDED:
                 break;

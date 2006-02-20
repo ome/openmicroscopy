@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Action;
 
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -129,12 +131,17 @@ class FinderControl
     Action getAction(Integer id) { return (Action) actionsMap.get(id); }
 
     /**
-     * Reacts to the {@link Finder#RETRIEVED_PROPERTY} changes.
+     * Reacts to the {@link Finder#RETRIEVED_PROPERTY} and
+     * {@link TreeViewer#FINDER_VISIBLE_PROPERTY} property changes.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
-    public void propertyChange(PropertyChangeEvent evt)
+    public void propertyChange(PropertyChangeEvent pce)
     {
-        view.setMessage(((Integer) evt.getNewValue()).intValue());
+        String name = pce.getPropertyName();
+        if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY))
+            model.setDisplay(((Boolean) pce.getNewValue()).booleanValue());
+        else if (name.equals(Finder.RETRIEVED_PROPERTY)) 
+            view.setMessage(((Integer) pce.getNewValue()).intValue());
     }
     
 }

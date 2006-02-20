@@ -90,6 +90,7 @@ public class DataObjectEditor
     private DatasetData daToDatasetData(pojos.DatasetData data)
     {
         DatasetData d = new DatasetData();
+        d.setID(data.getId());
         d.setName(data.getName());
         d.setDescription(data.getDescription());
         return d;
@@ -98,6 +99,7 @@ public class DataObjectEditor
     private ImageData daToImageData(pojos.ImageData data)
     {
         ImageData i = new ImageData();
+        i.setID(data.getId());
         i.setName(data.getName());
         i.setDescription(data.getDescription());
         return i;
@@ -239,6 +241,7 @@ public class DataObjectEditor
                 (userObject instanceof DatasetData))
             throw new IllegalArgumentException("DataObject not supported.");
         result = userObject;
+        this.userObject = userObject;
         if (data == null)
             throw new IllegalArgumentException("No Annotation.");
         switch (op) {

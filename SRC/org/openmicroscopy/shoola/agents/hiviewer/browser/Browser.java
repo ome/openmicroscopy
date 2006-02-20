@@ -224,21 +224,6 @@ public interface Browser
      * @return See above.
      */
     public int getSelectedLayout();
-    
-    /**
-     * Returns the component selected when the <code>Tree</code> layout is 
-     * used.
-     * 
-     * @return See above.
-     */
-    //public JTree getTreeDisplay();
-    
-    /**
-     * Sets the tree hosting the display. The value is <code>null</code>
-     * when the layout selected is not the <i>Tree layout</i>.
-     * 
-     * @param tree The tree hosting the display or <code>null</code>.
-     */
-    //public void setTreeDisplay(JTree tree);
+
     
 }
