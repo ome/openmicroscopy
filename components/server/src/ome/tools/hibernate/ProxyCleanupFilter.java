@@ -34,8 +34,10 @@ import java.util.Collection;
 
 
 //Third-party libraries
+import ome.model.IObject;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
+import ome.util.Utils;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -46,9 +48,9 @@ import org.hibernate.Hibernate;
 
 
 
-/** removes all proxies from a return graph to prevent ClassCastExceptions and Session Closed exceptions.
- *  you need to be careful with printing. calling toString() on an unitialized object will break before filtering
- *  is complete.
+/** removes all proxies from a return graph to prevent ClassCastExceptions and 
+ * Session Closed exceptions. You need to be careful with printing. Calling 
+ * toString() on an unitialized object will break before filtering is complete.
  *   
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -59,12 +61,21 @@ import org.hibernate.Hibernate;
  * @since 1.0
  * 
  */
-public class ProxyCleanupFilter extends ContextFilter implements MethodInterceptor {
+public class ProxyCleanupFilter extends ContextFilter 
+    implements MethodInterceptor {
 
 	@Override
 	public Filterable filter(String fieldId, Filterable f) {
 	    if (null==f || !Hibernate.isInitialized(f)){
-	    	return null;
+            if (f instanceof IObject)
+            {
+                IObject proxy = (IObject) f;
+                IObject unloaded = (IObject) Utils.trueInstance(f.getClass());
+                unloaded.setId(proxy.getId()); // TODO is this causing a DB hit?
+                unloaded.unload();
+                return unloaded;
+            }
+            return null;
 	    }
 	    return super.filter(fieldId, f);
 	}
@@ -80,5 +91,5 @@ public class ProxyCleanupFilter extends ContextFilter implements MethodIntercept
 	public Object invoke(MethodInvocation arg0) throws Throwable {
 		return filter(null,arg0.proceed());
 	}
-	
+    
 }

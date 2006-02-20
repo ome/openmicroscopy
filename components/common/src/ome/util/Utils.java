@@ -61,6 +61,56 @@ import com.caucho.hessian.io.HessianOutput;
  */
 public class Utils {
 
+    protected final static String CGLIB_IDENTIFIER = "$$EnhancerByCGLIB$$";
+    
+    /** 
+     * finds the "true" class identified by a given Class object. This is 
+     * necessary because of possibly proxied instances.
+     * @param source Regular or CGLIB-based class.
+     * @return the regular Java class.
+     */
+    public static Class trueClass(Class source)
+    {
+        String s = source.getName();
+        if (s.contains(CGLIB_IDENTIFIER)) { // TODO any other test?
+            try
+            {
+                return Class.forName(
+                        s.substring(0,s.indexOf(CGLIB_IDENTIFIER)));
+            } catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException( /* TODO */
+                        "Classname contains "+CGLIB_IDENTIFIER+
+                        " but base class cannout be found.");
+            }
+        }
+        return source;
+    }
+    
+    /** instantiates an object using the trueClass.
+     * 
+     * @param source Regular or CGLIB-based class.
+     * @return the regular Java instance.
+     */
+    public static Object trueInstance(Class source)
+    {
+        Class trueClass = trueClass(source);
+        Object result;
+        try
+        {
+            result = trueClass.newInstance();
+        } catch (InstantiationException e)
+        {
+            throw new RuntimeException(
+                    "Failed to instantiate "+trueClass,e);
+        } catch (IllegalAccessException e)
+        {
+            throw new RuntimeException(
+                    "Not allowed to create class:"+trueClass,e);
+        }
+        return result;
+    }
+    
     /** primarily used in Grinder to test the message
      * returning from the various web services 
      * @param obj
