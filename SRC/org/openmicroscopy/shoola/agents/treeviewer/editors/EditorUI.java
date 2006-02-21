@@ -225,7 +225,7 @@ public class EditorUI
                          model.getDataObjectName(), 
                         im.getIcon(IconManager.PROPERTIES_BIG));
         }
-        titleLayer.add(titlePanel, 0);
+        titleLayer.add(titlePanel, new Integer(0));
     }
     
     /**
@@ -249,9 +249,11 @@ public class EditorUI
     {
         if (emptyMessagePanel != null) return;
         emptyMessagePanel = new JPanel();
+        emptyMessagePanel.setOpaque(true);
         emptyMessagePanel.setBorder(
                             BorderFactory.createLineBorder(Color.BLACK));
         Rectangle r = titlePanel.getBounds();
+        
         emptyMessagePanel.setLayout(new BoxLayout(emptyMessagePanel,
                                                 BoxLayout.X_AXIS));
         IconManager im = IconManager.getInstance();
@@ -451,7 +453,7 @@ public class EditorUI
         warning = true;
         finishButton.setEnabled(false);
         buildEmptyPanel();
-        titleLayer.add(emptyMessagePanel, 1);
+        titleLayer.add(emptyMessagePanel, new Integer(1));
     }
     
     /**
