@@ -168,7 +168,6 @@ class PopupMenu
         managementMenu.add(copyElement);
         managementMenu.add(pasteElement);
         managementMenu.add(deleteElement);
-        managementMenu.add(createClassifySubMenu());
         return managementMenu;
     }
     
@@ -177,8 +176,9 @@ class PopupMenu
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(view);
-        add(new JSeparator(JSeparator.HORIZONTAL));
         add(createManagementMenu());
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(createClassifySubMenu());
         add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);

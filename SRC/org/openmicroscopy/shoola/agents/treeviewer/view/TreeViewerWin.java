@@ -38,6 +38,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -173,8 +174,9 @@ class TreeViewerWin
      */
     private JMenu createHelpMenu()
     {
-        JMenu file = new JMenu("Help");
-        return file;
+        JMenu menu = new JMenu("Help");
+        menu.setMnemonic(KeyEvent.VK_H);
+        return menu;
     }
     
     /**
@@ -184,20 +186,21 @@ class TreeViewerWin
      */
     private JMenu createFileMenu()
     {
-        JMenu file = new JMenu("File");
-        file.add(new JMenuItem(
+        JMenu menu = new JMenu("File");
+        menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
-        file.add(createRootMenu());
-        file.add(new JSeparator(JSeparator.HORIZONTAL));
-        file.add(new JMenuItem(
+        menu.add(createRootMenu());
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLOSE)));
-        file.add(new JSeparator(JSeparator.HORIZONTAL));
-        file.add(new JMenuItem(
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH)));
-        file.add(new JSeparator(JSeparator.HORIZONTAL));
-        file.add(new JMenuItem(
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.EXIT)));
-        return file;
+        return menu;
     }
     
     /**
@@ -207,29 +210,30 @@ class TreeViewerWin
      */
     private JMenu createEditMenu()
     {
-        JMenu edit = new JMenu("Edit");
-        edit.add(new JMenuItem(
+        JMenu menu = new JMenu("Edit");
+        menu.setMnemonic(KeyEvent.VK_E);
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.COPY_OBJECT)));
-        edit.add(new JMenuItem(
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.PASTE_OBJECT)));
-        edit.add(new JMenuItem(
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)));
-        edit.add(new JSeparator(JSeparator.HORIZONTAL));
-        edit.add(new JMenuItem(
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.FIND)));
-        edit.add(new JMenuItem(
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
-        edit.add(new JSeparator(JSeparator.HORIZONTAL));
-        edit.add(new JMenuItem(
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.VIEW)));
-        edit.add(new JSeparator(JSeparator.HORIZONTAL));
-        edit.add(createClassifySubMenu());
-        edit.add( new JMenuItem(
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(createClassifySubMenu());
+        menu.add( new JMenuItem(
                 controller.getAction(TreeViewerControl.ANNOTATE)));
-        edit.add(new JSeparator(JSeparator.HORIZONTAL));
-        edit.add(new JMenuItem(
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.PROPERTIES)));
-        return edit;
+        return menu;
     }
     
     /**
@@ -293,17 +297,15 @@ class TreeViewerWin
      */
     private JMenu createViewMenu()
     {
-        JMenu views = new JMenu("View");
-        JMenuItem item = new JMenuItem(
-                controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
-        views.add(item);
-        item = new JMenuItem(
-                controller.getAction(TreeViewerControl.CATEGORY_EXPLORER));
-        views.add(item);
-        item = new JMenuItem(
-                controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
-        views.add(item);
-        return views;
+        JMenu menu = new JMenu("View");
+        menu.setMnemonic(KeyEvent.VK_V);
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CATEGORY_EXPLORER)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.IMAGES_EXPLORER)));
+        return menu;
     }
 
     /** Initializes the UI components. */
