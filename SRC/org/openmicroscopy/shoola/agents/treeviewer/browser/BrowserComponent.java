@@ -772,12 +772,17 @@ class BrowserComponent
         accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
         Set nodes = visitor.getFoundNodes();
         if (op == Editor.UPDATE_OBJECT) view.updateNodes(nodes, object);
-        else if (op == TreeViewer.REMOVE_OBJECT) view.removeNodes(nodes);
-        else if (op == Editor.CREATE_OBJECT) {
+        else if (op == TreeViewer.REMOVE_OBJECT) {
+            TreeImageDisplay parentDisplay = 
+                getSelectedDisplay().getParentDisplay();
+            setSelectedDisplay(parentDisplay);
+            view.removeNodes(nodes, parentDisplay);
+        } else if (op == Editor.CREATE_OBJECT) {
             TreeImageDisplay display = 
                     TreeViewerTranslator.transformDataObject(object);
+            TreeImageDisplay parentDisplay = getSelectedDisplay();
             setSelectedDisplay(display);
-            view.createNodes(nodes, display);
+            view.createNodes(nodes, display, parentDisplay);
         }  
     }
     

@@ -504,9 +504,10 @@ class BrowserUI
     /**
      * Removes the specified set of nodes from the tree.
      * 
-     * @param nodes The set of nodes to remove.
+     * @param nodes         The set of nodes to remove.
+     * @param parentDisplay The selected parent.
      */
-    void removeNodes(Set nodes)
+    void removeNodes(Set nodes, TreeImageDisplay parentDisplay)
     {
         Iterator i = nodes.iterator(); 
         TreeImageDisplay node;
@@ -518,16 +519,20 @@ class BrowserUI
             parent.removeChildDisplay(node);
             parent.remove(node);
             dtm.reload(parent);
+            if (parent.equals(parentDisplay))
+                treeDisplay.setSelectionPath(new TreePath(parent.getPath()));
         }
     }
     
     /**
      * Adds the newly created node to the tree.
      * 
-     * @param nodes     The collection of the parent nodes.
-     * @param newNode   The node to add to the parent.
+     * @param nodes         The collection of the parent nodes.
+     * @param newNode       The node to add to the parent.
+     * @param parentDisplay The selected parent.
      */
-    void createNodes(Set nodes, TreeImageDisplay newNode)
+    void createNodes(Set nodes, TreeImageDisplay newNode, 
+                    TreeImageDisplay parentDisplay)
     {
         Iterator i = nodes.iterator();
         TreeImageDisplay parent;
@@ -546,6 +551,8 @@ class BrowserUI
                                 parent.getChildCount());
             dtm.reload(parent);
             expandNode(parent);
+            if (parent.equals(parentDisplay))
+                treeDisplay.setSelectionPath(new TreePath(newNode.getPath()));
         }
     }
     
