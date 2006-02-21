@@ -37,7 +37,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -82,8 +81,6 @@ public class DataObjectCreator
         super(viewer);
         if (userObject == null)
             throw new IllegalArgumentException("No object to create.");
-        if (parent == null)
-            throw new IllegalArgumentException("No parent.");
         this.parent = parent;
         this.userObject = userObject;
     }

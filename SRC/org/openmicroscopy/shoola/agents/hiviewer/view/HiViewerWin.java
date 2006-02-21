@@ -187,7 +187,7 @@ class HiViewerWin
     private JMenu createFileMenu()
     {
         JMenu menu = new JMenu("File");
-        menu.setMnemonic(KeyEvent.VK_H);
+        menu.setMnemonic(KeyEvent.VK_F);
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.SAVE_THUMB)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -195,9 +195,9 @@ class HiViewerWin
                 controller.getAction(HiViewer.EXIT)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewer.REFRESH)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(
-                                HiViewer.EXIT_APPLICATION)));
+        //menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        //menu.add(new JMenuItem(controller.getAction(
+        //                        HiViewer.EXIT_APPLICATION)));
         return menu;
     }
     
@@ -211,7 +211,7 @@ class HiViewerWin
         JMenu menu = new JMenu("Edit");
         menu.setMnemonic(KeyEvent.VK_E);
         menu.add(new JMenuItem(controller.getAction(HiViewer.FIND)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.CLEAR)));
+        //menu.add(new JMenuItem(controller.getAction(HiViewer.CLEAR)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.VIEW)));
@@ -252,7 +252,7 @@ class HiViewerWin
     /** Helper method to create the Windows menu. */
     private void createWindowsMenu()
     {
-        windowsMenu = new JMenu("Windows");
+        windowsMenu = new JMenu("Window");
         windowsMenu.setMnemonic(KeyEvent.VK_W);
     }
     

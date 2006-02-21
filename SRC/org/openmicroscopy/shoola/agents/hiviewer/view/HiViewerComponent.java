@@ -320,7 +320,13 @@ class HiViewerComponent
             throw new IllegalStateException(
                    "This method can only be invoked in the LOADING_THUMBNAILS "+
                         "or READY state.");
-        return model.getTreeView();
+        TreeView treeView = model.getTreeView();
+        if (treeView == null) {
+            model.createTreeView();
+            treeView = model.getTreeView();
+            treeView.addPropertyChangeListener(controller);
+        }
+        return treeView;
     }
 
     /**

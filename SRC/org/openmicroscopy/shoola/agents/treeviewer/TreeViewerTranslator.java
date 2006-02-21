@@ -139,10 +139,13 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet project = new TreeImageSet(data);
         Set datasets = data.getDatasets();
-        Iterator i = datasets.iterator();
-        while (i.hasNext()) 
-            project.addChildDisplay(transformDataset((DatasetData) i.next()));
-        project.setNumberItems(datasets.size());
+        if (datasets != null) {
+            Iterator i = datasets.iterator();
+            while (i.hasNext()) 
+                project.addChildDisplay(transformDataset(
+                                        (DatasetData) i.next()));
+            project.setNumberItems(datasets.size());
+        } else project.setNumberItems(0);
         return project;
     }
     
@@ -224,10 +227,13 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet group = new TreeImageSet(data);
         Set categories = data.getCategories();
-        Iterator i = categories.iterator();
-        while (i.hasNext())
-            group.addChildDisplay(transformCategory((CategoryData) i.next()));
-        group.setNumberItems(categories.size());
+        if (categories != null) {
+            Iterator i = categories.iterator();
+            while (i.hasNext())
+                group.addChildDisplay(transformCategory(
+                                    (CategoryData) i.next()));
+            group.setNumberItems(categories.size());
+        } else group.setNumberItems(0);
         return group;
     }
     

@@ -159,7 +159,7 @@ class HierarchyModel
         
         switch (type) {
             case HiViewer.PDI_HIERARCHY: 
-                return new PDILoader(component, images);
+                return new PDILoader(component, ids);
             case HiViewer.CGCI_HIERARCHY:
                 return new CGCILoader(component, ids);
         }
