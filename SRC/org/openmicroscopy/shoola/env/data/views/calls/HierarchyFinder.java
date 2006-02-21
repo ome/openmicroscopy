@@ -136,7 +136,7 @@ public class HierarchyFinder
             ids.toArray(new Integer[] {});
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException(
-                    "images can only contain ImageData objects.");
+                    "images can only contain Integer objects.");
         }    
         if (hierarchyRootNodeType.equals(ProjectData.class) ||
             hierarchyRootNodeType.equals(CategoryGroupData.class))

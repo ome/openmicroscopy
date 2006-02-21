@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -95,13 +96,16 @@ public class DataObjectSaver
         d.setName(data.getName());
         d.setDescription(data.getDescription());
         Set set = data.getDatasets();
-        Iterator i = set.iterator();
-        DatasetSummary summary;
-        ArrayList datasets = new ArrayList(set.size());
-        while (i.hasNext()) {
-            summary = daToDatasetSummary((pojos.DatasetData) i.next());
-            datasets.add(summary);
-        }
+        ArrayList datasets = null;
+        if (set != null) {
+            Iterator i = set.iterator();
+            DatasetSummary summary;
+            datasets = new ArrayList(set.size());
+            while (i.hasNext()) {
+                summary = daToDatasetSummary((pojos.DatasetData) i.next());
+                datasets.add(summary);
+            }
+        } else datasets = new ArrayList(0);
         d.setDatasets(datasets);
         return d;
     }
@@ -115,6 +119,7 @@ public class DataObjectSaver
                 ((pojos.ProjectData) objectToSave).getDescription());
         pojo.setOwner((ExperimenterData) 
                 context.lookup(LookupNames.CURRENT_USER_DETAILS));
+        pojo.setDatasets(new HashSet(0));
         return pojo;
     }
     
@@ -178,6 +183,18 @@ public class DataObjectSaver
         pojo.setDescription(c.getDescription());
         pojo.setOwner((ExperimenterData) 
                 context.lookup(LookupNames.CURRENT_USER_DETAILS));
+        pojo.setCategories(new HashSet(0));
+        return pojo;
+    }
+    
+    private pojos.CategoryData reverseCategory(CategoryData c)
+    {
+        pojos.CategoryData pojo = new  pojos.CategoryData();
+        pojo.setId(c.getID());
+        pojo.setName(c.getName());
+        pojo.setDescription(c.getDescription());
+        pojo.setOwner((ExperimenterData) 
+                context.lookup(LookupNames.CURRENT_USER_DETAILS));
         return pojo;
     }
     
@@ -226,7 +243,14 @@ public class DataObjectSaver
                             	(pojos.CategoryGroupData) userObject);
                     result = reverseCategoryGroup(sts.createCategoryGroup(c));
                 } else if (userObject instanceof pojos.CategoryData) {
-                    
+                    CategoryData data = daToCategoryData((pojos.CategoryData) 
+                                                        userObject);
+                    CategoryGroupData parentData = daToCategoryGroupData(
+                                                (pojos.CategoryGroupData) 
+                                                        parent);
+                    data.setCategoryGroup(parentData);
+                    result = reverseCategory(sts.createCategory(data, 
+                                            new ArrayList()));
                 }
             }
         };
@@ -319,7 +343,7 @@ public class DataObjectSaver
                         l.add(new Integer(id));
                         sts.updateCategory(c, l, null);
                     }
-                }
+                } //else if (userObject instanceof po)
             }
         };
     }
@@ -360,6 +384,7 @@ public class DataObjectSaver
             }
         }
         
+        System.out.println("here: "+userObject+" "+index+" "+parent);
         switch (index) {
             case CREATE:
                 saveCall = create(userObject, parent);

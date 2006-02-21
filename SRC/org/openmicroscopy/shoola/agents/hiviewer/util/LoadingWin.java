@@ -83,11 +83,12 @@ public class LoadingWin
         setModal(true);
         buildGUI();
     }
-
+    
     /** Brings up the window on screen and centers it. */
     public void setOnScreen()
     {
         setSize(WIN_DIMENSION);
+        setClosed(false);
         UIUtilities.centerAndShow(this);
     }
 
