@@ -165,6 +165,7 @@ class BrowserControl
         if (view == null) throw new NullPointerException("No view.");
         this.view = view;
         model.addPropertyChangeListener(this);
+        model.addChangeListener(this);
     }
 
     /**
