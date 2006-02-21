@@ -89,6 +89,9 @@ public class TreeViewAction
      * Displays or hides the tree view. 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.showTreeView(true); }
+    public void actionPerformed(ActionEvent e)
+    { 
+        model.showTreeView(!model.getTreeView().isDisplay());
+    }
 
 }

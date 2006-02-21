@@ -66,7 +66,7 @@ public class ZoomFitAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Resize";
+    private static final String NAME = "Normal Size";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Reset the size of all " +
