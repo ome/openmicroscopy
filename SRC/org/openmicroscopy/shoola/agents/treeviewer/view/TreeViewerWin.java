@@ -97,7 +97,10 @@ class TreeViewerWin
     /** The Model. */
     private TreeViewerModel 	model;
 
-    /** The split pane hosting the display. */
+    /**
+     * The split pane hosting the {@link #workingPane} and the
+     * {@link #tabs}.
+     */
     private JSplitPane			splitPane;
     
     /** The component hosting the working pane. */
@@ -473,6 +476,7 @@ class TreeViewerWin
      */
     void showFinder(boolean b)
     {
+        /*
         if (b) { //finder visible.
             JSplitPane pane = new JSplitPane();
             pane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -488,6 +492,21 @@ class TreeViewerWin
         }
         splitPane.setDividerLocation(splitPane.getDividerLocation());
         splitPane.repaint();
+        */
+        JSplitPane pane = null;
+        if (b) { //finder visible.
+            pane = new JSplitPane();
+            pane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+            pane.setResizeWeight(1);
+            pane.setOneTouchExpandable(true);
+            pane.setContinuousLayout(true);
+            pane.setTopComponent(splitPane);
+            pane.setBottomComponent(model.getFinder());
+        } else pane = splitPane;
+        Container c = getContentPane();
+        c.removeAll();
+        c.add(pane, BorderLayout.CENTER);
+        c.validate();
     }
 
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
