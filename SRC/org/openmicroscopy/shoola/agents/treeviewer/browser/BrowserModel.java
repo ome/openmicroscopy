@@ -313,7 +313,7 @@ class BrowserModel
             id = ((ProjectData) ho).getId();
             nodeType = ProjectData.class;
         } else if (ho instanceof CategoryGroupData) {
-            id = ((ProjectData) ho).getId();
+            id = ((CategoryGroupData) ho).getId();
             nodeType = CategoryGroupData.class;
         }
         if (nodeType != null) {
@@ -463,15 +463,27 @@ class BrowserModel
      * 
      * @param nodes The collection of found nodes.
      */
-    void setFoundNodes(List nodes)
-    {
-        foundNodes = nodes;
-    }
+    void setFoundNodes(List nodes) { foundNodes = nodes; }
     
+    /**
+     * Sets the index of the found node.
+     * 
+     * @param i The index of the node.
+     */
     void setFoundNodeIndex(int i) { foundNodeIndex = i; }
     
+    /**
+     * Returns the index of the node found.
+     * 
+     * @return See above.
+     */
     int getFoundNodeIndex() { return foundNodeIndex; }
     
+    /**
+     * Returns a collection of found nodes.
+     * 
+     * @return See above.
+     */
     List getFoundNodes() { return foundNodes; }
     
 }
