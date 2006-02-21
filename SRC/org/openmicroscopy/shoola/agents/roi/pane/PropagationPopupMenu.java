@@ -37,7 +37,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.BevelBorder;
 
-import org.openmicroscopy.shoola.agents.datamng.DataManagerUIF;
 import org.openmicroscopy.shoola.agents.roi.IconManager;
 import org.openmicroscopy.shoola.env.config.Registry;
 
@@ -115,7 +114,7 @@ class PropagationPopupMenu
         copyOne = new JMenuItem("Copy here", im.getIcon(IconManager.COPY));
         copyOne.setBorder(null);
         copyOne.setFont((Font) registry.lookup("/resources/fonts/Labels"));
-        copyOne.setForeground(DataManagerUIF.STEELBLUE);  
+        //copyOne.setForeground(DataManagerUIF.STEELBLUE);  
     }
     
     /** Creates and initializes the copyAll button. */
@@ -126,7 +125,7 @@ class PropagationPopupMenu
                                     im.getIcon(IconManager.COPY_SEGMENT));
         copyAll.setBorder(null);
         copyAll.setFont((Font) registry.lookup("/resources/fonts/Labels"));
-        copyAll.setForeground(DataManagerUIF.STEELBLUE);  
+        //copyAll.setForeground(DataManagerUIF.STEELBLUE);  
     }
     
     /** Creates and initializes the cancel button. */
@@ -136,7 +135,7 @@ class PropagationPopupMenu
         cancel = new JMenuItem("Cancel",  im.getIcon(IconManager.CLOSE));
         cancel.setBorder(null);
         cancel.setFont((Font) registry.lookup("/resources/fonts/Labels"));
-        cancel.setForeground(DataManagerUIF.STEELBLUE);
+        //cancel.setForeground(DataManagerUIF.STEELBLUE);
         cancel.setEnabled(true);    
     }
     
@@ -147,7 +146,7 @@ class PropagationPopupMenu
         erase = new JMenuItem("Erase",  im.getIcon(IconManager.ERASE));
         erase.setBorder(null);
         erase.setFont((Font) registry.lookup("/resources/fonts/Labels"));
-        erase.setForeground(DataManagerUIF.STEELBLUE);   
+        //erase.setForeground(DataManagerUIF.STEELBLUE);   
     }
     
     /** Builds and lays out the GUI. */
