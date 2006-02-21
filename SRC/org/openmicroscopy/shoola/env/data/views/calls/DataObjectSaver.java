@@ -383,8 +383,6 @@ public class DataObjectSaver
                     throw new IllegalArgumentException("Parent not valid.");
             }
         }
-        
-        System.out.println("here: "+userObject+" "+index+" "+parent);
         switch (index) {
             case CREATE:
                 saveCall = create(userObject, parent);
