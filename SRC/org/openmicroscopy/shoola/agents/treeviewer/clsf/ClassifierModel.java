@@ -45,7 +45,14 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * The Model component in the <code>Classifier</code> MVC triad.
+ * This class tracks the <code>Classifier</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. However, this class doesn't know the actual hierarchy
+ * the <code>Classifier</code> is for. Subclasses fill this gap and provide  
+ * a suitable data loader. The {@link ClassifierComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

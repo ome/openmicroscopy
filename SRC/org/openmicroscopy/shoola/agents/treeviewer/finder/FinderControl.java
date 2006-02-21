@@ -37,14 +37,13 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Action;
 
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
- * The Finder's Controller.
+ * The {@link Finder}'s Controller.
  * 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

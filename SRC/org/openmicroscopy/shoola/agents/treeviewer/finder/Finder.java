@@ -64,11 +64,6 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 public class Finder
 	extends JPanel
 {
-
-    /** 
-     * Bound property name indicating to remove the component from the display.
-     */
-    //public static final String	CLOSE_FINDER_PROPERTY = "closeFinder";
     
     /** Bound property indicating that some text has been entered. */
     public static final String 	TEXT_ENTERED_PROPERTY = "textEntered";

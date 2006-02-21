@@ -45,7 +45,16 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 
 /** 
+ * Implements the {@link Classifier} interface to the functionality
+ * required of the classifier component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
  * 
+ * @see org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierModel
+ * @see org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierUI
+ * @see org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierControl
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
