@@ -36,7 +36,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 import javax.swing.JCheckBox;
 
 
-
 //Third-party libraries
 
 //Application-internal dependencies
