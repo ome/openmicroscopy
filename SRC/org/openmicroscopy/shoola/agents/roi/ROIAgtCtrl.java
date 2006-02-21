@@ -302,6 +302,8 @@ public class ROIAgtCtrl
      */
     public void removeAllPlaneAreas()
     {
+        int index = presentation.getToolBar().getSelectedIndex();
+        if (index == -1) return;
         abstraction.removeAllPlaneAreas();
         drawingCanvas.clearPreviousView();
         drawingCanvas.repaint();
@@ -333,6 +335,7 @@ public class ROIAgtCtrl
     public void removePlaneArea(int z, int t)
     {
         int index = presentation.getToolBar().getSelectedIndex();
+        if (index == -1) return;
         abstraction.copyPlaneArea(null, index, z, t);
         if (z == getCurrentZ() && t == getCurrentT()) {
             drawingCanvas.removeSPAFromCanvas(index);
@@ -354,6 +357,7 @@ public class ROIAgtCtrl
     public void copyPlaneArea(PlaneArea pa, int newZ, int newT)
     {
         int index = presentation.getToolBar().getSelectedIndex();
+        if (index == -1) return;
         abstraction.copyPlaneArea(pa, index, newZ, newT);
         if (newT == getCurrentT() && newZ == getCurrentZ()) {
             PlaneArea p = abstraction.getPlaneArea(newZ, newT, index);
