@@ -196,11 +196,13 @@ class TreePopupMenu
     /** Builds and lays out the UI. */
     private void buildUI()
     {
-        add(properties);
-        add(annotate);
-        add(createClassifySubMenu());
-        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(view);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(createClassifySubMenu());
+        add(annotate);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(properties);
+        
     }
     
     /**
