@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
- * The HiViewer agent.This agent manages and presents the
+ * The TreeViewer agent. This agent manages and presents the
  * Project/Dataset/Image, CategoryGroup/Category/Image and Image hierarchy.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

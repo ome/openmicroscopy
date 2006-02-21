@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.datamng.ShowProperties;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -122,7 +122,6 @@ public class CreateCmd
         if (userObject == null) return; //shouldn't happen.
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
         bus.post(new ShowProperties(userObject, ShowProperties.CREATE));
-        //model.createDataObject(DatasetData.class);
     }
     
 }
