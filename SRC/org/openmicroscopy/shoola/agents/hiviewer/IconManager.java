@@ -209,7 +209,8 @@ public class IconManager
         relPaths[CLOSE_OVER] = "cross_over.png";
         relPaths[PROPERTIES] = "nuvola_kate16.png";
         relPaths[VIEWER] = "viewer16.png";
-        relPaths[ANNOTATE] = "nuvola_kwrite16.png";
+        //relPaths[ANNOTATE] = "nuvola_kwrite16.png";
+        relPaths[ANNOTATE] = "eclipse_annotate16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
