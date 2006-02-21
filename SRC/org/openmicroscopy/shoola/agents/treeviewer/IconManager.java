@@ -229,7 +229,8 @@ public class IconManager
         relPaths[FINDER] = "eclipse_searchrecord16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
-        relPaths[ANNOTATION] = "nuvola_kwrite16.png";
+        //relPaths[ANNOTATION] = "nuvola_kwrite16.png";
+        relPaths[ANNOTATION] = "eclipse_annotate16.png";
         relPaths[CLASSIFY] = "category16.png";
         relPaths[CATEGORY_BIG] = "nuvola_filenew48.png";
         relPaths[CLASSIFIED_ANNOTATED_IMAGE] = "nuvola_filenew48.png";
