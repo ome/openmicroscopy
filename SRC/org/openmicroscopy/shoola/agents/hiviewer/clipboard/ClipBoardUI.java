@@ -199,6 +199,10 @@ class ClipBoardUI
      *  
      * @param index The index of the selected tabbed pane.
      */
-    void setSelectedPane(int index) { tabPane.setSelectedIndex(index); }
+    void setSelectedPane(int index)
+    { 
+        tabPane.setSelectedIndex(index); 
+        //tabPane.repaint();
+    }
     
 }

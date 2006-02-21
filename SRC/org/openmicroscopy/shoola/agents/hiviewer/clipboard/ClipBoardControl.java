@@ -45,6 +45,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import pojos.AnnotationData;
 
@@ -149,6 +150,7 @@ class ClipBoardControl
         if (model == null) throw new NullPointerException("No model.");
         this.view = view;
         this.model = model;
+        component.addChangeListener(this);
         model.getParentModel().addChangeListener(this);
     }
 
@@ -210,10 +212,10 @@ class ClipBoardControl
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
-        String propName = pce.getPropertyName();
-        if (propName.equals(Browser.SELECTED_DISPLAY_PROPERTY))
+        String name = pce.getPropertyName();
+        if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY))
             handleBrowserSelectedDisplay(pce); 
-        else if (propName.equals(ClipBoard.LOCALIZE_IMAGE_DISPLAY)) {
+        else if (name.equals(ClipBoard.LOCALIZE_IMAGE_DISPLAY)) {
             ImageDisplay node = (ImageDisplay) pce.getNewValue();
             ImageDisplay parent = node.getParentDisplay();
             scrollToNode(node.getBounds(), parent,
@@ -235,6 +237,17 @@ class ClipBoardControl
                         Browser.SELECTED_DISPLAY_PROPERTY, this);
                 view.initListener();
             }  
+        } else if (source instanceof ClipBoard) {
+            switch (model.getState()) {
+                case ClipBoard.EDIT_ANNOTATIONS:
+                case ClipBoard.LOADING_ANNOTATIONS:
+                    model.getLoadingWin().setOnScreen();
+                    break;
+                case ClipBoard.ANNOTATIONS_READY:
+                case ClipBoard.DISCARDED_ANNOTATIONS:
+                    model.getLoadingWin().setClosed(true);
+                    break;
+            }
         }
     }
 

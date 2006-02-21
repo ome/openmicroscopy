@@ -127,7 +127,9 @@ class SearchResultsPane
         DefaultMutableTreeNode node =
             (DefaultMutableTreeNode) getLastSelectedPathComponent();
         if (selectedNode == node) return;
-        ImageDisplay  newObject = (ImageDisplay) node.getUserObject();
+        Object uo = node.getUserObject();
+        if (uo instanceof String) return;
+        ImageDisplay  newObject = (ImageDisplay) uo;
         ImageDisplay  oldObject = null;
         if (selectedNode != null)
             oldObject = (ImageDisplay) selectedNode.getUserObject();

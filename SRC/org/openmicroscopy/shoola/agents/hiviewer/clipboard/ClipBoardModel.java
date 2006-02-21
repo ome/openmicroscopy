@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImgDisplayAnnotationVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import pojos.AnnotationData;
@@ -111,6 +112,9 @@ class ClipBoardModel
     /** The {@link ViewerSorter} used to sort the annotations. */
     private ViewerSorter            sorter;
     
+    /** The window displayed during the loading process. */
+    private LoadingWin              loadingWin;
+    
     /** 
      * Will either be a hierarchy loader, a thumbnail loader, or 
      * <code>null</code> depending on the current state. 
@@ -129,6 +133,7 @@ class ClipBoardModel
         annotationStatus = INITIAL;
         sorter = new ViewerSorter();
         sorter.setAscending(false);
+        loadingWin = new LoadingWin(parentModel.getUI());
     }
     
     /**
@@ -158,6 +163,13 @@ class ClipBoardModel
     }
     
     /**
+     * Returns the {@link LoadingWin loadingWindow}.
+     * 
+     * @return See above.
+     */
+    LoadingWin getLoadingWin() { return loadingWin; }
+    
+    /**
      * Returns the {@link HiViewer} model.
      * 
      * @return See below.
@@ -171,6 +183,13 @@ class ClipBoardModel
      */
     int getState() { return state; }
     
+    /** 
+     * Sets the state.
+     *
+     * @param state The state to set.
+     */
+    void setState(int state) { this.state = state; }
+
     /**
      * Returns the index of the selected pane.
      * 

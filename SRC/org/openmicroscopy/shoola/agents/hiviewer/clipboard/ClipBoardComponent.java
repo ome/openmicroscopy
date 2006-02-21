@@ -38,6 +38,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 
@@ -215,6 +216,9 @@ class ClipBoardComponent
             view.manageAnnotation();
             retrieveAnnotations(model.getAnnotatedObjectID(), 
                     model.getAnnotatedObjectIndex());
+        } else {
+            model.setState(ANNOTATIONS_READY);
+            fireStateChange();
         }
     }
 
@@ -235,6 +239,18 @@ class ClipBoardComponent
         else
             firePropertyChange(ClipBoard.LOCALIZE_IMAGE_DISPLAY, null, node);
         if (index != ANNOTATION_PANEL) discardAnnotation();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getLoadingWin()
+     */
+    public LoadingWin getLoadingWin()
+    {
+        if (model.getState() == DISCARDED_ANNOTATIONS)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+        return model.getLoadingWin();
     }
     
 }

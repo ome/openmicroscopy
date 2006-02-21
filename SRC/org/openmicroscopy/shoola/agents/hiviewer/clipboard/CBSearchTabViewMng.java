@@ -108,6 +108,11 @@ class CBSearchTabViewMng
         try {
             int index = view.getSearchType();
             String regEx = view.getSearchValue();
+            if (regEx == null || regEx.length() == 0) {
+                UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
+                un.notifyInfo("Search", "No phrase to find.");
+                return;
+            }
             Pattern p = RegExFactory.createCaseInsensitivePattern(regEx);
             FindRegExCmd cmd = new FindRegExCmd(view.model.getParentModel(),
                                     p, index);

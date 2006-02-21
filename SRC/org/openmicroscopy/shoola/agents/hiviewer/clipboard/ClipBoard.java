@@ -39,6 +39,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 
@@ -85,6 +86,13 @@ public interface ClipBoard
     
     /** Identifies the <i>Discarded annotations</i> state. */
     public static final int     DISCARDED_ANNOTATIONS = 203;
+    
+    /**
+     * Returns the {@link LoadingWin}.
+     * 
+     * @return See above.
+     */
+    LoadingWin getLoadingWin();
     
     /** Any ongoing data loading is cancelled. */
     public void discard();
