@@ -143,7 +143,7 @@ public class ViewerCtrl
     /** The non-modal dialogs are removed when a new image is selected. */
     void disposeDialogs()
     {
-        if (moviePlayer != null) moviePlayer.dispose();
+        if (moviePlayer != null) moviePlayer.close();
         if (imageInspector != null) imageInspector.dispose();
         roiOnOff = false;
         presentation.removeCanvasFromLayer(presentation.getDrawingCanvas());

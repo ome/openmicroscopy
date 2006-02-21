@@ -77,6 +77,7 @@ public class Player
     
     private PlayerUI                player;
     
+    private PlayerManager           manager;
     
     /** Initializes the components. */
     private void init(ViewerCtrl control, int maxT, int maxZ, 
@@ -89,7 +90,7 @@ public class Player
             e = settings.getEndZ();
             max = maxZ;
         }
-        PlayerManager manager = new PlayerManager(this, control, max, 
+        manager = new PlayerManager(this, control, max, 
                                 settings.getMovieIndex(), s, e);
         player = new PlayerUI(manager, control.getRegistry(), maxT, maxZ, 
                             settings); 
@@ -119,6 +120,7 @@ public class Player
 	
     public void close()
     {
+        manager.stop();
         setVisible(false);
         dispose();
     }
