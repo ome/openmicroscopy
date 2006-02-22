@@ -1,18 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="ome"
-        class="org.springframework.context.support.ClassPathXmlApplicationContext">
+  <description>
+	Defines the contexts for the Omero Server. Other beanRefFactory.xmls may define
+  other contexts.  
+  </description>
+
+  <bean    id="ome.server"
+    	  class="ome.system.OmeroContext"
+    lazy-init="true">
+		<constructor-arg>
+    	<list>
+        <value>ome/services/aop.xml</value>
+      </list>
+    </constructor-arg>
+		<constructor-arg ref="ome.internal"/>
+  </bean>
+  
+  <bean    id="ome.internal"
+        class="ome.system.OmeroContext"
+    lazy-init="true">
     <constructor-arg>
       <list>
-	<!-- Arranged roughly in stack order -->
+        <!-- Arranged roughly in stack order -->
         <value>ome/services/config-local.xml</value>
-	<value>ome/services/aop.xml</value>
-	<value>ome/services/security.xml</value>
-	<value>ome/services/services.xml</value>
-	<value>ome/services/hibernate.xml</value>
-	<value>ome/services/dbcp.xml</value>
+        <value>ome/services/security.xml</value>
+        <value>ome/services/services.xml</value>
+        <value>ome/services/hibernate.xml</value>
+        <value>ome/services/dbcp.xml</value>
       </list>
     </constructor-arg>
   </bean> 
+  
  </beans>

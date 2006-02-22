@@ -39,12 +39,14 @@ package ome.logic;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 
 //Application-internal dependencies
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.system.OmeroContext;
+import ome.system.SelfConfigurableService;
 
 /**
  * service level 2
@@ -56,14 +58,16 @@ import ome.api.IUpdate;
  * </small>
  * @since OMERO 3.0
  */
-public class AbstractLevel2Service {
+public abstract class AbstractLevel2Service implements SelfConfigurableService{
 
-    private static Log log = LogFactory.getLog(AbstractLevel2Service.class);
+    protected OmeroContext ctx;
     
     protected IUpdate _update;
     
     protected IQuery _query;
 
+    protected abstract String getName();
+    
     public void setUpdateService(IUpdate update)
     {
         this._update = update;
@@ -73,5 +77,18 @@ public class AbstractLevel2Service {
     {
         this._query = query;
     }
+
+    public void setApplicationContext(ApplicationContext applicationContext) 
+        throws BeansException
+    {
+        this.ctx = (OmeroContext) applicationContext;
+    }
+    
+    public void selfConfigure()
+    {
+        this.ctx = OmeroContext.getInternalServerContext();
+        this.ctx.applyBeanPropertyValues(this,getName());
+    }
+
 }
 

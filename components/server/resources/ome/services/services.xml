@@ -43,33 +43,33 @@
 
 <beans default-lazy-init="true">	
 
-<!--	Aspects/Interceptors which catch ALL calls to our service methods
+  <!--	Aspects/Interceptors which catch ALL calls to our service methods
 			=================================================================
 			Possibilities are: tracing, logging, security, transactions, etc.
 	-->
     
 	<bean 
-    				id="abstractService" 
-    	abstract="true"
-				 class="org.springframework.aop.framework.ProxyFactoryBean">
-    
+  	 			id="managedService" 
+	    	class="org.springframework.aop.framework.ProxyFactoryBean"
+     abstract="true"
+  >
 		<property name="interceptorNames">
 			<list>
-      <!-- FIXME <value>serviceSecurity</value> -->
-			<value>exceptionHandling</value>
 			<value>logging</value>	
-      <value>hibernateFilter</value>
-      <value>hibernateInterceptor</value>
-      <value>eventHandling</value>
-<!--			
-			<value>serviceTracing</value>
-			<value>serviceTransactions</value> 
-  		<value>aop.*</value>
--->
     	</list>
     </property>
 	</bean>
-	
+
+ 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<!-- GLOBAL INTERCEPTORS -->	
+  
+	<bean 
+		       id="logging" 
+		    class="ome.aop.ReturnLogger" 
+		lazy-init="true"
+	/>    
+ 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+ 
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL ONE
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -78,45 +78,85 @@
 		<property name="hibernateTemplate" ref="hibernateTemplate"/>
   </bean>
 
-  <bean id="internal.query"  class="ome.logic.QueryImpl" parent="level1"/>
-  <bean id="queryService"  		parent="abstractService">
-    <property name="target" 					ref="internal.query"/>
-    <property name="proxyInterfaces" 	value="ome.api.IQuery"/>
-	</bean>
-  
-  <bean id="internal.update" 		class="ome.logic.UpdateImpl" parent="level1">
-    <constructor-arg ref="internal.query"/>
+  <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 
+  <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl">
+    <constructor-arg ref="ome.api.IQuery"/>
   </bean>
-  <bean id="updateService" 		parent="abstractService">
-  	<property name="target" 					ref="internal.update"/>
-    <property name="proxyInterfaces" 	value="ome.api.IUpdate"/>
-  </bean>
-
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL TWO
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     -->
   <bean id="level2">
-		<property name="updateService" 	ref="internal.update"/>
-    <property name="queryService"		ref="internal.query"/>	
+		<property name="updateService" 	ref="ome.api.IUpdate"/>
+    <property name="queryService"		ref="ome.api.IQuery"/>	
   </bean>
 
-  <bean id="internal.analysis" class="ome.logic.AnalysisImpl" parent="level2"/>
-	<bean id="analysisService" parent="abstractService">
-    <property name="target" 					ref="internal.analysis"/>
-    <property name="proxyInterfaces" 	value="ome.api.IAnalysis"/>
-	</bean>		
+  <bean parent="level2" id="ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
+  <bean parent="level2" id="ome.api.IPixels" class="ome.logic.PixelsImpl"/>
+  <bean parent="level2" id="ome.api.IPojos" class="ome.logic.PojosImpl"/>
 
-  <bean id="internal.pixels" class="ome.logic.PixelsImpl" parent="level2"/>
-  <bean id="pixelsService" parent="abstractService">
-	  <property name="target" ref="internal.pixels"/>
-    <property name="proxyInterfaces" 	value="ome.api.IPixels"/>
-	</bean>			
-    	
-  <bean id="internal.pojos" class="ome.logic.PojosImpl" parent="level2"/>
-	<bean id="pojosService" parent="abstractService">
-		<property name="target" 					ref="internal.pojos"/>
-		<property name="proxyInterfaces" 	value="ome.api.IPojos"/>
-	</bean>		
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				SERVICE LEVEL THREE
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+  <bean id="level3">
+    <property name="pixelsService"  ref="ome.api.IPixels"/>
+ 		<property name="pojosService" 	ref="ome.api.IPojos"/>
+  </bean>
 
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				FILESYSTEM SERVICES
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+  <bean name="fsService">
+		<constructor-arg value="/OME/OMEIS"/>			
+  </bean>
+  
+	<bean name="/OME/OMEIS/Pixels" class="ome.io.nio.PixelsService" 
+    parent="fsService"/>
+  
+  <bean name="/OME/OMEIS/Files"  class="ome.io.nio.OriginalFilesService"
+    parent="fsService"/>
+
+  <bean singleton="false"
+        id="omeis.providers.re.RenderingEngine" 
+     class="omeis.providers.re.RenderingEngineImpl">
+      <property name="pixelsMetadata" ref="ome.api.IPixels"/>
+      <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
+  </bean>
+
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				PROXIES
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+  
+   <!-- 1 -->
+  <bean id="queryService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IQuery"/>
+    <property name="target" ref="ome.api.IQuery"/>
+  </bean>  
+  <bean id="updateService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IUpdate"/>
+    <property name="target" ref="ome.api.IUpdate"/>
+  </bean>
+  <!-- 2 -->
+  <bean id="analysisService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IAnalysis"/>
+    <property name="target" ref="ome.api.IAnalysis"/>
+  </bean>
+  <bean id="pixelsService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IPixels"/>
+    <property name="target" ref="ome.api.IPixels"/>
+  </bean>
+  <bean id="pojosService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IPojos"/>
+    <property name="target" ref="ome.api.IPojos"/>
+  </bean>
+  <!-- FS -->
+  <bean id="renderService" parent="managedService">
+    <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
+    <property name="target" ref="omeis.providers.re.RenderingEngine"/>
+  </bean>
+          
+  
 </beans>

@@ -39,15 +39,13 @@ package ome.logic;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
-
+import ome.system.OmeroContext;
+import ome.system.SelfConfigurableService;
 
 
 /**
@@ -60,16 +58,22 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * </small>
  * @since OMERO 3.0
  */
-public class AbstractLevel1Service extends HibernateDaoSupport 
-    implements ApplicationContextAware {
+public abstract class AbstractLevel1Service extends HibernateDaoSupport 
+    implements SelfConfigurableService {
 
-    private static Log log = LogFactory.getLog(AbstractLevel1Service.class);
+    protected OmeroContext ctx;
+
+    protected abstract String getName();
     
-    protected ApplicationContext ctx;
-
     public void setApplicationContext(ApplicationContext appCtx) throws BeansException
     {
-        this.ctx = appCtx;
+        this.ctx = (OmeroContext) appCtx;
+    }
+
+    public void selfConfigure()
+    {
+        this.ctx = OmeroContext.getInternalServerContext();
+        this.ctx.applyBeanPropertyValues(this,getName());
     }
 }
 

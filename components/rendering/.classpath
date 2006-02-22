@@ -1,11 +1,11 @@
 <classpath>
 	<classpathentry kind="output" path="target/classes"/>
 	<classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>
-	<classpathentry excluding="**/.svn" kind="src" path="resources" />
 	<classpathentry excluding="**/.svn" kind="src" path="src" />
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated-sources/resources" />
+	<classpathentry excluding="**/.svn" kind="src" path="resources" />
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src" />
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources" />
 	<classpathentry excluding="**/.svn" kind="src" path="test" output="target/test-classes"/>
-	<classpathentry excluding="**/.svn" kind="src" path="test-resources" output="target/test-classes"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/caucho/burlap/2.1.12/burlap-2.1.12.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/caucho/hessian/2.1.12/hessian-2.1.12.jar"/>

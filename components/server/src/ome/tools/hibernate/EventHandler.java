@@ -31,13 +31,18 @@ package ome.tools.hibernate;
 // Java imports
 
 // Third-party libraries
+import java.sql.SQLException;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 import ome.api.IQuery;
@@ -61,14 +66,11 @@ public class EventHandler implements MethodInterceptor
 
     private static Log       log = LogFactory.getLog(EventHandler.class);
 
-    protected IQuery _qu;
-    
-    protected SessionFactory sf;
+    protected HibernateTemplate ht;
 
-    public EventHandler(SessionFactory factory, IQuery query)
+    public EventHandler(HibernateTemplate template)
     {
-        this.sf = factory;
-        this._qu = query;
+        this.ht = template;
     }
 
     /**
@@ -76,26 +78,24 @@ public class EventHandler implements MethodInterceptor
      */
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
-
-        Session session = SessionFactoryUtils.getSession(this.sf, false);
-        try
-        {
             Experimenter o = 
-                (Experimenter) _qu.getById(Experimenter.class,0);
+                (Experimenter) ht.load(Experimenter.class,0);
             ExperimenterGroup g = 
-                (ExperimenterGroup) _qu.getById(ExperimenterGroup.class,0);
+                (ExperimenterGroup) ht.load(ExperimenterGroup.class,0);
             CurrentDetails.setOwner(o);
             CurrentDetails.setGroup(g);
-            EventType test = 
-                (EventType) _qu.getUniqueByFieldEq(EventType.class,"value","Test");
+            
+            EventType test = (EventType) ht.execute(new HibernateCallback(){
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    Query q = session.createQuery(
+                            "from EventType where value = 'Test'");
+                    return q.uniqueResult();
+                }
+            });
             CurrentDetails.newEvent(test);
             
             return arg0.proceed();
-            
-        } catch (HibernateException ex)
-        {
-            throw SessionFactoryUtils.convertHibernateAccessException(ex);
-        }
     
     }
 

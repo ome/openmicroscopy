@@ -83,6 +83,12 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
+    @Override
+    protected String getName()
+    {
+        return IPojos.class.getName();
+    }
+    
     // ~ READ
     // =========================================================================
     

@@ -44,8 +44,7 @@
 <beans>	
 
   <bean id="eventHandling" class="ome.tools.hibernate.EventHandler">
-    <constructor-arg ref="sessionFactory"/>
-    <constructor-arg ref="internal.query"/>
+    <constructor-arg ref="hibernateTemplate"/>
   </bean>
   
 	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter"/>

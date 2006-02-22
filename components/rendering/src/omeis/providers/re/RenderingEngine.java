@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import ome.model.core.PixelsDimensions;
 import ome.model.display.QuantumDef;
+import ome.system.SelfConfigurableService;
 
 //Third-party libraries
 
@@ -78,7 +79,7 @@ import omeis.providers.re.quantum.QuantizationException;
  * </small>
  * @since OME2.2
  */
-public interface RenderingEngine
+public interface RenderingEngine extends SelfConfigurableService
 {
 
     /**

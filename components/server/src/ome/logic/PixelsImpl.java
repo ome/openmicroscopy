@@ -42,6 +42,7 @@ import org.acegisecurity.userdetails.User;
 import org.hibernate.Query;
 
 //Application-internal dependencies
+import ome.api.IPixels;
 import ome.model.meta.Experimenter;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -62,11 +63,17 @@ import ome.model.display.RenderingDef;
  * @since OME2.2
  */
 class PixelsImpl extends AbstractLevel2Service
-    implements ome.api.IPixels
+    implements IPixels
 {
 
 	private static Log log = LogFactory.getLog(PixelsImpl.class);
-	
+
+    @Override
+    protected String getName()
+    {
+        return IPixels.class.getName();
+    }
+    
 	public Pixels retrievePixDescription(long pixId) {
 		Pixels p = (Pixels) _query.getById(Pixels.class, pixId);
 		return p;

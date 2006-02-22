@@ -56,9 +56,11 @@ public class AbstractUpdateTest
     protected void onSetUpBeforeTransaction() throws Exception
     {
         _sf = (SessionFactory) applicationContext.getBean("sessionFactory");
-        _qu = (IQuery) applicationContext.getBean("internal.query");
-        _up = (IUpdate) applicationContext.getBean("internal.update");
         _jt = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
+        
+        // This is an internal test we don't want the wrapped spring beans. 
+        _qu = (IQuery) applicationContext.getBean("ome.api.IQuery");
+        _up = (IUpdate) applicationContext.getBean("ome.api.IUpdate");
 
     }
 

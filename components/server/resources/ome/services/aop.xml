@@ -36,31 +36,86 @@
 <!--
 
 	AOP Components, where not defined elsewhere 
-	(security.xml or dao.xml for example)
+	(security.xml or hibernate.xml for example)
  
 -->
 
 <beans>	
-	
+
+  <!--	Aspects/Interceptors which catch MANAGED calls to our service methods
+			=======================================================================
+			Possibilities are: tracing, logging, security, transactions, etc.
+      Compare to similar definition in services.xml
+	-->
+    
+	<bean 
+  	 			id="managedService" 
+	    	class="org.springframework.aop.framework.ProxyFactoryBean"
+     abstract="true"
+  >
+		<property name="interceptorNames">
+			<list>
+      <!-- FIXME <value>serviceSecurity</value> -->
+			<value>exceptionHandling</value>
+			<value>logging</value>	
+      <value>hibernateFilter</value>
+      <value>hibernateInterceptor</value>
+      <value>eventHandling</value>
+<!--			
+			<value>serviceTracing</value>
+			<value>serviceTransactions</value> 
+  		<value>aop.*</value>
+-->
+    	</list>
+    </property>
+	</bean>
+  
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<!-- INTERCEPTORS -->	
+	<!-- MANAGEMENT INTERCEPTORS -->	
 	<bean 
 		       id="serviceTracing" 
 		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
 		lazy-init="true"
 	/>
 
-	<bean 
-		       id="logging" 
-		    class="ome.aop.ReturnLogger" 
-		lazy-init="true"
-	/>
-
 	<bean
-		       id="exceptionHandling"
-	    	    class="ome.aop.ExceptionHandler"
-		lazy-init="true"
+           id="exceptionHandling"
+        class="ome.aop.ExceptionHandler"
+    lazy-init="true"
 	/>
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				PROXIES (Overrides)
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+  
+   <!-- 1 -->
+  <bean id="queryService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IQuery"/>
+    <property name="target" ref="ome.api.IQuery"/>
+  </bean>  
+  <bean id="updateService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IUpdate"/>
+    <property name="target" ref="ome.api.IUpdate"/>
+  </bean>
+  <!-- 2 -->
+  <bean id="analysisService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IAnalysis"/>
+    <property name="target" ref="ome.api.IAnalysis"/>
+  </bean>
+  <bean id="pixelsService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IPixels"/>
+    <property name="target" ref="ome.api.IPixels"/>
+  </bean>
+  <bean id="pojosService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IPojos"/>
+    <property name="target" ref="ome.api.IPojos"/>
+  </bean>
+  <!-- FS -->
+  <bean id="renderService" parent="managedService">
+    <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
+    <property name="target" ref="omeis.providers.re.RenderingEngine"/>
+  </bean>
+          
 </beans>

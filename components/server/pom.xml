@@ -13,7 +13,7 @@
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>rendering</artifactId>
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
     <dependency>

@@ -55,6 +55,7 @@ import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 // Application-internal dependencies
 import ome.api.IQuery;
+import ome.api.IUpdate;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.meta.Event;
@@ -74,6 +75,11 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 {
 
     private static Log log = LogFactory.getLog(UpdateImpl.class);
+
+    @Override
+    protected String getName() {
+        return IUpdate.class.getName();
+    };
     
     protected IQuery query;
     

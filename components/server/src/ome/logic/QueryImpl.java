@@ -71,6 +71,12 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
 
     private static Log log = LogFactory.getLog(QueryImpl.class);
 
+    @Override
+    protected String getName()
+    {
+        return IQuery.class.getName();
+    }
+    
     // ~ NON-INTERFACE PUBLIC METHODS
     // =========================================================================
     

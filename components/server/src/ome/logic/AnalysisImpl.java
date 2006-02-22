@@ -74,6 +74,12 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 
     private static Log log = LogFactory.getLog(AnalysisImpl.class);
 
+    @Override
+    protected String getName()
+    {
+        return IAnalysis.class.getName();
+    }
+    
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
 	public Set getProjectsForUser(long experimenterId) {
