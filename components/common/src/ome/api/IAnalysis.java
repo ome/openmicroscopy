@@ -46,7 +46,7 @@ import java.util.Set;
  *          </small>
  * @since OME1.0
  */
-public interface IAnalysis {
+public interface IAnalysis extends ServiceInterface{
 
 	// TODO plural arguments for each
 	public Set getProjectsForUser(long experimenterId); // TODO or map?

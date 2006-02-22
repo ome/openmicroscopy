@@ -52,7 +52,7 @@ import ome.model.display.RenderingDef;
  * </small>
  * @since OME2.2
  */
-public interface IPixels
+public interface IPixels extends ServiceInterface
 {
 
     /**

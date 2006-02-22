@@ -117,7 +117,7 @@ import ome.model.IObject;
  * @DEV.TODO add throws statements where necessary (IllegalArgument, ...)
  *
  */
-public interface IPojos {
+public interface IPojos extends ServiceInterface {
 
     // ~ READ API
     // =========================================================================

@@ -64,7 +64,7 @@ import ome.model.IObject;
  * @since OMERO3.0
  *
  */
-public interface IResults {
+public interface IResults extends ServiceInterface {
 	
 	/* Definiftions to make this compile */
 	static class PixelSet {} // also known as RoiSets

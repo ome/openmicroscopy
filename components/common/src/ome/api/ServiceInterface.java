@@ -1,5 +1,5 @@
 /*
- * ome.api.IUpdate
+ * ome.api.ServiceInterface
  *
  *------------------------------------------------------------------------------
  *
@@ -30,36 +30,19 @@
 package ome.api;
 
 // Java imports
-import java.util.Collection;
-import java.util.Map;
 
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.model.IObject;
 
 /**
- * Provides methods for directly updating object graphs. 
+ * Marker interface representing an OMERO API Interface.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
  *          </small>
- * @since OMERO3.0
+ * @since OME3.0
  */
-public interface IUpdate extends ServiceInterface {
-
-    void saveCollection(Collection graph);
-    void saveObject(IObject graph);
-    void saveMap(Map graph);
-    void saveArray(IObject[] graph);
- 
-    Collection  saveAndReturnCollection(Collection graph);
-    Map         saveAndReturnMap(Map map);
-    IObject     saveAndReturnObject(IObject graph);
-    IObject[]   saveAndReturnArray(IObject[] graph);
-
-    void deleteObject(IObject row);
-    
-}
+public interface ServiceInterface { }

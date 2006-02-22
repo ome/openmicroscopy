@@ -49,7 +49,7 @@ import java.util.Map;
  * </small>
  * @since 3.0
  */
-public interface IQuery {
+public interface IQuery extends ServiceInterface {
     
     // ~ Simple Queries
     Object getById(Class klazz, long id);
