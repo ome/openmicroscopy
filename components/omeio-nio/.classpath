@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry sourcepath="JRE_SRC" kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB"/>
-	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated-sources/resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test"/>
-	<classpathentry excluding="**/.svn" output="target/test-classes" kind="src" path="test-resources"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
@@ -33,10 +33,10 @@
 	<classpathentry sourcepath="/OMERO_HOME/components/common/src" kind="var" path="M2_REPO/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
-	<classpathentry sourcepath="/OMERO_HOME/components/server/src" kind="var" path="M2_REPO/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
-	<classpathentry sourcepath="/HIBERNATE_HOME/src" kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
-	<classpathentry sourcepath="/SPRING_HOME/src" kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m2/spring-hibernate3-2.0-m2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m2/spring-hibernate3-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-m2/spring-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>

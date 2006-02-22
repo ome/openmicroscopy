@@ -8,9 +8,9 @@
 		<attribute name="target"/>
 		<sequential>
 		<antRun component="common">    <target name="@{target}"/> </antRun>
-		<antRun component="server">    <target name="@{target}"/> </antRun>
 		<antRun component="omeio-nio"> <target name="@{target}"/> </antRun>
 		<antRun component="rendering"> <target name="@{target}"/> </antRun>
+		<antRun component="server">    <target name="@{target}"/> </antRun>
 		<antRun component="client">    <target name="@{target}"/> </antRun>
 		<antRun component="shoola-adapter"><target name="@{target}"/> </antRun>
 		</sequential>
