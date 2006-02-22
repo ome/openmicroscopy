@@ -66,6 +66,7 @@ public class EventHandler implements MethodInterceptor
 
     private static Log       log = LogFactory.getLog(EventHandler.class);
 
+    // TODO Do we need to get rid of this?
     protected HibernateTemplate ht;
 
     public EventHandler(HibernateTemplate template)
@@ -78,24 +79,17 @@ public class EventHandler implements MethodInterceptor
      */
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
-            Experimenter o = 
-                (Experimenter) ht.load(Experimenter.class,0);
-            ExperimenterGroup g = 
-                (ExperimenterGroup) ht.load(ExperimenterGroup.class,0);
-            CurrentDetails.setOwner(o);
-            CurrentDetails.setGroup(g);
+        
+        if (CurrentDetails.getOwner() == null )
+            throw new RuntimeException("Current owner must be set.");
+        
+        if (CurrentDetails.getGroup() == null )
+            throw new RuntimeException("Current group must be set.");
+        
+        if (CurrentDetails.getCreationEvent() == null )
+            throw new RuntimeException("Current event must be set.");
             
-            EventType test = (EventType) ht.execute(new HibernateCallback(){
-                public Object doInHibernate(Session session) throws HibernateException, SQLException
-                {
-                    Query q = session.createQuery(
-                            "from EventType where value = 'Test'");
-                    return q.uniqueResult();
-                }
-            });
-            CurrentDetails.newEvent(test);
-            
-            return arg0.proceed();
+        return arg0.proceed();
     
     }
 
