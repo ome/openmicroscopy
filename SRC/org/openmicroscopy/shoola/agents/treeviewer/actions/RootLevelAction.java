@@ -58,18 +58,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class RootLevelAction
 	extends TreeViewerAction
 {
-
-    /** 
-     * Name of the action if the {@link #rootLevel} is 
-     * {@link TreeViewer#WORLD_ROOT}. 
-     */
-    private static final String NAME_WORLD = "World";
-    
-    /** 
-     * Description of the action if the {@link #rootLevel} is 
-     * {@link TreeViewer#WORLD_ROOT}. 
-     */
-    private static final String DESCRIPTION_WORLD = "Reads any hierarchy.";
     
     /** 
      * Name of the action if the {@link #rootLevel} is 
@@ -113,11 +101,6 @@ public class RootLevelAction
     private void setValues(String name)
     {
         switch (rootLevel) {
-	        case TreeViewer.WORLD_ROOT:
-	            putValue(Action.NAME, NAME_WORLD);
-	        	putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION_WORLD));
-	            break;
 	        case TreeViewer.USER_ROOT:
 	            putValue(Action.NAME, NAME_USER);
         		putValue(Action.SHORT_DESCRIPTION, 
@@ -134,18 +117,12 @@ public class RootLevelAction
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     * @param rootLevel One of the following constants:
-     * 					 	{@link TreeViewer#WORLD_ROOT} and
-     * 						{@link TreeViewer#USER_ROOT}.
+     * @param model     Reference to the Model. Mustn't be <code>null</code>.
      */
-    public RootLevelAction(TreeViewer model, int rootLevel)
+    public RootLevelAction(TreeViewer model)
     {
         super(model);
-        if ((rootLevel != TreeViewer.WORLD_ROOT) &&
-                (rootLevel != TreeViewer.USER_ROOT))
-            throw new IllegalArgumentException("Root level not supported.");
-        this.rootLevel = rootLevel;
+        this.rootLevel = TreeViewer.USER_ROOT;
         rootID = -1;
         setValues(null);
         setEnabled(true);
