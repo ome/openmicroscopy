@@ -138,7 +138,8 @@ public class CreateAction
                         nodeType = CreateCmd.CATEGORY_GROUP;
                         break;
                     case Browser.IMAGES_EXPLORER:
-                        setEnabled(true);
+                        //setEnabled(true);
+                        setEnabled(false);
                         putValue(Action.NAME, NAME_IMAGE); 
                 } 
             } else setEnabled(false);
