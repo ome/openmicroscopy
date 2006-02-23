@@ -137,10 +137,13 @@ public class HiViewerAgent
      * @param eventIndex 	One of the constant defined by the {@link Browser}
      * 						class event.
      * @param id    		The id of the dataObject to browse.
-     * @param rootLevel     The level of the root.
+     * @param rootLevel     The level of the root either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
      * @param rootID        The Id of the root.
      */
-    public static void browse(int eventIndex, int id, int rootLevel, int rootID)
+    public static void browse(int eventIndex, int id, Class rootLevel, 
+                                int rootID)
     {
         HiViewer viewer = null;
         switch (eventIndex) {

@@ -88,7 +88,8 @@ public class PDILoader
      */
     public void load()
     {
-        handle = hiBrwView.findPDIHierarchies(images, this);
+        handle = hiBrwView.findPDIHierarchies(images, viewer.getRootLevel(),
+                                                getRootID(), this);
     }
     
     /** 

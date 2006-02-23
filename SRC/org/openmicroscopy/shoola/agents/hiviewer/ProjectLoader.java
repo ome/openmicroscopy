@@ -89,7 +89,7 @@ public class ProjectLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(ProjectData.class, projectID,
-                            viewer.getRootLevel(), viewer.getRootID(), this);
+                            viewer.getRootLevel(), getRootID(), this);
     }
     
     /** 

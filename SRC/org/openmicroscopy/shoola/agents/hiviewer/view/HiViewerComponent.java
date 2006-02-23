@@ -333,7 +333,7 @@ class HiViewerComponent
      * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#getRootLevel()
      */
-    public int getRootLevel()
+    public Class getRootLevel()
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(

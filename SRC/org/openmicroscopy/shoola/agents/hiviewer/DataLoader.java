@@ -36,9 +36,12 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link HiViewer}.
@@ -89,6 +92,23 @@ public abstract class DataLoader
         registry = HiViewerAgent.getRegistry();
         hiBrwView = (HierarchyBrowsingView) registry.
                     getDataServicesView(HierarchyBrowsingView.class);
+    }
+    
+    /**
+     * Determines the rootID depending on the rootLevel.
+     *     
+     * @return See above.
+     */
+    protected int getRootID()
+    {
+        Class root = viewer.getRootLevel();
+        if (root.equals(ExperimenterData.class)) {
+            ExperimenterData exp = (ExperimenterData) 
+            registry.lookup(LookupNames.CURRENT_USER_DETAILS);
+            return exp.getId();  
+        } else if (root.equals(GroupData.class)) 
+            return viewer.getRootID();
+        throw new IllegalArgumentException("Level not supported");
     }
     
     /**

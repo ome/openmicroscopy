@@ -87,7 +87,7 @@ public class DatasetLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(DatasetData.class, datasetID, 
-                              viewer.getRootLevel(), viewer.getRootID(), this);
+                              viewer.getRootLevel(), getRootID(), this);
     }
     
     /** Cancels the data loading. */

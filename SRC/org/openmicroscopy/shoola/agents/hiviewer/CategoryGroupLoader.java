@@ -89,7 +89,7 @@ public class CategoryGroupLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(CategoryGroupData.class, cgID, 
-                            viewer.getRootLevel(), viewer.getRootID(), this);
+                            viewer.getRootLevel(), getRootID(), this);
     }
     
     /** 

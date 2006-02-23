@@ -81,11 +81,13 @@ public class HiViewerFactory
      * rooted by the specified Project.
      * 
      * @param projectID The id of the Project root node.
-     * @param rootLevel The level of the root.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
      * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Project.
      */
-    public static HiViewer getProjectViewer(int projectID, int rootLevel,
+    public static HiViewer getProjectViewer(int projectID, Class rootLevel,
                                             int rootID)
     {
         HiViewerModel model = new ProjectModel(projectID);
@@ -98,11 +100,13 @@ public class HiViewerFactory
      * rooted by the specified Dataset.
      * 
      * @param datasetID The id of the Dataset root node.
-     * @param rootLevel The level of the root.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
      * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Dataset.
      */
-    public static HiViewer getDatasetViewer(int datasetID, int rootLevel,
+    public static HiViewer getDatasetViewer(int datasetID, Class rootLevel,
                                             int rootID)
     {
         HiViewerModel model = new DatasetModel(datasetID);
@@ -114,12 +118,14 @@ public class HiViewerFactory
      * Returns a viewer to display the Category Group/Category/Image hierarchy
      * rooted by the specified Category Group.
      * 
-     * @param cgID The id of the Category Group root node.
-     * @param rootLevel The level of the root.
+     * @param cgID      The id of the Category Group root node.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
      * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Category Group.
      */
-    public static HiViewer getCategoryGroupViewer(int cgID, int rootLevel,
+    public static HiViewer getCategoryGroupViewer(int cgID, Class rootLevel,
                                                 int rootID)
     {
         HiViewerModel model = new CategoryGroupModel(cgID);
@@ -131,12 +137,14 @@ public class HiViewerFactory
      * Returns a viewer to display the Category/Image hierarchy
      * rooted by the specified Category.
      * 
-     * @param categoryID The id of the Category root node.
-     * @param rootLevel The level of the root.
-     * @param rootID    The Id of the root.
+     * @param categoryID    The id of the Category root node.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootID        The Id of the root.
      * @return A {@link HiViewer} component for the specified Category.
      */
-    public static HiViewer getCategoryViewer(int categoryID, int rootLevel,
+    public static HiViewer getCategoryViewer(int categoryID, Class rootLevel,
                                             int rootID)
     {
         HiViewerModel model = new CategoryModel(categoryID);

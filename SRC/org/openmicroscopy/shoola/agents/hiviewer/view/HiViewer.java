@@ -343,11 +343,12 @@ public interface HiViewer
     public TreeView getTreeView();
     
     /**
-     * Returns the level of the root. 
+     * Returns the level of the root, <code>GroupData</code> or 
+     * <code>ExperimenterData</code>.
      * 
      * @return See above.
      */
-    public int getRootLevel();
+    public Class getRootLevel();
     
     /**
      * Returns the ID of the root. 

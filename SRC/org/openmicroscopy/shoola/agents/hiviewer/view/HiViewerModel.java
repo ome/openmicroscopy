@@ -78,8 +78,11 @@ import pojos.ExperimenterData;
 abstract class HiViewerModel
 {
     
-    /** The level of the root. */
-    private int                 rootLevel;
+    /** 
+     * The level of the root either <code>GroupData</code> or 
+     * <code>ExperimenterData</code>.
+     */
+    private Class               rootLevel;
     
     /** The id of the root. */
     private int                 rootID;
@@ -138,10 +141,12 @@ abstract class HiViewerModel
     /**
      * Sets the root level and its id.
      * 
-     * @param rootLevel The root level.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
      * @param rootID    The root ID.
      */
-    void setRootLevel(int rootLevel, int rootID)
+    void setRootLevel(Class rootLevel, int rootID)
     {
         this.rootLevel = rootLevel;
         this.rootID = rootID;
@@ -152,7 +157,7 @@ abstract class HiViewerModel
      * 
      * @return See above.
      */
-    int getRootLevel() { return rootLevel; }
+    Class getRootLevel() { return rootLevel; }
     
     /**
      * Returns the ID of the root. 

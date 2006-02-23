@@ -88,7 +88,7 @@ public class CategoryLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(CategoryData.class, categoryID,
-                               viewer.getRootLevel(), viewer.getRootID(), this);
+                               viewer.getRootLevel(), getRootID(), this);
     }
     
     /** 
