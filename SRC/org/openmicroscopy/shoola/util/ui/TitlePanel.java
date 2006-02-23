@@ -132,6 +132,7 @@ public class TitlePanel
         this.text = new MultilineLabel(text);
         this.graphx = (graphx == null ? new JLabel() : graphx);
         hLine = new JSeparator();
+        setOpaque(true);
         buildGUI();
     }
     
