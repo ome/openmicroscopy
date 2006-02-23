@@ -59,29 +59,6 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroPojoService#loadContainerHierarchy(Class, Set, boolean, int,
-     * 												int)
-     */
-    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs, 
-            boolean withLeaves, int rootLevel, int rootLevelID)
-    	throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroPojoService#findContainerHierarchy(Class, Set, int, int)
-     */
-    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
-            						int rootLevel, int rootLevelID)
-    	throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
      * @see OmeroPojoService#findAnnotations(Class, Set, boolean)
      */
     public Map findAnnotations(Class nodeType, Set nodeIDs, boolean history)
@@ -96,17 +73,6 @@ public class NullOmeroPojoService
      */
     public Set findCGCPaths(Set imgIDs, int algorithm) 
     	throws DSOutOfServiceException, DSAccessException 
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroPojoService#getImages(Class, Set, int, int)
-     */
-    public Set getImages(Class nodeType, Set nodeIDs, int rootLevel, 
-            			int rootLevelID)
-    	throws DSOutOfServiceException, DSAccessException
     {
         return null;
     }
@@ -129,6 +95,43 @@ public class NullOmeroPojoService
             						Set rootNodeIDs)
     	throws DSOutOfServiceException, DSAccessException
     {
+        return null;
+    }
+
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#loadContainerHierarchy(Class, Set, boolean, Class, 
+     *                                              int)
+     */
+    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs, 
+            boolean withLeaves, Class rootLevel, int rootLevelID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#findContainerHierarchy(Class, Set, Class, int)
+     */
+    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs, 
+            Class rootLevel, int rootLevelID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * No-op implementation
+     * @see OmeroPojoService#getImages(Class, Set, Class, int)
+     */
+    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
+                        int rootLevelID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
         return null;
     }
 
