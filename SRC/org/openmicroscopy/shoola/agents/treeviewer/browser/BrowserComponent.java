@@ -551,8 +551,11 @@ class BrowserComponent
         if (!display.hasChildrenDisplay()) return;
         TreeImageDisplay root = view.getTreeRoot();
         display.removeAllChildrenDisplay();
-        if (root.equals(display)) loadData();
-        else model.refreshSelectedDisplay();
+        if (root.equals(display)) {
+            if (model.getBrowserType() == IMAGES_EXPLORER)
+                loadFilteredImagesForHierarchy();
+            else loadData();
+        } else model.refreshSelectedDisplay();
         fireStateChange();
     }
 
