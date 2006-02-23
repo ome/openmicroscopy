@@ -43,6 +43,7 @@ import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Implementation of the {@link OmeroPojoService} I/F.
@@ -84,18 +85,16 @@ class OmeroPojoServiceImpl
      * level and ID.
      * 
      * @param po		The {@link PojoOptions} to handle.
-     * @param rootLevel	The level of the root. One of the following constants:
-     * 					{@link OmeroPojoService#WORLD_HIERARCHY_ROOT},
-     * 					{@link OmeroPojoService#GROUP_HIERARCHY_ROOT} and
-     * 					{@link OmeroPojoService#USER_HIERARCHY_ROOT}.
+     * @param rootLevel	The level of the root, either {@link GroupData}, 
+     *                  {@link ExperimenterData}.
      * @param rootID	The ID of the root if needed.
      */
-    private void setRootOptions(PojoOptions po, int rootLevel, int rootID)
+    private void setRootOptions(PojoOptions po, Class rootLevel, int rootID)
     {
-        if (rootLevel == OmeroPojoService.GROUP_HIERARCHY_ROOT)
+        if (rootLevel.equals(GroupData.class))
             po.grp(new Integer(rootID));
-        else if (rootLevel == OmeroPojoService.USER_HIERARCHY_ROOT)            
-            po.exp(new Integer(getUserDetails().getId()));
+        else if (rootLevel.equals(ExperimenterData.class))           
+            po.exp(new Integer(rootID));
     }
     
     /**
@@ -134,11 +133,11 @@ class OmeroPojoServiceImpl
     
     /** 
      * Implemented as specified by {@link OmeroPojoService}. 
-     * @see OmeroPojoService#loadContainerHierarchy(Class, Set, boolean, int, 
+     * @see OmeroPojoService#loadContainerHierarchy(Class, Set, boolean, Class, 
      * 												int)
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-                                    boolean withLeaves, int rootLevel, 
+                                    boolean withLeaves, Class rootLevel, 
                                     int rootLevelID)
         throws DSOutOfServiceException, DSAccessException 
     {
@@ -153,10 +152,10 @@ class OmeroPojoServiceImpl
 
     /** 
      * Implemented as specified by {@link OmeroPojoService}. 
-     * @see OmeroPojoService#findContainerHierarchy(Class, Set, int, int)
+     * @see OmeroPojoService#findContainerHierarchy(Class, Set, Class, int)
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs, 
-            						int rootLevel, int rootLevelID)
+                                    Class rootLevel, int rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
@@ -198,9 +197,9 @@ class OmeroPojoServiceImpl
     
     /** 
      * Implemented as specified by {@link OmeroPojoService}. 
-     * @see OmeroPojoService#getImages(Class, Set, int, int)
+     * @see OmeroPojoService#getImages(Class, Set, Class, int)
      */
-    public Set getImages(Class nodeType, Set nodeIDs, int rootLevel, 
+    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             			int rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {

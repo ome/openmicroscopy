@@ -72,12 +72,12 @@ class DataManagerViewImpl
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#loadContainerHierarchy(Class, Set, boolean, 
-     * 						int, int, AgentEventListener)
+     * 						Class, int, AgentEventListener)
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set rootNodeIDs,
                                             boolean withLeaves,
-                                            int rootLevel,
+                                            Class rootLevel,
                                             int rootLevelID,
                                             AgentEventListener observer)
     {
@@ -98,9 +98,10 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#getImages(Class, Set, int, int, AgentEventListener)
+     * @see DataManagerView#getImages(Class, Set, Class, int,
+     *                              AgentEventListener)
      */
-    public CallHandle getImages(Class nodeType, Set nodeIDs, int rootLevel,
+    public CallHandle getImages(Class nodeType, Set nodeIDs, Class rootLevel,
             					int rootLevelID, AgentEventListener observer)
     {
         BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, rootLevel, 
@@ -160,17 +161,40 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#updateObjectAndAnnotation(DataObject, 
-     * 					AnnotationData, int, AgentEventListener)
+     * @see DataManagerView#updateObjectCreateAnnotation(DataObject, 
+     * 					AnnotationData, AgentEventListener)
      */
-    public CallHandle updateObjectAndAnnotation(DataObject userObject,
-            AnnotationData data, int operation, AgentEventListener observer)
+    public CallHandle updateObjectCreateAnnotation(DataObject userObject,
+            AnnotationData data, AgentEventListener observer)
     {
-        int op = -1;
-        if (operation == CREATE_ANNOTATION) op = DataObjectEditor.CREATE;
-        else if (operation == UPDATE_ANNOTATION) op = DataObjectEditor.UPDATE;
-        else if (operation == DELETE_ANNOTATION) op = DataObjectEditor.REMOVE;
-        BatchCallTree cmd = new DataObjectEditor(userObject, data, op);
+        BatchCallTree cmd = new DataObjectEditor(userObject, data,
+                                                DataObjectEditor.CREATE);
+        return cmd.exec(observer); 
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#updateObjectUpdateAnnotation(DataObject, 
+     *                  AnnotationData, AgentEventListener)
+     */
+    public CallHandle updateObjectUpdateAnnotation(DataObject userObject,
+            AnnotationData data, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectEditor(userObject, data,
+                                                DataObjectEditor.UPDATE);
+        return cmd.exec(observer); 
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#updateObjectDeleteAnnotation(DataObject, 
+     *                  AnnotationData, AgentEventListener)
+     */
+    public CallHandle updateObjectDeleteAnnotation(DataObject userObject,
+            AnnotationData data, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectEditor(userObject, data, 
+                                                DataObjectEditor.REMOVE);
         return cmd.exec(observer); 
     }
     

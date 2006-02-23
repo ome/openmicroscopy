@@ -71,11 +71,11 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadHierarchy(Class, int, int, int, 
+     * @see HierarchyBrowsingView#loadHierarchy(Class, int, Class, int, 
      *                                      AgentEventListener)
      */
     public CallHandle loadHierarchy(Class rootNodeType, int nodeID, 
-                                    int rootLevel, int rootID,
+                                    Class rootLevel, int rootID,
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodeID, rootLevel,
@@ -99,21 +99,27 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findPDIHierarchies(Set, AgentEventListener)
+     * @see HierarchyBrowsingView#findPDIHierarchies(Set, Class, int, 
+     *                                              AgentEventListener)
      */
-    public CallHandle findPDIHierarchies(Set ids, AgentEventListener observer)
+    public CallHandle findPDIHierarchies(Set ids, Class rootLevel, int rootID,
+                                        AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids);
+        BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids, 
+                                                rootLevel, rootID);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findCGCIHierarchies(Set, AgentEventListener)
+     * @see HierarchyBrowsingView#findCGCIHierarchies(Set, Class, int,
+     *                                              AgentEventListener)
      */
-    public CallHandle findCGCIHierarchies(Set ids, AgentEventListener observer)
+    public CallHandle findCGCIHierarchies(Set ids, Class rootLevel, int rootID, 
+                                        AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyFinder(CategoryGroupData.class, ids);
+        BatchCallTree cmd = new HierarchyFinder(CategoryGroupData.class, ids, 
+                                                rootLevel, rootID);
         return cmd.exec(observer);
     }
 

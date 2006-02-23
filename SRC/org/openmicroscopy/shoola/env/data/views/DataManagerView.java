@@ -79,42 +79,6 @@ public interface DataManagerView
     public static final int CLASSIFICATION_NME = 
                             OmeroPojoService.CLASSIFICATION_NME;
     
-    /** 
-     * Indicates the root of the retrieved data is the <code>World</code>
-     * i.e. any user in the system.
-     */
-    public static final int	WORLD_HIERARCHY_ROOT = 0;
-    
-    /** 
-     * Indicates the root of the retrieved data is the <code>Group</code>
-     * i.e. one of the groups the current user belongs to.
-     */
-    public static final int	GROUP_HIERARCHY_ROOT = 1;
-    
-    /** 
-     * Indicates the root of the retrieved data is the <code>User</code>
-     * i.e. the current user.
-     */
-    public static final int	USER_HIERARCHY_ROOT = 2;
-    
-    /** 
-     * Indicates to create an annotation for the <code>DataObject</code> to
-     * update.
-     */
-    public static final int CREATE_ANNOTATION = 100;
-    
-    /** 
-     * Indicates to update the annotation for the <code>DataObject</code> to
-     * update.
-     */
-    public static final int UPDATE_ANNOTATION = 101;
-    
-    /** 
-     * Indicates to delete the annotation for the <code>DataObject</code> to
-     * update.
-     */
-    public static final int DELETE_ANNOTATION = 102;
-    
     /**
      * Retrieves the hierarchies specified by the 
      * parameters.
@@ -125,18 +89,16 @@ public interface DataManagerView
      * @param rootNodeIDs   A set of the IDs of top-most containers.
      * @param withLeaves    Passes <code>true</code> to retrieve the images.
      *                      <code>false</code> otherwise.   
-     * @param rootLevel		The level of the hierarchy, one of the constants
-     * 						defined by this class.
-     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
-     * 						if the rootLevel is either 
-     * 						{@link #WORLD_HIERARCHY_ROOT} or 
-     * 						{@link #USER_HIERARCHY_ROOT}.
+     * @param rootLevel		The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID	The Id of the root.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set rootNodeIDs, boolean withLeaves,
-            								int rootLevel, int rootLevelID,
+            								Class rootLevel, int rootLevelID,
                                             AgentEventListener observer);
     
     /**
@@ -153,16 +115,14 @@ public interface DataManagerView
      * @param nodeType 		The type of the node. Can only be one out of:
      *                      <code>DatasetData, CategoryData</code>.       
      * @param nodeIDs 		The id of the node.
-     * @param rootLevel		The level of the hierarchy, one of the constants
-     * 						defined by this class.
-     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
-     * 						if the rootLevel is either 
-     * 						{@link #WORLD_HIERARCHY_ROOT} or 
-     * 						{@link #USER_HIERARCHY_ROOT}.
+     * @param rootLevel		The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID	The Id of the root.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle getImages(Class nodeType, Set nodeIDs, int rootLevel, 
+    public CallHandle getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             					int rootLevelID, AgentEventListener observer);
     
     /**
@@ -210,26 +170,50 @@ public interface DataManagerView
             								AgentEventListener observer);
     
     /**
-     * Updates the specified <code>DataObject</code> and creates, deletes or
-     * updates the specified <code>Annotation</code> depending on the 
-     * type of operation.
+     * Updates the specified <code>DataObject</code> and creates the specified 
+     * <code>Annotation</code>.
      * 
      * @param userObject 	The {@link DataObject} to update. Must be an 
      * 						instance of <code>DatasetData</code> or
      * 						<code>ImageData</code>.
      * @param data			The {@link AnnotationData} to handle.
-     * @param operation 	The type of operation to perform. One of the 
-     * 						following constants: 
-     * 						{@link #CREATE_ANNOTATION},
-     * 						{@link #UPDATE_ANNOTATION} or
-     * 						{@link #DELETE_ANNOTATION}.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle updateObjectAndAnnotation(DataObject userObject, 
-            								AnnotationData data, int operation,
+    public CallHandle updateObjectCreateAnnotation(DataObject userObject, 
+            								AnnotationData data, 
             								AgentEventListener observer);
-      
+    
+    /**
+     * Updates the specified <code>DataObject</code> and updates the specified 
+     * <code>Annotation</code>.
+     * 
+     * @param userObject    The {@link DataObject} to update. Must be an 
+     *                      instance of <code>DatasetData</code> or
+     *                      <code>ImageData</code>.
+     * @param data          The {@link AnnotationData} to handle.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle updateObjectUpdateAnnotation(DataObject userObject, 
+                                            AnnotationData data, 
+                                            AgentEventListener observer);
+    
+    /**
+     * Updates the specified <code>DataObject</code> and deletes the specified 
+     * <code>Annotation</code>.
+     * 
+     * @param userObject    The {@link DataObject} to update. Must be an 
+     *                      instance of <code>DatasetData</code> or
+     *                      <code>ImageData</code>.
+     * @param data          The {@link AnnotationData} to handle.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle updateObjectDeleteAnnotation(DataObject userObject, 
+                                            AnnotationData data, 
+                                            AgentEventListener observer);
+    
     /** 
      * Creates an annotation of the specified type for the specified node.
      * 

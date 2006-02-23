@@ -97,13 +97,15 @@ public interface HierarchyBrowsingView
      *                      <code>ProjectData, DatasetData, 
      *                      CategoryGroupData, CategoryData</code>.
      * @param nodeID        The id of the root node.
-     * @param rootLevel     The Level of the root.
-     * @param rootID        The Id of the root.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadHierarchy(Class rootNodeType, int nodeID, 
-                                    int rootLevel, int rootID,
+                                    Class rootLevel, int rootLevelID,
                                     AgentEventListener observer);
     
     /**
@@ -143,28 +145,38 @@ public interface HierarchyBrowsingView
      * </code> Images, then <code>ds300</code> would <i>not</i> be part of the
      * returned tree rooted by <code>p1</code>.</p>
      * 
-     * @param ids Contains ids, one for each leaf Image node.
-     * @param observer     Callback handler.
+     * @param ids           Contains ids, one for each leaf Image node.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.
+     * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findPDIHierarchies(Set ids, AgentEventListener observer);
+    public CallHandle findPDIHierarchies(Set ids, Class rootLevel,
+                                int rootLevelID, AgentEventListener observer);
     
     /**
      * Finds the data trees in the Category Group/Category/Image (CG/C/I) 
      * hierarchy that contain the specified images.
      * This method is the analogous of the 
-     * {@link #findPDIHierarchies(Set, AgentEventListener) findPDIHierarchies}
-     * method for the Category Group/Category/Image hierarchy.  The semantics
+     * {@link #findPDIHierarchies(Set, Class, int, AgentEventListener)} 
+     * method for the Category Group/Category/Image hierarchy. The semantics
      * is exaclty the same, so refer to that method's documentation for the
      * gory details.  (Obviously, a Category Group will be represented by a
      * <code>CategoryGroupData</code> object and a Category by a <code> 
      * CategoryData</code> object.)
      * 
-     * @param ids Contains ids, one for each leaf image node.
-     * @param observer     Callback handler.
+     * @param ids           Contains ids, one for each leaf image node.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.
+     * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findCGCIHierarchies(Set ids, AgentEventListener observer);
+    public CallHandle findCGCIHierarchies(Set ids,  Class rootLevel,
+                                  int rootLevelID, AgentEventListener observer);
     
     /**
      * Loads a thumbnail for each specified <code>ImageData</code> object.

@@ -57,24 +57,6 @@ import java.util.Set;
  */
 public interface OmeroPojoService
 {
-
-    /** 
-     * Indicates the root of the retrieved data is the <code>World</code>
-     * i.e. any user in the system.
-     */
-    public static final int	WORLD_HIERARCHY_ROOT = 100;
-    
-    /** 
-     * Indicates the root of the retrieved data is the <code>Group</code>
-     * i.e. one of the groups the current user belongs to.
-     */
-    public static final int	GROUP_HIERARCHY_ROOT = 101;
-    
-    /** 
-     * Indicates the root of the retrieved data is the <code>User</code>
-     * i.e. the current user.
-     */
-    public static final int	USER_HIERARCHY_ROOT = 102;
     
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 0;
@@ -109,19 +91,17 @@ public interface OmeroPojoService
      * @param rootNodeIDs   A set of the IDs of top-most containers.
      * @param withLeaves   	Passed <code>true</code> to retrieve the images,
      *                      <code>false</code> otherwise.
-     * @param rootLevel		The level of the hierarchy, one of the constants
-     * 						defined by this class.
-     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
-     * 						if the rootLevel is either 
-     * 						{@link #WORLD_HIERARCHY_ROOT} or 
-     * 						{@link #USER_HIERARCHY_ROOT}.
+     * @param rootLevel		The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID	The Id of the root.
      * @return  A set of hierarchy trees.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-                                    boolean withLeaves, int rootLevel, 
+                                    boolean withLeaves, Class rootLevel, 
                                     int rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
@@ -179,19 +159,17 @@ public interface OmeroPojoService
      *                      Mustn't be <code>null</code>.
      * @param leavesIDs     Set of ids of the Images that sit at the bottom of
      *                      the trees. Mustn't be <code>null</code>.
-     * @param rootLevel		The level of the hierarchy, one of the constants
-     * 						defined by this class.
-     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
-     * 						if the rootLevel is either 
-     * 						{@link #WORLD_HIERARCHY_ROOT} or 
-     * 						{@link #USER_HIERARCHY_ROOT}.
+     * @param rootLevel		The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID	The Id of the root.
      * @return A <code>Set</code> with all root nodes that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
-            						int rootLevel, int rootLevelID)
+            						Class rootLevel, int rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -262,18 +240,16 @@ public interface OmeroPojoService
      * @param nodeType  	The type of container. Can either be Project, 
      * 						Dataset, CategoryGroup, Category.
      * @param nodeIDs   	Set of containers' IDS.
-     * @param rootLevel		The level of the hierarchy, one of the constants
-     * 						defined by this class.
-     * @param rootLevelID	The Id of the root. The value is set to <i>-1</i>
-     * 						if the rootLevel is either 
-     * 						{@link #WORLD_HIERARCHY_ROOT} or 
-     * 						{@link #USER_HIERARCHY_ROOT}.
+     * @param rootLevel		The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID	The Id of the root.
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set getImages(Class nodeType, Set nodeIDs, int rootLevel, 
+    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             			int rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
