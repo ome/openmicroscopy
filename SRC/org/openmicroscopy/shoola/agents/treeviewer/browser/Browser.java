@@ -123,13 +123,6 @@ public interface Browser
      */
     public static final int     	IMAGES_EXPLORER = 102;
     
-
-    /** Indicates that the container is of type <code>Dataset</code>.*/
-    //public static final int     	DATASET_CONTAINER = 200;
-    
-    /** Indicates that the container is of type <code>Category</code>.*/
-    public static final int     	CATEGORY_CONTAINER = 201;
-    
     /** 
      * Bound property name indicating the data retrieval is finished. 
      */
