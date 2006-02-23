@@ -329,5 +329,8 @@ public interface TreeViewer
     
     /** Clears the result of a previous find action. */
     public void clearFoundResults();
+
+    /** Moves the component to the front. */
+    public void moveToFront();
     
 }

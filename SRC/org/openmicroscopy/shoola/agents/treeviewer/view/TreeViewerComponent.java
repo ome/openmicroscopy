@@ -509,5 +509,17 @@ class TreeViewerComponent
         }
         
     }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#moveToFront()
+     */
+    public void moveToFront()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be " +
+                    "invoked in the DISCARDED state.");
+        view.requestFocus();
+    }
     
 }
