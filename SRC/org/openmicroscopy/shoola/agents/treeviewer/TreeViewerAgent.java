@@ -90,7 +90,10 @@ public class TreeViewerAgent
         if (type == -1) //shouldn't happen
             throw new IllegalArgumentException("Properties type not supported");
         TreeViewer viewer = TreeViewerFactory.getViewer();
-        if (viewer != null) viewer.showProperties(e.getUserObject(), type);
+        if (viewer != null) {
+            viewer.showProperties(e.getUserObject(), type);
+            viewer.moveToFront();
+        }
     }
     
     /**
