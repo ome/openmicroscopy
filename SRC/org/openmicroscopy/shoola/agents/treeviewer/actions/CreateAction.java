@@ -106,7 +106,7 @@ public class CreateAction
 	            setEnabled(false);
 	            break;
 	        default:
-	            setEnabled(true);
+                onDisplayChange(browser.getSelectedDisplay());
 	            break;
         }
     }
@@ -153,12 +153,14 @@ public class CreateAction
             putValue(Action.NAME, NAME_CATEGORY);
             nodeType = CreateCmd.CATEGORY;
         } else if (ho instanceof CategoryData) {
-            setEnabled(((CategoryData) ho).getOwner().getId() == 
-                model.getUserDetails().getId());
+            //setEnabled(((CategoryData) ho).getOwner().getId() == 
+            //    model.getUserDetails().getId());
+            setEnabled(false);
             putValue(Action.NAME, NAME_IMAGE);
         } else if (ho instanceof DatasetData) {
-            setEnabled(((DatasetData) ho).getOwner().getId() == 
-                model.getUserDetails().getId());
+            //setEnabled(((DatasetData) ho).getOwner().getId() == 
+            //    model.getUserDetails().getId());
+            setEnabled(false);
             putValue(Action.NAME, NAME_IMAGE);
         } else {
             setEnabled(false);
