@@ -100,6 +100,7 @@ public class PropertiesCmd
         }
         if (hierarchyObject == null) return;
         //post a show properties event.
+        model.moveToBack(); //move the window to the back.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
         eventBus.post(new ShowProperties(hierarchyObject, ShowProperties.EDIT)); 
     }
