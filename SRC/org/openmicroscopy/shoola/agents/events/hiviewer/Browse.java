@@ -35,8 +35,9 @@ package org.openmicroscopy.shoola.agents.events.hiviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Event to browse a given <code>Data Object</code>.
@@ -80,13 +81,25 @@ public class Browse
     private int eventIndex;
     
     /** 
-     * The level of the root. One of the constants defined by
-     * {@link OmeroPojoService}.
+     * The level of the root, either {@link ExperimenterData} or
+     * {@link  GroupData}.
      */
-    private int rootLevel;
+    private Class rootLevel;
     
     /** The Id of the root. */
     private int rootID;
+    
+    /**
+     * Checks if the specified level is supported.
+     * 
+     * @param level The level to control.
+     */
+    private void checkRootLevel(Class level)
+    {
+        if (level.equals(ExperimenterData.class) ||
+                level.equals(GroupData.class)) return;
+        throw new IllegalArgumentException("Root level not supported");
+    }
     
     /**
      * Controls if the specified index is supported.
@@ -107,35 +120,20 @@ public class Browse
     }
     
     /**
-     * Controls if the specified level is supported.
-     * 
-     * @param level The level to control.
-     */
-    private void checkRootLevel(int level)
-    {
-        switch (level) {
-            case OmeroPojoService.WORLD_HIERARCHY_ROOT:
-            case OmeroPojoService.GROUP_HIERARCHY_ROOT:
-            case OmeroPojoService.USER_HIERARCHY_ROOT:
-                return; 
-            default:
-                throw new IllegalArgumentException("Root level not valid.");
-        }
-    }
-    
-    /**
      * Creates a new instance.
      * 
      * @param hierarchyObjectID The Id of the <code>Data Object</code> to 
      *                          browse.
      * @param index             The index of the browser. One of the constants
      *                          defined by this class.
-     * @param rootLevel         The root level i.e. group, user, etc.
+     * @param rootLevel         The level of the hierarchy either 
+     *                          <code>GroupData</code> or 
+     *                          <code>ExperimenterData</code>.
      * @param rootID            The id of the root level. The value is taken
      *                          into account if only if the root level is a 
      *                          group.
      */
-    public Browse(int hierarchyObjectID, int index, int rootLevel, int rootID)
+    public Browse(int hierarchyObjectID, int index, Class rootLevel, int rootID)
     {
         checkEventIndex(index); 
         checkRootLevel(rootLevel);
@@ -164,7 +162,7 @@ public class Browse
      * 
      * @return See above.
      */
-    public int getRootLevel() { return rootLevel; }
+    public Class getRootLevel() { return rootLevel; }
     
     /**
      * Returns the root Id.

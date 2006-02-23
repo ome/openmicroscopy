@@ -31,8 +31,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -69,8 +69,8 @@ public class EditVisitor
     /** The original node. */
     private Object              originalNode;
     
-    /** The set of nodes found. */
-    private Set					foundNodes;
+    /** The collection of found {@link TreeImageDisplay nodes}. */
+    private List                foundNodes;
     
     /**
      * Returns the id of the specified object, <code>-1</code> if it's the 
@@ -111,9 +111,9 @@ public class EditVisitor
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the {@link Browser}.
-     * 				Mustn't be <code>null</code>.
-     * @param originalNode 	The object hosted by the tree node.
+     * @param model         Reference to the {@link Browser}.
+     *                      Mustn't be <code>null</code>.
+     * @param originalNode  The object hosted by the tree node.
      * 						Mustn't be <code>null</code>.
      */
     public EditVisitor(Browser model, Object originalNode)
@@ -123,20 +123,19 @@ public class EditVisitor
             throw new IllegalArgumentException("No node.");
         this.originalNode = originalNode;
         originalNodeID = getNodeID(originalNode);
-        foundNodes = new HashSet();
+        foundNodes = new ArrayList();
     }
     
     /**
-     * Returns the collection of found nodes.
+     * Returns the collection of found {@link TreeImageDisplay nodes}.
      * 
      * @return See above.
      */
-    public Set getFoundNodes() { return foundNodes; }
+    public List getFoundNodes() { return foundNodes; }
     
     /**
      * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
      * than {@link #originalNodeID}.
-     * 
      * @see BrowserVisitor#visit(TreeImageNode)
      */
     public void visit(TreeImageNode node) { analyse(node); }
@@ -144,7 +143,6 @@ public class EditVisitor
     /**
      * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
      * than {@link #originalNodeID}.
-     * 
      * @see BrowserVisitor#visit(TreeImageSet)
      */
     public void visit(TreeImageSet node) { analyse(node); }

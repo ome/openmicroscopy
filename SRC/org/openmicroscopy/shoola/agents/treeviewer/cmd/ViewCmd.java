@@ -49,6 +49,8 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -80,15 +82,13 @@ public class ViewCmd
      * @param level The level to convert.
      * @return See above.
      */
-    private int convertRootLevel(int level)
+    private Class convertRootLevel(int level)
     {
         switch (level) {
-            case TreeViewer.WORLD_ROOT:
-                return OmeroPojoService.WORLD_HIERARCHY_ROOT;
             case TreeViewer.USER_ROOT:
-                return OmeroPojoService.USER_HIERARCHY_ROOT;
+                return ExperimenterData.class;
             case TreeViewer.GROUP_ROOT:
-                return OmeroPojoService.GROUP_HIERARCHY_ROOT;
+                return GroupData.class;
             default:
                 throw new IllegalArgumentException("Level not supported");
         }
@@ -136,7 +136,7 @@ public class ViewCmd
             ho = display.getUserObject();
         }
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        int root = convertRootLevel(browser.getRootLevel());
+        Class root = convertRootLevel(browser.getRootLevel());
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
             bus.post(new LoadImage(data.getId(), 
