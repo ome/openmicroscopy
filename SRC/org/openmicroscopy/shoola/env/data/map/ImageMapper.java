@@ -248,6 +248,7 @@ public class ImageMapper
         c.addWantedField("Model");
         c.addWantedField("TheT");
         c.addWantedField("TheZ");
+        c.addWantedField("module_execution", "id");
         c.addFilter("Experimenter", new Integer(userID));
         String column = (String) STSMapper.granularities.get(g);
         if (column != null) c.addFilter(column, new Integer(id));
