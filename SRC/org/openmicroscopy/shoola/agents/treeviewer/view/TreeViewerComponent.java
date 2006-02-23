@@ -36,7 +36,6 @@ import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JDialog;
 
 //Third-party libraries
@@ -50,7 +49,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -273,11 +271,12 @@ class TreeViewerComponent
     public void showFinder(boolean b)
     {
         switch (model.getState()) {
-            case DISCARDED:
-            case SAVE:
-                throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED or SAVE " +
-                    "state.");
+            case READY:
+            case NEW:  
+                break;
+            default:
+                throw new IllegalStateException("This method should only be " +
+                "invoked in the READY or NEW state.");
         }
         if (model.getSelectedBrowser() == null) return;
         Finder finder = model.getFinder();
@@ -305,10 +304,14 @@ class TreeViewerComponent
      */
     public void removeObject(DataObject object)
     {
-        int state = model.getState();
-        if (state != NEW && state != READY)
-            throw new IllegalStateException("This method should only be " +
-                    "invoked in the NEW or READY state.");
+        switch (model.getState()) {
+            case READY:
+            case NEW:  
+                break;
+            default:
+                throw new IllegalStateException("This method should only be " +
+                "invoked in the READY or NEW state.");
+        }
         model.fireDataObjectDeletion(object);
         fireStateChange();
     }
@@ -319,9 +322,14 @@ class TreeViewerComponent
      */
     public void showClassifier(ImageData object, int mode)
     {
-        if (model.getState() != READY)
-            throw new IllegalStateException("This method should only be " +
-                "invoked in the READY state.");
+        switch (model.getState()) {
+            case READY:
+            case NEW:  
+                break;
+            default:
+                throw new IllegalStateException("This method should only be " +
+                "invoked in the READY or NEW state.");
+        }
         if (object == null) 
             throw new IllegalArgumentException("Object cannot be null.");
         removeEditor();
@@ -448,7 +456,6 @@ class TreeViewerComponent
             model.setState(READY);
             fireStateChange();
         }
-        
     }
 
     /**
