@@ -353,4 +353,18 @@ class HiViewerComponent
         return model.getRootID();
     }
 
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#moveToBack()
+     */
+    public void moveToBack()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        //view.setExtendedState(JFrame.ICONIFIED);
+        view.toBack();
+        
+    }
+
 }

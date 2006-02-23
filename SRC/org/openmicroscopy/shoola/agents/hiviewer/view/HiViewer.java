@@ -357,4 +357,11 @@ public interface HiViewer
      */
     public int getRootID();
     
+    /**
+     * Moves the window to the back.
+     * @throws IllegalStateException If the current state is not
+     *                               {@link #DISCARDED}.
+     */
+    public void moveToBack();
+       
 }

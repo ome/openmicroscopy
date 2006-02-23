@@ -330,7 +330,18 @@ public interface TreeViewer
     /** Clears the result of a previous find action. */
     public void clearFoundResults();
 
-    /** Moves the component to the front. */
+    /**
+     * Moves the window to the back.
+     * @throws IllegalStateException If the current state is not
+     *                               {@link #DISCARDED}.
+     */
+    public void moveToBack();
+    
+    /**
+     * Moves the window to the front.
+     * @throws IllegalStateException If the current state is not
+     *                               {@link #DISCARDED}.
+     */
     public void moveToFront();
     
 }

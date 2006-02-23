@@ -37,10 +37,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
@@ -374,18 +376,12 @@ class TreeViewerComponent
      */
     public void retrieveThumbnail(ImageData image)
     {
-        switch (model.getState()) {
-            case DISCARDED:
-            case SAVE:  
-            case LOADING_THUMBNAIL:
-                throw new IllegalStateException("This method cannot be " +
-                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-                        "state");
+        if (model.getState() != DISCARDED) {
+            if (image == null)
+                throw new IllegalArgumentException("No image.");
+            model.fireThumbnailLoading(image);
+            fireStateChange();
         }
-        if (image == null)
-            throw new IllegalArgumentException("No image.");
-        model.fireThumbnailLoading(image);
-        fireStateChange();
     }
 
     /**
@@ -510,16 +506,30 @@ class TreeViewerComponent
         
     }
 
+
     /**
-     * Implemented as specified by the {@link TreeViewer} interface.
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see TreeViewer#moveToBack()
+     */
+    public void moveToBack()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        //view.setFocusable(false);
+        view.toBack();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
      * @see TreeViewer#moveToFront()
      */
     public void moveToFront()
     {
         if (model.getState() == DISCARDED)
-            throw new IllegalStateException("This method cannot be " +
-                    "invoked in the DISCARDED state.");
-        view.requestFocus();
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        view.toFront();
     }
     
 }
