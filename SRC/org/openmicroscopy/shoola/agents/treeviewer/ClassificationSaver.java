@@ -40,6 +40,8 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.ImageData;
+
 /** 
  * Classifies or declassifies the specified image depending on the selected 
  * {@link #mode}.
@@ -66,8 +68,8 @@ public class ClassificationSaver
     /** Indicates to declassify the specified image. */
     public static final int DECLASSIFY = 1;
     
-    /** The id of the image to classify or declassify. */
-    private int         imageID;
+    /** The image to classify or declassify. */
+    private ImageData   image;
     
     /** The type of classifier. */
     private int         mode;
@@ -99,26 +101,45 @@ public class ClassificationSaver
     }
     
     /**
+     * Converts the constant defined by this class into it's corresponding
+     * UI constant.
+     * 
+     * @return See above.
+     */
+    private int convertMode()
+    {
+        switch (mode) {
+            case CLASSIFY:
+                return Classifier.CLASSIFY_MODE;
+            case DECLASSIFY:
+                return Classifier.DECLASSIFY_MODE;
+            default:
+                throw new IllegalArgumentException(
+                    "Classification mode not supported.");
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param viewer        The TreeViewer this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param mode          The classification's mode.
      *                      One of the constants defined by this class.
-     * @param imageID       The id of the image to classify.
+     * @param image         The image to classify or declassify.
      * @param categories    The categories to add to or remove from.
      *                      Mustn't be <code>null</code>.
      */
-    public ClassificationSaver(Classifier viewer, int mode, int imageID, 
+    public ClassificationSaver(Classifier viewer, int mode, ImageData image, 
                             Set categories)
     {
         super(viewer);
         checkMode(mode);
-        if (imageID < 0) 
-            throw new IllegalArgumentException("Image Id not valid.");
+        if (image == null) 
+            throw new IllegalArgumentException("Image not valid.");
         if (categories == null || categories.size() == 0) 
             throw new IllegalArgumentException("No category selected.");
-        this.imageID = imageID; 
+        this.image = image; 
         this.mode = mode;
         this.categories = categories;
     }
@@ -131,10 +152,10 @@ public class ClassificationSaver
     {
         switch (mode) {
             case CLASSIFY:
-                handle = dmView.classify(imageID, categories, this);
+                handle = dmView.classify(image.getId(), categories, this);
                 break;
             case DECLASSIFY:
-                handle = dmView.declassify(imageID, categories, this);
+                handle = dmView.declassify(image.getId(), categories, this);
         }       
     }
 
@@ -151,7 +172,7 @@ public class ClassificationSaver
     public void handleResult(Object result)
     {
         if (viewer.getState() == Classifier.DISCARDED) return; 
-        viewer.saveClassification(((Set) result));
+        viewer.saveClassification(image, ((Set) result), convertMode());
     }
 
 }

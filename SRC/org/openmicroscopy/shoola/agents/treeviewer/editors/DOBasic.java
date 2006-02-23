@@ -45,12 +45,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -82,7 +84,7 @@ class DOBasic
     static final String     CLASSIFICATION = "Classification";   
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    JTextArea                   nameArea;
+    JTextField                  nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     JTextArea                   descriptionArea;
@@ -113,7 +115,7 @@ class DOBasic
      * 
      * @param area The text area.
      */
-    private void setTextAreaDefault(JTextArea area)
+    private void setTextAreaDefault(JTextComponent area)
     {
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         area.setForeground(UIUtilities.STEELBLUE);
@@ -126,7 +128,7 @@ class DOBasic
     private void initComponents()
     {
         tabbedPane = new JTabbedPane();
-        nameArea = new MultilineLabel();
+        nameArea = new JTextField();
         setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         setTextAreaDefault(descriptionArea);

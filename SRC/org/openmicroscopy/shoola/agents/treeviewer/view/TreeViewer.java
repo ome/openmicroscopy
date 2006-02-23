@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JDialog;
 
 //Third-party libraries
@@ -113,22 +115,16 @@ public interface TreeViewer
     public static final int         NO_EDITOR = 103;
     
     /** 
-     * Indicates that the root of the retrieved hierarchy is the 
-     * <code>World</code>. 
-     */
-    public static final int			WORLD_ROOT = 200;
-    
-    /** 
      * Indicates that the root of the retrieved hierarchy is an OME 
      * <code>Group</code>.
      */
-    public static final int			GROUP_ROOT = 201;
+    public static final int			GROUP_ROOT = 200;
     
     /** 
      * Indicates that the root of the retrieved hierarchy is a
      * <code>User</code>. 
      */
-    public static final int			USER_ROOT = 202;
+    public static final int			USER_ROOT = 201;
     
 
     
@@ -159,8 +155,8 @@ public interface TreeViewer
      */
     public static final String      REMOVE_EDITOR_PROPERTY = "removeEditor";
     
-    /** Bounds property to indicate that the data object has been saved. */
-    public static final String      SAVE_EDITION_PROPERTY = "saveEdition";
+    /** Bound property name indicating to set the filters nodes.  */
+    public static final String      FILTER_NODES_PROPERTY = "filterNodes";
     
     /** 
      * Bound property name indicating to show/hide the component from the
@@ -255,16 +251,7 @@ public interface TreeViewer
     
     /** Removes the displayed editor from the panel. */
     public void removeEditor();
-    
-    /** 
-     * Sets the results of a delete action.
-     * 
-     * @param object    The <code>DataObject</code> to update or to delete.
-     * @param op        The type of operation performed, either
-     *                  {@link #REMOVE_OBJECT}.
-     */
-    public void setSaveResult(DataObject object, int op);
-    
+
     /**
      * Returns the user's details. Helper method
      * 
@@ -314,16 +301,31 @@ public interface TreeViewer
     public void onSelectedDisplay();
     
     /**
-     * Updates the views when the data object is save.
+     * Updates the views when the data object is saved.
      * The method only supports map of size one. 
      * The key is one the following constants: 
      * <code>CREATE_OBJECT</code>, <code>UPDATE_OBJECT</code> or
      * <code>REMOVE_OBJECT</code>.
      * The value is the <code>DataObject</code> created, removed or updated.
      * 
-     * @param map The map to handle.
+     * @param data      The save <code>DataObject</code>. Mustn't be 
+     *                  <code>null</code>.
+     * @param operation The type of operation.
      */
-    public void onDataObjectSave(Map map);
+    public void onDataObjectSave(DataObject data, int operation);
+    
+    /**
+     * 
+     * Updates the view when the image has been classified or declassified.
+     * 
+     * @param image         The image classified or declassified. Mustn't 
+     *                      be <code>null</code>.
+     * @param categories    The categories the image was added to or 
+     *                      removed from. Mustn't be <code>null</code>.
+     * @param mode          The type of operation i.e. classification or 
+     *                      declassification.
+     */
+    public void onImageClassified(ImageData image, Set categories, int mode);
     
     /** Clears the result of a previous find action. */
     public void clearFoundResults();

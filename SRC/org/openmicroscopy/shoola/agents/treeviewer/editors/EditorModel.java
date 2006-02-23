@@ -633,5 +633,17 @@ class EditorModel
                                             AnnotationEditor.UPDATE);
         currentLoader.load();
     }
+
+    /**
+     * Notifies the parent model that the {@link DataObject object} has been 
+     * saved. 
+     * @param object    The saved object.
+     * @param operation The type of operation.
+     */
+    void setSaveResult(DataObject object, int operation)
+    {
+        state = Editor.READY;
+        parentModel.onDataObjectSave(object, operation);
+    }
     
 }

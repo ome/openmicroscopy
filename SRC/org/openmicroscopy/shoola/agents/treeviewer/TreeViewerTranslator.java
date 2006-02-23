@@ -174,7 +174,7 @@ public class TreeViewerTranslator
      *              Mustn't be <code>null</code>.
      * @return See above.
      */
-    private static TreeCheckNode transformCategoryPath(CategoryData data)
+    private static TreeCheckNode transformCategoryCheckNode(CategoryData data)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
@@ -186,6 +186,25 @@ public class TreeViewerTranslator
     }
     
     /**
+     * Transforms a {@link DatasetData} into a visualisation object i.e.
+     * a {@link TreeCheckNode}.
+     * 
+     * @param data  The {@link DatasetData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeCheckNode transformDatasetCheckNode(DatasetData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        IconManager im = IconManager.getInstance();      
+        TreeCheckNode node =  new TreeCheckNode(data, 
+                                    im.getIcon(IconManager.DATASET),
+                                    data.getName(), true);
+        return node;
+    }
+    
+    /**
      * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
      * a {@link TreeCheckNode}. The {@link CategoryData categories} are also
      * transformed and linked to the newly created {@link TreeCheckNode}.
@@ -194,7 +213,7 @@ public class TreeViewerTranslator
      *              Mustn't be <code>null</code>.
      * @return See above.
      */
-    private static TreeCheckNode transformCategoryGroupPath(CategoryGroupData
+    private static TreeCheckNode transformCategoryGroupCheckNode(CategoryGroupData
                                                             data)
     {
         if (data == null)
@@ -207,7 +226,7 @@ public class TreeViewerTranslator
         Iterator i = categories.iterator();
         while (i.hasNext())
             group.addChildDisplay(
-                    transformCategoryPath((CategoryData) i.next()));
+                    transformCategoryCheckNode((CategoryData) i.next()));
         return group;
     }
     
@@ -332,18 +351,22 @@ public class TreeViewerTranslator
             return transformCategory((CategoryData) object);
         else if (object instanceof CategoryGroupData)
             return transformCategoryGroup((CategoryGroupData) object);
+        else if (object instanceof ImageData)
+            return transformImage((ImageData) object);
         throw new IllegalArgumentException("Data Type not supported.");
     }
     
+    
     /**
      * Transforms a set of {@link DataObject}s into their corresponding 
-     * visualization objects. The elements of the set can either be
-     * {@link CategoryGroupData} or {@link CategoryData}.
+     * {@link TreeCheckNode} visualization objects. The elements of the set can 
+     * either be {@link CategoryGroupData}, {@link CategoryData} or
+     * {@link DatasetData}.
      * 
      * @param dataObjects The collection of {@link DataObject}s to transform.
      * @return A set of visualization objects.
      */
-    public static Set transformClassificationPaths(Set dataObjects)
+    public static Set transformDataObjectsCheckNode(Set dataObjects)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
@@ -355,10 +378,12 @@ public class TreeViewerTranslator
             if (ho instanceof CategoryGroupData) {
                 Set categories = ((CategoryGroupData) ho).getCategories();
                 if (categories != null && categories.size() != 0)
-                    results.add(transformCategoryGroupPath(
+                    results.add(transformCategoryGroupCheckNode(
                             (CategoryGroupData) ho));
             } else if (ho instanceof CategoryData)
-                results.add(transformCategoryPath((CategoryData) ho));
+                results.add(transformCategoryCheckNode((CategoryData) ho));
+            else if (ho instanceof DatasetData) 
+                results.add(transformDatasetCheckNode((DatasetData) ho));
         }
         return results;
     }

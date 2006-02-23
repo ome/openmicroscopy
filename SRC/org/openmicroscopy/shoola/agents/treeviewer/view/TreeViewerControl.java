@@ -122,32 +122,29 @@ class TreeViewerControl
     /** Identifies the <code>Images Explorer</code> action in the View menu. */
     static final Integer	IMAGES_EXPLORER = new Integer(9);
     
-    /** Identifies the <code>World root level</code> action in the File menu. */
-    static final Integer	WORLD_ROOT_LEVEL = new Integer(10);
-    
     /** Identifies the <code>User root level</code> action in the File menu. */
-    static final Integer	USER_ROOT_LEVEL = new Integer(11);
+    static final Integer	USER_ROOT_LEVEL = new Integer(10);
     
     /** Identifies the <code>Find action </code>in the Edit menu. */
-    static final Integer	FIND = new Integer(12);
+    static final Integer	FIND = new Integer(11);
     
     /** Identifies the <code>Classify action</code> in the Edit menu. */
-    static final Integer    CLASSIFY = new Integer(13);
+    static final Integer    CLASSIFY = new Integer(12);
     
     /** Identifies the <code>Declassify action</code> in the Edit menu. */
-    static final Integer    DECLASSIFY = new Integer(14);
+    static final Integer    DECLASSIFY = new Integer(13);
     
     /** Identifies the <code>Annotate action</code> in the Edit menu. */
-    static final Integer    ANNOTATE = new Integer(15);
+    static final Integer    ANNOTATE = new Integer(14);
     
     /** Identifies the <code>Exit action</code> in the File menu. */
-    static final Integer    EXIT = new Integer(16);
+    static final Integer    EXIT = new Integer(15);
     
     /** Identifies the <code>Close action</code> in the File menu. */
-    static final Integer    CLOSE = new Integer(17);
+    static final Integer    CLOSE = new Integer(16);
     
     /** Identifies the <code>Clear action</code> in the Edit menu. */
-    static final Integer    CLEAR = new Integer(18);
+    static final Integer    CLEAR = new Integer(17);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
@@ -180,10 +177,7 @@ class TreeViewerControl
                 new BrowserSelectionAction(model, Browser.CATEGORY_EXPLORER));
         actionsMap.put(IMAGES_EXPLORER, 
                 new BrowserSelectionAction(model, Browser.IMAGES_EXPLORER));
-        actionsMap.put(WORLD_ROOT_LEVEL, 
-                new RootLevelAction(model, TreeViewer.WORLD_ROOT));
-        actionsMap.put(USER_ROOT_LEVEL, 
-                new RootLevelAction(model, TreeViewer.USER_ROOT));
+        actionsMap.put(USER_ROOT_LEVEL, new RootLevelAction(model));
         actionsMap.put(FIND,  new FinderAction(model));
         actionsMap.put(CLASSIFY,  new ClassifyAction(model));
         actionsMap.put(DECLASSIFY,  new DeclassifyAction(model));
@@ -334,8 +328,7 @@ class TreeViewerControl
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
         } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY) ||
-                name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY) ||
-                name.equals(Classifier.SAVE_CLASSIFICATION_PROPERTY)) {
+                name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
             model.removeEditor();
         } else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
             Boolean b = (Boolean) pce.getNewValue();
@@ -348,15 +341,11 @@ class TreeViewerControl
                 browser = (Browser) i.next();
                 browser.setSelected(browser.equals(b));
             }
-        } else if (name.equals(TreeViewer.REMOVE_EDITOR_PROPERTY)) {
-            model.cancel();
         } else if (name.equals(TreeViewer.THUMBNAIL_LOADING_PROPERTY)) {
             model.retrieveThumbnail((ImageData) pce.getNewValue());
         } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
             model.onSelectedDisplay();
-        } else if (name.equals(TreeViewer.SAVE_EDITION_PROPERTY)) {
-            model.onDataObjectSave((Map) pce.getNewValue()) ;
-        }
+        } 
     }
 
     /**

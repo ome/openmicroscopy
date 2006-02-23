@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.ImageData;
 
 
 /** 
@@ -174,7 +175,7 @@ class ClassifierComponent
                     "invoked in the LOADING_CLASSIFICATION state.");
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
-        Set nodes = TreeViewerTranslator.transformClassificationPaths(paths);
+        Set nodes = TreeViewerTranslator.transformDataObjectsCheckNode(paths);
         model.setPaths(nodes);
         view.showClassifications();
         fireStateChange();
@@ -184,18 +185,22 @@ class ClassifierComponent
 
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Classifier#saveClassification(Set)
+     * @see Classifier#saveClassification(ImageData, Set, int)
      */
-    public void saveClassification(Set categories)
+    public void saveClassification(ImageData image, Set categories, int mode)
     {
         if (model.getState() != SAVING_CLASSIFICATION)
             throw new IllegalStateException("This method should only be " +
                     "invoked in the SAVE_CLASSIFICATION state.");
         if (categories == null)
             throw new IllegalArgumentException("Categories shouln't be null.");
-        model.setState(READY);
+        if (image == null)
+            throw new IllegalArgumentException("No image.");
+        if (mode != CLASSIFY_MODE && mode != DECLASSIFY_MODE)
+            throw new IllegalArgumentException("Classification mode not " +
+                    "supported.");
+        model.saveClassification(image, categories, mode);
         fireStateChange();
-        firePropertyChange(SAVE_CLASSIFICATION_PROPERTY, null, categories);
     }
 
     /**

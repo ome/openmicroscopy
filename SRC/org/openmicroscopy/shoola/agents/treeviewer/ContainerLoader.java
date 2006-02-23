@@ -106,8 +106,7 @@ public class ContainerLoader
     public void load()
     {
         handle = dmView.loadContainerHierarchy(nodeType, nodeIDs, false, 
-                		convertRootLevel(viewer.getRootLevel()),
-                		viewer.getRootID(), this);
+                		convertRootLevel(), getRootID(), this);
     }
 
     /**

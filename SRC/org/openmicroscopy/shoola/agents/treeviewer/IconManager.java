@@ -182,11 +182,14 @@ public class IconManager
     /** The <code>Exit Application</code> icon. */
     public static int           EXIT_APPLICATION = 40;
     
+    /** The <code>Filter Big</code> icon. */
+    public static int           FILTER_BIG = 41;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 40;
+    private static int          MAX_ID = 41;
     
     
     /** Paths of the icon files. */
@@ -236,6 +239,7 @@ public class IconManager
         relPaths[CLASSIFIED_ANNOTATED_IMAGE] = "nuvola_filenew48.png";
         relPaths[CLASSIFIED_IMAGE] = "nuvola_filenew48.png";
         relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
+        relPaths[FILTER_BIG] = "nuvola_filenew48.png";
     }
     
     /** The sole instance. */

@@ -32,40 +32,45 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.LineBorder;
+import javax.swing.JToolBar;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DataObject;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
+import pojos.CategoryData;
+import pojos.DatasetData;
 
 /** 
  * This Component is used to select the containers from which the images are
@@ -96,33 +101,19 @@ public class FilterWindow
     /** Text corresponding to the {@link #CATEGORY} type. */
     private static final String     CATEGORY_MSG = "categories";
     
-    /** 
-     * The size of the invisible components used to separate widgets
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(20, 1);
+    /** The title of the window. */
+    private static final String     TITLE = "Filter images retrieval";
     
-    /** 
-     * The size of the invisible components used to separate widgets
-     * vertically.
-     */
-    private static final Dimension  V_SPACER_SIZE = new Dimension(1, 10);
+    /** The subtitle of the window. */
+    private static final String     NOTE = "Select items in the following " +
+                                            "list.";
+    
+    /** The subtitle of the window. */
+    private static final String     MESSAGE = "No items available.";
     
     /** The default size of the window. */
-    private static final Dimension  WINDOW_SIZE = new Dimension(300, 300);
-    
-    /** The width of the text label. */
-    private static final int        LABEL_WIDTH = 200;
-    
-    /** The maximum height of the scroll pane. */
-    private static final int        SCROLL_HEIGHT = 150;
-    
-    /** The border color. */
-    private static final Color      BORDER_COLOR = Color.GRAY;
+    private static final Dimension  WINDOW_SIZE = new Dimension(500, 500);
 
-    /** Default background color. */
-    public static final Color       BACKGROUND = Color.WHITE;
-    
     /** The specified type of container. */
     private int             containerType;
     
@@ -132,17 +123,15 @@ public class FilterWindow
     /** Button to set the containers' selection. */ 
     private JButton         setButton;
     
-    /** The panel hosting the available containers. */
-    private JPanel          containersPanel;
+    /** The tree hosting the hierarchical structure. */
+    private TreeCheck       tree;
     
-    /** 
-     * The list of {@link FilterCheckBox} objets hosting the 
-     * {@link DataObject}s.
-     */
-    private List            containersList;
+    /** The parent requesting this component. */
+    private Object          parent;
+    
     
     /** The list of the {@link DataObject}'s ID. */
-    private Set             selectedNodes;
+    //private Set             selectedNodes;
     
     /** 
      * Controls if the supported type is supported.
@@ -175,79 +164,36 @@ public class FilterWindow
         return "";
     }
     
-    /**
-     * Initializes the UI components.
-     * 
-     * @param nodes The collection of {@link DataObject}s.
-     */
-    private void initComponents(Set nodes)
+    /** Initializes the UI components. */
+    private void initComponents()
     {
+        IconManager im = IconManager.getInstance();
+        tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
+        
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { close(); }
         });
-        setButton = new JButton("Set");
+        setButton = new JButton("Filter");
         setButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { setValues(); }
         });
-        containersList = new ArrayList(nodes.size());
-        ViewerSorter sorter = new ViewerSorter(nodes);
-        List sorterNodes = sorter.sort();
-        Iterator i = sorterNodes.iterator();
-        JCheckBox box;
-        while (i.hasNext()) {
-            box = new FilterCheckBox((DataObject) i.next());
-            box.addItemListener(new ItemListener() {
-
-                public void itemStateChanged(ItemEvent e)
-                {
-                    FilterCheckBox source = 
-                        (FilterCheckBox) e.getItemSelectable();
-                    Integer id = source.getDataObjectID();
-                    if (id == null) return;
-                    if (e.getStateChange() == ItemEvent.SELECTED)
-                        selectedNodes.add(id);
-                    else selectedNodes.remove(id);
-                }
-            });
-            containersList.add(box);
-        }
-    }
-    
-    /** 
-     * Builds and lays out the panel hosting the list of available containers.
-     * 
-     * @return See above.
-     */
-    private JScrollPane createContainersPanel()
-    {
-        containersPanel = new JPanel();
-        containersPanel.setLayout(new BoxLayout(containersPanel,
-                                        BoxLayout.Y_AXIS));
-        Iterator i = containersList.iterator();
-        while (i.hasNext())
-            containersPanel.add((JCheckBox) i.next());
-        JPanel p = UIUtilities.buildComponentPanel(containersPanel);
-        JScrollPane pane = new JScrollPane(p);
-        pane.setSize(p.getPreferredSize().width, SCROLL_HEIGHT);
-        pane.setBorder(new LineBorder(BORDER_COLOR));
-        return pane;
     }
     
     /**
-     * Builds and lays out the panel hosting the buttons.
+     * Builds the tool bar hosting the {@link #cancelButton} and
+     * {@link #setButton}.
      * 
-     * @return See above.
+     * @return See above;
      */
-    private JPanel createButtonsPanel()
+    private JToolBar buildToolBar()
     {
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
-        buttonsPanel.add(Box.createHorizontalGlue());
-        buttonsPanel.add(cancelButton);
-        buttonsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-        buttonsPanel.add(setButton);
-        return buttonsPanel;
+        JToolBar bar = new JToolBar();
+        bar.setRollover(true);
+        bar.setFloatable(false);
+        bar.add(setButton);
+        bar.add(cancelButton);
+        return bar;
     }
     
     /**
@@ -255,33 +201,73 @@ public class FilterWindow
      * 
      * @return See above.
      */
-    private MultilineLabel createMessageLabel()
+    private String createMessage()
     {
-        String msg = "To limit the images retrieval to " +
-                        "the selected "+getContainerString()+", " +
-                        "Please select items in the following list:";
-        MultilineLabel label = new MultilineLabel(msg);
-        label.setSize(LABEL_WIDTH, label.getPreferredSize().height);
-        return label;
+        String msg = "Limit the images retrieval by selecting items in the " +
+                        "following list of "+getContainerString()+".";
+        return msg;
     }
     
-    /** Builds and lays out the GUI. */
-    private void buildGUI()
+    /**
+     * Builds the component hosting the tree. If the specified collection
+     * is empty then a message is displayed.
+     * 
+     * @param nodes The nodes to add to the tree.
+     * @return See above.
+     */
+    private JComponent getFilterComponent(Set nodes)
+    {
+        if (nodes.size() == 0) {
+            setButton.setEnabled(false);
+            JPanel p = new JPanel();
+            p.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 10));
+            p.add(UIUtilities.setTextFont(MESSAGE), BorderLayout.CENTER);
+            return p;
+        }
+        //      populates the tree
+        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
+        Iterator i = nodes.iterator();
+        while (i.hasNext())
+            root.addChildDisplay((TreeCheckNode) i.next()) ;
+        ViewerSorter sorter = new ViewerSorter();
+        List sortedNodes = sorter.sort(nodes);
+        i = sortedNodes.iterator();
+        TreeCheckNode display;
+        while (i.hasNext()) {
+            display = (TreeCheckNode) i.next();
+            dtm.insertNodeInto(display, root, root.getChildCount());
+        }  
+        dtm.reload();
+        tree.expandPath(new TreePath(root.getPath()));
+        return new JScrollPane(tree);
+    }
+    
+    /** 
+     * Builds and lays out the GUI. 
+     * 
+     * @param filterComponent The component hosting the tree.
+     */
+    private void buildGUI(JComponent filterComponent)
     {
         JPanel contentPanel = new JPanel();
         contentPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEtchedBorder(),
                 BorderFactory.createEmptyBorder(5, 5, 15, 10)));
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        JPanel p = UIUtilities.buildComponentPanel(createMessageLabel());
-        p.setBackground(BACKGROUND);
-        p.setBorder(new LineBorder(BORDER_COLOR));
-        contentPanel.add(p);
-        contentPanel.add(Box.createRigidArea(V_SPACER_SIZE));
-        contentPanel.add(createContainersPanel(), BorderLayout.CENTER);
-        contentPanel.add(Box.createRigidArea(V_SPACER_SIZE));
-        contentPanel.add(createButtonsPanel());
-        getContentPane().add(contentPanel);
+        IconManager im = IconManager.getInstance();
+        TitlePanel tp = new TitlePanel(TITLE, NOTE, createMessage(), 
+                                    im.getIcon(IconManager.FILTER_BIG));
+        //Set the layout and add components
+        Container c = getContentPane();
+        c.setLayout(new BorderLayout(0, 0));
+        c.add(tp, BorderLayout.NORTH);
+        c.add(filterComponent, BorderLayout.CENTER);
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.setBorder(BorderFactory.createEtchedBorder());
+        p.add(UIUtilities.buildComponentPanelRight(buildToolBar()));
+        c.add(p, BorderLayout.SOUTH);
     }
     
     /** Binds the {@link #close() close} action to the exit event generated. */
@@ -302,28 +288,52 @@ public class FilterWindow
     /** Sets the selected values and closes the window. */
     private void setValues()
     {
+        //Need to retrieve the node.
+        Set nodes = tree.getSelectedNodes(); 
+        if (nodes == null || nodes.size() == 0) { 
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Classification", "No category selected."); 
+            return; 
+        }
+        Set paths = new HashSet(nodes.size()); 
+        Iterator i = nodes.iterator();
+        Object object; 
+        while (i.hasNext()) { 
+            object = ((TreeCheckNode) i.next()).getUserObject(); 
+            if ((object instanceof CategoryData) || 
+                 (object instanceof DatasetData)) paths.add(object); 
+        } 
+        HashMap map = new HashMap(1);
+        map.put(parent, paths);
+        firePropertyChange(TreeViewer.FILTER_NODES_PROPERTY, null, map);
         setVisible(false);
-        firePropertyChange(Browser.FILTER_NODES_PROPERTY, null, selectedNodes);
         dispose();
     }
     
     /**
      * Creates a new instance. 
      * 
-     * @param owner The owner of the frame.
-     * @param containerType The type of container this window is for.
-     * @param nodes The nodes to display. Mustn't be <code>null</code>.
+     * @param parent        The parent requesting this window.
+     *                      Mustn't be <code>null</code>.
+     * @param owner         The owner of the frame.
+     * @param containerType The type of container this window is for. One of the
+     *                      following constants: {@link #DATASET} or 
+     *                      {@link #CATEGORY}.
+     * @param nodes         The nodes to display. Mustn't be <code>null</code>.
      */
-    public FilterWindow(JFrame owner, int containerType, Set nodes)
+    public FilterWindow(Object parent, JFrame owner, int containerType, 
+                        Set nodes)
     {
         super(owner, "Filter Images Retrieval", true);
         if (nodes == null) 
-            throw new IllegalArgumentException("No nodes");
+            throw new IllegalArgumentException("No nodes.");
+        if (parent == null)
+            throw new IllegalArgumentException("Parent cannot be null.");
         checkType(containerType);
+        this.parent = parent;
         this.containerType = containerType;
-        selectedNodes = new HashSet();
-        initComponents(nodes);
-        buildGUI();
+        initComponents();
+        buildGUI(getFilterComponent(nodes));
         attachListeners();
         setSize(WINDOW_SIZE);
     }

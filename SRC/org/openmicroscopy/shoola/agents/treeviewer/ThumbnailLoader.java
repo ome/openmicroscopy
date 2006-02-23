@@ -121,7 +121,7 @@ public class ThumbnailLoader
     
     /**
      * Notifies the user that an error has occurred.
-     * @see EditorLoader#handleException(Throwable)
+     * @see DataTreeViewerLoader#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

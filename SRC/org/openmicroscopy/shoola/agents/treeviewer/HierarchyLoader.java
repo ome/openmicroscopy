@@ -125,6 +125,24 @@ public class HierarchyLoader
     }
     
     /**
+     * Returns the {@link Browser}'s filterType corresponding to the 
+     * {@link #containerType}.
+     * 
+     * @return See above.
+     */
+    private int convertType()
+    {
+        switch (containerType) {
+            case DATASET: return Browser.IN_DATASET_FILTER;
+            case CATEGORY: return Browser.IN_CATEGORY_FILTER;
+            default:
+                throw new IllegalArgumentException("The only type supported " +
+                        "by this methods are DATASET and CATEGORY.");
+                
+        }
+    }
+    
+    /**
      * Creates a new instance. 
      * 
      * @param viewer        The viewer this data loader is for.
@@ -167,8 +185,7 @@ public class HierarchyLoader
     public void load()
     {
         handle = dmView.loadContainerHierarchy(rootNodeType, null, images,
-                					convertRootLevel(viewer.getRootLevel()),
-                                               viewer.getRootID(), this);
+                					convertRootLevel(), getRootID(), this);
     }
 
     /**
@@ -184,7 +201,7 @@ public class HierarchyLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        if (filter) viewer.setFilterNodes((Set) result, containerType);
+        if (filter) viewer.setFilterNodes((Set) result, convertType());
         else viewer.setContainerNodes((Set) result, null);
     }
     

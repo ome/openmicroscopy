@@ -103,7 +103,7 @@ public class DataObjectRemover
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result, TreeViewer.REMOVE_OBJECT);
+        viewer.onDataObjectSave((DataObject) result, TreeViewer.REMOVE_OBJECT);
     }
     
 }

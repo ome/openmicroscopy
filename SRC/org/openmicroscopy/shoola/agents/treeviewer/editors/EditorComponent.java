@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -273,9 +272,10 @@ class EditorComponent
             throw new IllegalStateException(
                     "This method can be invoked in the SAVE_EDITION state.");
         checkDataObjectOperation(operation);
-        HashMap map = new HashMap(1);
-        map.put(new Integer(operation), object);
-        firePropertyChange(TreeViewer.SAVE_EDITION_PROPERTY, null, map);
+        if (object == null)
+            throw new IllegalArgumentException("No DataObject to save.");
+        model.setSaveResult(object, operation);
+        fireStateChange();
     }
 
     /**

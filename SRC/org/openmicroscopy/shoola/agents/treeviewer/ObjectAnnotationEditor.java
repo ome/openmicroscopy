@@ -37,9 +37,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -65,13 +63,13 @@ public class ObjectAnnotationEditor
 {
 
     /** Identifies the <code>CREATE</code> annotation action. */
-    public static final int         CREATE = DataManagerView.CREATE_ANNOTATION;
+    public static final int         CREATE = 0;
     
     /** Identifies the <code>UPDATE</code> annotation action. */
-    public static final int         UPDATE = DataManagerView.UPDATE_ANNOTATION;
+    public static final int         UPDATE = 1;
     
     /** Identifies the <code>DELETE</code> annotation action. */
-    public static final int         DELETE = DataManagerView.DELETE_ANNOTATION;
+    public static final int         DELETE = 2;
 
     /** One of the constants defined by this class. */
     private int             op;
@@ -135,8 +133,20 @@ public class ObjectAnnotationEditor
      */
     public void load()
     {
-        handle = dmView.updateObjectAndAnnotation(annotatedObject, data, op,
-                									this);
+        switch (op) {
+            case CREATE:
+                handle = dmView.updateObjectCreateAnnotation(annotatedObject,
+                                                        data, this);
+                break;
+            case UPDATE:
+                handle = dmView.updateObjectUpdateAnnotation(annotatedObject,
+                                                        data, this);
+                break;
+            case DELETE:
+                handle = dmView.updateObjectDeleteAnnotation(annotatedObject,
+                        data, this);
+        }
+        
     }
 
     /** 

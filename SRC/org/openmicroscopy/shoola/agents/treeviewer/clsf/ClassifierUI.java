@@ -156,7 +156,7 @@ class ClassifierUI
             if (object instanceof CategoryData) paths.add(object); 
         } 
         int m = model.getMode();
-        if (m == Classifier.CLASSIFY_MODE)
+        if (m == Classifier.CLASSIFY_MODE) 
             model.fireClassificationSaving(paths);
         else if (m == Classifier.DECLASSIFY_MODE)
             model.fireDeclassificationSaving(paths);
@@ -293,10 +293,8 @@ class ClassifierUI
     private String getPanelTitle()
     {
         switch (model.getMode()) {
-            case Classifier.CLASSIFY_MODE:
-                return ADD_PANEL_TITLE;
-            case Classifier.DECLASSIFY_MODE:
-                return REMOVE_PANEL_TITLE;
+            case Classifier.CLASSIFY_MODE: return ADD_PANEL_TITLE;
+            case Classifier.DECLASSIFY_MODE: return REMOVE_PANEL_TITLE;
         }
         return "";
     }
@@ -325,10 +323,8 @@ class ClassifierUI
     private String getPanelNote()
     {
         switch (model.getMode()) {
-            case Classifier.CLASSIFY_MODE:
-                return ADD_PANEL_NOTE;
-            case Classifier.DECLASSIFY_MODE:
-                return REMOVE_PANEL_NOTE;
+            case Classifier.CLASSIFY_MODE: return ADD_PANEL_NOTE;
+            case Classifier.DECLASSIFY_MODE: return REMOVE_PANEL_NOTE;
         }
         return "";
     }
@@ -341,18 +337,14 @@ class ClassifierUI
     private String getUnclassifiedNote()
     {
         switch (model.getMode()) {
-            case Classifier.CLASSIFY_MODE:
-                return ADD_UNCLASSIFIED_TEXT;
-            case Classifier.DECLASSIFY_MODE:
-                return REMOVE_UNCLASSIFIED_TEXT;
+            case Classifier.CLASSIFY_MODE: return ADD_UNCLASSIFIED_TEXT;
+            case Classifier.DECLASSIFY_MODE: return REMOVE_UNCLASSIFIED_TEXT;
         }
         return "";
     }
     
-    ClassifierUI()
-    {
-        
-    }
+    /** Creates a new instance. */
+    ClassifierUI() {}
     
     /**
      * Links the View with its Model and Control.

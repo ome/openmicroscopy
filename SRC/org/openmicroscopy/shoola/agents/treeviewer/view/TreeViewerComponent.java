@@ -33,9 +33,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JDialog;
 
 //Third-party libraries
@@ -49,7 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -89,27 +90,6 @@ class TreeViewerComponent
     
     /** The View sub-component. */
     private TreeViewerWin       view;
-    
-    /**
-     * Converts the specified UI rootLevel into its corresponding 
-     * constant defined by the {@link OmeroPojoService}.
-     * 
-     * @param level The level to convert.
-     * @return See above.
-     */
-    private int convertRootLevel(int level)
-    {
-        switch (level) {
-            case WORLD_ROOT:
-                return OmeroPojoService.WORLD_HIERARCHY_ROOT;
-            case USER_ROOT:
-                return OmeroPojoService.USER_HIERARCHY_ROOT;
-            case GROUP_ROOT:
-                return OmeroPojoService.GROUP_HIERARCHY_ROOT;
-            default:
-                throw new IllegalArgumentException("Level not supported");
-        }
-    }
     
     /**
      * Creates a new instance.
@@ -271,7 +251,7 @@ class TreeViewerComponent
     {
         switch (model.getState()) {
             case DISCARDED:
-            case SAVE:  
+            //case SAVE: 
                 throw new IllegalStateException("This method cannot be " +
                         "invoked in the DISCARDED, SAVE state.");
         }
@@ -330,25 +310,6 @@ class TreeViewerComponent
             throw new IllegalStateException("This method should only be " +
                     "invoked in the NEW or READY state.");
         model.fireDataObjectDeletion(object);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#setSaveResult(DataObject, int)
-     */
-    public void setSaveResult(DataObject object, int op)
-    {
-        if (model.getState() != SAVE)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the SAVE state."); 
-        if (op != REMOVE_OBJECT) 
-            throw new IllegalArgumentException("Operation not supported."); 
-        
-        HashMap map = new HashMap(1);
-        map.put(new Integer(op), object);
-        model.setState(READY);
-        firePropertyChange(SAVE_EDITION_PROPERTY, null, map);
         fireStateChange();
     }
     
@@ -442,28 +403,21 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#onDataObjectSave(Map)
+     * @see TreeViewer#onDataObjectSave(DataObject, int)
      */
-    public void onDataObjectSave(Map map)
+    public void onDataObjectSave(DataObject data, int operation)
     {
-        switch (model.getState()) {
+        int state = model.getState();
+        if (operation == REMOVE_OBJECT && state != SAVE)
+            throw new IllegalStateException("This method cannot be " +
+                    "invoked in the SAVE state");
+        switch (state) {
             case DISCARDED:
                 throw new IllegalStateException("This method cannot be " +
-                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-                        "state");
+                        "invoked in the DISCARDED state");
         }
-        if (map == null) throw new IllegalArgumentException("No Object.");
-        if (map.size() != 1) 
-            throw new IllegalArgumentException("This method only supports " +
-                                                "map of size 1.");
-        Integer key = null;
-        DataObject data = null;
-        Iterator i = map.keySet().iterator();
-        while (i.hasNext()) {
-            key = (Integer) i.next();
-            data = (DataObject) map.get(key);
-        }
-        int operation = key.intValue();
+        if (data == null) 
+            throw new IllegalArgumentException("No data object. ");
         switch (operation) {
             case Editor.CREATE_OBJECT:
             case Editor.UPDATE_OBJECT: 
@@ -472,33 +426,34 @@ class TreeViewerComponent
             default:
                 throw new IllegalArgumentException("Save operation not " +
                         "supported.");
-        }
-        if (data == null) 
-            throw new IllegalArgumentException("No data object. ");
-            
+        }    
         int editor = model.getEditorType();
         removeEditor(); //remove the currently selected editor.
         Browser browser = model.getSelectedBrowser();
-        browser.refreshEdit(data, operation);
+        browser.refreshEdition(data, operation);
         if (operation == Editor.UPDATE_OBJECT) {
             Map browsers = model.getBrowsers();
-            i = browsers.keySet().iterator();
+            Iterator i = browsers.keySet().iterator();
             while (i.hasNext()) {
                 browser = (Browser) browsers.get(i.next());
                 if (!(browser.equals(model.getSelectedBrowser())))
-                    browser.refreshEdit(data, operation);
+                    browser.refreshEdition(data, operation);
             }
         }
         if (editor == TreeViewer.CREATE_EDITOR) {
-
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
         }
+        if (operation == REMOVE_OBJECT) {
+            model.setState(READY);
+            fireStateChange();
+        }
+        
     }
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#onDataObjectSave(Map)
+     * @see TreeViewer#clearFoundResults()
      */
     public void clearFoundResults()
     {
@@ -516,6 +471,36 @@ class TreeViewerComponent
             browser.accept(new ClearVisitor());
             browser.setFoundInBrowser(null); 
         }
+    }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#onImageClassified(ImageData, Set, int)
+     */
+    public void onImageClassified(ImageData image, Set categories, int mode)
+    {
+        switch (model.getState()) {
+            case DISCARDED:
+                throw new IllegalStateException("This method cannot be " +
+                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
+                        "state");
+        }
+        if (categories == null)
+            throw new IllegalArgumentException("Categories shouln't be null.");
+        if (image == null)
+            throw new IllegalArgumentException("No image.");
+        if (mode != Classifier.CLASSIFY_MODE && 
+            mode != Classifier.DECLASSIFY_MODE)
+            throw new IllegalArgumentException("Classification mode not " +
+                    "supported.");
+        Map browsers = model.getBrowsers();
+        Iterator b = browsers.keySet().iterator();
+        Browser browser;
+        while (b.hasNext()) {
+            browser = (Browser) browsers.get(b.next());
+            browser.refreshClassification(image, categories, mode);
+        }
+        
     }
     
 }

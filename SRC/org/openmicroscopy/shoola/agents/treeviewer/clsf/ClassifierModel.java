@@ -190,7 +190,7 @@ class ClassifierModel
     {
         state = Classifier.SAVING_CLASSIFICATION;
         currentLoader = new ClassificationSaver(component, 
-                ClassificationSaver.CLASSIFY, image.getId(), categories);
+                ClassificationSaver.CLASSIFY, image, categories);
         currentLoader.load();  
     }
     
@@ -204,7 +204,7 @@ class ClassifierModel
     {
         state = Classifier.SAVING_CLASSIFICATION;
         currentLoader = new ClassificationSaver(component, 
-                ClassificationSaver.DECLASSIFY, image.getId(), categories);
+                ClassificationSaver.DECLASSIFY, image, categories);
         currentLoader.load();  
     }
 
@@ -243,12 +243,21 @@ class ClassifierModel
         }
         state = Classifier.READY;
     }
-    
+
     /**
-     * Sets the state. 
+     * Updates the different views when the image has been classified or 
+     * declassified.
      * 
-     * @param state The state to set.
+     * @param image         The classified or declassified image.
+     * @param categories    The categories in which the image was added to or
+     *                      removed from.
+     * @param mode          The type of operation i.e. classification or 
+     *                      declassification.
      */
-    void setState(int state) { this.state = state; }
+    void saveClassification(ImageData image, Set categories, int mode)
+    {
+        state = Classifier.READY;
+        parentModel.onImageClassified(image, categories, mode);
+    }
     
 }

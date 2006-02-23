@@ -39,6 +39,8 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.ImageData;
+
 /** 
  * The component hosting the classification tree.
  *
@@ -77,10 +79,6 @@ public interface Classifier
     
     /** Bounds property to indicate to close the classifier. */
     public static final String  CLOSE_CLASSIFIER_PROPERTY = "closeClassifier";
-    
-    /** Bounds property to indicate that the image has been classified. */
-    public static final String  SAVE_CLASSIFICATION_PROPERTY = 
-                                                "saveClassification";
 
     /**
      * Sets the specified thumbnail 
@@ -145,9 +143,13 @@ public interface Classifier
     /**
      * Sets the categories in which the image has been added to or removed from.
      * 
-     * @param categories The categories. 
+     * @param image         The image classified or declassified.
+     * @param categories    The categories. 
+     * @param mode          The type of operation. one of the following
+     *                      constants: {@link #CLASSIFY_MODE} or
+     *                      {@link #DECLASSIFY_MODE}.
      */
-    public void saveClassification(Set categories);
+    public void saveClassification(ImageData image, Set categories, int mode);
     
     /** 
      * Closes the {@link Classifier}. 

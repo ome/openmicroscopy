@@ -37,9 +37,13 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Browser}.
@@ -74,23 +78,35 @@ public abstract class DataBrowserLoader
     protected final DataManagerView dmView;
     
     /**
-     * Converts the specified UI rootLevel into its corresponding 
-     * constant defined by the {@link DataManagerView}.
-     * 
-     * @param level The level to convert.
+     * Converts the UI rootLevel into its corresponding class.
      * @return See above.
      */
-    protected int convertRootLevel(int level)
+    protected Class convertRootLevel()
     {
-        switch (level) {
-	        case TreeViewer.WORLD_ROOT:
-	            return DataManagerView.WORLD_HIERARCHY_ROOT;
-	        case TreeViewer.USER_ROOT:
-	            return DataManagerView.USER_HIERARCHY_ROOT;
-	        case TreeViewer.GROUP_ROOT:
-	            return DataManagerView.GROUP_HIERARCHY_ROOT;
+        switch (viewer.getRootLevel()) {
+	        case TreeViewer.USER_ROOT: return ExperimenterData.class;
+	        case TreeViewer.GROUP_ROOT: return GroupData.class;
 	        default:
 	            throw new IllegalArgumentException("Level not supported");
+        }
+    }
+    
+    /**
+     * Determines the rootID depending on the rootLevel.
+     *     
+     * @return See above.
+     */
+    protected int getRootID()
+    {
+        switch (viewer.getRootLevel()) {
+            case TreeViewer.USER_ROOT:
+                ExperimenterData exp = (ExperimenterData) 
+                registry.lookup(LookupNames.CURRENT_USER_DETAILS);
+                return exp.getId();  
+            case TreeViewer.GROUP_ROOT:
+                return viewer.getRootID();
+            default:
+                throw new IllegalArgumentException("Level not supported");
         }
     }
     

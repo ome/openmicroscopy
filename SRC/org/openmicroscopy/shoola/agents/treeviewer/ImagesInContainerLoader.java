@@ -141,9 +141,8 @@ public class ImagesInContainerLoader
      */
     public void load()
     { 
-        handle = dmView.getImages(nodeType, nodeIDs,
-                				convertRootLevel(viewer.getRootLevel()),
-                				  viewer.getRootID(), this); 
+        handle = dmView.getImages(nodeType, nodeIDs, convertRootLevel(),
+                				  getRootID(), this); 
     }
 
     /** 
