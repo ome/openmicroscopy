@@ -34,9 +34,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
+import javax.swing.ButtonGroup;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
@@ -57,33 +60,95 @@ import javax.swing.border.BevelBorder;
 class FilterMenu
     extends JPopupMenu
 {
- 
+
+    /** Bounds property indicating that a new filter is selected. */
+    static final String             FILTER_SELECTED_PROPERTY = "filterSelected";
+    
+    /** The Name of the {@link #dataset} item. */
+    private static final String NAME_DATASET = "Images in datasets";
+    
+    /** The description of the {@link #dataset} item. */
+    private static final String DESCRIPTION_DATASET = "Retrieve images " +
+            "contained in the selected datasets.";
+    
+    /** The Name of the {@link #category} item. */
+    private static final String NAME_CATEGORY = "Images in categories";
+    
+    /** The Name of the {@link #category} item. */
+    private static final String DESCRIPTION_CATEGORY = "Retrieve images " +
+                        "contained in the selected categories.";
+    
+    /** The Name of the {@link #allImages} item. */
+    private static final String NAME = "All my Images";
+    
+    /** The description of the {@link #allImages} item. */
+    private static final String DESCRIPTION = "Retrieve all my images."; 
+    
     /** Button to retrieve the images in datasets. */
-    private JMenuItem   dataset;
+    private JRadioButtonMenuItem    dataset;
     
     /** Button to retrieve the images in categories. */
-    private JMenuItem   category;
+    private JRadioButtonMenuItem    category;
     
-    /**
-     * Sets the defaults of the specified menu item.
-     * 
-     * @param item The menu item.
-     */
-    private void initMenuItem(JMenuItem item) { item.setBorder(null); }
+    /** Button to retrieve the all the user's images. */
+    private JRadioButtonMenuItem    allImages;
     
-    /**
-     * Creates the menu items with the given actions.
-     * 
-     * @param controller The Controller.
-     */
-    private void createMenuItems(BrowserControl controller)
+    /** Reference to the Model. */
+    private BrowserModel            model;
+        
+    /** Helper method to create the menu items. */
+    private void createMenuItems()
     {
-        dataset = new JMenuItem(
-                	controller.getAction(BrowserControl.FILTER_IN_DATASET));
-        initMenuItem(dataset);
-        category = new JMenuItem(
-                	controller.getAction(BrowserControl.FILTER_IN_CATEGORY));
-        initMenuItem(category);
+        int type = model.getFilterType();
+        dataset = new JRadioButtonMenuItem(NAME_DATASET);
+        dataset.setToolTipText(DESCRIPTION_DATASET);
+        dataset.setSelected(type == Browser.IN_DATASET_FILTER);
+        category = new JRadioButtonMenuItem(NAME_CATEGORY);
+        category.setToolTipText(DESCRIPTION_CATEGORY);
+        category.setSelected(type == Browser.IN_CATEGORY_FILTER);
+        allImages = new JRadioButtonMenuItem(NAME);
+        allImages.setToolTipText(DESCRIPTION);
+        allImages.setSelected(type == Browser.NO_IMAGES_FILTER);
+        //Attach listener.
+        dataset.addChangeListener(new ChangeListener() {
+            /** Sets the selected filter types. */
+            public void stateChanged(ChangeEvent ce)
+            {
+                JRadioButtonMenuItem i = (JRadioButtonMenuItem) ce.getSource();
+                if (i.isSelected()) 
+                    firePropertyChange(FILTER_SELECTED_PROPERTY, 
+                            new Integer(model.getFilterType()), 
+                            new Integer(Browser.IN_DATASET_FILTER));
+            }
+        });
+        category.addChangeListener(new ChangeListener() {
+            /** Sets the selected filter types. */
+            public void stateChanged(ChangeEvent ce)
+            {
+                JRadioButtonMenuItem i = (JRadioButtonMenuItem) ce.getSource();
+                if (i.isSelected()) 
+                    firePropertyChange(FILTER_SELECTED_PROPERTY, 
+                            new Integer(model.getFilterType()), 
+                            new Integer(Browser.IN_CATEGORY_FILTER));
+            }
+        });
+        allImages.addChangeListener(new ChangeListener() {
+            /** Sets the selected filter types. */
+            public void stateChanged(ChangeEvent ce)
+            {
+                JRadioButtonMenuItem i = (JRadioButtonMenuItem) ce.getSource();
+                if (i.isSelected()) 
+                    firePropertyChange(FILTER_SELECTED_PROPERTY, 
+                            new Integer(model.getFilterType()), 
+                            new Integer(Browser.NO_IMAGES_FILTER));
+            }
+        });
+        
+        ButtonGroup group = new ButtonGroup();
+        group.add(dataset);
+        group.add(category);
+        group.add(allImages);
+        
     }
     
     /** Builds and lays out the GUI. */
@@ -92,18 +157,20 @@ class FilterMenu
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(dataset);
         add(category);
+        add(allImages);
     }
     
     /** 
      * Creates a new instance.
      *
-     * @param controller The Controller. Mustn't be <code>null</code>.
+     * @param model Reference to the Model. Mustn't be <code>null</code>. 
      */
-    FilterMenu(BrowserControl controller)
+    FilterMenu(BrowserModel model)
     {
-        if (controller == null) 
-            throw new IllegalArgumentException("No control.");
-        createMenuItems(controller);
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
+        this.model = model;
+        createMenuItems();
         buildGUI() ;
     }
     

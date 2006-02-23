@@ -373,6 +373,17 @@ class BrowserUI
     JTree getTreeDisplay() { return treeDisplay; }
     
     /**
+     * Returns the root node of the tree.
+     * 
+     * @return See above.
+     */
+    TreeImageDisplay getTreeRoot()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        return(TreeImageDisplay) dtm.getRoot();
+    }
+    
+    /**
      * Returns the title of the Browser according to the type.
      * 
      * @return See above.
@@ -418,7 +429,11 @@ class BrowserUI
      */
     void showFilterMenu(Component c, Point p)
     {
-        if (filterMenu == null) filterMenu = new FilterMenu(controller);
+        if (filterMenu == null) {
+            filterMenu = new FilterMenu(model);
+            filterMenu.addPropertyChangeListener(
+                    FilterMenu.FILTER_SELECTED_PROPERTY, controller);
+        }
         filterMenu.show(c, p.x, p.y);
     }
     
@@ -486,10 +501,10 @@ class BrowserUI
     /**
      * Update the specified set of nodes.
      * 
-     * @param nodes The set of nodes to update.
+     * @param nodes The collection of nodes to update.
      * @param object The <code>DataObject</code> to update.
      */
-    void updateNodes(Set nodes, DataObject object)
+    void updateNodes(List nodes, DataObject object)
     {
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         Iterator i = nodes.iterator(); 
@@ -504,11 +519,12 @@ class BrowserUI
     /**
      * Removes the specified set of nodes from the tree.
      * 
-     * @param nodes         The set of nodes to remove.
+     * @param nodes         The collection of nodes to remove.
      * @param parentDisplay The selected parent.
      */
-    void removeNodes(Set nodes, TreeImageDisplay parentDisplay)
+    void removeNodes(List nodes, TreeImageDisplay parentDisplay)
     {
+        if (parentDisplay == null) parentDisplay = getTreeRoot();
         Iterator i = nodes.iterator(); 
         TreeImageDisplay node;
         TreeImageDisplay parent;
@@ -516,11 +532,14 @@ class BrowserUI
         while (i.hasNext()) {
             node = (TreeImageDisplay) i.next();
             parent = node.getParentDisplay();
-            parent.removeChildDisplay(node);
-            parent.remove(node);
-            dtm.reload(parent);
-            if (parent.equals(parentDisplay))
-                treeDisplay.setSelectionPath(new TreePath(parent.getPath()));
+            if (parent.hasChildrenDisplay()) {
+                parent.removeChildDisplay(node);
+                parent.remove(node);
+                dtm.reload(parent);
+                if (parent.equals(parentDisplay))
+                    treeDisplay.setSelectionPath(
+                            new TreePath(parent.getPath()));
+            }
         }
     }
     
@@ -531,9 +550,10 @@ class BrowserUI
      * @param newNode       The node to add to the parent.
      * @param parentDisplay The selected parent.
      */
-    void createNodes(Set nodes, TreeImageDisplay newNode, 
+    void createNodes(List nodes, TreeImageDisplay newNode, 
                     TreeImageDisplay parentDisplay)
     {
+        if (parentDisplay == null) parentDisplay = getTreeRoot();
         Iterator i = nodes.iterator();
         TreeImageDisplay parent;
         List list;
@@ -542,17 +562,20 @@ class BrowserUI
         buildEmptyNode(newNode);
         while (i.hasNext()) {
             parent = (TreeImageDisplay) i.next();
-            parent.addChildDisplay(newNode);
-            list = sorter.sort(parent.getChildrenDisplay());
-            parent.removeAllChildren();
-            j = list.iterator();
-            while (j.hasNext())
-                dtm.insertNodeInto((TreeImageDisplay) j.next(), parent,
-                                parent.getChildCount());
-            dtm.reload(parent);
-            expandNode(parent);
-            if (parent.equals(parentDisplay))
-                treeDisplay.setSelectionPath(new TreePath(newNode.getPath()));
+            if (parent.hasChildrenDisplay()) {
+                parent.addChildDisplay(newNode);
+                list = sorter.sort(parent.getChildrenDisplay());
+                parent.removeAllChildren();
+                j = list.iterator();
+                while (j.hasNext())
+                    dtm.insertNodeInto((TreeImageDisplay) j.next(), parent,
+                                    parent.getChildCount());
+                dtm.reload(parent);
+                expandNode(parent);
+                if (parent.equals(parentDisplay))
+                    treeDisplay.setSelectionPath(
+                            new TreePath(newNode.getPath()));
+            }
         }
     }
     

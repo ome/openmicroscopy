@@ -39,21 +39,18 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.tree.DefaultTreeModel;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.CategoryData;
 import pojos.DatasetData;
 
@@ -85,10 +82,10 @@ class BrowserControl
     static final Integer     SORT_DATE = new Integer(3);
     
     /** Identifies the Filter in Dataset action in the Actions menu. */
-    static final Integer     FILTER_IN_DATASET = new Integer(4);
+    //static final Integer     FILTER_IN_DATASET = new Integer(4);
     
     /** Identifies the Filter in Category action in the Actions menu. */
-    static final Integer     FILTER_IN_CATEGORY = new Integer(5);
+    //static final Integer     FILTER_IN_CATEGORY = new Integer(5);
     
     /** Identifies the Filter Menu action in the Actions menu. */
     static final Integer     FILTER_MENU = new Integer(6);
@@ -112,10 +109,6 @@ class BrowserControl
         actionsMap.put(CLOSE, new CloseAction(model));
         actionsMap.put(SORT, new SortAction(model));
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
-        actionsMap.put(FILTER_IN_DATASET, new FilterAction(model,
-                                            Browser.DATASET_CONTAINER));
-        actionsMap.put(FILTER_IN_CATEGORY, new FilterAction(model,
-                							Browser.CATEGORY_CONTAINER));
         actionsMap.put(FILTER_MENU, new FilterMenuAction(model));
     }
     
@@ -129,12 +122,10 @@ class BrowserControl
         if (nodes == null || nodes.size() == 0) return;
         if (model.getBrowserType() != Browser.IMAGES_EXPLORER) return;
         //We should be in the ready state.
-        DefaultTreeModel dtm = (DefaultTreeModel) 
-                                view.getTreeDisplay().getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        TreeImageDisplay root = view.getTreeRoot();
         root.removeAllChildrenDisplay() ;
         view.loadAction(root);
-        model.loadData(nodes);
+        model.loadFilteredImageData(nodes);
     }
     
     /**
@@ -190,12 +181,14 @@ class BrowserControl
                 model.loadLeaves();
             }    
         } else {
-            DefaultTreeModel dtm = (DefaultTreeModel) 
-                            view.getTreeDisplay().getModel();
-            TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+            TreeImageDisplay root = view.getTreeRoot();
             if (root.equals(display) && root.getChildrenDisplay().size() == 0) {
-                view.loadAction(root);
-                model.loadData();
+                if (model.getBrowserType() == Browser.IMAGES_EXPLORER) 
+                    model.loadFilteredImagesForHierarchy();
+                else {
+                    view.loadAction(root);
+                    model.loadData();
+                }
             }
         }
     }
@@ -251,9 +244,13 @@ class BrowserControl
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
-        if (name.equals(Browser.FILTER_NODES_PROPERTY)) 
-            filterNodes((Set) pce.getNewValue());
-        else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
+        if (name.equals(TreeViewer.FILTER_NODES_PROPERTY)) {
+            Map map = (Map) pce.getNewValue();
+            if (map.get(model) != null) 
+                filterNodes((Set) map.get(model));
+        } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY)) {
+            model.setFilterType(((Integer) pce.getNewValue()).intValue());
+        } else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
             model.refreshTree();
     }
     

@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -68,6 +69,24 @@ public interface Browser
     extends ObservableComponent
 {
 
+    /**
+     * Indicates that all images owned by the current user are retrieved if the
+     * view is {@link #IMAGES_EXPLORER}.
+     */
+    static final int                NO_IMAGES_FILTER = 200;
+    
+    /**
+     * Indicates that the images contained in the selected datasets are 
+     * retrieved if the view is {@link #IMAGES_EXPLORER}.
+     */
+    static final int                IN_DATASET_FILTER = 201;
+    
+    /**
+     * Indicates that the images contained in the selected categories are 
+     * retrieved if the view is {@link #IMAGES_EXPLORER}.
+     */
+    static final int                IN_CATEGORY_FILTER = 202;
+    
     /** Flag to denote the <i>New</i> state. */
     public static final int     	NEW = 1;
     
@@ -106,15 +125,10 @@ public interface Browser
     
 
     /** Indicates that the container is of type <code>Dataset</code>.*/
-    public static final int     	DATASET_CONTAINER = 200;
+    //public static final int     	DATASET_CONTAINER = 200;
     
     /** Indicates that the container is of type <code>Category</code>.*/
     public static final int     	CATEGORY_CONTAINER = 201;
-    
-    /** 
-     * Bound property name indicating a data retrieval cancellation occured. 
-     */
-    //public static final String  	CANCEL_PROPERTY = "cancel";
     
     /** 
      * Bound property name indicating the data retrieval is finished. 
@@ -135,9 +149,6 @@ public interface Browser
     /** Bound property name indicating to bring up the popup menu.  */
     public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
     
-    /** Bound property name indicating to set the filters nodes.  */
-    public static final String  	FILTER_NODES_PROPERTY = "filterNodes";
-    
     /** Bound property indicating to change the root of the hierarchy. */
     public static final String		HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
   
@@ -155,6 +166,22 @@ public interface Browser
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
      */
     public static final String     IMAGES_TITLE = "Image Explorer";
+    
+    
+    /**
+     * Sets the filter type.
+     * 
+     * @param type The value to set.
+     */
+    void setFilterType(int type);
+    
+    
+    /**
+     * Sets the selected {@link TreeImageDisplay node}.
+     * 
+     * @param display The selected node.
+     */
+    void setSelectedDisplay(TreeImageDisplay display);
     
     /**
      * Queries the current state.
@@ -285,25 +312,25 @@ public interface Browser
     public void setSortedNodes(List nodes);
     
     /**
-     * Sets the selected {@link TreeImageDisplay node}.
-     * 
-     * @param display The selected node.
-     */
-    void setSelectedDisplay(TreeImageDisplay display);
-    
-    /**
      * Loads the hierachy e.g. <code>Project/Dataset</code>,
      * <code>CategoryGroup/Category</code>.
      */
     public void loadData();
     
     /**
-     * Loads the children of the nodes specified by the collection 
-     * of nodeIDs.
-     * 
-     * @param nodeIDs The collection of IDs.
+     * Loads the images contained in the selected container.
+     * The user has to first select the container i.e. datasets or categories
+     * then the images are retrieved. 
      */
-    public void loadData(Set nodeIDs);
+    public void loadFilteredImagesForHierarchy();
+    
+    /**
+     * Loads the children of the nodes specified by the collection 
+     * of <code>CategoryData</code> or <code>DatasetData</code>.
+     * 
+     * @param nodeIDs The collection of <code>DataObject</code>.
+     */
+    public void loadFilteredImageData(Set nodeIDs);
 
     /**
      * Retrieves the images contained in a <code>Dataset</code> or 
@@ -321,15 +348,6 @@ public interface Browser
      * @param type	The type of filter used.
      */
     public void setFilterNodes(Set nodes, int type);
-    
-    /**
-     * Loads the data for the specified type of filter.
-     * 
-     * @param type 	The type of container the data is for. One of the following
-     * 				constants: {@link #DATASET_CONTAINER} or 
-     * 				{@link #CATEGORY_CONTAINER}
-     */
-    public void loadFilterData(int type);
     
     /** 
      * Brings up the <code>Filter menu</code> at the specified location 
@@ -369,7 +387,6 @@ public interface Browser
      * <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
      * 
      * @param rootLevel The level of the root. One of the following constants:
-     * 					{@link TreeViewer#WORLD_ROOT}, 
      * 					{@link TreeViewer#GROUP_ROOT} and
      * 					{@link TreeViewer#USER_ROOT}.
      * @param rootID	The Id of the root.
@@ -378,8 +395,7 @@ public interface Browser
     
     /**
      * Returns the level of the root. One of the following constants:
-     * {@link TreeViewer#WORLD_ROOT}, {@link TreeViewer#GROUP_ROOT} and
-     * {@link TreeViewer#USER_ROOT}. 
+     * {@link TreeViewer#GROUP_ROOT} and {@link TreeViewer#USER_ROOT}. 
      * 
      * @return See above.
      */
@@ -440,15 +456,24 @@ public interface Browser
     
     /**
      * Refreshes the nodes hosting the specified <code>DataObject</code>.
-     * If the <code>op</code> parameter is {@link TreeViewer#CREATE_OBJECT}
-     * The currently selected node is the parent of the <code>DataObject</code>.
      * 
      * @param object    The <code>DataObject</code> to handle.
-     * @param op        One of the following constants: 
-     *                  {@link TreeViewer#CREATE_OBJECT}, 
-     *                  {@link TreeViewer#REMOVE_OBJECT} or
-     *                  {@link TreeViewer#UPDATE_OBJECT}.
+     * @param op        The type of operation.
      */
-    public void refreshEdit(DataObject object, int op);
+    public void refreshEdition(DataObject object, int op);
     
+    /**
+     *  
+     * Refreshes the nodes hosting the specified <code>DataObject</code>.
+     *
+     * @param image         The image classified or declassified. Mustn't 
+     *                      be <code>null</code>.
+     * @param categories    The categories the image was added to or 
+     *                      removed from. Mustn't be <code>null</code>.
+     * @param op            The type of operation i.e. classification or 
+     *                      declassification.
+     */
+    public void refreshClassification(ImageData image, Set categories,
+                                        int op);
+
 }

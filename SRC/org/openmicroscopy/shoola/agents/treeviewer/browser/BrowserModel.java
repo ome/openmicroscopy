@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.Point;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JTree;
@@ -92,8 +94,7 @@ class BrowserModel
     
     /** 
      * The level of the hierarchy root. One of the following constants:
-     * {@link TreeViewer#WORLD_ROOT}, {@link TreeViewer#GROUP_ROOT} and
-     * {@link TreeViewer#USER_ROOT}.
+     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
      */
     private int 				rootLevel;
     
@@ -150,7 +151,7 @@ class BrowserModel
         checkBrowserType(browserType);
         this.browserType = browserType;
         clickPoint = null;
-        filterType = -1;
+        filterType = Browser.IN_DATASET_FILTER;
         foundNodeIndex = -1;
     }
 
@@ -227,8 +228,6 @@ class BrowserModel
         else if (browserType == Browser.CATEGORY_EXPLORER)
             currentLoader = new HierarchyLoader(component,
                                 HierarchyLoader.CATEGORY_GROUP);
-        else if (browserType == Browser.IMAGES_EXPLORER)
-            currentLoader = new ImagesLoader(component);
         else throw new IllegalArgumentException("BrowserType not valid.");
         currentLoader.load();
         state = Browser.LOADING_DATA;
@@ -238,23 +237,24 @@ class BrowserModel
      * Starts the asynchronous retrieval of the hierarchy objects needed
      * by this model and sets the state to {@link Browser#LOADING_DATA}. 
      * 
-     * @param nodeIDs Collection of containers' IDs.
+     * @param nodes The Collection of <code>DataObject</code> nodes.
      */
-    void fireDataLoading(Set nodeIDs)
+    void fireFilteredImageDataLoading(Set nodes)
     {
-        if (browserType != Browser.IMAGES_EXPLORER)
-            throw new IllegalArgumentException("BrowserType not valid.");
-        
-        if (filterType == -1) 
-            throw new IllegalArgumentException("Filter type not valid.");
-        Class nodeType = null;
-        if (filterType == HierarchyLoader.DATASET) nodeType = DatasetData.class;
-        else if (filterType == HierarchyLoader.CATEGORY)
-            nodeType = CategoryData.class;
-        currentLoader = new ImagesInContainerLoader(component, nodeType, 
-                                                    nodeIDs, true);
+        Set ids = new HashSet(nodes.size());
+        Iterator i = nodes.iterator();
+        if (filterType == Browser.IN_DATASET_FILTER) {
+            while (i.hasNext())
+                ids.add(new Integer(((DatasetData) i.next()).getId()));
+            currentLoader = new ImagesInContainerLoader(component, 
+                                            DatasetData.class, ids, true);
+        } else if (filterType == Browser.IN_CATEGORY_FILTER) {
+            while (i.hasNext())
+                ids.add(new Integer(((CategoryData) i.next()).getId()));
+            currentLoader = new ImagesInContainerLoader(component, 
+                                                CategoryData.class, ids, true);
+        }
         currentLoader.load();
-        filterType = -1;
         state = Browser.LOADING_DATA;
     }
     
@@ -283,18 +283,18 @@ class BrowserModel
 
     /**
      * Starts the asynchronous retrieval of the hierarchy objects needed
-     * by this model and sets the state to {@link Browser#LOADING_DATA}. 
-     * 
-     * @param type The type of filter.
+     * by this model and sets the state to {@link Browser#LOADING_DATA}
+     * depending on the value of the {@link #filterType}. 
      */
-    void fireFilterDataLoading(int type)
+    void fireFilterDataLoading()
     {
-        if (type == Browser.DATASET_CONTAINER)
+        if (filterType == Browser.IN_DATASET_FILTER)
             currentLoader = new HierarchyLoader(component,
                                     HierarchyLoader.DATASET, false, true);
-        else if (type == Browser.CATEGORY_CONTAINER)
+        else if (filterType == Browser.IN_CATEGORY_FILTER)
             currentLoader = new HierarchyLoader(component,
-                    HierarchyLoader.CATEGORY, false, true);
+                                    HierarchyLoader.CATEGORY, false, true);
+        else currentLoader = new ImagesLoader(component);
         currentLoader.load();
         state = Browser.LOADING_DATA;
     }
@@ -396,8 +396,7 @@ class BrowserModel
      * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
      * 
      * @param rootLevel The level of the root. One of the following constants:
-     * 					{@link TreeViewer#WORLD_ROOT}, 
-     * 					{@link TreeViewer#GROUP_ROOT} and
+     * 					{@link TreeViewer#GROUP_ROOT} or
      * 					{@link TreeViewer#USER_ROOT}.
      * @param rootID	The Id of the root.
      */
@@ -409,8 +408,8 @@ class BrowserModel
     
     /**
      * Returns the level of the root. 
-     * One of the following constants: {@link TreeViewer#WORLD_ROOT},
-     * {@link TreeViewer#GROUP_ROOT} and {@link TreeViewer#USER_ROOT}.
+     * One of the following constants: 
+     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
      * 
      * @return See above.
      */
