@@ -79,7 +79,7 @@ public class LoadingWin
      */
     public LoadingWin(JFrame owner)
     {
-        super(owner, "Loading...");
+        super(owner, "Loading...", false);
         setModal(true);
         buildGUI();
     }
