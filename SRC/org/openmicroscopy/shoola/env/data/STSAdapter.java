@@ -1361,9 +1361,11 @@ class STSAdapter
         //List of renderingSettings to save in DB.  
         List l = new ArrayList();
         if (list != null) {
-            if (list.size() == 0)  //nothing previously saved by the user.
+            if (list.size() == 0) {
+                //nothing previously saved by the user.
                 l = saveRSFirstTime(imageID, rDef);
-            else l = saveRS(rDef, list);
+                gateway.annotateAttributesData(l);
+            } else l = saveRS(rDef, list);
             gateway.updateAttributes(l);
         }
     }
