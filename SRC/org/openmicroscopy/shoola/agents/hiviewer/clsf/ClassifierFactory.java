@@ -103,7 +103,7 @@ public class ClassifierFactory
     public static Classifier createComponent(int mode, int imageID,
                                              JFrame owner)
     {
-        switch(mode) {
+        switch (mode) {
             case Classifier.CLASSIFICATION_MODE:
                 return createClassifComponent(imageID, owner);
             case Classifier.DECLASSIFICATION_MODE:

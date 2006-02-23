@@ -64,12 +64,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
  */
 abstract class ClassifierModel
 {
-
-    /** Holds one of the state flags defined by {@link Classifier}. */
-    private int                 state;
-    
-    /** Loads all the required metadata. */
-    private ClassifLoader       loader;
     
     /**
      * Stores the metadata needed to classify/declassify the Image the 
@@ -79,6 +73,12 @@ abstract class ClassifierModel
      * all the paths that don't lead to the Image.
      */
     private Set                 availablePaths;
+    
+    /** Holds one of the state flags defined by {@link Classifier}. */
+    protected int               state;
+    
+    /** Loads all the required metadata. */
+    protected ClassifLoader     loader;
     
     /** The id of the Image this Model is for. */
     protected int               imageID;

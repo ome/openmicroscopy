@@ -45,11 +45,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.tree.DefaultTreeModel;
@@ -90,16 +93,19 @@ abstract class ClassifierWin
      * Bound property name indicating that a new category has 
      * been selected.
      */
-    public final static String      SELECTED_CATEGORY_PROPERTY = 
-                                                            "selectedCategory";
+    final static String             SELECTED_CATEGORY_PROPERTY = 
+                                            "selectedCategory";
     
     /** Bound property name indicating if the window is closed. */
-    public final static String      CLOSED_PROPERTY = "closed";
+    final static String             CLOSED_PROPERTY = "closed";
     
-    private static final Dimension  WIN_DIMENSION = new Dimension(300, 300);
+    private static final Dimension  WIN_DIMENSION = new Dimension(500, 500);
     
     /** Horizontal space between the cells in the grid. */
     static final int                H_SPACE = 5;
+    
+    /** The window Adapter. */
+    private WindowAdapter           adapter;
     
     /** Button to finish the operation. */
     private JButton                 finishButton;
@@ -107,17 +113,14 @@ abstract class ClassifierWin
     /** Button to cancel the object creation. */
     private JButton                 cancelButton;
     
+    /** The status bar shown during the classification. */
+    private JPanel                  status;
+    
     /** The tree hosting the hierarchical structure. */
     protected TreeCheck             tree;
     
     /** Component used to sort the nodes. */
     protected ViewerSorter          sorter;
-    
-    /** 
-     * The selected category to classify the image into or to remove the
-     * classification from.
-     */
-    private CategoryData            selectedCategory;
     
     /**
      * All the paths in the Category Group trees that
@@ -144,7 +147,22 @@ abstract class ClassifierWin
             object = ((TreeCheckNode) i.next()).getUserObject();
             if (object instanceof CategoryData) paths.add(object);
         } 
+        status.setVisible(true);
+        setButtonsEnabled(false);
+        removeWindowListener(adapter);
         firePropertyChange(SELECTED_CATEGORY_PROPERTY, null, paths);
+    }
+    
+    /**
+     * Sets the {@link #finishButton} and {@link #cancelButton}
+     * to enable.
+     * 
+     * @param b The flag to set.
+     */
+    private void setButtonsEnabled(boolean b)
+    {
+        finishButton.setEnabled(b);
+        cancelButton.setEnabled(b);
     }
     
     /** Initializes the GUI components. */
@@ -157,21 +175,17 @@ abstract class ClassifierWin
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { finish(); }
         });
-        cancelButton = new JButton("Cancel");
+        cancelButton = new JButton("Close");
         cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {  
-                setClosed();
-            }
+            public void actionPerformed(ActionEvent e) { setClosed(); }
         });
-    }
-    
-    /** Fires a property change event and closes the window. */ 
-    private void setClosed()
-    {
-        firePropertyChange(CLOSED_PROPERTY, Boolean.TRUE, Boolean.FALSE);
-        setVisible(false);
-        dispose();
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        status = new JPanel();
+        status.setVisible(false);
+        status.setLayout(new BoxLayout(status, BoxLayout.X_AXIS));
+        status.add(new JLabel("Saving data "));
+        status.add(progressBar);
     }
     
     /**
@@ -248,8 +262,11 @@ abstract class ClassifierWin
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
         c.add(getClassifPanel(), BorderLayout.CENTER);
-        JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.setBorder(BorderFactory.createEtchedBorder());
+        p.add(UIUtilities.buildComponentPanel(status));
+        p.add(UIUtilities.buildComponentPanelRight(buildToolBar()));
         c.add(p, BorderLayout.SOUTH);
     }
     
@@ -297,26 +314,19 @@ abstract class ClassifierWin
         initComponents();
         setModal(true);
         setTitle("Classification");
-        
-        //AttachWindow Listener
-        addWindowListener(new WindowAdapter() {
+        adapter = new WindowAdapter() {
             public void windowClosing(WindowEvent we) { setClosed(); }
-        });
+        };
+        //AttachWindow Listener
+        addWindowListener(adapter);
     }
-
-    /** 
-     * The category selected, either to classify or declassify the 
-     * selected image.
-     * 
-     * @param category The selected category.
-     */
-    void setSelectedCategory(CategoryData category)
+    
+    /** Fires a property change event and closes the window. */ 
+    void setClosed()
     {
-        Object oldValue = selectedCategory;
-        selectedCategory = category;
-        firePropertyChange(SELECTED_CATEGORY_PROPERTY, oldValue, 
-                    selectedCategory);
-        setClosed();
+        firePropertyChange(CLOSED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        setVisible(false);
+        dispose();
     }
     
     /** Brings up the window on screen and centers it. */

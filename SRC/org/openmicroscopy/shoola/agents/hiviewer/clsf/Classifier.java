@@ -89,11 +89,14 @@ public interface Classifier
     /** Flag to denote the <i>Loading Metadata</i> state. */
     public static final int     LOADING_METADATA = 2;
     
+    /** Flag to denote the <i>Saving Metadata</i> state. */
+    public static final int     SAVING_METADATA = 3;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 3;
+    public static final int     READY = 4;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 4;
+    public static final int     DISCARDED = 5;
 
     /** 
      * Flag to denote that a {@link Classifier} was created to classify an
@@ -192,5 +195,15 @@ public interface Classifier
      * Any ongoing data loading is cancelled.
      */
     public void discard();
+
+    
+    /**
+     * Sets the categories in which the image has been added to or removed from.
+     * 
+     * @param categories The categories. 
+     */
+    public void saveClassification(Set categories);
+    
+    
     
 }

@@ -38,9 +38,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifPathsLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
-import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import org.openmicroscopy.shoola.agents.hiviewer.ClassificationSaver;
 
 
 /** 
@@ -88,10 +86,10 @@ class AddModel
      */
     protected void save(Set categories)
     {
-        HierarchyBrowsingView hbw = (HierarchyBrowsingView) 
-            HiViewerAgent.getRegistry().getDataServicesView(
-                    HierarchyBrowsingView.class);
-        hbw.classify(imageID, categories, new DSCallAdapter() {});
+        state = Classifier.SAVING_METADATA;
+        loader = new ClassificationSaver(component, 
+                    ClassificationSaver.CLASSIFY, imageID, categories);
+        loader.load();
     }
 
     /**

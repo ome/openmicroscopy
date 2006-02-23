@@ -145,6 +145,9 @@ class ClassifierControl
         model.addChangeListener(this);
     }
 
+    /** Closes and disposes. */
+    void closeWindow() { classifWin.setClosed(); }
+    
     /**
      * Listens to property changes in the {@link #loadingWin} and
      * {@link #classifWin}.

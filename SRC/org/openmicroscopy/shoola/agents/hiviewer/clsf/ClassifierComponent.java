@@ -172,6 +172,7 @@ class ClassifierComponent
             throw new IllegalStateException(
                     "This method can only be invoked in the READY state.");
         model.save(categories);
+        fireStateChange();
     }
 
     /**
@@ -184,6 +185,20 @@ class ClassifierComponent
             model.discard();
             fireStateChange();
         }
+    }
+
+    /**
+     * Implemented as specified by the {@link Classifier} interface.
+     * @see Classifier#saveClassification(Set)
+     */
+    public void saveClassification(Set categories)
+    {
+        if (model.getState() != SAVING_METADATA)
+            throw new IllegalStateException("This method should be invoked " +
+                    "in the SAVING_METADATA state.");
+        if (categories == null) 
+            throw new IllegalArgumentException("Categories shouldn't be null.");
+        controller.closeWindow();
     }
     
 }
