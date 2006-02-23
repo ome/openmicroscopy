@@ -81,12 +81,6 @@ class BrowserControl
     /** Identifies the Sort by Date action in the Actions menu. */
     static final Integer     SORT_DATE = new Integer(3);
     
-    /** Identifies the Filter in Dataset action in the Actions menu. */
-    //static final Integer     FILTER_IN_DATASET = new Integer(4);
-    
-    /** Identifies the Filter in Category action in the Actions menu. */
-    //static final Integer     FILTER_IN_CATEGORY = new Integer(5);
-    
     /** Identifies the Filter Menu action in the Actions menu. */
     static final Integer     FILTER_MENU = new Integer(6);
        

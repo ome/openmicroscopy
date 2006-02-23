@@ -181,17 +181,17 @@ class EditorComponent
      */
     public void setAnnotations(Map map)
     {
-        if (model.getState() != LOADING_ANNOTATION)
-            throw new IllegalStateException("This method can only be invoked" +
-                    " in the LOADING_ANNOTATION state.");
-        if (map == null) throw new IllegalArgumentException("No annotations.");
-        model.setAnnotations(map);
-        view.showAnnotations();
-        if (model.hasThumbnail())
-            firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, null, 
-                                model.getHierarchyObject());
-        model.setState(READY);
-        fireStateChange();
+        if (model.getState() == LOADING_ANNOTATION) {
+            if (map == null) 
+                throw new IllegalArgumentException("No annotations.");
+            model.setAnnotations(map);
+            view.showAnnotations();
+            if (model.hasThumbnail())
+                firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, null, 
+                                    model.getHierarchyObject());
+            model.setState(READY);
+            fireStateChange();
+        }
     }
 
     /**
