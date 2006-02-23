@@ -128,8 +128,9 @@ class TreeViewerWin
     private boolean isBrowserVisible(Browser browser)
     {
         Component[] comps = tabs.getComponents();
-        for (int i = 0; i < comps.length; i++) 
-            return (comps[i].equals(browser.getUI()));
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i].equals(browser.getUI())) return true;
+        }
         return false;
     }
 
