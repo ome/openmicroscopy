@@ -43,6 +43,8 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
@@ -78,12 +80,10 @@ public class HierarchyLoader
 {
 
     /** 
-     * The rootLevel, one of the following constants:
-     * {@link OmeroPojoService#WORLD_HIERARCHY_ROOT},
-     * {@link OmeroPojoService#GROUP_HIERARCHY_ROOT},
-     * {@link OmeroPojoService#USER_HIERARCHY_ROOT}.
+     * The level of the hierarchy either <code>GroupData</code> or 
+     * <code>ExperimenterData</code>.
      */
-    private int         rootLevel;
+    private Class       rootLevel;
     
     /** The Id of the root level. */
     private int         rootLevelID;
@@ -94,45 +94,6 @@ public class HierarchyLoader
     /** Loads the specified tree. */
     private BatchCall   loadCall;
     
-    /**
-     * Creates a {@link BatchCall} to retrieve a Container tree, either
-     * Project, Dataset, CategoryGroup or Category.
-     * 
-     * @param rootNodeType The type of the root node.
-     * @param rootNodeIDs Collection of container's id. 
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final Class rootNodeType, 
-                                    final Set rootNodeIDs)
-    {
-        return new BatchCall("Loading container tree: ") {
-            public void doCall() throws Exception
-            {
-                OmeroPojoService os = context.getOmeroService();
-                rootNodes = os.loadContainerHierarchy(rootNodeType,
-                                                    rootNodeIDs, true,
-                                                    rootLevel, rootLevelID);
-            }
-        };
-    }
-    
-    /**
-     * Controls if the specified level is supported.
-     * 
-     * @param level The level to control.
-     */
-    private void validateRootLevel(int level)
-    {
-        switch (level) {
-            case OmeroPojoService.WORLD_HIERARCHY_ROOT:
-            case OmeroPojoService.GROUP_HIERARCHY_ROOT:
-            case OmeroPojoService.USER_HIERARCHY_ROOT:
-                return;
-            default:
-                throw new IllegalArgumentException("Root level not supported.");
-        }
-        
-    }
     
     /**
      * Creates {@link BatchCall} if the type is supported.
@@ -165,6 +126,40 @@ public class HierarchyLoader
     }
     
     /**
+     * Checks if the specified level is supported.
+     * 
+     * @param level The level to control.
+     */
+    private void checkRootLevel(Class level)
+    {
+        if (level.equals(ExperimenterData.class) ||
+                level.equals(GroupData.class)) return;
+        throw new IllegalArgumentException("Root level not supported");
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve a Container tree, either
+     * Project, Dataset, CategoryGroup or Category.
+     * 
+     * @param rootNodeType The type of the root node.
+     * @param rootNodeIDs Collection of container's id. 
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final Class rootNodeType, 
+                                    final Set rootNodeIDs)
+    {
+        return new BatchCall("Loading container tree: ") {
+            public void doCall() throws Exception
+            {
+                OmeroPojoService os = context.getOmeroService();
+                rootNodes = os.loadContainerHierarchy(rootNodeType,
+                                                    rootNodeIDs, true,
+                                                    rootLevel, rootLevelID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * 
      * @see BatchCallTree#buildTree()
@@ -188,13 +183,15 @@ public class HierarchyLoader
      *                      {@link ProjectData}, {@link DatasetData},
      *                      {@link CategoryGroupData} or {@link CategoryData}.
      * @param rootNodeID    The id of the root node.
-     * @param rootLevel     The Level of the root.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
      * @param rootLevelID   The id of the root's level.
      */
     public HierarchyLoader(Class rootNodeType, int rootNodeID, 
-                            int rootLevel, int rootLevelID)
+                            Class rootLevel, int rootLevelID)
     {
-        validateRootLevel(rootLevel);
+        checkRootLevel(rootLevel);
         this.rootLevel = rootLevel;
         this.rootLevelID = rootLevelID;
         HashSet set = new HashSet(1);
