@@ -122,9 +122,11 @@ class TitleBar
     /**
      * Creates a new title bar for the specified <code>frame</code>.
      * 
-     * @param title The frame's title.
+     * @param title         The frame's title.
+     * @param closedButton  Passed <code>true</code> if the {@link #closeButton}
+     *                      is shown, <code>false</code> otherwise.
      */
-    TitleBar(String title) 
+    TitleBar(String title, boolean closedButton) 
     {
         setBorder(BorderFactory.createEmptyBorder());
         titlePainter = new TitlePainter(new Font("SansSerif", Font.PLAIN, 16));
@@ -137,7 +139,7 @@ class TitleBar
         
         //add sub components
         add(sizeButton);
-        add(closeButton);
+        if (closedButton) add(closeButton);
         
         setLayout(new TitleBarLayout());
     }

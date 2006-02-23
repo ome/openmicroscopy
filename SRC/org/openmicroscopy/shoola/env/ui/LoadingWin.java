@@ -77,7 +77,7 @@ public class LoadingWin
      */
     public LoadingWin(JFrame owner)
     {
-        super(owner, "Loading...");
+        super(owner, "Loading...", true);
         setModal(true);
         buildGUI();
     }
@@ -86,6 +86,7 @@ public class LoadingWin
     public void setOnScreen()
     {
         setSize(WIN_DIMENSION);
+        setClosed(false);
         UIUtilities.centerAndShow(this);
     }
 

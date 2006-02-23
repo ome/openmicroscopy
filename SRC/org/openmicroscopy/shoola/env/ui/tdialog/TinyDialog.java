@@ -88,6 +88,9 @@ public class TinyDialog
     /** Tells if this window is closed or not. */
     private boolean         closed;
     
+    /** Tells if the close button is displayed. */
+    private boolean         closedButton;
+    
     /** The title displayed in this window's title bar. */
     protected String        title;
     
@@ -117,6 +120,14 @@ public class TinyDialog
     Dimension getRestoreSize() { return restoreSize; }
     
     /**
+     * Returns <code>true</code> if the close button is shown, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasClosedButton() { return closedButton; }
+    
+    /**
      * Creates a new window with the specified owner frame.
      * 
      * @param owner The parent's of the window. Mustn't be <code>null</code>.
@@ -141,6 +152,7 @@ public class TinyDialog
         if (owner == null) throw new NullPointerException("No owner.");
         if (image == null) throw new NullPointerException("No image.");
         this.title = title;
+        closedButton = true;
         //Create the View and the Controller.
         uiDelegate = new TinyDialogUI(this, image);
         controller = new DialogControl(this, uiDelegate);
@@ -169,6 +181,7 @@ public class TinyDialog
         super(owner);
         if (owner == null) throw new NullPointerException("No owner.");
         this.title = title;
+        closedButton = true;
         //Create the View and the Controller.
         if (c == null) uiDelegate = new TinyDialogUI(this);
         else uiDelegate = new TinyDialogUI(this, c);
@@ -179,13 +192,17 @@ public class TinyDialog
     /**
      * Creates a new window with the specified owner frame.
      * 
-     * @param owner The parent's of the window. Mustn't be <code>null</code>.
-     * @param title The window's title.
+     * @param owner         The parent's of the window.
+     *                      Mustn't be <code>null</code>.
+     * @param title         The window's title.
+     * @param closedButton  Passed <code>true</code> if the  closeButton
+     *                      is shown, <code>false</code> otherwise.
      */
-    public TinyDialog(Frame owner, String title)
+    public TinyDialog(Frame owner, String title, boolean closedButton)
     {
         super(owner);
         this.title = title;
+        this.closedButton = closedButton;
         if (owner == null) throw new NullPointerException("No owner.");
         uiDelegate = new TinyDialogUI(this);
         controller = new DialogControl(this, uiDelegate);
@@ -311,5 +328,7 @@ public class TinyDialog
     {
         super.setUndecorated(true);
     }
+
+
 
 }

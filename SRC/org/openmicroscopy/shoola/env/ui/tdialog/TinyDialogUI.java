@@ -202,7 +202,7 @@ public class TinyDialogUI
     {
         if (window == null) throw new NullPointerException("No window.");
         this.window = window;
-        titleBar = new TitleBar(window.getTitle());
+        titleBar = new TitleBar(window.getTitle(), window.hasClosedButton());
     }
     
     /**
