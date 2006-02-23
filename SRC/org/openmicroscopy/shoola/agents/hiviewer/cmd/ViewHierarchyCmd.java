@@ -121,10 +121,12 @@ public class ViewHierarchyCmd
         HiViewer viewer = null;
         switch (index) {
             case IN_CGCI:
-                viewer = HiViewerFactory.getCGCIViewer(images); 
+                viewer = HiViewerFactory.getCGCIViewer(images,
+                                model.getRootLevel(), model.getRootID()); 
             break;
             case IN_PDI:
-                viewer = HiViewerFactory.getPDIViewer(images); 
+                viewer = HiViewerFactory.getPDIViewer(images, 
+                                model.getRootLevel(), model.getRootID()); 
         }
         if (viewer != null) viewer.activate();
     }
