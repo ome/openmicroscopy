@@ -61,7 +61,6 @@ import javax.swing.JViewport;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -452,9 +451,6 @@ class TreeViewerWin
      */
     void addComponent(JComponent component)
     {
-        if (component instanceof EditorUI)
-            ((EditorUI) component)
-                    .setComponentsSize(workingPane.getBounds().width);
         JViewport viewPort = workingPane.getViewport();
         viewPort.removeAll();
         viewPort.add(component);
@@ -479,23 +475,6 @@ class TreeViewerWin
      */
     void showFinder(boolean b)
     {
-        /*
-        if (b) { //finder visible.
-            JSplitPane pane = new JSplitPane();
-            pane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-            pane.setResizeWeight(1);
-            pane.setOneTouchExpandable(true);
-            pane.setContinuousLayout(true);
-            pane.setTopComponent(workingPane);
-            pane.setBottomComponent(model.getFinder());
-            splitPane.setRightComponent(pane);
-        } else {
-            splitPane.remove(splitPane.getRightComponent());
-            splitPane.setRightComponent(workingPane);
-        }
-        splitPane.setDividerLocation(splitPane.getDividerLocation());
-        splitPane.repaint();
-        */
         JSplitPane pane = null;
         if (b) { //finder visible.
             pane = new JSplitPane();
