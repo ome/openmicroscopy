@@ -144,6 +144,19 @@ ${msg.check.report}
 		</antRun>
 	</target>
 
+	<target name="build-client">
+		<antRun component="common"><target name="install"/></antRun>
+		<antRun component="client"><target name="install"/></antRun>
+		<antRun component="shoola-adapter"><target name="install"/></antRun>
+	</target>
+
+	<target name="build-server">
+		<antRun component="common"><target name="install"/></antRun>
+		<antRun component="omeio-nio"><target name="install"/></antRun>
+		<antRun component="rendering"><target name="install"/></antRun>
+		<antRun component="server"><target name="install"/></antRun>
+	</target>
+
 	<!-- Multiproject -->
 	<target name="multiproject" depends="variables-define"/>
 
