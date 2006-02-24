@@ -36,8 +36,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
@@ -67,7 +69,7 @@ class TreeCheckRenderer
     private static final Dimension NULL_SIZE = new Dimension(0, 0);
     
     /** Button to select the node in the tree. */
-    protected JRadioButton      check;
+    protected JToggleButton     check;
     
     /** Label hosting the node. */
     protected TreeCheckLabel    label;
@@ -90,8 +92,20 @@ class TreeCheckRenderer
         restoredSize = null;
         setLayout(null);
         label = new TreeCheckLabel();
-        check = new JRadioButton();
+        check = new JCheckBox();
         check.setBackground(UIManager.getColor("Tree.textBackground"));
+    }
+    
+    /** 
+     * Initializes the {@link #check} component.
+     * 
+     * @param buttonType    One of the following type: {@link JRadioButton} or
+     *                      {@link JCheckBox}.
+     */
+    void initToggleButton(Class buttonType)
+    {
+        if (buttonType.equals(JCheckBox.class)) check = new JCheckBox();
+        else check = new JRadioButton();
     }
     
     /**

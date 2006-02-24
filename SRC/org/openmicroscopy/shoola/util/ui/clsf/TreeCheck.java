@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
+import javax.swing.JRadioButton;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
@@ -132,8 +134,8 @@ public class TreeCheck
     /**
      * Creates a new instance.
      * 
-     * @param rootObject    The object hosted by the root node.
-     * @param rootIcon      The icon of the root node.
+     * @param rootObject                The object hosted by the root node.
+     * @param rootIcon                  The icon of the root node.
      */
     public TreeCheck(Object rootObject, Icon rootIcon)
     {
@@ -143,7 +145,7 @@ public class TreeCheck
     /**
      * Creates a new instance.
      * 
-     * @param root    The root node.
+     * @param root The root node.
      */
     public TreeCheck(TreeCheckNode root)
     {
@@ -153,10 +155,11 @@ public class TreeCheck
     /**
      * Creates a new instance.
      * 
-     * @param rootObject    The object hosted by the root node.
-     * @param rootIcon      The icon of the root node.
-     * @param leafOnly      Passed <code>true</code> to allow leaves selection
-     *                      only <code>false</code> otherwise.
+     * @param rootObject                The object hosted by the root node.
+     * @param rootIcon                  The icon of the root node.
+     * @param leafOnly                  Passed <code>true</code> to allow 
+     *                                  leaves selection only <code>false</code>
+     *                                  otherwise.               
      */
     public TreeCheck(Object rootObject, Icon rootIcon, boolean leafOnly)
     {
@@ -171,6 +174,9 @@ public class TreeCheck
     public void setSingleSelectionInParent(boolean b)
     {
         singleSelectionInParent = b;
+        TreeCheckRenderer rnd = (TreeCheckRenderer) getCellRenderer();
+        if (singleSelectionInParent) rnd.initToggleButton(JRadioButton.class);
+        else rnd.initToggleButton(JCheckBox.class);
     }
     
     /**
