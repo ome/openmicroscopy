@@ -21,19 +21,6 @@ public class LoginTest extends TestCase
         p.setProperty("omero.groupname",group);
         p.setProperty("omero.eventtype",eventType);
     }
-
-    @Override
-    protected void setUp() throws Exception
-    {
-        serverSideLogout();
-    }
-
-    protected void serverSideLogout()
-    {
-        CurrentDetails.setOwner(null);
-        CurrentDetails.setGroup(null);
-        CurrentDetails.setCreationEvent(null);
-    }
     
     protected OmeroContext ctx = OmeroContext.getManagedServerContext();
     protected IQuery q = (IQuery) ctx.getBean("queryService");
@@ -53,6 +40,15 @@ public class LoginTest extends TestCase
     {
         login("root","system","Test");
         q.getById(Experimenter.class,0l);
+    }
+
+    public void testLoggedOutAfterCall() throws Exception
+    {
+        login("root","system","Test");
+        q.getById(Experimenter.class,0l);
+        assertNull(CurrentDetails.getOwner());
+        assertNull(CurrentDetails.getGroup());
+        assertNull(CurrentDetails.getCreationEvent());
     }
     
     public void testLoginWithInvalidThrowsException() throws Exception

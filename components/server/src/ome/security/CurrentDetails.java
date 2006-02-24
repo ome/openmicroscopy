@@ -209,5 +209,9 @@ public abstract class CurrentDetails
     {
         getDetails().setGroup(group);
     }
+ 
+    public static void clear(){
+        detailsHolder.remove();
+    }
     
 }
