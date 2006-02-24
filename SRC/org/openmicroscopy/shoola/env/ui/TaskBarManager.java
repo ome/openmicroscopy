@@ -41,6 +41,7 @@ import java.awt.event.WindowEvent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -190,6 +191,7 @@ class TaskBarManager
 		attachNoOpListeners();
 		EventBus bus = container.getRegistry().getEventBus();
 		bus.register(this, ServiceActivationResponse.class);
+        bus.register(this, ExitApplication.class);
 	}
 	
 	/**
@@ -221,7 +223,8 @@ class TaskBarManager
 	 */
 	public void eventFired(AgentEvent e) 
 	{
-		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();	
+		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();
+        else if (e instanceof ExitApplication) doExit();
 	}
 
 }
