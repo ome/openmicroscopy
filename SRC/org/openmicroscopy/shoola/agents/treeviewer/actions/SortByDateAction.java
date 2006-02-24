@@ -82,13 +82,12 @@ public class SortByDateAction
     }
     
     /**
-     * Creates a {@link SortCmd} command to execute the action.
+     * Sorts the nodes of the currently selected <code>Browser</code> by date.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     { 
-        SortCmd cmd = new SortCmd(model, SortCmd.SORT_DATE);
-        cmd.execute();
+        model.sortTreeNodes(Browser.SORT_NODES_BY_DATE);
     }
     
 }

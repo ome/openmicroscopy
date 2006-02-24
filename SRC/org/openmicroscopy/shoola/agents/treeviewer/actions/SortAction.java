@@ -41,7 +41,6 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.SortCmd;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -86,13 +85,12 @@ public class SortAction
     }
     
     /**
-     * Creates a {@link SortCmd} command to execute the action. 
+     * Sorts the nodes of the currently selected <code>Browser</code> by name.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     { 
-        SortCmd cmd = new SortCmd(model, SortCmd.SORT);
-        cmd.execute();
+        model.sortTreeNodes(Browser.SORT_NODES_BY_NAME);
     }
     
 }
