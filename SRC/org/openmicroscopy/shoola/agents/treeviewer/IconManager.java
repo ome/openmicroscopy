@@ -214,7 +214,7 @@ public class IconManager
         relPaths[COLLAPSE] = "eclipse_collapseall16.png";
         relPaths[SORT] = "eclipse_alphab_sort_co16.png";
         relPaths[SORT_DATE] = "eclipse_trace_persp16.png";
-        relPaths[FILTER] = "eclipse_filter_ps16.png"; 
+        relPaths[FILTER] = "nuvola_find16.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
         relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";
         relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
@@ -239,7 +239,7 @@ public class IconManager
         relPaths[CLASSIFIED_ANNOTATED_IMAGE] = "nuvola_filenew48.png";
         relPaths[CLASSIFIED_IMAGE] = "nuvola_filenew48.png";
         relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
-        relPaths[FILTER_BIG] = "nuvola_filenew48.png";
+        relPaths[FILTER_BIG] = "nuvola_find48.png";
     }
     
     /** The sole instance. */
