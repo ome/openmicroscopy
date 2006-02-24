@@ -136,10 +136,6 @@ public class FilterWindow
     /** The parent requesting this component. */
     private Object          parent;
     
-    
-    /** The list of the {@link DataObject}'s ID. */
-    //private Set             selectedNodes;
-    
     /** 
      * Controls if the supported type is supported.
      * 
@@ -152,8 +148,8 @@ public class FilterWindow
             case CATEGORY:    
                 break;
                 default:
-                    throw new 
-                    IllegalArgumentException("Container not supported");
+                    throw new IllegalArgumentException("Container not " +
+                                                        "supported");
         }
     }
     
@@ -276,6 +272,7 @@ public class FilterWindow
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.setBorder(BorderFactory.createEtchedBorder());
         p.add(UIUtilities.buildComponentPanelRight(buildToolBar()));
+        p.setOpaque(true);
         c.add(p, BorderLayout.SOUTH);
     }
     

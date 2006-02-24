@@ -319,10 +319,14 @@ public class EditorUI
     {
         buildTitlePanel();
         setLayout(new BorderLayout(0, 0));
+        setOpaque(true);
         add(titleLayer, BorderLayout.NORTH);
-        add(buildCenterComponent(), BorderLayout.CENTER);
+        JComponent c = buildCenterComponent();
+        c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        add(c, BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setBorder(BorderFactory.createEtchedBorder());
+        p.setOpaque(true);
         add(p, BorderLayout.SOUTH);
     }
     

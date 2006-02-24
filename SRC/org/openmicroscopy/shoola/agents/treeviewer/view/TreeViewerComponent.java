@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 
 //Third-party libraries
 

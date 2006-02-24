@@ -243,9 +243,11 @@ class ClassifierUI
         setLayout(new BorderLayout(0, 0));
         add(titlePanel, BorderLayout.NORTH);
         centerPanel = new JPanel();
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         add(centerPanel, BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setBorder(BorderFactory.createEtchedBorder());
+        p.setOpaque(true);
         add(p, BorderLayout.SOUTH);
     }
     
