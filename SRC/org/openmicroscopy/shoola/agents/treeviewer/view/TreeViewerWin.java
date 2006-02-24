@@ -437,8 +437,7 @@ class TreeViewerWin
                     break;
                 }
             }
-            if (!selected)
-                model.setSelectedBrowser(null);
+            if (!selected)  model.setSelectedBrowser(null);
         }
     }
 

@@ -42,6 +42,7 @@ import javax.swing.JDialog;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
@@ -129,6 +130,8 @@ class TreeViewerComponent
     {
         switch (model.getState()) {
 	        case NEW:
+                view.open();
+                TreeViewerAgent.getRegistry().getTaskBar().iconify();
 	            break;
 	        case DISCARDED:
                 throw new IllegalStateException(
