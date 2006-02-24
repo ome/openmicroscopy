@@ -15,7 +15,7 @@
 		<properties>
 			<required name="defaultZ" type="int"/>
 			<required name="defaultT" type="int"/>
-			<required name="model" type="ome.model.enums.ModelType"/>
+			<required name="model" type="ome.model.enums.Model"/>
 			<onemany name="waveRendering" 
         type="ome.model.display.ChannelBinding" ordered="true">
         <rule id="CHANNEL_BINDING_CARD" type="cardinality"
@@ -39,7 +39,7 @@
   
 	<type id="ome.model.display.ChannelBinding">
 		<properites>
-			<required name="family" type="ome.model.enums.FamilyType"/>
+			<required name="family" type="ome.model.enums.Family"/>
 			<required name="coefficient" type="double"/>
 			<required name="inputStart" type="float"/>
 			<required name="inputEnd" type="float"/>
@@ -99,13 +99,13 @@
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   
-	<enum id="ome.model.enums.ModelType">
+	<enum id="ome.model.enums.Model">
 		<entry name="rgb"/>
 		<entry name="hsb"/>
 		<entry name="greyscale"/>
 	</enum>  
   
-	<enum id="ome.model.enums.FamilyType">
+	<enum id="ome.model.enums.Family">
 		<entry name="linear"/>
 		<entry name="polynomial"/>
 		<entry name="exponential"/>        

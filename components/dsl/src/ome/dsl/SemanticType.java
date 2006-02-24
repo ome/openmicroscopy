@@ -82,6 +82,7 @@ public abstract class SemanticType {
 	
 	/** future class name; required for all types */
 	private String id;
+    private String table;
 	
 	/** optional item */
 	private String superclass;
@@ -99,7 +100,7 @@ public abstract class SemanticType {
 	 */
 	public SemanticType(Properties attrs){
 		setId(attrs.getProperty("id",getId()));
-	
+		setTable(typeToColumn(getId()));
 		if (null==getId()){
 			throw new IllegalStateException("All types must have an id");
 		}
@@ -175,6 +176,14 @@ public abstract class SemanticType {
 		return id;
 	}
 
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getTable() {
+        return table;
+    }
+    
 	public void setSuperclass(String superclass) {
 		this.superclass = superclass;
 	}
@@ -267,13 +276,13 @@ class LinkType extends SemanticType {
         String from = attrs.getProperty("from");
         Properties from_p = new Properties();
         from_p.setProperty("type",from);
-        LinkParent parent = new LinkParent(from_p);
+        LinkParent parent = new LinkParent(this,from_p);
         getProperties().add(parent);
 
         String to = attrs.getProperty("to");
         Properties to_p = new Properties();
         to_p.setProperty("type",to);
-        LinkChild child = new LinkChild(to_p);
+        LinkChild child = new LinkChild(this,to_p);
         getProperties().add(child);
 
         setExtracode(
@@ -297,7 +306,7 @@ class EnumType extends SemanticType {
         Properties props = new Properties();
         props.setProperty("name","value");
         props.setProperty("type","string");
-        RequiredField value = new RequiredField(props);
+        RequiredField value = new RequiredField(this,props);
         getProperties().add(value);
         setImmutable(Boolean.TRUE);
     }

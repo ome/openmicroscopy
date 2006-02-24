@@ -45,19 +45,29 @@ import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.client.ServiceFactory;
+import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelsService;
 import ome.model.ILink;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.testing.OMEData;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+
+import omeis.providers.re.Renderer;
+import omeis.providers.re.RenderingEngine;
+import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.metadata.PixelsStats;
+import omeis.providers.re.metadata.StatsFactory;
 
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -216,6 +226,29 @@ public class PojosServiceTest extends TestCase {
     	log.info(m);
     }
 
+    public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception
+    {
+
+        Pixels pix = (Pixels) q.getByClass(Pixels.class).get(0);
+        IPixels pixDB = factory.getPixelsService();
+        PixelsService pixFS = new PixelsService(
+                PixelsService.ROOT_DEFAULT);
+        PixelBuffer pixBF = pixFS.createPixelBuffer(pix);
+        
+        StatsFactory sf = new StatsFactory();
+        PixelsStats pixST = sf.compute(pix,pixBF);
+        // TODO RenderingEngine re = factory.getRenderingService();
+        Renderer r = new Renderer(pix,null,pixBF,pixST); 
+        
+        PlaneDef pd = new PlaneDef(0,0);
+        pd.setX(0); pd.setY(0); pd.setZ(0);
+        r.render(pd);
+        
+    }
+    
+    // ~ Helpers
+    // =========================================================================
+    
     private ImageData simpleImageData(){
         // prepare data
         ImageData id = new ImageData();

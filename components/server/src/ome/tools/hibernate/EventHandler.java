@@ -37,21 +37,19 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
-import ome.api.IQuery;
+// Application-internal dependencies
 import ome.model.enums.EventType;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.CurrentDetails;
-
-// Application-internal dependencies
 
 /**
  * method interceptor to properly create our Events.
@@ -80,17 +78,94 @@ public class EventHandler implements MethodInterceptor
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
         
-        if (CurrentDetails.getOwner() == null )
-            throw new RuntimeException("Current owner must be set.");
+        if (CurrentDetails.getOwner() == null ) 
+        {
+            if (getName() == null)
+                throw new RuntimeException("omero.username system property must be set.");
         
+            Experimenter exp = (Experimenter) ht.execute(new HibernateCallback(){
+                public Object doInHibernate(Session session) 
+                    throws HibernateException, SQLException
+                {
+                    Criteria c = session.createCriteria(Experimenter.class);
+                    c.add(Restrictions.eq("omeName",getName()));
+                    Object o = c.uniqueResult();
+
+                    if (o == null)
+                        throw new RuntimeException("No such user: "+getName());
+                    
+                    return o;
+                }
+            });
+            CurrentDetails.setOwner(exp);
+            
+        }
+        
+        // TODO do we need to merge here?
         if (CurrentDetails.getGroup() == null )
-            throw new RuntimeException("Current group must be set.");
+        {
+            if (getGroup() == null)
+                throw new RuntimeException("omero.groupname system property must be set.");
+
+            ExperimenterGroup grp = (ExperimenterGroup) ht.execute(new HibernateCallback(){
+                public Object doInHibernate(Session session) 
+                    throws HibernateException, SQLException
+                {
+                    Criteria c = session.createCriteria(ExperimenterGroup.class);
+                    c.add(Restrictions.eq("name",getGroup()));
+                    Object o = c.uniqueResult();
+
+                    if (o == null)
+                        throw new RuntimeException("No such group: "+getGroup());
+                    
+                    return o;
+                }
+            });
+            
+            CurrentDetails.setGroup(grp);
+            
+        }
         
         if (CurrentDetails.getCreationEvent() == null )
-            throw new RuntimeException("Current event must be set.");
+        {
+            if (getType() == null)
+                throw new RuntimeException("omero.eventtype must be set.");
+            
+            EventType type = (EventType) ht.execute(new HibernateCallback(){
+                public Object doInHibernate(Session session) 
+                    throws HibernateException, SQLException
+                {
+                    Criteria c = session.createCriteria(EventType.class);
+                    c.add(Restrictions.eq("value",getType()));
+                    Object o = c.uniqueResult();
+
+                    if (o == null)
+                        throw new RuntimeException("No such type: "+getType());
+                    
+                    return o;
+                }
+            });
+            
+            CurrentDetails.newEvent(type);
+                        
+        }
             
         return arg0.proceed();
     
     }
 
+    protected String getName()
+    {
+        return System.getProperties().getProperty("omero.username");
+    }
+    
+    protected String getGroup()
+    {
+        return System.getProperties().getProperty("omero.groupname");
+    }
+    
+    protected String getType()
+    {
+        return System.getProperties().getProperty("omero.eventtype");
+    }
 }

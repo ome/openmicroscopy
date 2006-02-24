@@ -1,5 +1,4 @@
 ## SETUP
-#set($table = ${type.typeToColumn($type.id)} )
 #set($cascade_settings = "evict,lock,merge,persist,replicate,refresh,save-update")
 ## No cascade on delete.
 ##
@@ -13,7 +12,7 @@
 #else<class
 #end
     name="${type.id}" 
-    table="${table}"
+    table="${type.table}"
     abstract="$type.abstract"
     #if($type.superclass)extends="$type.superclass"#end
     >
@@ -50,7 +49,7 @@
 #if(!$type.superclass) 
         <id name="id" type="java.lang.Long" column="id">
             <generator class="sequence">
-                <param name="sequence">seq_$table</param>
+                <param name="sequence">seq_${type.table}</param>
             </generator>
         </id>
 
@@ -82,7 +81,7 @@
                 <property name="bytes" type="binary" column="permissions"/> 
                 <!-- TODO possibly just default CHMOD here -->
             </component>
-	  
+<!-- TODO	  
             <dynamic-component name="counts" insert="false" update="false">
 ## TODO: again don't support multiple Links from a single type.
 #foreach($prop in $type.properties)
@@ -99,7 +98,7 @@
 #end
 #end 
             </dynamic-component>
-	  
+-->	  
         </component>
 #else ###############################################################INHERITANCE
 #set($superId = ${type.typeToColumn($type.superclass)} )
@@ -155,7 +154,7 @@
 ##TODO		mutable="${prop.mutable}"
         cascade="$cascade_settings">
         <key>
-                <column name="${table}" not-null="${prop.required}"/>
+                <column name="${prop.foreignKey}" not-null="${prop.required}"/>
         </key>
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
 #if($prop.ordered)
@@ -202,7 +201,15 @@
 #end
 #end #######################################################################EACH
 
-#if($type.superclass)</joined-subclass>
-#else</class>
+
+#if(!$type.superclass)
+    <filter name="ownerFilter" condition=":ownerId = owner_id"/>
+    <filter name="groupFilter" condition=":groupId = group_id"/>
+    <filter name="eventFilter" condition=":eventId = event_id"/>
+    <filter name="permsFilter" condition=":permsStr = permissions"/>
+
+</class>
+#else</joined-subclass>
 #end
+
 </hibernate-mapping>

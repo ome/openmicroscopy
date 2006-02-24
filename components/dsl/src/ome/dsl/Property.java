@@ -108,17 +108,19 @@ public abstract class Property { // TODO need to define equality so that two wit
 		VALUES.put(TIMESTAMP,Timestamp.class);
 	}
 	
+    private SemanticType st;
+    
 	// String based values.
 	private String name;
 	private String type;
 	private String defaultValue;
     private String extracode;
-	
+    private String foreignKey;
+    
 	// Specialties
 	private Boolean required;
 	private Boolean unique;
 	private Boolean mutable;
-	private Boolean foreignKey;
 	private Boolean ordered;
     private Boolean inverse;
 	
@@ -127,21 +129,27 @@ public abstract class Property { // TODO need to define equality so that two wit
 	
 	public void validate(){
 		if (null==getName() || null==getType()){
-			throw new IllegalStateException("All propeties must have a name and a type. ("+this+")");
+			throw new IllegalStateException(
+                    "All propeties must have a name and a type. ("+this+")");
 		}
 	}
 
-	/** creates a new property based on the element-valued key in FIELDS2CLASSES. Used mainly by the xml reader */
-	public static Property makeNew(String element, Properties attributes) throws IllegalArgumentException, IllegalStateException{
+	/** creates a new property based on the element-valued key in FIELDS2CLASSES. 
+     * Used mainly by the xml reader */
+	public static Property makeNew(String element, SemanticType st, Properties attributes) 
+    throws IllegalArgumentException, IllegalStateException{
 		Class klass = (Class) FIELDS2CLASSES.get(element);
 		if (null==klass){
-			throw new IllegalArgumentException("FIELDS2CLASSES does not contain type "+element);
+			throw new IllegalArgumentException(
+                    "FIELDS2CLASSES does not contain type "+element);
 		}
 		
 		Property p;
 		
 		try {
-			p = (Property) klass.getConstructor(new Class[]{Properties.class}).newInstance(new Object[]{attributes});
+			p = (Property) klass.getConstructor(
+                    new Class[]{SemanticType.class,Properties.class})
+                    .newInstance(new Object[]{st, attributes});
 		} catch (Exception e) {
 			throw new IllegalStateException("Cannot instantiate class "+klass,e);
 		}
@@ -155,7 +163,16 @@ public abstract class Property { // TODO need to define equality so that two wit
 	//
 	// Getters and Setters
 	//
-	
+
+
+    public void setST(SemanticType st) {
+        this.st = st;
+    }
+
+    public SemanticType getST() {
+        return st;
+    }
+    
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -228,11 +245,11 @@ public abstract class Property { // TODO need to define equality so that two wit
         return inverse;
     }
     
-	public void setForeignKey(Boolean foreignKey) {
+	public void setForeignKey(String foreignKey) {
 		this.foreignKey = foreignKey;
 	}
 
-	public Boolean getForeignKey() {
+	public String getForeignKey() {
 		return foreignKey;
 	}
 
@@ -245,7 +262,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 	}
 
     /** creates a Property and sets fields based on attributes USING DEFAULT VALUES. Subclassees may override these values */
-    public Property(Properties attrs){
+    public Property(SemanticType st, Properties attrs){
+        setST(st);
         setName(attrs.getProperty("name",null));
         setType(attrs.getProperty("type",null));
         setDefaultValue(attrs.getProperty("default",null));//TODO currently no way to use this!!
@@ -256,10 +274,10 @@ public abstract class Property { // TODO need to define equality so that two wit
         setInverse(Boolean.valueOf(attrs.getProperty("inverse","false")));
         setExtracode("");
         if (VALUES.containsKey(getType())){
-            setForeignKey(Boolean.FALSE);
+            setForeignKey(null);
             setType(((Class)VALUES.get(getType())).getName());
         } else {
-            setForeignKey(Boolean.TRUE);
+            setForeignKey(SemanticType.typeToColumn(st.getId()));
         }
         
     }
@@ -269,22 +287,22 @@ public abstract class Property { // TODO need to define equality so that two wit
 // NOTE: For all the following be sure to check the defaults set on Property!
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class OptionalField extends Property {
-    public OptionalField(Properties attrs){
-        super(attrs);
+    public OptionalField(SemanticType st, Properties attrs){
+        super(st,attrs);
     }
 }
 
 class RequiredField extends OptionalField {
-	public RequiredField(Properties attrs){
-		super(attrs);
+	public RequiredField(SemanticType st, Properties attrs){
+		super(st, attrs);
 		setRequired(Boolean.TRUE);
 	}
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class ZeroManyField extends Property {
-    public ZeroManyField(Properties attrs){
-        super(attrs);
+    public ZeroManyField(SemanticType st, Properties attrs){
+        super(st, attrs);
         setRequired(Boolean.FALSE);
         setOne2Many(Boolean.TRUE);
         
@@ -300,8 +318,8 @@ class ZeroManyField extends Property {
 }
 
 class OneManyField extends ZeroManyField {
-	public OneManyField(Properties attrs){
-		super(attrs);
+	public OneManyField(SemanticType st, Properties attrs){
+		super(st, attrs);
 		setRequired(Boolean.TRUE);
 	}
 }
@@ -309,14 +327,14 @@ class OneManyField extends ZeroManyField {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class ManyZeroField extends Property {
-    public ManyZeroField(Properties attrs){
-        super(attrs);
+    public ManyZeroField(SemanticType st, Properties attrs){
+        super(st, attrs);
     }
 }
 
 class ManyOneField extends ManyZeroField {
-	public ManyOneField(Properties attrs){
-		super(attrs);
+	public ManyOneField(SemanticType st, Properties attrs){
+		super(st, attrs);
 		setRequired(Boolean.TRUE);
 	}
 }
@@ -324,10 +342,10 @@ class ManyOneField extends ManyZeroField {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // DIFFERENT SEMANTICS!!!
 class EntryField extends Property {
-	public EntryField(Properties attrs){
-		super(attrs);
+	public EntryField(SemanticType st, Properties attrs){
+		super(st, attrs);
 		setType("string");
-        setForeignKey(Boolean.FALSE);
+        setForeignKey(null);
 	}
 
 	public void validate(){
@@ -339,8 +357,8 @@ class EntryField extends Property {
 }
 /** property from a link to a parent iobject */
 class LinkParent extends Property {
-    public LinkParent(Properties attrs){
-        super(attrs);
+    public LinkParent(SemanticType st, Properties attrs){
+        super(st, attrs);
         setName("parent");
 	setRequired(Boolean.TRUE);
         setExtracode(
@@ -352,8 +370,8 @@ class LinkParent extends Property {
 
 /** property from a link to a child iobject */
 class LinkChild extends Property {
-    public LinkChild(Properties attrs){
-        super(attrs);
+    public LinkChild(SemanticType st, Properties attrs){
+        super(st, attrs);
         setName("child");
 	setRequired(Boolean.TRUE);
         setExtracode(
@@ -364,8 +382,8 @@ class LinkChild extends Property {
 
 abstract class AbstractLink extends Property {
     protected abstract void linkStep(StringBuffer sb);
-    public AbstractLink(Properties attrs){
-        super(attrs);
+    public AbstractLink(SemanticType st, Properties attrs){
+        super(st, attrs);
         setOne2Many(Boolean.TRUE);
         
         String target = attrs.getProperty("target",null);
@@ -398,8 +416,9 @@ class ChildLink extends AbstractLink {
     protected void linkStep(StringBuffer sb){
         sb.append("\tlink.link(this, addition);\n");
     }
-    public ChildLink(Properties attrs){
-        super(attrs);
+    public ChildLink(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setForeignKey("parent");
     }
 }
 
@@ -408,7 +427,8 @@ class ParentLink extends AbstractLink {
     protected void linkStep(StringBuffer sb){
         sb.append("\tlink.link(addition,this);\n");
     }
-    public ParentLink(Properties attrs){
-        super(attrs);
+    public ParentLink(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setForeignKey("child");
     }
 }

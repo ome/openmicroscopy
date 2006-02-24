@@ -40,6 +40,8 @@ import java.util.Set;
 // Third-party libraries
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -53,6 +55,8 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class SaxReader {
 
+    private static Log log = LogFactory.getLog(SaxReader.class);
+    
 	/** input file */
 	URL xmlFile; 
 		
@@ -66,7 +70,7 @@ public class SaxReader {
 	 * @param file input file containing DSL for semantic types
 	 */
 	public SaxReader(String filename){
-		xmlFile = this.getClass().getClassLoader().getResource(filename); // TODO if this fails, try find File
+		xmlFile = this.getClass().getClassLoader().getResource(filename); 
 		init();
 	}
 	
@@ -99,23 +103,26 @@ public class SaxReader {
 			throw new RuntimeException("Error parsing "+xmlFile,e);
 		}
 		
-		return handler.types;
+		return handler.process();
+
 	}
 	
 }
 	
 class DSLHandler extends DefaultHandler {
 
+    private static Log log = LogFactory.getLog(DSLHandler.class);
+    
     	// Turns output on/off
 	public boolean verbose = false;
     
 	// Indention for output
-	String depth="";
+	private String depth="";
 
 	// For handling
-	Set types = new HashSet();	
-	SemanticType type;
-	Property property;
+	private Set types = new HashSet();	
+	private SemanticType type;
+	private Property property;
 	
 	/** dispatches to output (printing) and handling (object-creation) routines */
 	public void startElement(String arg0, String arg1, String element,
@@ -138,20 +145,36 @@ class DSLHandler extends DefaultHandler {
 		if (Property.FIELDS.contains(element)){
 		
 			if (null!=property){
-				throw new IllegalStateException("Trying to enter property "+element+" from within property"+property);
+				throw new IllegalStateException(
+                        "Trying to enter property "+element+
+                        " from within property"+property);
 			}
 			
-			property = Property.makeNew(element,attrs2props(attrs));
+            if (null==type){
+                throw new IllegalStateException(
+                        "Trying to create property "+element+
+                        " without a type!");
+            }
+            
+			property = Property.makeNew(element,type,attrs2props(attrs));
 		
-		} else if (SemanticType.TYPES.contains(element)){
-		
+		} else if ("properties".equals(element)) {
+            // ok. these usually contains lots of properties
+        } else if (SemanticType.TYPES.contains(element)){
 			if (null!=type){
-				throw new IllegalStateException("Trying to enter type "+element+" from within type "+type);
+				throw new IllegalStateException(
+                        "Trying to enter type "+element+
+                        " from within type "+type);
 			}
 			
 			type = SemanticType.makeNew(element,attrs2props(attrs));
-		
-		}
+		} else if ("types".equals(element)) {
+		    // also ok.
+        } else {
+            log.warn("Deprecated: In the future elements of type "+element+
+                    " will be considered an error.");
+        }
+            
 	}
 	
 	/** checks to see that after type creation, the model is in a valid state */
@@ -184,6 +207,11 @@ class DSLHandler extends DefaultHandler {
 		} 
 	}
 	
+    /* TODO */
+    public Set process(){
+        return types;
+    }
+    
 	/** simple outputting routine with indention */
 	private void outputStart(String element, Attributes attrs){
 		System.out.print(depth+element);

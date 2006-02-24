@@ -27,7 +27,7 @@ import ome.model.core.PixelsDimensions;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.EventType;
 import ome.model.enums.Mode;
-import ome.model.enums.PIType;
+import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
@@ -125,7 +125,7 @@ public class AbstractUpdateTest
 
         Pixels p = new Pixels();
         AcquisitionContext ac = new AcquisitionContext();
-        PIType pi = new PIType();
+        PhotometricInterpretation pi = new PhotometricInterpretation();
         Mode mode = new Mode();
         PixelsType pt = new PixelsType();
         DimensionOrder dO = new DimensionOrder();

@@ -32,7 +32,7 @@ package tmp;
 import java.util.HashMap;
 import java.util.Map;
 
-import ome.model.enums.ModelType;
+import ome.model.enums.Model;
 
 
 public class RenderingDefConstants
@@ -56,20 +56,20 @@ public class RenderingDefConstants
         models[HSB] = "HSB";
     }
     
-    private static Map modelTypes = new HashMap();
+    private static Map Models = new HashMap();
     static {
-        modelTypes.put("Greyscale",Integer.valueOf(GS));
-        modelTypes.put("RGB",Integer.valueOf(RGB));
-        modelTypes.put("HSB",Integer.valueOf(HSB));
+        Models.put("Greyscale",Integer.valueOf(GS));
+        Models.put("RGB",Integer.valueOf(RGB));
+        Models.put("HSB",Integer.valueOf(HSB));
     }
-    public static int convertType(ModelType type)
+    public static int convertType(Model type)
     {
-        return ((Integer) modelTypes.get(type.getValue())).intValue();
+        return ((Integer) Models.get(type.getValue())).intValue();
     }
     
-    public static ModelType convertToType(int model)
+    public static Model convertToType(int model)
     {
-        ModelType type = new ModelType();
+        Model type = new Model();
         type.setValue(models[model]);
         // FIXME 
         return type;

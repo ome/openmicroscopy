@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.model.display.QuantumDef;
-import ome.model.enums.FamilyType;
+import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 
 import tmp.PixelsConstants;
@@ -134,7 +134,7 @@ public class QuantumFactory
         familyNames.put("POLYNOMIAL",Integer.valueOf(POLYNOMIAL));
     }
     
-    public static int convertFamilyType(FamilyType type)
+    public static int convertFamilyType(Family type)
     {
         return ((Integer) familyNames.get(type.getValue())).intValue();
     }

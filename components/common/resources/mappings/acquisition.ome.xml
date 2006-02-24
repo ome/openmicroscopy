@@ -131,7 +131,7 @@
 
   <type id="ome.model.acquisition.AcquisitionContext">
 		<properties>
-			<required name="photometricInterpretation" type="ome.model.enums.PIType"/>
+			<required name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
 			<required name="mode" type="ome.model.enums.Mode"/>      
 		</properties>
 	</type>
@@ -155,7 +155,7 @@
 		<properties>
 			<optional name="name" type="string"/>
 			<optional name="pinHoleSize" type="int"/>
-			<optional name="illumination" type="ome.model.enums.IlluminationType"/>
+			<optional name="illumination" type="ome.model.enums.Illumination"/>
  			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
 			<optional name="excitationWave" type="int"/>
 			<optional name="emissionWave" type="int"/>
@@ -475,7 +475,7 @@
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <!-- AcquisitionContext Entity -->    
-	<enum id="ome.model.enums.PIType">
+	<enum id="ome.model.enums.PhotometricInterpretation">
 		<entry name="RGB"/>
 		<entry name="ARGB"/>
 		<entry name="CMYK"/>
@@ -514,7 +514,7 @@
   </enum>
 
   <!-- Detector Entity -->    
-  <enum id="ome.model.enums.IlluminationType">
+  <enum id="ome.model.enums.Illumination">
     <entry name="Transmitted"/>
     <entry name="Epifluorescence"/>
     <entry name="Oblique"/>

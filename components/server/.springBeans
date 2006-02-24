@@ -16,7 +16,6 @@
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
 			<incomplete>false</incomplete>
 			<configs>
-				<config>resources/ome/services/aop.xml</config>
 				<config>resources/ome/services/config-local.xml</config>
 				<config>resources/ome/services/dbcp.xml</config>
 				<config>resources/ome/services/hibernate.xml</config>

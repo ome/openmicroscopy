@@ -10,7 +10,7 @@ import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.enums.PIType;
+import ome.model.enums.PhotometricInterpretation;
 import ome.server.itests.ConfigHelper;
 
 public class FilterTest
@@ -31,7 +31,7 @@ public class FilterTest
     
     public void testNewWithNewObject()
     {
-        PIType pi = new PIType();
+        PhotometricInterpretation pi = new PhotometricInterpretation();
         pi.setValue("hi");
         
         AcquisitionContext ac = new AcquisitionContext();

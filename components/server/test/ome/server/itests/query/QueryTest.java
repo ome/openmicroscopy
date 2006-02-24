@@ -32,17 +32,25 @@ package ome.server.itests.query;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
 import ome.api.IQuery;
+import ome.model.ILink;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.server.itests.ConfigHelper;
+import ome.services.query.PojosLoadHierarchyQueryDefinition;
+import ome.system.OmeroContext;
 
 /** 
  * tests for a generic data access
@@ -62,22 +70,46 @@ public class QueryTest
     private static Log log = LogFactory.getLog(QueryTest.class);
 
     IQuery _q;
-    
+    HibernateTemplate ht;
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
-        _q = (IQuery) applicationContext.getBean("genericDao");
+        _q = (IQuery) applicationContext.getBean("queryService");
+        ht = (HibernateTemplate) applicationContext.getBean("hibernateTemplate");
     }
     
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    protected String[] getConfigLocations() {
-
-        return ConfigHelper.getConfigLocations();
+    protected String[] getConfigLocations() { return new String[]{}; }
+    protected ConfigurableApplicationContext getContext(Object key)
+    {
+        return OmeroContext.getManagedServerContext();
     }
 
+    public void testCriteriaCalls(){
+        PojosLoadHierarchyQueryDefinition queryDef
+            = new PojosLoadHierarchyQueryDefinition();
+        
+        List result = (List) ht.execute(queryDef);
+        System.out.println(result);
+        Set d_links = ((Project)result.get(0)).getDatasetLinks();
+        System.out.println(d_links);
+        ILink d_link = (ILink) d_links.iterator().next();
+        System.out.println(d_link);
+        Dataset ds = (Dataset) d_link.getChild();
+        System.out.println(ds);
+        Set i_links = ds.getImageLinks();
+        System.out.println(i_links);
+        ILink i_link = (ILink) i_links.iterator().next();
+        System.out.println(i_link);
+        Image i = (Image) i_link.getChild();
+        System.out.println(i);
+        Set anns = i.getAnnotations();
+        System.out.println(anns);
+        ImageAnnotation iann = (ImageAnnotation) anns.iterator().next();
+        System.out.println(iann);
+        
+    }
+    
 	public void testGetById() {
 	}
 
@@ -112,9 +144,6 @@ public class QueryTest
 		} catch (Throwable t) {
 			fail("Expected class cast exception");
 		}
-		
-		
-		
 		
 	}
 

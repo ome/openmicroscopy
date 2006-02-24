@@ -1,8 +1,10 @@
 <types>
 	
 	<!-- MANAGEMENT -->
-	<type id="ome.model.meta.ExperimenterGroup" named="true" described="true">
+	<type id="ome.model.meta.ExperimenterGroup" described="true">
 		<properties>
+      <!-- TODO unqiuelynamed=true? -->
+      <required name="name" type="string" unique="true"/>
 			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"
         target="ome.model.meta.Experimenter"/>
 		</properties>
