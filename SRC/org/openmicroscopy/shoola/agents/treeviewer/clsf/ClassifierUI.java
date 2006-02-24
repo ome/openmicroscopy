@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.clsf;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -81,6 +83,12 @@ import pojos.DataObject;
 class ClassifierUI
     extends JPanel
 {
+    
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** Text displayed in the title panel. */
     private static final String     ADD_PANEL_TITLE = "Add To Category";
@@ -170,6 +178,8 @@ class ClassifierUI
         titlePanel = new TitlePanel(getPanelTitle(), getPanelText(), 
                 getPanelNote(), im.getIcon(IconManager.CATEGORY_BIG));
         tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
+        if (model.getMode() == Classifier.CLASSIFY_MODE)
+            tree.setSingleSelectionInParent(true);
         //Add Listeners
         tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
@@ -219,8 +229,10 @@ class ClassifierUI
     {
         JToolBar bar = new JToolBar();
         bar.setRollover(true);
+        bar.setBorder(null);
         bar.setFloatable(false);
         bar.add(finishButton);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
         return bar;
     }
