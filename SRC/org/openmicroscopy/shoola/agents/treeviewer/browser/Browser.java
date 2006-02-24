@@ -123,6 +123,12 @@ public interface Browser
      */
     public static final int     	IMAGES_EXPLORER = 102;
     
+    /** Indicates to sort the nodes by date. */
+    public static final int         SORT_NODES_BY_DATE = 300;
+    
+    /** Indicates to sort the nodes by name. */
+    public static final int         SORT_NODES_BY_NAME = 301;
+    
     /** 
      * Bound property name indicating the data retrieval is finished. 
      */
@@ -298,11 +304,12 @@ public interface Browser
     public void accept(TreeImageDisplayVisitor visitor, int algoType);
     
     /**
-     * Sets the nodes resulting of a sorting action.
+     * Sorts the nodes displayed in the browser. 
      * 
-     * @param nodes The collection of nodes to set.
+     * @param sortType One of the following constants:
+     * {@link #SORT_NODES_BY_DATE} or {@link #SORT_NODES_BY_NAME}.
      */
-    public void setSortedNodes(List nodes);
+    public void sortTreeNodes(int sortType);
     
     /**
      * Loads the hierachy e.g. <code>Project/Dataset</code>,

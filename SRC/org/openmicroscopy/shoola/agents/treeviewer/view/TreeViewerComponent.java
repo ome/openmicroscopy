@@ -436,6 +436,7 @@ class TreeViewerComponent
             model.setState(READY);
             fireStateChange();
         }
+        view.setCursor(TreeViewerWin.WAIT_CURSOR);
         Browser browser = model.getSelectedBrowser();
         browser.refreshEdition(data, operation);
         if (operation == Editor.UPDATE_OBJECT) {
@@ -451,6 +452,7 @@ class TreeViewerComponent
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
         }
+        view.setCursor(TreeViewerWin.DEFAULT_CURSOR);
 
     }
 
@@ -470,10 +472,12 @@ class TreeViewerComponent
         }
         removeEditor(); //remove the currently selected editor.
         Browser browser = model.getSelectedBrowser();
+        view.setCursor(TreeViewerWin.WAIT_CURSOR);
         if (browser != null) {
             browser.accept(new ClearVisitor());
             browser.setFoundInBrowser(null); 
         }
+        view.setCursor(TreeViewerWin.DEFAULT_CURSOR);
     }
 
     /**
@@ -499,13 +503,13 @@ class TreeViewerComponent
         Map browsers = model.getBrowsers();
         Iterator b = browsers.keySet().iterator();
         Browser browser;
+        view.setCursor(TreeViewerWin.WAIT_CURSOR);
         while (b.hasNext()) {
             browser = (Browser) browsers.get(b.next());
             browser.refreshClassification(image, categories, mode);
         }
-        
+        view.setCursor(TreeViewerWin.DEFAULT_CURSOR);
     }
-
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.

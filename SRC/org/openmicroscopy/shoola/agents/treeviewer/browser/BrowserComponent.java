@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.SortCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -415,10 +416,7 @@ class BrowserComponent
      */
     public void accept(TreeImageDisplayVisitor visitor)
     {
-        DefaultTreeModel model = (DefaultTreeModel) 
-                                    view.getTreeDisplay().getModel();
-        TreeImageDisplay root = (TreeImageDisplay) model.getRoot();
-        root.accept(visitor);
+        accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
     }
 
     /**
@@ -428,9 +426,11 @@ class BrowserComponent
     public void accept(TreeImageDisplayVisitor visitor, int algoType)
     {
         DefaultTreeModel model = (DefaultTreeModel) 
-        view.getTreeDisplay().getModel();
+                view.getTreeDisplay().getModel();
         TreeImageDisplay root = (TreeImageDisplay) model.getRoot();
+        view.setCursor(BrowserUI.WAIT_CURSOR);
         root.accept(visitor, algoType);
+        view.setCursor(BrowserUI.DEFAULT_CURSOR);
     }
 
     /**
@@ -459,9 +459,9 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setSortedNodes(List)
+     * @see Browser#sortTreeNodes(int)
      */
-    public void setSortedNodes(List nodes)
+    public void sortTreeNodes(int sortType)
     {
         switch (model.getState()) {
         	case COUNTING_ITEMS:
@@ -472,7 +472,18 @@ class BrowserComponent
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
-        view.setSortedNodes(nodes);
+        switch (sortType) {
+            case SORT_NODES_BY_DATE:
+            case SORT_NODES_BY_NAME:
+                break;
+            default:
+                throw new IllegalArgumentException("SortType not supported.");
+        }
+        view.setCursor(BrowserUI.WAIT_CURSOR);
+        SortCmd cmd = new SortCmd(this, sortType);
+        cmd.execute();
+        view.setSortedNodes(cmd.getSortedNodes());
+        view.setCursor(BrowserUI.DEFAULT_CURSOR);
     }
 
     /**

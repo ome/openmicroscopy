@@ -34,6 +34,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -61,6 +62,7 @@ import javax.swing.JViewport;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -82,6 +84,13 @@ class TreeViewerWin
 	extends TopWindow
 {
 
+    /** The default cursor. */
+    static final Cursor         DEFAULT_CURSOR = new Cursor(
+                                                Cursor.DEFAULT_CURSOR);
+    
+    /** The cursor set the <code>TreeView</code> is visited. */
+    static final Cursor         WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
+    
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
 
@@ -452,6 +461,9 @@ class TreeViewerWin
     void addComponent(JComponent component)
     {
         JViewport viewPort = workingPane.getViewport();
+        if (component instanceof EditorUI)
+            ((EditorUI) component)
+                    .setComponentsSize(viewPort.getBounds().width);
         viewPort.removeAll();
         viewPort.add(component);
         viewPort.validate();
@@ -490,7 +502,7 @@ class TreeViewerWin
         c.add(pane, BorderLayout.CENTER);
         c.validate();
     }
-
+  
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

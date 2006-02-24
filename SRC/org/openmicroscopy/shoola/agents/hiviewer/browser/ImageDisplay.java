@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -106,6 +107,13 @@ public abstract class ImageDisplay
     extends TinyPane
 {
 
+    /** The default cursor. */
+    static final Cursor         DEFAULT_CURSOR = new Cursor(
+                                                Cursor.DEFAULT_CURSOR);
+    
+    /** The cursor set the <code>TreeView</code> is visited. */
+    static final Cursor         WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
+    
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -270,6 +278,7 @@ public abstract class ImageDisplay
         if (visitor == null) throw new NullPointerException("No visitor.");
         if (!checkAlgoType(algoType))
             throw new IllegalArgumentException("Algorithm not supported.");
+        setCursor(WAIT_CURSOR);
         Iterator i = childrenDisplay.iterator();
         ImageDisplay child;
         switch (algoType) {
@@ -296,6 +305,7 @@ public abstract class ImageDisplay
                 doAccept(visitor);
                 break;
         }
+        setCursor(DEFAULT_CURSOR);
     }
     
     /** 

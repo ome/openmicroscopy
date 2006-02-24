@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -80,6 +81,13 @@ import pojos.DataObject;
 class BrowserUI
     extends JPanel
 {
+    
+    /** The default cursor. */
+    static final Cursor         DEFAULT_CURSOR = new Cursor(
+                                                Cursor.DEFAULT_CURSOR);
+    
+    /** The cursor set the <code>TreeView</code> is visited. */
+    static final Cursor         WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
     
     /** The text of the dummy default node. */
     private static final String     LOADING_MSG = "Loading...";

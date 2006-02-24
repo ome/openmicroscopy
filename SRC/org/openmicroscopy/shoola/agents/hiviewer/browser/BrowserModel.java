@@ -215,7 +215,7 @@ class BrowserModel
      */
     public void accept(ImageDisplayVisitor visitor) 
     {
-        rootDisplay.accept(visitor);
+        rootDisplay.accept(visitor, ImageDisplayVisitor.ALL_NODES);
     }
 
     /**
@@ -224,6 +224,7 @@ class BrowserModel
      */
     public void accept(ImageDisplayVisitor visitor, int algoType) 
     {
+        
         rootDisplay.accept(visitor, algoType);
     }
     
@@ -242,7 +243,7 @@ class BrowserModel
         int oldIndex = selectedLayout;
         switch (index) {
             case LayoutFactory.SQUARY_LAYOUT:
-            case LayoutFactory.TREE_LAYOUT:    
+            //case LayoutFactory.TREE_LAYOUT:    
                 selectedLayout = index;
                 break;
             default:
@@ -257,27 +258,5 @@ class BrowserModel
      * @see Browser#getSelectedLayout()
      */
     public int getSelectedLayout() { return selectedLayout; }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getTreeDisplay()
-     */
-    /*
-    public JTree getTreeDisplay()
-    {
-        return rootDisplay.getSelectedTreeComponent();
-    }
-    */
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setTreeDisplay(JTree)
-     */
-    /*
-    public void setTreeDisplay(JTree tree)
-    {
-        rootDisplay.setTreeView(tree);
-    }
-    */
 
 }

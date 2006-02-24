@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.finder;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -64,6 +65,13 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 public class Finder
 	extends JPanel
 {
+    
+    /** The default cursor. */
+    private static final Cursor DEFAULT_CURSOR = new Cursor(
+                                                    Cursor.DEFAULT_CURSOR);
+    
+    /** The cursor set the <code>TreeView</code> is visited. */
+    private static final Cursor WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
     
     /** Bound property indicating that some text has been entered. */
     public static final String 	TEXT_ENTERED_PROPERTY = "textEntered";
@@ -254,9 +262,10 @@ public class Finder
     /** Finds the phrase in the currently selected browser. */
     void find()
     {
+        TreeViewer pc = model.getParentComponent();
+        if (pc.getSelectedBrowser() == null) return;
+        setCursor(WAIT_CURSOR);
         try {
-            TreeViewer pc = model.getParentComponent();
-            if (pc.getSelectedBrowser() == null) return;
             String findText = model.getFindText();
             Pattern p;
             if (!model.isCaseSensitive())
@@ -273,6 +282,7 @@ public class Finder
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Find", "The phrase contains non valid characters.");
         }
+        setCursor(DEFAULT_CURSOR);
     }
     
     /** Finds the next occurence of the phrase. */
