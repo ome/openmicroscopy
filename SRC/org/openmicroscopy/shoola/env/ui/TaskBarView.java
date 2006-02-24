@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -439,5 +440,11 @@ class TaskBarView
      * @see TaskBar#getFrame()
      */
     public JFrame getFrame() { return this; }
+
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#iconify()
+     */
+    public void iconify() { setExtendedState(Frame.ICONIFIED); }
 
 }

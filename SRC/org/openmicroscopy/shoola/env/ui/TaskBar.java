@@ -171,6 +171,9 @@ public interface TaskBar
 	 */
 	public void open();
     
+    /** Iconifies the task bar window. */
+    public void iconify();
+    
     /**
      * Returns a reference to the task bar window.
      * 
