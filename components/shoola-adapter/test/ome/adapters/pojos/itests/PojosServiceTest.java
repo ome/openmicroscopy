@@ -59,6 +59,7 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
@@ -87,7 +88,7 @@ public class PojosServiceTest extends TestCase {
 
     protected static Log log = LogFactory.getLog(PojosServiceTest.class);
 
-    ServiceFactory factory = ServiceFactory.makeLocalServiceFactory();
+    ServiceFactory factory = new ServiceFactory(OmeroContext.MANAGED_CONTEXT);
    
     OMEData data;
     Set ids;
