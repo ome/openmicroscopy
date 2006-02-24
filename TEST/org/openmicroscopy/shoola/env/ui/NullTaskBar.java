@@ -89,4 +89,9 @@ public class NullTaskBar
      */
     public JFrame getFrame() { return null; }
 
+    /**
+     * @see TaskBar#iconify()
+     */
+    public void iconify() {}
+
 }
