@@ -58,18 +58,15 @@ import pojos.ImageData;
 public class SortCmd
     implements ActionCmd
 {
-
-    /** Indicates to sort the nodes by name. */
-    public static final int SORT = 0;
-    
-    /** Indicates to sort the nodes by date. */
-    public static final int SORT_DATE = 1;
     
     /** Reference to the model. */
     private Browser model;
     
     /** The sorting type. One of the constants defined by this class. */
     private int     sortType;
+    
+    /** The list of sorted nodes. */
+    private List    sortedNodes;
     
     /**
      * Checks if the specified type is one of the constants defined by this 
@@ -80,8 +77,8 @@ public class SortCmd
     private void checkSortType(int type)
     {
         switch (type) {
-            case SORT:
-            case SORT_DATE:    
+            case Browser.SORT_NODES_BY_DATE:
+            case Browser.SORT_NODES_BY_NAME:    
                 return;
             default:
                 throw new IllegalArgumentException("Sort type not supported");
@@ -99,7 +96,7 @@ public class SortCmd
     {
         Comparator c;
         switch (sortType) {
-            case SORT_DATE:
+            case Browser.SORT_NODES_BY_DATE:
                 c = new Comparator() {
                     public int compare(Object o1, Object o2)
                     {
@@ -117,7 +114,7 @@ public class SortCmd
                     }
                 };
                 break;
-            case SORT:
+            case Browser.SORT_NODES_BY_NAME:
             default:
                 c = new Comparator() {
                     public int compare(Object o1, Object o2)
@@ -151,13 +148,20 @@ public class SortCmd
         this.sortType = sortType;
     }
     
+    /** 
+     * Returns the list of sorted nodes or <code>null</code> if the command
+     * has been executed yet.
+     * 
+     * @return See above.
+     */
+    public List getSortedNodes() { return sortedNodes; }
+    
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
         SortVisitor visitor = new SortVisitor(model);
         model.accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-        List sortedNodes = sort(visitor.getNodes(), true);
-        model.setSortedNodes(sortedNodes);
+        sortedNodes = sort(visitor.getNodes(), true);
     }
 
 }
