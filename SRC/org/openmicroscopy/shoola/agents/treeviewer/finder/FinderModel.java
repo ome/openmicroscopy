@@ -170,7 +170,7 @@ class FinderModel
      * 
      * @param findText The text to set.
      */
-    void setFindText(String findText) { this.findText = findText; }
+    void setFindText(String findText) { this.findText = findText.trim(); }
     
     /**
      * Returns <code>true</code> if the {@link Finder} is visible, 

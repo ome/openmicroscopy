@@ -38,7 +38,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -320,8 +319,22 @@ class DOBasic
     String getAnnotationText()
     { 
         if (annotator == null) return null;
-        return annotator.getAnnotationText();
+        return annotator.getAnnotationText().trim();
     }
+    
+    /**
+     * Returns the value of the {@link #nameArea}.
+     * 
+     * @return See above.
+     */
+    String getNameText() { return nameArea.getText().trim(); }
+    
+    /**
+     * Returns the value of the {@link #descriptionArea}.
+     * 
+     * @return See above.
+     */
+    String getDescriptionText() { return descriptionArea.getText().trim(); }
     
     /** Displays the annotations. */
     void showAnnotations()

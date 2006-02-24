@@ -88,7 +88,6 @@ public class EditorUI
     /** The default height of the <code>TitlePanel</code>. */
     public static final int    	    TITLE_HEIGHT = 80;
     
-    
     /** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -410,27 +409,27 @@ public class EditorUI
         DataObject hierarchyObject = model.getHierarchyObject();
         if (hierarchyObject instanceof ProjectData) {
             ProjectData p = (ProjectData) hierarchyObject;
-            p.setName(doBasic.nameArea.getText());
+            p.setName(doBasic.getNameText());
             p.setDescription(doBasic.descriptionArea.getText());
             return p;
         } else if (hierarchyObject instanceof DatasetData) {
             DatasetData d = (DatasetData) hierarchyObject;
-            d.setName(doBasic.nameArea.getText());
+            d.setName(doBasic.getNameText());
             d.setDescription(doBasic.descriptionArea.getText());
             return d;
         } else if (hierarchyObject instanceof CategoryData) {
             CategoryData c = (CategoryData) hierarchyObject;
-            c.setName(doBasic.nameArea.getText());
+            c.setName(doBasic.getNameText());
             c.setDescription(doBasic.descriptionArea.getText());
             return c;
         } else if (hierarchyObject instanceof CategoryGroupData) {
             CategoryGroupData cg = (CategoryGroupData) hierarchyObject;
-            cg.setName(doBasic.nameArea.getText());
+            cg.setName(doBasic.getNameText());
             cg.setDescription(doBasic.descriptionArea.getText());
             return cg;
         } else if (hierarchyObject instanceof ImageData) {
             ImageData i = (ImageData) hierarchyObject;
-            i.setName(doBasic.nameArea.getText());
+            i.setName(doBasic.getNameText());
             i.setDescription(doBasic.descriptionArea.getText());
             return i;
         } 
