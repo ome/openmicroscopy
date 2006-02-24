@@ -124,25 +124,33 @@ public class CreateAction
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String) { // root
-            Browser browser = model.getSelectedBrowser();
-            if (browser != null) {
-                switch (browser.getBrowserType()) {
-                    case Browser.HIERARCHY_EXPLORER:
-                        setEnabled(true);
-                        putValue(Action.NAME, NAME_PROJECT);  
-                        nodeType = CreateCmd.PROJECT;
-                        break;
-                    case Browser.CATEGORY_EXPLORER:
-                        setEnabled(true);
-                        putValue(Action.NAME, NAME_CATEGORY_GROUP); 
-                        nodeType = CreateCmd.CATEGORY_GROUP;
-                        break;
-                    case Browser.IMAGES_EXPLORER:
-                        //setEnabled(true);
-                        setEnabled(false);
-                        putValue(Action.NAME, NAME_IMAGE); 
-                } 
-            } else setEnabled(false);
+            if (selectedDisplay.getParentDisplay() != null) {
+                setEnabled(false);
+                putValue(Action.NAME, NAME);  
+            } else {
+                Browser browser = model.getSelectedBrowser();
+                if (browser != null) {
+                    switch (browser.getBrowserType()) {
+                        case Browser.HIERARCHY_EXPLORER:
+                            setEnabled(true);
+                            putValue(Action.NAME, NAME_PROJECT);  
+                            nodeType = CreateCmd.PROJECT;
+                            break;
+                        case Browser.CATEGORY_EXPLORER:
+                            setEnabled(true);
+                            putValue(Action.NAME, NAME_CATEGORY_GROUP); 
+                            nodeType = CreateCmd.CATEGORY_GROUP;
+                            break;
+                        case Browser.IMAGES_EXPLORER:
+                            //setEnabled(true);
+                            setEnabled(false);
+                            putValue(Action.NAME, NAME_IMAGE); 
+                    } 
+                } else {
+                    setEnabled(false);
+                    putValue(Action.NAME, NAME);  
+                }
+            } 
         } else if (ho instanceof ProjectData) {
             setEnabled(((ProjectData) ho).getOwner().getId() == 
                 		model.getUserDetails().getId());
