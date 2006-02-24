@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -114,6 +115,12 @@ public class FilterWindow
     /** The default size of the window. */
     private static final Dimension  WINDOW_SIZE = new Dimension(500, 500);
 
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
     /** The specified type of container. */
     private int             containerType;
     
@@ -190,8 +197,10 @@ public class FilterWindow
     {
         JToolBar bar = new JToolBar();
         bar.setRollover(true);
+        bar.setBorder(null);
         bar.setFloatable(false);
         bar.add(setButton);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
         return bar;
     }

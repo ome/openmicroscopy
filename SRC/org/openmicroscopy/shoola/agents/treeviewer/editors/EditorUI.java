@@ -44,6 +44,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -85,46 +86,55 @@ public class EditorUI
 {
     
     /** The default height of the <code>TitlePanel</code>. */
-    public static final int    	TITLE_HEIGHT = 80;
+    public static final int    	    TITLE_HEIGHT = 80;
+    
+    
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
     
     /** The text corresponding to the creation of a <code>Project</code>. */
-    private static final String PROJECT_MSG = "Project";
+    private static final String     PROJECT_MSG = "Project";
     
     /** The text corresponding to the creation of a <code>Dataset</code>. */
-    private static final String DATASET_MSG = "Dataset";
+    private static final String     DATASET_MSG = "Dataset";
     
     /** 
      * The text corresponding to the creation of a
      * <code>Category Group</code>.
      */
-    private static final String CATEGORY_GROUP_MSG = "Category group";
+    private static final String     CATEGORY_GROUP_MSG = "Category group";
     
     /** The text corresponding to the creation of a <code>Category</code>. */
-    private static final String CATEGORY_MSG = "Category";
+    private static final String     CATEGORY_MSG = "Category";
     
     /** The text corresponding to the creation of a <code>Image</code>. */
-    private static final String IMAGE_MSG = "Image";
+    private static final String     IMAGE_MSG = "Image";
     
     /**
      * The message displayed when the name of the <code>DataObject</code> is 
      * null or of length 0.
      */
-    private static final String EMPTY_MSG = "The name is empty.";
+    private static final String     EMPTY_MSG = "The name is empty.";
     
     /** 
      * The title of the main tabbed pane when the <code>DataObject</code>
      * is edited.
      */
-    private static final String PROPERTIES_TITLE = "Properties";
+    private static final String     PROPERTIES_TITLE = "Properties";
     
     /** 
      * The title of the tabbed pane hosting the details of the owner of the
      * edited <code>DataObject</code>.
      */
-    private static final String OWNER_TITLE = "Owner";
+    private static final String     OWNER_TITLE = "Owner";
     
     /** The title of the tabbed pane hosting the details on the image. */
-    private static final String INFO_TITLE = "Info";
+    private static final String     INFO_TITLE = "Info";
+
     
     /** Button to finish the operation e.g. create, edit, etc. */
     private JButton         finishButton;
@@ -237,9 +247,11 @@ public class EditorUI
     private JToolBar buildToolBar()
     {
         JToolBar bar = new JToolBar();
+        bar.setBorder(null);
         bar.setRollover(true);
         bar.setFloatable(false);
         bar.add(finishButton);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
         return bar;
     }
