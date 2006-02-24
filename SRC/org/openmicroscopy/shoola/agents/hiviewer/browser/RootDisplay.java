@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.awt.Cursor;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 

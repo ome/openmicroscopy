@@ -77,10 +77,6 @@ public class ClearCmd
         browser.accept(new ClearVisitor(model));
         TreeView tree = model.getTreeView();
         if (tree != null) tree.repaint();
-        /*
-        if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT)
-            browser.getTreeDisplay().repaint();
-            */
     }
 
 }
