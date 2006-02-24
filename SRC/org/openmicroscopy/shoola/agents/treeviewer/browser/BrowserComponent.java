@@ -783,6 +783,7 @@ class BrowserComponent
         int index = model.getFoundNodeIndex();
         if (index > 0)  index--; //not last element
         else if (index == 0)  index = l.size()-1;
+        model.setFoundNodeIndex(index);
         TreeImageDisplay node = (TreeImageDisplay) l.get(index);
         view.selectFoundNode(node);
         Object ho = node.getUserObject();
