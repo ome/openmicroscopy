@@ -97,7 +97,7 @@ public class FilterMenuAction
     public void mouseReleased(MouseEvent me)
     {
         Object source = me.getSource();
-        if (source instanceof Component)
+        if (source instanceof Component && isEnabled())
             model.showFilterMenu((Component) source, pressedPoint);
     }
 
