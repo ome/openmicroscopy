@@ -432,6 +432,10 @@ class TreeViewerComponent
         }    
         int editor = model.getEditorType();
         removeEditor(); //remove the currently selected editor.
+        if (operation == REMOVE_OBJECT) {
+            model.setState(READY);
+            fireStateChange();
+        }
         Browser browser = model.getSelectedBrowser();
         browser.refreshEdition(data, operation);
         if (operation == Editor.UPDATE_OBJECT) {
@@ -447,10 +451,7 @@ class TreeViewerComponent
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
         }
-        if (operation == REMOVE_OBJECT) {
-            model.setState(READY);
-            fireStateChange();
-        }
+
     }
 
     /**
