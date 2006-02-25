@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.model.IDetails;
+import ome.model.IObject;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -15,6 +16,7 @@ import ome.model.meta.ExperimenterGroup;
 public class Details implements IDetails
 {
 
+    IObject _context;
     Permissions _perms;
     Event _creation;
     Event _update;
@@ -51,6 +53,11 @@ public class Details implements IDetails
  
     // ~ Other
     // ===========================================================
+    public void setContext(IObject myContext)
+    {
+        _context = myContext;
+    }
+    
     public String toString()
     {
         StringBuffer sb = new StringBuffer(128);

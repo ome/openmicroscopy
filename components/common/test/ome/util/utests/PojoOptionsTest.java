@@ -37,9 +37,11 @@ public class PojoOptionsTest extends TestCase {
 	
 	public void testNullMap(){
 		ob = new PojoOptions(null);
-		assertTrue("no keys",ob.map().keySet().size()==0);
+        PojoOptions test = new PojoOptions();
+		assertTrue("Should have default keys",
+                ob.map().keySet().containsAll(test.map().keySet()));
 		
 		ob = new PojoOptions(new HashMap());
-		assertTrue("also no no keys",ob.map().keySet().size()==0);
+		assertTrue("Should be empty; this is the only way.",ob.map().keySet().size()==0);
 	}
 }
