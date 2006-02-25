@@ -32,16 +32,13 @@ package ome.server.itests;
 import java.util.Set;
 
 //Third-party libraries
-import ome.api.IAnalysis;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
 
 /** 
- * tests for a HQL join bug.
+ * 
  *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -53,54 +50,38 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  */
 public class AnalysisLogicTest
         extends
-            AbstractDependencyInjectionSpringContextTests {
+            AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(AnalysisLogicTest.class);
-    IAnalysis ae;
-
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
-     */
-    protected void onSetUp() throws Exception {
-        ae = (IAnalysis) applicationContext.getBean("analysisService");
-    }
-    
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    protected String[] getConfigLocations() {
-
-        return ConfigHelper.getConfigLocations();
-    }
 
     public void testGetProjectsForUser(){
-    	Set s = ae.getProjectsForUser(1);
+    	Set s = iAnalysis.getProjectsForUser(1);
     	assertTrue(notNull,s.size()>0);
     }
  
     public void testAllDatasets(){
-    	Set s = ae.getAllDatasets();
+    	Set s = iAnalysis.getAllDatasets();
     	assertTrue(notNull,s.size()>0);
     }
 
 // TODO    
 //	public void testChainExecutionsForDataset() {
-//		Set s = ae.getChainExecutionsForDataset(1);
+//		Set s = iAnalysis.getChainExecutionsForDataset(1);
 //		assertTrue(notNull,s.size()>0);
 //	}
 	
 	public void testDsFromPs(){
-		Set s = ae.getDatasetsForProject(1);
+		Set s = iAnalysis.getDatasetsForProject(9992);
 		assertTrue(notNull, s.size()>0);
 	}
 
 	public void testPsFromDs(){
-		Set s = ae.getProjectsForDataset(1);
+		Set s = iAnalysis.getProjectsForDataset(7772);
 		assertTrue(notNull, s.size()>0);
 	}
 
 	public void testIsFromDs(){
-		Set s = ae.getImagesForDataset(1);
+		Set s = iAnalysis.getImagesForDataset(7772);
 		assertTrue(notNull, s.size()>0);
 	}
 	

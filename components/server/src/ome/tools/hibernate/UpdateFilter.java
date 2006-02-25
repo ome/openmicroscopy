@@ -132,6 +132,7 @@ public class UpdateFilter extends ContextFilter
             }
 
             // FOR ALL OBJECTS now that in session!
+            // First need to check that we won't validate internal objects.
             Validation v = Validation.VALID(); // FIXME result.validate();
             if (!v.isValid())
                 throw new RuntimeException(v.toString()); // TODO validation exception

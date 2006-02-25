@@ -29,10 +29,6 @@
 package ome.server.dbtests;
 
 //Java imports
-
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.sql.DataSource;
 
 
@@ -42,49 +38,29 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.AbstractSpringContextTests;
 
 //Application-internal dependencies
-import ome.dao.AnnotationDao;
-import ome.dao.ContainerDao;
 import ome.server.itests.*;
 
 /**
  * @author josh
  * @DEV.TODO test "valid=false" sections of queries
  */
-public abstract class AbstractDbUnitTest extends AbstractSpringContextTests {
+public abstract class AbstractDbUnitTest extends AbstractInternalContextTest {
 
     protected static IDatabaseConnection c = null;
     protected ApplicationContext ctx;
     protected DataSource ds = null;
-    protected ContainerDao cdao = null;
-    protected AnnotationDao adao = null;
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractDbUnitTest.class);
     }
 
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    protected String[] getConfigLocations() {
-        return ConfigHelper.getDbUnitConfigLocations();
-    }
+        @Override
+        protected void onSetUpInTransaction() throws Exception
+        {
 
-    /**
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        ctx = getContext(getConfigLocations());
-
-        if (null == cdao || null == adao || null == ds) {
-            cdao = (ContainerDao) ctx.getBean("containerDao");
-            adao = (AnnotationDao) ctx.getBean("annotationDao");
-            ds = (DataSource) ctx.getBean("dataSource");
-        }
-        
-        if (null==c) {
+            if (null==c) {
             try {
                 c = new DatabaseConnection(ds.getConnection());
                 DatabaseOperation.CLEAN_INSERT.execute(c,getData());

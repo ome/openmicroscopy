@@ -9,6 +9,7 @@ import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
+import ome.testing.ObjectFactory;
 
 public class DetachedPixelsGraphTest extends AbstractUpdateTest
 {
@@ -28,7 +29,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     {
         super.onSetUpInTransaction();
 
-        example = createPixelGraph(null);
+        example = ObjectFactory.createPixelGraph(null);
         assertNotNull("need to start off with acq. ctx", example
                 .getAcquisitionContext());
         example = (Pixels) _up.saveAndReturnObject(example);
@@ -37,7 +38,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
 
         prepareCurrentDetails(); // Need new event now
 
-        p = createPixelGraph(example);
+        p = ObjectFactory.createPixelGraph(example);
         assertTrue("Starting off empty", p.getChannels() != null);
         channelsSizeBefore = p.getChannels().size();
         assertTrue("Starting off empty", channelsSizeBefore > 0);
@@ -47,7 +48,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     public void testNewRecursiveEntityFieldOnDetachedPixels() throws Exception
     {
         // PREPARE ----------------------------------------------
-        p.setRelatedTo(createPixelGraph(null));
+        p.setRelatedTo(ObjectFactory.createPixelGraph(null));
         p = (Pixels) _up.saveAndReturnObject(p);
         flush();
         clear();
@@ -66,12 +67,12 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     {
         // PREPARE ----------------------------------------------
         // Make field entry; we have to re-do what is done in setup above.
-        Pixels example2 = createPixelGraph(null);
+        Pixels example2 = ObjectFactory.createPixelGraph(null);
         example2 = (Pixels) _up.saveAndReturnObject(example2);
         flush();
         clear();
         prepareCurrentDetails();
-        Pixels p2 = createPixelGraph(example2);
+        Pixels p2 = ObjectFactory.createPixelGraph(example2);
         
         p.setRelatedTo(p2);
         p = (Pixels) _up.saveAndReturnObject(p);
@@ -165,12 +166,14 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         Set infos = new HashSet();
         PlaneInfo pi1 = new PlaneInfo(),pi2 = new PlaneInfo();
         infos.add(pi1); infos.add(pi2);
-        
+
+        pi1.setPixels(p);
         pi1.setExposureTime(new Float(10));
         pi1.setTimestamp(new Float(-11));
+        
+        pi2.setPixels(p);
         pi2.setExposureTime(new Float(100));
         pi2.setTimestamp(new Float(-193));
-        // TODO case of only inverse!
         
         p.setPlaneInfo(infos);
         p = (Pixels) _up.saveAndReturnObject(p);

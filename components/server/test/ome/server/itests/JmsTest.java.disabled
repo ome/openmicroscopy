@@ -90,7 +90,7 @@ public class JmsTest
     protected String[] getConfigLocations() {
 
         return new String[] { 
-                "WEB-INF/jms.xml"
+                "ome/services/jms.xml"
         };
     }
 

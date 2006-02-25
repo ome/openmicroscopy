@@ -64,7 +64,7 @@ public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTest
 
 	@Override
 	protected String[] getConfigLocations() {
-		return new String[]{"WEB-INF/drools.xml"};
+		return new String[]{"ome/services/drools.xml"};
 	}
 
 	public void setEngine(RulesEngine eng){

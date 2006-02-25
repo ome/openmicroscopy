@@ -29,19 +29,17 @@
 package ome.server.itests;
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
 import ome.api.IPixels;
 import ome.model.core.Pixels;
+import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.enums.Model;
 
 /** 
  * 
@@ -55,36 +53,60 @@ import ome.model.display.RenderingDef;
  */
 public class PixelsServiceTest
         extends
-            AbstractDependencyInjectionSpringContextTests {
+            AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(PixelsServiceTest.class);
 
     private IPixels pix;
     
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    protected String[] getConfigLocations() {
-        return ConfigHelper.getConfigLocations();
-    }
-    
     @Override
     protected void onSetUp() throws Exception {
     	super.onSetUp();
-    	ome.security.Utils.setUserAuth();
+    	//ome.security.Utils.setUserAuth();
     	pix = (IPixels) applicationContext.getBean("pixelsService");
     }
     
     public void testPix(){
-    	Pixels p = pix.retrievePixDescription(5);
+    	Pixels p = pix.retrievePixDescription(1L);
     	assertNotNull(p);
     	log.info(p);
     }
     
-    public void test1() {
-    	RenderingDef r = pix.retrieveRndSettings(5);
-    	assertNotNull(r);
-    	log.info(r);
+    public void testLetsSaveADefinition() throws Exception
+    {
+        Pixels p = pix.retrievePixDescription(1L);
+        RenderingDef r = makeRndDef(p);
+        r = (RenderingDef) iUpdate.saveAndReturnObject(r);
+
     }
+
+    public void testGetTheDefinitionWeJustMade() {
+        RenderingDef test = pix.retrieveRndSettings(1L);
+    	assertNotNull(test);
+    	log.info(test);
+    }
+
+    // TODO to ObjectFactory
+    private RenderingDef makeRndDef(Pixels p)
+    {
+        RenderingDef r = new RenderingDef();
+        r.setDefaultT(1);
+        r.setDefaultZ(1);
+        r.setPixels(p); 
+        
+        Model m = new Model();
+        m.setValue("test");
+        r.setModel(m);
+
+        QuantumDef qd = new QuantumDef();
+        qd.setBitResolution(1);
+        qd.setCdStart(1);
+        qd.setCdStop(1);
+        
+        r.setQuantization(qd);
+        return r;
+    }
+    
+
     
 }

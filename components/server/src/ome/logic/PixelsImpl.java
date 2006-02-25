@@ -35,18 +35,11 @@ package ome.logic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.userdetails.User;
-import org.hibernate.Query;
-
 //Application-internal dependencies
 import ome.api.IPixels;
-import ome.model.meta.Experimenter;
-import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
+import ome.security.CurrentDetails;
 
 /** 
  * 
@@ -75,48 +68,22 @@ class PixelsImpl extends AbstractLevel2Service
     }
     
 	public Pixels retrievePixDescription(long pixId) {
-		Pixels p = (Pixels) _query.getById(Pixels.class, pixId);
+		Pixels p = (Pixels) iQuery.getById(Pixels.class, pixId);
 		return p;
 	}
 
-	//FIXME current user!
-	public RenderingDef retrieveRndSettings(long pixId) {
-
-        /* FROM earlier DAO
-        Pixels pix = (Pixels) session.load(Pixels.class,pixId);
-        Experimenter user = (Experimenter) session.load(Experimenter.class,userId);
+    //TODO we need to validate and make sure only one RndDef per user. 
+	public RenderingDef retrieveRndSettings(final long pixId) {
         
-        Query q = session.createQuery("from RenderingSetting r where r.image = :img and r.moduleExecution.experimenter = :exp");
-        q.setEntity("img",pix.getImage());
-        q.setEntity("exp",user);
-        return q.uniqueResult(); */
-        
-		// Get User Id
-		SecurityContext ctx = SecurityContextHolder.getContext();
-		Authentication auth = ctx.getAuthentication();
-		User u = (User) auth.getPrincipal();
-		Experimenter user = (Experimenter) _query.getUniqueByFieldEq(Experimenter.class, "omeName", u.getUsername());
-		// TODO user needs to be lazy loaded and cached.
-		//return daos.pixels().retrieveRndSettings(user.getId().longValue(),pixId);
-        
-        throw new UnsupportedOperationException("Doesn't work yet");
-
+        final Long userId = CurrentDetails.getOwner().getId();
+        return (RenderingDef) iQuery.queryUnique(
+                " select rdef from RenderingDef rdef where " +
+                " rdef.pixels.id = ? and rdef.details.owner.id = ?",
+                new Object[]{pixId, userId});
 	}
 
 	public void saveRndSettings(RenderingDef rndSettings) {
-		//pdao.saveRndSettings(1,pixId,rndSettings);
-		
-		// RenderingDef rnd = retrieveRndSettings(pixId);
-		
-//		if (null==rnd){
-//			
-//		} else {
-//			
-//		}
-		
-		throw new UnsupportedOperationException("No writes!!!");
-		
+	    iUpdate.saveObject(rndSettings);
 	}
-
 
 }

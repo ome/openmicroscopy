@@ -12,6 +12,10 @@ public class OmeroContext extends ClassPathXmlApplicationContext
     public final static String MANAGED_CONTEXT = "ome.server";
     public final static String INTERNAL_CONTEXT = "ome.internal";
 
+    private static OmeroContext _client;
+    private static OmeroContext _internal;
+    private static OmeroContext _managed;;
+    
     // ~ Super-Constructors
     // =========================================================================
     public OmeroContext(String configLocation) 
@@ -43,19 +47,40 @@ public class OmeroContext extends ClassPathXmlApplicationContext
     // ~ Creation
     // =========================================================================
 
+    private final static Object mutex = new Object();
+    
     public static OmeroContext getClientContext()
     {
-        return getInstance(CLIENT_CONTEXT);
+        synchronized (mutex)
+        {
+            if (_client == null) 
+                _client = getInstance(CLIENT_CONTEXT); 
+            
+            return _client; 
+        }    
     }
     
     public static OmeroContext getInternalServerContext()
     {
-        return getInstance(INTERNAL_CONTEXT);
+        synchronized (mutex)
+        {
+            if (_internal== null) 
+                _internal = getInstance(INTERNAL_CONTEXT); 
+            
+            return _internal; 
+        }
     }
     
     public static OmeroContext getManagedServerContext()
     {
-        return getInstance(MANAGED_CONTEXT);
+        synchronized (mutex)
+        {
+            if (_managed == null) 
+                _managed = getInstance(MANAGED_CONTEXT); 
+            
+            return _managed; 
+        }
+        
     }
     
     public static OmeroContext getInstance(String beanFactoryName)

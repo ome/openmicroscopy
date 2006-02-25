@@ -27,7 +27,7 @@ $templates.PojoFields
 #if($clazz.identifierProperty)
     public $pojo.getDeclarationName()(Long id){
 		setId(id);
-		setDetails(new ome.model.internal.Details());
+		getDetails().setContext(this);
 	}
 	public $pojo.getDeclarationName()(Long id, boolean loaded)
 	{

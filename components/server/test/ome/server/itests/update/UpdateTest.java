@@ -8,13 +8,14 @@ import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.security.CurrentDetails;
+import ome.testing.ObjectFactory;
 
 public class UpdateTest extends AbstractUpdateTest
 {
 
     public void testSaveSimpleObject() throws Exception
     {
-        Pixels p = createPixelGraph(null);
+        Pixels p = ObjectFactory.createPixelGraph(null);
         p = (Pixels) _up.saveAndReturnObject(p); 
         flush();
 

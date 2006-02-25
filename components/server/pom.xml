@@ -87,12 +87,38 @@
       <version>1.0.1</version>
       <scope>test</scope>
     </dependency>
-<!-- BROKEN
     <dependency>
       <groupId>activemq</groupId>
       <artifactId>activemq-core</artifactId>
-      <version>3.2.1</version>
+      <version>3.2</version>
+      <exclusions>
+        <exclusion><groupId>concurrent</groupId><artifactId>concurrent</artifactId></exclusion> 
+        <exclusion><groupId>activecluster</groupId><artifactId>activecluster</artifactId></exclusion> 
+        <exclusion><groupId>activeio</groupId><artifactId>activeio</artifactId></exclusion> 
+        <exclusion><groupId>commons-collections</groupId><artifactId>commons-collections</artifactId></exclusion> 
+        <exclusion><groupId>jmock</groupId><artifactId>jmock</artifactId></exclusion> 
+        <exclusion><groupId>jmock</groupId><artifactId>jmock-cglib</artifactId></exclusion> 
+        <exclusion><groupId>cglib</groupId><artifactId>cglib-full</artifactId></exclusion> 
+        <exclusion><groupId>org.apache.derby</groupId><artifactId>derby</artifactId></exclusion> 
+        <exclusion><groupId>axion</groupId><artifactId>axion</artifactId></exclusion> 
+        <exclusion><groupId>commons-collections</groupId><artifactId>commons-collections</artifactId></exclusion> 
+        <exclusion><groupId>commons-primitives</groupId><artifactId>commons-primitives</artifactId></exclusion> 
+        <exclusion><groupId>regexp</groupId><artifactId>regexp</artifactId></exclusion> 
+        <exclusion><groupId>hsqldb</groupId><artifactId>hsqldb</artifactId></exclusion> 
+        <exclusion><groupId>howl</groupId><artifactId>howl-logger</artifactId></exclusion> 
+        <exclusion><groupId>springframework</groupId><artifactId>spring</artifactId></exclusion> 
+        <exclusion><groupId>xmlbeans</groupId><artifactId>xbean</artifactId></exclusion> 
+        <exclusion><groupId>xmlbeans</groupId><artifactId>xmlpublic</artifactId></exclusion> 
+        <exclusion><groupId>xmlbeans</groupId><artifactId>xbean_xpath</artifactId></exclusion> 
+        <exclusion><groupId>stax</groupId><artifactId>stax-api</artifactId></exclusion> 
+        <exclusion><groupId>stax</groupId><artifactId>stax</artifactId></exclusion> 
+        <exclusion><groupId>activesoap</groupId><artifactId>jaxp-api</artifactId></exclusion> 
+        <exclusion><groupId>xalan</groupId><artifactId>xalan</artifactId></exclusion> 
+        <exclusion><groupId>activemq</groupId><artifactId>smack</artifactId></exclusion> 
+        <exclusion><groupId>activemq</groupId><artifactId>smackx</artifactId></exclusion> 
+      </exclusions>
     </dependency>
+<!-- BROKEN
    <dependency>
       <groupId>dwr</groupId>
       <artifactId>dwr</artifactId>

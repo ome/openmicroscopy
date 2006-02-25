@@ -75,7 +75,7 @@ public class ApiConstraintChecker implements MethodInterceptor
         log.info("Checking: " + implMethod);
 
         /* get arrays of arguments with parameters */
-        Object[] args = mi.getArguments();
+        Object[] args = mi.getArguments() == null ? new Object[]{} : mi.getArguments();
         Annotation[][] anns = implMethod.getParameterAnnotations();
 
         for (int i = 0; i < args.length; i++)

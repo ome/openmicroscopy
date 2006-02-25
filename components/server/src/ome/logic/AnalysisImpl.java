@@ -37,24 +37,15 @@
 package ome.logic;
 
 //Java imports
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
-import ome.api.IAnalysis;
-import ome.dao.AnalysisDao;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
-import ome.dao.AnnotationDao;
-import ome.dao.ContainerDao;
-
+import ome.api.IAnalysis;
 import ome.model.containers.Dataset;
 import ome.model.meta.Experimenter;
 import ome.model.containers.Project;
@@ -93,13 +84,13 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 		Project prj = new Project();
 		prj.getDetails().setOwner(exp);
 		
-		return new HashSet(_query.getListByExample(prj)); 
+		return new HashSet(iQuery.getListByExample(prj)); 
         // FIXME does this work. if not:
         // "from Project p where p.experimenter = :expId"
 	}
 
 	public Set getAllDatasets() {
-		return new HashSet(_query.getListByExample(new Dataset()));
+		return new HashSet(iQuery.getListByExample(new Dataset()));
 	}
 
 	public Set getAllForImage(long imageId) {
@@ -118,7 +109,7 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 //		AnalysisChainExecution ace = new AnalysisChainExecution();
 //		ace.setDataset(ds);
 //		
-//		return new HashSet(_query.getListByExample(ace));
+//		return new HashSet(iQuery.getListByExample(ace));
 //	}
 // 
 	// Criteria is a set ~~~~~~~~~~~~~~~~~~~~~~~`
@@ -127,29 +118,32 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(" select d from Dataset d ");
-		sb.append("  left outer join fetch d.projects p ");
-		sb.append("  where p.projectId = ?");
+		sb.append("  left outer join fetch d.projectLinks pdl ");
+        sb.append("  left outer join fetch pdl.parent p ");
+		sb.append("  where p.id = ?");
 		
-		return new HashSet(_query.queryList(sb.toString(),new Object[]{projectId}));
+		return new HashSet(iQuery.queryList(sb.toString(),new Object[]{projectId}));
 		
 	}
 
 	public Set getProjectsForDataset(long datasetId) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" select p from Project p ");
-		sb.append("  left outer join fetch p.datasets d ");
-		sb.append("  where d.datasetId = ?");
+		sb.append("  left outer join fetch p.datasetLinks pdl ");
+        sb.append("  left outer join fetch pdl.child d ");
+		sb.append("  where d.id = ?");
 		
-		return new HashSet(_query.queryList(sb.toString(),new Object[]{datasetId}));
+		return new HashSet(iQuery.queryList(sb.toString(),new Object[]{datasetId}));
 	}
 
 	public Set getImagesForDataset(long datasetId) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" select i from Image i ");
-		sb.append("  left outer join fetch i.datasets d ");
-		sb.append("  where d.datasetId = ?");
+		sb.append("  left outer join fetch i.datasetLinks dil ");
+        sb.append("  left outer join fetch dil.parent d ");
+		sb.append("  where d.id = ?");
 		
-		return new HashSet(_query.queryList(sb.toString(),new Object[]{datasetId}));
+		return new HashSet(iQuery.queryList(sb.toString(),new Object[]{datasetId}));
 	}
 
 	

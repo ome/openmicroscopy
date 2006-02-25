@@ -42,7 +42,6 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
 import ome.api.IQuery;
-import ome.dao.hibernate.queries.PojosQueryBuilder;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -60,7 +59,7 @@ import ome.util.builders.PojoOptions;
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
  * @since 2.0
- */
+ */ // FIXME
 public class PojosDaoTest
         extends
             AbstractDependencyInjectionSpringContextTests {
@@ -96,7 +95,7 @@ public class PojosDaoTest
 
     public void runLoad(String name, Class c){
     	// Class, Set<Container>, options
-    	q = PojosQueryBuilder.buildLoadQuery(c,false,po.map());
+    	//q = PojosQueryBuilder.buildLoadQuery(c,false,po.map());
     	n = name;go();
     }
     
@@ -120,7 +119,7 @@ public class PojosDaoTest
 	
     public void runFind(String name, Class c){
     	// Class, Set<Image>, options
-    	q = PojosQueryBuilder.buildFindQuery(c,po.map());
+    	//q = PojosQueryBuilder.buildFindQuery(c,po.map());
     	n = name;go();
     }
     
@@ -136,7 +135,7 @@ public class PojosDaoTest
 
     public void runAnn(String name, Class c){
     	// Class, Set<Container>, Map
-    	q = PojosQueryBuilder.buildAnnsQuery(c,po.map());
+    	//q = PojosQueryBuilder.buildAnnsQuery(c,po.map());
     	m.remove("exp"); // unused
     	n = name;go();
     }
@@ -153,7 +152,7 @@ public class PojosDaoTest
 
     public void runGet(String name, Class c){
     	// Class, Set<Container>, Map
-    	q = PojosQueryBuilder.buildGetQuery(c,po.map());
+    	//q = PojosQueryBuilder.buildGetQuery(c,po.map());
     	n = name;go();
     }
     
@@ -184,7 +183,7 @@ public class PojosDaoTest
     
     public void runPaths(String name, String algorithm){
     	// Set<Image>, Algorithm options
-    	q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
+    	//q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
     	n = name;go();
     }
     
@@ -200,7 +199,7 @@ public class PojosDaoTest
     
     private void go(){
     	log.info(String.format("%n1)NAME: %s%n2)QUERY: %s",n,q));
-    	s = new HashSet(_q.queryListMap(q,m));
+    	//s = new HashSet(_q.queryListMap(q,m));
     	log.info(String.format("%n3)RESULT: %s",s));
     }
     

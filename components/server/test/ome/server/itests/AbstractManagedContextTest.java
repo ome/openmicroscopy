@@ -3,7 +3,9 @@ package ome.server.itests;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
+import ome.api.IAnalysis;
 import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.system.OmeroContext;
 
 
@@ -12,11 +14,17 @@ public class AbstractManagedContextTest
 {
     protected LocalQuery iQuery;
 
+    protected LocalUpdate iUpdate;
+    
+    protected IAnalysis iAnalysis;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
         iQuery = (LocalQuery) applicationContext.getBean("queryService");
+        iUpdate = (LocalUpdate) applicationContext.getBean("updateService");
+        iAnalysis= (IAnalysis) applicationContext.getBean("analysisService");
         login("root","system","Test");
     }
     

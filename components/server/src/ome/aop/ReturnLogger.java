@@ -67,10 +67,21 @@ public class ReturnLogger implements MethodInterceptor {
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     public Object invoke(MethodInvocation arg0) throws Throwable {
+
+        // Method
         log.info("Meth:\t"+arg0.getMethod().getName());
-        log.info("Args:\t"+
-                (arg0 == null? "()" : Arrays.asList(arg0.getArguments())));
         
+        // Arguments
+        String arguments;
+        if (arg0.getArguments() == null || arg0.getArguments().length < 1) 
+        {
+            arguments = "()";
+        } else {
+            arguments = Arrays.asList(arg0.getArguments()).toString(); 
+        }
+        log.info("Args:\t"+arguments);
+        
+        // Results and/or Exceptions
         Object o;
         String finalOutput = "";
         try {
@@ -83,6 +94,7 @@ public class ReturnLogger implements MethodInterceptor {
             log.info(finalOutput);
         }
         
+        // Extended output and return.
         log(o);
         return o;
     

@@ -30,10 +30,9 @@ package ome.io.nio.itests;
 
 import java.io.IOException;
 
-import ome.api.IUpdate;
 import ome.api.local.LocalUpdate;
 import ome.model.core.Pixels;
-import ome.system.OmeroContext;
+import ome.testing.ObjectFactory;
 
 
 /**
@@ -42,21 +41,17 @@ import ome.system.OmeroContext;
  */
 public class PixbufIOFixture
 {
-    private OmeroContext ctx;
-
-    private IUpdate updater;
-
     private Pixels pixels;
 
-    private void init()
-    {
-        ctx = (OmeroContext) OmeroContext.getManagedServerContext();
-        updater = (IUpdate) ctx.getBean("updateService");
+    private LocalUpdate updater;
+    
+    public PixbufIOFixture(LocalUpdate updater){
+        this.updater = updater;
     }
     
     private void createPixels()
     {
-        Pixels p = new Pixels();
+        Pixels p = ObjectFactory.createPixelGraph(null);
         p.setSizeX(new Integer(64));
         p.setSizeY(new Integer(64));
         p.setSizeZ(new Integer(16));
@@ -72,7 +67,6 @@ public class PixbufIOFixture
     
     public Pixels setUp() throws IOException
     {
-        init();
         createPixels();
         return pixels;
     }
@@ -80,6 +74,5 @@ public class PixbufIOFixture
     protected void tearDown()
     {
         ((LocalUpdate) updater).rollback();
-
     }
 }

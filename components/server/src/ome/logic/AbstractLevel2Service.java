@@ -63,26 +63,26 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService{
 
     protected OmeroContext ctx;
     
-    protected LocalUpdate _update;
+    protected LocalUpdate iUpdate;
     
-    protected LocalQuery _query;
+    protected LocalQuery iQuery;
 
-    protected QueryFactory _qFactory;
+    protected QueryFactory queryFactory;
     
     protected abstract String getName();
     
     public void setUpdateService(LocalUpdate update)
     {
-        this._update = update;
+        this.iUpdate = update;
     }
     
     public void setQueryService(LocalQuery query)
     {
-        this._query = query;
+        this.iQuery = query;
     }
 
     public void setQueryFactory(QueryFactory factory){
-        this._qFactory = factory;
+        this.queryFactory = factory;
     }
     
     public void setApplicationContext(ApplicationContext applicationContext) 

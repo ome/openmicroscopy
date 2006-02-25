@@ -1,9 +1,7 @@
 package ome.server.itests;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.BeanFactoryUtils;
 

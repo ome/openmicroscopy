@@ -36,6 +36,8 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
+import ome.server.itests.AbstractManagedContextTest;
+
 import junit.framework.TestCase;
 
 
@@ -43,7 +45,7 @@ import junit.framework.TestCase;
  * @author callan
  *
  */
-public class PlaneWriteUnitTest extends TestCase
+public class PlaneWriteUnitTest extends AbstractManagedContextTest
 {
     private PixelsService service;
     private Pixels pixels;
@@ -106,10 +108,13 @@ public class PlaneWriteUnitTest extends TestCase
         assertEquals(originalDigest, Helper.bytesToHex(newMD));
     }
     
-    protected void setUp() throws IOException
+    @Override
+    protected void onSetUp() throws Exception
     {
+        super.onSetUp();
+        
         // Create set up the base fixture which sets up the database for us
-        baseFixture = new PixbufIOFixture();
+        baseFixture = new PixbufIOFixture(this.iUpdate);
         pixels = baseFixture.setUp();
         
         // "Our" fixture which creates the planes needed for this test case.
@@ -117,7 +122,8 @@ public class PlaneWriteUnitTest extends TestCase
         pixbuf = service.createPixelBuffer(pixels);
     }
     
-    protected void tearDown()
+    @Override
+    protected void onTearDown() throws Exception
     {
         // Tear down the resources create in this fixture
         String path = pixbuf.getPath();
@@ -126,5 +132,6 @@ public class PlaneWriteUnitTest extends TestCase
 
         // Tear down the resources created as part of the base fixture
         baseFixture.tearDown();
+        super.onTearDown();
     }
 }

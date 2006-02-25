@@ -139,6 +139,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return getHibernateTemplate().loadAll(klass);
     }
     
+    // TODO does example ID not work?
 	public Object getUniqueByExample(final Object example) {
         return getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)

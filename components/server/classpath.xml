@@ -9,6 +9,7 @@
   <property name="artifact.path" value="omero/server/3.0-alpha-SNAPSHOT/${artifact.final.name}"/>
   <path id="generated.compile.classpath">
     <filelist dir="${omero.repo.local}">
+	<file name="activemq/activemq-core/3.2/activemq-core-3.2.jar"/>
 	<file name="ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar"/>
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<file name="antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
@@ -50,6 +51,7 @@
   </path>
   <path id="generated.test.classpath">
     <filelist dir="${omero.repo.local}">
+	<file name="activemq/activemq-core/3.2/activemq-core-3.2.jar"/>
 	<file name="ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar"/>
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<file name="antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
@@ -95,6 +97,7 @@
   </path>
 
   <target name="classpath-download">
+	<get src="${omero.repo.remote}/activemq/activemq-core/3.2/activemq-core-3.2.jar" dest="${omero.repo.local}/activemq/activemq-core/3.2/activemq-core-3.2.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar" dest="${omero.repo.local}/ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/ant/ant/1.6.5/ant-1.6.5.jar" dest="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar" dest="${omero.repo.local}/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar" usetimestamp="true"/>
@@ -139,6 +142,7 @@
   </target>
 
   <target name="dist-copy">
+	<copy file="${omero.repo.local}/activemq/activemq-core/3.2/activemq-core-3.2.jar" todir="${dist.dir}/repository/activemq/activemq-core/3.2"/>
 	<copy file="${omero.repo.local}/ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar" todir="${dist.dir}/repository/ant/ant-launcher/1.6.5"/>
 	<copy file="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" todir="${dist.dir}/repository/ant/ant/1.6.5"/>
 	<copy file="${omero.repo.local}/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar" todir="${dist.dir}/repository/antlr/antlr/2.7.6rc1"/>

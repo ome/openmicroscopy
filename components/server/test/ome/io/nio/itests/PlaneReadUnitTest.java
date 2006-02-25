@@ -38,13 +38,14 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
+import ome.server.itests.AbstractManagedContextTest;
 
 
 /**
  * @author callan
  *
  */
-public class PlaneReadUnitTest extends TestCase
+public class PlaneReadUnitTest extends AbstractManagedContextTest
 {
     private Integer planeCount;
     private Integer planeSize;
@@ -107,10 +108,13 @@ public class PlaneReadUnitTest extends TestCase
         }
     }
  
-    protected void setUp() throws IOException
+    @Override
+    protected void onSetUp() throws Exception
     {
+        super.onSetUp();
+        
         // Create set up the base fixture which sets up the database for us
-        baseFixture = new PixbufIOFixture();
+        baseFixture = new PixbufIOFixture(this.iUpdate);
         pixels = baseFixture.setUp();
         
         // "Our" fixture which creates the planes needed for this test case.
@@ -177,7 +181,8 @@ public class PlaneReadUnitTest extends TestCase
         }
     }
     
-    protected void tearDown()
+    @Override
+    protected void onTearDown() throws Exception
     {
         // Tear down the resources created as part of the base fixture
         baseFixture.tearDown();
@@ -185,5 +190,7 @@ public class PlaneReadUnitTest extends TestCase
         // Tear down the resources create in this fixture
         File f = new File(path);
         f.delete();
+        
+        super.onTearDown();
     }
 }
