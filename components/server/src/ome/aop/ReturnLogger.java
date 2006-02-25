@@ -68,17 +68,24 @@ public class ReturnLogger implements MethodInterceptor {
      */
     public Object invoke(MethodInvocation arg0) throws Throwable {
         log.info("Meth:\t"+arg0.getMethod().getName());
-        log.info("Args:\t"+Arrays.asList(arg0.getArguments()));
+        log.info("Args:\t"+
+                (arg0 == null? "()" : Arrays.asList(arg0.getArguments())));
+        
         Object o;
+        String finalOutput = "";
         try {
             o = arg0.proceed();
-            log.info("Rslt:\t"+o);
+            finalOutput = "Rslt:\t"+o; 
         } catch (Throwable t) {
-            log.debug("Excp:\t"+t);
+            finalOutput = "Excp:\t"+t; 
             throw t;
+        } finally {
+            log.info(finalOutput);
         }
+        
         log(o);
         return o;
+    
     }
     
     public void log(Object o) throws Throwable{
