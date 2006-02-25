@@ -52,7 +52,7 @@
 			printsummary="withOutAndErr" 
 			haltonfailure="${test.with.fail}"
 			fork="off"
-			forkmode="perBatch"
+			forkmode="perTest"
 			>
  			<classpath>
 				<path refid="omero.classpath"/>
@@ -63,7 +63,8 @@
 
 			<batchtest todir="${testreports.dir}">
 				<fileset dir="${testclasses.dir}">
-					<include name="**/*Test*.class"/>
+					<include name="**/*Test.class"/>
+					<include name="**/*Tests.class"/>
 					<exclude name="**/AllTests.class"/>
 					<exclude name="**/Abstract*.class"/>
 					<!--exclude name="**/itests/**/*"/-->
