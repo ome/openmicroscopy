@@ -210,4 +210,43 @@ ${msg.check.report}
 		</antRun>
 	</target>
 
+	<target name="javadoc">
+	    <javadoc
+		destdir="docs/api"
+		author="true"
+		version="true"
+		use="true"
+		windowtitle="OMERO (OME Remote Objects) API">
+
+		<fileset dir="components/common/src" defaultexcludes="yes">
+			<include name="ome/**/*.java"/>
+			<exclude name="xxx/**"/>
+		</fileset>
+		<fileset dir="components/server/src" defaultexcludes="yes">
+			<include name="ome/**/*.java"/>
+		</fileset>
+		<fileset dir="components/omeio-nio/src" defaultexcludes="yes">
+			<include name="ome/**/*.java"/>
+		</fileset>
+		<fileset dir="components/rendering/src" defaultexcludes="yes">
+			<include name="ome/**/*.java"/>
+		</fileset>
+
+		<doctitle><![CDATA[<h1>Test</h1>]]></doctitle>
+		<bottom><![CDATA[
+		<p><b><i>Copyright &#169; 2005 Open Microscopy Environment. All Rights Reserved.</i></b></p>
+		<p>Massachusetts Institute of Technology,</p>
+		<p>National Institutes of Health,</p>
+		<p>University of Dundee</p>
+		]]></bottom>
+
+		<tag name="DEV.TODO" scope="all" description="To do:"/>
+
+		<group title="Common Packages" packages="ome.util.*:ome.model.*:ome.api.*"/>
+		<group title="Server Packages" packages="ome.services.*:ome.logic.*:ome.tools.*"/>
+		<group title="Client Packages" packages="ome.client.*"/>
+		
+	    </javadoc>
+	</target>
+
 </project>
