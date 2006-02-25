@@ -7,11 +7,6 @@
 		</echo>
 	</target>
 
-	<target name="quick">
-		<property name="test.skip" value="true"/>
-		<property name="generate.skip" value="true"/>
-	</target>
-
 	<target name="prepare" depends="variables-define,classpath-define">
 		<makeDirectories/>
 		<copyResource file="${root.dir}/omero.properties"/>
@@ -52,7 +47,13 @@
 			classpathref="omero.classpath" >
 			<src path="${test.dir}"/>
 		</javac>
-		<junit printsummary="yes" haltonfailure="no">
+		<echo> Skipping DBUnit Tests ... </echo>
+		<junit 
+			printsummary="withOutAndErr" 
+			haltonfailure="${test.with.fail}"
+			fork="off"
+			forkmode="perBatch"
+			>
  			<classpath>
 				<path refid="omero.classpath"/>
 				<pathelement location="${testclasses.dir}"/>
@@ -60,12 +61,13 @@
 
 			<formatter type="plain"/>
 
-			<batchtest fork="no" todir="${testreports.dir}">
+			<batchtest todir="${testreports.dir}">
 				<fileset dir="${testclasses.dir}">
 					<include name="**/*Test*.class"/>
 					<exclude name="**/AllTests.class"/>
 					<exclude name="**/Abstract*.class"/>
-					<exclude name="**/itests/*"/>
+					<!--exclude name="**/itests/**/*"/-->
+					<exclude name="**/dbtests/**/*"/>
 				</fileset>
 			</batchtest>
 		</junit>	
@@ -106,6 +108,24 @@
 
 	<target name="clean">
 		<delete dir="${target.dir}"/>
+	</target>
+
+	<!-- NON-LIFECYCLE HELPER TARGETS -->
+
+	<target name="quick">
+		<property name="test.skip" value="true"/>
+		<property name="generate.skip" value="true"/>
+	</target>
+
+	<target name="fail-on-error">
+		<property name="test.with.fail" value="true"/>
+	</target>
+
+	<target name="strict-test" depends="fail-on-error,clean-tests,test"/>
+
+	<target name="clean-tests">
+		<delete dir="${testclasses.dir}"/>
+		<delete dir="${testreports.dir}"/>
 	</target>
 
 	<target name="refresh" if="eclipse.running">

@@ -31,6 +31,9 @@
           variables
          = = = = = = = = = = = = = = = = = -->
 	<target name="variables-define">
+		<condition property="test.with.fail">
+			<equals arg1="${multi.test.with.fail}" arg2="true"/>
+		</condition>
 		<condition property="test.skip">
 			<equals arg1="${multi.test.skip}" arg2="true"/>
 		</condition>

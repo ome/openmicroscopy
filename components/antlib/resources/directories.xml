@@ -24,7 +24,7 @@
 	<property name="classes.rel"   value="${target.rel}/classes"/>
 	<property name="generated.rel" value="${target.rel}/generated"/>	
 	<property name="testclasses.rel" value="${target.rel}/test-classes"/>
-	<property name="testreports.rel" value="${target.rel}/test-reports"/>
+	<property name="testreports.rel" value="${target.rel}/reports"/>
 		
 	<!-- Directories relative to basedir: different for each component -->
 	<property name="src.dir"         value="${basedir}/src" />
