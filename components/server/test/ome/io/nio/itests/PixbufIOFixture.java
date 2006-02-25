@@ -30,13 +30,10 @@ package ome.io.nio.itests;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
-import org.springframework.context.ApplicationContext;
-
 import ome.api.IUpdate;
 import ome.api.local.LocalUpdate;
 import ome.model.core.Pixels;
+import ome.system.OmeroContext;
 
 
 /**
@@ -45,7 +42,7 @@ import ome.model.core.Pixels;
  */
 public class PixbufIOFixture
 {
-    private ApplicationContext ctx;
+    private OmeroContext ctx;
 
     private IUpdate updater;
 
@@ -53,8 +50,7 @@ public class PixbufIOFixture
 
     private void init()
     {
-        BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
-        ctx = (ApplicationContext) bfl.useBeanFactory("ome");
+        ctx = (OmeroContext) OmeroContext.getManagedServerContext();
         updater = (IUpdate) ctx.getBean("updateService");
     }
     
