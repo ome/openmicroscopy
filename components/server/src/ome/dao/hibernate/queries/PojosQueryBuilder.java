@@ -194,8 +194,8 @@ public abstract class PojosQueryBuilder {
 		
 		void parseOptions(Map options){
 			PojoOptions po = new PojoOptions(options);
-			if (po.isAnnotation()) doClassList(anns);
-			if (! po.isAllAnnotations()) doAnnotationOwner();
+//			if (po.isAnnotation()) doClassList(anns);
+//			if (! po.isAllAnnotations()) doAnnotationOwner();
 			if (po.isExperimenter()) doExperimenter();
 		}
 

@@ -33,89 +33,15 @@ import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.CurrentDetails;
+import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.ConfigHelper;
 
 
 public class AbstractUpdateTest
-        extends AbstractTransactionalDataSourceSpringContextTests
+        extends AbstractInternalContextTest
 {
     
-    @Override
-    protected String[] getConfigLocations()
-    {
-        return ConfigHelper.getConfigLocations();
-    }
-
-    protected SessionFactory                _sf;
-    protected Session                       _s;
-    protected IQuery                        _qu;
-    protected IUpdate                       _up;
-    protected JdbcTemplate                  _jt;
-
-    @Override
-    protected void onSetUpBeforeTransaction() throws Exception
-    {
-        _sf = (SessionFactory) applicationContext.getBean("sessionFactory");
-        _jt = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
-        
-        // This is an internal test we don't want the wrapped spring beans. 
-        _qu = (IQuery) applicationContext.getBean("ome.api.IQuery");
-        _up = (IUpdate) applicationContext.getBean("ome.api.IUpdate");
-
-    }
-
-    @Override
-    protected void onSetUpInTransaction() throws Exception
-    {
-        /* make sure the whole test runs within a single session,
-         * unless closeSession() is called */
-        setComplete();
-        openSession();
-        prepareCurrentDetails();
-    }
-
-    protected void prepareCurrentDetails()
-    {
-        /* TODO run experiment as root. Dangerous? */
-        Experimenter o = 
-            (Experimenter) _qu.getById(Experimenter.class,0);
-        ExperimenterGroup g = 
-            (ExperimenterGroup) _qu.getById(ExperimenterGroup.class,0);
-        CurrentDetails.setOwner(o);
-        CurrentDetails.setGroup(g);
-        EventType test = 
-            (EventType) _qu.getUniqueByFieldEq(EventType.class,"value","Test");
-        CurrentDetails.newEvent(test);
-    }
-
-    protected void openSession()
-    {
-        _s = SessionFactoryUtils.getSession(_sf,true);
-    }
-
-    // TODO remove?
-    // cf: http://forum.hibernate.org/viewtopic.php?t=929167
-    protected void closeSession() throws Exception
-    {
-        flush();
-        clear();
-//        _s.connection().commit();
-//        TransactionSynchronizationManager.unbindResource(_sf);
-//        SessionFactoryUtils.releaseSession(_s, _sf);
-//	SessionFactoryUtils.processDeferredClose(_sf); // TODO see OpenInView
-    }
-    
-    protected void clear()
-    {
-        _s.clear();
-    }
-    
-    protected void flush()
-    { 
-        _s.flush();
-    }
-
-    /** this method serves as our client and as our test data store.
+     /** this method serves as our client and as our test data store.
      * An object that has no id is "new"; an object with an id is detached
      * and can represent something serialized from IQuery.
      * TODO put this into ome.testing.ObjectFactory

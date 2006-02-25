@@ -29,28 +29,29 @@
 package ome.server.itests.query;
 
 //Java imports
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 //Application-internal dependencies
-import ome.api.IQuery;
-import ome.model.ILink;
-import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
-import ome.model.core.Image;
-import ome.server.itests.ConfigHelper;
+import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.system.OmeroContext;
+import ome.services.query.QP;
+import ome.services.query.Query;
+import ome.services.query.StringQuerySource;
+import ome.tools.lsid.LsidUtils;
+import ome.util.ContextFilter;
+import ome.util.Filterable;
+import ome.util.RdfPrinter;
 
 /** 
  * tests for a generic data access
@@ -65,49 +66,41 @@ import ome.system.OmeroContext;
  */
 public class QueryTest
         extends
-            AbstractDependencyInjectionSpringContextTests {
+            AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(QueryTest.class);
 
-    IQuery _q;
-    HibernateTemplate ht;
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
-     */
-    protected void onSetUp() throws Exception {
-        _q = (IQuery) applicationContext.getBean("queryService");
-        ht = (HibernateTemplate) applicationContext.getBean("hibernateTemplate");
+
+    public void testFilteredCalls(){
+
+        PojosLoadHierarchyQueryDefinition queryDef 
+            = new PojosLoadHierarchyQueryDefinition(
+                    QP.Class("class",Project.class),
+                    QP.List("ids",Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L)),
+                    QP.Long("ownerId",10000L),
+                    QP.Map("options",null)
+        );
+        List result = (List) iQuery.execute(queryDef);
+        walkResult(result);
     }
     
-    protected String[] getConfigLocations() { return new String[]{}; }
-    protected ConfigurableApplicationContext getContext(Object key)
-    {
-        return OmeroContext.getManagedServerContext();
-    }
-
     public void testCriteriaCalls(){
         PojosLoadHierarchyQueryDefinition queryDef
-            = new PojosLoadHierarchyQueryDefinition();
+            = new PojosLoadHierarchyQueryDefinition(
+                    QP.Class("class",Project.class),
+                    QP.List("ids",
+                    Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L)),
+                    QP.Long("ownerId",null),
+                    QP.Map("options",null));
         
-        List result = (List) ht.execute(queryDef);
-        System.out.println(result);
-        Set d_links = ((Project)result.get(0)).getDatasetLinks();
-        System.out.println(d_links);
-        ILink d_link = (ILink) d_links.iterator().next();
-        System.out.println(d_link);
-        Dataset ds = (Dataset) d_link.getChild();
-        System.out.println(ds);
-        Set i_links = ds.getImageLinks();
-        System.out.println(i_links);
-        ILink i_link = (ILink) i_links.iterator().next();
-        System.out.println(i_link);
-        Image i = (Image) i_link.getChild();
-        System.out.println(i);
-        Set anns = i.getAnnotations();
-        System.out.println(anns);
-        ImageAnnotation iann = (ImageAnnotation) anns.iterator().next();
-        System.out.println(iann);
-        
+        List result = (List) iQuery.execute(queryDef);
+        walkResult(result);
+    }
+    
+    protected void walkResult(List result) {
+        RdfPrinter rdf = new RdfPrinter();
+        rdf.filter("results are", result);
+        System.out.println(rdf.getRdf());
     }
     
 	public void testGetById() {
@@ -123,27 +116,9 @@ public class QueryTest
 		
 		//Project by id
 		Map projectById = new HashMap();
-		projectById.put("projectId",1);
-		List l1 = _q.getListByMap(Project.class, projectById );
-		assertTrue("Can only be one",l1.size()==1);
-		
-		//Dataset by locked
-		Map unlockedDatasets = new HashMap();
-		unlockedDatasets.put("locked",Boolean.FALSE);
-		List l2 = _q.getListByMap(Dataset.class, unlockedDatasets);
-		assertTrue("At least one unlocked D", l2.size()>0);
-		
-		//Sending wrong parameter
-		Map stringRatherThanBoolean = new HashMap();
-		stringRatherThanBoolean.put("locked","f");
-		try {
-			List l3 = _q.getListByMap(Dataset.class, stringRatherThanBoolean);
-			fail("Shouldn't suceed");
-		} catch (ClassCastException cce){
-			// good
-		} catch (Throwable t) {
-			fail("Expected class cast exception");
-		}
+		projectById.put("id",1L);
+		List l1 = iQuery.getListByMap(Project.class, projectById );
+		assertTrue("Can't be more than one",l1.size()<=1);
 		
 	}
 
@@ -161,6 +136,23 @@ public class QueryTest
 
 	public void testQueryUnique() {
 	}
-   
     
+    public void testCounts() throws Exception
+    {
+        String s_dataset = LsidUtils.parseType(Dataset.ANNOTATIONS);
+        String s_annotations = LsidUtils.parseField(Dataset.ANNOTATIONS);
+        String works = 
+            String.format("select target.id, count(collection) from %s target " +
+                "join target.%s collection group by target.id",s_dataset,s_annotations);
+        
+        Query q = 
+            new StringQuerySource()
+                .lookup(works);
+//                        select sum(*) from Dataset ds " +
+//                        "group by ds.id having ds.id in (1L)");
+        List result = (List) iQuery.execute(q);
+        System.out.println(result);
+    }
+
 }
+

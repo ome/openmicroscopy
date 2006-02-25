@@ -82,6 +82,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     };
     
     protected IQuery query;
+
+    protected UpdateFilter filter;
     
     private UpdateImpl(){}; // We need the query
     public UpdateImpl(IQuery query)
@@ -89,7 +91,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         this.query = query;
     }
 
-    // ~ NON-INTERFACE PUBLIC METHODS
+    // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
     public void rollback()
@@ -111,28 +113,28 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public void saveObject(IObject arg0)
     {
-        arg0 = beforeSave(arg0);
+        beforeSave();
         arg0 = internalSave(arg0);
-        arg0 = afterSave(arg0);
+        afterSave();
     }
     
     public IObject saveAndReturnObject(IObject arg0)
     {
-        arg0 = beforeSave(arg0);
+        beforeSave();
         arg0 = internalSave(arg0);
-        arg0 = afterSave(arg0);
+        afterSave();
         return arg0;
     }
 
     public void saveCollection(Collection graph)
     {
+        beforeSave();
         for (Object _object : graph)
         {
             IObject obj = (IObject) _object;
-            obj = beforeSave(obj);
             obj = internalSave(obj);
-            obj = afterSave(obj);
         }
+        afterSave();
     }
     
     public Collection saveAndReturnCollection(Collection graph)
@@ -147,23 +149,24 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
+        beforeSave();
         for (int i = 0; i < graph.length; i++)
         {
-            graph[i] = beforeSave(graph[i]);
+            
             graph[i] = internalSave(graph[i]);
-            graph[i] = afterSave(graph[i]);
         }
+        afterSave();
         return graph;
     }
     
     public void saveArray(IObject[] graph)
     {
+        beforeSave();
         for (int i = 0; i < graph.length; i++)
         {
-            graph[i] = beforeSave(graph[i]);
             graph[i] = internalSave(graph[i]);
-            graph[i] = afterSave(graph[i]);
         }
+        afterSave();
     }
 
     public Map saveAndReturnMap(Map map)
@@ -180,12 +183,14 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     // ~ Internals
     // =========================================================
-    private IObject beforeSave(IObject obj)
+    private void beforeSave()
     {
+        // Cache filter for referential integrity.
+        filter = new UpdateFilter(getHibernateTemplate());
+        
         Event currentEvent = CurrentDetails.getCreationEvent(); 
         getHibernateTemplate().saveOrUpdate(currentEvent);
         currentSession().setFlushMode(FlushMode.COMMIT);
-        return obj;
     }
 
     private IObject internalSave(IObject obj)
@@ -194,12 +199,11 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         //getHibernateTemplate().saveOrUpdate(obj);
         //getHibernateTemplate().flush(); // FIXME uh oh.
 
-        UpdateFilter f = new UpdateFilter(getHibernateTemplate()); 
-        IObject result = (IObject) f.filter("in UpdateImpl",obj); 
+        IObject result = (IObject) filter.filter("in UpdateImpl",obj); 
         return (IObject) getHibernateTemplate().merge(result);
     }
 
-    private IObject afterSave(IObject obj)
+    private void afterSave()
     {
         Set<EventLog> logs = CurrentDetails.getCreationEvent().getLogs();
         CurrentDetails.getCreationEvent().setLogs(new HashSet());
@@ -217,7 +221,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         getHibernateTemplate().flush();
         currentSession().setFlushMode(FlushMode.AUTO);
         
-        return obj;
+        // Cleanup
+        filter = null;
     }
 
     private Session currentSession()

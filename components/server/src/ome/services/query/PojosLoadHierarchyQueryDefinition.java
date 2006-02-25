@@ -2,6 +2,7 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,85 +18,63 @@ import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.util.builders.PojoOptions;
 
-
-public class PojosLoadHierarchyQueryDefinition implements HibernateCallback
+public class PojosLoadHierarchyQueryDefinition extends Query
 {
-
-    public final static FetchMode FETCH = FetchMode.JOIN;
-    public final static int LEFT_JOIN = Criteria.LEFT_JOIN;
     
-    public final static Map<Class,Integer> DEPTH = new HashMap<Class,Integer>();
-    static {
-        DEPTH.put(Project.class,2);
-        DEPTH.put(Dataset.class,1);
-        DEPTH.put(CategoryGroup.class,2);
-        DEPTH.put(Category.class,1);
-    }
-    public final static Map<Class,List<String>> CHILDREN = new HashMap<Class,List<String>>();
-    static {
-        CHILDREN.put(Project.class,Arrays.asList("datasetLinks","imageLinks"));
-        CHILDREN.put(Dataset.class,Arrays.asList("imageLinks"));
-    }
-    
-    public Object doInHibernate(Session session) 
-    throws HibernateException, SQLException
+    public PojosLoadHierarchyQueryDefinition(QueryParameter... parameters)
     {
-        Criteria c = session.createCriteria(Project.class);
+        super(parameters);
+    }
+    
+    protected void defineParameters(){
+        defs = new QueryParameterDef[]{
+                new QueryParameterDef(QP.CLASS,Class.class,false),
+                new QueryParameterDef(QP.IDS,Collection.class,false),
+                new QueryParameterDef(OWNER_ID,Long.class,true),
+                new QueryParameterDef(QP.OPTIONS,Map.class,true)
+        };
+    }
+
+    @Override
+    protected Object runQuery(Session session) throws HibernateException, SQLException
+    {
+        PojoOptions po = new PojoOptions((Map) value(QP.OPTIONS));
+        
+        Criteria c = session.createCriteria((Class)value(QP.CLASS));
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.add(Restrictions.in("id",Arrays.asList(0l,1l)));
-        fetchChild(c,Project.class);        
+        c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
 
-//        then use collection filters for the annotations for a user. (filter)
-//        if group do a select before the call; if experimenter singleton
-//          then for all members apply.
-//          annotation y|s 
-          
+        int depth = po.isLeaves() ? 2 : 1; 
+        fetchChildren(c,Project.class,depth); 
+      
         return c.list();
-        
     }
 
-    protected void fetchChild(Criteria c, Class klass)
+
+    protected boolean projectOwnerFilterAlreadyEnabled = false;
+    
+    @Override
+    protected void enableFilters(Session session)
     {
-        String children = CHILDREN.get(klass).get(0);
-        String child = children+".child";
-        String grandchildren = child+"."+CHILDREN.get(klass).get(1);
-        String grandchild = grandchildren+".child";
-        
-        switch (DEPTH.get(klass))
-        {
-            case 2:
-                c.createCriteria(grandchildren,LEFT_JOIN);
-                c.createCriteria(grandchild,LEFT_JOIN);
-                fetchAnnotations(c,grandchild);
-            case 1:
-                c.createCriteria(children,LEFT_JOIN);
-                c.createCriteria(child,LEFT_JOIN);
-                fetchAnnotations(c,child);
-            case 0:
-                return;
-            default:
-                throw new RuntimeException("Unhandled container depth.");
+        if (session.getEnabledFilter(Project.OWNER_FILTER) != null) 
+            projectOwnerFilterAlreadyEnabled = true;
+
+        if (check(OWNER_ID)) {
+            
+            session.enableFilter(Project.OWNER_FILTER)
+            .setParameter(OWNER_ID,value(OWNER_ID));
+            
         }
     }
-    
-    protected void fetchAnnotations(Criteria c, String path)
+
+    @Override
+    protected void disableFilters(Session session)
     {
-        String a_path = path+".annotations";
-        c.createCriteria(a_path,LEFT_JOIN);
-        c.createCriteria(a_path+".details",LEFT_JOIN);
-        c.createCriteria(a_path+".details.owner",LEFT_JOIN)
-            .add(Restrictions.in("id",Arrays.asList(1l)));
+        if (!projectOwnerFilterAlreadyEnabled)
+            session.disableFilter(Project.OWNER_FILTER);
     }
-    
+
 }
-//#select() ## Project p | Dataset d | CategoryGroup cg | Category c
-//#topDownHierarchy()
-//    where 
-//#idlist()
-//#filters()
-//#if($noIds)
-//#typeExperimenter()
-//#else
-//#imageExperimenter()
-//#end

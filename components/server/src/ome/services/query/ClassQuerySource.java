@@ -1,5 +1,5 @@
 /*
- * ome.services.query.QueryParameter
+ * ome.services.query.ClassQuerySource
  *
  *------------------------------------------------------------------------------
  *
@@ -37,46 +37,47 @@
 package ome.services.query;
 
 // Java imports
+import java.lang.reflect.Constructor;
 
 // Third-party libraries
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 
 
 /**
- * source of all our queries.
+ * instantiates a Class based on id as query.
+ *  
+ * Note: we don't necessarily have a session here so we can't parse
+ * the query string.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public class QueryParameter
+public class ClassQuerySource extends QuerySource
 {
 
-    public Class type;
-    public String name;
-    public Object value;
+    private static Log log = LogFactory.getLog(ClassQuerySource.class);
     
-    public QueryParameter(String name, Class type, Object value){
-
-        if ( type == null )
-            throw new IllegalArgumentException("Expecting a value for type.");
-        
-        if (value == null || type.isAssignableFrom(value.getClass()))
+    public Query lookup(String queryID, QueryParameter...parameters)
+    {
+        Query q = null;
+        try
         {
-            this.name = name;
-            this.type = type;
-            this.value = value;
-        } else {
-            throw new IllegalArgumentException(
-                    String.format(
-                    "Value object should be of"+
-                    "type %s not %s",type.getName(),value.getClass().getName()));
+            Class klass = Class.forName(queryID);
+            Constructor c = klass.getConstructor(QueryParameter[].class);
+            q = (Query) c.newInstance(new Object[]{parameters});
+        } catch (ClassNotFoundException e)
+        {
+            // Not an issue.
+        } catch (Exception e)
+        {
+            throw new RuntimeException("Error while trying to instantiate:"+queryID,e);
         }
+        return q;
     }
     
-    public static QueryParameter makeLong(String name, Long value){
-        return new QueryParameter(name,Long.class,value);
-    }
-
 }

@@ -43,8 +43,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 //Application-internal dependencies
-import ome.api.IQuery;
-import ome.api.IUpdate;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
+import ome.services.query.QueryFactory;
 import ome.system.OmeroContext;
 import ome.system.SelfConfigurableService;
 
@@ -62,22 +63,28 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService{
 
     protected OmeroContext ctx;
     
-    protected IUpdate _update;
+    protected LocalUpdate _update;
     
-    protected IQuery _query;
+    protected LocalQuery _query;
 
+    protected QueryFactory _qFactory;
+    
     protected abstract String getName();
     
-    public void setUpdateService(IUpdate update)
+    public void setUpdateService(LocalUpdate update)
     {
         this._update = update;
     }
     
-    public void setQueryService(IQuery query)
+    public void setQueryService(LocalQuery query)
     {
         this._query = query;
     }
 
+    public void setQueryFactory(QueryFactory factory){
+        this._qFactory = factory;
+    }
+    
     public void setApplicationContext(ApplicationContext applicationContext) 
         throws BeansException
     {

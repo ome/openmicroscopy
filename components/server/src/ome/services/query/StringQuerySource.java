@@ -40,17 +40,22 @@ package ome.services.query;
 
 
 // Third-party libraries
+import java.sql.SQLException;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 // Application-internal dependencies
 
 
 /**
- * prepares for launching a String-based query.
+ * creates a query based on the id string.
  *  
- * Note: we don't necessarily have a session here so we can't parse
- * the query string.
+ * TODO: should we get rid of the session here? 
+ * then we can't parse the query string....
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
@@ -61,20 +66,55 @@ public class StringQuerySource extends QuerySource
 
     private static Log log = LogFactory.getLog(StringQuerySource.class);
     
-    public Query lookup(String queryID)
+    public Query lookup(String queryID,QueryParameter...parameters)
     {
-        return new StringQuery(queryID);
+        QueryParameter stringQP = QP.String("string",queryID);
+        if (parameters != null) 
+        {
+            QueryParameter[] temp = new QueryParameter[parameters.length+1];
+            temp[0] = stringQP;
+            System.arraycopy(parameters,0,temp,1,parameters.length);
+            return new StringQuery(temp);
+        }
+        return new StringQuery(stringQP);
+        
     }
     
 }
 
 class StringQuery extends Query 
 {
-    protected String qString;
+
+    public StringQuery(QueryParameter...parameters ){
+        super(parameters);
+    }
     
-    private StringQuery(){} // We need the string.
-    public StringQuery(String queryString)
+    @Override
+    protected void defineParameters()
     {
-        this.qString = queryString;
+        this.defs = new QueryParameterDef[]{
+                new QueryParameterDef("string",String.class,false)
+        };
+    }
+    @Override
+    protected Object runQuery(Session session) 
+        throws HibernateException, SQLException
+    {
+        org.hibernate.Query query = session.createQuery((String) value("string"));
+        String[] params = query.getNamedParameters();
+        for (int i = 0; i < params.length; i++)
+        {
+            String p = params[i];
+            Object v = value(p);
+            if (Collection.class.isAssignableFrom(v.getClass()))
+            {
+                query.setParameterList(p,(Collection)v);
+            } else {
+                query.setParameter(p,v);
+            }
+        }
+        
+        return query.list();
+        
     }
 }

@@ -58,6 +58,6 @@ public abstract class QuerySource
 
     private static Log log = LogFactory.getLog(QuerySource.class);
     
-    public abstract Query lookup(String queryID);
+    public abstract Query lookup(String queryID, QueryParameter...parameters);
     
 }

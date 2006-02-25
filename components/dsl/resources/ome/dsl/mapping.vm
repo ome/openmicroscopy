@@ -1,5 +1,9 @@
 ## SETUP
 #set($cascade_settings = "evict,lock,merge,persist,replicate,refresh,save-update")
+#set($ofilter = "${type.table}_owner_filter")
+#set($gfilter = "${type.table}_group_filter")
+#set($efilter = "${type.table}_event_filter")
+#set($pfilter = "${type.table}_perms_filter")
 ## No cascade on delete.
 ##
 <?xml version="1.0"?>
@@ -35,6 +39,10 @@
 	<meta attribute="implement-equals" inherit="false">true</meta>
 
         <meta attribute="class-code">
+        public final static String OWNER_FILTER = "${ofilter}";
+        public final static String GROUP_FILTER = "${gfilter}";
+        public final static String EVENT_FILTER = "${efilter}";
+        public final static String PERMS_FILTER = "${pfilter}";                        
 #foreach($prop in $type.properties)
 	${prop.extracode}
 #end 
@@ -203,13 +211,32 @@
 
 
 #if(!$type.superclass)
-    <filter name="ownerFilter" condition=":ownerId = owner_id"/>
-    <filter name="groupFilter" condition=":groupId = group_id"/>
-    <filter name="eventFilter" condition=":eventId = event_id"/>
-    <filter name="permsFilter" condition=":permsStr = permissions"/>
+    <filter name="${ofilter}" condition=":ownerId = owner_id"/>
+    <filter name="${gfilter}" condition=":groupId = group_id"/>
+    <filter name="${efilter}" condition=":eventId = event_id"/>
+    <filter name="${pfilter}" condition=":permsStr = permissions"/>
 
 </class>
 #else</joined-subclass>
+#end
+
+#if(!$type.superclass)
+  <filter-def name="${ofilter}">
+    <filter-param type="java.lang.Long" name="ownerId"/>
+  </filter-def>
+  
+  <filter-def name="${gfilter}">
+    <filter-param type="java.lang.Long" name="groupId"/>
+  </filter-def>
+  
+  <filter-def name="${efilter}">
+  	<filter-param type="java.lang.Long" name="eventId"/>  
+  </filter-def>
+  
+  <filter-def name="${pfilter}">
+    <filter-param type="java.lang.String" name="permsStr"/>
+  </filter-def>
+
 #end
 
 </hibernate-mapping>

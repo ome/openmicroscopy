@@ -25,9 +25,9 @@ public class PojoOptionsTest extends TestCase {
 	
 	public void testAllMethods(){
 		log.info(
-		ob.allAnnotations()
-		.annotationsFor(new Integer(1))
-		.noAnnotations()
+		ob.allCounts()
+		.countsFor(new Integer(1))
+		.noCounts()
 		.exp(new Integer(3))
 		.allExps()
 		.noLeaves()

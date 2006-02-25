@@ -60,18 +60,18 @@ public class QueryFactory
     protected QuerySource[] sources;
 
     private QueryFactory(){}; // We need the sources
-    public QueryFactory(QuerySource[] querySources)
+    public QueryFactory(QuerySource... querySources)
     {
         this.sources = querySources;
     }
 
-    public Query lookup(String queryID, QueryParameter[] qps)
+    public Query lookup(String queryID, QueryParameter...qps)
     {
         Query q = null;
         
         for (QuerySource source : sources)
         {
-            q = source.lookup(queryID);
+            q = source.lookup(queryID, qps);
         }
 
         if (q == null)

@@ -32,6 +32,9 @@ package ome.util.builders;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+
 
 //Java imports
 
@@ -59,15 +62,20 @@ import java.util.Map;
 public class PojoOptions
     
 {
-    private static final String ANNOTATOR = "annotator";
-    private static final String LEAF = "leaves";
-    private static final String EXPERIMENTER = "experimenter";
-    private static final String GROUP = "group";
+    public static final String FIELDS = "fields";
+    public static final String COUNTS = "counts";
+    public static final String LEAF = "leaves";
+    public static final String EXPERIMENTER = "experimenter";
+    public static final String GROUP = "group";
     
     private Map options = new HashMap();
 
     public PojoOptions(){
-    	this.leaves().allAnnotations();
+    	this.noLeaves().countsForUser()
+        .countFields(new String[]{
+                Dataset.ANNOTATIONS,
+                Image.ANNOTATIONS,
+                Image.CATEGORYLINKS});
     }
     
     /** builds a PojoOptions from a passed map. Empty maps and null maps have the same effect.
@@ -76,12 +84,18 @@ public class PojoOptions
      */
     public PojoOptions(Map map){ 
     	if (null != map){
-    		String[] s = new String[]{ANNOTATOR,LEAF,EXPERIMENTER,GROUP};
-    		for (int i = 0; i < s.length; i++) {
-    			if (map.containsKey(s[i]))
-    				this.options.put(s[i], map.get(s[i]));
-    		}
-    	}
+            copy(map);
+    	} else {
+    	    copy(new PojoOptions().map()); 
+        }
+    }
+    
+    protected void copy(Map map){
+        String[] s = new String[]{FIELDS,COUNTS,LEAF,EXPERIMENTER,GROUP};
+        for (int i = 0; i < s.length; i++) {
+            if (map.containsKey(s[i]))
+                this.options.put(s[i], map.get(s[i]));
+        }
     }
 
     /* ==============================
@@ -104,34 +118,58 @@ public class PojoOptions
     }
     
     /* ==============================
-     * With / Without Annotations
+     * With / Without Counts
      * ============================== */
     
-    public PojoOptions noAnnotations(){
-    	remove(ANNOTATOR);
+    public PojoOptions countFields(String[] fields)
+    {
+        options.put(FIELDS,fields);
+        return this;
+    }
+    
+    public String[] countFields(){
+        return (String[]) options.get(FIELDS);
+    }
+    
+    public boolean hasCountFields(){
+        return options.containsKey(FIELDS) && 
+            options.get(FIELDS) != null;
+    }
+    
+    public PojoOptions noCounts(){
+    	remove(COUNTS);
     	return this;
     }
     
-    public PojoOptions annotationsFor(Integer i){
-    	options.put(ANNOTATOR,i);
-    	return this;
-    }
-    
-    public PojoOptions allAnnotations(){
-    	options.put(ANNOTATOR,null);
+    public PojoOptions countsFor(Integer i){
+    	options.put(COUNTS,i);
     	return this;
     }
 
-    public boolean isAnnotation(){
-    	return options.containsKey(ANNOTATOR);
-    }
-
-    public boolean isAllAnnotations(){
-    	return isAnnotation() && getAnnotator()==null;
+    public PojoOptions countsForUser(){
+        options.put(COUNTS, Boolean.TRUE);
+        return this;
     }
     
-    public Integer getAnnotator(){
-    	return (Integer) options.get(ANNOTATOR);
+    public PojoOptions allCounts(){
+    	options.put(COUNTS,null);
+    	return this;
+    }
+
+    public boolean isCounts(){
+    	return options.containsKey(COUNTS);
+    }
+
+    public boolean isCountsForUser(){
+        return isCounts() && options.get(COUNTS) instanceof Boolean;
+    }
+    
+    public boolean isAllCounts(){
+    	return isCounts() && options.get(COUNTS) == null;
+    }
+    
+    public Integer getCounts(){
+    	return (Integer) options.get(COUNTS);
     }
     
     /* ==============================
@@ -159,7 +197,8 @@ public class PojoOptions
     /* ==============================
      * Filtered by Group
      * ============================== */
-    
+
+    /* FIXME : This is currently disabled. 
     public PojoOptions grp(Integer i){
         options.put(GROUP,i);
         return this;
@@ -177,6 +216,7 @@ public class PojoOptions
     public Integer getGroup(){
         return (Integer) options.get(GROUP);
     }
+    */
     
     /* ==============================
      * Helpers

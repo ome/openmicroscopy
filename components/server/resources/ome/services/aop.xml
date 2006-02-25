@@ -58,6 +58,7 @@
       <!-- FIXME <value>serviceSecurity</value> -->
 			<value>exceptionHandling</value>
 			<value>logging</value>	
+      <value>apiConstraints</value>
       <value>hibernateFilter</value>
       <value>hibernateInterceptor</value>
       <value>eventHandling</value>
@@ -72,7 +73,14 @@
   
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- MANAGEMENT INTERCEPTORS -->	
+
 	<bean 
+		       id="apiConstraints" 
+		    class="ome.aop.ApiConstraintChecker" 
+		lazy-init="true"
+	/>
+  
+  <bean 
 		       id="serviceTracing" 
 		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
 		lazy-init="true"
@@ -92,11 +100,11 @@
   
    <!-- 1 -->
   <bean id="queryService" parent="managedService">
-    <property name="proxyInterfaces" value="ome.api.IQuery"/>
+    <property name="proxyInterfaces" value="ome.api.IQuery,ome.api.local.LocalQuery"/>
     <property name="target" ref="ome.api.IQuery"/>
   </bean>  
   <bean id="updateService" parent="managedService">
-    <property name="proxyInterfaces" value="ome.api.IUpdate"/>
+    <property name="proxyInterfaces" value="ome.api.IUpdate,ome.api.local.LocalUpdate"/>
     <property name="target" ref="ome.api.IUpdate"/>
   </bean>
   <!-- 2 -->

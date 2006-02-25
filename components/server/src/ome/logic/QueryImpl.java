@@ -30,6 +30,7 @@
 package ome.logic;
 
 //Java imports
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import java.util.Set;
 
 //Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +49,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
@@ -54,6 +57,7 @@ import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
 import ome.api.IQuery;
+import ome.api.local.LocalQuery;
 import ome.model.IObject;
 
 /**  Provides methods for directly querying object graphs.
@@ -67,7 +71,7 @@ import ome.model.IObject;
  * @since 3.0
  * 
  */
-public class QueryImpl extends AbstractLevel1Service implements IQuery {
+public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     private static Log log = LogFactory.getLog(QueryImpl.class);
 
@@ -77,9 +81,9 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
         return IQuery.class.getName();
     }
     
-    // ~ NON-INTERFACE PUBLIC METHODS
+    // ~ LOCAL PUBLIC METHODS
     // =========================================================================
-    
+
     public void evict(Object obj){
         getHibernateTemplate().evict(obj);
     }
@@ -100,6 +104,11 @@ public class QueryImpl extends AbstractLevel1Service implements IQuery {
         return false;
     }
 
+    public Object execute(ome.services.query.Query query)
+    {
+        return getHibernateTemplate().execute(query);
+    }
+    
     // ~ INTERFACE METHODS
     // =========================================================================
 

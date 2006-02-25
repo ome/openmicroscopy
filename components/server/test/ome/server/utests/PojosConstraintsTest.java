@@ -72,21 +72,21 @@ public class PojosConstraintsTest extends TestCase {
 		T t = new T(IllegalArgumentException.class){
 			@Override
 			public void doTest(Object[] arg) {
-				manager.findAnnotations((Class) arg[0], (Set) arg[1], (Map) arg[2]);
+				manager.findAnnotations((Class) arg[0], (Set) arg[1], (Set) arg[2], (Map) arg[3]);
 			}
 		};
 		
 		// param1: not null or wrong type
-		t.blowup(true,null,new HashSet(),new HashMap());
-		t.blowup(true,Project.class,new HashSet(),new HashMap());
-		t.blowup(false,Image.class,new HashSet(),new HashMap()); // FIXME should check for empty sets.
-		t.blowup(false,Dataset.class,new HashSet(),new HashMap());
+		t.blowup(true,null,new HashSet(),new HashSet(), new HashMap());
+		t.blowup(true,Project.class,new HashSet(),new HashSet(), new HashMap());
+		t.blowup(false,Image.class,new HashSet(),new HashSet(), new HashMap()); // FIXME should check for empty sets.
+		t.blowup(false,Dataset.class,new HashSet(),new HashSet(), new HashMap());
 
 		// param2: not null
-		t.blowup(true,Dataset.class,null,new HashMap());
+		t.blowup(true,Dataset.class,null,new HashSet(), new HashMap());
 		
 		// eek
-		t.blowup(false,Dataset.class,new HashSet(),null);
+		t.blowup(false,Dataset.class,new HashSet(),new HashSet(), null);
 			
 	}
 

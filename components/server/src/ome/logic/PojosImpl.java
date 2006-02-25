@@ -48,22 +48,25 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 //Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.api.IPojos;
-import ome.dao.hibernate.queries.PojosQueryBuilder;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
+import ome.services.query.CollectionCountQueryDefinition;
+import ome.services.query.PojosFindHierarchiesQueryDefinition;
+import ome.services.query.PojosLoadHierarchyQueryDefinition;
+import ome.services.query.PojosQP;
+import ome.services.query.Query;
+import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
 import ome.util.builders.PojoOptions;
@@ -92,72 +95,64 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     // ~ READ
     // =========================================================================
     
-    private Map<String, Object> getParameters(Collection coll, PojoOptions po){ 
-    	Map<String, Object> m = new HashMap<String, Object>();
-    	if (null != coll) m.put("id_list",coll);
-		//if (po.isExperimenter() && (po.isLeaves() || coll == null)) m.put("exp",po.getExperimenter()); 
-        // ignoring unknown parameters for now. need to fix
-        if (po.isExperimenter()) m.put("exp",po.getExperimenter()); 
-        if (po.isGroup()) m.put("grp",po.getGroup());
-    
-        // TODO : this needs to be checked against both pojos_macros and pojos_load
-        // specifically for variables: noIds, noLeaves, & doExperimenter. Tricky logic.
-        // Explanation: When noLeaves then image-based items are turned off. However, when experimenter
-        // is on and collection is null, then we have to check the images for their owner. Fallicacy.
-        // Possibly need to throw IllegalArgumentException.
-        // FIXME this logic really needs to be in XXXDao closer to the queries.
-		return m;
-    }
-    
-    public Set loadContainerHierarchy(Class rootNodeType, @Validate(Integer.class) Set rootNodeIds, Map options) {
+    public Set loadContainerHierarchy(Class rootNodeType, 
+            @Validate(Integer.class) Set rootNodeIds, Map options) {
         
         PojoOptions po = new PojoOptions(options);
         
-        if (null==rootNodeIds && !po.isExperimenter() && !po.isGroup()) 
+        if (null==rootNodeIds && !po.isExperimenter()) 
         	throw new IllegalArgumentException(
-        			"Set of ids for loadContainerHierarchy() may not be null if experimenter and group options are null.");
+        			"Set of ids for loadContainerHierarchy() may not be null " +
+                    "if experimenter and group options are null.");
 
-        if (Project.class.equals(rootNodeType) ||
-        		Dataset.class.equals(rootNodeType) ) {
-        	// empty
-        }
-        		
-        else if (CategoryGroup.class.equals(rootNodeType) || 
-        		Category.class.equals(rootNodeType)) {
-        	// empty
-        }
-        
-        else {
-        	throw new IllegalArgumentException(
-                "Class parameter for loadContainerIHierarchy() must be in {Project,Dataset,Category,CategoryGroup}, not "
+        if (! Project.class.equals(rootNodeType) 
+                && ! Dataset.class.equals(rootNodeType) 
+                && ! CategoryGroup.class.equals(rootNodeType) 
+                && ! Category.class.equals(rootNodeType))
+
+            throw new IllegalArgumentException(
+                "Class parameter for loadContainerIHierarchy() must be in " +
+                "{Project,Dataset,Category,CategoryGroup}, not "
                         + rootNodeType);
-        }
 
-        Map m = getParameters(rootNodeIds, po);
-    	String q = PojosQueryBuilder.buildLoadQuery(rootNodeType,rootNodeIds==null,po.map());//TODO and rootNodeIds.size()==0
-    	List   l = _query.queryListMap(q,m); // TODO make queryList and all generic calls parameterizeable
-    	return new HashSet(l);
+        Query q = _qFactory.lookup(
+                PojosLoadHierarchyQueryDefinition.class.getName(),
+                PojosQP.klass(rootNodeType),
+                PojosQP.ids(rootNodeIds),
+                PojosQP.options(po.map())); // TODO Move PojosQP to PojosOptions
+        List l = (List) _query.execute(q);
+
+        collectCounts(l, po);
+    	
+        return new HashSet(l);
         
 	}
     
-	public Set findContainerHierarchies(Class rootNodeType, @NotNull @Validate(Integer.class) Set imageIds, Map options) {
+	public Set findContainerHierarchies(@NotNull Class rootNodeType, 
+            @NotNull @Validate(Integer.class) Set imageIds, Map options) {
 		
-        if (null == rootNodeType || null == imageIds)
-			throw new IllegalArgumentException(
-					"rootNodeType and set of ids for findContainerHierarcheies() may not be null.");
-
 		PojoOptions po = new PojoOptions(options);
-        Map m = getParameters(imageIds, po);
-    	String q = PojosQueryBuilder.buildFindQuery(rootNodeType,po.map());
-    	List   l;
-    	
+        
+        Query q = _qFactory.lookup(
+                PojosFindHierarchiesQueryDefinition.class.getName(),
+                PojosQP.klass(rootNodeType),
+                PojosQP.ids(imageIds),
+                PojosQP.options(po.map()));
+
+        List l = (List) _query.execute(q);
+        collectCounts(l,po);
+
+        
+        // TODO; this if-else statement could be removed if Transformations 
+        // did their own dispatching 
+        // TODO: logging, null checking. daos should never return null 
+        // TODO then size!
 		if (Project.class.equals(rootNodeType)) {
 			if (imageIds.size()==0){
 				return new HashSet();
 			}
 
-			l = _query.queryListMap(q,m);
-			return HierarchyTransformations.invertPDI(new HashSet(l)); // logging, null checking. daos should never return null TODO then size!
+			return HierarchyTransformations.invertPDI(new HashSet(l)); 
 			
 		}
 
@@ -166,63 +161,53 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 				return new HashSet();
 			}
 			
-			l = _query.queryListMap(q,m);
 			return HierarchyTransformations.invertCGCI(new HashSet(l)); 
-			// TODO; this if-else statement could be removed if Transformations did their own dispatching 
 		}
 		
 		else {throw new IllegalArgumentException(
-	                "Class parameter for findContainerHierarchies() must be in {Project,CategoryGroup}, not "
-	                        + rootNodeType);
+	                "Class parameter for findContainerHierarchies() must be" +
+                    " in {Project,CategoryGroup}, not " + rootNodeType);
 		}
 		
 	}
 
-	public Map findAnnotations(Class rootNodeType, @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
+	public Map findAnnotations(Class rootNodeType, 
+            @NotNull @Validate(Integer.class) Set rootNodeIds, 
+            @Validate(Integer.class) Set annotatorIds, Map options) {
 		
-		if (null == rootNodeIds)
-			throw new IllegalArgumentException(
-					"Set of ids for findAnnotation() may not be null.");
-		
+        if (rootNodeIds.size()==0)
+            return new HashMap();
+
 		PojoOptions po = new PojoOptions(options);
 		
-		if (Dataset.class.equals(rootNodeType)){
-			if (rootNodeIds.size()==0){
-				return new HashMap();
-			}
+        Query q = _qFactory.lookup(
+                "ome.servics.query.FindAnnotationsQueryDefinition",
+                PojosQP.klass(rootNodeType),
+                PojosQP.ids(rootNodeIds),
+                PojosQP.Set("annotatorIds",annotatorIds),
+                PojosQP.options(po.map()));
 
-	        Map m = getParameters(rootNodeIds, po);m.remove("exp");//FIXME
-	    	String q = PojosQueryBuilder.buildAnnsQuery(rootNodeType,po.map());
-	    	List   l = _query.queryListMap(q,m); 
-	    	return AnnotationTransformations.sortDatasetAnnotatiosn(new HashSet(l));
+        List l = (List) _query.execute(q);
+        // no count collection
 
-		} 
-		
-		else if (Image.class.equals(rootNodeType)){
-			if (rootNodeIds.size()==0){
-				return new HashMap();
-			}
-
-	        Map m = getParameters(rootNodeIds, po);m.remove("exp");//FIXME
-	    	String q = PojosQueryBuilder.buildAnnsQuery(rootNodeType,po.map());
-	    	List   l = _query.queryListMap(q,m); 
-	    	return AnnotationTransformations.sortImageAnnotatiosn(new HashSet(l));
-		}
-
-		else { 
-			throw new IllegalArgumentException(
-                "Class parameter for findAnnotation() must be in {Dataset,Image}, not "
-                        + rootNodeType);
-		}
+        if (Dataset.class.equals(rootNodeType)){ 
+            return AnnotationTransformations.sortDatasetAnnotatiosn(new HashSet(l));
+        } 
+        else if (Image.class.equals(rootNodeType)){
+            return AnnotationTransformations.sortImageAnnotatiosn(new HashSet(l));
+        }
+        else { 
+            throw new IllegalArgumentException(
+                    "Class parameter for findAnnotation() must be in " +
+                    "{Dataset,Image}, not "+ rootNodeType);
+        }
+        
 
 	}
 
-	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, String algorithm, Map options) {
-        if (null == imgIds){
-			throw new IllegalArgumentException(
-					"Set of ids for findCGCPaths() may not be null");
-		}
-		
+	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, 
+            String algorithm, Map options) {
+
 		if (imgIds.size()==0){
 			return new HashSet();
 		}
@@ -233,11 +218,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		}
 		
 		PojoOptions po = new PojoOptions(options);
-		
-		String q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
-		Map m = getParameters(imgIds,po);
+
+        Query q = _qFactory.lookup(
+                "ome.servics.query.FindCGCPathsQueryDefinition",
+                PojosQP.ids(imgIds),
+                PojosQP.String("algorithm",algorithm),
+                PojosQP.options(po.map()));
+
         
-		List<List> result_set = _query.queryListMap(q,m);
+		List<List> result_set = (List) _query.execute(q);
+        
         Map<CategoryGroup,Set<Category>> map 
         = new HashMap<CategoryGroup,Set<Category>>();
         Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
@@ -256,32 +246,35 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         {
             for (Category c : map.get(cg))
             {
-                ((QueryImpl)_query).evict(cg); // FIXME does this suffice?
+                _query.evict(cg); // FIXME does this suffice?
                 cg.addCategory(c);
             }
             returnValues.add(cg);
         }
-        
-		return returnValues;
+
+        collectCounts(returnValues,po);
+        return returnValues;
 		
 	}
 
-	public Set getImages(Class rootNodeType, @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
-		
-        if (null == rootNodeType || null == rootNodeIds){
-			throw new IllegalArgumentException(
-					"rootNodeType and set of ids for getImages() may not be null");
-		}
+	public Set getImages(@NotNull Class rootNodeType, 
+            @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
 		
 		if (rootNodeIds.size()==0){
 			return new HashSet();
 		}
 
 		PojoOptions po = new PojoOptions(options);
-		
-		String q = PojosQueryBuilder.buildGetQuery(rootNodeType,po.map());
-		Map m = getParameters(rootNodeIds,po);
-		return new HashSet(_query.queryListMap(q,m));
+
+        Query q = _qFactory.lookup(
+                "ome.servics.query.GetImagesQueryDefinition",
+                PojosQP.klass(rootNodeType),
+                PojosQP.ids(rootNodeIds),
+                PojosQP.options(po.map()));
+
+        List l = (List) _query.execute(q);
+        collectCounts(l,po);
+        return new HashSet(l);
 		
 	}
 
@@ -289,30 +282,25 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 		PojoOptions po = new PojoOptions(options);
 		
-		if (!po.isExperimenter() && !po.isGroup()){
+		if (!po.isExperimenter() ) { // FIXME && !po.isGroup()){
 			throw new IllegalArgumentException(
-					"experimenter or group option is required for getUserImages().");
+					"experimenter or group option " +
+                    "is required for getUserImages().");
 		}
 	
-		String q = PojosQueryBuilder.buildGetQuery(Image.class,po.map());
-		Map m = getParameters(null,po);
-		return new HashSet(_query.queryListMap(q,m));
+        Query q = _qFactory.lookup(
+                "ome.servics.query.GetImagesQueryDefinition",
+                PojosQP.options(po.map()));
+
+        List l = (List) _query.execute(q);
+        collectCounts(l,po);
+		return new HashSet(l);
 		
 	}
     
-    /**
-     * @DEV.TODO move query to queryBuilder
-     */
-    public Map getUserDetails(@Validate(String.class) Set names, Map options)
+    public Map getUserDetails(@NotNull @Validate(String.class) Set names, 
+            Map options)
     {
-        
-        /* test for type guarantee and non-null*/
-        for (Object object : names)
-        {
-            if (!(object instanceof String)){
-                throw new IllegalArgumentException("names parameter to getUserDetails may only contain Strings.");    
-            }
-        }
         
         List results;
         Map<String, Experimenter> map = new HashMap<String, Experimenter>();
@@ -351,8 +339,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         
     }
     
-    public Map getCollectionCount(@NotNull String type, @NotNull String property, @NotNull @Validate(Integer.class) Set ids, Map options)
+    public Map getCollectionCount(@NotNull String type, @NotNull String property, 
+            @NotNull @Validate(Integer.class) Set ids, Map options)
     {
+        
         Map results = new HashMap();
         String alphaNumeric = "^\\w+$";
         String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
@@ -367,12 +357,12 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             throw new IllegalArgumentException("Property argument to getCollectionCount may ONLY be alpha-numeric ("+alphaNumeric+")");
         }
                 
-        if (((QueryImpl)_query).checkType(type)) 
+        if (_query.checkType(type)) 
         {
             throw new IllegalArgumentException(type+"."+property+" is an unknown type.");
         }
         
-        if (((QueryImpl)_query).checkProperty(type,property))
+        if (_query.checkProperty(type,property))
         {
             throw new IllegalArgumentException(type+"."+property+" is an unknown property on type "+type);
         }
@@ -440,6 +430,43 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             deleteDataObject(object,options);    
         }
         
+    }
+
+    //  ~ WRITE
+    // =========================================================================
+    
+    /**
+     * Determines collection counts for all <code>String[] fields</code> in 
+     * the options.
+     * 
+     * TODO possibly move to CountCollector itself. It'll need an IQuery then.
+     * or is it a part of the Pojo QueryDefinitions ?
+     */
+    private void collectCounts(Collection queryResults, PojoOptions po)
+    {
+        if (po.hasCountFields() && po.isCounts())
+        {
+            CountCollector c = new CountCollector(po.countFields());
+            c.collect(queryResults);
+            for (String key : po.countFields())
+            {
+                Query q_c = _qFactory.lookup(
+                        /* TODO po.map() here */
+                        CollectionCountQueryDefinition.class.getName(),
+                        PojosQP.ids(c.getIds(key)),
+                        PojosQP.String("field",key)
+                        );
+                List l_c = (List) _query.execute(q_c);
+                for (Object o : l_c)
+                {
+                   Object[] results = (Object[]) o;
+                   Long id = (Long) results[0];
+                   Integer count = (Integer) results[1];
+                   c.addCounts(key,id,count);
+                }
+                
+            }
+        }
     }
     
 }

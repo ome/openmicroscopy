@@ -225,25 +225,30 @@ public interface IPojos extends ServiceInterface {
 
 	/**
 	 * Finds all the annotations that have been attached to the specified
-	 * <code>rootNodes</code>. This method looks for all the <i>valid</i>
-	 * annotations that have been attached to each of the specified objects. It
-	 * then maps each <code>rootNodeId</code> onto the set of all annotations
-	 * that were found for that node. If no annotations were found for that
-	 * node, then the entry will be <code>null</code>. Otherwise it will be a
-	 * <code>Set</code> containing {@link Annotation} objects.
+	 * <code>rootNodes</code> for the specified <code>annotatorIds</code>. 
+     * This method looks for all annotations that have been attached to each 
+     * of the specified objects. It then maps each <code>rootNodeId</code> 
+     * onto the set of all annotations that were found for that node. If no 
+     * annotations were found for that node, then the entry will be 
+     * <code>null</code>. Otherwise it will be a <code>Set</code> 
+     * containing {@link Annotation} objects.
 	 * 
 	 * @param rootNodeType
 	 *            The type of the rootNodes 
 	 *            Can be {@link Dataset} or {@link Image}. Not null. 
 	 * @param rootNodeIds
 	 *            Ids of the objects of type <code>rootNodeType</code>. Not null.
-	 * @param options
-	 *            Map as above. <code>annotator</code> used to filter. 
+	 * @param annotatorIds
+     *            Ids of the users for whom annotations should be retrieved.
+     *            If null, all annotations returned.
+     * @param options
+	 *            Map as unused. 
 	 *            No notion of <code>experimenter|group</code> or <code>leaves</code>
 	 * @return A map whose key is rootNodeId and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 */
-	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, Map options);
+	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, 
+            Set annotatorIds, Map options);
 
 	/**
 	 * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
@@ -290,7 +295,11 @@ public interface IPojos extends ServiceInterface {
     */
     public final static String DECLASSIFICATION = "DECLASSIFICATION";
 	
-    public final static Set ALGORITHMS = new HashSet(Arrays.asList(new Object[]{CLASSIFICATION_ME,CLASSIFICATION_NME,DECLASSIFICATION}));
+    public final static Set ALGORITHMS = new HashSet(
+            Arrays.asList(new Object[]{
+                    CLASSIFICATION_ME,
+                    CLASSIFICATION_NME,
+                    DECLASSIFICATION}));
     
     /**
 	 * Retrieve a user's (or all users') images within any given container.  For example,

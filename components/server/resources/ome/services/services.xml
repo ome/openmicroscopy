@@ -89,6 +89,7 @@
   <bean id="level2">
 		<property name="updateService" 	ref="ome.api.IUpdate"/>
     <property name="queryService"		ref="ome.api.IQuery"/>	
+    <property name="queryFactory"   ref="queryFactory"/>
   </bean>
 
   <bean parent="level2" id="ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
@@ -157,6 +158,20 @@
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="omeis.providers.re.RenderingEngine"/>
   </bean>
-          
+
+  
+	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+				Helpers
+				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    -->
+       
+  <bean id="queryFactory" class="ome.services.query.QueryFactory">
+    <constructor-arg>
+      <list>
+				<bean class="ome.services.query.ClassQuerySource"/>
+        <bean class="ome.services.query.StringQuerySource"/>
+      </list>
+    </constructor-arg>
+  </bean>
   
 </beans>
