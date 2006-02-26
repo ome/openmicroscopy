@@ -39,7 +39,7 @@
 	</type>
   
 	<type id="ome.model.display.ChannelBinding">
-		<properites>
+		<properties>
 			<required name="family" type="ome.model.enums.Family"/>
 			<required name="coefficient" type="double"/>
 			<required name="inputStart" type="float"/>
@@ -47,7 +47,7 @@
 			<required name="active" type="boolean"/>
 			<required name="noiseReduction" type="boolean"/>
 			<required name="color" type="ome.model.display.Color"/>
-		</properites>
+		</properties>
 	</type>
   
 	<type id="ome.model.display.Color">

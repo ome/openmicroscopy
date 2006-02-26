@@ -32,12 +32,11 @@ package ome.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,15 +48,33 @@ import org.apache.commons.logging.LogFactory;
 //Application-internal dependencies
 
 
-/** modified (hierarchical) visitor pattern. See http://c2.com/cgi/wiki?HierarchicalVisitorPattern
- * for more information. (A better name may be "contextual visitor pattern" for graph traversing.) 
+/** modified (hierarchical) visitor pattern. See 
+ * http://c2.com/cgi/wiki?HierarchicalVisitorPattern for more information. 
+ * (A better name may be "contextual visitor pattern" for graph traversing.) 
  * 
- * The modifications to Visitor make use of a model graph (here: the ome generated model classes)
- * implementing Filterable. As documented in Filterable, model objects are responsible for calling 
- * <code>filter.filter(someField)</code> for all fields <b>and setting the value of that field to the
- * return value of the method call</b>. 
+ * The modifications to Visitor make use of a model graph (here: the ome 
+ * generated model classes) implementing Filterable. As documented in 
+ * Filterable, model objects are responsible for calling 
+ * <code>filter.filter(someField)</code> for all fields <b>and setting 
+ * the value of that field to the return value of the method call</b>. 
  * 
- *  The Filter itself is responsible for returning a compatible object and (optionally) stepping into objects and keeping up with context.  
+ *  The Filter itself is responsible for returning a compatible object and 
+ *  (optionally) stepping into objects and keeping up with context.  
+ * 
+ * Note: This class is not thread-safe.
+ * 
+ * template method to filter domain objects.
+ * The standard idiom is: 
+ * <code>
+ *  if (m != null && hasntSeen(m)){
+ *      enter(m); // Provides context
+ *      addSeen(m); // Prevents looping
+ *      m.acceptFilter(this); // Visits all fields
+ *      exit(m); // Remove from context
+ *  }
+ * 
+ * </code> 
+
  * 
  * Implementation notes:
  * - nulls are already "seen"  
@@ -65,41 +82,16 @@ import org.apache.commons.logging.LogFactory;
 public class ContextFilter implements Filter {
 
 	private static Log log = LogFactory.getLog(ContextFilter.class);
-	
-	protected ThreadLocal cache = new ThreadLocal();
-	protected ThreadLocal context = new ThreadLocal();
-	
-	class Entry {
-		Object key;
-		Object value;
-		public String toString(){
-			return "("+key+":"+value+")";
-		}
-		Entry(Object key, Object value){
-			this.key = key;
-			this.value = value;
-		}
-		
-	}
-	
-	/** 
-	 * template method to filter domain objects.
-	 * The standard idiom is: 
-	 * <code>
-	 *   if (hasntSeen(m)){
-	 *     enter(m); // Provides context
-	 *     seen(m); // Prevents looping
-	 *     m.acceptFilter(this); // Visits all fields
-	 *     exit(m);
-	 *   }
-	 *     
-	 * </code> 
-	 */
+
+    private Object dummy;
+    
+    protected Map _cache = new IdentityHashMap();
+    
+    protected LinkedList _context = new LinkedList();
+    
 	public Filterable filter(String fieldId, Filterable f) {
-		//log.info("Filtering Model "+f);
 		
-		if (hasntSeen(f)){
-			//log.info("Haven't seen. Stepping into "+f);
+		if (f != null && hasntSeen(f)){
 			enter(f);
 			addSeen(f);
 			f.acceptFilter(this);
@@ -115,12 +107,8 @@ public class ContextFilter implements Filter {
 	 */
 	public Collection filter(String fieldId, Collection c){
 		
-		//log.info("Filtering collection "+c);
-		
-		List add = new ArrayList();
-		
-		if (hasntSeen(c)){
-			//log.info("Haven't seen. Stepping into "+c);
+		if (c != null && hasntSeen(c)){
+            List add = new ArrayList();
 			addSeen(c);
 			enter(c);
 			for (Iterator iter = c.iterator(); iter.hasNext();) {
@@ -144,12 +132,9 @@ public class ContextFilter implements Filter {
 	 * Adds itself to the context. Somewhat dangerous.
 	 */
 	public Map filter(String fieldId, Map m){
-		//log.info("Filter "+m);
 		
-		Map add = new HashMap();
-		
-		if (hasntSeen(m)){
-			//log.info("Haven't seen. Stepping into "+m);
+        if (m != null && hasntSeen(m)){
+            Map add = new HashMap();
 			addSeen(m);
 			enter(m);
 			for (Iterator iter = m.entrySet().iterator(); iter.hasNext();) {
@@ -173,7 +158,9 @@ public class ContextFilter implements Filter {
 	/** used when type is unknown. this is possibly omittable with generics */
 	public Object filter(String fieldId, Object o){
 		Object result;
-		if (o instanceof Filterable) {
+        if (o == null) {
+            result = null;
+        } else if (o instanceof Filterable) {
 			result = filter(fieldId, (Filterable) o);
 		} else if (o instanceof Collection) {
 			result = filter(fieldId, (Collection) o);
@@ -187,10 +174,8 @@ public class ContextFilter implements Filter {
 	
 	/** doesn't return a new entry. only changes key and value */
 	protected Entry filter(String fieldId, Entry entry){
-		//log.info("Filter "+entry);
-		
-		if (hasntSeen(entry)){
-			//log.info("Stepping into "+entry);
+
+        if (entry != null && hasntSeen(entry)){
 			addSeen(entry);
 			enter(entry);
 			Object key = filter(fieldId, entry.key);
@@ -202,71 +187,68 @@ public class ContextFilter implements Filter {
 			
 		} 
 		return entry;
-		
 	}
-	
+
+    // ~ CONTEXT METHODS
+    // =========================================================================
+    
 	public boolean enter(Object o) {
 		push(o);
-		//log.info("Context In:"+(LinkedList)context.get());
 		return true;
 	}
 
 	public boolean exit(Object o) {
 		pop(o);
-		//log.info("Context Out:"+(LinkedList)context.get());
 		return true;
 	}
 
     public Object currentContext(){
-        if (context.get() == null) return null;
-        LinkedList ll = (LinkedList) context.get();
-        return ll.size()>0 ? ll.getLast() : null;
+        return _context.size()>0 ? _context.getLast() : null;
     }
     
     public Object previousContext(int index)
     {
-        if (context.get() == null) return null;
-        LinkedList ll = (LinkedList) context.get();
-        if (index < 0 || index >= ll.size()) return null;
-        return ll.get(ll.size() - index - 1);
+        if (index < 0 || index >= _context.size()) return null;
+        return _context.get(_context.size() - index - 1);
     }
     
-	protected void newContext(){
-		context.set(new LinkedList());
-	}
-
-	protected void newCache(){
-		Set set = new HashSet();
-		set.add(null); 
-		
-		cache.set(set);
-	}
-	
 	protected void push(Object o){
-		if (context.get()==null) newContext();
-		LinkedList l = (LinkedList) context.get();
-		l.addLast(o);
+		_context.addLast(o);
 	}
 	
 	// beware: context is being changed during filtering. Eek! FIXME
 	protected void pop(Object o){
-		if (context.get()==null) newContext();
-		LinkedList l = (LinkedList) context.get();
-		Object last = l.removeLast();
+		Object last = _context.removeLast();
 		if (o != last){
-			throw new IllegalStateException("Context is invalid. Trying to remove Object "+o+" and removed Object "+last);
+			throw new IllegalStateException(
+                    "Context is invalid. Trying to remove Object "+o+
+                    " and removed Object "+last);
 		}
 	}
 
 	protected void addSeen(Object o){
-		if (cache.get()==null) newCache();
-		( (Set) cache.get()).add(o);
+		_cache.put(o,dummy);
 	}
 	
 	protected boolean hasntSeen(Object o) {
-		if (cache.get()==null)newCache();
-		return ! ((Set) cache.get()).contains(o);
+		return ! _cache.containsKey(o);
 	}
-	
+
+    /*
+     * simple Entry type for dealing with maps.
+     */
+    class Entry {
+        Object key;
+        Object value;
+        public String toString(){
+            return "("+key+":"+value+")";
+        }
+        Entry(Object key, Object value){
+            this.key = key;
+            this.value = value;
+        }
+        
+    }
+
 	
 }

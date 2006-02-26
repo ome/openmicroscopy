@@ -62,13 +62,18 @@ import ome.model.core.Image;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
 import ome.services.query.CollectionCountQueryDefinition;
+import ome.services.query.PojosCGCPathsQueryDefinition;
+import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
+import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.PojosQP;
+import ome.services.query.QP;
 import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
+import ome.tools.lsid.LsidUtils;
 import ome.util.builders.PojoOptions;
 
 
@@ -96,7 +101,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     // =========================================================================
     
     public Set loadContainerHierarchy(Class rootNodeType, 
-            @Validate(Integer.class) Set rootNodeIds, Map options) {
+            @Validate(Long.class) Set rootNodeIds, Map options) {
         
         PojoOptions po = new PojoOptions(options);
         
@@ -129,7 +134,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	}
     
 	public Set findContainerHierarchies(@NotNull Class rootNodeType, 
-            @NotNull @Validate(Integer.class) Set imageIds, Map options) {
+            @NotNull @Validate(Long.class) Set imageIds, Map options) {
 		
 		PojoOptions po = new PojoOptions(options);
         
@@ -142,7 +147,15 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         List l = (List) iQuery.execute(q);
         collectCounts(l,po);
 
-        
+
+        //
+        // Destructive changes below this point.
+        //
+        for (Object object : l)
+        {
+            iQuery.evict(object);    
+        }
+
         // TODO; this if-else statement could be removed if Transformations 
         // did their own dispatching 
         // TODO: logging, null checking. daos should never return null 
@@ -151,7 +164,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 			if (imageIds.size()==0){
 				return new HashSet();
 			}
-
+            
 			return HierarchyTransformations.invertPDI(new HashSet(l)); 
 			
 		}
@@ -172,8 +185,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	}
 
 	public Map findAnnotations(Class rootNodeType, 
-            @NotNull @Validate(Integer.class) Set rootNodeIds, 
-            @Validate(Integer.class) Set annotatorIds, Map options) {
+            @NotNull @Validate(Long.class) Set rootNodeIds, 
+            @Validate(Long.class) Set annotatorIds, Map options) {
 		
         if (rootNodeIds.size()==0)
             return new HashMap();
@@ -181,7 +194,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		PojoOptions po = new PojoOptions(options);
 		
         Query q = queryFactory.lookup(
-                "ome.servics.query.FindAnnotationsQueryDefinition",
+                PojosFindAnnotationsQueryDefinition.class.getName(),
                 PojosQP.klass(rootNodeType),
                 PojosQP.ids(rootNodeIds),
                 PojosQP.Set("annotatorIds",annotatorIds),
@@ -190,6 +203,15 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         List l = (List) iQuery.execute(q);
         // no count collection
 
+        //
+        // Destructive changes below this point.
+        //
+        for (Object object : l)
+        {
+            iQuery.evict(object);    
+        }
+
+        // TODO these here or in Query Definition? Does it belong to API or to query?
         if (Dataset.class.equals(rootNodeType)){ 
             return AnnotationTransformations.sortDatasetAnnotatiosn(new HashSet(l));
         } 
@@ -205,7 +227,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
 	}
 
-	public Set findCGCPaths(@NotNull @Validate(Integer.class) Set imgIds, 
+	public Set findCGCPaths(@NotNull @Validate(Long.class) Set imgIds, 
             String algorithm, Map options) {
 
 		if (imgIds.size()==0){
@@ -220,14 +242,14 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		PojoOptions po = new PojoOptions(options);
 
         Query q = queryFactory.lookup(
-                "ome.servics.query.FindCGCPathsQueryDefinition",
+                PojosCGCPathsQueryDefinition.class.getName(),
                 PojosQP.ids(imgIds),
                 PojosQP.String("algorithm",algorithm),
                 PojosQP.options(po.map()));
 
         
 		List<List> result_set = (List) iQuery.execute(q);
-        
+
         Map<CategoryGroup,Set<Category>> map 
         = new HashMap<CategoryGroup,Set<Category>>();
         Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
@@ -242,6 +264,11 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             map.get(cg).add(c);
         }
 
+        //
+        // Destructive changes below this point.
+        //
+
+        
         for (CategoryGroup cg : map.keySet())
         {
             for (Category c : map.get(cg))
@@ -258,7 +285,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 	}
 
 	public Set getImages(@NotNull Class rootNodeType, 
-            @NotNull @Validate(Integer.class) Set rootNodeIds, Map options) {
+            @NotNull @Validate(Long.class) Set rootNodeIds, Map options) {
 		
 		if (rootNodeIds.size()==0){
 			return new HashSet();
@@ -267,7 +294,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		PojoOptions po = new PojoOptions(options);
 
         Query q = queryFactory.lookup(
-                "ome.servics.query.GetImagesQueryDefinition",
+                PojosGetImagesQueryDefinition.class.getName(),
                 PojosQP.klass(rootNodeType),
                 PojosQP.ids(rootNodeIds),
                 PojosQP.options(po.map()));
@@ -288,10 +315,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                     "is required for getUserImages().");
 		}
 	
-        Query q = queryFactory.lookup(
-                "ome.servics.query.GetImagesQueryDefinition",
-                PojosQP.options(po.map()));
-
+        
+        Query q = queryFactory.lookup(" select i from Image i " +
+                "where i.details.owner.id = :id ",
+                PojosQP.Long("id",po.getExperimenter()));
         List l = (List) iQuery.execute(q);
         collectCounts(l,po);
 		return new HashSet(l);
@@ -313,8 +340,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         
             results = iQuery.queryListMap(
                     "select e from Experimenter e " +
-                    "left outer join fetch e.group " +
-                    "left outer join fetch e.groups " +
+                    "left outer join fetch e.groupExperimenterMap gs " +
+                    "left outer join fetch gs.child g " +
                     "where e.omeName in ( :name_list )",
                     params
             );
@@ -340,38 +367,19 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     }
     
     public Map getCollectionCount(@NotNull String type, @NotNull String property, 
-            @NotNull @Validate(Integer.class) Set ids, Map options)
+            @NotNull @Validate(Long.class) Set ids, Map options)
     {
         
-        Map results = new HashMap();
-        String alphaNumeric = "^\\w+$";
-        String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
+        String parsedProperty = LsidUtils.parseField(property);
         
-        if (!type.matches(alphaNumericDotted))
-        {
-            throw new IllegalArgumentException("Type argument to getCollectionCount may ONLY be alpha-numeric with dots ("+alphaNumericDotted+")");
-        }
+        checkType(type);
+        checkProperty(type,parsedProperty);
         
-        if (!property.matches(alphaNumeric))
-        {
-            throw new IllegalArgumentException("Property argument to getCollectionCount may ONLY be alpha-numeric ("+alphaNumeric+")");
-        }
-                
-        if (iQuery.checkType(type)) 
-        {
-            throw new IllegalArgumentException(type+"."+property+" is an unknown type.");
-        }
-        
-        if (iQuery.checkProperty(type,property))
-        {
-            throw new IllegalArgumentException(type+"."+property+" is an unknown property on type "+type);
-        }
-        
-        String query = "select size(table."+property+") from "+type+" table where table.id = ?";
+        String query = "select size(table."+parsedProperty+") from "+type+" table where table.id = ?";
         // FIXME: optimize by doing new list(id,size(table.property)) ... group by id
         for (Iterator iter = ids.iterator(); iter.hasNext();)
         {
-            Integer id = (Integer) iter.next();
+            Long id = (Long) iter.next();
             Integer count = (Integer) iQuery.queryUnique(query,new Object[]{id});
             results.put(id,count);
         }
@@ -382,7 +390,9 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
     {
         IObject context = (IObject) iQuery.getById(arg0.getClass(),arg0.getId());
-        return (Collection) context.retrieve(arg1); // FIXME not type.o.null safe
+        Collection c = (Collection) context.retrieve(arg1); // FIXME not type.o.null safe
+        iQuery.initialize(c);
+        return c;
     }
 
     // ~ WRITE
@@ -432,7 +442,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         
     }
 
-    //  ~ WRITE
+    //  ~ Helpers
     // =========================================================================
     
     /**
@@ -453,8 +463,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 Query q_c = queryFactory.lookup(
                         /* TODO po.map() here */
                         CollectionCountQueryDefinition.class.getName(),
-                        PojosQP.ids(c.getIds(key)),
-                        PojosQP.String("field",key)
+                        PojosQP.String("field",key),
+                        PojosQP.ids(c.getIds(key))
                         );
                 List l_c = (List) iQuery.execute(q_c);
                 for (Object o : l_c)
@@ -467,6 +477,44 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 
             }
         }
+    }
+    
+    final static Map results = new HashMap();
+    final static String alphaNumeric = "^\\w+$";
+    final static String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
+
+    protected void checkType(String type)
+    {
+        if (!type.matches(alphaNumericDotted))
+        {
+            throw new IllegalArgumentException(
+                    "Type argument to getCollectionCount may ONLY be " +
+                    "alpha-numeric with dots ("+alphaNumericDotted+")");
+        }
+
+        if (!iQuery.checkType(type)) 
+        {
+            throw new IllegalArgumentException(type +" is an unknown type.");
+        }
+    }
+    
+    protected void checkProperty(String type, String property)
+    {
+        
+        if (!property.matches(alphaNumeric))
+        {
+            throw new IllegalArgumentException("Property argument to " +
+                    "getCollectionCount may ONLY be alpha-numeric ("+
+                    alphaNumeric+")");
+        }
+            
+    
+        if (!iQuery.checkProperty(type,property))
+        {
+            throw new IllegalArgumentException(type+"."+property+
+                    " is an unknown property on type "+type);
+        }
+    
     }
     
 }

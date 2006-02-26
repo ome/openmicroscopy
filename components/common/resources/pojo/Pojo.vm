@@ -70,29 +70,13 @@ $templates.PojoExtraClassCode
   }
   
   public boolean acceptFilter(ome.util.Filter filter){
-
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $get = "$pojo.getGetterSignature($property)()" )
 #set( $set = "set$pojo.getPropertyName($property)" )
 #set( $field = $property.name )
-
-	  // Visiting: $field ------------------------------------------
-	  $type _$field = null;
-	  try {
-	     _$field = $get;
-	  } catch (Exception e) {
-		 $set(null);
-	  }
-## TODO catch class cast?
-	  $set(($type) filter.filter(${field.toUpperCase()},_$field)); 
-##if( $pkg.startsWith("ome."))
-##elseif($type.equals("Set"))
-##	  $set(($type) filter.filter((Collection)_$field)); 
-##else
-##	  $set(($type) filter.filter((Object) _$field));
-##end ## if 
+	  $set(($type) filter.filter(${field.toUpperCase()},$get)); 
 #end ## foreach
 #if($pojo.isSubclass())
   	 return super.acceptFilter(filter);

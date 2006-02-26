@@ -29,9 +29,12 @@ package ome.adapters.pojos.itests;
  */
 
 //Java imports
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -53,6 +56,8 @@ import ome.client.ServiceFactory;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.ILink;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -63,9 +68,9 @@ import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.util.builders.PojoOptions;
 
 import omeis.providers.re.Renderer;
-import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.metadata.StatsFactory;
@@ -91,10 +96,10 @@ public class PojosServiceTest extends TestCase {
     ServiceFactory factory = new ServiceFactory(OmeroContext.MANAGED_CONTEXT);
    
     OMEData data;
-    Set ids;
-    IPojos psrv;
-    IQuery q;
-    IUpdate u;
+    Set ids, results, mapped;
+    IPojos iPojos;
+    IQuery iQuery;
+    IUpdate iUpdate;
     ModelMapper mapper;
     ReverseModelMapper reverse;
     
@@ -106,19 +111,24 @@ public class PojosServiceTest extends TestCase {
     
     protected void setUp() throws Exception
     {
+        Properties p = System.getProperties();
+        p.setProperty("omero.username","root");
+        p.setProperty("omero.groupname","system");
+        p.setProperty("omero.eventtype","Test");
+        
         DataSource dataSource = (DataSource) factory.ctx.getBean("dataSource");
         data = new OMEData();
         data.setDataSource(dataSource);
-        psrv = factory.getPojosService();
-        q = factory.getQueryService();
-        u = factory.getUpdateService();
+        iPojos = factory.getPojosService();
+        iQuery = factory.getQueryService();
+        iUpdate = factory.getUpdateService();
         mapper = new Model2PojosMapper();
         reverse = new ReverseModelMapper();
     }
     
     public void testGetSomethingThatsAlwaysThere() throws Exception
     {
-        List l = q.getListByExample(new Experimenter());
+        List l = iQuery.getListByExample(new Experimenter());
         assertTrue("Root has to exist.",l.size()>0);
         Experimenter exp = (Experimenter) l.get(0);
         assertNotNull("Must have an id",exp.getId());
@@ -137,11 +147,11 @@ public class PojosServiceTest extends TestCase {
         imgData = simpleImageData();
         img = (Image) reverse.map(imgData);
         
-        img = (Image) psrv.createDataObject(img,null);
+        img = (Image) iPojos.createDataObject(img,null);
         assertNotNull("We should get something back",img);
         assertNotNull("Should have an id",img.getId());
         
-        Image img2 = (Image) q.getById(Image.class,img.getId().longValue());
+        Image img2 = (Image) iQuery.getById(Image.class,img.getId().longValue());
         assertNotNull("And we should be able to find it again.",img2);
         
     }
@@ -155,7 +165,7 @@ public class PojosServiceTest extends TestCase {
         imgData.setDatasets(dss);
         
         img = (Image) reverse.map(imgData);
-        img = (Image) u.saveAndReturnObject(img);
+        img = (Image) iUpdate.saveAndReturnObject(img);
         assertTrue("It better have a dataset link",
                 img.getDatasetLinks().size()>0);
         ILink link = (ILink) img.getDatasetLinks().iterator().next();
@@ -163,7 +173,7 @@ public class PojosServiceTest extends TestCase {
         Long id = ds.getId();
         
         // another copy
-        Image img2 = (Image) q.queryUnique(
+        Image img2 = (Image) iQuery.queryUnique(
                 "select i from Image i " +
                 "left outer join fetch i.datasetLinks " +
                 "where i.id = ?",
@@ -181,11 +191,11 @@ public class PojosServiceTest extends TestCase {
         img = (Image) reverse.map(imgData);
         
         assertNull("Image doesn't have an id.",img.getId());
-        img = (Image) psrv.createDataObject(img,null);
+        img = (Image) iPojos.createDataObject(img,null);
         assertNotNull("Presto change-o, now it does.",img.getId());
-        psrv.deleteDataObject(img,null);
+        iPojos.deleteDataObject(img,null);
         
-        img = (Image) q.getById(Image.class,img.getId().longValue());
+        img = (Image) iQuery.getById(Image.class,img.getId().longValue());
         assertNull("we should have deleted it ",img);
         
     }
@@ -201,36 +211,116 @@ public class PojosServiceTest extends TestCase {
         DatasetImageLink link = new DatasetImageLink();
         link.link(ds,img);
         
-        ILink test = psrv.link(new ILink[]{link},null)[0];
+        ILink test = iPojos.link(new ILink[]{link},null)[0];
         assertNotNull("ILink should be there",test);
         
     }
     
-    public void testLetsCheckThatWeOnlyAcceptTheSupportedTypes() throws Exception
-    {
-        fail();
-    }
     
+    //
+    // READ API
+    // 
     
-    public void testMappingFindContainerHierarchies(){
-        ids = new HashSet(data.getMax("Project.ids",2)); // TODO possibly convert to "Set get*"
-    	Model2PojosMapper mapper = new Model2PojosMapper(); // TODO doc mem-leak
-    	Set s = psrv.findContainerHierarchies(Project.class,ids,null);
-    	log.info(mapper.map(s));
-    }
+    public final static String TESTER = "tester"; // Defined in create_pojos.sql
     
-    /* exaple of how to use */
-    /* must pass in Image not ImageData.class */
-    public void testMappingFindAnnotations(){
-        ids = new HashSet(data.getMax("Image.Annotated.ids",2));
-    	Map m = new Model2PojosMapper().map(psrv.findAnnotations(Image.class,ids,null)); 
-    	log.info(m);
+    public void test_findContainerHierarchies(){
+        
+        Model2PojosMapper mapper ;
+        PojoOptions defaults = new PojoOptions(), empty = new PojoOptions(null);
+        
+        ids = new HashSet(data.getMax("Image.ids",2)); 
+        results = iPojos.findContainerHierarchies(Project.class,ids,defaults.map()); 
+        mapper = new Model2PojosMapper(); 
+    	mapped = (Set) mapper.map(results);
+
+        try {
+        results = iPojos.findContainerHierarchies(Dataset.class,ids,empty.map());
+        fail("Should fail");
+        } catch (IllegalArgumentException e) {}
+        
+        ids = new HashSet(data.getMax("Image.ids",2)); 
+        results = iPojos.findContainerHierarchies(CategoryGroup.class,ids,defaults.map()); 
+        mapper = new Model2PojosMapper();
+        
     }
 
+    public void test_findAnnotations(){
+        
+        Map m;
+        
+        ids = new HashSet(data.getMax("Image.Annotated.ids",2));
+    	m = new Model2PojosMapper().map(iPojos.findAnnotations(
+                Image.class,ids,null,null));
+        
+        ids = new HashSet(data.getMax("Dataset.Annotated.ids",2));
+        m = new Model2PojosMapper().map(iPojos.findAnnotations(
+                Dataset.class,ids,null,null)); 
+
+    }
+
+    public void test_loadContainerHierarchy() throws Exception
+    {
+        ids = new HashSet(data.getMax("Project.ids",2));
+        results = iPojos.loadContainerHierarchy(Project.class, ids, null);
+    }
+
+    public void test_retrieveCollection() throws Exception
+    {
+        Image i = (Image) iQuery.getById(Image.class,5551);
+        i.unload();
+        Set annotations = (Set) iPojos.retrieveCollection(i,Image.ANNOTATIONS,null);
+        assertTrue(annotations.size() > 0);
+    }
+
+    public void test_findCGCPaths() throws Exception
+    {
+        ids = new HashSet(data.getMax("Image.ids",2));
+        results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_ME,null);
+        results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_NME,null);
+        results = iPojos.findCGCPaths(ids, IPojos.DECLASSIFICATION,null);
+    }
+
+    public void test_getCollectionCount() throws Exception    
+    {
+        Long id = new Long(5551);
+        Map m = iPojos.getCollectionCount(Image.class.getName(),Image.ANNOTATIONS,
+                Collections.singleton(id),null);
+        Integer count = (Integer) m.get(id);
+        assertTrue(count.intValue() > 0);
+    }
+
+    public void test_getImages() throws Exception
+    {
+        ids = new HashSet(data.getMax("Project.ids",2));
+        Set imagse = iPojos.getImages(Project.class, ids, null );
+    }
+
+    public void test_getUserDetails() throws Exception
+    {
+        Map m = iPojos.getUserDetails(Collections.singleton(TESTER),null);
+        Experimenter e = (Experimenter) m.get(TESTER);
+    }
+
+    public void test_getUserImages() throws Exception
+    {
+        try {
+            results = iPojos.getUserImages(null);
+            fail("Illegal argument: experimenter/group option must be set.");
+        } catch (IllegalArgumentException e) { }
+        
+        results = iPojos.getUserImages(new PojoOptions().exp(new Long(10000)).map());
+        assertTrue(results.size() > 0);
+
+    }
+
+    //
+    // Misc
+    ///
+    
     public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception
     {
 
-        Pixels pix = (Pixels) q.getByClass(Pixels.class).get(0);
+        Pixels pix = (Pixels) iQuery.getByClass(Pixels.class).get(0);
         IPixels pixDB = factory.getPixelsService();
         PixelsService pixFS = new PixelsService(
                 PixelsService.ROOT_DEFAULT);
@@ -266,6 +356,6 @@ public class PojosServiceTest extends TestCase {
         dd.setDescription("t1");
         return dd;
     }
-
+    
 }
 

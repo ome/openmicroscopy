@@ -129,6 +129,10 @@ public class CountCollector extends ContextFilter {
             return;
         
         Map<Long, IObject> l = lookup[idx];
+        
+        if ( l == null )
+            return; 
+        
         IObject obj = l.get(id);
         
         if (obj == null)

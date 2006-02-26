@@ -1,7 +1,7 @@
 package ome.model.internal;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -11,19 +11,46 @@ import ome.model.IObject;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.util.Filter;
+import ome.util.Filterable;
 
 
-public class Details implements IDetails
+public class Details implements IDetails, Filterable
 {
 
+    public final static String CONTEXT = "Details_context";
+    public final static String PERMISSIONS = "Details_permissions";
+    public final static String CREATIONEVENT = "Details_creationEvent";
+    public final static String UPDATEEVENT = "Details_updateEvent";
+    public final static String OWNER = "Details_owner";
+    public final static String GROUP = "Details_group";
+    
     IObject _context;
     Permissions _perms;
     Event _creation;
     Event _update;
     Experimenter _owner;
     ExperimenterGroup _group;
+
+    // Non-entity fields
     Set _filteredCollections;
     Map _counts;
+    
+    /** default constructor. Leaves values null to save resources. */
+    public Details(){ }
+
+    /** copy-constructor */
+    public Details(Details copy){
+        setContext(copy.getContext());
+        setPermissions(copy.getPermissions());
+        setCreationEvent(copy.getCreationEvent());
+        setUpdateEvent(copy.getUpdateEvent());
+        setOwner(copy.getOwner());
+        setGroup(copy.getGroup());
+        // Non-entity fields 
+        _filteredCollections = copy.filteredSet();
+        _counts = new HashMap(copy.getCounts());
+    }
     
     // Loaded&Filtering methods
     // ===========================================================
@@ -53,6 +80,11 @@ public class Details implements IDetails
  
     // ~ Other
     // ===========================================================
+    public IObject getContext()
+    {
+        return _context;
+    }
+
     public void setContext(IObject myContext)
     {
         _context = myContext;
@@ -133,6 +165,19 @@ public class Details implements IDetails
     public void setCounts(Map counts)
     {
         _counts = counts;
+    }
+
+    public boolean acceptFilter(Filter filter)
+    {
+
+        // TODO: omitting exceptions. ProxyCleanup should cover that.
+          setOwner((Experimenter) filter.filter(OWNER, getOwner()));
+          setGroup((ExperimenterGroup) filter.filter(GROUP, getGroup()));
+          setPermissions((Permissions) filter.filter(PERMISSIONS, getPermissions()));
+          setCreationEvent((Event) filter.filter(CREATIONEVENT, getCreationEvent()));
+          setUpdateEvent((Event) filter.filter(UPDATEEVENT, getUpdateEvent()));
+          return true;
+    
     }
     
 }

@@ -33,7 +33,6 @@ public class PojosLoadHierarchyQueryDefinition extends Query
         defs = new QueryParameterDef[]{
                 new QueryParameterDef(QP.CLASS,Class.class,false),
                 new QueryParameterDef(QP.IDS,Collection.class,false),
-                new QueryParameterDef(OWNER_ID,Long.class,true),
                 new QueryParameterDef(QP.OPTIONS,Map.class,true)
         };
     }
@@ -47,8 +46,8 @@ public class PojosLoadHierarchyQueryDefinition extends Query
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
 
-        int depth = po.isLeaves() ? 2 : 1; 
-        fetchChildren(c,Project.class,depth); 
+        int depth = po.isLeaves() ? Integer.MAX_VALUE : 1; 
+        Hierarchy.fetchChildren(c,Project.class,depth); 
       
         return c.list();
     }
@@ -62,10 +61,14 @@ public class PojosLoadHierarchyQueryDefinition extends Query
         if (session.getEnabledFilter(Project.OWNER_FILTER) != null) 
             projectOwnerFilterAlreadyEnabled = true;
 
-        if (check(OWNER_ID)) {
-            
-            session.enableFilter(Project.OWNER_FILTER)
-            .setParameter(OWNER_ID,value(OWNER_ID));
+        if (check(QP.OPTIONS) )
+        {
+            PojoOptions po = new PojoOptions((Map)value(QP.OPTIONS));
+            if (po.isExperimenter()) // TODO || is Group();
+            {
+                session.enableFilter(Project.OWNER_FILTER)
+                .setParameter(OWNER_ID,po.getExperimenter());
+            }
             
         }
     }

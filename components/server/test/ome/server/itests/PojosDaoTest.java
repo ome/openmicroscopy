@@ -86,7 +86,7 @@ public class PojosDaoTest
     @Override
     protected void onSetUp() throws Exception {
         _q = (IQuery) applicationContext.getBean("updateService");
-        po = new PojoOptions().exp(1);
+        po = new PojoOptions().exp(1L);
     	ids = new HashSet<Integer>(Arrays.asList(new Integer[]{1,2,3,4,5,6,250,253,249,258}));
     	m = new HashMap();
     	m.put("id_list",ids);

@@ -69,6 +69,16 @@ public interface LocalQuery extends ome.api.IQuery {
      */
     void evict(Object object);
 
+    /** Uses the Hibernate static method <code>initialize</code> to prepare
+     * an object for shipping over the wire.
+     * 
+     * It is better to do this in your queries.
+     * 
+     * @param object
+     * @see org.hibernate.Hibernate
+     */
+    void initialize(Object object);
+    
     /** 
      * Checks if a type has been mapped in Hibernate.
      * @param type

@@ -176,7 +176,7 @@ public class PojoOptions
      * Filtered by Experimenter
      * ============================== */
     
-    public PojoOptions exp(Integer i){
+    public PojoOptions exp(Long i){
     	options.put(EXPERIMENTER,i);
     	return this;
     }
@@ -190,8 +190,8 @@ public class PojoOptions
     	return options.containsKey(EXPERIMENTER);
     }
     
-    public Integer getExperimenter(){
-    	return (Integer) options.get(EXPERIMENTER);
+    public Long getExperimenter(){
+    	return (Long) options.get(EXPERIMENTER);
     }
 
     /* ==============================
@@ -199,7 +199,7 @@ public class PojoOptions
      * ============================== */
 
     /* FIXME : This is currently disabled. 
-    public PojoOptions grp(Integer i){
+    public PojoOptions grp(Long i){
         options.put(GROUP,i);
         return this;
     }
@@ -213,8 +213,8 @@ public class PojoOptions
         return options.containsKey(GROUP);
     }
     
-    public Integer getGroup(){
-        return (Integer) options.get(GROUP);
+    public Long getGroup(){
+        return (Long) options.get(GROUP);
     }
     */
     

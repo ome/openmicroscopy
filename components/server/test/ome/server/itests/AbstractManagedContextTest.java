@@ -4,6 +4,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 import ome.api.IAnalysis;
+import ome.api.IPojos;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.system.OmeroContext;
@@ -18,13 +19,16 @@ public class AbstractManagedContextTest
     
     protected IAnalysis iAnalysis;
     
+    protected IPojos iPojos;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
         iQuery = (LocalQuery) applicationContext.getBean("queryService");
         iUpdate = (LocalUpdate) applicationContext.getBean("updateService");
-        iAnalysis= (IAnalysis) applicationContext.getBean("analysisService");
+        iAnalysis = (IAnalysis) applicationContext.getBean("analysisService");
+        iPojos = (IPojos) applicationContext.getBean("pojosService");
         login("root","system","Test");
     }
     

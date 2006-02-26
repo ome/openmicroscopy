@@ -81,7 +81,11 @@ public class EventHandler implements MethodInterceptor
         CurrentDetails.clear();
         setDetails();
         try {
-            return arg0.proceed();    
+            Object retVal = arg0.proceed();
+            ht.flush(); 
+            // TODO performance? but HInterceptor is flushing 
+            // after finally { clear }
+            return retVal;
         } finally {
             CurrentDetails.clear();
         }

@@ -110,6 +110,6 @@ class Filter extends ContextFilter {
 		return super.filter(fieldId,o);
 	}
 	public Set getCache(){
-		return (Set) cache.get();
+		return this._cache.keySet();
 	}
 }

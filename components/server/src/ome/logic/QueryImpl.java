@@ -88,6 +88,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         getHibernateTemplate().evict(obj);
     }
     
+    public void initialize(Object obj){
+        Hibernate.initialize(obj);
+    }
+    
     public boolean checkType(String type) {
         ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
         return meta == null ? false : true;

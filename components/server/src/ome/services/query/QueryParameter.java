@@ -74,9 +74,20 @@ public class QueryParameter
                     "type %s not %s",type.getName(),value.getClass().getName()));
         }
     }
-    
-    public static QueryParameter makeLong(String name, Long value){
-        return new QueryParameter(name,Long.class,value);
-    }
 
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder(64);
+        sb.append("QP{");
+        sb.append("name=");
+        sb.append(name);
+        sb.append(",type=");
+        sb.append(type.getName());
+        sb.append(",value=");
+        sb.append(value);
+        sb.append("}");
+        return sb.toString();
+    }
+    
+    
 }

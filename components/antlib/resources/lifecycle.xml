@@ -133,6 +133,8 @@
 		<eclipse.refreshLocal resource="omero-dsl" depth="infinite"/>
 		<eclipse.refreshLocal resource="omero-common" depth="infinite"/>
 		<eclipse.refreshLocal resource="omero-server" depth="infinite"/>
+		<eclipse.refreshLocal resource="omero-client" depth="infinite"/>
+		<eclipse.refreshLocal resource="omero-shoola-adapter" depth="infinite"/>
 		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
 	</target>
   

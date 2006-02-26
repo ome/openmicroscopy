@@ -152,7 +152,7 @@ public class PojosConstraintsTest extends TestCase {
 		};
 		
 		t.blowup(true,new PojoOptions().allExps());
-		t.blowup(false,new PojoOptions().exp(1));
+		t.blowup(false,new PojoOptions().exp(1L));
 		
 	}
 

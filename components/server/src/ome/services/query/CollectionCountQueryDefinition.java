@@ -12,6 +12,11 @@ import ome.tools.lsid.LsidUtils;
 public class CollectionCountQueryDefinition extends Query
 {
 
+    public CollectionCountQueryDefinition(QueryParameter...parameters)
+    {
+        super(parameters);
+    }
+    
     @Override
     protected void defineParameters()
     {

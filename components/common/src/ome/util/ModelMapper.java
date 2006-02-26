@@ -31,12 +31,16 @@ package ome.util;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
@@ -67,7 +71,7 @@ public abstract class ModelMapper extends ContextFilter {
 	 */
 	protected abstract Map c2c();
 
-	protected Map model2target = new HashMap();//FIXME not thread safe. 
+	protected Map model2target = new HashMap();
 	
 	public ModelBased map (Filterable source){
 		Filterable o = this.filter("MAPPING...",source);
@@ -109,32 +113,37 @@ public abstract class ModelMapper extends ContextFilter {
         return (Class) c2c().get(Utils.trueClass(source));
     }
     
+    /** 
+     * known immutables are return unchanged.
+     * @param current
+     * @return
+     */
 	public Object findTarget(Object current){
-		// IMMUTABLES
-		if (null == current |
-				current instanceof Integer | 
-				current instanceof String) // TODO can use findTarget then for these as well.
-		{
+		
+        // IMMUTABLES
+		if (null == current 
+                || current instanceof Number
+                || current instanceof String) 
 			return current;
-		} else 
-		// Special cases TODO put into doFindTarget
-		if (current instanceof Date){
-			return new Timestamp(((Date)current).getTime()); // FIXME should cache these in model2pojo
-		}
 		
 		Object target = model2target.get(current);
 		if (null == target) {
 			Class targetType = findClass(current.getClass());
-			if (null != targetType){
+			
+            if (null != targetType){
 				try {
 					target = targetType.newInstance();
 				} catch (Exception e) {
-					throw new RuntimeException("Internal error: could not instantiate object of type "+targetType+" while trying to map "+current,e);
+					throw new RuntimeException("Internal error: " +
+                            "could not instantiate object of type "+targetType+
+                            " while trying to map "+current,e);
 				}
 				model2target.put(current,target);
-			} else {
-			    throw new RuntimeException("Internal error: could not find target class type for "+current.getClass());
+			
+            } else {  
+                // will have to return null
             }
+            
 		}
 		return target;
 	}
@@ -145,14 +154,16 @@ public abstract class ModelMapper extends ContextFilter {
 		
 		Collection target = (Collection) model2target.get(source);
 		if (null==target) {
-			try { 
-				target = (Collection) source.getClass().newInstance(); // TODO do we want to use the map here?
-				model2target.put(source,target);
-			} catch (InstantiationException ie){
-				throw new RuntimeException(ie);
-			} catch (IllegalAccessException iae){
-				throw new RuntimeException(iae);
-			}
+			if (Set.class.isAssignableFrom(source.getClass()))
+			{
+                target = new HashSet();
+            } else if (List.class.isAssignableFrom(source.getClass())) {
+                target = new ArrayList();
+            } else {
+                throw new RuntimeException("Unknown collection type: "
+                        +source.getClass());
+            }
+            model2target.put(source,target);
 		}
 		return target;
 	}

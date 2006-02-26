@@ -44,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.QP;
 import ome.services.query.Query;
@@ -69,8 +70,21 @@ public class QueryTest
             AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(QueryTest.class);
+    
 
+    public void testFindHierarchies() throws Exception
+    {
 
+        PojosFindHierarchiesQueryDefinition queryDef 
+            = new PojosFindHierarchiesQueryDefinition(
+                    QP.Class("class",Project.class),
+                    QP.List("ids",Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L)),
+                    QP.Map("options",null)
+        );
+        List result = (List) iQuery.execute(queryDef);
+        walkResult(result);
+    }
+    
     public void testFilteredCalls(){
 
         PojosLoadHierarchyQueryDefinition queryDef 

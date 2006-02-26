@@ -72,6 +72,8 @@ public class QueryFactory
         for (QuerySource source : sources)
         {
             q = source.lookup(queryID, qps);
+            if (q != null )
+                break;
         }
 
         if (q == null)

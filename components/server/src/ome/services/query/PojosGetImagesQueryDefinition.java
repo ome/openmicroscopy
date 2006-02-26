@@ -11,11 +11,10 @@ import org.hibernate.criterion.Restrictions;
 
 import ome.model.core.Image;
 
-public class PojosFindHierarchiesQueryDefinition extends Query
+public class PojosGetImagesQueryDefinition extends Query
 {
-    
 
-    public PojosFindHierarchiesQueryDefinition(QueryParameter... parameters)
+    public PojosGetImagesQueryDefinition(QueryParameter... parameters)
     {
         super(parameters);
     }  
@@ -32,10 +31,10 @@ public class PojosFindHierarchiesQueryDefinition extends Query
     @Override
     protected Object runQuery(Session session) throws HibernateException, SQLException
     {
-        Criteria c = session.createCriteria(Image.class);
+        Criteria c = session.createCriteria((Class) value(QP.CLASS));
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
-        Hierarchy.fetchParents(c,(Class) value(QP.CLASS),Integer.MAX_VALUE);
+        Hierarchy.fetchChildren(c,(Class) value(QP.CLASS),Integer.MAX_VALUE);
         
         return c.list();
         

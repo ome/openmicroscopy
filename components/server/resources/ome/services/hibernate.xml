@@ -47,7 +47,7 @@
     <constructor-arg ref="hibernateTemplate"/>
   </bean>
   
-	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter"/>
+	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor"/>
 
   <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
     <property name="sessionFactory" ref="sessionFactory"/>

@@ -244,6 +244,7 @@ public interface IPojos extends ServiceInterface {
      * @param options
 	 *            Map as unused. 
 	 *            No notion of <code>experimenter|group</code> or <code>leaves</code>
+     *            or <code>counts</code>
 	 * @return A map whose key is rootNodeId and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 */

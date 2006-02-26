@@ -75,7 +75,12 @@ public class ClassQuerySource extends QuerySource
             // Not an issue.
         } catch (Exception e)
         {
-            throw new RuntimeException("Error while trying to instantiate:"+queryID,e);
+            if ( log.isDebugEnabled() ) 
+            {
+                e.printStackTrace();
+            }
+            throw new RuntimeException("Error while trying to instantiate:" 
+                    +queryID,e);
         }
         return q;
     }

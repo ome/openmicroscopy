@@ -40,6 +40,7 @@ package ome.services.query;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -71,75 +72,20 @@ public abstract class Query implements HibernateCallback
 {
     private static Log log = LogFactory.getLog(Query.class);
     
-    public final static Map<Class,Integer> DEPTH = new HashMap<Class,Integer>();
-    static {
-        DEPTH.put(Project.class,2);
-        DEPTH.put(Dataset.class,1);
-        DEPTH.put(CategoryGroup.class,2);
-        DEPTH.put(Category.class,1);
-        DEPTH.put(Image.class,0);
-    }
-    public final static Map<Class,List<String>> LINEAGE = new HashMap<Class,List<String>>();
-    static {
-        LINEAGE.put(Project.class,Arrays.asList("datasetLinks","imageLinks"));
-        LINEAGE.put(Dataset.class,Arrays.asList("imageLinks"));
-    }
-    
-    protected void fetchParents(Criteria c, Class klass, int stopDepth)
-    {
-        List<String> l = LINEAGE.get(klass);
-        String parents = l.get(l.size()-1);
-        String parent = parents+".parent";
-        String grandparents = parent+"."+l.get(l.size()-2);
-        String grandparent = grandparents+".parent";
-        
-        walk(c,klass,stopDepth,parents,parent,grandparents,grandparent);
-    }
-    
-    protected void fetchChildren(Criteria c, Class klass, int stopDepth)
-    {
-        String children = LINEAGE.get(klass).get(0);
-        String child = children+".child";
-        String grandchildren = child+"."+LINEAGE.get(klass).get(1);
-        String grandchild = grandchildren+".child";
-        
-        walk(c,klass,stopDepth,children,child,grandchildren,grandchild);
-    }
-    
-    private void walk(Criteria c, Class klass, int stopDepth, String... path){
-        switch (DEPTH.get(klass))
-        {
-            case 2:
-                if (stopDepth >= 2) 
-                {
-                    c.createCriteria(path[3],LEFT_JOIN);
-                    c.createCriteria(path[2],LEFT_JOIN);
-                }
-            case 1:
-                if (stopDepth >= 1) 
-                {
-                    c.createCriteria(path[1],LEFT_JOIN);
-                    c.createCriteria(path[0],LEFT_JOIN);
-                }
-            case 0:
-                return;
-            default:
-                throw new RuntimeException("Unhandled container depth.");
-        }
-    }
-
     public final static String OWNER_ID = "ownerId"; // TODO from Fitlers I/F
     // For Criteria
     public final static FetchMode FETCH = FetchMode.JOIN;
     public final static int LEFT_JOIN = Criteria.LEFT_JOIN;
+    public final static int INNER_JOIN = Criteria.INNER_JOIN;
     
     protected Map options;
     protected QueryParameterDef[] defs;
     protected QueryParameter[] qps;
 
+    private Query() { /* have to have the Parameters */ }
     public Query(QueryParameter... parameters)
     {
-        this.options = options;
+        this.options = options; // TODO
         this.qps = parameters;
         defineParameters();
         checkParameters();
@@ -185,7 +131,7 @@ public abstract class Query implements HibernateCallback
                     "as Query parameter defitions. Currently missing "+
                     (defs.length-qps.length));
         
-        for (int i = 0; i < qps.length; i++)
+        for (int i = 0; i < defs.length; i++)
         {
             QueryParameter parameter = qps[i];
             QueryParameterDef def = defs[i];
@@ -238,4 +184,92 @@ public abstract class Query implements HibernateCallback
     protected void disableFilters(Session session){
         
     }
+}
+
+class Hierarchy {
+
+    public final static Map<Class,Integer> DEPTH = new HashMap<Class,Integer>();
+    static {
+        DEPTH.put(Project.class,2);
+        DEPTH.put(Dataset.class,1);
+        DEPTH.put(CategoryGroup.class,2);
+        DEPTH.put(Category.class,1);
+        DEPTH.put(Image.class,0);
+    }
+    public final static Map<Class,List<String>> CHILDREN = new HashMap<Class,List<String>>();
+    static {
+        CHILDREN.put(Project.class,Arrays.asList("datasetLinks","imageLinks"));
+        CHILDREN.put(Dataset.class,Arrays.asList("imageLinks"));
+        CHILDREN.put(CategoryGroup.class,Arrays.asList("categoryLinks","imageLinks"));
+        CHILDREN.put(Category.class, Arrays.asList("imageLinks"));
+    }
+    public final static Map<Class,List<String>> PARENTS = new HashMap<Class,List<String>>();
+    static {
+        PARENTS.put(Project.class,Arrays.asList("datasetLinks","projectLinks"));
+        PARENTS.put(Dataset.class,Arrays.asList("datasetLinks"));
+        PARENTS.put(Category.class,Arrays.asList("categoryLinks"));
+        PARENTS.put(CategoryGroup.class, Arrays.asList("categoryLinks","categoryGroupLinks"));
+    }
+ 
+    public static void fetchParents(Criteria c, Class klass, int stopDepth){
+
+        if (!PARENTS.containsKey(klass))
+            throw new IllegalStateException("Invalid class for parent hierarchy");
+        
+        walk(c,PARENTS.get(klass),"parent",
+                Math.min(stopDepth,DEPTH.get(klass)), Query.LEFT_JOIN);
+    }
+    
+    public static void fetchChildren(Criteria c, Class klass, int stopDepth){
+        
+        if (!CHILDREN.containsKey(klass))
+            throw new IllegalStateException("Invalid class for child hierarchy");
+        
+        walk(c,CHILDREN.get(klass), "child", Math.min(stopDepth, DEPTH.get(klass)), Query.LEFT_JOIN);
+    }
+
+    // TODO used?
+    public static void joinParents(Criteria c, Class klass, int stopDepth){
+
+        if (!PARENTS.containsKey(klass))
+            throw new IllegalStateException("Invalid class for parent hierarchy");
+        
+        walk(c,PARENTS.get(klass),"parent",
+                Math.min(stopDepth,DEPTH.get(klass)), Query.INNER_JOIN);
+    }
+    
+    public static void joinChildren(Criteria c, Class klass, int stopDepth){
+        
+        if (!CHILDREN.containsKey(klass))
+            throw new IllegalStateException("Invalid class for child hierarchy");
+        
+        walk(c,CHILDREN.get(klass), "child", Math.min(stopDepth, DEPTH.get(klass)), Query.INNER_JOIN);
+    }
+    
+    private static void walk(Criteria c, List<String> links, String step, int depth, int joinStyle)
+    {
+        String[][] path = new String[links.size()][2];
+        
+        for (int i = 0; i < path.length; i++)
+        {
+            path[i][0] = ( i > 0 ? path[i-1][1] + "." : "" ) + links.get(i);
+            path[i][1] = path[i][0]+"."+step;
+        }
+        
+        switch (depth)
+        {
+            case 2:
+                    c.createCriteria(path[1][1],joinStyle);
+                    c.createCriteria(path[1][0],joinStyle);
+            case 1:
+                    c.createCriteria(path[0][1],joinStyle);
+                    c.createCriteria(path[0][0],joinStyle);
+            case 0:
+                return;
+            default:
+                throw new RuntimeException("Unhandled container depth.");
+        }
+    }
+
+       
 }

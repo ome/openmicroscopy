@@ -28,7 +28,7 @@ public class PojoOptionsTest extends TestCase {
 		ob.allCounts()
 		.countsFor(new Integer(1))
 		.noCounts()
-		.exp(new Integer(3))
+		.exp(new Long(3))
 		.allExps()
 		.noLeaves()
 		.map()
