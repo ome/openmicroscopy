@@ -92,6 +92,9 @@ public class ViewerSorter
      */
     private int compareStrings(String s1, String s2)
     {
+        if (s1 == null && s2 == null) return 0; 
+        else if (s1 == null) return -1; 
+        else if (s2 == null) return 1; 
         int v = 0;
         int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
         if (result < 0) v = -1;
@@ -108,13 +111,7 @@ public class ViewerSorter
      */
     private int compareObjects(Object o1, Object o2)
     {
-        String s1 = o1.toString();
-        String s2 = o2.toString();
-        int result = (s1.toLowerCase()).compareTo(s2.toLowerCase());
-        int v = 0;
-        if (result < 0) v = -1;
-        else if (result > 0) v = 1;
-        return v;
+        return compareStrings(o1.toString(), o2.toString());
     }
     
     /**
