@@ -59,14 +59,14 @@ class SplashScreenFuture
     /** The result that this Future will collect. */
     private Object      result;
     
-    /** Tells whether or not the resutl has been set. */
+    /** Tells whether or not the result has been set. */
     private boolean     isFilledIn;
     
-    
-    /**
-     * Creates a new instance.
-     */
-    SplashScreenFuture() { isFilledIn = false; }
+    /** Creates a new instance. */
+    SplashScreenFuture()
+    { 
+        isFilledIn = false;
+    }
     
     /**
      * Sets the result this Future was created to collect.
