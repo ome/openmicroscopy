@@ -70,7 +70,7 @@ class BorderListener
     extends MouseInputAdapter
     implements SwingConstants
 {
-
+    
     /** Identifies the resizing zone. */
     private static final int RESIZE_NONE  = 0;
     
@@ -87,10 +87,10 @@ class BorderListener
     private boolean                 dragging;
     
     /** The mousePressed location in absolute coordinate system. */
-    private int                     _x, _y;
+    private int                     xAbs, yAbs;
     
     /** The mousePressed location in source view's coordinate system. */
-    private int                     __x, __y;
+    private int                     xView, yView;
     
     /** The starting rectangle. */
     private Rectangle               startingBounds;
@@ -147,10 +147,10 @@ class BorderListener
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             getDesktopManager().endResizingFrame(frame);
         }
-        _x = 0;
-        _y = 0;
-        __x = 0;
-        __y = 0;
+        xAbs = 0;
+        yAbs = 0;
+        xView = 0;
+        yView = 0;
         startingBounds = null;
         resizeDir = RESIZE_NONE;
     }
@@ -163,15 +163,15 @@ class BorderListener
     {
         Point p = SwingUtilities.convertPoint((Component)e.getSource(), 
                     e.getX(), e.getY(), null);
-        __x = e.getX();
-        __y = e.getY();
-        _x = p.x;
-        _y = p.y;
+        xView = e.getX();
+        yView = e.getY();
+        xAbs = p.x;
+        yAbs = p.y;
         startingBounds = frame.getBounds();
         resizeDir = RESIZE_NONE;
         
         Insets i = frame.getInsets();
-        Point ep = new Point(__x, __y);
+        Point ep = new Point(xView, yView);
         JComponent titleBar = frame.getTitleBar();
         if (e.getSource() == frame.getTitleBar()) {
             Point np = titleBar.getLocation();
@@ -217,9 +217,38 @@ class BorderListener
             }
     
             getDesktopManager().beginResizingFrame(frame, resizeDir);
-            
+
+            Cursor s = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+            switch (resizeDir) {
+                case SOUTH:
+                    s = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+                    break; 
+                case NORTH:
+                    s = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+                    break; 
+                case WEST:
+                    s = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
+                    break; 
+                case EAST:
+                    s = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+                    break; 
+                case SOUTH_EAST:
+                    s = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
+                    break; 
+                case SOUTH_WEST:
+                    s = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
+                    break; 
+                case NORTH_WEST:
+                    s = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                    break; 
+                case NORTH_EAST:
+                    s = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                    break;
+            } 
+            frame.setCursor(s);
             return;
         }
+        
     }
 
     /** 
@@ -232,8 +261,8 @@ class BorderListener
                                  
         Point p = SwingUtilities.convertPoint((Component) e.getSource(), 
                                                 e.getX(), e.getY(), null);
-        int deltaX = _x-p.x;
-        int deltaY = _y-p.y;
+        int deltaX = xAbs-p.x;
+        int deltaY = yAbs-p.y;
         Dimension min = frame.getMinimumSize();
         Dimension max = frame.getMaximumSize();
         int newX, newY, newW, newH;
@@ -254,13 +283,10 @@ class BorderListener
             newY = startingBounds.y-deltaY;
 
             // Make sure we stay in-bounds
-            if (newX+i.left <= -__x)   newX = -__x-i.left+1;
-            if (newY+i.top <= -__y) newY = -__y - i.top + 1;
-            if (newX+__x+i.right >= pWidth) 
-                newX = pWidth-__x-i.right-1;
-            if (newY+__y+i.bottom >= pHeight)
-                newY = pHeight-__y-i.bottom-1;
-            //frame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            if (newX+i.left <= -xView)   newX = -xView-i.left+1;
+            if (newY+i.top <= -yView) newY = -yView - i.top + 1;
+            if (newX+xView+i.right >= pWidth) newX = pWidth-xView-i.right-1;
+            if (newY+yView+i.bottom >= pHeight) newY = pHeight-yView-i.bottom-1;
             getDesktopManager().dragFrame(frame, newX, newY);
             return;
         }
@@ -274,7 +300,10 @@ class BorderListener
 
         parentBounds = frame.getParent().getBounds();
         switch (resizeDir) {
-            case RESIZE_NONE:   return;
+            case RESIZE_NONE:   
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                Cursor.DEFAULT_CURSOR));
+                return;
             case NORTH:      
                 if (startingBounds.height+deltaY < min.height)
                     deltaY = min.height-startingBounds.height;
@@ -285,6 +314,8 @@ class BorderListener
                 newY = startingBounds.y-deltaY;
                 newW = startingBounds.width;
                 newH = startingBounds.height+deltaY;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.N_RESIZE_CURSOR));
             break;
             case NORTH_EAST:     
                 if (startingBounds.height+deltaY < min.height)
@@ -305,6 +336,8 @@ class BorderListener
                 newY = startingBounds.y - deltaY;
                 newW = startingBounds.width-deltaX;
                 newH = startingBounds.height+deltaY;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                            Cursor.NE_RESIZE_CURSOR));
                 break;
             case EAST:      
                 if (startingBounds.width-deltaX < min.width)
@@ -317,6 +350,8 @@ class BorderListener
                             parentBounds.width;
                 newW = startingBounds.width-deltaX;
                 newH = startingBounds.height;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.E_RESIZE_CURSOR));
                 break;
             case SOUTH_EAST:     
                 if (startingBounds.width-deltaX < min.width)
@@ -337,6 +372,8 @@ class BorderListener
                             parentBounds.height ;   
                 newW = startingBounds.width-deltaX;
                 newH = startingBounds.height-deltaY;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                            Cursor.SE_RESIZE_CURSOR));
                 break;
             case SOUTH:      
                 if (startingBounds.height-deltaY < min.height)
@@ -349,6 +386,8 @@ class BorderListener
                             parentBounds.height ;
                 newW = startingBounds.width;
                 newH = startingBounds.height-deltaY;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                            Cursor.S_RESIZE_CURSOR));
                 break;
             case SOUTH_WEST:
                 if (startingBounds.height-deltaY < min.height)
@@ -369,6 +408,8 @@ class BorderListener
                 newY = startingBounds.y;
                 newW = startingBounds.width+deltaX;
                 newH = startingBounds.height-deltaY;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                Cursor.SW_RESIZE_CURSOR));
                 break;
             case WEST:      
                 if (startingBounds.width+deltaX < min.width)
@@ -381,6 +422,8 @@ class BorderListener
                 newY = startingBounds.y;
                 newW = startingBounds.width+deltaX;
                 newH = startingBounds.height;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                        Cursor.W_RESIZE_CURSOR));
                 break;
             case NORTH_WEST:     
                 if (startingBounds.width+deltaX < min.width)
@@ -394,11 +437,12 @@ class BorderListener
                 else if (startingBounds.height+deltaY > max.height)
                     deltaY = max.height-startingBounds.height;
                 if (startingBounds.y-deltaY < 0) deltaY = startingBounds.y;
-
                 newX = startingBounds.x-deltaX;
                 newY = startingBounds.y-deltaY;
                 newW = startingBounds.width+deltaX;
                 newH = startingBounds.height+deltaY;
+                frame.setCursor(Cursor.getPredefinedCursor(
+                                Cursor.NW_RESIZE_CURSOR));
                 break;
             default: return;
         }
@@ -420,18 +464,67 @@ class BorderListener
                 Point np = titleBar.getLocation();
                 ep.x += np.x;
                 ep.y += np.y;
+                frame.setCursor(new Cursor(Cursor.SE_RESIZE_CURSOR));
             }
-        }
+            Insets i = frame.getInsets();
+            if (ep.x <= i.left) {
+                if (ep.y < resizeCornerSize + i.top)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.NW_RESIZE_CURSOR));
+                else if (ep.y > frame.getHeight()-resizeCornerSize-i.bottom)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.SW_RESIZE_CURSOR));
+                else frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.W_RESIZE_CURSOR));
+            } else if (ep.x >= frame.getWidth()-i.right) {
+                if (e.getY() < resizeCornerSize+i.top)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.NE_RESIZE_CURSOR));
+                else if (ep.y > frame.getHeight()-resizeCornerSize-i.bottom)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.SE_RESIZE_CURSOR));
+                else                
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.E_RESIZE_CURSOR));
+            } else if (ep.y <= i.top) {
+                if (ep.x < resizeCornerSize+i.left)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.NW_RESIZE_CURSOR));
+                else if (ep.x > frame.getWidth()-resizeCornerSize-i.right)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.NE_RESIZE_CURSOR));
+                else                
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.N_RESIZE_CURSOR));
+            } else if(ep.y >= frame.getHeight()-i.bottom) {
+                if (ep.x < resizeCornerSize+i.left)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.SW_RESIZE_CURSOR));
+                else if (ep.x > frame.getWidth()-resizeCornerSize-i.right)
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.SE_RESIZE_CURSOR));
+                else                
+                    frame.setCursor(Cursor.getPredefinedCursor(
+                                    Cursor.S_RESIZE_CURSOR));
+            } else {
+                frame.setCursor(Cursor.getPredefinedCursor(
+                       Cursor.DEFAULT_CURSOR));
+                return;
+            }
+        } 
     }
 
     /**
-     * Required but no-op implementation in our case.
+     * Sets the default cursor.
      * @see MouseInputAdapter#mouseExited(MouseEvent)
      */
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited(MouseEvent e)
+    {
+        frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)); 
+    }
     
     /**
-     * Required but no-op implementation in our case.
+     * Required by the interface but no-op implementation in our case.
      * @see MouseInputAdapter#mouseClicked(MouseEvent)
      */
     public void mouseClicked(MouseEvent e) {}
