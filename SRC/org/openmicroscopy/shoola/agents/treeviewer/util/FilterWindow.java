@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -96,6 +97,9 @@ public class FilterWindow
     /** The <code>Category</code> container type. */
     public static final int         CATEGORY = 1;
     
+    /** Bound property name indicating the close the window. */
+    public static final String      CLOSE_PROPERTY = "close";
+    
     /** Text corresponding to the {@link #DATASET} type. */
     private static final String     DATASET_MSG = "datasets";
     
@@ -129,6 +133,12 @@ public class FilterWindow
     
     /** Button to set the containers' selection. */ 
     private JButton         setButton;
+    
+    /** Button to select all items of the tree. */
+    private JButton         selectAll;
+    
+    /** Button to clear the selection. */
+    private JButton         clearAll;
     
     /** The tree hosting the hierarchical structure. */
     private TreeCheck       tree;
@@ -173,11 +183,33 @@ public class FilterWindow
         IconManager im = IconManager.getInstance();
         tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
         
+        selectAll = new JButton("Select All");
+        selectAll.setToolTipText(
+                UIUtilities.formatToolTipText("Select all items."));
+        selectAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                tree.selectAllNodes(); 
+            }
+        });
+        clearAll = new JButton("Deselect All");
+        clearAll.setToolTipText(
+                UIUtilities.formatToolTipText("Clear selection."));
+        clearAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                tree.deselectAllNodes();
+            }
+        });
         cancelButton = new JButton("Cancel");
+        cancelButton.setToolTipText(
+                UIUtilities.formatToolTipText("Close the window."));
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { close(); }
         });
-        setButton = new JButton("Filter");
+        setButton = new JButton("Apply");
+        setButton.setToolTipText(
+                UIUtilities.formatToolTipText("Apply the selection."));
         setButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { setValues(); }
         });
@@ -189,7 +221,7 @@ public class FilterWindow
      * 
      * @return See above;
      */
-    private JToolBar buildToolBar()
+    private JToolBar buildRightToolBar()
     {
         JToolBar bar = new JToolBar();
         bar.setRollover(true);
@@ -201,6 +233,23 @@ public class FilterWindow
         return bar;
     }
     
+    /**
+     * Builds the tool bar hosting the {@link #selectAll} and {@link #clearAll}.
+     * 
+     * @return See above;
+     */
+    private JToolBar buildLeftToolBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.setFloatable(false);
+        bar.add(selectAll);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        bar.add(clearAll);
+        return bar;
+    }
+
     /**
      * Creates the message.
      * 
@@ -271,7 +320,8 @@ public class FilterWindow
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.setBorder(BorderFactory.createEtchedBorder());
-        p.add(UIUtilities.buildComponentPanelRight(buildToolBar()));
+        p.add(UIUtilities.buildComponentPanel(buildLeftToolBar()));
+        p.add(UIUtilities.buildComponentPanelRight(buildRightToolBar()));
         p.setOpaque(true);
         c.add(p, BorderLayout.SOUTH);
     }
@@ -287,6 +337,7 @@ public class FilterWindow
     /** Closes and disposes of the window. */
     private void close()
     {
+        firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
         setVisible(false);
         dispose();
     }
