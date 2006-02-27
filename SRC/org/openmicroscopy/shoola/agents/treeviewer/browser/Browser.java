@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.util.List;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -46,7 +45,6 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.DataObject;
 import pojos.ImageData;
 

@@ -510,6 +510,8 @@ class BrowserComponent
         FilterWindow window = new FilterWindow(this, frame, index, n);
         window.addPropertyChangeListener(TreeViewer.FILTER_NODES_PROPERTY, 
                                         controller);
+        window.addPropertyChangeListener(FilterWindow.CLOSE_PROPERTY, 
+                                        controller);
         UIUtilities.centerAndShow(window);
     }
 

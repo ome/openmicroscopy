@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -242,10 +243,12 @@ class BrowserControl
             Map map = (Map) pce.getNewValue();
             if (map.get(model) != null) 
                 filterNodes((Set) map.get(model));
-        } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY)) {
+        } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY))
             model.setFilterType(((Integer) pce.getNewValue()).intValue());
-        } else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
+        else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
             model.refreshTree();
+        else if (name.equals(FilterWindow.CLOSE_PROPERTY))
+            model.collapse(model.getSelectedDisplay());
     }
     
 }
