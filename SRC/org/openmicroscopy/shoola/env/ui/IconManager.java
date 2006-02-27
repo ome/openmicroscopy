@@ -87,7 +87,21 @@ public class IconManager
 	 */
 	private static final String		SPLASH_SCREEN_LOGIN_OVER = 
 														"graphx/login_over.jpg";
-														
+		
+    /** 
+     * The pathname, relative to this class, of the splash screen cancel button
+     * image. 
+     */
+    private static final String     SPLASH_SCREEN_CANCEL = 
+                                                        "graphx/cancel_out.jpg";
+
+    /** 
+     * The pathname, relative to this class, of the splash screen cancel button
+     * image displayed when the mouse is over the button. 
+     */
+    private static final String     SPLASH_SCREEN_CANCEL_OVER = 
+                                                "graphx/cancel_over.jpg";
+    
 	/** 
 	 * The pathname, relative to this class, of the default error icon to
 	 * use for notification dialogs. 
@@ -234,6 +248,26 @@ public class IconManager
 	{
 		return createIcon(SPLASH_SCREEN_LOGIN_OVER);
 	}
+    
+    /**
+     * Returns the image of the cancel button within the splash screen.
+     * 
+     * @return See above.
+     */
+    static Icon getCancelButton()
+    {
+        return createIcon(SPLASH_SCREEN_CANCEL);
+    }
+    
+    /**
+     * Returns the rollover image of the cancel button within the splash screen.
+     * 
+     * @return See above.
+     */
+    static Icon getCancelButtonOver()
+    {
+        return createIcon(SPLASH_SCREEN_CANCEL_OVER);
+    }
 
 	/**
 	 * Returns the default error icon to use for notification dialogs.
