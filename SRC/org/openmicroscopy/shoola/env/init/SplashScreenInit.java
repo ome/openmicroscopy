@@ -34,6 +34,9 @@ package org.openmicroscopy.shoola.env.init;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginConfig;
@@ -64,7 +67,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 public final class SplashScreenInit
 	extends InitializationTask
-	implements InitializationListener
+	implements ActionListener, InitializationListener
 {
 	
 	/** The splash screen component. */
@@ -89,7 +92,7 @@ public final class SplashScreenInit
 	void configure()
 	{
         initializer.register(this);
-		splashScreen = UIFactory.makeSplashScreen();
+		splashScreen = UIFactory.makeSplashScreen(this);
 		splashScreen.open();
 	}
 
@@ -120,7 +123,7 @@ public final class SplashScreenInit
 	 * Updates the splash screen to the task currently being executed and
 	 * to the number of tasks that have been executed so far.
 	 * 
-	 * @see InitializationListener#onExecute(java.lang.String)
+	 * @see InitializationListener#onExecute(String)
 	 */
 	public void onExecute(String taskName)
 	{
@@ -137,7 +140,6 @@ public final class SplashScreenInit
 	{
 		//Last update with total number of tasks executed.
 		splashScreen.updateProgress("");
-		
 		//Try to log onto OMEDS and retry upon failure for at most as many
         //times as specified in the Container's configuration.
         Registry reg = container.getRegistry();
@@ -165,6 +167,17 @@ public final class SplashScreenInit
         }
 
         //Now get rid of the Splash Screen.
+        splashScreen.close();
+    }
+
+    /**
+     * Reacts to the <code>Cancel</code> action b/c the event might occur after 
+     * the end of the initialization sequence.
+     * @see ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        container.exit();
         splashScreen.close();
     }
     
