@@ -342,7 +342,7 @@ class CBSearchTabView
      * 
      * @return See above.
      */
-    String getSearchValue() { return searchString.getText(); }
+    String getSearchValue() { return searchString.getText().trim(); }
     
     /**
      * Returns the selected searching type.

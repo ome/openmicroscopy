@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -428,9 +429,9 @@ class BrowserComponent
         DefaultTreeModel model = (DefaultTreeModel) 
                 view.getTreeDisplay().getModel();
         TreeImageDisplay root = (TreeImageDisplay) model.getRoot();
-        view.setCursor(BrowserUI.WAIT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         root.accept(visitor, algoType);
-        view.setCursor(BrowserUI.DEFAULT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -479,11 +480,11 @@ class BrowserComponent
             default:
                 throw new IllegalArgumentException("SortType not supported.");
         }
-        view.setCursor(BrowserUI.WAIT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SortCmd cmd = new SortCmd(this, sortType);
         cmd.execute();
         view.setSortedNodes(cmd.getSortedNodes());
-        view.setCursor(BrowserUI.DEFAULT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

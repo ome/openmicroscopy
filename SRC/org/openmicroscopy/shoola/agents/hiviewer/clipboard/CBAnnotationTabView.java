@@ -406,14 +406,14 @@ class CBAnnotationTabView
     {
         List list = getOwnerAnnotation(userIndex);
         AnnotationData data = (AnnotationData) list.get(0);
-        data.setText(annotationText.getText());
+        data.setText(annotationText.getText().trim());
         controller.updateAnnotation(data);
     }
     
     /** Creates a new annotation for the selected object. */
     void create()
     {
-        controller.createAnnotation(annotationText.getText());
+        controller.createAnnotation(annotationText.getText().trim());
     }
     
     /** Deletes the currently selected annotation. */

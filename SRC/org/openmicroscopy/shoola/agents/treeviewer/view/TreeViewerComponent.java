@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Map;
@@ -439,7 +440,7 @@ class TreeViewerComponent
             model.setState(READY);
             fireStateChange();
         }
-        view.setCursor(TreeViewerWin.WAIT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         Browser browser = model.getSelectedBrowser();
         browser.refreshEdition(data, operation);
         if (operation == Editor.UPDATE_OBJECT) {
@@ -455,7 +456,7 @@ class TreeViewerComponent
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
         }
-        view.setCursor(TreeViewerWin.DEFAULT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
     }
 

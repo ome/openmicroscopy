@@ -66,13 +66,6 @@ public class Finder
 	extends JPanel
 {
     
-    /** The default cursor. */
-    private static final Cursor DEFAULT_CURSOR = new Cursor(
-                                                    Cursor.DEFAULT_CURSOR);
-    
-    /** The cursor set the <code>TreeView</code> is visited. */
-    private static final Cursor WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
-    
     /** Bound property indicating that some text has been entered. */
     public static final String 	TEXT_ENTERED_PROPERTY = "textEntered";
     
@@ -264,7 +257,7 @@ public class Finder
     {
         TreeViewer pc = model.getParentComponent();
         if (pc.getSelectedBrowser() == null) return;
-        setCursor(WAIT_CURSOR);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try {
             String findText = model.getFindText();
             Pattern p;
@@ -282,7 +275,7 @@ public class Finder
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Find", "The phrase contains non valid characters.");
         }
-        setCursor(DEFAULT_CURSOR);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
     /** Finds the next occurence of the phrase. */

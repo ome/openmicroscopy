@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -83,13 +82,6 @@ import pojos.GroupData;
 class TreeViewerWin
 	extends TopWindow
 {
-
-    /** The default cursor. */
-    static final Cursor         DEFAULT_CURSOR = new Cursor(
-                                                Cursor.DEFAULT_CURSOR);
-    
-    /** The cursor set the <code>TreeView</code> is visited. */
-    static final Cursor         WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
     
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
