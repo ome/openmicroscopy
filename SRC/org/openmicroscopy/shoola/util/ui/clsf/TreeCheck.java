@@ -209,6 +209,34 @@ public class TreeCheck
         return Collections.unmodifiableSet(set);
     }
     
+    /** Selects all nodes. */
+    public void selectAllNodes()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) getModel();
+        TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
+        Enumeration nodes = root.breadthFirstEnumeration();
+        TreeCheckNode node;
+        while (nodes.hasMoreElements()) {
+            node = (TreeCheckNode) nodes.nextElement();
+            node.setSelected(true);
+        }
+        repaint();
+    }
+    
+    /** Deselects all the nodes. */
+    public void deselectAllNodes()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) getModel();
+        TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
+        Enumeration nodes = root.breadthFirstEnumeration();
+        TreeCheckNode node;
+        while (nodes.hasMoreElements()) {
+            node = (TreeCheckNode) nodes.nextElement();
+            node.setSelected(false);
+        }
+        repaint();
+    }
+    
     /**
      * Overriden to make sure that the root node is a {@link TreeCheckNode}.
      * @see JTree#setModel(TreeModel)
