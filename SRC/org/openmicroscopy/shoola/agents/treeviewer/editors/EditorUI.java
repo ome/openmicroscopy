@@ -334,6 +334,12 @@ public class EditorUI
      */
     private void finish()
     {
+        String s = doBasic.getNameText();
+        if (s == null || s.length() == 0) {
+            doBasic.resetNameArea();
+            handleEmptyNameArea();
+            return;
+        }
         switch (model.getEditorType()) {
             case Editor.CREATE_EDITOR:
                 controller.createObject(fillDataObject());

@@ -103,6 +103,9 @@ class DOBasic
      */
     private DOClassification    classifier;
     
+    /** A {@link DocumentListener} for the {@link #nameArea}. */
+    private DocumentListener    nameAreaListener;
+    
     /** Reference to the View. */
     private EditorUI            view;
     
@@ -173,9 +176,8 @@ class DOBasic
                       classifier);
             }
         }
-        nameArea.getDocument().addDocumentListener(
-                new DocumentListener() {
-
+        nameAreaListener = new DocumentListener() {
+            
             /** 
              * Updates the editor's controlswhen some text is inserted. 
              * @see DocumentListener#insertUpdate(DocumentEvent)
@@ -201,7 +203,8 @@ class DOBasic
              */
             public void changedUpdate(DocumentEvent de) {}
             
-        });
+        };
+        nameArea.getDocument().addDocumentListener(nameAreaListener);
     }   
     
     /**
@@ -336,6 +339,21 @@ class DOBasic
      */
     String getDescriptionText() { return descriptionArea.getText().trim(); }
     
+    /** 
+     * Sets the text to <code>null</code> but we first need to remove the 
+     * {@link DocumentListener} attached to the {@link #nameArea}.
+     * This method is invoked when the user tries to save a object which 
+     * name is only made of spaces.
+     * 
+     *
+     */
+    void resetNameArea()
+    {
+        nameArea.getDocument().removeDocumentListener(nameAreaListener);
+        nameArea.setText(null);
+        nameArea.getDocument().addDocumentListener(nameAreaListener);
+    }
+    
     /** Displays the annotations. */
     void showAnnotations()
     { 
@@ -350,6 +368,7 @@ class DOBasic
         classifier.showClassifications();
     }
     
+    //void resetNameAre
     /** 
      * Adds a listener to the {@link #tabbedPane} as soon as the thumbnail
      * is ready.
