@@ -104,12 +104,17 @@ class SplashScreenView
 	private static final Rectangle	LOGIN_BOUNDS = 
 											new Rectangle(242, 323, 50, 20);
 	
+    /** Absolute positioning and size of the cancel button. */
+    private static final Rectangle  CANCEL_BOUNDS = 
+                                            new Rectangle(172, 323, 50, 20);
+    
 	/** Font for progress bar label and text fields. */
 	private static final Font		FONT = 
 										new Font("SansSerif", Font.PLAIN, 10);
 	/** Font for progress bar label and text fields. */
 	private static final Font		TASK_FONT = 
-										new Font("SansSerif", Font.PLAIN, 8);										
+										new Font("SansSerif", Font.PLAIN, 8);
+    
 	/** The font color for the login text fields. */
 	private static final Color		FONT_COLOR = new Color(250, 100, 0);
 		
@@ -125,6 +130,9 @@ class SplashScreenView
 	/** Login button. */
 	JButton         				login;
 	
+    /** Cancel button. */
+    JButton                         cancel;
+    
 	/** Displays the name of the task that is currently being executed. */
 	JLabel							currentTask;
 	
@@ -132,15 +140,13 @@ class SplashScreenView
 	JProgressBar					progressBar;
 	
 
-	/** 
-	 * Creates the splash screen UI.
-	 */
+	/** Creates the splash screen UI. */
 	SplashScreenView() 
 	{
 		super("Open Microscopy Environment");
 		initProgressDisplay(); 
 		initLoginFields();
-		initLoginButton();
+		initButtons();
 		buildGUI();
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
@@ -176,17 +182,29 @@ class SplashScreenView
 		pass.setForeground(FONT_COLOR);
 	}
     
-	/** 
-	 * Creates and initializes the login button.
-	 */
-	private void initLoginButton()
+    /**
+     * Removes border and margin for the specified button and sets the default
+     * cursor to {@link Cursor#HAND_CURSOR}.
+     * 
+     * @param button The buton to set the default for.
+     */
+    private void setButtonDefault(JButton button)
+    {
+        //Next two statements get rid of surrounding border.
+        button.setBorder(null);
+        button.setMargin(null);  
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+    
+	/** Creates and initializes the login button and the cancel button. */
+	private void initButtons()
 	{
 		login = new JButton(IconManager.getLoginButton());
 		login.setRolloverIcon(IconManager.getLoginButtonOver());
-		//Next two statements get rid of surrounding border.
-		login.setBorder(null);
-		login.setMargin(null);  
-		login.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setButtonDefault(login);
+        cancel = new JButton(IconManager.getCancelButton());
+        cancel.setRolloverIcon(IconManager.getCancelButtonOver());
+        setButtonDefault(cancel);
 	}
     
 	/** 
@@ -212,6 +230,7 @@ class SplashScreenView
 		layers.add(progressBar, new Integer(1));
 		layers.add(user, new Integer(1));
 		layers.add(pass, new Integer(1));
+        layers.add(cancel, new Integer(1));
 		layers.add(login, new Integer(1));
 		
 		//Add components to content pane.
@@ -225,6 +244,7 @@ class SplashScreenView
 		progressBar.setBounds(PROGRESS_BOUNDS);
 		user.setBounds(USER_BOUNDS);
 		pass.setBounds(PASS_BOUNDS);
+        cancel.setBounds(CANCEL_BOUNDS);
 		login.setBounds(LOGIN_BOUNDS);
 	}
 

@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.event.ActionListener;
 
 //Third-party libraries
 
@@ -57,11 +58,12 @@ public class UIFactory
 	/**
 	 * Creates the splash screen that is used at initialization.
 	 * 
-	 * @return	The splash screen.
+     * @param listener  A listener for {@link SplashScreenView#cancel} button.
+	 * @return	        The splash screen.
 	 */
-	public static SplashScreen makeSplashScreen()
+	public static SplashScreen makeSplashScreen(ActionListener listener)
 	{
-		return new SplashScreenProxy();
+		return new SplashScreenProxy(listener);
 	}
 	
 	/**

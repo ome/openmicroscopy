@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.event.ActionListener;
+
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
@@ -63,9 +65,9 @@ public interface SplashScreen
 	public void open();
 	
 	/**
-	 * Gets the component ready for garbage collecion.
+	 * Gets the component ready for garbage collection.
 	 * Closes the splash screen window and disposes of it.
-	 * Also releases any other resource.  Clients shouldn't attempt to
+	 * Also releases any other resource. Clients shouldn't attempt to
 	 * use the splash screen component after invoking this method.
 	 * <p>This call is asynchronous, that is, the caller can proceed straight
 	 * after invocation without having to wait for this method to be actually
@@ -103,10 +105,10 @@ public interface SplashScreen
 	 * Returns the login credentials of the user.
 	 * Blocks the caller until the credentials have been entered.
 	 * 
-     * @param init Pass <code>true</code> to retrieve the user credentials for
+     * @param init Passed <code>true</code> to retrieve the user credentials for
      *             the time, <code>false</code> otherwise.
 	 * @return	The user's credentials for logging into OME.
 	 */
 	public UserCredentials getUserCredentials(boolean init);
-	
+    
 }

@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.event.ActionListener;
 import javax.swing.SwingUtilities;
 
 //Third-party libraries
@@ -117,14 +118,18 @@ class SplashScreenProxy
 	 * to avoid writing the code for checking this.
 	 */
     
-	
+	private SplashScreenFuture future;
+    
 	/**
 	 * Creates the proxy, the servant and configures the servant with a
 	 * Future for later collection of user credentials. 
+     * 
+     * @param listener A listener for {@link SplashScreenView#cancel} button.
 	 */
-	SplashScreenProxy()
+	SplashScreenProxy(ActionListener listener)
 	{
-		servant = new SplashScreenManager();
+		servant = new SplashScreenManager(listener);
+        future = new SplashScreenFuture();
 		isValid = false;
 	}
 
@@ -214,8 +219,8 @@ class SplashScreenProxy
 		//If not we return to prevent deadlock.
 		if (!isValid) return null;  
 		
-        //Construct request of mehtod execution.
-        final SplashScreenFuture future = new SplashScreenFuture();
+        //Construct request of method execution.
+        //final SplashScreenFuture future = new SplashScreenFuture();
         Runnable doCollectUserCredentials = new Runnable() {
             public void run() { servant.collectUserCredentials(future, init); }
         };

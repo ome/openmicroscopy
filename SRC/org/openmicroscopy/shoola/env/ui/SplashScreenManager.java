@@ -67,7 +67,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 class SplashScreenManager
 	implements ActionListener
 {
-	
+    
 	/** The component's UI. */
 	private SplashScreenView	view;
 	
@@ -88,13 +88,16 @@ class SplashScreenManager
 	 * Creates the splash screen component.
 	 * Creates a new instance of this manager, of its corresponding UI
 	 * ({@link SplashScreenView}), and links them as needed.
+     * 
+     * @param listener A listener for {@link SplashScreenView#cancel} button.
 	 */
-	SplashScreenManager()
+	SplashScreenManager(ActionListener listener)
 	{
 		view = new SplashScreenView();
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
 		view.login.addActionListener(this);
+        view.cancel.addActionListener(listener);
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -183,6 +186,20 @@ class SplashScreenManager
         view.login.setEnabled(true);
     }
     
+    /**
+     * Returns <code>true</code> if the login sequence is cancelled,
+     * <code>false</code> otherwise.
+     * 
+     * @param future The Future to collect the information.
+     */
+    void isCancelled(SplashScreenFuture future)
+    { 
+        userCredentials = future; 
+        view.user.setEnabled(false);
+        view.pass.setEnabled(false);
+        view.login.setEnabled(false);
+    }
+    
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
@@ -201,6 +218,7 @@ class SplashScreenManager
                 view.user.setEnabled(false);
                 view.pass.setEnabled(false);
                 view.login.setEnabled(false);
+                view.cancel.setEnabled(false);
             }
         } catch (IllegalArgumentException iae) {
             UserNotifier un = UIFactory.makeUserNotifier();
