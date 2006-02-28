@@ -432,7 +432,8 @@ class TaskBarView
 	{
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		pack();
-		UIUtilities.centerAndShow(this);
+        UIUtilities.centerAndShow(this);
+        iconify();
 	}
 
     /**

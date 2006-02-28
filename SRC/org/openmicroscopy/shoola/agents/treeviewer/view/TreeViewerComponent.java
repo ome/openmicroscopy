@@ -43,7 +43,6 @@ import javax.swing.JDialog;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
@@ -132,7 +131,6 @@ class TreeViewerComponent
         switch (model.getState()) {
 	        case NEW:
                 view.open();
-                TreeViewerAgent.getRegistry().getTaskBar().iconify();
 	            break;
 	        case DISCARDED:
                 throw new IllegalStateException(
@@ -476,12 +474,12 @@ class TreeViewerComponent
         }
         removeEditor(); //remove the currently selected editor.
         Browser browser = model.getSelectedBrowser();
-        view.setCursor(TreeViewerWin.WAIT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         if (browser != null) {
             browser.accept(new ClearVisitor());
             browser.setFoundInBrowser(null); 
         }
-        view.setCursor(TreeViewerWin.DEFAULT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -507,12 +505,12 @@ class TreeViewerComponent
         Map browsers = model.getBrowsers();
         Iterator b = browsers.keySet().iterator();
         Browser browser;
-        view.setCursor(TreeViewerWin.WAIT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         while (b.hasNext()) {
             browser = (Browser) browsers.get(b.next());
             browser.refreshClassification(image, categories, mode);
         }
-        view.setCursor(TreeViewerWin.DEFAULT_CURSOR);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**

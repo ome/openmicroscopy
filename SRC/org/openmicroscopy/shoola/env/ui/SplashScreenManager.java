@@ -186,20 +186,6 @@ class SplashScreenManager
         view.login.setEnabled(true);
     }
     
-    /**
-     * Returns <code>true</code> if the login sequence is cancelled,
-     * <code>false</code> otherwise.
-     * 
-     * @param future The Future to collect the information.
-     */
-    void isCancelled(SplashScreenFuture future)
-    { 
-        userCredentials = future; 
-        view.user.setEnabled(false);
-        view.pass.setEnabled(false);
-        view.login.setEnabled(false);
-    }
-    
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
