@@ -39,7 +39,7 @@ import ome.api.IPixels;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.Model;
+import ome.model.enums.RenderingModel;;
 
 /** 
  * 
@@ -94,14 +94,14 @@ public class PixelsServiceTest
         r.setDefaultZ(1);
         r.setPixels(p); 
         
-        Model m = new Model();
+        RenderingModel m = new RenderingModel();
         m.setValue("test");
         r.setModel(m);
 
         QuantumDef qd = new QuantumDef();
         qd.setBitResolution(1);
         qd.setCdStart(1);
-        qd.setCdStop(1);
+        qd.setCdEnd(1);
         
         r.setQuantization(qd);
         return r;

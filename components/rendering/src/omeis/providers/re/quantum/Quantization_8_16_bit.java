@@ -187,7 +187,7 @@ public class Quantization_8_16_bit
 		//domain
 		double dStart = getWindowStart(), dEnd = getWindowEnd(); 
 		double k = getCurveCoefficient();
-		double a1 = (qDef.getCdStop().intValue()-qDef.getCdStart().intValue())/qDef.getBitResolution().doubleValue(); 
+		double a1 = (qDef.getCdEnd().intValue()-qDef.getCdStart().intValue())/qDef.getBitResolution().doubleValue(); 
 
         //Initializes the normalized map.
         initNormalizedMap(k);
@@ -208,13 +208,13 @@ public class Quantization_8_16_bit
                     v = Approximation.nearestInteger(v);
                     v = Approximation.nearestInteger(a1*v+qDef.getCdStart().intValue());
                 }    
-                else v = qDef.getCdStop().intValue();
+                else v = qDef.getCdEnd().intValue();
             } else v = qDef.getCdStart().intValue();
             
             LUT[x-min] = (byte) v;
 		}
 		
-		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.getCdStop().intValue(); 
+		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.getCdEnd().intValue(); 
 	}
 
     

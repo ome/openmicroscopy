@@ -16,7 +16,7 @@
       <manyone name="pixels" type="ome.model.core.Pixels"/>
 			<required name="defaultZ" type="int"/>
 			<required name="defaultT" type="int"/>
-			<required name="model" type="ome.model.enums.Model"/>
+			<required name="model" type="ome.model.enums.RenderingModel"/>
 			<onemany name="waveRendering" 
         type="ome.model.display.ChannelBinding" ordered="true">
         <rule id="CHANNEL_BINDING_CARD" type="cardinality"
@@ -32,7 +32,7 @@
 	<type id="ome.model.display.QuantumDef">
 		<properties>
 			<required name="cdStart" type="int"/>
-			<required name="cdStop" type="int"/>
+			<required name="cdEnd" type="int"/>
 			<required name="bitResolution" type="int"/>
 			<rules/>
 		</properties>
@@ -67,14 +67,14 @@
   
 	<abstract id="ome.model.display.CodomainMapContext"/>
   
-	<type id="ome.model.display.RIContext" 
+	<type id="ome.model.display.ReverseIntensityContext" 
     superclass="ome.model.display.CodomainMapContext">
 		<properties>
 			<required name="reverse" type="boolean"/>
 		</properties>
 	</type>
   
-	<type id="ome.model.display.PSContext" 
+	<type id="ome.model.display.PlaneSlicingContext" 
     superclass="ome.model.display.CodomainMapContext">
 		<properties>
 			<required name="upperLimit" type="int"/>
@@ -85,7 +85,7 @@
 		</properties>
 	</type>
   
-	<type id="ome.model.display.CSContext" 
+	<type id="ome.model.display.ContrastStretchingContext" 
     superclass="ome.model.display.CodomainMapContext">
 		<properties>
 			<required name="xstart" type="int"/>
@@ -100,7 +100,7 @@
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   
-	<enum id="ome.model.enums.Model">
+	<enum id="ome.model.enums.RenderingModel">
 		<entry name="rgb"/>
 		<entry name="hsb"/>
 		<entry name="greyscale"/>

@@ -93,7 +93,7 @@ public class Helper
         QuantumDef qDef = new QuantumDef();
         qDef.setBitResolution(new Integer(QuantumFactory.DEPTH_8BIT));
         qDef.setCdStart(new Integer(0));
-        qDef.setCdStop(new Integer(QuantumFactory.DEPTH_8BIT));
+        qDef.setCdEnd(new Integer(QuantumFactory.DEPTH_8BIT));
         
         ChannelBindings[] waves = new ChannelBindings[c_size];
         PixTStatsEntry wGlobal;

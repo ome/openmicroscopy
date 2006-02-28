@@ -93,6 +93,9 @@
 	<type id="ome.model.core.PlaneInfo">
 		<properties>
       <manyone name="pixels" type="ome.model.core.Pixels"/>
+      <required name="theZ" type="int"/>
+      <required name="theC" type="int"/>
+      <required name="theT" type="int"/>
 			<required name="timestamp" type="float"/>
 			<optional name="exposureTime" type="float"/><!-- TODO: see mac notes -->
 		</properties>
@@ -133,7 +136,7 @@
   <type id="ome.model.acquisition.AcquisitionContext">
 		<properties>
 			<required name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
-			<required name="mode" type="ome.model.enums.Mode"/>      
+			<required name="mode" type="ome.model.enums.AcquisitionMode"/>      
 		</properties>
 	</type>
 
@@ -162,14 +165,13 @@
 			<optional name="emissionWave" type="int"/>
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="float"/>
+      <optional name="otf" type="ome.model.acquisition.OTF"/>
 			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings">
         <rule id="DETECTOR_SETTINGS_REQ" type="conditionalNull"
           description="if defined, the instrument must be defined"/>
       </optional>
-			<zeromany name="lightSettings" type="ome.model.acquisition.LightSettings">
-        <rule id="LIGHT_SETTINGS_CARDINALITY" type="cardinality"
-          description="0-2"/> <!-- TODO: should we not have two nullabls? -->
-      </zeromany>
+      <optional name="lightSource" type="ome.model.acquisition.LightSettings"/>
+      <optional name="auxLightSource" type="ome.model.acquisition.LightSettings"/>      
 		</properties>
 	</type>
 	
@@ -194,7 +196,7 @@
 		<properties>
 			<required name="sizeX" type="int"/>
 			<required name="sizeY" type="int"/>
-			<required name="optionalAxisAvg" type="boolean"/>
+			<required name="opticalAxisAvg" type="boolean"/>
 			<required name="pixelType" type="ome.model.enums.PixelsType"/>
 			<required name="path" type="string"/><!-- TODO: no FK? -->
       <!-- TODO: rule to check image_link_objective ? -->
@@ -235,7 +237,7 @@
 		<properties>
 			<required name="frequencyDoubled" type="boolean"/>
 			<required name="tunable" type="boolean"/>
-			<optional name="pulse" type="ome.model.enums.PulseType"/>
+			<optional name="pulse" type="ome.model.enums.Pulse"/>
 			<optional name="pump" type="ome.model.acquisition.Laser"/>
 		</properties>
 	</abstract>
@@ -314,10 +316,10 @@
 			<required name="magnificiation" type="double"/>
 			<required name="lensNA" type="float"/>
 			<optional name="aberrationCorrection"
-				type="ome.model.enums.ACType"/>
-			<optional name="correctionCollar" type="ome.model.enums.CCType"/>
-			<optional name="irisDiaphragm" type="ome.model.enums.IDType"/>
-			<optional name="immersionMedium" type="ome.model.enums.IMType"/>
+				type="ome.model.enums.AberrationCorrection"/>
+			<optional name="correctionCollar" type="ome.model.enums.CorrectionCollar"/>
+			<optional name="irisDiaphragm" type="ome.model.enums.IrisDiaphragm"/>
+			<optional name="immersionMedium" type="ome.model.enums.ImmersionMedium"/>
 			<optional name="phaseCondenserAnnulus" type="int"/>
 		</properties>
 	</type>
@@ -338,7 +340,7 @@
   
 	<type id="ome.model.acquisition.Filter">
 		<properties>
-			<optional name="customized" type="boolean"/>
+			<required name="customized" type="boolean"/>
       <optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
       <optional name="customizedFilterSet" 
         type="ome.model.acquisition.CustomizedFilterSet"/>
@@ -410,7 +412,7 @@
 	</enum>  
     
   <!-- Object Entity -->
-  <enum id="ome.model.enums.ACType">
+  <enum id="ome.model.enums.AberrationCorrection">
 		<entry name="Achro"/>
 		<entry name="Achromat"/>
 		<entry name="Fluor"/>
@@ -421,25 +423,26 @@
     <entry name="Apo"/>
 	</enum>
   
-  <enum id="ome.model.enums.CCType">
+  <enum id="ome.model.enums.CorrectionCollar">
 		<entry name="Corr"/>
 		<entry name="W/Corr"/>
 		<entry name="CR"/>
 	</enum>
   
-	<enum id="ome.model.enums.IDType">
+	<enum id="ome.model.enums.IrisDiaphragm">
 		<entry name="I"/>
 		<entry name="Iris"/>
 		<entry name="W/Iris"/>
 	</enum>
 
-	<enum id="ome.model.enums.IMType">
+	<enum id="ome.model.enums.ImmersionMedium">
 		<entry name="Oil"/>
 		<entry name="Oel"/>
 		<entry name="Water"/>
 		<entry name="Wasser"/>
 		<entry name="Hl"/>
     <entry name="Gly"/>
+    <entry name="Wl"/>    
   </enum>
   
   <!-- OriginalFile Entity -->
@@ -484,7 +487,7 @@
 		<entry name="Monochrome"/>
 	</enum>
 
-  <enum id="ome.model.enums.Mode">
+  <enum id="ome.model.enums.AcquisitionMode">
 		<entry name="Wide-field"/>
 		<entry name="LaserScanningMicroscopy"/>
 		<entry name="LaserScanningConfocal"/>
@@ -551,7 +554,7 @@
 	</enum>
 	
   <!-- Laser Entity -->
-	<enum id="ome.model.enums.PulseType">
+	<enum id="ome.model.enums.Pulse">
 		<entry name="CW"/>
 		<entry name="Single"/>
 		<entry name="Q-Switched"/>
@@ -590,7 +593,7 @@
   
 	<enum id="ome.model.acquisition.GasLaserMedia">
 		<entry name="Nitrogen"/>
-		<entry name="Argo"/>
+		<entry name="Argon"/>
 		<entry name="Krypton"/>
 		<entry name="Xenon"/>
 		<entry name="HeNe"/>

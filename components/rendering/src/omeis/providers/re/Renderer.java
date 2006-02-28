@@ -184,7 +184,7 @@ public class Renderer
         computeLocationStats(getDefaultPlaneDef());
         
         //Create and configure the codomain chain.
-        codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd.getCdStop().intValue(),
+        codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd.getCdEnd().intValue(),
                                           rndDef.getSpatialDomainEnhancement());
         
         
@@ -463,7 +463,7 @@ public class Renderer
         newQd = new QuantumDef();
         newQd.setBitResolution(Integer.valueOf(bitResolution));
         newQd.setCdStart(qd.getCdStart());
-        newQd.setCdStop(qd.getCdStop());
+        newQd.setCdEnd(qd.getCdEnd());
         rd.setQuantization(newQd);
         updateQuantumManager();
     }
@@ -477,7 +477,7 @@ public class Renderer
         newQd = new QuantumDef();
         newQd.setBitResolution(qd.getBitResolution());
         newQd.setCdStart(Integer.valueOf(start));
-        newQd.setCdStop(Integer.valueOf(end));
+        newQd.setCdEnd(Integer.valueOf(end));
         rd.setQuantization(newQd);
         CodomainMapContext mapCtx;
         Iterator i = rd.getSpatialDomainEnhancement().iterator();

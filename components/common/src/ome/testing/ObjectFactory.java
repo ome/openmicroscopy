@@ -8,8 +8,8 @@ import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
-import ome.model.enums.Mode;
 import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
@@ -18,6 +18,9 @@ import ome.model.internal.Details;
 /** these method serve as a both client and test data store.
  * An object that has no id is "new"; an object with an id is detached 
  * and can represent something serialized from IQuery.
+ * 
+ * NOTE: this is a bit dangerous, causing model builds to fail sometimes.
+ * where else could it live?
  */
 public class ObjectFactory
 {
@@ -27,7 +30,7 @@ public class ObjectFactory
         Pixels p = new Pixels();
         AcquisitionContext ac = new AcquisitionContext();
         PhotometricInterpretation pi = new PhotometricInterpretation();
-        Mode mode = new Mode();
+        AcquisitionMode mode = new AcquisitionMode();
         PixelsType pt = new PixelsType();
         DimensionOrder dO = new DimensionOrder();
         PixelsDimensions pd = new PixelsDimensions();

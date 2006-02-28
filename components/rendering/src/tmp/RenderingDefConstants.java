@@ -32,7 +32,7 @@ package tmp;
 import java.util.HashMap;
 import java.util.Map;
 
-import ome.model.enums.Model;
+import ome.model.enums.RenderingModel;
 
 
 public class RenderingDefConstants
@@ -62,14 +62,14 @@ public class RenderingDefConstants
         Models.put("RGB",Integer.valueOf(RGB));
         Models.put("HSB",Integer.valueOf(HSB));
     }
-    public static int convertType(Model type)
+    public static int convertType(RenderingModel type)
     {
         return ((Integer) Models.get(type.getValue())).intValue();
     }
     
-    public static Model convertToType(int model)
+    public static RenderingModel convertToType(int model)
     {
-        Model type = new Model();
+        RenderingModel type = new RenderingModel();
         type.setValue(models[model]);
         // FIXME 
         return type;
