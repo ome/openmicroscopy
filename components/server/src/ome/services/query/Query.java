@@ -39,7 +39,9 @@ package ome.services.query;
 // Java imports
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -73,46 +75,46 @@ public abstract class Query implements HibernateCallback
     private static Log log = LogFactory.getLog(Query.class);
     
     public final static String OWNER_ID = "ownerId"; // TODO from Fitlers I/F
+
     // For Criteria
     public final static FetchMode FETCH = FetchMode.JOIN;
     public final static int LEFT_JOIN = Criteria.LEFT_JOIN;
     public final static int INNER_JOIN = Criteria.INNER_JOIN;
     
-    protected Map options;
-    protected QueryParameterDef[] defs;
-    protected QueryParameter[] qps;
+    // FOR DEFINITIONS
+    protected static Map<String, QueryParameterDef> defs; 
+    protected static void addDefinition(QueryParameterDef qpDef)
+    {
+        if ( defs == null )
+            defs = new HashMap<String, QueryParameterDef>();            
+        defs.put( qpDef.name, qpDef );
+    }
+    
+    protected Map<String, QueryParameter> qps 
+        = new HashMap<String, QueryParameter>();
 
     private Query() { /* have to have the Parameters */ }
     public Query(QueryParameter... parameters)
     {
-        this.options = options; // TODO
-        this.qps = parameters;
-        defineParameters();
+        if ( parameters != null)
+            for (QueryParameter parameter : parameters)
+            {
+                qps.put( parameter.name, parameter );
+            }
         checkParameters();
     }
     
-    public int find(String name){
-        for (int i = 0; i < qps.length; i++)
-        {
-            if (qps[i].name.equals(name))
-                return i;
-        }
-        throw new IllegalArgumentException("Unknown parameter: "+name);
-    }
-    
     public boolean check(String name){
-        return qps[find(name)].value == null ? false : true;
+        return defs.containsKey(name);
     }
     
     public QueryParameter get(String name){
-        return qps[find(name)];
+        return qps.get(name);
     }
     
     public Object value(String name){
-        return qps[find(name)].value;
+        return qps.get(name).value;
     }
-    
-    protected abstract void defineParameters();
     
     protected void checkParameters(){
         
@@ -125,39 +127,17 @@ public abstract class Query implements HibernateCallback
                     "Null arrays "+
                     "are not valid for definitions.");
         
-        if (defs.length > qps.length)
+        if (! qps.keySet().containsAll( defs.keySet() ) )
             throw new IllegalArgumentException(
-                    "As many Query parameters needed " +
-                    "as Query parameter defitions. Currently missing "+
-                    (defs.length-qps.length));
+                    "Required parameters missing from query:"+
+                    new HashSet( qps.keySet() ).removeAll( defs.keySet() ));
         
-        for (int i = 0; i < defs.length; i++)
+        for (String name : defs.keySet())
         {
-            QueryParameter parameter = qps[i];
-            QueryParameterDef def = defs[i];
+            QueryParameter parameter = qps.get( name );
+            QueryParameterDef def = defs.get( name );
             
-            if (!def.name.equals(parameter.name))
-                throw new IllegalArgumentException(
-                        String.format(
-                        " Parameter name %d doesn't match: %s != %s",
-                        i,def.name,parameter.name
-                        ));
-
-            
-            if ( parameter.type == null )
-            {
-                if (! def.optional)
-                    throw new IllegalArgumentException("Parameter type cannot " +
-                            "be null if not optional.");
-                
-            } else {
-                if (!def.type.isAssignableFrom(parameter.type))
-                        throw new IllegalArgumentException(
-                                String.format(
-                                        " Parameter type %d doesn't match: %s != %s",
-                                        i,def.type,parameter.type));
-            
-            }
+            def.errorIfInvalid( parameter );
                 
         }
         
@@ -211,46 +191,50 @@ class Hierarchy {
         PARENTS.put(CategoryGroup.class, Arrays.asList("categoryLinks","categoryGroupLinks"));
     }
  
-    public static void fetchParents(Criteria c, Class klass, int stopDepth){
+    public static Criteria[] fetchParents(Criteria c, Class klass, int stopDepth){
 
         if (!PARENTS.containsKey(klass))
             throw new IllegalStateException("Invalid class for parent hierarchy");
         
-        walk(c,PARENTS.get(klass),"parent",
-                Math.min(stopDepth,DEPTH.get(klass)), Query.LEFT_JOIN);
+        return walk(c,PARENTS.get(klass),"parent", Math.min(stopDepth,
+                DEPTH.get(klass)), Query.LEFT_JOIN);
     }
     
-    public static void fetchChildren(Criteria c, Class klass, int stopDepth){
+    public static Criteria[] fetchChildren(Criteria c, Class klass, int stopDepth){
         
         if (!CHILDREN.containsKey(klass))
             throw new IllegalStateException("Invalid class for child hierarchy");
         
-        walk(c,CHILDREN.get(klass), "child", Math.min(stopDepth, DEPTH.get(klass)), Query.LEFT_JOIN);
+        return walk(c,CHILDREN.get(klass), "child", Math.min(stopDepth, 
+                DEPTH.get(klass)), Query.LEFT_JOIN);
     }
 
     // TODO used?
-    public static void joinParents(Criteria c, Class klass, int stopDepth){
+    public static Criteria[] joinParents(Criteria c, Class klass, int stopDepth){
 
         if (!PARENTS.containsKey(klass))
             throw new IllegalStateException("Invalid class for parent hierarchy");
         
-        walk(c,PARENTS.get(klass),"parent",
-                Math.min(stopDepth,DEPTH.get(klass)), Query.INNER_JOIN);
+        return walk(c,PARENTS.get(klass),"parent", Math.min(stopDepth,
+                DEPTH.get(klass)), Query.INNER_JOIN);
     }
     
-    public static void joinChildren(Criteria c, Class klass, int stopDepth){
+    public static Criteria[] joinChildren(Criteria c, Class klass, int stopDepth){
         
         if (!CHILDREN.containsKey(klass))
             throw new IllegalStateException("Invalid class for child hierarchy");
         
-        walk(c,CHILDREN.get(klass), "child", Math.min(stopDepth, DEPTH.get(klass)), Query.INNER_JOIN);
+        return walk(c,CHILDREN.get(klass), "child", Math.min(stopDepth, 
+                DEPTH.get(klass)), Query.INNER_JOIN);
     }
     
-    private static void walk(Criteria c, List<String> links, String step, int depth, int joinStyle)
+    private static Criteria[] walk(Criteria c, List<String> links, String step, 
+            int depth, int joinStyle)
     {
-        String[][] path = new String[links.size()][2];
+        String[][] path = new String[depth*2][2];
+        Criteria[] retVal = new Criteria[depth*2];
         
-        for (int i = 0; i < path.length; i++)
+        for (int i = 0; i < depth; i++)
         {
             path[i][0] = ( i > 0 ? path[i-1][1] + "." : "" ) + links.get(i);
             path[i][1] = path[i][0]+"."+step;
@@ -259,13 +243,13 @@ class Hierarchy {
         switch (depth)
         {
             case 2:
-                    c.createCriteria(path[1][1],joinStyle);
-                    c.createCriteria(path[1][0],joinStyle);
+                    retVal[3] = c.createCriteria(path[1][1],joinStyle);
+                    retVal[2] = c.createCriteria(path[1][0],joinStyle);
             case 1:
-                    c.createCriteria(path[0][1],joinStyle);
-                    c.createCriteria(path[0][0],joinStyle);
+                    retVal[1] = c.createCriteria(path[0][1],joinStyle);
+                    retVal[0] = c.createCriteria(path[0][0],joinStyle);
             case 0:
-                return;
+                return retVal;
             default:
                 throw new RuntimeException("Unhandled container depth.");
         }

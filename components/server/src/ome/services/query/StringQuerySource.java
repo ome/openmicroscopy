@@ -85,17 +85,14 @@ public class StringQuerySource extends QuerySource
 class StringQuery extends Query 
 {
 
+    static {
+        addDefinition(new QueryParameterDef("string", String.class, false));
+    }
+    
     public StringQuery(QueryParameter...parameters ){
         super(parameters);
     }
-    
-    @Override
-    protected void defineParameters()
-    {
-        this.defs = new QueryParameterDef[]{
-                new QueryParameterDef("string",String.class,false)
-        };
-    }
+
     @Override
     protected Object runQuery(Session session) 
         throws HibernateException, SQLException

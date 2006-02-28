@@ -1,60 +1,49 @@
 package ome.services.query;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateCallback;
 
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
-import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.util.builders.PojoOptions;
 
 public class PojosFindAnnotationsQueryDefinition extends Query
 {
 
-    public final static Map<Class,Class> typeToAnnotationType 
-        = new HashMap<Class,Class>();
-    
-    public final static Map<Class,String> annotationTypeToPath
-        = new HashMap<Class,String>();
-    
     static {
-        typeToAnnotationType.put(Image.class,ImageAnnotation.class);
-        annotationTypeToPath.put(ImageAnnotation.class,"image");
-        typeToAnnotationType.put(Dataset.class,DatasetAnnotation.class);
-        annotationTypeToPath.put(DatasetAnnotation.class,"dataset");
-        // TODO this should come from meta-analysis as with hierarchy
-        
+        addDefinition(new IdsQueryParameterDef());
+        addDefinition(new OptionsQueryParameterDef());
+        addDefinition(new QueryParameterDef(QP.CLASS,Class.class,false));
+        addDefinition(new QueryParameterDef("annotatorIds",Collection.class,true));
     }
-    
+        
     public PojosFindAnnotationsQueryDefinition(QueryParameter... parameters)
     {
         super(parameters);
         // TODO set local fields here.
     }
-    
-    protected void defineParameters(){
-        // TODO if defs were ArrayList then method add(String,Class,boolean) 
-        defs = new QueryParameterDef[]{
-                new QueryParameterDef(QP.CLASS,Class.class,false),
-                new QueryParameterDef(QP.IDS,Collection.class,false),
-                new QueryParameterDef("annotatorIds",Collection.class,true),
-                new QueryParameterDef(QP.OPTIONS,Map.class,true)
-        };
+
+    public final static Map<Class,Class> typeToAnnotationType 
+    = new HashMap<Class,Class>();
+
+    public final static Map<Class,String> annotationTypeToPath
+    = new HashMap<Class,String>();
+
+    static {
+        typeToAnnotationType.put(Image.class,ImageAnnotation.class);
+        annotationTypeToPath.put(ImageAnnotation.class,"image");
+        typeToAnnotationType.put(Dataset.class,DatasetAnnotation.class);
+        annotationTypeToPath.put(DatasetAnnotation.class,"dataset");
+        //  TODO this should come from meta-analysis as with hierarchy
     }
     
     @Override

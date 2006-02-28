@@ -16,13 +16,13 @@ public class UpdateTest extends AbstractUpdateTest
     public void testSaveSimpleObject() throws Exception
     {
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p = (Pixels) _up.saveAndReturnObject(p); 
+        p = (Pixels) iUpdate.saveAndReturnObject(p); 
         flush();
 
         Set logs = CurrentDetails.getCreationEvent().getLogs();
         assertTrue(logs.size() > 0);
 
-        Pixels check = (Pixels) _qu.queryUnique(
+        Pixels check = (Pixels) iQuery.queryUnique(
                 "select p from Pixels p " +
                 " left outer join fetch p.acquisitionContext " +
                 " left outer join fetch p.channels " +

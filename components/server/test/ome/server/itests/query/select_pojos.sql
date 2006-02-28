@@ -39,3 +39,41 @@ where
 
 ;
 
+select 
+	'CG' as CG ,
+	cg.id as cg ,
+	cg_o.id as cg_owner ,
+	cg_g.id as cg_group ,
+	'C' as C ,
+	c.id as c ,
+	c_o.id as c_owner ,
+	c_g.id as c_group ,
+	'Img' as Img,
+	i.id as img,
+	i_o.id as i_owner ,
+	i_g.id as i_group ,
+	ia.id as iann, 
+	ia.owner_id as iann_owner ,
+	ia.group_id as iann_group 
+
+from 
+	categorygroup cg
+	
+	join experimenter cg_o on (cg_o.id = cg.owner_id)
+	join experimentergroup cg_g on (cg_g.id = cg.group_id)
+	join categorygroupcategorylink l on (cg.id = l.parent) 
+	join category c on (l.child = c.id) 
+	join experimenter c_o on (c.owner_id = c_o.id) 
+	join experimentergroup c_g on (c.group_id = c_g.id) 
+	join categoryimagelink l2 on (l2.parent = c.id) 
+	join image i on (l2.child = i.id) 
+	join experimenter i_o on (i.owner_id = i_o.id)
+	join experimentergroup i_g on (i.group_id = i_g.id)
+	join imageannotation ia on (i.id = ia.image)
+
+where 
+	cg.id between 9000 and 9999
+
+;
+
+

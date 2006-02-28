@@ -23,18 +23,16 @@ import ome.util.builders.PojoOptions;
 
 public class PojosLoadHierarchyQueryDefinition extends Query
 {
+
+    static { // TODO same as findHierarchy
+        addDefinition(new IdsQueryParameterDef());
+        addDefinition(new OptionsQueryParameterDef());
+        addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
+    }
     
     public PojosLoadHierarchyQueryDefinition(QueryParameter... parameters)
     {
         super(parameters);
-    }
-    
-    protected void defineParameters(){
-        defs = new QueryParameterDef[]{
-                new QueryParameterDef(QP.CLASS,Class.class,false),
-                new QueryParameterDef(QP.IDS,Collection.class,false),
-                new QueryParameterDef(QP.OPTIONS,Map.class,true)
-        };
     }
 
     @Override

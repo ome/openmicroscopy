@@ -13,21 +13,17 @@ import ome.model.core.Image;
 
 public class PojosFindHierarchiesQueryDefinition extends Query
 {
-    
+
+    static {
+        addDefinition(new IdsQueryParameterDef());
+        addDefinition(new OptionsQueryParameterDef());
+        addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
+    }
 
     public PojosFindHierarchiesQueryDefinition(QueryParameter... parameters)
     {
         super(parameters);
     }  
-
-    @Override
-    protected void defineParameters()
-    {
-        defs = new QueryParameterDef[] {
-                new QueryParameterDef(QP.CLASS, Class.class, false),
-                new QueryParameterDef(QP.IDS, Collection.class, false),
-                new QueryParameterDef(QP.OPTIONS, Map.class, true) };
-    }
 
     @Override
     protected Object runQuery(Session session) throws HibernateException, SQLException

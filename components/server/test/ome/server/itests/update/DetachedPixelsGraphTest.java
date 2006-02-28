@@ -32,7 +32,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         example = ObjectFactory.createPixelGraph(null);
         assertNotNull("need to start off with acq. ctx", example
                 .getAcquisitionContext());
-        example = (Pixels) _up.saveAndReturnObject(example);
+        example = (Pixels) iUpdate.saveAndReturnObject(example);
         flush();
         clear();
 
@@ -49,7 +49,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     {
         // PREPARE ----------------------------------------------
         p.setRelatedTo(ObjectFactory.createPixelGraph(null));
-        p = (Pixels) _up.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
@@ -57,7 +57,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         assertTrue("Related-to is null",p.getRelatedTo()!=null);
         assertTrue("or it has no id",p.getRelatedTo().getId().longValue()>0);
         
-        long id = _jt.queryForLong("select relatedto from pixels where id = ?",
+        long id = jdbcTemplate.queryForLong("select relatedto from pixels where id = ?",
                 new Object[]{p.getId()});
         assertTrue("Id *really* has to be there.",
                 p.getRelatedTo().getId().longValue()==id);
@@ -68,14 +68,14 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         // PREPARE ----------------------------------------------
         // Make field entry; we have to re-do what is done in setup above.
         Pixels example2 = ObjectFactory.createPixelGraph(null);
-        example2 = (Pixels) _up.saveAndReturnObject(example2);
+        example2 = (Pixels) iUpdate.saveAndReturnObject(example2);
         flush();
         clear();
         prepareCurrentDetails();
         Pixels p2 = ObjectFactory.createPixelGraph(example2);
         
         p.setRelatedTo(p2);
-        p = (Pixels) _up.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
@@ -94,7 +94,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         pd.setSizeZ(new Float(3));
         
         p.setPixelsDimensions(pd);
-        p = (Pixels) _up.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
@@ -114,7 +114,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         ac.unload();
         
         p.setAcquisitionContext(ac);
-        _up.saveAndReturnObject(p);
+        iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
@@ -128,7 +128,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     {
         // PREPARE -------------------------------------------------
         p.setChannels(null);
-        p = (Pixels) _up.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
@@ -146,7 +146,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         p.getDetails().addFiltered(Pixels.CHANNELS);
         
         // Save and it should be back
-        p = (Pixels) _up.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
@@ -176,7 +176,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         pi2.setTimestamp(new Float(-193));
         
         p.setPlaneInfo(infos);
-        p = (Pixels) _up.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         

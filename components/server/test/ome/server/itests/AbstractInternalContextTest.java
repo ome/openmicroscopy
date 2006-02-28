@@ -7,8 +7,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 
-import ome.api.IQuery;
-import ome.api.IUpdate;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.model.enums.EventType;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -30,21 +30,21 @@ public class AbstractInternalContextTest
         return OmeroContext.getInternalServerContext();
     }
 
-    protected SessionFactory                _sf;
-    protected Session                       _s;
-    protected IQuery                        _qu;
-    protected IUpdate                       _up;
-    protected JdbcTemplate                  _jt;
+    private   Session                       session;    
+    protected SessionFactory                sessionFactory;
+    protected LocalQuery                    iQuery;
+    protected LocalUpdate                   iUpdate;
+    protected JdbcTemplate                  jdbcTemplate;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception
     {
-        _sf = (SessionFactory) applicationContext.getBean("sessionFactory");
-        _jt = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
+        sessionFactory = (SessionFactory) applicationContext.getBean("sessionFactory");
+        jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
         
         // This is an internal test we don't want the wrapped spring beans. 
-        _qu = (IQuery) applicationContext.getBean("ome.api.IQuery");
-        _up = (IUpdate) applicationContext.getBean("ome.api.IUpdate");
+        iQuery = (LocalQuery) applicationContext.getBean("ome.api.IQuery");
+        iUpdate = (LocalUpdate) applicationContext.getBean("ome.api.IUpdate");
 
     }
 
@@ -62,19 +62,19 @@ public class AbstractInternalContextTest
     {
         /* TODO run experiment as root. Dangerous? */
         Experimenter o = 
-            (Experimenter) _qu.getById(Experimenter.class,0);
+            (Experimenter) iQuery.getById(Experimenter.class,0);
         ExperimenterGroup g = 
-            (ExperimenterGroup) _qu.getById(ExperimenterGroup.class,0);
+            (ExperimenterGroup) iQuery.getById(ExperimenterGroup.class,0);
         CurrentDetails.setOwner(o);
         CurrentDetails.setGroup(g);
         EventType test = 
-            (EventType) _qu.getUniqueByFieldEq(EventType.class,"value","Test");
+            (EventType) iQuery.getUniqueByFieldEq(EventType.class,"value","Test");
         CurrentDetails.newEvent(test);
     }
 
     protected void openSession()
     {
-        _s = SessionFactoryUtils.getSession(_sf,true);
+        session = SessionFactoryUtils.getSession(sessionFactory,true);
     }
 
     // TODO remove?
@@ -83,20 +83,20 @@ public class AbstractInternalContextTest
     {
         flush();
         clear();
-//        _s.connection().commit();
-//        TransactionSynchronizationManager.unbindResource(_sf);
-//        SessionFactoryUtils.releaseSession(_s, _sf);
-//  SessionFactoryUtils.processDeferredClose(_sf); // TODO see OpenInView
+//        session.connection().commit();
+//        TransactionSynchronizationManager.unbindResource(sessionFactory);
+//        SessionFactoryUtils.releaseSession(session, sessionFactory);
+//  SessionFactoryUtils.processDeferredClose(sessionFactory); // TODO see OpenInView
     }
     
     protected void clear()
     {
-        _s.clear();
+        session.clear();
     }
     
     protected void flush()
     { 
-        _s.flush();
+        session.flush();
     }
 
 }

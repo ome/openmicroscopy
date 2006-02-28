@@ -2,7 +2,6 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -12,18 +11,14 @@ import ome.tools.lsid.LsidUtils;
 public class CollectionCountQueryDefinition extends Query
 {
 
+    static {
+        addDefinition(new IdsQueryParameterDef());
+        addDefinition(new QueryParameterDef("field", String.class, false));
+    }
+    
     public CollectionCountQueryDefinition(QueryParameter...parameters)
     {
         super(parameters);
-    }
-    
-    @Override
-    protected void defineParameters()
-    {
-        defs = new QueryParameterDef[] { 
-                new QueryParameterDef("field", String.class, false),
-                new QueryParameterDef("ids",Collection.class,true)
-                };
     }
 
     @Override
