@@ -131,6 +131,8 @@
 	<table name="analysis_node_executions"/>
 	<table name="formal_inputs"/>
 	<table name="formal_outputs"/>
+	<table name="plane_statistics"/>
+	<table name="stack_statistics"/>
 
          <hibernate
             destination="${dest.dir}"

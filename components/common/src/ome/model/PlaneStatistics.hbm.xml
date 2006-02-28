@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.PlaneStatistics" 
+    table="plane_statistics"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="sequence">
+            <param name="sequence">attribute_seq</param>
+        </generator>
+    </id>
+
+    <property
+        name="minimum"
+        type="java.lang.Integer"
+        column="minimum"
+        length="4"
+    />
+    <property
+        name="maximum"
+        type="java.lang.Integer"
+        column="maximum"
+        length="4"
+    />
+    <property
+        name="theT"
+        type="java.lang.Integer"
+        column="the_t"
+        length="4"
+    />
+    <property
+        name="centroidY"
+        type="java.lang.Float"
+        column="centroid_y"
+        length="4"
+    />
+    <property
+        name="sumXi"
+        type="java.lang.Float"
+        column="sum_xi"
+        length="4"
+    />
+    <property
+        name="geosigma"
+        type="java.lang.Float"
+        column="geosigma"
+        length="4"
+    />
+    <property
+        name="geomean"
+        type="java.lang.Float"
+        column="geomean"
+        length="4"
+    />
+    <property
+        name="sumI"
+        type="java.lang.Float"
+        column="sum_i"
+        length="4"
+    />
+    <property
+        name="sigma"
+        type="java.lang.Float"
+        column="sigma"
+        length="4"
+    />
+    <property
+        name="sumI2"
+        type="java.lang.Float"
+        column="sum_i2"
+        length="4"
+    />
+    <property
+        name="sumZi"
+        type="java.lang.Float"
+        column="sum_zi"
+        length="4"
+    />
+    <property
+        name="theC"
+        type="java.lang.Integer"
+        column="the_c"
+        length="4"
+    />
+    <property
+        name="sumYi"
+        type="java.lang.Float"
+        column="sum_yi"
+        length="4"
+    />
+    <property
+        name="mean"
+        type="java.lang.Float"
+        column="mean"
+        length="4"
+    />
+    <property
+        name="theZ"
+        type="java.lang.Integer"
+        column="the_z"
+        length="4"
+    />
+    <property
+        name="sumLogI"
+        type="java.lang.Float"
+        column="sum_log_i"
+        length="4"
+    />
+    <property
+        name="centroidX"
+        type="java.lang.Float"
+        column="centroid_x"
+        length="4"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Image -->
+    <many-to-one
+        name="image"
+        class="ome.model.Image"
+        not-null="true"
+    >
+        <column name="image_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="ome.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
