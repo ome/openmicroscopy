@@ -112,12 +112,14 @@
 				<value>ome/model/ModuleExecution.hbm.xml</value>
 				<value>ome/model/Module.hbm.xml</value>
 				<value>ome/model/OmeSession.hbm.xml</value>
+				<value>ome/model/PlaneStatistics.hbm.xml</value>
 				<value>ome/model/Project.hbm.xml</value>
 				<value>ome/model/RenderingSetting.hbm.xml</value>
 				<value>ome/model/Repository.hbm.xml</value>
 				<value>ome/model/SemanticElement.hbm.xml</value>
 				<value>ome/model/SemanticType.hbm.xml</value>
 				<value>ome/model/SemanticTypeOutput.hbm.xml</value>
+				<value>ome/model/StackStatistics.hbm.xml</value>
 				<value>ome/model/Thumbnail.hbm.xml</value>
 			</list>
        </property>
