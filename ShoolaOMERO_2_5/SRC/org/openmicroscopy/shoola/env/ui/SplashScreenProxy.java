@@ -118,7 +118,6 @@ class SplashScreenProxy
 	 * to avoid writing the code for checking this.
 	 */
     
-	private SplashScreenFuture future;
     
 	/**
 	 * Creates the proxy, the servant and configures the servant with a
@@ -129,7 +128,6 @@ class SplashScreenProxy
 	SplashScreenProxy(ActionListener listener)
 	{
 		servant = new SplashScreenManager(listener);
-        future = new SplashScreenFuture();
 		isValid = false;
 	}
 
@@ -220,7 +218,7 @@ class SplashScreenProxy
 		if (!isValid) return null;  
 		
         //Construct request of method execution.
-        //final SplashScreenFuture future = new SplashScreenFuture();
+        final SplashScreenFuture future = new SplashScreenFuture();
         Runnable doCollectUserCredentials = new Runnable() {
             public void run() { servant.collectUserCredentials(future, init); }
         };
