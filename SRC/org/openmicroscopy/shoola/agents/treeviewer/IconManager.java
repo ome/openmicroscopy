@@ -177,7 +177,7 @@ public class IconManager
     public static int           CLASSIFIED_IMAGE = 38;
     
     /** The <code>Classified and Annotated Image</code> icon. */
-    public static int           CLASSIFIED_ANNOTATED_IMAGE = 39;
+    public static int           ANNOTATED_CLASSIFIED_IMAGE = 39;
     
     /** The <code>Exit Application</code> icon. */
     public static int           EXIT_APPLICATION = 40;
@@ -232,12 +232,12 @@ public class IconManager
         relPaths[FINDER] = "eclipse_searchrecord16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
-        //relPaths[ANNOTATION] = "nuvola_kwrite16.png";
-        relPaths[ANNOTATION] = "eclipse_annotate16.png";
+        relPaths[ANNOTATION] = "nuvola_kwrite16.png";
         relPaths[CLASSIFY] = "category16.png";
         relPaths[CATEGORY_BIG] = "nuvola_filenew48.png";
-        relPaths[CLASSIFIED_ANNOTATED_IMAGE] = "nuvola_filenew48.png";
-        relPaths[CLASSIFIED_IMAGE] = "nuvola_filenew48.png";
+        relPaths[ANNOTATED_CLASSIFIED_IMAGE] = 
+                                    "annotated_classified_image16.png";
+        relPaths[CLASSIFIED_IMAGE] = "classified_image16.png";
         relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
         relPaths[FILTER_BIG] = "nuvola_find48.png";
     }
