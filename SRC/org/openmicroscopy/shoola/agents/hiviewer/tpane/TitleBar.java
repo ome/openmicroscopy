@@ -132,16 +132,10 @@ class TitleBar
      */
     private void attachAll()
     {
-        if (icon != null) {
-            icon.attach();
-            //new MouseInputForwarder(icon, this);
-        }
+        if (icon != null) icon.attach();
         if (sizeButton != null) sizeButton.attach();
         if (viewModeButton != null) viewModeButton.attach();
-        if (title != null) {
-            title.attach();
-            //new MouseInputForwarder(title, this);
-        }
+        if (title != null) title.attach();
     }
     
     /**
@@ -193,8 +187,8 @@ class TitleBar
                 fixedHeight = 12;
                 sizeButton = new SizeButton(model);
                 add(sizeButton);
-                title = new TinyPaneTitle(model);
-                add(title);
+                //title = new TinyPaneTitle(model);
+                //add(title);
                 break;
             case TinyPane.FULL_BAR:
                 fixedHeight = 18;
