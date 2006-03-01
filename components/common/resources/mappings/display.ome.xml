@@ -40,6 +40,7 @@
   
 	<type id="ome.model.display.ChannelBinding">
 		<properties>
+      <listitem name="renderingDef" type="ome.model.display.RenderingDef"/>
 			<required name="family" type="ome.model.enums.Family"/>
 			<required name="coefficient" type="double"/>
 			<required name="inputStart" type="float"/>
@@ -65,7 +66,11 @@
     		Display Settings 2
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
-	<abstract id="ome.model.display.CodomainMapContext"/>
+	<abstract id="ome.model.display.CodomainMapContext">
+    <properties>
+      <listitem name="renderingDef" type="ome.model.display.RenderingDef"/>
+    </properties>
+  </abstract>
   
 	<type id="ome.model.display.ReverseIntensityContext" 
     superclass="ome.model.display.CodomainMapContext">

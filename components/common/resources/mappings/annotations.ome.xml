@@ -2,13 +2,13 @@
   <type id="ome.model.annotations.ImageAnnotation">
 	  <properties>
 		  <required name="image" type="ome.model.core.Image"/>
-      <required name="content" type="string"/>      
+      <required name="content" type="text"/>      
 	  </properties>
   </type>
   <type id="ome.model.annotations.DatasetAnnotation">
 	  <properties>
 		  <required name="dataset" type="ome.model.containers.Dataset"/>
-      <required name="content" type="string"/>
+      <required name="content" type="text"/>
 	  </properties>
   </type>
 </types>

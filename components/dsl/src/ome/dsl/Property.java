@@ -63,6 +63,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public final static String ENTRY = "entry";
     public final static String CHILD = "child";
     public final static String PARENT = "parent";
+    public final static String LISTITEM = "listitem";
     
 	public final static Set FIELDS = new HashSet();
 	static {
@@ -75,6 +76,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS.add(ENTRY);
         FIELDS.add(CHILD);
         FIELDS.add(PARENT);
+        FIELDS.add(LISTITEM);
 	}
 	public final static Map FIELDS2CLASSES = new HashMap();
 	static {
@@ -87,6 +89,7 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS2CLASSES.put(ENTRY,EntryField.class);
         FIELDS2CLASSES.put(PARENT,ParentLink.class);
         FIELDS2CLASSES.put(CHILD,ChildLink.class);
+        FIELDS2CLASSES.put(LISTITEM,ListItem.class);
 	}
 	
 	// VALUE-Type identifiers
@@ -97,15 +100,17 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public final static String DOUBLE = "double";
     public final static String LONG = "long";
 	public final static String TIMESTAMP = "timestamp";
+    public final static String TEXT = "text";
 	public final static Map VALUES = new HashMap(); 
 	static {
-		VALUES.put(STRING,String.class);
-		VALUES.put(BOOLEAN,Boolean.class);
-		VALUES.put(INTEGER,Integer.class);
-		VALUES.put(FLOAT,Float.class);
-		VALUES.put(DOUBLE,Double.class);
-        VALUES.put(LONG,Long.class);
-		VALUES.put(TIMESTAMP,Timestamp.class);
+		VALUES.put(STRING,String.class.getName());
+		VALUES.put(BOOLEAN,Boolean.class.getName());
+		VALUES.put(INTEGER,Integer.class.getName());
+		VALUES.put(FLOAT,Float.class.getName());
+		VALUES.put(DOUBLE,Double.class.getName());
+        VALUES.put(LONG,Long.class.getName());
+		VALUES.put(TIMESTAMP,Timestamp.class.getName());
+        VALUES.put(TEXT,TEXT);
 	}
 	
     private SemanticType st;
@@ -120,9 +125,10 @@ public abstract class Property { // TODO need to define equality so that two wit
 	// Specialties
 	private Boolean required;
 	private Boolean unique;
-	private Boolean mutable;
 	private Boolean ordered;
     private Boolean inverse;
+    private Boolean insert;
+    private Boolean update;
 	
 	// Mappings
 	private Boolean one2Many;
@@ -221,14 +227,6 @@ public abstract class Property { // TODO need to define equality so that two wit
 		return unique;
 	}
 
-	public void setMutable(Boolean mutable) {
-		this.mutable = mutable;
-	}
-
-	public Boolean getMutable() {
-		return mutable;
-	}
-
 	public void setOrdered(Boolean ordered) {
 		this.ordered = ordered;
 	}
@@ -244,7 +242,23 @@ public abstract class Property { // TODO need to define equality so that two wit
     public Boolean getInverse() {
         return inverse;
     }
+
+    public void setInsert(Boolean insert) {
+        this.insert = insert;
+    }
     
+    public Boolean getInsert() {
+        return insert;
+    }
+
+    public void setUpdate(Boolean update) {
+        this.update = update;
+    }
+    
+    public Boolean getUpdate() {
+        return update;
+    }
+   
 	public void setForeignKey(String foreignKey) {
 		this.foreignKey = foreignKey;
 	}
@@ -269,13 +283,17 @@ public abstract class Property { // TODO need to define equality so that two wit
         setDefaultValue(attrs.getProperty("default",null));//TODO currently no way to use this!!
         setRequired(Boolean.valueOf(attrs.getProperty("required","false")));
         setUnique(Boolean.valueOf(attrs.getProperty("unique","false"))); // TODO wanted to use KEYS.put(id,field) !! 
-        setMutable(Boolean.valueOf(attrs.getProperty("mutable","true")));
         setOrdered(Boolean.valueOf(attrs.getProperty("ordered","false")));
         setInverse(Boolean.valueOf(attrs.getProperty("inverse","false")));
         setExtracode("");
+
+        // TODO Mutability
+        setInsert( Boolean.TRUE );
+        setUpdate( Boolean.valueOf( attrs.getProperty( "mutable","true" ) ) );
+        
         if (VALUES.containsKey(getType())){
             setForeignKey(null);
-            setType(((Class)VALUES.get(getType())).getName());
+            setType((String) VALUES.get(getType()));
         } else {
             setForeignKey(SemanticType.typeToColumn(st.getId()));
         }
@@ -430,5 +448,14 @@ class ParentLink extends AbstractLink {
     public ParentLink(SemanticType st, Properties attrs){
         super(st, attrs);
         setForeignKey("child");
+    }
+}
+
+class ListItem extends Property {
+    public ListItem( SemanticType st, Properties attrs ) {
+        super( st, attrs );
+        setInsert( Boolean.FALSE );
+        setUpdate( Boolean.FALSE );
+        setRequired( Boolean.TRUE );
     }
 }

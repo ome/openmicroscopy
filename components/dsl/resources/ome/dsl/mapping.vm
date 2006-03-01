@@ -125,7 +125,7 @@
 #end
 
 #if($type.described)
-	<property name="description" type="java.lang.String" 
+	<property name="description" type="text" 
 		column="description" length="256"/>
 #end
 	
@@ -161,11 +161,9 @@
         name="${prop.name}"
         lazy="true"
         inverse="${prop.inverse}"
-##TODO		mutable="${prop.mutable}"
         cascade="$cascade_settings">
-        <key>
-                <column name="${prop.foreignKey}" not-null="${prop.required}"/>
-        </key>
+
+        <key column="${prop.foreignKey}" not-null="${prop.required}"/>
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
 #if($prop.ordered)
         <list-index column="index"/>
@@ -188,15 +186,8 @@
         not-null="${prop.required}"
         unique="${prop.unique}"
         cascade="$cascade_settings"
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST        
-## Allows for ordered collections in the bidirectional many-to-one case 
-#if($prop.inverse) ## TODO move this logic to Property!!! 
-        insert="false"
-        update="false"        
-#else
-        update="${prop.mutable}"
-#end 
-## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LIST
+        insert="${prop.insert}"
+        update="${prop.update}"        
      >
      $propertyType
      </many-to-one>
@@ -205,7 +196,7 @@
 
     <property name="${prop.name}" type="${prop.type}" 
         not-null="${prop.required}" unique="${prop.unique}" 
-        update="${prop.mutable}"
+        update="${prop.update}"
      />
 
 #end

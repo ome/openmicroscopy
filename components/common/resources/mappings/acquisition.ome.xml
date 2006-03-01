@@ -151,7 +151,7 @@
           description="color must exist if PIType == RGB|ARGB|CMYK|HSV"/>
       </optional>
 			<optional name="logicalChannel" type="ome.model.core.LogicalChannel"/>
-			<required name="pixels" type="ome.model.core.Pixels"/>
+			<listitem name="pixels" type="ome.model.core.Pixels"/>
 		</properties>
 	</type>
   
@@ -215,8 +215,13 @@
     		Acquisition Context 3
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-	<abstract id="ome.model.acquisition.LightSource"
-		superclass="ome.model.acquisition.Manufactured"/>
+	<abstract id="ome.model.acquisition.LightSource" manufactured="true">
+    <properties>
+      <required name="manufacturer" type="string"/>
+      <required name="model" type="string"/>
+      <required name="serialNumber" type="string"/>
+    </properties>
+  </abstract>
   
 	<type id="ome.model.acquisition.Arc"
 		superclass="ome.model.acquisition.LightSource">
@@ -288,31 +293,29 @@
     		Acquisition Context 4
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-  <abstract id="ome.model.acquisition.Manufactured">
+	<type id="ome.model.acquisition.Detector" manufactured="true">
 		<properties>
-			<required name="manufacturer" type="string"/>
-			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
-		</properties>
-	</abstract>
-
-	<type id="ome.model.acquisition.Detector"
-		superclass="ome.model.acquisition.Manufactured">
-		<properties>
+      <required name="manufacturer" type="string"/>
+      <required name="model" type="string"/>
+      <required name="serialNumber" type="string"/>
 			<required name="type" type="ome.model.enums.DetectorType"/>
 		</properties>
 	</type>
 	  
-	<type id="ome.model.acquisition.Microscope"
-		superclass="ome.model.acquisition.Manufactured">
+	<type id="ome.model.acquisition.Microscope" manufactured="true">
 		<properties>
+      <required name="manufacturer" type="string"/>
+      <required name="model" type="string"/>
+      <required name="serialNumber" type="string"/>
 			<required name="type" type="ome.model.enums.MicroscopeType"/>
 		</properties>
 	</type>
 
-	<type id="ome.model.acquisition.Objective"
-		superclass="ome.model.acquisition.Manufactured">
+	<type id="ome.model.acquisition.Objective" manufactured="true">
 		<properties>
+      <required name="manufacturer" type="string"/>
+      <required name="model" type="string"/>
+      <required name="serialNumber" type="string"/>
 			<required name="magnificiation" type="double"/>
 			<required name="lensNA" type="float"/>
 			<optional name="aberrationCorrection"
@@ -349,12 +352,19 @@
 		</properties>
 	</type>
 	
-	<type id="ome.model.acquisition.FilterSet"
-    superclass="ome.model.acquisition.Manufactured"/>
+	<type id="ome.model.acquisition.FilterSet" manufactured="true">
+    <properties>
+      <required name="manufacturer" type="string"/>
+      <required name="model" type="string"/>
+      <required name="serialNumber" type="string"/>
+    </properties>
+  </type>      
   
-  <type id="ome.model.acquisition.CustomizedFilterSet"
-		superclass="ome.model.acquisition.Manufactured">
+  <type id="ome.model.acquisition.CustomizedFilterSet" manufactured="true">
 		<properties>
+      <required name="manufacturer" type="string"/>
+      <required name="model" type="string"/>
+      <required name="serialNumber" type="string"/>
 			<required name="excitationFilter" type="ome.model.acquisition.ExcitationFilter"/>
 			<required name="dichroic" type="ome.model.acquisition.Dichroic"/>
 			<required name="emissionFilter" type="ome.model.acquisition.EmissionFilter"/>
