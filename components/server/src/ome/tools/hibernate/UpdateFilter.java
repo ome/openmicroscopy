@@ -97,7 +97,8 @@ public class UpdateFilter extends ContextFilter
                 o instanceof Details
                 || o instanceof Number
                 || o instanceof String
-                || o instanceof Date)
+                || o instanceof Date
+                || o instanceof Boolean)
         { 
             result = o;
         } else {
