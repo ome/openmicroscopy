@@ -166,6 +166,7 @@ class SplashScreenManager
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
+        view.cancel.setEnabled(true);
         if (!init) {
             view.user.setText("");
             view.pass.setText("");
