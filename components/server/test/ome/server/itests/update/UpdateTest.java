@@ -47,47 +47,9 @@ public class UpdateTest extends AbstractUpdateTest
     public void test_index_save() throws Exception
     {
 
-        PlaneSlicingContext enhancement = new PlaneSlicingContext();
-        enhancement.setConstant( Boolean.FALSE );
-        enhancement.setLowerLimit( new Integer(1) );
-        enhancement.setPlanePrevious( new Integer(1) );
-        enhancement.setPlaneSelected( new Integer(1) );
-        enhancement.setUpperLimit( new Integer(1) );
-        
-        // Prereqs for binding
-        Color color = new Color();
-        color.setAlpha( new Integer(1) );
-        color.setBlue( new Integer(1) );
-        color.setGreen( new Integer(1) );
-        color.setRed( new Integer(1) );
-        
-        Family family = new Family();
-        family.setValue( "test" );
-        
-        ChannelBinding binding = new ChannelBinding();
-        binding.setActive( Boolean.FALSE );
-        binding.setCoefficient( new Double(1) );
-        binding.setColor( color );
-        binding.setFamily( family );
-        binding.setInputEnd( new Float(1.0) );
-        binding.setInputStart( new Float(1.0) );
-        binding.setNoiseReduction( Boolean.FALSE );
-        
-        // Prereqs for RenderingDef
-        RenderingModel model = new RenderingModel();
-        model.setValue( "test" );
-        
-        QuantumDef qdef = new QuantumDef();
-        qdef.setBitResolution( new Integer(1) );
-        qdef.setCdEnd( new Integer(1) );
-        qdef.setCdStart( new Integer(1) );
-        
-        RenderingDef def = new RenderingDef();
-        def.setDefaultT( new Integer(1) );
-        def.setDefaultZ( new Integer(1) );
-        def.setModel( model );
-        def.setPixels( ObjectFactory.createPixelGraph( null ) );
-        def.setQuantization( qdef );
+        RenderingDef def = ObjectFactory.createRenderingDef();
+        CodomainMapContext enhancement = ObjectFactory.createPlaneSlicingContext();
+        ChannelBinding binding = ObjectFactory.createChannelBinding();
         
         // What we're interested in
         List enhancements = Collections.singletonList( enhancement );
