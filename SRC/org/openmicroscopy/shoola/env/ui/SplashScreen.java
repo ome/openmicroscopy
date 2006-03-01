@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.env.ui;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.event.ActionListener;
-
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
