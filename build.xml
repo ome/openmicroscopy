@@ -144,13 +144,13 @@ ${msg.check.report}
 		</antRun>
 	</target>
 
-	<target name="build-client">
+	<target name="build-client" depends="model">
 		<antRun component="common"><target name="install"/></antRun>
 		<antRun component="client"><target name="install"/></antRun>
 		<antRun component="shoola-adapter"><target name="install"/></antRun>
 	</target>
 
-	<target name="build-server">
+	<target name="build-server" depends="model">
 		<antRun component="common"><target name="install"/></antRun>
 		<antRun component="omeio-nio"><target name="install"/></antRun>
 		<antRun component="rendering"><target name="install"/></antRun>
