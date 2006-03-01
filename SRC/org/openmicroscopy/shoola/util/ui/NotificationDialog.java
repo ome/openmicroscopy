@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -89,6 +90,9 @@ public class NotificationDialog
 	 */
 	protected static final Dimension	V_SPACER_SIZE = new Dimension(1, 20);
 	
+    /** Sets the default color of the panel. */
+    protected static final Color        DEFAULT_COLOR = Color.WHITE;
+    
 	/** 
 	 * The outmost container.  
 	 * All other widgets are added to this panel, which, in turn, is then 
@@ -109,8 +113,14 @@ public class NotificationDialog
 	private void createComponents()
 	{
 		contentPanel = new JPanel();
+        contentPanel.setOpaque(true);
+        contentPanel.setBackground(DEFAULT_COLOR);
 		messagePanel = new JPanel();
+        messagePanel.setOpaque(true);
+        messagePanel.setBackground(DEFAULT_COLOR);
 		buttonPanel = new JPanel();
+        buttonPanel.setOpaque(true);
+        buttonPanel.setBackground(DEFAULT_COLOR);
 		okButton = new JButton("OK");
 	}
 	
