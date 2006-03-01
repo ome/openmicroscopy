@@ -45,6 +45,7 @@ import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
+import ome.model.internal.Details;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
@@ -112,6 +113,13 @@ public class DatasetData
      */
     private ExperimenterData owner;
     
+    /** 
+     * The number of annotations attached to this Dataset.
+     * This field may be <code>null</code> meaning no count retrieved,
+     * and it may be less than the actual number if filtered by user.
+     */
+    private Integer annotationCount;
+    
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Dataset) {
 			Dataset d = (Dataset) model;
@@ -119,8 +127,17 @@ public class DatasetData
 
             // Details
             if (d.getDetails() != null){
+                
+                Details details = d.getDetails();
                 this.setOwner((ExperimenterData)mapper.findTarget(
-                        d.getDetails().getOwner()));         
+                        details.getOwner()));         
+                if ( details.getCounts() != null )
+                {
+                    Object annotationCount = details.getCounts().get( Dataset.ANNOTATIONS );
+                    if ( annotationCount instanceof Integer )
+                        this.setAnnotationCount( (Integer) annotationCount  );
+                }
+
            }
             
             // Fields
@@ -236,5 +253,15 @@ public class DatasetData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+
+    public Integer getAnnotationCount()
+    {
+        return annotationCount;
+    }
+    
+    public void setAnnotationCount(Integer annotationCount)
+    {
+        this.annotationCount = annotationCount;
+    }
 	
 }

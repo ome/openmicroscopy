@@ -45,6 +45,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.internal.Details;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
@@ -143,6 +144,20 @@ public class ImageData
      */
     private ExperimenterData owner;
     
+    /** 
+     * The number of annotations attached to this Image.
+     * This field may be <code>null</code> meaning no count retrieved,
+     * and it may be less than the actual number if filtered by user.
+     */
+    private Integer annotationCount;
+    
+    /** 
+     * The number of categories attached to this Imaget.
+     * This field may be <code>null</code> meaning no count retrieved,
+     * and it may be less than the actual number if filtered by user.
+     */
+    private Integer classificationCount;
+    
     public void copy(IObject model, ModelMapper mapper) {
     	if (model instanceof Image) {
 			Image i = (Image) model;
@@ -150,9 +165,21 @@ public class ImageData
             
             // Details
             if (i.getDetails() != null){
-                this.setCreated(mapper.event2timestamp(i.getDetails().getCreationEvent()));
-                this.setInserted(mapper.event2timestamp(i.getDetails().getUpdateEvent()));//TODO
-                this.setOwner((ExperimenterData) mapper.findTarget(i.getDetails().getOwner()));
+                Details d = i.getDetails();
+                this.setCreated(mapper.event2timestamp(d.getCreationEvent()));
+                this.setInserted(mapper.event2timestamp(d.getUpdateEvent()));//TODO
+                this.setOwner((ExperimenterData) mapper.findTarget(d.getOwner()));
+                if ( d.getCounts() != null )
+                {
+                    Object annotationCount = d.getCounts().get( Image.ANNOTATIONS );
+                    if ( annotationCount instanceof Integer )
+                        this.setAnnotationCount( (Integer) annotationCount  );
+                    
+                    Object classificationCount = d.getCounts().get( Image.CATEGORYLINKS );
+                    if ( classificationCount instanceof Integer )
+                        this.setClassificationCount( (Integer) classificationCount  );
+                    
+                }
             }
 
             // Fields
@@ -289,4 +316,24 @@ public class ImageData
 	public ExperimenterData getOwner() {
 		return owner;
 	}
+
+    public Integer getAnnotationCount()
+    {
+        return annotationCount;
+    }
+    
+    public void setAnnotationCount(Integer annotationCount)
+    {
+        this.annotationCount = annotationCount;
+    }
+
+    public Integer getClassificationCount()
+    {
+        return classificationCount;
+    }
+
+    public void setClassificationCount(Integer classificationCount)
+    {
+        this.classificationCount = classificationCount;
+    }
 }
