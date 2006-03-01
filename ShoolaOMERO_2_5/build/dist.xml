@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+ * Child build file to create the app deliverables.
+ * This file is only meant to be used as an imported file within the Shoola
+ * master build file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project name="dist" default="usage">
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Fail at import time if the external properties this child depends upon
+   * have not been defined. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <checkdef prop="build.dir"/> 
+  <checkdef prop="base.launch.dir"/>
+  <checkdef prop="base.lib.dir"/>
+  <checkdef prop="base.licensefile"/> 
+  <checkdef prop="app.compiled.dir"/>  
+  <checkdef prop="app.config.dir"/>  
+  <checkdef prop="app.lib.dir"/>
+  <checkdef prop="app.mainclass"/>
+  <checkdef ref="app.config"/>
+  <checkdef ref="app.libs"/>
+  <checkdef prop="docs.dir"/> 
+  <checkdef prop="docs.userdocs.dir"/>
+  
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Settings to create the deliverables:
+   *   + dist.dir: The distribution directory, where deliverables are created.
+   *   + dist.jar.file: The name of the file in which the whole app will be 
+   *           packaged.  This file will be output under ${dist.dir}.
+   *   + dist.bundle.name: The name of the distribution bundle.  This is a
+   *           compressed file containing the app jar, all required libs, 
+   *           launch scripts, and install instructions.
+   *   + dist.bundle.version: The version of the distribution bundle.  Together
+   *           with the bundle name, it forms the name of the default bundle 
+   *           file as <name>-<version>.zip.  (The extension name is dictated 
+   *           by the compression algorithm used.)  Other platform-specific
+   *           bundles follow the same naming convention, except they add a
+   *           platform-specific postfix, like <name>-<version>-OSX.zip for
+   *           the Mac OS X bundle.
+   *   + dist.launch.scripts: All launch scripts to go in the default bundle.
+   *   + dist.installfile: The install instructions to include in the
+   *           default bundle.
+   *   + dist.app.lib.dir.name: The name of the ${app.lib.dir}.
+   *   + dist.app.config.dir.name: The name of the ${app.config.dir}.
+   *   + dist.osx.icon: The icon to use for the Mac OS X client.
+   *   + dist.osx.stub: The stub file for the Mac OS X client.
+   *   + dist.osx.stub.name: The name of the above file.
+   *   + dist.osx.installfile: The install instructions to include in the 
+   *           Mac OS X bundle.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <property name="dist.dir" location="${build.dir}/dist"/>
+  <property name="dist.jar.file" value="shoola.jar"/>
+  <property name="dist.bundle.name" value="ome-shoola"/> 
+  <property name="dist.bundle.version" value="2.5.0-rc2"/>
+  <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
+    <include name="*.sh"/>
+    <include name="*.bat"/> 
+  </fileset> 
+  <property name="dist.installfile" 
+            location="${base.launch.dir}/INSTALL.java_client"/> 
+  <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
+  <basename property="dist.app.config.dir.name" file="${app.config.dir}"/> 
+  <property name="dist.osx.icon" 
+            location="${base.launch.dir}/osx/shoola.icns"/>
+  <property name="dist.osx.stub" 
+            location="${base.launch.dir}/osx/JavaApplicationStub"/> 
+  <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
+  <property name="dist.osx.installfile" 
+            location="${base.launch.dir}/osx/INSTALL"/>
+
+
+
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    * Verify the app is good for distribution and create ${dist.dir}.
+    * First the whole app and test dirs are removed and then new ones are
+    * re-generated with all app and test code.  Tests are run and if a failure
+    * occurs, the build is halted.  This way, the app can't be released unless 
+    * all tests pass.  
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="dist-init" depends="app.clean,test.clean,test">
+    <mkdir dir="${dist.dir}"/> 
+  </target> 
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Package the whole app into the ${dist.jar.file} under ${dist.dir}.
+   * The whole content of the ${app.compiled.dir} is jar'ed and a suitable
+   * manifest is generated that links all the required libraries.  That is
+   * all libraries defined by app.libs.  The path of each library file is
+   * specified in the Class-Path header to be relative to the ${app.lib.dir}.
+   * For example, an xxx.jar shows up in the header as {lib}/xxx.jar, where
+   * {lib} is the name of the ${app.lib.dir}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="jar" depends="dist-init">
+    <pathconvert property="dist.jar.manifest.cp" 
+                 pathsep=" " 
+                 dirsep="/" 
+                 refid="app.libs">
+      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+    </pathconvert>      
+    <jar destfile="${dist.dir}/${dist.jar.file}">
+      <fileset dir="${app.compiled.dir}"/>
+      <manifest>
+        <attribute name="Created-By" value="OME Development Team"/>
+        <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
+        <attribute name="Main-Class" value="${app.mainclass}"/>
+      </manifest> 
+    </jar>
+  </target> 
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the default distribution bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}.zip 
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + A lib dir, containing all the app.libs files.  The dir name is set
+   *     to the name of the ${app.lib.dir}.
+   *   + The app jar file, ${dist.jar.file}.
+   *   + The launch scripts, dist.launch.scripts.
+   *   + The install instructions, ${dist.installfile}.
+   *   + The license file, ${base.licensefile}. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="dist"
+          depends="jar"
+          description="Build and package the app for distribution."> 
+    <zip destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip">
+      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+      <zipfileset refid="app.libs" prefix="${dist.app.lib.dir.name}"/> 
+      <fileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+      <zipfileset refid="dist.launch.scripts" filemode="555"/>
+      <fileset file="${dist.installfile}"/>
+      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+    </zip> 
+  </target>
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the Mac OS X distribution bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}-OSX.zip 
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + The Shoola application.  That is, the .app dir embedding the app
+   *     jar file, all the the app.libs files, and Mac OS X specific config.
+   *   + The install instructions, ${dist.osx.installfile}.
+   *   + The license file, ${base.licensefile}. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->  
+  <target name="dist-osx"
+          depends="jar"
+          description="Build and package the app for OS X distribution.">
+    <jarbundler dir="${dist.dir}"
+                name="Shoola"
+                mainclass="${app.mainclass}"
+                version="${dist.bundle.version}"
+                infostring="OME-Shoola Java Client, ${dist.bundle.version}"
+                aboutmenuname="OME-Shoola Java Client"
+                screenmenu="true" 
+                icon="${dist.osx.icon}"
+                stubfile="${dist.osx.stub}" 
+               	jvmversion="1.4+"
+                vmoptions="-Xms256M -Xmx512M">
+      <jarfileset refid="app.libs"/>
+      <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+    </jarbundler>  
+    <zip destfile=
+           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
+      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+      <fileset dir="${dist.dir}" 
+               includes="Shoola.app/**"
+               excludes="**/${dist.osx.stub.name}"/>
+      <zipfileset file="${dist.osx.stub}" 
+                  fullpath="Shoola.app/Contents/MacOS/${dist.osx.stub.name}"
+                  filemode="555"/> 
+      <fileset file="${dist.osx.installfile}"/>
+      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+    </zip> 
+  </target> 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the documentation bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}-doc.zip 
+   * and whose contents are the javadoc and all other project documentation.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="dist-docs"
+          depends="docs"
+          description="Create the full documentation bundle."> 
+    <mkdir dir="${dist.dir}"/> 
+    <zip 
+      destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-doc.zip">
+      <fileset dir="${docs.dir}"/>
+    </zip> 
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the user documentation bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}-userdoc.zip 
+   * and whose contents are just those of the ${docs.userdocs.dir}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="dist-user-docs"
+          depends="xdocs"
+          description="Create the user documentation bundle."> 
+    <mkdir dir="${dist.dir}"/> 
+    <zip 
+      destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-userdoc.zip">
+      <fileset dir="${docs.userdocs.dir}"/>
+    </zip> 
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Remove all output generated by the targets within this file. 
+   * This target simply deletes the ${dist.dir}, relying on the fact that all
+   * other targets output under this dir.  As long as dir mapping props stick
+   * to this rule, new targets can be added without modifying this one.
+   * Should a target output dir need to be mapped to a dir outside of
+   * ${dist.dir}, then an explicit delete has to be added here.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="clean"
+          description="Remove all output generated by dist targets.">
+    <delete dir="${dist.dir}"/>
+  </target> 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Output a list of available targets.
+   * This is the list of all public targets exported by this file.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="usage"
+          description="List available distribution targets.">
+    <echo level="info">
+Distribution targets:
+--------------------- 
+  dist: Creates the default distribution bundle under ${dist.dir}.
+  dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
+  dist-docs: Create the full documentation bundle under ${dist.dir}. 
+  dist-user-docs: Create the user documentation bundle under ${dist.dir}. 
+  dist.clean: Remove ${dist.dir}. 
+    </echo> 
+  </target>  
+ 
+</project> 
