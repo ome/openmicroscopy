@@ -25,9 +25,9 @@ public class PojosLoadHierarchyQueryDefinition extends Query
 {
 
     static { // TODO same as findHierarchy
-        addDefinition(new IdsQueryParameterDef());
         addDefinition(new OptionsQueryParameterDef());
         addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
+        addDefinition(new CollectionQueryParameterDef( QP.CLASS, true, Long.class ));        
     }
     
     public PojosLoadHierarchyQueryDefinition(QueryParameter... parameters)
