@@ -97,7 +97,6 @@ public abstract class CurrentDetails
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
-        e.setLogs(new HashSet());
         setCreationEvent(e);
     }
     
@@ -116,11 +115,14 @@ public abstract class CurrentDetails
             l.setType(klass); // TODO could be id to Type entity
             l.setIdList(id.toString());
             l.setDetails(createDetails());
-            l.setEvent(CurrentDetails.getCreationEvent()); // FIXME needed?
-            //FIXME refactor to CurrentDetails
     
-            getCreationEvent().getLogs().add(l);
+            getCreationEvent().addToLogs( l );
         }
+    }
+    
+    public static void clearLogs()
+    {
+        getCreationEvent().clearLogs();
     }
     
     public static Details createDetails()

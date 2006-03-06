@@ -40,6 +40,7 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,6 +60,7 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
+import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.security.CurrentDetails;
@@ -190,38 +192,41 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         // Cache filter for referential integrity.
         filter = new UpdateFilter(getHibernateTemplate());
         
+        // Save event before we enter.
         Event currentEvent = CurrentDetails.getCreationEvent(); 
         getHibernateTemplate().saveOrUpdate(currentEvent);
+
+        // Don't flush until we're done.
         currentSession().setFlushMode(FlushMode.COMMIT);
     }
 
     private IObject internalSave(IObject obj)
     {
-        //obj = (IObject) getHibernateTemplate().merge(obj);
-        //getHibernateTemplate().saveOrUpdate(obj);
-        //getHibernateTemplate().flush(); // FIXME uh oh.
-
         IObject result = (IObject) filter.filter("in UpdateImpl",obj); 
         return (IObject) getHibernateTemplate().merge(result);
     }
 
     private void afterSave()
     {
-        Set<EventLog> logs = CurrentDetails.getCreationEvent().getLogs();
-        CurrentDetails.getCreationEvent().setLogs(new HashSet());
+        // Save all that and go back to AUTO flush.
+        getHibernateTemplate().flush(); // TODO performance?
+        currentSession().setFlushMode(FlushMode.AUTO);
         
-        for (EventLog log : logs)
-        {
-            getHibernateTemplate().saveOrUpdate(log);
-        }
-        
-        logs = CurrentDetails.getCreationEvent().getLogs();
+        // Let's save the event again using a temporary event.
+        Event currentEvent = CurrentDetails.getCreationEvent();
+        EventType afterSave = new EventType();
+        afterSave.setValue( "afterSave" );
+        CurrentDetails.newEvent( afterSave );
+        getHibernateTemplate().saveOrUpdate( currentEvent );
+
+        // Checks.
+        List logs = CurrentDetails.getCreationEvent().collectFromLogs( null );
         if (logs.size() > 0)
             log.error("New logs created on update.afterSave:\n"+logs);
         // FIXME we shouldn't be updating experimenter etc. here.
-     
-        getHibernateTemplate().flush();
-        currentSession().setFlushMode(FlushMode.AUTO);
+        
+        // Return the previous event.
+        CurrentDetails.setCreationEvent( currentEvent );
         
         // Cleanup
         filter = null;

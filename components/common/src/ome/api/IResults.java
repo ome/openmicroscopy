@@ -70,6 +70,8 @@ public interface IResults extends ServiceInterface {
 	static class PixelSet {} // also known as RoiSets
 	static interface Result extends IObject {} // marker for results
 	
+    
+    
 	 /** server-side parsing of data maps
 	  * 
 	  * @param Map of data. Keys are of the form: "ClassName:fieldName"

@@ -63,6 +63,9 @@ public abstract class Property { // TODO need to define equality so that two wit
 	public final static String ENTRY = "entry";
     public final static String CHILD = "child";
     public final static String PARENT = "parent";
+    public final static String TOCHILD = "to_child";
+    public final static String FROMPARENT = "from_parent";
+
     public final static String LISTITEM = "listitem";
     
 	public final static Set FIELDS = new HashSet();
@@ -76,6 +79,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS.add(ENTRY);
         FIELDS.add(CHILD);
         FIELDS.add(PARENT);
+        FIELDS.add(FROMPARENT);
+        FIELDS.add(TOCHILD);        
         FIELDS.add(LISTITEM);
 	}
 	public final static Map FIELDS2CLASSES = new HashMap();
@@ -89,6 +94,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 		FIELDS2CLASSES.put(ENTRY,EntryField.class);
         FIELDS2CLASSES.put(PARENT,ParentLink.class);
         FIELDS2CLASSES.put(CHILD,ChildLink.class);
+        FIELDS2CLASSES.put(FROMPARENT,LinkParent.class);
+        FIELDS2CLASSES.put(TOCHILD,LinkChild.class);
         FIELDS2CLASSES.put(LISTITEM,ListItem.class);
 	}
 	
@@ -119,14 +126,15 @@ public abstract class Property { // TODO need to define equality so that two wit
 	private String name;
 	private String type;
 	private String defaultValue;
-    private String extracode;
     private String foreignKey;
+    private String tag;
+    private String inverse;
+    private String target;
     
 	// Specialties
 	private Boolean required;
 	private Boolean unique;
 	private Boolean ordered;
-    private Boolean inverse;
     private Boolean insert;
     private Boolean update;
 	
@@ -195,12 +203,20 @@ public abstract class Property { // TODO need to define equality so that two wit
 		return type;
 	}
 
-    public void setExtracode(String extracode) {
-        this.extracode = extracode;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
-    public String getExtracode() {
-        return extracode;
+    public String getTag() {
+        return tag;
+    }
+    
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public String getTarget() {
+        return target;
     }
     
 	public void setDefaultValue(String defaultValue) {
@@ -235,11 +251,11 @@ public abstract class Property { // TODO need to define equality so that two wit
 		return ordered;
 	}
 
-    public void setInverse(Boolean inverse) {
+    public void setInverse(String inverse) {
         this.inverse = inverse;
     }
     
-    public Boolean getInverse() {
+    public String getInverse() {
         return inverse;
     }
 
@@ -281,11 +297,12 @@ public abstract class Property { // TODO need to define equality so that two wit
         setName(attrs.getProperty("name",null));
         setType(attrs.getProperty("type",null));
         setDefaultValue(attrs.getProperty("default",null));//TODO currently no way to use this!!
+        setTag(attrs.getProperty("tag",null));
+        setTarget(attrs.getProperty("target",null));
+        setInverse(attrs.getProperty("inverse",null));
         setRequired(Boolean.valueOf(attrs.getProperty("required","false")));
         setUnique(Boolean.valueOf(attrs.getProperty("unique","false"))); // TODO wanted to use KEYS.put(id,field) !! 
         setOrdered(Boolean.valueOf(attrs.getProperty("ordered","false")));
-        setInverse(Boolean.valueOf(attrs.getProperty("inverse","false")));
-        setExtracode("");
 
         // TODO Mutability
         setInsert( Boolean.TRUE );
@@ -304,6 +321,8 @@ public abstract class Property { // TODO need to define equality so that two wit
 
 // NOTE: For all the following be sure to check the defaults set on Property!
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~ Simple
+// ========
 class OptionalField extends Property {
     public OptionalField(SemanticType st, Properties attrs){
         super(st,attrs);
@@ -317,7 +336,8 @@ class RequiredField extends OptionalField {
 	}
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+// ~ 1-Many
+// ========
 class ZeroManyField extends Property {
     public ZeroManyField(SemanticType st, Properties attrs){
         super(st, attrs);
@@ -328,10 +348,22 @@ class ZeroManyField extends Property {
         if (getOrdered().booleanValue()) 
         {
             setRequired(Boolean.TRUE); // FIXME here we need to change the many2one!!
-        } else {
-            setInverse(Boolean.valueOf(attrs.getProperty("inverse","true")));    
-        }
-        
+        } 
+    }
+    
+    public void validate()
+    {
+        if ( getInverse() == null 
+                && ! getOrdered().booleanValue() && getTag() == null )
+            throw new IllegalArgumentException("\n"+
+                    this.toString()+": invalid "+this.getClass().getName()+" property.\n"+
+                    "\n All zeromany and onemany fields must provide either the \"inverse\" " +
+                    "\n \"ordered\" or \"tag\" attribute E.g.\n" +
+                    "\n" +
+                    "<type id=...>\n" +
+                    "\t<properties>\n" +
+                    "\t\t<onemany name=\"example\" type=\"Example\" inverse=\"parent\">"
+                    );
     }
 }
 
@@ -342,7 +374,43 @@ class OneManyField extends ZeroManyField {
 	}
 }
 
+abstract class AbstractLink extends ZeroManyField {
+    public AbstractLink(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setTarget( attrs.getProperty("target",null) );
+
+    }
+    
+    public void validate()
+    {
+        if (getTarget() == null){
+            throw new IllegalArgumentException(
+                    "Target must be set on all parent/child properties:"+this);
+        }
+
+    }
+}
+
+/** property from a child iobject to a link */
+class ChildLink extends AbstractLink {
+    public ChildLink(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setForeignKey("parent");
+        setInverse("child");
+    }
+}
+
+/** property from a parent iobject to a link */
+class ParentLink extends AbstractLink {
+    public ParentLink(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setForeignKey("child");
+        setInverse("parent");
+    }
+}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~ Many-1
+//========
 
 class ManyZeroField extends Property {
     public ManyZeroField(SemanticType st, Properties attrs){
@@ -357,8 +425,32 @@ class ManyOneField extends ManyZeroField {
 	}
 }
 
+/** property from a link to a parent iobject */
+class LinkParent extends ManyOneField {
+    public LinkParent(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setName("parent");
+    }
+}
+
+/** property from a link to a child iobject */
+class LinkChild extends ManyOneField {
+    public LinkChild(SemanticType st, Properties attrs){
+        super(st, attrs);
+        setName("child");
+    }
+}
+
+class ListItem extends ManyOneField {
+    public ListItem( SemanticType st, Properties attrs ) {
+        super( st, attrs );
+        setInsert( Boolean.FALSE );
+        setUpdate( Boolean.FALSE );
+    }
+}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// DIFFERENT SEMANTICS!!!
+// ~ DIFFERENT SEMANTICS!!!
+// ========================
 class EntryField extends Property {
 	public EntryField(SemanticType st, Properties attrs){
 		super(st, attrs);
@@ -367,95 +459,10 @@ class EntryField extends Property {
 	}
 
 	public void validate(){
-		if ("string"!=getType()){
+		if ( ! "string".equals( getType() ) )
+        {
 			throw new IllegalStateException("Enum entries can only be of type \"string\"");
 		}
 		super.validate();
 	}
-}
-/** property from a link to a parent iobject */
-class LinkParent extends Property {
-    public LinkParent(SemanticType st, Properties attrs){
-        super(st, attrs);
-        setName("parent");
-	setRequired(Boolean.TRUE);
-        setExtracode(
-                "public "+getType()+" parent(){"+ 
-                    "return ("+getType()+") getParent();}");
-
-    }
-}
-
-/** property from a link to a child iobject */
-class LinkChild extends Property {
-    public LinkChild(SemanticType st, Properties attrs){
-        super(st, attrs);
-        setName("child");
-	setRequired(Boolean.TRUE);
-        setExtracode(
-        "public "+getType()+" child(){"+ 
-            "return ("+getType()+") getChild();}");
-    }
-}
-
-abstract class AbstractLink extends Property {
-    protected abstract void linkStep(StringBuffer sb);
-    public AbstractLink(SemanticType st, Properties attrs){
-        super(st, attrs);
-        setOne2Many(Boolean.TRUE);
-        
-        String target = attrs.getProperty("target",null);
-        if (target == null){
-            throw new IllegalArgumentException(
-                    "Target must be set on all parent/child properties:"+this);
-        }
-
-        // TODO Not managing two links to same table!!
-        String simpleName = target.substring(
-                target.lastIndexOf(".")+1,target.length());
-        
-        StringBuffer sb = new StringBuffer();
-        sb.append("public void add"); sb.append(simpleName);
-        sb.append(" (");sb.append(target);sb.append(" addition){\n");
-        sb.append(getType());sb.append(" link = new ");
-        sb.append(getType());sb.append("();\n");
-        linkStep(sb);
-        
-        String getter = attrs.getProperty("name");
-        getter = getter.substring(0,1).toUpperCase()+getter.substring(1);
-        sb.append("\tthis.get"+getter+"().add(link);");
-        sb.append("}\n");
-        setExtracode(sb.toString());
-    }
-}
-
-/** property from a child iobject to a link */
-class ChildLink extends AbstractLink {
-    protected void linkStep(StringBuffer sb){
-        sb.append("\tlink.link(this, addition);\n");
-    }
-    public ChildLink(SemanticType st, Properties attrs){
-        super(st, attrs);
-        setForeignKey("parent");
-    }
-}
-
-/** property from a parent iobject to a link */
-class ParentLink extends AbstractLink {
-    protected void linkStep(StringBuffer sb){
-        sb.append("\tlink.link(addition,this);\n");
-    }
-    public ParentLink(SemanticType st, Properties attrs){
-        super(st, attrs);
-        setForeignKey("child");
-    }
-}
-
-class ListItem extends Property {
-    public ListItem( SemanticType st, Properties attrs ) {
-        super( st, attrs );
-        setInsert( Boolean.FALSE );
-        setUpdate( Boolean.FALSE );
-        setRequired( Boolean.TRUE );
-    }
 }

@@ -38,12 +38,11 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
+import ome.model.annotations.DatasetAnnotation;
 import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
@@ -145,29 +144,14 @@ public class DatasetData
 			this.setDescription(d.getDescription());
             
             // Collections
-            if (d.getImageLinks() != null){
-                Set images = new HashSet();
-                for (Iterator i = d.getImageLinks().iterator(); i.hasNext();)
-                {
-                    DatasetImageLink dil = (DatasetImageLink) i.next();
-                    images.add(dil.child());
-                }
-                this.setImages((Set)mapper.findCollection(images)); // FIXME
-            }
-            if (d.getProjectLinks() != null){
-                Set projects = new HashSet();
-                for (Iterator i = d.getProjectLinks().iterator(); i.hasNext();)
-                {
-                    ProjectDatasetLink pdl = (ProjectDatasetLink) i.next();
-                    projects.add(pdl.parent());
-                }
-                this.setProjects((Set)mapper.findCollection(projects));    
-            }
-			
-            this.setAnnotations((Set)mapper.findCollection(d.getAnnotations()));
+            MapperBlock block = new MapperBlock( mapper );
+            setImages( new HashSet( d.collectFromImageLinks( block )));
+            setProjects( new HashSet( d.collectFromProjectLinks( block )));
+            setAnnotations( new HashSet( d.collectFromAnnotations( block )));
             
 		} else {
-			throw new IllegalArgumentException("DatasetData can only copy from Dataset");
+			throw new IllegalArgumentException(
+                    "DatasetData can only copy from Dataset");
 		}
     }
 
@@ -181,7 +165,7 @@ public class DatasetData
                 for (Iterator it = this.getImages().iterator(); it.hasNext();)
                 {
                     ImageData i = (ImageData) it.next();
-                    d.addImage((Image) mapper.map(i));
+                    d.linkImage((Image) mapper.map(i));
                 }
             }
             
@@ -189,16 +173,15 @@ public class DatasetData
                 for (Iterator it = this.getProjects().iterator(); it.hasNext();)
                 {
                     ProjectData p = (ProjectData) it.next();
-                    d.addProject((Project) mapper.map(p));
+                    d.linkProject((Project) mapper.map(p));
                 }
             }
             
             if (this.getAnnotations() != null) {
-                d.setAnnotations(new HashSet());
                 for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
                 {
                     AnnotationData ann = (AnnotationData) it.next();
-                    d.getAnnotations().add(mapper.map(ann));
+                    d.addToAnnotations( (DatasetAnnotation) mapper.map(ann));
                 }
             }
             

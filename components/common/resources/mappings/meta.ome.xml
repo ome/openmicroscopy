@@ -23,13 +23,17 @@
 			<component id="ome.model.internal.Email" required="false">
 				<optional name="email" type="string"/>
 			</component>
+			<onemany name="defaultGroupLink" type="ome.model.meta.GroupExperimenterMap" tag="defaultGroupLink"/>       
 			<!-- ## add to dsl [email/] -->		
 		</properties>
 	</type>
 	
-	<link id="ome.model.meta.GroupExperimenterMap" 
-		from="ome.model.meta.ExperimenterGroup"
-		to="ome.model.meta.Experimenter"/>
+	<link id="ome.model.meta.GroupExperimenterMap">
+		<properties>
+			<from_parent type="ome.model.meta.ExperimenterGroup"/>
+			<to_child type="ome.model.meta.Experimenter" tag="defaultGroupLink"/>
+		</properties>
+	</link>
 	
 	<!-- EVENTS -->
 	<enum id="ome.model.enums.EventType">
@@ -46,7 +50,7 @@
 			<optional name="type" type="ome.model.enums.EventType"/>
 			<required name="time" type="timestamp"/>
 			<optional name="status" type="string"/>
-			<onemany name="logs" type="ome.model.meta.EventLog"/>
+			<onemany name="logs" type="ome.model.meta.EventLog" inverse="event"/>
 		</properties>
 	</type>    
 
@@ -58,7 +62,7 @@
 				<required name="idList" type="string"/>
 			</component>
 			<manyone name="event" type="ome.model.meta.Event"/>
-			<onemany name="diffs" type="ome.model.meta.EventDiff"/>
+			<onemany name="diffs" type="ome.model.meta.EventDiff" inverse="logs"/>
 		</properties>
 	</type>
 	

@@ -16,17 +16,23 @@
         target="ome.model.containers.Project"/>
 		  <child name="imageLinks" type="ome.model.containers.DatasetImageLink"
         target="ome.model.core.Image"/>
-		  <zeromany name="annotations" type="ome.model.annotations.DatasetAnnotation"/>
+		  <zeromany name="annotations" type="ome.model.annotations.DatasetAnnotation" inverse="dataset"/>
 	  </properties>
   </type>
   
-  <link id="ome.model.containers.ProjectDatasetLink"
-	  	from="ome.model.containers.Project"
-	  	to="ome.model.containers.Dataset"/>
+  <link id="ome.model.containers.ProjectDatasetLink">
+    <properties>
+	  	<from_parent type="ome.model.containers.Project"/>
+	  	<to_child type="ome.model.containers.Dataset"/>
+    </properties>
+  </link>
   
-  <link id="ome.model.containers.DatasetImageLink"
-	  	from="ome.model.containers.Dataset"
-	  	to="ome.model.core.Image"/>	
+  <link id="ome.model.containers.DatasetImageLink">
+    <properties>
+	  	<from_parent type="ome.model.containers.Dataset"/>
+	  	<to_child type="ome.model.core.Image"/>
+    </properties>
+  </link>
 
   <!-- CGCI -->
   <type id="ome.model.containers.CategoryGroup" named="true" described="true">
@@ -45,48 +51,18 @@
 	  </properties>
   </type>
   
-  <link id="ome.model.containers.CategoryGroupCategoryLink"
-	  	from="ome.model.containers.CategoryGroup"
-	  	to="ome.model.containers.Category"/>
-  
-  <link id="ome.model.containers.CategoryImageLink"
-	  	from="ome.model.containers.Category"
-	  	to="ome.model.core.Image"/>	
-
-  <!-- TODO
-  <abstract id="ome.model.containers.AbstractContainer">
+  <link id="ome.model.containers.CategoryGroupCategoryLink">
     <properties>
-      <required name="name" type="string"/>
-      <optional name="description" type="string"/>
-      <zeromany name="parents" type="ome.model.containers.ContainerLink"/>
+	  	<from_parent type="ome.model.containers.CategoryGroup"/>
+	  	<to_child type="ome.model.containers.Category"/>
     </properties>
-  </abstract>
+  </link>
 
-  <abstract id="ome.model.containers.NodeContainer">
+  <link id="ome.model.containers.CategoryImageLink">
     <properties>
-      <zeromany name="children" type="ome.model.containers.ContainerLink"/>
+	  	<from_parent type="ome.model.containers.Category"/>
+	  	<to_child type="ome.model.core.Image"/>
     </properties>
-  </abstract>
+  </link>
 
-  <abstract id="ome.model.containers.LeafContainer">
-    <properties>
-      <zeromany name="children" type="ome.model.containers.ImageLink"/>
-    </properties>
-  </abstract>
-  
-  <link id="ome.model.containers.ContainerLink"
-    to="ome.model.containers.AbstractContainer"
-    from="ome.model.containers.AbstractContainer"/>
-
-  <link id="ome.model.containers.ImageLink"
-    to="ome.model.core.Image"
-    from="ome.model.containers.LeafContainer"/>
-
-  <type id="ome.model.containers.Dataset"
-    superclass="ome.model.containers.LeafContainer"/>
-
-  <type id="ome.model.containers.Project"
-    superclass="ome.model.containers.NodeContainer"/>
--->
-  
 </types>

@@ -1,0 +1,96 @@
+<types>
+  <type id="ome.model.results.CellArea">
+    <properties>
+      <required name="area" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellEccentricity">
+    <properties>
+      <required name="eccentricity" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellExtent">
+    <properties>
+      <required name="extent" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellMajorAxisLength">
+    <properties>
+      <required name="length" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellMinorAxisLength">
+    <properties>
+      <required name="length" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellPerimeter">
+    <properties>
+      <required name="perimeter" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellPosition">
+    <properties>
+      <required name="xPosition" type="double"/>
+      <required name="yPosition" type="double"/>
+      <required name="zPosition" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.CellSolidity">
+    <properties>
+      <required name="solidity" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.ImageCellCount">
+    <properties>
+      <required name="count" type="int"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.ImageNucleasCount">
+    <properties>
+      <required name="count" type="int"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusArea">
+    <properties>
+      <required name="area" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusEccentricity">
+    <properties>
+      <required name="eccentricity" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusExtent">
+    <properties>
+      <required name="extent" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusMajorAxisLength">
+    <properties>
+      <required name="length" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusMinorAxisLength">
+    <properties>
+      <required name="length" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusPerimeter">
+    <properties>
+      <required name="perimenter" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusPosition">
+    <properties>
+      <required name="xPosition" type="double"/>
+      <required name="yPosition" type="double"/>
+      <required name="zPosition" type="double"/>
+    </properties>
+  </type>
+  <type id="ome.model.results.NucleusSolidity">
+    <properties>
+      <required name="solidity" type="double"/>
+    </properties>
+  </type>
+</types>

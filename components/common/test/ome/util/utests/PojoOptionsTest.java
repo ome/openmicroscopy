@@ -26,7 +26,7 @@ public class PojoOptionsTest extends TestCase {
 	public void testAllMethods(){
 		log.info(
 		ob.allCounts()
-		.countsFor(new Integer(1))
+		.countsFor(new Long(1))
 		.noCounts()
 		.exp(new Long(3))
 		.allExps()

@@ -39,10 +39,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.internal.Details;
@@ -70,7 +70,7 @@ public class ImageData
     
     public final static String NAME = Image.NAME;
     public final static String DESCRIPTION = Image.DESCRIPTION;
-    public final static String PIXELS = Image.RELATEDPIXELS;
+    public final static String PIXELS = Image.PIXELS;
     public final static String ANNOTATIONS = Image.ANNOTATIONS;
     public final static String DATASET_LINKS = Image.DATASETLINKS;
     
@@ -185,22 +185,13 @@ public class ImageData
             // Fields
             this.setName(i.getName());
             this.setDescription(i.getDescription());
-			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getActivePixels()));
-			this.setAllPixels((Set) mapper.findCollection(i.getRelatedPixels()));
-			this.setAnnotations((Set) mapper.findCollection(i.getAnnotations()));
+			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getDefaultPixels()));
+			this.setAllPixels((Set) mapper.findCollection(i.collectFromPixels(null)));
+			this.setAnnotations((Set) mapper.findCollection(i.collectFromAnnotations(null)));
             
             // Collections
-            if (i.getDatasetLinks() != null){
-                Set datasets = new HashSet();
-                for (Iterator it = i.getDatasetLinks().iterator(); it.hasNext();)
-                {
-                    DatasetImageLink dil = (DatasetImageLink) it.next();
-                    datasets.add(dil.parent());
-                }
-                this.setDatasets((Set) mapper.findCollection(datasets));
-                // TODO mapper.parentLinks()
-                // mapper.childLinks();
-            }
+            MapperBlock block = new MapperBlock( mapper );
+            setDatasets( new HashSet( i.collectFromDatasetLinks( block )));
             
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");
@@ -214,23 +205,23 @@ public class ImageData
             i.setName(this.getName());
             i.setDescription(this.getDescription());
             i.setDescription(this.getDescription());
-            i.setActivePixels((Pixels) mapper.map(this.getDefaultPixels()));
-            i.setRelatedPixels(new HashSet());
+
+            Pixels pix = (Pixels) mapper.map(this.getDefaultPixels());
+            if ( pix != null) pix.setDefaultPixels( Boolean.TRUE );
             
             if (this.getAllPixels() != null){
                 for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
                 {
                     PixelsData p = (PixelsData) it.next();
-                    i.getRelatedPixels().add(mapper.map(p));
+                    i.addToPixels( (Pixels) mapper.map(p) );
                 }
             }
             
             if (this.getAnnotations() != null){
-                i.setAnnotations(new HashSet());
                 for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
                     {
                     AnnotationData ann = (AnnotationData) it.next();
-                    i.getAnnotations().add(mapper.map(ann));
+                    i.addToAnnotations( (ImageAnnotation) mapper.map(ann) );
                     }
             }
             
@@ -238,7 +229,7 @@ public class ImageData
                 for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
                 {
                     DatasetData d = (DatasetData) it.next();
-                    i.addDataset((Dataset) mapper.map(d));
+                    i.linkDataset((Dataset) mapper.map(d));
                 }
             }
         }

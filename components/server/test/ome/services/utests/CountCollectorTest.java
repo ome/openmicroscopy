@@ -28,7 +28,7 @@ public class CountCollectorTest extends TestCase
         
         Project p = new Project(next());
         Dataset d = new Dataset(next());
-        p.addDataset(d);
+        p.linkDataset(d);
         
         c.collect(p);
         Set s = (Set) c.getIds(Dataset.ANNOTATIONS);
@@ -42,15 +42,13 @@ public class CountCollectorTest extends TestCase
         
         Project p = new Project(next());
         Dataset d = new Dataset(next());
-        p.addDataset(d);
+        p.linkDataset(d);
         
         Image i = new Image(next());
-        d.addImage(i);
+        d.linkImage(i);
         
         ImageAnnotation iann = new ImageAnnotation(next());
-        Set annotations = new HashSet();
-        i.setAnnotations(annotations);
-        i.getAnnotations().add(iann);
+        i.addToAnnotations( iann );
         
         c.collect(p);
         Set s_1 = (Set) c.getIds(Dataset.IMAGELINKS);
@@ -69,8 +67,8 @@ public class CountCollectorTest extends TestCase
         Dataset d = new Dataset(next());
         Image i1 = new Image(next());
         Image i2 = new Image(next());
-        d.addImage(i1);
-        d.addImage(i2);
+        d.linkImage(i1);
+        d.linkImage(i2);
         
         c.collect(d);
         Set s = (Set) c.getIds(Image.CATEGORYLINKS);

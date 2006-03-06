@@ -15,9 +15,9 @@
 			<optional name="position" type="ome.model.acquisition.StageLabel"/>
 			<optional name="context" type="ome.model.experiment.Experiment"/>
       <!-- TODO: name switch and active Pixels isn't really optional! -->      
-			<onemany name="relatedPixels" type="ome.model.core.Pixels"/>
-			<optional name="activePixels" type="ome.model.core.Pixels"/>
-
+			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image"/>
+			<onemany name="defaultPixels" type="ome.model.core.Pixels" tag="defaultPixels"/> 
+      
       <!-- Containers -->
 			<parent name="categoryLinks" type="ome.model.containers.CategoryImageLink"
 				target="ome.model.containers.Category"/>
@@ -25,14 +25,14 @@
 				target="ome.model.containers.Dataset"/>			
 
       <!-- Annotations -->
-			<zeromany name="annotations" type="ome.model.annotations.ImageAnnotation"/>
+			<zeromany name="annotations" type="ome.model.annotations.ImageAnnotation" inverse="image"/>
 		</properties>
 	</type>
   
 	<type id="ome.model.core.Pixels">
 		<properties>
       <!-- Acquisition Context 1 -->      
-			<manyone name="image" type="ome.model.core.Image"/>
+			<manyone name="image" type="ome.model.core.Image" tag="defaultPixels" />
 			<optional name="relatedTo" type="ome.model.core.Pixels"/>
 			<!-- TODO: seems insufficient -->
  			<required name="pixelsType" type="ome.model.enums.PixelsType"/>		
@@ -44,7 +44,7 @@
 			<required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
 			<optional name="methodology" type="string"/>
- 			<onemany name="planeInfo" type="ome.model.core.PlaneInfo">
+ 			<onemany name="planeInfo" type="ome.model.core.PlaneInfo" inverse="pixels">
 				<rule id="PLANE_INFO_CARDINALITY" description="0|sizez*sizey*sizec"/>
 			</onemany>
 			<required name="pixelsDimensions" type="ome.model.core.PixelsDimensions"/>
@@ -60,14 +60,17 @@
       </onemany>
       
 			<!--Display Settings 1-->
-			<zeromany name="settings" type="ome.model.display.RenderingDef"/>
-			<zeromany name="thumbnails" type="ome.model.display.Thumbnail"/>
+			<zeromany name="settings" type="ome.model.display.RenderingDef" inverse="pixels"/>
+			<zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
 		</properties>
 	</type>
 
-	<link id="ome.model.core.PixelsOriginalFileMap" 
-		from="ome.model.core.OriginalFile"
-		to="ome.model.core.Pixels"/>
+	<link id="ome.model.core.PixelsOriginalFileMap">
+		<properties>
+			<from_parent type="ome.model.core.OriginalFile"/>
+			<to_child type="ome.model.core.Pixels"/>
+		</properties>
+	</link>
 	      
 	<type id="ome.model.core.OriginalFile">
 		<properties>
@@ -216,12 +219,13 @@
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 	<abstract id="ome.model.acquisition.LightSource" manufactured="true">
-    <properties>
-      <required name="manufacturer" type="string"/>
-      <required name="model" type="string"/>
-      <required name="serialNumber" type="string"/>
-    </properties>
-  </abstract>
+		<properties>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
+			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
+		</properties>
+	</abstract>
   
 	<type id="ome.model.acquisition.Arc"
 		superclass="ome.model.acquisition.LightSource">
@@ -295,27 +299,28 @@
 
 	<type id="ome.model.acquisition.Detector" manufactured="true">
 		<properties>
-      <required name="manufacturer" type="string"/>
-      <required name="model" type="string"/>
-      <required name="serialNumber" type="string"/>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
 			<required name="type" type="ome.model.enums.DetectorType"/>
+			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
 	  
 	<type id="ome.model.acquisition.Microscope" manufactured="true">
 		<properties>
-      <required name="manufacturer" type="string"/>
-      <required name="model" type="string"/>
-      <required name="serialNumber" type="string"/>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
 			<required name="type" type="ome.model.enums.MicroscopeType"/>
 		</properties>
 	</type>
 
 	<type id="ome.model.acquisition.Objective" manufactured="true">
 		<properties>
-      <required name="manufacturer" type="string"/>
-      <required name="model" type="string"/>
-      <required name="serialNumber" type="string"/>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
 			<required name="magnificiation" type="double"/>
 			<required name="lensNA" type="float"/>
 			<optional name="aberrationCorrection"
@@ -324,16 +329,17 @@
 			<optional name="irisDiaphragm" type="ome.model.enums.IrisDiaphragm"/>
 			<optional name="immersionMedium" type="ome.model.enums.ImmersionMedium"/>
 			<optional name="phaseCondenserAnnulus" type="int"/>
+			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
   
 	<type id="ome.model.acquisition.Instrument">
 		<properties>
 			<required name="microscope" type="ome.model.acquisition.Microscope"/>
-			<onemany name="detector" type="ome.model.acquisition.Detector"/>
-			<onemany name="objective" type="ome.model.acquisition.Objective"/>
-			<onemany name="lightSource" type="ome.model.acquisition.LightSource"/>
-			<onemany name="filter" type="ome.model.acquisition.Filter"/>
+			<onemany name="detector" type="ome.model.acquisition.Detector" inverse="instrument"/>
+			<onemany name="objective" type="ome.model.acquisition.Objective" inverse="instrument"/>
+			<onemany name="lightSource" type="ome.model.acquisition.LightSource" inverse="instrument"/>
+			<onemany name="filter" type="ome.model.acquisition.Filter" inverse="instrument"/>
 		</properties>
 	</type>
 	
@@ -344,27 +350,28 @@
 	<type id="ome.model.acquisition.Filter">
 		<properties>
 			<required name="customized" type="boolean"/>
-      <optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
-      <optional name="customizedFilterSet" 
-        type="ome.model.acquisition.CustomizedFilterSet"/>
-      <rule id="FILTER_XOR" type="xor" 
-        description="either filter set or customized filter set"/>
+			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
+			<optional name="customizedFilterSet" 
+				type="ome.model.acquisition.CustomizedFilterSet"/>
+				<rule id="FILTER_XOR" type="xor" 
+					escription="either filter set or customized filter set"/>
+			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
 	
 	<type id="ome.model.acquisition.FilterSet" manufactured="true">
-    <properties>
-      <required name="manufacturer" type="string"/>
-      <required name="model" type="string"/>
-      <required name="serialNumber" type="string"/>
-    </properties>
-  </type>      
+		<properties>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
+		</properties>
+	</type>      
   
   <type id="ome.model.acquisition.CustomizedFilterSet" manufactured="true">
 		<properties>
-      <required name="manufacturer" type="string"/>
-      <required name="model" type="string"/>
-      <required name="serialNumber" type="string"/>
+			<required name="manufacturer" type="string"/>
+			<required name="model" type="string"/>
+			<required name="serialNumber" type="string"/>
 			<required name="excitationFilter" type="ome.model.acquisition.ExcitationFilter"/>
 			<required name="dichroic" type="ome.model.acquisition.Dichroic"/>
 			<required name="emissionFilter" type="ome.model.acquisition.EmissionFilter"/>
@@ -426,11 +433,11 @@
 		<entry name="Achro"/>
 		<entry name="Achromat"/>
 		<entry name="Fluor"/>
-    <entry name="Fl"/>
-    <entry name="Fluar"/>
-    <entry name="Neofluar"/>
-    <entry name="Fluotar"/>
-    <entry name="Apo"/>
+		<entry name="Fl"/>
+		<entry name="Fluar"/>
+		<entry name="Neofluar"/>
+		<entry name="Fluotar"/>
+		<entry name="Apo"/>
 	</enum>
   
   <enum id="ome.model.enums.CorrectionCollar">
@@ -451,8 +458,8 @@
 		<entry name="Water"/>
 		<entry name="Wasser"/>
 		<entry name="Hl"/>
-    <entry name="Gly"/>
-    <entry name="Wl"/>    
+		<entry name="Gly"/>
+		<entry name="Wl"/>    
   </enum>
   
   <!-- OriginalFile Entity -->
@@ -497,34 +504,34 @@
 		<entry name="Monochrome"/>
 	</enum>
 
-  <enum id="ome.model.enums.AcquisitionMode">
+	<enum id="ome.model.enums.AcquisitionMode">
 		<entry name="Wide-field"/>
 		<entry name="LaserScanningMicroscopy"/>
 		<entry name="LaserScanningConfocal"/>
 		<entry name="SpinningDiskConfocal"/>
 		<entry name="SlitScanConfocal"/>
-    <entry name="MultiPhotonMicroscopy"/>
-    <entry name="StructuredIllumination"/>
-    <entry name="SingleMoleculeImaging"/>
-    <entry name="TotalInternalReflection"/>
-    <entry name="FluorescenceLifetime"/>
-    <entry name="SpectralImaging"/>
-    <entry name="FluorescenceCorrelationSpectroscopy"/>
-    <entry name="NearFieldScanningOpticalMicroscopy"/>
-    <entry name="SecondHarmonicGenerationImaging"/>
+		<entry name="MultiPhotonMicroscopy"/>
+		<entry name="StructuredIllumination"/>
+		<entry name="SingleMoleculeImaging"/>
+		<entry name="TotalInternalReflection"/>
+		<entry name="FluorescenceLifetime"/>
+		<entry name="SpectralImaging"/>
+		<entry name="FluorescenceCorrelationSpectroscopy"/>
+		<entry name="NearFieldScanningOpticalMicroscopy"/>
+		<entry name="SecondHarmonicGenerationImaging"/>
 	</enum>
 
   <!-- Detector Entity -->  
   <enum id="ome.model.enums.DetectorType">
-		<entry name="CCD"/>
-    <entry name="Intensified-CCD"/>
-    <entry name="Analog-Video"/>
-    <entry name="PMT"/>
-    <entry name="Photodiode"/>
-    <entry name="Spectroscopy"/>
-    <entry name="Life-time-Imaging"/>
-    <entry name="Correlation-Spectroscopy"/>
-    <entry name="FTIR"/>
+	<entry name="CCD"/>
+	<entry name="Intensified-CCD"/>
+	<entry name="Analog-Video"/>
+	<entry name="PMT"/>
+	<entry name="Photodiode"/>
+	<entry name="Spectroscopy"/>
+	<entry name="Life-time-Imaging"/>
+	<entry name="Correlation-Spectroscopy"/>
+	<entry name="FTIR"/>
   </enum>
 
   <!-- Detector Entity -->    

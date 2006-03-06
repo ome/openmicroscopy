@@ -38,10 +38,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
@@ -108,21 +108,15 @@ public class CategoryGroupData
 			this.setName(cg.getName());
 			this.setDescription(cg.getDescription());
             
-            // Collections 
-			if (cg.getCategoryLinks() != null){
-			    Set categories = new HashSet();
-                for (Iterator i = cg.getCategoryLinks().iterator(); i.hasNext();)
-                {
-                    CategoryGroupCategoryLink cgcl = (CategoryGroupCategoryLink) i.next();
-                    categories.add(cgcl.child());
-                }
-                this.setCategories((Set) mapper.findCollection(categories));
+            // Collections
+            setCategories (new HashSet( 
+                    cg.collectFromCategoryLinks( new MapperBlock( mapper ) )));
                 // FIXME this won't work. Needs CGCL as pointer to original
                 // otherwise you get non-referential integrity
-            }
 
 		} else {
-			throw new IllegalArgumentException("CategoryGroupData can only copy from CategoryGroup types"); // TODO unified erros.
+			throw new IllegalArgumentException(
+                    "CategoryGroupData can only copy from CategoryGroup types"); 
 		}
     }
     
@@ -136,7 +130,7 @@ public class CategoryGroupData
                 for (Iterator it = this.getCategories().iterator(); it.hasNext();)
                 {
                     CategoryData c = (CategoryData) it.next();
-                    cg.addCategory((Category)mapper.map(c));
+                    cg.linkCategory((Category)mapper.map(c));
                 }
             }
         }

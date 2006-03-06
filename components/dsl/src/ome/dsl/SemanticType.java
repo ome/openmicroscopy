@@ -86,7 +86,6 @@ public abstract class SemanticType {
 	
 	/** optional item */
 	private String superclass;
-    private String extracode;
 	
 	// possible interfaces 
 	private Boolean abstrakt;
@@ -112,7 +111,6 @@ public abstract class SemanticType {
 		setGlobal(Boolean.valueOf(attrs.getProperty("global","false")));
 		setImmutable(Boolean.valueOf(attrs.getProperty("immutable","false")));
 		setNamed(Boolean.valueOf(attrs.getProperty("named","false")));
-        setExtracode("");
 		
 		// TODO add "UnsupportedOperation for any other properties in attrs. same in Property
 		
@@ -191,14 +189,6 @@ public abstract class SemanticType {
 	public String getSuperclass() {
 		return superclass;
 	}
-
-    public void setExtracode(String extracode) {
-        this.extracode = extracode;
-    }
-
-    public String getExtracode() {
-        return extracode;
-    }
     
 	public void setNamed(Boolean named) {
 		this.named = named;
@@ -268,27 +258,9 @@ class ContainerType extends SemanticType {
 	}
 }
 
-// TODO should handle ordered?
 class LinkType extends SemanticType {	
 	public LinkType(Properties attrs){
 		super(attrs);
-
-        String from = attrs.getProperty("from");
-        Properties from_p = new Properties();
-        from_p.setProperty("type",from);
-        LinkParent parent = new LinkParent(this,from_p);
-        getProperties().add(parent);
-
-        String to = attrs.getProperty("to");
-        Properties to_p = new Properties();
-        to_p.setProperty("type",to);
-        LinkChild child = new LinkChild(this,to_p);
-        getProperties().add(child);
-
-        setExtracode(
-        "\tpublic void link("+parent.getType()+" parent, "+child.getType()+" child) {"+
-            "\t\tsetParent(parent); setChild(child);}");
-
 	}
 }
 

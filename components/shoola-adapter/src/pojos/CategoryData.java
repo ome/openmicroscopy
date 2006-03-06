@@ -33,16 +33,16 @@ package pojos;
 //Java imports
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
-import ome.model.containers.CategoryImageLink;
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
@@ -116,25 +116,13 @@ public class CategoryData
 			this.setDescription(c.getDescription());
             
             // Collections
-			if (null != c.getImageLinks()) {
-			    Set _images = new HashSet();
-                
-			    for (Iterator i = c.getImageLinks().iterator(); i.hasNext();) {
-			        CategoryImageLink cil = (CategoryImageLink) i.next();
-			        if (cil.child()!=null){
-			            _images.add(mapper.findTarget(cil.child()));
-			        }
-			    }
-                this.setImages(_images);
-            }
-			
-            Set _categories = c.getCategoryGroupLinks();
-            if (_categories != null && _categories.size() > 0) {
-                // FIXME and if size > 1
-                CategoryGroupCategoryLink cgcl = 
-                    (CategoryGroupCategoryLink)_categories.iterator().next(); 
-                this.setGroup((CategoryGroupData) 
-                        mapper.findTarget(cgcl.parent()));    
+            MapperBlock block = new MapperBlock( mapper );
+            setImages(new HashSet( c.collectFromImageLinks( block )));
+            List cats = c.collectFromCategoryGroupLinks( block );
+            this.setGroup( cats.size() > 0 ? (CategoryGroupData) cats.get(0) : null);    
+            if ( cats.size() > 1 )
+            {
+                //  FIXME and if size > 1
             }
             
 		} else {
@@ -148,12 +136,12 @@ public class CategoryData
         if (super.fill(c)) {
             c.setName(this.getName());
             c.setDescription(this.getDescription());
-            c.addCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
+            c.linkCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
             if (this.getImages() != null) {
                 for (Iterator it = this.getImages().iterator(); it.hasNext();)
                 {
                     ImageData i = (ImageData) it.next();
-                    c.addImage((Image) mapper.map(i));
+                    c.linkImage((Image) mapper.map(i));
                 }
             }
         }

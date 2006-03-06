@@ -274,7 +274,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             for (Category c : map.get(cg))
             {
                 iQuery.evict(cg); // FIXME does this suffice?
-                cg.addCategory(c);
+                cg.linkCategory(c);
             }
             returnValues.add(cg);
         }

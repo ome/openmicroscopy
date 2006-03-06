@@ -2,7 +2,9 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -10,7 +12,9 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import ome.api.IPojos;
+import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
+import ome.model.containers.Project;
 import ome.util.builders.PojoOptions;
 
 public class PojosCGCPathsQueryDefinition extends Query
@@ -38,6 +42,9 @@ public class PojosCGCPathsQueryDefinition extends Query
         Collection ids = (Collection) value(QP.IDS);
 
         Criteria cg = session.createCriteria(CategoryGroup.class);
+        cg.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY); // TODO helper meth?
+        // TODO FIXME TRANSFORMER or return new list();
+        
         Criteria[] h1 = Hierarchy.
             fetchChildren(cg, CategoryGroup.class, Integer.MAX_VALUE);
         Criteria img = h1[h1.length-1];
@@ -53,6 +60,7 @@ public class PojosCGCPathsQueryDefinition extends Query
         } else if (IPojos.CLASSIFICATION_ME.equals(algo)) {
 
             Criteria cg2 = session.createCriteria(CategoryGroup.class);
+            cg2.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
             Criteria[] h = Hierarchy.joinChildren(cg2, CategoryGroup.class, 
                     Integer.MAX_VALUE);
             h[h.length-1].add(Restrictions.in("id", ids));
@@ -69,5 +77,11 @@ public class PojosCGCPathsQueryDefinition extends Query
         }
 
     }
-
+    
+    @Override
+    protected void enableFilters(Session session)
+    {
+        ownerFilter(session, CategoryGroup.OWNER_FILTER, Category.OWNER_FILTER);
+    }
+    
 }

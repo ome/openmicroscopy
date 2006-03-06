@@ -10,9 +10,12 @@
 		</properties>
 	</type>
 
-	<link id="ome.model.roi.RoiMap" 
-		from="ome.model.roi.RoiSet"
-		to="ome.model.roi.Roi5D"/>
+	<link id="ome.model.roi.RoiMap">
+		<properties>
+			<from_parent type="ome.model.roi.RoiSet"/>
+			<to_child type="ome.model.roi.Roi5D"/>
+		</properties>
+	</link>
 
 	<!--abstract id="ome.model.roi.Roi">
 		<properties>
@@ -26,7 +29,7 @@
 			<parent name="roiMaps" type="ome.model.roi.RoiMap"
 				target="ome.model.roi.RoiSet"/>
 			<required name="pixels" type="ome.model.core.Pixels"/>
-			<onemany name="extents" type="ome.model.roi.RoiExtent"/>
+			<onemany name="extents" type="ome.model.roi.RoiExtent" inverse="roi5d"/>
 		</properties>
 	</type>
 
@@ -39,11 +42,15 @@
 			<required name="cindexMin" type="int"/>
 			<required name="cindexMax" type="int"/>
 			<manyone name="roi5d" type="ome.model.roi.Roi5D"/><!--TODO-->
-			<onemany name="shapes" type="ome.model.roi.ShapeArea"/>
+			<onemany name="shapes" type="ome.model.roi.ShapeArea" inverse="extent"/>
 		</properties>
 	</type>	
 
-	<abstract id="ome.model.roi.ShapeArea"/>
+	<abstract id="ome.model.roi.ShapeArea">
+		<properties>
+			<manyone name="extent" type="ome.model.roi.RoiExtent"/>
+		</properties>
+	</abstract>
 
 	<type id="ome.model.roi.Square" superclass="ome.model.roi.ShapeArea">
 		<properties>

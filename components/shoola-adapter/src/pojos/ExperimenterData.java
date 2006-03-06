@@ -37,11 +37,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
@@ -102,17 +101,12 @@ public class ExperimenterData
 			this.setInstitution(exp.getInstitution());
             
             // Collections
-            if (exp.getGroupExperimenterMap() != null){
-                Set groups = new HashSet();
-                for (Iterator i = exp.getGroupExperimenterMap().iterator(); i.hasNext();)
-                {
-                    GroupExperimenterMap map = (GroupExperimenterMap) i.next();
-                    groups.add(map.parent());
-                }
-                this.setGroups((Set) mapper.findCollection(groups));
-            }
+            MapperBlock block = new MapperBlock( mapper );
+            setGroups( new HashSet( exp.collectFromExperimenterGroupLinks( block )));
+
 		} else {
-			throw new IllegalArgumentException("ExperimenterData can only copy from Experimenter");
+			throw new IllegalArgumentException(
+                    "ExperimenterData can only copy from Experimenter");
 		}
     }
     
@@ -129,7 +123,7 @@ public class ExperimenterData
                 for (Iterator it = this.getGroups().iterator(); it.hasNext();)
                 {
                     GroupData g = (GroupData) it.next();
-                    e.addExperimenterGroup((ExperimenterGroup) mapper.map(g));
+                    e.linkExperimenterGroup((ExperimenterGroup) mapper.map(g));
                 }
             }
             

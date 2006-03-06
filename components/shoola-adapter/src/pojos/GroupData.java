@@ -37,11 +37,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
@@ -94,17 +93,12 @@ public class GroupData
 			this.setName(grp.getName());
 
             // Collections
-            if (grp.getGroupExperimenterMap() != null){
-                Set experimenters = new HashSet();
-                for (Iterator i = grp.getGroupExperimenterMap().iterator(); i.hasNext();)
-                {
-                    GroupExperimenterMap map = (GroupExperimenterMap) i.next();
-                    experimenters.add(map.parent());
-                    this.setExperimenters((Set) mapper.findCollection(experimenters));
-                }
-            }
-   	} else {
-			throw new IllegalArgumentException("GroupData can only copy from Group, not "+model.getClass().getName());
+            MapperBlock block = new MapperBlock( mapper );
+            setExperimenters( new HashSet(grp.collectFromExperimenterLinks( block )));
+    	} else {
+			throw new IllegalArgumentException(
+                    "GroupData can only copy from Group, not "+
+                    model.getClass().getName()); // TODO all errors like this.
 		}
     }
 
@@ -119,7 +113,7 @@ public class GroupData
                 for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
                 {
                     ExperimenterData e = (ExperimenterData) it.next();
-                    g.addExperimenter((Experimenter) mapper.map(e));
+                    g.linkExperimenter((Experimenter) mapper.map(e));
                 }
             }
             
@@ -156,7 +150,7 @@ public class GroupData
     }
 
     
-    public void setOwner(ExperimenterData Owner)
+    public void setOwner(ExperimenterData owner)
     {
         this.owner = owner;
     }

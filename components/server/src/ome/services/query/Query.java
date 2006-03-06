@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
@@ -60,6 +61,7 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.util.builders.PojoOptions;
 
 // Application-internal dependencies
 
@@ -157,13 +159,41 @@ public abstract class Query implements HibernateCallback
     protected abstract Object 
     runQuery(Session session) throws HibernateException, SQLException;
     
+    protected Set<String> newlyEnabledFilters = new HashSet<String>();
+
     protected void enableFilters(Session session){
         
     }
+
+    protected void ownerFilter(Session session, String...filters)
+    {
     
-    protected void disableFilters(Session session){
-        
+        if (check(QP.OPTIONS) )
+        {
+            PojoOptions po = new PojoOptions( (Map)value( QP.OPTIONS ) );
+            if ( po.isExperimenter() ) // TODO || is Group();
+            {
+                for (String filter : filters)
+                {
+                    if (session.getEnabledFilter( filter ) != null) 
+                        newlyEnabledFilters.add(  filter );
+                
+                    session.enableFilter( filter )
+                        .setParameter( OWNER_ID, po.getExperimenter() );
+                }
+            
+            }
+        }
     }
+    
+    protected void disableFilters(Session session)
+    {
+        for (String enabledFilter : newlyEnabledFilters)
+        {
+            session.disableFilter(enabledFilter);    
+        }
+        
+    }    
 }
 
 class Hierarchy {

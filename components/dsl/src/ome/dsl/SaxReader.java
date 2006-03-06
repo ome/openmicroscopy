@@ -78,7 +78,8 @@ public class SaxReader {
 		try {
 			xmlFile = file.toURL();
 		} catch (MalformedURLException e) {
-			throw new RuntimeException("Error determining file's path:"+file);
+			throw new RuntimeException(
+                    "Error determining file's path:"+file+" :\n"+e.getMessage(),e);
 		}
 		init();
 	}
@@ -91,7 +92,8 @@ public class SaxReader {
 		    // XMLReader reader = parser.getXMLReader();  
 		} 
 		catch (Exception e){
-			throw new RuntimeException("Error setting up SaxReader",e);
+			throw new RuntimeException(
+                    "Error setting up SaxReader :\n"+e.getMessage(),e);
 		}	
 	}
 	
@@ -100,7 +102,8 @@ public class SaxReader {
 	    try {
 			parser.parse(xmlFile.getPath(), handler);
 		} catch (Exception e) {
-			throw new RuntimeException("Error parsing "+xmlFile,e);
+			throw new RuntimeException(
+                    "Error parsing "+xmlFile+" :\n"+e.getMessage(),e);
 		}
 		
 		return handler.process();
@@ -157,7 +160,7 @@ class DSLHandler extends DefaultHandler {
             }
             
 			property = Property.makeNew(element,type,attrs2props(attrs));
-		
+            
 		} else if ("properties".equals(element)) {
             // ok. these usually contains lots of properties
         } else if (SemanticType.TYPES.contains(element)){
@@ -168,6 +171,7 @@ class DSLHandler extends DefaultHandler {
 			}
 			
 			type = SemanticType.makeNew(element,attrs2props(attrs));
+            
 		} else if ("types".equals(element)) {
 		    // also ok.
         } else {

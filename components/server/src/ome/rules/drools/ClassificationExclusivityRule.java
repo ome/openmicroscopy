@@ -38,6 +38,7 @@ package ome.rules.drools;
 
 //Java imports
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -76,8 +77,8 @@ public class ClassificationExclusivityRule {
     
     @Condition
     public boolean category(Category c) {
-    	Set<CategoryImageLink> images = c.getImageLinks();
-        Set<CategoryGroupCategoryLink> cgs = c.getCategoryGroupLinks();
+    	List<CategoryImageLink> images = c.collectFromImageLinks( null );
+        List<CategoryGroupCategoryLink> cgs = c.collectFromCategoryGroupLinks( null );
 
         // TODO
     	

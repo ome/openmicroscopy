@@ -29,7 +29,6 @@ package ome.adapters.pojos.itests;
  */
 
 //Java imports
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +55,6 @@ import ome.client.ServiceFactory;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.ILink;
-import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
@@ -167,9 +165,8 @@ public class PojosServiceTest extends TestCase {
         img = (Image) reverse.map(imgData);
         img = (Image) iUpdate.saveAndReturnObject(img);
         assertTrue("It better have a dataset link",
-                img.getDatasetLinks().size()>0);
-        ILink link = (ILink) img.getDatasetLinks().iterator().next();
-        ds = (Dataset) link.getParent();
+                img.sizeOfDatasetLinks()>0);
+        ds = (Dataset) img.iterateOverDatasetLinks().next();
         Long id = ds.getId();
         
         // another copy
@@ -179,9 +176,8 @@ public class PojosServiceTest extends TestCase {
                 "where i.id = ?",
                 new Object[]{img.getId()});
         assertTrue("It better have a dataset link too",
-                img2.getDatasetLinks().size()>0);
-        ILink link2 = (ILink) img2.getDatasetLinks().iterator().next();
-        Dataset ds2 = (Dataset) link2.getParent();
+                img2.sizeOfDatasetLinks()>0);
+        Dataset ds2 = (Dataset) img2.iterateOverDatasetLinks().next();
         assertTrue("And the ids have to be the same",id.equals(ds2.getId()));
     }
     

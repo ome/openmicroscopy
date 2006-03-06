@@ -30,14 +30,12 @@
 package pojos;
 
 //Java imports
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.util.ModelMapper;

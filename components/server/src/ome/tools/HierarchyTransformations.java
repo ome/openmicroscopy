@@ -50,42 +50,40 @@ import ome.model.containers.Project;
 public class HierarchyTransformations {
 
 	public static Set invertPDI(Set imagesAll) {
-		
+
+        Set cleared = new HashSet();
 		Set hierarchies = new HashSet();
         Iterator i = imagesAll.iterator();
         while (i.hasNext()) {
             Image img = (Image) i.next();
-            Set datasets = img.getDatasetLinks();
 
-            if (datasets == null || datasets.size() < 1) {
+            Iterator d = img.iterateOverDatasetLinks();
+            if ( ! d.hasNext() ) {
                 hierarchies.add(img);
             } else {
-                Iterator d = datasets.iterator();
                 while (d.hasNext()) {
-                    DatasetImageLink dil = (DatasetImageLink) d.next();
-                    Dataset ds = dil.parent();
+                    Dataset ds = (Dataset) d.next();
+                    
+                    if ( ! cleared.contains( ds ))
+                    {
+                        ds.clearImageLinks();
+                        cleared.add( ds );
+                    }
+                    ds.linkImage( img );
 
-                    if (!(ds.getImageLinks() instanceof HashSet))
-                        ds.setImageLinks(new HashSet());
-                    DatasetImageLink idl = new DatasetImageLink();
-                    idl.link(ds,img);
-                    ds.getImageLinks().add(idl); // TODO addXXX meth.
-
-                    Set projects = ds.getProjectLinks();
-                    if (projects == null || projects.size() < 1) {
-                        hierarchies.add(ds);
+                    Iterator p = ds.iterateOverProjectLinks();
+                    if ( ! p.hasNext() ) {
+                        hierarchies.add( ds );
                     } else {
-                        Iterator p = projects.iterator();
                         while (p.hasNext()) {
-                            ProjectDatasetLink pdl = 
-                                (ProjectDatasetLink) p.next();
-                            Project prj = pdl.parent();
+                            Project prj = (Project) p.next();
 
-                            if (!(prj.getDatasetLinks() instanceof HashSet))
-                                prj.setDatasetLinks(new HashSet());
-                            ProjectDatasetLink dpl = new ProjectDatasetLink();
-                            dpl.link(prj,ds);
-                            prj.getDatasetLinks().add(dpl); // TODO addXXX meth
+                            if ( ! cleared.contains( p ))
+                            {
+                                prj.clearDatasetLinks();
+                                cleared.add( prj );
+                            }
+                            prj.linkDataset( ds );
 
                             hierarchies.add(prj);
                         }
@@ -99,43 +97,41 @@ public class HierarchyTransformations {
 	
 	public static Set invertCGCI(Set imagesAll) {
 
+        Set cleared = new HashSet();
         Set hierarchies = new HashSet();
         Iterator i = imagesAll.iterator();
         while (i.hasNext()) {
             Image img = (Image) i.next();
-            Set categories = img.getCategoryLinks();
-
-            if (categories == null || categories.size() < 1) {
+            
+            Iterator c = img.iterateOverCategoryLinks();
+            if ( ! c.hasNext() ) {
                 hierarchies.add(img);
             } else {
-                Iterator c = categories.iterator();
                 while (c.hasNext()) {
-                    CategoryImageLink cil = (CategoryImageLink) c.next();
-                    Category ca = cil.parent();
+                    Category ca = (Category) c.next();
 
-                    if (!(ca.getImageLinks() instanceof HashSet))
-                        ca.setImageLinks(new HashSet());
-                    CategoryImageLink icl = new CategoryImageLink();
-                    icl.link(ca,img);
-                    ca.getImageLinks().add(icl);
-                    
-                    Set cgroups = ca.getCategoryGroupLinks();
-                    if (cgroups == null || cgroups.size() < 1) {
+                    if ( ! cleared.contains( ca ))
+                    {
+                        ca.clearImageLinks();
+                        cleared.add( ca );
+                    }
+                    ca.linkImage( img );
+
+                    Iterator g = ca.iterateOverCategoryGroupLinks();
+                    if ( ! g.hasNext() ) {
                         hierarchies.add(ca);
                     } else {
-                        Iterator g = cgroups.iterator();
                         while (g.hasNext()){
-                            CategoryGroupCategoryLink cgcl =
-                                (CategoryGroupCategoryLink) g.next();
-                            CategoryGroup cg = cgcl.parent();
+                            CategoryGroup cg = (CategoryGroup) g.next();
                             
-                            if (!(cg.getCategoryLinks() instanceof HashSet))
-                                cg.setCategoryLinks(new HashSet());
-                            CategoryGroupCategoryLink ccgl =
-                                new CategoryGroupCategoryLink();
-                            ccgl.link(cg,ca);
-                            cg.getCategoryLinks().add(ccgl);
+                            if ( ! cleared.contains( cg ))
+                            {
+                                cg.clearCategoryLinks();
+                                cleared.add( cg );
+                            }
+                            cg.linkCategory( ca );
                             
+                            hierarchies.add( cg );
                         }
                     }
                 }
@@ -144,5 +140,4 @@ public class HierarchyTransformations {
 		return hierarchies;
 	}
 
-	
 }

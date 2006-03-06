@@ -1,13 +1,6 @@
 $pojo.getPackageDeclaration()
 
 $secondpassclassimports
-###########################################################
-## <CustomCode>
-###########################################################
-import java.util.*;
-###########################################################
-## </CustomCode>
-###########################################################
 
 $templates.PojoTypeDeclaration 
 {
@@ -25,10 +18,12 @@ $templates.PojoFields
     /** default constructor */
     public $pojo.getDeclarationName()() {}
 #if($clazz.identifierProperty)
+	/** default constructor which sets id */
     public $pojo.getDeclarationName()(Long id){
 		setId(id);
 		getDetails().setContext(this);
 	}
+	/** constructor which sets id and permits the "unloading" of the object */
 	public $pojo.getDeclarationName()(Long id, boolean loaded)
 	{
 		this(id);
@@ -37,7 +32,273 @@ $templates.PojoFields
 		}
 	}
 #end
+##
+################################################################################
+## PROPERY LEVEL EXTRA METHODS
+################################################################################
+##
+#foreach($property in $pojo.getAllPropertiesIterator())
+#set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
+#set( $fieldtype =  $pojo.getJavaTypeName($property, $jdk5) )
+#set( $elementtype = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
+#if( $c2j.hasMetaAttribute($property, "set-add-method") || $c2j.hasMetaAttribute($property, "link-add-method") )
 
+	private Set ${property.name} = new HashSet(0);
+
+	/** 
+	 * returns ${property.name} . You should not modify this Set unless you
+	 * know what you are doing. Use the iterate method instead.
+	 */
+    protected $fieldtype get${PropertyName}() {
+        return this.${property.name};
+    }
+	
+	/** 
+	 * setter for ${property.name} should be avoided. Does not fulfill normal semantics.
+	 */
+    protected void set${PropertyName}($fieldtype ${property.name}) {
+        this.${property.name} = ${property.name};
+    }
+
+	/**
+	 * returns the size of ${property.name}. If less than zero, the Set was null.
+	 */
+	public int sizeOf${PropertyName}() {
+		return this.${property.name} == null ? -1 : this.${property.name}.size();
+	}
+	
+#end
+## 
+## SETS: These methods represent our handling of Hibernate's "inverse" sets
+##       which do not act as expected with regards to getters & setters.
+##
+#if( $c2j.hasMetaAttribute($property, "set-add-method") )
+#set( $inverse = $pojo.beanCapitalize( $c2j.getMetaAsString($property, "set-add-method")))
+	/** 
+	 * use instead of set${PropertyName} . Makes the necessary
+	 * call on $elementtype as well.
+	 */
+	public void addTo${PropertyName}($elementtype target) {
+		get${PropertyName}().add( target );
+		target.set${inverse} ( this );
+	}
+	
+	/**
+	 * should be used rather than accessing the ${property.name} set directly.
+	 */ 
+	public Iterator iterateOver${PropertyName}() {
+	
+		if ( get${PropertyName}() == null )
+		{
+			return new ome.util.EmptyIterator();
+		}
+		return get${PropertyName}().iterator();
+	}
+
+	/**
+	 * takes a CBlock and calls the block once for each $elementtype while 
+	 * collecting the results. If <code>block == null</code>, then the 
+	 * iterator values themselves are collected.
+	 */ 
+	public List collectFrom${PropertyName}(ome.util.CBlock block) {
+		List result = new ArrayList();
+		Iterator it = iterateOver${PropertyName}();
+		while ( it.hasNext() )
+		{
+			IObject obj = (IObject) it.next();
+			if ( block != null )
+			{
+				result.add( block.call( obj ) );
+			} else {
+				result.add( obj );
+			}
+				
+		}
+		return result;
+	}
+	
+	/**
+	 * removes a single element from this set and makes the inverse call on ${elementtype} 
+	 */
+	public void removeFrom${PropertyName}(${elementtype} target) {
+		target.set${inverse} ( null );
+		get${PropertyName}().remove( target );
+	}
+
+	/**
+	 * clears the set. 
+	 */
+	public void clear${PropertyName}() {
+		Iterator it = iterateOver${PropertyName}();
+		while ( it.hasNext() )
+		{
+			$elementtype target = ($elementtype) it.next();
+			target.set${inverse} ( null );
+		}
+		get${PropertyName}().clear();
+	}
+	
+## 
+## LINK: These methods are like the set methods above, but help to completely
+##       hide the link implementations.
+##
+#elseif( $c2j.hasMetaAttribute($property, "link-add-method") )
+#set( $elementtype = $c2j.getMetaAsString($property, "link-add-method"))
+#set( $Name = $c2j.unqualify( $elementtype ) )
+#set( $LinkType = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
+#set( $order = $c2j.getMetaAsString($property, "link-add-order"))
+#set( $next = $c2j.getMetaAsString($property, "link-add-next"))
+#set( $other = $c2j.getMetaAsString($property, "link-add-other"))
+	
+	/**
+	 * adds a $elementtype to ${property.name} . This entails changing our ${property.name} Set,
+	 * creating a new $LinkType and calling link${pojo.declarationName} on the $elementtype
+	 */
+	public void link${Name} ($elementtype addition) {
+		link${Name}( addition, true );
+	}
+	
+	/**
+	 * adds a $elementtype to ${property.name}, allowing for recursion -- whether
+	 * or not the addition will call add${pojo.declarationName} again.
+	 */ 
+	public void link${Name} ($elementtype addition, boolean recurse) {
+		$LinkType link = new $LinkType();
+		link.link( $order );
+		get${PropertyName}().add( link );
+		if (recurse) {
+			addition.link${pojo.declarationName}( this, false );
+		}
+	}
+
+	/**
+	 * provides an iterator over the $next values of the ${property.name}
+	 */ 
+	 public Iterator iterateOver${Name}Links() {
+		if ( get${PropertyName}() == null )
+			return new ome.util.EmptyIterator();
+			
+        final Iterator it = get${PropertyName}().iterator();
+        return new Iterator() {
+
+            public boolean hasNext()
+            {
+                return it == null ? false : it.hasNext();
+            }
+
+            public Object next()
+            {
+                if ( it == null ) throw new NoSuchElementException( 
+					"$property.name is null; no elements." );
+					
+                $LinkType link = ($LinkType) it.next();
+                return link.${next}();
+            }
+
+            public void remove()
+            {
+                throw new UnsupportedOperationException("Cannot call remove on this iterator.");
+            }
+            
+        };
+
+    }
+
+	/**
+	 * takes a CBlock and calls the block once for each $elementtype while 
+	 * collecting the results. If <code>block == null</code>, then the 
+	 * iterator values themselves are collected.
+	 */ 
+	public List collectFrom${Name}Links(ome.util.CBlock block) {
+		List result = new ArrayList();
+		Iterator it = iterateOver${Name}Links();
+		while ( it.hasNext() )
+		{
+			IObject obj = (IObject) it.next();
+			if ( block != null )
+			{
+				result.add( block.call( obj ) );
+			} else {
+				result.add( obj );
+			}
+				
+		}
+		return result;
+	}
+	
+	/**
+	 * removes $elementtype from ${property.name}.
+	 */
+	public void unlink${Name} ($elementtype removal) {
+		unlink${Name}( removal, true );
+	}
+	
+	/**
+	 * removes the $elementtype from ${property.name}, allowing for recursion -- whether
+	 * or not the removal will call unlink${pojo.declarationName} again.
+	 */ 
+	public void unlink${Name} ($elementtype removal, boolean recurse) {
+        final Iterator it = get${PropertyName}().iterator();
+		final Set toRemove = new HashSet();
+		while ( it.hasNext() )
+		{
+			$LinkType link = ($LinkType) it.next();
+			if ( link.${other}() == removal ) {
+				unlink${Name}Link( link );
+				toRemove.add( link );
+			}
+		}
+		get${PropertyName}().removeAll( toRemove );		
+	}
+	
+	/**
+	 * clears the set. 
+	 */
+	public void clear${Name}Links() {
+		Iterator it = get${PropertyName}().iterator();
+		while ( it.hasNext() )
+		{
+			$LinkType link = ($LinkType) it.next();
+			unlink${Name}Link( link );
+		}
+		get${PropertyName}().clear();
+	}
+	
+	protected void unlink${Name}Link( $LinkType link )
+	{
+		$elementtype $other = link.${other}();
+				
+		link.setParent( null );
+		link.setChild( null );
+				
+		${other}.unlink${pojo.declarationName}( this, false );
+		
+	}
+#end
+#end
+################################################################################
+## CLASS LEVEL EXTRA METHODS
+################################################################################
+##
+## Link Type
+##
+#if( $c2j.hasMetaAttribute($clazz, "link-parent") )	
+#set( $parent = $c2j.getMetaAsString($clazz, "link-parent"))
+#set( $child = $c2j.getMetaAsString($clazz, "link-child"))
+
+	public void link($parent parent, $child child) {
+		setParent( parent ); 
+		setChild( child );
+	}
+	
+	public $parent parent() {
+		return ($parent) getParent();
+	}
+	
+	public $child child() {
+		return ($child) getChild();
+	}
+#end
 ###########################################################
 ## </CustomCode>
 ###########################################################
@@ -76,7 +337,7 @@ $templates.PojoExtraClassCode
 #set( $get = "$pojo.getGetterSignature($property)()" )
 #set( $set = "set$pojo.getPropertyName($property)" )
 #set( $field = $property.name )
-	  $set(($type) filter.filter(${field.toUpperCase()},$get)); 
+	  this.$property.name = ($type) filter.filter(${field.toUpperCase()}, $property.name ); 
 #end ## foreach
 #if($pojo.isSubclass())
   	 return super.acceptFilter(filter);
@@ -182,6 +443,7 @@ $templates.PojoExtraClassCode
 	
 	public void unload()
 	{
+		_loaded = false;
 #foreach($property in $pojo.allPropertiesIterator)
 #if(!$clazz.identifierProperty.equals($property))	
 #set( $set = "set$pojo.getPropertyName($property)" )
@@ -191,7 +453,6 @@ $templates.PojoExtraClassCode
 #if($pojo.isSubclass())
 		super.unload();
 #else			
-		_loaded = false;
 
 #end ## if subclass
 	}

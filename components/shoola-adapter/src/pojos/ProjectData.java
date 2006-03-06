@@ -38,11 +38,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
@@ -109,18 +108,12 @@ public class ProjectData
             this.setDescription(p.getDescription());
 
             // Collections
-            if (p.getDatasetLinks() != null){
-                Set datasets = new HashSet();
-                for (Iterator it = p.getDatasetLinks().iterator(); it.hasNext();)
-                {
-                    ProjectDatasetLink pdl = (ProjectDatasetLink) it.next();
-                    datasets.add(pdl.child());
-                }
-                this.setDatasets((Set) mapper.findCollection(datasets));
-            }
+            MapperBlock block = new MapperBlock( mapper );
+            setDatasets( new HashSet( p.collectFromDatasetLinks( block )));
 
 		} else { 
-			throw new IllegalArgumentException("ProjectData copies only from Project");
+			throw new IllegalArgumentException(
+                    "ProjectData copies only from Project");
 		}
     }
 
@@ -138,7 +131,7 @@ public class ProjectData
                 for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
                 {
                     DatasetData d = (DatasetData) it.next();
-                    p.addDataset((Dataset) mapper.map(d));
+                    p.linkDataset((Dataset) mapper.map(d));
                 }
             }
             

@@ -163,9 +163,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     public void testNewCollectionFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------
-        Set infos = new HashSet();
         PlaneInfo pi1 = new PlaneInfo(),pi2 = new PlaneInfo();
-        infos.add(pi1); infos.add(pi2);
 
         pi1.setPixels(p);
         pi1.setExposureTime(new Float(10));
@@ -175,14 +173,15 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         pi2.setExposureTime(new Float(100));
         pi2.setTimestamp(new Float(-193));
         
-        p.setPlaneInfo(infos);
+        p.addToPlaneInfo( pi1 );
+        p.addToPlaneInfo( pi2 );
         p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         
         // TEST ----------------------------------------------------
-        assertTrue("Need two pixInfos, please.",p.getPlaneInfo().size() == 2);
-        for (PlaneInfo pi : (Set<PlaneInfo>)p.getPlaneInfo())
+        assertTrue("Need two pixInfos, please.",p.collectFromPlaneInfo(null).size() == 2);
+        for (PlaneInfo pi : (List<PlaneInfo>)p.collectFromPlaneInfo(null))
         {
             assertTrue("Need an id, please.", pi.getId().longValue()>0);
         }

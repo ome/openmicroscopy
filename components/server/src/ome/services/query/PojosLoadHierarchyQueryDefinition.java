@@ -50,32 +50,15 @@ public class PojosLoadHierarchyQueryDefinition extends Query
         return c.list();
     }
 
-
-    protected boolean projectOwnerFilterAlreadyEnabled = false;
-    
     @Override
     protected void enableFilters(Session session)
     {
-        if (session.getEnabledFilter(Project.OWNER_FILTER) != null) 
-            projectOwnerFilterAlreadyEnabled = true;
-
-        if (check(QP.OPTIONS) )
-        {
-            PojoOptions po = new PojoOptions((Map)value(QP.OPTIONS));
-            if (po.isExperimenter()) // TODO || is Group();
-            {
-                session.enableFilter(Project.OWNER_FILTER)
-                .setParameter(OWNER_ID,po.getExperimenter());
-            }
-            
-        }
-    }
-
-    @Override
-    protected void disableFilters(Session session)
-    {
-        if (!projectOwnerFilterAlreadyEnabled)
-            session.disableFilter(Project.OWNER_FILTER);
+        ownerFilter(session, 
+                CategoryGroup.OWNER_FILTER, 
+                Category.OWNER_FILTER,
+                Project.OWNER_FILTER,
+                Dataset.OWNER_FILTER
+                );
     }
 
 }

@@ -123,7 +123,8 @@ public abstract class ModelMapper extends ContextFilter {
         // IMMUTABLES
 		if (null == current 
                 || current instanceof Number
-                || current instanceof String) 
+                || current instanceof String
+                || current instanceof Boolean) 
 			return current;
 		
 		Object target = model2target.get(current);

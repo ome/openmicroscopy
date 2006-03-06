@@ -141,7 +141,7 @@ public class PojoOptions
     	return this;
     }
     
-    public PojoOptions countsFor(Integer i){
+    public PojoOptions countsFor(Long i){
     	options.put(COUNTS,i);
     	return this;
     }
@@ -198,7 +198,6 @@ public class PojoOptions
      * Filtered by Group
      * ============================== */
 
-    /* FIXME : This is currently disabled. 
     public PojoOptions grp(Long i){
         options.put(GROUP,i);
         return this;
@@ -216,7 +215,6 @@ public class PojoOptions
     public Long getGroup(){
         return (Long) options.get(GROUP);
     }
-    */
     
     /* ==============================
      * Helpers
