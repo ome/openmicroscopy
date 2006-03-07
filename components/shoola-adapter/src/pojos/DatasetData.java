@@ -41,6 +41,7 @@ import java.util.Set;
 import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
+import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -155,38 +156,53 @@ public class DatasetData
 		}
     }
 
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        Dataset d = new Dataset();
-        if (super.fill(d)) {
-            d.setName(this.getName());
-            d.setDescription(this.getDescription());
-            if (this.getImages() != null) {
-                for (Iterator it = this.getImages().iterator(); it.hasNext();)
-                {
-                    ImageData i = (ImageData) it.next();
-                    d.linkImage((Image) mapper.map(i));
+        return new Dataset();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof Dataset)
+        {
+            Dataset d = (Dataset) obj;
+          
+            if (super.fill(d)) {
+                d.setName(this.getName());
+                d.setDescription(this.getDescription());
+                if (this.getImages() != null) {
+                    for (Iterator it = this.getImages().iterator(); it.hasNext();)
+                    {
+                        ImageData i = (ImageData) it.next();
+                        d.linkImage((Image) mapper.map(i));
+                    }
                 }
+                
+                if (this.getProjects() != null) {
+                    for (Iterator it = this.getProjects().iterator(); it.hasNext();)
+                    {
+                        ProjectData p = (ProjectData) it.next();
+                        d.linkProject((Project) mapper.map(p));
+                    }
+                }
+                
+                if (this.getAnnotations() != null) {
+                    for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
+                    {
+                        AnnotationData ann = (AnnotationData) it.next();
+                        d.addToAnnotations( (DatasetAnnotation) mapper.map(ann));
+                    }
+                }
+                
             }
+            return d;
             
-            if (this.getProjects() != null) {
-                for (Iterator it = this.getProjects().iterator(); it.hasNext();)
-                {
-                    ProjectData p = (ProjectData) it.next();
-                    d.linkProject((Project) mapper.map(p));
-                }
-            }
+        } else {
             
-            if (this.getAnnotations() != null) {
-                for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
-                {
-                    AnnotationData ann = (AnnotationData) it.next();
-                    d.addToAnnotations( (DatasetAnnotation) mapper.map(ann));
-                }
-            }
+            throw new IllegalArgumentException(
+                    "DatasetData can only fill Dataset.");
             
         }
-        return d;
     }
     
 	public void setName(String name) {

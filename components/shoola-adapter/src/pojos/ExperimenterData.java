@@ -39,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.util.ModelMapper;
@@ -110,25 +111,39 @@ public class ExperimenterData
 		}
     }
     
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        Experimenter e = new Experimenter();
-        if (super.fill(e)) {
-            e.setFirstName(this.getFirstName());
-            e.setLastName(this.getLastName());
-            e.setEmail(this.getEmail());
-            e.setInstitution(this.getInstitution());
-     
-            if (this.getGroups() != null) {
-                for (Iterator it = this.getGroups().iterator(); it.hasNext();)
-                {
-                    GroupData g = (GroupData) it.next();
-                    e.linkExperimenterGroup((ExperimenterGroup) mapper.map(g));
+        return new Experimenter();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof Experimenter)
+        {
+            Experimenter e = (Experimenter) obj;
+          
+            if (super.fill(e)) {
+                e.setFirstName(this.getFirstName());
+                e.setLastName(this.getLastName());
+                e.setEmail(this.getEmail());
+                e.setInstitution(this.getInstitution());
+         
+                if (this.getGroups() != null) {
+                    for (Iterator it = this.getGroups().iterator(); it.hasNext();)
+                    {
+                        GroupData g = (GroupData) it.next();
+                        e.linkExperimenterGroup((ExperimenterGroup) mapper.map(g));
+                    }
                 }
+                
             }
+            return e;
             
+        } else {
+            
+            throw new IllegalArgumentException(
+                    "ExperimenterData can only fill Experimenter.");
         }
-        return e;
     }
 
 	public void setFirstName(String firstName) {

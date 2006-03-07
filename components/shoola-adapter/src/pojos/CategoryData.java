@@ -43,6 +43,7 @@ import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
@@ -130,22 +131,38 @@ public class CategoryData
 		}
     }
 
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        Category c = new Category();
-        if (super.fill(c)) {
-            c.setName(this.getName());
-            c.setDescription(this.getDescription());
-            c.linkCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
-            if (this.getImages() != null) {
-                for (Iterator it = this.getImages().iterator(); it.hasNext();)
-                {
-                    ImageData i = (ImageData) it.next();
-                    c.linkImage((Image) mapper.map(i));
+        return new Category();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof Category)
+        {
+            Category c = (Category) obj;
+            
+            if (super.fill(c)) {
+                c.setName(this.getName());
+                c.setDescription(this.getDescription());
+                c.linkCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
+                if (this.getImages() != null) {
+                    for (Iterator it = this.getImages().iterator(); it.hasNext();)
+                    {
+                        ImageData i = (ImageData) it.next();
+                        c.linkImage((Image) mapper.map(i));
+                    }
                 }
             }
+            return c;
+        
+        } else {
+            
+            throw new IllegalArgumentException(
+                    "CategoryData can only fill Category.");
+            
         }
-        return c;
+        
     }
     
 	public void setName(String name) {

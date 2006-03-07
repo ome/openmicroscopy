@@ -40,6 +40,7 @@ import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
@@ -126,31 +127,55 @@ public class AnnotationData
 		}
     }
     
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
         if (this.annotatedObject instanceof ImageData)
         {
-            ImageAnnotation iann = new ImageAnnotation();
-            if (super.fill(iann)) {
-                iann.setContent(this.getText());
-                iann.setImage((Image) mapper.map(this.getAnnotatedObject()));
-            }
-            return iann;
-            
-        } else if (this.annotatedObject instanceof DatasetData) 
+            return new ImageAnnotation();
+        } else if (this.annotatedObject instanceof DatasetData) {
+            return new DatasetAnnotation();
+        } else {
+            // FIXME
+            throw new IllegalStateException(
+            "Can't create IObject without knowing annotation type.");
+        }
+    
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof ImageAnnotation || obj instanceof DatasetAnnotation )
         {
-            DatasetAnnotation dann = new DatasetAnnotation();
-            if (super.fill(dann)) {
-                dann.setContent(this.getText());
-                dann.setDataset((Dataset) mapper.map(this.getAnnotatedObject()));
-            }
+            if (this.annotatedObject instanceof ImageData)
+            {
+                ImageAnnotation iann = (ImageAnnotation) obj;
+                if (super.fill(iann)) {
+                    iann.setContent(this.getText());
+                    iann.setImage((Image) mapper.map(this.getAnnotatedObject()));
+                }
+                return iann;
+                
+            } else if (this.annotatedObject instanceof DatasetData) 
+            {
+                DatasetAnnotation dann = (DatasetAnnotation) obj;
+                if (super.fill(dann)) {
+                    dann.setContent(this.getText());
+                    dann.setDataset((Dataset) mapper.map(this.getAnnotatedObject()));
+                }
+                
+                return dann;
             
-            return dann;
+            } else {
+                
+                throw new IllegalStateException(
+                        "Can't create IObject without knowing annotation type.");
+                
+            }
         
         } else {
             
             throw new IllegalStateException(
-                    "Can't create IObject without knowing annotation type.");
+            "AnnotationData can only fill ImageAnnotation and DatasetAnnotation types");
             
         }
             

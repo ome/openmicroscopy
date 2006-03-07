@@ -39,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.util.ModelMapper;
@@ -102,23 +103,37 @@ public class GroupData
 		}
     }
 
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        ExperimenterGroup g = new ExperimenterGroup();
-        if (super.fill(g)) {
-            g.setName(this.getName());
-            // TODO what to do with DESCRIPTION and other missing fields
-            
-            if (this.getExperimenters() != null){
-                for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
-                {
-                    ExperimenterData e = (ExperimenterData) it.next();
-                    g.linkExperimenter((Experimenter) mapper.map(e));
+        return new ExperimenterGroup();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof ExperimenterGroup)
+        {
+            ExperimenterGroup g = (ExperimenterGroup) obj;
+          
+            if (super.fill(g)) {
+                g.setName(this.getName());
+                // TODO what to do with DESCRIPTION and other missing fields
+                
+                if (this.getExperimenters() != null){
+                    for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
+                    {
+                        ExperimenterData e = (ExperimenterData) it.next();
+                        g.linkExperimenter((Experimenter) mapper.map(e));
+                    }
                 }
+                
             }
+            return g;
             
+        } else {
+            
+            throw new IllegalArgumentException(
+                    "GroupData can only fill ExperimenterGroup.");
         }
-        return g;
     }
     
 //    public ExperimenterData getContact()

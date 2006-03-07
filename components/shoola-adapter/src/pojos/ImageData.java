@@ -42,6 +42,7 @@ import java.util.Set;
 import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -199,42 +200,54 @@ public class ImageData
 		}
     }
     
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        Image i = new Image();
-        if (super.fill(i)) {
-            i.setName(this.getName());
-            i.setDescription(this.getDescription());
-            i.setDescription(this.getDescription());
-
-            Pixels pix = (Pixels) mapper.map(this.getDefaultPixels());
-            if ( pix != null) pix.setDefaultPixels( Boolean.TRUE );
-            
-            if (this.getAllPixels() != null){
-                for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
-                {
-                    PixelsData p = (PixelsData) it.next();
-                    i.addToPixels( (Pixels) mapper.map(p) );
-                }
-            }
-            
-            if (this.getAnnotations() != null){
-                for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
+        return new Image();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof Image)
+        {
+            Image i = (Image) obj;
+          
+            if (super.fill(i)) {
+                i.setName(this.getName());
+                i.setDescription(this.getDescription());
+                i.setDescription(this.getDescription());
+    
+                Pixels pix = (Pixels) mapper.map(this.getDefaultPixels());
+                if ( pix != null) pix.setDefaultPixels( Boolean.TRUE );
+                
+                if (this.getAllPixels() != null){
+                    for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
                     {
-                    AnnotationData ann = (AnnotationData) it.next();
-                    i.addToAnnotations( (ImageAnnotation) mapper.map(ann) );
+                        PixelsData p = (PixelsData) it.next();
+                        i.addToPixels( (Pixels) mapper.map(p) );
                     }
-            }
-            
-            if (this.getDatasets() != null){
-                for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
-                {
-                    DatasetData d = (DatasetData) it.next();
-                    i.linkDataset((Dataset) mapper.map(d));
+                }
+                
+                if (this.getAnnotations() != null){
+                    for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
+                        {
+                        AnnotationData ann = (AnnotationData) it.next();
+                        i.addToAnnotations( (ImageAnnotation) mapper.map(ann) );
+                        }
+                }
+                
+                if (this.getDatasets() != null){
+                    for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
+                    {
+                        DatasetData d = (DatasetData) it.next();
+                        i.linkDataset((Dataset) mapper.map(d));
+                    }
                 }
             }
+            return i;
+        } else {
+            throw new IllegalArgumentException(
+                    "ImageData can only fill Image.");
         }
-        return i;
     }
 
 	public void setName(String name) {

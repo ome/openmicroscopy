@@ -120,21 +120,34 @@ public class CategoryGroupData
 		}
     }
     
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        CategoryGroup cg = new CategoryGroup();
-        if (super.fill(cg)) {
-            cg.setName(this.getName());
-            cg.setDescription(this.getDescription());
-            if (this.getCategories() != null) {
-                for (Iterator it = this.getCategories().iterator(); it.hasNext();)
-                {
-                    CategoryData c = (CategoryData) it.next();
-                    cg.linkCategory((Category)mapper.map(c));
+        return new CategoryGroup();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof CategoryGroup)
+        {
+            CategoryGroup cg = (CategoryGroup) obj;
+            
+            if (super.fill(cg)) {
+                cg.setName(this.getName());
+                cg.setDescription(this.getDescription());
+                if (this.getCategories() != null) {
+                    for (Iterator it = this.getCategories().iterator(); it.hasNext();)
+                    {
+                        CategoryData c = (CategoryData) it.next();
+                        cg.linkCategory((Category)mapper.map(c));
+                    }
                 }
             }
+            return cg;
+            
+        } else {
+            throw new IllegalArgumentException(
+                    "CategoryGroupData can only fille CategoryData.");
         }
-        return cg;
     }
 
 

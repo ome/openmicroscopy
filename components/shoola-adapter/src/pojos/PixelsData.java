@@ -36,6 +36,7 @@ package pojos;
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.util.ModelMapper;
@@ -190,14 +191,25 @@ public class PixelsData
 		}
     }
 
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        Pixels p = new Pixels();
-        if (super.fill(p)){
-            // Pixels is immutable. No reason to be screwing around with it.
-            p.unload(); 
+        return new Pixels();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof Pixels)
+        {
+            Pixels p = (Pixels) obj;
+            if (super.fill(p)){
+                // Pixels is immutable. No reason to be screwing around with it.
+                p.unload(); 
+            }
+            return p;
+        } else {
+            throw new IllegalArgumentException(
+                    "PixelsData can only fill Pixels.");
         }
-        return p;
     }
     
 //	public void setImageServerID(long imageServerID) {

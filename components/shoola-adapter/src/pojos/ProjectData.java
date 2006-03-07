@@ -117,26 +117,36 @@ public class ProjectData
 		}
     }
 
-    public IObject asIObject(ReverseModelMapper mapper)
+    public IObject newIObject()
     {
-        Project p = new Project();
-        if (super.fill(p)) {
-            p.setName(this.getName());
-            p.setDescription(this.getDescription());
-            
-            // TODO / NOTE: could also take care of this in the getters and setters.
-            // further we could just store the IObject and put all the logic in 
-            // the getters/setters!
-            if (this.getDatasets() != null) {
-                for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
-                {
-                    DatasetData d = (DatasetData) it.next();
-                    p.linkDataset((Dataset) mapper.map(d));
+        return new Project();
+    }
+    
+    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    {
+        if ( obj instanceof Project )
+        {
+            Project p = (Project) obj;
+            if (super.fill(p)) {
+                p.setName(this.getName());
+                p.setDescription(this.getDescription());
+                
+                // TODO / NOTE: could also take care of this in the getters and setters.
+                // further we could just store the IObject and put all the logic in 
+                // the getters/setters!
+                if (this.getDatasets() != null) {
+                    for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
+                    {
+                        DatasetData d = (DatasetData) it.next();
+                        p.linkDataset((Dataset) mapper.map(d));
+                    }
                 }
+                
             }
-            
+            return p;
+        } else {
+            throw new IllegalArgumentException("ProjectData can only fill Project.");
         }
-        return p;
     }
     
 	public void setName(String name) {

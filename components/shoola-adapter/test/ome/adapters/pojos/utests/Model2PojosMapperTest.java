@@ -43,6 +43,9 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.util.ModelMapper;
+import ome.util.ReverseModelMapper;
+
+import pojos.DatasetData;
 import pojos.ProjectData;
 
 /**
@@ -71,15 +74,13 @@ public class Model2PojosMapperTest extends TestCase {
 		i1 = new Image(new Long(5));
 		i2 = new Image(new Long(6));
 		i3 = new Image(new Long(7));
-//		p.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d1,d2,d2})));
-//		d1.setImages(new HashSet(Arrays.asList(new Image[]{i1})));
-//		d2.setImages(new HashSet(Arrays.asList(new Image[]{i2})));
-//		d3.setImages(new HashSet(Arrays.asList(new Image[]{i3})));
-//		i1.setCreated(new Date());
-//		i2.setInserted(new Date());
-//		i1.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d1})));
-//		i2.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d2})));
-//		i3.setDatasets(new HashSet(Arrays.asList(new Dataset[]{d3})));
+		p.linkDataset( d1 );
+        p.linkDataset( d2 );
+        p.linkDataset( d3 );
+		d1.linkImage( i1 );
+        d1.linkImage( i2 );
+        d1.linkImage( i3 );
+
 	}
 	
 	public void test(){
@@ -94,6 +95,23 @@ public class Model2PojosMapperTest extends TestCase {
         mapper = new Model2PojosMapper();
         Category c = new Category();
         mapper.map(c);
+    }
+    
+    public void testReverseMapping() throws Exception
+    {
+        ReverseModelMapper reverse = new ReverseModelMapper();
+        
+        ProjectData p = new ProjectData();
+        DatasetData d = new DatasetData();
+        
+        p.setDatasets( new HashSet() );
+        p.getDatasets().add( d );
+        
+        d.setProjects( new HashSet() );
+        d.getProjects().add( p );
+        
+        reverse.map( p );
+        
     }
 }
 

@@ -79,6 +79,7 @@ import omeis.providers.re.metadata.StatsFactory;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 
 /** 
