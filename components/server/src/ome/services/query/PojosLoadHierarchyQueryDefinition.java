@@ -39,17 +39,19 @@ public class PojosLoadHierarchyQueryDefinition extends Query
     protected Object runQuery(Session session) throws HibernateException, SQLException
     {
         PojoOptions po = new PojoOptions((Map) value(QP.OPTIONS));
+        Class klass = (Class)value(QP.CLASS);
         
-        Criteria c = session.createCriteria((Class)value(QP.CLASS));
-        c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        Criteria c = session.createCriteria( klass );
+        c.setResultTransformer( Criteria.DISTINCT_ROOT_ENTITY );
         
         // optional ids
         Collection ids = (Collection) value(QP.IDS);
         if ( ids != null && ids.size() > 0)
             c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
         
+        // fetch hierarchy
         int depth = po.isLeaves() ? Integer.MAX_VALUE : 1; 
-        Hierarchy.fetchChildren(c,Project.class,depth); 
+        Hierarchy.fetchChildren(c,klass,depth); 
       
         return c.list();
     }
