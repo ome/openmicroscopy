@@ -136,7 +136,8 @@ public abstract class Query implements HibernateCallback
             throw new IllegalArgumentException(
                     "Required parameters missing from query: "+ diff 
                     );
-        
+        }
+            
         for (String name : defs.keySet())
         {
             QueryParameter parameter = qps.get( name );
