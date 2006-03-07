@@ -82,6 +82,11 @@ class CollectionQueryParameterDef extends QueryParameterDef
     {
         super.errorIfInvalid( parameter );
         
+        if ( ! optional && ((Collection) parameter.value).size() < 1 )
+            throw new IllegalArgumentException(
+                    "Requried collection parameters may not be empty."
+                    );
+        
         if ( parameter.value != null ) 
             for (Object element : (Collection) parameter.value )
             {

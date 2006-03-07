@@ -27,7 +27,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query
     static { // TODO same as findHierarchy
         addDefinition(new OptionsQueryParameterDef());
         addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
-        addDefinition(new CollectionQueryParameterDef( QP.CLASS, true, Long.class ));        
+        addDefinition(new CollectionQueryParameterDef( QP.IDS, true, Long.class ));        
     }
     
     public PojosLoadHierarchyQueryDefinition(QueryParameter... parameters)
@@ -42,8 +42,12 @@ public class PojosLoadHierarchyQueryDefinition extends Query
         
         Criteria c = session.createCriteria((Class)value(QP.CLASS));
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
-
+        
+        // optional ids
+        Collection ids = (Collection) value(QP.IDS);
+        if ( ids != null && ids.size() > 0)
+            c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
+        
         int depth = po.isLeaves() ? Integer.MAX_VALUE : 1; 
         Hierarchy.fetchChildren(c,Project.class,depth); 
       
