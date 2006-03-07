@@ -114,24 +114,24 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     // ~ INTERFACE METHODS
     // =========================================================================
     
-    public void saveObject(IObject arg0)
+    public void saveObject(IObject graph)
     {
-        beforeSave();
-        arg0 = internalSave(arg0);
+        beforeSave( graph );
+        graph = internalSave( graph );
         afterSave();
     }
     
-    public IObject saveAndReturnObject(IObject arg0)
+    public IObject saveAndReturnObject( IObject graph )
     {
-        beforeSave();
-        arg0 = internalSave(arg0);
+        beforeSave( graph );
+        graph = internalSave( graph );
         afterSave();
-        return arg0;
+        return graph;
     }
 
     public void saveCollection(@Validate(IObject.class) Collection graph)
     {
-        beforeSave();
+        beforeSave( graph );
         for (Object _object : graph)
         {
             IObject obj = (IObject) _object;
@@ -153,7 +153,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
-        beforeSave();
+        beforeSave( graph );
         for (int i = 0; i < graph.length; i++)
         {
             
@@ -165,7 +165,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public void saveArray(IObject[] graph)
     {
-        beforeSave();
+        beforeSave( graph );
         for (int i = 0; i < graph.length; i++)
         {
             graph[i] = internalSave(graph[i]);
@@ -187,8 +187,13 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     // ~ Internals
     // =========================================================
-    private void beforeSave()
+    private void beforeSave( Object argument)
     {
+
+        if ( argument == null )
+            throw new IllegalArgumentException( 
+                    "Argument to save cannot be null.");
+        
         // Cache filter for referential integrity.
         filter = new UpdateFilter(getHibernateTemplate());
         
