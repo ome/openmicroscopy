@@ -131,8 +131,8 @@ public abstract class Query implements HibernateCallback
         
         if (! qps.keySet().containsAll( defs.keySet() ) )
         {
-            Set diff = new HashSet( qps.keySet() );
-            diff.removeAll( defs.keySet() );
+            Set diff = new HashSet( defs.keySet() );
+            diff.removeAll( qps.keySet() );
             throw new IllegalArgumentException(
                     "Required parameters missing from query: "+ diff 
                     );

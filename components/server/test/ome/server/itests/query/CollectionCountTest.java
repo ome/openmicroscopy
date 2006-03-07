@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -19,6 +22,9 @@ import ome.util.builders.PojoOptions;
 
 public class CollectionCountTest extends AbstractInternalContextTest
 {
+   
+    private static Log log = LogFactory.getLog(CollectionCountTest.class);
+    
     CollectionCountQueryDefinition q;
     List list;
 
@@ -28,7 +34,9 @@ public class CollectionCountTest extends AbstractInternalContextTest
             q= new CollectionCountQueryDefinition( // TODO if use lookup, more generic
                     parameters);
             fail("Should have failed!");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            log.info ( "Expected: "+e.getMessage() );
+        }
     }
     
     public void test_illegal_arguments() throws Exception
