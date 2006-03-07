@@ -130,9 +130,12 @@ public abstract class Query implements HibernateCallback
                     "are not valid for definitions.");
         
         if (! qps.keySet().containsAll( defs.keySet() ) )
+        {
+            Set diff = new HashSet( qps.keySet() );
+            diff.removeAll( defs.keySet() );
             throw new IllegalArgumentException(
-                    "Required parameters missing from query: "+
-                    new HashSet( qps.keySet() ).removeAll( defs.keySet() ));
+                    "Required parameters missing from query: "+ diff 
+                    );
         
         for (String name : defs.keySet())
         {

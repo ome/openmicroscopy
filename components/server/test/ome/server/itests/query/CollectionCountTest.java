@@ -1,5 +1,6 @@
 package ome.server.itests.query;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,8 +37,13 @@ public class CollectionCountTest extends AbstractInternalContextTest
         creation_fails( );
         
         creation_fails(
-                PojosQP.ids(null), // Null
-                PojosQP.String("field", null)
+                PojosQP.ids( null ), // Null
+                PojosQP.String( "field", null )
+                );
+        
+        creation_fails(
+                PojosQP.ids( new ArrayList() ), // Empty
+                PojosQP.String( "field", null )
                 );
     }
     
@@ -50,7 +56,6 @@ public class CollectionCountTest extends AbstractInternalContextTest
            
         list = (List) iQuery.execute(q);
 
-        
     }
     
 }
