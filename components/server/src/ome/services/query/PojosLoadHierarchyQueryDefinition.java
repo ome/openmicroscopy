@@ -24,15 +24,14 @@ import ome.util.builders.PojoOptions;
 public class PojosLoadHierarchyQueryDefinition extends Query
 {
 
-    static { // TODO same as findHierarchy
-        addDefinition(new OptionsQueryParameterDef());
-        addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
-        addDefinition(new CollectionQueryParameterDef( QP.IDS, true, Long.class ));        
-    }
+    static Definitions defs = new Definitions(// TODO same as findHierarchy
+        new OptionsQueryParameterDef(),
+        new QueryParameterDef(QP.CLASS, Class.class, false),
+        new CollectionQueryParameterDef( QP.IDS, true, Long.class ));        
     
     public PojosLoadHierarchyQueryDefinition(QueryParameter... parameters)
     {
-        super(parameters);
+        super( defs, parameters);
     }
 
     @Override

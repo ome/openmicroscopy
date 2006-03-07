@@ -84,20 +84,15 @@ public abstract class Query implements HibernateCallback
     public final static int INNER_JOIN = Criteria.INNER_JOIN;
     
     // FOR DEFINITIONS
-    protected static Map<String, QueryParameterDef> defs; 
-    protected static void addDefinition(QueryParameterDef qpDef)
-    {
-        if ( defs == null )
-            defs = new HashMap<String, QueryParameterDef>();            
-        defs.put( qpDef.name, qpDef );
-    }
+    protected Definitions defs;
     
     protected Map<String, QueryParameter> qps 
         = new HashMap<String, QueryParameter>();
 
     private Query() { /* have to have the Parameters */ }
-    public Query(QueryParameter... parameters)
+    public Query(Definitions definitions, QueryParameter... parameters)
     {
+        this.defs = definitions;
         if ( parameters != null)
             for (QueryParameter parameter : parameters)
             {
@@ -290,4 +285,50 @@ class Hierarchy {
     }
 
        
+}
+
+class Definitions {
+    
+    public Definitions(QueryParameterDef...parameterDefs)
+    {
+        if ( parameterDefs != null)
+            for (QueryParameterDef def : parameterDefs)
+            {
+                defs.put( def.name, def );
+            }
+    }
+    
+    Map<String,QueryParameterDef> defs = new HashMap<String, QueryParameterDef>();
+
+    public boolean containsKey(Object key)
+    {
+        return defs.containsKey(key);
+    }
+
+    public boolean isEmpty()
+    {
+        return defs.isEmpty();
+    }
+
+    public Set<String> keySet()
+    {
+        return defs.keySet();
+    }
+
+    public QueryParameterDef put(String key, QueryParameterDef value)
+    {
+        return defs.put(key, value);
+    }
+
+    public int size()
+    {
+        return defs.size();
+    }
+
+    public QueryParameterDef get(Object key)
+    {
+        return defs.get(key);
+    }
+   
+   
 }

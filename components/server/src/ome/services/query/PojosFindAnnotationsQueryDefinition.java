@@ -19,16 +19,15 @@ import ome.util.builders.PojoOptions;
 public class PojosFindAnnotationsQueryDefinition extends Query
 {
 
-    static {
-        addDefinition(new IdsQueryParameterDef());
-        addDefinition(new OptionsQueryParameterDef());
-        addDefinition(new QueryParameterDef(QP.CLASS,Class.class,false));
-        addDefinition(new QueryParameterDef("annotatorIds",Collection.class,true));
-    }
+    static Definitions defs = new Definitions(
+        new IdsQueryParameterDef(),
+        new OptionsQueryParameterDef(),
+        new QueryParameterDef(QP.CLASS,Class.class,false),
+        new QueryParameterDef("annotatorIds",Collection.class,true));
         
     public PojosFindAnnotationsQueryDefinition(QueryParameter... parameters)
     {
-        super(parameters);
+        super( defs, parameters );
         // TODO set local fields here.
     }
 

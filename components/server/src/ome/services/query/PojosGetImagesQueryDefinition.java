@@ -14,15 +14,14 @@ import ome.model.core.Image;
 public class PojosGetImagesQueryDefinition extends Query
 {
 
-    static { // TODO same as PojosFindHierarchy
-        addDefinition(new IdsQueryParameterDef());
-        addDefinition(new OptionsQueryParameterDef());
-        addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
-    }
+    static Definitions defs = new Definitions(// TODO same as PojosFindHierarchy
+        new IdsQueryParameterDef(),
+        new OptionsQueryParameterDef(),
+        new QueryParameterDef(QP.CLASS, Class.class, false));
     
     public PojosGetImagesQueryDefinition(QueryParameter... parameters)
     {
-        super(parameters);
+        super( defs, parameters );
     }  
 
     @Override

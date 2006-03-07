@@ -85,12 +85,11 @@ public class StringQuerySource extends QuerySource
 class StringQuery extends Query 
 {
 
-    static {
-        addDefinition(new QueryParameterDef("string", String.class, false));
-    }
+    static Definitions defs = new Definitions(
+        new QueryParameterDef("string", String.class, false));
     
     public StringQuery(QueryParameter...parameters ){
-        super(parameters);
+        super( defs, parameters );
     }
 
     @Override

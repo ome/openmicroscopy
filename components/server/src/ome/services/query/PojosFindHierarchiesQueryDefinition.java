@@ -2,7 +2,6 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -14,15 +13,14 @@ import ome.model.core.Image;
 public class PojosFindHierarchiesQueryDefinition extends Query
 {
 
-    static {
-        addDefinition(new IdsQueryParameterDef());
-        addDefinition(new OptionsQueryParameterDef());
-        addDefinition(new QueryParameterDef(QP.CLASS, Class.class, false));
-    }
+    static Definitions defs = new Definitions(
+        new IdsQueryParameterDef(),
+        new OptionsQueryParameterDef(),
+        new QueryParameterDef(QP.CLASS, Class.class, false));
 
     public PojosFindHierarchiesQueryDefinition(QueryParameter... parameters)
     {
-        super(parameters);
+        super( defs, parameters );
     }  
 
     @Override

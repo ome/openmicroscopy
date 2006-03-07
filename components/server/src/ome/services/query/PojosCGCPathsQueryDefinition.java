@@ -20,16 +20,15 @@ import ome.util.builders.PojoOptions;
 public class PojosCGCPathsQueryDefinition extends Query
 {
     
-    static {
-        addDefinition(new IdsQueryParameterDef());
-        addDefinition(new OptionsQueryParameterDef());
-        addDefinition(new QueryParameterDef(PojosQP.ALGORITHM, 
+    static Definitions defs = new Definitions(
+        new IdsQueryParameterDef(),
+        new OptionsQueryParameterDef(),
+        new QueryParameterDef(PojosQP.ALGORITHM, 
                 String.class, false));
-    }
     
     public PojosCGCPathsQueryDefinition(QueryParameter... parameters)
     {
-        super(parameters);
+        super(defs, parameters);
     }
     
     @Override

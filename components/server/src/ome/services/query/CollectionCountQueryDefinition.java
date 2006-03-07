@@ -11,14 +11,14 @@ import ome.tools.lsid.LsidUtils;
 public class CollectionCountQueryDefinition extends Query
 {
 
-    static {
-        addDefinition(new IdsQueryParameterDef());
-        addDefinition(new QueryParameterDef("field", String.class, false));
-    }
+    static Definitions defs = new Definitions(
+            new IdsQueryParameterDef(),
+            new QueryParameterDef("field", String.class, false)
+            );
     
     public CollectionCountQueryDefinition(QueryParameter...parameters)
     {
-        super(parameters);
+        super( defs, parameters );
     }
 
     @Override
