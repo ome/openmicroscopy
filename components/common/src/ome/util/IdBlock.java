@@ -1,5 +1,5 @@
 /*
- * ome.util.CBlock
+ * ome.util.IdBlock
  *
  *------------------------------------------------------------------------------
  *
@@ -37,8 +37,8 @@ package ome.util;
 import ome.model.IObject;
 
 /**
- * Block template used to "C"ollect the results of some function called
- * on each {@link ome.model.IObject IObject} in a collection.  
+ * {@link ome.util.CBlock CBlock} implementation which collects ids from 
+ * {@link ome.model.IObject IObjects}
  *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -48,9 +48,11 @@ import ome.model.IObject;
  * </small>
  * @since 3.0
  */
-public interface CBlock
-{
+public class IdBlock implements CBlock { 
 
-    Object call( IObject object );
-
+    public Object call(IObject arg0)
+    {
+        return arg0.getId();
+    }
+    
 }
