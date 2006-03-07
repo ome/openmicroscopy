@@ -20,6 +20,10 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     PojosLoadHierarchyQueryDefinition q;
     List list;
 
+    List level2objects = Arrays.asList( 9991L, 9992L  );
+    List level1objects = Arrays.asList( 7771L, 7772L  );
+    List level0objects = Arrays.asList( 5551L, 5552L  );
+    
     protected void creation_fails(QueryParameter...parameters){
         try {
             q= new PojosLoadHierarchyQueryDefinition( // TODO if use lookup, more generic
@@ -82,33 +86,59 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         
     }
 
-    public void test_retrieve_level_2() throws Exception
+    // =========================================================================
+    // =========================================================================
+    // ~ UNFILTERED
+    // =========================================================================
+    // =========================================================================
+
+    
+    public void test_retrieve_levels() throws Exception
     {
-        List level1Ids = Arrays.asList( 7771L, 7772L );
-        List level2Ids = Arrays.asList( 5551L, 5552L );
-        
+       
         runLevel2( Project.class );
-        checkDatasetIds( level1Ids );
+        check_pd_ids( level1objects );
 
         runLevel2WithLeaves( Project.class );
-        checkDatasetImageIds( level1Ids, level2Ids );
+        check_pdi_ids( level1objects, level0objects );
         
         runLevel2( CategoryGroup.class );
-        checkCategoryIds( level1Ids );
+        check_cgc_ids( level1objects );
 
         runLevel2WithLeaves( CategoryGroup.class );
-        checkCategoryImageIds( level1Ids, level2Ids );
+        check_cgci_ids( level1objects, level0objects );
+
+        runLevel1( Dataset.class );
+
+        runLevel1WithLeaves( Dataset.class );
+        check_di_ids( level0objects );
+        
+        runLevel1( Category.class );
+
+        runLevel1WithLeaves( Category.class );
+        check_ci_ids( level0objects );
+
         
     }
 
+    // =========================================================================
+    // =========================================================================
+    // ~ FILTERING
+    // =========================================================================
+    // =========================================================================
+
+    
+    PojoOptions po10000 = new PojoOptions().exp( 10000L );
+    QueryParameter filterForUser = PojosQP.options( po10000.map() );
+    QueryParameter noFilter = PojosQP.options( null );
+
     public void test_owner_filter() throws Exception 
     {
-        PojoOptions po = new PojoOptions().exp( 10000L );
-        QueryParameter filterForUser = PojosQP.options( po.map() );
-        QueryParameter noFilter = PojosQP.options( null );
+        QueryParameter ids;
+
         
-        QueryParameter ids = PojosQP.ids(Arrays.asList( 9990L ));
-        
+        // Belongs to user.
+        ids = PojosQP.ids(Arrays.asList( 9990L ));
         q= new PojosLoadHierarchyQueryDefinition(
                 PojosQP.Class( QP.CLASS, Project.class ),
                 ids, noFilter);
@@ -122,7 +152,30 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
            
         list = (List) iQuery.execute(q);
         assertTrue( list.size() > 0 );
+
         
+        // Doesn't belong to user.
+        ids = PojosQP.ids(Arrays.asList( 9090L ));
+        q= new PojosLoadHierarchyQueryDefinition(
+                PojosQP.Class( QP.CLASS, Project.class ),
+                ids, noFilter);
+           
+        list = (List) iQuery.execute(q);
+        assertTrue( list.size() > 0 );
+        
+        q= new PojosLoadHierarchyQueryDefinition(
+                PojosQP.Class( QP.CLASS, Project.class ),
+                ids, filterForUser );
+           
+        list = (List) iQuery.execute(q);
+        assertTrue( list.size() == 0 );
+
+       
+        // Null ids.
+        run_null_filter_check_size(Project.class, 3);
+        run_null_filter_check_size(CategoryGroup.class, 8);
+        run_null_filter_check_size(Dataset.class, 3);
+        run_null_filter_check_size(Category.class, 10);
     }
 
     // ~ Helpers
@@ -130,27 +183,38 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
 
     private void runLevel2( Class klass )
     {
-        runLevel2( klass, new PojoOptions() );
+        runLevel( klass, level2objects, new PojoOptions() );
     }
 
     private void runLevel2WithLeaves( Class klass )
     {
-        runLevel2( klass, new PojoOptions().leaves() );
+        runLevel( klass, level2objects, new PojoOptions().leaves() );
     }
 
-    private void runLevel2( Class klass, PojoOptions po )
+    private void runLevel1( Class klass )
+    {
+        runLevel( klass, level1objects, new PojoOptions() );
+    }
+
+    private void runLevel1WithLeaves( Class klass )
+    {
+        runLevel( klass, level1objects, new PojoOptions().leaves() );
+    }
+    
+    private void runLevel( Class klass, List ids, PojoOptions po )
     {
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.ids( Arrays.asList( 9991L, 9992L  ) ),
+                PojosQP.ids( ids ),
                 PojosQP.options( po.map() ),
                 PojosQP.Class( QP.CLASS, klass ));
            
         list = (List) iQuery.execute(q);
         
-        assertTrue( "Didn't find our two projects", list.size() == 2 );
+        assertTrue( "Didn't find any results expected results!", 
+                list.size() == ids.size() );
     }
 
-    private void checkDatasetIds(List ids)
+    private void check_pd_ids(List ids)
     {
         for (Project prj : (List<Project>) list)
         {
@@ -160,9 +224,9 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         }
     }
 
-    private void checkDatasetImageIds(List ids1, List ids2)
+    private void check_pdi_ids(List ids1, List ids2)
     {
-        checkDatasetIds( ids1 );
+        check_pd_ids( ids1 );
         for (Project prj : (List<Project>) list)
         {
             for (Dataset ds : (List<Dataset>) prj.collectFromDatasetLinks(null))
@@ -174,8 +238,18 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
             
         }
     }
-    
-    private void checkCategoryIds(List ids)
+
+    private void check_di_ids(List ids)
+    {
+        for (Dataset ds: (List<Dataset>) list)
+        {
+            List imgIds = ds.collectFromImageLinks( new IdBlock() );
+            assertTrue( "And our images weren't there", 
+                    imgIds.containsAll( ids ));
+        }
+    }
+
+    private void check_cgc_ids(List ids)
     {
         for (CategoryGroup cg: (List<CategoryGroup>) list)
         {
@@ -185,9 +259,9 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         }
     }
 
-    private void checkCategoryImageIds(List ids1, List ids2)
+    private void check_cgci_ids(List ids1, List ids2)
     {
-        checkCategoryIds( ids1 );
+        check_cgc_ids( ids1 );
         for (CategoryGroup cg: (List<CategoryGroup>) list)
         {
             for (Category cat: (List<Category>) cg.collectFromCategoryLinks(null))
@@ -198,6 +272,29 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
             }
             
         }
+    }
+    
+    private void check_ci_ids(List ids)
+    {
+        for (Category cat: (List<Category>) list)
+        {
+            List imgIds = cat.collectFromImageLinks( new IdBlock() );
+            assertTrue( "And our images weren't there", 
+                    imgIds.containsAll( ids ));
+        }
+    }
+    
+    private void run_null_filter_check_size(Class klass, int size)
+    {
+        q= new PojosLoadHierarchyQueryDefinition(
+                PojosQP.Class( QP.CLASS, klass ),
+                PojosQP.ids( null ), filterForUser );
+           
+        list = (List) iQuery.execute(q);
+        assertTrue( String.format(
+                "Didn't find all our objects of type %s, %d < %d ", 
+                klass.getName(), list.size(),size),
+                list.size() >= size );
     }
     
 }

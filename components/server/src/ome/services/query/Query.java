@@ -131,7 +131,7 @@ public abstract class Query implements HibernateCallback
         
         if (! qps.keySet().containsAll( defs.keySet() ) )
             throw new IllegalArgumentException(
-                    "Required parameters missing from query:"+
+                    "Required parameters missing from query: "+
                     new HashSet( qps.keySet() ).removeAll( defs.keySet() ));
         
         for (String name : defs.keySet())

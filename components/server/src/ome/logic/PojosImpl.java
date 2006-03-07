@@ -460,6 +460,15 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             c.collect(queryResults);
             for (String key : po.countFields())
             {
+                
+                if ( key == null 
+                        || c.getIds( key ) == null 
+                        || c.getIds( key ).size() == 0)
+                {
+                    log.warn( " Skipping "+key+" in collection counts.");
+                    continue;
+                }
+                
                 Query q_c = queryFactory.lookup(
                         /* TODO po.map() here */
                         CollectionCountQueryDefinition.class.getName(),
