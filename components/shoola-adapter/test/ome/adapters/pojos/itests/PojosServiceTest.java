@@ -29,6 +29,7 @@ package ome.adapters.pojos.itests;
  */
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,6 +62,7 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
@@ -160,12 +162,7 @@ public class PojosServiceTest extends TestCase {
     
     public void testAndSaveSomtheingWithParents() throws Exception
     {
-        imgData = simpleImageDataWithDatasets();
-        
-        img = (Image) reverse.map(imgData);
-        img = (Image) iUpdate.saveAndReturnObject(img);
-        assertTrue("It better have a dataset link",
-                img.sizeOfDatasetLinks()>0);
+        saveImage();
         ds = (Dataset) img.iterateOverDatasetLinks().next();
         Long id = ds.getId();
         
@@ -214,13 +211,58 @@ public class PojosServiceTest extends TestCase {
 
     public void testAndHeresHowWeUnlinkThings() throws Exception
     {
+
+        // Method 1:
+        saveImage();
+        List updated = unlinkImage();
+        iUpdate.saveCollection( updated );
+        
+        test that row is gone.
+        
+        // Method 2:
+        saveImage();
+        updated = unlinkImage();
+        iPojos.udpateDataObjects( 
+                (IObject[]) updated.toArray(new IObject[updated.size()]), null);
+        
+        // Method 3:
+        Dataset d = new Dataset();
+        Project p = new Project();
+        p = (Project) iPojos.createDataObject( p, null );
+        d = (Dataset) iPojos.createDataObject( d, null ); 
+        
+        ProjectDatasetLink link = new ProjectDatasetLink();
+        link.setParent( p );
+        link.setChild( c );
+    }
+    
+    public void test_uh_oh_duplicate_rows() throws Exception
+    {
+        String name = "TEST:"+System.currentTimeMillis();
+        
+        // Save Project.
+        
+        // Update it.
+        service.updateDataObject(rmapper.map(object), options)
+        List l = new ArrayList(1);
+        l.add();
+        List result = (List) mapper.map(l);
+        return (DataObject) result.get(0);
+    }
+    
+
+    private void saveImage()
+    {
         imgData = simpleImageDataWithDatasets();
         img = (Image) reverse.map(imgData);
         
         img = (Image) iUpdate.saveAndReturnObject(img);
         assertTrue("It better have a dataset link",
                 img.sizeOfDatasetLinks()>0);
-
+    }
+    
+    private List unlinkImage()
+    {
         List updated = img.collectFromDatasetLinks( new CBlock() {
             public Object call(IObject arg0)
             {
@@ -229,8 +271,7 @@ public class PojosServiceTest extends TestCase {
             }
         });
         updated.add( img );
-        iUpdate.saveCollection( updated );
-
+        return updated;
     }
     
     //
@@ -305,10 +346,23 @@ public class PojosServiceTest extends TestCase {
     public void test_getCollectionCount() throws Exception    
     {
         Long id = new Long(5551);
-        Map m = iPojos.getCollectionCount(Image.class.getName(),Image.ANNOTATIONS,
-                Collections.singleton(id),null);
+        Map m = iPojos.getCollectionCount(
+                Image.class.getName(),
+                Image.ANNOTATIONS,
+                Collections.singleton(id),
+                null);
         Integer count = (Integer) m.get(id);
         assertTrue(count.intValue() > 0);
+        
+        id = new Long(7771);
+        m = iPojos.getCollectionCount(
+                Dataset.class.getName(),
+                Dataset.IMAGELINKS,
+                Collections.singleton( id ),
+                null);
+        count = (Integer) m.get(id);
+        assertTrue(count.intValue() > 0);
+        
     }
 
     public void test_getImages() throws Exception

@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 //Application-internal dependencies
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.meta.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
@@ -166,6 +167,14 @@ public class QueryTest
 //                        "group by ds.id having ds.id in (1L)");
         List result = (List) iQuery.execute(q);
         System.out.println(result);
+    }
+    
+    public void testGetExperimenter() throws Exception
+    {
+        Experimenter e = (Experimenter) iQuery.getById( Experimenter.class, 0);
+        assertNotNull(e.getDefaultGroupLink());
+        assertNotNull(e.getDefaultGroupLink().parent());
+        
     }
 
 }

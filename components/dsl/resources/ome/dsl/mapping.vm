@@ -142,7 +142,10 @@
     <one-to-one
         name="${prop.name}"
         class="${prop.type}"
-      	property-ref="${prop.tag}Tag">
+      	property-ref="${prop.tag}Tag"
+      	cascade="$cascade_settings"
+      	lazy="false"
+      >
       <meta attribute="scope-set">protected</meta>
       <formula>'true'</formula> 
       <formula>id</formula>

@@ -45,6 +45,7 @@ import ome.model.core.Image;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
@@ -61,12 +62,14 @@ import pojos.ProjectData;
 public class Model2PojosMapperTest extends TestCase {
 	
 	ModelMapper mapper;
+    ReverseModelMapper reverse;
 	Project p;
 	Dataset d1,d2,d3;
 	Image i1,i2,i3;
 	
 	protected void setUp() throws Exception {
-		mapper=new Model2PojosMapper(); 
+		mapper=new Model2PojosMapper();
+        reverse = new ReverseModelMapper();
 		p = new Project(new Long(1));
 		d1 = new Dataset(new Long(2));
 		d2 = new Dataset(new Long(3));
@@ -92,15 +95,12 @@ public class Model2PojosMapperTest extends TestCase {
 	}
 	
     public void testEmptyClassificationsBug(){
-        mapper = new Model2PojosMapper();
         Category c = new Category();
         mapper.map(c);
     }
     
     public void testReverseMapping() throws Exception
     {
-        ReverseModelMapper reverse = new ReverseModelMapper();
-        
         ProjectData p = new ProjectData();
         DatasetData d = new DatasetData();
         
@@ -112,6 +112,12 @@ public class Model2PojosMapperTest extends TestCase {
         
         reverse.map( p );
         
+    }
+    
+    public testBothWays() throws Exception
+    {
+        DataObject dO = (DataObject) mapper.map( p );
+        Project test = (Project) reverse.map( dO ); 
     }
 }
 
