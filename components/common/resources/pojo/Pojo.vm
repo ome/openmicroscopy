@@ -82,6 +82,19 @@ $templates.PojoFields
 		get${PropertyName}().add( target );
 		target.set${inverse} ( this );
 	}
+
+	/** 
+	 * use like addTo${PropertyName}. 
+	 */
+	public void addAllTo${PropertyName}(Set targets) {
+		Iterator it = targets.iterator();
+		while ( it.hasNext() )
+		{
+		  $elementtype target = ($elementtype) it.next();
+		  target.set${inverse} ( this );
+		}
+		get${PropertyName}().addAll( targets );
+	}
 	
 	/**
 	 * should be used rather than accessing the ${property.name} set directly.
@@ -125,6 +138,19 @@ $templates.PojoFields
 		get${PropertyName}().remove( target );
 	}
 
+	/**
+	 * use like removeFrom${PropertyName}
+	 */
+	public void removeAllFrom${PropertyName}( Set targets ) {
+		Iterator it = targets.iterator();
+		while ( it.hasNext() ) 
+		{
+			${elementtype} target = ($elementtype) it.next();
+			target.set${inverse} ( null );
+		}
+		get${PropertyName}().removeAll( targets );
+	}
+	
 	/**
 	 * clears the set. 
 	 */
@@ -192,7 +218,7 @@ $templates.PojoFields
 					"$property.name is null; no elements." );
 					
                 $LinkType link = ($LinkType) it.next();
-                return link.${next}();
+                return link.${other}();
             }
 
             public void remove()
