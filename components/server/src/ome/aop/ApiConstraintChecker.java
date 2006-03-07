@@ -104,7 +104,7 @@ public class ApiConstraintChecker implements MethodInterceptor
                     validated = true;
                     Validate validator = (Validate) annotation;
                     Class[] validClasses = validator.value();
-                    Set<Class> validSet = new HashSet<Class>(Arrays.asList(validClasses));
+                    ValidSet validSet = new ValidSet( validClasses );
 
                     String msg = "Argument " + i + " must be of a type in:"
                             + validSet;
@@ -118,7 +118,7 @@ public class ApiConstraintChecker implements MethodInterceptor
                         Collection coll = (Collection) arg;
                         for (Object object : coll)
                         {
-                            if (!validSet.contains(object.getClass()))
+                            if ( ! validSet.isValid( object.getClass() ))
                                 throw new IllegalArgumentException(msg);
                         }
 
@@ -126,7 +126,7 @@ public class ApiConstraintChecker implements MethodInterceptor
 
                     else
                     {
-                        if (!validSet.contains(arg.getClass()))
+                        if ( ! validSet.isValid( arg.getClass() ))
                         {
                             throw new IllegalArgumentException(msg);
                         }
@@ -143,5 +143,32 @@ public class ApiConstraintChecker implements MethodInterceptor
         }
 
         return mi.proceed();
+    }
+}
+
+class ValidSet {
+ 
+    Class[] classes;
+    
+    public ValidSet( Class[] validClasses )
+    {
+        classes = validClasses;
+    }
+    
+    public boolean isValid( Class target )
+    {
+        if ( classes == null )
+            return false;
+        
+        for (int i = 0; i < classes.length; i++)
+        {
+            Class klass = classes[i];
+            if ( klass == null)
+                continue;
+            
+            if ( klass.isAssignableFrom( target ))
+                return true;
+        }
+        return false;
     }
 }
