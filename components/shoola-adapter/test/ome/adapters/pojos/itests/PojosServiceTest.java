@@ -29,6 +29,7 @@ package ome.adapters.pojos.itests;
  */
 
 //Java imports
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +56,7 @@ import ome.client.ServiceFactory;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.ILink;
+import ome.model.IObject;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
@@ -64,6 +66,7 @@ import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.system.OmeroContext;
 import ome.testing.OMEData;
+import ome.util.CBlock;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 import ome.util.builders.PojoOptions;
@@ -156,11 +159,7 @@ public class PojosServiceTest extends TestCase {
     
     public void testAndSaveSomtheingWithParents() throws Exception
     {
-        DatasetData dd = simpleDatasetData();
-        Set dss = new HashSet();
-        dss.add(dd);
-        imgData = simpleImageData();
-        imgData.setDatasets(dss);
+        imgData = simpleImageDataWithDatasets();
         
         img = (Image) reverse.map(imgData);
         img = (Image) iUpdate.saveAndReturnObject(img);
@@ -211,13 +210,45 @@ public class PojosServiceTest extends TestCase {
         assertNotNull("ILink should be there",test);
         
     }
-    
+
+    public void testAndHeresHowWeUnlinkThings() throws Exception
+    {
+        imgData = simpleImageDataWithDatasets();
+        img = (Image) reverse.map(imgData);
+        
+        img = (Image) iUpdate.saveAndReturnObject(img);
+        assertTrue("It better have a dataset link",
+                img.sizeOfDatasetLinks()>0);
+
+        List updated = img.collectFromDatasetLinks( new CBlock() {
+            public Object call(IObject arg0)
+            {
+                img.unlinkDataset( (Dataset) arg0 );
+                return arg0;
+            }
+        });
+        updated.add( img );
+        iUpdate.saveCollection( updated );
+
+    }
     
     //
     // READ API
     // 
     
     public final static String TESTER = "tester"; // Defined in create_pojos.sql
+
+    public void test_loadContainerHierarchy() throws Exception
+    {
+        
+        ids = new HashSet(data.getMax("Project.ids",2));
+        results = iPojos.loadContainerHierarchy(Project.class, ids, null);
+
+        PojoOptions po = new PojoOptions().exp( new Long(0L) );
+        results = iPojos.loadContainerHierarchy(Project.class, null, po.map() );
+        
+    }
+
     
     public void test_findContainerHierarchies(){
         
@@ -252,12 +283,6 @@ public class PojosServiceTest extends TestCase {
         m = new Model2PojosMapper().map(iPojos.findAnnotations(
                 Dataset.class,ids,null,null)); 
 
-    }
-
-    public void test_loadContainerHierarchy() throws Exception
-    {
-        ids = new HashSet(data.getMax("Project.ids",2));
-        results = iPojos.loadContainerHierarchy(Project.class, ids, null);
     }
 
     public void test_retrieveCollection() throws Exception
@@ -352,6 +377,17 @@ public class PojosServiceTest extends TestCase {
         dd.setDescription("t1");
         return dd;
     }
+
+    private ImageData simpleImageDataWithDatasets()
+    {
+        DatasetData dd = simpleDatasetData();
+        Set dss = new HashSet();
+        dss.add(dd);
+        ImageData id = simpleImageData();
+        id.setDatasets(dss);
+        return id;
+    }
+
     
 }
 

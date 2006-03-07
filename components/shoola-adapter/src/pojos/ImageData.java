@@ -186,12 +186,13 @@ public class ImageData
             this.setName(i.getName());
             this.setDescription(i.getDescription());
 			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getDefaultPixels()));
-			this.setAllPixels((Set) mapper.findCollection(i.collectFromPixels(null)));
-			this.setAnnotations((Set) mapper.findCollection(i.collectFromAnnotations(null)));
             
             // Collections
             MapperBlock block = new MapperBlock( mapper );
             setDatasets( new HashSet( i.collectFromDatasetLinks( block )));
+            setAllPixels( new HashSet( i.collectFromPixels( block )));
+            setAnnotations( new HashSet( i.collectFromAnnotations( block )));
+
             
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");

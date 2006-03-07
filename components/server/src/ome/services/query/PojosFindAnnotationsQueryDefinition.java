@@ -62,7 +62,9 @@ public class PojosFindAnnotationsQueryDefinition extends Query
         
         if (check("annotatorIds"))
         {
-            c.add(Restrictions.in("details.id",(Collection) value("annotatorIds")));
+            Collection annotatorIds = (Collection) value("annotatorIds");
+            if (annotatorIds != null && annotatorIds.size() > 0)
+                c.add(Restrictions.in("details.id", annotatorIds ));
         }
 
         return c.list();

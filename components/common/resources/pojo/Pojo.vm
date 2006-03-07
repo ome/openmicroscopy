@@ -79,6 +79,10 @@ $templates.PojoFields
 	 * call on $elementtype as well.
 	 */
 	public void addTo${PropertyName}($elementtype target) {
+
+		if ( get${PropertyName}() == null )
+			set${PropertyName}( new HashSet() );
+			
 		get${PropertyName}().add( target );
 		target.set${inverse} ( this );
 	}
@@ -93,7 +97,12 @@ $templates.PojoFields
 		  $elementtype target = ($elementtype) it.next();
 		  target.set${inverse} ( this );
 		}
+		
+		if ( get${PropertyName}() == null )
+			set${PropertyName}( new HashSet() );
+
 		get${PropertyName}().addAll( targets );
+		
 	}
 	
 	/**
@@ -135,7 +144,10 @@ $templates.PojoFields
 	 */
 	public void removeFrom${PropertyName}(${elementtype} target) {
 		target.set${inverse} ( null );
-		get${PropertyName}().remove( target );
+		
+		if ( get${PropertyName}() != null )
+			get${PropertyName}().remove( target );
+			
 	}
 
 	/**
@@ -148,7 +160,10 @@ $templates.PojoFields
 			${elementtype} target = ($elementtype) it.next();
 			target.set${inverse} ( null );
 		}
-		get${PropertyName}().removeAll( targets );
+		
+		if ( get${PropertyName}() != null )
+			get${PropertyName}().removeAll( targets );
+			
 	}
 	
 	/**
@@ -161,7 +176,10 @@ $templates.PojoFields
 			$elementtype target = ($elementtype) it.next();
 			target.set${inverse} ( null );
 		}
-		get${PropertyName}().clear();
+		
+		if ( get${PropertyName}() != null )
+			get${PropertyName}().clear();
+			
 	}
 	
 ## 
@@ -191,10 +209,16 @@ $templates.PojoFields
 	public void link${Name} ($elementtype addition, boolean recurse) {
 		$LinkType link = new $LinkType();
 		link.link( $order );
+		
+		if ( get${PropertyName}() == null )
+			set${PropertyName}( new HashSet() );
+
 		get${PropertyName}().add( link );
+			
 		if (recurse) {
 			addition.link${pojo.declarationName}( this, false );
 		}
+		
 	}
 
 	/**
@@ -274,7 +298,9 @@ $templates.PojoFields
 				toRemove.add( link );
 			}
 		}
-		get${PropertyName}().removeAll( toRemove );		
+
+		if ( get${PropertyName}() != null )
+			get${PropertyName}().removeAll( toRemove );		
 	}
 	
 	/**
@@ -287,13 +313,16 @@ $templates.PojoFields
 			$LinkType link = ($LinkType) it.next();
 			unlink${Name}Link( link );
 		}
-		get${PropertyName}().clear();
+		
+		if ( get${PropertyName}() != null )
+			get${PropertyName}().clear();
+			
 	}
 	
 	protected void unlink${Name}Link( $LinkType link )
 	{
 		$elementtype $other = link.${other}();
-				
+			
 		link.setParent( null );
 		link.setChild( null );
 				
