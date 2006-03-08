@@ -276,8 +276,13 @@ $templates.PojoFields
     }
 
 	public List linked${Name}List() {
-		if ( get${PropertyName}() == null) return new ArrayList();
-		return new ArrayList( get${PropertyName}() );
+		Iterator it = linked${Name}Iterator();
+		List list = new ArrayList();
+		
+		while ( it.hasNext() )
+			list.add( it.next() );
+
+		return list;
 	}
 	
 	/**
