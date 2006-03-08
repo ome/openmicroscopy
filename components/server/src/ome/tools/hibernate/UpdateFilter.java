@@ -56,6 +56,7 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.ContextFilter;
 import ome.util.Filter;
 import ome.util.Filterable;
+import ome.util.Utils;
 import ome.util.Validation;
 
 /**
@@ -306,7 +307,9 @@ public class UpdateFilter extends ContextFilter
     
     protected void reloadDetails(IObject m)
     {
-        IObject obj = (IObject) ht.load(m.getClass(),m.getId());
+        IObject obj = (IObject) ht.load(
+                Utils.trueClass( m.getClass() ),m.getId()); // FIXME perf&accur.
+        
         Details template = obj.getDetails();
         copyAllowedDetails(template, m.getDetails());
         m.setDetails(template);
