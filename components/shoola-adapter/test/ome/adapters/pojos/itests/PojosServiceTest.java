@@ -201,12 +201,7 @@ public class PojosServiceTest extends TestCase {
             iUpdate.saveAndReturnObject( iann );
             fail("Need optmistic lock exception.");
         } catch (RootException e) {
-            if (e.getCause() instanceof HibernateOptimisticLockingFailureException )
-            {
-                // good
-            } else {
-                fail("wrong type:"+e.getCause().getClass());
-            }
+            // TODO should be a more specific exception.
         }
         
         // Now it should work.
@@ -270,6 +265,20 @@ public class PojosServiceTest extends TestCase {
             assertTrue( list.size() == 0 );
         
         // Method 3:
+        saveImage();
+        Dataset target = (Dataset) img.linkedDatasetIterator().next();
+        // For querying
+        DatasetImageLink dslink = 
+            (DatasetImageLink) img.findDatasetImageLink( target ).iterator().next();
+        
+        img.unlinkDataset( target );
+        img = (Image) iPojos.updateDataObject( img, null );
+        
+        ILink test = (ILink) iQuery.getById( 
+                DatasetImageLink.class, dslink.getId().longValue() );
+        assertNull( test );
+            
+        // Method 4;
         Dataset d = new Dataset(); d.setName( "unlinking");
         Project p = new Project(); p.setName( "unlinking");
         p = (Project) iPojos.createDataObject( p, null );
