@@ -249,12 +249,23 @@ public class PojosServiceTest extends TestCase {
         // Check only one
         List list = iQuery.getListByFieldILike( Project.class, "name", name);
         assertTrue(list.size() == 1);
+        assertTrue( 
+                ((Project)list.get(0)).getId()
+                .equals( p.getId() ));
+        
         
         // Update it.
         ProjectData pd = (ProjectData) mapper.map( p );
+        pd.setDescription( "....testnodups...." );
         Project send = (Project) reverse.map( pd ); 
+        assertEquals( p.getId().intValue(), pd.getId() );
+        assertEquals( send.getId().intValue(), pd.getId() );
 
-        assertEquals( pd.getId(), send.getId().intValue() );
+        List l = new ArrayList(1);
+        l.add( iPojos.updateDataObject( send, null ));
+        List result = (List) mapper.map(l);
+        ProjectData test = (ProjectData) result.get(0);
+        assertEquals( test.getId(), p.getId().intValue() );
         
         // Check again.
         List list2 = iQuery.getListByFieldILike( Project.class, "name", name);
@@ -262,14 +273,6 @@ public class PojosServiceTest extends TestCase {
         assertTrue( 
                 ((Project)list.get(0)).getId()
                 .equals( ((Project)list2.get(0)).getId() ));
-
-        // Work with it.
-        List l = new ArrayList(1);
-        l.add( iPojos.updateDataObject( send, null ));
-        List result = (List) mapper.map(l);
-        ProjectData test = (ProjectData) result.get(0);
-        
-        assertEquals( test.getId(), send.getId().intValue() );
         
     }
 
