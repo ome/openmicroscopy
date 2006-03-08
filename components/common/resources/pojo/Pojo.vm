@@ -263,7 +263,7 @@ $templates.PojoFields
 	 * find all ${LinkType} which have the argument as their $other. 
 	 */
 	public Set find${Link}( $elementtype target ) {
-        final Iterator it = get${PropertyName}().iterator();
+        final Iterator it = iterate${PropertyName}();
         final Set result = new HashSet();
         while ( it.hasNext() )
         {
@@ -332,7 +332,7 @@ $templates.PojoFields
 	 * clears the set. 
 	 */
 	public void clear${Name}Links() {
-		Iterator it = get${PropertyName}().iterator();
+		Iterator it = iterate${PropertyName}();
 		while ( it.hasNext() )
 		{
 			$LinkType link = ($LinkType) it.next();
