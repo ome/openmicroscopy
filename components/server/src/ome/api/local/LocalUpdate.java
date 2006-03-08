@@ -48,5 +48,7 @@ package ome.api.local;
 public interface LocalUpdate extends ome.api.IUpdate {
 
     void rollback();
+    void flush();
+    void commit();
 
 }

@@ -51,6 +51,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.property.Getter;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
@@ -99,17 +100,37 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public void rollback()
     {
-        SessionFactory sf = 
-            getHibernateTemplate().getSessionFactory();
-        Session s = SessionFactoryUtils.getSession(sf,false);
-        
-        try {
-            s.connection().rollback();
-        } catch (SQLException sqle){
-            getHibernateTemplate().getJdbcExceptionTranslator().
-            translate("Attempting to rollback from SessionFactory",null,sqle);
-        }
+        getHibernateTemplate().execute( new HibernateCallback() {
+            public Object doInHibernate(Session session) 
+            throws HibernateException ,SQLException {
+                session.connection().rollback();
+                return null;
+            }; 
+         });
     }
+
+    public void flush()
+    {
+        getHibernateTemplate().execute( new HibernateCallback() {
+           public Object doInHibernate(Session session) 
+           throws HibernateException ,SQLException {
+               session.flush();
+               return null;
+           }; 
+        });
+    }
+
+    public void commit()
+    {
+        getHibernateTemplate().execute( new HibernateCallback() {
+            public Object doInHibernate(Session session) 
+            throws HibernateException ,SQLException {
+                session.connection().commit();
+                return null;
+            }; 
+         });
+    }
+
     
     // ~ INTERFACE METHODS
     // =========================================================================

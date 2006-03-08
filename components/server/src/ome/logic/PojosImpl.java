@@ -73,6 +73,7 @@ import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
+import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.tools.lsid.LsidUtils;
 import ome.util.builders.PojoOptions;
 
@@ -248,32 +249,34 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 PojosQP.options(po.map()));
 
         
-		List<List> result_set = (List) iQuery.execute(q);
+		List<CategoryGroup> result_set = (List) iQuery.execute(q);
 
         Map<CategoryGroup,Set<Category>> map 
         = new HashMap<CategoryGroup,Set<Category>>();
         Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
         
         // Parse
-        for (List result_row : result_set)
+        for (CategoryGroup cg: result_set)
         {
-            CategoryGroup cg = (CategoryGroup) result_row.get(0);
-            Category c = (Category) result_row.get(1);
-
-            if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
-            map.get(cg).add(c);
+            for (Category c : (List<Category>) cg.linkedCategoryList())
+            {
+                if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
+                    map.get(cg).add(c);
+            }
         }
 
         //
         // Destructive changes below this point.
         //
 
-        
+        ProxyCleanupFilter filter = new ProxyCleanupFilter();
         for (CategoryGroup cg : map.keySet())
         {
             for (Category c : map.get(cg))
             {
+                iUpdate.flush();
                 iQuery.evict(cg); // FIXME does this suffice?
+                filter.filter( null, cg );
                 cg.linkCategory(c);
             }
             returnValues.add(cg);
