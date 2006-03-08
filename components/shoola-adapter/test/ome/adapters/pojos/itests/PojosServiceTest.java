@@ -450,6 +450,73 @@ public class PojosServiceTest extends TestCase {
         r.render(pd);
         
     }
+
+    /// ========================================================================
+    /// ~ Versions
+    /// ========================================================================
+
+    public void test_version_doesnt_increase_on_linked_update() throws Exception
+    {
+        ImageAnnotation ann = new ImageAnnotation();
+        Image img = new Image();
+        
+        img.setName( "version_test" );
+        ann.setContent( "version_test" );
+        img.addToAnnotations( ann );
+        
+        img = (Image) iUpdate.saveAndReturnObject( img );
+        ann = (ImageAnnotation) img.iterateAnnotations().next();
+        
+        assertNotNull( img.getId() );
+        assertNotNull( ann.getId() );
+        
+        int orig_img_version = img.getVersion().intValue();
+        int orig_ann_version = ann.getVersion().intValue();
+        
+        ann.setContent( "updated version_test" ) ;
+        
+        ann = (ImageAnnotation) iUpdate.saveAndReturnObject( ann );
+        img = ann.getImage();
+        
+        int new_ann_version = ann.getVersion().intValue();
+        int new_img_version = img.getVersion().intValue();
+        
+        assertTrue( orig_ann_version < new_ann_version );
+        assertTrue( orig_img_version == new_img_version );
+        
+    }
+    
+    /// ========================================================================
+    /// ~ Counts
+    /// ========================================================================
+
+    public void test_counts() throws Exception
+    {
+        Map counts;
+        
+        counts = getCounts( Dataset.class, new Long(7770L), null );
+        assertNull( counts );
+
+        PojoOptions po = new PojoOptions().leaves();
+        counts = getCounts( Dataset.class, new Long(7770L), po.map() );
+        assertNull( counts.get( Image.ANNOTATIONS ));
+        assertNull( counts.get( Dataset.ANNOTATIONS ) );
+        
+        counts = getCounts( Dataset.class, new Long(7771L), null );
+        assertNull( counts.get( Image.ANNOTATIONS ));
+        assertTrue( counts.containsKey( Dataset.ANNOTATIONS ));
+        assertTrue( ( (Integer) counts.get( Dataset.ANNOTATIONS) ).intValue() == 1 );
+                
+    }
+
+    private Map getCounts(Class klass, Long id, Map options )
+    {
+        IObject obj = (IObject)
+            iPojos.loadContainerHierarchy( klass, Collections.singleton( id ), options )
+            .iterator().next();
+        
+        return obj.getDetails().getCounts();
+    }
     
     /// ========================================================================
     /// ~ Various bug-like checks

@@ -400,12 +400,17 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     
     public IObject createDataObject(IObject arg0, Map arg1)
     {
-       return iUpdate.saveAndReturnObject(arg0);
+       IObject retVal = iUpdate.saveAndReturnObject(arg0);
+       collectCounts( retVal, new PojoOptions(arg1) );
+       return retVal;
     }
 
     public IObject[] createDataObjects(IObject[] arg0, Map arg1)
     {
-        return iUpdate.saveAndReturnArray(arg0); 
+        IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
+        collectCounts( retVal, new PojoOptions(arg1) );
+        return retVal;
+
     }
 
     public void unlink(ILink[] arg0, Map arg1)
@@ -415,17 +420,25 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     public ILink[] link(ILink[] arg0, Map arg1)
     {
-        return (ILink[])iUpdate.saveAndReturnArray(arg0);
+        ILink[] retVal = (ILink[])iUpdate.saveAndReturnArray(arg0);
+        collectCounts( retVal, new PojoOptions(arg1) );
+        return retVal;
+
     }
 
     public IObject updateDataObject(IObject arg0, Map arg1)
     {
-        return iUpdate.saveAndReturnObject(arg0);
+        IObject retVal = iUpdate.saveAndReturnObject(arg0);
+        collectCounts( retVal, new PojoOptions(arg1) );
+        return retVal;
+
     }
 
     public IObject[] udpateDataObjects(IObject[] arg0, Map arg1)
     {
-        return iUpdate.saveAndReturnArray(arg0);
+        IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
+        collectCounts( retVal, new PojoOptions(arg1) );
+        return retVal;
     }
 
     public void deleteDataObject(IObject row, Map arg1)
@@ -452,12 +465,12 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
      * TODO possibly move to CountCollector itself. It'll need an IQuery then.
      * or is it a part of the Pojo QueryDefinitions ?
      */
-    private void collectCounts(Collection queryResults, PojoOptions po)
+    private void collectCounts(Object retVal, PojoOptions po)
     {
         if (po.hasCountFields() && po.isCounts())
         {
             CountCollector c = new CountCollector(po.countFields());
-            c.collect(queryResults);
+            c.collect(retVal);
             for (String key : po.countFields())
             {
                 
