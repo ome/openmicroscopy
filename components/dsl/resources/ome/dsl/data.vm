@@ -9,8 +9,9 @@ insert into experimentergroup (id,version,owner_id,group_id,creation_id,name)
 insert into eventtype (id,owner_id,group_id,creation_id,value) values
         (0,0,0,0,'Bootstrap');
 insert into groupexperimentermap 
-        (id,version,owner_id,group_id,creation_id, parent, child) values
-		(0,0,0,0,0,0,0);
+        (id,version,owner_id,group_id,creation_id, defaultgrouplink, parent, child) 
+		values
+		(0,0,0,0,0,true,0,0);
 		
 update event set type = 0;
 
