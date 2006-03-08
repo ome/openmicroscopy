@@ -66,6 +66,40 @@ $templates.PojoFields
 	public int sizeOf${PropertyName}() {
 		return this.${property.name} == null ? -1 : this.${property.name}.size();
 	}
+
+	/**
+	 * should be used rather than accessing the ${property.name} set directly.
+	 */ 
+	public Iterator iterate${PropertyName}() {
+	
+		if ( get${PropertyName}() == null )
+		{
+			return new ome.util.EmptyIterator();
+		}
+		return get${PropertyName}().iterator();
+	}
+
+	/**
+	 * takes a CBlock and calls the block once for each $elementtype while 
+	 * collecting the results. If <code>block == null</code>, then the 
+	 * iterator values themselves are collected.
+	 */ 
+	public List collect${PropertyName}(ome.util.CBlock block) {
+		List result = new ArrayList();
+		Iterator it = iterate${PropertyName}();
+		while ( it.hasNext() )
+		{
+			IObject obj = (IObject) it.next();
+			if ( block != null )
+			{
+				result.add( block.call( obj ) );
+			} else {
+				result.add( obj );
+			}
+				
+		}
+		return result;
+	}
 	
 #end
 ## 
@@ -106,40 +140,6 @@ $templates.PojoFields
 	}
 	
 	/**
-	 * should be used rather than accessing the ${property.name} set directly.
-	 */ 
-	public Iterator iterateOver${PropertyName}() {
-	
-		if ( get${PropertyName}() == null )
-		{
-			return new ome.util.EmptyIterator();
-		}
-		return get${PropertyName}().iterator();
-	}
-
-	/**
-	 * takes a CBlock and calls the block once for each $elementtype while 
-	 * collecting the results. If <code>block == null</code>, then the 
-	 * iterator values themselves are collected.
-	 */ 
-	public List collectFrom${PropertyName}(ome.util.CBlock block) {
-		List result = new ArrayList();
-		Iterator it = iterateOver${PropertyName}();
-		while ( it.hasNext() )
-		{
-			IObject obj = (IObject) it.next();
-			if ( block != null )
-			{
-				result.add( block.call( obj ) );
-			} else {
-				result.add( obj );
-			}
-				
-		}
-		return result;
-	}
-	
-	/**
 	 * removes a single element from this set and makes the inverse call on ${elementtype} 
 	 */
 	public void removeFrom${PropertyName}(${elementtype} target) {
@@ -170,7 +170,7 @@ $templates.PojoFields
 	 * clears the set. 
 	 */
 	public void clear${PropertyName}() {
-		Iterator it = iterateOver${PropertyName}();
+		Iterator it = iterate${PropertyName}();
 		while ( it.hasNext() )
 		{
 			$elementtype target = ($elementtype) it.next();
@@ -190,6 +190,7 @@ $templates.PojoFields
 #set( $elementtype = $c2j.getMetaAsString($property, "link-add-method"))
 #set( $Name = $c2j.unqualify( $elementtype ) )
 #set( $LinkType = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
+#set( $Link = $c2j.unqualify( $LinkType ) )
 #set( $order = $c2j.getMetaAsString($property, "link-add-order"))
 #set( $next = $c2j.getMetaAsString($property, "link-add-next"))
 #set( $other = $c2j.getMetaAsString($property, "link-add-other"))
@@ -199,32 +200,36 @@ $templates.PojoFields
 	 * creating a new $LinkType and calling link${pojo.declarationName} on the $elementtype
 	 */
 	public void link${Name} ($elementtype addition) {
-		link${Name}( addition, true );
+
+		// Setup link
+		$LinkType link = new $LinkType();
+		link.link( $order );
+		
+		// Add it to us and possibly the other side.
+		add${Link}( link, true );
+
 	}
 	
 	/**
-	 * adds a $elementtype to ${property.name}, allowing for recursion -- whether
-	 * or not the addition will call add${pojo.declarationName} again.
+	 * adds a $LinkType to ${property.name}, allowing for recursion -- whether
+	 * or not add${Name} will be called on the addition.
 	 */ 
-	public void link${Name} ($elementtype addition, boolean recurse) {
-		$LinkType link = new $LinkType();
-		link.link( $order );
+	public void add${Link} ($LinkType link, boolean bothSides) {
 		
 		if ( get${PropertyName}() == null )
 			set${PropertyName}( new HashSet() );
 
 		get${PropertyName}().add( link );
-			
-		if (recurse) {
-			addition.link${pojo.declarationName}( this, false );
-		}
+
+		if (bothSides)
+			link.${other}().add${Link}( link, false );
 		
 	}
 
 	/**
 	 * provides an iterator over the $next values of the ${property.name}
 	 */ 
-	 public Iterator iterateOver${Name}Links() {
+	 public Iterator linked${Name}Iterator() {
 		if ( get${PropertyName}() == null )
 			return new ome.util.EmptyIterator();
 			
@@ -254,14 +259,35 @@ $templates.PojoFields
 
     }
 
+	/** 
+	 * find all ${LinkType} which have the argument as their $other. 
+	 */
+	public Set find${Link}( $elementtype target ) {
+        final Iterator it = get${PropertyName}().iterator();
+        final Set result = new HashSet();
+        while ( it.hasNext() )
+        {
+            $LinkType link = ($LinkType) it.next();
+            if ( link.${other}() == target ) {
+                result.add( link );
+            }
+        }
+        return result;
+    }
+
+	public List linked${Name}List() {
+		if ( get${PropertyName}() == null) return new ArrayList();
+		return new ArrayList( get${PropertyName}() );
+	}
+	
 	/**
 	 * takes a CBlock and calls the block once for each $elementtype while 
 	 * collecting the results. If <code>block == null</code>, then the 
 	 * iterator values themselves are collected.
 	 */ 
-	public List collectFrom${Name}Links(ome.util.CBlock block) {
+	public List eachLinked${Name}(ome.util.CBlock block) {
 		List result = new ArrayList();
-		Iterator it = iterateOver${Name}Links();
+		Iterator it = linked${Name}Iterator();
 		while ( it.hasNext() )
 		{
 			IObject obj = (IObject) it.next();
@@ -277,30 +303,29 @@ $templates.PojoFields
 	}
 	
 	/**
-	 * removes $elementtype from ${property.name}.
+	 * unlinks all $elementtype instances from this instance. 
 	 */
 	public void unlink${Name} ($elementtype removal) {
-		unlink${Name}( removal, true );
+		Set toRemove = find${Link}( removal );
+		Iterator it = toRemove.iterator();
+		while ( it.hasNext() )
+		{
+			remove${Link}( ($LinkType) it.next(), true );
+		}
 	}
 	
 	/**
-	 * removes the $elementtype from ${property.name}, allowing for recursion -- whether
+	 * removes the given $Link from ${property.name}, allowing for recursion -- whether
 	 * or not the removal will call unlink${pojo.declarationName} again.
 	 */ 
-	public void unlink${Name} ($elementtype removal, boolean recurse) {
-        final Iterator it = get${PropertyName}().iterator();
-		final Set toRemove = new HashSet();
-		while ( it.hasNext() )
-		{
-			$LinkType link = ($LinkType) it.next();
-			if ( link.${other}() == removal ) {
-				unlink${Name}Link( link );
-				toRemove.add( link );
-			}
-		}
+	public void remove${Link} ($LinkType link, boolean bothSides) {
 
 		if ( get${PropertyName}() != null )
-			get${PropertyName}().removeAll( toRemove );		
+			get${PropertyName}().remove( link );		
+			
+		if ( bothSides )
+			link.${other}().remove${Link}( link, false );
+			
 	}
 	
 	/**
@@ -311,24 +336,11 @@ $templates.PojoFields
 		while ( it.hasNext() )
 		{
 			$LinkType link = ($LinkType) it.next();
-			unlink${Name}Link( link );
+			remove${Link}( link, true );
 		}
-		
-		if ( get${PropertyName}() != null )
-			get${PropertyName}().clear();
 			
 	}
-	
-	protected void unlink${Name}Link( $LinkType link )
-	{
-		$elementtype $other = link.${other}();
-			
-		link.setParent( null );
-		link.setChild( null );
-				
-		${other}.unlink${pojo.declarationName}( this, false );
-		
-	}
+
 #end
 #end
 ################################################################################

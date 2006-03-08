@@ -95,7 +95,7 @@ public class GroupData
 
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setExperimenters( new HashSet(grp.collectFromExperimenterLinks( block )));
+            setExperimenters( new HashSet(grp.eachLinkedExperimenter( block )));
     	} else {
 			throw new IllegalArgumentException(
                     "GroupData can only copy from Group, not "+

@@ -35,7 +35,7 @@ public class UpdateTest extends AbstractUpdateTest
         p = (Pixels) iUpdate.saveAndReturnObject(p); 
         flush();
 
-        List logs = CurrentDetails.getCreationEvent().collectFromLogs(null);
+        List logs = CurrentDetails.getCreationEvent().collectLogs(null);
         assertTrue(logs.size() > 0);
 
         Pixels check = (Pixels) iQuery.queryUnique(

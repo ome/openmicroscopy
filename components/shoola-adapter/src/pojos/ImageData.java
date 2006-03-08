@@ -190,9 +190,9 @@ public class ImageData
             
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setDatasets( new HashSet( i.collectFromDatasetLinks( block )));
-            setAllPixels( new HashSet( i.collectFromPixels( block )));
-            setAnnotations( new HashSet( i.collectFromAnnotations( block )));
+            setDatasets( new HashSet( i.eachLinkedDataset( block )));
+            setAllPixels( new HashSet( i.collectPixels( block )));
+            setAnnotations( new HashSet( i.collectAnnotations( block )));
 
             
 		} else {

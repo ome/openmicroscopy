@@ -170,19 +170,23 @@
         name="${prop.name}"
         lazy="true"
         inverse="true"
-        cascade="$cascade_settings">
-        <meta attribute="gen-property">false</meta>
 #if($prop.class.name == "ome.dsl.ChildLink" )
+        cascade="all-delete-orphan">
+        <meta attribute="gen-property">false</meta>
         <meta attribute="link-add-method">${prop.target}</meta>        
         <meta attribute="link-add-order">this,addition</meta>                                
         <meta attribute="link-add-next">parent</meta>
         <meta attribute="link-add-other">child</meta>        
 #elseif($prop.class.name == "ome.dsl.ParentLink")         
+        cascade="all-delete-orphan">
+        <meta attribute="gen-property">false</meta>
         <meta attribute="link-add-method">${prop.target}</meta>        
         <meta attribute="link-add-order">addition,this</meta>
         <meta attribute="link-add-next">child</meta>                  
         <meta attribute="link-add-other">parent</meta>                      
 #else
+        cascade="$cascade_settings">
+        <meta attribute="gen-property">false</meta>
         <meta attribute="set-add-method">${prop.inverse}</meta>        
 #end
         <key column="${prop.foreignKey}" not-null="${prop.required}"/>

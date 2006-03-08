@@ -114,7 +114,7 @@ public class Model2PojosMapperTest extends TestCase {
         
     }
     
-    public testBothWays() throws Exception
+    public void testBothWays() throws Exception
     {
         DataObject dO = (DataObject) mapper.map( p );
         Project test = (Project) reverse.map( dO ); 

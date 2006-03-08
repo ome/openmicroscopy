@@ -77,8 +77,8 @@ public class ClassificationExclusivityRule {
     
     @Condition
     public boolean category(Category c) {
-    	List<CategoryImageLink> images = c.collectFromImageLinks( null );
-        List<CategoryGroupCategoryLink> cgs = c.collectFromCategoryGroupLinks( null );
+    	List<CategoryImageLink> images = c.collectImageLinks( null );
+        List<CategoryGroupCategoryLink> cgs = c.collectCategoryGroupLinks( null );
 
         // TODO
     	

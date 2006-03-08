@@ -225,7 +225,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         getHibernateTemplate().saveOrUpdate( currentEvent );
 
         // Checks.
-        List logs = CurrentDetails.getCreationEvent().collectFromLogs( null );
+        List logs = CurrentDetails.getCreationEvent().collectLogs( null );
         if (logs.size() > 0)
             log.error("New logs created on update.afterSave:\n"+logs);
         // FIXME we shouldn't be updating experimenter etc. here.

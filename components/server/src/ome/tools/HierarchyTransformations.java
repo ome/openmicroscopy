@@ -57,7 +57,7 @@ public class HierarchyTransformations {
         while (i.hasNext()) {
             Image img = (Image) i.next();
 
-            Iterator d = img.iterateOverDatasetLinks();
+            Iterator d = img.linkedDatasetIterator();
             if ( ! d.hasNext() ) {
                 hierarchies.add(img);
             } else {
@@ -71,7 +71,7 @@ public class HierarchyTransformations {
                     }
                     ds.linkImage( img );
 
-                    Iterator p = ds.iterateOverProjectLinks();
+                    Iterator p = ds.linkedProjectIterator();
                     if ( ! p.hasNext() ) {
                         hierarchies.add( ds );
                     } else {
@@ -103,7 +103,7 @@ public class HierarchyTransformations {
         while (i.hasNext()) {
             Image img = (Image) i.next();
             
-            Iterator c = img.iterateOverCategoryLinks();
+            Iterator c = img.linkedCategoryIterator();
             if ( ! c.hasNext() ) {
                 hierarchies.add(img);
             } else {
@@ -117,7 +117,7 @@ public class HierarchyTransformations {
                     }
                     ca.linkImage( img );
 
-                    Iterator g = ca.iterateOverCategoryGroupLinks();
+                    Iterator g = ca.linkedCategoryGroupIterator();
                     if ( ! g.hasNext() ) {
                         hierarchies.add(ca);
                     } else {

@@ -110,7 +110,7 @@ public class CategoryGroupData
             
             // Collections
             setCategories (new HashSet( 
-                    cg.collectFromCategoryLinks( new MapperBlock( mapper ) )));
+                    cg.eachLinkedCategory( new MapperBlock( mapper ) )));
                 // FIXME this won't work. Needs CGCL as pointer to original
                 // otherwise you get non-referential integrity
 

@@ -218,7 +218,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     {
         for (Project prj : (List<Project>) list)
         {
-            List datasetIds = prj.collectFromDatasetLinks( new IdBlock() );
+            List datasetIds = prj.eachLinkedDataset( new IdBlock() );
             assertTrue( "And our datasets weren't there", 
                     datasetIds.containsAll( ids ));
         }
@@ -229,9 +229,9 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         check_pd_ids( ids1 );
         for (Project prj : (List<Project>) list)
         {
-            for (Dataset ds : (List<Dataset>) prj.collectFromDatasetLinks(null))
+            for (Dataset ds : (List<Dataset>) prj.eachLinkedDataset(null))
             {
-                List imagesIds = ds.collectFromImageLinks( new IdBlock() );
+                List imagesIds = ds.eachLinkedImage( new IdBlock() );
                 assertTrue( "Missing images", 
                         imagesIds.containsAll( ids2 ));
             }
@@ -243,7 +243,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     {
         for (Dataset ds: (List<Dataset>) list)
         {
-            List imgIds = ds.collectFromImageLinks( new IdBlock() );
+            List imgIds = ds.eachLinkedImage( new IdBlock() );
             assertTrue( "And our images weren't there", 
                     imgIds.containsAll( ids ));
         }
@@ -253,7 +253,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     {
         for (CategoryGroup cg: (List<CategoryGroup>) list)
         {
-            List catIds = cg.collectFromCategoryLinks( new IdBlock() );
+            List catIds = cg.eachLinkedCategory( new IdBlock() );
             assertTrue( "And our categories weren't there", 
                     catIds.containsAll( ids ));
         }
@@ -264,9 +264,9 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         check_cgc_ids( ids1 );
         for (CategoryGroup cg: (List<CategoryGroup>) list)
         {
-            for (Category cat: (List<Category>) cg.collectFromCategoryLinks(null))
+            for (Category cat: (List<Category>) cg.eachLinkedCategory(null))
             {
-                List imagesIds = cat.collectFromImageLinks( new IdBlock() );
+                List imagesIds = cat.eachLinkedImage( new IdBlock() );
                 assertTrue( "Missing images", 
                         imagesIds.containsAll( ids2 ));
             }
@@ -278,7 +278,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     {
         for (Category cat: (List<Category>) list)
         {
-            List imgIds = cat.collectFromImageLinks( new IdBlock() );
+            List imgIds = cat.eachLinkedImage( new IdBlock() );
             assertTrue( "And our images weren't there", 
                     imgIds.containsAll( ids ));
         }

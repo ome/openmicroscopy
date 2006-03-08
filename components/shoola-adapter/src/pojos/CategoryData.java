@@ -118,10 +118,10 @@ public class CategoryData
             
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setImages(new HashSet( c.collectFromImageLinks( block )));
-            List cats = c.collectFromCategoryGroupLinks( block );
-            this.setGroup( cats.size() > 0 ? (CategoryGroupData) cats.get(0) : null);    
-            if ( cats.size() > 1 )
+            setImages(new HashSet( c.eachLinkedImage( block )));
+            List cgs = c.eachLinkedCategoryGroup( block );
+            this.setGroup( cgs.size() > 0 ? (CategoryGroupData) cgs.get(0) : null);    
+            if ( cgs.size() > 1 )
             {
                 //  FIXME and if size > 1
             }

@@ -180,8 +180,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         clear();
         
         // TEST ----------------------------------------------------
-        assertTrue("Need two pixInfos, please.",p.collectFromPlaneInfo(null).size() == 2);
-        for (PlaneInfo pi : (List<PlaneInfo>)p.collectFromPlaneInfo(null))
+        assertTrue("Need two pixInfos, please.",p.collectPlaneInfo(null).size() == 2);
+        for (PlaneInfo pi : (List<PlaneInfo>)p.collectPlaneInfo(null))
         {
             assertTrue("Need an id, please.", pi.getId().longValue()>0);
         }

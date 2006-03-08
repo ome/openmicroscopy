@@ -46,6 +46,7 @@ import junit.framework.TestCase;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
@@ -54,10 +55,12 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.client.ServiceFactory;
+import ome.conditions.RootException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
@@ -164,7 +167,7 @@ public class PojosServiceTest extends TestCase {
     public void testAndSaveSomtheingWithParents() throws Exception
     {
         saveImage();
-        ds = (Dataset) img.iterateOverDatasetLinks().next();
+        ds = (Dataset) img.linkedDatasetIterator().next();
         Long id = ds.getId();
         
         // another copy
@@ -175,8 +178,41 @@ public class PojosServiceTest extends TestCase {
                 new Object[]{img.getId()});
         assertTrue("It better have a dataset link too",
                 img2.sizeOfDatasetLinks()>0);
-        Dataset ds2 = (Dataset) img2.iterateOverDatasetLinks().next();
+        Dataset ds2 = (Dataset) img2.linkedDatasetIterator().next();
         assertTrue("And the ids have to be the same",id.equals(ds2.getId()));
+    }
+ 
+    public void testButWeHaveToHandleTheVersions() throws Exception
+    {
+        Image img = new Image();
+        img.setName( "version handling" );
+        Image sent = (Image) iUpdate.saveAndReturnObject( img );
+        
+        sent.setDescription( " veresion handling update" );
+        Image sent2 = (Image) iUpdate.saveAndReturnObject( sent );
+        
+        assertTrue( ! sent.getVersion().equals( sent2.getVersion() ) );
+        
+        ImageAnnotation iann = new ImageAnnotation();
+        iann.setContent( " version handling ");
+        iann.setImage( sent );
+        
+        try {
+            iUpdate.saveAndReturnObject( iann );
+            fail("Need optmistic lock exception.");
+        } catch (RootException e) {
+            if (e.getCause() instanceof HibernateOptimisticLockingFailureException )
+            {
+                // good
+            } else {
+                fail("wrong type:"+e.getCause().getClass());
+            }
+        }
+        
+        // Now it should work.
+        sent.setVersion( sent2.getVersion() );
+        iUpdate.saveAndReturnObject( iann );
+        
     }
     
     public void testNowOnToSavingAndDeleting() throws Exception
@@ -217,18 +253,25 @@ public class PojosServiceTest extends TestCase {
         saveImage();
         List updated = unlinkImage();
         iUpdate.saveCollection( updated );
-        
-        fail("test that row is gone.");
+
+        // Make sure it's not linked.
+        List list = 
+        iQuery.getListByFieldEq( DatasetImageLink.class, "child.id", img.getId() );
+        assertTrue( list.size() == 0 );
         
         // Method 2:
         saveImage();
         updated = unlinkImage();
         iPojos.udpateDataObjects( 
                 (IObject[]) updated.toArray(new IObject[updated.size()]), null);
+
+        List list2 = 
+            iQuery.getListByFieldEq( DatasetImageLink.class, "child.id", img.getId() );
+            assertTrue( list.size() == 0 );
         
         // Method 3:
-        Dataset d = new Dataset();
-        Project p = new Project();
+        Dataset d = new Dataset(); d.setName( "unlinking");
+        Project p = new Project(); p.setName( "unlinking");
         p = (Project) iPojos.createDataObject( p, null );
         d = (Dataset) iPojos.createDataObject( d, null ); 
         
@@ -236,46 +279,7 @@ public class PojosServiceTest extends TestCase {
         link.setParent( p );
         link.setChild( d );
     }
-    
-    public void test_no_duplicate_rows() throws Exception
-    {
-        String name = "TEST:"+System.currentTimeMillis();
-        
-        // Save Project.
-        Project p = new Project();
-        p.setName( name );
-        p = (Project) iUpdate.saveAndReturnObject( p );
-        
-        // Check only one
-        List list = iQuery.getListByFieldILike( Project.class, "name", name);
-        assertTrue(list.size() == 1);
-        assertTrue( 
-                ((Project)list.get(0)).getId()
-                .equals( p.getId() ));
-        
-        
-        // Update it.
-        ProjectData pd = (ProjectData) mapper.map( p );
-        pd.setDescription( "....testnodups...." );
-        Project send = (Project) reverse.map( pd ); 
-        assertEquals( p.getId().intValue(), pd.getId() );
-        assertEquals( send.getId().intValue(), pd.getId() );
-
-        List l = new ArrayList(1);
-        l.add( iPojos.updateDataObject( send, null ));
-        List result = (List) mapper.map(l);
-        ProjectData test = (ProjectData) result.get(0);
-        assertEquals( test.getId(), p.getId().intValue() );
-        
-        // Check again.
-        List list2 = iQuery.getListByFieldILike( Project.class, "name", name);
-        assertTrue(list2.size() == 1);
-        assertTrue( 
-                ((Project)list.get(0)).getId()
-                .equals( ((Project)list2.get(0)).getId() ));
-        
-    }
-
+ 
     private void saveImage()
     {
         imgData = simpleImageDataWithDatasets();
@@ -288,7 +292,7 @@ public class PojosServiceTest extends TestCase {
     
     private List unlinkImage()
     {
-        List updated = img.collectFromDatasetLinks( new CBlock() {
+        List updated = img.eachLinkedDataset( new CBlock() {
             public Object call(IObject arg0)
             {
                 img.unlinkDataset( (Dataset) arg0 );
@@ -416,7 +420,7 @@ public class PojosServiceTest extends TestCase {
 
     //
     // Misc
-    ///
+    //
     
     public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception
     {
@@ -435,6 +439,110 @@ public class PojosServiceTest extends TestCase {
         PlaneDef pd = new PlaneDef(0,0);
         pd.setX(0); pd.setY(0); pd.setZ(0);
         r.render(pd);
+        
+    }
+    
+    /// ========================================================================
+    /// ~ Various bug-like checks
+    /// ========================================================================
+ 
+    public void test_no_duplicate_rows() throws Exception
+    {
+        String name = "TEST:"+System.currentTimeMillis();
+        
+        // Save Project.
+        Project p = new Project();
+        p.setName( name );
+        p = (Project) iUpdate.saveAndReturnObject( p );
+        
+        // Check only one
+        List list = iQuery.getListByFieldILike( Project.class, "name", name);
+        assertTrue(list.size() == 1);
+        assertTrue( 
+                ((Project)list.get(0)).getId()
+                .equals( p.getId() ));
+        
+        
+        // Update it.
+        ProjectData pd = (ProjectData) mapper.map( p );
+        pd.setDescription( "....testnodups...." );
+        Project send = (Project) reverse.map( pd ); 
+        assertEquals( p.getId().intValue(), pd.getId() );
+        assertEquals( send.getId().intValue(), pd.getId() );
+
+        List l = new ArrayList(1);
+        l.add( iPojos.updateDataObject( send, null ));
+        List result = (List) mapper.map(l);
+        ProjectData test = (ProjectData) result.get(0);
+        assertEquals( test.getId(), p.getId().intValue() );
+        
+        // Check again.
+        List list2 = iQuery.getListByFieldILike( Project.class, "name", name);
+        assertTrue(list2.size() == 1);
+        assertTrue( 
+                ((Project)list.get(0)).getId()
+                .equals( ((Project)list2.get(0)).getId() ));
+        
+    }
+    
+    public void test_no_duplicate_links() throws Exception
+    {
+        Image img = new Image();
+        img.setName( "duplinks");
+        
+        Dataset ds = new Dataset();
+        ds.setName( "duplinks" );
+        
+        img.linkDataset( ds );
+
+        img = (Image) iUpdate.saveAndReturnObject( img );
+        ds = (Dataset) img.linkedDatasetIterator().next();
+        
+        List imgLinks = 
+            iQuery.getListByFieldEq( 
+                    DatasetImageLink.class, "child.id", img.getId() );
+        
+        List dsLinks = 
+            iQuery.getListByFieldEq( 
+                    DatasetImageLink.class, "parent.id", ds.getId() );
+        
+        assertTrue( imgLinks.size() == 1 );
+        assertTrue( dsLinks.size() == 1 );
+        
+        assertTrue( 
+                ((DatasetImageLink)imgLinks.get(0)).getId()
+                .equals( ((DatasetImageLink) dsLinks.get(0)).getId()));
+        
+    }
+
+    public void test_no_duplicates_on_save_array() throws Exception
+    {
+        Image img = new Image();
+        img.setName( "duplinks");
+        
+        Dataset ds = new Dataset();
+        ds.setName( "duplinks" );
+        
+        img.linkDataset( ds );
+        
+        IObject[] retVal = iUpdate.saveAndReturnArray( new IObject[]{img,ds});
+        img = (Image) retVal[0];
+        ds = (Dataset) retVal[1];
+        
+        List imgLinks = 
+            iQuery.getListByFieldEq( 
+                    DatasetImageLink.class, "child.id", img.getId() );
+        
+        List dsLinks = 
+            iQuery.getListByFieldEq( 
+                    DatasetImageLink.class, "parent.id", ds.getId() );
+        
+        assertTrue( imgLinks.size() == 1 );
+        assertTrue( dsLinks.size() == 1 );
+        
+        assertTrue( 
+                ((DatasetImageLink)imgLinks.get(0)).getId()
+                .equals( ((DatasetImageLink) dsLinks.get(0)).getId()));
         
     }
     
