@@ -59,7 +59,9 @@ import ome.conditions.RootException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.ILink;
+import ome.model.IMutable;
 import ome.model.IObject;
+import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -455,6 +457,18 @@ public class PojosServiceTest extends TestCase {
     /// ~ Versions
     /// ========================================================================
 
+    public void test_version_doesnt_increase_on_non_change() throws Exception
+    {
+        Image img = new Image();
+        img.setName( " no vers. increment ");
+        img = (Image) iUpdate.saveAndReturnObject( img );
+        
+        Image test = (Image) iUpdate.saveAndReturnObject( img );
+        
+        assertTrue( img.getVersion().equals( test.getVersion() ));
+        
+    }
+    
     public void test_version_doesnt_increase_on_linked_update() throws Exception
     {
         ImageAnnotation ann = new ImageAnnotation();
@@ -499,8 +513,8 @@ public class PojosServiceTest extends TestCase {
 
         PojoOptions po = new PojoOptions().leaves();
         counts = getCounts( Dataset.class, new Long(7770L), po.map() );
-        assertNull( counts.get( Image.ANNOTATIONS ));
-        assertNull( counts.get( Dataset.ANNOTATIONS ) );
+        assertTrue( counts == null || null == counts.get( Image.ANNOTATIONS ));
+        assertTrue( counts == null || null == counts.get( Dataset.ANNOTATIONS ) );
         
         counts = getCounts( Dataset.class, new Long(7771L), null );
         assertNull( counts.get( Image.ANNOTATIONS ));
@@ -590,7 +604,7 @@ public class PojosServiceTest extends TestCase {
                 .equals( ((DatasetImageLink) dsLinks.get(0)).getId()));
         
     }
-
+    
     public void test_no_duplicates_on_save_array() throws Exception
     {
         Image img = new Image();
@@ -619,6 +633,66 @@ public class PojosServiceTest extends TestCase {
         assertTrue( 
                 ((DatasetImageLink)imgLinks.get(0)).getId()
                 .equals( ((DatasetImageLink) dsLinks.get(0)).getId()));
+        
+    }
+
+    public void test_annotating_a_dataset_one() throws Exception
+    {
+
+        // Setup: original is our in-memory, used every where object.
+        Dataset original = new Dataset();
+        original.setName( " two rows " );
+        original = (Dataset) iUpdate.saveAndReturnObject( original );
+        DatasetData annotatedObject = (DatasetData) mapper.map( original );
+        Dataset annotated = (Dataset) iPojos.updateDataObject( 
+                reverse.map( annotatedObject), null);
+        // Dataset m = new Dataset( original.getId(), false);
+        DatasetAnnotation annotation = new DatasetAnnotation();
+        annotation.setContent( " two rows content " );
+        annotation.setDataset( annotated );
+        
+        // CGLIB
+        DatasetAnnotation object 
+            = (DatasetAnnotation) iPojos.createDataObject( annotation , null );
+        DataObject returnedToUser = (DataObject) mapper.map( object );
+        
+        // Now working but iPojos is still returning a CGLIB class.
+        assertTrue( original.getClass().equals( annotation.getClass() ));
+    }
+
+    public void test_annotating_a_dataset_two() throws Exception
+    {
+
+        String name = " two rows "+System.currentTimeMillis();
+        String text = " two rows content "+System.currentTimeMillis();
+        
+        // Setup: original is our in-memory, used every where object.
+        Dataset original = new Dataset();
+        original.setName( name );
+        original = (Dataset) iUpdate.saveAndReturnObject( original );
+        DatasetData annotatedObject = (DatasetData) mapper.map( original );
+
+        // Dataset m = new Dataset( original.getId(), false);
+        DatasetAnnotation annotation = new DatasetAnnotation();
+        annotation.setContent( text );
+        annotation.setDataset( original );
+
+        // Two Rows error
+        DatasetAnnotation object 
+        = (DatasetAnnotation) iPojos.createDataObject( annotation , null );
+        Dataset annotated = (Dataset) reverse.map( annotatedObject );
+        
+        annotated.setVersion( object.getDataset().getVersion() );
+        DatasetData returnedToUser = (DatasetData) mapper.map(
+                iPojos.updateDataObject( annotated, null )
+                );
+
+        // Test
+        List ds = iQuery.getListByFieldILike( Dataset.class, "name", name);
+        List as = iQuery.getListByFieldILike( DatasetAnnotation.class, "content", text);
+        
+        assertTrue( ds.size() == 1 );
+        assertTrue( as.size() == 1 );
         
     }
     
