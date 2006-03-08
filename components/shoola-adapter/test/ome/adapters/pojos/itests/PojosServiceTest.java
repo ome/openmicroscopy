@@ -78,6 +78,7 @@ import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.metadata.StatsFactory;
 
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -217,7 +218,7 @@ public class PojosServiceTest extends TestCase {
         List updated = unlinkImage();
         iUpdate.saveCollection( updated );
         
-        test that row is gone.
+        fail("test that row is gone.");
         
         // Method 2:
         saveImage();
@@ -233,23 +234,44 @@ public class PojosServiceTest extends TestCase {
         
         ProjectDatasetLink link = new ProjectDatasetLink();
         link.setParent( p );
-        link.setChild( c );
+        link.setChild( d );
     }
     
-    public void test_uh_oh_duplicate_rows() throws Exception
+    public void test_no_duplicate_rows() throws Exception
     {
         String name = "TEST:"+System.currentTimeMillis();
         
         // Save Project.
+        Project p = new Project();
+        p.setName( name );
+        p = (Project) iUpdate.saveAndReturnObject( p );
+        
+        // Check only one
+        List list = iQuery.getListByFieldILike( Project.class, "name", name);
+        assertTrue(list.size() == 1);
         
         // Update it.
-        service.updateDataObject(rmapper.map(object), options)
+        ProjectData pd = (ProjectData) mapper.map( p );
+        Project send = (Project) reverse.map( pd ); 
+
+        assertEquals( pd.getId(), send.getId().intValue() );
+        
+        // Check again.
+        List list2 = iQuery.getListByFieldILike( Project.class, "name", name);
+        assertTrue(list2.size() == 1);
+        assertTrue( 
+                ((Project)list.get(0)).getId()
+                .equals( ((Project)list2.get(0)).getId() ));
+
+        // Work with it.
         List l = new ArrayList(1);
-        l.add();
+        l.add( iPojos.updateDataObject( send, null ));
         List result = (List) mapper.map(l);
-        return (DataObject) result.get(0);
+        ProjectData test = (ProjectData) result.get(0);
+        
+        assertEquals( test.getId(), send.getId().intValue() );
+        
     }
-    
 
     private void saveImage()
     {

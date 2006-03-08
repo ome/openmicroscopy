@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.acquisition.AcquisitionContext;
+import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -47,6 +48,31 @@ public class UpdateTest extends AbstractUpdateTest
         assertTrue("acq ctx differ",
                 p.getAcquisitionContext().getId().equals(
                         check.getAcquisitionContext().getId()));
+    }
+    
+    public void test_uh_oh_duplicate_rows_0() throws Exception
+    {
+        String name = "SIMPLE:"+System.currentTimeMillis();
+        Project p = new Project();
+        p.setName( name );
+        p = (Project) iUpdate.saveAndReturnObject( p );
+        
+        Project compare = (Project) 
+            iQuery.getUniqueByFieldILike( Project.class, "name", name);
+        
+        assertTrue( p.getId().equals( compare.getId() ));
+        
+        Project send = new Project();
+        send.setName( p.getName() );
+        send.setId( p.getId() );
+        send.setVersion( p.getVersion() ); // This is important.
+        send.setDescription( "...test..." );
+        Project test = (Project) iUpdate.saveAndReturnObject( send );
+        
+        assertTrue( p.getId().equals( test.getId() ));
+        
+        iQuery.getUniqueByFieldILike( Project.class, "name", name);
+        
     }
     
     public void test_images_pixels() throws Exception

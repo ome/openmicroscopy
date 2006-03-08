@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import ome.api.ModelBased;
+import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.util.ModelMapper;
@@ -62,6 +63,8 @@ public abstract class DataObject implements ModelBased
 {
     
     private long id = -1;
+
+    private int version = -1;
     
     private boolean loaded = true;
     
@@ -75,6 +78,16 @@ public abstract class DataObject implements ModelBased
     public void setId(long id)
     {
         this.id = id;
+    }
+    
+    protected int getVersion()
+    {
+        return version;
+    }
+    
+    protected void setVersion( int version )
+    {
+        this.version = version;
     }
     
     public boolean isLoaded()
@@ -113,6 +126,12 @@ public abstract class DataObject implements ModelBased
         this.setLoaded(model.isLoaded());
         this.setFiltered(model.getDetails()==null ? 
                 null : model.getDetails().filteredSet());
+        
+        if ( model instanceof IMutable )
+        {
+            IMutable mutable = (IMutable) model;
+            this.setVersion( mapper.nullSafeInt( mutable.getVersion() ));
+        }
     }
     
     /** 
@@ -125,6 +144,13 @@ public abstract class DataObject implements ModelBased
         if (this.getId() > -1)
             model.setId(new Long(this.getId()));
         
+        if (this.getVersion() > -1 )
+            if ( model instanceof IMutable )
+            {
+                IMutable mutable = (IMutable) model;
+                mutable.setVersion( new Integer( getVersion() ) );
+            }  
+           
         model.setDetails(new Details());
         if (!this.isLoaded()){
             model.unload();
