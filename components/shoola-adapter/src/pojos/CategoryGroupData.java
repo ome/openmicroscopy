@@ -109,10 +109,9 @@ public class CategoryGroupData
 			this.setDescription(cg.getDescription());
             
             // Collections
-            setCategories (new HashSet( 
+            setCategories (makeSet(
+                    cg.sizeOfCategoryLinks(),
                     cg.eachLinkedCategory( new MapperBlock( mapper ) )));
-                // FIXME this won't work. Needs CGCL as pointer to original
-                // otherwise you get non-referential integrity
 
 		} else {
 			throw new IllegalArgumentException(

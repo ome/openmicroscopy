@@ -190,10 +190,15 @@ public class ImageData
             
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setDatasets( new HashSet( i.eachLinkedDataset( block )));
-            setAllPixels( new HashSet( i.collectPixels( block )));
-            setAnnotations( new HashSet( i.collectAnnotations( block )));
-
+            setDatasets( makeSet(
+                    i.sizeOfDatasetLinks(),
+                    i.eachLinkedDataset( block )));
+            setAllPixels( makeSet(
+                    i.sizeOfPixels(),
+                    i.collectPixels( block )));
+            setAnnotations( makeSet(
+                    i.sizeOfAnnotations(),
+                    i.collectAnnotations( block )));
             
 		} else {
 			throw new IllegalArgumentException("ImageData copies only from Image");

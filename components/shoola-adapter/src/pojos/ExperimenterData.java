@@ -103,7 +103,9 @@ public class ExperimenterData
             
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setGroups( new HashSet( exp.eachLinkedExperimenterGroup( block )));
+            setGroups( makeSet(
+                    exp.sizeOfGroupExperimenterMap(),
+                    exp.eachLinkedExperimenterGroup( block )));
 
 		} else {
 			throw new IllegalArgumentException(

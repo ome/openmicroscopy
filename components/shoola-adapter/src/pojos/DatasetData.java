@@ -146,9 +146,15 @@ public class DatasetData
             
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setImages( new HashSet( d.eachLinkedImage( block )));
-            setProjects( new HashSet( d.eachLinkedProject( block )));
-            setAnnotations( new HashSet( d.collectAnnotations( block )));
+            setImages( makeSet(
+                    d.sizeOfImageLinks(),
+                    d.eachLinkedImage( block )));
+            setProjects( makeSet(
+                    d.sizeOfProjectLinks(),
+                    d.eachLinkedProject( block )));
+            setAnnotations( makeSet(
+                    d.sizeOfAnnotations(),
+                    d.collectAnnotations( block )));
             
 		} else {
 			throw new IllegalArgumentException(

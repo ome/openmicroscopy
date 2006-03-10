@@ -109,7 +109,9 @@ public class ProjectData
 
             // Collections
             MapperBlock block = new MapperBlock( mapper );
-            setDatasets( new HashSet( p.eachLinkedDataset( block )));
+            setDatasets( makeSet(
+                    p.sizeOfDatasetLinks(),
+                    p.eachLinkedDataset( block )));
 
 		} else { 
 			throw new IllegalArgumentException(

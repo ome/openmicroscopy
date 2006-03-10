@@ -34,7 +34,9 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import ome.api.ModelBased;
@@ -164,6 +166,14 @@ public abstract class DataObject implements ModelBased
             }
             return true;
         }
+    }
+    
+    protected Set makeSet( int collectionSize, List values )
+    {
+        if ( collectionSize < 0 ) return null;
+        if ( values == null) return null;
+        return new HashSet( values );
+            
     }
 
     
