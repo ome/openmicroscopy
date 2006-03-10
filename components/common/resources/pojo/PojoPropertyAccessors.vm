@@ -290,7 +290,7 @@
     
     		get${PropertyName}().add( link );
     
-    		if (bothSides)
+    		if ( bothSides && link.${other}().isLoaded() )
     			link.${other}().add${Link}( link, false );
 		
 		} finally {
@@ -448,7 +448,7 @@
     		if ( get${PropertyName}() != null )
     			get${PropertyName}().remove( link );		
     			
-    		if ( bothSides )
+    		if ( bothSides && link.${other}().isLoaded() )
     			link.${other}().remove${Link}( link, false );
 			
 		} finally {

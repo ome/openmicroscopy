@@ -54,4 +54,12 @@ public class SetsAndLinksTest extends TestCase
         assertTrue( l.size() == 1 );
         assertTrue( l.get(0).equals( d ));
     }
+    
+    public void test_adding_a_placeholder() throws Exception
+    {
+        Project p = new Project();
+        Dataset d = new Dataset( new Long(1L), false );
+        
+        p.linkDataset( d );
+    }
 }
