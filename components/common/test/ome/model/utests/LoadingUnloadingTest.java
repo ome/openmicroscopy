@@ -1,13 +1,17 @@
 package ome.model.utests;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.meta.Event;
+import ome.util.ModelMapper;
 
 import junit.framework.TestCase;
 
@@ -38,6 +42,18 @@ public class LoadingUnloadingTest extends TestCase
         
     }
 
+    public void test_model_mapping_events() throws Exception
+    {
+        ModelMapper m = new ModelMapper(){
+           protected Map c2c(){  return new HashMap(); }};
+
+        Event e = new Event( new Long(1), false );
+        
+        m.event2timestamp( e );
+        
+        
+    }
+    
     private void try_and_fail( Set strings )
     {
         for (Iterator it = strings.iterator(); it.hasNext();)

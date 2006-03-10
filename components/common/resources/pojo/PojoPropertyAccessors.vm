@@ -278,7 +278,7 @@
 	
 	/**
 	 * adds a $LinkType to ${property.name}, allowing for recursion -- whether
-	 * or not add${Name} will be called on the addition.
+	 * or not add${Name} will be called on the addition <b>if it is loaded</b>
 	 */ 
 	public void add${Link} ($LinkType link, boolean bothSides) {
 
@@ -438,7 +438,7 @@
 	
 	/**
 	 * removes the given $Link from ${property.name}, allowing for recursion -- whether
-	 * or not the removal will call unlink${pojo.declarationName} again.
+	 * or not the removal will call unlink${pojo.declarationName} again <b>if loaded</b>. 
 	 */ 
 	public void remove${Link} ($LinkType link, boolean bothSides) {
 

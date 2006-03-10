@@ -212,6 +212,7 @@ public abstract class ModelMapper extends ContextFilter {
 	
 	public Timestamp event2timestamp(Event event){
 		if (event==null) return null;
+        if (!event.isLoaded()) return null;
         if (event.getTime()==null) return null;
 		return event.getTime();
 	}
