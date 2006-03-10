@@ -1,6 +1,5 @@
-package ome.adapters.pojos.itests;
 /*
- * ome.adapters.pojos.utests.Model2PojosMapper
+ * ome.adapters.pojos.itests.PojosServiceTest
  *
  *------------------------------------------------------------------------------
  *
@@ -28,11 +27,13 @@ package ome.adapters.pojos.itests;
  *------------------------------------------------------------------------------
  */
 
+package ome.adapters.pojos.itests;
+
 //Java imports
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,13 +41,12 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import junit.framework.TestCase;
-
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import junit.framework.TestCase;
+
 
 //Application-internal dependencies
 import ome.adapters.pojos.Model2PojosMapper;
@@ -59,7 +59,6 @@ import ome.conditions.RootException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.ILink;
-import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
@@ -290,6 +289,22 @@ public class PojosServiceTest extends TestCase {
         link.setParent( p );
         link.setChild( d );
     }
+    
+    public void testHeresHowWeUnlinkFromJustOneSide() throws Exception
+    {
+        saveImage();
+        DatasetImageLink link 
+            = (DatasetImageLink) img.iterateDatasetLinks().next();
+        img.removeDatasetImageLink( link, false );
+        
+        iPojos.updateDataObject( img, null );
+        
+        DatasetImageLink test = (DatasetImageLink)
+        iQuery.getById( DatasetImageLink.class, link.getId().longValue() );
+        
+        assertNull( test );
+        
+    }
  
     private void saveImage()
     {
@@ -464,6 +479,9 @@ public class PojosServiceTest extends TestCase {
         img = (Image) iUpdate.saveAndReturnObject( img );
         
         Image test = (Image) iUpdate.saveAndReturnObject( img );
+
+        fail( "must move details correction to the merge event listener " +
+                "or version will always be incremented. ");
         
         assertTrue( img.getVersion().equals( test.getVersion() ));
         
@@ -642,7 +660,7 @@ public class PojosServiceTest extends TestCase {
         // Setup: original is our in-memory, used every where object.
         Dataset original = new Dataset();
         original.setName( " two rows " );
-        original = (Dataset) iUpdate.saveAndReturnObject( original );
+        original = (Dataset) iPojos.createDataObject( original, null );
         DatasetData annotatedObject = (DatasetData) mapper.map( original );
         Dataset annotated = (Dataset) iPojos.updateDataObject( 
                 reverse.map( annotatedObject), null);
@@ -669,7 +687,7 @@ public class PojosServiceTest extends TestCase {
         // Setup: original is our in-memory, used every where object.
         Dataset original = new Dataset();
         original.setName( name );
-        original = (Dataset) iUpdate.saveAndReturnObject( original );
+        original = (Dataset) iPojos.createDataObject( original, null );
         DatasetData annotatedObject = (DatasetData) mapper.map( original );
 
         // Dataset m = new Dataset( original.getId(), false);
@@ -687,12 +705,100 @@ public class PojosServiceTest extends TestCase {
                 iPojos.updateDataObject( annotated, null )
                 );
 
-        // Test
-        List ds = iQuery.getListByFieldILike( Dataset.class, "name", name);
-        List as = iQuery.getListByFieldILike( DatasetAnnotation.class, "content", text);
+        assertUniqueAnnotationCreation(name, text);
         
-        assertTrue( ds.size() == 1 );
-        assertTrue( as.size() == 1 );
+    }
+
+    public void test_annotating_a_dataset_three() throws Exception
+    {
+        String name = " two rows "+System.currentTimeMillis();
+        String text = " two rows content "+System.currentTimeMillis();
+        String desc = " new description "+System.currentTimeMillis();
+        
+        // Setup: original is our in-memory, used every where object.
+        Dataset original = new Dataset();
+        original.setName( name );
+        original = (Dataset) iPojos.createDataObject( original, null );
+
+        assertTrue(
+                original.getDetails().getCounts() == null 
+                || original.getDetails().getCounts().get( Dataset.ANNOTATIONS ) == null
+                );
+        
+        original.setDescription( desc );
+        
+        DatasetAnnotation annotation = new DatasetAnnotation();
+        annotation.setContent( text );
+        annotation.setDataset( original );
+
+        annotation = (DatasetAnnotation) iPojos.createDataObject(
+                annotation, null );
+        
+        assertUniqueAnnotationCreation(name, text);
+        
+        Dataset test = 
+            (Dataset) iQuery.getById( Dataset.class, original.getId().longValue() );
+        
+        assertTrue( desc.equals( test.getDescription() ));
+
+        assertNotNull(original.getDetails().getCounts());
+        assertNotNull(original.getDetails().getCounts().get( Dataset.ANNOTATIONS ));
+        assertTrue(
+                ((Integer) original.getDetails().getCounts().get( Dataset.ANNOTATIONS)).intValue() > 0
+                );
+
+        System.out.println( original.getDetails().getCounts());
+        
+    }
+    
+    public void test_two_datasets_and_a_project() throws Exception
+    {
+        String name = " 2&1 "+System.currentTimeMillis();
+        Project p = new Project();
+        p.setName( name );
+        
+        p = (Project) iPojos.createDataObject( p, null );
+        
+        Dataset d1 = new Dataset();
+        d1.setName( name );
+        
+        Dataset d2 = new Dataset();
+        d2.setName( name );
+        
+        p.linkDataset( d1 );
+        p.linkDataset( d2 );
+        
+        p = (Project) iPojos.updateDataObject( p, null );
+        
+        Iterator it = p.linkedDatasetIterator();
+        Dataset test = null;
+        while ( it.hasNext() ) 
+        {
+            test = (Dataset) it.next();
+            if ( d1.getId().equals(test.getId()))
+                break;
+        }                    
+        
+        test.setDescription( name );
+        
+        test = (Dataset) iPojos.updateDataObject( test, null );
+        
+    }
+    
+    public void test_delete_annotation() throws Exception
+    {
+        String string = "delete_annotation"+System.currentTimeMillis();
+        
+        Dataset d = new Dataset();
+        d.setName( string );
+        
+        DatasetAnnotation a = new DatasetAnnotation();
+        a.setDataset( d );
+        a.setContent( string );
+        
+        a = (DatasetAnnotation) iPojos.createDataObject( a, null );
+        
+        iPojos.deleteDataObject( a, null );
         
     }
     
@@ -725,6 +831,17 @@ public class PojosServiceTest extends TestCase {
         id.setDatasets(dss);
         return id;
     }
+
+    private void assertUniqueAnnotationCreation(String name, String text)
+    {
+        // Test
+        List ds = iQuery.getListByFieldILike( Dataset.class, "name", name);
+        List as = iQuery.getListByFieldILike( DatasetAnnotation.class, "content", text);
+        
+        assertTrue( ds.size() == 1 );
+        assertTrue( as.size() == 1 );
+    }
+
 
     
 }

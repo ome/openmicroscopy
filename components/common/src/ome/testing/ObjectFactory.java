@@ -47,6 +47,7 @@ public class ObjectFactory
         if (example != null)
         {
             p.setId(example.getId());
+            p.setVersion(example.getVersion());
             
             // everything else unloaded.
             ac.setId(example.getAcquisitionContext().getId());

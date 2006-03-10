@@ -103,7 +103,8 @@
 			-->
  			<map>
 				<entry key="merge">
-					<bean class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/>          
+					<!--bean class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/-->          
+          <bean class="ome.tools.hibernate.MergeEventListener"/>
         </entry> 
 				<entry key="post-delete" value-ref="globalListener"/>
 				<entry key="post-insert" value-ref="globalListener"/>

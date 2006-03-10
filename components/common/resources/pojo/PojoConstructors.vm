@@ -1,0 +1,49 @@
+    // Custom Constructors
+
+    /** default constructor */
+    public $pojo.getDeclarationName()() {}
+#if($clazz.identifierProperty)
+	/** default constructor which sets id */
+    public $pojo.getDeclarationName()(Long id){
+		setId(id);
+		getDetails().setContext(this);
+	}
+	/** constructor which sets id and permits the "unloading" of the object */
+	public $pojo.getDeclarationName()(Long id, boolean loaded)
+	{
+		this(id);
+		if (!loaded){
+			unload();
+		}
+	}
+#end
+#*	
+	// Constructors
+
+    /** default constructor */
+    public $pojo.getDeclarationName()() {
+    }
+
+#if ($pojo.needsMinimalConstructor())
+	/** minimal constructor */
+    public $pojo.getDeclarationName()($c2j.asParameterList($pojo.getPropertyClosureForMinimalConstructor(),$jdk5,$pojo)) {
+#if($pojo.isSubclass() && !$pojo.getPropertyClosureForSuperclassMinimalConstructor().isEmpty()) 
+        super($c2j.asArgumentList($pojo.getPropertyClosureForSuperclassMinimalConstructor()));        
+#end
+#foreach($field in $pojo.getPropertiesForMinimalConstructor())  
+        this.$field.Name = $field.Name;
+#end
+    }
+#end
+    
+    /** full constructor */
+    public $pojo.getDeclarationName()($c2j.asParameterList($pojo.getPropertyClosureForFullConstructor(),$jdk5,$pojo)) {
+#if($pojo.isSubclass() && !$pojo.getPropertyClosureForSuperclassFullConstructor().isEmpty()) 
+        super($c2j.asArgumentList($pojo.getPropertyClosureForSuperclassFullConstructor()));        
+#end
+#foreach($field in $pojo.getPropertiesForFullConstructor())  
+        this.$field.Name = $field.Name;
+#end
+    }
+    
+*#

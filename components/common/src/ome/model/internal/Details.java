@@ -26,6 +26,8 @@ public class Details implements IDetails, Filterable
     public final static String GROUP = "Details_group";
     
     IObject _context;
+    IObject _replacement;
+    
     Permissions _perms;
     Event _creation;
     Event _update;
@@ -89,6 +91,17 @@ public class Details implements IDetails, Filterable
     {
         _context = myContext;
     }
+
+    public IObject getReplacement()
+    {
+        return _replacement;
+    }
+
+    public void setReplacement(IObject myReplacement)
+    {
+        _replacement = myReplacement;
+    }
+    
     
     public String toString()
     {

@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,16 +44,11 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.api.IQuery;
+import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.meta.Event;
-import ome.model.meta.EventDiff;
-import ome.model.meta.EventLog;
 import ome.security.CurrentDetails;
-import ome.tools.lsid.LsidUtils;
 import ome.util.ContextFilter;
-import ome.util.Filter;
 import ome.util.Filterable;
 import ome.util.Utils;
 import ome.util.Validation;
@@ -81,11 +75,16 @@ public class UpdateFilter extends ContextFilter
     {
         this.ht = template;
     }
-
+    
     @Override
     public Object filter(String fieldId, Object o)
     {
+        
+        if ( alreadySeen( o ))
+            return returnSeen( o );
+
         Object result;
+            
         if (o == null) {
             return null;
         } else if (o instanceof IObject) {
@@ -113,6 +112,9 @@ public class UpdateFilter extends ContextFilter
     @Override
     public Filterable filter(String fieldId, Filterable f)
     {
+        if (alreadySeen( f ))
+            return (Filterable) returnSeen( f );
+        
         Filterable result = f; // Don't reuse f
         if (result instanceof IObject)
         {
@@ -127,6 +129,7 @@ public class UpdateFilter extends ContextFilter
                     result = super.filter(fieldId,obj);
                     break;
                 case MANAGED:
+                    checkManagedState(obj);
                     reloadDetails(obj);
                     result = super.filter(fieldId,obj);
                 default:
@@ -161,6 +164,10 @@ public class UpdateFilter extends ContextFilter
     @Override
     public Collection filter(String fieldId, Collection c)
     {
+        
+        if ( alreadySeen( c ))
+            return (Collection) returnSeen( c );
+        
         Collection result = c; // Don't reuse c
         Object o = this.currentContext();
         if (o instanceof IObject) 
@@ -237,6 +244,20 @@ public class UpdateFilter extends ContextFilter
     // Actions
     // ====================================================
 
+    protected void checkManagedState( IObject obj )
+    {
+        if ( obj instanceof IMutable )
+        {
+            Integer version = ((IMutable) obj).getVersion();
+            if ( version == null || version.intValue() < 0 )
+                throw new IllegalArgumentException(
+                        "Version must be set on managed objects :\n"+
+                        obj.toString()
+                        );
+        }
+            
+    }
+    
     protected Filterable loadUnloadedEntity(String fieldId, IObject obj)
     {
         if ( obj != null && obj.getId() != null)
@@ -385,7 +406,36 @@ public class UpdateFilter extends ContextFilter
         throw new RuntimeException("Unknown collection type:"+example.getClass());
         
     }
+
+    protected boolean hasReplacement( Object o )
+    {
+        if ( o instanceof IObject)
+        {
+            IObject obj = (IObject)  o;
+            if ( obj.isLoaded() )
+                if ( obj.getDetails() != null)
+                    if ( obj.getDetails().getReplacement() != null)
+                        return true;
+        }
+        return false;
+    }
+    protected boolean alreadySeen( Object o )
+    {
+        if ( o == null ) return false;
+        return hasReplacement( o ) ? true : _cache.containsKey( o );
+    }
     
-    
+    protected Object returnSeen( Object o )
+    {
+        if ( o == null) return null;
+        if ( hasReplacement( o ))
+        {   
+            IObject obj = (IObject) o;
+            IObject replacement = obj.getDetails().getReplacement();
+            obj.unload();
+            return replacement; 
+        }
+        return o;
+    }
 
 }
