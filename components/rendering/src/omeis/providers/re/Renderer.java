@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.io.nio.PixelBuffer;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
@@ -111,10 +112,6 @@ public class Renderer
     private ome.model.display.RenderingDef rndDef;
     private PixelBuffer buffer;
   
-    /* necessary? */
-    private StatsFactory sf;
-    private PixelsStats pixelStats;
-    
     /**
      * Manages and allows to retrieve the objects that are used to quantize
      * wavelength data.
@@ -147,31 +144,22 @@ public class Renderer
      * @param metadata The service to access the metadata of the pixels
      *                 set bound to this <code>Renderer</code>.
      */
-    public Renderer(
-            Pixels pixelsObj, 
-            ome.model.display.RenderingDef renderingDefObj,
-            PixelBuffer bufferObj,
-            PixelsStats pixel_stats
-            ) throws Exception // FIXME what exceptions?
+    public Renderer(Pixels pixelsObj, RenderingDef renderingDefObj,
+                    PixelBuffer bufferObj)
+    	throws Exception // FIXME what exceptions?
     { 
-
-        if (metadata == null || rndDef == null || buffer == null)
-            throw new IllegalArgumentException("No null values please.");
-        
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-        pixelStats = pixel_stats;
         
-        //Grab pixels metadata -- create default display options if none 
-        //available.
-        PixelsDimensions pixelsDims = metadata.getPixelsDimensions();
-        
+        if (metadata == null || rndDef == null || buffer == null)
+            throw new IllegalArgumentException("No null values please.");
+                
         //Create and configure the quantum strategies.
         QuantumDef qd = rndDef.getQuantization();
-        quantumManager = new QuantumManager(metadata.getSizeC().intValue());
+        quantumManager = new QuantumManager(metadata);
         ChannelBinding[] cBindings= getChannelBindings();
-        quantumManager.initStrategies(qd, metadata.getPixelsType(), pixelStats, cBindings);
+        quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
         
         //Compute the location stats.
         computeLocationStats(getDefaultPlaneDef());
@@ -250,7 +238,7 @@ public class Renderer
 	{
         QuantumDef qd = rndDef.getQuantization();
 		ChannelBinding[] cb = getChannelBindings();
-		quantumManager.initStrategies(qd, metadata.getPixelsType(),getPixelsStats(), cb);
+		quantumManager.initStrategies(qd, metadata.getPixelsType(), cb);
 	}
 	
 	/**
@@ -343,17 +331,6 @@ public class Renderer
      * @return  See above.
      */
     public PixelsDimensions getPixelsDims() { return metadata.getPixelsDimensions(); }
-
-    /**
-     * Returns statistic measurements on the the pixels set this object 
-     * renders.
-     * 
-     * @return  See above.
-     */
-    public PixelsStats getPixelsStats() 
-    { 
-        return pixelStats;
-    }
 
     /**
      * Returns the settings that define the transformation context.
@@ -520,32 +497,35 @@ public class Renderer
         // Set the each channel's window to the channel's [min, max].
         // Make active only the first channel.
         ChannelBinding[] cb = getChannelBindings();
-        PixelsStats stats = getPixelsStats();
         Map map = Helper.getPixelsChannelData(getMetadata());
         PixelsChannelData pixData;
         boolean active = false;
         int model = RenderingDefConstants.GS;
         int[] c;
-        for (int w = 0; w < cb.length; w++)
+        
+        List channels = getMetadata().getChannels();
+        int w = 0;
+        for (Iterator i = channels.iterator(); i.hasNext();)
         {
+        	// The channel we're operating on
+        	Channel channel = (Channel) i.next();
             pixData = (PixelsChannelData) map.get(new Integer(w));
-            if (pixData != null
-                    && pixData.getColorDomain() == "RGB") // FIXME
+            if (pixData != null && pixData.getColorDomain() == "RGB") // FIXME
             {
                 active = true;
                 model = RenderingDefConstants.RGB;
             }
             cb[w].setActive(Boolean.valueOf(active));
-            double start = stats.getGlobalEntry(w).globalMin, end = stats
-                    .getGlobalEntry(w).globalMax;
-            setChannelWindow(w, start, end);
-            if (pixData == null) c = ColorsFactory.getColor(w,
-                    -1);
+            Double start = channel.getStatsInfo().getGlobalMin();
+            Double end   = channel.getStatsInfo().getGlobalMax();
+            setChannelWindow(w, start.doubleValue(), end.doubleValue());
+            if (pixData == null)
+            	c = ColorsFactory.getColor(w, -1);
             else
-                c = ColorsFactory.getColor(w, pixData
-                        .getEmWavelenght());
+                c = ColorsFactory.getColor(w, pixData.getEmWavelenght());
             setRGBA(w, c[ColorsFactory.RED], c[ColorsFactory.GREEN],
                     c[ColorsFactory.BLUE], c[ColorsFactory.ALPHA]);
+            w++;
         }
         cb[0].setActive(Boolean.valueOf(active));
         // Remove all the codomainMapCtx except the identity.

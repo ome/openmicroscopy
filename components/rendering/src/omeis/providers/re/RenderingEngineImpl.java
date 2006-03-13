@@ -211,7 +211,6 @@ public class RenderingEngineImpl implements RenderingEngine
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             StatsFactory sf = new StatsFactory();
-            PixelsStats pixelStats = sf.compute(pixelsObj,buffer);
 
             if (pixelsObj == null)
             {
@@ -229,8 +228,7 @@ public class RenderingEngineImpl implements RenderingEngine
             */
             
             try {
-                renderer 
-                = new Renderer(pixelsObj, rendDefObj, buffer, pixelStats);
+                renderer = new Renderer(pixelsObj, rendDefObj, buffer);
             } catch (Exception e){
                 throw new RuntimeException("Failed to initialze renderer.",e);
             }
@@ -292,36 +290,6 @@ public class RenderingEngineImpl implements RenderingEngine
                 throw new IllegalStateException(NULL_RENDERER);
             
             result = renderer.render(pd);
-        }
-        rwl.readLock().unlock();
-        return result;
-    }
-
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
-    public PixelsDimensions getPixelsDims()
-    {
-        PixelsDimensions result = null;
-        rwl.readLock().lock(); 
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
-            result = renderer.getPixelsDims();
-        }
-        rwl.readLock().unlock();
-        return result;
-    }
-
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
-    public PixelsStats getPixelsStats()
-    {
-        PixelsStats result = null;
-        rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
-            result = renderer.getPixelsStats();
         }
         rwl.readLock().unlock();
         return result;

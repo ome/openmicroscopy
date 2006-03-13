@@ -35,6 +35,11 @@ package omeis.providers.re;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Iterator;
+import java.util.List;
+
+import ome.model.core.Channel;
+import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
@@ -61,8 +66,8 @@ import omeis.providers.re.quantum.QuantumStrategy;
 class QuantumManager
 {
 	
-    /** Number of wavelengths (channels). */
-	private int			      sizeC;
+    /** The pixels metadata. */
+	private Pixels metadata;
 
 	/** 
 	 * Contains a strategy object for each wavelength.
@@ -75,12 +80,12 @@ class QuantumManager
     /**
      * Creates a new instance.
      * 
-     * @param sizeC The number of wavelengths (channels).
+     * @param metadata The pixels metadata.
      */
-	QuantumManager(int sizeC)
+	QuantumManager(Pixels metadata)
 	{
-		this.sizeC = sizeC;
-		wavesStg = new QuantumStrategy[sizeC];          
+		this.metadata = metadata;
+		wavesStg = new QuantumStrategy[metadata.getSizeC().intValue()];
 	}
     
     /**
@@ -88,31 +93,32 @@ class QuantumManager
      * The previous window interval settings of each wavelength are retained
      * by the new strategy.
      * 
-     * @param qd	The quantum definition which dictates what strategy to use.
-     * @param stats	For each wavelength, it contains the global minimum and
-     * 				maximum of the wavelength stack across time.
-     * @param waves Rendering settings associated to each wavelength (channel). 	
+     * @param qd	   The quantum definition which dictates what strategy to
+     *                 use.
+     * @param waves    Rendering settings associated to each wavelength
+     *                 (channel). 	
      */
-	void initStrategies(QuantumDef qd, PixelsType type, PixelsStats stats, 
-                        ChannelBinding[] waves)
+	void initStrategies(QuantumDef qd, PixelsType type, ChannelBinding[] waves)
 	{
 		QuantumStrategy stg;
-		PixTStatsEntry wGlobal;
 		double gMin, gMax;
-		for (int w = 0; w < sizeC; ++w) {
+		List channels = this.metadata.getChannels();
+		int w = 0;
+		for (Iterator i = channels.iterator(); i.hasNext();) {
+			Channel channel = (Channel) i.next();
 			stg = QuantumFactory.getStrategy(qd,type);
-			wGlobal = stats.getGlobalEntry(w);
-			gMin = wGlobal.globalMin;
-			gMax = wGlobal.globalMax;
+			gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
+			gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
 			stg.setExtent(gMin, gMax);
             stg.setMapping(QuantumFactory.convertFamilyType(waves[w].getFamily()), 
                     waves[w].getCoefficient().doubleValue(), 
                     waves[w].getNoiseReduction().booleanValue());
-			if (wavesStg[w] == null) stg.setWindow(waves[w].getInputStart().intValue(), 
-									waves[w].getInputEnd().intValue()); 
+			if (wavesStg[w] == null)
+				stg.setWindow(waves[w].getInputStart().intValue(), 
+                              waves[w].getInputEnd().intValue()); 
 			else 
 				stg.setWindow(wavesStg[w].getWindowStart(), 
-								wavesStg[w].getWindowEnd());
+				              wavesStg[w].getWindowEnd());
 	
 			wavesStg[w] = stg;
 		}

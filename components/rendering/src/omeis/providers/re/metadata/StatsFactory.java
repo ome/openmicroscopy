@@ -40,7 +40,6 @@ import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.util.math.geom2D.PlanePoint;
 import ome.util.math.geom2D.Segment;
-import omeis.io.StackStatistics;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -90,40 +89,6 @@ public class StatsFactory
     /** Value determined according to the location of the pixels' value. */
     private double          inputEnd;
     
-    
-    /**
-     * Helper object to extract relevant statistic from the more general
-     * purpose stats stored in <i>OME</i>.
-     * 
-     * @param s The <i>OME</i> stats.
-     * @param h The header in order to get the dimensions of the pixels set.
-     */
-    private PixelsStats computePixelsStats(StackStatistics s, 
-                                                Pixels h)
-    {
-        double globalMin = 0;
-        double globalMax = 1;
-        double min, max;
-        int c_size = h.getSizeC().intValue(), t_size = h.getSizeT().intValue();
-        PixelsStats pixelsStats = new PixelsStats(c_size,t_size);
-        for (int c = 0; c < c_size; c++) {
-            for (int t = 0; t < t_size; t++) {
-                min = s.min[c][t];
-                max = s.max[c][t];
-                if (t == 0) {
-                    globalMin = min;
-                    globalMax = max;
-                } else {
-                    globalMin = Math.min(globalMin, min);
-                    globalMax = Math.max(globalMax, max);
-                }
-                pixelsStats.setEntry(c, t, min, max); 
-            }
-            pixelsStats.setGlobalEntry(c, globalMin, globalMax);
-        }
-        return pixelsStats;
-    }
-
     /**
      * For the specified {@link Plane2D}, computes the bins, determines 
      * the inputWindow and the noiseReduction flag.
@@ -225,18 +190,6 @@ public class StatsFactory
         return s;
     }
     
-    /**
-     * Computes the two sets of statistics, determines the inputWindow and the 
-     * noiseReduction.
-     * 
-     */
-    public PixelsStats compute(Pixels metadata, PixelBuffer buffer)
-    {
-            StackStatistics stackStats = null; // FIXME repFile.getStackStatistics();
-            return computePixelsStats(stackStats, metadata);
-    }
-    
-
     /**
      * Helper object to determine the location of the pixels' values, the 
      * inputWindow i.e. <code>inputStart</code> and <code>inputEnd</code>

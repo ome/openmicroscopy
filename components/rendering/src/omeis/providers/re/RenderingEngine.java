@@ -105,10 +105,6 @@ public interface RenderingEngine extends SelfConfigurableService
     
     //TODO: javadoc the rest!
     
-	//Pixels metadata.
-	public PixelsDimensions getPixelsDims();
-	public PixelsStats getPixelsStats();
-	
 	//State management.
 	public void usePixels(Pixels pixels);
 	public void useRenderDefintion(ome.model.display.RenderingDef renderingDef);
