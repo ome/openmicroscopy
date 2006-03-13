@@ -114,6 +114,7 @@ public interface RenderingEngine extends SelfConfigurableService
 	public void useRenderDefintion(ome.model.display.RenderingDef renderingDef);
 	public void lookupPixels(long pixelsId);
 	public void lookupRenderingDef(long renderingDefId);
+	public void load();
 	
 	//RenderingDef fields.
 	public void setModel(int model);
