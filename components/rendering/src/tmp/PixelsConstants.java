@@ -34,8 +34,6 @@ import java.util.Map;
 
 import ome.model.enums.PixelsType;
 
-import sun.java2d.pipe.PixelToShapeConverter;
-
 
 //Java imports
 

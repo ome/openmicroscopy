@@ -58,7 +58,6 @@ import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
-import tmp.Helper;
 import tmp.RenderingDefConstants;
 
 /**
@@ -219,12 +218,15 @@ public class RenderingEngineImpl implements RenderingEngine
                 throw new IllegalStateException("Pixels object not set.");
             }
             
+            // FIXME: This should be stripped out
+            /*
             if (rendDefObj == null) 
             {
                 this.rendDefObj = 
                         Helper.createDefaultRenderingDef(pixelsObj,pixelStats);
                 pixelsObj.getSettings().add(rendDefObj);   
             }
+            */
             
             try {
                 renderer 

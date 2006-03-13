@@ -32,31 +32,24 @@ package omeis.providers.re;
 
 //Java imports
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.io.nio.PixelBuffer;
-import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.PixelsType;
 
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.metadata.PixMetadataException;
 import omeis.providers.re.metadata.PixTStatsEntry;
 import omeis.providers.re.metadata.PixelsChannelData;

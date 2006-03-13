@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;//j.m
 import java.util.concurrent.Executors;//j.m
 import java.util.concurrent.Future;//j.m
-import java.util.concurrent.TimeUnit;//j.m
 
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -53,7 +52,6 @@ import ome.model.display.Color;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.quantum.QuantizationException;
 import tmp.Helper;
 

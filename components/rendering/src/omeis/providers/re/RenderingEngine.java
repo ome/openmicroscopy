@@ -33,6 +33,7 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
+import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.QuantumDef;
 import ome.system.SelfConfigurableService;
@@ -107,6 +108,12 @@ public interface RenderingEngine extends SelfConfigurableService
 	//Pixels metadata.
 	public PixelsDimensions getPixelsDims();
 	public PixelsStats getPixelsStats();
+	
+	//State management.
+	public void usePixels(Pixels pixels);
+	public void useRenderDefintion(ome.model.display.RenderingDef renderingDef);
+	public void lookupPixels(long pixelsId);
+	public void lookupRenderingDef(long renderingDefId);
 	
 	//RenderingDef fields.
 	public void setModel(int model);

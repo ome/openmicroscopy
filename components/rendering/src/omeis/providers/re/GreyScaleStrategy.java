@@ -32,7 +32,6 @@ package omeis.providers.re;
 
 //Java imports
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -47,7 +46,6 @@ import ome.model.display.RenderingDef;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
 import tmp.Helper;

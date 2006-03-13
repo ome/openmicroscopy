@@ -51,7 +51,6 @@ import ome.model.display.ChannelBinding;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.quantum.QuantizationException;
 import tmp.Helper;
 

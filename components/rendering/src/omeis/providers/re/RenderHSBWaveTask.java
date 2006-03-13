@@ -44,7 +44,6 @@ import ome.model.display.Color;
 
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
-import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
 
