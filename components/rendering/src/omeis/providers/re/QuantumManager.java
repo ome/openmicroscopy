@@ -44,8 +44,6 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 
-import omeis.providers.re.metadata.PixTStatsEntry;
-import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 

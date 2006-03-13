@@ -34,7 +34,6 @@ package omeis.providers.re;
 import java.io.IOException;
 
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.QuantumDef;
 import ome.system.SelfConfigurableService;
 
@@ -43,8 +42,6 @@ import ome.system.SelfConfigurableService;
 //Application-internal dependencies
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.PixMetadataException;
-import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.quantum.QuantizationException;
 
 /** 
@@ -148,7 +145,7 @@ public interface RenderingEngine extends SelfConfigurableService
 	public void removeCodomainMap(CodomainMapContext mapCtx);
 	
 	//Save display options to db.
-	public void saveCurrentSettings() throws PixMetadataException;
+	public void saveCurrentSettings();
 	
 	//ResetDefaults values.
 	public void resetDefaults();

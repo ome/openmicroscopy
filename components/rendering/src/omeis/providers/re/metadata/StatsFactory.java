@@ -37,7 +37,9 @@ package omeis.providers.re.metadata;
 
 //Application-internal dependencies
 import ome.io.nio.PixelBuffer;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
+import ome.model.stats.StatsInfo;
 import ome.util.math.geom2D.PlanePoint;
 import ome.util.math.geom2D.Segment;
 import omeis.providers.re.data.Plane2D;
@@ -93,23 +95,25 @@ public class StatsFactory
      * For the specified {@link Plane2D}, computes the bins, determines 
      * the inputWindow and the noiseReduction flag.
      * 
-     * @param p2D       The selected plane2d.
-     * @param pixTStats The stats of for the selected channel.
+     * @param p2D    The selected plane2d.
+     * @param stats  The stats for the selected channel.
      * @param sizeX2    
      * @param sizeX1
      */
-    private void computeBins(Plane2D p2D, PixTStatsEntry pixTStats, 
-                            int sizeX2, int sizeX1)
+    private void computeBins(Plane2D p2D, StatsInfo stats, 
+                             int sizeX2, int sizeX1)
     {
-        double sizeBin = (pixTStats.globalMax-pixTStats.globalMin)/NB_BIN;
+    	double gMin = stats.getGlobalMin().doubleValue();
+    	double gMax = stats.getGlobalMax().doubleValue();
+        double sizeBin = (gMax-gMin) / NB_BIN;
         double epsilon = sizeBin/EPSILON;
         int[] totals = new int[NB_BIN];
         locationStats = new double[NB_BIN];
         PlanePoint o, e;
         Segment[] segments = new Segment[NB_BIN];
         for (int i = 0; i < NB_BIN; i++) {
-            o = new PlanePoint(pixTStats.globalMin+i*sizeBin, 0);
-            e = new PlanePoint(pixTStats.globalMin+(i+1)*sizeBin, 0);
+            o = new PlanePoint(gMin+i*sizeBin, 0);
+            e = new PlanePoint(gMin+(i+1)*sizeBin, 0);
             segments[i] = new Segment(o, e);
         }
         PlanePoint point;
@@ -195,26 +199,25 @@ public class StatsFactory
      * inputWindow i.e. <code>inputStart</code> and <code>inputEnd</code>
      * and to initialize the <code>noiseReduction</code> flag.
      * 
-     * @param header
+     * @param metadata
      * @param pixelsData
      * @param pixelsStats
      * @param pd
      * @param index
      * @throws PixMetadataException
      */
-    public void computeLocationStats(Pixels header, PixelBuffer pixelsData, 
-                            PixelsStats pixelsStats, PlaneDef pd, int index)
-        throws PixMetadataException
+    public void computeLocationStats(Pixels metadata, PixelBuffer pixelsData, 
+                                     PlaneDef pd, int index)
     {
-        try {
-            PixTStatsEntry pixTStats = pixelsStats.getGlobalEntry(index);
-            Plane2D plane2D = Helper.createPlane(pd, index, header, pixelsData);
-            if (pixTStats.globalMax-pixTStats.globalMin >= NB_BIN) 
-                computeBins(plane2D, pixTStats, header.getSizeY().intValue(), header.getSizeX().intValue());
-        } catch (Exception ioe) {
-            throw new PixMetadataException("Cannot retrieve the " +
-                    "Plane2D to compute the locationStats.", ioe);
-        }
+    	int sizeX = metadata.getSizeX().intValue();
+    	int sizeY = metadata.getSizeY().intValue();
+    	Channel channel = (Channel) metadata.getChannels().get(index);
+    	StatsInfo stats = channel.getStatsInfo();
+    	double gMin = stats.getGlobalMin().doubleValue();
+    	double gMax = stats.getGlobalMax().doubleValue();
+    	Plane2D plane2D = Helper.createPlane(pd, index, metadata, pixelsData);
+    	if (gMax - gMin >= NB_BIN) 
+    		computeBins(plane2D, stats, sizeY, sizeX);
     }
     
     public double[] getLocationStats() { return locationStats; }

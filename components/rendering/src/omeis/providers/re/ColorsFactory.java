@@ -37,6 +37,7 @@ package omeis.providers.re;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Channel;
 import omeis.providers.re.metadata.ChannelBindings;
 
 /** 
@@ -132,12 +133,12 @@ public class ColorsFactory
      * Returns <code>true</code> if the emission wavelength is in 
      * the green color band, <code>false</code> otherwise.
      * 
-     * @param emWavelenght  The value of the emission wavelength
+     * @param emWave  The value of the emission wavelength
      * @return See above.
      */
-    private static boolean rangeGreen(int emWavelenght)
+    private static boolean rangeGreen(int emWave)
     {
-        if (emWavelenght >= GREEN_MIN && emWavelenght <= GREEN_MAX) 
+        if (emWave >= GREEN_MIN && emWave <= GREEN_MAX) 
             return true;
         return false;
     }
@@ -146,12 +147,12 @@ public class ColorsFactory
      * Returns <code>true</code> if the emission wavelength is in 
      * the red color band, <code>false</code> otherwise.
      * 
-     * @param emWavelenght  The value of the emission wavelength
+     * @param emWave  The value of the emission wavelength
      * @return See above.
      */
-    private static boolean rangeRed(int emWavelenght)
+    private static boolean rangeRed(int emWave)
     {
-        if (emWavelenght >= RED_MIN && emWavelenght <= RED_MAX) return true;
+        if (emWave >= RED_MIN && emWave <= RED_MAX) return true;
         return false;
     }
     
@@ -159,14 +160,15 @@ public class ColorsFactory
      * Determines the color usually associated to the specified 
      * emission wavelenght.
      * 
-     * @param emWavelenght  The emission wavelength.
+     * @param channel A channel.
      * @return  Returns an rgb array corresponding to the color.
      */
-    private static int[] getColor(int emWavelenght)
+    private static int[] getColor(Channel channel)
     {
-        if (rangeBlue(emWavelenght)) return BLUE_COLOR;
-        if (rangeGreen(emWavelenght)) return GREEN_COLOR;
-        if (rangeRed(emWavelenght)) return RED_COLOR;
+    	int emWave = channel.getLogicalChannel().getEmissionWave().intValue();
+        if (rangeBlue(emWave)) return BLUE_COLOR;
+        if (rangeGreen(emWave)) return GREEN_COLOR;
+        if (rangeRed(emWave)) return RED_COLOR;
         return null;
     }
     
@@ -174,18 +176,19 @@ public class ColorsFactory
      * Determines the color usually associated to the specified 
      * emission wavelenght.
      * 
-     * @param channel The channel index.
-     * @param emWavelenght  The emission wavelength.
-     * @return  Returns an rgb array corresponding to the color.
+     * @param index The channel index.
+     * @param channel The channel.
+     * @return Returns an rgb array corresponding to the color.
      */
-    public static int[] getColor(int channel, int emWavelenght)
+    public static int[] getColor(int index, Channel channel)
     {
-        int[] c = ColorsFactory.getColor(emWavelenght);
+        int[] c = ColorsFactory.getColor(channel);
         if (c != null) return c;
-        if (channel == 0)  c = BLUE_COLOR;
-        else if (channel == 1) c = GREEN_COLOR;
-        else if (channel > 1) c = RED_COLOR;
-        return c;
+        switch (index)
+        {
+        	case  0: return BLUE_COLOR;
+        	case  1: return GREEN_COLOR;
+        	default: return RED_COLOR;
+        }
     }
-
 }

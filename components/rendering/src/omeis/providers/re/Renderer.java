@@ -34,7 +34,6 @@ package omeis.providers.re;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,16 +50,11 @@ import ome.model.display.RenderingDef;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.PixMetadataException;
-import omeis.providers.re.metadata.PixTStatsEntry;
-import omeis.providers.re.metadata.PixelsChannelData;
-import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 
-import tmp.Helper;
 import tmp.RenderingDefConstants;
 
 /** 
@@ -396,30 +390,28 @@ public class Renderer
      * @see PixelsMetadata#computeLocationStats(PlaneDef)
      */
     public void computeLocationStats(PlaneDef pd)
-        throws PixMetadataException
     {
-        if (pd == null) throw new NullPointerException("No plane definition.");
-        if (rndDef == null) return; // TODO can this be true? -josh
-        try {
-            ChannelBinding[] cb = getChannelBindings();
-            double start, end;
-            PixTStatsEntry pixTStats;
-            for (int i = 0; i < cb.length; i++) {
-//                pixTStats = pixelStats.getGlobalEntry(cb[i].getIndex());
-//                sf.computeLocationStats(metadata, buffer, pixelStats, 
-//                                        pd, cb[i].getIndex());
-//                // FIXME cb[i].setStats(sf.getLocationStats());
-//                cb[i].setNoiseReduction(sf.isNoiseReduction());
-//                start = cb[i].getInputStart();
-//                end = cb[i].getInputEnd();
-                //TODO: find a better way.
-//                if (pixTStats.globalMax == end && pixTStats.globalMin == start)
-//                    cb[i].setInputStart(new Float(sf.getInputStart()));
-//                	   cb[i].setInputEnd(new Float(sf.getInputEnd())); // TODO double / Float? 
-            }
-        } catch (Exception ioe) {
-            throw new PixMetadataException("Cannot retrieve the file header "+
-                                        "to compute the location stats.", ioe);
+        if (pd == null)
+        	throw new NullPointerException("No plane definition.");
+        ChannelBinding[] cb = getChannelBindings();
+        StatsFactory sf = new StatsFactory();
+        int w = 0;
+        for (Iterator i = getMetadata().getChannels().iterator(); i.hasNext(); )
+        {
+        	// FIXME: This is where we need to have the ChannelBinding -->
+        	// Channel linkage.
+        	Channel channel = (Channel) i.next();
+        	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
+        	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
+        	sf.computeLocationStats(metadata, buffer, pd, w);
+        	// FIXME cb[i].setStats(sf.getLocationStats());
+        	cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
+        	float start = cb[w].getInputStart().floatValue();
+        	float end = cb[w].getInputEnd().floatValue();
+        	//TODO: find a better way.
+        	if (gMax == end && gMin == start)
+        		cb[w].setInputStart(new Float(sf.getInputStart()));
+        	cb[w].setInputEnd(new Float(sf.getInputEnd())); // TODO double / Float? 
         }
     }
     
@@ -497,11 +489,8 @@ public class Renderer
         // Set the each channel's window to the channel's [min, max].
         // Make active only the first channel.
         ChannelBinding[] cb = getChannelBindings();
-        Map map = Helper.getPixelsChannelData(getMetadata());
-        PixelsChannelData pixData;
         boolean active = false;
         int model = RenderingDefConstants.GS;
-        int[] c;
         
         List channels = getMetadata().getChannels();
         int w = 0;
@@ -509,20 +498,16 @@ public class Renderer
         {
         	// The channel we're operating on
         	Channel channel = (Channel) i.next();
-            pixData = (PixelsChannelData) map.get(new Integer(w));
-            if (pixData != null && pixData.getColorDomain() == "RGB") // FIXME
+            if (channel.getPixels().getAcquisitionContext().getPhotometricInterpretation().getValue() == "RGB") // FIXME
             {
                 active = true;
                 model = RenderingDefConstants.RGB;
             }
             cb[w].setActive(Boolean.valueOf(active));
-            Double start = channel.getStatsInfo().getGlobalMin();
-            Double end   = channel.getStatsInfo().getGlobalMax();
-            setChannelWindow(w, start.doubleValue(), end.doubleValue());
-            if (pixData == null)
-            	c = ColorsFactory.getColor(w, -1);
-            else
-                c = ColorsFactory.getColor(w, pixData.getEmWavelenght());
+            double start = channel.getStatsInfo().getGlobalMin().doubleValue();
+            double end   = channel.getStatsInfo().getGlobalMax().doubleValue();
+            setChannelWindow(w, start, end);
+            int c[] = ColorsFactory.getColor(w, channel);
             setRGBA(w, c[ColorsFactory.RED], c[ColorsFactory.GREEN],
                     c[ColorsFactory.BLUE], c[ColorsFactory.ALPHA]);
             w++;

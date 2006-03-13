@@ -3,9 +3,8 @@ package tmp;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -18,8 +17,6 @@ import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.ChannelBindings;
-import omeis.providers.re.metadata.PixTStatsEntry;
-import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.quantum.QuantumFactory;
 
 public class Helper
@@ -80,7 +77,7 @@ public class Helper
      *              maximum of the wavelength stack across time.
      * @return  The default rendering settings.
      */
-    public static RenderingDef createDefaultRenderingDef(Pixels metadata, PixelsStats stats)
+    public static RenderingDef createDefaultRenderingDef(Pixels metadata)
     {
         
         int c_size = metadata.getSizeC().intValue();
@@ -92,28 +89,24 @@ public class Helper
         qDef.setCdEnd(new Integer(QuantumFactory.DEPTH_8BIT));
         
         ChannelBindings[] waves = new ChannelBindings[c_size];
-        PixTStatsEntry wGlobal;
-        int[] rgb = ColorsFactory.getColor(0,0); // FIXME was empty
-        Channel pixData;
         boolean active = false;
         int model = RenderingDefConstants.GS;
-        Map map = getPixelsChannelData(metadata);
         
-        for (int w = 0; w < c_size; ++w) {
-            pixData = (Channel) map.get(new Integer(w));
-            wGlobal = stats.getGlobalEntry(w);
-            if (pixData == null) rgb = ColorsFactory.getColor(w, -1);
-            else  rgb = ColorsFactory.getColor(w, 
-                    pixData.getLogicalChannel().getEmissionWave().intValue());
-            if (pixData != null && 
-                    metadata.getAcquisitionContext().getPhotometricInterpretation().getValue() == "RGB") { 
+        List channels = metadata.getChannels();
+        int w = 0;
+        for (Iterator i = channels.iterator(); i.hasNext(); )
+        {
+        	Channel channel = (Channel) i.next();
+        	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
+        	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
+            int rgb[] = ColorsFactory.getColor(w, channel);
+            if (metadata.getAcquisitionContext().getPhotometricInterpretation().getValue() == "RGB") { 
             	// FIXME this should be linked to the ModelType of RenderingDefConstant somehow
                 active = true;
                 model = RenderingDefConstants.RGB;
             } 
-            waves[w] = new ChannelBindings(w, wGlobal.globalMin, 
-                                        wGlobal.globalMax, rgb, active, 
-                                        QuantumFactory.LINEAR, 1);
+            waves[w] = new ChannelBindings(w, gMin, gMax, rgb, active, 
+            		                       QuantumFactory.LINEAR, 1);
         }
         waves[0].setActive(true);  //NOTE: dims object enforces 1 < sizeC.
         RenderingDef newRD = new RenderingDef();
@@ -125,21 +118,4 @@ public class Helper
         newRD.setWaveRendering(Arrays.asList(waves));
         return newRD;
     }
-    
-    /**
-     * Returns the Logical data associated to the pixels set.
-     * 
-     * @return See above.
-     */
-    public static Map getPixelsChannelData(Pixels metadata) {
-        Map result = new HashMap();
-        List channels = metadata.getChannels();
-        for (int i = 0; i < channels.size(); i++)
-        {
-            Channel channel = (Channel) channels.get(i);
-            result.put(new Integer(i),channel);
-        }
-        return result; 
-    }
-    
 }

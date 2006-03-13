@@ -38,7 +38,6 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
-import ome.model.display.RenderingDef;
 
 //Third-party libraries
 
@@ -159,7 +158,6 @@ class GreyScaleStrategy
 		//Set the context and retrieve objects we're gonna use.
 		renderer = ctx;
 		PixelsDimensions dims = renderer.getPixelsDims();
-		RenderingDef rndDef = renderer.getRenderingDef();
 		QuantumManager qManager = renderer.getQuantumManager();
 		PixelBuffer pixels = renderer.getPixels();
         Pixels metadata = renderer.getMetadata();
