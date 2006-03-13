@@ -175,6 +175,13 @@ public abstract class DataObject implements ModelBased
         return new HashSet( values );
             
     }
+    
+    protected boolean linked ( Set linkCollection ) 
+    {
+        return linkCollection == null ? false 
+                : linkCollection.size() < 1 ? false 
+                        : true;
+    }
 
     
 }

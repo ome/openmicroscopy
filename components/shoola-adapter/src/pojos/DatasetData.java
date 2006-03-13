@@ -176,19 +176,25 @@ public class DatasetData
             if (super.fill(d)) {
                 d.setName(this.getName());
                 d.setDescription(this.getDescription());
+                
+                // Links
                 if (this.getImages() != null) {
                     for (Iterator it = this.getImages().iterator(); it.hasNext();)
                     {
-                        ImageData i = (ImageData) it.next();
-                        d.linkImage((Image) mapper.map(i));
+                        ImageData id = (ImageData) it.next();
+                        Image i = (Image) mapper.map( id );
+                        if ( ! linked( i.findDatasetImageLink( d )))
+                            d.linkImage( i );
                     }
                 }
                 
                 if (this.getProjects() != null) {
                     for (Iterator it = this.getProjects().iterator(); it.hasNext();)
                     {
-                        ProjectData p = (ProjectData) it.next();
-                        d.linkProject((Project) mapper.map(p));
+                        ProjectData pd = (ProjectData) it.next();
+                        Project p = (Project) mapper.map( pd );
+                        if ( ! linked( p.findProjectDatasetLink( d )))
+                            d.linkProject( p );
                     }
                 }
                 

@@ -133,11 +133,15 @@ public class CategoryGroupData
             if (super.fill(cg)) {
                 cg.setName(this.getName());
                 cg.setDescription(this.getDescription());
+                
+                // Links
                 if (this.getCategories() != null) {
                     for (Iterator it = this.getCategories().iterator(); it.hasNext();)
                     {
-                        CategoryData c = (CategoryData) it.next();
-                        cg.linkCategory((Category)mapper.map(c));
+                        CategoryData cd = (CategoryData) it.next();
+                        Category c = (Category)mapper.map( cd );
+                        if ( ! linked( c.findCategoryGroupCategoryLink( cg )))
+                            cg.linkCategory( c );
                     }
                 }
             }

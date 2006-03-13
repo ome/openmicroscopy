@@ -733,6 +733,7 @@ public class PojosServiceTest extends TestCase {
 
         annotation = (DatasetAnnotation) iPojos.createDataObject(
                 annotation, null );
+        original = annotation.getDataset(); // TODO is this okay?
         
         assertUniqueAnnotationCreation(name, text);
         
@@ -765,24 +766,57 @@ public class PojosServiceTest extends TestCase {
         Dataset d2 = new Dataset();
         d2.setName( name );
         
-        p.linkDataset( d1 );
-        p.linkDataset( d2 );
+        ProjectDatasetLink l1 = new ProjectDatasetLink();
+        ProjectDatasetLink l2 = new ProjectDatasetLink();
+        
+        l1.setParent( p );
+        l1.setChild( d1 );
+        
+        l2.setParent( p );
+        l2.setChild( d2 );
+        
+        p.addProjectDatasetLink( l1, true );
+        p.addProjectDatasetLink( l2, true );
         
         p = (Project) iPojos.updateDataObject( p, null );
         
-        Iterator it = p.linkedDatasetIterator();
-        Dataset test = null;
+        Iterator it = p.iterateDatasetLinks();
         while ( it.hasNext() ) 
         {
-            test = (Dataset) it.next();
-            if ( d1.getId().equals(test.getId()))
-                break;
+            ProjectDatasetLink link = (ProjectDatasetLink) it.next();
+            if ( link.child().getId().equals( d1.getId() ))
+            {
+                l1 = link;
+                d1 = link.child();
+            } else if ( link.child().getId().equals( d2.getId() )) {
+                l2 = link;
+                d2 = link.child();
+            } else {
+                fail( " Links aren't set up propertly");
+            }
+            
         }                    
         
-        test.setDescription( name );
+        d1.setDescription( name );
         
-        test = (Dataset) iPojos.updateDataObject( test, null );
+        Dataset test = (Dataset) iPojos.updateDataObject( d1, null );
         
+        ProjectDatasetLink link1 = 
+                (ProjectDatasetLink) iQuery.getById( 
+                        ProjectDatasetLink.class, l1.getId().longValue() );
+            
+        assertNotNull( link1 );
+        assertTrue( link1.parent().getId().equals( p.getId()));
+        assertTrue( link1.child().getId().equals( d1.getId() ));
+
+        ProjectDatasetLink link2 = 
+            (ProjectDatasetLink) iQuery.getById( 
+                    ProjectDatasetLink.class, l2.getId().longValue() );
+        
+        assertNotNull( link2 );
+        assertTrue( link2.parent().getId().equals( p.getId()));
+        assertTrue( link2.child().getId().equals( d2.getId() ));
+
     }
     
     public void test_delete_annotation() throws Exception
@@ -799,6 +833,41 @@ public class PojosServiceTest extends TestCase {
         a = (DatasetAnnotation) iPojos.createDataObject( a, null );
         
         iPojos.deleteDataObject( a, null );
+        
+        Object o = iQuery.getById( DatasetAnnotation.class, a.getId().longValue() );
+        assertNull( o );
+        
+    }
+    
+    public void test_duplicate_links_again() throws Exception
+    {
+    
+        String string = "duplinksagain"+System.currentTimeMillis();
+        
+        Dataset d = new Dataset();
+        d.setName( string );
+        
+        Project p = new Project();
+        p.setName( string );
+        
+        d.linkProject( p );
+        d = (Dataset) iPojos.createDataObject( d, null );
+        
+        DatasetData dd = (DatasetData) mapper.map( d );
+        Dataset toSend = (Dataset) reverse.map( dd );
+
+        Dataset updated = (Dataset) 
+            iPojos.updateDataObject( toSend, null );
+        
+        Set orig_ids = new HashSet( d.collectProjectLinks( null ));
+        Set updt_ids = new HashSet( updated.collectProjectLinks( null ));
+        
+        System.out.println( orig_ids );
+        System.out.println( updt_ids );
+        
+        assertTrue( updt_ids.containsAll( orig_ids ));
+        assertTrue( orig_ids.containsAll( updt_ids ));
+        
         
     }
     

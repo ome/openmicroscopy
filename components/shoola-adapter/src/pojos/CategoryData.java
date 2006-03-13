@@ -147,12 +147,19 @@ public class CategoryData
             if (super.fill(c)) {
                 c.setName(this.getName());
                 c.setDescription(this.getDescription());
-                c.linkCategoryGroup((CategoryGroup) mapper.map(this.getGroup()));
+                
+                // Links
+                CategoryGroup cg = (CategoryGroup) mapper.map(this.getGroup());
+                if ( ! linked( cg.findCategoryGroupCategoryLink( c )))
+                        c.linkCategoryGroup( cg );
+                
                 if (this.getImages() != null) {
                     for (Iterator it = this.getImages().iterator(); it.hasNext();)
                     {
-                        ImageData i = (ImageData) it.next();
-                        c.linkImage((Image) mapper.map(i));
+                        ImageData id = (ImageData) it.next();
+                        Image i = (Image) mapper.map( id );
+                        if ( ! linked( i.findCategoryImageLink( c )))
+                            c.linkImage( i );
                     }
                 }
             }

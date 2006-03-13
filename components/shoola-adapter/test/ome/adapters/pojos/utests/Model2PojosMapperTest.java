@@ -32,6 +32,7 @@ package ome.adapters.pojos.utests;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 import junit.framework.TestCase;
@@ -114,10 +115,33 @@ public class Model2PojosMapperTest extends TestCase {
         
     }
     
-    public void testBothWays() throws Exception
+    public void testNoDuplicateLinks() throws Exception
     {
         DataObject dO = (DataObject) mapper.map( p );
-        Project test = (Project) reverse.map( dO ); 
+        Project p = (Project) reverse.map( dO );
+        Dataset d = (Dataset) p.linkedDatasetList().get(0);
+        
+        Set p_links = new HashSet( p.collectDatasetLinks( null ));
+        Set d_links = new HashSet( d.collectProjectLinks( null ));
+        
+        System.out.println( p_links );
+        System.out.println( d_links );
+        
+        assertTrue( p_links.containsAll( d_links ));
+        
+        DataObject d00 = (DataObject) mapper.map( d );
+        Dataset d2 = (Dataset) reverse.map( d00 );
+        Image i2 = (Image) d2.linkedImageList().get(0); // TODO something weird here!
+        
+        Set d2_links = new HashSet( d2.collectImageLinks( null ));
+        Set i2_links = new HashSet( i2.collectDatasetLinks( null ));
+        
+        System.out.println( d2_links );
+        System.out.println( i2_links );
+        
+        assertTrue( d2_links.containsAll( i2_links ) );
+        
     }
+    
 }
 

@@ -240,11 +240,14 @@ public class ImageData
                         }
                 }
                 
+                // Links
                 if (this.getDatasets() != null){
                     for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
                     {
-                        DatasetData d = (DatasetData) it.next();
-                        i.linkDataset((Dataset) mapper.map(d));
+                        DatasetData dd = (DatasetData) it.next();
+                        Dataset d = (Dataset) mapper.map( dd );
+                        if ( ! linked( d.findDatasetImageLink( i )))
+                            i.linkDataset( d );
                     }
                 }
             }

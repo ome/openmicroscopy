@@ -130,11 +130,14 @@ public class ExperimenterData
                 e.setEmail(this.getEmail());
                 e.setInstitution(this.getInstitution());
          
+                // Linked
                 if (this.getGroups() != null) {
                     for (Iterator it = this.getGroups().iterator(); it.hasNext();)
                     {
-                        GroupData g = (GroupData) it.next();
-                        e.linkExperimenterGroup((ExperimenterGroup) mapper.map(g));
+                        GroupData gd = (GroupData) it.next();
+                        ExperimenterGroup g = (ExperimenterGroup) mapper.map( gd );
+                        if ( ! linked( g.findGroupExperimenterMap( e )))
+                            e.linkExperimenterGroup( g );
                     }
                 }
                 

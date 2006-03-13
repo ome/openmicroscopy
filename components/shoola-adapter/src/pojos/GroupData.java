@@ -124,8 +124,10 @@ public class GroupData
                 if (this.getExperimenters() != null){
                     for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
                     {
-                        ExperimenterData e = (ExperimenterData) it.next();
-                        g.linkExperimenter((Experimenter) mapper.map(e));
+                        ExperimenterData ed = (ExperimenterData) it.next();
+                        Experimenter e = (Experimenter) mapper.map( ed );
+                        if ( ! linked( e.findGroupExperimenterMap( g )))
+                            g.linkExperimenter( e );
                     }
                 }
                 
