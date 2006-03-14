@@ -74,6 +74,7 @@
 
 	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
 		<property name="sessionFactory" ref="sessionFactory"/>
+    <property name="allowCreate" value="false"/>
 	</bean>
 	
 	<bean id="globalListener" class="ome.tools.hibernate.GlobalListener">
@@ -103,12 +104,16 @@
 			-->
  			<map>
 				<entry key="merge">
-					<!--bean class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/-->          
           <bean class="ome.tools.hibernate.MergeEventListener"/>
         </entry> 
-				<entry key="post-delete" value-ref="globalListener"/>
+				<entry key="pre-insert" value-ref="globalListener"/>         
+				<entry key="pre-load" value-ref="globalListener"/>
+				<entry key="pre-delete" value-ref="globalListener"/>
+        <entry key="pre-update" value-ref="globalListener"/>
 				<entry key="post-insert" value-ref="globalListener"/>
+        <entry key="post-load" value-ref="globalListener"/>
 				<entry key="post-update" value-ref="globalListener"/>
+        <entry key="post-delete" value-ref="globalListener"/>
 			</map>
 		</property>
 	</bean>

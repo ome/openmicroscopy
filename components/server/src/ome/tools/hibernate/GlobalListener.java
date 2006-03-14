@@ -31,27 +31,35 @@ package ome.tools.hibernate;
 // Java imports
 
 // Third-party imports
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.event.MergeEvent;
-import org.hibernate.event.MergeEventListener;
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
 import org.hibernate.event.PostInsertEventListener;
+import org.hibernate.event.PostLoadEvent;
+import org.hibernate.event.PostLoadEventListener;
 import org.hibernate.event.PostUpdateEvent;
 import org.hibernate.event.PostUpdateEventListener;
-import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
+import org.hibernate.event.PreDeleteEvent;
+import org.hibernate.event.PreDeleteEventListener;
+import org.hibernate.event.PreInsertEvent;
+import org.hibernate.event.PreInsertEventListener;
+import org.hibernate.event.PreLoadEvent;
+import org.hibernate.event.PreLoadEventListener;
+import org.hibernate.event.PreUpdateEvent;
+import org.hibernate.event.PreUpdateEventListener;
+import org.hibernate.event.def.DefaultPostLoadEventListener;
+import org.hibernate.event.def.DefaultPreLoadEventListener;
 
 // Application-internal dependencies
+
 
 /**
  * responsible for responding to all Hibernate Events. Delegates tasks to
  * various components. It is assumed that graphs coming to the Hibernate methods
- * which produces these events have already been processed by the UpdateFilter.
+ * which produces these events have already been processed by the 
+ * {@link ome.tools.hibernate.UpdateFilter}
  */
 public class GlobalListener
         implements /* Turning off AutoFlushEventListener, DeleteEventListener,
@@ -60,18 +68,24 @@ public class GlobalListener
         LoadEventListener, LockEventListener, MergeEventListener,
         PersistEventListener, RefreshEventListener, ReplicateEventListener,
         SaveOrUpdateEventListener,*/ /* this space intentionally left empty */
-        /* BEFORE... *PreDeleteEventListener, PreInsertEventListener,
-        /* and...... *PreLoadEventListener, PreUpdateEventListener,*/
-        /* AFTER.... */PostDeleteEventListener, PostInsertEventListener,
-        /* TRIGGERS. /PostLoadEventListener,*/ PostUpdateEventListener
+        /* BEFORE... */ PreDeleteEventListener, PreInsertEventListener,
+        /* and...... */ PreLoadEventListener, PreUpdateEventListener,
+        /* AFTER.... */ PostDeleteEventListener, PostInsertEventListener,
+        /* TRIGGERS. */ PostLoadEventListener, PostUpdateEventListener
 {
 
+    // TODO does LoadEvent call PreLoad/PostLoad?
+    
     private static Log                   log       = LogFactory
                                                            .getLog(GlobalListener.class);
 
     /** actions to be performed on insert/update/delete */
     protected EventDiffHolder            actions;
 
+    protected PreLoadEventListener       preLoad;
+    
+    protected PostLoadEventListener      postLoad;
+    
     // responsibilities
     /*
      * security meta items (owner/event) validation?
@@ -84,11 +98,13 @@ public class GlobalListener
     public GlobalListener(EventDiffHolder actions)
     {
         this.actions = actions;
+        this.preLoad = new DefaultPreLoadEventListener();
+        this.postLoad = new DefaultPostLoadEventListener();
     }
 
     // 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Acting as all hibernate listeners.
+    // Acting as all hibernate triggers
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //
 
@@ -105,6 +121,31 @@ public class GlobalListener
     public void onPostUpdate(PostUpdateEvent event)
     {
         actions.addUpdated(event.getEntity(), event.getId());
+    }
+
+    public void onPostLoad(PostLoadEvent event)
+    {
+        this.postLoad.onPostLoad( event );
+    }
+
+    public void onPreLoad(PreLoadEvent event)
+    {
+        this.preLoad.onPreLoad( event );
+    }
+
+    public boolean onPreInsert(PreInsertEvent event)
+    {
+        return false;
+    }
+
+    public boolean onPreUpdate(PreUpdateEvent event)
+    {
+        return false;
+    }
+    
+    public boolean onPreDelete(PreDeleteEvent event)
+    {
+        return false;
     }
     
 }

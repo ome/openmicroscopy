@@ -79,9 +79,8 @@
   </bean>
 
   <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 
-  <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl">
-    <constructor-arg ref="ome.api.IQuery"/>
-  </bean>
+  <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl"/>
+
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL TWO
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

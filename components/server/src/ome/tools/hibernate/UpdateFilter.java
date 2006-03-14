@@ -39,14 +39,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
 // Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 // Application-internal dependencies
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.security.CurrentDetails;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
@@ -55,9 +57,11 @@ import ome.util.Validation;
 
 /**
  * enforces the detached-graph re-attachment "Commandments" as outlined in TODO.
- * Objects that are transient (no ID) are given details from the CurrentDetails.
- * Objects that are managed (with ID) are checked for validity. (TODO implement)
- * Collections that ...
+ * Objects that are transient (no ID) are unchanged; objects that are managed 
+ * (with ID) are checked for validity (i.e. must have a version); and 
+ * unloaded/filtered objects & collections are re-filled.
+ * 
+ * Various other actions are taken in {@link ome.tools.hibernate.GlobalListener}
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -67,6 +71,8 @@ import ome.util.Validation;
 public class UpdateFilter extends ContextFilter 
 {
 
+    private static Log log = LogFactory.getLog(UpdateFilter.class);
+    
     protected HibernateTemplate ht;
 
     private UpdateFilter(){} // We need the template
@@ -74,6 +80,20 @@ public class UpdateFilter extends ContextFilter
     public UpdateFilter(HibernateTemplate template)
     {
         this.ht = template;
+    }
+    
+    public void unloadReplacedObjects( )
+    {
+        for ( Object obj : _cache.keySet() )
+        {
+            if ( obj instanceof IObject )
+            {
+                IObject  iobj = (IObject )  obj;
+                if ( iobj.isLoaded() && iobj.getDetails() != null)
+                    if ( iobj.getDetails().getReplacement() != null)
+                        iobj.unload( );
+            }
+        }
     }
     
     @Override
@@ -87,18 +107,18 @@ public class UpdateFilter extends ContextFilter
             
         if (o == null) {
             return null;
-        } else if (o instanceof IObject) {
+        } else if (o instanceof Filterable) {
             result = filter(fieldId, (Filterable) o);
         } else if (o instanceof Collection) {
             result = filter(fieldId, (Collection) o);
         } else  if (o instanceof Map) {
             result = filter(fieldId, (Map) o);
         } else if (
-                o instanceof Details
-                || o instanceof Number
+                o instanceof Number
                 || o instanceof String
                 || o instanceof Date
-                || o instanceof Boolean)
+                || o instanceof Boolean
+                || o instanceof Permissions )
         { 
             result = o;
         } else {
@@ -116,24 +136,31 @@ public class UpdateFilter extends ContextFilter
             return (Filterable) returnSeen( f );
         
         Filterable result = f; // Don't reuse f
-        if (result instanceof IObject)
+        
+        if ( result instanceof Details )
+        {
+            result = super.filter( fieldId, result );
+            // TODO any other clean up? "replacement", etc. 
+        }
+        else if ( result instanceof IObject )
         {
             IObject obj = (IObject) result;
-            switch (getEntityState(obj)) // can't be null
+            switch ( getEntityState(obj) ) // can't be null
             {
-                case UNLOADED:
-                    result = loadUnloadedEntity(fieldId,obj);
+                case UNLOADED:  
+                    result = loadUnloadedEntity( fieldId, obj ); 
                     break;
                 case TRANSIENT:
-                    transferDetails(obj);
-                    result = super.filter(fieldId,obj);
+                    transferDetails( obj );
+                    result = super.filter( fieldId, obj );  
                     break;
                 case MANAGED:
-                    checkManagedState(obj);
-                    reloadDetails(obj);
-                    result = super.filter(fieldId,obj);
-                default:
+                    checkManagedState( obj );
+                    reloadDetails( obj );
+                    result = super.filter( fieldId, obj );
                     break;
+                default:
+                    throw new RuntimeException("Unkown state:"+getEntityState(obj));
             }
 
             // FOR ALL OBJECTS now that in session!
@@ -232,9 +259,13 @@ public class UpdateFilter extends ContextFilter
                 break;
         }
         
-        if (ctx.getDetails().isFiltered(fieldId))
-            return CollectionState.FILTERED;
-
+        if (ctx.getDetails() != null) { /* FIXME should NOT be null */
+            if ( ctx.getDetails().isFiltered(fieldId) )
+                return CollectionState.FILTERED;
+        } else {
+            log.warn( "Details null for: " + ctx);
+        }
+        
         if (c == null) 
             return CollectionState.NULL;
         
@@ -244,6 +275,80 @@ public class UpdateFilter extends ContextFilter
     // Actions
     // ====================================================
 
+
+    /*
+     * FIXME check for valid type creation i.e. no creating types, users,
+     * etc.
+     */
+
+    // TODO is this natural? perhaps permissions don't belong in details
+    // details are the only thing that users can change the rest is
+    // read only...
+    protected void transferDetails( IObject obj )
+    {
+        Details source = obj.getDetails();
+        Details newDetails = CurrentDetails.createDetails();
+
+        if ( source != null )
+        {
+            if (source.getPermissions() != null)
+                newDetails.setPermissions( source.getPermissions() );
+            
+        }
+
+        obj.setDetails( newDetails );
+        
+    }
+
+    /* TODO what else should be preserved?
+     * should be able to switch group if member, e.g. */
+    protected void reloadDetails( IObject updated )
+    {
+
+        if ( updated.getId() == null)
+            throw new IllegalStateException(
+                    "Id required on all detached instances.");
+
+        // Throws an exception if does not exist
+        IObject original = (IObject) ht.load( 
+                    Utils.trueClass( updated.getClass() ), 
+                    updated.getId() );
+        
+        Details oldDetails = original.getDetails(); // must exist!
+        Details updatedDetails = updated.getDetails();
+        
+        if ( oldDetails == null ) /* FIXME temporary this shouldn't be null */
+        {
+            updated.setDetails( null );
+            log.warn( " Original details null for: " + original );
+        }
+        else if ( updatedDetails == null )
+        {
+            
+            updated.setDetails( oldDetails );
+            
+        } else {
+            
+            if ( ! idEqual( 
+                    oldDetails.getOwner(), 
+                    updatedDetails.getOwner() ))
+                updatedDetails.setOwner( oldDetails.getOwner() );
+
+            if ( ! idEqual( 
+                    oldDetails.getGroup(), 
+                    updatedDetails.getGroup() ))
+                updatedDetails.setGroup( oldDetails.getGroup() );
+            
+            if ( ! idEqual( 
+                    oldDetails.getCreationEvent(), 
+                    updatedDetails.getCreationEvent()))
+                updatedDetails.setCreationEvent( oldDetails.getCreationEvent() );
+            
+        }
+            
+        
+    }
+    
     protected void checkManagedState( IObject obj )
     {
         if ( obj instanceof IMutable )
@@ -287,16 +392,6 @@ public class UpdateFilter extends ContextFilter
             ); 
         }
     }
-    
-    protected void saveTransientEntity(IObject entity)
-    {
-        //ht.save(entity);
-    }
-    
-    protected IObject mergeDetachedEntity(IObject entity)
-    {
-        return entity;//(IObject) ht.merge(entity);
-    }
 
     private Collection collectionIsUnloaded(String fieldId, IObject ctx)
     {
@@ -313,58 +408,7 @@ public class UpdateFilter extends ContextFilter
         }
         return copied;
     }
-    
-    protected void transferDetails(IObject m)
-    {
-        Details template = CurrentDetails.createDetails();
-        copyAllowedDetails(template,m.getDetails());
-        m.setDetails(template);
-
-        /*
-         * FIXME check for valid type creation i.e. no creating types, users,
-         * etc.
-         */
-    }
-    
-    protected void reloadDetails(IObject m)
-    {
-        IObject obj = (IObject) ht.load(
-                Utils.trueClass( m.getClass() ),m.getId()); // FIXME perf&accur.
-        
-        Details template = obj.getDetails();
-        copyAllowedDetails(template, m.getDetails());
-        m.setDetails(template);
-            
-        /* TODO what else should be preserved?
-         * should be able to switch group if member, e.g. */
-        
-    }
-
-    private void copyAllowedDetails(Details template, Details target)
-    {
-        // TODO is this natural? perhaps permissions don't belong in details
-        // details are the only thing that users can change the rest is
-        // read only...
-
-        if (target != null)
-        {
-            if (target.getPermissions() != null)
-                template.setPermissions(target.getPermissions());
-
-            for (Iterator it = target.filteredSet().iterator(); it.hasNext();)
-            {
-                String fieldName = (String) it.next();
-                template.addFiltered(fieldName);
-
-                // Don't need to keep up with Filtered for new objects; 
-                // can't be filtered. Too complicated?
-
-            }
-            
-        }
-        
-    }
-
+ 
     // Loading
     // =======================================================
     /** used to load the context object and then find its named field.
@@ -372,14 +416,10 @@ public class UpdateFilter extends ContextFilter
      */
     protected Object loadFromEntityField(IObject ctx, String fieldId)
     {
-
-// TODO test       IObject context = (IObject) ht.find(
-//                " select target from "+ctx.getClass().getName()+
-//                " target left outer join fetch target."+
-//                LsidUtils.parseField(fieldId)+
-//                " where target.id = ?",ctx.getId()).get(0);//TODO error checking.
-        IObject context = (IObject) ht.load(ctx.getClass(),ctx.getId());
-        return context.retrieve(fieldId);
+        IObject context = (IObject) ht.load( 
+                Utils.trueClass( ctx.getClass() ),
+                ctx.getId());
+        return context.retrieve( fieldId );
     }
 
     protected IObject loadFromUnloaded(IObject ctx)
@@ -438,4 +478,18 @@ public class UpdateFilter extends ContextFilter
         return o;
     }
 
+   
+    protected boolean idEqual( IObject arg1, IObject arg2 )
+    {
+        if ( arg1 == null || arg1.getId() == null )
+            return false;
+        
+        else if ( arg2 == null || arg2.getId() == null )
+            return false;
+        
+        else
+            return arg1.getId().equals( arg2.getId() );
+        
+    }
+    
 }

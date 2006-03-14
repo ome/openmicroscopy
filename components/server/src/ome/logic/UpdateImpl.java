@@ -47,10 +47,12 @@ import java.util.Set;
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.property.Getter;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -84,16 +86,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     protected String getName() {
         return IUpdate.class.getName();
     };
-    
-    protected IQuery query;
-
-    protected UpdateFilter filter;
-    
-    private UpdateImpl(){}; // We need the query
-    public UpdateImpl(IQuery query)
-    {
-        this.query = query;
-    }
 
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
@@ -137,28 +129,31 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public void saveObject(IObject graph)
     {
-        beforeSave( graph );
-        graph = internalSave( graph );
-        afterSave();
+        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        beforeSave( graph, filter );
+        graph = internalSave( graph, filter );
+        afterSave( graph, filter );
     }
     
     public IObject saveAndReturnObject( IObject graph )
     {
-        beforeSave( graph );
-        graph = internalSave( graph );
-        afterSave();
+        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        beforeSave( graph, filter );
+        graph = internalSave( graph, filter );
+        afterSave( graph, filter );
         return graph;
     }
 
     public void saveCollection(@Validate(IObject.class) Collection graph)
     {
-        beforeSave( graph );
+        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        beforeSave( graph, filter );
         for (Object _object : graph)
         {
             IObject obj = (IObject) _object;
-            obj = internalSave(obj);
+            obj = internalSave( obj, filter );
         }
-        afterSave();
+        afterSave( graph, filter );
     }
     
     public Collection saveAndReturnCollection(
@@ -174,24 +169,26 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
-        beforeSave( graph );
+        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        beforeSave( graph, filter );
         for (int i = 0; i < graph.length; i++)
         {
             
-            graph[i] = internalSave(graph[i]);
+            graph[i] = internalSave( graph[i], filter );
         }
-        afterSave();
+        afterSave( graph, filter );
         return graph;
     }
     
     public void saveArray(IObject[] graph)
     {
-        beforeSave( graph );
+        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        beforeSave( graph, filter );
         for (int i = 0; i < graph.length; i++)
         {
-            graph[i] = internalSave(graph[i]);
+            graph[i] = internalSave( graph[i], filter );
         }
-        afterSave();
+        afterSave( graph, filter );
     }
 
     public Map saveAndReturnMap(Map map)
@@ -208,31 +205,38 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     // ~ Internals
     // =========================================================
-    private void beforeSave( Object argument)
+    private void beforeSave( Object argument, UpdateFilter filter )
     {
 
         if ( argument == null )
             throw new IllegalArgumentException( 
                     "Argument to save cannot be null.");
-        
-        // Cache filter for referential integrity.
-        filter = new UpdateFilter(getHibernateTemplate());
-        
+
         // Save event before we enter.
-        Event currentEvent = CurrentDetails.getCreationEvent(); 
-        getHibernateTemplate().saveOrUpdate(currentEvent);
+        Event currentEvent = CurrentDetails.getCreationEvent();
+        Event mergedEvent = (Event) internalSave( currentEvent, filter );
+//        FIXME ERROR HERE: 
+//            internalSave is replacing details of Event even though it should be
+//            persistent. 
+        
+        CurrentDetails.setCreationEvent( mergedEvent );
 
         // Don't flush until we're done.
         currentSession().setFlushMode(FlushMode.COMMIT);
     }
 
-    private IObject internalSave(IObject obj)
+    /** 
+     * Note if we use anything other than merge here, functionality
+     * from {@link ome.tools.hibernate.MergeEventListener} needs to be 
+     * moved to {@link UpdateFilter} or to another event listener.
+     */
+    private IObject internalSave (IObject obj, UpdateFilter filter )
     {
-        IObject result = (IObject) filter.filter("in UpdateImpl",obj); 
+        IObject result = (IObject) filter.filter(null,obj); 
         return (IObject) getHibernateTemplate().merge(result);
     }
 
-    private void afterSave()
+    private void afterSave( Object argument, UpdateFilter filter)
     {
         // Save all that and go back to AUTO flush.
         getHibernateTemplate().flush(); // TODO performance?
@@ -240,10 +244,20 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         
         // Let's save the event again using a temporary event.
         Event currentEvent = CurrentDetails.getCreationEvent();
-        EventType afterSave = new EventType();
-        afterSave.setValue( "afterSave" );
-        CurrentDetails.newEvent( afterSave );
-        getHibernateTemplate().saveOrUpdate( currentEvent );
+        EventType internal = (EventType) getHibernateTemplate().execute(
+                new HibernateCallback(){
+                    public Object doInHibernate(Session session) 
+                    throws HibernateException, SQLException
+                    {
+                        Criteria c = session.createCriteria(EventType.class)
+                        .add( Restrictions.like( "value", "Internal" ));
+                        return c.uniqueResult();
+                    }
+                }
+                );
+
+        CurrentDetails.newEvent( internal );
+        internalSave( currentEvent, filter );
 
         // Checks.
         List logs = CurrentDetails.getCreationEvent().collectLogs( null );
@@ -254,8 +268,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         // Return the previous event.
         CurrentDetails.setCreationEvent( currentEvent );
         
-        // Cleanup
-        filter = null;
+        // Clean up
+        filter.unloadReplacedObjects();
+        
     }
 
     private Session currentSession()

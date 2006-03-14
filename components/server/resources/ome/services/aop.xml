@@ -60,6 +60,7 @@
 			<value>logging</value>	
       <value>apiConstraints</value>
       <value>hibernateFilter</value>
+      <value>transactions</value>
       <value>hibernateInterceptor</value>
       <value>eventHandling</value>
 <!--			
@@ -124,6 +125,14 @@
   <bean id="renderService" parent="managedService">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="omeis.providers.re.RenderingEngine"/>
+    <property name="interceptorNames">
+			<list> <!-- STATEFUL STACK -->
+			<value>exceptionHandling</value>
+			<value>logging</value>	
+      <value>hibernateFilter</value>
+      <value>eventHandling</value>
+    	</list>      
+    </property>
   </bean>
           
 </beans>

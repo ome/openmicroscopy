@@ -29,18 +29,20 @@
 package ome.tools.hibernate;
 
 // Java imports
-
-// Third-party imports
 import java.util.Map;
 
+// Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.event.EventSource;
 import org.hibernate.event.MergeEvent;
 import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
 
-import ome.model.IObject;
-
 // Application-internal dependencies
+import ome.model.IObject;
+import ome.model.internal.Details;
+import ome.security.CurrentDetails;
+import ome.util.Utils;
 
 /**
  * responsible for responding to all Hibernate Events. Delegates tasks to
@@ -50,18 +52,36 @@ import ome.model.IObject;
 public class MergeEventListener extends IdTransferringMergeEventListener
 {
 
-    private static Log log = LogFactory.getLog(MergeEventListener.class);
+    private static Log log = LogFactory.getLog( MergeEventListener.class );
 
     @Override
-    protected void entityIsTransient(MergeEvent event, Map copyCache)
+    protected void entityIsTransient( MergeEvent event, Map copyCache )
     {
         super.entityIsTransient( event, copyCache );
+        fillReplacement( event );
+    }
+
+    @Override
+    protected void entityIsDetached(MergeEvent event, Map copyCache)
+    {
+        super.entityIsDetached( event, copyCache );
+        fillReplacement( event );
+    }
+    
+    // ~ Helpers
+    // =========================================================================
+    
+    protected void fillReplacement( MergeEvent event )
+    {
         if ( event.getOriginal() instanceof IObject)
         {
             IObject obj = (IObject)  event.getOriginal();
-            obj.getDetails().setReplacement( (IObject) event.getResult() );
-        }
+            if ( obj.getDetails() == null )
+                obj.setDetails( new Details() );
             
+            obj.getDetails().setReplacement( (IObject) event.getResult() );
+            
+        }
     }
-    
+
 }

@@ -31,6 +31,8 @@ package ome.tools.hibernate;
 
 // Java imports
 import java.util.Collection;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 // Third-party libraries
 import ome.model.IObject;
@@ -60,22 +62,29 @@ import org.hibernate.Hibernate;
  * @since 1.0
  */
 public class ProxyCleanupFilter extends ContextFilter
-        implements MethodInterceptor
 {
+    
+    protected Map unloadedObjectCache = new IdentityHashMap();
 
     @Override
     public Filterable filter(String fieldId, Filterable f)
     {
-        if (f == null) return null;
+        if ( f == null ) return null;
 
-        if (!Hibernate.isInitialized(f))
+        if ( unloadedObjectCache.containsKey( f ))
+            return (IObject) unloadedObjectCache.get( f );
+        
+        // A proxy; send over the wire in altered form.
+        if ( ! Hibernate.isInitialized(f) )
         {
+            
             if (f instanceof IObject)
             {
                 IObject proxy = (IObject) f;
                 IObject unloaded = (IObject) Utils.trueInstance(f.getClass());
                 unloaded.setId(proxy.getId()); // TODO is this causing a DB hit?
                 unloaded.unload();
+                unloadedObjectCache.put( f, unloaded );
                 return unloaded;
             } else if ( f instanceof Details) {
                 // Currently Details is only "known" non-IObject Filterable
@@ -85,10 +94,14 @@ public class ProxyCleanupFilter extends ContextFilter
                 throw new RuntimeException(
                         "Bailing out. Don't want to set to a value to null.");
             }
-            // return null;
+            
+        // Not a proxy; it will be serialized and sent over the wire.
+        } else {
+            
+            // Any clean up here.
+            return super.filter(fieldId, f);
+            
         }
-
-        return super.filter(fieldId, f);
 
     }
 
@@ -100,11 +113,6 @@ public class ProxyCleanupFilter extends ContextFilter
             return null;
         }
         return super.filter(fieldId, c);
-    }
-
-    public Object invoke(MethodInvocation arg0) throws Throwable
-    {
-        return filter(null, arg0.proceed());
     }
 
     /** wraps a filter for each invocation */
