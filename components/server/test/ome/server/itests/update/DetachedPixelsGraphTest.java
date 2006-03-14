@@ -114,7 +114,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         ac.unload();
         
         p.setAcquisitionContext(ac);
-        iUpdate.saveAndReturnObject(p);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();
         

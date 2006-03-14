@@ -4,6 +4,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 import ome.api.IAnalysis;
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -21,6 +22,8 @@ public class AbstractManagedContextTest
     
     protected IPojos iPojos;
     
+    protected IPixels iPixels;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
@@ -29,6 +32,7 @@ public class AbstractManagedContextTest
         iUpdate = (LocalUpdate) applicationContext.getBean("updateService");
         iAnalysis = (IAnalysis) applicationContext.getBean("analysisService");
         iPojos = (IPojos) applicationContext.getBean("pojosService");
+        iPixels = (IPixels) applicationContext.getBean("pixelsService");
         login("root","system","Test");
     }
     
