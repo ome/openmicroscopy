@@ -36,23 +36,24 @@ import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 
-/** 
- * abstract superclass of all Omero exceptions. Only subclasses of this type
- * will be thrown by the server.  
- * 
+/**
+ * catchall for unknown server exceptions. This most likely represents a bug
+ * in the server-code and should be reported to the Omero team.
+ *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
+ * @version 3.0 
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 2.5
+ * @since 3.0
  */
-public abstract class RootException extends RuntimeException{
+public class InternalException extends RootException
+{
 	
-	private static Log log = LogFactory.getLog(RootException.class);
+	private static Log log = LogFactory.getLog(InternalException.class);
 	
-	public RootException(String msg){
+	public InternalException(String msg){
 		super(msg);
 	}
 	
