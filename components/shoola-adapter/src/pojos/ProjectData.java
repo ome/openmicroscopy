@@ -32,18 +32,16 @@ package pojos;
 
 //Java imports
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.CBlock;
+
 
 /** 
  * The data that makes up an <i>OME</i> Project along with links to its
@@ -68,121 +66,78 @@ public class ProjectData
     public final static String DESCRIPTION = Project.DESCRIPTION;
     public final static String DATASET_LINKS = Project.DATASETLINKS;
     
-    /** 
-     * The Project's name.
-     * This field may not be <code>null</code>. 
-     */
-    private String   name;
+    // Constructors
     
-    /** The Project's description. */
-    private String   description;
+    public ProjectData()
+    {
+        setDirty( true );
+        setValue ( new Project() );
+    }
     
-    /**
-     * All the Datasets contained in this Project.
-     * The elements of this set are {@link DatasetData} objects.  If this
-     * Project contains no Datasets, then this set will be empty &#151;
-     * but never <code>null</code>.
-     */
+    public ProjectData( Project value )
+    {
+        setValue ( value );
+    }
+    
+    // Immutables
+    
+    public void setName(String name) {
+        setDirty( true );
+        asProject().setName( name );
+    }
+
+    public String getName() {
+        return asProject().getName();
+    }
+
+    public void setDescription(String description) {
+        setDirty( true );
+        asProject().setDescription( description );
+    }
+
+    public String getDescription() {
+        return asProject().getDescription();
+    }
+
+    // Lazy loaded Links
+
     private Set          datasets;
     
-    /** 
-     * The Experimenter that owns this Project.
-     * This field may not be <code>null</code>.  
-     */
-    private ExperimenterData owner;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof Project) {
-			Project p = (Project) model;
-            
-            super.copy(model,mapper);
-
-            // Details 
-            if (p.getDetails() != null){
-                this.setOwner((ExperimenterData) 
-                        mapper.findTarget(p.getDetails().getOwner()));
-            }
-            
-            // Fields
-            this.setName(p.getName());
-            this.setDescription(p.getDescription());
-
-            // Collections
-            MapperBlock block = new MapperBlock( mapper );
-            setDatasets( makeSet(
-                    p.sizeOfDatasetLinks(),
-                    p.eachLinkedDataset( block )));
-
-		} else { 
-			throw new IllegalArgumentException(
-                    "ProjectData copies only from Project");
-		}
-    }
-
-    public IObject newIObject()
-    {
-        return new Project();
-    }
-    
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
-    {
-        if ( obj instanceof Project )
+    public Set getDatasets() {
+        if ( datasets == null && asProject().sizeOfDatasetLinks() >= 0 )
         {
-            Project p = (Project) obj;
-            if (super.fill(p)) {
-                p.setName(this.getName());
-                p.setDescription(this.getDescription());
-                
-                // TODO / NOTE: could also take care of this in the getters and setters.
-                // further we could just store the IObject and put all the logic in 
-                // the getters/setters!
-                if (this.getDatasets() != null) {
-                    for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
-                    {
-                        DatasetData dd = (DatasetData) it.next();
-                        Dataset d = (Dataset) mapper.map( dd );
-                        if ( ! linked( d.findProjectDatasetLink( p )))
-                            p.linkDataset( d );
-                    }
+            datasets = new HashSet( asProject().eachLinkedDataset( new CBlock() {
+                public Object call(IObject object)
+                {
+                    return new DatasetData( (Dataset) object );
                 }
-                
-            }
-            return p;
-        } else {
-            throw new IllegalArgumentException("ProjectData can only fill Project.");
+            }));
         }
+        
+        return datasets == null ? null : new HashSet( datasets );
+    }
+
+    // Link mutations
+
+    public void setDatasets( Set newValue ) 
+    {
+        Set currentValue = getDatasets(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asProject().unlinkDataset( m.nextDeletion().asDataset() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asProject().linkDataset( m.nextAddition().asDataset() );
+        }
+
+        datasets = m.result();
+        
     }
     
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDatasets(Set datasets) {
-		this.datasets = datasets;
-	}
-
-	public Set getDatasets() {
-		return datasets;
-	}
-
-	public void setOwner(ExperimenterData owner) {
-		this.owner = owner;
-	}
-
-	public ExperimenterData getOwner() {
-		return owner;
-	}
-
 }

@@ -32,18 +32,15 @@ package pojos;
 
 //Java imports
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.CBlock;
 
 /** 
  * The data that makes up an <i>OME</i> Category Group along with links to its
@@ -69,15 +66,6 @@ public class CategoryGroupData
     public final static String DESCRIPTION = CategoryGroup.DESCRIPTION;
     public final static String CATEGORY_LINKS = CategoryGroup.CATEGORYLINKS;
     
-    /** 
-     * The Category Group's name.
-     * This field may not be <code>null</code>.  
-     */
-    private String   name;
-    
-    /** The Category Group's description. */
-    private String   description;
-    
     /**
      * All the Categories contained in this Category Group.
      * The elements of this set are {@link CategoryData} objects.  If this
@@ -85,105 +73,75 @@ public class CategoryGroupData
      * &#151; but never <code>null</code>.
      */
     private Set      categories;
-    
-    /** 
-     * The Experimenter that defined this Category Group.
-     * This field may not be <code>null</code>.  
-     */
-    private ExperimenterData owner;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof CategoryGroup) {
-			CategoryGroup cg = (CategoryGroup) model;
-			super.copy(model,mapper);
 
-            // Details
-            if (cg.getDetails()!=null){
-                this.setOwner((ExperimenterData) 
-                        mapper.findTarget(
-                                cg.getDetails().getOwner()));
-            }
-            
-            // Fields
-			this.setName(cg.getName());
-			this.setDescription(cg.getDescription());
-            
-            // Collections
-            setCategories (makeSet(
-                    cg.sizeOfCategoryLinks(),
-                    cg.eachLinkedCategory( new MapperBlock( mapper ) )));
-
-		} else {
-			throw new IllegalArgumentException(
-                    "CategoryGroupData can only copy from CategoryGroup types"); 
-		}
+    public CategoryGroupData()
+    {
+        setDirty( true );
+        setValue( new CategoryGroup() );
     }
     
-    public IObject newIObject()
+    public CategoryGroupData( CategoryGroup value )
     {
-        return new CategoryGroup();
+        setValue( value );
     }
     
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
-    {
-        if ( obj instanceof CategoryGroup)
+    // Immutables
+    
+    public void setName(String name) {
+        setDirty( true );
+        asCategoryGroup().setName( name );
+    }
+
+    public String getName() {
+        return asCategoryGroup().getName();
+    }
+
+    public void setDescription(String description) {
+        setDirty( true );
+        asCategoryGroup().setDescription( description );
+    }
+
+    public String getDescription() {
+        return asCategoryGroup().getDescription();
+    }
+
+    // Lazy loaded sets
+    
+    public Set getCategories() {
+        
+        if ( categories == null && asCategoryGroup().sizeOfCategoryLinks() >= 0 )
         {
-            CategoryGroup cg = (CategoryGroup) obj;
-            
-            if (super.fill(cg)) {
-                cg.setName(this.getName());
-                cg.setDescription(this.getDescription());
-                
-                // Links
-                if (this.getCategories() != null) {
-                    for (Iterator it = this.getCategories().iterator(); it.hasNext();)
-                    {
-                        CategoryData cd = (CategoryData) it.next();
-                        Category c = (Category)mapper.map( cd );
-                        if ( ! linked( c.findCategoryGroupCategoryLink( cg )))
-                            cg.linkCategory( c );
-                    }
-                }
-            }
-            return cg;
-            
-        } else {
-            throw new IllegalArgumentException(
-                    "CategoryGroupData can only fille CategoryData.");
+            categories = new HashSet( asCategoryGroup().eachLinkedCategory(
+                    new CBlock() {
+                        public Object call(IObject object)
+                        {
+                            return new CategoryData( (Category) object );
+                        }
+                    }));
         }
+        return categories == null ? null : new HashSet( categories );
     }
+    
+    // Set mutations
+    
+    public void setCategories( Set newValue ) 
+    {
+        Set currentValue = getCategories(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asCategoryGroup().unlinkCategory( m.nextDeletion().asCategory() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asCategoryGroup().linkCategory( m.nextAddition().asCategory() );
+        }
 
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setCategories(Set categories) {
-		this.categories = categories;
-	}
-
-	public Set getCategories() {
-		return categories;
-	}
-
-	public void setOwner(ExperimenterData owner) {
-		this.owner = owner;
-	}
-
-	public ExperimenterData getOwner() {
-		return owner;
-	}
-	
+        categories = m.result();
+    }
+    
 }

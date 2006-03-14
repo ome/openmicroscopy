@@ -31,19 +31,15 @@ package pojos;
 
 //Java imports
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.CBlock;
 
 /** 
  * The data that makes up an <i>OME</i> Experimenter along with information
@@ -72,131 +68,97 @@ public class ExperimenterData
     public final static String INSTITUTION = Experimenter.INSTITUTION;
     public final static String GROUP_EXPERIMENTER_MAP = Experimenter.GROUPEXPERIMENTERMAP;
     
-    /** The Experimenter's first name. */
-    private String      firstName;
-    
-    /** The Experimenter's last name. */
-    private String      lastName;
-    
-    /** The Experimenter's email. */
-    private String      email;
-    
-    /** The Experimenter's institution. */
-    private String      institution;
-    
-    /** The main Group this Experimenter belongs in. */
-    // TODO private GroupData   group;
-    
     /** The other Groups this Experimenter belongs in. */
     private Set         groups;
-     
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof Experimenter) {
-			Experimenter exp = (Experimenter) model;
-            super.copy(model,mapper);
-            
-            // Fields
-			this.setFirstName(exp.getFirstName());
-			this.setLastName(exp.getLastName());
-			this.setEmail(exp.getEmail());
-			this.setInstitution(exp.getInstitution());
-            
-            // Collections
-            MapperBlock block = new MapperBlock( mapper );
-            setGroups( makeSet(
-                    exp.sizeOfGroupExperimenterMap(),
-                    exp.eachLinkedExperimenterGroup( block )));
 
-		} else {
-			throw new IllegalArgumentException(
-                    "ExperimenterData can only copy from Experimenter");
-		}
+    public ExperimenterData()
+    {
+        setDirty( true );
+        setValue( new Experimenter() );
     }
     
-    public IObject newIObject()
+    public ExperimenterData( Experimenter value )
     {
-        return new Experimenter();
+        setValue( value );
     }
     
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
-    {
-        if ( obj instanceof Experimenter)
+    // Immutables
+    
+    public void setFirstName(String firstName) {
+        setDirty( true );
+        asExperimenter().setFirstName( firstName );
+    }
+
+    public String getFirstName() {
+        return asExperimenter().getFirstName();
+    }
+
+    public void setLastName(String lastName) {
+        setDirty( true );
+        asExperimenter().setLastName( lastName );
+    }
+
+    public String getLastName() {
+        return asExperimenter().getLastName();
+    }
+
+    public void setEmail(String email) {
+        setDirty( true );
+        asExperimenter().setEmail( email );
+    }
+
+    public String getEmail() {
+        return asExperimenter().getEmail();
+    }
+
+    public void setInstitution(String institution) {
+        setDirty( true );
+        asExperimenter().setInstitution( institution );
+    }
+
+    public String getInstitution() {
+        return asExperimenter().getInstitution();
+    }
+
+    // Lazy loaded links
+
+    public Set getGroups() {
+        
+        if ( groups == null && asExperimenter().sizeOfGroupExperimenterMap() >= 0 )
         {
-            Experimenter e = (Experimenter) obj;
-          
-            if (super.fill(e)) {
-                e.setFirstName(this.getFirstName());
-                e.setLastName(this.getLastName());
-                e.setEmail(this.getEmail());
-                e.setInstitution(this.getInstitution());
-         
-                // Linked
-                if (this.getGroups() != null) {
-                    for (Iterator it = this.getGroups().iterator(); it.hasNext();)
-                    {
-                        GroupData gd = (GroupData) it.next();
-                        ExperimenterGroup g = (ExperimenterGroup) mapper.map( gd );
-                        if ( ! linked( g.findGroupExperimenterMap( e )))
-                            e.linkExperimenterGroup( g );
-                    }
-                }
-                
-            }
-            return e;
-            
-        } else {
-            
-            throw new IllegalArgumentException(
-                    "ExperimenterData can only fill Experimenter.");
+            groups = new HashSet( asExperimenter()
+                    .eachLinkedExperimenterGroup(new CBlock() {
+                        public Object call(IObject object) {
+                            return new GroupData( (ExperimenterGroup) object );
+                        }
+                    }));
         }
+        
+        return groups == null ? null : new HashSet( groups );
     }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    // Link mutations
+    
+    public void setGroups( Set newValue ) 
+    {
+        
+        Set currentValue = getGroups(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asExperimenter().unlinkExperimenterGroup( m.nextDeletion().asGroup() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asExperimenter().linkExperimenterGroup( m.nextAddition().asGroup() );
+        }
 
-	public String getFirstName() {
-		return firstName;
-	}
+        groups = m.result();
+        
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setInstitution(String institution) {
-		this.institution = institution;
-	}
-
-	public String getInstitution() {
-		return institution;
-	}
-
-//	public void setGroup(GroupData group) {
-//		this.group = group;
-//	}
-//
-//	public GroupData getGroup() {
-//		return group;
-//	}
-
-	public void setGroups(Set groups) {
-		this.groups = groups;
-	}
-
-	public Set getGroups() {
-		return groups;
-	}
-	
 }

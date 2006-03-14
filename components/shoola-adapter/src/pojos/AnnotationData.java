@@ -29,189 +29,120 @@
 
 package pojos;
 
-
-//Java imports
+// Java imports
 import java.sql.Timestamp;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
-import ome.model.IObject;
+// Application-internal dependencies
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
-import ome.model.containers.Project;
 import ome.model.core.Image;
-import ome.model.internal.Details;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
 
 
-/** 
+/**
  * Holds a textual annotation of a given data object and a reference to the
  * Experimenter that wrote it.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ *          </small>
  * @since OME2.2
  */
-public class AnnotationData
-    extends DataObject
+public class AnnotationData extends DataObject
 {
-    
-    public final static String IMAGE_ANNOTATION_CONTENT = ImageAnnotation.CONTENT;
-    public final static String IMAGE_ANNOTATION_IMAGE = ImageAnnotation.IMAGE;
+
+    public final static String IMAGE_ANNOTATION_CONTENT   = ImageAnnotation.CONTENT;
+
+    public final static String IMAGE_ANNOTATION_IMAGE     = ImageAnnotation.IMAGE;
+
     public final static String DATASET_ANNOTATION_CONTENT = DatasetAnnotation.CONTENT;
-    public final static String DATASET_ANNOTATION_IMAGE = DatasetAnnotation.DATASET;
-    
-    /** The annotation textual description. */
-    private String       text;
-    
+
+    public final static String DATASET_ANNOTATION_DATASET   = DatasetAnnotation.DATASET;
+
     /**
-     * Timestamp indicating the last time the annotation was modified.
-     * This field may not be <code>null</code>.
+     * The object this annotation refers to, for example Image or Dataset. This
+     * field may not be <code>null</code>.
      */
-    private Timestamp    lastModified;
-    
-    /**
-     * The object this annotation refers to, for example Image or Dataset.
-     * This field may not be <code>null</code>.
-     */
-    private DataObject   annotatedObject;
-    
-    /** 
-     * The Experimenter that wrote this annotation.
-     * This field may not be <code>null</code>.  
-     */
-    private ExperimenterData owner;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof ImageAnnotation) {
-			ImageAnnotation iann = (ImageAnnotation) model;
-			super.copy(model,mapper);
+    private DataObject         annotatedObject;
 
-            // Details
-            Details details = iann.getDetails();
-            if (details!=null){
-                this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
-                this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
-            }
+    private boolean            isImage;
 
-            // Fields
-			this.setText(iann.getContent());
-			this.setAnnotatedObject((DataObject) mapper.findTarget(iann.getImage()));
-            
-    	} else if (model instanceof DatasetAnnotation) {
-			DatasetAnnotation dann = (DatasetAnnotation) model;
-            super.copy(model,mapper);
+    // protected because we wouldn't know what type of base class;
+    private AnnotationData()
+    {}
 
-            // Details
-            Details details = dann.getDetails();
-            if (details!=null){
-                this.setLastModified(mapper.event2timestamp(details.getUpdateEvent()));
-                this.setOwner((ExperimenterData) mapper.findTarget(details.getOwner()));
-            }
-            
-            // Fields
-			this.setText(dann.getContent());
-            this.setAnnotatedObject((DataObject) mapper.findTarget(dann.getDataset()));
-		} else {
-			throw new IllegalArgumentException("AnnotationData can only copy from ImageAnnotation and DatasetAnnotations");
-		}
-    }
-    
-    public IObject newIObject()
+    public AnnotationData(ImageAnnotation imageAnnotation)
     {
-        if (this.annotatedObject instanceof ImageData)
+        isImage = true;
+        setValue( imageAnnotation );
+    }
+
+    public AnnotationData(DatasetAnnotation datasetAnnotation)
+    {
+        isImage = false;
+        setValue( datasetAnnotation );
+    }
+
+    // Immutables
+    
+    public void setText(String text)
+    {
+        if (isImage) 
+            asImageAnnotation().setContent( text );
+        else
+            asDatasetAnnotation().setContent( text );
+
+    }
+
+    public String getText()
+    {
+        return isImage ? asImageAnnotation().getContent() 
+                : asDatasetAnnotation() .getContent();
+    }
+
+    public Timestamp getLastModified()
+    {
+        if ( nullDetails() ) return null;
+        return timeOfEvent(isImage ? getDetails().getUpdateEvent() 
+                : getDetails().getUpdateEvent());
+    }
+
+    // Entities
+    
+    public void setAnnotatedObject( DataObject annotatedObject )
+    {
+        if ( annotatedObject != this.annotatedObject )
         {
-            return new ImageAnnotation();
-        } else if (this.annotatedObject instanceof DatasetData) {
-            return new DatasetAnnotation();
-        } else {
-            // FIXME
-            throw new IllegalStateException(
-            "Can't create IObject without knowing annotation type.");
+            setDirty( true );
+            this.annotatedObject = annotatedObject;
+            
+            if ( annotatedObject != null )
+                if ( isImage )
+                    asImageAnnotation().setImage( annotatedObject.asImage() );
+                else
+                    asDatasetAnnotation().setDataset( annotatedObject.asDataset() );
         }
-    
     }
-    
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+
+    public DataObject getAnnotatedObject()
     {
-        if ( obj instanceof ImageAnnotation || obj instanceof DatasetAnnotation )
-        {
-            if (this.annotatedObject instanceof ImageData)
+        if ( annotatedObject == null )
+            if ( isImage )
             {
-                ImageAnnotation iann = (ImageAnnotation) obj;
-                if (super.fill(iann)) {
-                    iann.setContent(this.getText());
-                    iann.setImage((Image) mapper.map(this.getAnnotatedObject()));
-                }
-                return iann;
-                
-            } else if (this.annotatedObject instanceof DatasetData) 
-            {
-                DatasetAnnotation dann = (DatasetAnnotation) obj;
-                if (super.fill(dann)) {
-                    dann.setContent(this.getText());
-                    dann.setDataset((Dataset) mapper.map(this.getAnnotatedObject()));
-                }
-                
-                return dann;
-            
+                Image i = asImageAnnotation().getImage();
+                this.annotatedObject = i == null ? null : new ImageData( i );
             } else {
-                
-                throw new IllegalStateException(
-                        "Can't create IObject without knowing annotation type.");
-                
+                Dataset d = asDatasetAnnotation().getDataset();
+                this.annotatedObject = d == null ? null : new DatasetData( d );
             }
-        
-        } else {
-            
-            throw new IllegalStateException(
-            "AnnotationData can only fill ImageAnnotation and DatasetAnnotation types");
-            
-        }
-            
-        
+
+        return annotatedObject;
     }
 
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setLastModified(Timestamp lastModified) {
-		this.lastModified = lastModified;
-	}
-
-	public Timestamp getLastModified() {
-		return lastModified;
-	}
-
-	public void setAnnotatedObject(DataObject annotatedObject) {
-		this.annotatedObject = annotatedObject;
-	}
-
-	public DataObject getAnnotatedObject() {
-		return annotatedObject;
-	}
-
-	public void setOwner(ExperimenterData owner) {
-		this.owner = owner;
-	}
-
-	public ExperimenterData getOwner() {
-		return owner;
-	}
-	
 }

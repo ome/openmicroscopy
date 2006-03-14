@@ -49,7 +49,6 @@ import junit.framework.TestCase;
 
 
 //Application-internal dependencies
-import ome.adapters.pojos.Model2PojosMapper;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -73,15 +72,13 @@ import ome.model.meta.Experimenter;
 import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import ome.util.CBlock;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
-import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.PixelsStats;
 import omeis.providers.re.metadata.StatsFactory;
 
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -109,8 +106,6 @@ public class PojosServiceTest extends TestCase {
     IPojos iPojos;
     IQuery iQuery;
     IUpdate iUpdate;
-    ModelMapper mapper;
-    ReverseModelMapper reverse;
     
     Image img;
     ImageData imgData ;
@@ -131,8 +126,6 @@ public class PojosServiceTest extends TestCase {
         iPojos = factory.getPojosService();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
-        mapper = new Model2PojosMapper();
-        reverse = new ReverseModelMapper();
     }
     
     public void testGetSomethingThatsAlwaysThere() throws Exception
@@ -145,7 +138,7 @@ public class PojosServiceTest extends TestCase {
         
         // Now let's try to map it.
         ExperimenterData expData = 
-            (ExperimenterData) mapper.map((Experimenter)l.get(0));
+            new ExperimenterData((Experimenter)l.get(0));
         assertNotNull("And something should still be there",expData);
         assertTrue("And it should have an id",expData.getId()>-1);
         assertNotNull("And various other things",expData.getFirstName());
@@ -154,7 +147,7 @@ public class PojosServiceTest extends TestCase {
     public void testNowLetsTryToSaveSomething() throws Exception
     {
         imgData = simpleImageData();
-        img = (Image) reverse.map(imgData);
+        img = (Image) imgData.asIObject();
         
         img = (Image) iPojos.createDataObject(img,null);
         assertNotNull("We should get something back",img);
@@ -190,13 +183,18 @@ public class PojosServiceTest extends TestCase {
         Image sent = (Image) iUpdate.saveAndReturnObject( img );
         
         sent.setDescription( " veresion handling update" );
+        Integer version = sent.getVersion();
+        
+        // Version incremented
         Image sent2 = (Image) iUpdate.saveAndReturnObject( sent );
+        Integer version2 = sent2.getVersion();
+        assertTrue( ! version.equals( version2 ) );
         
-        assertTrue( ! sent.getVersion().equals( sent2.getVersion() ) );
-        
+        // Resetting; should get error
+        sent2.setVersion( version );
         ImageAnnotation iann = new ImageAnnotation();
         iann.setContent( " version handling ");
-        iann.setImage( sent );
+        iann.setImage( sent2 );
         
         try {
             iUpdate.saveAndReturnObject( iann );
@@ -205,8 +203,9 @@ public class PojosServiceTest extends TestCase {
             // TODO should be a more specific exception.
         }
         
-        // Now it should work.
-        sent.setVersion( sent2.getVersion() );
+        // Fixing the change;
+        // now it should work.
+        sent2.setVersion( version2 );
         iUpdate.saveAndReturnObject( iann );
         
     }
@@ -214,7 +213,7 @@ public class PojosServiceTest extends TestCase {
     public void testNowOnToSavingAndDeleting() throws Exception
     {
         imgData = simpleImageData();
-        img = (Image) reverse.map(imgData);
+        img = (Image) imgData.asIObject();
         
         assertNull("Image doesn't have an id.",img.getId());
         img = (Image) iPojos.createDataObject(img,null);
@@ -231,8 +230,8 @@ public class PojosServiceTest extends TestCase {
         imgData = simpleImageData();
         dsData = simpleDatasetData();
         
-        img = (Image) reverse.map(imgData);
-        ds = (Dataset) reverse.map(dsData);
+        img = (Image) imgData.asIObject();
+        ds = (Dataset) dsData.asIObject();
         
         DatasetImageLink link = new DatasetImageLink();
         link.link(ds,img);
@@ -309,7 +308,7 @@ public class PojosServiceTest extends TestCase {
     private void saveImage()
     {
         imgData = simpleImageDataWithDatasets();
-        img = (Image) reverse.map(imgData);
+        img = (Image) imgData.asIObject();
         
         img = (Image) iUpdate.saveAndReturnObject(img);
         assertTrue("It better have a dataset link",
@@ -349,13 +348,10 @@ public class PojosServiceTest extends TestCase {
     
     public void test_findContainerHierarchies(){
         
-        Model2PojosMapper mapper ;
         PojoOptions defaults = new PojoOptions(), empty = new PojoOptions(null);
         
         ids = new HashSet(data.getMax("Image.ids",2)); 
         results = iPojos.findContainerHierarchies(Project.class,ids,defaults.map()); 
-        mapper = new Model2PojosMapper(); 
-    	mapped = (Set) mapper.map(results);
 
         try {
         results = iPojos.findContainerHierarchies(Dataset.class,ids,empty.map());
@@ -364,7 +360,6 @@ public class PojosServiceTest extends TestCase {
         
         ids = new HashSet(data.getMax("Image.ids",2)); 
         results = iPojos.findContainerHierarchies(CategoryGroup.class,ids,defaults.map()); 
-        mapper = new Model2PojosMapper();
         
     }
 
@@ -373,12 +368,10 @@ public class PojosServiceTest extends TestCase {
         Map m;
         
         ids = new HashSet(data.getMax("Image.Annotated.ids",2));
-    	m = new Model2PojosMapper().map(iPojos.findAnnotations(
-                Image.class,ids,null,null));
+    	iPojos.findAnnotations( Image.class,ids,null,null );
         
         ids = new HashSet(data.getMax("Dataset.Annotated.ids",2));
-        m = new Model2PojosMapper().map(iPojos.findAnnotations(
-                Dataset.class,ids,null,null)); 
+        iPojos.findAnnotations( Dataset.class,ids,null,null ); 
 
     }
 
@@ -458,13 +451,13 @@ public class PojosServiceTest extends TestCase {
         PixelBuffer pixBF = pixFS.createPixelBuffer(pix);
         
         StatsFactory sf = new StatsFactory();
-        PixelsStats pixST = sf.compute(pix,pixBF);
+        // PixelsStats pixST = sf.compute(pix,pixBF);
         // TODO RenderingEngine re = factory.getRenderingService();
-        Renderer r = new Renderer(pix,null,pixBF,pixST); 
+        //Renderer r = new Renderer(pix,null,pixBF,pixST); 
         
         PlaneDef pd = new PlaneDef(0,0);
         pd.setX(0); pd.setY(0); pd.setZ(0);
-        r.render(pd);
+        //r.render(pd);
         
     }
 
@@ -572,16 +565,14 @@ public class PojosServiceTest extends TestCase {
         
         
         // Update it.
-        ProjectData pd = (ProjectData) mapper.map( p );
+        ProjectData pd = new ProjectData( p );
         pd.setDescription( "....testnodups...." );
-        Project send = (Project) reverse.map( pd ); 
+        Project send = (Project) pd.asIObject(); 
         assertEquals( p.getId().intValue(), pd.getId() );
         assertEquals( send.getId().intValue(), pd.getId() );
 
-        List l = new ArrayList(1);
-        l.add( iPojos.updateDataObject( send, null ));
-        List result = (List) mapper.map(l);
-        ProjectData test = (ProjectData) result.get(0);
+        Project result = (Project) iPojos.updateDataObject( send, null );
+        ProjectData test = new ProjectData( result );
         assertEquals( test.getId(), p.getId().intValue() );
         
         // Check again.
@@ -654,16 +645,16 @@ public class PojosServiceTest extends TestCase {
         
     }
 
-    public void test_annotating_a_dataset_one() throws Exception
+    public void test_annotating_a_dataset_cglib_issue() throws Exception
     {
 
         // Setup: original is our in-memory, used every where object.
         Dataset original = new Dataset();
         original.setName( " two rows " );
         original = (Dataset) iPojos.createDataObject( original, null );
-        DatasetData annotatedObject = (DatasetData) mapper.map( original );
+        DatasetData annotatedObject = new DatasetData( original );
         Dataset annotated = (Dataset) iPojos.updateDataObject( 
-                reverse.map( annotatedObject), null);
+                annotatedObject.asIObject(), null);
         // Dataset m = new Dataset( original.getId(), false);
         DatasetAnnotation annotation = new DatasetAnnotation();
         annotation.setContent( " two rows content " );
@@ -672,44 +663,13 @@ public class PojosServiceTest extends TestCase {
         // CGLIB
         DatasetAnnotation object 
             = (DatasetAnnotation) iPojos.createDataObject( annotation , null );
-        DataObject returnedToUser = (DataObject) mapper.map( object );
+        DataObject returnedToUser = new AnnotationData( object );
         
         // Now working but iPojos is still returning a CGLIB class.
         assertTrue( original.getClass().equals( annotation.getClass() ));
     }
 
-    public void test_annotating_a_dataset_two() throws Exception
-    {
-
-        String name = " two rows "+System.currentTimeMillis();
-        String text = " two rows content "+System.currentTimeMillis();
-        
-        // Setup: original is our in-memory, used every where object.
-        Dataset original = new Dataset();
-        original.setName( name );
-        original = (Dataset) iPojos.createDataObject( original, null );
-        DatasetData annotatedObject = (DatasetData) mapper.map( original );
-
-        // Dataset m = new Dataset( original.getId(), false);
-        DatasetAnnotation annotation = new DatasetAnnotation();
-        annotation.setContent( text );
-        annotation.setDataset( original );
-
-        // Two Rows error
-        DatasetAnnotation object 
-        = (DatasetAnnotation) iPojos.createDataObject( annotation , null );
-        Dataset annotated = (Dataset) reverse.map( annotatedObject );
-        
-        annotated.setVersion( object.getDataset().getVersion() );
-        DatasetData returnedToUser = (DatasetData) mapper.map(
-                iPojos.updateDataObject( annotated, null )
-                );
-
-        assertUniqueAnnotationCreation(name, text);
-        
-    }
-
-    public void test_annotating_a_dataset_three() throws Exception
+    public void test_annotating_a_dataset() throws Exception
     {
         String name = " two rows "+System.currentTimeMillis();
         String text = " two rows content "+System.currentTimeMillis();
@@ -852,15 +812,15 @@ public class PojosServiceTest extends TestCase {
         
         d.linkProject( p );
         d = (Dataset) iPojos.createDataObject( d, null );
+        Set orig_ids = new HashSet( d.collectProjectLinks( new IdBlock() ));
         
-        DatasetData dd = (DatasetData) mapper.map( d );
-        Dataset toSend = (Dataset) reverse.map( dd );
+        DatasetData dd = new DatasetData( d );
+        Dataset toSend = dd.asDataset();
 
         Dataset updated = (Dataset) 
             iPojos.updateDataObject( toSend, null );
         
-        Set orig_ids = new HashSet( d.collectProjectLinks( null ));
-        Set updt_ids = new HashSet( updated.collectProjectLinks( null ));
+        Set updt_ids = new HashSet( updated.collectProjectLinks( new IdBlock() ));
         
         System.out.println( orig_ids );
         System.out.println( updt_ids );

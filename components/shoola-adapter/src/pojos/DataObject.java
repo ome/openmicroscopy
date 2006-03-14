@@ -30,158 +30,361 @@
 package pojos;
 
 //Java imports
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import ome.api.ModelBased;
 import ome.model.IMutable;
 import ome.model.IObject;
+import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.internal.Details;
-import ome.util.ModelMapper;
+import ome.model.meta.Event;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 /** 
  * Abstract superclass for objects that hold <i>OMEDS</i> data.
- * Subclasses should be struct-like,
- * with <code>public</code> fields to hold the data.
+ * Delegates getters and setters to <code>IObject</code> instances. Modifications
+ * are propagated. <b>Not thread-safe.</b>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
+ *  @author  <br>Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:josh.more@gmx.de">
+ *                  josh.moore@gmx.de</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
  * </small>
  * @since OME2.2
  */
-public abstract class DataObject implements ModelBased
+public abstract class DataObject
 {
-    
-    private long id = -1;
 
-    private int version = -1;
-    
-    private boolean loaded = true;
-    
-    private Set filtered;
+    /** delegate IObject */ 
+    private IObject value = null; 
 
+    /** lazily-loaded owner */
+    private ExperimenterData owner = null;
+
+    /** NOTE: IObject-views are mutable. we can't ensure non-dirtiness, 
+     * only non-cleanness
+     */
+    private boolean dirty = false;
+
+    protected void setValue( IObject value )
+    {
+        if ( value == null )
+            throw new IllegalArgumentException( 
+                    "IObject delegate for DataObject cannot be null.");
+        
+        this.value = value;
+    }
+    
+    /** if true, setter value has modified the value of the stored IObject */
+    public boolean isDirty()
+    {
+        return dirty;
+    }
+
+    protected void setDirty( boolean dirty )
+    {
+        this.dirty = dirty;
+    }
+
+    // Common properties
+    
+    /** database id of the IObject or -1 if null */
     public long getId()
     {
-        return id;
+        return value.getId() == null ? -1 : value.getId().longValue();
     }
     
     public void setId(long id)
     {
-        this.id = id;
+        setDirty( true );
+        value.setId( new Long( id ));
     }
     
     protected int getVersion()
     {
-        return version;
+        if ( value instanceof IMutable)
+        {
+            IMutable m = (IMutable)  value;
+            return m.getVersion() == null ? 0 : m.getVersion().intValue();
+        } else {
+            return 0;
+        }
     }
     
     protected void setVersion( int version )
     {
-        this.version = version;
+        if ( value instanceof IMutable)
+        {
+            IMutable m = (IMutable)  value;
+            setDirty( true );
+            m.setVersion( new Integer( version ));
+        }
     }
     
     public boolean isLoaded()
     {
-        return loaded;
+        return value.isLoaded();
     }
     
-    public void setLoaded(boolean loaded)
-    {
-        this.loaded = loaded;
-    }
-
     protected Set getFiltered()
     {
-        return filtered;
+        return new HashSet( value.getDetails().filteredSet() );
     }
     
-    protected void setFiltered(Set filtered)
+    public boolean isFiltered( String fieldName )
     {
-        this.filtered = filtered;
+        if ( fieldName == null ) return false;
+        return value.getDetails().filteredSet() == null 
+            ? false 
+                    : value.getDetails().filteredSet().contains( fieldName );
     }
     
-    public boolean isFiltered(String fieldName)
+    public ExperimenterData getOwner()
     {
-        if (getFiltered() == null) return false;
-        return getFiltered().contains(fieldName);
+        if ( owner == null )
+        {
+            owner = new ExperimenterData( asIObject().getDetails().getOwner() );
+        }
+        return owner;
     }
-    
+
     public String toString() {
         return getClass().getName()+" (id="+getId()+")";
     }
+
+    // ~ Helpers
+    // =========================================================================
     
-    public void copy(IObject model, ModelMapper mapper)
+    protected int nullSafe( Integer i )
     {
-        this.setId(mapper.nullSafeLong(model.getId()));
-        this.setLoaded(model.isLoaded());
-        this.setFiltered(model.getDetails()==null ? 
-                null : model.getDetails().filteredSet());
-        
-        if ( model instanceof IMutable )
-        {
-            IMutable mutable = (IMutable) model;
-            this.setVersion( mapper.nullSafeInt( mutable.getVersion() ));
-        }
+        return i == null ? 0 : i.intValue();
     }
     
-    /** 
-     * 
-     * @param model
-     * @return continue tells whether object should be further filled.
-     */
-    public boolean fill(IObject model)
+    protected long nullSafe( Long l )
     {
-        if (this.getId() > -1)
-            model.setId(new Long(this.getId()));
-        
-        if (this.getVersion() > -1 )
-            if ( model instanceof IMutable )
-            {
-                IMutable mutable = (IMutable) model;
-                mutable.setVersion( new Integer( getVersion() ) );
-            }  
-           
-        model.setDetails(new Details());
-        if (!this.isLoaded()){
-            model.unload();
-            return false;
-        } else {
-            if (this.filtered != null) {
-                for (Iterator it = this.filtered.iterator(); it.hasNext();)
-                {
-                    model.getDetails().addFiltered((String)it.next());
-                }
-            }
-            return true;
-        }
+        return l == null ? 0L : l.longValue();
     }
     
-    protected Set makeSet( int collectionSize, List values )
+    protected double nullSafe( Double d )
     {
-        if ( collectionSize < 0 ) return null;
-        if ( values == null) return null;
-        return new HashSet( values );
-            
+        return d == null ? 0.0 : d.doubleValue();
     }
     
-    protected boolean linked ( Set linkCollection ) 
+    protected float nullSafe( Float f )
     {
-        return linkCollection == null ? false 
-                : linkCollection.size() < 1 ? false 
-                        : true;
+        return f == null ? 0.0f : f.floatValue();
+    }
+    
+    protected Timestamp timeOfEvent( Event event )
+    {
+        if (event==null) return null;
+        if (!event.isLoaded()) return null;
+        if (event.getTime()==null) return null;
+        return new Timestamp( event.getTime().getTime() );
     }
 
+    protected boolean nullDetails()
+    {
+        return asIObject().getDetails() == null;
+    }
+    
+    protected Details getDetails()
+    {
+        return asIObject().getDetails();
+    }
+    
+    protected Integer getCount( String countName )
+    {
+        Object count = null;
+        
+        if (! nullDetails() && countName != null 
+                && getDetails().getCounts() != null)
+            count = getDetails().getCounts().get( countName );
+    
+        if ( count instanceof Integer )
+            return (Integer) count;
+
+        return null;
+ 
+    }
+    
+    // ~ VIEWS
+    // =========================================================================
+    // These methods should never a null value 
+    // since single setter checks for null. 
+    
+    /** 
+     * not null; no exceptions. 
+     * @return not null IObject
+     */
+    public IObject asIObject()
+    {
+        return value;
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public Experimenter asExperimenter()
+    {
+        return (Experimenter) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public ExperimenterGroup asGroup()
+    {
+        return (ExperimenterGroup) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public ImageAnnotation asImageAnnotation()
+    {
+        return (ImageAnnotation) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public DatasetAnnotation asDatasetAnnotation()
+    {
+        return (DatasetAnnotation) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public Image asImage()
+    {
+        return (Image) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public Dataset asDataset()
+    {
+        return (Dataset) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public Category asCategory()
+    {
+        return (Category) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public CategoryGroup asCategoryGroup()
+    {
+        return (CategoryGroup) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public Project asProject()
+    {
+        return (Project) asIObject();
+    }
+    /** not null; may through class-cast exception
+     * @throws ClassCastException
+     * @return not null IObject 
+     */
+    public Pixels asPixels()
+    {
+        return (Pixels) asIObject();
+    }
+    
+}
+
+/** Encapsulates the logic to update one set based on the changes made to a copy
+ * of that set. Provides two iterators for acting on the changes:
+ * <code>
+ * SetMutator m = new SetMutator( oldSet, updatedSet );
+ * while ( m.hasDeletions() )
+ * {
+ *      DataObject d = m.nextDeletion();
+ * }
+ * 
+ * while ( m.hasAdditions() )
+ * {
+ *      DataObject d = m.nextAddition();
+ * }
+ * return m.result();
+ * </code>
+ */
+class SetMutator {
+ 
+    private Set _old, _new, del, add;
+    private Iterator r, a;
+
+    /** null-safe constructor */
+    public SetMutator( Set originalSet, Set targetSet )
+    {
+        
+        _old = originalSet == null ? new HashSet() : new HashSet( originalSet );
+        _new = targetSet == null ? new HashSet() : new HashSet( targetSet );
+
+        del = new HashSet( _old );
+        del.removeAll( _new );
+        r = del.iterator();
+        
+        add = new HashSet( _new );
+        add.removeAll( _old );
+        a = add.iterator();
+        
+    }
+
+    public boolean moreDeletions()
+    {
+        return r.hasNext();
+    }
+    
+    public DataObject nextDeletion()
+    {
+        return (DataObject) r.next();
+    }
+    
+    public boolean moreAdditions()
+    {
+        return a.hasNext();
+    }
+    
+    public DataObject nextAddition()
+    {
+        return (DataObject) a.next();
+    }
+
+    public Set result()
+    {
+        return new HashSet( _new );
+    }
     
 }

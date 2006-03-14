@@ -34,13 +34,9 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.Model2PojosMapper;
-import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.model.enums.PixelsType;
 
 /** 
  * The data that makes up an <i>OME</i> Pixels object along with a back pointer
@@ -68,244 +64,172 @@ public class PixelsData
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"INT8"</code> string identifier. 
      */
-    public static final int     INT8_TYPE = 0;
+    public static final String INT8_TYPE = "int8";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"INT16"</code> string identifier. 
      */
-    public static final int     INT16_TYPE = 1;
+    public static final String INT16_TYPE = "int16";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"INT32"</code> string identifier. 
      */
-    public static final int     INT32_TYPE = 2;
+    public static final String  INT32_TYPE = "int32";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"UINT8"</code> string identifier. 
      */
-    public static final int     UINT8_TYPE = 3;
+    public static final String  UINT8_TYPE = "uint8";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"UINT16"</code> string identifier. 
      */
-    public static final int     UINT16_TYPE = 4;
+    public static final String  UINT16_TYPE = "uint16";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"UINT32"</code> string identifier. 
      */
-    public static final int     UINT32_TYPE = 5;
+    public static final String  UINT32_TYPE = "uint32";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"FLOAT"</code> string identifier. 
      */
-    public static final int     FLOAT_TYPE = 6;
+    public static final String  FLOAT_TYPE = "float";
     
     /** 
      * Identifies the type used to store pixel values.
      * Maps onto the <i>OME</i> <code>"DOUBLE"</code> string identifier. 
      */
-    public static final int     DOUBLE_TYPE = 7;
-    
-    /** The ID used by <i>OMEIS</i> to identify these Pixels. */
-    // private long         imageServerID;
-    
-    /** The URL of the <i>OMEIS</i> instance that manages these Pixels. */
-    // private String       imageServerURL;
-    
-    /** 
-     * The X dimension of the 5D data array.
-     * That is, the number of pixels along the X-axis in a 2D-plane. 
-     */
-    private int          sizeX;
-    
-    /** 
-     * The Y dimension of the 5D data array.
-     * That is, the number of pixels along the Y-axis in a 2D-plane. 
-     */
-    private int          sizeY;
-    
-    /** 
-     * The Z dimension of the 5D data array.
-     * That is, the number of focal planes in the 3D-stack. 
-     */
-    private int          sizeZ;
-    
-    /** 
-     * The C dimension of the 5D data array.
-     * That is, the number of wavelengths.
-     */
-    private int          sizeC;
-    
-    /** 
-     * The T dimension of the 5D data array.
-     * That is, the number of timepoints. 
-     */ 
-    private int          sizeT;
-    
-    /** The X-size of a pixel in microns. */
-    private double       pixelSizeX;
-    
-    /** The Y-size of a pixel in microns. */
-    private double       pixelSizeY;
-    
-    /** The Z-size of a pixel in microns. */
-    private double       pixelSizeZ;
-    
-    /** One of the Pixels type identifiers defined by this class. */
-    private int          pixelType;
+    public static final String  DOUBLE_TYPE = "double";
+    public static final String  COMPLEX_TYPE = "complex";
+    public static final String  DOUBLE_COMPLEX_TYPE = "double-complex";
     
     /** The Image these Pixels belong to. */
     private ImageData    image;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-		if (model instanceof Pixels) {
-			Pixels pix = (Pixels) model;
-            super.copy(model,mapper);
-            
-            // Fields
-			this.setImage((ImageData)mapper.findTarget(pix.getImage()));
-			PixelsDimensions dim = pix.getPixelsDimensions();
-			if (dim !=null){
-			    this.setPixelSizeX(mapper.nullSafeFloat(dim.getSizeX()));
-			    this.setPixelSizeY(mapper.nullSafeFloat(dim.getSizeY()));
-				this.setPixelSizeZ(mapper.nullSafeFloat(dim.getSizeZ())); 
-			}
-			if (pix.getPixelsType() != null){
-			    this.setPixelType(Model2PojosMapper.getPixelTypeID(
-                        pix.getPixelsType().getValue()));
-            }
-            this.setSizeC(mapper.nullSafeInt(pix.getSizeC()));
-			this.setSizeT(mapper.nullSafeInt(pix.getSizeT()));
-			this.setSizeX(mapper.nullSafeInt(pix.getSizeX()));
-			this.setSizeY(mapper.nullSafeInt(pix.getSizeY()));
-			this.setSizeZ(mapper.nullSafeInt(pix.getSizeZ())); 
-			
-		} else {
-			throw new IllegalArgumentException("PixelData copies only from ImagePixel");
-		}
-    }
 
-    public IObject newIObject()
+    public PixelsData()
     {
-        return new Pixels();
+        setDirty( true );
+        setValue( new Pixels() );
     }
     
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    public PixelsData( Pixels value )
     {
-        if ( obj instanceof Pixels)
-        {
-            Pixels p = (Pixels) obj;
-            if (super.fill(p)){
-                // Pixels is immutable. No reason to be screwing around with it.
-                p.unload(); 
-            }
-            return p;
-        } else {
-            throw new IllegalArgumentException(
-                    "PixelsData can only fill Pixels.");
-        }
+        setValue( value );
     }
     
-//	public void setImageServerID(long imageServerID) {
-//		this.imageServerID = imageServerID;
-//	}
-//
-//	public long getImageServerID() {
-//		return imageServerID;
-//	}
+    public void setSizeX(int sizeX) {
+        setDirty( true );
+        asPixels().setSizeX( new Integer( sizeX ));
+    }
 
-//	public void setImageServerURL(String imageServerURL) {
-//		this.imageServerURL = imageServerURL;
-//	}
-//
-//	public String getImageServerURL() {
-//		return imageServerURL;
-//	}
+    public int getSizeX() {
+        return nullSafe( asPixels().getSizeX() );
+    }
 
-	public void setSizeX(int sizeX) {
-		this.sizeX = sizeX;
-	}
+    public void setSizeY(int sizeY) {
+        setDirty( true );
+        asPixels().setSizeY( new Integer( sizeY ));
+    }
 
-	public int getSizeX() {
-		return sizeX;
-	}
+    public int getSizeY() {
+        return nullSafe( asPixels().getSizeY() );
+    }
 
-	public void setSizeY(int sizeY) {
-		this.sizeY = sizeY;
-	}
+    public void setSizeZ(int sizeZ) {
+        setDirty( true );
+        asPixels().setSizeZ( new Integer( sizeZ ));
+    }
 
-	public int getSizeY() {
-		return sizeY;
-	}
+    public int getSizeZ() {
+        return nullSafe( asPixels().getSizeZ() );
+    }
 
-	public void setSizeZ(int sizeZ) {
-		this.sizeZ = sizeZ;
-	}
+    public void setSizeC(int sizeC) {
+        setDirty( true );
+        asPixels().setSizeC( new Integer( sizeC ));
+    }
 
-	public int getSizeZ() {
-		return sizeZ;
-	}
+    public int getSizeC() {
+        return nullSafe( asPixels().getSizeC() );
+    }
 
-	public void setSizeC(int sizeC) {
-		this.sizeC = sizeC;
-	}
+    public void setSizeT(int sizeT) {
+        setDirty( true );
+        asPixels().setSizeT( new Integer( sizeT ));
 
-	public int getSizeC() {
-		return sizeC;
-	}
+    }
 
-	public void setSizeT(int sizeT) {
-		this.sizeT = sizeT;
-	}
+    public int getSizeT() {
+        return nullSafe( asPixels().getSizeT() );
+    }
 
-	public int getSizeT() {
-		return sizeT;
-	}
+    public void setPixelSizeX(double pixelSizeX) {
+        setDirty( true );
+        PixelsDimensions dims = asPixels().getPixelsDimensions();
+        dims.setSizeX( new Float( pixelSizeX ));
+    }
 
-	public void setPixelSizeX(double pixelSizeX) {
-		this.pixelSizeX = pixelSizeX;
-	}
+    public double getPixelSizeX() {
+        PixelsDimensions dims = asPixels().getPixelsDimensions();
+        return nullSafe( dims.getSizeX() );
+    }
 
-	public double getPixelSizeX() {
-		return pixelSizeX;
-	}
+    public void setPixelSizeY( double pixelSizeY ) {
+        setDirty( true );
+        PixelsDimensions dims = asPixels().getPixelsDimensions();
+        dims.setSizeY( new Float( pixelSizeY ));
+    }
 
-	public void setPixelSizeY(double pixelSizeY) {
-		this.pixelSizeY = pixelSizeY;
-	}
+    public double getPixelSizeY() {
+        PixelsDimensions dims = asPixels().getPixelsDimensions();
+        return dims == null ? 0.0 : nullSafe( dims.getSizeX() );
+    }
 
-	public double getPixelSizeY() {
-		return pixelSizeY;
-	}
+    public void setPixelSizeZ( double pixelSizeZ ) 
+    {
+        setDirty( true );
+        PixelsDimensions dims = asPixels().getPixelsDimensions();
+        if ( dims != null )
+            dims.setSizeZ( new Float( pixelSizeZ ));
+    }
 
-	public void setPixelSizeZ(double pixelSizeZ) {
-		this.pixelSizeZ = pixelSizeZ;
-	}
+    public double getPixelSizeZ() {
+        PixelsDimensions dims = asPixels().getPixelsDimensions();
+        return dims == null ? 0.0 : nullSafe( dims.getSizeX() );
+    }
 
-	public double getPixelSizeZ() {
-		return pixelSizeZ;
-	}
+    // Entites
+    public String getPixelType() {
+        PixelsType type = asPixels().getPixelsType();
+        return null == type ? null : type.getValue();
+    }
 
-	public void setPixelType(int pixelType) {
-		this.pixelType = pixelType;
-	}
+    public ImageData getImage() {
+        
+        if ( image == null && asPixels().getImage() != null )
+            image = new ImageData( asPixels().getImage() );
+        
+        return image;
+    }
+    
+    public void setImage(ImageData image) {
 
-	public int getPixelType() {
-		return pixelType;
-	}
+        setDirty( true );
+        this.image = image;
+        if ( image == null)
+            asPixels().setImage( null );
+        else
+            asPixels().setImage( image.asImage() );
+        
+    }
 
-	public void setImage(ImageData image) {
-		this.image = image;
-	}
 
-	public ImageData getImage() {
-		return image;
-	}
     
 }

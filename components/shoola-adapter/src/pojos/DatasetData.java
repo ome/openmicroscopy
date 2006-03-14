@@ -32,22 +32,17 @@ package pojos;
 
 //Java imports
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
-import ome.model.internal.Details;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.CBlock;
 
 /** 
  * The data that makes up an <i>OME</i> Dataset along with links to its
@@ -75,15 +70,6 @@ public class DatasetData
     public final static String ANNOTATIONS = Dataset.ANNOTATIONS;
     
     /** 
-     * The Dataset's name.
-     * This field may not be <code>null</code>.  
-     */
-    private String   name;
-    
-    /** The Dataset's description. */
-    private String   description;
-    
-    /** 
      * All the Images contained in this Dataset.
      * The elements of this set are {@link ImageData} objects.  If this
      * Dataset contains no Images, then this set will be empty &#151;
@@ -108,171 +94,171 @@ public class DatasetData
     private Set      annotations;
     
     /** 
-     * The Experimenter that owns this Dataset.
-     * This field may not be <code>null</code>.  
-     */
-    private ExperimenterData owner;
-    
-    /** 
      * The number of annotations attached to this Dataset.
      * This field may be <code>null</code> meaning no count retrieved,
      * and it may be less than the actual number if filtered by user.
      */
     private Integer annotationCount;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof Dataset) {
-			Dataset d = (Dataset) model;
-            super.copy(model,mapper);
 
-            // Details
-            if (d.getDetails() != null){
-                
-                Details details = d.getDetails();
-                this.setOwner((ExperimenterData)mapper.findTarget(
-                        details.getOwner()));         
-                if ( details.getCounts() != null )
-                {
-                    Object annotationCount = details.getCounts().get( Dataset.ANNOTATIONS );
-                    if ( annotationCount instanceof Integer )
-                        this.setAnnotationCount( (Integer) annotationCount  );
-                }
-
-           }
-            
-            // Fields
-			this.setName(d.getName());
-			this.setDescription(d.getDescription());
-            
-            // Collections
-            MapperBlock block = new MapperBlock( mapper );
-            setImages( makeSet(
-                    d.sizeOfImageLinks(),
-                    d.eachLinkedImage( block )));
-            setProjects( makeSet(
-                    d.sizeOfProjectLinks(),
-                    d.eachLinkedProject( block )));
-            setAnnotations( makeSet(
-                    d.sizeOfAnnotations(),
-                    d.collectAnnotations( block )));
-            
-		} else {
-			throw new IllegalArgumentException(
-                    "DatasetData can only copy from Dataset");
-		}
-    }
-
-    public IObject newIObject()
+    public DatasetData()
     {
-        return new Dataset();
+        setDirty( true );
+        setValue( new Dataset() );
     }
     
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    public DatasetData( Dataset value )
     {
-        if ( obj instanceof Dataset)
+        setValue( value );
+    }
+    
+    // IMMUTABLES
+    
+    public void setName(String name) {
+        setDirty( true );
+        asDataset().setName( name );
+    }
+
+    public String getName() {
+        return asDataset().getName();
+    }
+
+    public void setDescription(String description) {
+        setDirty( true );
+        asDataset().setDescription( description );
+    }
+
+    public String getDescription() {
+        return asDataset().getDescription();
+    }
+
+    // Lazy loaded links
+    
+    public Set getImages() {
+        if (images == null && asDataset().sizeOfImageLinks() >= 0 )
         {
-            Dataset d = (Dataset) obj;
-          
-            if (super.fill(d)) {
-                d.setName(this.getName());
-                d.setDescription(this.getDescription());
-                
-                // Links
-                if (this.getImages() != null) {
-                    for (Iterator it = this.getImages().iterator(); it.hasNext();)
-                    {
-                        ImageData id = (ImageData) it.next();
-                        Image i = (Image) mapper.map( id );
-                        if ( ! linked( i.findDatasetImageLink( d )))
-                            d.linkImage( i );
-                    }
+            images = new HashSet(asDataset().eachLinkedImage(new CBlock()
+            {
+                public Object call(IObject object)
+                {
+                    return new ImageData( (Image) object );
                 }
-                
-                if (this.getProjects() != null) {
-                    for (Iterator it = this.getProjects().iterator(); it.hasNext();)
-                    {
-                        ProjectData pd = (ProjectData) it.next();
-                        Project p = (Project) mapper.map( pd );
-                        if ( ! linked( p.findProjectDatasetLink( d )))
-                            d.linkProject( p );
-                    }
-                }
-                
-                if (this.getAnnotations() != null) {
-                    for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
-                    {
-                        AnnotationData ann = (AnnotationData) it.next();
-                        d.addToAnnotations( (DatasetAnnotation) mapper.map(ann));
-                    }
-                }
-                
-            }
-            return d;
-            
-        } else {
-            
-            throw new IllegalArgumentException(
-                    "DatasetData can only fill Dataset.");
-            
+            }));
         }
+        return images == null ? null : new HashSet( images );
     }
+
+    public Set getProjects() {
+        
+        if ( projects == null && asDataset().sizeOfProjectLinks() >= 0 )
+        {
+            projects = new HashSet( asDataset().eachLinkedProject( new CBlock () {
+                public Object call(IObject object) 
+                {
+                    return new ProjectData( (Project) object ); 
+                };
+            }));
+        }
+        
+        return projects == null ? null : new HashSet( projects );
+    }
+
+    // Link mutations
     
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setImages( Set newValue ) 
+    {
+        Set currentValue = getImages(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asDataset().unlinkImage( m.nextDeletion().asImage() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asDataset().linkImage( m.nextAddition().asImage() );
+        }
 
-	public String getName() {
-		return name;
-	}
+        images = m.result();    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
 
-	public String getDescription() {
-		return description;
-	}
+    public void setProjects( Set newValue ) 
+    {
+        
+        Set currentValue = getProjects(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asDataset().unlinkProject( m.nextDeletion().asProject() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asDataset().linkProject( m.nextAddition().asProject() );
+        }
 
-	public void setImages(Set images) {
-		this.images = images;
-	}
+        projects = m.result();
+    }
 
-	public Set getImages() {
-		return images;
-	}
+    
+    // SETS
+    
+    public Set getAnnotations() {
+        
+        if ( annotations == null && asDataset().sizeOfAnnotations() >= 0 )
+        {
+            annotations = new HashSet( asDataset().collectAnnotations( new CBlock() {
+               public Object call(IObject object)
+                {
+                   return new AnnotationData( (DatasetAnnotation) object );
+                } 
+            }));
+        }
+        
+        return annotations == null ? null : new HashSet( annotations );
+    }
 
-	public void setProjects(Set projects) {
-		this.projects = projects;
-	}
+    public void setAnnotations( Set newValue ) 
+    {
+        Set currentValue = getAnnotations(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asDataset().removeFromAnnotations( m.nextDeletion().asDatasetAnnotation() );
+            annotationCount = annotationCount == null ? null :
+                new Integer( annotationCount.intValue() - 1 );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asDataset().removeFromAnnotations( m.nextAddition().asDatasetAnnotation() );
+            annotationCount = annotationCount == null ? null :
+                new Integer( annotationCount.intValue() + 1 );
+        }
 
-	public Set getProjects() {
-		return projects;
-	}
+        annotations = m.result();
 
-	public void setAnnotations(Set annotations) {
-		this.annotations = annotations;
-	}
+    }
 
-	public Set getAnnotations() {
-		return annotations;
-	}
 
-	public void setOwner(ExperimenterData owner) {
-		this.owner = owner;
-	}
-
-	public ExperimenterData getOwner() {
-		return owner;
-	}
-
+    
+    // COUNTS
+    
     public Integer getAnnotationCount()
     {
+        if ( annotationCount == null )
+        {
+            annotationCount = getCount( Dataset.ANNOTATIONS );
+        }
         return annotationCount;
-    }
-    
-    public void setAnnotationCount(Integer annotationCount)
-    {
-        this.annotationCount = annotationCount;
     }
 	
 }

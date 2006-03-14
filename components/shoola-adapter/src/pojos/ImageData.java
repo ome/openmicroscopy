@@ -33,22 +33,18 @@ package pojos;
 //Java imports
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.MapperBlock;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotation;
-import ome.model.containers.CategoryGroup;
+import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.internal.Details;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.CBlock;
 
 /** 
  * The data that makes up an <i>OME</i> Image along with links to its
@@ -74,30 +70,6 @@ public class ImageData
     public final static String PIXELS = Image.PIXELS;
     public final static String ANNOTATIONS = Image.ANNOTATIONS;
     public final static String DATASET_LINKS = Image.DATASETLINKS;
-    
-    
-    /** 
-     * The Image's name.
-     * This field may not be <code>null</code>.  
-     */
-    private String   name;
-    
-    /** The Image's description. */
-    private String   description;
-    
-    /**
-     * The creation timestamp.
-     * That is the time at which the Image was created.
-     * This field may not be <code>null</code>.
-     */
-    private Timestamp  created;
-    
-    /**
-     * The insertion timestamp.
-     * That is the time at which the Image was inserted into the DB.
-     * This field may not be <code>null</code>.
-     */
-    private Timestamp  inserted;
     
     /**
      * The default image data associated to this Image.
@@ -131,6 +103,11 @@ public class ImageData
      */
     private Set      datasets;
     
+    /** All the Categories that contain this Image.
+     * The elements of this set are {@link CategoryData} objects.
+     */
+    private Set     categories;
+    
     /**
      * All the annotations related to this Image.
      * The elements of the set are {@link AnnotationData} objetcs.
@@ -138,12 +115,6 @@ public class ImageData
      * &#151; but never <code>null</code>. 
      */
     private Set      annotations;
-    
-    /** 
-     * The Experimenter that owns this Dataset.
-     * This field may not be <code>null</code>.  
-     */
-    private ExperimenterData owner;
     
     /** 
      * The number of annotations attached to this Image.
@@ -158,195 +129,236 @@ public class ImageData
      * and it may be less than the actual number if filtered by user.
      */
     private Integer classificationCount;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof Image) {
-			Image i = (Image) model;
-            super.copy(model,mapper);
-            
-            // Details
-            if (i.getDetails() != null){
-                Details d = i.getDetails();
-                this.setCreated(mapper.event2timestamp(d.getCreationEvent()));
-                this.setInserted(mapper.event2timestamp(d.getUpdateEvent()));//TODO
-                this.setOwner((ExperimenterData) mapper.findTarget(d.getOwner()));
-                if ( d.getCounts() != null )
-                {
-                    Object annotationCount = d.getCounts().get( Image.ANNOTATIONS );
-                    if ( annotationCount instanceof Integer )
-                        this.setAnnotationCount( (Integer) annotationCount  );
-                    
-                    Object classificationCount = d.getCounts().get( Image.CATEGORYLINKS );
-                    if ( classificationCount instanceof Integer )
-                        this.setClassificationCount( (Integer) classificationCount  );
-                    
-                }
-            }
 
-            // Fields
-            this.setName(i.getName());
-            this.setDescription(i.getDescription());
-			this.setDefaultPixels((PixelsData)mapper.findTarget(i.getDefaultPixels()));
-            
-            // Collections
-            MapperBlock block = new MapperBlock( mapper );
-            setDatasets( makeSet(
-                    i.sizeOfDatasetLinks(),
-                    i.eachLinkedDataset( block )));
-            setAllPixels( makeSet(
-                    i.sizeOfPixels(),
-                    i.collectPixels( block )));
-            setAnnotations( makeSet(
-                    i.sizeOfAnnotations(),
-                    i.collectAnnotations( block )));
-            
-		} else {
-			throw new IllegalArgumentException("ImageData copies only from Image");
-		}
+    
+    public ImageData()
+    {
+        setDirty( true );
+        setValue( new Image() );
     }
     
-    public IObject newIObject()
+    public ImageData( Image value )
     {
-        return new Image();
+        setValue( value );
     }
+
+    // Immutables
     
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
-    {
-        if ( obj instanceof Image)
+    public void setName(String name) {
+        setDirty( true );
+        asImage().setName( name );
+    }
+
+    public String getName() {
+        return asImage().getName();
+    }
+
+    public void setDescription(String description) {
+        setDirty( true );
+        asImage().setDescription( description );
+    }
+
+    public String getDescription() {
+        return asImage().getDescription();
+    }
+
+    public Timestamp getCreated() {
+        return timeOfEvent( asImage().getDetails().getCreationEvent() );
+    }
+
+    public Timestamp getInserted() {
+        return timeOfEvent( asImage().getDetails().getUpdateEvent() );
+    }
+
+    // Single-valued objects.
+    
+    public PixelsData getDefaultPixels() {
+        if ( defaultPixels == null && asImage().getDefaultPixels() != null )
         {
-            Image i = (Image) obj;
-          
-            if (super.fill(i)) {
-                i.setName(this.getName());
-                i.setDescription(this.getDescription());
-                i.setDescription(this.getDescription());
-    
-                Pixels pix = (Pixels) mapper.map(this.getDefaultPixels());
-                if ( pix != null) pix.setDefaultPixels( Boolean.TRUE );
-                
-                if (this.getAllPixels() != null){
-                    for (Iterator it = this.getAllPixels().iterator(); it.hasNext();)
-                    {
-                        PixelsData p = (PixelsData) it.next();
-                        i.addToPixels( (Pixels) mapper.map(p) );
-                    }
-                }
-                
-                if (this.getAnnotations() != null){
-                    for (Iterator it = this.getAnnotations().iterator(); it.hasNext();)
-                        {
-                        AnnotationData ann = (AnnotationData) it.next();
-                        i.addToAnnotations( (ImageAnnotation) mapper.map(ann) );
-                        }
-                }
-                
-                // Links
-                if (this.getDatasets() != null){
-                    for (Iterator it = this.getDatasets().iterator(); it.hasNext();)
-                    {
-                        DatasetData dd = (DatasetData) it.next();
-                        Dataset d = (Dataset) mapper.map( dd );
-                        if ( ! linked( d.findDatasetImageLink( i )))
-                            i.linkDataset( d );
-                    }
-                }
-            }
-            return i;
-        } else {
-            throw new IllegalArgumentException(
-                    "ImageData can only fill Image.");
+            defaultPixels = new PixelsData( asImage().getDefaultPixels() );
         }
+        return defaultPixels;
     }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setDefaultPixels( PixelsData defaultPixels ) {
 
-	public String getName() {
-		return name;
-	}
+        if ( getDefaultPixels() != defaultPixels )
+        {
+            setDirty( true );
+            this.defaultPixels = defaultPixels;
+            if ( defaultPixels != null )
+            {
+                asImage().collectPixels( new CBlock() {
+                    public Object call(IObject object)
+                    {
+                        ((Pixels) object).setDefaultPixels( Boolean.FALSE );
+                        return null;
+                    }
+                });
+                defaultPixels.asPixels().setDefaultPixels( Boolean.TRUE );
+            }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+        }
 
-	public String getDescription() {
-		return description;
-	}
+    }
+    
+    // Sets
+    
+    public Set getAllPixels() {
+        if ( allPixels == null && asImage().sizeOfPixels() >= 0 )
+        {
+            allPixels = new HashSet( asImage().collectPixels( new CBlock() {
+                public Object call(IObject object)
+                {
+                    return new PixelsData( (Pixels) object );
+                }
+            }));
+        }
+        return allPixels == null ? null : new HashSet( allPixels );
+    }
 
-	public void setCreated(Timestamp created) {
-		this.created = created;
-	}
+    public void setAllPixels( Set newValue ) {
+        Set currentValue = getAllPixels(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asImage().removeFromPixels( m.nextDeletion().asPixels() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asImage().addToPixels( m.nextAddition().asPixels() );
+        }
 
-	public Timestamp getCreated() {
-		return created;
-	}
+        allPixels = m.result();    
+    }
 
-	public void setInserted(Timestamp inserted) {
-		this.inserted = inserted;
-	}
+    public Set getDatasets() 
+    {
+        if ( datasets == null && asImage().sizeOfDatasetLinks() >= 0 )
+        {
+            datasets = new HashSet( asImage().eachLinkedDataset( new CBlock() {
+                public Object call(IObject object) {
+                    return new DatasetData( (Dataset) object );
+                };
+            }));
+        }
+        return datasets == null ? null : new HashSet( datasets );
+    }
+    
+    public void setDatasets( Set newValue ) 
+    {
+        Set currentValue = getDatasets(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asImage().unlinkDataset( m.nextDeletion().asDataset() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asImage().linkDataset( m.nextAddition().asDataset() );
+        }
 
-	public Timestamp getInserted() {
-		return inserted;
-	}
+        datasets = m.result();    
+    }
 
-	public void setDefaultPixels(PixelsData defaultPixels) {
-		this.defaultPixels = defaultPixels;
-	}
+    public Set getCategories() 
+    {
+        if ( categories == null && asImage().sizeOfCategoryLinks() >= 0 )
+        {
+            categories = new HashSet( asImage().eachLinkedCategory( new CBlock() {
+                public Object call(IObject object) {
+                    return new CategoryData( (Category) object );
+                };
+            }));
+        }
+        return categories == null ? null : new HashSet( categories );
+    }
+    
+    public void setCategories( Set newValue ) 
+    {
+        Set currentValue = getCategories(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asImage().unlinkCategory( m.nextDeletion().asCategory() );
+            classificationCount = classificationCount == null ? null :
+                    new Integer( classificationCount.intValue() - 1 );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asImage().linkCategory( m.nextAddition().asCategory() );
+            classificationCount = classificationCount == null ? null :
+                new Integer( classificationCount.intValue() + 1 );
 
-	public PixelsData getDefaultPixels() {
-		return defaultPixels;
-	}
+        }
 
-	public void setAllPixels(Set allPixels) {
-		this.allPixels = allPixels;
-	}
+        categories = m.result();    
+    }
+    
+    public Set getAnnotations() {
+        if ( annotations == null && asImage().sizeOfAnnotations() >= 0 )
+        {
+            annotations = new HashSet( asImage().collectAnnotations( new CBlock() {
+                public Object call(IObject object) {
+                    return new AnnotationData( (ImageAnnotation) object );
+                };
+            }));
+        }
+        return annotations == null ? null : new HashSet( annotations );
+    }
 
-	public Set getAllPixels() {
-		return allPixels;
-	}
+    
+    public void setAnnotations( Set newValue ) {
+        Set currentValue = getAnnotations(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asImage().removeFromAnnotations( m.nextDeletion().asImageAnnotation() );
+            annotationCount = annotationCount == null ? null :
+                    new Integer( annotationCount.intValue() - 1 );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asImage().addToAnnotations( m.nextAddition().asImageAnnotation() );
+            annotationCount =  annotationCount == null ? null :
+                new Integer( annotationCount.intValue() + 1 );
+        }
 
-	public void setDatasets(Set datasets) {
-		this.datasets = datasets;
-	}
+        annotations = m.result();
+    }
 
-	public Set getDatasets() {
-		return datasets;
-	}
-
-	public void setAnnotations(Set annotations) {
-		this.annotations = annotations;
-	}
-
-	public Set getAnnotations() {
-		return annotations;
-	}
-
-	public void setOwner(ExperimenterData owner) {
-		this.owner = owner;
-	}
-
-	public ExperimenterData getOwner() {
-		return owner;
-	}
-
+    // COUNTS
+    
     public Integer getAnnotationCount()
     {
+        if ( annotationCount == null )
+            annotationCount = getCount( Image.ANNOTATIONS );
+        
         return annotationCount;
-    }
-    
-    public void setAnnotationCount(Integer annotationCount)
-    {
-        this.annotationCount = annotationCount;
     }
 
     public Integer getClassificationCount()
     {
+        if ( classificationCount == null )
+            classificationCount = getCount( Image.CATEGORYLINKS );
+        
         return classificationCount;
     }
 
-    public void setClassificationCount(Integer classificationCount)
-    {
-        this.classificationCount = classificationCount;
-    }
 }

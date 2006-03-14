@@ -29,161 +29,105 @@
 
 package pojos;
 
-//Java imports
+// Java imports
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
-import ome.adapters.pojos.MapperBlock;
+// Application-internal dependencies
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
+import ome.util.CBlock;
 
-/** 
- * The data that makes up an <i>OME</i> Group along with the various members
- * of the Group
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
+/**
+ * The data that makes up an <i>OME</i> Group along with the various members of
+ * the Group
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ *          </small>
  * @since OME2.2
  */
-public class GroupData
-    extends DataObject
+public class GroupData extends DataObject
 {
-    
-    public final static String NAME = ExperimenterGroup.NAME;
-    public final static String DESCRIPTION = ExperimenterGroup.DESCRIPTION;
+
+    public final static String NAME                   = ExperimenterGroup.NAME;
+
+    public final static String DESCRIPTION            = ExperimenterGroup.DESCRIPTION;
+
     public final static String GROUP_EXPERIMENTER_MAP = ExperimenterGroup.GROUPEXPERIMENTERMAP;
-    
-    /** The Group's name. */
-    private String      name;
 
     /** All experimenters in this group */
-    private Set         experimenters;
+    private Set                experimenters;
 
-    /** The owner for this group */
-    private ExperimenterData owner;
-    
-    /** The contact for this group */
-    // private ExperimenterData contact;
-    
-    public void copy(IObject model, ModelMapper mapper) {
-    	if (model instanceof ExperimenterGroup) {
-			ExperimenterGroup grp = (ExperimenterGroup) model;
-            super.copy(model,mapper);
-
-            // Details
-            if (grp.getDetails() != null){
-                this.setOwner((ExperimenterData) mapper.findTarget(grp.getDetails().getOwner()));
-            }
-            
-            // Fields
-			this.setName(grp.getName());
-
-            // Collections
-            MapperBlock block = new MapperBlock( mapper );
-            setExperimenters( makeSet( 
-                    grp.sizeOfGroupExperimenterMap(), 
-                    grp.eachLinkedExperimenter( block )));
-            
-    	} else {
-			throw new IllegalArgumentException(
-                    "GroupData can only copy from Group, not "+
-                    model.getClass().getName()); // TODO all errors like this.
-		}
-    }
-
-    public IObject newIObject()
+    public GroupData()
     {
-        return new ExperimenterGroup();
+        setDirty( true );
+        setValue( new ExperimenterGroup() );
     }
     
-    public IObject fillIObject( IObject obj, ReverseModelMapper mapper)
+    public GroupData( ExperimenterGroup value )
     {
-        if ( obj instanceof ExperimenterGroup)
-        {
-            ExperimenterGroup g = (ExperimenterGroup) obj;
-          
-            if (super.fill(g)) {
-                g.setName(this.getName());
-                // TODO what to do with DESCRIPTION and other missing fields
-                
-                if (this.getExperimenters() != null){
-                    for (Iterator it = this.getExperimenters().iterator(); it.hasNext();)
-                    {
-                        ExperimenterData ed = (ExperimenterData) it.next();
-                        Experimenter e = (Experimenter) mapper.map( ed );
-                        if ( ! linked( e.findGroupExperimenterMap( g )))
-                            g.linkExperimenter( e );
-                    }
-                }
-                
-            }
-            return g;
-            
-        } else {
-            
-            throw new IllegalArgumentException(
-                    "GroupData can only fill ExperimenterGroup.");
-        }
+        setValue( value );
     }
     
-//    public ExperimenterData getContact()
-//    {
-//        return contact;
-//    }
-//
-//    
-//    public void setContact(ExperimenterData contact)
-//    {
-//        this.contact = contact;
-//    }
-
-    
-    public Set getExperimenters()
-    {
-        return experimenters;
-    }
-
-    
-    public void setExperimenters(Set experimenters)
-    {
-        this.experimenters = experimenters;
-    }
-    
-    public ExperimenterData getOwner()
-    {
-        return owner;
-    }
-
-    
-    public void setOwner(ExperimenterData owner)
-    {
-        this.owner = owner;
-    }
-
+    // Immutables
     
     public String getName()
     {
-        return name;
+        return asGroup().getName();
     }
 
-    
     public void setName(String name)
     {
-        this.name = name;
+        setDirty( true );
+        asGroup().setName( name );
     }
+
+    // Lazy loaded links
+    
+    public Set getExperimenters()
+    {
+        
+        if ( experimenters == null && asGroup().sizeOfGroupExperimenterMap() >= 0 )
+        {
+            experimenters = new HashSet( asGroup().eachLinkedExperimenter( new CBlock(){
+                public Object call(IObject object) {
+                    return new ExperimenterData( (Experimenter) object );
+                };
+            }));
+        }
+        
+        return experimenters == null ? null : new HashSet( experimenters );
+    }
+
+    // Link mutations
+    
+    public void setExperimenters( Set newValue )
+    {
+        Set currentValue = getExperimenters(); 
+        SetMutator m = new SetMutator( currentValue, newValue );
+        
+        while ( m.moreDeletions() )
+        {
+            setDirty( true );
+            asGroup().unlinkExperimenter( m.nextDeletion().asExperimenter() );
+        }
+        
+        while ( m.moreAdditions() )
+        {
+            setDirty( true );
+            asGroup().linkExperimenter( m.nextAddition().asExperimenter() );
+        }
+
+        experimenters = m.result();
+        
+    }
+
 }
