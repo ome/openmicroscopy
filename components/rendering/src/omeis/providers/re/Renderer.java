@@ -146,8 +146,12 @@ public class Renderer
         rndDef = renderingDefObj;
         buffer = bufferObj;
         
-        if (metadata == null || rndDef == null || buffer == null)
-            throw new IllegalArgumentException("No null values please.");
+        if (metadata == null)
+        	throw new NullPointerException("Expecting not null metadata");
+        else if (rndDef == null)
+        	throw new NullPointerException("Expecting not null rndDef");
+        else if (buffer == null)
+        	throw new NullPointerException("Expecting not null buffer");
                 
         //Create and configure the quantum strategies.
         QuantumDef qd = rndDef.getQuantization();

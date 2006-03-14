@@ -157,43 +157,22 @@ public class RenderingEngineImpl implements RenderingEngine
      * 
      * a.k.a. STATE-MANAGEMENT
      */
-    public void usePixels(Pixels pixels)
-    {
-        rwl.writeLock().lock();
-        {
-            this.pixelsObj = pixels;
-            this.renderer = null;
-        }
-        rwl.writeLock().unlock();
-    }
-
-    public void useRenderDefintion(ome.model.display.RenderingDef renderingDef)
-    {
-        rwl.writeLock().lock();
-        {
-            this.rendDefObj = renderingDef;
-            this.renderer = null;
-        }
-        rwl.writeLock().unlock();
-    }
-
     public void lookupPixels(long pixelsId)
     {
         rwl.writeLock().lock();
         {
-            this.pixelsObj 
-                = pixMetaSrv.retrievePixDescription(pixelsId);
+            this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
             this.renderer = null;
         }
         rwl.writeLock().unlock();
     }
 
-    public void lookupRenderingDef(long renderingDefId)
+    public void lookupRenderingDef(long pixelsId)
     {
         rwl.writeLock().lock();
         {
-            this.rendDefObj 
-                = pixMetaSrv.retrieveRndSettings(renderingDefId);
+            this.rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
+            System.err.println(rendDefObj.toString());
             this.renderer = null;
         }
         rwl.writeLock().unlock();
@@ -228,6 +207,7 @@ public class RenderingEngineImpl implements RenderingEngine
             try {
                 renderer = new Renderer(pixelsObj, rendDefObj, buffer);
             } catch (Exception e){
+            	e.printStackTrace();
                 throw new RuntimeException("Failed to initialze renderer.",e);
             }
             

@@ -103,10 +103,8 @@ public interface RenderingEngine extends SelfConfigurableService
     //TODO: javadoc the rest!
     
 	//State management.
-	public void usePixels(Pixels pixels);
-	public void useRenderDefintion(ome.model.display.RenderingDef renderingDef);
 	public void lookupPixels(long pixelsId);
-	public void lookupRenderingDef(long renderingDefId);
+	public void lookupRenderingDef(long pixelsId);
 	public void load();
 	
 	//RenderingDef fields.
