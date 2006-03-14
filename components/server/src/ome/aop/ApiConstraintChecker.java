@@ -46,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.conditions.RootException;
+import ome.conditions.ValidationException;
 
 /**
  * method interceptor to check metadata constraints on API calls.
@@ -136,7 +137,7 @@ public class ApiConstraintChecker implements MethodInterceptor
 
             /* warn if someone's forgotten to annotate a method */
             if (arg instanceof Collection && !validated)
-                throw new RootException("Internal server error: " + implMethod
+                throw new ValidationException(implMethod
                         + " is missing a required @" + Validate.class.getName()
                         + " annotation. Refusing to proceed...");
 

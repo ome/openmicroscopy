@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.conditions.InternalException;
 import ome.conditions.Policy;
 import ome.conditions.RootException;
 
@@ -73,14 +74,14 @@ public class ExceptionHandler implements MethodInterceptor {
         if (null == t)
         {
             log.error("Exception thrown. (null)");
-            return new RootException(MESSAGE+"(null)");
+            return new InternalException(MESSAGE+"(null)");
         } 
         else {
             String msg = " ("+t.getClass().getName()+"):"+t.getMessage();
-            log.error("Exception thrown "+msg);
+            log.error("Exception thrown: "+msg);
             
             if ( Policy.thrownByServer(t) ) return t;
-            RootException re = new RootException(MESSAGE+msg);
+            InternalException re = new InternalException(MESSAGE+msg);
             re.setStackTrace(t.getStackTrace());
             return re;
         }
