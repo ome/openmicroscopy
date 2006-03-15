@@ -54,117 +54,194 @@ import ome.model.core.Image;
  *          </small>
  * @since OME2.2
  */
-public class AnnotationData extends DataObject
+public class AnnotationData
+    extends DataObject
 {
 
+    /** Identifies an <code>Image</code> annotation. */
     public final static int IMAGE_ANNOTATION = 0;
     
+    /** Identifies an <code>Datase</code> annotation. */
     public final static int DATASET_ANNOTATION = 1;
     
-    public final static String IMAGE_ANNOTATION_CONTENT   = ImageAnnotation.CONTENT;
+    /** Identifies the {@link ImageAnnotation#CONTENT} field. */
+    public final static String IMAGE_ANNOTATION_CONTENT = 
+                                                ImageAnnotation.CONTENT;
 
-    public final static String IMAGE_ANNOTATION_IMAGE     = ImageAnnotation.IMAGE;
+    /** Identifies the {@link ImageAnnotation#IMAGE} field. */
+    public final static String IMAGE_ANNOTATION_IMAGE = ImageAnnotation.IMAGE;
 
-    public final static String DATASET_ANNOTATION_CONTENT = DatasetAnnotation.CONTENT;
+    /** Identifies the {@link DatasetAnnotation#CONTENT} field. */
+    public final static String DATASET_ANNOTATION_CONTENT = 
+                                                DatasetAnnotation.CONTENT;
 
-    public final static String DATASET_ANNOTATION_DATASET   = DatasetAnnotation.DATASET;
+    /** Identifies the {@link DatasetAnnotation#DATASET} field. */
+    public final static String DATASET_ANNOTATION_DATASET = 
+                                                DatasetAnnotation.DATASET;
 
     /**
      * The object this annotation refers to, for example Image or Dataset. This
      * field may not be <code>null</code>.
      */
-    private DataObject         annotatedObject;
+    private DataObject          annotatedObject;
 
-    private boolean            isImage;
+    /** 
+     * One of the following constants:
+     * {@link #IMAGE_ANNOTATION}, {@link #DATASET_ANNOTATION}.
+     */ 
+    private int                 annotationType;
 
-    // protected because we wouldn't know what type of base class;
-    private AnnotationData()
-    {}
-
-    public AnnotationData( int annotationType )
+    /**
+     * Creates a new instance.
+     * 
+     * @param annotationType    The type of annotation to create.
+     *                          One of the following constants:
+     *                          {@link #IMAGE_ANNOTATION},
+     *                          {@link #DATASET_ANNOTATION}.
+     * @throws IllegalArgumentException If the type is supported.            
+     */
+    public AnnotationData(int annotationType)
     {
-        switch (annotationType)
-        {
+        switch (annotationType) {
             case IMAGE_ANNOTATION:
-                isImage = true;
-                setValue( new ImageAnnotation() );
+                this.annotationType = annotationType;
+                setValue(new ImageAnnotation());
                 break;
-
             case DATASET_ANNOTATION:
-                isImage = false;
-                setValue( new DatasetAnnotation() );
+                this.annotationType = annotationType;
+                setValue(new DatasetAnnotation());
                 break;
             default:
                 throw new IllegalArgumentException( 
-                        "Unkown annotation type: " + annotationType );
+                        "Unkown annotation type: " + annotationType);
         }
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param imageAnnotation   The {@link ImageAnnotation} object corresponding
+     *                          to this <code>DataObject</code>.
+     *                          Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the object is <code>null</code>.                    
+     */
     public AnnotationData(ImageAnnotation imageAnnotation)
     {
-        isImage = true;
-        setValue( imageAnnotation );
+        if (imageAnnotation == null)
+            throw new IllegalArgumentException("Annotation cannot null.");
+        annotationType = IMAGE_ANNOTATION;
+        setValue(imageAnnotation);
     }
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param datasetAnnotation The {@link DatasetAnnotation} object
+     *                          corresponding to this <code>DataObject</code>.
+     *                          Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the object is <code>null</code>.                     
+     */
     public AnnotationData(DatasetAnnotation datasetAnnotation)
     {
-        isImage = false;
-        setValue( datasetAnnotation );
+        if (datasetAnnotation == null)
+            throw new IllegalArgumentException("Annotation cannot null.");
+        annotationType = DATASET_ANNOTATION;
+        setValue(datasetAnnotation);
     }
 
     // Immutables
-    
+    /**
+     * Sets the textual annotation.
+     * 
+     * @param text The text to set.
+     */
     public void setText(String text)
     {
-        if (isImage) 
-            asImageAnnotation().setContent( text );
-        else
-            asDatasetAnnotation().setContent( text );
-
-    }
-
-    public String getText()
-    {
-        return isImage ? asImageAnnotation().getContent() 
-                : asDatasetAnnotation() .getContent();
-    }
-
-    public Timestamp getLastModified()
-    {
-        if ( nullDetails() ) return null;
-        return timeOfEvent(isImage ? getDetails().getUpdateEvent() 
-                : getDetails().getUpdateEvent());
-    }
-
-    // Entities
-    
-    public void setAnnotatedObject( DataObject annotatedObject )
-    {
-        if ( annotatedObject != this.annotatedObject )
-        {
-            setDirty( true );
-            this.annotatedObject = annotatedObject;
-            
-            if ( annotatedObject != null )
-                if ( isImage )
-                    asImageAnnotation().setImage( annotatedObject.asImage() );
-                else
-                    asDatasetAnnotation().setDataset( annotatedObject.asDataset() );
+        switch (annotationType) {
+            case IMAGE_ANNOTATION:
+                asImageAnnotation().setContent(text);
+                break;
+            case DATASET_ANNOTATION:
+                asDatasetAnnotation().setContent(text);
         }
     }
 
+    /**
+     * Returns the text of the annotation.
+     * 
+     * @return See above.
+     */
+    public String getText()
+    {
+        switch (annotationType) {
+            case IMAGE_ANNOTATION:
+                return asImageAnnotation().getContent();
+            case DATASET_ANNOTATION:
+                return asDatasetAnnotation().getContent();
+            default: // shouldn't happen
+                return null;
+        }
+    }
+
+    /**
+     * Returns the time when the annotation was last modified.
+     * 
+     * @return See above.
+     */
+    public Timestamp getLastModified()
+    {
+        if (nullDetails()) return null;
+        return timeOfEvent(getDetails().getUpdateEvent());
+    }
+
+    // Entities
+    /**
+     * Sets the annotated object.
+     * 
+     * @param annotatedObject The annotated object.
+     * @throws IllegalArgumentException If the passed object is 
+     * <code>null</code> or not a {@link DatasetData} or an {@link ImageData}.
+     */
+    public void setAnnotatedObject(DataObject annotatedObject)
+    {
+        if (annotatedObject == null)
+            throw new IllegalArgumentException("The annotated object cannot" +
+                                                "be null.");
+        if (!(annotatedObject instanceof DatasetData) && 
+            !(annotatedObject instanceof DatasetData))
+            throw new IllegalArgumentException("DataObject not valid.");
+        if (this.annotatedObject == annotatedObject) return;
+        setDirty(true);
+        this.annotatedObject = annotatedObject;
+        switch (annotationType) {
+            case IMAGE_ANNOTATION:
+                asImageAnnotation().setImage(annotatedObject.asImage());
+                break;
+            case DATASET_ANNOTATION:
+                asDatasetAnnotation().setDataset(
+                                        annotatedObject.asDataset());
+        }
+    }
+
+    /**
+     * Returns the annotated object.
+     * 
+     * @return See above.
+     */
     public DataObject getAnnotatedObject()
     {
-        if ( annotatedObject == null )
-            if ( isImage )
-            {
-                Image i = asImageAnnotation().getImage();
-                this.annotatedObject = i == null ? null : new ImageData( i );
-            } else {
-                Dataset d = asDatasetAnnotation().getDataset();
-                this.annotatedObject = d == null ? null : new DatasetData( d );
+        if (annotatedObject == null) {
+            switch (annotationType) {
+                case IMAGE_ANNOTATION:
+                    Image i = asImageAnnotation().getImage();
+                    this.annotatedObject = i == null ? null : new ImageData(i);
+                    break;
+                case DATASET_ANNOTATION:
+                    Dataset d = asDatasetAnnotation().getDataset();
+                    this.annotatedObject = d == null ? null : 
+                                            new DatasetData(d);
             }
-
+        }
         return annotatedObject;
     }
 
