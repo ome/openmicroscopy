@@ -204,13 +204,7 @@ public class RenderingEngineImpl implements RenderingEngine
             }
             */
             
-            try {
-                renderer = new Renderer(pixelsObj, rendDefObj, buffer);
-            } catch (Exception e){
-            	e.printStackTrace();
-                throw new RuntimeException("Failed to initialze renderer.",e);
-            }
-            
+            renderer = new Renderer(pixelsObj, rendDefObj, buffer);
         }
         rwl.writeLock().unlock();
     } 

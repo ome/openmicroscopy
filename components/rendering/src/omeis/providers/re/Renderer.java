@@ -46,6 +46,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.enums.PixelsType;
 
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
@@ -140,7 +141,6 @@ public class Renderer
      */
     public Renderer(Pixels pixelsObj, RenderingDef renderingDefObj,
                     PixelBuffer bufferObj)
-    	throws Exception // FIXME what exceptions?
     { 
         metadata = pixelsObj;
         rndDef = renderingDefObj;
@@ -157,6 +157,9 @@ public class Renderer
         QuantumDef qd = rndDef.getQuantization();
         quantumManager = new QuantumManager(metadata);
         ChannelBinding[] cBindings= getChannelBindings();
+        PixelsType type = metadata.getPixelsType();
+        if (type == null || type.getValue() == null)
+        	throw new NullPointerException("Null type");
         quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
         
         //Compute the location stats.

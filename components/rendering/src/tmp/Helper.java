@@ -39,10 +39,10 @@ public class Helper
             bb = buffer.getPlane(z, c, t);
         } catch (IOException e)
         {
-            throw new RuntimeException("Error getting plane",e);
+            throw new RuntimeException(e);
         } catch (DimensionsOutOfBoundsException e)
         {
-            throw new RuntimeException("Error getting plane",e);
+            throw new RuntimeException(e);
         }
 
         byte[] planeBuf = new byte[bb.limit()];

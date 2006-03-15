@@ -41,8 +41,6 @@ import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 
-import tmp.PixelsConstants;
-
 /** 
  * Factory to create objects to carry out quantization for a given context.
  * This class defines the constants to be used to identify a {@link QuantumMap}
@@ -128,14 +126,15 @@ public class QuantumFactory
 
     private static final Map familyNames = new HashMap();
     static {
-        familyNames.put("LINEAR",Integer.valueOf(LINEAR));
-        familyNames.put("EXPONENTIAL",Integer.valueOf(EXPONENTIAL));
-        familyNames.put("LOGARITHMIC",Integer.valueOf(LOGARITHMIC));
-        familyNames.put("POLYNOMIAL",Integer.valueOf(POLYNOMIAL));
+        familyNames.put("linear",Integer.valueOf(LINEAR));
+        familyNames.put("exponential",Integer.valueOf(EXPONENTIAL));
+        familyNames.put("logarithmic",Integer.valueOf(LOGARITHMIC));
+        familyNames.put("polynomial",Integer.valueOf(POLYNOMIAL));
     }
     
     public static int convertFamilyType(Family type)
     {
+    	// FIXME: This really needs to use the database enumerations properly.
         return ((Integer) familyNames.get(type.getValue())).intValue();
     }
     
@@ -154,7 +153,6 @@ public class QuantumFactory
         if (qd == null)    
             throw new NullPointerException("No quantum definition.");
         verifyBitResolution(qd.getBitResolution().intValue());
-        verifyPixelType(PixelsConstants.convertPixelType(type));
     }
     
     /**
@@ -181,31 +179,6 @@ public class QuantumFactory
                             "Unsupported bit resolution: "+bitResolution+".");
     }
     
-    /**
-     * Verifies that <code>pixelType</code> is one of the constants defined
-     * by {@link PixelsConstants}.
-     * 
-     * @param pixelType    The value to verify.
-     * @throws IllegalArgumentException If the check fails.
-     */
-    private static void verifyPixelType(int pixelType)
-    {
-        boolean b = false;
-        switch (pixelType) {
-            case PixelsConstants.BIT:    b = true; break;
-            case PixelsConstants.INT8:   b = true; break;
-            case PixelsConstants.INT16:  b = true; break;
-            case PixelsConstants.INT32:  b = true; break;
-            case PixelsConstants.UINT8:  b = true; break;
-            case PixelsConstants.UINT16: b = true; break;
-            case PixelsConstants.UINT32: b = true; break;
-            case PixelsConstants.FLOAT:  b = true; break;
-            case PixelsConstants.DOUBLE: b = true;
-        }
-        if (!b) throw new IllegalArgumentException(
-                                    "Unsupported pixel type: "+pixelType+".");
-    }
-    
     /** 
      * Creates a {@link QuantumStrategy} object suitable for the pixels type
      * specified by <code>pd</code>.
@@ -216,22 +189,7 @@ public class QuantumFactory
      */
     private static QuantumStrategy getQuantization(QuantumDef qd, PixelsType type)
     {
-        QuantumStrategy qs = null;
-        switch (PixelsConstants.convertPixelType(type)) {
-            case PixelsConstants.INT8:
-            case PixelsConstants.UINT8:
-            case PixelsConstants.INT16:
-            case PixelsConstants.UINT16:
-            case PixelsConstants.INT32:  
-            case PixelsConstants.UINT32:   
-            case PixelsConstants.FLOAT:  
-            case PixelsConstants.DOUBLE: 
-                qs = new Quantization_8_16_bit(qd,type);
-                break;
-            case PixelsConstants.BIT:    
-            break;    
-        }
-        return qs;
+        return new Quantization_8_16_bit(qd, type);
     }
     
     /**

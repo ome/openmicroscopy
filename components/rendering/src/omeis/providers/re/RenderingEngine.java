@@ -33,7 +33,6 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
-import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.system.SelfConfigurableService;
 

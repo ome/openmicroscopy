@@ -38,7 +38,7 @@ package omeis.providers.re.quantum;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 
-import tmp.PixelsConstants;
+import tmp.PixelTypeHelper;
 
 
 /** 
@@ -162,23 +162,23 @@ public abstract class QuantumStrategy
 		boolean b = false;
 		if (min <= max) {
             double range = max-min;
-			switch (PixelsConstants.convertPixelType(type)) { 
-				case PixelsConstants.INT8:
-				case PixelsConstants.UINT8:
-					if (range < 0x100) b = true; 
-					break;
-				case PixelsConstants.INT16:
-				case PixelsConstants.UINT16:
-                    if (range < 0x10000) b = true; 
-                    break;
-				case PixelsConstants.INT32:
-				case PixelsConstants.UINT32:
-                    if (range < 0x100000000L) b = true; 
-                    break;
-				case PixelsConstants.FLOAT:   //range doesn't matter here.
-				case PixelsConstants.DOUBLE:  //range doesn't matter here. 
-				case PixelsConstants.BIT:  //This has never been impl server-side.
-			}
+            if (PixelTypeHelper.in(type, new String[] { "int8", "uint8" }))
+            {
+            	if (range < 0x100) b = true;
+            }
+            else if (PixelTypeHelper.in(type,
+            		new String[] { "int16", "uint16" }))
+            {
+            	if (range < 0x10000) b = true;
+            }
+            else if (PixelTypeHelper.in(type,
+            		new String[] { "int32", "uint32" }))
+            {
+            	if (range < 0x100000000L) b = true;
+            }
+            else if (PixelTypeHelper.in(type,
+            		new String[] { "float", "double" }))
+            	b = true;
 		}
 		if (!b)
 			throw new IllegalArgumentException("Pixel interval not supported");

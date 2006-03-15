@@ -29,7 +29,8 @@
 
 package omeis.providers.re.data;
 
-import tmp.PixelsConstants;
+import ome.model.enums.PixelsType;
+import tmp.PixelTypeHelper;
 
 
 //Java imports
@@ -42,7 +43,7 @@ import tmp.PixelsConstants;
  * Represents a strategy to convert a pixel value stored in a sequence of bytes
  * into a numeric value.
  * <p><i>OME</i> supports different types to store a pixel value (those types 
- * are defined in {@link omeis.io.PixelsConstants}).
+ * are defined in {@link omeis.io.PixelTypeHelper}).
  * When a pixel value is stored as a sequence of bytes, the format of those 
  * bytes depends on the pixel type and on the endianness chosen to encode the
  * bytes (if the type is one of the integer types).  That leads to different
@@ -70,37 +71,34 @@ abstract class BytesConverter
 	 * Factory method to return an appropriate converter, depending on pixel 
 	 * type and endianness.
 	 *
-	 * @param pixelType One of the constants defined by {@link PixelsConstants}.
+	 * @param pixelType One of the constants defined by {@link PixelTypeHelper}.
 	 * @param bigEndian   	Pass <code>true</code> if the bytes are in
 	 * 						big-endian order, <code>false</code> otherwise.
 	 * @return  A suitable converter.
 	 */
-	static BytesConverter makeNew(int pixelType, boolean bigEndian) 
+	static BytesConverter makeNew(PixelsType pixelType, boolean bigEndian) 
 	{
-		BytesConverter    bc = null;
-		switch (pixelType) {
-			case PixelsConstants.UINT8:
-			case PixelsConstants.UINT16:
-			case PixelsConstants.UINT32:
-                if (bigEndian) bc = new UintBEConverter();
-                else bc = new UintLEConverter();
-				break;
-			case PixelsConstants.INT8:
-			case PixelsConstants.INT16:
-			case PixelsConstants.INT32:
-                if (bigEndian) bc = new IntBEConverter();
-                else bc = new IntLEConverter();
-				break;
-			case PixelsConstants.FLOAT:
-				bc = new FloatConverter();
-				break;
-			case PixelsConstants.DOUBLE:
-				bc = new DoubleConverter();
-				break;
-			//Not yet implemented; if someone can tell me how to handle this...
-			//case PixelsConstants.BIT:
-			//    break;
+		BytesConverter bc = null;
+		if (PixelTypeHelper.in(pixelType,
+				new String[] { "uint8", "uint16", "uint32" }))
+		{
+			if (bigEndian) bc = new UintBEConverter();
+			else bc = new UintLEConverter();
 		}
+		else if (PixelTypeHelper.in(pixelType,
+				new String[] { "int8", "int16", "int32" }))
+		{
+			if (bigEndian) bc = new IntBEConverter();
+			else bc = new IntLEConverter();
+		}
+		else if (pixelType.getValue().equals("float"))
+			bc = new FloatConverter();
+		else if (pixelType.getValue().equals("double"))
+			bc = new DoubleConverter();
+		else
+			throw new RuntimeException("Can't handle pixels of type '"
+					+ pixelType + "'");
+		
 		return bc;
 	}
 
