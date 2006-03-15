@@ -42,13 +42,13 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.util.ContextFilter;
+import ome.tools.hibernate.ProxySafeFilter;
 import ome.util.Filterable;
 
 
 /** filter implementation which collects the ids of certain fields.  
  */
-public class CountCollector extends ContextFilter {
+public class CountCollector extends ProxySafeFilter {
     
     protected String[] fields;
     protected Set[] ids;
@@ -165,23 +165,22 @@ public class CountCollector extends ContextFilter {
         /* TODO here's where we could use a single call back for each filter method. 
         (onFilter) also (onFilterX) beforeFilter / afterFilter etc.
         */
+        Filterable result = super.filter(fieldId,f);
         addIfHit(fieldId); 
-        return super.filter(fieldId,f);
+        return result;
     }
     
     public Collection filter(String fieldId, Collection c) {
-        addIfHit(fieldId);
-        return super.filter(fieldId,c);
+        Collection result = super.filter(fieldId,c);
+        addIfHit(fieldId); 
+        return result;
+
     }
 
     public Map filter(String fieldId, Map m) {
+        Map result = super.filter(fieldId,m);
         addIfHit(fieldId); 
-        return super.filter(fieldId,m);
+        return result;
     }
 
-    public Object filter(String fieldId, Object o) {
-        addIfHit(fieldId); 
-        return super.filter(fieldId,o); // TODO would this call twice?
-    }
-    
 }

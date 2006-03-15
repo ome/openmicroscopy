@@ -212,6 +212,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
             throw new IllegalArgumentException( 
                     "Argument to save cannot be null.");
 
+        if ( logger.isDebugEnabled() )
+            logger.debug( " Saving event before merge. " );
+        
         // Save event before we enter.
         Event currentEvent = CurrentDetails.getCreationEvent();
         Event mergedEvent = (Event) internalSave( currentEvent, filter );
@@ -232,12 +235,19 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
      */
     private IObject internalSave (IObject obj, UpdateFilter filter )
     {
+        if ( logger.isDebugEnabled() )
+            logger.debug( " Internal save. " );
+        
         IObject result = (IObject) filter.filter(null,obj); 
         return (IObject) getHibernateTemplate().merge(result);
     }
 
     private void afterSave( Object argument, UpdateFilter filter)
     {
+        
+        if ( logger.isDebugEnabled() )
+            logger.debug( " Post-save cleanup. " );
+        
         // Save all that and go back to AUTO flush.
         getHibernateTemplate().flush(); // TODO performance?
         currentSession().setFlushMode(FlushMode.AUTO);

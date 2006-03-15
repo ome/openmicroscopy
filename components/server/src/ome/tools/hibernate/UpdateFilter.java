@@ -42,6 +42,7 @@ import java.util.Set;
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 // Application-internal dependencies
@@ -462,12 +463,14 @@ public class UpdateFilter extends ContextFilter
     protected boolean alreadySeen( Object o )
     {
         if ( o == null ) return false;
+        if ( ! Hibernate.isInitialized( o )) return true;
         return hasReplacement( o ) ? true : _cache.containsKey( o );
     }
     
     protected Object returnSeen( Object o )
     {
         if ( o == null) return null;
+        if ( ! Hibernate.isInitialized( o )) return o;
         if ( hasReplacement( o ))
         {   
             IObject obj = (IObject) o;
