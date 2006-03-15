@@ -54,54 +54,83 @@ import ome.util.CBlock;
  *          </small>
  * @since OME2.2
  */
-public class GroupData extends DataObject
+public class GroupData
+    extends DataObject
 {
 
-    public final static String NAME                   = ExperimenterGroup.NAME;
+    /** Identifies the {@link ExperimenterGroup#NAME} field. */
+    public final static String NAME = ExperimenterGroup.NAME;
 
-    public final static String DESCRIPTION            = ExperimenterGroup.DESCRIPTION;
+    /** Identifies the {@link ExperimenterGroup#DESCRIPTION} field. */
+    public final static String DESCRIPTION = ExperimenterGroup.DESCRIPTION;
 
-    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterGroup.GROUPEXPERIMENTERMAP;
+    /** Identifies the {@link ExperimenterGroup#GROUPEXPERIMENTERMAP} field. */
+    public final static String GROUP_EXPERIMENTER_MAP = 
+                                    ExperimenterGroup.GROUPEXPERIMENTERMAP;
 
     /** All experimenters in this group */
     private Set                experimenters;
 
+    /** Creates a new instance. */
     public GroupData()
     {
-        setDirty( true );
-        setValue( new ExperimenterGroup() );
+        setDirty(true);
+        setValue(new ExperimenterGroup());
     }
     
-    public GroupData( ExperimenterGroup value )
+    /**
+     * Creates a new instance.
+     * 
+     * @param group     Back pointer to the {@link ExperimenterGroup} model
+     *                  object. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the object is <code>null</code>.
+     */
+    public GroupData(ExperimenterGroup group)
     {
-        setValue( value );
+        if (group == null)
+            throw new IllegalArgumentException("Annotation cannot null.");
+        setValue(group);
     }
     
     // Immutables
-    
-    public String getName()
-    {
-        return asGroup().getName();
-    }
+    /** 
+     * Returns the name of the group.
+     * 
+     * @return See above.
+     */
+    public String getName() { return asGroup().getName(); }
 
+    /**
+     * Sets the name of the group.
+     * 
+     * @param name The name of the group. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
     public void setName(String name)
     {
-        setDirty( true );
-        asGroup().setName( name );
+        if (name == null) 
+            throw new IllegalArgumentException("The name cannot be null.");
+        setDirty(true);
+        asGroup().setName(name);
     }
 
     // Lazy loaded links
     
+    /**
+     * Returns the experimenters contained in this group.
+     * 
+     * @return See above.
+     */
     public Set getExperimenters()
     {
-        
-        if ( experimenters == null && asGroup().sizeOfGroupExperimenterMap() >= 0 )
-        {
-            experimenters = new HashSet( asGroup().eachLinkedExperimenter( new CBlock(){
-                public Object call(IObject object) {
-                    return new ExperimenterData( (Experimenter) object );
-                };
-            }));
+        if (experimenters == null
+                && asGroup().sizeOfGroupExperimenterMap() >= 0) {
+            experimenters = new HashSet( asGroup().eachLinkedExperimenter(
+                    new CBlock(){
+                        public Object call(IObject object) {
+                            return new ExperimenterData((Experimenter) object);
+                        };
+                    }));
         }
         
         return experimenters == null ? null : new HashSet( experimenters );
@@ -109,25 +138,28 @@ public class GroupData extends DataObject
 
     // Link mutations
     
-    public void setExperimenters( Set newValue )
+    /**
+     * Sets the experimenters contained in this group.
+     * 
+     * @param newValue The set of experimenters.
+     */
+    public void setExperimenters(Set newValue)
     {
         Set currentValue = getExperimenters(); 
-        SetMutator m = new SetMutator( currentValue, newValue );
+        SetMutator m = new SetMutator(currentValue, newValue);
         
-        while ( m.moreDeletions() )
-        {
-            setDirty( true );
-            asGroup().unlinkExperimenter( m.nextDeletion().asExperimenter() );
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asGroup().unlinkExperimenter(m.nextDeletion().asExperimenter());
         }
         
-        while ( m.moreAdditions() )
+        while (m.moreAdditions())
         {
-            setDirty( true );
-            asGroup().linkExperimenter( m.nextAddition().asExperimenter() );
+            setDirty(true);
+            asGroup().linkExperimenter(m.nextAddition().asExperimenter());
         }
 
         experimenters = m.result();
-        
     }
 
 }

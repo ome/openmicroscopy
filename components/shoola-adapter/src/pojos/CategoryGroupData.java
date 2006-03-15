@@ -62,54 +62,95 @@ public class CategoryGroupData
     extends DataObject
 {
 
+    /** Identifies the {@link CategoryGroup#NAME} field. */
     public final static String NAME = CategoryGroup.NAME;
+    
+    /** Identifies the {@link CategoryGroup#DESCRIPTION} field. */
     public final static String DESCRIPTION = CategoryGroup.DESCRIPTION;
+    
+    /** Identifies the {@link CategoryGroup#CATEGORYLINKS} field. */
     public final static String CATEGORY_LINKS = CategoryGroup.CATEGORYLINKS;
     
     /**
      * All the Categories contained in this Category Group.
-     * The elements of this set are {@link CategoryData} objects.  If this
-     * Category Group contains no Categories, then this set will be empty
+     * The elements of this set are {@link CategoryData} objects. If this
+     * Category Group contains no Categorie, then this set will be empty
      * &#151; but never <code>null</code>.
      */
     private Set      categories;
 
+    /** Creates a new instance. */
     public CategoryGroupData()
     {
-        setDirty( true );
-        setValue( new CategoryGroup() );
+        setDirty(true);
+        setValue(new CategoryGroup());
     }
     
-    public CategoryGroupData( CategoryGroup value )
+    /**
+     * Creates a new instance.
+     * 
+     * @param group     Back pointer to the {@link CategoryGroup} model object.
+     *                  Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the object is <code>null</code>.
+     */
+    public CategoryGroupData(CategoryGroup group)
     {
-        setValue( value );
+        setValue(group);
     }
     
     // Immutables
-    
-    public void setName(String name) {
-        setDirty( true );
-        asCategoryGroup().setName( name );
+    /**
+     * Sets the name of the category group.
+     * 
+     * @param name The name of the category group. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
+    public void setName(String name)
+    {
+        if (name == null) 
+            throw new IllegalArgumentException("The name cannot be null.");
+        setDirty(true);
+        asCategoryGroup().setName(name);
     }
 
-    public String getName() {
-        return asCategoryGroup().getName();
+    /** 
+     * Returns the name of the category group.
+     * 
+     * @return See above.
+     */
+    public String getName() { return asCategoryGroup().getName(); }
+
+    /**
+     * Sets the description of the category group.
+     * 
+     * @param description The description of the category group.
+     */
+    public void setDescription(String description)
+    {
+        setDirty(true);
+        asCategoryGroup().setDescription(description);
     }
 
-    public void setDescription(String description) {
-        setDirty( true );
-        asCategoryGroup().setDescription( description );
-    }
-
-    public String getDescription() {
+    /**
+     * Returns the description of the category group.
+     * 
+     * @return See above.
+     */
+    public String getDescription()
+    {
         return asCategoryGroup().getDescription();
     }
 
     // Lazy loaded sets
     
-    public Set getCategories() {
-        
-        if ( categories == null && asCategoryGroup().sizeOfCategoryLinks() >= 0 )
+    /**
+     * Returns the categories contained in this category group.
+     * 
+     * @return See above.
+     */
+    public Set getCategories()
+    {
+        if (categories == null && asCategoryGroup().sizeOfCategoryLinks() >= 0)
         {
             categories = new HashSet( asCategoryGroup().eachLinkedCategory(
                     new CBlock() {
@@ -124,21 +165,24 @@ public class CategoryGroupData
     
     // Set mutations
     
-    public void setCategories( Set newValue ) 
+    /**
+     * Sets the categories contained in this category group.
+     * 
+     * @param newValue The set of images.
+     */
+    public void setCategories(Set newValue) 
     {
         Set currentValue = getCategories(); 
-        SetMutator m = new SetMutator( currentValue, newValue );
+        SetMutator m = new SetMutator(currentValue, newValue);
         
-        while ( m.moreDeletions() )
-        {
-            setDirty( true );
-            asCategoryGroup().unlinkCategory( m.nextDeletion().asCategory() );
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asCategoryGroup().unlinkCategory(m.nextDeletion().asCategory() );
         }
         
-        while ( m.moreAdditions() )
-        {
-            setDirty( true );
-            asCategoryGroup().linkCategory( m.nextAddition().asCategory() );
+        while (m.moreAdditions()) {
+            setDirty(true);
+            asCategoryGroup().linkCategory(m.nextAddition().asCategory());
         }
 
         categories = m.result();

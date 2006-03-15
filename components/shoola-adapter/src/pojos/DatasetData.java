@@ -63,10 +63,20 @@ import ome.util.CBlock;
 public class DatasetData
     extends DataObject
 {
+    
+    /** Identifies the {@link Dataset#NAME} field. */
     public final static String NAME = Dataset.NAME;
+    
+    /** Identifies the {@link Dataset#DESCRIPTION} field. */
     public final static String DESCRIPTION = Dataset.DESCRIPTION;
+    
+    /** Identifies the {@link Dataset#IMAGELINKS} field. */
     public final static String IMAGE_LINKS = Dataset.IMAGELINKS;
+    
+    /** Identifies the {@link Dataset#PROJECTLINKS} field. */
     public final static String PROJECT_LINKS = Dataset.PROJECTLINKS;
+    
+    /** Identifies the {@link Dataset#ANNOTATIONS} field. */
     public final static String ANNOTATIONS = Dataset.ANNOTATIONS;
     
     /** 
@@ -100,106 +110,153 @@ public class DatasetData
      */
     private Integer annotationCount;
 
+    /** Creates a new instance. */
     public DatasetData()
     {
-        setDirty( true );
-        setValue( new Dataset() );
+        setDirty(true);
+        setValue(new Dataset());
     }
     
-    public DatasetData( Dataset value )
+    /**
+     * Creates a new instance.
+     * 
+     * @param dataset   Back pointer to the {@link Dataset} model object.
+     *                  Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the object is <code>null</code>.
+     */
+    public DatasetData(Dataset dataset)
     {
-        setValue( value );
+        if (dataset == null)
+            throw new IllegalArgumentException("Object cannot null.");
+        setValue(dataset);
     }
     
     // IMMUTABLES
     
-    public void setName(String name) {
-        setDirty( true );
-        asDataset().setName( name );
+    /**
+     * Sets the name of the dataset.
+     * 
+     * @param name The name of the dataset. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the name is <code>null</code>.
+     */
+    public void setName(String name)
+    {
+        if (name == null) 
+            throw new IllegalArgumentException("The name cannot be null.");
+        setDirty(true);
+        asDataset().setName(name);
     }
 
-    public String getName() {
-        return asDataset().getName();
+    /** 
+     * Returns the name of the dataset.
+     * 
+     * @return See above.
+     */
+    public String getName() { return asDataset().getName(); }
+
+    /**
+     * Sets the description of the dataset.
+     * 
+     * @param description The description of the dataset.
+     */
+    public void setDescription(String description)
+    {
+        setDirty(true);
+        asDataset().setDescription(description);
     }
 
-    public void setDescription(String description) {
-        setDirty( true );
-        asDataset().setDescription( description );
-    }
-
-    public String getDescription() {
-        return asDataset().getDescription();
-    }
+    /**
+     * Returns the description of the dataset.
+     * 
+     * @return See above.
+     */
+    public String getDescription() { return asDataset().getDescription(); }
 
     // Lazy loaded links
     
-    public Set getImages() {
-        if (images == null && asDataset().sizeOfImageLinks() >= 0 )
-        {
+    /**
+     * Returns a set of images contained in the dataset.
+     *
+     * @return See above.
+     */
+    public Set getImages()
+    {
+        if (images == null && asDataset().sizeOfImageLinks() >= 0) {
             images = new HashSet(asDataset().eachLinkedImage(new CBlock()
             {
                 public Object call(IObject object)
                 {
-                    return new ImageData( (Image) object );
+                    return new ImageData((Image) object);
                 }
             }));
         }
-        return images == null ? null : new HashSet( images );
+        return images == null ? null : new HashSet(images);
     }
 
-    public Set getProjects() {
-        
-        if ( projects == null && asDataset().sizeOfProjectLinks() >= 0 )
-        {
-            projects = new HashSet( asDataset().eachLinkedProject( new CBlock () {
+    /**
+     * Returns a set of projects containing the dataset.
+     * 
+     * @return See above.
+     */
+    public Set getProjects()
+    {
+        if (projects == null && asDataset().sizeOfProjectLinks() >= 0) {
+            projects = new HashSet( asDataset().eachLinkedProject(
+                    new CBlock () {
                 public Object call(IObject object) 
                 {
-                    return new ProjectData( (Project) object ); 
+                    return new ProjectData((Project) object); 
                 };
             }));
         }
         
-        return projects == null ? null : new HashSet( projects );
+        return projects == null ? null : new HashSet(projects);
     }
 
     // Link mutations
     
-    public void setImages( Set newValue ) 
+    /**
+     * Sets the images contained in this dataset.
+     * 
+     * @param newValue The set of images.
+     */
+    public void setImages(Set newValue) 
     {
         Set currentValue = getImages(); 
-        SetMutator m = new SetMutator( currentValue, newValue );
+        SetMutator m = new SetMutator(currentValue, newValue);
         
-        while ( m.moreDeletions() )
-        {
-            setDirty( true );
-            asDataset().unlinkImage( m.nextDeletion().asImage() );
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asDataset().unlinkImage(m.nextDeletion().asImage());
         }
         
-        while ( m.moreAdditions() )
-        {
-            setDirty( true );
-            asDataset().linkImage( m.nextAddition().asImage() );
+        while (m.moreAdditions()) {
+            setDirty(true);
+            asDataset().linkImage(m.nextAddition().asImage());
         }
 
-        images = m.result();    }
+        images = m.result();
+    }
 
-
-    public void setProjects( Set newValue ) 
+    /**
+     * Sets the projects containing the dataset.
+     * 
+     * @param newValue The set of projects.
+     */
+    public void setProjects(Set newValue) 
     {
-        
         Set currentValue = getProjects(); 
-        SetMutator m = new SetMutator( currentValue, newValue );
+        SetMutator m = new SetMutator(currentValue, newValue);
         
-        while ( m.moreDeletions() )
-        {
-            setDirty( true );
-            asDataset().unlinkProject( m.nextDeletion().asProject() );
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asDataset().unlinkProject(m.nextDeletion().asProject());
         }
         
-        while ( m.moreAdditions() )
+        while (m.moreAdditions())
         {
-            setDirty( true );
-            asDataset().linkProject( m.nextAddition().asProject() );
+            setDirty(true);
+            asDataset().linkProject(m.nextAddition().asProject());
         }
 
         projects = m.result();
@@ -207,12 +264,18 @@ public class DatasetData
 
     
     // SETS
-    
-    public Set getAnnotations() {
+    /**
+     * Returns the annotations related to this dataset. Not sure we
+     * are going to keep this method.
+     * 
+     * @return See Above
+     */
+    public Set getAnnotations()
+    {
         
-        if ( annotations == null && asDataset().sizeOfAnnotations() >= 0 )
-        {
-            annotations = new HashSet( asDataset().collectAnnotations( new CBlock() {
+        if (annotations == null && asDataset().sizeOfAnnotations() >= 0) {
+            annotations = new HashSet( asDataset().collectAnnotations(
+                    new CBlock() {
                public Object call(IObject object)
                 {
                    return new AnnotationData( (DatasetAnnotation) object );
@@ -220,44 +283,47 @@ public class DatasetData
             }));
         }
         
-        return annotations == null ? null : new HashSet( annotations );
+        return annotations == null ? null : new HashSet(annotations);
     }
 
-    public void setAnnotations( Set newValue ) 
+    /**
+     * Sets the annotations related to this dataset.
+     * 
+     * @param newValue The set of annotations.
+     */
+    public void setAnnotations(Set newValue) 
     {
         Set currentValue = getAnnotations(); 
-        SetMutator m = new SetMutator( currentValue, newValue );
+        SetMutator m = new SetMutator(currentValue, newValue);
         
-        while ( m.moreDeletions() )
-        {
-            setDirty( true );
-            asDataset().removeFromAnnotations( m.nextDeletion().asDatasetAnnotation() );
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asDataset().removeFromAnnotations(
+                        m.nextDeletion().asDatasetAnnotation());
             annotationCount = annotationCount == null ? null :
-                new Integer( annotationCount.intValue() - 1 );
+                new Integer(annotationCount.intValue()-1);
         }
         
-        while ( m.moreAdditions() )
-        {
-            setDirty( true );
-            asDataset().removeFromAnnotations( m.nextAddition().asDatasetAnnotation() );
+        while (m.moreAdditions()) {
+            setDirty(true);
+            asDataset().removeFromAnnotations(
+                        m.nextAddition().asDatasetAnnotation());
             annotationCount = annotationCount == null ? null :
-                new Integer( annotationCount.intValue() + 1 );
+                new Integer(annotationCount.intValue()+1);
         }
 
         annotations = m.result();
-
     }
 
-
-    
-    // COUNTS
-    
+    /** 
+     * Returns the number of dataset annotations done by the current user.
+     * 
+     * @return See above.
+     */
     public Integer getAnnotationCount()
     {
-        if ( annotationCount == null )
-        {
-            annotationCount = getCount( Dataset.ANNOTATIONS );
-        }
+        if (annotationCount == null)
+            annotationCount = getCount(Dataset.ANNOTATIONS);
         return annotationCount;
     }
 	
