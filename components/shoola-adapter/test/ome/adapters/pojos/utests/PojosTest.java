@@ -207,10 +207,27 @@ public class PojosTest extends TestCase
         id = (ImageData) dd.getImages().iterator().next();
         assertTrue( id.getCategories().size() == 1 );
         
-        CategoryData c = (CategoryData) id.getCategories().iterator().next();
-        CategoryGroupData cg = c.getGroup();
-        CategoryGroup haha = (CategoryGroup) cg.asIObject();
+        CategoryData cd = (CategoryData) id.getCategories().iterator().next();
+        CategoryGroupData cgd = cd.getGroup();
+        CategoryGroup haha = (CategoryGroup) cgd.asIObject();
         
     }
     
+    public void test_bidirectional() throws Exception
+    {
+        CategoryData cd = new CategoryData( c );
+        ImageData id = (ImageData) cd.getImages().iterator().next();
+
+        Set ref_imgs = cd.getImages();
+        Set ref_cats = id.getCategories();
+        
+        ImageData add = new ImageData( );
+        Set imgs = cd.getImages();
+        imgs.add( add );
+        cd.setImages( imgs );
+        
+        assertTrue( cd.getImages().size() > ref_imgs.size() );
+        assertTrue( id.getCategories().size() > ref_cats.size() );
+        
+    }
 }

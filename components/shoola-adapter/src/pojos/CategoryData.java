@@ -172,13 +172,24 @@ public class CategoryData extends DataObject
         while ( m.moreDeletions() )
         {
             setDirty( true );
-            asCategory().unlinkImage( m.nextDeletion().asImage() );
+            ImageData imgData = (ImageData) m.nextAddition();
+            asCategory().unlinkImage( imgData.asImage() );
+
+            Set categories = imgData.getCategories();
+            categories.remove( this );
+            imgData.setCategories( categories );
+            
         }
         
         while ( m.moreAdditions() )
         {
             setDirty( true );
-            asCategory().linkImage( m.nextAddition().asImage() );
+            ImageData imgData = (ImageData) m.nextAddition();
+            asCategory().linkImage( imgData.asImage() );
+            
+            Set categories = imgData.getCategories();
+            categories.add( this );
+            imgData.setCategories( categories );
         }
 
         images = m.result();

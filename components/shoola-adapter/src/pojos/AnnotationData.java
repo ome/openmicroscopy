@@ -57,6 +57,10 @@ import ome.model.core.Image;
 public class AnnotationData extends DataObject
 {
 
+    public final static int IMAGE_ANNOTATION = 0;
+    
+    public final static int DATASET_ANNOTATION = 1;
+    
     public final static String IMAGE_ANNOTATION_CONTENT   = ImageAnnotation.CONTENT;
 
     public final static String IMAGE_ANNOTATION_IMAGE     = ImageAnnotation.IMAGE;
@@ -77,6 +81,25 @@ public class AnnotationData extends DataObject
     private AnnotationData()
     {}
 
+    public AnnotationData( int annotationType )
+    {
+        switch (annotationType)
+        {
+            case IMAGE_ANNOTATION:
+                isImage = true;
+                setValue( new ImageAnnotation() );
+                break;
+
+            case DATASET_ANNOTATION:
+                isImage = false;
+                setValue( new DatasetAnnotation() );
+                break;
+            default:
+                throw new IllegalArgumentException( 
+                        "Unkown annotation type: " + annotationType );
+        }
+    }
+    
     public AnnotationData(ImageAnnotation imageAnnotation)
     {
         isImage = true;

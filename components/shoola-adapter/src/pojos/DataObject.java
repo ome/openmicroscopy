@@ -31,8 +31,10 @@ package pojos;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -75,6 +77,72 @@ import ome.model.meta.ExperimenterGroup;
 public abstract class DataObject
 {
 
+    public static Set asPojos( Set iObjects )
+    {
+        Set result = new HashSet();
+        for (Iterator it = iObjects.iterator(); it.hasNext();)
+        {
+            IObject obj = (IObject) it.next();
+            DataObject converted = asPojo( obj );
+            result.add( converted );
+        }
+        return result;
+    }
+
+    public static Map asPojos( Map iObjects )
+    {
+        Map result = new HashMap( );
+        for (Iterator it = iObjects.keySet().iterator(); it.hasNext();)
+        {
+            Object key = it.next();
+            Object value = iObjects.get( key );
+            
+            DataObject convertedKey = null, convertedValue = null;
+            if ( key instanceof IObject )
+                convertedKey = asPojo( (IObject) iObjects.get( key ));
+
+            if ( value instanceof IObject )
+                convertedValue = asPojo( (IObject) iObjects.get( value ));
+            
+            result.put
+                (
+                        null == convertedKey ? key : convertedKey,
+                        null == convertedValue ? value : convertedValue
+                );
+        }
+        return result;
+    }
+    
+    public static DataObject asPojo( IObject obj )
+    {
+        DataObject converted = null;
+        if ( obj instanceof Project )
+            converted = new ProjectData( (Project)  obj );
+        else if ( obj instanceof Dataset )
+            converted = new DatasetData( (Dataset)  obj );
+        else if ( obj instanceof DatasetAnnotation )
+            converted = new AnnotationData( (DatasetAnnotation)  obj );
+        else if ( obj instanceof Image )
+            converted = new ImageData( (Image)  obj );
+        else if ( obj instanceof ImageAnnotation )
+            converted = new AnnotationData( (ImageAnnotation)  obj );
+        else if ( obj instanceof Image )
+            converted = new CategoryGroupData( (CategoryGroup)  obj );
+        else if ( obj instanceof Category )
+            converted = new CategoryData( (Category)  obj );
+        else if ( obj instanceof Pixels )
+            converted = new PixelsData( (Pixels)  obj );
+        else if ( obj instanceof Experimenter )
+            converted = new ExperimenterData( (Experimenter)  obj );
+        else if ( obj instanceof ExperimenterGroup )
+            converted = new GroupData( (ExperimenterGroup)  obj );
+        else
+            if ( obj != null )
+                throw new IllegalArgumentException(
+                        "Unknown type: "+obj.getClass().getName());
+        return converted;
+    }
+    
     /** delegate IObject */ 
     private IObject value = null; 
 
