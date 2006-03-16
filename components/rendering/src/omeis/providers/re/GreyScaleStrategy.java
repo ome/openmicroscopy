@@ -33,9 +33,11 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 
@@ -43,11 +45,11 @@ import ome.model.display.Color;
 
 //Application-internal dependencies
 import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.data.Helper;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
-import tmp.Helper;
 
 /** 
  * Transforms a plane within a given pixels set into a grayscale image.
@@ -66,7 +68,9 @@ import tmp.Helper;
 class GreyScaleStrategy 
 	extends RenderingStrategy
 {
-	
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(Renderer.class);
+    
 	/** 
      * Number of pixels on the <i>X1</i>-axis.
      * This is the <i>X</i>-axis in the case of an <i>XY</i> or <i>XZ</i> plane.
@@ -90,23 +94,23 @@ class GreyScaleStrategy
      * according to the specified {@link PlaneDef#getSlice() slice}.
      * 
      * @param pd Reference to the plane definition defined for the strategy.
-     * @param d Dimensions of the pixels set.
+     * @param pixels Dimensions of the pixels set.
      */
-    private void initAxesSize(PlaneDef pd, PixelsDimensions d)
+    private void initAxesSize(PlaneDef pd, Pixels pixels)
     {
         try {
             switch (pd.getSlice()) {
                 case PlaneDef.XY:
-                    sizeX1 = d.getSizeX().intValue(); // TODO int?
-                    sizeX2 = d.getSizeY().intValue();
+                    sizeX1 = pixels.getSizeX().intValue();
+                    sizeX2 = pixels.getSizeY().intValue();
                     break;
                 case PlaneDef.XZ:
-                    sizeX1 = d.getSizeX().intValue();
-                    sizeX2 = d.getSizeZ().intValue();
+                    sizeX1 = pixels.getSizeX().intValue();
+                    sizeX2 = pixels.getSizeZ().intValue();
                     break;
                 case PlaneDef.ZY:
-                    sizeX1 = d.getSizeZ().intValue();
-                    sizeX2 = d.getSizeY().intValue();
+                    sizeX1 = pixels.getSizeZ().intValue();
+                    sizeX2 = pixels.getSizeY().intValue();
             }   
         } catch(NumberFormatException nfe) {   
             throw new RuntimeException("Invalid slice ID: "+pd.getSlice()+".", 
@@ -157,7 +161,6 @@ class GreyScaleStrategy
 	{
 		//Set the context and retrieve objects we're gonna use.
 		renderer = ctx;
-		PixelsDimensions dims = renderer.getPixelsDims();
 		QuantumManager qManager = renderer.getQuantumManager();
 		PixelBuffer pixels = renderer.getPixels();
         Pixels metadata = renderer.getMetadata();
@@ -166,8 +169,9 @@ class GreyScaleStrategy
 		
 		//Initialize sizeX1 and sizeX2 according to the plane definition and
 		//create the RGB buffer.
-		initAxesSize(planeDef, dims);
+		initAxesSize(planeDef, metadata);
         performanceStats.startMalloc();
+        log.info("Creating RGBBuffer of size " + sizeX1 + "x" + sizeX2);
         RGBBuffer renderedDataBuf = new RGBBuffer(sizeX1, sizeX2);
         performanceStats.endMalloc();
         
@@ -176,7 +180,8 @@ class GreyScaleStrategy
 			if (cBindings[i].getActive().booleanValue()) {
                 //Get the raw data.
 			    performanceStats.startIO(i);
-                Plane2D wData = Helper.createPlane(planeDef,i, metadata, pixels);
+                Plane2D wData =
+                    Helper.createPlane(planeDef, i, metadata, pixels);
                 performanceStats.endIO(i);
                 
 				try {  //Transform it into an RGB image.
@@ -200,9 +205,9 @@ class GreyScaleStrategy
      * Implemented as specified by the superclass.
      * @see RenderingStrategy#getImageSize(PlaneDef, PixelsDimensions)
      */
-    int getImageSize(PlaneDef pd, PixelsDimensions dims)
+    int getImageSize(PlaneDef pd, Pixels pixels)
     {
-        initAxesSize(pd, dims);
+        initAxesSize(pd, pixels);
         return sizeX1*sizeX2*3;
     }
 	
@@ -210,9 +215,9 @@ class GreyScaleStrategy
      * Implemented as specified by the superclass.
      * @see RenderingStrategy#getPlaneDimsAsString(PlaneDef, PixelsDimensions)
      */
-    String getPlaneDimsAsString(PlaneDef pd, PixelsDimensions dims)
+    String getPlaneDimsAsString(PlaneDef pd, Pixels pixels)
     {
-        initAxesSize(pd, dims);
+        initAxesSize(pd, pixels);
         return sizeX1+"x"+sizeX2;
     }
     

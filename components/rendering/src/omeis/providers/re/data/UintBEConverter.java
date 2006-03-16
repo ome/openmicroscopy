@@ -62,8 +62,8 @@ class UintBEConverter
 	public double pack(byte[] data, int offset, int length)
 	{
 		long r = 0, tmp;
-		for (int k = 0; k < length; ++k) {
-			
+		for (int k = 0; k < length; ++k)
+        {
 			//Get k-byte starting from MSB, that is LSB[length-k-1].
 			
 			tmp = data[offset+k]&0xFF;
@@ -81,10 +81,12 @@ class UintBEConverter
 			 * We use a left shift to calculate LSB[k]*B^k because this operator
 			 * shifts from LSB to MSB, regardless of endianness.
 			 */ 
-
 		}
+        
+        // FIXME: Get rid of this ASAP
+        if (r < 0)
+            throw new RuntimeException("Negative value: '" + r + "'");
 		
-		//if (length < 4) return new Integer((int) r);	
 		return r;
 	}
     

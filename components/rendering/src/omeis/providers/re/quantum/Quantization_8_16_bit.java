@@ -35,9 +35,13 @@ package omeis.providers.re.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.util.math.Approximation;
+import omeis.providers.re.Renderer;
 
 
 /** 
@@ -67,6 +71,11 @@ import ome.util.math.Approximation;
 public class Quantization_8_16_bit
 	extends QuantumStrategy
 {
+    private static int EXTRA = 10;
+    private static int SUB_INT = 10;
+    
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(Renderer.class);
     
     /** 
      * Maximum value (<code>255</code>) allowed for the upper bound of the 
@@ -117,7 +126,7 @@ public class Quantization_8_16_bit
 	 */
 	private void initLUT()
 	{	
-		min = (int) getGlobalMin();  
+		min = (int) getGlobalMin();
 		max = (int) getGlobalMax();
 		LUT = new byte[max-min+1];  
 	}
@@ -182,6 +191,69 @@ public class Quantization_8_16_bit
 	 */
 	private void buildLUT()
 	{
+	    if (LUT == null) initLUT();
+	    // Comparable assumed to be Integer
+	    //domain
+	    double dStart = getWindowStart(), dEnd = getWindowEnd();
+	    
+	    double k = getCurveCoefficient();
+	    double a1 = (qDef.getCdEnd().intValue()-qDef.getCdStart().intValue())/
+	            qDef.getBitResolution().intValue(); 
+	    int x = min;
+	    
+	    QuantumMap normalize = new PolynomialMap();
+	    double ysNorm = valueMapper.transform(0, k);
+	    double yeNorm = valueMapper.transform(255, k);
+	    double aNorm = qDef.getBitResolution().intValue()/(yeNorm-ysNorm);
+	    
+	    double v = 0, extra = 0;
+	    double c0, denum = (dEnd-dStart), num = 255;
+	    double S1 = dStart;
+	    double decile = (max-min)/SUB_INT;
+	    double Q1 = min, Q9 = max;
+	    int cdStart = qDef.getCdStart().intValue(), cdEnd = qDef.getCdStart().intValue();
+	    if (getNoiseReduction()) {
+	        v = EXTRA;
+	        extra = EXTRA;
+	        Q1 = min+decile;
+	        Q9 = max-decile;
+	        S1 = Q1;
+	        num = 255-2*EXTRA;
+	        denum = Q9-Q1;
+	        if (dStart >= Q1 && dEnd > Q9) {
+	            denum = (Q9-dStart);
+	            S1 = dStart;
+	        } else if (dStart >= Q1 && dEnd <= Q9) {
+	            denum = dEnd-dStart;
+	            S1 = dStart;
+	        } else if (dStart < Q1 && dEnd <= Q9)
+	            denum = dEnd-Q1;
+	        
+	        if (qDef.getCdStart().intValue() < EXTRA) cdStart = EXTRA;
+	        if (qDef.getCdEnd().intValue() > 255-EXTRA) cdEnd = 255-EXTRA;
+	    }
+	    
+	    c0 = num/denum;
+	    
+	    for(; x < dStart; ++x)   LUT[x-min] = (byte) cdStart;
+	    
+	    for(; x < dEnd; ++x) { 
+	        if (x > Q1) {
+	            if (x <= Q9)
+	                v = c0*(normalize.transform(x, 1)-S1)+extra;
+	            else v = cdEnd;
+	        } else v = cdStart;
+	        v = Approximation.nearestInteger(
+	                aNorm*(valueMapper.transform(v,
+	                        k)-ysNorm));
+	        
+	        v = Approximation.nearestInteger(a1*v+qDef.getCdStart().intValue());
+	        LUT[x-min] = (byte) v;
+	    }
+	    
+	    for(; x <= max; ++x)   LUT[x-min] = (byte) cdEnd; 
+
+        /*
 		if (LUT == null) initLUT();
 		// Comparable assumed to be Integer
 		//domain
@@ -214,7 +286,13 @@ public class Quantization_8_16_bit
             LUT[x-min] = (byte) v;
 		}
 		
-		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.getCdEnd().intValue(); 
+		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.getCdEnd().intValue();
+        
+        for (int i = 0; i < LUT.length; i++)
+        {
+            log.info(i + " maps to " + LUT[i]);
+        }
+        */
 	}
 
     
@@ -240,6 +318,5 @@ public class Quantization_8_16_bit
 		int i = LUT[x-min];
 		return (i & 0xFF);  //assumed x in [min, max]
 	}
-
 }
 

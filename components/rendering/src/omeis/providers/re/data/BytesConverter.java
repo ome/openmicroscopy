@@ -29,7 +29,11 @@
 
 package omeis.providers.re.data;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.model.enums.PixelsType;
+import omeis.providers.re.Renderer;
 import tmp.PixelTypeHelper;
 
 
@@ -66,7 +70,9 @@ import tmp.PixelTypeHelper;
  */
 abstract class BytesConverter
 {
-	
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(Renderer.class);
+    
 	/** 
 	 * Factory method to return an appropriate converter, depending on pixel 
 	 * type and endianness.
@@ -82,19 +88,41 @@ abstract class BytesConverter
 		if (PixelTypeHelper.in(pixelType,
 				new String[] { "uint8", "uint16", "uint32" }))
 		{
-			if (bigEndian) bc = new UintBEConverter();
-			else bc = new UintLEConverter();
+			if (bigEndian)
+            {
+                log.info("Using 'UintBEConvertor'");
+                bc = new UintBEConverter();
+            }
+            else 
+            {
+                log.info("Using 'UintLEConvertor'");
+                bc = new UintLEConverter();
+            }
 		}
 		else if (PixelTypeHelper.in(pixelType,
 				new String[] { "int8", "int16", "int32" }))
 		{
-			if (bigEndian) bc = new IntBEConverter();
-			else bc = new IntLEConverter();
+			if (bigEndian)
+            {
+                log.info("Using 'IntBEConvertor'");
+                bc = new IntBEConverter();
+            }
+			else
+            {
+                log.info("Using 'UintLEConvertor'");
+			    bc = new IntLEConverter();
+            }
 		}
 		else if (pixelType.getValue().equals("float"))
+        {
+            log.info("Using 'FloatConverter'");
 			bc = new FloatConverter();
+        }
 		else if (pixelType.getValue().equals("double"))
+        {
+            log.info("Using 'DoubleConverter'");
 			bc = new DoubleConverter();
+        }
 		else
 			throw new RuntimeException("Can't handle pixels of type '"
 					+ pixelType + "'");

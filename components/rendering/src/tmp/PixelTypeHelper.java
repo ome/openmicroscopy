@@ -45,4 +45,19 @@ public class PixelTypeHelper
 				return true;
 		return false;
 	}
+    
+    public static int bytesPerPixel(PixelsType type)
+    {
+        if (in(type, new String[] {"int8", "uint8" }))
+            return 1;
+        else if (in(type, new String[] { "int16", "uint16" }))
+            return 2;
+        else if (in(type, new String[] { "int32", "uint32", "float" }))
+            return 4;
+        else if (type.getValue().equals("double"))
+            return 8;
+        else
+            throw new RuntimeException("Unknown pixel type: '"
+                    + type.getValue() + "'");
+    }
 }

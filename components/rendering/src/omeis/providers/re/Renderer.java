@@ -41,7 +41,6 @@ import org.apache.commons.logging.LogFactory;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
@@ -97,7 +96,10 @@ import tmp.RenderingDefConstants;
  */
 public class Renderer
 {
-    private static Log log = LogFactory.getLog(Renderer.class);//j.m
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(Renderer.class);
+    
+    static final String RGB_COLOR_DOMAIN = "RGB";
     
     /**
      * The {@link Pixels} object to access the metadata of the pixels
@@ -264,6 +266,8 @@ public class Renderer
 		if (pd == null)
 			throw new NullPointerException("No plane definition.");
         stats = new RenderingStats(this, pd);
+        log.info("Using: '" + renderingStrategy.getClass().getName()
+                + "' rendering strategy.");
         RGBBuffer img = renderingStrategy.render(this, pd);
         stats.stop();
         //j.m Logger log = Env.getSvcRegistry().getLogger();
@@ -291,7 +295,7 @@ public class Renderer
     {
         if (pd == null)
             throw new NullPointerException("No plane definition.");
-        return renderingStrategy.getImageSize(pd, metadata.getPixelsDimensions());
+        return renderingStrategy.getImageSize(pd, metadata);
     }
     
     /**
@@ -315,24 +319,16 @@ public class Renderer
     {
         if (pd == null)
             throw new NullPointerException("No plane definition.");
-        return renderingStrategy.getPlaneDimsAsString(pd, 
-                metadata.getPixelsDimensions());
+        return renderingStrategy.getPlaneDimsAsString(pd, metadata);
     }
         
     public ChannelBinding[] getChannelBindings()
     {
         List bindings = rndDef.getWaveRendering();
-        return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings.size()]);
+        return (ChannelBinding[])
+            bindings.toArray(new ChannelBinding[bindings.size()]);
     }
     
-    /**
-     * Returns the dimensions of the <i>5D</i> array containing the pixels set
-     * this object renders.
-     * 
-     * @return  See above.
-     */
-    public PixelsDimensions getPixelsDims() { return metadata.getPixelsDimensions(); }
-
     /**
      * Returns the settings that define the transformation context.
      * That is, a specification of how raw data is to be transformed into an 
@@ -411,7 +407,6 @@ public class Renderer
         	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
         	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
         	sf.computeLocationStats(metadata, buffer, pd, w);
-        	// FIXME cb[i].setStats(sf.getLocationStats());
         	cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
         	float start = cb[w].getInputStart().floatValue();
         	float end = cb[w].getInputEnd().floatValue();

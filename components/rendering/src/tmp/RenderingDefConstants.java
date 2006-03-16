@@ -51,16 +51,16 @@ public class RenderingDefConstants
     private static String[] models;
     static {
         models = new String[3];
-        models[GS] = "Greyscale";
-        models[RGB] = "RGB";
-        models[HSB] = "HSB";
+        models[GS] = "greyscale";
+        models[RGB] = "rgb";
+        models[HSB] = "hsb";
     }
     
     private static Map Models = new HashMap();
     static {
-        Models.put("Greyscale",Integer.valueOf(GS));
-        Models.put("RGB",Integer.valueOf(RGB));
-        Models.put("HSB",Integer.valueOf(HSB));
+        Models.put("greyscale",Integer.valueOf(GS));
+        Models.put("rgb",Integer.valueOf(RGB));
+        Models.put("hsb",Integer.valueOf(HSB));
     }
     public static int convertType(RenderingModel type)
     {

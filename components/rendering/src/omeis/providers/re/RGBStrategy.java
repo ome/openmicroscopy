@@ -45,15 +45,14 @@ import java.util.concurrent.Future;//j.m
 
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 //j.mimport omeis.env.Env;
 import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.data.Helper;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
-import tmp.Helper;
 
 /** 
  * Transforms a plane within a given pixels set into an <i>RGB</i> image.
@@ -107,23 +106,23 @@ class RGBStrategy
      * according to the specified {@link PlaneDef#getSlice() slice}.
      * 
      * @param pd Reference to the plane definition defined for the strategy.
-     * @param d Dimensions of the pixels set.
+     * @param pixels Dimensions of the pixels set.
      */
-    private void initAxesSize(PlaneDef pd, PixelsDimensions d)
+    private void initAxesSize(PlaneDef pd, Pixels pixels)
     {
         try {
                 switch (pd.getSlice()) {
                     case PlaneDef.XY:
-                        sizeX1 = d.getSizeX().intValue(); // TODO int?
-                        sizeX2 = d.getSizeY().intValue();
+                        sizeX1 = pixels.getSizeX().intValue(); // TODO int?
+                        sizeX2 = pixels.getSizeY().intValue();
                         break;
                     case PlaneDef.XZ:
-                        sizeX1 = d.getSizeX().intValue();
-                        sizeX2 = d.getSizeZ().intValue();
+                        sizeX1 = pixels.getSizeX().intValue();
+                        sizeX2 = pixels.getSizeZ().intValue();
                         break;
                     case PlaneDef.ZY:
-                        sizeX1 = d.getSizeZ().intValue();
-                        sizeX2 = d.getSizeY().intValue();
+                        sizeX1 = pixels.getSizeZ().intValue();
+                        sizeX2 = pixels.getSizeY().intValue();
                 }   
         } catch(NumberFormatException nfe) {   
             throw new RuntimeException("Invalid slice ID: "+pd.getSlice()+".", 
@@ -212,7 +211,7 @@ class RGBStrategy
 				
 		//Initialize sizeX1 and sizeX2 according to the plane definition and
 		//create the RGB buffer.
-		initAxesSize(planeDef, renderer.getPixelsDims());
+		initAxesSize(planeDef, renderer.getMetadata());
         performanceStats.startMalloc();
         RGBBuffer renderedDataBuf = new RGBBuffer(sizeX1, sizeX2);
         performanceStats.endMalloc();
@@ -252,21 +251,21 @@ class RGBStrategy
     
     /**
      * Implemented as specified by the superclass.
-     * @see RenderingStrategy#getImageSize(PlaneDef, PixelsDimensions)
+     * @see RenderingStrategy#getImageSize(PlaneDef, Pixels)
      */
-    int getImageSize(PlaneDef pd, PixelsDimensions dims)
+    int getImageSize(PlaneDef pd, Pixels pixels)
     {
-        initAxesSize(pd, dims);
+        initAxesSize(pd, pixels);
         return sizeX1*sizeX2*3;
     }
     
     /**
      * Implemented as specified by the superclass.
-     * @see RenderingStrategy#getPlaneDimsAsString(PlaneDef, PixelsDimensions)
+     * @see RenderingStrategy#getPlaneDimsAsString(PlaneDef, Pixels)
      */
-    String getPlaneDimsAsString(PlaneDef pd, PixelsDimensions dims)
+    String getPlaneDimsAsString(PlaneDef pd, Pixels pixels)
     {
-        initAxesSize(pd, dims);
+        initAxesSize(pd, pixels);
         return sizeX1+"x"+sizeX2;
     }
 	

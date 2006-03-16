@@ -33,6 +33,7 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.system.SelfConfigurableService;
 
@@ -105,6 +106,10 @@ public interface RenderingEngine extends SelfConfigurableService
 	public void lookupPixels(long pixelsId);
 	public void lookupRenderingDef(long pixelsId);
 	public void load();
+    
+    //FIXME: Hacks!
+    public int getSizeX();
+    public int getSizeY();
 	
 	//RenderingDef fields.
 	public void setModel(int model);

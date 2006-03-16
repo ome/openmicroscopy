@@ -15,12 +15,12 @@
 	<classpathentry kind="var" path="M2_REPO/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-m2/spring-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/omeio-nio"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

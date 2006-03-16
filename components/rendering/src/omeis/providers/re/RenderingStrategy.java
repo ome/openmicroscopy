@@ -33,7 +33,7 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
-import ome.model.core.PixelsDimensions;
+import ome.model.core.Pixels;
 
 //Third-party libraries
 
@@ -138,13 +138,12 @@ abstract class RenderingStrategy
      * rendered from the plane selected by <code>pd</code> in a pixels set 
      * having dimensions <code>dims</code>.
      * 
-     * @param pd    Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-     *              or <i>Z</i> axes.
-     * @param dims  The dimensions of the pixels set containing the plane
-     *              selected by <code>pd</code>. 
+     * @param pd     Selects a plane orthogonal to one of the <i>X</i>,
+     *               <i>Y</i>, or <i>Z</i> axes.
+     * @param pixels A pixels set. 
      * @return See above.
      */
-    abstract int getImageSize(PlaneDef pd, PixelsDimensions dims);
+    abstract int getImageSize(PlaneDef pd, Pixels pixels);
     
     /**
      * Returns a string with the dimensions of the specified plane.
@@ -158,12 +157,11 @@ abstract class RenderingStrategy
      * <i>ZY</i> plane.  Otherwise it is the <i>Z</i>-axis &#151; <i>XZ</i>
      * plane. 
      * 
-     * @param pd    Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-     *              or <i>Z</i> axes.
-     * @param dims  The dimensions of the pixels set containing the plane
-     *              selected by <code>pd</code>. 
+     * @param pd     Selects a plane orthogonal to one of the <i>X</i>,
+     *               <i>Y</i>, or <i>Z</i> axes.
+     * @param pixels A pixels set.
      * @return See above.
      */
-    abstract String getPlaneDimsAsString(PlaneDef pd, PixelsDimensions dims);
+    abstract String getPlaneDimsAsString(PlaneDef pd, Pixels pixels);
 	
 }

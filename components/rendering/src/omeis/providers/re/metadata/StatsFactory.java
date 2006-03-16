@@ -42,10 +42,10 @@ import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
 import ome.util.math.geom2D.PlanePoint;
 import ome.util.math.geom2D.Segment;
+import omeis.providers.re.data.Helper;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantumStrategy;
-import tmp.Helper;
 
 /** 
  * Computes two types of statistics: The PixelsStats and the location stats.
@@ -222,7 +222,10 @@ public class StatsFactory
     
     public double[] getLocationStats() { return locationStats; }
 
-    public boolean isNoiseReduction() { return noiseReduction; }
+    public boolean isNoiseReduction()
+    {
+        return noiseReduction;
+    }
     
     public double getInputStart() { return inputStart; }
     

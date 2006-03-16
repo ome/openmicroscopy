@@ -166,6 +166,17 @@ public class RenderingEngineImpl implements RenderingEngine
         }
         rwl.writeLock().unlock();
     }
+    
+    public void usePixels(Pixels pixels)
+    {
+        rwl.writeLock().lock();
+        {
+            this.pixelsObj = pixels;
+            this.renderer = null;
+        }
+        rwl.writeLock().unlock();
+    }
+
 
     public void lookupRenderingDef(long pixelsId)
     {
@@ -643,6 +654,16 @@ public class RenderingEngineImpl implements RenderingEngine
  
         }
         rwl.writeLock().unlock();
+    }
+
+    public int getSizeX()
+    {
+        return pixelsObj.getSizeX().intValue();
+    }
+
+    public int getSizeY()
+    {
+        return pixelsObj.getSizeY().intValue();
     }
 
 }

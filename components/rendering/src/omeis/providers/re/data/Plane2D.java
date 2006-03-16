@@ -29,6 +29,11 @@
 
 package omeis.providers.re.data;
 
+import omeis.providers.re.Renderer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 //Java imports
 
@@ -69,7 +74,9 @@ package omeis.providers.re.data;
  */
 public abstract class Plane2D
 {  
-	
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(Renderer.class);
+    
     /** Contains the plane data. */
     private byte[]         data;
     
@@ -108,6 +115,9 @@ public abstract class Plane2D
         this.sizeY = sizeY;
 		this.bytesPerPixel = bytesPerPixel;
 		this.strategy = strategy;
+        
+        log.info("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
+                + bytesPerPixel);
 	}
 	
     /**

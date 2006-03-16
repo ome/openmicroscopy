@@ -1,4 +1,4 @@
-package tmp;
+package omeis.providers.re.data;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,12 +12,13 @@ import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.enums.PixelsType;
 
 import omeis.providers.re.ColorsFactory;
-import omeis.providers.re.data.Plane2D;
-import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.ChannelBindings;
 import omeis.providers.re.quantum.QuantumFactory;
+import tmp.PixelTypeHelper;
+import tmp.RenderingDefConstants;
 
 public class Helper
 {
@@ -26,9 +27,13 @@ public class Helper
     public static Plane2D createPlane(PlaneDef planeDef, int channel, Pixels pixels,
             PixelBuffer buffer) 
     {
-
-        // TODO null checks.
-
+        if (planeDef == null)
+            throw new NullPointerException("Expecting not null planeDef");
+        else if (pixels == null)
+            throw new NullPointerException("Expecting not null pixels");
+        else if (buffer == null)
+            throw new NullPointerException("Expecting not null buffer");
+        
         Integer z = Integer.valueOf(planeDef.getZ());
         Integer c = Integer.valueOf(channel);
         Integer t = Integer.valueOf(planeDef.getT());
@@ -37,11 +42,15 @@ public class Helper
         try
         {
             bb = buffer.getPlane(z, c, t);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
+            e.printStackTrace();
             throw new RuntimeException(e);
-        } catch (DimensionsOutOfBoundsException e)
+        }
+        catch (DimensionsOutOfBoundsException e)
         {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
@@ -50,21 +59,17 @@ public class Helper
         {
             planeBuf[i] = bb.get();
         }
+        
+        PixelsType type = pixels.getPixelsType();
 
-        String type = pixels.getPixelsType().getValue();
+        BytesConverter strategy = BytesConverter.makeNew(type, true);
+        Plane2D plane = new XYPlane(planeBuf, planeDef,
+                                    pixels.getSizeX().intValue(),
+                                    pixels.getSizeY().intValue(),
+                                    PixelTypeHelper.bytesPerPixel(type),
+                                    strategy);
 
-        // BytesConverter strategy = BytesConverter.makeNew(
-        // pixFileHeader.pixelType,
-        // bigEndian);
-        //        
-        // Plane2D plane = new XYPlane(
-        // planeBuf, planeDef,
-        // pixels.getSizeX().intValue(), pixels.getSizeY().intValue(),
-        // pixels.getBytesPerPixel().intValue(), strategy);
-        // FIXME
-
-        throw new RuntimeException("not implemented yet");
-
+        return plane;
     }
     
     /** 
