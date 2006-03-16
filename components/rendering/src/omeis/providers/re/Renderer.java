@@ -165,10 +165,11 @@ public class Renderer
         quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
         
         //Compute the location stats.
-        computeLocationStats(getDefaultPlaneDef());
+        //computeLocationStats(getDefaultPlaneDef());
         
         //Create and configure the codomain chain.
-        codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd.getCdEnd().intValue(),
+        codomainChain = new CodomainChain(qd.getCdStart().intValue(), 
+                                           qd.getCdEnd().intValue(),
                                           rndDef.getSpatialDomainEnhancement());
         
         
@@ -406,8 +407,10 @@ public class Renderer
         	Channel channel = (Channel) i.next();
         	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
         	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
+            //TEst
         	sf.computeLocationStats(metadata, buffer, pd, w);
-        	cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
+        	//cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
+            cb[w].setNoiseReduction(Boolean.TRUE);
         	float start = cb[w].getInputStart().floatValue();
         	float end = cb[w].getInputEnd().floatValue();
         	//TODO: find a better way.
