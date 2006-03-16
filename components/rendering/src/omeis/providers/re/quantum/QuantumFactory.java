@@ -30,13 +30,12 @@
 package omeis.providers.re.quantum;
 
 //Java imports
+import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.HashMap;
-import java.util.Map;
-
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;

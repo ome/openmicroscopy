@@ -93,30 +93,29 @@ public abstract class QuantumStrategy
     /** Selects a curve in the family. */
     private double                  curveCoefficient;
     
+    /**
+     * Identifies the noise reduction algorithm, value set to <code>true</code>
+     * if the noise reduction algorithm is applied, <code>false</code>
+     * otherwise.
+     */
     private boolean                 noiseReduction;
     
 	/** Reference to a quantumDef object. */
 	protected final QuantumDef      qDef;   
 	
+    /** The type of pixels this strategy is for. */
     protected final PixelsType      type;
     
+    /** Reference to the value mapper. */
 	protected QuantumMap			valueMapper;               
 
-	protected QuantumStrategy(QuantumDef qd, PixelsType pt)
-	{
-		windowStart = globalMin = 0.0;
-		windowEnd = globalMax = 1.0;
-        family = QuantumFactory.LINEAR;
-        curveCoefficient = 1.0;
-		if (qd == null)    
-			throw new NullPointerException("No quantum definition");
-		this.qDef = qd;
-        if (pt == null)
-            throw new NullPointerException("No pixel type");
-        this.type = pt;
-	}
-	
-    /** Define the value mapper. */
+    
+    /** 
+     * Defines the value mapper corresponding to the specified
+     * family.
+     * 
+     * @param family The family identifying the value mapper.
+     */
     private void defineMapper(int family)
     {
         verifyFamily(family);
@@ -137,58 +136,81 @@ public abstract class QuantumStrategy
     }
     
     /** 
+     * Controls if the specified family is supported.
      * The family must be one of the constant defined in
      * {@link QuantumFactory}.
-     *
+     * 
+     * @param family The family to control
      */
     private static void verifyFamily(int family)
     {
-        if (family != QuantumFactory.LINEAR && 
-            family != QuantumFactory.LOGARITHMIC && 
-            family != QuantumFactory.EXPONENTIAL
-            && family != QuantumFactory.POLYNOMIAL)  
-            throw new IllegalArgumentException("Unsupported family type");
+        switch (family) {
+            case QuantumFactory.LINEAR:
+            case QuantumFactory.LOGARITHMIC:
+            case QuantumFactory.EXPONENTIAL:
+            case QuantumFactory.POLYNOMIAL:
+                return;
+            default:
+                throw new IllegalArgumentException("Unsupported family type");
+        }
     }
 
-	/**
-	 * min and max could be out of pixel type range 
-	 * b/c of an error occured in stats calculations.
-	 * 
-	 * @param min	lower bound.
-	 * @param max	upper bound.
-	 */
-	private void verifyInterval(double min, double max)
-	{
-		boolean b = false;
-		if (min <= max) {
+    /**
+     * Controls if the specified interval is valid depending on the pixel type.
+     * 
+     * The min value and max value could be out of pixel type range 
+     * b/c of an error occured in stats calculations.
+     * 
+     * @param min   The lower bound of the interval.
+     * @param max   The upper bound of the interval.
+     */
+    private void verifyInterval(double min, double max)
+    {
+        boolean b = false;
+        if (min <= max) {
             double range = max-min;
-            if (PixelTypeHelper.in(type, new String[] { "int8", "uint8" }))
-            {
-            	if (range < 0x100) b = true;
-            }
-            else if (PixelTypeHelper.in(type,
-            		new String[] { "int16", "uint16" }))
-            {
-            	if (range < 0x10000) b = true;
-            }
-            else if (PixelTypeHelper.in(type,
-            		new String[] { "int32", "uint32" }))
-            {
-            	if (range < 0x100000000L) b = true;
-            }
-            else if (PixelTypeHelper.in(type,
-            		new String[] { "float", "double" }))
-            	b = true;
-		}
-		if (!b)
-			throw new IllegalArgumentException("Pixel interval not supported");
+            if (PixelTypeHelper.in(type, new String[] { "int8", "uint8" })) {
+                if (range < 0x100) b = true;
+            } else if (PixelTypeHelper.in(type, 
+                    new String[] { "int16", "uint16" })) {
+                if (range < 0x10000) b = true;
+            } else if (PixelTypeHelper.in(type,
+                    new String[] { "int32", "uint32" })) {
+                if (range < 0x100000000L) b = true;
+            } else if (PixelTypeHelper.in(type,
+                    new String[] { "float", "double" }))
+                b = true;
+        }
+        if (!b)
+            throw new IllegalArgumentException("Pixel interval not supported");
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param qd    The {@link QuantumDef} this strategy is for.
+     * @param pt
+     */
+	protected QuantumStrategy(QuantumDef qd, PixelsType pt)
+	{
+		windowStart = globalMin = 0.0;
+		windowEnd = globalMax = 1.0;
+        family = QuantumFactory.LINEAR;
+        curveCoefficient = 1.0;
+		if (qd == null)    
+			throw new NullPointerException("No quantum definition");
+		this.qDef = qd;
+        if (pt == null)
+            throw new NullPointerException("No pixel type");
+        this.type = pt;
 	}
+
   
 	/** 
 	 * Sets the maximum range of the input window. 
 	 * 
-	 * @param globalMin		minimum of all minima for a specified stack.
-	 * @param globalMax		maximum of all maxima for a specified stack.
+	 * @param globalMin    The minimum of all minima for a specified stack.
+	 * @param globalMax    The maximum of all maxima for a specified stack.
 	 */
 	public void setExtent(double globalMin, double globalMax)
 	{
@@ -200,10 +222,10 @@ public abstract class QuantumStrategy
 	}
 	
 	/**
-	 * Sets the inputWindow interval.
+	 * Sets the input window interval.
 	 * 
-	 * @param start		the lower bound of the interval.
-	 * @param end		the upper bound of the interval.
+	 * @param start		The lower bound of the interval.
+	 * @param end		The upper bound of the interval.
 	 */
 	public void setWindow(double start, double end)
 	{
@@ -216,8 +238,13 @@ public abstract class QuantumStrategy
 	}
     
     /** 
-     * Set the selected family, one of the constants defined by 
-     * {@link QuantumFactory}, and the curve coefficient.
+     * Sets the selected family, the curve coefficient and the noise reduction
+     * flag.
+     * 
+     * @param family            The mapping family. One of the constants defined
+     *                          by {@link QuantumFactory}. 
+     * @param k                 The curve coefficient.
+     * @param noiseReduction    The noise reduction flag.
      */
 	public void setMapping(int family, double k, boolean noiseReduction)
     {
@@ -228,15 +255,17 @@ public abstract class QuantumStrategy
     }
     
     /** 
-     * Set the selected family, one of the constants defined by 
-     * {@link QuantumFactory}, and the curve coefficient.
+     * Sets the selected family, the curve coefficient and the noise reduction
+     * flag and rebuilds the look-up table.
+     * 
+     * @param family            The mapping family. One of the constants defined
+     *                          by {@link QuantumFactory}. 
+     * @param k                 The curve coefficient.
+     * @param noiseReduction    The noise reduction flag.
      */
     public void setQuantizationMap(int family, double k, boolean noiseReduction)
     {
-        defineMapper(family);
-        this.family = family;
-        curveCoefficient = k;
-        this.noiseReduction = noiseReduction;
+        setMapping(family, k, noiseReduction);
         onWindowChange();
     }
     
@@ -248,7 +277,11 @@ public abstract class QuantumStrategy
     
     boolean getNoiseReduction() { return noiseReduction; }
     
-	/** Returns the globalMin. */
+	/**
+     * Returns the minimum of all minima.
+     * 
+     * @return See above.
+     */
 	double getGlobalMin()
 	{ 
 		//needed b/c of float value
@@ -257,24 +290,42 @@ public abstract class QuantumStrategy
 		return globalMin;
 	}
     
-	/** Returns the globalMax. */
+    /**
+     * Returns the maximum of all maxima.
+     * 
+     * @return See above.
+     */
 	double getGlobalMax() { return globalMax; }
     
-	/** Returns the input start value. */
+	/** 
+     * Returns the lower bound of the input interval. 
+     * 
+     * @return See above.
+     */
 	public double getWindowStart() { return windowStart; }
 	
-	/** Returns the input end value. */
+    /** 
+     * Returns the upper bound of the input interval. 
+     * 
+     * @return See above.
+     */
 	public double getWindowEnd() { return windowEnd; }
     
-    /** Notify when the input interval has changed. */
+    /** 
+     * Notifies when the input interval has changed or the mapping strategy
+     * has changed.
+     */
 	protected abstract void onWindowChange();
 	
 	/** 
-	 * Map a value (in [windowStart, windowEnd]) to a value in the codomain
+	 * Maps a value from [windowStart, windowEnd] to a value in the codomain
 	 * interval.
 	 * 
-	 * @param value	pixel intensity value.
-	 * @return int value in the codomain interval i.e. sub-interval of [0, 255]
+	 * @param value    The pixel intensity value.
+	 * @return int     The value in the codomain interval i.e. sub-interval of 
+     *                 [0, 255].
+     * @throws QuantizationException If the specified value is not 
+     * in the interval [globalMin, globalMax].
 	 */
 	public abstract int quantize(double value) throws QuantizationException;
 	

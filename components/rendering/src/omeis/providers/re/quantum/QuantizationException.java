@@ -36,8 +36,8 @@ package omeis.providers.re.quantum;
 //Application-internal dependencies
 
 /**
- * TODO: review javadoc.
- * Thrown during the quantization process if something goes wrong.
+ * This exception is thrown during the quantization process if something goes
+ * wrong.
  * For example, quantization strategies that depend on an interval <code>[min,
  * max]</code> where <code>min</code> (<code>max</code>) is, in general, the 
  * minimum (maximum) of all minima (maxima) calculated in a given stack (for a
@@ -58,7 +58,7 @@ public class QuantizationException
 	extends Exception
 {
 
-	/** OME index of the wavelength. */
+	/** The OME index of the wavelength that coudln't be rendered. */
 	private int		wavelength;
 	
     
@@ -90,14 +90,18 @@ public class QuantizationException
 		super(message, cause);
 	}
 
-	public void setWavelength(int index)
-	{
-		wavelength = index;
-	}
+    /**
+     * Sets the index of the wavelength that couldn't be rendered.
+     * 
+     * @param index The index of the wavelength.
+     */
+	public void setWavelength(int index) { wavelength = index; }
 	
-	public int getWavelength()
-	{
-		return wavelength;
-	}
+    /** 
+     * Returns the index of the wavelength that couldn't be rendered.
+     * 
+     * @return See above.
+     */
+	public int getWavelength() { return wavelength;	}
 	
 }

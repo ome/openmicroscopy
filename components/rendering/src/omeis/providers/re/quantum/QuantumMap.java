@@ -36,7 +36,9 @@ package omeis.providers.re.quantum;
 //Application-internal dependencies
 
 /** 
- * TODO: javadoc.
+ * Provides methods to map value. Each method is wrapper around a method
+ * exposed by the {@link Math} class. Each value mapper should implements 
+ * this I/F.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,27 +55,30 @@ interface QuantumMap
 {
 	
 	/** 
-	 * Map the inputValue. 
+	 * Maps the specified value.
 	 *
-	 * @param x		input value.
-	 * @param k		selected curve in the family.
+	 * @param x		The input value.
+	 * @param k		The selected curve in the family.
+     * @return      The mapped value.
 	 */
 	public double transform (int x, double k);
 	
-	/** 
-	 * Map the inputValue. 
-	 *
-	 * @param x		input value.
-	 * @param k		selected curve in the family.
-	 */
+    /** 
+     * Maps the specified value.
+     *
+     * @param x     The input value.
+     * @param k     The selected curve in the family.
+     * @return      The mapped value.
+     */
 	public double transform (double x, double k);
 	
-	/** 
-	 * Map the inputValue. 
-	 *
-	 * @param x		input value.
-	 * @param k		selected curve in the family.
-	 */
+    /** 
+     * Maps the specified value.
+     *
+     * @param x     The input value.
+     * @param k     The selected curve in the family.
+     * @return      The mapped value.
+     */
 	public double transform (float x, double k);
 	
 }
