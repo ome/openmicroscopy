@@ -53,8 +53,11 @@ public class Approximation
 {
 
 	/** 
-	 * Returns the nearest integer e.g. 
+	 * Returns the nearest integer to the specified value e.g. 
 	 * 1.2 returns 1, 1.6 returns 2.
+     * 
+     * @param v The value to analyze.
+     * @return  The nearest integer.
 	 */
 	public static double nearestInteger(double v)
 	{
@@ -65,10 +68,22 @@ public class Approximation
 		return value;
 	}
     
-	/** Returns the smallest integer. */
+	/** 
+     * Returns the smallest integer. 
+     * This method calls {@link Math#floor(double)}.
+     * 
+     * @param v The value to analyze.
+     * @return  The smallest integer.
+     */
 	public static double smallestInteger(double v) { return Math.floor(v); }
 	
-	/**Returns the largest integer. */    
+    /** 
+     * Returns the largest integer. 
+     * This method calls {@link Math#ceil(double)}.
+     * 
+     * @param v The value to analyze.
+     * @return  The largest integer.
+     */ 
 	public static double largestInteger(double v) { return Math.ceil(v); }
 
 }
