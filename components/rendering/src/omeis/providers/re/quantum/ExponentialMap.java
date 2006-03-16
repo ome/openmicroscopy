@@ -37,9 +37,14 @@ package omeis.providers.re.quantum;
 //Application-internal dependencies
 
 /** 
- * TODO: review javadoc.
- * Exponential mapping i.e. exp(x^k).
- *
+ * This class implements the {@link QuantumMap} interface. Each method
+ * is a wrapper around the composition (in the mathematical sense) of
+ * {@link Math#exp(double)} and {@link Math#pow(double, double)} methods. 
+ * The method {@link Math#exp(double)} returns Euler's number <i>e</i> raised to
+ * the power of a <code>double</code> value.
+ * The method {@link Math#pow(double, double)} returns the value of the first
+ * argument raised to the power of the second argument.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,19 +60,28 @@ class ExponentialMap
 	implements QuantumMap
 {
 	
-	/** Implemented as specified in {@link QuantumMap}. */
+	/** 
+     * Implemented as specified in {@link QuantumMap}. 
+     * @see QuantumMap#transform(int, double)
+     */
 	public double transform(int x, double k)
-	{
-		return Math.exp(Math.pow(x, k));
-	}
+    { 
+        return Math.exp(Math.pow(x, k));
+    }
 
-	/** Implemented as specified in {@link QuantumMap}. */
+    /** 
+     * Implemented as specified in {@link QuantumMap}. 
+     * @see QuantumMap#transform(double, double)
+     */
 	public double transform(double x, double k)
 	{
 		return Math.exp(Math.pow(x, k));
 	}
 
-	/** Implemented as specified in {@link QuantumMap}. */
+    /** 
+     * Implemented as specified in {@link QuantumMap}. 
+     * @see QuantumMap#transform(float, double)
+     */
 	public double transform(float x, double k)
 	{
 		return Math.exp(Math.pow(x, k));
