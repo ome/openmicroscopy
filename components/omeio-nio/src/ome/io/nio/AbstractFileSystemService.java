@@ -31,6 +31,9 @@ package ome.io.nio;
 import java.io.File;
 import java.util.Formatter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * @author callan
@@ -38,7 +41,10 @@ import java.util.Formatter;
  */
 public class AbstractFileSystemService
 {
-
+    
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(AbstractFileSystemService.class);
+    
     public final static String ROOT_DEFAULT = File.separator + "OME" + File.separator + "OMEIS" + File.separator;
     
     public final static String PIXELS_PATH =  "Pixels" + File.separator;
@@ -49,6 +55,7 @@ public class AbstractFileSystemService
 
     public AbstractFileSystemService(String path)
     {
+        log.info("Using root path: '" + path + "'");
         this.root = path;
         
         File rootDirectory = new File(this.root);

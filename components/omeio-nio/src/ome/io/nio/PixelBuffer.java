@@ -39,7 +39,12 @@ import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
 
 
 /**
@@ -48,6 +53,9 @@ import ome.model.core.Pixels;
  */
 public class PixelBuffer extends AbstractBuffer
 {
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(AbstractFileSystemService.class);
+    
     private Pixels pixels;
     private FileChannel channel;
     
@@ -210,6 +218,7 @@ public class PixelBuffer extends AbstractBuffer
     public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
         throws IOException, DimensionsOutOfBoundsException
     {
+        log.info("Retrieving plane: " + z + "x" + c + "x" + t);
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
         MappedByteBuffer region = getRegion(size, offset);
@@ -370,7 +379,31 @@ public class PixelBuffer extends AbstractBuffer
     
     int getBitDepth()
     {
-        return 16;  // FIXME pixels.getPixelsType();
+        PixelsType type = pixels.getPixelsType();
+        
+        if (type.getValue().equals("int8")
+            || type.getValue().equals("uint8"))
+        {
+            return 8;
+        }
+        else if (type.getValue().equals("int16")
+                 || type.getValue().equals("uint16"))
+        {
+            return 16;
+        }
+        else if (type.getValue().equals("int32")
+                 || type.getValue().equals("uint32")
+                 || type.getValue().equals("float"))
+        {
+            return 32;
+        }
+        else if (type.getValue().equals("double"))
+        {
+            return 64;
+        }
+        
+        throw new RuntimeException("Pixels type '" + type.getValue()
+                + "' unsupported by nio.");
     }
 
     int getSizeC()
