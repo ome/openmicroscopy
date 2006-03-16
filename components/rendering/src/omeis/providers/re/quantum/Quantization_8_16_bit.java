@@ -45,9 +45,8 @@ import omeis.providers.re.Renderer;
 
 
 /** 
- * Quantization process. In charge of buildng a look-up table for each active
- * wavelength.
- * The mapping process is done in three mapping steps, 
+ * Quantization process. In charge of building a look-up table for each active
+ * wavelength. The mapping process is done in three mapping steps, 
  * for some computer reasons, we cannot 
  * compose (in the mathematical sense) the three maps directly.
  * Each wavelength initializes a strategy, in order to preserve the 5D-notion
@@ -71,8 +70,6 @@ import omeis.providers.re.Renderer;
 public class Quantization_8_16_bit
 	extends QuantumStrategy
 {
-    private static int EXTRA = 10;
-    private static int SUB_INT = 10;
     
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
@@ -116,6 +113,12 @@ public class Quantization_8_16_bit
      */ 
     private double      aDecile, bDecile;
 
+    /** 
+     * The device space sub-interval. The values aren't the ones stored in 
+     * {@link QuantumDef} if the noise reduction flag is <code>true</code>.
+     */
+    private int         cdStart, cdEnd;
+    
 	/**
 	 * Initializes the LUT. 
 	 * Comparable getGlobalMin and getGlobalMax
@@ -140,39 +143,52 @@ public class Quantization_8_16_bit
     {
         ysNormalized = valueMapper.transform(MIN, k);
         yeNormalized = valueMapper.transform(MAX, k);
-        aNormalized = qDef.getBitResolution().floatValue()/(yeNormalized-ysNormalized);
+        aNormalized = qDef.getBitResolution().intValue()/
+                                        (yeNormalized-ysNormalized);
     }
     
     /**
      * Initializes the parameter to map the pixels intensities to the device 
-     * space.
+     * space and returned the default initial depending on the value of the
+     * noise reduction flag.
      * 
-     * @param dStart The input window start.
-     * @param dEnd The input window end.
+     * @param dStart    The input window start.
+     * @param dEnd      The input window end.
+     * @return See above.
      */
-    private void initDecileMap(double dStart, double dEnd)
+    private double initDecileMap(double dStart, double dEnd)
     {
+        cdStart = qDef.getCdStart().intValue();
+        cdEnd = qDef.getCdEnd().intValue();
         double denum = (dEnd-dStart), num = MAX;
         double decile = ((double) (max-min))/DECILE;
+        double v = 0, b = dStart;
+        int e = 0;
         Q1 = min;
         Q9 = max;
-        bDecile = dStart;
         if (getNoiseReduction()) {
             Q1 = min+decile;
             Q9 = max-decile;
             denum = Q9-Q1;
+            v = DECILE;
+            e = DECILE;
+            num = MAX-2*DECILE;
+            b = Q1;
             if (dStart >= Q1 && dEnd > Q9) {
                 denum = (Q9-dStart);
-                bDecile = dStart;
+                b = dStart;
             } else if (dStart >= Q1 && dEnd <= Q9) {
                 denum = dEnd-dStart;
-                bDecile = dStart;
+                b = dStart;
             } else if (dStart < Q1 && dEnd <= Q9) {
                 denum = dEnd-Q1;
-                bDecile = Q1;
             }   
+            if (cdStart < DECILE) cdStart = DECILE;
+            if (cdEnd > MAX-DECILE) cdEnd = MAX-DECILE;
         }
         aDecile = num/denum;
+        bDecile = aDecile*b-e;
+        return v;
     }
     
 	/** 
@@ -191,108 +207,36 @@ public class Quantization_8_16_bit
 	 */
 	private void buildLUT()
 	{
-	    if (LUT == null) initLUT();
-	    // Comparable assumed to be Integer
-	    //domain
-	    double dStart = getWindowStart(), dEnd = getWindowEnd();
-	    
-	    double k = getCurveCoefficient();
-	    double a1 = (qDef.getCdEnd().intValue()-qDef.getCdStart().intValue())/
-	            qDef.getBitResolution().intValue(); 
-	    int x = min;
-	    
-	    QuantumMap normalize = new PolynomialMap();
-	    double ysNorm = valueMapper.transform(0, k);
-	    double yeNorm = valueMapper.transform(255, k);
-	    double aNorm = qDef.getBitResolution().intValue()/(yeNorm-ysNorm);
-	    
-	    double v = 0, extra = 0;
-	    double c0, denum = (dEnd-dStart), num = 255;
-	    double S1 = dStart;
-	    double decile = (max-min)/SUB_INT;
-	    double Q1 = min, Q9 = max;
-	    int cdStart = qDef.getCdStart().intValue(), cdEnd = qDef.getCdStart().intValue();
-	    if (getNoiseReduction()) {
-	        v = EXTRA;
-	        extra = EXTRA;
-	        Q1 = min+decile;
-	        Q9 = max-decile;
-	        S1 = Q1;
-	        num = 255-2*EXTRA;
-	        denum = Q9-Q1;
-	        if (dStart >= Q1 && dEnd > Q9) {
-	            denum = (Q9-dStart);
-	            S1 = dStart;
-	        } else if (dStart >= Q1 && dEnd <= Q9) {
-	            denum = dEnd-dStart;
-	            S1 = dStart;
-	        } else if (dStart < Q1 && dEnd <= Q9)
-	            denum = dEnd-Q1;
-	        
-	        if (qDef.getCdStart().intValue() < EXTRA) cdStart = EXTRA;
-	        if (qDef.getCdEnd().intValue() > 255-EXTRA) cdEnd = 255-EXTRA;
-	    }
-	    
-	    c0 = num/denum;
-	    
-	    for(; x < dStart; ++x)   LUT[x-min] = (byte) cdStart;
-	    
-	    for(; x < dEnd; ++x) { 
-	        if (x > Q1) {
-	            if (x <= Q9)
-	                v = c0*(normalize.transform(x, 1)-S1)+extra;
-	            else v = cdEnd;
-	        } else v = cdStart;
-	        v = Approximation.nearestInteger(
-	                aNorm*(valueMapper.transform(v,
-	                        k)-ysNorm));
-	        
-	        v = Approximation.nearestInteger(a1*v+qDef.getCdStart().intValue());
-	        LUT[x-min] = (byte) v;
-	    }
-	    
-	    for(; x <= max; ++x)   LUT[x-min] = (byte) cdEnd; 
-
-        /*
 		if (LUT == null) initLUT();
 		// Comparable assumed to be Integer
 		//domain
 		double dStart = getWindowStart(), dEnd = getWindowEnd(); 
 		double k = getCurveCoefficient();
-		double a1 = (qDef.getCdEnd().intValue()-qDef.getCdStart().intValue())/qDef.getBitResolution().doubleValue(); 
-
+		double a1 = (qDef.getCdEnd().intValue()-qDef.getCdStart().intValue())/
+                        qDef.getBitResolution().doubleValue(); 
+        
         //Initializes the normalized map.
         initNormalizedMap(k);
         //Initializes the decile map.
-        initDecileMap(dStart, dEnd);
+        double v = initDecileMap(dStart, dEnd);
         QuantumMap normalize = new PolynomialMap();
         int x = min;
-        double v;
         
         //Build the LUT
-		for(; x < dStart; ++x)   LUT[x-min] = (byte) qDef.getCdStart().intValue();
+		for(; x < dStart; ++x)   LUT[x-min] = (byte) cdStart;
 		
 		for(; x < dEnd; ++x) { 
             if (x > Q1) {
-                if (x <= Q9) {
-                    v = aDecile*(normalize.transform(x, 1)-bDecile);
-                    v = aNormalized*(valueMapper.transform(v, k)-ysNormalized);
-                    v = Approximation.nearestInteger(v);
-                    v = Approximation.nearestInteger(a1*v+qDef.getCdStart().intValue());
-                }    
-                else v = qDef.getCdEnd().intValue();
-            } else v = qDef.getCdStart().intValue();
-            
+                if (x <= Q9) v = aDecile*normalize.transform(x, 1)-bDecile; 
+                else v = cdEnd;
+            } else v = cdStart;
+            v = aNormalized*(valueMapper.transform(v, k)-ysNormalized);
+            v = Approximation.nearestInteger(v);
+            v = Approximation.nearestInteger(a1*v+cdStart);
             LUT[x-min] = (byte) v;
 		}
 		
-		for(; x <= max; ++x)   LUT[x-min] = (byte) qDef.getCdEnd().intValue();
-        
-        for (int i = 0; i < LUT.length; i++)
-        {
-            log.info(i + " maps to " + LUT[i]);
-        }
-        */
+		for(; x <= max; ++x)   LUT[x-min] = (byte) cdEnd;
 	}
 
     
@@ -303,11 +247,17 @@ public class Quantization_8_16_bit
      * Creates a new strategy.
      * 
      * @param qd    Quantum definition object, contained mapping data.
+     * @param type  The pixel type;
      */
-    public Quantization_8_16_bit(QuantumDef qd, PixelsType type) { super(qd,type); }
+    public Quantization_8_16_bit(QuantumDef qd, PixelsType type)
+    { 
+        super(qd, type); 
+    }
     
-    
-	/** Implemented as specified in {@link QuantumStrategy}. */
+	/**
+     * Implemented as specified in {@link QuantumStrategy}. 
+     * @see QuantumStrategy#quantize(double)
+     */
 	public int quantize(double value)
 		throws QuantizationException
 	{
@@ -318,5 +268,6 @@ public class Quantization_8_16_bit
 		int i = LUT[x-min];
 		return (i & 0xFF);  //assumed x in [min, max]
 	}
+    
 }
 
