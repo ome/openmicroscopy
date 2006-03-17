@@ -118,7 +118,7 @@ public class RenderingStats
     /**
      * Helper method to build a string containing the I/O stats.
      * 
-     * @return Said string.
+     * @return See above.
      */
     private String getIoTimeString()
     {
@@ -148,10 +148,10 @@ public class RenderingStats
      * rendering process starts and then calls the {@link #stop() stop} method
      * just after the rendering process ends.
      * 
-     * @param context The object whose <code>render</code> method is being 
-     *                timed.  Assumed not to be <code>null</code>.
-     * @param plane Defines the plane that the <code>render</code> is 
-     *              processing.  Assumed not to be <code>null</code>.
+     * @param context   The object whose <code>render</code> method is being 
+     *                  timed. Assumed not to be <code>null</code>.
+     * @param plane     Defines the plane that the <code>render</code> is 
+     *                  processing. Assumed not to be <code>null</code>.
      */
     public RenderingStats(Renderer context, PlaneDef plane)
     {
@@ -168,10 +168,7 @@ public class RenderingStats
      * 
      * @see #endMalloc()
      */
-    public void startMalloc() 
-    { 
-        mallocTime -= System.currentTimeMillis(); 
-    }
+    public void startMalloc() { mallocTime -= System.currentTimeMillis(); }
     
     /**
      * Notifies the end of the allocation of an RGB memory buffers for the
@@ -179,10 +176,7 @@ public class RenderingStats
      * 
      * @see #startMalloc()
      */
-    public void endMalloc() 
-    { 
-        mallocTime += System.currentTimeMillis(); 
-    }
+    public void endMalloc() { mallocTime += System.currentTimeMillis(); }
     
     //NOTE: The startMalloc/endMalloc can be called multiple times in the
     //HSBStrategy -- if several RGB buffers are allocated.

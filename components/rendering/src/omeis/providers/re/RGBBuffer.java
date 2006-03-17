@@ -91,14 +91,14 @@ public class RGBBuffer
     /**
      * Creates a new 3-band buffer.
      * 
-     * @param sizeX1 Number of pixels on the <i>X1</i>-axis.
-     *               This is the <i>X</i>-axis in the case of an <i>XY</i> or 
-     *               <i>XZ</i> plane.  Otherwise it is the <i>Z</i>-axis &#151;
-     *               <i>ZY</i> plane.
-     * @param sizeX2 Number of pixels on the X2-axis.
-     *               This is the <i>Y</i>-axis in the case of an <i>XY</i> or 
-     *               <i>ZY</i> plane.  Otherwise it is the <i>Z</i>-axis &#151;
-     *               <i>XZ</i> plane. 
+     * @param sizeX1 The number of pixels on the <i>X1</i>-axis.
+     *               This is the <i>X</i>-axis in the case of an <i>XY</i>-plane
+     *               or <i>XZ</i>-plane. Otherwise it is the 
+     *               <i>Z</i>-axis &#151; <i>ZY</i>-plane.
+     * @param sizeX2 The number of pixels on the <i>X2</i>-axis.
+     *               This is the <i>Y</i>-axis in the case of an <i>XY</i>-plane
+     *               or <i>ZY</i>-plane. Otherwise it is the <i>Z</i>-axis
+     *               &#151; <i>XZ</i>-plane. 
      * @see #bands
      */
     public RGBBuffer(int sizeX1, int sizeX2)
@@ -133,17 +133,19 @@ public class RGBBuffer
     
     /**
      * Returns the number of pixels on the <i>X1</i>-axis.
-     * This is the <i>X</i>-axis in the case of an <i>XY</i> or <i>XZ</i> plane.
-     * Otherwise it is the <i>Z</i>-axis &#151; <i>ZY</i> plane.
+     * This is the <i>X</i>-axis in the case of an <i>XY</i>-plane or
+     * <i>XZ</i>-plane. Otherwise it is the <i>Z</i>-axis &#151;
+     * <i>ZY</i>-plane.
      * 
      * @return The number of pixels on the <i>X1</i>-axis.
      */
     public int getSizeX1() { return sizeX1; }
     
     /**
-     * Returns the number of pixels on the X2-axis.
-     * This is the <i>Y</i>-axis in the case of an <i>XY</i> or <i>ZY</i> plane.
-     * Otherwise it is the <i>Z</i>-axis &#151; <i>XZ</i> plane.
+     * Returns the number of pixels on the <i>X2</i>-axis.
+     * This is the <i>Y</i>-axis in the case of an <i>XY</i>-plane or
+     * <i>ZY</i>-plane. Otherwise it is the <i>Z</i>-axis &#151;
+     * <i>XZ</i>-plane.
      *  
      * @return The number of pixels on the <i>X2</i>-axis.
      */

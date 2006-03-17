@@ -33,15 +33,15 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;//j.m
+import java.util.concurrent.Executors;//j.m
+import java.util.concurrent.Future;//j.m
 
 //Third-party libraries
 
 //Application-internal dependencies
 //j.mimport ome.util.concur.tasks.CmdProcessor;
 //j.mimport ome.util.concur.tasks.Future;
-import java.util.concurrent.ExecutorService;//j.m
-import java.util.concurrent.Executors;//j.m
-import java.util.concurrent.Future;//j.m
 
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -134,10 +134,10 @@ class RGBStrategy
      * Extracts a color band from the <code>dataBuf</code> depending on
      * the <code>rgba</code> settings. 
      * 
-     * @param dataBuf Buffer to hold the output image's data.
-     * @param rgba The color settings of a given wavelength.      
+     * @param dataBuf   Buffer to hold the output image's data.
+     * @param color     The color settings of a given wavelength.      
      * @return Returns the byte array corresponding to the color band selected
-     *         in <code>rgba</code>.
+     *         in <code>color</code>.
      */
     private byte[] getColorBand(RGBBuffer dataBuf, Color color)
     {
@@ -153,15 +153,12 @@ class RGBStrategy
     /**
      * Creates a rendering task for each active wavelength.
      * 
-     * @param planeDef The plane to render.
-     * @param renderedDataBuf The buffer into which the rendered data will go.
+     * @param planeDef          The plane to render.
+     * @param renderedDataBuf   The buffer into which the rendered data will go.
      * @return An array containing the tasks.
-     * @throws IOException If an I/O error occurs while retrieving the pixels
-     *                     data.
      */
     private RenderRGBWaveTask[] makeRndTasks(PlaneDef planeDef,
                                              RGBBuffer renderedDataBuf) 
-        throws IOException
     {
         ArrayList tasks = new ArrayList(3);
         
@@ -186,10 +183,10 @@ class RGBStrategy
                 
                 //Create a rendering task for this wavelength.
                 tasks.add(new RenderRGBWaveTask(
-                          getColorBand(renderedDataBuf, cBindings[w].getColor()), 
-                          wData, qManager.getStrategyFor(w), cc, 
-                          cBindings[w].getColor().getAlpha().intValue(),
-                          sizeX1, sizeX2));
+                         getColorBand(renderedDataBuf, cBindings[w].getColor()), 
+                         wData, qManager.getStrategyFor(w), cc, 
+                         cBindings[w].getColor().getAlpha().intValue(),
+                         sizeX1, sizeX2));
             }
         }
         

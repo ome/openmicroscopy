@@ -35,9 +35,11 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+//Application-internal dependencies
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -45,8 +47,6 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.PixelsType;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
@@ -77,8 +77,6 @@ import tmp.RenderingDefConstants;
  * which is selected depending on how transformed data is to be mapped into
  * a color space.</p>
  *
- * @see PixelsMetadata
- * @see PixelsData
  * @see RenderingDef
  * @see QuantumManager
  * @see CodomainChain
@@ -96,6 +94,7 @@ import tmp.RenderingDefConstants;
  */
 public class Renderer
 {
+    
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
     
@@ -105,15 +104,19 @@ public class Renderer
      * The {@link Pixels} object to access the metadata of the pixels
      * set bound to this <code>Renderer</code>. 
      */
-    private Pixels      metadata;
-    private ome.model.display.RenderingDef rndDef;
-    private PixelBuffer buffer;
+    private Pixels          metadata;
+    
+    /** The settings that define the transformation context. */
+    private RenderingDef    rndDef;
+    
+    /** The object that allows to access the pixels raw data. */
+    private PixelBuffer     buffer;
   
     /**
      * Manages and allows to retrieve the objects that are used to quantize
      * wavelength data.
      */
-	private QuantumManager		quantumManager;
+	private QuantumManager  quantumManager;
     
     /**
      * Defines the sequence of spatial transformations to apply to quantized
@@ -140,6 +143,7 @@ public class Renderer
      * 
      * @param metadata The service to access the metadata of the pixels
      *                 set bound to this <code>Renderer</code>.
+     * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(Pixels pixelsObj, RenderingDef renderingDefObj,
                     PixelBuffer bufferObj)
@@ -159,13 +163,10 @@ public class Renderer
         QuantumDef qd = rndDef.getQuantization();
         quantumManager = new QuantumManager(metadata);
         ChannelBinding[] cBindings= getChannelBindings();
-        PixelsType type = metadata.getPixelsType();
-        if (type == null || type.getValue() == null)
-        	throw new NullPointerException("Null type");
         quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
         
         //Compute the location stats.
-        //computeLocationStats(getDefaultPlaneDef());
+        computeLocationStats(getDefaultPlaneDef());
         
         //Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), 
@@ -176,17 +177,16 @@ public class Renderer
         //Create an appropriate rendering strategy.
         int m = RenderingDefConstants.convertType(rndDef.getModel());
         renderingStrategy = RenderingStrategy.makeNew(m);
-    
     }
     
     /**
      * Specifies the model that dictates how transformed raw data has to be 
      * mapped onto a color space.
      * This class delegates the actual rendering to a {@link RenderingStrategy},
-     * which is selected depending on that model.  So setting the model also
+     * which is selected depending on that model. So setting the model also
      * results in changing the rendering strategy.
      * 
-     * @param model Identifies the color space model.  One of the constants
+     * @param model Identifies the color space model. One of the constants
      *              defined by {@link RenderingDef}.
      */
 	public void setModel(int model)
@@ -203,10 +203,7 @@ public class Renderer
      * @see #setDefaultT(int)
      * @see #getDefaultPlaneDef()
      */
-    public void setDefaultZ(int z) 
-    {
-        rndDef.setDefaultZ(Integer.valueOf(z));
-    }
+    public void setDefaultZ(int z) { rndDef.setDefaultZ(Integer.valueOf(z)); }
     
     /**
      * Sets the default timepoint index.
@@ -216,20 +213,18 @@ public class Renderer
      * @see #setDefaultZ(int)
      * @see #getDefaultPlaneDef()
      */
-    public void setDefaultT(int t) 
-    {
-        rndDef.setDefaultT(Integer.valueOf(t));
-    }
+    public void setDefaultT(int t) { rndDef.setDefaultT(Integer.valueOf(t)); }
     
     /**
      * Creates the default plane definition to use for the generation of the
      * very first image displayed by <i>2D</i> viewers.
      * 
-     * @return Said plane definition.
+     * @return The default <i>XY</i>-plane.
      */
     public PlaneDef getDefaultPlaneDef()
     {
-        PlaneDef pd = new PlaneDef(PlaneDef.XY, rndDef.getDefaultT().intValue());
+        PlaneDef pd = new PlaneDef(PlaneDef.XY,
+                                    rndDef.getDefaultT().intValue());
         pd.setZ(rndDef.getDefaultZ().intValue());
         return pd;
     }
@@ -353,6 +348,7 @@ public class Renderer
      * @return  See above.
      */
     public PixelBuffer getPixels() { return buffer; }
+    
     public Pixels getMetadata() { return metadata; }
     
     /**

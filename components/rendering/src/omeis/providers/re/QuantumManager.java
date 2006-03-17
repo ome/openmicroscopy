@@ -31,19 +31,17 @@ package omeis.providers.re;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.List;
-
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
-
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 
@@ -93,6 +91,7 @@ class QuantumManager
      * 
      * @param qd	   The quantum definition which dictates what strategy to
      *                 use.
+     * @param type     The pixels' type.
      * @param waves    Rendering settings associated to each wavelength
      *                 (channel). 	
      */
@@ -102,13 +101,15 @@ class QuantumManager
 		double gMin, gMax;
 		List channels = this.metadata.getChannels();
 		int w = 0;
+        Channel channel;
 		for (Iterator i = channels.iterator(); i.hasNext();) {
-			Channel channel = (Channel) i.next();
+			channel = (Channel) i.next();
 			stg = QuantumFactory.getStrategy(qd,type);
 			gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
 			gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
 			stg.setExtent(gMin, gMax);
-            stg.setMapping(QuantumFactory.convertFamilyType(waves[w].getFamily()), 
+            stg.setMapping(
+                    QuantumFactory.convertFamilyType(waves[w].getFamily()), 
                     waves[w].getCoefficient().doubleValue(), 
                     waves[w].getNoiseReduction().booleanValue());
 			if (wavesStg[w] == null)
@@ -123,9 +124,10 @@ class QuantumManager
 	}
     
     /** 
-     * Retrieves the configured stratgy for the specified wavelength.
+     * Retrieves the configured strategy for the specified wavelength.
      * 
-     * @param w		The wavelength index in the <i>OME</i> 5D pixels file.
+     * @param w		The wavelength index in the <i>OME</i> 5D-pixels file.
+     * @return See above.
      */
 	QuantumStrategy getStrategyFor(int w) { return wavesStg[w]; }
     

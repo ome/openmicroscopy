@@ -31,13 +31,12 @@ package omeis.providers.re;
 
 
 //Java imports
+import java.util.concurrent.Callable; //j.m
 
 //Third-party libraries
 
 //Application-internal dependencies
 //j.m import ome.util.concur.tasks.Invocation; 
-import java.util.concurrent.Callable; //j.m
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.QuantizationException;
@@ -91,13 +90,14 @@ class RenderRGBWaveTask
     /**
      * Creates a new instance to render a wavelength.
      * 
-     * @param band Buffer to hold the output image's data.
-     * @param plane The wavelength data.
-     * @param qs The quantum strategy associated to the wavelength.
-     * @param cc The spatial transformations to apply to the quantized data.
-     * @param alpha The alpha component to apply to the final image.
-     * @param sizeX1 The number of pixels along the <i>X1</i>-axis.
-     * @param sizeX2 The number of pixels along the <i>X2</i>-axis.
+     * @param band      Buffer to hold the output image's data.
+     * @param plane     The wavelength data.
+     * @param qs        The quantum strategy associated to the wavelength.
+     * @param cc        The spatial transformations to apply to the quantized
+     *                  data.
+     * @param alpha     The alpha component to apply to the final image.
+     * @param sizeX1    The number of pixels along the <i>X1</i>-axis.
+     * @param sizeX2    The number of pixels along the <i>X2</i>-axis.
      */
     RenderRGBWaveTask(byte[] band, Plane2D plane, QuantumStrategy qs,
                       CodomainChain cc, int alpha, int sizeX1, int sizeX2)
@@ -114,6 +114,7 @@ class RenderRGBWaveTask
     /** 
      * Renders wavelength.
      * 
+     * @return The data buffer that holds the rendered data.
      * @throws QuantizationException If an error occurs while quantizing a
      *                               pixels intensity value.
      */

@@ -32,15 +32,16 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;//j.m
+import java.util.concurrent.Executors;//j.m
+import java.util.concurrent.Future;//j.m
 
 //Third-party libraries
 
 //Application-internal dependencies
+
 //j.mimport ome.util.concur.tasks.CmdProcessor;
 //j.mimport ome.util.concur.tasks.Future;
-import java.util.concurrent.ExecutorService;//j.m
-import java.util.concurrent.Executors;//j.m
-import java.util.concurrent.Future;//j.m
 
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -83,14 +84,14 @@ class HSBStrategy
 {
     
     /** 
-     * Number of pixels on the <i>X1</i>-axis.
+     * The number of pixels on the <i>X1</i>-axis.
      * This is the <i>X</i>-axis in the case of an <i>XY</i> or <i>XZ</i> plane.
      * Otherwise it is the <i>Z</i>-axis &#151; <i>ZY</i> plane.
      */
     private int         sizeX1;
     
     /** 
-     * Number of pixels on the X2-axis.
+     * The number of pixels on the X2-axis.
      * This is the <i>Y</i>-axis in the case of an <i>XY</i> or <i>ZY</i> plane.
      * Otherwise it is the <i>Z</i>-axis &#151; <i>XZ</i> plane. 
      */
@@ -101,11 +102,12 @@ class HSBStrategy
     
     
     /** 
-     * Initialize the <code>sizeX1</code> and <code>sizeX2</code> fields
+     * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
      * according to the specified {@link PlaneDef#getSlice() slice}.
      * 
-     * @param pd Reference to the plane definition defined for the strategy.
-     * @param pixels Dimensions of the pixels set.
+     * @param pd        Reference to the plane definition defined for the
+     *                  strategy.
+     * @param pixels    Dimensions of the pixels set.
      */
     private void initAxesSize(PlaneDef pd, Pixels pixels)
     {
@@ -134,11 +136,8 @@ class HSBStrategy
      * 
      * @param planeDef The plane to render.
      * @return An array containing the tasks.
-     * @throws IOException If an I/O error occurs while retrieving the pixels
-     *                     data.
      */
     private RenderHSBWaveTask[] makeRndTasks(PlaneDef planeDef)
-        throws IOException
     {
         ArrayList tasks = new ArrayList();
         

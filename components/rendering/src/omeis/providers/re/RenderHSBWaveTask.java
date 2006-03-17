@@ -33,15 +33,13 @@ package omeis.providers.re;
 
 
 //Java imports
+import java.util.concurrent.Callable; //j.m
 
 //Third-party libraries
 
 //Application-internal dependencies
 //j.m import ome.util.concur.tasks.Invocation; 
-import java.util.concurrent.Callable; //j.m
-
 import ome.model.display.Color;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.QuantizationException;
@@ -95,14 +93,15 @@ class RenderHSBWaveTask
     /**
      * Creates a new instance to render a wavelength.
      * 
-     * @param dataBuffer Buffer to hold the output image's data.
-     * @param plane The wavelength data.
-     * @param qs The quantum strategy associated to the wavelength.
-     * @param cc The spatial transformations to apply to the quantized data.
-     * @param rgba The color component to use when mapping a quantized value
-     *             onto the color space.
-     * @param sizeX1 The number of pixels along the <i>X1</i>-axis.
-     * @param sizeX2 The number of pixels along the <i>X2</i>-axis.
+     * @param dataBuffer    Buffer to hold the output image's data.
+     * @param plane         The wavelength data.
+     * @param qs            The quantum strategy associated to the wavelength.
+     * @param cc            The spatial transformations to apply to the
+     *                      quantized data.
+     * @param color         The color component to use when mapping a quantized
+     *                      value onto the color space.
+     * @param sizeX1        The number of pixels along the <i>X1</i>-axis.
+     * @param sizeX2        The number of pixels along the <i>X2</i>-axis.
      */
     RenderHSBWaveTask(RGBBuffer dataBuffer, Plane2D plane, QuantumStrategy qs,
                       CodomainChain cc, Color color, int sizeX1, int sizeX2)
@@ -119,6 +118,7 @@ class RenderHSBWaveTask
     /** 
      * Renders wavelength.
      * 
+     * @return The data buffer that holds the rendered data.
      * @throws QuantizationException If an error occurs while quantizing a
      *                               pixels intensity value.
      */

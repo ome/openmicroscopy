@@ -33,11 +33,10 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
-import ome.model.core.Pixels;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
 import tmp.RenderingDefConstants;
@@ -73,8 +72,7 @@ abstract class RenderingStrategy
      * transformed raw data is to be mapped into a color space.  This model
      * is identified by the passed argument.
      * 
-     * @param model Identifies the color space model.  One of the constants
-     *              defined by {@link RenderingDef}.
+     * @param model Identifies the color space model. 
      * @return A strategy suitable for the specified model.
      */
 	static RenderingStrategy makeNew(int model)
