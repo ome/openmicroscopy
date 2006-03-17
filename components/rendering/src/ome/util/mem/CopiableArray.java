@@ -64,27 +64,41 @@ public abstract class CopiableArray
     
     private Copiable[]  elements;
     
-    /** Constructor. */
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param size The size of the array.
+     * @throws IllegalArgumentException If the size is not strictly positive,
+     */
     protected CopiableArray(int size)
     {
-        if (size <= 0) 
-            throw new IllegalArgumentException("Size cannot be <=0");
+        if (size <= 0) throw new IllegalArgumentException("Size cannot be <=0");
         elements = new Copiable[size];
     }
     
-    /** Contruct a new array of the speficied size. */
+    /** 
+     * Creates a new array of the speficied size. 
+     * 
+     * @param size The size of the array.
+     * @return See above.
+     */
     protected abstract CopiableArray makeNew(int size);
     
-    /** Return the number of elements in the array. */
+    /** 
+     * Returns the number of elements in the array. 
+     * 
+     * @return See above.
+     */
     public int getSize() { return elements.length; }
     
     /** 
      * Replaces the element at the specified position with the 
      * specified {@link Copiable}.
      * 
-     * @param element Copiable to set.
-     * @param index   position.
-     * */
+     * @param element   Copiable to set.
+     * @param index     The position in the array.
+     * @throws IllegalArgumentException If the index is not valid.
+     */
     public void set(Copiable element, int index)
     {
         if (index >= elements.length || index < 0)
@@ -95,8 +109,9 @@ public abstract class CopiableArray
     /** 
      * Return the {@link Copiable} at the specified position.
      * 
-     * @param index The position.
+     * @param index The position in the array.
      * @return See above.
+     * @throws IllegalArgumentException If the index is not valid.
      */
     public Copiable get(int index)
     {
@@ -106,11 +121,12 @@ public abstract class CopiableArray
     }
  
     /** 
-     * Copy the {@link Copiable} from the specified position <code>from</code>
+     * Copies the {@link Copiable} from the specified position <code>from</code>
      * into the specified position <code>to</code>.
      * 
-     * @param from  position.
-     * @param to    position.
+     * @param from  The starting position.
+     * @param to    The ending position.
+     * @throws IllegalArgumentException If the indexes are not valid.
      */
     public void copy(int from, int to)
     {
@@ -131,7 +147,10 @@ public abstract class CopiableArray
         }
     }
     
-    /** Implements the method as specified by {@link Copiable}. */
+    /** 
+     * Implements the method as specified by {@link Copiable}. 
+     * @see Copiable#copy()
+     */
     public Object copy()
     {
         CopiableArray copy = makeNew(elements.length);

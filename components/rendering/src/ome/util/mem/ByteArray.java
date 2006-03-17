@@ -70,9 +70,9 @@ public class ByteArray
 	 * arguments must define an interval  
 	 * <code>[offset, offset+length]</code> in <code>[0, base.length]</code>.
 	 * 
-	 * @param base	The original array.
-	 * @param offset The start of the slice.
-	 * @param length	The length of the slice.
+	 * @param base     The original array.
+	 * @param offset   The start of the slice.
+	 * @param length   The length of the slice.
 	 */
 	public ByteArray(byte[] base, int offset, int length) 
 	{
@@ -109,6 +109,7 @@ public class ByteArray
      *              <code>null</code> and must fit into this slice.  If
      *              the length is <code>0</code>, then this method does
      *              nothing.
+     * @throws NullPointerException If a <code>null</code> buffer is specified.
      */
     public void set(int index, byte[] buf)
     {
@@ -130,17 +131,20 @@ public class ByteArray
      * (that is, bytes from <code>index</code> to the end of the slice),
      * and the number of bytes to the end of the supplied stream.
      * 
-     * @param index The index, within this slice, from which to start writing.
-     *              Must be in the <code>[0, {@link ReadOnlyByteArray#length})
-     *              </code> interval.
-     * @param maxLength The maximum amount of bytes to write.  If not positive,
+     * @param index     The index, within this slice, from which to start
+     *                  writing. Must be in the 
+     *                  <code>[0, {@link ReadOnlyByteArray#length})</code> 
+     *                  interval.
+     * @param maxLength The maximum amount of bytes to write. If not positive,
      *                  this method does nothing and returns <code>0</code>.
-     * @param in    The stream from which to read data.  Mustn't be 
-     *              <code>null</code>.
+     * @param in        The stream from which to read data. Mustn't be 
+     *                  <code>null</code>.
      * @return The amount of bytes actually written or <code>-1</code> if the
      *          end of the stream has been reached.
      * @throws IOException  If an I/O error occurred while reading data from
      *                      the stream.
+     * @throws NullPointerException If the specified <code>input stream</code>
+     *                              is <code>null</code>.
      */
     public int set(int index, int maxLength, InputStream in) 
         throws IOException
