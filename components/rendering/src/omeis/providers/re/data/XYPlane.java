@@ -56,12 +56,14 @@ class XYPlane
     /**
      * Creates a new instance.
      * 
-     * @param data Contains the data of a single <i>XY</i>-plane.
-     * @param pDef The type of plane.
-     * @param sizeX Number of pixels along the <i>X</i>-axis.
-     * @param sizeY Number of pixels along the <i>Y</i>-axis.
+     * @param data          Contains the data of the whole stack in which the 
+     *                      <i>XZ</i>-plane belongs.
+     * @param pDef          The type of plane.
+     * @param sizeX         The number of pixels along the <i>X</i>-axis.
+     * @param sizeY         The number of pixels along the <i>Y</i>-axis.
      * @param bytesPerPixel How many bytes make up a pixel value
-     * @param strategy Knows how to convert the pixel bytes into a double.
+     * @param strategy      The strategy to convert the pixel bytes into a
+     *                      double.
      */
     XYPlane(byte[] data, PlaneDef pDef, int sizeX, int sizeY, 
             int bytesPerPixel, BytesConverter strategy)
@@ -69,10 +71,13 @@ class XYPlane
 		super(data, pDef, sizeX, sizeY, bytesPerPixel, strategy);
 	}
 
-    /** Implemented as specified by the superclass. */
+    /** 
+     * Implemented as specified by the superclass. 
+     * @see Plane2D#calculateOffset(int, int)
+     */
 	protected int calculateOffset(int x1, int x2) 
 	{ 
-		return bytesPerPixel * (sizeX*x2+x1);
+		return bytesPerPixel*(sizeX*x2+x1);
 	}
 
 }

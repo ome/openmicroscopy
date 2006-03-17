@@ -37,7 +37,7 @@ package omeis.providers.re.data;
 //Application-internal dependencies
 
 /** 
- * Identifies a <i>2D</i> plane in the <i>XYZ</i> moving frame of the 
+ * Identifies a <i>2D</i>-plane in the <i>XYZ</i> moving frame of the 
  * <i>3D</i> stack.
  * Tells which plane the wavelengths to render belong to.
  * 
@@ -67,7 +67,7 @@ public class PlaneDef
     
 	/** 
      * Tells which kind of plane this object identifies.  
-     * Set to one of the {@link #XY}, {@link #XZ}, {@link #ZY} constants 
+     * Set to one of the {@link #XY}, {@link #XZ} or {@link #ZY} constants 
      * defined by this class.  
      */
 	private int	slice;
@@ -109,11 +109,16 @@ public class PlaneDef
 	 */
 	public PlaneDef(int slice, int t)
 	{
-		if (slice == XY || slice == ZY || slice == XZ)
-			this.slice = slice;
-		else 
-            throw new IllegalArgumentException(
-                    "Wrong slice identifier: "+slice+".");
+        switch (slice) {
+            case XY:
+            case ZY:
+            case XZ:
+                this.slice = slice;
+                break;
+            default:
+                throw new IllegalArgumentException("Wrong slice identifier: " +
+                                                slice+".");
+        }  
         if (t < 0)
             throw new IllegalArgumentException("Negative timepoint: "+t+".");
 		this.t = t;
@@ -179,7 +184,7 @@ public class PlaneDef
     /**
      * Returns an identifier to tell which kind of plane this object identifies.  
      *  
-     * @return One of the {@link #XY}, {@link #XZ}, {@link #ZY} constants 
+     * @return  One of the {@link #XY}, {@link #XZ} or {@link #ZY} constants 
      *          defined by this class.
      */
 	public int getSlice() { return slice; }
@@ -218,6 +223,7 @@ public class PlaneDef
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#equals(Object)
      */
 	public boolean equals(Object o)
     {
@@ -244,6 +250,7 @@ public class PlaneDef
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#hashCode()
      */
     public int hashCode()
     {
@@ -285,6 +292,7 @@ public class PlaneDef
     /** 
      * Overrides generic <code>toString</code> method to provide a specific
      * string representation of this object.
+     * @see Object#toString()
      */
     public String toString()
     {
