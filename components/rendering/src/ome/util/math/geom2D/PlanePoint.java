@@ -238,6 +238,7 @@ public class PlanePoint
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#equals(Object)
      */
     public boolean equals(Object o)
     {
@@ -252,6 +253,7 @@ public class PlanePoint
     /**
      * Overridden to reflect equality of abstract values (data object) as 
      * opposite to object identity.
+     * @see Object#hashCode()
      */
     public int hashCode() 
     {

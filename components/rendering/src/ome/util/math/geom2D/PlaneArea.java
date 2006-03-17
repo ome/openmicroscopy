@@ -60,19 +60,37 @@ public interface PlaneArea
     /** 
      * Sets the bounding <code>Rectangle</code> of the planeArea
      * to the specified x, y, width, and height.
+     * 
+     * @param x         The x-coordinate of the top-left corner.
+     * @param y         The y-coordinate of the top-left corner.
+     * @param width     The width of the area.
+     * @param height    The height of the area.
      */
     public void setBounds(int x, int y, int width, int height);
     
     /** 
      * Resets the bounding <code>Rectangle</code> of the planeArea
      * according to the specified scaling factor.
+     * 
+     * @param factor The scaling factor.
      */
     public void scale(double factor);
     
-    /** Return an array of {@link PlanePoint} contained in the PlaneArea. */
+    /** 
+     * Returns an array of {@link PlanePoint} contained in the PlaneArea. 
+     * 
+     * @return See above.
+     */
     public PlanePoint[] getPoints();
     
-    /** Checks if a specified point belongs to the boundary of the PlaneArea. */
+    /** 
+     * Controls if a specified point is on the boundary of the PlaneArea. 
+     * 
+     * @param x The x-coordinate of the point.
+     * @param y The y-coordinate of the point.
+     * @return  <code>true</code> if the point is on the boundary, 
+     *          <code>false</code> otherwise.
+     */
     public boolean onBoundaries(double x, double y);
     
 }
