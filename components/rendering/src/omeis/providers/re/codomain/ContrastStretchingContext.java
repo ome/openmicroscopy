@@ -37,8 +37,9 @@ package omeis.providers.re.codomain;
 //Application-internal dependencies
 
 /** 
- * Two points pStart and pEnd define the context of this transformation. 
- * We determine the equations of 3 lines (segments to be correct).
+ * Two points <code>pStart</code> and <code>pEnd</code> define the context of
+ * this transformation. We determine the equations of 3 lines 
+ * (segments to be correct).
  * The first one is a line between the point with coordinates 
  * (intervalStart, intervalStart) and (xStart, yStart).
  * The second one between (xStart, yStart) and (xEnd, yEnd).
@@ -59,33 +60,34 @@ public class ContrastStretchingContext
 	extends CodomainMapContext
 {
 	
-	/** x-coordinate of pStart. */
+	/** The x-coordinate of pStart. */
 	private int 					xStart;
 	
-	/** y-coordinate of pStart. */	
+	/** The y-coordinate of pStart. */	
 	private int 					yStart;
 	
-	/** x-coordinate of pEnd. */
+	/** The x-coordinate of pEnd. */
 	private int 					xEnd;
 	
-	/** y-coordinate of pEnd. */
+	/** The y-coordinate of pEnd. */
 	private int 					yEnd;
 	
-	/** coefficients of the first line with equation y = a0*x+b0. */
+	/** The slope and the y-intercept of the first line i.e. y = a0*x+b0. */
 	private double 					a0, b0;
 	
-	/** coefficients of the second line with equation y = a1*x+b1. */
+    /** The slope and the y-intercept of the second line i.e. y = a1*x+b1. */
 	private double 					a1, b1;
 	
-	/** coefficients of the third line with equation y = a2*x+b2. */
+    /** The slope and the y-intercept of the third line i.e. y = a2*x+b2. */
 	private double 					a2, b2;
 	
 	/** 
-	 * Verify the bounds of the input interval [s, e]. This interval must be a
+	 * Verifies the bounds of the input interval [s, e]. This interval must be a
 	 * sub-interval of [intervalStart, intervalEnd]. 
 	 * 
-	 * @param start		Lower bound of the interval.
-	 * @param end		Upper bound of the interval.
+	 * @param start    The lower bound of the interval.
+	 * @param end      The upper bound of the interval.
+     * @throws IllegalArgumentException If the value is not in the interval.
 	 */
 	private void verifyInputInterval(int start, int end)
 	{
@@ -93,7 +95,12 @@ public class ContrastStretchingContext
 			throw new IllegalArgumentException("Interval not consistent " +				"in contrast stretching context.");
 	}
 	
-	/** Compute the coefficients of the first straight y = a0*x+b0.  */
+	/** 
+     * Computes the slope and the y-intercept of the first line i.e. 
+     * y = a0*x+b0.  
+     * 
+     * @param intervalStart The starting value of the segment.
+     */
 	private void setFirstLineCoefficient(int intervalStart)
 	{
 		double r = xStart-intervalStart;
@@ -102,7 +109,10 @@ public class ContrastStretchingContext
 		b0 = intervalStart*(1-a0);
 	}
 	
-	/** Compute the coefficients of the first straight y = a0*x+b0.  */
+	/**
+     * Computes the slope and the y-intercept of the second line i.e.
+     * y = a1*x+b1.
+     */
 	private void setSecondLineCoefficient()
 	{
 		double r = xEnd-xStart;
@@ -112,7 +122,12 @@ public class ContrastStretchingContext
 		b1 = yStart-a1*xStart;
 	}
 	
-	/** Computes the coefficient of the first straight y = a0*x+b0.  */
+	/** 
+     * Computes the slope and the y-intercept of the third straight
+     * i.e. y = a2*x+b2. 
+     * 
+     * @param intervalEnd The starting value of the segment.
+     */
 	private void setThirdLineCoefficient(int intervalEnd)
 	{
 		double r = intervalEnd-xEnd;
@@ -122,9 +137,7 @@ public class ContrastStretchingContext
 	}
 	
 	/** 
-	 * Implemented as specified by superclass.
 	 * Calculates the equations of the lines.
-	 * 
 	 * @see CodomainMapContext#buildContext()
 	 */
 	void buildContext() 
@@ -141,16 +154,13 @@ public class ContrastStretchingContext
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#getCodomainMap()
 	 */
-	CodomainMap getCodomainMap() 
-	{
-		return new ContrastStretchingMap();
-	}
+	CodomainMap getCodomainMap() { return new ContrastStretchingMap(); }
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#copy()
 	 */
 	public CodomainMapContext copy() 
 	{
@@ -170,6 +180,15 @@ public class ContrastStretchingContext
 		return copy;
 	}
 	
+    /**
+     * Sets the coordinates of the points used to determine the equations
+     * of the lines.
+     * 
+     * @param xStart    The x-coodinate of the <code>pStart</code> point.
+     * @param yStart    The y-coodinate of the <code>pStart</code> point.
+     * @param xEnd      The x-coodinate of the <code>pEnd</code> point.
+     * @param yEnd      The y-coodinate of the <code>pEnd</code> point.
+     */
 	public void setCoordinates(int xStart, int yStart, int xEnd, int yEnd)
 	{
 		verifyInputInterval(xStart, xEnd);
@@ -180,48 +199,118 @@ public class ContrastStretchingContext
 		this.yEnd = yEnd;
 	}
 	
-	public void setXStart(int xs)
+    /**
+     * Sets the x-coodinate of the <code>pStart</code> point.
+     * 
+     * @param v The value to set.
+     */
+	public void setXStart(int v)
 	{
-		verifyInputInterval(xs, xEnd);
-		xStart = xs;
+		verifyInputInterval(v, xEnd);
+		xStart = v;
 	}
 	
-	public void setXEnd(int xe)
+    /**
+     * Sets the x-coodinate of the <code>pEnd</code> point.
+     * 
+     * @param v The value to set.
+     */
+	public void setXEnd(int v)
 	{
-		verifyInputInterval(xStart, xe);
-		xEnd = xe;
+		verifyInputInterval(xStart, v);
+		xEnd = v;
 	}
 	
-	public void setYStart(int ys)
+    /**
+     * Sets the y-coodinate of the <code>pStart</code> point.
+     * 
+     * @param v The value to set.
+     */
+	public void setYStart(int v)
 	{
-		verifyInputInterval(ys, yEnd);
-		yStart = ys;
+		verifyInputInterval(v, yEnd);
+		yStart = v;
 	}
 	
-	public void setYEnd(int ye)
+    /**
+     * Sets the y-coodinate of the <code>pEnd</code> point.
+     * 
+     * @param v The value to set.
+     */
+	public void setYEnd(int v)
 	{
-		verifyInputInterval(yStart, ye);
-		yEnd = ye;
+		verifyInputInterval(yStart, v);
+		yEnd = v;
 	}
 	
+    /**
+     * Returns the x-coordinate of the <code>pEnd</code> point.
+     * 
+     * @return See above.
+     */
 	public int getXEnd() { return xEnd; }
 
+    /**
+     * Returns the x-coordinate of the <code>pStart</code> point.
+     * 
+     * @return See above.
+     */
 	public int getXStart() { return xStart; }
 
+    /**
+     * Returns the y-coordinate of the <code>pEnd</code> point.
+     * 
+     * @return See above.
+     */
 	public int getYEnd() { return yEnd; }
 
+    /**
+     * Returns the y-coordinate of the <code>pStart</code> point.
+     * 
+     * @return See above.
+     */
 	public int getYStart() { return yStart; }
 
+    /**
+     * Returns the slope of the first line.
+     * 
+     * @return See above.
+     */
 	public double getA0() { return a0; }
 
+    /**
+     * Returns the slope of the second line.
+     * 
+     * @return See above.
+     */
 	public double getA1() { return a1; }
 
+    /**
+     * Returns the slope of the third line.
+     * 
+     * @return See above.
+     */
 	public double getA2() { return a2; }
 
+    /**
+     * Returns the y-intercept of the first line.
+     * 
+     * @return See above.
+     */
 	public double getB0() { return b0; }
 
+    /**
+     * Returns the y-intercept of the second line.
+     * 
+     * @return See above.
+     */
 	public double getB1() { return b1; }
 
+    /**
+     * Returns the y-intercept of the third line.
+     * 
+     * @return See above.
+     */
 	public double getB2() { return b2; }
 	
 }

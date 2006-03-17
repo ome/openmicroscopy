@@ -62,13 +62,13 @@ public class IdentityMapContext
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#getCodomainMap()
 	 */
 	CodomainMap getCodomainMap() { return new IdentityMap(); }
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#copy()
 	 */
 	public CodomainMapContext copy()  
     {

@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import omeis.providers.re.quantum.QuantumStrategy;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -68,18 +70,6 @@ public class CodomainChain
 {
 	
 	/** 
-	 * Maximum value (<code>255</code>) allowed for the upper bound of the 
-	 * codomain interval.
-	 */
-	public static final int		MAX = 255;
-	
-	/** 
-	 * Minimum value (<code>0</code>) allowed for the lower bound of the 
-	 * codomain interval.
-	 */
-	public static final int		MIN = 0;
-	
-	/** 
 	 * Identity map.
 	 * This is a singleton and is always the first map in a codomain chain. 
 	 */
@@ -107,9 +97,10 @@ public class CodomainChain
         CodomainMap map;
         CodomainMapContext ctx;
         int v;
+        Iterator i;
         for (int x = intervalStart; x <= intervalEnd; ++x) {
             v = x;
-            Iterator i = chain.iterator();
+            i = chain.iterator();
             while (i.hasNext()) {
                 ctx = (CodomainMapContext) i.next();
                 map = ctx.getCodomainMap();
@@ -123,19 +114,25 @@ public class CodomainChain
     /** 
      * Verifies the bounds of the codomain interval. 
      * 
-     * @param start     Lower bound of the interval.
-     * @param end       Upper bound of the interval.
+     * @param start The lower bound of the interval.
+     * @param end   The upper bound of the interval.
+     * @throws IllegalArgumentException If the value is not in the interval.
      */
     private void verifyInterval(int start, int end)
     {
-        if (start >= end || start < MIN || end > MAX)
+        if (start >= end || start < QuantumStrategy.MIN ||
+                end > QuantumStrategy.MAX)
             throw new IllegalArgumentException("Interval not consistent.");
     }
     
     /** 
-     * Verifies that the specifed input value is in the codomain interval.
+     * Verifies that the specifed input value is in the codomain interval. 
+     * If the value is less (resp. greater) than the {@link #intervalStart}
+     * (resp. {@link #intervalEnd}), the input value 
+     * is set to {@link #intervalStart} (resp. {@link #intervalEnd})
      * 
-     * @param x     Input value.
+     * @param x The Input value.
+     * @return See above.
      */
     private int verifyInput(int x)
     {
@@ -143,15 +140,15 @@ public class CodomainChain
         else if (x > intervalEnd) x = intervalEnd;
         return x;
     }
-    
-    
+
 	/**
 	 * Creates a new chain.
 	 * The chain will contain the identity context.  So if no transformation
 	 * is added, the {@link #transform(int) transform} method returns the
 	 * input value.
 	 * The interval defined by <code>start</code> and <code>end</code> must
-	 * be a sub-interval of <code>[{@link #MIN}, {@link #MAX}]</code>. 
+	 * be a sub-interval of 
+     * <code>[{@link QuantumStrategy#MIN}, {@link QuantumStrategy#MAX}]</code>. 
 	 * 
 	 * @param start	The lower bound of the codomain interval.
 	 * @param end	The upper bound of the codomain interval.
@@ -167,14 +164,17 @@ public class CodomainChain
 	 * <code>mapContexts</code> is <code>null</code> or empty, the chain
 	 * will contain only the identity context.
 	 * The interval defined by <code>start</code> and <code>end</code> has to
-	 * be a sub-interval of <code>[{@link #MIN}, {@link #MAX}]</code>.
+	 * be a sub-interval of 
+     * <code>[{@link QuantumStrategy#MIN}, {@link QuantumStrategy#MAX}]</code>. 
 	 * 
-	 * @param start	The lower bound of the codomain interval.
-	 * @param end	The upper bound of the codomain interval.
-	 * @param mapContexts	The sequence of {@link CodomainMapContext} objects
-	 * 						that define the chain.  No two objects of the same
-	 * 						class are allowed.  The objects in this list are
-	 * 						copied.
+	 * @param start	       The lower bound of the codomain interval.
+	 * @param end          The upper bound of the codomain interval.
+	 * @param mapContexts  The sequence of {@link CodomainMapContext} objects
+     *                     that define the chain. No two objects of the same
+	 * 					   class are allowed. The objects in this list are
+	 * 					   copied.
+     * @throws IllegalArgumentException If one of the contexts is already 
+     *                                  defined.
 	 */
 	public CodomainChain(int start, int end, List mapContexts)
 	{
@@ -201,7 +201,8 @@ public class CodomainChain
 	 * This triggers an update of all map contexts in the chain and a re-build
 	 * of the lookup table.
 	 * The interval defined by <code>start</code> and <code>end</code> must
-	 * be a sub-interval of <code>[{@link #MIN}, {@link #MAX}]</code>. 
+	 * be a sub-interval of 
+     * <code>[{@link QuantumStrategy#MIN}, {@link QuantumStrategy#MAX}]</code>. 
 	 * 
 	 * @param start	The lower bound of the codomain interval.
 	 * @param end	The upper bound of the codomain interval.
@@ -221,20 +222,28 @@ public class CodomainChain
 		buildLUT();
 	}
 	
-	/** Returns the upper bound of the codomain interval. */
+	/** 
+     * Returns the upper bound of the codomain interval.
+     * 
+     *  @return See above.
+     */
 	public int getIntervalEnd() { return intervalEnd; }
 
-	/** The lower bound of the codomain interval. */
+    /** 
+     * Returns the lower bound of the codomain interval.
+     * 
+     *  @return See above.
+     */
 	public int getIntervalStart() { return intervalStart; }
 	
 	/** 
-	 * Remove all codomainMapContexts except the identity and 
-	 * reset the interval. 
+	 * Removes all {@link CodomainMapContext}s except the identity and 
+	 * resets the interval. 
 	 */
 	public void remove()
 	{
-		intervalStart = MIN;
-		intervalEnd = MAX;
+		intervalStart = QuantumStrategy.MIN;
+		intervalEnd = QuantumStrategy.MAX;
 		chain.removeAll(chain);
 		chain.add(identityCtx);
 		buildLUT();
@@ -245,15 +254,16 @@ public class CodomainChain
 	 * This means that the transformation associated to the passed context
 	 * will be applied after all the currently queued transformations.
 	 * An exception will be thrown if the chain already contains an object of
-	 * the same class as <code>mapCtx</code>.  This is because we don't want
+	 * the same class as <code>mapCtx</code>. This is because we don't want
 	 * to compose the same transformation twice.
-	 * This method adds a copy of <code>mapCtx</code> to the chain.  This is
+	 * This method adds a copy of <code>mapCtx</code> to the chain. This is
 	 * because we want to exclude the possibility that the context's state can
 	 * be modified after the lookup table is built.
 	 * This method triggers a re-build of the lookup table. 
 	 * 
-	 * @param mapCtx	The context to add.  Mustn't be <code>null</code> or
+	 * @param mapCtx	The context to add. Mustn't be <code>null</code> or
 	 * 					already contained in the chain.
+     * @throws IllegalArgumentException If the context is already defined.
 	 */
 	public void add(CodomainMapContext mapCtx)
 	{
@@ -276,8 +286,9 @@ public class CodomainChain
 	 * state can be modified after the lookup table is built.
 	 * This method triggers a re-build of the lookup table. 
 	 * 
-	 * @param mapCtx	The context to add.  Mustn't be <code>null</code> or
+	 * @param mapCtx	The context to add. Mustn't be <code>null</code> or
 	 * 					already contained in the chain.
+     * @throws IllegalArgumentException If the specifed context doesn't exist.
 	 */
 	public void update(CodomainMapContext mapCtx)
 	{
@@ -315,7 +326,7 @@ public class CodomainChain
 	 * This transformation is the result of the composition of all maps defined
 	 * by the current chain.  Composition follows the chain order.
 	 * 
-	 * @param x	The input value.  Must be in the current codomain interval.
+	 * @param x	The input value. Must be in the current codomain interval.
 	 * @return	The output value, y.
 	 */
 	public int transform(int x)
@@ -324,7 +335,10 @@ public class CodomainChain
 		return LUT[y-intervalStart];
 	}
     
-    /** Overrides the toString method. */
+    /**
+     * Overrides the toString method. 
+     * @see Object#toString()
+     */
     public String toString()
     {
         StringBuffer buf = new StringBuffer();

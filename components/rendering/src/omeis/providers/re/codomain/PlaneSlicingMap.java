@@ -64,6 +64,7 @@ class PlaneSlicingMap
 	implements CodomainMap
 {
 	
+    /** The mapping context of this map. */
 	private PlaneSlicingContext	psCtx;
 
     /** 
@@ -80,7 +81,6 @@ class PlaneSlicingMap
         return psCtx.getPlaneSelected();
     }
     
-
     /**
      * Highlights the level of the <code>planeSelected</code> but
      * preserves all other levels.
@@ -95,20 +95,29 @@ class PlaneSlicingMap
         return x;
     }
     
-	/** Implemented as specified in {@link CodomainMap}.  */
+	/** 
+     * Implemented as specified in {@link CodomainMap}. 
+     * @see CodomainMap#setContext(CodomainMapContext)
+     */
 	public void setContext(CodomainMapContext ctx)
 	{
 		psCtx = (PlaneSlicingContext) ctx;
 	}
 
-	/** Implemented as specified in {@link CodomainMap}. */
+	/** 
+     * Implemented as specified in {@link CodomainMap}. 
+     * @see CodomainMap#transform(int)
+     */
 	public int transform(int x)
 	{
 		if (psCtx.IsConstant()) return transformConstant(x);
 		return transformNonConstant(x);
 	}
 	
-    /** Overrides the toString method. */
+    /** 
+     * Overriden to return the name of this map. 
+     * @see Object#toString()
+     */
     public String toString() { return "PlaneSlicingMap"; }
     
 }

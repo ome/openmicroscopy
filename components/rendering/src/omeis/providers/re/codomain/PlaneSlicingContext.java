@@ -37,9 +37,9 @@ package omeis.providers.re.codomain;
 //Application-internal dependencies
 
 /** 
- * We consider that the image is composed of eight 1-bit planes
- * ranging from bit-plane 0 for the least significant bit to bit-plane 7
- * for the most significant bit.
+ * We consider that the image is composed of eight <code>1-bit</code> planes
+ * ranging from bit-plane <code>0</code> for the least significant bit 
+ * to bit-plane <code>7</code> for the most significant bit.
  * The BIT_* constants cannot be modified b/c they have a meaning. 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -57,60 +57,113 @@ public class PlaneSlicingContext
 	extends CodomainMapContext
 {
 	
-	/** bit-plane 0, corresponding value 2^1-1 . */
+	/** Identifies the bit-plane <i>0</i> i.e. <i>2^1-1</i> value. */
 	public static final int 		BIT_ZERO = 0;
 	
-	/** bit-plane 1, corresponding value 2^1. */
+	/** Identifies the bit-plane <i>1</i> i.e. <i>2^1</i> value. */
 	public static final int 		BIT_ONE = 2;
 	
-	/** bit-plane 2, corresponding value 2^2. */
+	/** Identifies the bit-plane <i>2</i> i.e. <i>2^2</i> value. */
 	public static final int 		BIT_TWO = 4;
 	
-	/** bit-plane 3, corresponding value 2^3. */
+	/** Identifies the bit-plane <i>3</i> i.e. <i>2^3</i> value. */
 	public static final int 		BIT_THREE = 8;
 	
-	/** bit-plane 4, corresponding value 2^4. */
+    /** Identifies the bit-plane <i>4</i> i.e. <i>2^4</i> value. */
 	public static final int 		BIT_FOUR = 16;
 	
-	/** bit-plane 5, corresponding value 2^5. */
+    /** Identifies the bit-plane <i>5</i> i.e. <i>2^5</i> value. */
 	public static final int 		BIT_FIVE = 32;
 
-	/** bit-plane 6, corresponding value 2^6. */
+    /** Identifies the bit-plane <i>6</i> i.e. <i>2^6</i> value. */
 	public static final int 		BIT_SIX = 64;	
 	
-	/** bit-plane 7, corresponding value 2^7. */
+    /** Identifies the bit-plane <i>7</i> i.e. <i>2^7</i> value. */
 	public static final int 		BIT_SEVEN = 128;
 	
-	/** bit-plane 8, corresponding value 2^8-1. */
+    /** Identifies the bit-plane <i>8</i> i.e. <i>2^8-1</i> value. */
 	public static final int 		BIT_EIGHT = 255;	
 	
 	/** 
-	 * Constant level for bit-planes &gt; planeSelected w.r.t the 
+	 * The constant level for bit-planes &gt; planeSelected w.r.t the 
 	 * higher-order bits.
 	 */
 	private int 					upperLimit;
 	
 	/** 
-	 * Constant level for bit-planes &lt; planeSelected w.r.t the 
+	 * The constant level for bit-planes &lt; planeSelected w.r.t the 
 	 * higher-order bits.
 	 */
 	private int 					lowerLimit;
 	
-	/** value corresponding to the index of the bit plane selected. */
+	/** The value corresponding to the index of the bit-plane selected. */
 	private int 					planeSelected;
 	
 	/** 
-	 * value corresponding to the index of the bit-plane ranged just 
+	 * The value corresponding to the index of the bit-plane ranged just 
 	 * before the one selected.
 	 */
 	private int						planePrevious;
 	
 	/** 
-	 * <code>false</code> if bit-planes aren't mapped to a specified level
+     * Indicates the way the bit-planes are mapped i.e.
+	 * <code>false</code> if the bit-planes aren't mapped to a specified level
 	 * <code>true</code> otherwise.
 	 */
 	private boolean 				constant;
 	
+    /** Controlrs  if the specified value is supported.
+     * 
+     * @param bitPlane  The value to control. Must be one of the constants
+     *                  defined by this class.
+     * @throws IllegalArgumentException If the value is not supported.
+     */
+    private void verifyBitPlanes(int bitPlane)
+    {
+        switch (bitPlane) {
+            case BIT_ZERO: 
+            case BIT_ONE:   
+            case BIT_TWO:   
+            case BIT_THREE: 
+            case BIT_FOUR:  
+            case BIT_FIVE:
+            case BIT_SIX:  
+            case BIT_SEVEN: 
+            case BIT_EIGHT: 
+                return;
+            default:
+                throw new IllegalArgumentException("Not a valid plane.");
+        }
+
+    }
+    
+    /**
+     * Controls if the specified value is in the interval 
+     * [{@link #intervalStart}, {@link #intervalEnd}].
+     * 
+     * @param x The value to control.
+     * @throws IllegalArgumentException If the value is not in the interval.
+     */
+    private void verifyInput(int x)
+    {
+        if (x < intervalStart || x > intervalEnd)
+            throw new IllegalArgumentException("Value not in the interval.");
+    }
+    
+    /** Empty private contructor used to make a copy of the object. */
+    private PlaneSlicingContext() {}
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param planePrevious The value corresponding to the index of the 
+     *                      bit-plane ranged just before the one selected. 
+     * @param planeSelected The value corresponding to the index of the 
+     *                      selected bit-plane.
+     * @param constant      Passed  <code>false</code> if the bit-planes aren't
+     *                      mapped to a specified level <code>true</code>
+     *                      otherwise.
+     */
 	public PlaneSlicingContext(int planePrevious, int planeSelected,
 							 	boolean constant)
 	{
@@ -123,10 +176,6 @@ public class PlaneSlicingContext
 		this.constant = constant;
 	}
 
-	/** Contructor used to make a copy of the object. */
-	private PlaneSlicingContext() {}
-	
-
 	/** 
 	 * Implemented as specified by superclass.
 	 * 
@@ -136,16 +185,13 @@ public class PlaneSlicingContext
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#getCodomainMap()
 	 */
-	CodomainMap getCodomainMap() 
-	{
-		return new PlaneSlicingMap();
-	}
+	CodomainMap getCodomainMap() { return new PlaneSlicingMap(); }
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#copy()
 	 */
 	public CodomainMapContext copy() 
 	{
@@ -160,25 +206,55 @@ public class PlaneSlicingContext
 		return copy;
 	}
 	
+    /**
+     * Returns the value corresponding to the index of the bit-plane ranged just
+     * before the one selected. 
+     * 
+     * @return See above.
+     */
 	public int getPlanePrevious() { return planePrevious; }
 
+    /**
+     * Returns the value corresponding to the index of the selected bit-plane.
+     * 
+     * @return See above.
+     */
 	public int getPlaneSelected() { return planeSelected; }
 	
+    /**
+     * Returns the type of bit-planes mapping.
+     * Returns <code>false</code> if the bit-planes aren't mapped to a specified
+     * level <code>true</code> otherwise.
+     * 
+     * @return See above.
+     */
 	public boolean IsConstant() { return constant; }
 	
+    /**
+     * Returns the constant level for bit-planes &lt; planeSelected w.r.t the 
+     * higher-order bits.
+     * 
+     * @return See above.
+     */
 	public int getLowerLimit() { return lowerLimit; }
 
+    /**
+     * Returns the constant level for bit-planes &gt; planeSelected w.r.t the 
+     * higher-order bits.
+     * 
+     * @return See above.
+     */
 	public int getUpperLimit() { return upperLimit; }
 	
 	/** 
 	 * Set the limits.
 	 *
-	 * @param lowerLimit		value (in [intervalStart, intervalEnd]) 
-	 * 							used to set the level of the
-	 * 							bit-plane &lt; bit-plane selected.
-	 * @param upperLimit		value (in [intervalStart, intervalEnd]) 
-	 * 							used to set the level of the
-	 * 							bit-plane &gt; bit-plane selected.
+	 * @param lowerLimit   The value (in [intervalStart, intervalEnd]) 
+     *                     used to set the level of the bit-plane &lt; bit-plane
+     *                     selected.
+	 * @param upperLimit   The value (in [intervalStart, intervalEnd]) 
+     *                     used to set the level of the bit-plane &gt; bit-plane
+     *                     selected.
 	 */
 	public void setLimits(int lowerLimit, int upperLimit)
 	{
@@ -188,18 +264,40 @@ public class PlaneSlicingContext
 		this.upperLimit = upperLimit;	
 	}
 	
-	public void setLowerLimit(int ll)
+    /**
+     * Sets the value (in [intervalStart, intervalEnd]) used to set the level of
+     * the bit-plane &lt; bit-plane selected.
+     * 
+     * @param v The value to set.
+     */
+	public void setLowerLimit(int v)
 	{
-		verifyInput(ll);
-		lowerLimit = ll;
+		verifyInput(v);
+		lowerLimit = v;
 	}
 	
-	public void setUpperLimit(int ul)
+    /**
+     * Sets the value (in [intervalStart, intervalEnd]) used to set the level of
+     * the bit-plane &gt; bit-plane selected.
+     * 
+     * @param v The value to set.
+     */
+	public void setUpperLimit(int v)
 	{
-		verifyInput(ul);
-		upperLimit = ul;
+		verifyInput(v);
+		upperLimit = v;
 	}
 	
+    /**
+     * Sets the value of the selected planes i.e. the previous plane and the 
+     * selected one.
+     * 
+     * @param planePrevious The plane to set.
+     * @param planeSelected The plane to set.
+     * @throws IllegalArgumentException If the value of the previous is not
+     *                                  greater than the value of the selected
+     *                                  one.
+     */
 	public void setPlanes(int planePrevious, int planeSelected)
 	{
 		if (planePrevious > planeSelected)
@@ -210,32 +308,13 @@ public class PlaneSlicingContext
 		this.planeSelected = planeSelected;
 	}
 	
+    /**
+     * Sets the type of mapping. 
+     * 
+     * @param b The value to set.
+     */
 	public void setConstant(boolean b) { constant = b; }
 	
-	/** Verify if bitPlane is one the contants defined above. */
-	private void verifyBitPlanes(int bitPlane)
-	{
-		boolean b = false;
-		switch (bitPlane) {
-			case BIT_ZERO:	b = true; break;
-			case BIT_ONE:   b = true; break;
-			case BIT_TWO:  	b = true; break;
-			case BIT_THREE: b = true; break;
-			case BIT_FOUR:  b = true; break;
-			case BIT_FIVE: 	b = true; break;
-			case BIT_SIX: 	b = true; break;
-			case BIT_SEVEN: b = true; break;
-			case BIT_EIGHT: b = true;
-		}
-		if (!b) throw new IllegalArgumentException("Not a valid plane");
-	}
-	
-	private void verifyInput(int x)
-	{
-		if (x < intervalStart || x > intervalEnd)
-			throw new IllegalArgumentException("Value not in the interval.");
-	}
-
 }
 
 

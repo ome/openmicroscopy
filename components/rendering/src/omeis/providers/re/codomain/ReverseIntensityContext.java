@@ -37,7 +37,7 @@ package omeis.providers.re.codomain;
 //Application-internal dependencies
 
 /** 
- * 
+ * The empty context of the reverse intensity map. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,13 +62,13 @@ public class ReverseIntensityContext
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#getCodomainMap()
 	 */
 	CodomainMap getCodomainMap() { return new ReverseIntensityMap(); }
 
 	/** 
 	 * Implemented as specified by superclass.
-	 * @see CodomainMapContext#buildContext()
+	 * @see CodomainMapContext#copy()
 	 */
 	public CodomainMapContext copy() 
     { 

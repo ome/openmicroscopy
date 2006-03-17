@@ -54,10 +54,10 @@ package omeis.providers.re.codomain;
 public abstract class CodomainMapContext
 {
 	
-	/** Lower bound of the codomain interval. */
+	/** The lower bound of the codomain interval. */
 	protected int intervalStart;
 	
-	/** Upper bound of the codomain interval. */
+	/** The upper bound of the codomain interval. */
 	protected int intervalEnd;
 	
 	/** 
@@ -65,8 +65,8 @@ public abstract class CodomainMapContext
 	 * No checks are needed as this method is controlled by the
 	 * {@link CodomainChain}, which passes in consistent values.
 	 * 
-	 * @param intervalStart	Lower bound of the codomain interval.
-	 * @param intervalEnd	Upper bound of the codomain interval.
+	 * @param intervalStart	The lower bound of the codomain interval.
+	 * @param intervalEnd	The upper bound of the codomain interval.
 	 */
 	public void setCodomain(int intervalStart, int intervalEnd)
 	{
@@ -77,8 +77,9 @@ public abstract class CodomainMapContext
 	/**
 	 * This method is overridden so that objects of the same class are 
 	 * considered the same.
-	 * We need this trick to hanlde niclely <code>CodomainMapContext</code>
+	 * We need this trick to hanlde nicely <code>CodomainMapContext</code>
 	 * objects in collections.
+     * @see Object#equals(Object)
 	 */
 	public final boolean equals(Object o) 
 	{

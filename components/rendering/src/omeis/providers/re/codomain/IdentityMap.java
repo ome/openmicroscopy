@@ -54,13 +54,22 @@ class IdentityMap
 	implements CodomainMap
 {
 	
-	/** Required by I/F but not needed in our case. */
-	public void setContext(CodomainMapContext cxt) {}
-
-	/** Implemented as specified in {@link CodomainMap}. */
+	/** 
+     * Returns the value, no transformation needed in this case.
+     * @see CodomainMap#transform(int)
+     */
 	public int transform(int x) { return x; }
     
-    /** Overrides the toString method. */
+    /** 
+     * Overriden to return the name of this map. 
+     * @see Object#toString()
+     */
     public String toString() { return "IdentityMap"; }
+    
+    /** 
+     * Required by I/F but no-op implementation in our case. 
+     * @see CodomainMap#setContext(CodomainMapContext)
+     */
+    public void setContext(CodomainMapContext cxt) {}
 
 }

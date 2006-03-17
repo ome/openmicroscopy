@@ -40,7 +40,7 @@ package omeis.providers.re.codomain;
  * Basic piecewise linear functions. 
  * The idea is to increase the dynamic range of levels in the image being 
  * processed.
- * The locations of the points pStart and pEnd 
+ * The locations of the points <code>pStart</code> and <code>pEnd</code> 
  * (cf. {@link ContrastStretchingContext}) determine the equation of the linear
  * functions.
  *
@@ -62,13 +62,19 @@ class ContrastStretchingMap
     /** The mapping context. */
 	private ContrastStretchingContext csCtx;
 	
-	/** Implemented as specified in {@link CodomainMap}. */
+	/**
+     * Implemented as specified in {@link CodomainMap}. 
+     * @see CodomainMap#setContext(CodomainMapContext)
+     */
 	public void setContext(CodomainMapContext ctx)
 	{
 		csCtx = (ContrastStretchingContext) ctx;
 	}
 
-	/** Implemented as specified in {@link CodomainMap}. */
+	/** 
+     * Implemented as specified in {@link CodomainMap}. 
+     * @see CodomainMap#transform(int)
+     */
 	public int transform(int x)
 	{
 		int y = csCtx.intervalStart;
@@ -81,7 +87,10 @@ class ContrastStretchingMap
 		return y;
 	}
 	
-    /** Overrides the toString method. */
+    /** 
+     * Overriden to return the name of this map. 
+     * @see Object#toString()
+     */
     public String toString() { return "ContrastStretchingMap"; }
     
 }

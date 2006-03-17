@@ -59,15 +59,25 @@ class ReverseIntensityMap
 	implements CodomainMap
 {
 	
-	CodomainMapContext	ctx;
+    /** The mapping context of this map. */
+	private CodomainMapContext	ctx;
 	
-	/** Implemented as specified in {@link CodomainMap}. */
+	/** 
+     * Implemented as specified in {@link CodomainMap}. 
+     * @see CodomainMap#setContext(CodomainMapContext)
+     */
 	public void setContext(CodomainMapContext ctx) { this.ctx = ctx; }
 
-	/** Implemented as specified in {@link CodomainMap}. */
+	/** 
+     * Implemented as specified in {@link CodomainMap}. 
+     * @see CodomainMap#transform(int)
+     */
 	public int transform(int x) { return ctx.intervalEnd-x; }
     
-    /** Overrides the toString method. */
+    /** 
+     * Overriden to return the name of this map. 
+     * @see Object#toString()
+     */
     public String toString() { return "ReverseIntensityMap"; }
     
 }
