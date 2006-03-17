@@ -29,17 +29,18 @@
 
 package omeis.providers.re.data;
 
-import omeis.providers.re.Renderer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 
 
 //Java imports
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import omeis.providers.re.Renderer;
 
 /** 
  * Allows to extract pixels intensity values from a given plane within a
@@ -74,6 +75,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class Plane2D
 {  
+    
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
     
@@ -99,12 +101,13 @@ public abstract class Plane2D
     /**
      * Constructor that sub-classes must call.
      * 
-     * @param data Contains the plane data.
-     * @param pDef The type of plane.
-     * @param sizeX Number of pixels along the <i>X</i>-axis.
-     * @param sizeY Number of pixels along the <i>Y</i>-axis.
-     * @param bytesPerPixel How many bytes make up a pixel value
-     * @param strategy Knows how to convert the pixel bytes into a double.
+     * @param data          Contains the plane data.
+     * @param pDef          The type of plane.
+     * @param sizeX         The number of pixels along the <i>X</i>-axis.
+     * @param sizeY         The number of pixels along the <i>Y</i>-axis.
+     * @param bytesPerPixel How many bytes make up a pixel value.
+     * @param strategy      The strategy to convert the pixel bytes into a 
+     *                      double.
      */
 	protected Plane2D(byte[] data, PlaneDef pDef, int sizeX, int sizeY, 
                       int bytesPerPixel, BytesConverter strategy)

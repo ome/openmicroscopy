@@ -58,7 +58,10 @@ class IntBEConverter
 	extends BytesConverter
 {
 	
-	/** Implemented as specified by {@link BytesConverter}. */
+    /** 
+     * Implemented as specified by {@link BytesConverter}. 
+     * @see BytesConverter#pack(byte[], int, int)
+     */
 	public double pack(byte[] data, int offset, int length)
 	{
 		int r = 0, tmp, paddingMask = -1;

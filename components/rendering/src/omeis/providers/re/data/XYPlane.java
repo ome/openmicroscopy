@@ -61,7 +61,7 @@ class XYPlane
      * @param pDef          The type of plane.
      * @param sizeX         The number of pixels along the <i>X</i>-axis.
      * @param sizeY         The number of pixels along the <i>Y</i>-axis.
-     * @param bytesPerPixel How many bytes make up a pixel value
+     * @param bytesPerPixel How many bytes make up a pixel value.
      * @param strategy      The strategy to convert the pixel bytes into a
      *                      double.
      */
