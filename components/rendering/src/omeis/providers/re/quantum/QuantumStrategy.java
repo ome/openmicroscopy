@@ -66,11 +66,24 @@ import tmp.PixelTypeHelper;
 public abstract class QuantumStrategy
 {
 
+    
+    /** 
+     * Maximum value (<code>255</code>) allowed for the upper bound of the 
+     * codomain interval.
+     */
+    public static final int     MAX = 255;
+    
+    /** 
+     * Minimum value (<code>0</code>) allowed for the lower bound of the 
+     * codomain interval.
+     */
+    public static final int     MIN = 0;
+    
     /** 
      * Determines the number of sub-intervals 
      * of the [globalMin, globalMax] interval.
      */
-    public static final int         DECILE = 10;
+    public static final int     DECILE = 10;
     
     /** Minimum of all minima. */
 	private double    				globalMin;

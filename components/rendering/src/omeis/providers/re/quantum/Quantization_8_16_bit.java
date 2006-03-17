@@ -33,11 +33,10 @@ package omeis.providers.re.quantum;
 //Java imports
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+//Application-internal dependencies
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.util.math.Approximation;
@@ -73,18 +72,6 @@ public class Quantization_8_16_bit
     
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
-    
-    /** 
-     * Maximum value (<code>255</code>) allowed for the upper bound of the 
-     * codomain interval.
-     */
-    private static final int    MAX = 255;
-    
-    /** 
-     * Minimum value (<code>0</code>) allowed for the lower bound of the 
-     * codomain interval.
-     */
-    private static final int    MIN = 0;
 
     /** The look-up table. */
 	private byte[]      LUT;
@@ -132,6 +119,7 @@ public class Quantization_8_16_bit
 		min = (int) getGlobalMin();
 		max = (int) getGlobalMax();
 		LUT = new byte[max-min+1];  
+        System.out.println("min: "+min+" max: "+max);
 	}
 
     /**
@@ -239,7 +227,6 @@ public class Quantization_8_16_bit
 		for(; x <= max; ++x)   LUT[x-min] = (byte) cdEnd;
 	}
 
-    
 	/** The input window size changed, rebuild the LUT. */
 	protected void onWindowChange() { buildLUT(); }
 	
