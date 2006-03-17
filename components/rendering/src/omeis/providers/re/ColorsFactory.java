@@ -30,19 +30,16 @@
 package omeis.providers.re;
 
 
-
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.core.Channel;
-import omeis.providers.re.metadata.ChannelBindings;
 
 /** 
  * Utility class to determine the color usually associated to a specified
- * channel w.r.t. its emission wavelength.
+ * channel depending on its emission wavelength.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,110 +55,127 @@ import omeis.providers.re.metadata.ChannelBindings;
 public class ColorsFactory
 {
     
-    /** Identifies the red value in the RGBA-array. */
+    /** Identifies the <code>RED</code> band in the RGBA-array. */
     static final int            RED = 0;
     
-    /** Identifies the green value in the RGBA-array. */
+    /** Identifies the <code>GREEN</code> band in the RGBA-array. */
     static final int            GREEN = 1;
     
-    /** Identifies the blue value in the RGBA-array. */
+    /** Identifies the <code>BLUE</code> band in the RGBA-array. */
     static final int            BLUE = 2;
     
-    /** Identifies the alpha value in the RGBA-array. */
+    /** Identifies the <code>ALPHA</code> band in the RGBA-array. */
     static final int            ALPHA = 3;
     
-    /** Lower bound of the blue interval. */
+    /** The Default value for the alpha component. */
+    static final int            DEFAULT_ALPHA = 255;
+    
+    /**
+     * Lower bound of the emission wavelenght interval corresponding to a
+     * <code>BLUE</code> color. 
+     */
     private static final int    BLUE_MIN = 400;
     
-    /** Upper bound of the blue interval. */
+    /**
+     * Upper bound of the emission wavelenght interval corresponding to a
+     * <code>BLUE</code> color. 
+     */
     private static final int    BLUE_MAX = 500;
     
-    /** Lower bound of the green interval. */
+    /**
+     * Lower bound of the emission wavelenght interval corresponding to a
+     * <code>GREEN</code> color. 
+     */
     private static final int    GREEN_MIN = 501;
     
-    /** Upper bound of the green interval. */
+    /**
+     * Upper bound of the emission wavelenght interval corresponding to a
+     * <code>GREEN</code> color. 
+     */
     private static final int    GREEN_MAX = 600;
     
-    /** Lower bound of the red interval. */
+    /**
+     * Lower bound of the emission wavelenght interval corresponding to a
+     * <code>RED</code> color. 
+     */
     private static final int    RED_MIN = 601;
     
-    /** Upper bound of the red interval. */
+    /**
+     * Upper bound of the emission wavelenght interval corresponding to a
+     * <code>RED</code> color. 
+     */
     private static final int    RED_MAX = 700;
     
-    /** RGBA-array corresponding to the RED color. */
+    /** The RGBA-array corresponding to the <code>RED</code> color. */
     private static final int[]  RED_COLOR;
     
-    /** RGBA-array corresponding to the GREEN color. */
+    /** The RGBA-array corresponding to the <code>GREEN</code> color. */
     private static final int[]  GREEN_COLOR;
     
-    /** RGBA-array corresponding to the BLUE color. */
+    /** The RGBA-array corresponding to the <code>BLUE</code> color. */
     private static final int[]  BLUE_COLOR;
     
-    /** Initializes RGB-arrays. */
+    /** Initializes the RGB-arrays. */
     static {
         RED_COLOR = new int[4];
         RED_COLOR[RED] = 255;
         RED_COLOR[GREEN] = 0;
         RED_COLOR[BLUE] = 0;
-        RED_COLOR[ALPHA] = ChannelBindings.DEFAULT_ALPHA;
+        RED_COLOR[ALPHA] = DEFAULT_ALPHA;
         GREEN_COLOR = new int[4];
         GREEN_COLOR[RED] = 0;
         GREEN_COLOR[GREEN] = 255;
         GREEN_COLOR[BLUE] = 0;
-        GREEN_COLOR[ALPHA] = ChannelBindings.DEFAULT_ALPHA;
+        GREEN_COLOR[ALPHA] = DEFAULT_ALPHA;
         BLUE_COLOR = new int[4];
         BLUE_COLOR[RED] = 0;
         BLUE_COLOR[GREEN] = 0;
         BLUE_COLOR[BLUE] = 255;
-        BLUE_COLOR[ALPHA] = ChannelBindings.DEFAULT_ALPHA;
+        BLUE_COLOR[ALPHA] = DEFAULT_ALPHA;
     }
     
     /**
      * Returns <code>true</code> if the emission wavelength is in 
      * the blue color band, <code>false</code> otherwise.
      * 
-     * @param emWavelenght  The value of the emission wavelength
+     * @param emWavelenght  The value of the emission wavelength.
      * @return See above.
      */
     private static boolean rangeBlue(int emWavelenght)
     {
-        if (emWavelenght <= BLUE_MAX && emWavelenght >= BLUE_MIN) return true;
-        return false;
+        return (emWavelenght <= BLUE_MAX && emWavelenght >= BLUE_MIN);
     }
     
     /**
      * Returns <code>true</code> if the emission wavelength is in 
      * the green color band, <code>false</code> otherwise.
      * 
-     * @param emWave  The value of the emission wavelength
+     * @param emWave  The value of the emission wavelength.
      * @return See above.
      */
     private static boolean rangeGreen(int emWave)
     {
-        if (emWave >= GREEN_MIN && emWave <= GREEN_MAX) 
-            return true;
-        return false;
+        return(emWave >= GREEN_MIN && emWave <= GREEN_MAX);
     }
     
     /**
      * Returns <code>true</code> if the emission wavelength is in 
      * the red color band, <code>false</code> otherwise.
      * 
-     * @param emWave  The value of the emission wavelength
+     * @param emWave  The value of the emission wavelength.
      * @return See above.
      */
     private static boolean rangeRed(int emWave)
     {
-        if (emWave >= RED_MIN && emWave <= RED_MAX) return true;
-        return false;
+        return (emWave >= RED_MIN && emWave <= RED_MAX);
     }
     
     /**
      * Determines the color usually associated to the specified 
      * emission wavelenght.
      * 
-     * @param channel A channel.
-     * @return  Returns an rgb array corresponding to the color.
+     * @param channel The channel to determine the color for.
+     * @return An RGB array defining the color.
      */
     private static int[] getColor(Channel channel)
     {
@@ -176,19 +190,19 @@ public class ColorsFactory
      * Determines the color usually associated to the specified 
      * emission wavelenght.
      * 
-     * @param index The channel index.
-     * @param channel The channel.
-     * @return Returns an rgb array corresponding to the color.
+     * @param index     The channel index.
+     * @param channel   The channel to determine the color for.
+     * @return  An RGB array defining the color.
      */
     public static int[] getColor(int index, Channel channel)
     {
         int[] c = ColorsFactory.getColor(channel);
         if (c != null) return c;
-        switch (index)
-        {
+        switch (index) {
         	case  0: return BLUE_COLOR;
         	case  1: return GREEN_COLOR;
         	default: return RED_COLOR;
         }
     }
+    
 }
