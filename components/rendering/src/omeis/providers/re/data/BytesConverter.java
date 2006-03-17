@@ -29,28 +29,28 @@
 
 package omeis.providers.re.data;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import ome.model.enums.PixelsType;
-import omeis.providers.re.Renderer;
-import tmp.PixelTypeHelper;
 
 
 //Java imports
 
 //Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.model.enums.PixelsType;
+import omeis.providers.re.Renderer;
+import tmp.PixelTypeHelper;
 
 /** 
  * Represents a strategy to convert a pixel value stored in a sequence of bytes
  * into a numeric value.
  * <p><i>OME</i> supports different types to store a pixel value (those types 
- * are defined in {@link omeis.io.PixelTypeHelper}).
+ * are defined in {@link PixelTypeHelper}).
  * When a pixel value is stored as a sequence of bytes, the format of those 
  * bytes depends on the pixel type and on the endianness chosen to encode the
- * bytes (if the type is one of the integer types).  That leads to different
+ * bytes (if the type is one of the integer types). That leads to different
  * algorithms for converting sequence of bytes back into a numeric value, 
  * depending on the pixel type and on the endianness-order of the bytes.</p>
  * <p>Each subclass implements the {@link #pack(byte[], int, int) pack} method
@@ -70,6 +70,7 @@ import tmp.PixelTypeHelper;
  */
 abstract class BytesConverter
 {
+    
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
     
@@ -77,9 +78,10 @@ abstract class BytesConverter
 	 * Factory method to return an appropriate converter, depending on pixel 
 	 * type and endianness.
 	 *
-	 * @param pixelType One of the constants defined by {@link PixelTypeHelper}.
-	 * @param bigEndian   	Pass <code>true</code> if the bytes are in
-	 * 						big-endian order, <code>false</code> otherwise.
+	 * @param pixelType    One of the constants defined by
+     *                     {@link PixelTypeHelper}.
+	 * @param bigEndian    Pass <code>true</code> if the bytes are in
+     *                     big-endian order, <code>false</code> otherwise.
 	 * @return  A suitable converter.
 	 */
 	static BytesConverter makeNew(PixelsType pixelType, boolean bigEndian) 

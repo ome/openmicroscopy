@@ -33,13 +33,11 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
-import ome.model.core.Pixels;
-import ome.model.display.QuantumDef;
-import ome.system.SelfConfigurableService;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.display.QuantumDef;
+import ome.system.SelfConfigurableService;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
@@ -64,7 +62,6 @@ import omeis.providers.re.quantum.QuantizationException;
  * as it is always bound to a given experimenter.)</p>
  * <p>This service is <b>thread-safe</b>.</p>
  * 
- * @see RenderingEngineDescriptor
  *  
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -77,14 +74,15 @@ import omeis.providers.re.quantum.QuantizationException;
  * </small>
  * @since OME2.2
  */
-public interface RenderingEngine extends SelfConfigurableService
+public interface RenderingEngine
+    extends SelfConfigurableService
 {
 
     /**
      * Renders the data selected by <code>pd</code> according to the current
      * rendering settings.
      * The passed argument selects a plane orthogonal to one of the <i>X</i>, 
-     * <i>Y</i>, or <i>Z</i> axes.  How many wavelengths are rendered and
+     * <i>Y</i>, or <i>Z</i> axes. How many wavelengths are rendered and
      * what color model is used depends on the current rendering settings.
      * 
      * @param pd Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
@@ -95,6 +93,8 @@ public interface RenderingEngine extends SelfConfigurableService
      * @throws QuantizationException If an error occurred while quantizing the
      *                               pixels raw data.
      * @throws NullPointerException If <code>pd</code> is <code>null</code>.
+     * @throws IllegalStateException If the {@link Renderer renderer} is
+     *                              <code>null</code>.
      */
     public RGBBuffer render(PlaneDef pd)
         throws IOException, QuantizationException;
@@ -111,41 +111,227 @@ public interface RenderingEngine extends SelfConfigurableService
     public int getSizeX();
     public int getSizeY();
 	
-	//RenderingDef fields.
+    /**
+     * Sets the rendering model either <code>GreyScale</code>, 
+     * <code>RGB</code> or <code>HSB</code>.
+     * 
+     * @param model The model to set.
+     */
 	public void setModel(int model);
-	public int getModel();
-	public int getDefaultZ();
-	public int getDefaultT();
-	//Is it the best way to do it?
-    public void setDefaultZ(int z);
-    public void setDefaultT(int t);
     
-	//QuantumDef fields.  Two setters b/c we don't wanna rebuild all LUT's
-	//if not necessary.
-	public void setQuantumStrategy(int bitResolution);
+    /**
+     * Returns the model to render an <code>2D</code>-plane.
+     * 
+     * @return See above.
+     */
+	public int getModel();
+    
+    /**
+     * Returns the default z-section in the stack. By default this value is set
+     * to the middle of the stack of the first time-point.
+     * 
+     * @return See above.
+     */
+	public int getDefaultZ();
+    
+    /** 
+     * Returns the default time-point. By default this value is set to the first
+     * time-point.
+     * 
+     * @return See above.
+     */
+	public int getDefaultT();
+	
+    /**
+     * Sets the default z-section.
+     * 
+     * @param z The z-section to set.
+     */
+    public void setDefaultZ(int z); //Is it the best way to do it?
+    
+    /**
+     * Sets the default time-point.
+     * 
+     * @param t The value to set.
+     */
+    public void setDefaultT(int t); //Is it the best way to do it?
+    
+    /**
+     * Sets the bit resolution. This method triggers a re-build of the first
+     * look-up table.  
+     * 
+     * @param bitResolution The value to set.
+     */
+	public void setBitResolution(int bitResolution);
+    
+    /**
+     * Sets the codomain interval i.e. a discrete sub-interval of 
+     * <code>[0, 255]</code>. This method triggers a re-build of the second
+     * look-up table.
+     * 
+     * @param start The lower bound of the codomain interval.
+     * @param end   The upper bound of the codomain interval.
+     */
 	public void setCodomainInterval(int start, int end);
+    
+    /**
+     * Returns the mapping context used during the quantization process.
+     * 
+     * @return See above.
+     */
 	public QuantumDef getQuantumDef();
 	
-	//ChannelBindings[] elements' fields.
+    /**
+     * Sets the parameters required to map the specified channel to the 
+     * device space. This method triggers a re-build of the first look-up table. 
+     * 
+     * @param w                 The channel index.
+     * @param family            Knows how to map the data.
+     * @param coefficient       Identifies a curve in the family.
+     * @param noiseReduction    Passed <code>true</code> to use the
+     *                          <i>noise reduction</i> mapping algorithm, 
+     *                          <code>false</code> otherwise.                       
+     */
     public void setQuantizationMap(int w, int family, double coefficient, 
                                     boolean noiseReduction);
+    
+    /**
+     * Returns the family used to map the specified channel to the device space.
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
     public int getChannelFamily(int w);
+    
+    /** 
+     * Returns <code>true</code> if the <i>noise reduction</i> mapping algorithm
+     * is used to map the specified channel to the device space.
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
     public boolean getChannelNoiseReduction(int w);
-    public double[] getChannelStats(int w);
+    
+    /**
+     * Returns a curve in the currently selected family for the specified
+     * channel.
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
     public double getChannelCurveCoefficient(int w);
+    
+    /**
+     * Sets the bounds of the pixel intensity interval for the specified 
+     * channel. This method triggers a re-build of the first look-up table. 
+     * 
+     * @param w     The channel index.
+     * @param start The lower bound of the pixel intensity interval.
+     * @param end   The upper bound of the pixel intensity interval.
+     */
 	public void setChannelWindow(int w, double start, double end);
+    
+    /**
+     * Returns the lower bound of the pixel intensity interval for the specified
+     * channel. 
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
 	public double getChannelWindowStart(int w);
+    
+    /**
+     * Returns the upper bound of the pixel intensity interval for the specified
+     * channel. This method triggers a re-build of the second look-up table. 
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
 	public double getChannelWindowEnd(int w);
+    
+    /**
+     * Sets the color in the <code>RGBA</code> color model, associated to the
+     * specified channel.
+     * 
+     * @param w     The channel index.
+     * @param red   The red component of the color.
+     * @param green The green component of the color.
+     * @param blue  The blue component of the color.
+     * @param alpha The alpha component of the color.
+     */
 	public void setRGBA(int w, int red, int green, int blue, int alpha);
+    
+    /**
+     * Returns an <code>RGBBA</code> array representing the color in the
+     * <code>RGBA</code> color model, associated to the specified channel. 
+     * The first element of the array stores the <code>red</code> component.
+     * The second element of the array stores the <code>green</code> component.
+     * The third element of the array stores the <code>blue</code> component.
+     * The fourth element of the array stores the <code>alpha</code> component.
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
 	public int[] getRGBA(int w);
+    
+    /**
+     * Passes <code>true</code> to map the specified channel to the device
+     * space, <code>false</code> otherwise.
+     * 
+     * @param w         The channel index.
+     * @param active    Passed <code>true</code> to map the channel,
+     *                  <code>false</code> otherwise.             
+     */
 	public void setActive(int w, boolean active);
+    
+    /**
+     * Returns <code>true</code> if the channel is active i.e. mapped to the
+     * device space, <code>false</code> otherwise.
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
 	public boolean isActive(int w);
 	
-	//Codomain chain definition.
+    /**
+     * Adds a map context to the chain.
+     * This means that the transformation associated to the passed context
+     * will be applied after all the currently queued transformations.
+     * An exception will be thrown if the chain already contains an object of
+     * the same class as <code>mapCtx</code>. This is because we don't want
+     * to compose the same transformation twice.
+     * This method triggers a re-build of the second look-up table. 
+     * 
+     * @param mapCtx The context to add. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If the context is already defined.
+     */
 	public void addCodomainMap(CodomainMapContext mapCtx);
+    
+    /**
+     * Updates the specified a map context in the chain.
+     * This means that the context has previously been added to the chain.
+     * This method triggers a re-build of the second look-up table. 
+     * 
+     * @param mapCtx    The context to add. Mustn't be <code>null</code> and
+     *                  already contained in the chain.
+     * @throws IllegalArgumentException If the specifed context doesn't exist. 
+     */
 	public void updateCodomainMap(CodomainMapContext mapCtx);
+    
+    /**
+     * Removes a map context from the chain.
+     * This method removes the object (if any) in the chain that is an instance
+     * of the same class as <code>mapCtx</code>. This means that the
+     * transformation associated to the passed context won't be applied.
+     * This method triggers a re-build of the second look-up table.
+     * 
+     * @param mapCtx The context to remove.
+     */
 	public void removeCodomainMap(CodomainMapContext mapCtx);
 	
+    
+    public double[] getChannelStats(int w); //Do we need that one?
+    
 	//Save display options to db.
 	public void saveCurrentSettings();
 	

@@ -261,8 +261,7 @@ public class CodomainChain
 	 * be modified after the lookup table is built.
 	 * This method triggers a re-build of the lookup table. 
 	 * 
-	 * @param mapCtx	The context to add. Mustn't be <code>null</code> or
-	 * 					already contained in the chain.
+	 * @param mapCtx	The context to add. Mustn't be <code>null</code>.
      * @throws IllegalArgumentException If the context is already defined.
 	 */
 	public void add(CodomainMapContext mapCtx)
@@ -286,7 +285,7 @@ public class CodomainChain
 	 * state can be modified after the lookup table is built.
 	 * This method triggers a re-build of the lookup table. 
 	 * 
-	 * @param mapCtx	The context to add. Mustn't be <code>null</code> or
+	 * @param mapCtx	The context to add. Mustn't be <code>null</code> and
 	 * 					already contained in the chain.
      * @throws IllegalArgumentException If the specifed context doesn't exist.
 	 */

@@ -105,7 +105,7 @@ public class StatsFactory
     {
     	double gMin = stats.getGlobalMin().doubleValue();
     	double gMax = stats.getGlobalMax().doubleValue();
-        double sizeBin = (gMax-gMin) / NB_BIN;
+        double sizeBin = (gMax-gMin)/NB_BIN;
         double epsilon = sizeBin/EPSILON;
         int[] totals = new int[NB_BIN];
         locationStats = new double[NB_BIN];
@@ -136,7 +136,7 @@ public class StatsFactory
             locationStats[i] = totals[i]/total;
         //Default, we assume that we have at least 3 sub-intervals.
         inputStart = segments[0].getPoint(1).x1;
-        inputEnd = segments[NB_BIN-1].getPoint(1).x1;;
+        inputEnd = segments[NB_BIN-1].getPoint(1).x1;
         total = total-totals[0]-totals[NB_BIN-1];
         if (totals[0] >= totals[NB_BIN-1])
             inputEnd = accumulateCloseToMin(totals, segments, total, epsilon);

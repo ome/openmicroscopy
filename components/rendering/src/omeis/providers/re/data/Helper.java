@@ -37,7 +37,6 @@ public class Helper
         Integer z = Integer.valueOf(planeDef.getZ());
         Integer c = Integer.valueOf(channel);
         Integer t = Integer.valueOf(planeDef.getT());
-        
         ByteBuffer bb;
         try
         {
