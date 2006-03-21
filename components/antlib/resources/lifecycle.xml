@@ -75,7 +75,15 @@
 	</target>
 		
 	<target name="package" depends="test">
+		<pathconvert property="mf.classpath" 
+			refid="omero.classpath" 
+			pathsep=" " dirsep="/">
+			<flattenmapper/>
+		</pathconvert>
 		<jar destfile="${target.dir}/${artifact.final.name}">
+			<manifest>
+				<attribute name="Class-Path" value="${mf.classpath}"/>
+			</manifest>
 			<fileset dir="${classes.dir}">	
 				<exclude name="omero.properties"/>
 				<exclude name="hibernate.properties"/>
