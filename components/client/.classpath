@@ -38,7 +38,7 @@
 	<classpathentry sourcepath="/OMERO_HOME/components/server/src" kind="var" path="M2_REPO/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry sourcepath="/HIBERNATE_HOME/src" kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m2/spring-hibernate3-2.0-m2.jar"/>
+	<classpathentry sourcepath="/SPRING_HOME/src" kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m2/spring-hibernate3-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-m2/spring-2.0-m2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
