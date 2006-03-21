@@ -1,5 +1,6 @@
 package ome.model.internal;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +16,7 @@ import ome.util.Filter;
 import ome.util.Filterable;
 
 
-public class Details implements IDetails, Filterable
+public class Details implements IDetails, Filterable, Serializable
 {
 
     public final static String CONTEXT = "Details_context";
@@ -191,6 +192,53 @@ public class Details implements IDetails, Filterable
           setUpdateEvent((Event) filter.filter(UPDATEEVENT, getUpdateEvent()));
           return true;
     
+    }
+    
+    // Dynamic Getter/Setter
+    protected Map _dynamicFields;
+    public Object retrieve(String field)
+    {
+        if (field == null)
+            return null;
+        else if (field.equals(OWNER))
+            return getOwner();
+        else if (field.equals(GROUP))
+            return getGroup();
+        else if (field.equals(PERMISSIONS))
+            return getPermissions();
+        else if (field.equals(CREATIONEVENT))
+            return getCreationEvent();
+        else if (field.equals(UPDATEEVENT))
+            return getUpdateEvent();
+        else {
+            if (_dynamicFields != null)
+            {
+                return _dynamicFields.get(field);
+            }
+            return null;
+        }
+    }
+    
+    public void putAt(String field, Object value)
+    {
+        if (field == null)
+            return;
+        else if (field.equals(OWNER))
+            setOwner( (Experimenter) value );
+        else if (field.equals(GROUP))
+            setGroup( (ExperimenterGroup) value );
+        else if (field.equals(PERMISSIONS))
+            setPermissions( (Permissions) value );
+        else if (field.equals(CREATIONEVENT))
+            setCreationEvent( (Event) value );
+        else if (field.equals(UPDATEEVENT))
+            setUpdateEvent( (Event) value );
+        else {
+            if (_dynamicFields == null)
+                _dynamicFields = new HashMap();
+            
+            _dynamicFields.put(field,value);
+        }
     }
     
 }
