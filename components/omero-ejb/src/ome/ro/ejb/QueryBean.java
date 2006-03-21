@@ -41,19 +41,21 @@ import javax.ejb.Stateless;
 
 //Application-internal dependencies
 import ome.api.IQuery;
+import ome.api.local.LocalQuery;
+import ome.services.query.Query;
 
 
 @Stateless
 @Remote(IQuery.class)
-@Local(IQuery.class)
-public class QueryBean extends AbstractBean implements IQuery
+@Local(LocalQuery.class)
+public class QueryBean extends AbstractBean implements LocalQuery
 {
 
-    IQuery delegate;
+    LocalQuery delegate;
     
     public QueryBean(){
         super();
-        delegate = (IQuery) ctx.getBean("queryService");
+        delegate = (LocalQuery) applicationContext.getBean("queryService");
     }
     
     @PreDestroy
@@ -108,11 +110,6 @@ public class QueryBean extends AbstractBean implements IQuery
         return delegate.getUniqueByMap(klazz, constraints);
     }
 
-    public void persist(Object[] objects)
-    {
-        delegate.persist(objects);
-    }
-
     public List queryList(String query, Object[] params)
     {
         return delegate.queryList(query, params);
@@ -131,6 +128,36 @@ public class QueryBean extends AbstractBean implements IQuery
     public Object queryUniqueMap(String query, Map params)
     {
         return delegate.queryUniqueMap(query, params);
+    }
+
+    public boolean checkProperty(String type, String property)
+    {
+        return delegate.checkProperty(type, property);
+    }
+
+    public boolean checkType(String type)
+    {
+        return delegate.checkType(type);
+    }
+
+    public void evict(Object object)
+    {
+        delegate.evict(object);
+    }
+
+    public Object execute(Query query)
+    {
+        return delegate.execute(query);
+    }
+
+    public List getByClass(Class klazz)
+    {
+        return delegate.getByClass(klazz);
+    }
+
+    public void initialize(Object object)
+    {
+        delegate.initialize(object);
     }
 
 }

@@ -1,4 +1,4 @@
-/* ome.ro.ejb.AbstractBean
+/* ome.ro.ejb.PixelsBean
  *
  *------------------------------------------------------------------------------
  *
@@ -29,45 +29,55 @@
 package ome.ro.ejb;
 
 //Java imports
+import javax.ejb.Local;
+import javax.ejb.PreDestroy;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 
 //Third-party imports
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
-import ome.system.OmeroContext;
+import ome.api.IPixels;
+import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
 
-public class AbstractBean 
+@Stateless
+@Remote(IPixels.class)
+@Local(IPixels.class)
+public class PixelsBean extends AbstractBean implements IPixels
 {
-    
-    private static Log log = LogFactory.getLog(AbstractBean.class);
 
-    protected OmeroContext  applicationContext = OmeroContext.getManagedServerContext();
-
-    // java:comp.ejb3/EJBContext
-    protected @Resource SessionContext sessionContext; 
+    IPixels delegate;
     
-    public AbstractBean()
-    {
-        log.debug("Creating:\n"+getLogString());
+    public PixelsBean(){
+        super();
+        delegate = (IPixels) applicationContext.getBean("pixelsService");
     }
     
+    @PreDestroy
     public void destroy()
     {
-        log.debug("Destroying:\n"+getLogString());
+        delegate = null;
+        super.destroy();
+    }
+
+    // ~ DELEGATION
+    // =========================================================================
+    
+    public Pixels retrievePixDescription(long pixId)
+    {
+        return delegate.retrievePixDescription(pixId);
+    }
+
+    public RenderingDef retrieveRndSettings(long pixId)
+    {
+        return delegate.retrieveRndSettings(pixId);
+    }
+
+    public void saveRndSettings(RenderingDef rndSettings)
+    {
+        delegate.saveRndSettings(rndSettings);
     }
     
-    protected String getLogString()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Bean ");
-        sb.append(this);
-        sb.append("\n with Context ");
-        sb.append(applicationContext);
-        return sb.toString();
-    }
     
 }

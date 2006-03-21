@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<datasources>
+
+   <local-tx-datasource>
+      <jndi-name>omeroDS</jndi-name>
+      <connection-url>@@@JDBC.URL@@@</connection-url>
+      <driver-class>@@@JDBC.DRIVER@@@</driver-class>
+      <user-name>@@@JDBC.USERNAME@@@</user-name>
+      <password>@@@JDBC.PASSWORD@@@</password>
+      <connection-property name="char.encoding">UTF-8</connection-property>
+      <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+      <min-pool-size>25</min-pool-size>
+      <max-pool-size>100</max-pool-size>
+      <blocking-timeout-millis>5000</blocking-timeout-millis>
+      <idle-timeout-minutes>15</idle-timeout-minutes>
+      <prepared-statement-cache-size>75</prepared-statement-cache-size>
+   </local-tx-datasource>
+
+</datasources>

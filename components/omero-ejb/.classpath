@@ -1,9 +1,10 @@
 <classpath>
 	<classpathentry kind="output" path="target/classes"/>
 	<classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>
-	<classpathentry excluding="**/.svn" kind="src" path="resources" />
 	<classpathentry excluding="**/.svn" kind="src" path="src" />
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated-sources/resources" />
+	<classpathentry excluding="**/.svn" kind="src" path="resources" />
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src" />
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources" />
 	<classpathentry excluding="**/.svn" kind="src" path="test" output="target/test-classes"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
@@ -32,8 +33,8 @@
 	<classpathentry kind="var" path="M2_REPO/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/jboss-annotations-ejb3/4.0.3SP1/jboss-annotations-ejb3-4.0.3SP1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.3SP1/jboss-ejb3x-4.0.3SP1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-annotations-ejb3/4.0.4RC1/jboss-annotations-ejb3-4.0.4RC1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar"/>

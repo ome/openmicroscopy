@@ -10,4 +10,59 @@
 	<import file="${up-one}/antlib/resources/build.xml"/>
 	<import file="classpath.xml"/>
 
+	<property name="product.name"     value="Omero Server"/>
+	<property name="product.version"  value="3.0" />
+
+   <!--
+   =======================================================================
+   The EAR will be packaged to contain the EJB jar, 
+   data source deployment module for our specific database, 
+   deployment descriptors and thirdparty libraries.
+   =======================================================================
+   -->
+   <target name="package" 
+           description="Packages the EAR by assembling all modules and deployment descriptors">
+      
+      <copy file="${resrc.dir}/omero-ds.xml" todir="${target.dir}" />
+
+      <mkdir dir="${target.dir}/libs"/>
+      <jars-copy todir="${target.dir}/libs"/>
+      <delete>
+        <fileset dir="${target.dir}/libs" includes="commons-logging*"/>
+        <fileset dir="${target.dir}/libs" includes="jboss*"/>
+        <fileset dir="${target.dir}/libs" includes="geronimo*"/>
+      </delete>
+      
+      <replace file="${target.dir}/omero-ds.xml">
+         <replacefilter token="@@@JDBC.URL@@@" value="${hibernate.connection.url}"/>
+         <replacefilter token="@@@JDBC.DRIVER@@@" value="${hibernate.connection.driver_class}"/>
+         <replacefilter token="@@@JDBC.USERNAME@@@" value="${hibernate.connection.username}"/>
+         <replacefilter token="@@@JDBC.PASSWORD@@@" value="${hibernate.connection.password}"/>
+      </replace>
+      
+      <jar jarfile="${target.dir}/${artifact.final.name}">
+         <metainf dir="${resrc.dir}">
+            <include name="application.xml" />
+            <include name="jboss-app.xml" />
+         </metainf>
+         <fileset dir="${target.dir}" includes="omero-ds.xml" />
+         <fileset dir="${target.dir}/libs" includes="*.jar" />
+         <manifest>
+            <attribute name="Product-Name"      value="${product.name}"/>
+            <attribute name="Product-Version"   value="${product.version}"/>
+            <attribute name="Build-Date"        value="${build.time}"/>
+            <attribute name="Build-JDK-Vendor"  value="${java.vendor}"/>
+            <attribute name="Build-JDK-Version" value="${java.version}"/>
+            <attribute name="Build-OS-Name"     value="${os.name}"/>
+            <attribute name="Build-OS-Version"  value="${os.version}"/>
+            <attribute name="Build-User"        value="${user.name}"/>
+            <attribute name="Build-Machine"     value="${build.hostname}"/>
+            <attribute name="License"           value="GNU LGPL, version 2.1"/>
+         </manifest>
+      </jar>
+
+      <delete file="${target.dir}/omero-ds.xml" />
+
+   </target>
+
 </project>

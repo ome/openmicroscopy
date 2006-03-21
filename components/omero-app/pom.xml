@@ -15,6 +15,7 @@
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
       </plugin>
+<!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-ear-plugin</artifactId>
@@ -28,26 +29,31 @@
             <javaModule>
               <groupId>omero</groupId>
               <artifactId>common</artifactId>
-              <bundleFileName>
-                common
-              </bundleFileName>
-              <includeInApplicationXml>
-                true
-              </includeInApplicationXml>
+              <bundleFileName>common</bundleFileName>
+              <includeInApplicationXml>true</includeInApplicationXml>
+            </javaModule>
+            <javaModule>
+              <groupId>omero</groupId>
+              <artifactId>server</artifactId>
+              <bundleFileName>server</bundleFileName>
+              <includeInApplicationXml>true</includeInApplicationXml>
+            </javaModule>
+            <javaModule>
+              <groupId>omero</groupId>
+              <artifactId>rendering</artifactId>
+              <bundleFileName>rendering</bundleFileName>
+              <includeInApplicationXml>true</includeInApplicationXml>
             </javaModule>
             <javaModule>
               <groupId>org.springframework</groupId>
               <artifactId>spring</artifactId>
-              <bundleFileName>
-                spring
-              </bundleFileName>
-              <includeInApplicationXml>
-                true
-              </includeInApplicationXml>
+              <bundleFileName>spring</bundleFileName>
+              <includeInApplicationXml>true</includeInApplicationXml>
             </javaModule>
           </modules>
         </configuration>
       </plugin>
+      -->
     </plugins>
   </build>
   <dependencies>
@@ -60,6 +66,18 @@
         <exclusion>
           <groupId>jboss</groupId>
           <artifactId>jboss-ejb3x</artifactId>
+        </exclusion>
+        <!--exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate</artifactId>
+        </exclusion-->
+        <exclusion>
+          <groupId>commons-dbcp</groupId>
+          <artifactId>commons-dbcp</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

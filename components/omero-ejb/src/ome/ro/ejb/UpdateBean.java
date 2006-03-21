@@ -29,31 +29,39 @@
 package ome.ro.ejb;
 
 //Java imports
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.AroundInvoke;
+import javax.ejb.InvocationContext;
 import javax.ejb.Local;
 import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.jboss.annotation.security.SecurityDomain;
+
 //Third-party imports
 
 //Application-internal dependencies
 import ome.api.IUpdate;
+import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 
 @Stateless
 @Remote(IUpdate.class)
-@Local(IUpdate.class)
-public class UpdateBean extends AbstractBean implements IUpdate
+@Local(LocalUpdate.class)
+@SecurityDomain("jmx-console")
+public class UpdateBean extends AbstractBean implements LocalUpdate
 {
 
-    IUpdate delegate;
+    LocalUpdate delegate;
     
     public UpdateBean(){
         super();
-        delegate = (IUpdate) ctx.getBean("updateService");
+        delegate = (LocalUpdate) applicationContext.getBean("updateService");
     }
     
     @PreDestroy
@@ -63,6 +71,17 @@ public class UpdateBean extends AbstractBean implements IUpdate
         super.destroy();
     }
 
+    @AroundInvoke 
+    public Object testAround( InvocationContext ctx ) throws Exception
+    {
+        Principal p = sessionContext.getCallerPrincipal();
+        System.out.println( p );
+        return ctx.proceed();
+    }
+    
+    // ~ DELEGATION
+    // =========================================================================
+    
     public void saveArray(IObject[] arg0)
     {
         delegate.saveArray(arg0);
@@ -88,6 +107,7 @@ public class UpdateBean extends AbstractBean implements IUpdate
         return delegate.saveAndReturnObject(graph);
     }
 
+    @RolesAllowed("JBossAdmin")
     public void saveObject(IObject graph)
     {
         delegate.saveObject(graph);
@@ -101,6 +121,26 @@ public class UpdateBean extends AbstractBean implements IUpdate
     public void saveMap(Map arg0)
     {
         delegate.saveMap(arg0);
+    }
+
+    public void deleteObject(IObject row)
+    {
+        delegate.deleteObject(row);
+    }
+
+    public void commit()
+    {
+        delegate.commit();
+    }
+
+    public void flush()
+    {
+        delegate.flush();
+    }
+
+    public void rollback()
+    {
+        delegate.rollback();
     }
 
 }
