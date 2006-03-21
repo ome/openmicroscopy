@@ -1,8 +1,8 @@
 package ome.system;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
@@ -86,7 +86,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext
     public static OmeroContext getInstance(String beanFactoryName)
     {
         OmeroContext ctx = (OmeroContext) 
-        SingletonBeanFactoryLocator.getInstance()
+        ContextSingletonBeanFactoryLocator.getInstance()
             .useBeanFactory(beanFactoryName).getFactory();
         return ctx;
     }

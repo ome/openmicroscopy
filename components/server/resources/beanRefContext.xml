@@ -7,6 +7,18 @@
   other contexts.  
   </description>
 
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="locations">
+		<list>
+			<value>hibernate.properties</value>            
+			<value>omero.properties</value>      
+			<value>ejb.properties</value>
+		</list>
+		</property>
+	</bean>
+  
   <bean    id="ome.server"
     	  class="ome.system.OmeroContext"
     lazy-init="true">
@@ -29,7 +41,7 @@
         <value>ome/services/security.xml</value>
         <value>ome/services/services.xml</value>
         <value>ome/services/hibernate.xml</value>
-        <value>ome/services/dbcp.xml</value>
+        <value>ome/services/${data.source}.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
