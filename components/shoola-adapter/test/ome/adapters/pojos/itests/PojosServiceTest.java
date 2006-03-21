@@ -257,7 +257,7 @@ public class PojosServiceTest extends TestCase {
         // Method 2:
         saveImage();
         updated = unlinkImage();
-        iPojos.udpateDataObjects( 
+        iPojos.updateDataObjects( 
                 (IObject[]) updated.toArray(new IObject[updated.size()]), null);
 
         List list2 = 
@@ -828,6 +828,61 @@ public class PojosServiceTest extends TestCase {
         assertTrue( updt_ids.containsAll( orig_ids ));
         assertTrue( orig_ids.containsAll( updt_ids ));
         
+        
+    }
+    
+    public void test_update_annotation() throws Exception
+    {
+        DataObject annotatedObject;
+        AnnotationData data;
+        
+        Dataset d = new Dataset();
+        d.setName( " update_annotation" );
+        d = (Dataset) iPojos.createDataObject( d, null );
+        annotatedObject = new DatasetData( d );
+        
+        data = new AnnotationData( AnnotationData.DATASET_ANNOTATION );
+        data.setText( " update_annotation " );
+        
+        IObject updated = iPojos.updateDataObject(
+                annotatedObject.asIObject(), null );
+
+        IObject toUpdate = data.asIObject();
+        ( (DatasetAnnotation) toUpdate ).setDataset( (Dataset) updated );
+        IObject result = iPojos.updateDataObject( toUpdate, null ); /* boom */
+
+        DataObject toReturn = new AnnotationData( (DatasetAnnotation) result );
+
+    }
+    
+    public void test_unloaded_ds_in_ui() throws Exception
+    {
+//        Project p = new Project(); p.setName("ui");
+//        Dataset d = new Dataset(); d.setName("ui");
+//        Image i = new Image(); i.setName("ui");
+//        p.linkDataset( d );
+//        d.linkImage( i );
+//        
+//        ProjectData pd = new ProjectData( (Project)
+//                iPojos.createDataObject( p, null )
+//                );
+        
+        PojoOptions po = new PojoOptions().exp( new Long( 0L ) );
+        ProjectData pd_test = new ProjectData( (Project)
+                iPojos.loadContainerHierarchy( Project.class, null, po.map())
+                .iterator().next()
+                );
+        DatasetData dd_test = (DatasetData) pd_test.getDatasets().iterator().next();
+        pd_test.setDescription("new value:ui");
+        
+        iPojos.updateDataObject( pd_test.asIObject(), null );
+        
+        try { 
+            dd_test.getName();
+            fail(" this should blow up ");
+        } catch (Exception e ){
+            // good.
+        }
         
     }
     
