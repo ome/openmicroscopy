@@ -130,30 +130,30 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     public void saveObject(IObject graph)
     {
         UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
-        beforeSave( graph, filter );
+        beforeUpdate( graph, filter );
         graph = internalSave( graph, filter );
-        afterSave( graph, filter );
+        afterUpdate( graph, filter );
     }
     
     public IObject saveAndReturnObject( IObject graph )
     {
         UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
-        beforeSave( graph, filter );
+        beforeUpdate( graph, filter );
         graph = internalSave( graph, filter );
-        afterSave( graph, filter );
+        afterUpdate( graph, filter );
         return graph;
     }
 
     public void saveCollection(@Validate(IObject.class) Collection graph)
     {
         UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
-        beforeSave( graph, filter );
+        beforeUpdate( graph, filter );
         for (Object _object : graph)
         {
             IObject obj = (IObject) _object;
             obj = internalSave( obj, filter );
         }
-        afterSave( graph, filter );
+        afterUpdate( graph, filter );
     }
     
     public Collection saveAndReturnCollection(
@@ -170,42 +170,45 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
         UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
-        beforeSave( graph, filter );
+        beforeUpdate( graph, filter );
         for (int i = 0; i < graph.length; i++)
         {
             
             graph[i] = internalSave( graph[i], filter );
         }
-        afterSave( graph, filter );
+        afterUpdate( graph, filter );
         return graph;
     }
     
     public void saveArray(IObject[] graph)
     {
         UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
-        beforeSave( graph, filter );
+        beforeUpdate( graph, filter );
         for (int i = 0; i < graph.length; i++)
         {
             graph[i] = internalSave( graph[i], filter );
         }
-        afterSave( graph, filter );
+        afterUpdate( graph, filter );
     }
 
-    public Map saveAndReturnMap(Map map)
+    public Map saveAndReturnMap( Map map )
     {
         // TODO Auto-generated method stub
         //return null;
         throw new RuntimeException("Not implemented yet.");
     }
 
-    public void deleteObject(IObject row)
+    public void deleteObject( IObject row )
     {
-        getHibernateTemplate().delete(row);
+        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        beforeUpdate( row, filter );
+        internalDelete( row, filter );
+        afterUpdate( row, filter );
     }
     
     // ~ Internals
     // =========================================================
-    private void beforeSave( Object argument, UpdateFilter filter )
+    private void beforeUpdate( Object argument, UpdateFilter filter )
     {
 
         if ( argument == null )
@@ -242,7 +245,17 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         return (IObject) getHibernateTemplate().merge(result);
     }
 
-    private void afterSave( Object argument, UpdateFilter filter)
+    private void internalDelete(IObject obj, UpdateFilter filter )
+    {
+        if ( logger.isDebugEnabled() )
+            logger.debug( " Internal delete. " );
+        
+        IObject result = (IObject) filter.filter(null,obj); 
+        getHibernateTemplate().delete(result);
+    }
+    
+    
+    private void afterUpdate( Object argument, UpdateFilter filter)
     {
         
         if ( logger.isDebugEnabled() )
