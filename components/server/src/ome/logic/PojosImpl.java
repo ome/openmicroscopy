@@ -437,7 +437,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     }
 
-    public IObject[] udpateDataObjects(IObject[] arg0, Map arg1)
+    public IObject[] updateDataObjects(IObject[] arg0, Map arg1)
     {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
         collectCounts( retVal, new PojoOptions(arg1) );

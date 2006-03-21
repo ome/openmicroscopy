@@ -463,7 +463,7 @@ public interface IPojos extends ServiceInterface {
      * @return created data objects.
      * @see updateDataObject
      */
-    public IObject[] udpateDataObjects(IObject[] dataObjects, Map options);
+    public IObject[] updateDataObjects(IObject[] dataObjects, Map options);
     
     /**
      * Deletes a data object. Currently this method takes a very conservative
