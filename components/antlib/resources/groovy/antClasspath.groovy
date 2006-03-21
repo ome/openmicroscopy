@@ -28,6 +28,14 @@
                     }
 		  }
 
+		  def jars = {|x|
+		    if (x.contains(repo))  {
+		      path = x.substring(x.lastIndexOf(repo)+repo.length())
+		      o << """
+	<copy file="\${omero.repo.local}/${path}" todir="@{todir}"/>"""
+                    }
+		  }
+
 		  o << """
 <!-- Code-generated ant classpath for ${artifact} component -->
 <project name="${artifact}_classpath" default="classpath-generate" basedir=".">
@@ -67,5 +75,16 @@
 
 		o << """
   </target>
+
+  <macrodef name="jars-copy">
+    <attribute name="todir"/>
+    <sequential>"""
+
+		  properties["omero.path"].split(":").toList().sort().each(jars)
+
+		o << """
+    </sequential>
+  </macrodef>
+
 </project>"""
 		}
