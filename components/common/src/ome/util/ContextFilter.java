@@ -88,41 +88,65 @@ public class ContextFilter implements Filter {
     protected Map _cache = new IdentityHashMap();
     
     protected LinkedList _context = new LinkedList();
+
+    protected void beforeFilter( String fieldId, Object o )
+    {
+        enter( o );
+        addSeen( o );
+    }
+
+    protected void doFilter( String fieldId, Object o )
+    {
+        // nothing 
+    }
+    
+    protected void doFilter( String fieldId, Filterable f )
+    {
+        f.acceptFilter( this );
+    }
+
+    protected void doFilter( String fieldId, Collection c )
+    {
+        List add = new ArrayList();
+        for (Iterator iter = c.iterator(); iter.hasNext();) {
+            Object item = iter.next();
+            Object result = filter(fieldId, item);
+            if (null == result){
+                iter.remove();
+            } else if (result != item) {
+                iter.remove();
+                add.add(result);
+            }
+        }
+        c.addAll(add);
+    }
+    
+    protected void afterFilter( String fieldId, Object o )
+    {
+        exit( o );
+    }
     
 	public Filterable filter(String fieldId, Filterable f) {
 		
 		if (f != null && hasntSeen(f)){
-			enter(f);
-			addSeen(f);
-			f.acceptFilter(this);
-			exit(f);
+            beforeFilter( fieldId, f );
+			doFilter( fieldId, f );
+			afterFilter( fieldId, f );
 		} 
 		
 		return f;// null;
 		
 	}
-	
+    
 	/** iterates over the contents of the collection and filters each.
 	 * Adds itself to the context. This is somewhat dangerous.
 	 */
 	public Collection filter(String fieldId, Collection c){
 		
 		if (c != null && hasntSeen(c)){
-            List add = new ArrayList();
-			addSeen(c);
-			enter(c);
-			for (Iterator iter = c.iterator(); iter.hasNext();) {
-				Object item = iter.next();
-				Object result = filter(fieldId, item);
-				if (null == result){
-					iter.remove();
-				} else if (result != item) {
-					iter.remove();
-					add.add(result);
-				}
-			}
-			exit(c);
-			c.addAll(add);
+            beforeFilter( fieldId, c );
+            doFilter( fieldId, c );
+            afterFilter( fieldId, c );
 		} 
 		
 		return c;
@@ -134,9 +158,8 @@ public class ContextFilter implements Filter {
 	public Map filter(String fieldId, Map m){
 		
         if (m != null && hasntSeen(m)){
+            beforeFilter( fieldId, m );
             Map add = new HashMap();
-			addSeen(m);
-			enter(m);
 			for (Iterator iter = m.entrySet().iterator(); iter.hasNext();) {
 				Map.Entry _entry = (Map.Entry) iter.next();
 				Entry entry = new Entry(_entry.getKey(),_entry.getValue());
@@ -148,8 +171,8 @@ public class ContextFilter implements Filter {
 					add.put(result.key,result.value);
 				} 
 			}
-			exit(m);
 			m.putAll(add);
+            afterFilter( fieldId, m );
 
 		} 
 		return m;
@@ -158,15 +181,16 @@ public class ContextFilter implements Filter {
 	/** used when type is unknown. this is possibly omittable with generics */
 	public Object filter(String fieldId, Object o){
 		Object result;
-        if (o == null) {
-            result = null;
-        } else if (o instanceof Filterable) {
+        if (o instanceof Filterable) {
 			result = filter(fieldId, (Filterable) o);
 		} else if (o instanceof Collection) {
 			result = filter(fieldId, (Collection) o);
 		} else  if (o instanceof Map) {
 			result = filter(fieldId, (Map) o);
 		} else {
+            beforeFilter( fieldId, o );
+            doFilter( fieldId, o );
+            afterFilter( fieldId, o );
 			result = o;
 		}
 		return result;

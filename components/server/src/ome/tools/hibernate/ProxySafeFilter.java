@@ -51,24 +51,25 @@ import ome.util.Filterable;
 public class ProxySafeFilter extends ContextFilter
 {
 
+    
     @Override
-    public Filterable filter(String fieldId, Filterable f)
+    protected void doFilter( String fieldId, Filterable f )
     {
-        if ( ! Hibernate.isInitialized( f ))
+        if ( Hibernate.isInitialized( f ))
         {
-            return f;
+            super.doFilter( fieldId, f );
         }
-        return super.filter(fieldId, f);
+        
     }
 
     @Override
-    public Collection filter(String fieldId, Collection c)
+    protected void doFilter( String fieldId, Collection c )
     {
-        if ( ! Hibernate.isInitialized(c))
+        if ( Hibernate.isInitialized(c))
         {
-            return c;
+            super.doFilter( fieldId, c );    
         }
-        return super.filter(fieldId, c);
+        
     }
     
 }

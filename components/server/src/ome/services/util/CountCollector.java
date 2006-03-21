@@ -31,7 +31,6 @@ package ome.services.util;
 
 //Java imports
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -43,7 +42,6 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.tools.hibernate.ProxySafeFilter;
-import ome.util.Filterable;
 
 
 /** filter implementation which collects the ids of certain fields.  
@@ -67,10 +65,15 @@ public class CountCollector extends ProxySafeFilter {
         lookup = new Map[fields.length];
         
     }
+
+    public void collect(Object target) 
+    {
+        super.filter(null,target);
+    }
     
     protected void addIfHit(String field){
 
-        Object o = currentContext();
+        Object o = previousContext( 1 );
         
         if (o instanceof IObject) {
 
@@ -101,11 +104,6 @@ public class CountCollector extends ProxySafeFilter {
         
         }
         
-    }
-    
-    public void collect(Object target) 
-    {
-        super.filter(null,target);
     }
 
     public Set<Long> getIds(String field)
@@ -160,27 +158,12 @@ public class CountCollector extends ProxySafeFilter {
         
         
     }
-    
-    public Filterable filter(String fieldId, Filterable f) {
-        /* TODO here's where we could use a single call back for each filter method. 
-        (onFilter) also (onFilterX) beforeFilter / afterFilter etc.
-        */
-        Filterable result = super.filter(fieldId,f);
-        addIfHit(fieldId); 
-        return result;
-    }
-    
-    public Collection filter(String fieldId, Collection c) {
-        Collection result = super.filter(fieldId,c);
-        addIfHit(fieldId); 
-        return result;
 
-    }
-
-    public Map filter(String fieldId, Map m) {
-        Map result = super.filter(fieldId,m);
-        addIfHit(fieldId); 
-        return result;
-    }
+   @Override
+    protected void beforeFilter(String fieldId, Object o)
+    {
+       super.beforeFilter( fieldId, o ); // Enter context;
+       addIfHit( fieldId );
+    } 
 
 }
