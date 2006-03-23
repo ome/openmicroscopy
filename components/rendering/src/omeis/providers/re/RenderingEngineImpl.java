@@ -219,11 +219,6 @@ public class RenderingEngineImpl implements RenderingEngine
         try {
             this.rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
             this.renderer = null;
-            
-            if ( rendDefObj == null )
-                throw new ValidationException(
-                        "RenderingDef for Pixels with id "+pixelsId+" not found.");
-            
         } finally {
             rwl.writeLock().unlock();
         }
