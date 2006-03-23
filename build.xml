@@ -157,6 +157,14 @@ ${msg.check.report}
 		<antRun component="server"><target name="install"/></antRun>
 	</target>
 
+	<target name="fulldeploy" depends="build-server">
+		<antRun component="omero-ejb"><target name="install"/></antRun>
+		<antRun component="omero-app">
+			<target name="package"/>
+			<target name="deploy-ear-jboss"/>
+		</antRun>
+	</target>
+
 	<!-- Multiproject -->
 	<target name="multiproject" depends="variables-define"/>
 
