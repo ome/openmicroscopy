@@ -33,14 +33,16 @@ package omeis.providers.re;
 import java.io.IOException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-
-
 // Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
 import ome.api.IPixels;
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -48,6 +50,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.system.OmeroContext;
+
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.Renderer;
@@ -84,10 +87,11 @@ import tmp.RenderingDefConstants;
  *          2005/07/05 16:13:52 $) </small>
  * @since OME2.2
  */
-public class RenderingEngineImpl
-    implements RenderingEngine
+public class RenderingEngineImpl implements RenderingEngine
 {
 
+    private static Log log = LogFactory.getLog(RenderingEngineImpl.class);
+    
     /*
      * LIFECYCLE: 
      * 1. new() || new(Services[]) 
@@ -119,6 +123,9 @@ public class RenderingEngineImpl
     public  RenderingEngineImpl()
     { }
 
+    public void create() 
+    { }
+    
     public void setPixelsMetadata(IPixels metaService)
     {
         pixMetaSrv = metaService;
@@ -144,10 +151,14 @@ public class RenderingEngineImpl
     public void destroy()
     {
         rwl.writeLock().lock();
-        {
+
+        try {
+            pixelsObj = null;
+            rendDefObj = null;
             renderer = null;
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
     
     
@@ -161,50 +172,81 @@ public class RenderingEngineImpl
     public void lookupPixels(long pixelsId)
     {
         rwl.writeLock().lock();
-        {
-            this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
+
+        try {
+
+            this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId); 
             this.renderer = null;
+
+            if ( pixelsObj == null )
+                throw new ValidationException(
+                        "Pixels object with id "+pixelsId+" not found.");
+            
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
+        
+        if (log.isDebugEnabled())
+            log.debug("lookupPixels for id "+pixelsId+" succeeded: "+this.pixelsObj);
+        
     }
     
     public void usePixels(Pixels pixels)
     {
         rwl.writeLock().lock();
-        {
+
+        try {
             this.pixelsObj = pixels;
             this.renderer = null;
+            
+            if ( pixelsObj == null )
+                throw new ValidationException("Null pixels not allowed.");
+            
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
+        
+        if (log.isDebugEnabled())
+            log.debug("Using pixels: "+this.pixelsObj);
+
     }
 
 
     public void lookupRenderingDef(long pixelsId)
     {
         rwl.writeLock().lock();
-        {
+        
+        try {
             this.rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
-            System.err.println(rendDefObj.toString());
             this.renderer = null;
+            
+            if ( rendDefObj == null )
+                throw new ValidationException(
+                        "RenderingDef for Pixels with id "+pixelsId+" not found.");
+            
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
+        
+        if (log.isDebugEnabled())
+            log.debug("lookupRenderingDef for id "+pixelsId+" succeeded: "+this.rendDefObj);
+        
     }
 
     public void load()
     {
         rwl.writeLock().lock();
-        {
+
+        try {
+
+            errorIfNullPixels();
+
             /*
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             StatsFactory sf = new StatsFactory();
-
-            if (pixelsObj == null)
-            {
-                throw new IllegalStateException("Pixels object not set.");
-            }
             
             // FIXME: This should be stripped out
             /*
@@ -217,19 +259,22 @@ public class RenderingEngineImpl
             */
             
             renderer = new Renderer(pixelsObj, rendDefObj, buffer);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     } 
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void saveCurrentSettings()
     {
         rwl.writeLock().lock();
-        {
-            // TODO vararg save method.
+
+        try {
+            errorIfNullRenderingDef();
             pixMetaSrv.saveRndSettings(rendDefObj);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
     
@@ -238,11 +283,12 @@ public class RenderingEngineImpl
      *  
      *  All following methods follow the pattern:
      *   1) get read or write lock
-     *      {
-     *   2)   error on null renderer
-     *   3)   delegate method to renderer
+     *      try {
+     *   2)   error on null 
+     *   3)   delegate method to renderer/renderingObj/pixelsObj
+     *      } finally {
+     *   4)   release lock
      *      }
-     *   4) release lock
      *  
      *  TODO for all of these methods it would be good to have an
      *  interceptor to check for a null renderer value. 
@@ -257,366 +303,223 @@ public class RenderingEngineImpl
      *   
      */
 
-    public final static String NULL_RENDERER = 
-        "Renderer is null."+ 
-        "This method can only be called " +
-        "after the renderer is properly " +
-        "initialized (not-null).";
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#render(PlaneDef)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public RGBBuffer render(PlaneDef pd)
             throws IOException, QuantizationException
     {
-        RGBBuffer result = null;
-        rwl.readLock().lock(); 
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
-            result = renderer.render(pd);
+        rwl.readLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return renderer.render(pd);
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setModel(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setModel(int model)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             renderer.setModel(model);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getModel()
-     */
-    public int getModel()
-    {
-        int result;
-        rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            // TODO doesn't need render !!! other cases?
-            result = 
-                RenderingDefConstants.convertType(rendDefObj.getModel());
-        }
-        rwl.readLock().unlock();
-        return result;
-    }
-
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getDefaultZ()
-     */
-    public int getDefaultZ()
-    {
-        int result;
-        rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
-            result = 
-                renderer.getRenderingDef().getDefaultZ().intValue();
-        }
-        rwl.readLock().unlock();
-        return result;
-    }
-
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getDefaultT()
-     */
-    public int getDefaultT()
-    {
-        int result;
-        rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
-            result = 
-                renderer.getRenderingDef().getDefaultT().intValue();
-        }
-        rwl.readLock().unlock();
-        return result;
-    }
-
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setDefaultZ(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setDefaultZ(int z)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        
+        try {
+            errorIfInvalidState();
             renderer.setDefaultZ(z);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setDefaultT(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setDefaultT(int t)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        
+        try {
+            errorIfInvalidState();
             renderer.setDefaultT(t);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setBitResolution(int)
-     */
-    public void setBitResolution(int bitResolution)
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public void setQuantumStrategy(int bitResolution)
     {
-        rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
             renderer.setQuantumStrategy(bitResolution);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.readLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setCodomainInterval(int, int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setCodomainInterval(int start, int end)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-
+        
+        try {
+            errorIfInvalidState();
             renderer.setCodomainInterval(start, end);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getQuantumDef()
-     */
-    public QuantumDef getQuantumDef()
-    {
-        QuantumDef result;
-        rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
-            result = renderer.getRenderingDef().getQuantization();
-        }
-        rwl.readLock().unlock();
-        return result;
-    }
-
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setChannelWindow(int, double, double)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setChannelWindow(int w, double start, double end)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        
+        try {
+            errorIfInvalidState();
             renderer.setChannelWindow(w, start, end);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setQuantizationMap(int, int, double, boolean)
-     */
-    public void setQuantizationMap(int w, int family, double coefficient,
-                                    boolean noiseReduction)
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public void setQuantizationMap(int w, int family,
+            double coefficient, boolean noiseReduction)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        
+        try {
+            errorIfInvalidState();
             renderer.setQuantizationMap(w, family, coefficient, noiseReduction);
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getChannelStats(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public double[] getChannelStats(int w)
     {
-        double[] result;
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
 //        FIXME
 //        double[] stats = cb[w].getStats(), copy = new double[stats.length];
 //        System.arraycopy(stats, 0, copy, 0, stats.length);
-        }
-        rwl.readLock().unlock();
-            return null ;// FIXME copy;
+            return null;
+        } finally {
+            rwl.readLock().unlock();
+        }// FIXME copy;
         // NOTE: These stats are supposed to be read-only; however we make a
         // copy to be on the safe side.
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getChannelNoiseReduction(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public boolean getChannelNoiseReduction(int w)
     {
-        boolean result;
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            result = cb[w].getNoiseReduction().booleanValue();
+            return cb[w].getNoiseReduction().booleanValue();
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getChannelFamily(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public int getChannelFamily(int w)
     {
-        int result;
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            result = QuantumFactory.convertFamilyType(cb[w].getFamily());
+            return QuantumFactory.convertFamilyType(cb[w].getFamily());
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getChannelCurveCoefficient(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public double getChannelCurveCoefficient(int w)
     {
-        double result;
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            result = cb[w].getCoefficient().doubleValue();
+            return cb[w].getCoefficient().doubleValue();
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getChannelWindowStart(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public double getChannelWindowStart(int w)
     {
-        double result;
-        rwl.readLock().unlock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        rwl.readLock().lock();
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            result = cb[w].getInputStart().intValue();
+            return cb[w].getInputStart().intValue();
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getChannelWindowEnd(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public double getChannelWindowEnd(int w)
     {
-        double result;
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            result = cb[w].getInputEnd().intValue();
+            return cb[w].getInputEnd().intValue();
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setRGBA(int, int, int, int, int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setRGBA(int w, int red, int green, int blue, int alpha)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-
+        
+        try {
+            errorIfInvalidState();
             renderer.setRGBA(w, red, green, blue, alpha);
-
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#getRGBA(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public int[] getRGBA(int w)
     {
-        int[] rgba = new int[4];
+
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
+            int[] rgba = new int[4];
             ChannelBinding[] cb = renderer.getChannelBindings();
     //        int[] rgba = cb[w].getColor, copy = new int[rgba.length];
     //        System.arraycopy(rgba, 0, copy, 0, rgba.length);
@@ -628,120 +531,212 @@ public class RenderingEngineImpl
             rgba[1] = cb[w].getColor().getGreen().intValue();
             rgba[2] = cb[w].getColor().getBlue().intValue();
             rgba[3] = cb[w].getColor().getAlpha().intValue();
+            return rgba;
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return rgba;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#setActive(int, boolean)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void setActive(int w, boolean active)
     {
-        rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        try {
+            rwl.writeLock().lock();
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
             cb[w].setActive(Boolean.valueOf(active));
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#isActive(int)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public boolean isActive(int w)
     {
-        boolean result;
         rwl.readLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+
+        try {
+            errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            result = cb[w].getActive().booleanValue();
+            return cb[w].getActive().booleanValue();
+        } finally {
+            rwl.readLock().unlock();
         }
-        rwl.readLock().unlock();
-        return result;
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#addCodomainMap(CodomainMapContext)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void addCodomainMap(CodomainMapContext mapCtx)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        
+        try {
+            errorIfInvalidState();
             renderer.getCodomainChain().add(mapCtx.copy());
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#updateCodomainMap(CodomainMapContext)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void updateCodomainMap(CodomainMapContext mapCtx)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        
+        try {
+            errorIfInvalidState();
             renderer.getCodomainChain().update(mapCtx.copy());
+        } finally { 
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#removeCodomainMap(CodomainMapContext)
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void removeCodomainMap(CodomainMapContext mapCtx)
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
-            
+        try {
+            errorIfInvalidState();
             renderer.getCodomainChain().remove(mapCtx.copy());
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
-     * @see RenderingEngine#resetDefaults()
-     */
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
     public void resetDefaults()
     {
         rwl.writeLock().lock();
-        {
-            if (renderer == null)
-                throw new IllegalStateException(NULL_RENDERER);
- 
+        
+        try {
+            errorIfInvalidState();
             renderer.resetDefaults();
- 
+        } finally {
+            rwl.writeLock().unlock();
         }
-        rwl.writeLock().unlock();
     }
 
+    //  ~ RendDefObj Delegation
+    // =========================================================================
+    
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public int getModel()
+    {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            return RenderingDefConstants.convertType(rendDefObj.getModel());
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public int getDefaultZ()
+    {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            return rendDefObj.getDefaultZ().intValue();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public int getDefaultT()
+    {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            return rendDefObj.getDefaultT().intValue();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+    
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public QuantumDef getQuantumDef()
+    {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            return rendDefObj.getQuantization();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
+    // ~ PixelsObj Delegation
+    // =========================================================================
+    
     public int getSizeX()
     {
-        return pixelsObj.getSizeX().intValue();
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullPixels();
+            return pixelsObj.getSizeX().intValue();
+            
+        } finally {
+            rwl.readLock().unlock();
+        }
     }
 
     public int getSizeY()
     {
-        return pixelsObj.getSizeY().intValue();
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullPixels();
+            return pixelsObj.getSizeY().intValue();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+    // ~ Error checking methods
+    // =========================================================================
+    
+    protected final static String NULL_RENDERER = 
+        "RenderingEngine not ready: renderer is null."+ 
+        "This method can only be called " +
+        "after the renderer is properly " +
+        "initialized (not-null). \n" +
+        "Try lookup and/or use methods.";
+ 
+    // TODO ObjectUnreadyException
+    protected void errorIfInvalidState()
+    {
+        errorIfNullPixels();
+        errorIfNullRenderingDef();
+        errorIfNullRenderer();
+    }
+        
+    protected void errorIfNullPixels()
+    {
+        if (pixelsObj == null)
+            throw new ApiUsageException(
+                    "RenderingEngine not ready: Pixels object not set.");
+    }
+    
+    protected void errorIfNullRenderingDef()
+    {
+        if (rendDefObj == null)
+            throw new ApiUsageException(
+                    "RenderingEngine not ready: RenderingDef object not set.");
+
+    }
+    
+    protected void errorIfNullRenderer()
+    {
+        if ( renderer == null )
+            throw new ApiUsageException(NULL_RENDERER);
+
     }
 
 }
