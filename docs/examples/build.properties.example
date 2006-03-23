@@ -1,4 +1,15 @@
 ############################################
+# The following property is NEEDED. Please 
+# don't override in ~/build.properties or
+# OMERO_HOME/build.properties. You will most 
+# likely run into CRAZY! XML parsing errors. 
+# See:
+# 
+#   http://www.jroller.com/page/dunpanic/20050112
+#
+maven.junit.fork=true
+
+############################################
 # JDBC Connection properties
 ############################################
 database.url=jdbc:postgresql://localhost/ome
