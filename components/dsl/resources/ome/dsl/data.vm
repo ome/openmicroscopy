@@ -6,6 +6,8 @@ insert into experimenter (id,version,omename,firstname,lastname)
 insert into event (id,version,time) values (0,0,now());
 insert into experimentergroup (id,version,owner_id,group_id,creation_id,name)
         values (0,0,0,0,0,'system');
+insert into experimentergroup (id,version,owner_id,group_id,creation_id,name)
+        values (0,0,0,0,0,'user');
 insert into eventtype (id,owner_id,group_id,creation_id,value) values
         (0,0,0,0,'Bootstrap');
 insert into groupexperimentermap 
