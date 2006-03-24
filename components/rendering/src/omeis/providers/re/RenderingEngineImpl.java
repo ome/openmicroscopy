@@ -42,6 +42,8 @@ import org.springframework.context.ApplicationContext;
 // Application-internal dependencies
 import ome.api.IPixels;
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -300,13 +302,23 @@ public class RenderingEngineImpl implements RenderingEngine
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     public RGBBuffer render(PlaneDef pd)
-            throws IOException, QuantizationException
+            throws ResourceError, ValidationException
     {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
             return renderer.render(pd);
+        } catch (IOException e) {
+            ResourceError re = new ResourceError(
+                    "IO error while rendering:\n"+e.getMessage());
+            re.initCause(e);
+            throw re;
+        } catch (QuantizationException e) {
+            InternalException ie = new InternalException(
+                    "QuantizationException while rendering:\n"+e.getMessage());
+            ie.initCause(e);
+            throw ie;
         } finally {
             rwl.readLock().unlock();
         }

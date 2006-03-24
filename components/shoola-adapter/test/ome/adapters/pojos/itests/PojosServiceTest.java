@@ -54,10 +54,8 @@ import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.client.ServiceFactory;
+import ome.system.ServiceFactory;
 import ome.conditions.RootException;
-import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelsService;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
@@ -77,8 +75,8 @@ import ome.util.CBlock;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
+import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.metadata.StatsFactory;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -449,18 +447,11 @@ public class PojosServiceTest extends TestCase {
 
         Pixels pix = (Pixels) iQuery.getByClass(Pixels.class).get(0);
         IPixels pixDB = factory.getPixelsService();
-        PixelsService pixFS = new PixelsService(
-                PixelsService.ROOT_DEFAULT);
-        PixelBuffer pixBF = pixFS.createPixelBuffer(pix);
-        
-        StatsFactory sf = new StatsFactory();
-        // PixelsStats pixST = sf.compute(pix,pixBF);
-        // TODO RenderingEngine re = factory.getRenderingService();
-        //Renderer r = new Renderer(pix,null,pixBF,pixST); 
+        RenderingEngine re = factory.getRenderingService(); 
         
         PlaneDef pd = new PlaneDef(0,0);
         pd.setX(0); pd.setY(0); pd.setZ(0);
-        //r.render(pd);
+        re.render(pd);
         
     }
 

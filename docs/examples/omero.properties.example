@@ -3,9 +3,10 @@ omero.repo.local=${user.home}/.m2/repository
 omero.repo.remote=http://cvs.openmicroscopy.org.uk/maven
 
 ############################################
-# Shoola connection
+# client connection
 ############################################
-omeds.url=http://localhost/shoola/
-omeds.user=user
-omeds.pass=secret
+omero.user=user
+omero.pass=secret
+omero.group=user
+omero.event=User
 

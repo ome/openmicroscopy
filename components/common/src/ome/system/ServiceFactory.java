@@ -1,5 +1,5 @@
 /*
- * ome.client.ServiceFactory
+ * ome.system.ServiceFactory
  *
  *------------------------------------------------------------------------------
  *
@@ -27,14 +27,14 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.client;
+package ome.system;
 
 //Java imports
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IAnalysis;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -61,24 +61,15 @@ public class ServiceFactory {
     
     public ServiceFactory(){
         this.ctx = OmeroContext.getClientContext();
-        
-        Map auth = (Map) ctx.getBean("auth");
-        //  try {
-        //      getRemoteAuthenticationManager().attemptAuthentication((String)auth.
-        //    get("name"),(String)auth.get("pass"));
-        //  } catch (AuthenticationException authEx){
-        //        throw new RemoteAuthenticationException(authEx.getMessage());         
-        //  }
-
     }
     
     public ServiceFactory(String contextName){
         this.ctx = OmeroContext.getInstance(contextName);
     }
 
-//	public RemoteAuthenticationManager getRemoteAuthenticationManager(){
-//        return (RemoteAuthenticationManager) this.ctx.getBean("remoteAuthenticationFacade");
-//    }
+    public IAnalysis getAnalysisService(){
+        return (IAnalysis) this.ctx.getBean("analysisService");
+    }
     
     public IPixels getPixelsService(){
         return (IPixels) this.ctx.getBean("pixelsService");

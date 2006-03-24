@@ -39,6 +39,8 @@ import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
@@ -50,7 +52,9 @@ import ome.model.IObject;
 
 @Stateless
 @Remote(IPojos.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IPojos")
 @Local(IPojos.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.IPojos")
 @SecurityDomain("OmeroSecurity")
 public class PojosBean extends AbstractBean implements IPojos
 {

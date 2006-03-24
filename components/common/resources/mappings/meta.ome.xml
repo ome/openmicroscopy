@@ -39,6 +39,7 @@
 	<enum id="ome.model.enums.EventType">
 		<entry name="Import"/>
 		<entry name="Internal"/>
+		<entry name="Shoola"/>
 		<entry name="User"/>
 		<entry name="Test"/>
 	</enum>

@@ -30,8 +30,6 @@
 package ome.ro.ejb;
 
 // Java imports
-import java.io.IOException;
-
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.PostConstruct;
@@ -40,6 +38,8 @@ import javax.ejb.Remote;
 import javax.ejb.Stateful;
 
 // Third-party libraries
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -83,7 +83,9 @@ import omeis.providers.re.quantum.QuantizationException;
  */
 @Stateful
 @Remote(RenderingEngine.class)
+@RemoteBinding(jndiBinding="omero/remote/omeis.providers.re.RenderingEngine")
 @Local(RenderingEngine.class)
+@LocalBinding (jndiBinding="omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")
 public class RenderingBean extends AbstractBean implements RenderingEngine
 {
@@ -216,7 +218,7 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     }
 
     @RolesAllowed("user") 
-    public RGBBuffer render(PlaneDef arg0) throws IOException, QuantizationException
+    public RGBBuffer render(PlaneDef arg0)
     {
         return delegate.render(arg0);
     }

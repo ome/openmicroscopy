@@ -35,6 +35,8 @@ import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
@@ -46,7 +48,9 @@ import ome.model.display.RenderingDef;
 
 @Stateless
 @Remote(IPixels.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IPixels")
 @Local(IPixels.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.IPixels")
 @SecurityDomain("OmeroSecurity")
 public class PixelsBean extends AbstractBean implements IPixels
 {

@@ -13,7 +13,6 @@
 		<antRun component="server"><target name="@{target}"/> </antRun>
 		<antRun component="omero-ejb"><target name="@{target}"/> </antRun>
 		<antRun component="omero-app"><target name="@{target}"/> </antRun>
-		<antRun component="client-ejb"><target name="@{target}"/> </antRun>
 		<antRun component="client"><target name="@{target}"/> </antRun>
 		<antRun component="shoola-adapter"><target name="@{target}"/> </antRun>
 		</sequential>

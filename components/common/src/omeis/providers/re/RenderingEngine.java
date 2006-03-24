@@ -34,6 +34,7 @@ package omeis.providers.re;
 import java.io.IOException;
 
 import ome.api.StatefulServiceInterface;
+import ome.conditions.ValidationException;
 import ome.model.display.QuantumDef;
 import ome.system.SelfConfigurableService;
 
@@ -42,7 +43,6 @@ import ome.system.SelfConfigurableService;
 //Application-internal dependencies
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.quantum.QuantizationException;
 
 /** 
  * Defines a service to render a given pixels set. 
@@ -95,10 +95,9 @@ extends SelfConfigurableService, StatefulServiceInterface
      *                     data from the pixels data repository.
      * @throws QuantizationException If an error occurred while quantizing the
      *                               pixels raw data.
-     * @throws NullPointerException If <code>pd</code> is <code>null</code>.
+     * @throws ValidationException If <code>pd</code> is <code>null</code>.
      */
-    public RGBBuffer render(PlaneDef pd)
-        throws IOException, QuantizationException;
+    public RGBBuffer render(PlaneDef pd) throws ValidationException;
     
     
     //TODO: javadoc the rest!

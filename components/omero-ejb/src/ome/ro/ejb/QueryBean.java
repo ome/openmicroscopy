@@ -38,6 +38,8 @@ import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
@@ -50,7 +52,9 @@ import ome.services.query.Query;
 
 @Stateless
 @Remote(IQuery.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IQuery")
 @Local(LocalQuery.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.local.LocalQuery")
 @SecurityDomain("OmeroSecurity")
 public class QueryBean extends AbstractBean implements LocalQuery
 {

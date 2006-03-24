@@ -38,6 +38,8 @@ import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
@@ -49,7 +51,9 @@ import ome.model.IObject;
 
 @Stateless
 @Remote(IUpdate.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IUpdate")
 @Local(LocalUpdate.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.local.LocalUpdate")
 @SecurityDomain("OmeroSecurity")
 public class UpdateBean extends AbstractBean implements LocalUpdate
 {

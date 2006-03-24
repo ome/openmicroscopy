@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -38,46 +39,79 @@
  
 -->
 
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<!-- TODO: To make adapter code work properly, all service beans should be named *Facade 
-  	 This restriction will hopefully be loosened in the future. -->
-
 	<beans>	
 	<!-- ***** CONFIG ***** -->
 	<!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+    <property name="ignoreResourceNotFound" value="true"/>
 		<property name="locations">
 		<list>
-			<value>classpath:spring.properties</value>
+			<value>classpath:omero.properties</value>
+ 			<value>classpath:jndi.properties</value>
 		</list>
 		</property>
-<!--TODO		<property name="ignoreResourceNotFound" value="true"/> 
-	see also Servlet version using web.xml!!! no more config.
-	-->
 	</bean>
 	
-	<bean id="auth" class="java.util.HashMap">
-		<constructor-arg>
-			<map>
-				<entry key="name" value="${omeds.user}"/>
-				<entry key="pass" value="${omeds.pass}"/>
-			</map>
-		</constructor-arg>
+	<bean id="principal" class="ome.system.Principal">
+		<constructor-arg index="0" value="${omero.user}"/>
+		<constructor-arg index="1" value="${omero.group}"/>    
+		<constructor-arg index="2" value="${omero.event}"/>        
 	</bean>
+
+  <bean id="env" class="java.util.Hashtable">
+    <constructor-arg>
+      <map>
+        <entry key="java.naming.security.principal" value-ref="principal"/>
+        <entry key="java.naming.security.credentials" value="${omero.pass}"/>
+        <entry key="java.naming.factory.initial" value="${java.naming.factory.initial}"/>
+        <entry key="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs}"/>
+        <entry key="java.naming.provider.url" value="${java.naming.provider.url}"/>
+      </map>
+    </constructor-arg>
+  </bean>
+    
+  <bean id="jndi" abstract="true"
+    class="org.springframework.jndi.JndiObjectFactoryBean">
+    <property name="jndiEnvironment" ref="env"/>
+  </bean>
 		
-	<bean id="remoteAuthenticationFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
-	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/RemoteAuthentication</value></property>
-	    <property name="serviceInterface"><value>net.sf.acegisecurity.providers.rcp.RemoteAuthenticationManager</value></property>
-	</bean>
-		
-	<bean id="pojosFacade" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
-	    <property name="serviceUrl"><value>http://${server.host}:${server.port}/omero/Pojos</value></property>
-	    <property name="serviceInterface"><value>ome.api.Pojos</value></property>
-		<property name="username" value="${omeds.user}"/>
-		<property name="password" value="${omeds.pass}"/>
-	</bean>
-		
+  <bean id="analysisService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.IAnalysis"/>
+    <property name="proxyInterface" value="ome.api.IAnalysis"/>
+    <property name="lookupOnStartup" value="false"/>
+  </bean>
+
+  <bean id="pixelsService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.IPixels"/>
+    <property name="proxyInterface" value="ome.api.IPixels"/>
+    <property name="lookupOnStartup" value="false"/>
+  </bean>
+
+  <bean id="pojosService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.IPojos"/>
+    <property name="proxyInterface" value="ome.api.IPojos"/>
+    <property name="lookupOnStartup" value="false"/>
+  </bean>
+
+  <bean id="renderService" parent="jndi">
+    <property name="jndiName" value="omero/remote/omeis.providers.re.RenderingEngine"/>
+    <property name="proxyInterface" value="omeis.providers.re.RenderingEngine"/>
+    <property name="lookupOnStartup" value="false"/>
+    <property name="cache" value="false"/>
+  </bean>
+
+  <bean id="queryService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.IQuery"/>
+    <property name="proxyInterface" value="ome.api.IQuery"/>
+    <property name="lookupOnStartup" value="false"/>
+  </bean>
+
+  <bean id="updateService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.IUpdate"/>
+    <property name="proxyInterface" value="ome.api.IUpdate"/>
+    <property name="lookupOnStartup" value="false"/>
+  </bean>
+        
 </beans>
