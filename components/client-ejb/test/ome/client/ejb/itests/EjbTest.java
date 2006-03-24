@@ -1,5 +1,7 @@
 package ome.client.ejb.itests;
 
+import java.util.Date;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -10,10 +12,23 @@ import junit.framework.TestCase;
 
 import ome.api.IUpdate;
 import ome.model.containers.Project;
+import ome.system.Principal;
 
 public class EjbTest extends TestCase
 {
 
+    InitialContext ctx;
+    
+    protected void setUp() throws Exception
+    {
+        Hashtable env = new Hashtable();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
+        env.put(Context.PROVIDER_URL, "jnp://localhost:1099/");
+        env.put(Context.SECURITY_PRINCIPAL, new Principal("josh","user","Test"));
+        env.put(Context.SECURITY_CREDENTIALS, "ome");
+        ctx = new InitialContext(env);
+    }
+    
     private IUpdate lookupIUpdate(Context ctx) throws NamingException
     {
         String pkg = "omero-app-3.0-alpha-SNAPSHOT/";
@@ -26,24 +41,10 @@ public class EjbTest extends TestCase
     
     public void test_withLogin() throws Exception
     {
-        Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-        env.setProperty(Context.PROVIDER_URL, "jnp://localhost:1099/");
-        env.setProperty(Context.SECURITY_PRINCIPAL, "josh");
-        env.setProperty(Context.SECURITY_CREDENTIALS, "moore");
-        InitialContext ctx = new InitialContext(env);
-        ctx.addToEnvironment( "group", "ome");
-        env.setProperty("group2","ome2");
-        ctx.bind("group3","ome3");
         IUpdate iUpdate = lookupIUpdate(ctx);
-        iUpdate.saveObject( new Project() );
+        Project p = new Project();
+        p.setName("ejb test:"+new Date());
+        iUpdate.saveObject( p );
     }
-
-    public void testSimpleCall() throws Exception
-    {
-        Context ctx = new InitialContext();
-        IUpdate iUpdate = lookupIUpdate(ctx);
-        iUpdate.saveObject( new Project() );
-    }    
     
 }

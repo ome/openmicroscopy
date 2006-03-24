@@ -28,6 +28,11 @@
     </dependency>
     <dependency>
       <groupId>omero</groupId>
+      <artifactId>jboss-ejb3x</artifactId>
+      <version>4.0.4RC1</version>
+    </dependency>
+    <dependency>
+      <groupId>omero</groupId>
       <artifactId>jboss-ejb3</artifactId>
       <version>4.0.4RC1</version>
     </dependency>

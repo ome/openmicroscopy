@@ -71,6 +71,9 @@ public abstract class CurrentDetails
     private static ThreadLocal<Permissions> umaskHolder = 
         new ThreadLocal<Permissions>();
     
+    private static ThreadLocal<String> principalHolder = 
+        new ThreadLocal<String>();
+    
     // ~ Internals
     // ================================================================
 
@@ -135,8 +138,22 @@ public abstract class CurrentDetails
         return d;
     }
     
+    // ~ Principal
+    // =========================================================================
+    public static String getPrincipal()
+    {
+        String principal = principalHolder.get();
+        return principal;
+    }
+    
+    public static void setPrincipal( String principal )
+    {
+        principalHolder.set( principal );
+    }
+    
+    
     // ~ Umask
-    // =================================================================
+    // =========================================================================
     public static Permissions getUmask()
     {
         Permissions umask = umaskHolder.get();
@@ -159,7 +176,7 @@ public abstract class CurrentDetails
     }
     
     // ~ Delegation FIXME possibly remove setters for set(Exp,Grp)
-    // =================================================================
+    // =========================================================================
     
     public static Event getCreationEvent()
     {

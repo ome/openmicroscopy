@@ -34,7 +34,7 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>postgresql</artifactId>
-      <version>7.4.1-jdbc3</version>
+      <version>8.1-405.jdbc3</version>
     </dependency>
     
     <!-- FROM project.xml -->

@@ -48,6 +48,7 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.annotations.NotNull;
@@ -68,7 +69,6 @@ import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.PojosQP;
-import ome.services.query.QP;
 import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
@@ -88,6 +88,7 @@ import ome.util.builders.PojoOptions;
  * </small>
  * @since OMERO 2.0
  */
+@Transactional
 public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
@@ -101,6 +102,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     // ~ READ
     // =========================================================================
     
+    @Transactional(readOnly=true)
     public Set loadContainerHierarchy(Class rootNodeType, 
             @Validate(Long.class) Set rootNodeIds, Map options) {
         
@@ -134,6 +136,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         
 	}
     
+    @Transactional(readOnly=true)
 	public Set findContainerHierarchies(@NotNull Class rootNodeType, 
             @NotNull @Validate(Long.class) Set imageIds, Map options) {
 		
@@ -185,6 +188,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 	}
 
+    @Transactional(readOnly=true)
 	public Map findAnnotations(Class rootNodeType, 
             @NotNull @Validate(Long.class) Set rootNodeIds, 
             @Validate(Long.class) Set annotatorIds, Map options) {
@@ -228,6 +232,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
 	}
 
+    @Transactional(readOnly=true)
 	public Set findCGCPaths(@NotNull @Validate(Long.class) Set imgIds, 
             String algorithm, Map options) {
 
@@ -287,6 +292,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 	}
 
+    @Transactional(readOnly=true)
 	public Set getImages(@NotNull Class rootNodeType, 
             @NotNull @Validate(Long.class) Set rootNodeIds, Map options) {
 		
@@ -308,6 +314,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 	}
 
+    @Transactional(readOnly=true)
 	public Set getUserImages(Map options) {
 		
 		PojoOptions po = new PojoOptions(options);
@@ -328,6 +335,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 		
 	}
     
+    @Transactional(readOnly=true)
     public Map getUserDetails(@NotNull @Validate(String.class) Set names, 
             Map options)
     {
@@ -369,6 +377,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         
     }
     
+    @Transactional(readOnly=true)
     public Map getCollectionCount(@NotNull String type, @NotNull String property, 
             @NotNull @Validate(Long.class) Set ids, Map options)
     {
@@ -390,6 +399,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         return results;
     }
 
+    @Transactional(readOnly=true)
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
     {
         IObject context = (IObject) iQuery.getById(arg0.getClass(),arg0.getId());
@@ -401,6 +411,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     // ~ WRITE
     // =========================================================================
     
+    @Transactional(readOnly=false)
     public IObject createDataObject(IObject arg0, Map arg1)
     {
        IObject retVal = iUpdate.saveAndReturnObject(arg0);
@@ -408,6 +419,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
        return retVal;
     }
 
+    @Transactional(readOnly=false)
     public IObject[] createDataObjects(IObject[] arg0, Map arg1)
     {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
@@ -416,11 +428,13 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     }
 
+    @Transactional(readOnly=false)
     public void unlink(ILink[] arg0, Map arg1)
     {
         deleteDataObjects(arg0,arg1);
     }
 
+    @Transactional(readOnly=false)
     public ILink[] link(ILink[] arg0, Map arg1)
     {
         ILink[] retVal = (ILink[])iUpdate.saveAndReturnArray(arg0);
@@ -429,6 +443,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     }
 
+    @Transactional(readOnly=false)
     public IObject updateDataObject(IObject arg0, Map arg1)
     {
         IObject retVal = iUpdate.saveAndReturnObject(arg0);
@@ -437,6 +452,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     }
 
+    @Transactional(readOnly=false)
     public IObject[] updateDataObjects(IObject[] arg0, Map arg1)
     {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
@@ -444,11 +460,13 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         return retVal;
     }
 
+    @Transactional(readOnly=false)
     public void deleteDataObject(IObject row, Map arg1)
     {
         iUpdate.deleteObject(row);
     }
 
+    @Transactional(readOnly=false)
     public void deleteDataObjects(IObject[] rows, Map options)
     {
         for (IObject object : rows)

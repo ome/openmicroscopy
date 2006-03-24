@@ -43,34 +43,25 @@
 
 <beans>	
 
-  <bean id="eventHandling" class="ome.tools.hibernate.EventHandler">
+  <bean id="eventContext" class="ome.system.ThreadLocalEventContext"/>
+
+  <bean id="eventHandler" class="ome.tools.hibernate.EventHandler">
     <constructor-arg ref="hibernateTemplate"/>
+  	<constructor-arg ref="eventContext"/>
   </bean>
   
-	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor"/>
-
-  <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
-    <property name="sessionFactory" ref="sessionFactory"/>
+	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter"/>
+  
+  <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">
+    <constructor-arg ref="dataSource"/>
+    <constructor-arg ref="sessionFactory"/>    
   </bean>
-  		
-	<bean id="transactionManager" 
+    
+	<bean id="transactionManager" lazy-init="true"
     	class="org.springframework.orm.hibernate3.HibernateTransactionManager">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
-
-	<bean id="matchAllWithPropReq" 
-      class="org.springframework.transaction.interceptor.MatchAlwaysTransactionAttributeSource">
-    	<property name="transactionAttribute" value="PROPAGATION_REQUIRED"/>
-  	</bean>
-	
-    <bean id="transactions" 
-        class="org.springframework.transaction.interceptor.TransactionInterceptor">
-        <property name="transactionManager">
-            <ref bean="transactionManager"/>
-        </property>
-		<property name="transactionAttributeSource" ref="matchAllWithPropReq"/>
-    </bean>
 
 	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
 		<property name="sessionFactory" ref="sessionFactory"/>

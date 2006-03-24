@@ -29,13 +29,10 @@
 package ome.ro.ejb;
 
 //Java imports
-import java.security.Principal;
 import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.AroundInvoke;
-import javax.ejb.InvocationContext;
 import javax.ejb.Local;
 import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
@@ -53,7 +50,7 @@ import ome.model.IObject;
 @Stateless
 @Remote(IUpdate.class)
 @Local(LocalUpdate.class)
-@SecurityDomain("jmx-console")
+@SecurityDomain("OmeroSecurity")
 public class UpdateBean extends AbstractBean implements LocalUpdate
 {
 
@@ -70,74 +67,77 @@ public class UpdateBean extends AbstractBean implements LocalUpdate
         delegate = null;
         super.destroy();
     }
-
-    @AroundInvoke 
-    public Object testAround( InvocationContext ctx ) throws Exception
-    {
-        Principal p = sessionContext.getCallerPrincipal();
-        System.out.println( p );
-        return ctx.proceed();
-    }
     
     // ~ DELEGATION
     // =========================================================================
     
+    @RolesAllowed("user")
     public void saveArray(IObject[] arg0)
     {
         delegate.saveArray(arg0);
     }
 
+    @RolesAllowed("user")
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
         return delegate.saveAndReturnArray(graph);
     }
 
+    @RolesAllowed("user")
     public Collection saveAndReturnCollection(Collection graph)
     {
         return delegate.saveAndReturnCollection(graph);
     }
 
+    @RolesAllowed("user")
     public Map saveAndReturnMap(Map map)
     {
         return delegate.saveAndReturnMap(map);
     }
 
+    @RolesAllowed("user")
     public IObject saveAndReturnObject(IObject graph)
     {
         return delegate.saveAndReturnObject(graph);
     }
 
-    @RolesAllowed("JBossAdmin")
+    @RolesAllowed("user")
     public void saveObject(IObject graph)
     {
         delegate.saveObject(graph);
     }
 
+    @RolesAllowed("user")
     public void saveCollection(Collection arg0)
     {
         delegate.saveCollection(arg0);
     }
 
+    @RolesAllowed("user")
     public void saveMap(Map arg0)
     {
         delegate.saveMap(arg0);
     }
 
+    @RolesAllowed("user")
     public void deleteObject(IObject row)
     {
         delegate.deleteObject(row);
     }
 
+    @RolesAllowed("user")
     public void commit()
     {
         delegate.commit();
     }
 
+    @RolesAllowed("user")
     public void flush()
     {
         delegate.flush();
     }
 
+    @RolesAllowed("user")
     public void rollback()
     {
         delegate.rollback();

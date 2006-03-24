@@ -1,12 +1,12 @@
 package ome.server.itests;
 
-import java.util.Properties;
-
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.meta.Experimenter;
 import ome.security.CurrentDetails;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.system.Principal;
 
 import junit.framework.TestCase;
 
@@ -16,15 +16,13 @@ public class LoginTest extends TestCase
 
     protected void login(String user, String group, String eventType)
     {
-        Properties p = System.getProperties();
-        p.setProperty("omero.username",user);
-        p.setProperty("omero.groupname",group);
-        p.setProperty("omero.eventtype",eventType);
+        ec.setPrincipal( new Principal( user, group, eventType ));
     }
     
     protected OmeroContext ctx = OmeroContext.getManagedServerContext();
     protected IQuery q = (IQuery) ctx.getBean("queryService");
     protected IUpdate u = (IUpdate) ctx.getBean("updateService");
+    protected EventContext ec = (EventContext) ctx.getBean("eventContext");
     
     public void testNoLoginThrowsException() throws Exception
     {

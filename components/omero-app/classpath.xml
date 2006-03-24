@@ -77,7 +77,7 @@
 	<file name="omero/jboss-ejb3x/4.0.3SP1/jboss-ejb3x-4.0.3SP1.jar"/>
 	<file name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/omero-ejb/3.0-alpha-SNAPSHOT/omero-ejb-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
+	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<file name="omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
@@ -120,7 +120,7 @@
 	<get src="${omero.repo.remote}/omero/jboss-ejb3x/4.0.3SP1/jboss-ejb3x-4.0.3SP1.jar" dest="${omero.repo.local}/omero/jboss-ejb3x/4.0.3SP1/jboss-ejb3x-4.0.3SP1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/omero-ejb/3.0-alpha-SNAPSHOT/omero-ejb-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/omero-ejb/3.0-alpha-SNAPSHOT/omero-ejb-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" dest="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" dest="${omero.repo.local}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar" dest="${omero.repo.local}/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar" usetimestamp="true"/>
@@ -162,7 +162,7 @@
 	<copy file="${omero.repo.local}/omero/jboss-ejb3x/4.0.3SP1/jboss-ejb3x-4.0.3SP1.jar" todir="${dist.dir}/repository/omero/jboss-ejb3x/4.0.3SP1"/>
 	<copy file="${omero.repo.local}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/omeio-nio/3.0-alpha-SNAPSHOT"/>
 	<copy file="${omero.repo.local}/omero/omero-ejb/3.0-alpha-SNAPSHOT/omero-ejb-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/omero-ejb/3.0-alpha-SNAPSHOT"/>
-	<copy file="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" todir="${dist.dir}/repository/omero/postgresql/7.4.1-jdbc3"/>
+	<copy file="${omero.repo.local}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" todir="${dist.dir}/repository/omero/postgresql/8.1-405.jdbc3"/>
 	<copy file="${omero.repo.local}/omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/rendering/3.0-alpha-SNAPSHOT"/>
 	<copy file="${omero.repo.local}/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/server/3.0-alpha-SNAPSHOT"/>
 	<copy file="${omero.repo.local}/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar" todir="${dist.dir}/repository/org/acegisecurity/acegi-security/1.0.0-RC1"/>
@@ -206,7 +206,7 @@
 	<copy file="${omero.repo.local}/omero/jboss-ejb3x/4.0.3SP1/jboss-ejb3x-4.0.3SP1.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/omero-ejb/3.0-alpha-SNAPSHOT/omero-ejb-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
-	<copy file="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar" todir="@{todir}"/>

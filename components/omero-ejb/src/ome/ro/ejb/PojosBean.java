@@ -33,10 +33,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+
+import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
 
@@ -48,6 +51,7 @@ import ome.model.IObject;
 @Stateless
 @Remote(IPojos.class)
 @Local(IPojos.class)
+@SecurityDomain("OmeroSecurity")
 public class PojosBean extends AbstractBean implements IPojos
 {
 
@@ -68,86 +72,103 @@ public class PojosBean extends AbstractBean implements IPojos
     // ~ DELEGATION
     // =========================================================================
     
+    @RolesAllowed("user") 
     public IObject createDataObject(IObject object, Map options)
     {
         return delegate.createDataObject(object, options);
     }
 
+    @RolesAllowed("user") 
     public IObject[] createDataObjects(IObject[] dataObjects, Map options)
     {
         return delegate.createDataObjects(dataObjects, options);
     }
 
+    @RolesAllowed("user") 
     public void deleteDataObject(IObject dataObject, Map options)
     {
         delegate.deleteDataObject(dataObject, options);
     }
 
+    @RolesAllowed("user") 
     public void deleteDataObjects(IObject[] dataObjects, Map options)
     {
         delegate.deleteDataObjects(dataObjects, options);
     }
 
+    @RolesAllowed("user") 
     public Map findAnnotations(Class rootNodeType, Set rootNodeIds, Set annotatorIds, Map options)
     {
         return delegate.findAnnotations(rootNodeType, rootNodeIds, annotatorIds, options);
     }
 
+    @RolesAllowed("user") 
     public Set findCGCPaths(Set imgIds, String algorithm, Map options)
     {
         return delegate.findCGCPaths(imgIds, algorithm, options);
     }
 
+    @RolesAllowed("user") 
     public Set findContainerHierarchies(Class rootNodeType, Set imagesIds, Map options)
     {
         return delegate.findContainerHierarchies(rootNodeType, imagesIds, options);
     }
 
+    @RolesAllowed("user") 
     public Map getCollectionCount(String type, String property, Set ids, Map options)
     {
         return delegate.getCollectionCount(type, property, ids, options);
     }
 
+    @RolesAllowed("user") 
     public Set getImages(Class rootNodeType, Set rootNodeIds, Map options)
     {
         return delegate.getImages(rootNodeType, rootNodeIds, options);
     }
 
+    @RolesAllowed("user") 
     public Map getUserDetails(Set names, Map options)
     {
         return delegate.getUserDetails(names, options);
     }
 
+    @RolesAllowed("user") 
     public Set getUserImages(Map options)
     {
         return delegate.getUserImages(options);
     }
 
+    @RolesAllowed("user") 
     public ILink[] link(ILink[] dataObjectLinks, Map options)
     {
         return delegate.link(dataObjectLinks, options);
     }
 
+    @RolesAllowed("user") 
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds, Map options)
     {
         return delegate.loadContainerHierarchy(rootNodeType, rootNodeIds, options);
     }
 
+    @RolesAllowed("user") 
     public Collection retrieveCollection(IObject dataObject, String collectionName, Map options)
     {
         return delegate.retrieveCollection(dataObject, collectionName, options);
     }
 
+    @RolesAllowed("user") 
     public void unlink(ILink[] dataOjectLinks, Map options)
     {
         delegate.unlink(dataOjectLinks, options);
     }
 
+    @RolesAllowed("user") 
     public IObject updateDataObject(IObject dataObject, Map options)
     {
         return delegate.updateDataObject(dataObject, options);
     }
 
+    @RolesAllowed("user") 
     public IObject[] updateDataObjects(IObject[] dataObjects, Map options)
     {
         return delegate.updateDataObjects(dataObjects, options);

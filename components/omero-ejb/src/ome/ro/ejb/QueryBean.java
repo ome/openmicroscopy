@@ -32,10 +32,13 @@ package ome.ro.ejb;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+
+import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
 
@@ -48,6 +51,7 @@ import ome.services.query.Query;
 @Stateless
 @Remote(IQuery.class)
 @Local(LocalQuery.class)
+@SecurityDomain("OmeroSecurity")
 public class QueryBean extends AbstractBean implements LocalQuery
 {
 
@@ -65,96 +69,115 @@ public class QueryBean extends AbstractBean implements LocalQuery
         super.destroy();
     }
 
+    @RolesAllowed("user") 
     public Object getById(Class klazz, long id)
     {
         return delegate.getById(klazz, id);
     }
 
+    @RolesAllowed("user") 
     public List getListByExample(Object example)
     {
         return delegate.getListByExample(example);
     }
 
+    @RolesAllowed("user") 
     public List getListByFieldEq(Class klazz, String field, Object value)
     {
         return delegate.getListByFieldEq(klazz, field, value);
     }
 
+    @RolesAllowed("user") 
     public List getListByFieldILike(Class klazz, String field, String value)
     {
         return delegate.getListByFieldILike(klazz, field, value);
     }
 
+    @RolesAllowed("user") 
     public List getListByMap(Class klazz, Map constraints)
     {
         return delegate.getListByMap(klazz, constraints);
     }
 
+    @RolesAllowed("user") 
     public Object getUniqueByExample(Object example)
     {
         return delegate.getUniqueByExample(example);
     }
 
+    @RolesAllowed("user") 
     public Object getUniqueByFieldEq(Class klazz, String field, Object value)
     {
         return delegate.getUniqueByFieldEq(klazz, field, value);
     }
 
+    @RolesAllowed("user") 
     public Object getUniqueByFieldILike(Class klazz, String field, String value)
     {
         return delegate.getUniqueByFieldILike(klazz, field, value);
     }
 
+    @RolesAllowed("user") 
     public Object getUniqueByMap(Class klazz, Map constraints)
     {
         return delegate.getUniqueByMap(klazz, constraints);
     }
 
+    @RolesAllowed("user") 
     public List queryList(String query, Object[] params)
     {
         return delegate.queryList(query, params);
     }
 
+    @RolesAllowed("user") 
     public List queryListMap(String query, Map params)
     {
         return delegate.queryListMap(query, params);
     }
 
+    @RolesAllowed("user") 
     public Object queryUnique(String query, Object[] params)
     {
         return delegate.queryUnique(query, params);
     }
 
+    @RolesAllowed("user") 
     public Object queryUniqueMap(String query, Map params)
     {
         return delegate.queryUniqueMap(query, params);
     }
 
+    @RolesAllowed("user") 
     public boolean checkProperty(String type, String property)
     {
         return delegate.checkProperty(type, property);
     }
 
+    @RolesAllowed("user") 
     public boolean checkType(String type)
     {
         return delegate.checkType(type);
     }
 
+    @RolesAllowed("user") 
     public void evict(Object object)
     {
         delegate.evict(object);
     }
 
+    @RolesAllowed("user") 
     public Object execute(Query query)
     {
         return delegate.execute(query);
     }
 
+    @RolesAllowed("user") 
     public List getByClass(Class klazz)
     {
         return delegate.getByClass(klazz);
     }
 
+    @RolesAllowed("user") 
     public void initialize(Object object)
     {
         delegate.initialize(object);

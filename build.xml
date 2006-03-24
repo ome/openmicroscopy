@@ -131,13 +131,13 @@ ${msg.check.report}
 	<!-- Special Components -->
 	<property name="target" value="install"/>
 
-	<target name="dsl">
+	<target name="dsl" unless="generate.skip">
 		<antRun component="dsl">
 			<target name="${target}"/>
 		</antRun>
 	</target>
 
-	<target name="model" depends="dsl">
+	<target name="model" depends="dsl" unless="generate.skip">
 		<antRun component="common">
 			<target name="clean"/>
 			<target name="${target}"/>

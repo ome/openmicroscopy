@@ -29,10 +29,9 @@
 package ome.tools.hibernate;
 
 // Java imports
-
-// Third-party libraries
 import java.sql.SQLException;
 
+// Third-party libraries
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -46,10 +45,12 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 // Application-internal dependencies
+import ome.conditions.InternalException;
 import ome.model.enums.EventType;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.CurrentDetails;
+import ome.system.EventContext;
 
 /**
  * method interceptor to properly create our Events.
@@ -62,14 +63,16 @@ import ome.security.CurrentDetails;
 public class EventHandler implements MethodInterceptor
 {
 
-    private static Log          log = LogFactory.getLog(EventHandler.class);
+    private static Log log 
+        = LogFactory.getLog(EventHandler.class);
 
-    // TODO Do we need to get rid of this?
     protected HibernateTemplate ht;
+    protected EventContext ec;
 
-    public EventHandler(HibernateTemplate template)
+    public EventHandler(HibernateTemplate template, EventContext eventContext)
     {
         this.ht = template;
+        this.ec = eventContext;
     }
 
     /**
@@ -77,7 +80,6 @@ public class EventHandler implements MethodInterceptor
      */
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
-
         CurrentDetails.clear();
         setDetails();
         try {
@@ -95,9 +97,19 @@ public class EventHandler implements MethodInterceptor
     protected void setDetails()
     {
 
+        if ( ec == null ) 
+            throw new InternalException(
+                    "EventContext is null in EventHandler. Invalid configuration."
+            );
+        
+        if ( ec.getPrincipal() == null )
+            throw new InternalException(
+                    "Principal is null in EventHandler. Security system failure."
+            );
+        
         if (getName() == null)
-            throw new RuntimeException(
-                    "omero.username system property must be set.");
+            throw new InternalException(
+                    "Principal.name is null in EventHandler. Security system failure.");
 
         Experimenter exp = (Experimenter) ht.execute(new HibernateCallback()
         {
@@ -118,8 +130,8 @@ public class EventHandler implements MethodInterceptor
         CurrentDetails.setOwner(exp);
 
         if (getGroup() == null)
-            throw new RuntimeException(
-                    "omero.groupname system property must be set.");
+            throw new InternalException(
+            "Principal.group is null in EventHandler. Security system failure.");
 
         ExperimenterGroup grp = (ExperimenterGroup) ht
                 .execute(new HibernateCallback()
@@ -144,7 +156,8 @@ public class EventHandler implements MethodInterceptor
         CurrentDetails.setGroup(grp);
 
         if (getType() == null)
-            throw new RuntimeException("omero.eventtype must be set.");
+            throw new InternalException(
+            "Principal.eventType is null in EventHandler. Security system failure.");
 
         EventType type = (EventType) ht.execute(new HibernateCallback()
         {
@@ -169,16 +182,16 @@ public class EventHandler implements MethodInterceptor
     
     protected String getName()
     {
-        return System.getProperties().getProperty("omero.username");
+        return ec.getPrincipal().getName();
     }
 
     protected String getGroup()
     {
-        return System.getProperties().getProperty("omero.groupname");
+        return ec.getPrincipal().getGroup();
     }
 
     protected String getType()
     {
-        return System.getProperties().getProperty("omero.eventtype");
+        return ec.getPrincipal().getEventType();
     }
 }

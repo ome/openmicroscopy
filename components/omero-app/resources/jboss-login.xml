@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policy PUBLIC
+      "-//JBoss//DTD JBOSS Security Config 3.0//EN"
+      "http://www.jboss.org/j2ee/dtd/security_config.dtd">
+
+<!-- The JAAS login configuration file for the
+   java:/jaas/OmeroSecurity
+   security domain used by the security-spec test case
+-->
+
+<!-- see
+  http://www.jboss.com/index.html?module=bb&op=viewtopic&t=74317&view=previous
+-->
+ <policy>
+   <application-policy name="OmeroSecurity">
+      <authentication>
+          <login-module code = "org.jboss.security.auth.spi.DatabaseServerLoginModule" flag = "required">
+            <module-option name = "unauthenticatedIdentity">guest</module-option>
+            <module-option name = "dsJndiName">java:/omeroDS</module-option>
+            <module-option name = "principalsQuery">
+select 'ome' as PASSWD from experimenter where omename=?
+            </module-option>
+            <module-option name = "rolesQuery">
+select g.name, 'Roles' from experimenter e, experimentergroup g,
+groupexperimentermap m where e.omename = ? and e.id = m.child and
+m.parent = g.id;
+            </module-option>
+          </login-module>
+       </authentication>
+    </application-policy>
+ </policy>

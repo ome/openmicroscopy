@@ -29,30 +29,68 @@
 package ome.ro.ejb;
 
 //Java imports
+import javax.annotation.Resource;
+import javax.ejb.AroundInvoke;
+import javax.ejb.InvocationContext;
+import javax.ejb.SessionContext;
+import javax.security.auth.Subject;
+import javax.transaction.UserTransaction;
 
 //Third-party imports
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.conditions.ApiUsageException;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.system.Principal;
 
 public class AbstractBean 
 {
     
     private static Log log = LogFactory.getLog(AbstractBean.class);
 
-    protected OmeroContext  applicationContext = OmeroContext.getManagedServerContext();
+    protected OmeroContext  applicationContext;
 
+    protected EventContext  eventContext;
+    
     // java:comp.ejb3/EJBContext
     protected @Resource SessionContext sessionContext; 
+    //protected @Resource(mappedName="UserTransaction") UserTransaction ut;
+    //protected @Resource(mappedName="security/subject") Subject subject;
     
     public AbstractBean()
     {
-        log.debug("Creating:\n"+getLogString());
+        applicationContext = OmeroContext.getManagedServerContext();
+        eventContext = (EventContext) applicationContext.getBean("eventContext");
+        log.debug("Created:\n"+getLogString());
+    }
+
+    @AroundInvoke 
+    public Object around( InvocationContext ctx ) throws Exception
+    {
+        Principal p;
+        if ( sessionContext.getCallerPrincipal() instanceof Principal )
+        {
+            p = (Principal) sessionContext.getCallerPrincipal();
+        }
+        else
+        {
+            throw new ApiUsageException(
+                    "ome.system.Principal instance must be provided on login.");
+        }
+                
+        if ( log.isDebugEnabled() )
+            log.debug( "Running with user: "+p.getName() );
+        
+        try {
+            eventContext.setPrincipal( p );
+            return ctx.proceed();    
+        } finally {
+            eventContext.setPrincipal( null );
+        }
+        
     }
     
     public void destroy()

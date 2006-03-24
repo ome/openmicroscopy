@@ -1,5 +1,5 @@
 /*
- * ome.api.ApiConstraintChecker
+ * ome.annotations.ApiConstraintChecker
  *
  *------------------------------------------------------------------------------
  *
@@ -26,57 +26,60 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.aop;
+package ome.annotations;
 
 // Java imports
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 // Third-party libraries
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.annotations.NotNull;
-import ome.annotations.Validate;
-import ome.conditions.RootException;
+import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 
 /**
- * method interceptor to check metadata constraints on API calls.
+ * Checks metadata constraints on API calls.
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
-public class ApiConstraintChecker implements MethodInterceptor
+public class ApiConstraintChecker
 {
 
     private static Log log = LogFactory.getLog(ApiConstraintChecker.class);
 
-    /**
-     * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
-     */
-    public Object invoke(MethodInvocation mi) throws Throwable
+    public static void errorOnViolation(Class implClass, Method mthd, Object[] args) 
+    throws ValidationException
     {
 
         /* find concrete method */
-        Method mthd = mi.getMethod();
-        Class implClass = mi.getThis().getClass();
-        Method implMethod = implClass.getMethod(mthd.getName(), (Class[]) mthd
-                .getParameterTypes());
+        Method implMethod;
+        try
+        {
+            implMethod = implClass.getMethod(mthd.getName(), (Class[]) mthd
+                    .getParameterTypes());
+        } catch (SecurityException e)
+        {
+            throw new InternalException(
+                    "Not allowed to perform reflection for testing API.\n" +
+                    String.format("Class:%s Method:%s",implClass.getName(),mthd));
+        } catch (NoSuchMethodException e)
+        {
+            return; // TODO No method == no violation. 
+        }
 
         log.info("Checking: " + implMethod);
 
         /* get arrays of arguments with parameters */
-        Object[] args = mi.getArguments() == null ? new Object[]{} : mi.getArguments();
+        if ( args == null )
+            args = new Object[]{};
+        
         Annotation[][] anns = implMethod.getParameterAnnotations();
 
         for (int i = 0; i < args.length; i++)
@@ -143,7 +146,6 @@ public class ApiConstraintChecker implements MethodInterceptor
 
         }
 
-        return mi.proceed();
     }
 }
 

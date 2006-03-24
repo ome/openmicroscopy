@@ -34,6 +34,7 @@ package ome.logic;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.api.IPixels;
@@ -55,6 +56,7 @@ import ome.security.CurrentDetails;
  * </small>
  * @since OME2.2
  */
+@Transactional(readOnly=true)
 class PixelsImpl extends AbstractLevel2Service
     implements IPixels
 {
@@ -82,6 +84,7 @@ class PixelsImpl extends AbstractLevel2Service
                 new Object[]{pixId, userId});
 	}
 
+    @Transactional(readOnly=false)
 	public void saveRndSettings(RenderingDef rndSettings) {
 	    iUpdate.saveObject(rndSettings);
 	}

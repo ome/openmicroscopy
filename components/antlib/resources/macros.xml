@@ -7,11 +7,14 @@
 	<macrodef name="iterate">
 		<attribute name="target"/>
 		<sequential>
-		<antRun component="common">    <target name="@{target}"/> </antRun>
-		<antRun component="omeio-nio"> <target name="@{target}"/> </antRun>
-		<antRun component="rendering"> <target name="@{target}"/> </antRun>
-		<antRun component="server">    <target name="@{target}"/> </antRun>
-		<antRun component="client">    <target name="@{target}"/> </antRun>
+		<antRun component="common"><target name="@{target}"/> </antRun>
+		<antRun component="omeio-nio"><target name="@{target}"/> </antRun>
+		<antRun component="rendering"><target name="@{target}"/> </antRun>
+		<antRun component="server"><target name="@{target}"/> </antRun>
+		<antRun component="omero-ejb"><target name="@{target}"/> </antRun>
+		<antRun component="omero-app"><target name="@{target}"/> </antRun>
+		<antRun component="client-ejb"><target name="@{target}"/> </antRun>
+		<antRun component="client"><target name="@{target}"/> </antRun>
 		<antRun component="shoola-adapter"><target name="@{target}"/> </antRun>
 		</sequential>
 	</macrodef>
@@ -42,7 +45,11 @@
 		<attribute name="component"/>
 		<element name="targets" implicit="yes"/>
 		<sequential>
-		<echo> ================================= Running @{component}...  ================================= </echo>
+		<echo> +===========================================================================================+ </echo>
+		<echo> |                                                                                             </echo>
+		<echo> |                                      @{component}                                           </echo>
+		<echo> |                                                                                             </echo>
+		<echo> +===========================================================================================+ </echo>
 		<ant dir="${components.dir}/@{component}" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="@{component}"/>
 			<property name="multi.test.with.fail" value="${test.with.fail}"/>

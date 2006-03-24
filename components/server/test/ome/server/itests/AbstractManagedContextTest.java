@@ -8,7 +8,9 @@ import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.system.Principal;
 
 
 public class AbstractManagedContextTest
@@ -24,6 +26,8 @@ public class AbstractManagedContextTest
     
     protected IPixels iPixels;
     
+    protected EventContext eContext;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
@@ -33,6 +37,8 @@ public class AbstractManagedContextTest
         iAnalysis = (IAnalysis) applicationContext.getBean("analysisService");
         iPojos = (IPojos) applicationContext.getBean("pojosService");
         iPixels = (IPixels) applicationContext.getBean("pixelsService");
+        eContext = (EventContext) applicationContext.getBean("eventContext");
+        
         login("root","system","Test");
     }
     
@@ -42,12 +48,10 @@ public class AbstractManagedContextTest
         return OmeroContext.getManagedServerContext();
     }
     
-    /* FIXME */
     protected void login(String userName, String groupName, String eventType)
     {
-        System.getProperties().setProperty("omero.username",userName);
-        System.getProperties().setProperty("omero.groupname",groupName);
-        System.getProperties().setProperty("omero.eventtype",eventType);
+        eContext.setPrincipal( 
+                new Principal( userName, groupName, eventType ));
     }
 
 }

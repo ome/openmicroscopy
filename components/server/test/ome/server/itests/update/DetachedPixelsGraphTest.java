@@ -1,8 +1,6 @@
 package ome.server.itests.update;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;

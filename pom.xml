@@ -12,13 +12,13 @@
     <module>components/common</module>
 <!--<module>components/omeio-bdb</module>-->
     <module>components/omeio-nio</module>
-<!--<module>components/omero-ejb</module>
-    <module>components/omero-app</module>
-    <module>components/client-ejb</module>
-    <module>components/sandbox</module>
+<!--<module>components/sandbox</module>
     <module>components/omero-ice</module>-->
     <module>components/rendering</module>
     <module>components/server</module>
+    <module>components/omero-ejb</module>
+    <module>components/omero-app</module>
+    <module>components/client-ejb</module>
     <module>components/client</module>
     <module>components/shoola-adapter</module>
   </modules>
@@ -50,7 +50,7 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>postgresql</artifactId>
-      <version>7.4.1-jdbc3</version>
+      <version>8.1-405.jdbc3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -107,7 +107,8 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <includes>
-              <include>**/utest*/*Test*.java</include>
+              <include>**/utest*/*Test.java</include>
+              <include>**/utest*/*Tests.java</include>
             </includes>
             <excludes>
               <exclude>**/Abstract*.java</exclude>

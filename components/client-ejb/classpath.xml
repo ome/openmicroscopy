@@ -23,6 +23,7 @@
 	<file name="omero/jboss-aop-jdk50-client/4.0.4RC1/jboss-aop-jdk50-client-4.0.4RC1.jar"/>
 	<file name="omero/jboss-aspect-library-jdk50/4.0.4RC1/jboss-aspect-library-jdk50-4.0.4RC1.jar"/>
 	<file name="omero/jboss-ejb3/4.0.4RC1/jboss-ejb3-4.0.4RC1.jar"/>
+	<file name="omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
 	<file name="omero/jbossall-client/4.0.4RC1/jbossall-client-4.0.4RC1.jar"/>
 	<file name="org/springframework/spring/2.0-m2/spring-2.0-m2.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
@@ -47,6 +48,7 @@
 	<file name="omero/jboss-aop-jdk50-client/4.0.4RC1/jboss-aop-jdk50-client-4.0.4RC1.jar"/>
 	<file name="omero/jboss-aspect-library-jdk50/4.0.4RC1/jboss-aspect-library-jdk50-4.0.4RC1.jar"/>
 	<file name="omero/jboss-ejb3/4.0.4RC1/jboss-ejb3-4.0.4RC1.jar"/>
+	<file name="omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
 	<file name="omero/jbossall-client/4.0.4RC1/jbossall-client-4.0.4RC1.jar"/>
 	<file name="omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
 	<file name="org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
@@ -73,6 +75,7 @@
 	<get src="${omero.repo.remote}/omero/jboss-aop-jdk50-client/4.0.4RC1/jboss-aop-jdk50-client-4.0.4RC1.jar" dest="${omero.repo.local}/omero/jboss-aop-jdk50-client/4.0.4RC1/jboss-aop-jdk50-client-4.0.4RC1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/jboss-aspect-library-jdk50/4.0.4RC1/jboss-aspect-library-jdk50-4.0.4RC1.jar" dest="${omero.repo.local}/omero/jboss-aspect-library-jdk50/4.0.4RC1/jboss-aspect-library-jdk50-4.0.4RC1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/jboss-ejb3/4.0.4RC1/jboss-ejb3-4.0.4RC1.jar" dest="${omero.repo.local}/omero/jboss-ejb3/4.0.4RC1/jboss-ejb3-4.0.4RC1.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar" dest="${omero.repo.local}/omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/jbossall-client/4.0.4RC1/jbossall-client-4.0.4RC1.jar" dest="${omero.repo.local}/omero/jbossall-client/4.0.4RC1/jbossall-client-4.0.4RC1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" dest="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" dest="${omero.repo.local}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" usetimestamp="true"/>
@@ -98,6 +101,7 @@
 	<copy file="${omero.repo.local}/omero/jboss-aop-jdk50-client/4.0.4RC1/jboss-aop-jdk50-client-4.0.4RC1.jar" todir="${dist.dir}/repository/omero/jboss-aop-jdk50-client/4.0.4RC1"/>
 	<copy file="${omero.repo.local}/omero/jboss-aspect-library-jdk50/4.0.4RC1/jboss-aspect-library-jdk50-4.0.4RC1.jar" todir="${dist.dir}/repository/omero/jboss-aspect-library-jdk50/4.0.4RC1"/>
 	<copy file="${omero.repo.local}/omero/jboss-ejb3/4.0.4RC1/jboss-ejb3-4.0.4RC1.jar" todir="${dist.dir}/repository/omero/jboss-ejb3/4.0.4RC1"/>
+	<copy file="${omero.repo.local}/omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar" todir="${dist.dir}/repository/omero/jboss-ejb3x/4.0.4RC1"/>
 	<copy file="${omero.repo.local}/omero/jbossall-client/4.0.4RC1/jbossall-client-4.0.4RC1.jar" todir="${dist.dir}/repository/omero/jbossall-client/4.0.4RC1"/>
 	<copy file="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" todir="${dist.dir}/repository/omero/postgresql/7.4.1-jdbc3"/>
 	<copy file="${omero.repo.local}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" todir="${dist.dir}/repository/org/springframework/spring-mock/2.0-m2"/>
@@ -125,6 +129,7 @@
 	<copy file="${omero.repo.local}/omero/jboss-aop-jdk50-client/4.0.4RC1/jboss-aop-jdk50-client-4.0.4RC1.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/jboss-aspect-library-jdk50/4.0.4RC1/jboss-aspect-library-jdk50-4.0.4RC1.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/jboss-ejb3/4.0.4RC1/jboss-ejb3-4.0.4RC1.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/jbossall-client/4.0.4RC1/jbossall-client-4.0.4RC1.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" todir="@{todir}"/>

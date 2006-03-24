@@ -30,6 +30,7 @@
 package ome.adapters.pojos.itests;
 
 //Java imports
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -69,6 +70,7 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import ome.util.CBlock;
@@ -101,6 +103,7 @@ public class PojosServiceTest extends TestCase {
 
     ServiceFactory factory = new ServiceFactory(OmeroContext.MANAGED_CONTEXT);
    
+    EventContext eventContext;
     OMEData data;
     Set ids, results, mapped;
     IPojos iPojos;
@@ -115,10 +118,8 @@ public class PojosServiceTest extends TestCase {
     
     protected void setUp() throws Exception
     {
-        Properties p = System.getProperties();
-        p.setProperty("omero.username","root");
-        p.setProperty("omero.groupname","system");
-        p.setProperty("omero.eventtype","Test");
+        eventContext = (EventContext) factory.ctx.getBean("eventContext");
+        eventContext.setPrincipal( new ome.system.Principal("root","system","Test") );
         
         DataSource dataSource = (DataSource) factory.ctx.getBean("dataSource");
         data = new OMEData();
@@ -126,6 +127,8 @@ public class PojosServiceTest extends TestCase {
         iPojos = factory.getPojosService();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
+        
+        
     }
     
     public void testGetSomethingThatsAlwaysThere() throws Exception

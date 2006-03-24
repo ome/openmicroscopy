@@ -55,17 +55,13 @@
   >
 		<property name="interceptorNames">
 			<list>
-      <!-- FIXME <value>serviceSecurity</value> -->
-			<value>exceptionHandling</value>
-			<value>logging</value>	
-      <value>apiConstraints</value>
-      <value>hibernateFilter</value>
-      <value>transactions</value>
-      <value>hibernateInterceptor</value>
-      <value>eventHandling</value>
+      <value>serviceHandler</value>
+      <value>transactionHandler</value>
+      <value>sessionHandler</value>
+      <value>eventHandler</value>
 <!--			
+			<value>serviceSecurity</value>
 			<value>serviceTracing</value>
-			<value>serviceTransactions</value> 
   		<value>aop.*</value>
 -->
     	</list>
@@ -74,23 +70,10 @@
   
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- MANAGEMENT INTERCEPTORS -->	
-
-	<bean 
-		       id="apiConstraints" 
-		    class="ome.aop.ApiConstraintChecker" 
-		lazy-init="true"
-	/>
-  
   <bean 
 		       id="serviceTracing" 
 		    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" 
 		lazy-init="true"
-	/>
-
-	<bean
-           id="exceptionHandling"
-        class="ome.aop.ExceptionHandler"
-    lazy-init="true"
 	/>
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
@@ -125,14 +108,6 @@
   <bean id="renderService" parent="managedService">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="omeis.providers.re.RenderingEngine"/>
-    <property name="interceptorNames">
-			<list> <!-- STATEFUL STACK -->
-			<value>exceptionHandling</value>
-			<value>logging</value>	
-      <value>hibernateFilter</value>
-      <value>eventHandling</value>
-    	</list>      
-    </property>
   </bean>
           
 </beans>

@@ -43,6 +43,7 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.api.IAnalysis;
@@ -61,6 +62,7 @@ import ome.model.containers.Project;
  * </small>
  * @since OMERO 1.0
  */
+@Transactional(readOnly=true)
 public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 
     private static Log log = LogFactory.getLog(AnalysisImpl.class);

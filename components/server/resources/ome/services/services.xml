@@ -49,13 +49,13 @@
 	-->
     
 	<bean 
-  	 			id="managedService" 
+  	 			id="internalService" 
 	    	class="org.springframework.aop.framework.ProxyFactoryBean"
      abstract="true"
   >
 		<property name="interceptorNames">
 			<list>
-			<value>logging</value>	
+			<value>serviceHandler</value>	
     	</list>
     </property>
 	</bean>
@@ -64,8 +64,8 @@
 	<!-- GLOBAL INTERCEPTORS -->	
   
 	<bean 
-		       id="logging" 
-		    class="ome.aop.ReturnLogger" 
+		       id="serviceHandler" 
+		    class="ome.services.util.ServiceHandler" 
 		lazy-init="true"
 	/>    
  	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -131,29 +131,29 @@
     -->
   
    <!-- 1 -->
-  <bean id="queryService" parent="managedService">
+  <bean id="queryService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IQuery"/>
     <property name="target" ref="ome.api.IQuery"/>
   </bean>  
-  <bean id="updateService" parent="managedService">
+  <bean id="updateService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IUpdate"/>
     <property name="target" ref="ome.api.IUpdate"/>
   </bean>
   <!-- 2 -->
-  <bean id="analysisService" parent="managedService">
+  <bean id="analysisService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IAnalysis"/>
     <property name="target" ref="ome.api.IAnalysis"/>
   </bean>
-  <bean id="pixelsService" parent="managedService">
+  <bean id="pixelsService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IPixels"/>
     <property name="target" ref="ome.api.IPixels"/>
   </bean>
-  <bean id="pojosService" parent="managedService">
+  <bean id="pojosService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IPojos"/>
     <property name="target" ref="ome.api.IPojos"/>
   </bean>
   <!-- FS -->
-  <bean id="renderService" parent="managedService">
+  <bean id="renderService" parent="internalService">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="omeis.providers.re.RenderingEngine"/>
   </bean>

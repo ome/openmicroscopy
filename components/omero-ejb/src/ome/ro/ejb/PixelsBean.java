@@ -29,10 +29,13 @@
 package ome.ro.ejb;
 
 //Java imports
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+
+import org.jboss.annotation.security.SecurityDomain;
 
 //Third-party imports
 
@@ -44,6 +47,7 @@ import ome.model.display.RenderingDef;
 @Stateless
 @Remote(IPixels.class)
 @Local(IPixels.class)
+@SecurityDomain("OmeroSecurity")
 public class PixelsBean extends AbstractBean implements IPixels
 {
 
@@ -64,16 +68,19 @@ public class PixelsBean extends AbstractBean implements IPixels
     // ~ DELEGATION
     // =========================================================================
     
+    @RolesAllowed("user") 
     public Pixels retrievePixDescription(long pixId)
     {
         return delegate.retrievePixDescription(pixId);
     }
 
+    @RolesAllowed("user") 
     public RenderingDef retrieveRndSettings(long pixId)
     {
         return delegate.retrieveRndSettings(pixId);
     }
 
+    @RolesAllowed("user") 
     public void saveRndSettings(RenderingDef rndSettings)
     {
         delegate.saveRndSettings(rndSettings);

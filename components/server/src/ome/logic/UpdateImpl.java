@@ -39,10 +39,8 @@ package ome.logic;
 // Java imports
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
@@ -51,23 +49,21 @@ import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.property.Getter;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
 import ome.annotations.Validate;
-import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.meta.Event;
-import ome.model.meta.EventLog;
 import ome.security.CurrentDetails;
 import ome.tools.hibernate.UpdateFilter;
+import ome.util.Utils;
 
 
 /**
@@ -77,6 +73,7 @@ import ome.tools.hibernate.UpdateFilter;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
+@Transactional(readOnly=false)
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 {
 
@@ -250,8 +247,10 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         if ( logger.isDebugEnabled() )
             logger.debug( " Internal delete. " );
         
-        IObject result = (IObject) filter.filter(null,obj); 
-        getHibernateTemplate().delete(result);
+        getHibernateTemplate().delete(
+                getHibernateTemplate().load(
+                        Utils.trueClass( obj.getClass() ),
+                        obj.getId() ));
     }
     
     

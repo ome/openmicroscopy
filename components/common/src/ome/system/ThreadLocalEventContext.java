@@ -1,5 +1,5 @@
 /*
- * ome.conditions.Policy
+ * ome.system.ThreadLocalEventContext
  *
  *------------------------------------------------------------------------------
  *
@@ -26,61 +26,41 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.conditions;
+
+package ome.system;
+
+import ome.system.Principal;
+
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /**
- * centralization of exception policy for the all components. 
- *  
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
- * @since 2.5
- */
-public abstract class Policy {
-	
-	public final static Set DECLARED_SERVER_EXCEPTIONS = new HashSet();
+* {@link ome.system.EventContext} which uses 
+* {@link java.lang.ThreadLocal ThreadLocals} internally.
+* 
+* @author <br>
+*         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+*         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
+* @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+*          </small>
+* @since OME3.0
+*/
+public class ThreadLocalEventContext implements EventContext
+{
+    protected ThreadLocal principalHolder = new ThreadLocal();
 
-	public final static Set ROOT_SERVER_EXCEPTIONS = new HashSet();
-	
-	static{
-		DECLARED_SERVER_EXCEPTIONS.add(IllegalArgumentException.class);
-		ROOT_SERVER_EXCEPTIONS.add(RootException.class);
-	}
-	
-    public static boolean thrownByServer(Throwable t){
-    	
-    	if (null == t){
-    		return false;
-    	}
-    	
-    	if (DECLARED_SERVER_EXCEPTIONS.contains(t.getClass())) {
-			return true;
-    	}
-    	
-    	boolean knownSubclass = false;
-    	
-    	for (Iterator it = ROOT_SERVER_EXCEPTIONS.iterator(); it.hasNext();) {
-			Class c = (Class) it.next();
-    		if (c.isAssignableFrom(t.getClass())){
-    			knownSubclass = true;
-    			break;
-			}
-    	}
-    	
-    	return knownSubclass;
-		
+    public Principal getPrincipal()
+    {
+        return (Principal) principalHolder.get();
     }
-	
+    
+    public void setPrincipal(Principal principal)
+    {
+        principalHolder.set( principal );
+    }
+    
 }

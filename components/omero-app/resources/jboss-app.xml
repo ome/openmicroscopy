@@ -12,4 +12,7 @@
   <module>
     <service>omero-ds.xml</service>
   </module>
+   <module>
+      <service>jboss-service.xml</service>
+   </module>
 </jboss-app>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <!-- The custom JAAS login configuration that installs 
+       a Configuration capable of dynamically updating the
+       config settings
+   -->
+
+   <mbean code="org.jboss.security.auth.login.DynamicLoginConfig"
+      name="omero:service=LoginConfig">
+      <attribute name="AuthConfig">META-INF/jboss-login.xml</attribute>
+      <depends optional-attribute-name="LoginConfigService">
+         jboss.security:service=XMLLoginConfig
+      </depends>
+      <depends optional-attribute-name="SecurityManagerService">
+         jboss.security:service=JaasSecurityManager
+      </depends>
+   </mbean>
+</server>

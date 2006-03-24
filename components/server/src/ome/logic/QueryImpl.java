@@ -30,7 +30,6 @@
 package ome.logic;
 
 //Java imports
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,7 +39,8 @@ import java.util.Set;
 
 //Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +49,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
@@ -71,6 +70,7 @@ import ome.model.IObject;
  * @since 3.0
  * 
  */
+@Transactional(readOnly=true)
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     private static Log log = LogFactory.getLog(QueryImpl.class);
@@ -84,6 +84,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
+    @Transactional(readOnly=false)
     public void evict(Object obj){
         getHibernateTemplate().evict(obj);
     }
@@ -92,11 +93,13 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         Hibernate.initialize(obj);
     }
     
+    @Transactional(propagation=Propagation.SUPPORTS)
     public boolean checkType(String type) {
         ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
         return meta == null ? false : true;
     }
     
+    @Transactional(propagation=Propagation.SUPPORTS)
     public boolean checkProperty(String type, String property) {
         ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
         String[] names = meta.getPropertyNames();

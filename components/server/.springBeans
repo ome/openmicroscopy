@@ -4,9 +4,10 @@
 		<config>resources/ome/services/services.xml</config>
 		<config>resources/ome/services/drools.xml</config>
 		<config>resources/ome/services/security.xml</config>
+		<config>resources/ome/services/jndi.xml</config>
 		<config>resources/ome/services/hibernate.xml</config>
-		<config>resources/ome/services/config-local.xml</config>
 		<config>resources/ome/services/vm.xml</config>
+		<config>resources/ome/services/config-local.xml</config>
 		<config>resources/ome/services/dbcp.xml</config>
 		<config>resources/ome/services/aop.xml</config>
 	</configs>
