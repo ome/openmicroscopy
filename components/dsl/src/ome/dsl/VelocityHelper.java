@@ -99,7 +99,6 @@ public class VelocityHelper {
 			}
 			
         	InputStreamReader r = new InputStreamReader(in);
-        	log.debug(Arrays.asList(vc.getKeys()));
         	ve.evaluate(vc,w,"Running template: "+template,r);
         } catch (Exception e){
         	throw new RuntimeException("Error invoking Velocity template:"+template,e);

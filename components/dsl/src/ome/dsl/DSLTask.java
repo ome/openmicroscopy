@@ -90,7 +90,7 @@ public class DSLTask extends Task
 			VelocityHelper vh = new VelocityHelper();
 			vh.put("type",st);
 			try {
-                String file = _outputDir+File.separator+st.getId().replaceAll("[.]",File.separator)+".hbm.xml";
+                String file = _outputDir+File.separator+st.getId().replaceAll("[.]","\\"+File.separator)+".hbm.xml";
                 writeToFile(vh,file,"ome/dsl/mapping.vm");
 			} catch (Exception e){
 				throw new BuildException("Error while writing type:"+st,e);
