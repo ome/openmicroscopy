@@ -8,7 +8,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>server</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>Omero Server</name>
   <dependencies>
     <dependency>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-hibernate3</artifactId>
-      <version>2.0-m2</version>
+      <version>2.0-m3</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -138,30 +138,4 @@
       <version>1.6.5</version>
   </dependency>
   </dependencies>
-  <build>
-    <resources>
-      <resource><directory>web</directory></resource><!-- TODO fix -->
-      <resource><directory>resources</directory></resource>
-      <resource><directory>src</directory><includes><include>**/*.vm</include></includes></resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>test</directory>
-        <includes><include>**/*.xml</include></includes>
-      </testResource>
-    </testResources>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>5</source>
-          <target>5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

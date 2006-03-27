@@ -1,11 +1,12 @@
 
+
 <!-- Code-generated ant classpath for omero-client component -->
 <project name="omero-client_classpath" default="classpath-generate" basedir=".">
   <property name="artifact.name" value="omero-client"/>
   <property name="artifact.group" value="omero"/>
   <property name="artifact.version" value="3.0-alpha-SNAPSHOT"/>
-  <property name="artifact.packaging" value="jar"/>
-  <property name="artifact.final.name" value="omero-client-3.0-alpha-SNAPSHOT.jar"/>
+  <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
+  <property name="artifact.final.name" value="omero-client-3.0-alpha-SNAPSHOT.${artifact.packaging}"/>
   <property name="artifact.path" value="omero/omero-client/3.0-alpha-SNAPSHOT/${artifact.final.name}"/>
   <path id="generated.compile.classpath">
     <filelist dir="${omero.repo.local}">
@@ -58,7 +59,6 @@
 	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
     </filelist>
   </path>
-
   <target name="classpath-download">
 	<get src="${omero.repo.remote}/ant/ant/1.6.5/ant-1.6.5.jar" dest="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/com/caucho/burlap/2.1.12/burlap-2.1.12.jar" dest="${omero.repo.local}/com/caucho/burlap/2.1.12/burlap-2.1.12.jar" usetimestamp="true"/>
@@ -84,7 +84,6 @@
 	<get src="${omero.repo.remote}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" dest="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/velocity/velocity/1.4/velocity-1.4.jar" dest="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" usetimestamp="true"/>
   </target>
-
   <target name="dist-copy">
 	<copy file="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" todir="${dist.dir}/repository/ant/ant/1.6.5"/>
 	<copy file="${omero.repo.local}/com/caucho/burlap/2.1.12/burlap-2.1.12.jar" todir="${dist.dir}/repository/com/caucho/burlap/2.1.12"/>
@@ -110,7 +109,6 @@
 	<copy file="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" todir="${dist.dir}/repository/velocity-tools/velocity-tools-generic/1.1"/>
 	<copy file="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" todir="${dist.dir}/repository/velocity/velocity/1.4"/>
   </target>
-
   <macrodef name="jars-copy">
     <attribute name="todir"/>
     <sequential>
@@ -139,5 +137,5 @@
 	<copy file="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" todir="@{todir}"/>
     </sequential>
   </macrodef>
-
 </project>
+

@@ -8,14 +8,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>dsl</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>Omero Domain Specific Language</name>
   <dependencies>
-    <dependency>
-      <groupId>omero</groupId>
-      <artifactId>antlib</artifactId>
-      <version>3.0-alpha-SNAPSHOT</version>
-    </dependency>
     <dependency>
       <groupId>ant</groupId>
       <artifactId>ant</artifactId>
@@ -37,14 +32,4 @@
       <version>1.1</version>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-  <scm>
-    <connection>scm:svn:http://cvs.openmicroscopy.org.uk/svn/omero/trunk/components/dsl</connection>
-  </scm>
 </project>

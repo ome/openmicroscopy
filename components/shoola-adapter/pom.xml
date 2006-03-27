@@ -9,7 +9,7 @@
   </parent>
   <name>Ome Pojos Adapter</name>
   <artifactId>omero-pojos-adapter</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
@@ -17,19 +17,4 @@
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

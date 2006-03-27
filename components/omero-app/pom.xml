@@ -9,53 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <name>Ome Remote Objects - EJB3 Deployment</name>
   <artifactId>omero-app</artifactId>
-  <packaging>ear</packaging>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-<!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-ear-plugin</artifactId>
-        <configuration>
-          <modules>
-            <ejbModule>
-              <groupId>omero</groupId>
-              <artifactId>omero-ejb</artifactId>
-              <bundleFileName>omero-3.0-alpha-SNAPSHOT.ejb3</bundleFileName>
-            </ejbModule>
-            <javaModule>
-              <groupId>omero</groupId>
-              <artifactId>common</artifactId>
-              <bundleFileName>common</bundleFileName>
-              <includeInApplicationXml>true</includeInApplicationXml>
-            </javaModule>
-            <javaModule>
-              <groupId>omero</groupId>
-              <artifactId>server</artifactId>
-              <bundleFileName>server</bundleFileName>
-              <includeInApplicationXml>true</includeInApplicationXml>
-            </javaModule>
-            <javaModule>
-              <groupId>omero</groupId>
-              <artifactId>rendering</artifactId>
-              <bundleFileName>rendering</bundleFileName>
-              <includeInApplicationXml>true</includeInApplicationXml>
-            </javaModule>
-            <javaModule>
-              <groupId>org.springframework</groupId>
-              <artifactId>spring</artifactId>
-              <bundleFileName>spring</bundleFileName>
-              <includeInApplicationXml>true</includeInApplicationXml>
-            </javaModule>
-          </modules>
-        </configuration>
-      </plugin>
-      -->
-    </plugins>
-  </build>
+  <packaging>pom</packaging>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>

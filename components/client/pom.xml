@@ -9,7 +9,7 @@
   </parent>
   <name>Ome Client Library</name>
   <artifactId>omero-client</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
@@ -42,19 +42,4 @@
       <version>4.0.4RC1</version>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

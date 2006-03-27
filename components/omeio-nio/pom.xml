@@ -8,7 +8,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>omeio-nio</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>Omero IO Library - NIO</name>
   <dependencies>
     <dependency>
@@ -17,19 +17,4 @@
       <version>3.0-alpha-SNAPSHOT</version>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>5</source>
-          <target>5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

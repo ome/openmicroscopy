@@ -8,13 +8,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>antlib</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>Omero Library of Ant Build Scripts</name>
   <dependencies>
-    <dependency>
-      <groupId>groovy</groupId>
-      <artifactId>groovy-all-1.0-jsr</artifactId>
-      <version>04</version>
-    </dependency>
   </dependencies>
 </project>

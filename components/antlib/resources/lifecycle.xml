@@ -27,6 +27,7 @@
 		<property name="javac.debug"  value="on"/>
 		<property name="javac.debuglevel" value="lines,vars,source"/>
 		<javac 
+			fork="yes"
 			destdir="${classes.dir}"
 			classpathref="omero.classpath" 
 			source="${javac.source}"
@@ -43,6 +44,7 @@
 	<target name="test" depends="compile" unless="test.skip">
 		<copyTestResources/>
 		<javac 
+			fork="yes"
 			destdir="${testclasses.dir}"
 			classpathref="omero.classpath" >
 			<src path="${test.dir}"/>

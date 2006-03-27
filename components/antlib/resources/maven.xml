@@ -1,0 +1,101 @@
+<!--
+    http://svn.apache.org/repos/asf/maven/components/trunk/maven-artifact-ant/sample.build.xml
+-->
+<project name="maven" default="all" xmlns:mvn="urn:maven-artifact-ant">
+
+ <import file="build.xml"/>
+
+ <target name="initTaskDefs">
+    <!-- don't forget to update the version! -->
+    <path id="maven.classpath">
+      <pathelement location="${import.dir}/maven-artifact-ant-2.0.2-dep.jar" />
+    </path>
+
+    <typedef 
+       resource="org/apache/maven/artifact/ant/antlib.xml"
+       uri="urn:maven-artifact-ant">
+      <classpath refid="maven.classpath"/>
+    </typedef>
+
+    <mvn:localRepository id="local.repository" location="${omero.home}/dist/repository" layout="default"/>
+    <mvn:remoteRepository id="deploy.repository" url="file://localhost/${user.home}/.m2/repository" layout="default"/>
+
+  </target>
+
+  <target name="all">
+    
+    <!-- Call this file again for each component -->
+    <iter file="../antlib/resources/maven.xml">
+      <target name="run"/>
+    </iter>
+ 
+  </target>
+
+  <target name="run" depends="initTaskDefs" 
+    description="Main target - builds the ant build system for omero">
+
+    <mvn:pom file="pom.xml" id="maven.project"/>
+
+    <echo>Artifact ID = ${maven.project.artifactId}</echo>
+    <echo>Parent Artifact ID = ${maven.project.parent.artifactId}</echo>
+
+    <mvn:dependencies filesetId="maven.compile.fileset"
+                      pathId="maven.compile.classpath" 
+                      verbose="false" useScope="compile">
+      <pom refid="maven.project"/>
+
+    </mvn:dependencies>
+
+    <mvn:dependencies filesetId="maven.test.fileset"
+                      pathId="maven.test.classpath" 
+                      verbose="false" useScope="test">
+      <pom refid="maven.project"/>
+    </mvn:dependencies>
+
+    <!-- Example
+    <mvn:dependencies filesetId="blah">
+      <dependency groupId="org.apache.maven.wagon" artifactId="wagon-provider-test" version="1.0-alpha-4">
+        <exclusion groupId="junit" artifactId="junit"/>
+      </dependency>
+    </mvn:dependencies>
+    -->
+
+    <property name="mvn.group" value="${maven.project.groupId}"/>
+    <property name="mvn.artifact" value="${maven.project.artifactId}"/>
+    <property name="mvn.version" value="${maven.project.artifact.version}"/>
+    <property name="mvn.packaging" value="${maven.project.packaging}"/>
+
+    <antcall target="build-build" inheritRefs="true"/>
+    <antcall target="generate" inheritRefs="true"/>
+
+  </target>
+
+  <target name="copy">
+
+    <copy todir="/tmp/test-no-deps" verbose="true">
+      <fileset refid="runtime.fileset"/>
+    </copy>
+
+  </target>
+
+ 
+  <target name="install" depends="initTaskDefs">
+
+    <property name="outJar" value="${maven.project.build.directory}/${maven.project.build.finalName}.jar"/>
+
+    <mvn:install file="${outJar}">
+      <pom refid="maven.project"/>
+    </mvn:install>
+
+    <mvn:deploy file="${outJar}">
+      <remoteRepository url="scp://localhost/tmp/deployment-repo">
+        <authentication username="brett"
+privateKey="${user.home}/.ssh/id_dsa"/>
+      </remoteRepository>
+      <pom refid="maven.project"/>
+    </mvn:deploy>
+  </target>
+
+</project>
+
+

@@ -7,18 +7,51 @@
 	<macrodef name="iterate">
 		<attribute name="target"/>
 		<sequential>
-		<antRun component="common"><target name="@{target}"/> </antRun>
-		<antRun component="omeio-nio"><target name="@{target}"/> </antRun>
-		<antRun component="rendering"><target name="@{target}"/> </antRun>
-		<antRun component="server"><target name="@{target}"/> </antRun>
-		<antRun component="omero-ejb"><target name="@{target}"/> </antRun>
-		<antRun component="omero-app"><target name="@{target}"/> </antRun>
-		<antRun component="client"><target name="@{target}"/> </antRun>
-		<antRun component="shoola-adapter"><target name="@{target}"/> </antRun>
+		<iter><target name="@{target}"/></iter>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="sys_test">
+	<macrodef name="iter">
+		<element name="elem" implicit="yes"/>
+		<attribute name="inheritAll" default="false"/>
+		<attribute name="inheritRefs" default="false"/>
+		<attribute name="file" default="build.xml"/>
+		<sequential>
+		<antRun component="dsl" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="common" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="omeio-nio" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="rendering" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="server" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="omero-ejb" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="omero-app" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="client" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="shoola-adapter" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="antRun">
+		<attribute name="file" default="build.xml"/>
+		<attribute name="component"/>
+		<attribute name="inheritAll" default="false"/>
+		<attribute name="inheritRefs" default="false"/>
+		<element name="targets" implicit="yes"/>
+		<sequential>
+		<echo> +===========================================================================================+ </echo>
+		<echo> |                                                                                             </echo>
+		<echo> |                                      @{component}                                           </echo>
+		<echo> |                                                                                             </echo>
+		<echo> +===========================================================================================+ </echo>
+		<ant dir="${components.dir}/@{component}" antfile="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}">
+			<property name="current.component" value="@{component}"/>
+			<property name="multi.test.with.fail" value="${test.with.fail}"/>
+			<property name="multi.test.skip" value="${test.skip}"/>
+			<property name="multi.generate.skip" value="${generate.skip}"/>
+			<targets/>
+		</ant>
+		</sequential>
+	</macrodef>
+
+ 	<macrodef name="sys_test">
 		<attribute name="name"/>
 		<element name="tests" implicit="yes"/>
 		<sequential>
@@ -37,25 +70,6 @@
 		<exec executable="svn" failonerror="true">
 			<arg line="@{command}"/>
 		</exec>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="antRun">
-		<attribute name="component"/>
-		<element name="targets" implicit="yes"/>
-		<sequential>
-		<echo> +===========================================================================================+ </echo>
-		<echo> |                                                                                             </echo>
-		<echo> |                                      @{component}                                           </echo>
-		<echo> |                                                                                             </echo>
-		<echo> +===========================================================================================+ </echo>
-		<ant dir="${components.dir}/@{component}" inheritAll="false" inheritRefs="false">
-			<property name="current.component" value="@{component}"/>
-			<property name="multi.test.with.fail" value="${test.with.fail}"/>
-			<property name="multi.test.skip" value="${test.skip}"/>
-			<property name="multi.generate.skip" value="${generate.skip}"/>
-			<targets/>
-		</ant>
 		</sequential>
 	</macrodef>
 

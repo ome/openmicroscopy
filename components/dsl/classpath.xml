@@ -1,57 +1,86 @@
 
+
 <!-- Code-generated ant classpath for dsl component -->
 <project name="dsl_classpath" default="classpath-generate" basedir=".">
   <property name="artifact.name" value="dsl"/>
   <property name="artifact.group" value="omero"/>
   <property name="artifact.version" value="3.0-alpha-SNAPSHOT"/>
-  <property name="artifact.packaging" value="jar"/>
-  <property name="artifact.final.name" value="dsl-3.0-alpha-SNAPSHOT.jar"/>
+  <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
+  <property name="artifact.final.name" value="dsl-3.0-alpha-SNAPSHOT.${artifact.packaging}"/>
   <property name="artifact.path" value="omero/dsl/3.0-alpha-SNAPSHOT/${artifact.final.name}"/>
   <path id="generated.compile.classpath">
     <filelist dir="${omero.repo.local}">
-	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
-	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>
-	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<file name="omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
-	<file name="org/springframework/spring/2.0-m2/spring-2.0-m2.jar"/>
-	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
 	<file name="commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
-	<file name="groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
+	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
+	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
+	<file name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
+	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
+	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
     </filelist>
   </path>
   <path id="generated.test.classpath">
     <filelist dir="${omero.repo.local}">
-	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
-	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
-	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>
-	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<file name="omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar"/>
-	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
-	<file name="org/springframework/spring/2.0-m2/spring-2.0-m2.jar"/>
-	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
 	<file name="commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
-	<file name="omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar"/>
-	<file name="groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar"/>
+	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
+	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
+	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
+	<file name="org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar"/>
+	<file name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
+	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
+	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
     </filelist>
   </path>
-
   <target name="classpath-download">
-	<get src="${omero.repo.remote}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" dest="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/log4j/log4j/1.2.8/log4j-1.2.8.jar" dest="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/ant/ant/1.6.5/ant-1.6.5.jar" dest="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" dest="${omero.repo.local}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/qdox/qdox/1.5/qdox-1.5.jar" dest="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/org/springframework/spring/2.0-m2/spring-2.0-m2.jar" dest="${omero.repo.local}/org/springframework/spring/2.0-m2/spring-2.0-m2.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/velocity/velocity/1.4/velocity-1.4.jar" dest="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" dest="${omero.repo.local}/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar" dest="${omero.repo.local}/groovy/groovy-all-1.0-jsr/04/groovy-all-1.0-jsr-04.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" dest="${omero.repo.local}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar" dest="${omero.repo.local}/groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/junit/junit/3.8.1/junit-3.8.1.jar" dest="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" dest="${omero.repo.local}/org/springframework/spring-mock/2.0-m2/spring-mock-2.0-m2.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" dest="${omero.repo.local}/omero/postgresql/7.4.1-jdbc3/postgresql-7.4.1-jdbc3.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/log4j/log4j/1.2.8/log4j-1.2.8.jar" dest="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" dest="${omero.repo.local}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar" dest="${omero.repo.local}/org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/org/springframework/spring/2.0-m3/spring-2.0-m3.jar" dest="${omero.repo.local}/org/springframework/spring/2.0-m3/spring-2.0-m3.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/qdox/qdox/1.5/qdox-1.5.jar" dest="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" dest="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" usetimestamp="true"/>
+	<get src="${omero.repo.remote}/velocity/velocity/1.4/velocity-1.4.jar" dest="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" usetimestamp="true"/>
   </target>
+  <target name="dist-copy">
+	<copy file="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" todir="${dist.dir}/repository/ant/ant/1.6.5"/>
+	<copy file="${omero.repo.local}/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" todir="${dist.dir}/repository/commons-collections/commons-collections/3.1"/>
+	<copy file="${omero.repo.local}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" todir="${dist.dir}/repository/commons-logging/commons-logging/1.0.4"/>
+	<copy file="${omero.repo.local}/groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar" todir="${dist.dir}/repository/groovy/groovy-all-1.0-jsr/05"/>
+	<copy file="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" todir="${dist.dir}/repository/junit/junit/3.8.1"/>
+	<copy file="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" todir="${dist.dir}/repository/log4j/log4j/1.2.8"/>
+	<copy file="${omero.repo.local}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" todir="${dist.dir}/repository/omero/postgresql/8.1-405.jdbc3"/>
+	<copy file="${omero.repo.local}/org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar" todir="${dist.dir}/repository/org/springframework/spring-mock/2.0-m3"/>
+	<copy file="${omero.repo.local}/org/springframework/spring/2.0-m3/spring-2.0-m3.jar" todir="${dist.dir}/repository/org/springframework/spring/2.0-m3"/>
+	<copy file="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" todir="${dist.dir}/repository/qdox/qdox/1.5"/>
+	<copy file="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" todir="${dist.dir}/repository/velocity-tools/velocity-tools-generic/1.1"/>
+	<copy file="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" todir="${dist.dir}/repository/velocity/velocity/1.4"/>
+  </target>
+  <macrodef name="jars-copy">
+    <attribute name="todir"/>
+    <sequential>
+	<copy file="${omero.repo.local}/ant/ant/1.6.5/ant-1.6.5.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/org/springframework/spring/2.0-m3/spring-2.0-m3.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/qdox/qdox/1.5/qdox-1.5.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar" todir="@{todir}"/>
+	<copy file="${omero.repo.local}/velocity/velocity/1.4/velocity-1.4.jar" todir="@{todir}"/>
+    </sequential>
+  </macrodef>
 </project>
+
