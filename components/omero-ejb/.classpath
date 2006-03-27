@@ -26,7 +26,6 @@
 	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<classpathentry kind="var" path="M2_REPO/lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/jboss-annotations-ejb3/4.0.4RC1/jboss-annotations-ejb3-4.0.4RC1.jar"/>
@@ -37,7 +36,7 @@
 	<classpathentry kind="var" path="M2_REPO/omero/server/3.0-alpha-SNAPSHOT/server-3.0-alpha-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m2/spring-hibernate3-2.0-m2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m3/spring-hibernate3-2.0-m3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>

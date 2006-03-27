@@ -33,7 +33,6 @@
 	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<file name="omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
@@ -78,7 +77,6 @@
 	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<file name="omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
 	<file name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
@@ -123,7 +121,6 @@
 	<get src="${omero.repo.remote}/junit/junit/3.8.1/junit-3.8.1.jar" dest="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/log4j/log4j/1.2.8/log4j-1.2.8.jar" dest="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/lucene/lucene/1.4.3/lucene-1.4.3.jar" dest="${omero.repo.local}/lucene/lucene/1.4.3/lucene-1.4.3.jar" usetimestamp="true"/>
-	<get src="${omero.repo.remote}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
 	<get src="${omero.repo.remote}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" dest="${omero.repo.local}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" usetimestamp="true"/>
@@ -167,7 +164,6 @@
 	<copy file="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" todir="${dist.dir}/repository/junit/junit/3.8.1"/>
 	<copy file="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" todir="${dist.dir}/repository/log4j/log4j/1.2.8"/>
 	<copy file="${omero.repo.local}/lucene/lucene/1.4.3/lucene-1.4.3.jar" todir="${dist.dir}/repository/lucene/lucene/1.4.3"/>
-	<copy file="${omero.repo.local}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/antlib/3.0-alpha-SNAPSHOT"/>
 	<copy file="${omero.repo.local}/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/common/3.0-alpha-SNAPSHOT"/>
 	<copy file="${omero.repo.local}/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/dsl/3.0-alpha-SNAPSHOT"/>
 	<copy file="${omero.repo.local}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" todir="${dist.dir}/repository/omero/omeio-nio/3.0-alpha-SNAPSHOT"/>
@@ -213,7 +209,6 @@
 	<copy file="${omero.repo.local}/junit/junit/3.8.1/junit-3.8.1.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/log4j/log4j/1.2.8/log4j-1.2.8.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/lucene/lucene/1.4.3/lucene-1.4.3.jar" todir="@{todir}"/>
-	<copy file="${omero.repo.local}/omero/antlib/3.0-alpha-SNAPSHOT/antlib-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>
 	<copy file="${omero.repo.local}/omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar" todir="@{todir}"/>

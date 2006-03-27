@@ -2,6 +2,7 @@ genresrc  = properties["resrc.dest"]
 group     = properties["mvn.group"]   
 artifact  = properties["mvn.artifact"]   
 version   = properties["mvn.version"]   
+basedir   = properties["basedir"]
 sep=":"
 
 def run(pathname,closure) {
@@ -48,7 +49,7 @@ def jars = {|x|
     }
 }
 
-new File("${genresrc}/classpath.xml").withOutputStream{ o ->
+new File("${basedir}/classpath.xml").withOutputStream{ o ->
 o << """
 
 <!-- Code-generated ant classpath for ${artifact} component -->

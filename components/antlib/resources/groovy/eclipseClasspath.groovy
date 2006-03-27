@@ -10,7 +10,7 @@ test     = properties["test.dir"]
 classrel = properties["classes.rel"]
 basedir  = properties["basedir"]	
 
-new File("${genresrc}/.classpath").withOutputStream{|o|
+new File("${basedir}/.classpath").withOutputStream{|o|
 
     def entryMaker = {|extras|
         return {|path|
