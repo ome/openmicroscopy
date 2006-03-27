@@ -67,6 +67,7 @@ ${run("test.path","include")}
     <copy todir="\${dist.dir}/repository/">
       <fileset dir="\${omero.repo.local}">
         <patternset refid="generated.compile.patternset"/>
+        <patternset refid="generated.test.patternset"/>
       </fileset>
     </copy>
   </target>
