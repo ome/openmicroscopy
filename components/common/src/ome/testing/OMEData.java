@@ -39,7 +39,6 @@ import java.util.Random;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -240,14 +239,5 @@ public class OMEData {
         double value = (size - 1) * rnd.nextDouble();
         return (new Double(value)).intValue();
     }
-   
-    public String toString(){
-        ToStringBuilder tsb = new ToStringBuilder(this); 
-        for (Iterator it = values.keySet().iterator(); it.hasNext();)
-        {
-            String key = (String) it.next();
-            tsb.append(key,values.get(key));
-        }
-        return tsb.toString();
-	}
+
 }

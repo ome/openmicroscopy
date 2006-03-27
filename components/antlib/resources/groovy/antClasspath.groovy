@@ -5,7 +5,9 @@ version   = properties["mvn.version"]
 basedir   = properties["basedir"]
 sep=":"
 
-def run(pathname,closure) {
+
+repo = "repository/"
+def run(pathname,element) {
     properties[pathname].split(sep).toList().collect( { x ->
       if ( x.contains("javax/transaction/jta") )
       {
@@ -13,41 +15,17 @@ def run(pathname,closure) {
           x = x.replaceAll("jta","geronimo-spec-jta")
           x = x.replaceAll("1.0.1B","1.0.1B-rc4")
       }
-      return x
-
-    }).collect(closure).findAll({it!=null}).sort().join("\n")
-}
-
-
-repo = "repository/"
-def entry = { x ->
-    if (x.contains(repo))  
-    {
+      if ( x.contains(repo) )
+      {
         path = x.substring(x.lastIndexOf(repo)+repo.length())
-        return """\t<file name="${path}"/>"""
-    }
+        return """\t<${element} name="${path}"/>"""
+      } else {
+        return null
+      }
+
+    }).findAll({it!=null}).sort().join("\n")
 }
 
-def get = {|x|
-    if (x.contains(repo))  {
-        path = x.substring(x.lastIndexOf(repo)+repo.length())
-        return """\t<get src="\${omero.repo.remote}/${path}" dest="\${omero.repo.local}/${path}" usetimestamp="true"/>"""
-    }
-}
-
-def dist = {|x|
-    if (x.contains(repo))  {
-        path = x.substring(x.lastIndexOf(repo)+repo.length())
-        return """\t<copy file="\${omero.repo.local}/${path}" todir="\${dist.dir}/repository/${path.substring(0,path.lastIndexOf("/"))}"/>"""
-    }
-}
-
-def jars = {|x|
-    if (x.contains(repo))  {
-        path = x.substring(x.lastIndexOf(repo)+repo.length())
-        return """\t<copy file="\${omero.repo.local}/${path}" todir="@{todir}"/>"""
-    }
-}
 
 new File("${basedir}/classpath.xml").withOutputStream{ o ->
 o << """
@@ -60,28 +38,52 @@ o << """
   <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
   <property name="artifact.final.name" value="${artifact}-${version}.\${artifact.packaging}"/>
   <property name="artifact.path" value="${group}/${artifact}/${version}/\${artifact.final.name}"/>
+
+  <filelist id="generated.compile.filelist" dir="\${omero.repo.local}">
+${run("compile.path","file")}
+  </filelist>
+
+  <patternset id="generated.compile.patternset">
+${run("compile.path","include")}
+  </patternset>
+
+  <filelist id="generated.test.filelist" dir="\${omero.repo.local}">
+${run("test.path","file")}
+  </filelist>
+
+  <patternset id="generated.test.patternset">
+${run("test.path","include")}
+  </patternset>
+
   <path id="generated.compile.classpath">
-    <filelist dir="\${omero.repo.local}">
-${run("compile.path",entry)}
-    </filelist>
+    <filelist refid="generated.compile.filelist"/>
   </path>
+
   <path id="generated.test.classpath">
-    <filelist dir="\${omero.repo.local}">
-${run("test.path",entry)}
-    </filelist>
+    <filelist refid="generated.test.filelist"/>
   </path>
-  <target name="classpath-download">
-${run("omero.path",get)}
-  </target>
+
   <target name="dist-copy">
-${run("omero.path",dist)}
+    <copy todir="\${dist.dir}/repository/">
+      <fileset dir="\${omero.repo.local}">
+        <patternset refid="generated.compile.patternset"/>
+      </fileset>
+    </copy>
   </target>
+
   <macrodef name="jars-copy">
     <attribute name="todir"/>
+    <attribute name="type"/>
     <sequential>
-${run("omero.path",jars)}
+    <copy todir="@{todir}">
+      <fileset dir="\${omero.repo.local}">
+        <patternset refid="generated.@{type}.patternset"/>
+      </fileset>
+      <flattenmapper/>
+    </copy>
     </sequential>
   </macrodef>
+
 </project>
 
 """

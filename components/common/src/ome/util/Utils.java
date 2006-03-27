@@ -31,18 +31,14 @@ package ome.util;
 
 //Java imports
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
-import com.caucho.burlap.io.BurlapOutput;
-import com.caucho.hessian.io.HessianOutput;
 
 //Application-internal dependencies
 
@@ -110,35 +106,6 @@ public class Utils {
         }
         return result;
     }
-    
-    /** primarily used in Grinder to test the message
-     * returning from the various web services 
-     * @param obj
-     * @return
-     */
-     public static int structureSize(Object obj) {
-        int result = -1;
-        try {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            HessianOutput out = new HessianOutput(os);
-
-            out.writeObject(obj);
-            result = os.size();
-            os.close();
-        } catch (IOException e) {
-            result = -2;
-        }
-        return result;
-    }
-     
-     /** primarly used n Grinder to serialize Shoola objects for comparison 
-     * @throws IOException*/
-     public static void writeXmlToFile(Object obj, String filename) throws IOException {
-         OutputStream os = new FileOutputStream(filename);
-         BurlapOutput out = new BurlapOutput(os);
-         out.writeObject(obj);
-         os.close();
-     }
 
      /** primarily used in Grinder to discover what methods to call
       * 

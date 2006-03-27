@@ -168,6 +168,10 @@ ${msg.check.report}
 	<!-- Multiproject -->
 	<target name="multiproject" depends="variables-define"/>
 
+	<target name="multi" depends="multiproject">
+		<iterate target="${target}"/>
+	</target>
+
 	<target name="prepare" depends="multiproject">
 		<iterate target="prepare"/>
 	</target>

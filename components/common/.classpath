@@ -5,10 +5,7 @@
 	<classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/asm/asm/1.5.3/asm-1.5.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/caucho/burlap/2.1.12/burlap-2.1.12.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/caucho/hessian/2.1.12/hessian-2.1.12.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ehcache/ehcache/1.1/ehcache-1.1.jar"/>
