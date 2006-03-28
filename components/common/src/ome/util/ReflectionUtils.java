@@ -116,7 +116,7 @@ public class ReflectionUtils {
 
     /** call getter and return object. 
      * @DEV.TODO there maybe be cases where an exception is ok
-     * @param object on which to call getter
+     * @param target object on which to call getter
      * @param getter method for some field
      * @return value stored in field
      */

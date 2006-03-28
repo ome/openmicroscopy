@@ -223,28 +223,46 @@ ${msg.check.report}
 	</target>
 
 	<target name="javadoc">
+
+	    <patternset id="all.java.files">
+		<include name="src/**/*.java"/>
+		<include name="target/generated/src/**/*.java"/>
+		<exclude name="xxx/**"/>
+	    </patternset>
+
 	    <javadoc
-		destdir="docs/api"
+		destdir="dist/docs/api"
 		author="true"
 		version="true"
 		use="true"
-		windowtitle="OMERO (OME Remote Objects) API">
+		windowtitle="OMERO (OME Remote Objects) Server">
 
-		<fileset dir="components/common/src" defaultexcludes="yes">
-			<include name="ome/**/*.java"/>
-			<exclude name="xxx/**"/>
+		<classpath>
+			<fileset dir="lib">
+				<include name="**/*.jar"/>
+			</fileset>
+		</classpath>
+
+		<fileset dir="components/common/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
 		</fileset>
-		<fileset dir="components/server/src" defaultexcludes="yes">
-			<include name="ome/**/*.java"/>
+		<fileset dir="components/server/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
 		</fileset>
-		<fileset dir="components/omeio-nio/src" defaultexcludes="yes">
-			<include name="ome/**/*.java"/>
+		<fileset dir="components/omeio-nio/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
 		</fileset>
-		<fileset dir="components/rendering/src" defaultexcludes="yes">
-			<include name="ome/**/*.java"/>
+		<fileset dir="components/rendering/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
+		</fileset>
+		<fileset dir="components/client/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
+		</fileset>
+		<fileset dir="components/shoola-adapter/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
 		</fileset>
 
-		<doctitle><![CDATA[<h1>Test</h1>]]></doctitle>
+		<doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
 		<bottom><![CDATA[
 		<p><b><i>Copyright &#169; 2005 Open Microscopy Environment. All Rights Reserved.</i></b></p>
 		<p>Massachusetts Institute of Technology,</p>
@@ -254,10 +272,20 @@ ${msg.check.report}
 
 		<tag name="DEV.TODO" scope="all" description="To do:"/>
 
-		<group title="Common Packages" packages="ome.util.*:ome.model.*:ome.api.*"/>
-		<group title="Server Packages" packages="ome.services.*:ome.logic.*:ome.tools.*"/>
-		<group title="Client Packages" packages="ome.client.*"/>
-		
+		<group title="Common Packages" 
+			packages="ome.util:ome.api:ome.conditions"/>
+		<group title="Server Packages" 
+			packages="ome.services:ome.logic:ome.tools:ome.security:ome.io:ome.rules:omeis:ome.annotations:ome.api.local"/>
+		<group title="Client Packages" 
+			packages="ome.client:ome.adapaters"/>
+		<group title="Model"
+			packages="ome.model:pojos"/>
+
+ 		<link href="http://java.sun.com/j2se/1.5/docs/api/"/>
+		<link href="http://www.springframework.org/docs/api/"/>
+		<link href="http://www.hibernate.org/hib_docs/v3/api/"/>
+		<link href="http://aopalliance.sourceforge.net/doc/"/>
+
 	    </javadoc>
 	</target>
 

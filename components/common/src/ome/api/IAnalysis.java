@@ -37,14 +37,15 @@ import java.util.Set;
 // Application-internal dependencies
 
 /**
- * Provides access to the model objects involved in analysis.
+ * Provides access to the model objects involved in analysis. Based on
+ * suggestions from Harry. 
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
  *          </small>
- * @since OME1.0
+ * @since OME3.0
  */
 public interface IAnalysis extends ServiceInterface{
 

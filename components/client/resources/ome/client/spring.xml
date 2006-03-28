@@ -35,13 +35,30 @@
 
 <!--
 
-	Configuration of client proxies.
+	Configuration of client proxies. Probably most important for this configuration
+  is the replacement of properties (e.g. "${omero.user}"). The placeholderConfig
+  bean below reads in omero.properties and jndi.properties (issuing an
+  informative warning if not found). It then looks up the same properties in
+  the System properties allowing these properties to override the property
+  files. This is done at context creation.
+  
+  After that initialization ("bean post processing") stage is done, the other
+  beans can be retrieved from the context with omeroContext.getBean("beanName"),
+  though in most cases it will be simpler to use the methods on 
+  ome.system.ServiceFactory
+  
+  What is returned by these methods is a Jndi-found RMI proxy wrapped in any 
+  number of AOP interceptors to handle unit-of-work configuration, caching, or
+  lazy-initialization.
  
+  This context also configures an ome.system.Principal for proper login, but this
+  can just as well be configured in code.
+  
 -->
 
 	<beans>	
-	<!-- ***** CONFIG ***** -->
-	<!-- property placeholder post-processor -->
+
+  <!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
@@ -54,12 +71,14 @@
 		</property>
 	</bean>
 	
+  <!-- properly configured principal for login -->
 	<bean id="principal" class="ome.system.Principal">
 		<constructor-arg index="0" value="${omero.user}"/>
 		<constructor-arg index="1" value="${omero.group}"/>    
 		<constructor-arg index="2" value="${omero.event}"/>        
 	</bean>
 
+  <!-- hashtable for InitialContext constructor -->
   <bean id="env" class="java.util.Hashtable">
     <constructor-arg>
       <map>
@@ -72,46 +91,45 @@
     </constructor-arg>
   </bean>
     
+  <!-- jndi parent class -->
   <bean id="jndi" abstract="true"
     class="org.springframework.jndi.JndiObjectFactoryBean">
     <property name="jndiEnvironment" ref="env"/>
+    <property name="lookupOnStartup" value="false"/>    
   </bean>
 		
+  <!--
+      SERVICES
+  -->
   <bean id="analysisService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IAnalysis"/>
     <property name="proxyInterface" value="ome.api.IAnalysis"/>
-    <property name="lookupOnStartup" value="false"/>
   </bean>
 
   <bean id="pixelsService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IPixels"/>
     <property name="proxyInterface" value="ome.api.IPixels"/>
-    <property name="lookupOnStartup" value="false"/>
   </bean>
 
   <bean id="pojosService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IPojos"/>
     <property name="proxyInterface" value="ome.api.IPojos"/>
-    <property name="lookupOnStartup" value="false"/>
   </bean>
 
   <bean id="renderService" parent="jndi">
     <property name="jndiName" value="omero/remote/omeis.providers.re.RenderingEngine"/>
     <property name="proxyInterface" value="omeis.providers.re.RenderingEngine"/>
-    <property name="lookupOnStartup" value="false"/>
     <property name="cache" value="false"/>
   </bean>
 
   <bean id="queryService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IQuery"/>
     <property name="proxyInterface" value="ome.api.IQuery"/>
-    <property name="lookupOnStartup" value="false"/>
   </bean>
 
   <bean id="updateService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IUpdate"/>
     <property name="proxyInterface" value="ome.api.IUpdate"/>
-    <property name="lookupOnStartup" value="false"/>
   </bean>
         
 </beans>

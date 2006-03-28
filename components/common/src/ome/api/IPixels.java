@@ -39,14 +39,19 @@ import ome.model.display.RenderingDef;
 //Application-internal dependencies
 
 /** 
- * 
+ * metadata gateway for the {@link omeis.providers.re.RenderingEngine}. This 
+ * service provides all DB access that the rendering engine needs. This allows
+ * the rendering engine to also be run external to the server (e.g. client-side)  
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
+ * @author  <br>Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:josh.moore@gmx.de">
+ *                  josh.moore@gmx.de</a>
+ * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: 1.2 $ $Date: 2005/06/08 15:21:59 $)
  * </small>

@@ -65,9 +65,9 @@ public abstract class ModelMapper extends ContextFilter {
 	
 	protected static Log log = LogFactory.getLog(ModelMapper.class);
 	
-	/** TODO
-	 * identity versus null mappins
-	 * @return
+	/** 
+	 * TODO identity versus null mappings
+	 * @return a map from {@link IObject} classes {@link ModelBased} classes. 
 	 */
 	protected abstract Map c2c();
 
@@ -116,7 +116,8 @@ public abstract class ModelMapper extends ContextFilter {
     /** 
      * known immutables are return unchanged.
      * @param current
-     * @return
+     * @return a possibly uninitialized object which will be finalized as 
+     *      the object graph is walked.
      */
 	public Object findTarget(Object current){
 		
