@@ -17,8 +17,8 @@
       <classpath refid="maven.classpath"/>
     </typedef>
 
-    <mvn:localRepository id="local.repository" location="${omero.home}/dist/repository" layout="default"/>
-    <mvn:remoteRepository id="deploy.repository" url="file://localhost/${user.home}/.m2/repository" layout="default"/>
+    <mvn:localRepository id="local.repository" location="${omero.repo.local}" layout="default"/>
+    <mvn:remoteRepository id="remote.repository" url="${omero.repo.remote}" layout="default"/>
 
   </target>
 
@@ -42,6 +42,8 @@
     <mvn:dependencies filesetId="maven.compile.fileset"
                       pathId="maven.compile.classpath" 
                       verbose="false" useScope="compile">
+      <localRepository refid="local.repository"/>
+      <remoteRepository refid="remote.repository"/>
       <pom refid="maven.project"/>
 
     </mvn:dependencies>
@@ -49,6 +51,8 @@
     <mvn:dependencies filesetId="maven.test.fileset"
                       pathId="maven.test.classpath" 
                       verbose="false" useScope="test">
+      <localRepository refid="local.repository"/>
+      <remoteRepository refid="remote.repository"/>
       <pom refid="maven.project"/>
     </mvn:dependencies>
 

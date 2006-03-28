@@ -16,11 +16,11 @@
      </echo>
    </target>
 
-	<target name="filelist">
+	<target name="earfiles">
 		<fileset dir="${target.dir}" includes="*.ear" id="ear.files"/>
 	</target>
 
-	<target name="deploy-ear-jboss">
+	<target name="deploy-ear-jboss" depends="earfiles">
 		<copy todir="${jboss.deploy.dir}">
 			<fileset refid="ear.files"/>
 		</copy>

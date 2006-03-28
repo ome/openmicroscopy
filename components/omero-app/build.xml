@@ -6,6 +6,8 @@
 
 <project name="app" default="help" basedir=".">
 
+	<property name="artifact.packaging" value="ear"/>
+
 	<dirname property="up-one" file="${basedir}"/>
 	<import file="${up-one}/antlib/resources/build.xml"/>
 	<import file="classpath.xml"/>

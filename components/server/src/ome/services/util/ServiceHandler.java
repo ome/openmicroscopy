@@ -41,7 +41,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.caucho.burlap.io.BurlapOutput;
+//import com.caucho.burlap.io.BurlapOutput;
 
 //Application-internal dependencies
 import ome.annotations.ApiConstraintChecker;
@@ -117,12 +117,13 @@ public class ServiceHandler implements MethodInterceptor {
     
     protected void log(Object o) throws Throwable{
         if (printXML){
-            OutputStream os = new ByteArrayOutputStream();
-            BurlapOutput out = new BurlapOutput(os);
-            out.writeObject(o);
-            byte[] b = ((ByteArrayOutputStream)os).toByteArray();
-            os.close();
-            log.info(new String(b));
+//            OutputStream os = new ByteArrayOutputStream();
+//            BurlapOutput out = new BurlapOutput(os);
+//            out.writeObject(o);
+//            byte[] b = ((ByteArrayOutputStream)os).toByteArray();
+//            os.close();
+//            log.info(new String(b));
+              log.warn("PrintXML is disabled");
         }
     }
     
