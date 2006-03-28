@@ -15,10 +15,12 @@ new File("${basedir}/.classpath").withOutputStream{|o|
     def entryMaker = {|extras|
         return {|path|
             path = path.substring(basedir.size()+1,path.size())
-            f = new File(path)
+            f = new File(basedir+"/"+path)
             if (f.isDirectory())
                 o << """\t<classpathentry excluding="**/.svn" kind="src" path="${path}" ${extras}/>\n"""
-            }
+	    else
+		println "${f} is not a directory."
+        }
     }
 
     o << "<classpath>\n"
