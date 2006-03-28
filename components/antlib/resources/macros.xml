@@ -108,7 +108,7 @@
 			<basename property="props.file.prop" file="@{file}"/>
 			<available file="@{file}" property="${props.file.prop}.exists"/>
         	<fail unless="${props.file.prop}.exists">
-			${msg.macro.missing_file}
+			@{file} ${msg.macro.missing_properties}
       		</fail>    
            <copy file="@{file}" todir="${resrc.dest}" failonerror="true" />
 	   <copy file="@{file}" todir="${classes.dir}" failonerror="true" />
