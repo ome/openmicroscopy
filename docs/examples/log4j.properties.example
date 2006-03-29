@@ -1,11 +1,19 @@
+#
+# log4j.properties
+# ----------------
+# defaults are set here which try to minimize
+# confusion during building and running omero.
+#
 log4j.rootCategory=warn, stdout
 
 log4j.appender.stdout=org.apache.log4j.ConsoleAppender
-#log4j.appender.stdout.layout.ConversionPattern=%r [%t] %-5p\: %-15c{2} - %m%n
-#log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
 log4j.appender.stdout.layout=org.apache.log4j.TTCCLayout
 
-log4j.category.ome=info
+log4j.category.ome = info
+# our Adapters can be a bit verbose
 log4j.category.ome.adapters=error
 
-log4j.logger.org.hibernate.tool.hbm2x.POJOExporter=ERROR
+log4j.category.org.hibernate=warn
+# Velocity engine which this is based on is VERY verbose
+log4j.category.org.hibernate.tool.hbm2x.POJOExporter=error
+

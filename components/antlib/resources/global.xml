@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="global" default="help" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee    
+#                       
+#               
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later
+#    version.           
+#                       
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#       
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free
+#    Software           
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+#    02111-1307  USA
+#       
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+  DOCUMENTATION:
+  ==============================================================================
+  Central ant script. It imports all other helper scripts and property
+  files in the proper order, and in general can be imported from
+  anywhere. 
+
+  global.xml will determine its own location and bootstrap all other
+  definitions from there.
+
+-->
 
 	<!-- Where to find things -->
 	<dirname property="import.dir"  file="${ant.file.global}"/>
@@ -16,6 +59,7 @@
 	<import file="${import.dir}/macros.xml"/>
 	<import file="${import.dir}/lifecycle.xml"/>
 	<import file="${import.dir}/server.xml"/>
+	<import file="${import.dir}/setup.xml"/>
 	
     <!-- = = = = = = = = = = = = = = = = =
           help 
@@ -117,16 +161,4 @@
 		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" name="groovy"/>
 	</target>
 		
-    <!-- = = = = = = = = = = = = = = = = =
-          maven tools
-         = = = = = = = = = = = = = = = = = -->
-	<target name="build-build" depends="prepare,load-groovy"
-		description="Generates files for ant usage">
-                <echo file="${resrc.dest}/Classpath.sh">
-                  export CLASSPATH=${omero.path}
-                </echo>
-		<groovy src="${import.dir}/groovy/antClasspath.groovy"/>
-		<groovy src="${import.dir}/groovy/eclipseClasspath.groovy"/>
-	</target>
-
 </project>

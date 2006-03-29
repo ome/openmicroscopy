@@ -1,3 +1,9 @@
+#
+# omero.properties
+# -----------------
+# system variables which will be used both at
+# build-time and run-time
+#
 omero.version=3.0-M1
 omero.repo.local=${omero.home}/lib/repository
 omero.repo.remote=file://${user.home}/.m2/repository

@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="server" default="help" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee    
+#                       
+#               
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later
+#    version.           
+#                       
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#       
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free
+#    Software           
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+#    02111-1307  USA
+#       
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+  DOCUMENTATION:
+  ==============================================================================
+  Script to deploy and undeploy our application. This functionality is
+  similar to that provided by cargo, http://cargo.codehaus.org and may
+  be replaced.
+
+-->
     
 	<!-- 	===============================================
 		APPLICATION SERVER (AS) 
@@ -20,13 +60,13 @@
 		<fileset dir="${target.dir}" includes="*.ear" id="ear.files"/>
 	</target>
 
-	<target name="deploy-ear-jboss" depends="earfiles">
+	<target name="deploy-ear-jboss" depends="check-system,earfiles">
 		<copy todir="${jboss.deploy.dir}">
 			<fileset refid="ear.files"/>
 		</copy>
 	</target>
 
-	<target name="undeploy-ear-jboss" depends="prepare,load-groovy">
+	<target name="undeploy-ear-jboss" depends="check-system,prepare,load-groovy">
 		<groovy>
        fs = project.references["ear.files"]
        jb = properties["jboss.deploy.dir"]
@@ -36,18 +76,18 @@
 		</groovy>
 	</target>
 
-	<target name="start-as-jboss">
+	<target name="start-as-jboss" depends="check-system">
 		<exec executable="${env.JBOSS_HOME}/bin/run.sh"/>
 	</target>
 
-	<target name="stop-as-jboss">
+	<target name="stop-as-jboss" depends="check-system">
 		<exec executable="${env.JBOSS_HOME}/bin/shutdown.sh">
 			<arg value="-S"/>
 		</exec>
 	</target>
 
-	<target name="wait-on-as-jboss" 
-		depends="prepare,load-groovy"
+	<target name="wait-on-as-jboss"
+		depends="check-system,prepare,load-groovy"
 		description="Tries to contact JBoss with increasing intervals">
 		<groovy>
 			jboss_home = properties["env.JBOSS_HOME"]

@@ -1,3 +1,11 @@
+#
+# hibernate.properties
+# --------------------
+# environment variables for Hibernate. Hibernate looks
+# for this file specifically in the class path for setting
+# some properties like cglib.use_reflection_optimizer below.
+#
+#
 hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 hibernate.connection.driver_class=org.postgresql.Driver
 hibernate.connection.url=jdbc\:postgresql\://localhost/omero3

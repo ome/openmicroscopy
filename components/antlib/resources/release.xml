@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="patterns" basedir=".">
+<project name="release" default="update-version" basedir=".">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -35,12 +35,31 @@
         
   DOCUMENTATION:
   ==============================================================================
-  Simlpe regexes used elsewhere. Should be merged into directories.xml
+  Helper script for making a release of this code base.
+  
+
+  Functionally equivalent to:
+
+  run() {
+	find -name $1
+	find -name $1 -exec perl -i -pe 's/3.0-alpha-SNAPSHOT/3.0-M1/g' {} \;
+  } 
+  run pom.xml 
+  run classpath.xml
+  run .classpath
+  run application.xml
+  run *.example
 
 -->
-	<!-- File patterns -->
-	<property name="dsl.pat" value="**/*.ome.xml"/>
-	<property name="hbm.pat" value="**/*.hbm.xml"/>
-	<property name="api.pat" value="**/*.java"/>
-	<property name="ice.pat" value="**/*.ice"/>
+
+  <target name="update-version">
+    <property name="currentVersion" value="XXX"/>
+    <property name="updatedVersion" value="YYY"/>
+
+    <replace dir="${basedir}" token="${currentVersion}" value="${updatedVersion}">
+      <include name="test"/>
+   </replace>
+
+  </target>
+
 </project>

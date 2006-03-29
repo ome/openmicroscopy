@@ -39,7 +39,7 @@ This is done by using the command:
 ant -f OMERO_HOME/components/antlib/resources/maven.xml
 
 Properties set here can be overwritten in the 
-OMERO_HOME/components/*/build.xml files BEFORE
+OMERO_HOME/components/*/global.xml files BEFORE
 importing this file.
 
 -->

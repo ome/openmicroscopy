@@ -1,135 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="main" default="help" basedir=".">
+<project name="main" default="usage" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later
+#    version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free
+#    Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+#    02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-	<!-- DOCUMENTATION:
-	     =================================================
+  DOCUMENTATION:
+  =================================================
 
-		ASSUMPTIONS:
-		To use this script you must have minimally acquired
-		the source code (either from subversion or as
-		distribution) and have installed ant. 
+  To use this script you need only have downloaded
+  the source code (either from subversion or as
+  distribution). The build system can be used by 
+  calling:
 
-	-->
+    java omero <arguments>
 
-	<import file="components/antlib/resources/build.xml"/>
+  from within the OMERO_HOME directory (this is 
+  what you checked out of subversion and where this
+  file is located).
 
-	<target name="help" depends="usage"/>
+-->
+
+	<import file="components/antlib/resources/global.xml"/>
 
 	<target name="usage"
 		description="Usage information">
-		<echo>
-			${msg.main.usage}
-			${msg.lifecycle.usage}
-		</echo>
-	</target>
-
-	<!-- 	===============================================
-		CHECK SYSTEM 
-	==================================================  -->
-	<target name="check-system" 
-		depends="check-java5,check-jboss"
-		description="Verifies that system is ready to build">
-
-		<echo>
-${msg.check.report}
-1) Java5: ${check-java5-value}
-2) JBoss: ${check-jboss-value}
-
-		</echo>
-
-		<fail message="Check failed. See report.">
-			<condition><or>
-				<not><length string="${check-java5-value}" length="3"/></not>
-				<not><length string="${check-jboss-value}" length="3"/></not>
-			</or></condition>
-		</fail>
-
-	</target>
-
-	<target name="check-java5">
-		<sys_test name="java5">
-			<not>
-			<equals arg1="${ant.java.version}" arg2="1.5"/>
-			</not>
-		</sys_test>
-	</target>
-
-	<target name="check-jboss">
-		<sys_test name="jboss">
-			<not>
-			<isset property="env.JBOSS_HOME"/>
-			</not>
-		</sys_test>
-	</target>
-	
-	<!-- 	===============================================
-		SETUP
-	==================================================  -->
-	<target name="setup" 
-		depends="warning,copy-examples,prompt-for-config"
-		description="Prepares code base for compilation"/>
-		
-	<target name="warning">
-		<input
-			message="${msg.setup.warning}"
-			validargs="y,n"
-			addproperty="do.abort"/>
-
-  		<fail>
-			<condition>
-				<equals arg1="y" arg2="${do.abort}"/>
-			</condition>
-			${msg.setup.aborted}
-		</fail>
-	</target>
-
-	<target name="checkout-omero">
-		<svn command="co ${subversion.url}"/>
-	</target>
-
-	<target name="update-omero">
-		<svn command="up"/>
-	</target>
-
-	<target name="database-exists">
-		<sql_run>
-			<transaction> select 'database exists.' </transaction>
-		</sql_run>
-	</target>
-
-	<target name="copy-examples">
-		<copy todir="${basedir}" verbose="true">
-			<fileset dir="${basedir}/docs/examples/" includes="*.properties.example"/>
-			<globmapper from="*.properties.example" to="*.properties"/>
-		</copy>
-	</target>
-
-	<target name="prompt-for-config">
-		<input>
-			${msg.setup.prompt}
-		</input>
+		<concat>
+			<filelist dir="${import.dir}" files="usage-ant.txt"/>
+		</concat>
 	</target>
 
 	<!-- 	===============================================
 		BUILD
 	==================================================  -->
-	<target name="fullbuild" depends="check-system,clean,build,reload-db"/>
+	<target name="fullbuild" depends="check-system,clean,build,reload-db"
+		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
 
-	<target name="build" depends="dsl,model,install"/>
+	<target name="build" depends="dsl,model,install"
+		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
 
 	<!-- Special Components -->
-	<property name="target" value="install"/>
+	<property name="defaultTarget" value="install"/>
 
 	<target name="dsl" depends="check-system" unless="generate.skip">
 		<antRun component="dsl">
-			<target name="${target}"/>
+			<target name="${defaultTarget}"/>
 		</antRun>
 	</target>
 
 	<target name="model" depends="check-system,dsl" unless="generate.skip">
 		<antRun component="common">
 			<target name="clean"/>
-			<target name="${target}"/>
+			<target name="install"/>
+		</antRun>
+	</target>
+
+	<target name="reload-db">
+		<antRun component="common">
+			<target name="reload-db"/>
 		</antRun>
 	</target>
 
@@ -146,7 +102,7 @@ ${msg.check.report}
 		<antRun component="server"><target name="install"/></antRun>
 	</target>
 
-	<target name="fulldeploy" depends="check-system,build-server">
+	<target name="deploy" depends="check-system,build-server">
 		<antRun component="omero-ejb"><target name="install"/></antRun>
 		<antRun component="omero-app">
 			<target name="package"/>
@@ -154,63 +110,69 @@ ${msg.check.report}
 		</antRun>
 	</target>
 
-	<!-- Multiproject -->
-	<target name="multiproject" depends="check-system,variables-define"/>
+	<target name="fulldeploy" depends="check-system,build-server,deploy"/>
 
-	<target name="multi" depends="multiproject">
-		<iterate target="${target}"/>
+	<!-- Multiproject:
+	  The idea for these targets is taken from maven2 and is
+	  supported by the antlib/resources/lifecycle.xml ant script.
+	 -->
+	<target name="multiproject" depends="variables-define"/>
+
+	<target name="multi" depends="multiproject"
+		description="Convenience target. Iterates over all components calling the $${defaultTarget} method (default=${defaultTarget}">
+		<iterate target="${defaultTarget}"/>
 	</target>
 
-	<target name="prepare" depends="multiproject">
+	<target name="prepare" depends="multiproject"
+		description="Lifecycle target: calls 'prepare' on all components">
 		<iterate target="prepare"/>
 	</target>
 
-	<target name="generate" depends="multiproject">
+	<target name="generate" depends="multiproject"
+		description="Lifecycle target: calls 'generate' on all components">
 		<iterate target="generate"/>
 	</target>
 
-	<target name="compile" depends="multiproject">
+	<target name="compile" depends="multiproject"
+		description="Lifecycle target: calls 'compile' on all components">
 		<iterate target="compile"/>
 	</target>
 
-	<target name="test" depends="multiproject">
+	<target name="test" depends="multiproject"
+		description="Lifecycle target: calls 'test' on all components">
 		<iterate target="test"/>
 	</target>
 
-	<target name="package" depends="multiproject">
+	<target name="package" depends="multiproject"
+		description="Lifecycle target: calls 'package' on all components">
 		<iterate target="package"/>
 	</target>
 
-	<target name="install" depends="multiproject">
+	<target name="install" depends="multiproject"
+		description="Lifecycle target: calls 'install' on all components">
 		<iterate target="install"/>
 	</target>
 
-	<target name="integration" depends="multiproject">
+	<target name="integration" depends="multiproject"
+		description="Lifecycle target: calls 'integration' on all components">
 		<iterate target="integration"/>
 	</target>
 
-	<target name="clean" depends="multiproject">
+	<target name="clean" depends="multiproject"
+		description="Lifecycle target: calls 'clean' on all components">
 		<delete dir="${dist.dir}"/>
 		<iterate target="clean"/>
 	</target>
 
-	<target name="dist" depends="multiproject">
+	<target name="dist" depends="multiproject"
+		description="Lifecycle target: calls 'dist' on all components">
 		<mkdir dir="${dist.dir}"/>
 		<iterate target="dist"/>
 	</target>
 
-	<target name="classpath-download" depends="multiproject">
-		<iterate target="classpath-download"/>
-	</target>
 	<!-- 	===============================================
-		Quick Links
+		Javadoc
 	==================================================  -->
-	<target name="reload-db">
-		<antRun component="common">
-			<target name="reload-db"/>
-		</antRun>
-	</target>
-
 	<target name="javadoc">
 
 	    <patternset id="all.java.files">

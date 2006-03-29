@@ -1,14 +1,58 @@
-<!--
-    http://svn.apache.org/repos/asf/maven/components/trunk/maven-artifact-ant/sample.build.xml
--->
+<?xml version="1.0" encoding="utf-8"?>
 <project name="maven" default="all" xmlns:mvn="urn:maven-artifact-ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee    
+#                       
+#               
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later
+#    version.           
+#                       
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#       
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free
+#    Software           
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+#    02111-1307  USA
+#       
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- <import file="build.xml"/>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+  DOCUMENTATION:
+  ==============================================================================
+  Used to generate the classpath.xml and .classpath files under each
+  component. Parses the various pom.xml files (in OMERO_HOME and each
+  component) to determine the transitive dependencies for the project.
+
+
+  See
+    http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
+    http://svn.apache.org/repos/asf/maven/components/trunk/maven-artifact-ant/sample.build.xml
+
+-->
+
+
+ <import file="global.xml"/>
 
  <target name="initTaskDefs">
     <!-- don't forget to update the version! -->
     <path id="maven.classpath">
-      <pathelement location="${import.dir}/maven-artifact-ant-2.0.2-dep.jar" />
+      <pathelement location="${tools.dir}/maven-artifact-ant-2.0.2-dep.jar" />
     </path>
 
     <typedef 
@@ -99,6 +143,18 @@ privateKey="${user.home}/.ssh/id_dsa"/>
       <pom refid="maven.project"/>
     </mvn:deploy>
   </target>
+
+    <!-- = = = = = = = = = = = = = = = = =
+          maven tools
+         = = = = = = = = = = = = = = = = = -->
+	<target name="build-build" depends="prepare,load-groovy"
+		description="Generates files for ant usage">
+                <echo file="${resrc.dest}/Classpath.sh">
+                  export CLASSPATH=${omero.path}
+                </echo>
+		<groovy src="${import.dir}/groovy/antClasspath.groovy"/>
+		<groovy src="${import.dir}/groovy/eclipseClasspath.groovy"/>
+	</target>
 
 </project>
 

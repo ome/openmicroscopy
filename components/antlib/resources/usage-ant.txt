@@ -1,0 +1,39 @@
+  ===============================================================	
+   OMERO Build System			
+  ===============================================================	
+ _					
+|
++ Top-level build targts
+|
+| 	model    	creates DSL task and generates model
+| 	build        	runs model and builds all artifacts
+| 	fullbuild       runs build in a strict, clean enviroment
+| 	deploy   	copies necessary artifacts to server
+| 	javadoc         generates javadoc under dist/doc/api
+|					
++ Setup	- targets to prepare the Omero build system	
+|
+| 	check-system    test for required libraries and variables
+| 	copy-examples   copy example property files to OMERO_HOME
+| 	reload-db      	creates DB tables/data for model
+| 
++ Build Lifecycle - targets dealing with artifacts
+|					
+| 	generate         perform code-generation where necessary
+| 	compile          compile/copy resources	
+| 	test             run unit tests		
+| 	package          produce build artifact	
+| 	install          move artifact to repository
+| 	integration      run integration tests	
+| 	dist       	 prepare a distribution
+| 	clean      	 delete all generated artifacts
+|  					
++ Testing - how to run unit and integration tests
+|
+|   Use:					
+|  	ant test                # Regular.	
+|  	ant quick <target>      # No tests	
+|  	ant strict-test         # Re-compile tests.
+|  	ant fail-on-error test  # Stop build if fails. 
+|
+|_

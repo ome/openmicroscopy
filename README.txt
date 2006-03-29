@@ -1,16 +1,21 @@
 
 -------------------------------------------------
-   OMERO - OME Read-Only Web App
+   OMERO - OME Remote Objects Server
 -------------------------------------------------
 
-OMERO provides a query server which can be deployed
-in various servlet servers (Tomcat, JBoss, etc.).
-It directly accesses the Postgres DB of an existing
-OME installation and returns OME Objects using 
-the Hessian libraries from caucho.com. 
-
 For information on installation and developing omero,
-please see the files under docs/ .
+please see the OMER wiki at : 
+
+  http://cvs.openmicroscopy.org.uk/tiki/
+
+Especially:
+
+* Getting Started:
+  http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Getting+Started
+
+* Omero Design:
+  http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Design
+
 
 The contents of this directory ("OMERO_HOME") are:
 
@@ -20,23 +25,24 @@ The contents of this directory ("OMERO_HOME") are:
  components:	
 	directory containing artifacts for the build
 
- project.xml:	
-	a Maven Project Object Model (POM) defining the build
+ pom.xml:	
+	a Maven Project Object Model (POM) defining the 
+	build dependencies
 
- project.properties:
-	environment variables for the build (global)
+ omero.properties:
+	property values for the build (global)
 
- build.properties:
-	environment variables for a single user/installation
+ hibernate.properties:
+	property values specifically for Hibernate 
 
  log4j.properties:
 	logging configuration for all components
 
  docs:
-	documentation (REFERENCE.*), license (LICENSE), and
+	documentation, license (LICENSE), and
         various example files.
 
  lib:
-	libraries necessary for build including maven itself.
+	libraries necessary for ant build including ant itself.
 
 
