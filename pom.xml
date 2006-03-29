@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <name>Omero Project</name>
   <groupId>omero</groupId>
-  <version>3.0-alpha-SNAPSHOT</version>
+  <version>3.0-M1</version>
   <artifactId>main</artifactId>
   <packaging>pom</packaging>
   <modules>

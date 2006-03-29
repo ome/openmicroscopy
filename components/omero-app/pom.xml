@@ -4,7 +4,7 @@
   <parent>
     <groupId>omero</groupId>
     <artifactId>main</artifactId>
-    <version>3.0-alpha-SNAPSHOT</version>
+    <version>3.0-M1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <name>Ome Remote Objects - EJB3 Deployment</name>
@@ -14,7 +14,7 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>omero-ejb</artifactId>
-      <version>3.0-alpha-SNAPSHOT</version>
+      <version>3.0-M1</version>
       <type>ejb</type>
       <exclusions>
         <exclusion>

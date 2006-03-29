@@ -20,10 +20,10 @@ importing this file.
 
   <property name="artifact.name" value="server"/>
   <property name="artifact.group" value="omero"/>
-  <property name="artifact.version" value="3.0-alpha-SNAPSHOT"/>
+  <property name="artifact.version" value="3.0-M1"/>
   <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
-  <property name="artifact.final.name" value="server-3.0-alpha-SNAPSHOT.${artifact.packaging}"/>
-  <property name="artifact.path" value="omero/server/3.0-alpha-SNAPSHOT/${artifact.final.name}"/>
+  <property name="artifact.final.name" value="server-3.0-M1.${artifact.packaging}"/>
+  <property name="artifact.path" value="omero/server/3.0-M1/${artifact.final.name}"/>
 
   <filelist id="generated.compile.filelist" dir="${omero.repo.local}">
 	<file name="activemq/activemq-core/3.2/activemq-core-3.2.jar"/>
@@ -49,11 +49,11 @@ importing this file.
 	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<file name="omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
+	<file name="omero/common/3.0-M1/common-3.0-M1.jar"/>
+	<file name="omero/dsl/3.0-M1/dsl-3.0-M1.jar"/>
+	<file name="omero/omeio-nio/3.0-M1/omeio-nio-3.0-M1.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
-	<file name="omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar"/>
+	<file name="omero/rendering/3.0-M1/rendering-3.0-M1.jar"/>
 	<file name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<file name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<file name="org/springframework/spring-hibernate3/2.0-m3/spring-hibernate3-2.0-m3.jar"/>
@@ -89,11 +89,11 @@ importing this file.
 	<include name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<include name="omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
-	<include name="omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<include name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
+	<include name="omero/common/3.0-M1/common-3.0-M1.jar"/>
+	<include name="omero/dsl/3.0-M1/dsl-3.0-M1.jar"/>
+	<include name="omero/omeio-nio/3.0-M1/omeio-nio-3.0-M1.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
-	<include name="omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar"/>
+	<include name="omero/rendering/3.0-M1/rendering-3.0-M1.jar"/>
 	<include name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<include name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<include name="org/springframework/spring-hibernate3/2.0-m3/spring-hibernate3-2.0-m3.jar"/>
@@ -132,11 +132,11 @@ importing this file.
 	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<file name="omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<file name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
+	<file name="omero/common/3.0-M1/common-3.0-M1.jar"/>
+	<file name="omero/dsl/3.0-M1/dsl-3.0-M1.jar"/>
+	<file name="omero/omeio-nio/3.0-M1/omeio-nio-3.0-M1.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
-	<file name="omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar"/>
+	<file name="omero/rendering/3.0-M1/rendering-3.0-M1.jar"/>
 	<file name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<file name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<file name="org/springframework/spring-hibernate3/2.0-m3/spring-hibernate3-2.0-m3.jar"/>
@@ -176,11 +176,11 @@ importing this file.
 	<include name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
-	<include name="omero/common/3.0-alpha-SNAPSHOT/common-3.0-alpha-SNAPSHOT.jar"/>
-	<include name="omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
-	<include name="omero/omeio-nio/3.0-alpha-SNAPSHOT/omeio-nio-3.0-alpha-SNAPSHOT.jar"/>
+	<include name="omero/common/3.0-M1/common-3.0-M1.jar"/>
+	<include name="omero/dsl/3.0-M1/dsl-3.0-M1.jar"/>
+	<include name="omero/omeio-nio/3.0-M1/omeio-nio-3.0-M1.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
-	<include name="omero/rendering/3.0-alpha-SNAPSHOT/rendering-3.0-alpha-SNAPSHOT.jar"/>
+	<include name="omero/rendering/3.0-M1/rendering-3.0-M1.jar"/>
 	<include name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<include name="org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<include name="org/springframework/spring-hibernate3/2.0-m3/spring-hibernate3-2.0-m3.jar"/>

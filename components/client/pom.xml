@@ -5,7 +5,7 @@
   <parent>
     <groupId>omero</groupId>
     <artifactId>main</artifactId>
-    <version>3.0-alpha-SNAPSHOT</version>
+    <version>3.0-M1</version>
   </parent>
   <name>Ome Client Library</name>
   <artifactId>omero-client</artifactId>
@@ -14,7 +14,7 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>common</artifactId>
-      <version>3.0-alpha-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>

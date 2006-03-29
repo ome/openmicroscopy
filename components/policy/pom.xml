@@ -3,7 +3,7 @@
   <parent>
     <groupId>omero</groupId>
     <artifactId>main</artifactId>
-    <version>3.0-alpha-SNAPSHOT</version>
+    <version>3.0-M1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -12,15 +12,15 @@
   <name>Omero Coding Policy - Enforced by AspectJ</name>
   <dependencies>
     <!-- ALL other JAR components from Omero -->
-    <dependency><groupId>omero</groupId><artifactId>client-ejb</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>common</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>dsl</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>omeio-nio</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>omero-ejb</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>rendering</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>sandbox</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>server</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>
-<!--<dependency><groupId>omero</groupId><artifactId>shoola-adapter</artifactId><version>3.0-alpha-SNAPSHOT</version></dependency>TODO-->
+    <dependency><groupId>omero</groupId><artifactId>client-ejb</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>common</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>dsl</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>omeio-nio</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>omero-ejb</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>rendering</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>sandbox</artifactId><version>3.0-M1</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>server</artifactId><version>3.0-M1</version></dependency>
+<!--<dependency><groupId>omero</groupId><artifactId>shoola-adapter</artifactId><version>3.0-M1</version></dependency>TODO-->
     <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjlib</artifactId>

@@ -20,10 +20,10 @@ importing this file.
 
   <property name="artifact.name" value="dsl"/>
   <property name="artifact.group" value="omero"/>
-  <property name="artifact.version" value="3.0-alpha-SNAPSHOT"/>
+  <property name="artifact.version" value="3.0-M1"/>
   <property name="artifact.packaging" value="jar"/><!-- Default; override in component/build.xml -->
-  <property name="artifact.final.name" value="dsl-3.0-alpha-SNAPSHOT.${artifact.packaging}"/>
-  <property name="artifact.path" value="omero/dsl/3.0-alpha-SNAPSHOT/${artifact.final.name}"/>
+  <property name="artifact.final.name" value="dsl-3.0-M1.${artifact.packaging}"/>
+  <property name="artifact.path" value="omero/dsl/3.0-M1/${artifact.final.name}"/>
 
   <filelist id="generated.compile.filelist" dir="${omero.repo.local}">
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>

@@ -18,7 +18,7 @@
 	<classpathentry kind="var" path="M2_REPO/groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-alpha-SNAPSHOT/dsl-3.0-alpha-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-M1/dsl-3.0-M1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
