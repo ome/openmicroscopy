@@ -1,6 +1,6 @@
 omero.version=3.0-alpha-SNAPSHOT
 omero.repo.local=${omero.home}/lib/repository
-omero.repo.remote=http://cvs.openmicroscopy.org.uk/maven
+omero.repo.remote=file://${user.home}/.m2/repository
 
 ############################################
 # client connection

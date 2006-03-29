@@ -2,8 +2,7 @@
 <!-- TODO add properties goal to update pref.properties -->
 <project name="policy" default="check-policy" basedir=".">
     
-	<dirname property="up-one" file="${basedir}"/>
-	<import file="${up-one}/antlib/resources/build.xml"/>
+	<import file="classpath.xml"/>
 	
 	<target name="prepare" depends="lifecycle.prepare,load-hibernate"/>
 	

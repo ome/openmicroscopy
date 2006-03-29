@@ -8,8 +8,6 @@
 
 	<property name="artifact.packaging" value="ear"/>
 
-	<dirname property="up-one" file="${basedir}"/>
-	<import file="${up-one}/antlib/resources/build.xml"/>
 	<import file="classpath.xml"/>
 
 	<property name="product.name"     value="Omero Server"/>

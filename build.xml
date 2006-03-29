@@ -27,21 +27,19 @@
 		CHECK SYSTEM 
 	==================================================  -->
 	<target name="check-system" 
-		depends="check-java5,check-maven,check-jboss"
+		depends="check-java5,check-jboss"
 		description="Verifies that system is ready to build">
 
 		<echo>
 ${msg.check.report}
 1) Java5: ${check-java5-value}
-2) Maven: ${check-maven-value}
-3) JBoss: ${check-jboss-value}
+2) JBoss: ${check-jboss-value}
 
 		</echo>
 
 		<fail message="Check failed. See report.">
 			<condition><or>
 				<not><length string="${check-java5-value}" length="3"/></not>
-				<not><length string="${check-maven-value}" length="3"/></not>
 				<not><length string="${check-jboss-value}" length="3"/></not>
 			</or></condition>
 		</fail>
@@ -53,15 +51,6 @@ ${msg.check.report}
 			<not>
 			<equals arg1="${ant.java.version}" arg2="1.5"/>
 			</not>
-		</sys_test>
-	</target>
-
-	<target name="check-maven">
-		<sys_test name="maven">
-		<not><or>
-			<available filepath="${env.PATH}" file="mvn" />
-			<available filepath="${env.PATH}" file="mvn.bat" />
-		</or></not>
 		</sys_test>
 	</target>
 
@@ -124,40 +113,40 @@ ${msg.check.report}
 	<!-- 	===============================================
 		BUILD
 	==================================================  -->
-	<target name="fullbuild" depends="clean,build,reload-db"/>
+	<target name="fullbuild" depends="check-system,clean,build,reload-db"/>
 
 	<target name="build" depends="dsl,model,install"/>
 
 	<!-- Special Components -->
 	<property name="target" value="install"/>
 
-	<target name="dsl" unless="generate.skip">
+	<target name="dsl" depends="check-system" unless="generate.skip">
 		<antRun component="dsl">
 			<target name="${target}"/>
 		</antRun>
 	</target>
 
-	<target name="model" depends="dsl" unless="generate.skip">
+	<target name="model" depends="check-system,dsl" unless="generate.skip">
 		<antRun component="common">
 			<target name="clean"/>
 			<target name="${target}"/>
 		</antRun>
 	</target>
 
-	<target name="build-client" depends="model">
+	<target name="build-client" depends="check-system,model">
 		<antRun component="common"><target name="install"/></antRun>
 		<antRun component="client"><target name="install"/></antRun>
 		<antRun component="shoola-adapter"><target name="install"/></antRun>
 	</target>
 
-	<target name="build-server" depends="model">
+	<target name="build-server" depends="check-system,model">
 		<antRun component="common"><target name="install"/></antRun>
 		<antRun component="omeio-nio"><target name="install"/></antRun>
 		<antRun component="rendering"><target name="install"/></antRun>
 		<antRun component="server"><target name="install"/></antRun>
 	</target>
 
-	<target name="fulldeploy" depends="build-server">
+	<target name="fulldeploy" depends="check-system,build-server">
 		<antRun component="omero-ejb"><target name="install"/></antRun>
 		<antRun component="omero-app">
 			<target name="package"/>
@@ -166,7 +155,7 @@ ${msg.check.report}
 	</target>
 
 	<!-- Multiproject -->
-	<target name="multiproject" depends="variables-define"/>
+	<target name="multiproject" depends="check-system,variables-define"/>
 
 	<target name="multi" depends="multiproject">
 		<iterate target="${target}"/>

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="dsl" default="install" basedir=".">
     
-	<dirname property="up-one" file="${basedir}"/>
-	<import file="${up-one}/antlib/resources/build.xml"/>
 	<import file="classpath.xml"/>
 	
 </project>

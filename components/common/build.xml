@@ -6,8 +6,6 @@
 	<property name="javac.source" value="1.4"/>
 	<property name="javac.target" value="1.4"/>
     
-	<dirname property="up-one" file="${basedir}"/>
-	<import file="${up-one}/antlib/resources/build.xml"/>
 	<import file="classpath.xml"/>
 	
 	<!-- Local properties -->
