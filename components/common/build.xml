@@ -13,7 +13,7 @@
 	
 	<!-- Lifecycle Overrides -->
 	<target name="prepare" depends="lifecycle.prepare,load-hibernate"/>
-	<target name="generate" depends="lifecycle.generate,dsl,hib,api" unless="generate.skip"/>
+	<target name="generate" depends="lifecycle.generate,dsl,hib" unless="generate.skip"/>
 	<!-- TODO generate.skip not working -->
 
     <!-- = = = = = = = = = = = = = = = = =
