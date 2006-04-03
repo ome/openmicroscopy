@@ -44,7 +44,7 @@ import ome.model.IObject;
 // Application-internal dependencies
 
 /**
- * Provides methods for dealing with the core "IPojos" of OME. Included are:
+ * Provides methods for dealing with the core "Pojos" of OME. Included are:
  * Projects, Datasets, Images, CategoryGroups, Categories, Classifications,
  * ImageAnnotations, and DatasetAnnotations.
  * 

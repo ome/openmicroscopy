@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html>
+<head><title>ome.conditions</title>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+</head>
+<body bgcolor="white">
+
+Forms the basis of all Omero exception hierarchies. 
+  
+<p>
+  It is intended that no exceptions not subclassing RootException will escape
+  the server. A last ditch effort will be made to wrap any unknown exception
+  in an InternalException. 
+</p>
+  
+<p>
+  Due to networking issues, this will not always be possible, and the client 
+  should deal with all non-Omero exceptions as OutOfService exceptions.
+</p>
+
+<h2>Related Documentation</h2>
+
+For a discussion of these exceptions, please see:
+<ul>
+  <li>
+    <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Exception+Handling">
+    http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Exception+Handling</a>
+  </li>
+</ul>
+
+<!-- Put @see and @since tags down here. -->
+@see ome.conditions.RootException
+</body>
+</html>

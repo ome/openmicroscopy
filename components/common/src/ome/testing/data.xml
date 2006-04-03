@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -32,21 +33,26 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<!--
+<beans>	
 
-	Test configuration for the client side. The dataSource is necessary
-	so that data can query for existing values.
- 
--->
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans default-autowire="byType">	
-	<bean id="dataSource" lazy-init="true"
-    	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-	    <property name="driverClassName"><value>${database.driver}</value></property>
-    	<property name="url"><value>${database.url}</value></property>
-	    <property name="username"><value>${database.username}</value></property>
-	    <property name="password"><value>${database.password}</value></property>
+	<description>
+		Testing configuration for use from the client side. This uses the
+		driver jar (scope=test) defined in OMERO_HOME/pom.xml. Available are:
+		
+		 - dataSource : local data source.
+		 - data  : utility to query an omero db for test data.
+	</description>
+	
+	<bean id="dataSource" lazy-init="true" destroy-method="close"
+	  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+		<property name="url" value="${hibernate.connection.url}"/>
+		<property name="username" value="${hibernate.connection.username}"/>
+		<property name="password" value="${hibernate.connection.password}"/>
+	</bean>
+	
+	<bean id="data" class="ome.testing.OMEData" lazy-init="true">
+		<property name="dataSource" ref="dataSource"/>
 	</bean>
 	
 </beans>

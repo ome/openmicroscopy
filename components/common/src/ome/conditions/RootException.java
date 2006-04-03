@@ -31,8 +31,6 @@ package ome.conditions;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 
@@ -49,9 +47,7 @@ import org.apache.commons.logging.LogFactory;
  * @since 2.5
  */
 public abstract class RootException extends RuntimeException{
-	
-	private static Log log = LogFactory.getLog(RootException.class);
-	
+
 	public RootException(String msg){
 		super(msg);
 	}

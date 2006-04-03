@@ -1,5 +1,5 @@
 /*
- * ome.conditions.RootException
+ * ome.conditions.SecurityException
  *
  *------------------------------------------------------------------------------
  *
@@ -34,22 +34,20 @@ package ome.conditions;
 
 //Application-internal dependencies
 
-/**
- * Catchall for unknown server exceptions. This most likely represents a bug
- * in the server-code and should be reported to the Omero team.
- *  
+/** 
+ * User does not have permissions to perform given action. 
+ * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 
+ * @version 2.5 
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 3.0
+ * @since 2.5
  */
-public class InternalException extends RootException
-{
-	
-	public InternalException(String msg){
+public abstract class SecurityException extends RuntimeException{
+
+	public SecurityException(String msg){
 		super(msg);
 	}
 	

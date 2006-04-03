@@ -29,6 +29,8 @@
 
 package ome.api;
 
+import ome.conditions.ApiUsageException;
+
 // Java imports
 
 // Third-party libraries
@@ -36,7 +38,7 @@ package ome.api;
 // Application-internal dependencies
 
 /**
- * OMERO API Interface with stateful semantics.
+ * OMERO API Interface with stateful semantics. 
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -45,9 +47,15 @@ package ome.api;
  *          </small>
  * @since OME3.0
  */
-public interface StatefulServiceInterface { 
+public interface StatefulServiceInterface extends ServiceInterface { 
     
+    /** signals the beginning of the service lifecycle. */ 
     void create();
-    void destroy();
+    
+    /** signals the end of the service lifecycle. Resources such as Sessions
+     * can be released. All further calls will through an ApiUsageException.
+     * @throws ApiUsageException
+     */
+    void destroy() throws ApiUsageException;
     
 }

@@ -1,5 +1,5 @@
 /*
- * ome.conditions.RootException
+ * ome.conditions.ResourceError
  *
  *------------------------------------------------------------------------------
  *
@@ -31,13 +31,12 @@ package ome.conditions;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 
 /**
- * Represents 
+ * Represents a incorrectible/unforseeable event within the server that lead
+ * to a failure of a process.
  *  
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -49,8 +48,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ResourceError extends RootException
 {
-	
-	private static Log log = LogFactory.getLog(ResourceError.class);
 	
 	public ResourceError(String msg){
 		super(msg);

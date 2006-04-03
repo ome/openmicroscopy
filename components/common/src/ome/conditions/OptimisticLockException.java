@@ -1,5 +1,5 @@
 /*
- * ome.api.IQuery
+ * ome.conditions.ptimisticException
  *
  *------------------------------------------------------------------------------
  *
@@ -26,24 +26,18 @@
  *
  *------------------------------------------------------------------------------
  */
-
-package ome.api;
+package ome.conditions;
 
 //Java imports
-import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-
-/** 
- * Provides methods for directly querying object graphs. As far as is possible,
- * IQuery should be considered the lowest level DB-access (SELECT) interface.
- * Unlike the {@link ome.api.IUpdate} interface, using other methods will most
- * likely not leave the database in an inconsitent state, but may provide stale
- * data in some situations. 
+/**
+ *  Signifies that another user has updated or deleted a given object, more 
+ *  specifically a query of the form : "&lt;action&gt; where id = ? and version = ?"
+ *  applied to no rows. 
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -53,26 +47,10 @@ import java.util.Map;
  * </small>
  * @since 3.0
  */
-public interface IQuery extends ServiceInterface {
-    
-    // ~ Simple Queries
-    // =========================================================================
-    Object getById(Class klazz, long id);
-    List getByClass(Class klazz);
-    
-    // ~ Field-based Queries
-	Object getUniqueByExample(Object example);
-	List getListByExample(Object example);
-	Object getUniqueByFieldILike(Class klazz, String field, String value);
-	List getListByFieldILike(Class klazz, String field, String value);
-	Object getUniqueByFieldEq(Class klazz, String field, Object value);
-	List getListByFieldEq(Class klazz, String field, Object value);
-	Object getUniqueByMap(Class klazz, Map constraints);
-	List getListByMap(Class klazz, Map constraints);
+public class OptimisticLockException extends ApiUsageException{
 	
-    // ~ String-based Queries
-    Object queryUnique(String query, Object[] params);
-	List queryList(String query, Object[] params);
-	Object queryUniqueMap(String query, Map params);
-	List queryListMap(String query, Map params);
+	public OptimisticLockException(String msg){
+		super(msg);
+	}
+	
 }

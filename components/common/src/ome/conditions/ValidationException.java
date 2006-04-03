@@ -1,5 +1,5 @@
 /*
- * ome.conditions.RootException
+ * ome.conditions.ValidationException
  *
  *------------------------------------------------------------------------------
  *
@@ -31,23 +31,36 @@ package ome.conditions;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 
 /** 
+ * More specific {@link ome.conditions.ApiUsageException ApiUsageException}, in 
+ * that the specification of your data as outlined in the OME specification is 
+ * incorrect. 
+ * 
+ * <p>
+ * Examples include:
+ * <ul>
+ *  <li>a {@link ome.model.containers.Project Project} name with invalid 
+ *  characters</li>
+ *  <li>{@link ome.model.display.Color Color} values out-of-range</li>
+ *  <li>{@link ome.model.core.Image Image} linked to two distinct
+ *  {@link ome.model.containers.Category Categories} in a single 
+ *  (mutually-exclusive) {@link ome.model.containers.CategoryGroup CategoryGroup}
+ *  </li>    
+ * </ul>
+ * </p>
+ * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
+ * @version 3.0 
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 2.5
+ * @since 3.0
  */
 public class ValidationException extends ApiUsageException{
-	
-	private static Log log = LogFactory.getLog(ValidationException.class);
 	
 	public ValidationException(String msg){
 		super(msg);

@@ -31,13 +31,15 @@ package ome.conditions;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 
 /** 
- *  
+ *  Alerts a user to a misuse of an Omero method call. This includes 
+ *  {@link java.lang.IllegalArgumentException}-like and often 
+ *  {@link java.lang.IllegalStateException}-like matters. The Api which is 
+ *  broken may be declaratively checked with annotations and an interceptor
+ *  or at run-time with simple assertions.
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -49,8 +51,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ApiUsageException extends RootException
 {
-	
-	private static Log log = LogFactory.getLog(ApiUsageException.class);
 	
 	public ApiUsageException(String msg){
 		super(msg);
