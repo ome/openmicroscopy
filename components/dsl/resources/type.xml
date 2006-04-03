@@ -19,7 +19,7 @@ EXAMPLE TYPE FILE
 	
 	<type id="ome.model.core.RealThing" subclasses="ome.model.core.AbstractThing">
 		<properties>
-			<onemany name="lotsOfOtherThings" type="ome.model.somewhere.ElseHa"/>
+			<onemany name="lotsOfOtherThings" type="ome.model.somewhere.ElseHa" inverse="things"/>
 		</properties>
 	</type>
 	
