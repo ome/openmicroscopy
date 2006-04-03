@@ -50,5 +50,16 @@
       </list>
     </constructor-arg>
   </bean>
-  
+
+  <bean    id="ome.client.test"
+    	  class="ome.system.OmeroContext"
+    lazy-init="true">
+    <constructor-arg>
+    	<list>
+        <value>ome/client/spring.xml</value>
+        <value>ome/testing/data.xml</value>        
+      </list>
+    </constructor-arg>
+  </bean>  
+    
  </beans>

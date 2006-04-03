@@ -66,6 +66,7 @@
 		<property name="locations">
 		<list>
 			<value>classpath:omero.properties</value>
+ 			<value>classpath:hibernate.properties</value>      
  			<value>classpath:jndi.properties</value>
 		</list>
 		</property>

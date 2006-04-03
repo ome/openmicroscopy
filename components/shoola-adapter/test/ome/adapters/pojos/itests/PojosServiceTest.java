@@ -30,18 +30,14 @@
 package ome.adapters.pojos.itests;
 
 //Java imports
-import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
+import javax.ejb.EJBException;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
@@ -55,6 +51,8 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.system.ServiceFactory;
+import ome.conditions.ApiUsageException;
+import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.model.ILink;
 import ome.model.IObject;
@@ -68,8 +66,6 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
-import ome.system.EventContext;
-import ome.system.OmeroContext;
 import ome.testing.OMEData;
 import ome.util.CBlock;
 import ome.util.IdBlock;
@@ -99,9 +95,8 @@ public class PojosServiceTest extends TestCase {
 
     protected static Log log = LogFactory.getLog(PojosServiceTest.class);
 
-    ServiceFactory factory = new ServiceFactory(OmeroContext.MANAGED_CONTEXT);
+    ServiceFactory factory = new ServiceFactory("ome.client.test");
    
-    EventContext eventContext;
     OMEData data;
     Set ids, results, mapped;
     IPojos iPojos;
@@ -116,17 +111,10 @@ public class PojosServiceTest extends TestCase {
     
     protected void setUp() throws Exception
     {
-        eventContext = (EventContext) factory.ctx.getBean("eventContext");
-        eventContext.setPrincipal( new ome.system.Principal("root","system","Test") );
-        
-        DataSource dataSource = (DataSource) factory.ctx.getBean("dataSource");
-        data = new OMEData();
-        data.setDataSource(dataSource);
+        data = (OMEData) factory.ctx.getBean("data");
         iPojos = factory.getPojosService();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
-        
-        
     }
     
     public void testGetSomethingThatsAlwaysThere() throws Exception
@@ -200,8 +188,8 @@ public class PojosServiceTest extends TestCase {
         try {
             iUpdate.saveAndReturnObject( iann );
             fail("Need optmistic lock exception.");
-        } catch (RootException e) {
-            // TODO should be a more specific exception.
+        } catch (EJBException e) {
+            errorIfNotAssignableFrom(e,OptimisticLockException.class);
         }
         
         // Fixing the change;
@@ -357,7 +345,9 @@ public class PojosServiceTest extends TestCase {
         try {
         results = iPojos.findContainerHierarchies(Dataset.class,ids,empty.map());
         fail("Should fail");
-        } catch (IllegalArgumentException e) {}
+        } catch (EJBException e) {
+            errorIfNotAssignableFrom(e,ApiUsageException.class);
+        }
         
         ids = new HashSet(data.getMax("Image.ids",2)); 
         results = iPojos.findContainerHierarchies(CategoryGroup.class,ids,defaults.map()); 
@@ -431,7 +421,7 @@ public class PojosServiceTest extends TestCase {
         try {
             results = iPojos.getUserImages(null);
             fail("Illegal argument: experimenter/group option must be set.");
-        } catch (IllegalArgumentException e) { }
+        } catch (EJBException e) { }
         
         results = iPojos.getUserImages(new PojoOptions().exp(new Long(10000)).map());
         assertTrue(results.size() > 0);
@@ -920,6 +910,12 @@ public class PojosServiceTest extends TestCase {
         assertTrue( as.size() == 1 );
     }
 
+    protected void errorIfNotAssignableFrom(EJBException ejbe, Class k)
+    {
+        Throwable t = ejbe.getCause();
+        if (! k.isAssignableFrom( ejbe.getClass() ))
+            throw ejbe;
+    }
 
     
 }
