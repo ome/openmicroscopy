@@ -46,7 +46,7 @@ importing this file.
 <project name="${artifact}_classpath" default="classpath-generate" basedir=".">
 
   <dirname property="up-one" file="\${basedir}"/>
-  <import file="\${up-one}/antlib/resources/build.xml"/>
+  <import file="\${up-one}/antlib/resources/global.xml"/>
 
   <property name="artifact.name" value="${artifact}"/>
   <property name="artifact.group" value="${group}"/>
