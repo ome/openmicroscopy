@@ -30,8 +30,6 @@
 package ome.services.util;
 
 //Java imports
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -40,12 +38,15 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 //import com.caucho.burlap.io.BurlapOutput;
 
 //Application-internal dependencies
 import ome.annotations.ApiConstraintChecker;
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 
 /** 
@@ -140,13 +141,32 @@ public class ServiceHandler implements MethodInterceptor {
             
             log.error("Exception thrown: "+msg);
             
-            if ( RootException.class.isAssignableFrom( t.getClass() ) ) 
+            if ( RootException.class.isAssignableFrom( t.getClass() ) )
                 return t;
+
+            else if ( OptimisticLockingFailureException.class.isAssignableFrom( t.getClass() ))
+            {
+                OptimisticLockException ole = new OptimisticLockException( t.getMessage() );
+                ole.setStackTrace( t.getStackTrace() );
+                return ole;
+            }
             
-            // Wrap all non-RootExceptions in InternalException
-            InternalException re = new InternalException(msg);
-            re.setStackTrace(t.getStackTrace());
-            return re;
+            else if ( IllegalArgumentException.class.isAssignableFrom( t.getClass() ))
+            {
+                ApiUsageException aue = new ApiUsageException( t.getMessage() );
+                aue.setStackTrace( t.getStackTrace() );
+                log.warn("IllegalArgumentException thrown:\n"+aue.getStackTrace());
+                return aue;
+            }
+            
+            else 
+            {
+                // Wrap all other exceptions in InternalException
+                InternalException re = new InternalException(msg);
+                re.setStackTrace(t.getStackTrace());
+                return re;
+            }
+           
             
         }
             
