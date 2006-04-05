@@ -31,6 +31,7 @@ package ome.annotations;
 // Java imports
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 
 // Third-party libraries
@@ -173,5 +174,10 @@ class ValidSet {
                 return true;
         }
         return false;
+    }
+    
+    public String toString()
+    {
+        return Arrays.asList(classes).toString();
     }
 }
