@@ -39,7 +39,9 @@ import ome.system.Principal;
 //Application-internal dependencies
 
 /**
-* manages authenticated principals for a given event.
+* manages authenticated principals and other context for a given event. Just
+* as all API method calls take place in a transaction and a session (in that 
+* order), they also take place within an Event.  
 * 
 * @author <br>
 *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a

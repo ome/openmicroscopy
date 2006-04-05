@@ -104,6 +104,11 @@ public class Details implements IDetails, Filterable, Serializable
     
     // Loaded&Filtering methods
     // ===========================================================
+    /** consider the collection named by <code>collectionName</code> to be
+     * a "filtered" representation of the DB. This collection should not 
+     * be saved, at most compared with the current DB to find <em>added</em>
+     * entities.
+     */
     public void addFiltered(String collectionName)
     {
         if (_filteredCollections == null)
@@ -112,17 +117,27 @@ public class Details implements IDetails, Filterable, Serializable
         _filteredCollections.add(collectionName);
     }
     
+    /** Was this collection filtered during creation? If so, it should not
+     * be saved to the DB.
+     */
     public boolean isFiltered(String collectionName)
     {
         if (_filteredCollections == null) return false;
         if (_filteredCollections.contains(collectionName)) return true;
         return false;
     }
-    
+
+    /** all currently marked collections are released. The space taken up by 
+     * the collection is also released.
+     */
     public void clearFiltered(){
         _filteredCollections = null;
     }
-    
+
+    /** copy of the current collection of filtered names. Changes to this 
+     * collection are not propagated.
+     * @return filtered set copy.
+     */
     public Set filteredSet(){
         if (_filteredCollections == null) return new HashSet();
         return new HashSet(_filteredCollections);
@@ -130,27 +145,47 @@ public class Details implements IDetails, Filterable, Serializable
  
     // ~ Other
     // ===========================================================
+    /** reference to the entity which this Details is contained in. 
+     * This value is <em>not</em> maintained by the backend but is an internal
+     * mechanism.
+     */
     public IObject getContext()
     {
         return _context;
     }
 
+    /** set entity to which this Details belongs. This may cause erratic behavior
+     * if called improperly.
+     * @param myContext entity which this Details belongs to
+     */ 
     public void setContext(IObject myContext)
     {
         _context = myContext;
     }
 
+    /** a replacement is a <em>managed</em> entity instance which has the same
+     * primary key as this instance. Storing this value here allows for several
+     * optimizations.
+     * @return entity 
+     */
     public IObject getReplacement()
     {
         return _replacement;
     }
 
+    /** used mostly by {@link ome.api.IUpdate}. Improper use of this method 
+     * may cause erratic behavior.
+     * 
+     * @param myReplacement
+     */
     public void setReplacement(IObject myReplacement)
     {
         _replacement = myReplacement;
     }
     
-    
+    /** simple view of the Details. Accesses only the ids of the contained 
+     * entities 
+     */
     public String toString()
     {
         StringBuffer sb = new StringBuffer(128);
