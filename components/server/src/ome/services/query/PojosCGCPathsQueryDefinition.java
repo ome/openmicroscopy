@@ -2,6 +2,7 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +10,10 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.AliasedProjection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.AliasToEntityMapResultTransformer;
 
 import ome.api.IPojos;
 import ome.model.containers.Category;
@@ -41,24 +45,26 @@ public class PojosCGCPathsQueryDefinition extends Query
         Collection ids = (Collection) value(QP.IDS);
 
         Criteria cg = session.createCriteria(CategoryGroup.class);
-        cg.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY); // TODO helper meth?
-        // TODO FIXME TRANSFORMER or return new list();
-        
+        cg.setResultTransformer(Hierarchy.getChildTransformer(CategoryGroup.class)); 
+
+        // TODO switch to new Hierarchy();
         Criteria[] h1 = Hierarchy.
             fetchChildren(cg, CategoryGroup.class, Integer.MAX_VALUE);
         Criteria img = h1[h1.length-1];
-        // TODO switch to new Hierarchy();
         
         if (IPojos.DECLASSIFICATION.equals(algo))
         {
             img.add(Restrictions.in("id",ids));
             return cg.list();
+
         } else if (IPojos.CLASSIFICATION_NME.equals(algo)) {
             img.add(Restrictions.not(Restrictions.in("id",ids)));
             return cg.list();
+        
         } else if (IPojos.CLASSIFICATION_ME.equals(algo)) {
 
             Criteria cg2 = session.createCriteria(CategoryGroup.class);
+            cg2.setProjection(Projections.property("id"));
             cg2.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
             Criteria[] h = Hierarchy.joinChildren(cg2, CategoryGroup.class, 
                     Integer.MAX_VALUE);

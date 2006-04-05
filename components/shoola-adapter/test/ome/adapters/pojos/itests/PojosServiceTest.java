@@ -53,11 +53,11 @@ import ome.api.IUpdate;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.conditions.OptimisticLockException;
-import ome.conditions.RootException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
+import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
@@ -67,6 +67,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.testing.OMEData;
+import ome.testing.Paths;
 import ome.util.CBlock;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
@@ -381,7 +382,167 @@ public class PojosServiceTest extends TestCase {
         results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_NME,null);
         results = iPojos.findCGCPaths(ids, IPojos.DECLASSIFICATION,null);
     }
+    
+    public void test_findCGCPaths_declass() throws Exception
+    {
+        Paths paths = new Paths(data.get("CGCPaths.all"));
+        Set de = iPojos.findCGCPaths(paths.uniqueImages(),IPojos.DECLASSIFICATION,null);
+        assertTrue(de.size() == paths.unique(Paths.CG, Paths.EXISTS,Paths.EXISTS,Paths.EXISTS).size());
+        
+        for ( Iterator it = de.iterator( ); it.hasNext( ); )
+        {
+            CategoryGroup cg = (CategoryGroup) it.next( );
+            Iterator it2 = cg.linkedCategoryIterator();
+            while ( it2.hasNext() )
+            {
+                Category c = (Category) it2.next();
+                Iterator it3 = c.linkedImageIterator();
+                while ( it3.hasNext() )
+                {
+                    Image i = (Image) it3.next();
+                    Set found = paths.find
+                        (cg.getId(),
+                         c.getId(),
+                         i.getId());
+                    assertTrue( found.size() == 1);
 
+                }
+            }
+        }
+
+        Long single_i = paths.singlePath()[Paths.I.intValue()];
+        Set one_de = iPojos.findCGCPaths
+            (Collections.singleton
+                 (single_i),
+                 IPojos.DECLASSIFICATION,
+                 null);
+        assertTrue(one_de.size() == paths.unique
+                   (Paths.CG, Paths.WILDCARD,Paths.WILDCARD,single_i).size());
+
+    }
+
+    public void test_findCGCPaths_class() throws Exception
+    {
+        // Finding a good test
+        Long[] targetPath = null;
+        Paths paths = new Paths(data.get("CGCPaths.all"));
+        Set withNoImages = paths.find(Paths.WILDCARD,Paths.WILDCARD,Paths.NULL_IMAGE);
+        
+        for ( Iterator it = withNoImages.iterator( ); it.hasNext( ); )
+        {
+            Long n = (Long) it.next( );
+            
+            // Must be at least two Categories in one CG since we're only 
+            // examining the Categories in this CategoryGroup w/o an image.
+            // Now need one with an image.
+            Long[] values = paths.get(n);
+            Set target = paths.find(values[Paths.CG.intValue()],Paths.WILDCARD,Paths.EXISTS);
+            if (target.size() > 0) {
+                targetPath = paths.get((Long) target.iterator().next());
+                break;
+            }
+        }
+        
+        if (targetPath == null) fail("No valid category group found for classification test.");
+        
+        Set single = Collections.singleton(targetPath[Paths.I.intValue()]);
+        Set me =  iPojos.findCGCPaths(single,IPojos.CLASSIFICATION_ME,null);
+        Set nme = iPojos.findCGCPaths(single,IPojos.CLASSIFICATION_NME,null);
+        
+        for ( Iterator it = nme.iterator( ); it.hasNext( ); )
+        {
+            CategoryGroup group = (CategoryGroup) it.next( );
+            if (group.getId().equals(targetPath[Paths.CG.intValue()] )){
+                for (Iterator it2 = group.linkedCategoryIterator(); it.hasNext();)
+                {
+                    Category c = (Category) it2.next();
+                    if (c.getId().equals(targetPath[Paths.C.intValue()]))
+                        fail("Own category should not be included.");
+                }
+            }   
+                
+        }
+        
+        for ( Iterator it3 = nme.iterator( ); it3.hasNext( ); )
+        {
+            CategoryGroup group = (CategoryGroup) it3.next( );
+            if (group.getId().equals(targetPath[Paths.CG.intValue()]))
+                fail("Should not be in mutually-exclusive set.");
+        }
+
+    }
+    
+    public void testCountingApiExceptions(){
+
+        Set ids = Collections.singleton(new Long(1));
+
+        // Does not exist
+        try {
+            iPojos.getCollectionCount("DoesNotExist","meNeither",ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Missing plural on dataset
+        try {
+            iPojos.getCollectionCount("ome.model.containers.Project","dataset",ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Null ids
+        try {
+            iPojos.getCollectionCount("ome.model.containers.Project","datasets",null,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Poorly formed
+        try {
+            iPojos.getCollectionCount("hackers.rock!!!","",ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Empty Class string
+        try {
+            iPojos.getCollectionCount("","datasets",ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Empty Class string
+        try {
+            iPojos.getCollectionCount(null,"datasets",ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Empty property string
+        try {
+            iPojos.getCollectionCount("ome.model.core.Image","",ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+        // Null property string
+        try {
+            iPojos.getCollectionCount("ome.model.core.Image",null,ids,null);
+            fail("An exception should have been thrown");
+        } catch (IllegalArgumentException e) {
+            // Good.
+        }
+
+    }
+
+    
     public void test_getCollectionCount() throws Exception    
     {
         Long id = new Long(5551);

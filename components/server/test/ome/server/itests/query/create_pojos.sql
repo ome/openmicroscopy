@@ -44,6 +44,7 @@ INSERT INTO image (id, "version", owner_id, group_id, creation_id, update_id, pe
 INSERT INTO image (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description, context, setup, acquisition, "position", condition) VALUES (5585, 0, 10000, 0, 0, NULL, NULL, '040305_ABCF-GFP01_R3D_D3D.dv', '', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO image (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description, context, setup, acquisition, "position", condition) VALUES (5586, 0, 10000, 0, 0, NULL, NULL, '040305_ABCF-GFP01_R3D_D3D.dv', '', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO image (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description, context, setup, acquisition, "position", condition) VALUES (5587, 0, 10000, 0, 0, NULL, NULL, '040305_ABCF-GFP01_R3D_D3D.dv', '', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO image (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description, context, setup, acquisition, "position", condition) VALUES (5588, 0, 10000, 0, 0, NULL, NULL, '040305_ABCF-GFP01_R3D_D3D.dv', '', NULL, NULL, NULL, NULL, NULL);
 
 INSERT INTO datasetimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6061, 0, 0, 0, 0, NULL, NULL, 5051, 7071);
 INSERT INTO datasetimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6062, 0, 10000, 0, 0, NULL, NULL, 5051, 7072);
@@ -79,6 +80,7 @@ INSERT INTO categorygroup (id, "version", owner_id, group_id, creation_id, updat
 INSERT INTO categorygroup (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (9982, 0, 10000, 0, 0, NULL, NULL, 'hi', 'categorygroup with another category');
 INSERT INTO categorygroup (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (9983, 0, 10000, 0, 0, NULL, NULL, 'hi', 'categorygroup with two categories');
 INSERT INTO categorygroup (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (9984, 0, 10000, 0, 0, NULL, NULL, 'hi', 'categorygroup with two different categories');
+INSERT INTO categorygroup (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (9985, 0, 10000, 0, 0, NULL, NULL, 'hi', 'categorygroup with one empty category');
 
 -- Category: 7***
 INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (7070, 0, 0, 0, 0, NULL, NULL, 'hi'' ', 'root category without links');
@@ -95,6 +97,8 @@ INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id,
 INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (7784, 0, 10000, 0, 0, NULL, NULL, 'hi', 'user category paired in a cg II');
 INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (7785, 0, 10000, 0, 0, NULL, NULL, 'hi', 'user category paired in another cg I');
 INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (7786, 0, 10000, 0, 0, NULL, NULL, 'hi', 'user category paired in another cg II');
+INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (7787, 0, 10000, 0, 0, NULL, NULL, 'hi', 'user category WITH an image.         ');
+INSERT INTO category (id, "version", owner_id, group_id, creation_id, update_id, permissions, name, description) VALUES (7788, 0, 10000, 0, 0, NULL, NULL, 'hi', 'user category WITHOUT an image.      ');
 
 INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8081, 0, 0, 0, 0, NULL, NULL, 7071, 9091);
 INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8082, 0, 0, 0, 0, NULL, NULL, 7072, 9091);
@@ -111,6 +115,8 @@ INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creati
 INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8888, 0, 0, 0, 0, NULL, NULL, 7784, 9983);
 INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8889, 0, 0, 0, 0, NULL, NULL, 7785, 9984);
 INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8890, 0, 0, 0, 0, NULL, NULL, 7786, 9984);
+INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8891, 0, 0, 0, 0, NULL, NULL, 7787, 9985);
+INSERT INTO categorygroupcategorylink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (8892, 0, 0, 0, 0, NULL, NULL, 7788, 9985);
 
 INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6061, 0, 0, 0, 0, NULL, NULL, 5051, 7071);
 INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6062, 0, 10000, 0, 0, NULL, NULL, 5051, 7072);
@@ -138,4 +144,5 @@ INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, u
 INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6679, 0, 10000, 0, 0, NULL, NULL, 5586, 7786);
 INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6680, 0, 10000, 0, 0, NULL, NULL, 5587, 7786);
 INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6681, 0, 10000, 0, 0, NULL, NULL, 5580, 7786);
+INSERT INTO categoryimagelink (id, "version", owner_id, group_id, creation_id, update_id, permissions, child, parent) VALUES (6682, 0, 10000, 0, 0, NULL, NULL, 5588, 7787);
 commit;

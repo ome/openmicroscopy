@@ -9,7 +9,6 @@ import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosQP;
 import ome.services.query.QP;
-import ome.services.query.Query;
 import ome.services.query.QueryParameter;
 import ome.util.builders.PojoOptions;
 

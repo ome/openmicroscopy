@@ -58,6 +58,7 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
@@ -79,7 +80,7 @@ import ome.util.builders.PojoOptions;
 
 
 /**
- * implementation of the Pojos service interface
+ * implementation of the Pojos service interface.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0
@@ -89,12 +90,13 @@ import ome.util.builders.PojoOptions;
  * @since OMERO 2.0
  */
 @Transactional
-public class PojosImpl extends AbstractLevel2Service implements IPojos {
+public class PojosImpl extends AbstractLevel2Service implements IPojos 
+{
 
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
     @Override
-    protected String getName()
+    protected final String getName()
     {
         return IPojos.class.getName();
     }
@@ -102,7 +104,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     // ~ READ
     // =========================================================================
     
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, 
             @Validate(Long.class) Set rootNodeIds, Map options) {
         
@@ -181,7 +183,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 			return HierarchyTransformations.invertCGCI(new HashSet(l)); 
 		}
 		
-		else {throw new IllegalArgumentException(
+		else {throw new IllegalArgumentException( // TODO refactor. move this up.
 	                "Class parameter for findContainerHierarchies() must be" +
                     " in {Project,CategoryGroup}, not " + rootNodeType);
 		}
@@ -254,34 +256,36 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 PojosQP.options(po.map()));
 
         
-		List<CategoryGroup> result_set = (List) iQuery.execute(q);
+		List<Map<String,Object>> result_set = (List) iQuery.execute(q);
 
         Map<CategoryGroup,Set<Category>> map 
         = new HashMap<CategoryGroup,Set<Category>>();
         Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
         
         // Parse
-        for (CategoryGroup cg: result_set)
-        {
-            for (Category c : (List<Category>) cg.linkedCategoryList())
-            {
-                if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
-                    map.get(cg).add(c);
-            }
+        for (Map<String,Object> entry : result_set){
+            CategoryGroup cg = (CategoryGroup) entry.get(CategoryGroup.class.getName());
+            Category c = (Category) entry.get(Category.class.getName());
+
+            if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
+            if (c != null) map.get(cg).add(c);
+
         }
 
         //
         // Destructive changes below this point.
         //
-
-        ProxyCleanupFilter filter = new ProxyCleanupFilter();
         for (CategoryGroup cg : map.keySet())
         {
+            iQuery.evict(cg);
+            // Overriding various checks.
+            cg.putAt(CategoryGroup.CATEGORYLINKS,null);
+
             for (Category c : map.get(cg))
             {
-                iUpdate.flush();
-                iQuery.evict(cg); // FIXME does this suffice?
-                filter.filter( null, cg );
+                iQuery.evict(c);
+                // Overriding various checks.
+                c.putAt(Category.CATEGORYGROUPLINKS,null);
                 cg.linkCategory(c);
             }
             returnValues.add(cg);

@@ -1,5 +1,5 @@
 ## SETUP
-#set($cascade_settings = "evict,lock,merge,persist,replicate,refresh,save-update")
+#set($cascade_settings = "lock,merge,persist,replicate,refresh,save-update")
 #set($ofilter = "${type.table}_owner_filter")
 #set($gfilter = "${type.table}_group_filter")
 #set($efilter = "${type.table}_event_filter")

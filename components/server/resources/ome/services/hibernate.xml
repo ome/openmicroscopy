@@ -50,7 +50,7 @@
   	<constructor-arg ref="eventContext"/>
   </bean>
   
-	<bean id="hibernateFilter" class="ome.tools.hibernate.ProxyCleanupFilter"/>
+	<bean id="proxyFilter" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor"/>
   
   <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">
     <constructor-arg ref="dataSource"/>
