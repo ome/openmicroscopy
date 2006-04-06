@@ -1,5 +1,7 @@
 package ome.server.itests;
 
+import javax.sql.DataSource;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -14,6 +16,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.CurrentDetails;
 import ome.system.OmeroContext;
+import ome.testing.OMEData;
 
 
 public class AbstractInternalContextTest
@@ -30,21 +33,28 @@ public class AbstractInternalContextTest
         return OmeroContext.getInternalServerContext();
     }
 
-    private   Session                       session;    
+    private   Session                       session;
+    private   DataSource                    dataSource;
     protected SessionFactory                sessionFactory;
     protected LocalQuery                    iQuery;
     protected LocalUpdate                   iUpdate;
     protected JdbcTemplate                  jdbcTemplate;
+    
+    protected OMEData                       data;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception
     {
+        dataSource = (DataSource) applicationContext.getBean("dataSource");
         sessionFactory = (SessionFactory) applicationContext.getBean("sessionFactory");
         jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
         
         // This is an internal test we don't want the wrapped spring beans. 
         iQuery = (LocalQuery) applicationContext.getBean("ome.api.IQuery");
         iUpdate = (LocalUpdate) applicationContext.getBean("ome.api.IUpdate");
+        
+        data = new OMEData();
+        data.setDataSource(dataSource);
 
     }
 
