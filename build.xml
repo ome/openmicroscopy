@@ -236,6 +236,7 @@
 		<link href="http://www.springframework.org/docs/api/"/>
 		<link href="http://www.hibernate.org/hib_docs/v3/api/"/>
 		<link href="http://aopalliance.sourceforge.net/doc/"/>
+		<link href="http://jmock.org/docs/javadoc/"/>
 
 	    </javadoc>
 	</target>
