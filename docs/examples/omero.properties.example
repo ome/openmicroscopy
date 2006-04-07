@@ -16,3 +16,15 @@ omero.pass=secret
 omero.group=user
 omero.event=User
 
+
+############################################
+# maven.xml properties
+# ------------------------------------------
+# when using maven.xml to generate classpath
+# files uncomment out these variables. just
+# be sure to re-comment them when using ant
+# or odd errors will appear.
+############################################
+#omero.repo.local=${user.home}/.m2/repository/
+#omero.repo.remote=file://${omero.home}/lib/repository/
+
