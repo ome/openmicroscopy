@@ -1,0 +1,17 @@
+  ===============================================================	
+   OMERO Deployment System			
+  ===============================================================	
+ _					
+|
++ Configuration
+|
+| 	/etc		contains ...
+|
++ Deploy targets
+|
+| 	update		copy new properties to *.ear
+| 	deploy          copy *.ear to ${jboss.home}
+|  					
++ Examples:
+|
+|_

@@ -58,63 +58,12 @@
 		</concat>
 	</target>
 
-	<!-- 	===============================================
-		BUILD
-	==================================================  -->
-	<target name="fullbuild" depends="check-system,clean,build,reload-db"
-		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
-
-	<target name="build" depends="dsl,model,install"
-		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
-
-	<!-- Special Components -->
-	<property name="defaultTarget" value="install"/>
-
-	<target name="dsl" depends="check-system" unless="generate.skip">
-		<antRun component="dsl">
-			<target name="${defaultTarget}"/>
-		</antRun>
-	</target>
-
-	<target name="model" depends="check-system,dsl" unless="generate.skip">
-		<antRun component="common">
-			<target name="clean"/>
-			<target name="install"/>
-		</antRun>
-	</target>
-
-	<target name="reload-db">
-		<antRun component="common">
-			<target name="reload-db"/>
-		</antRun>
-	</target>
-
-	<target name="build-client" depends="check-system,model">
-		<antRun component="common"><target name="install"/></antRun>
-		<antRun component="client"><target name="install"/></antRun>
-		<antRun component="shoola-adapter"><target name="install"/></antRun>
-	</target>
-
-	<target name="build-server" depends="check-system,model">
-		<antRun component="common"><target name="install"/></antRun>
-		<antRun component="omeio-nio"><target name="install"/></antRun>
-		<antRun component="rendering"><target name="install"/></antRun>
-		<antRun component="server"><target name="install"/></antRun>
-	</target>
-
-	<target name="deploy" depends="check-system,build-server">
-		<antRun component="omero-ejb"><target name="install"/></antRun>
-		<antRun component="omero-app">
-			<target name="package"/>
-			<target name="deploy-ear-jboss"/>
-		</antRun>
-	</target>
-
-	<target name="fulldeploy" depends="check-system,build-server,deploy"/>
-
 	<!-- Multiproject:
 	  The idea for these targets is taken from maven2 and is
 	  supported by the antlib/resources/lifecycle.xml ant script.
+	  Unlike most other targets which can be called from anywhere,
+	  these targets can only be called from the top-level because
+	  they mask the lifecycle.xml target definitions.
 	 -->
 	<target name="multiproject" depends="variables-define"/>
 
@@ -158,87 +107,48 @@
 		<iterate target="integration"/>
 	</target>
 
+	<target name="dist" depends="integration,javadoc">
+<!-- JAVAODC and DISt to release.xml (nodocumentation.xml) -->
+<!-- this task calls release.dist -->
+		<mkdir dir="${dist.dir}"/>
+		<echo>javadoc needs to copy images</echo>
+		<!-- 
+			etc/
+			========================================================
+			Copies example property files to the ${dist.dir}
+			for use by the user to configure the install.
+		-->
+		<copy todir="${dist.dir}/etc">
+			<fileset dir="${omero.home}/docs">
+				<include name="examples/*.properties.example"/>
+			</fileset>
+		</copy>
+
+		<!-- 
+			Copies ...
+		-->
+		<copy todir="${dist.dir}">
+			<fileset dir="${omero.home}">
+				<include name="omero.class"/>
+				<include name="components/antlib/**"/>
+				<include name="lib/tools/**"/>
+				<include name="lib/repository/ant/**"/>
+				<include name="lib/repository/xml-apis/**"/>
+				<include name="lib/repository/xerces/**"/>
+				<include name="${app.comp}/${target.dir}/*.ear"/>
+			</fileset>
+		</copy>
+                <copy
+                        file="${import.dir}/omero.xml"
+                        tofile="${dist.dir}/build.xml"
+                        overwrite="true"
+                />
+	</target>
+
 	<target name="clean" depends="multiproject"
 		description="Lifecycle target: calls 'clean' on all components">
 		<delete dir="${dist.dir}"/>
 		<iterate target="clean"/>
-	</target>
-
-	<target name="dist" depends="multiproject"
-		description="Lifecycle target: calls 'dist' on all components">
-		<mkdir dir="${dist.dir}"/>
-		<iterate target="dist"/>
-	</target>
-
-	<!-- 	===============================================
-		Javadoc
-	==================================================  -->
-	<target name="javadoc">
-
-	    <patternset id="all.java.files">
-		<include name="src/**/*.java"/>
-		<include name="target/generated/src/**/*.java"/>
-		<exclude name="xxx/**"/>
-	    </patternset>
-
-	    <javadoc
-		destdir="dist/docs/api"
-		author="true"
-		version="true"
-		use="true"
-		windowtitle="OMERO (OME Remote Objects) Server">
-
-		<classpath>
-			<fileset dir="lib">
-				<include name="**/*.jar"/>
-			</fileset>
-		</classpath>
-
-		<fileset dir="components/common/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-		<fileset dir="components/server/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-		<fileset dir="components/omeio-nio/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-		<fileset dir="components/rendering/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-		<fileset dir="components/client/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-		<fileset dir="components/shoola-adapter/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-
-		<doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
-		<bottom><![CDATA[
-		<p><b><i>Copyright &#169; 2005 Open Microscopy Environment. All Rights Reserved.</i></b></p>
-		<p>Massachusetts Institute of Technology,</p>
-		<p>National Institutes of Health,</p>
-		<p>University of Dundee</p>
-		]]></bottom>
-
-		<tag name="DEV.TODO" scope="all" description="To do:"/>
-
-		<group title="Common Packages" 
-			packages="ome.api:ome.conditions*:ome.util*:ome.testing*"/>
-		<group title="Server Packages" 
-			packages="ome.dynamic:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.rules*:omeis*:ome.annotations:ome.api.local"/>
-		<group title="Client Packages" 
-			packages="ome.client:ome.adapaters"/>
-		<group title="Model"
-			packages="ome.model*:pojos*"/>
-
- 		<link href="http://java.sun.com/j2se/1.5/docs/api/"/>
-		<link href="http://www.springframework.org/docs/api/"/>
-		<link href="http://www.hibernate.org/hib_docs/v3/api/"/>
-		<link href="http://aopalliance.sourceforge.net/doc/"/>
-		<link href="http://jmock.org/docs/javadoc/"/>
-
-	    </javadoc>
 	</target>
 
 </project>

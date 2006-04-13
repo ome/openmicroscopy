@@ -112,16 +112,6 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="mvn">
-		<attribute name="targets"/>
-		<attribute name="dir" default="${basedir}"/>
-		<sequential>
-		<exec executable="mvn" dir="@{dir}" failonerror="true">
-			<arg line="@{targets}"/>
-		</exec>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="sql_run">
 		<attribute name="print" default="false"/>
 		<element name="commands" implicit="yes"/>

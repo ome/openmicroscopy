@@ -41,13 +41,14 @@
 -->
 
 	<!-- Setup: needed calculations for other paths -->
-	<dirname property="import.dir"     file="${ant.file.directories}"/>
+	<!-- import.dir is set in global.xml -->
 	<dirname property="antlib.dir"     file="${import.dir}"/>
 	<dirname property="components.dir" file="${antlib.dir}"/>
 	<dirname property="root.dir"       file="${components.dir}"/>
 
 	<!-- Absolute paths: same for all components -->
 	<property name="omero.home" value="${root.dir}"/>
+	<property name="etc.dir"    value="${root.dir}/etc" />
 	<property name="lib.dir"    value="${root.dir}/lib" />
 	<property name="tools.dir"  value="${root.dir}/lib/tools" />
 	<property name="dist.dir"   value="${root.dir}/dist" />
@@ -57,7 +58,8 @@
 	<property name="common.comp"    value="${components.dir}/common"/>
 	<property name="server.comp"    value="${components.dir}/server"/>
 	<property name="nio.comp"       value="${components.dir}/omeio-nio"/>
-	<property name="render.comp" value="${components.dir}/rendering"/>
+	<property name="render.comp" 	value="${components.dir}/rendering"/>
+	<property name="app.comp" 	value="${components.dir}/omero-app"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

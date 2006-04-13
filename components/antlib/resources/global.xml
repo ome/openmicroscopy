@@ -58,8 +58,9 @@
 	<import file="${import.dir}/patterns.xml"/>
 	<import file="${import.dir}/macros.xml"/>
 	<import file="${import.dir}/lifecycle.xml"/>
-	<import file="${import.dir}/server.xml"/>
 	<import file="${import.dir}/setup.xml"/>
+	<import file="${import.dir}/server.xml"/>
+	<import file="${import.dir}/release.xml"/>
 	
     <!-- = = = = = = = = = = = = = = = = =
           help 
@@ -161,4 +162,58 @@
 		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" name="groovy"/>
 	</target>
 		
+	<!-- 	===============================================
+		BUILD
+	==================================================  -->
+	<target name="fullbuild" depends="check-system,clean,build,reload-db"
+		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
+
+	<target name="build" depends="dsl,model,install"
+		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
+
+	<!-- Special Components -->
+	<property name="defaultTarget" value="install"/>
+
+	<target name="dsl" depends="check-system" unless="generate.skip">
+		<antRun component="dsl">
+			<target name="${defaultTarget}"/>
+		</antRun>
+	</target>
+
+	<target name="model" depends="check-system,dsl" unless="generate.skip">
+		<antRun component="common">
+			<target name="clean"/>
+			<target name="install"/>
+		</antRun>
+	</target>
+
+	<target name="reload-db">
+		<antRun component="common">
+			<target name="reload-db"/>
+		</antRun>
+	</target>
+
+	<target name="build-client" depends="check-system,model">
+		<antRun component="common"><target name="install"/></antRun>
+		<antRun component="client"><target name="install"/></antRun>
+		<antRun component="shoola-adapter"><target name="install"/></antRun>
+	</target>
+
+	<target name="build-server" depends="check-system,model">
+		<antRun component="common"><target name="install"/></antRun>
+		<antRun component="omeio-nio"><target name="install"/></antRun>
+		<antRun component="rendering"><target name="install"/></antRun>
+		<antRun component="server"><target name="install"/></antRun>
+	</target>
+
+	<target name="deploy" depends="check-system,build-server">
+		<antRun component="omero-ejb"><target name="install"/></antRun>
+		<antRun component="omero-app">
+			<target name="package"/>
+			<target name="deploy-ear-jboss"/>
+		</antRun>
+	</target>
+
+	<target name="fulldeploy" depends="check-system,build-server,deploy"/>
+
 </project>

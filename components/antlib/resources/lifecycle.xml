@@ -157,13 +157,6 @@
 		
 	</target>
 
-	<target name="dist" depends="integration">
-		<copy file="${target.dir}/${artifact.final.name}"
-			todir="${dist.dir}/"/>
-		<ant dir="${basedir}" target="dist-copy"/>
-		<delete dir="${dist.dir}/repository/${artifact.group}/${artifact.name}/${artifact.version}"/>
-	</target>
-
 	<target name="clean">
 		<delete dir="${target.dir}"/>
 	</target>
