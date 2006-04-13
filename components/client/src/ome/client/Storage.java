@@ -243,7 +243,6 @@ public class Storage
             this.id = entityId;
         }
         
-        @Override
         public boolean equals(Object obj)
         {
             if (!(obj instanceof Key))            
@@ -264,7 +263,6 @@ public class Storage
             
         }
         
-        @Override
         public int hashCode()
         {
             long _id = this.id.longValue();

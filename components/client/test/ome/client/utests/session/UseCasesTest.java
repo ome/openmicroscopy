@@ -11,12 +11,11 @@ public class UseCasesTest extends AbstractTest
     Agent agent = new Agent();
     Project updated;
 
-    @Override
     protected void setUp() throws Exception
     {
         super.setUp();
-        updated = new Project( 1L );
-        updated.setVersion( 1 );
+        updated = new Project( new Long(1L) );
+        updated.setVersion( new Integer(1) );
     }
     
     public void test_agentCreatesNewItemAndSaves() throws Exception
@@ -167,8 +166,8 @@ public class UseCasesTest extends AbstractTest
     // =========================================================================
     private Project agentGetsAndRegistersProject()
     {
-        Project p = new Project( 1L );
-        p.setVersion( 0 );
+        Project p = new Project( new Long(1) );
+        p.setVersion( new Integer(0) );
         agent.objHolder = p;
         session.register( p );
         return p;
@@ -176,8 +175,8 @@ public class UseCasesTest extends AbstractTest
 
     private IObject[] updatedProjectArray()
     {
-        updated = new Project( 1L );
-        updated.setVersion( 1 );
+        updated = new Project( new Long(1) );
+        updated.setVersion( new Integer(1) );
         return new IObject[] { updated };
         
     }

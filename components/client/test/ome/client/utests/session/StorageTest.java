@@ -12,7 +12,6 @@ public class StorageTest extends TestCase
 
     Storage storage;
     
-    @Override
     protected void setUp() throws Exception
     {
         storage = new Storage();

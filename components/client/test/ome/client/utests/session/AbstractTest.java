@@ -20,7 +20,6 @@ public class AbstractTest extends MockObjectTestCase
     
     Session session;
 
-    @Override
     protected void setUp() throws Exception
     {
         session = new Session( serviceFactory );

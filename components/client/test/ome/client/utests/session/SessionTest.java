@@ -28,10 +28,10 @@ public class SessionTest extends AbstractTest
     
     public void test_registeredObjectCanBeFound() throws Exception
     {
-        Project p = new Project( 1L );
-        p.setVersion( 1 );
+        Project p = new Project( new Long(1L) );
+        p.setVersion( new Integer(1) );
         session.register( p );
-        Project p2 = (Project) session.find( Project.class, 1L );
+        Project p2 = (Project) session.find( Project.class, new Long(1L) );
         assertTrue( "Must be same instance", p == p2 );
     }
 
@@ -42,8 +42,8 @@ public class SessionTest extends AbstractTest
         m.expects( atLeastOnce() ).method( "saveAndReturnArray" )
             .will( returnValue( new IObject[]{} )).id("save");
         
-        Project p = new Project( 1L );
-        p.setVersion( 1 );
+        Project p = new Project( new Long(1L) );
+        p.setVersion( new Integer(1) );
         session.markDirty( p );
         session.flush();
     }
@@ -51,8 +51,8 @@ public class SessionTest extends AbstractTest
     public void test_newAndThenCheckOut() throws Exception
     {
         Project p_new = new Project();
-        Project p_old = new Project( 1L );
-        p_old.setVersion( 1 );
+        Project p_old = new Project( new Long(1L) );
+        p_old.setVersion( new Integer(1) );
         IObject[] arr = new IObject[]{ p_old };
 
         serviceFactory.mockUpdate = updateMockForFlush( arr, null );

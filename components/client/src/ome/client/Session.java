@@ -43,6 +43,13 @@ import ome.system.ServiceFactory;
  * client-side unit-of-work which uses the provided 
  * {@link ome.system.ServiceFactory} for synchronizing with the server. 
  *  
+ *  <p> 
+ *  Like other session objects in Hibernate, TopLink, JDO, etc., 
+ *  Session instances are <em>not</em> thread-safe. Care should be taken to
+ *  either keep all entities within a single thread or to provide a 
+ *  synchronous wrapper.
+ *  </p>
+ *  
  *  @author  <br>Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:josh.more@gmx.de">
  *                  josh.moore@gmx.de</a>
@@ -228,7 +235,8 @@ public class Session
         IObject[] delete = storage.copyDeletedEntities();
         
         IObject[] inserted = iUpdate.saveAndReturnArray( insert );
-        assert insert.length == inserted.length : "Differing sizes returned.";
+        if (insert.length == inserted.length)
+            throw new RuntimeException("Differing sizes returned from server.");
         
         for ( int i = 0; i < inserted.length; i++ )
         {
@@ -236,8 +244,9 @@ public class Session
         }
         
         IObject[] updated = iUpdate.saveAndReturnArray( update );
-        assert update.length == updated.length : "Differing sizes returned.";
-       
+        if (update.length == updated.length)
+            throw new RuntimeException("Differing sizes returned from server.");
+        
         for ( int i = 0; i < updated.length; i++ )
         {
             storage.storePersistent( updated[i] );

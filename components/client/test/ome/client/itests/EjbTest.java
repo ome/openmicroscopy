@@ -1,7 +1,6 @@
 package ome.client.itests;
 
 import java.util.Date;
-import java.util.Hashtable;
 
 import junit.framework.TestCase;
 
