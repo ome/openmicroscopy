@@ -58,7 +58,11 @@
 	</target>
 
 
-	<target name="generate" depends="prepare"/>
+	<target name="generate" depends="prepare">
+                <echo file="${resrc.dest}/Classpath.sh">
+                  export CLASSPATH=${omero.path}
+                </echo>
+	</target>
 
 	<target name="compile" depends="generate">
 		<copyResources/>

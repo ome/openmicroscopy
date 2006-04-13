@@ -149,9 +149,6 @@ privateKey="${user.home}/.ssh/id_dsa"/>
          = = = = = = = = = = = = = = = = = -->
 	<target name="build-build" depends="prepare,load-groovy"
 		description="Generates files for ant usage">
-                <echo file="${resrc.dest}/Classpath.sh">
-                  export CLASSPATH=${omero.path}
-                </echo>
 		<groovy src="${import.dir}/groovy/antClasspath.groovy"/>
 		<groovy src="${import.dir}/groovy/eclipseClasspath.groovy"/>
 	</target>
