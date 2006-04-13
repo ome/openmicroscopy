@@ -4,6 +4,6 @@
 # used by clients to connect to the 
 # application server
 #
-java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
 java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces
 java.naming.provider.url=localhost:1099
+java.naming.factory.initial=org.jboss.security.jndi.JndiLoginInitialContextFactory
