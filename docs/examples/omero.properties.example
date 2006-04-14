@@ -16,6 +16,8 @@ omero.pass=secret
 omero.group=user
 omero.event=User
 
+server.host=localhost
+server.port=1099
 
 ############################################
 # maven.xml properties

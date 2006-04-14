@@ -87,7 +87,7 @@
         <entry key="java.naming.security.credentials" value="${omero.pass}"/>
         <entry key="java.naming.factory.initial" value="${java.naming.factory.initial}"/>
         <entry key="java.naming.factory.url.pkgs" value="${java.naming.factory.url.pkgs}"/>
-        <entry key="java.naming.provider.url" value="${java.naming.provider.url}"/>
+        <entry key="java.naming.provider.url" value="${server.host}:${server.port}"/>
       </map>
     </constructor-arg>
   </bean>
