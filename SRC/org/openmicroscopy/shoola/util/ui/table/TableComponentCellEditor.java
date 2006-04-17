@@ -50,7 +50,7 @@ import javax.swing.tree.TreeCellEditor;
 //Application-internal dependencies
 
 /** 
- * 
+ * CellEditor to edit table displaying any JComponent. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -67,15 +67,31 @@ public class TableComponentCellEditor
 	implements TableCellEditor, TreeCellEditor
 {
 	
-	protected EventListenerList listenerList = new EventListenerList();
-	transient protected ChangeEvent changeEvent = null;
+    /** List of event listener. */
+	protected EventListenerList        listenerList = new EventListenerList();
+    
+    /** */
+	transient protected ChangeEvent    changeEvent = null;
 	
-	protected JComponent editorComponent = null;
-	protected JComponent container = null;		// Can be tree or table
+	protected JComponent               editorComponent = null;
+    
+    /** 
+     * The type of container, can either a <code>Table</code> or a
+     * <code>Tree</code>.
+     */
+	protected JComponent               container = null;
 	
-	
+	/**
+     * Returns the editor component.
+     * 
+     * @return See above.
+	 */
 	public Component getComponent() { return editorComponent; }
 	
+    /**
+     * Overriden to return editor component.
+     * @see Object#getCellEditorValue()
+     */
 	public Object getCellEditorValue() { return editorComponent; }
 	
 	public boolean isCellEditable(EventObject anEvent) { return true; }

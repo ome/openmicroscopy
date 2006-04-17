@@ -42,7 +42,7 @@ import javax.swing.table.TableCellRenderer;
 //Application-internal dependencies
 
 /** 
- * 
+ * Render table hosting any JComponent.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,6 +59,11 @@ public class TableComponentCellRenderer
 	implements TableCellRenderer
 {
     
+    /**
+     * Overriden to render any JComponent.
+     * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 
+     *                              boolean, boolean, int, int)
+     */
 	public Component getTableCellRendererComponent(JTable table, Object value,
 		boolean isSelected, boolean hasFocus, int row, int column)
 	{

@@ -41,7 +41,7 @@ import javax.swing.table.TableColumn;
 //Application-internal dependencies
 
 /** 
- * 
+ * A JTable which displays any JComponent.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,11 +58,21 @@ public class TableComponent
 	extends JTable
 {
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param row   The number of rows.
+     * @param col   The number of columns.
+     */
 	public TableComponent(int row, int col)
 	{
 		super(row, col);
 	}
     
+    /**
+     * Overrides the method to return the proper renderer to display.
+     * @see JTable#getCellRenderer(int, int)
+     */
 	public TableCellRenderer getCellRenderer(int row, int column)
 	{
 		TableColumn tableColumn = getColumnModel().getColumn(column);
@@ -70,8 +80,7 @@ public class TableComponent
 		if (renderer == null) {
 			Class c = getColumnClass(column);
 			if (c.equals(Object.class)) {
-				Object o = getValueAt(row, column);
-				if (o != null)
+				if (getValueAt(row, column) != null)
 					c = getValueAt(row, column).getClass();
 			}
 			renderer = getDefaultRenderer(c);
@@ -79,6 +88,10 @@ public class TableComponent
 		return renderer;
 	}
 		
+    /**
+     * Overrides the method to return the proper editor to display.
+     * @see JTable#getCellEditor(int, int)
+     */
 	public TableCellEditor getCellEditor(int row, int column)
 	{
 		TableColumn tableColumn = getColumnModel().getColumn(column);
@@ -86,8 +99,7 @@ public class TableComponent
 		if (editor == null) {
 			Class c = getColumnClass(column);
 			if (c.equals(Object.class)) {
-				Object o = getValueAt(row, column);
-				if (o != null)
+				if (getValueAt(row, column) != null)
 					c = getValueAt(row, column).getClass();
 			}
 			editor = getDefaultEditor(c);
