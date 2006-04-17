@@ -55,7 +55,7 @@ import edu.umd.cs.piccolo.util.PBounds;
 import edu.umd.cs.piccolo.util.PPaintContext;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
+
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserProjectSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.ui.MainWindow;
@@ -456,6 +456,7 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 	}
 	
 	public void selectAnalysisChain(AnalysisChainData chain) {
+        /*
 		ExecutionsData chainExecutions = mainWindow.getChainExecutions();
 		if (chainExecutions == null)
 			return;
@@ -475,6 +476,7 @@ public class DatasetBrowserCanvas extends BufferedCanvas implements
 					n.setHighlighted(false);
 			}
 		}
+        */
 		
 	}
 	
