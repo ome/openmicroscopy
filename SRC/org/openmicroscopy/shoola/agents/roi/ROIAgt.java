@@ -489,7 +489,7 @@ public class ROIAgt
         LoadImage request = (LoadImage) response.getACT();
         if (request.getImageID() != curImageID) {
             renderingControl = response.getProxy();
-            curImageID = request.getImageID();
+            curImageID = (new Long(request.getImageID())).intValue();
             pxsDims = renderingControl.getPixelsDims();
             imageName = request.getImageName();
             initChannels();
