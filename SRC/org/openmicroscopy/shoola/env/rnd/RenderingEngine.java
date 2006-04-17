@@ -134,7 +134,8 @@ public class RenderingEngine
 	{
 		try {
             rndManager = RenderingManager.makeNew(this, 
-                                request.getImageID(), request.getPixelsID());
+                                (new Long(request.getImageID())).intValue(), 
+                                (new Long(request.getPixelsID())).intValue());
 			RenderingControlProxy proxy = 
                                     rndManager.createRenderingControlProxy();
 			ImageLoaded response = new ImageLoaded(request, proxy);

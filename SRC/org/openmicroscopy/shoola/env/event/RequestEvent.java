@@ -84,6 +84,4 @@ public abstract class RequestEvent
         completionHandler = cHandler;
     }
     
-
-        
 }

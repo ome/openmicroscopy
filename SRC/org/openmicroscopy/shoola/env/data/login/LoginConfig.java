@@ -31,13 +31,12 @@ package org.openmicroscopy.shoola.env.data.login;
 
 
 //Java imports
-import java.net.URL;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.OMEDSInfo;
+import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -59,27 +58,27 @@ public class LoginConfig
 
     /**
      * The default number of times the {@link LoginService} should attempt to
-     * restore an invalid link to <i>OMEDS</i>.
+     * restore an invalid link to <i>OMERO</i>.
      */
     public static final int     DEFAULT_MAX_RETRY = 3;
     
     /**
      * The default amount of time, in milliseconds, that the 
      * {@link LoginService} should wait between each attempt to restore an
-     * invalid link to <i>OMEDS</i>. 
+     * invalid link to <i>OMERO</i>. 
      */
     public static final int     DEFAULT_RETRY_INTERVAL = 500;
     
     
     /** 
-     * The address to use for connecting to <i>OMEDS</i>.
+     * The address to use for connecting to <i>OMERO</i>.
      * This field is read from the Container's configuration file.
      * It may not be <code>null</code>.
      */
-    private URL             omedsAddress;
+    private String          omeroAddress;
     
     /** 
-     * The current user's credentials for logging onto <i>OMEDS</i>.
+     * The current user's credentials for logging onto <i>OMERO</i>.
      * This field is <code>null</code> until the user enters their credentials.
      * It is subsequently updated every time the user specifies new credentials. 
      */
@@ -87,7 +86,7 @@ public class LoginConfig
     
     /** 
      * The number of times the {@link LoginService} should attempt to restore
-     * an invalid link to <i>OMEDS</i>.
+     * an invalid link to <i>OMERO</i>.
      * This field is read from the Container's configuration file or set to
      * {@link #DEFAULT_MAX_RETRY} if none or an invalid one is found in the
      * configuration file.
@@ -97,7 +96,7 @@ public class LoginConfig
     /**
      * The amount of time, in milliseconds, that the {@link LoginService}
      * should wait between each attempt to restore an invalid link to
-     * <i>OMEDS</i>.
+     * <i>OMERO</i>.
      * This field is read from the Container's configuration file or set to
      * {@link #DEFAULT_RETRY_INTERVAL} if none or an invalid one is found in
      * the configuration file.
@@ -112,32 +111,36 @@ public class LoginConfig
      */
     private void readConfig(Registry reg)
     {
-        OMEDSInfo info = (OMEDSInfo) reg.lookup(LookupNames.OMEDS);
-        if (info != null) omedsAddress = info.getServerAddress();
+        OMEROInfo info = (OMEROInfo) reg.lookup(LookupNames.OMERODS);
+        if (info != null) omeroAddress = info.getHostName();
         Integer x = (Integer) reg.lookup(LookupNames.LOGIN_MAX_RETRY);
         maxRetry = (x == null ? -1 : x.intValue());
         x = (Integer) reg.lookup(LookupNames.LOGIN_RETRY_INTV);
         retryInterval = (x == null ? -1 : x.intValue());
     }
     
-    
+    /**
+     * Sets the user's credentials for logging onto <i>OMERO</i>.
+     * 
+     * @param uc The credentials to set.
+     */
     void setCredentials(UserCredentials uc) { credentials = uc; }
     
     /**
      * Creates a new instance which reads the configuration parameters from
      * the specified registry.
      * 
-     * @param reg The Container's registry.  Mustn't be <code>null</code>.
-     * @throws IllegalArgumentException If no <i>OMEDS</i> address was found
+     * @param reg The Container's registry. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException If no <i>OMERO</i> address was found
      *                                  in the registry. 
      */
     public LoginConfig(Registry reg)
     {
         if (reg == null) throw new NullPointerException("No registry.");
         readConfig(reg);
-        if (omedsAddress == null)
+        if (omeroAddress == null)
             throw new IllegalArgumentException(
-                    "No OMEDS address was found in the configuration.");
+                    "No OMERO address was found in the configuration.");
         //TODO: Get rid of this check when we have an XML schema for config.
         
         if (maxRetry <= 0) maxRetry = DEFAULT_MAX_RETRY;
@@ -145,15 +148,15 @@ public class LoginConfig
     }
     
     /**
-     * Returns the address to use for connecting to <i>OMEDS</i>.
+     * Returns the address to use for connecting to <i>OMERO</i>.
      * This field is never <code>null</code>.
      * 
      * @return See above.
      */
-    public URL getOmedsAddress() { return omedsAddress; }
+    public String getOmedsAddress() { return omeroAddress; }
     
     /**
-     * Returns the current user's credentials for logging onto <i>OMEDS</i>.
+     * Returns the current user's credentials for logging onto <i>OMERO</i>.
      * This field is <code>null</code> until the user enters their credentials.
      * It is subsequently updated every time the user specifies new credentials.
      * 
@@ -163,7 +166,7 @@ public class LoginConfig
     
     /**
      * Returns the number of times the {@link LoginService} should attempt to 
-     * restore an invalid link to <i>OMEDS</i>.
+     * restore an invalid link to <i>OMERO</i>.
      * This field is always positive.
      * 
      * @return See above.
@@ -173,8 +176,7 @@ public class LoginConfig
     /**
      * Returns the amount of time, in milliseconds, the {@link LoginService}
      * should wait between each attempt to restore an invalid link to
-     * <i>OMEDS</i>.
-     * This field is always positive.
+     * <i>OMERO</i>. This field is always positive.
      * 
      * @return See above.
      */

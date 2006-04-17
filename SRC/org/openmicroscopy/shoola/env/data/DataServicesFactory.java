@@ -30,23 +30,20 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.List;
-
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
-import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
-
 import pojos.ExperimenterData;
 
 /** 
@@ -85,7 +82,7 @@ public class DataServicesFactory
 	private Registry               registry;
 	
 	//Unified access point to the various OMEDS services.
-	private OMEDSGateway           gateway;
+	//private OMEDSGateway           gateway;
 	
 //  Unified access point to the various OMERO services.
     private OMEROGateway            omeroGateway;
@@ -96,7 +93,7 @@ public class DataServicesFactory
     private PixelsServiceAdapter   ps;
 	
     //Omero Adapter;
-    private OmeroPojoService           ops;
+    private OmeroService           ops;
     
 	/**
 	 * Try to create a new instance.
@@ -108,26 +105,24 @@ public class DataServicesFactory
 		throws DSOutOfServiceException
 	{
 		registry = c.getRegistry();
-		
-		//Retrieve the connection URL and create the internal proxy to OMEDS.
-		OMEDSInfo info = (OMEDSInfo) registry.lookup(LookupNames.OMEDS);
-		if (info == null)  //TODO: get rid of this when we have an XML schema.
-			throw new NullPointerException("No data server host provided!");
-        gateway = new OMEDSGateway(info.getServerAddress(), this);
-		
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
         omeroGateway = new OMEROGateway(omeroInfo.getHostName(), 
                                         omeroInfo.getPort(), this);
 		//Create the adapters.
-		dms = new DMSAdapter(gateway, registry); 
-		sts = new STSAdapter(gateway, registry);
-        ps = new PixelsServiceAdapter(gateway.getDataFactory());
-        ops = new OmeroPojoServiceImpl(omeroGateway, registry);
+		//dms = new DMSAdapter(gateway, registry); 
+		//sts = new STSAdapter(gateway, registry);
+        //ps = new PixelsServiceAdapter(gateway.getDataFactory());
+        ops = new OmeroServiceImpl(omeroGateway, registry);
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
 	}
 	
-    public OmeroPojoService getOPS() { return ops; }
+    /**
+     * Returns the {@link OmeroService}
+     * 
+     * @return See above.
+     */
+    public OmeroService getOPS() { return ops; }
     
 	public DataManagementService getDMS() { return dms; }
 
@@ -135,15 +130,20 @@ public class DataServicesFactory
     
     public PixelsService getPS() { return ps; }
     
+    /**
+     * Returns the {@link LoginService}. 
+     * 
+     * @return See above.
+     */
     public LoginService getLoginService()
     {
         return (LoginService) registry.lookup(LookupNames.LOGIN);
     }
 
 	/**
-	 * Attempts to connect to <i>OMEDS</i>.
+	 * Attempts to connect to <i>OMERO</i> server.
 	 * 
-     * @param uc The user's credentials for logging onto <i>OMEDS</i>.
+     * @param uc The user's credentials for logging onto <i>OMERO</i> server.
 	 * @throws DSOutOfServiceException If the connection can't be established
      *                                 or the credentials are invalid.							
 	 */
@@ -164,7 +164,6 @@ public class DataServicesFactory
 			agentInfo.getRegistry().bind(
 			        LookupNames.CURRENT_USER_DETAILS, exp);
 		}
-        gateway.login(uc.getUserName(), uc.getPassword());
 	}
 	
 	/**
@@ -175,8 +174,9 @@ public class DataServicesFactory
 	 * 
 	 * @return	<code>true</code> if connected, <code>false</code> otherwise.
 	 */
-	public boolean isConnected() { return gateway.isConnected(); }
+	public boolean isConnected() { return omeroGateway.isConnected(); }
 	
-	public void shutdown() { gateway.logout(); }
+    /** Shuts down the connection. */
+	public void shutdown() { omeroGateway.logout(); }
 	
 }

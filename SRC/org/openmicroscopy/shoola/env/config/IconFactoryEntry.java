@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
 
 
 /** 
- * Hanldes a <i>structuredEntry</i> of type <i>icons</i>.
+ * Handles a <i>structuredEntry</i> of type <i>icons</i>.
  * The content of the entry is used to build an {@link IconFactory} object,
  * which is then returned by the {@link #getValue() getValue} method.
  *

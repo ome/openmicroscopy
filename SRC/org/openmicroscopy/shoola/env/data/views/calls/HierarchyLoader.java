@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -86,14 +86,13 @@ public class HierarchyLoader
     private Class       rootLevel;
     
     /** The Id of the root level. */
-    private int         rootLevelID;
+    private long        rootLevelID;
     
     /** The root nodes of the found trees. */
     private Set         rootNodes;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
-    
     
     /**
      * Creates {@link BatchCall} if the type is supported.
@@ -110,10 +109,10 @@ public class HierarchyLoader
         if (rootNodeIDs == null && rootNodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
         try {
-            rootNodeIDs.toArray(new Integer[] {});
+            rootNodeIDs.toArray(new Long[] {});
         } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "rootNodeIDs can only contain Integer.");
+            throw new IllegalArgumentException("rootNodeIDs only contain " +
+                                                "Long.");
         }  
         if (rootNodeType.equals(ProjectData.class) ||
             rootNodeType.equals(DatasetData.class) ||
@@ -151,7 +150,7 @@ public class HierarchyLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                OmeroPojoService os = context.getOmeroService();
+                OmeroService os = context.getOmeroService();
                 rootNodes = os.loadContainerHierarchy(rootNodeType,
                                                     rootNodeIDs, true,
                                                     rootLevel, rootLevelID);
@@ -188,16 +187,15 @@ public class HierarchyLoader
      *                      <code>ExperimenterData</code>.
      * @param rootLevelID   The id of the root's level.
      */
-    public HierarchyLoader(Class rootNodeType, int rootNodeID, 
-                            Class rootLevel, int rootLevelID)
+    public HierarchyLoader(Class rootNodeType, long rootNodeID, 
+                            Class rootLevel, long rootLevelID)
     {
         checkRootLevel(rootLevel);
         this.rootLevel = rootLevel;
         this.rootLevelID = rootLevelID;
         HashSet set = new HashSet(1);
-        set.add(new Integer(rootNodeID));
+        set.add(new Long(rootNodeID));
         validate(rootNodeType, set);
-        
     }
     
 }

@@ -31,17 +31,16 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.ImageData;
 
 /** 
  * Command to classify or declassify Images.
@@ -64,12 +63,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ClassificationSaver
     extends BatchCallTree
 {
-
-    /** The category to add to or remove from. */
-    private Set             categories;
-    
-    /** The image to classifiy or declassify. */
-    private int             imageID;
     
     /** Classify/declassify call. */
     private BatchCall       saveCall;
@@ -77,60 +70,41 @@ public class ClassificationSaver
     /** The result of the save action. */
     private Object          result;
     
-    //Tempo method: To remove when we use OMERO to write 
-    private CategoryData transformPojoCategoryData(pojos.CategoryData data)
-    {
-        return new CategoryData(data.getId(), data.getName(),
-                                data.getDescription());
-    }
-    
     /**
-     * Creates a {@link BatchCall} to add the specified Images to the
-     * given Category.
+     * Creates a {@link BatchCall} to add the specified image to the
+     * given categories.
      * 
-     * @return The {@link BatchCall}.
+     * @param images        The images to classify.
+     * @param categories    The categories to add to. 
+     * @return              The {@link BatchCall}.
      */
-    private BatchCall classify()
+    private BatchCall classify(final Set images, final Set categories)
     {
         return new BatchCall("Saving classification tree.") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                ArrayList list = new ArrayList(1);
-                list.add(new Integer(imageID));
-                Iterator i = categories.iterator();
-                CategoryData data;
-                while (i.hasNext()) {
-                    data = transformPojoCategoryData(
-                                (pojos.CategoryData) i.next());
-                    sts.updateCategory(data, null, list);
-                }
+                OmeroService os = context.getOmeroService();
+                os.classify(images, categories);
                 result = categories;
             }
         };
     }
     
     /**
-     * Creates a {@link BatchCall} to remove the specified Images from the
-     * given Category.
+     * Creates a {@link BatchCall} to remove the specified image from the
+     * given categories.
      * 
+     * @param images        The images to declassify.
+     * @param categories    The categories to add to.
      * @return The {@link BatchCall}.
      */
-    private BatchCall declassify()
+    private BatchCall declassify(final Set images, final Set categories)
     {
         return new BatchCall("Declassifying images.") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                ArrayList list = new ArrayList(1);
-                list.add(new Integer(imageID));
-                Iterator i = categories.iterator();
-                CategoryData data;
-                while (i.hasNext()) {
-                    data = transformPojoCategoryData(
-                                (pojos.CategoryData) i.next());
-                    sts.updateCategory(data, list, null);
-                }
+                OmeroService os = context.getOmeroService();
+                os.declassify(images, categories);
                 result = categories;
             }
         };
@@ -150,30 +124,37 @@ public class ClassificationSaver
     protected Object getResult() { return result; }
     
     /**
-     * Classifies or declassifies the specified image.
+     * Classifies or declassifies the specified images.
      * 
-     * @param imageID       The id of the image.
+     * @param images        The images to handle.
      * @param categories    The categories to add the image to or remove the
      *                      image from.
      * @param classify      Passed <code>true</code> to classify, 
      *                      <code>false</code> to declassify.
      */
-    public ClassificationSaver(int imageID, Set categories, boolean classify)
+    public ClassificationSaver(Set images, Set categories,
+                                boolean classify)
     {
-        if (imageID < 0)
-            throw new IllegalArgumentException("Image id not valid.");
+        if (images == null)
+            throw new IllegalArgumentException("No images to classify or " +
+                    "declassify.");
         if (categories == null)
-            throw new NullPointerException("No category.");
+            throw new NullPointerException("No category to add to or remove " +
+                    "from.");
         try {
-            categories.toArray(new pojos.CategoryData[] {});
+            categories.toArray(new CategoryData[] {});
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException(
-                    "categories has only CategoryData elements.");
+                    "categories only contains CategoryData elements.");
         }
-        this.imageID = imageID;
-        this.categories = categories;
-        if (classify) saveCall = classify();
-        else saveCall = declassify();
+        try {
+            images.toArray(new ImageData[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException(
+                    "images only contains ImageData elements.");
+        }
+        if (classify) saveCall = classify(images, categories);
+        else saveCall = declassify(images, categories);
     }
     
 }

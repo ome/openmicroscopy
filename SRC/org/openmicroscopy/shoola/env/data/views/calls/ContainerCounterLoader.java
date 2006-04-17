@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -38,7 +39,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -67,8 +68,7 @@ public class ContainerCounterLoader
     
     /** The containers for which we need the value. */ 
     private Set		rootIDs;
-    
-    
+
     /**
      * Adds a {@link BatchCall} to the tree for each value to retrieve.
      * 
@@ -79,30 +79,30 @@ public class ContainerCounterLoader
         Iterator i = rootIDs.iterator();
         String description;
         DataObject root;
-        Integer id = null;
+        Long id = null;
         Class rootType = null;
         while (i.hasNext()) {
             root = (DataObject) i.next();
             if (root instanceof DatasetData) {
                 rootType = DatasetData.class;
-                id = new Integer(((DatasetData) root).getId());
+                id = new Long(((DatasetData) root).getId());
             } else if (root instanceof CategoryData) {
                 rootType = CategoryData.class;
-                id = new Integer(((CategoryData) root).getId());
+                id = new Long(((CategoryData) root).getId());
             }
             if (id != null) {
                 description = "Loading number of items for container: " +
 							id.intValue();
-                final Integer idFinal = id;
+                final Long idFinal = id;
                 final Class rootTypeFinal = rootType;
 				add(new BatchCall(description) {
 				    public void doCall() throws Exception
 				    { 
 				        HashSet ids = new HashSet(1);
 				        ids.add(idFinal);
-				        OmeroPojoService os = context.getOmeroService();
+				        OmeroService os = context.getOmeroService();
 				        currentMap = os.getCollectionCount(rootTypeFinal, 
-				                		OmeroPojoService.IMAGES_PROPERTY, ids);
+				                		OmeroService.IMAGES_PROPERTY, ids);
 				    }
 				});
             }
@@ -135,6 +135,12 @@ public class ContainerCounterLoader
     public ContainerCounterLoader(Set rootIDs)
     {
         if (rootIDs == null) throw new NullPointerException("No root nodes.");
+        try {
+            rootIDs.toArray(new DataObject[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException("rootIDs only contains " +
+                                                "DataObject.");
+        }
         this.rootIDs = rootIDs;
     }
     

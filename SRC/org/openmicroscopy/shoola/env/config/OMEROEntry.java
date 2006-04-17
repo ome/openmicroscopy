@@ -33,17 +33,16 @@ package org.openmicroscopy.shoola.env.config;
 
 
 //Java imports
+
+//Third-party libraries
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-//Third-party libraries
-
 //Application-internal dependencies
 
 /** 
- * 
- * Hanldes a <i>structuredEntry</i> of type <i>OMERO</i>.
+ * Handles a <i>structuredEntry</i> of type <i>OMERO</i>.
  * The content of the entry is stored in a {@link OMEROInfo} object, which is
  * then returned by the {@link #getValue() getValue} method.
  *  
@@ -98,10 +97,8 @@ class OMEROEntry
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 tagName = child.getNodeName();
                 tagValue = child.getFirstChild().getNodeValue();
-                if (HOSTNAME_TAG.equals(tagName))
-                    hostName = tagValue;
-                else if (PORT_TAG.equals(tagName))
-                    port = tagValue;
+                if (HOSTNAME_TAG.equals(tagName)) hostName = tagValue;
+                else if (PORT_TAG.equals(tagName)) port = tagValue;
                 else
                     throw new ConfigException(
                             "Unrecognized tag within the ice-conf entry: "+

@@ -41,12 +41,10 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.DataObjectEditor;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -72,13 +70,13 @@ class DataManagerViewImpl
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#loadContainerHierarchy(Class, Set, boolean, 
-     * 						Class, int, AgentEventListener)
+     * 						Class, long, AgentEventListener)
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set rootNodeIDs,
                                             boolean withLeaves,
                                             Class rootLevel,
-                                            int rootLevelID,
+                                            long rootLevelID,
                                             AgentEventListener observer)
     {
         BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves,
@@ -98,11 +96,11 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#getImages(Class, Set, Class, int,
+     * @see DataManagerView#getImages(Class, Set, Class, long,
      *                              AgentEventListener)
      */
     public CallHandle getImages(Class nodeType, Set nodeIDs, Class rootLevel,
-            					int rootLevelID, AgentEventListener observer)
+            					long rootLevelID, AgentEventListener observer)
     {
         BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, rootLevel, 
                 							rootLevelID);
@@ -111,14 +109,14 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#createDataObject(DataObject, Object, 
+     * @see DataManagerView#createDataObject(DataObject, DataObject, 
      * 										AgentEventListener)
      */
-    public CallHandle createDataObject(DataObject userObject, Object parent,
+    public CallHandle createDataObject(DataObject userObject, DataObject parent,
                                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new DataObjectSaver(userObject,
-                                    DataObjectSaver.CREATE, parent);
+        BatchCallTree cmd = new DataObjectSaver(userObject, parent,
+                                                DataObjectSaver.CREATE);
         return cmd.exec(observer);
     } 
     
@@ -129,22 +127,21 @@ class DataManagerViewImpl
     public CallHandle updateDataObject(DataObject userObject,
                                     AgentEventListener observer)
     {
-        BatchCallTree cmd = new DataObjectSaver(userObject,
-                                            DataObjectSaver.UPDATE, null);
+        BatchCallTree cmd = new DataObjectSaver(userObject, null,
+                                            DataObjectSaver.UPDATE);
         return cmd.exec(observer);  
     }
 
-
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#removeDataObject(DataObject, Object, 
+     * @see DataManagerView#removeDataObject(DataObject, DataObject, 
      * 										AgentEventListener)
      */
-    public CallHandle removeDataObject(DataObject userObject, Object parent, 
+    public CallHandle removeDataObject(DataObject userObject, DataObject parent, 
             						AgentEventListener observer)
     {
-        BatchCallTree cmd = new DataObjectSaver(userObject,
-                							DataObjectSaver.REMOVE, parent);
+        BatchCallTree cmd = new DataObjectSaver(userObject, parent, 
+                							DataObjectSaver.REMOVE);
         return cmd.exec(observer);  
     }
     
@@ -161,76 +158,43 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#updateObjectCreateAnnotation(DataObject, 
-     * 					AnnotationData, AgentEventListener)
-     */
-    public CallHandle updateObjectCreateAnnotation(DataObject userObject,
-            AnnotationData data, AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DataObjectEditor(userObject, data,
-                                                DataObjectEditor.CREATE);
-        return cmd.exec(observer); 
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#updateObjectUpdateAnnotation(DataObject, 
-     *                  AnnotationData, AgentEventListener)
-     */
-    public CallHandle updateObjectUpdateAnnotation(DataObject userObject,
-            AnnotationData data, AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DataObjectEditor(userObject, data,
-                                                DataObjectEditor.UPDATE);
-        return cmd.exec(observer); 
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#updateObjectDeleteAnnotation(DataObject, 
-     *                  AnnotationData, AgentEventListener)
-     */
-    public CallHandle updateObjectDeleteAnnotation(DataObject userObject,
-            AnnotationData data, AgentEventListener observer)
-    {
-        BatchCallTree cmd = new DataObjectEditor(userObject, data, 
-                                                DataObjectEditor.REMOVE);
-        return cmd.exec(observer); 
-    }
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see DataManagerView#createAnnotation(Class, int, String,
+     * @see DataManagerView#createAnnotation(DataObject, AnnotationData,
      *                                      AgentEventListener)
      */
-    public CallHandle createAnnotation(Class nodeType, int nodeID, String txt,
+    public CallHandle createAnnotation(DataObject annotatedObject, 
+                                       AnnotationData data,
                                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationSaver(nodeType, nodeID, txt);
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                    AnnotationSaver.CREATE);
         return cmd.exec(observer);
     }
     
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#updateAnnotation(Class, int, AnnotationData,
+     * @see DataManagerView#updateAnnotation(DataObject, AnnotationData,
      *                                      AgentEventListener)
      */
-    public CallHandle updateAnnotation(Class nodeType, int nodeID,
-                        AnnotationData data, AgentEventListener observer)
+    public CallHandle updateAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,
+                                        AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationSaver(nodeType, nodeID, data);
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                                AnnotationSaver.UPDATE);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#deleteAnnotation(Class, AnnotationData,
-     *                                              AgentEventListener)
+     * @see DataManagerView#deleteAnnotation(DataObject, AnnotationData,
+     *                                       AgentEventListener)
      */
-    public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
-                                    AgentEventListener observer)
+    public CallHandle deleteAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,
+                                        AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationSaver(nodeType, data);
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                                AnnotationSaver.DELETE);
         return cmd.exec(observer);
     }
     
@@ -239,7 +203,7 @@ class DataManagerViewImpl
      * @see DataManagerView#loadAnnotations(Class, int, 
      *                                          AgentEventListener)
      */
-    public CallHandle loadAnnotations(Class nodeType, int nodeID,
+    public CallHandle loadAnnotations(Class nodeType, long nodeID,
                                        AgentEventListener observer)
     {
         BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID);
@@ -260,11 +224,11 @@ class DataManagerViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#loadClassificationPaths(int, int, 
+     * @see DataManagerView#loadClassificationPaths(long, int, 
      *                                              AgentEventListener)
      */
-    public CallHandle loadClassificationPaths(int imageID, int algorithm,
-            AgentEventListener observer)
+    public CallHandle loadClassificationPaths(long imageID, int algorithm,
+                                            AgentEventListener observer)
     {
         BatchCallTree cmd = new ClassificationLoader(imageID, algorithm);
         return cmd.exec(observer);
@@ -272,23 +236,23 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#classify(int, Set, AgentEventListener)
+     * @see DataManagerView#classify(Set, Set, AgentEventListener)
      */
-    public CallHandle classify(int imageID, Set categories, 
+    public CallHandle classify(Set images, Set categories, 
                                 AgentEventListener observer)
     {
-        BatchCallTree cmd = new ClassificationSaver(imageID, categories, true);
+        BatchCallTree cmd = new ClassificationSaver(images, categories, true);
         return cmd.exec(observer);
     }
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#declassify(int, Set, AgentEventListener)
+     * @see DataManagerView#declassify(Set, Set, AgentEventListener)
      */
-    public CallHandle declassify(int imageID, Set categories, 
+    public CallHandle declassify(Set images, Set categories, 
                                 AgentEventListener observer)
     {
-        BatchCallTree cmd = new ClassificationSaver(imageID, categories, false);
+        BatchCallTree cmd = new ClassificationSaver(images, categories, false);
         return cmd.exec(observer);
     }
     

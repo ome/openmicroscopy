@@ -71,12 +71,6 @@ public class LookupNames
     
     /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";
-	
-    /** Field to access the <code>OMEDS</code> service information. */
-	public static final String OMEDS = "/services/OMEDS";
-	
-    /** Field to access the <code>OMEIS</code> service information. */
-	public static final String OMEIS = "/services/OMEIS";
     
     /** Field to access the <code>OMERO</code> service information. */
     public static final String OMERODS = "/services/OMERODS";
@@ -107,10 +101,22 @@ public class LookupNames
     public static final String MONITOR_FACTORY = 
                                           "/services/data/views/MonitorFactory";
     
+    /** Field to access the <code>Log service</code> information. */
     public static final String LOGIN = "/services/Login";
+    
+    /**
+     * Field to access the <code>Log service configuration</code> information.
+     */
     public static final String LOGIN_CFG = "/services/Login/config";
+    
+    /**
+     * Field to access the maximum number of tries in order to connect to the 
+     * OMERO server.
+     */
     public static final String LOGIN_MAX_RETRY = 
                                               "/services/LOGIN/omeds/max-retry";
+    
+    /** Field to access the interval between each connection try. */
     public static final String LOGIN_RETRY_INTV = 
                                          "/services/LOGIN/omeds/retry-interval";
 	

@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryGroupData;
@@ -108,12 +108,12 @@ public class HierarchyFinder
      */
     private BatchCall makeCHBatchCall(final Class hierarchyRootNodeType, 
             						final Set ids, final Class rootLevel,
-                                    final int rootLevelID)
+                                    final long rootLevelID)
     {
         return new BatchCall("Searching Container hierarchy") {
             public void doCall() throws Exception
             {
-                OmeroPojoService os = context.getOmeroService();
+                OmeroService os = context.getOmeroService();
                 rootNodes = os.findContainerHierarchy(hierarchyRootNodeType,
                                ids, rootLevel, rootLevelID);
             }
@@ -150,16 +150,15 @@ public class HierarchyFinder
      * @param rootLevelID   The Id of the root.
      */
     public HierarchyFinder(Class hierarchyRootNodeType, Set ids, 
-                            Class rootLevel, int rootLevelID)
+                            Class rootLevel, long rootLevelID)
     {
         if (ids == null) throw new IllegalArgumentException("No images.");
         if (hierarchyRootNodeType == null) 
             throw new NullPointerException("No root node type.");
         try {
-            ids.toArray(new Integer[] {});
+            ids.toArray(new Long[] {});
         } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "images can only contain Integer objects.");
+            throw new IllegalArgumentException("ids only contain Long.");
         } 
         checkRootLevel(rootLevel);
         if (rootLevelID < 0) 

@@ -119,7 +119,7 @@ public class LoginServiceImpl
 
             //Log success.
             LogMessage msg = new LogMessage();
-            msg.println("Logged onto OMEDS at: "+config.getOmedsAddress());
+            msg.println("Logged onto OMERO at: "+config.getOmedsAddress());
             msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
@@ -127,9 +127,9 @@ public class LoginServiceImpl
             return true;
         } catch (DSOutOfServiceException dsose) {  //Log failure.
             LogMessage msg = new LogMessage();
-            msg.println("Failed to log onto OMEDS.");
+            msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+dsose);
-            msg.println("OMEDS Address: "+config.getOmedsAddress());
+            msg.println("OMERO Address: "+config.getOmedsAddress());
             if (uc != null) msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.error(this, msg);
@@ -161,8 +161,7 @@ public class LoginServiceImpl
      */
     public LoginServiceImpl(Container c)
     {
-        if (c == null)
-            throw new NullPointerException("No container.");
+        if (c == null) throw new NullPointerException("No container.");
         config = new LoginConfig(c.getRegistry());
         this.container = c;
         EventBus bus = c.getRegistry().getEventBus();
@@ -206,7 +205,7 @@ public class LoginServiceImpl
         if (!succeeded) {
             UserNotifier un = container.getRegistry().getUserNotifier();
             un.notifyError("Login Failure", 
-                           "Failed to log onto OMEDS. Please check your user "+
+                           "Failed to log onto OMERO. Please check your user "+
                            "name and/or password or try again later.");
         }
         state = IDLE;

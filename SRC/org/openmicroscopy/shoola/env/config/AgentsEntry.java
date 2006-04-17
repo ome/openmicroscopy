@@ -42,9 +42,9 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 /** 
- * Hanldes a <i>structuredEntry</i> of type <i>agents</i>.
+ * Handles a <i>structuredEntry</i> of type <i>agents</i>.
  * Each <i>agent</i> tag within the entry is stored in an {@link AgentInfo}
- * object.  The {@link #getValue() getValue} method returns a list of those
+ * object. The {@link #getValue() getValue} method returns a list of those
  * objects.  
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -123,11 +123,12 @@ class AgentsEntry
 				int n = children.getLength();
 				Node child;
 				Map childTags;
+                AgentInfo info;
 				while (0 < n) {
 					child = children.item(--n);
 					if (child.getNodeType() == Node.ELEMENT_NODE) {
 						childTags = extractValues(child);
-						AgentInfo info = new AgentInfo();
+						info = new AgentInfo();
 						info.setName((String) childTags.get(AGENT_NAME_TAG));
 						info.setAgentClass(
 							(String) childTags.get(AGENT_CLASS_TAG));

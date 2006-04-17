@@ -39,43 +39,43 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
- * Defines the high-level functionality required to log onto <i>OMEDS</i>.
+ * Defines the high-level functionality required to log onto <i>OMERO</i>.
  * <p>The Login Service provides an abstraction over the process of logging
- * onto <i>OMEDS</i>.  This service is only used directly by the Container
+ * onto <i>OMERO</i>. This service is only used directly by the Container
  * either during initialization or when an invalid link is detected to try and 
  * reestablish it &#151; this could happen because the connection went down,
- * the session expired, or the user has an invalid login.  In fact, during the
+ * the session expired, or the user has an invalid login. In fact, during the
  * initialization procedure the user is asked to enter their credentials, which
  * the Initializer then passes along to the Login Service so to establish the
- * initial link to the server.  Then whenever a method in the Data Services
+ * initial link to the server. Then whenever a method in the Data Services
  * raises an exception due to an invalid link, the Data Services throw a <code>
  * DSOutOfServiceException</code> to inform the caller (typically an Agent) and
- * ask the Login Service to reestablish the broken link.  At which point, the
- * Login Service attempts to reconnect to <i>OMEDS</i> using the current user's
+ * ask the Login Service to reestablish the broken link. At which point, the
+ * Login Service attempts to reconnect to <i>OMERO</i> using the current user's
  * credentials &#151; that is, the credentials that the user entered during the
- * initialization procedure.  So many attempts are made as specified in the
- * Container's configuration file.  If all attempts fail, then a dialog is
+ * initialization procedure. So many attempts are made as specified in the
+ * Container's configuration file. If all attempts fail, then a dialog is
  * brought up on screen to allow the user to reenter their credentials (which
- * now become the current credentials) and a last attempt is made.  If this
+ * now become the current credentials) and a last attempt is made. If this
  * fails too, then the Login Service gives up and informs the user through an
  * error dialog.</p>
  * <p>Because the Container, through the Login Service, transparently manages
- * the connection to <i>OMEDS</i>, Agents never need to make an explicit call
- * to the Login Service.  However, a mechanism is provided so that Agents can
- * be notified if the link to <i>OMEDS</i> is reestablished.  This allows an
+ * the connection to <i>OMERO</i>, Agents never need to make an explicit call
+ * to the Login Service. However, a mechanism is provided so that Agents can
+ * be notified if the link to <i>OMERO</i> is reestablished. This allows an
  * Agent to gracefully recover from a <code>DSOutOfServiceException</code>.
- * It works as follows.  The Agent registers with the <code>Event Bus</code>
+ * It works as follows. The Agent registers with the <code>Event Bus</code>
  * for <code>ServiceActivationResponse</code>s and then catches a <code>
  * DSOutOfServiceException</code> to post a <code>ServiceActivationRequest.
  * </code>  This will be responded by the Login Service with a <code>
  * ServiceActivationResponse</code>, whose <code>isActivationSuccessful</code>
- * method can be used to find out if the link has been reestablished.  If so,
- * the Agent can retry the original call to the Data Services.  Note that if
+ * method can be used to find out if the link has been reestablished. If so,
+ * the Agent can retry the original call to the Data Services. Note that if
  * the Agent implements this for more than one Data Services method, then
  * upon receipt of a <code>ServiceActivationResponse</code> some sort of
  * de-multiplexing could be required to find out what was the method that
  * originally raised the <code>DSOutOfServiceException</code> &#151; assuming
- * the Agent wants to retry that call.  Instead of writing endless <code>if-
+ * the Agent wants to retry that call. Instead of writing endless <code>if-
  * else</code> or <code>switch</code> blocks, you may want to consider the
  * fact that a <code>ServiceActivationResponse</code> works like an Asynchronous
  * Completion Token (ACT).  Here's a code example that illustrates a possible 
@@ -166,7 +166,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * 
  * }  //End of MyAgent.
  * </pre></code></p>
- * <p>The Login Service is thread-safe.  If multiple threads attempt to login
+ * <p>The Login Service is thread-safe. If multiple threads attempt to login
  * at the same time, then only one is allowed to proceed as all the others will
  * have to wait for the outcome of the login attempt.  (Note that because a
  * <code>DataServiceView</code> usually runs asynchronously with respect to the

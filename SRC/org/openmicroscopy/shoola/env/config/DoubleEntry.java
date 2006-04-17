@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
 //Application-internal dependencies
 
 /**
- * Hanldes an <i>entry</i> of type <i>double</i>.
+ * Handles an <i>entry</i> of type <i>double</i>.
  * The tag's value is stored into a {@link Double} object which is then
  * returned by the {@link #getValue() getValue} method.
  * 

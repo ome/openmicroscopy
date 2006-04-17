@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroPojoService
+ * org.openmicroscopy.shoola.env.data.OmeroService
  *
  *------------------------------------------------------------------------------
  *
@@ -37,6 +37,9 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.Map;
 import java.util.Set;
 
+import pojos.AnnotationData;
+import pojos.DataObject;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -46,16 +49,13 @@ import java.util.Set;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:a.falconi@dundee.ac.uk">
- *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */
-public interface OmeroPojoService
+public interface OmeroService
 {
     
     /** Identifies the <code>Declassification</code> algorithm. */
@@ -81,14 +81,14 @@ public interface OmeroPojoService
     /**
      * Retrieves hierarchy trees rooted by a given node.
      * i.e. the requested node as root and all of its descendants.
-     * The annotation for the current user is also linked to the object.
-     * Annotations are currently possible only for Image and Dataset.
      * 
-     * @param rootNodeType top-most type which will be searched for 
+     * @param rootNodeType  The top-most type which will be searched for 
      *                      Can be <code>Project</code> or
      *                      <code>CategoryGroup</code>. 
      *                      Mustn't be <code>null</code>.
-     * @param rootNodeIDs   A set of the IDs of top-most containers.
+     * @param rootNodeIDs   A set of the IDs of top-most containers. 
+     *                      Passed <code>null</code> to retrieve all top-most
+     *                      nodes e.g. all user's projects.
      * @param withLeaves   	Passed <code>true</code> to retrieve the images,
      *                      <code>false</code> otherwise.
      * @param rootLevel		The level of the hierarchy either 
@@ -102,7 +102,7 @@ public interface OmeroPojoService
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
                                     boolean withLeaves, Class rootLevel, 
-                                    int rootLevelID)
+                                    long rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -169,7 +169,7 @@ public interface OmeroPojoService
      * retrieve data from OMEDS service. 
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
-            						Class rootLevel, int rootLevelID)
+            						Class rootLevel, long rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -181,21 +181,22 @@ public interface OmeroPojoService
      * node, then the entry will be <code>null</code>. Otherwise it will be a
      * <code>Set</code> containing <code>Annotation</code> objects.
      * 
-     * @param nodeType  The type of the rootNodes. It can either be
-     *                  <code>Dataset</code> or <code>Image</code>.
-     *                  Mustn't be <code>null</code>. 
-     * @param nodeIDs   TheIds of the objects of type <code>rootNodeType</code>.
-     *                  Mustn't be <code>null</code>.
-     * @param history   Passed <code>true</code> to retrieve all the annotations
-     *                  related to the specified rootNode even if they are no
-     *                  longer valid.
+     * @param nodeType      The type of the rootNodes. It can either be
+     *                      <code>Dataset</code> or <code>Image</code>.
+     *                      Mustn't be <code>null</code>. 
+     * @param nodeIDs       TheIds of the objects of type
+     *                      <code>rootNodeType</code>. 
+     *                      Mustn't be <code>null</code>.
+     * @param annotatorIDs  The Ids of the users for whom annotations should be 
+     *                      retrieved. If <code>null</code>, all annotations 
+     *                      are returned.
      * @return A map whose key is rootNodeID and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Map findAnnotations(Class nodeType, Set nodeIDs, boolean history)
+    public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs)
         throws DSOutOfServiceException, DSAccessException;
      
     /**
@@ -250,7 +251,7 @@ public interface OmeroPojoService
      * retrieve data from OMEDS service. 
      */
     public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
-            			int rootLevelID)
+            			long rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -281,5 +282,129 @@ public interface OmeroPojoService
     public Map getCollectionCount(Class rootNodeType, String property,
             						Set rootNodeIDs)
     	throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Creates the specified annotation for the specified
+     * <code>DataObject</code>. The updated <code>DataObject</code> is
+     * then returned.
+     * 
+     * @param annotatedObject   The object to annotate.
+     *                          Mustn't be <code>null</code>.
+     * @param data              The annotation to create. 
+     *                          Mustn't be <code>null</code>.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public DataObject createAnnotationFor(DataObject annotatedObject,
+                                            AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Removes the specified annotation from the specified
+     * <code>DataObject</code>. The updated <code>DataObject</code> is
+     * then returned.
+     * 
+     * @param annotatedObject   The object to annotate.
+     *                          Mustn't be <code>null</code>.
+     * @param data              The annotation data to remove. 
+     *                          Mustn't be <code>null</code>.
+     * @return See above.                  
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public DataObject removeAnnotationFrom(DataObject annotatedObject, 
+                                            AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Updates the specified annotation. The updated <code>DataObject</code> is
+     * then returned.
+     * 
+     * @param annotatedObject   The object to annotate.
+     *                          Mustn't be <code>null</code>.
+     * @param data              The annotation data to update. 
+     *                          Mustn't be <code>null</code>.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public DataObject updateAnnotationFor(DataObject annotatedObject, 
+                                        AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Creates a new <code>DataObject</code> and links it to the specified 
+     * parent. The parent will be <code>null</code> if the
+     * <code>DataObject</code> to create is either a <code>Project</code>,
+     * <code>CategoryGroup</code>.
+     * 
+     * @param newObject The <code>DataObject</code> to create.
+     *                  Mustn't be <code>null</code>.
+     * @param parent    The parent of the <code>DataObject</code>. Can be 
+     *                  <code>null</code> if <code>DataObject</code> to create
+     *                  is either a <code>Project</code>,
+     *                  <code>CategoryGroup</code>.
+     * @return          The newly created <code>DataObject</code>
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public DataObject createDataObject(DataObject newObject, DataObject parent)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Unlinks the specified <code>DataObject</code> and the parent object.
+     * 
+     * @param child     The child to remove. Mustn't be <code>null</code>.
+     * @param parent    The child's parent. The parent is <code>null</code> if 
+     *                  the child is a top node container i.e. 
+     *                  <code>Project</code> or <code>Categorygroup</code>.
+     * @return          The updated parent.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public DataObject removeDataObject(DataObject child, DataObject parent)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Updates the specified <code>DataObject</code>.
+     * 
+     * @param object    The <code>DataObject</code> to update.
+     * @return          The updated object.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public DataObject updateDataObject(DataObject object)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Adds the images to the specified categories.
+     * 
+     * @param images        The images to classify.
+     * @param categories    The categories to add the images to.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public void classify(Set images, Set categories)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Removes the images from the specified categories.
+     * 
+     * @param images        The images to declassify
+     * @param categories    The categories to remove the images from.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public void declassify(Set images, Set categories)
+        throws DSOutOfServiceException, DSAccessException;
     
 }

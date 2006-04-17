@@ -49,11 +49,10 @@ package org.openmicroscopy.shoola.env.event;
  * </small>
  * @since OME2.2
  */
-
 public abstract class AgentEvent
 {
     
-    /** The srouce of the event. */
+    /** The source of the event. */
     private Object source;
     
     /**

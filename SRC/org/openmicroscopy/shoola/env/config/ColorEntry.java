@@ -45,7 +45,7 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 /** 
- * Hanldes a <i>structuredEntry</i> of type <i>color</i>.
+ * Handles a <i>structuredEntry</i> of type <i>color</i>.
  * The content of the entry is stored in a {@link Color} object, which is
  * then returned by the {@link #getValue() getValue} method.
  * 

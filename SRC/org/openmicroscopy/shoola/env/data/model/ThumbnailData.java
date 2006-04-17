@@ -58,7 +58,7 @@ public class ThumbnailData
 {
 
     /** The id of the image to which the thumbnail belong. */
-    private int             imageID;
+    private long            imageID;
     
     /** The thumbnail pixels. */
     private BufferedImage   thumbnail;
@@ -71,7 +71,7 @@ public class ThumbnailData
      *                  Must be positive.
      * @param thumbnail The thumbnail pixels.  Mustn't be <code>null</code>.
      */
-    public ThumbnailData(int imageID, BufferedImage thumbnail)
+    public ThumbnailData(long imageID, BufferedImage thumbnail)
     {
         if (imageID <= 0) 
             throw new IllegalArgumentException("Non-positive image id: "+
@@ -104,7 +104,7 @@ public class ThumbnailData
      * 
      * @return See above.
      */
-    public int getImageID() { return imageID; }
+    public long getImageID() { return imageID; }
     
     /**
      * Returns the thumbnail pixels.

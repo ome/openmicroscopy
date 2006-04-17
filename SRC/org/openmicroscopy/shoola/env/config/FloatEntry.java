@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
 
 
 /**
- * Hanldes an <i>entry</i> of type <i>float</i>.
+ * Handles an <i>entry</i> of type <i>float</i>.
  * The tag's value is stored into a {@link Float} object which is then
  * returned by the {@link #getValue() getValue} method.
  * 

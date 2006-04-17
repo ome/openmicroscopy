@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
 
 
 /**
- * Hanldes an <i>entry</i> of type <i>integer</i>.
+ * Handles an <i>entry</i> of type <i>integer</i>.
  * The tag's value is stored into a {@link Integer} object which is then
  * returned by the {@link #getValue() getValue} method.
  * 

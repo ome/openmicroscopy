@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.env.data.login;
 //Application-internal dependencies
 
 /** 
- * Holds the user's credentials for logging onto <i>OMEDS</i>.
+ * Holds the user's credentials for logging onto <i>OMERO</i>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,14 +54,14 @@ public class UserCredentials
 {
     
     /**
-     * The <i>OMEDS</i> login name of the user.
+     * The <i>OMERO</i> login name of the user.
      * This is the <code>OME Name</code> that was assinged to the user when
      * it was created in the DB.
      */
     private String  userName;
     
     /**
-     * The <i>OMEDS</i> login password of the user.
+     * The <i>OMERO</i> login password of the user.
      * This is the password that was chosen for the user when it was created
      * in the DB.
      */
@@ -71,10 +71,10 @@ public class UserCredentials
     /**
      * Creates a new instance.
      * 
-     * @param userName The <i>OMEDS</i> login name of the user.
+     * @param userName The <i>OMERO</i> login name of the user.
      *                 This is the <code>OME Name</code> that was assinged to 
      *                 the user when it was created in the DB.
-     * @param password The <i>OMEDS</i> login password of the user.
+     * @param password The <i>OMERO</i> login password of the user.
      *                 This is the password that was chosen for the user when
      *                 it was created in the DB.
      * @throws IllegalArgumentException If the user name and/or the password is
@@ -91,7 +91,7 @@ public class UserCredentials
     }
     
     /**
-     * Returns the <i>OMEDS</i> login name of the user.
+     * Returns the <i>OMERO</i> login name of the user.
      * This is the <code>OME Name</code> that was assinged to the user when
      * it was created in the DB.
      * This field is always a non-<code>null</code> string with a positive
@@ -102,7 +102,7 @@ public class UserCredentials
     public String getUserName() { return userName; }
 
     /**
-     * Returns the <i>OMEDS</i> login password of the user.
+     * Returns the <i>OMERO</i> login password of the user.
      * This is the password that was chosen for the user when it was created
      * in the DB.
      * This field is always a non-<code>null</code> string with a positive

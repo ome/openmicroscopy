@@ -112,8 +112,6 @@ abstract class Entry
         contentHandlers.put("float", FloatEntry.class);
         contentHandlers.put("double", DoubleEntry.class);
         contentHandlers.put("boolean", BooleanEntry.class);
-        contentHandlers.put("OMEIS", OMEISEntry.class);
-        contentHandlers.put("OMEDS", OMEDSEntry.class);
         contentHandlers.put("OMERODS", OMEROEntry.class);
         contentHandlers.put("font", FontEntry.class);
         contentHandlers.put("color", ColorEntry.class);

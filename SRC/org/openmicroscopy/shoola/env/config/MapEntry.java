@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 /**
- * Hanldes a <i>structuredEntry</i> of type <i>map</i>.
+ * Handles a <i>structuredEntry</i> of type <i>map</i>.
  * Each tag within this entry defines a name-value pair, the name being the
  * tag's name and the value the tag's content.  These name-value pairs are
  * stored into a {@link Map} (keyed by names), which is then returned by the 

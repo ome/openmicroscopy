@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -63,21 +63,21 @@ public interface DataManagerView
 
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
-                                OmeroPojoService.DECLASSIFICATION;
+                                OmeroService.DECLASSIFICATION;
     
     /**
      * Identifies the <code>Classification</code> algorithm with
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_ME = 
-                                OmeroPojoService.CLASSIFICATION_ME;
+                                OmeroService.CLASSIFICATION_ME;
     
     /**
      * Identifies the <code>Classification</code> algorithm without
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_NME = 
-                            OmeroPojoService.CLASSIFICATION_NME;
+                            OmeroService.CLASSIFICATION_NME;
     
     /**
      * Retrieves the hierarchies specified by the 
@@ -86,7 +86,9 @@ public interface DataManagerView
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      <code>ProjectData, DatasetData, 
      *                      CategoryGroupData, CategoryData</code>.
-     * @param rootNodeIDs   A set of the IDs of top-most containers.
+     * @param rootNodeIDs   A set of the IDs of top-most containers. Passed
+     *                      <code>null</code> to retrieve all the top-most
+     *                      container specified by the rootNodeType.
      * @param withLeaves    Passes <code>true</code> to retrieve the images.
      *                      <code>false</code> otherwise.   
      * @param rootLevel		The level of the hierarchy either 
@@ -98,7 +100,7 @@ public interface DataManagerView
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
                                             Set rootNodeIDs, boolean withLeaves,
-            								Class rootLevel, int rootLevelID,
+            								Class rootLevel, long rootLevelID,
                                             AgentEventListener observer);
     
     /**
@@ -123,7 +125,7 @@ public interface DataManagerView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
-            					int rootLevelID, AgentEventListener observer);
+            					long rootLevelID, AgentEventListener observer);
     
     /**
      * Creates a new <code>DataObject</code> whose parent is specified by the
@@ -134,7 +136,7 @@ public interface DataManagerView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle createDataObject(DataObject userObject, Object parent,
+    public CallHandle createDataObject(DataObject userObject, DataObject parent,
                                         AgentEventListener observer);
     
     /**
@@ -156,7 +158,7 @@ public interface DataManagerView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle removeDataObject(DataObject userObject, Object parent, 
+    public CallHandle removeDataObject(DataObject userObject, DataObject parent, 
             						AgentEventListener observer);
     
     /**
@@ -169,100 +171,66 @@ public interface DataManagerView
     public CallHandle countContainerItems(Set rootNodeIDs, 
             								AgentEventListener observer);
     
-    /**
-     * Updates the specified <code>DataObject</code> and creates the specified 
-     * <code>Annotation</code>.
-     * 
-     * @param userObject 	The {@link DataObject} to update. Must be an 
-     * 						instance of <code>DatasetData</code> or
-     * 						<code>ImageData</code>.
-     * @param data			The {@link AnnotationData} to handle.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle updateObjectCreateAnnotation(DataObject userObject, 
-            								AnnotationData data, 
-            								AgentEventListener observer);
-    
-    /**
-     * Updates the specified <code>DataObject</code> and updates the specified 
-     * <code>Annotation</code>.
-     * 
-     * @param userObject    The {@link DataObject} to update. Must be an 
-     *                      instance of <code>DatasetData</code> or
-     *                      <code>ImageData</code>.
-     * @param data          The {@link AnnotationData} to handle.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle updateObjectUpdateAnnotation(DataObject userObject, 
-                                            AnnotationData data, 
-                                            AgentEventListener observer);
-    
-    /**
-     * Updates the specified <code>DataObject</code> and deletes the specified 
-     * <code>Annotation</code>.
-     * 
-     * @param userObject    The {@link DataObject} to update. Must be an 
-     *                      instance of <code>DatasetData</code> or
-     *                      <code>ImageData</code>.
-     * @param data          The {@link AnnotationData} to handle.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle updateObjectDeleteAnnotation(DataObject userObject, 
-                                            AnnotationData data, 
-                                            AgentEventListener observer);
-    
     /** 
      * Creates an annotation of the specified type for the specified node.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                      <code>DatasetData, ImageData</code>.   
-     * @param nodeID The id of the node.
-     * @param txt The textual annotation.
-     * @param observer Callback handler.
+     * @param annotatedObject   The <code>DataObject</code> to annotate.
+     *                          One of the following type:
+     *                          <code>DatasetData</code>,
+     *                          <code>ImageData</code>.   
+     *                          Mustn't be <code>null</code>.
+     * @param data              The annotation to create.
+     * @param observer          Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle createAnnotation(Class nodeType, int nodeID, String txt,  
+    public CallHandle createAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,  
                                         AgentEventListener observer);
     
     /**
      * Updates the specified annotation.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                      <code>DatasetData, ImageData</code>.  
-     * @param nodeID The id of the node.
-     * @param data The Annotation object to update.
-     * @param observer Callback handler.
+     * @param annotatedObject   The annotated <code>DataObject</code>.
+     *                          One of the following type:
+     *                          <code>DatasetData</code>,
+     *                          <code>ImageData</code>.   
+     *                          Mustn't be <code>null</code>.
+     * @param data              The Annotation object to update.
+     *                          Mustn't be <code>null</code>.
+     * @param observer          Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle updateAnnotation(Class nodeType, int nodeID, 
-                             AnnotationData data, AgentEventListener observer);
+    public CallHandle updateAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,
+                                        AgentEventListener observer);
     
     /**
      * Deletes the specified annotation.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                      <code>DatasetData, ImageData</code>. 
-     * @param data The Annotation object to delete.
-     * @param observer Callback handler.
+     * @param annotatedObject   The annotated <code>DataObject</code>.
+     *                          One of the following type:
+     *                          <code>DatasetData</code>,
+     *                          <code>ImageData</code>.   
+     *                          Mustn't be <code>null</code>.
+     * @param data              The annotation object to delete. 
+     *                          Mustn't be <code>null</code>.
+     * @param observer          Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle deleteAnnotation(Class nodeType, AnnotationData data,
+    public CallHandle deleteAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,
                                         AgentEventListener observer);
-    
     
     /**
      * Retrieves all the annotations linked to the specified node type.
      * 
-     * @param nodeType The type of the node. Can only be one out of:
-     *                      <code>DatasetData, ImageData</code>.       
-     * @param nodeID The id of the node.
-     * @param observer Callback handler.
+     * @param nodeType  The type of the node. One out of the following types:
+     *                  <code>DatasetData, ImageData</code>.      
+     * @param nodeID    The id of the node.
+     * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadAnnotations(Class nodeType, int nodeID,
+    public CallHandle loadAnnotations(Class nodeType, long nodeID,
                                         AgentEventListener observer);
     
     /**
@@ -277,15 +245,14 @@ public interface DataManagerView
      * original image and so that their area doesn't exceed <code>maxWidth*
      * maxHeight</code>.
      * 
-     * @param image The <code>ImageData</code> object the thumbnail is for.
+     * @param image     The <code>ImageData</code> object the thumbnail is for.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadThumbnail(ImageData image, int maxWidth, 
-                                     int maxHeight, 
-                                     AgentEventListener observer);
+                                   int maxHeight, AgentEventListener observer);
     
     /**
      * Loads all Category Group/Category paths that end or don't end with the 
@@ -318,39 +285,37 @@ public interface DataManagerView
      * (and again the id of Image <code>i1</code>), then you will get <code>
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
-     * @param imageID   The id of the Image.
-     * @param algorithm  One of the following constants:
-     *                  {@link OmeroPojoService#DECLASSIFICATION},
-     *                  {@link OmeroPojoService#CLASSIFICATION_ME},
-     *                  {@link OmeroPojoService#CLASSIFICATION_NME}.
-     * @param observer  Callback handler.
+     * @param imageID       The id of the Image.
+     * @param algorithm     One of the following constants:
+     *                      {@link OmeroService#DECLASSIFICATION},
+     *                      {@link OmeroService#CLASSIFICATION_ME},
+     *                      {@link OmeroService#CLASSIFICATION_NME}.
+     * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadClassificationPaths(int imageID, int algorithm,
+    public CallHandle loadClassificationPaths(long imageID, int algorithm,
                                               AgentEventListener observer);
     
     /**
-     * Classifies the image identified by the Id in the collection of 
-     * categories.
+     * Adds the images to the specified categories.
      * 
-     * @param imageID       The id of the image to classify.      
+     * @param images        The images to classify.      
      * @param categories    Collection of <code>CategoryData</code>.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle classify(int imageID, Set categories, 
+    public CallHandle classify(Set images, Set categories, 
                                 AgentEventListener observer);
     
     /**
-     * Removes the image identified by the Id from the collection of 
-     * categories.
+     * Removes the images from the categories.
      * 
-     * @param imageID       The id of the image to classify.      
+     * @param images        The images to declassify.      
      * @param categories    Collection of <code>CategoryData</code>.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle declassify(int imageID, Set categories, 
+    public CallHandle declassify(Set images, Set categories, 
                                 AgentEventListener observer);
     
 }

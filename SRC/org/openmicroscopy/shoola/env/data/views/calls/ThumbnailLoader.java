@@ -32,15 +32,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.ds.st.PixelsDTO;
-import org.openmicroscopy.ds.st.RepositoryDTO;
 import org.openmicroscopy.is.ImageServerException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -103,6 +99,7 @@ public class ThumbnailLoader
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         
+        /*
         //TO REMOVE ASAP.
         Map map = new HashMap();
         map.put("id", new Integer(1));
@@ -114,6 +111,9 @@ public class ThumbnailLoader
         PixelsDTO pixels = new PixelsDTO(map); 
         BufferedImage thumbPix = context.getPixelsService().getThumbnail(
                                                 pixels, sizeX, sizeY);
+                                                */
+        BufferedImage thumbPix = new BufferedImage(sizeX, sizeY, 
+                                            BufferedImage.TYPE_INT_ARGB);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
     

@@ -50,11 +50,9 @@ package org.openmicroscopy.shoola.env.event;
  * </small>
  * @since OME2.2
  */
-
 public interface EventBus
 {
     
-
 	/** 
 	 * Adds the subscriber to the List.
 	 * An agent uses the register method in order to be notified  

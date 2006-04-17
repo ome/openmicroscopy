@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -188,13 +188,13 @@ public class RegistryFactory
 	}
     
     /**
-     * Adds the {@link OmeroPojoService} instance to
+     * Adds the {@link OmeroService} instance to
      * the specified {@link Registry}.
      * 
-     * @param os   The {@link OmeroPojoService} instance.
+     * @param os   The {@link OmeroService} instance.
      * @param reg   The {@link Registry}.
      */
-    public static void linkOPS(OmeroPojoService os, Registry reg)
+    public static void linkOPS(OmeroService os, Registry reg)
     {
         ((RegistryImpl) reg).setOS(os);
     }

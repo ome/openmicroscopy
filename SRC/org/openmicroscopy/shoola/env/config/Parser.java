@@ -67,7 +67,7 @@ class Parser
 {
 
 	/** The tags that we handle. */
-	static private String[]		tagsEntry = { Entry.ENTRY, Entry.STRUCT_ENTRY };
+	static private String[]		tagsEntry = {Entry.ENTRY, Entry.STRUCT_ENTRY};
 	
 	/** 
 	 * Tells whether or not we're validating the configuration file against

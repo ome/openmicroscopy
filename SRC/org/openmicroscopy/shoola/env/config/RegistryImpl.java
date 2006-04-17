@@ -36,7 +36,7 @@ import java.util.HashMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
@@ -96,7 +96,7 @@ class RegistryImpl
     private PixelsService           ps;
     
     /** Reference to the Omero service. */
-    private OmeroPojoService            os;
+    private OmeroService            os;
     
     //private ImageService			is;
 
@@ -177,7 +177,7 @@ class RegistryImpl
      * Implemented as specified by {@link Registry}.
      * @see Registry#getOmeroService()
      */
-    public OmeroPojoService getOmeroService() { return os; }
+    public OmeroService getOmeroService() { return os; }
     
     /** 
      * Implemented as specified by {@link Registry}.
@@ -246,10 +246,10 @@ class RegistryImpl
 	void setUserNotifier(UserNotifier un) { this.un = un; }
     
     /**
-     * Stores a reference to the {@link OmeroPojoService}.
+     * Stores a reference to the {@link OmeroService}.
      * 
-     * @param os    The {@link OmeroPojoService}.
+     * @param os    The {@link OmeroService}.
      */
-    void setOS(OmeroPojoService os) { this.os = os; }
+    void setOS(OmeroService os) { this.os = os; }
 	
 }

@@ -38,17 +38,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.adapters.pojos.Model2PojosMapper;
-import ome.api.Pojos;
-import ome.client.ServiceFactory;
-import ome.model.Category;
-import ome.model.CategoryGroup;
-import ome.model.Dataset;
-import ome.model.Image;
-import ome.model.Project;
+import ome.api.IPojos;
+import ome.api.IQuery;
+import ome.model.IMutable;
+import ome.model.IObject;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -90,9 +94,6 @@ class OMEROGateway
      * try reestabishing a valid link to <i>OMEDS</i>. 
      */
     private DataServicesFactory     dsFactory;
-    
-    /** Reference to the pojos mapper. */
-    private Model2PojosMapper       mapper;
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
@@ -149,21 +150,21 @@ class OMEROGateway
     }
     
     /**
-     * Maps the constant defined by {@link OmeroPojoService}
-     * to the corresponding value defined by {@link Pojos}.
+     * Maps the constant defined by {@link OmeroService}
+     * to the corresponding value defined by {@link IPojos}.
      * 
-     * @param algorithm One of the constant defined by {@link OmeroPojoService}.
+     * @param algorithm One of the constant defined by {@link OmeroService}.
      * @return See above.
      */
     private String mapAlgorithmToString(int algorithm)
     {
         switch (algorithm) {
-            case OmeroPojoService.CLASSIFICATION_ME:
-                return Pojos.CLASSIFICATION_ME;
-            case OmeroPojoService.CLASSIFICATION_NME:
-                return Pojos.CLASSIFICATION_NME;
-            case OmeroPojoService.DECLASSIFICATION:
-                return Pojos.DECLASSIFICATION;
+            case OmeroService.CLASSIFICATION_ME:
+                return IPojos.CLASSIFICATION_ME;
+            case OmeroService.CLASSIFICATION_NME:
+                return IPojos.CLASSIFICATION_NME;
+            case OmeroService.DECLASSIFICATION:
+                return IPojos.DECLASSIFICATION;
         }
         throw new IllegalArgumentException("Algorithm not valid.");
     }
@@ -201,11 +202,11 @@ class OMEROGateway
     private String convertProperty(Class nodeType, String property)
     {
         if (nodeType.equals(DatasetData.class)) {
-            if (property.equals(OmeroPojoService.IMAGES_PROPERTY))
-                return "images";
+            if (property.equals(OmeroService.IMAGES_PROPERTY))
+                return DatasetData.IMAGE_LINKS;
         } else if (nodeType.equals(CategoryData.class)) {
-            if (property.equals(OmeroPojoService.IMAGES_PROPERTY))
-                return "classifications";
+            if (property.equals(OmeroService.IMAGES_PROPERTY))
+                return CategoryData.IMAGES;
         }
         else throw new IllegalArgumentException("NodeType or " +
         										"property not supported");
@@ -230,46 +231,50 @@ class OMEROGateway
     }
     
     /**
-     * Retrieves the details on the current user.
+     * Retrieves the details on the current user and maps the result calling
+     * {@link PojoMapper#asDataObjects(Map)}.
      * 
-     * @param name The user's name.
-     * @return A <code>Map</code> whose key are users' ID and values the 
-     *         {@link pojos.ExperimenterData}
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @param name  The user's name.
+     * @return      The {@link ExperimenterData} of the current user.
+     * @throws DSOutOfServiceException If the connection is broken, or
+     * logged in.
      */
     private ExperimenterData getUserDetails(String name)
         throws DSOutOfServiceException
     {
         try {
-            Pojos service = getPojosService();
+            IPojos service = getIPojosService();
             Set set = new HashSet(1);
             set.add(name);
-            Map m = mapper.map(service.getUserDetails(set, 
+            Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
                     (new PojoOptions()).map()));
             ExperimenterData data = (ExperimenterData) m.get(name);
-            if (data == null) 
+            if (data == null) {
                 throw new DSOutOfServiceException("Cannot retrieve user's " +
-                								"data");
-            
-            //TODO: remove this code asap.
-            Set groups = data.getGroups();
-            if (groups == null || groups.size() == 0) {
-                groups = new HashSet(1);
-                groups.add(data.getGroup());
-                data.setGroups(groups);
+                "data");
             }
+                
             return data;
         } catch (Exception e) {
+            e.printStackTrace(); 
             throw new DSOutOfServiceException("Cannot retrieve user's " +
                     						"data", e);
         }
     }
+    
     /**
-     * Returns the {@link Pojos} service.
+     * Returns the {@link IPojos} service.
      * 
      * @return See above.
      */
-    private Pojos getPojosService() { return entry.getPojosService(); }
+    private IPojos getIPojosService() { return entry.getPojosService(); }
+    
+    /**
+     * Returns the {@link IQuery} service.
+     *  
+     * @return See above.
+     */
+    private IQuery getIQueryService() { return entry.getQueryService(); }
     
     /**
      * Creates a new instance.
@@ -285,9 +290,15 @@ class OMEROGateway
     {
         if (dsFactory == null) 
             throw new IllegalArgumentException("No Data service factory.");
-        System.setProperty("server.host", ""+hostName);
-        System.setProperty("server.port", ""+port);
-        
+        System.getProperties().setProperty("server.host", hostName);
+        System.getProperties().setProperty("server.port", ""+port);
+        //TODO: find a cleaner solution
+        System.getProperties().setProperty("omero.group", "user");
+        System.getProperties().setProperty("omero.event", "User");
+        System.getProperties().setProperty("java.naming.factory.initial",
+                "org.jboss.security.jndi.JndiLoginInitialContextFactory");
+        System.getProperties().setProperty("java.naming.factory.url.pkgs", 
+                    "org.jboss.naming:org.jnp.interfaces");
         this.dsFactory = dsFactory;
     }
     
@@ -314,22 +325,24 @@ class OMEROGateway
     ExperimenterData login(String userName, String password)
         throws DSOutOfServiceException
     {
-        System.getProperties().setProperty("omeds.user", userName);
-        System.getProperties().setProperty("omeds.pass", password);
+        System.getProperties().setProperty("omero.user", userName);
+        System.getProperties().setProperty("omero.pass", password);
         try {
-            entry = new ServiceFactory();
-            mapper = new Model2PojosMapper();
+            entry = new ServiceFactory(); 
             connected = true;
             return getUserDetails(userName);
         } catch (Exception e) {
             connected = false;
             String s = "Can't connect to OMERO. OMERO info not valid.";
+            e.printStackTrace();
             throw new DSOutOfServiceException(s, e);  
         } 
     }
     
+    /** Log out. */
     void logout()
     {
+        //TODO
         connected = false;
     }
     
@@ -339,15 +352,17 @@ class OMEROGateway
      * The annotation for the current user is also linked to the object.
      * Annotations are currently possible only for Image and Dataset.
      * Wraps the call to the 
-     * {@link Pojos#loadContainerHierarchy(Class, Set, Map)}
-     * and maps the result calling
-     * {@link Model2PojosMapper#map(java.util.Collection)}.
+     * {@link IPojos#loadContainerHierarchy(Class, Set, Map)}
+     * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
      * 
-     * @param rootNodeType top-most type which will be searched for 
-     *          Can be <code>Project</code> or <code>CategoryGroup</code>. 
-     *          Mustn't be <code>null</code>.
-     * @param rootNodeIDs A set of the IDs of top-most containers.
-     * @param options Options to retrieve the data.
+     * @param rootNodeType  The top-most type which will be searched for 
+     *                      Can be <code>Project</code> or 
+     *                      <code>CategoryGroup</code>. 
+     *                      Mustn't be <code>null</code>.
+     * @param rootNodeIDs   A set of the IDs of top-most containers. 
+     *                      Passed <code>null</code> to retrieve all container
+     *                      of the type specified by the rootNodetype parameter.
+     * @param options       The Options to retrieve the data.
      * @return  A set of hierarchy trees.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
@@ -357,9 +372,9 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = getPojosService();
-            return (Set) mapper.map(service.loadContainerHierarchy(
-                            convertPojos(rootNodeType), rootNodeIDs, options));
+            IPojos service = getIPojosService();
+            return PojoMapper.asDataObjects(service.loadContainerHierarchy(
+                    convertPojos(rootNodeType), rootNodeIDs, options));
         } catch (Exception e) {
             handleException(e, "Cannot load hierarchy for "+rootNodeType+".");
         }
@@ -372,9 +387,8 @@ class OMEROGateway
      * The annotation for the current user is also linked to the object.
      * Annotations are currently possible only for Image and Dataset.
      * Wraps the call to the 
-     * {@link Pojos#findContainerHierarchies(Class, Set, Map)}
-     * and maps the result calling
-     * {@link Model2PojosMapper#map(java.util.Collection)}.
+     * {@link IPojos#findContainerHierarchies(Class, Set, Map)}
+     * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
      * 
      * @param rootNodeType  top-most type which will be searched for 
      *                      Can be <code>Project</code> or
@@ -392,8 +406,8 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = getPojosService();
-            return (Set) mapper.map(service.findContainerHierarchies(
+            IPojos service = getIPojosService();
+            return PojoMapper.asDataObjects(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
         } catch (Exception e) {
             handleException(e, "Cannot find hierarchy for "+rootNodeType+".");
@@ -409,29 +423,35 @@ class OMEROGateway
      * that were found for that node. If no annotations were found for that
      * node, then the entry will be <code>null</code>. Otherwise it will be a
      * <code>Set</code> containing <code>Annotation</code> objects.
-     * Wraps the call to the {@link Pojos#findAnnotations(Class, Set, Map)}
-     * and maps the result calling
-     * {@link Model2PojosMapper#map(java.util.Collection)}.
+     * Wraps the call to the 
+     * {@link IPojos#findAnnotations(Class, Set, Set, Map)}
+     * and maps the result calling {@link PojoMapper#asDataObjects(Map)}.
      * 
-     * @param nodeType  The type of the rootNodes. It can either be
-     *                  <code>Dataset</code> or <code>Image</code>.
-     *                  Mustn't be <code>null</code>. 
-     * @param nodeIDs   TheIds of the objects of type <code>rootNodeType</code>.
-     *                  Mustn't be <code>null</code>.
-     * @param options   Options to retrieve the data.
+     * @param nodeType      The type of the rootNodes. It can either be
+     *                      <code>Dataset</code> or <code>Image</code>.
+     *                      Mustn't be <code>null</code>. 
+     * @param nodeIDs       TheIds of the objects of type
+     *                      <code>rootNodeType</code>. 
+     *                      Mustn't be <code>null</code>.
+     * @param annotatorIDs  The Ids of the users for whom annotations should be 
+     *                      retrieved. If <code>null</code>, all annotations 
+     *                      are returned.
+     * @param options       Options to retrieve the data.
      * @return A map whose key is rootNodeID and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    Map findAnnotations(Class nodeType, Set nodeIDs, Map options)
+    Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
+                        Map options)
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = getPojosService();
-            return mapper.map(service.findAnnotations(convertPojos(nodeType),
-                            nodeIDs, options));
+            IPojos service = getIPojosService();
+            return PojoMapper.asDataObjects(
+                    service.findAnnotations(convertPojos(nodeType), nodeIDs, 
+                            annotatorIDs, options));
         } catch (Exception e) {
             handleException(e, "Cannot find annotations for "+nodeType+".");
         }
@@ -457,9 +477,8 @@ class OMEROGateway
      * This is <u>more</u> restrictive than may be imagined. The goal is to 
      * find CGC paths to which an Image <B>MAY</b> be attached.
      * </p>
-     * Wraps the call to the {@link Pojos#findCGCPaths(Set, String, Map)}
-     * and maps the result calling
-     * {@link Model2PojosMapper#map(java.util.Collection)}.
+     * Wraps the call to the {@link IPojos#findCGCPaths(Set, String, Map)}
+     * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
      * 
      * @param imgIDs    Set of ids of the images that sit at the bottom of the
      *                  CGC trees. Mustn't be <code>null</code>.
@@ -476,8 +495,8 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = getPojosService();
-            return (Set) mapper.map(service.findCGCPaths(imgIDs, 
+            IPojos service = getIPojosService();
+            return PojoMapper.asDataObjects(service.findCGCPaths(imgIDs, 
                                     mapAlgorithmToString(algorithm),
                                     options));
         } catch (Exception e) {
@@ -489,9 +508,8 @@ class OMEROGateway
     /**
      * Retrieves the images contained in containers specified by the 
      * node type.
-     * Wraps the call to the {@link Pojos#getImages(Class, Set, Map)}
-     * and maps the result calling
-     * {@link Model2PojosMapper#map(java.util.Collection)}.
+     * Wraps the call to the {@link IPojos#getImages(Class, Set, Map)}
+     * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
      * 
      * @param nodeType  The type of container. Can be either Project, Dataset,
      *                  CategoryGroup, Category.
@@ -506,9 +524,9 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = getPojosService();
-            return (Set) mapper.map(service.getImages(convertPojos(nodeType),
-                                    nodeIDs, options));
+            IPojos service = getIPojosService();
+            return PojoMapper.asDataObjects(
+                   service.getImages(convertPojos(nodeType), nodeIDs, options));
         } catch (Exception e) {
             handleException(e, "Cannot find images for "+nodeType+".");
         }
@@ -517,9 +535,8 @@ class OMEROGateway
     
     /**
      * Retrieves the images imported by the current user.
-     * Wraps the call to the {@link Pojos#getUserImages(Map)}
-     * and maps the result calling
-     * {@link Model2PojosMapper#map(java.util.Collection)}.
+     * Wraps the call to the {@link IPojos#getUserImages(Map)}
+     * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
      * 
      * @param options   Options to retrieve the data.
      * @return A <code>Set</code> of retrieved images.
@@ -531,20 +548,19 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            Pojos service = getPojosService();
-            return (Set) mapper.map(service.getUserImages(options));
+            IPojos service = getIPojosService();
+            return PojoMapper.asDataObjects(service.getUserImages(options));
         } catch (Exception e) {
             handleException(e, "Cannot find user images.");
         }
         return new HashSet();
     }
     
-
-    
     /**
      * Counts the number of items in a collection for a given object.
      * Returns a map which key is the passed rootNodeID and the value is 
-     * the number of items contained in this object.
+     * the number of items contained in this object and
+     * maps the result calling {@link PojoMapper#asDataObjects(Map)}.
      * 
      * @param rootNodeType 	The type of container. Can either be Dataset 
      * 						and Category.
@@ -561,10 +577,10 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
 	{
         try {
-            Pojos service = getPojosService();
+            IPojos service = getIPojosService();
             String p = convertProperty(rootNodeType, property);
             if (p == null) return null;
-            return mapper.map(service.getCollectionCount(
+            return PojoMapper.asDataObjects(service.getCollectionCount(
                     convertPojosToString(rootNodeType), p, rootNodeIDs, 
                     options));
         } catch (Exception e) {
@@ -572,5 +588,103 @@ class OMEROGateway
         }
         return new HashMap();
 	}
+    
+    /**
+     * Creates the speficied object.
+     * 
+     * @param object    The object to create.
+     * @param options   Options to create the data.  
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    IObject createObject(IObject object, Map options)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IPojos service = getIPojosService();
+            return service.createDataObject(object, options);
+        } catch (Exception e) {
+            handleException(e, "Cannot update the object.");
+        }
+        return null;
+    }
+    
+    /**
+     * Deletes the specified object.
+     * 
+     * @param object    The object to delete.
+     * @param options   Options to create the data.  
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    void deleteObject(IObject object, Map options)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IPojos service = getIPojosService();
+            service.deleteDataObject(object, options);
+        } catch (Exception e) {
+            handleException(e, "Cannot delete the object.");
+        }
+    }
+
+    /**
+     * Updates the specified object.
+     * 
+     * @param object    The objet to update.
+     * @param options   Options to update the data.   
+     * @return          The updated object.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    IObject updateObject(IObject object, Map options)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IPojos service = getIPojosService();
+            /*
+            IQuery query = getIQueryService();
+            Object o = query.getById(object.getClass(),
+                                     object.getId().longValue());
+            if (object instanceof IMutable) {
+                IMutable io = (IMutable) o;
+                System.out.println("version: "+io.getVersion());
+                ((IMutable) object).setVersion(io.getVersion());
+            }
+            System.out.println("Object: "+((IMutable) object).getVersion());
+            */
+            return service.updateDataObject(object, options);
+        } catch (Exception e) {
+            handleException(e, "Cannot update the object.");
+        }
+        return null;
+    }
+    
+    /**
+     * Updates the specified <code>IObject</code>s and returned the 
+     * updated <code>IObject</code>s.
+     * 
+     * @param objects   The array of objects to update.
+     * @param options   Options to update the data.   
+     * @return  See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    IObject[] updateObject(IObject[] objects, Map options)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IPojos service = getIPojosService();
+            return service.updateDataObjects(objects, options);
+        } catch (Exception e) {
+            handleException(e, "Cannot update the object.");
+        }
+        return null;
+    }
     
 }

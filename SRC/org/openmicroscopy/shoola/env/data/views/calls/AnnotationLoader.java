@@ -38,7 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
@@ -80,17 +80,17 @@ public class AnnotationLoader
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
-        if (nodeIDs == null && nodeIDs.size() == 0)
+        if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
         try {
-            nodeIDs.toArray(new Integer[] {});
+            nodeIDs.toArray(new Long[] {});
         } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "nodeIDs can only contain Integer.");
+            throw new IllegalArgumentException("nodeIDs only contains Long.");
         }  
         if (nodeType.equals(DatasetData.class) ||
             nodeType.equals(ImageData.class))
             loadCall = makeAnnotationBatchCall(nodeType, nodeIDs);
+        else throw new IllegalArgumentException("DataObject not supported.");
     }
     
     /**
@@ -108,8 +108,8 @@ public class AnnotationLoader
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
-                OmeroPojoService os = context.getOmeroService();
-                annotations = os.findAnnotations(nodeType, nodeIDs, false);
+                OmeroService os = context.getOmeroService();
+                annotations = os.findAnnotations(nodeType, nodeIDs, null);
             }
         };
     }
@@ -138,10 +138,10 @@ public class AnnotationLoader
      *                 	{@link DatasetData}, {@link ImageData}.
      * @param nodeID  	The id of the node.
      */
-    public AnnotationLoader(Class nodeType, int nodeID)
+    public AnnotationLoader(Class nodeType, long nodeID)
     {
         HashSet set = new HashSet(1);
-        set.add(new Integer(nodeID));
+        set.add(new Long(nodeID));
         validate(nodeType, set);
     }
     

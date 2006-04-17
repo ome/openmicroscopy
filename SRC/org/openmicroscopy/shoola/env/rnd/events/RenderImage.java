@@ -59,7 +59,7 @@ public class RenderImage
 {
 
 	/** The ID of the pixels set. */
-	private int			pixelsID;
+	private int       pixelsID;
 		
 	/** 
 	 * Defines what data, within the pixels set, to render.

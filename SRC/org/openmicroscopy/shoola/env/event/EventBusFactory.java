@@ -49,7 +49,6 @@ package org.openmicroscopy.shoola.env.event;
  * </small>
  * @since OME2.2
  */
-
 public class EventBusFactory
 {
 

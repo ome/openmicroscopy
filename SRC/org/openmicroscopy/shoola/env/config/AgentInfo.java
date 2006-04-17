@@ -89,7 +89,7 @@ public class AgentInfo
 	 * 
 	 * @return See above.
 	 */
-    public String getConfigPath() { return configPath;}
+    public String getConfigPath() { return configPath; }
     
 	/** 
 	 * Returns the {@link Agent}. 

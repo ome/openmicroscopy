@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 /**
- * Hanldes a <i>structuredEntry</i> of type <i>font</i>.
+ * Handles a <i>structuredEntry</i> of type <i>font</i>.
  * The content of the entry is stored in a {@link Font} object, which is
  * then returned by the {@link #getValue() getValue} method.
  * 
@@ -182,7 +182,7 @@ class FontEntry
 		String value = (String) fontAttributes.get(STYLE_TAG);
 		int style = DEFAULT_STYLE;
 		Integer id = (Integer) FONT_STYLES.get(value);
-		if (id != null)		style = id.intValue();
+		if (id != null) style = id.intValue();
 		return style;
 	}
 	

@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -91,7 +91,7 @@ public class ImagesLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                OmeroPojoService os = context.getOmeroService();
+                OmeroService os = context.getOmeroService();
                 results = os.getUserImages();
             }
         };
@@ -112,12 +112,12 @@ public class ImagesLoader
     private BatchCall makeImagesInContainerBatchCall(final Class nodeType,
                                         			final Set nodeIDs,
                                         			final Class rootLevel,
-                                        			final int rootLevelID)
+                                        			final long rootLevelID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                OmeroPojoService os = context.getOmeroService();
+                OmeroService os = context.getOmeroService();
                 results = os.getImages(nodeType, nodeIDs, rootLevel, 
                                         rootLevelID);
             }
@@ -156,13 +156,18 @@ public class ImagesLoader
      * @param rootLevelID	The Id of the root.
      */
     public ImagesLoader(Class nodeType, Set nodeIDs, Class rootLevel,
-            			int rootLevelID)
+            			long rootLevelID)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
         if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("Collection of node ID" +
                                                 " not valid.");
+        try {
+            nodeIDs.toArray(new Long[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException("nodeIDs only contains Long.");
+        }  
         checkRootLevel(rootLevel);
         if (nodeType.equals(DatasetData.class) || 
             nodeType.equals(CategoryData.class))

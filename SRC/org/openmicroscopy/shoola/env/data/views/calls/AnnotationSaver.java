@@ -36,10 +36,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
-import org.openmicroscopy.shoola.env.data.model.AnnotationData;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -61,49 +62,36 @@ public class AnnotationSaver
     extends BatchCallTree
 {
     
+    /** Identifies the <code>CREATE</code> annotation action. */
+    public static final int CREATE = 0;
+    
+    /** Identifies the <code>UPDATE</code> annotation action. */
+    public static final int UPDATE = 1;
+    
+    /** Identifies the <code>DELETE</code> annotation action. */
+    public static final int DELETE = 2;
+    
     /** The save call. */
     private BatchCall       saveCall;
-    
-    //TODO: remove asap
-    private AnnotationData transformPojoAnnotationData(pojos.AnnotationData ad)
-    {
-        AnnotationData annotation = new AnnotationData(ad.getId(),
-                                                    ad.getOwner().getId(),
-                                                    ad.getLastModified());
-        annotation.setAnnotation(ad.getText());
-        return annotation;
-    }
+
+    /** The result of the query. */
+    private DataObject      result;
     
     /**
      * Creates a {@link BatchCall} to remove the specified annotation.
      * 
-     * @param data The annotation to save.
+     * @param object    The annotated <code>DataObject</code>.
+     * @param data      The annotation to remove.
      * @return The {@link BatchCall}.
      */
-    private BatchCall removeDatasetAnnotation(final AnnotationData data)
+    private BatchCall removeAnnotation(final DataObject object,
+                                        final AnnotationData data)
     {
         return new BatchCall("Remove dataset annotation.") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                sts.removeDatasetAnnotation(data);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to remove the specified annotation.
-     * 
-     * @param data The annotation to remove.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall removeImageAnnotation(final AnnotationData data)
-    {
-        return new BatchCall("Remove image annotation.") {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                sts.removeImageAnnotation(data);
+                OmeroService os = context.getOmeroService();
+                result = os.removeAnnotationFrom(object, data);
             }
         };
     }
@@ -111,73 +99,37 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to update the specified annotation.
      * 
-     * @param nodeID 	The id to the <code>DataObject</code>.
-     * @param data 		The updated annotation.
+     * @param object    The annotated <code>DataObject</code>.
+     * @param data      The annotation to update.
      * @return The {@link BatchCall}.
      */
-    private BatchCall updateImageAnnotation(final int nodeID, 
-                                            final AnnotationData data)
+    private BatchCall updateAnnotation(final DataObject object,
+                                        final AnnotationData data)
     {
         return new BatchCall("Update image annotation.") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                sts.updateImageAnnotation(data, nodeID);
+                OmeroService os = context.getOmeroService();
+                result = os.updateAnnotationFor(object, data);
             }     
         };
     }
     
     /**
-     * Creates a {@link BatchCall} to update the specified annotation.
+     * Creates a {@link BatchCall} to create an annotation.
      * 
-     * @param nodeID 	The id to the <code>DataObject</code>.
-     * @param data 		The updated annotation.
+     * @param object    The annotated <code>DataObject</code>.
+     * @param data      The annotation to create.
      * @return The {@link BatchCall}.
      */
-    private BatchCall updateDatasetAnnotation(final int nodeID, 
-                                            final AnnotationData data)
-    {
-        return new BatchCall("Update dataset annotation.") {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                sts.updateDatasetAnnotation(data, nodeID);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to update the specified annotation.
-     * 
-     * @param id 	The id to the <code>DataObject</code>.
-     * @param data 		The updated annotation.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall createImageAnnotation(final int id, final String data)
-    {
-        return new BatchCall("Create image annotation.") {
-            public void doCall() throws Exception
-            {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                sts.createImageAnnotation(id, data, -1, -1);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to create a dataset annotation.
-     * 
-     * @param id 	The id to the <code>DataObject</code>.
-     * @param data 		The updated annotation.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall createDatasetAnnotation(final int id, final String data)
+    private BatchCall createAnnotation(final DataObject object,
+                                       final AnnotationData data)
     {
         return new BatchCall("Create dataset annotation.") {
             public void doCall() throws Exception
             {
-                SemanticTypesService sts = context.getSemanticTypesService();
-                sts.createDatasetAnnotation(id, data);
+                OmeroService os = context.getOmeroService();
+                result = os.createAnnotationFor(object, data);
             }
         };
     }
@@ -189,72 +141,44 @@ public class AnnotationSaver
     protected void buildTree() { add(saveCall); }
 
     /**
-     * Returns <code>null</code>, as the return type of the underlying call
-     * <code>void</code>.
+     * Returns the result of the query.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return Boolean.TRUE; }
+    protected Object getResult() { return result; }
 
     /**
      * Creates a new instance.
-     * Constructor invokes to update an annotation.
      * 
-     * @param nodeType The type of the node. Can either be
-     *                  <code>DatasetData or ImageData</code>. 
-     * @param nodeID The id of the node.
-     * @param data The Annotation object.
+     * @param annotatedObject   The annotated <code>DataObject</code>.
+     *                          Mustn't be <code>null</code>.
+     * @param data              The Annotation object.
+     *                          Mustn't be <code>null</code>.
+     * @param algorithm         One of the constants defined by this class.
      */
-    public AnnotationSaver(Class nodeType, int nodeID,
-                            pojos.AnnotationData data)
+    public AnnotationSaver(DataObject annotatedObject, AnnotationData data, 
+                          int algorithm)
     {
-        if (data == null) throw new IllegalArgumentException("no annotation.");
-        if (nodeType.equals(DatasetData.class))
-            saveCall = updateDatasetAnnotation(nodeID,
-                    transformPojoAnnotationData(data));
-        else if (nodeType.equals(ImageData.class))
-            saveCall = updateImageAnnotation(nodeID,
-                    transformPojoAnnotationData(data));
-        else throw new IllegalArgumentException("Unsupported type: "+nodeType);
-    }
-    
-    /**
-     * Creates a new instance.
-     * Constructor invokes to create an annotation.
-     * 
-     * @param nodeType The type of the node. Can either be
-     *                  <code>DatasetData or ImageData</code>.
-     * @param nodeID The id of the node.
-     * @param data The textual annotation.
-     */
-    public AnnotationSaver(Class nodeType, int nodeID, String data)
-    {
-        if (data == null) throw new IllegalArgumentException("no annotation."); 
-        if (nodeID < 0) throw new IllegalArgumentException("ID not valid.");
-        if (nodeType.equals(DatasetData.class))
-            saveCall = createDatasetAnnotation(nodeID, data);
-        else if (nodeType.equals(ImageData.class))
-            saveCall = createImageAnnotation(nodeID, data);
-        else throw new IllegalArgumentException("Unsupported type: "+nodeType);
-    }
-    
-    /**
-     * Creates a new instance.
-     * Constructor invokes to delete an annotation.
-     * 
-     * @param nodeType The type of the node. Can either be
-     *                  <code>DatasetData or ImageData</code>.
-     * @param data The Annotation object.
-     */
-    public AnnotationSaver(Class nodeType, pojos.AnnotationData data)
-    {
-        System.out.println("data: " +data);
-        if (data == null) throw new IllegalArgumentException("no annotation."); 
-        if (nodeType.equals(DatasetData.class))
-            saveCall = removeDatasetAnnotation(
-                    transformPojoAnnotationData(data));
-        else if (nodeType.equals(ImageData.class))
-            saveCall = removeImageAnnotation(transformPojoAnnotationData(data));
-        else throw new IllegalArgumentException("Unsupported type: "+ nodeType);
+        if (data == null) throw new IllegalArgumentException("No annotation.");
+        if (annotatedObject == null) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        if (!(annotatedObject instanceof DatasetData) &&
+            !(annotatedObject instanceof ImageData))
+            throw new IllegalArgumentException("DataObject cannot be " +
+                                                "annotated.");
+        switch (algorithm) {
+            case DELETE:
+                saveCall = removeAnnotation(annotatedObject, data);
+                break;
+            case UPDATE: 
+                saveCall = updateAnnotation(annotatedObject, data);
+                break;
+            case CREATE:
+                saveCall = createAnnotation(annotatedObject, data);
+                break;
+            default: 
+                throw new IllegalArgumentException("Constructor should only" +
+                        "be invoked to update or delete annotation.");
+        }
     }
     
 }

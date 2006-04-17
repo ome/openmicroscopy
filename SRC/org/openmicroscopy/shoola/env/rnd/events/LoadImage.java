@@ -64,13 +64,13 @@ public class LoadImage
 {	
 	
 	/** The ID of the image to load. */
-	private int		imageID;
+	private long       imageID;
 	
 	/** The ID of the pixels set. */
-	private int		pixelsID;
+	private long       pixelsID;
 	
 	/** The name of the image to load. */
-	private String	imageName;
+	private String     imageName;
 	
 	/**
 	 * Creates a new instance.
@@ -78,7 +78,7 @@ public class LoadImage
 	 * @param imageID	The ID of the image to load.
 	 * @param pixelsID	The ID of the pixels set.
 	 */
-	public LoadImage(int imageID, int pixelsID)
+	public LoadImage(long imageID, long pixelsID)
 	{
 		this.imageID = imageID;
 		this.pixelsID = pixelsID;
@@ -91,20 +91,32 @@ public class LoadImage
 	 * @param pixelsID	The ID of the pixels set.
 	 * @param imageName	The name of the image to load.
 	 */
-	public LoadImage(int imageID, int pixelsID, String imageName)
+	public LoadImage(long imageID, long pixelsID, String imageName)
 	{
 		this.imageID = imageID;
 		this.pixelsID = pixelsID;
 		this.imageName = imageName;
 	}
 	
-	/** Returns the ID of the image to load. */
-	public int getImageID() { return imageID; }
+	/** 
+     * Returns the ID of the image to load. 
+     * 
+     * @return See above.
+     */
+	public long getImageID() { return imageID; }
 
-	/** Return the ID of the pixels set. */
-	public int getPixelsID() { return pixelsID; }
+	/** 
+     * Returns the ID of the pixels set. 
+     * 
+     * @return See above.
+     */
+	public long getPixelsID() { return pixelsID; }
 	
-	/** Return the name of the image to load. */
+	/** 
+     * Returns the name of the image to load. 
+     * 
+     * @return See above.
+     */
 	public String getImageName() { return imageName; }
 
 }

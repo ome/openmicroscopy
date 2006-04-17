@@ -206,7 +206,7 @@ class EventBusImpl
      */ 
     public boolean hasListenerFor(Class eventType)
     {
-    		return (deMultiplexTable.get(eventType) != null);
+        return (deMultiplexTable.get(eventType) != null);
     }
     
     /** 
@@ -227,6 +227,5 @@ class EventBusImpl
                 eventQueue.addFirst(e);                
         }
     }
-
         
 }

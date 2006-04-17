@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
@@ -88,8 +88,7 @@ public class ClassificationLoader
             case HierarchyBrowsingView.CLASSIFICATION_ME:
             case HierarchyBrowsingView.CLASSIFICATION_NME:    
                 return true;
-            default:
-                return false;
+            default: return false;
         }
     }
     
@@ -109,7 +108,7 @@ public class ClassificationLoader
         return new BatchCall("Loading CGC paths. ") {
             public void doCall() throws Exception
             {
-                OmeroPojoService os = context.getOmeroService();
+                OmeroService os = context.getOmeroService();
                 rootNodes = os.findCGCPaths(imageIDs, algorithm);
             }
         };
@@ -133,20 +132,21 @@ public class ClassificationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imageID   The id of the Image.
+     * @param imageID   The id of the Image to classify or declassifiy depending
+     *                  on the algorithm.
      * @param algorithm  One of the following constants:
      *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
      *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
      *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
      */
-    public ClassificationLoader(int imageID, int algorithm)
+    public ClassificationLoader(long imageID, int algorithm)
     {
         if (imageID < 0) 
             throw new IllegalArgumentException("image ID not valid ");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
         Set set = new HashSet(1);
-        set.add(new Integer(imageID));
+        set.add(new Long(imageID));
         loadCall  = loadCGCPaths(set, algorithm);
     }
     
@@ -169,6 +169,11 @@ public class ClassificationLoader
                     "cannot be null or of size 0.");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
+        try {
+            imageIDs.toArray(new Long[] {});
+        } catch (ArrayStoreException ase) {
+            throw new IllegalArgumentException("imageIDs only contains Long.");
+        }  
         loadCall  = loadCGCPaths(imageIDs, algorithm);
     }
     

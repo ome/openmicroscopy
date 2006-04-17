@@ -37,7 +37,6 @@ import java.net.URL;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.OMEDSInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -100,18 +99,6 @@ public class Environment
 	{
 		File f = new File(getHomeDir(), relPathName);
 		return f.getAbsolutePath();
-	}
-	
-	/**
-	 * Returns the current <code>OMEDS</code> address used by the container.
-	 * 
-	 * @return	See above.
-	 */
-	public URL getOMEDSAddress()
-	{
-		Registry r = container.getRegistry();
-		OMEDSInfo i = (OMEDSInfo) r.lookup(LookupNames.OMEDS);
-		return (i == null) ? null : i.getServerAddress();
 	}
 
 }
