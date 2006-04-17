@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.events;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.executions.data.ExecutionsData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 
 /** 
@@ -57,6 +56,7 @@ public class LoadChainExecutionsEvent extends AgentEvent
 {
     
     
+    /*
     public LoadChainExecutionsEvent(ExecutionsData ExecutionsData) {
    		super();
    		setSource(ExecutionsData);
@@ -66,6 +66,7 @@ public class LoadChainExecutionsEvent extends AgentEvent
     public ExecutionsData getExecutionsData() {
     		return (ExecutionsData) getSource();
     }
+    */
 }
 
 
