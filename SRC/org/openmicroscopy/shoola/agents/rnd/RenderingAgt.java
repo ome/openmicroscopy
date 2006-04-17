@@ -37,8 +37,6 @@ package org.openmicroscopy.shoola.agents.rnd;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.openmicroscopy.shoola.agents.annotator.IconManager;
 import org.openmicroscopy.shoola.agents.events.viewer.DisplayViewerRelatedAgent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -101,7 +99,7 @@ public class RenderingAgt
     private RenderingControl        renderingControl;
     
     /** Current image displayed: imageID and set of pixelsID. */
-    private int                     curImageID, curPixelsID;
+    private long                    curImageID, curPixelsID;
     
     private String                  curImageName;
     
@@ -143,7 +141,8 @@ public class RenderingAgt
     /** Render a new image when a control has been activated. */
     private void refreshImage()
     {
-        registry.getEventBus().post(new RenderImage(curPixelsID)); 
+        registry.getEventBus().post(new RenderImage(
+                (new Long(curPixelsID)).intValue())); 
     }
     
     /** Handle the event @see DisplayViewerRelatedAgents . */
@@ -217,7 +216,8 @@ public class RenderingAgt
     {
         try {
             SemanticTypesService sts = registry.getSemanticTypesService();
-            channelData = sts.getChannelData(curImageID); 
+            
+            channelData = sts.getChannelData((new Long(curImageID)).intValue()); 
             if (channelData.length != pxsDims.sizeW || channelData == null)
                 defaultInitChannelData();           
         } catch(DSAccessException dsae) {
