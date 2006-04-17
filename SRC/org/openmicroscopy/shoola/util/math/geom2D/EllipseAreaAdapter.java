@@ -118,7 +118,6 @@ class EllipseAreaAdapter
      * ((x-x0)/a)^2+((y-y0)/b)^2 = 1
      * </p>
      * where a = getWidth()/2, b = getHeight()/2, x0 = getX()+a, y0 = getY()+b.
-     * 
      * @see PlaneArea#onBoundaries(double, double)
      */
     public boolean onBoundaries(double x, double y)
