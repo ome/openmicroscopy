@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
@@ -73,6 +73,6 @@ public class NullRegistry
     public UserNotifier getUserNotifier() { return null; }
     public PixelsService getPixelsService() { return null; }
     public DataServicesView getDataServicesView(Class view) { return null; }
-    public OmeroPojoService getOmeroService() { return null; }
+    public OmeroService getOmeroService() { return null; }
 
 }
