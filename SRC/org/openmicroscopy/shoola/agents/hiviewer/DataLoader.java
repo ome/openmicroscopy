@@ -99,7 +99,7 @@ public abstract class DataLoader
      *     
      * @return See above.
      */
-    protected int getRootID()
+    protected long getRootID()
     {
         Class root = viewer.getRootLevel();
         if (root.equals(ExperimenterData.class)) {

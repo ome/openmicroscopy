@@ -37,6 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the classifier component.
@@ -127,11 +128,11 @@ public interface Classifier
     public int getState();
     
     /**
-     * Returns the id of the Image this component is for.
+     * Returns the image this component is for.
      * 
      * @return See above.
      */
-    public int getImageID();
+    public ImageData getImage();
     
     /**
      * Starts the data loading process when the current state is {@link #NEW} 

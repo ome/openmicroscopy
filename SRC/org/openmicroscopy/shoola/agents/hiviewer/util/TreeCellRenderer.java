@@ -96,14 +96,37 @@ public class TreeCellRenderer
             if (icon == null) icon = icons.getIcon(IconManager.PROJECT);
             setIcon(icon);
         } else if (usrObject instanceof DatasetData) {
-            setText(((DatasetData) usrObject).getName());
-            if (icon == null) icon = icons.getIcon(IconManager.DATASET);
+            DatasetData data = (DatasetData) usrObject;
+            setText(data.getName());
+            if (icon == null) {
+                Integer i = data.getAnnotationCount();
+                if (i == null || i.intValue() == 0)
+                    icon = icons.getIcon(IconManager.DATASET);
+                else icon = icons.getIcon(IconManager.ANNOTATED_DATASET);
+            }
             setIcon(icon);
         } else if (usrObject instanceof ImageData) {
-            setText(((ImageData) usrObject).getName());
+            ImageData data = (ImageData) usrObject;
+            setText(data.getName());
             if (icon == null) {
                 if (thumbnail) icon = icons.getIcon(IconManager.IMAGE_MEDIUM);
-                else icon = icons.getIcon(IconManager.IMAGE);
+                else {
+                    ImageData img = (ImageData) usrObject;
+                    Integer a = img.getAnnotationCount();
+                    Integer c = img.getClassificationCount();
+                    int n = 0, m = 0;
+                    if (a != null) n = a.intValue();
+                    if (c != null) m = c.intValue();
+                    if (n == 0 && m == 0) 
+                        icon = icons.getIcon(IconManager.IMAGE);
+                    else if (n != 0 && m == 0)
+                        icon = icons.getIcon(IconManager.ANNOTATED_IMAGE);
+                    else if (n == 0 && m != 0)
+                        icon = icons.getIcon(IconManager.CLASSIFIED_IMAGE);
+                    else if (n != 0 && m != 0)
+                        icon = icons.getIcon(
+                                IconManager.ANNOTATED_CLASSIFIED_IMAGE);
+                }
             }
             setIcon(icon);
         } else if (usrObject instanceof CategoryGroupData) {

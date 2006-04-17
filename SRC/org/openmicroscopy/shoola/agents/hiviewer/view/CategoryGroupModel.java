@@ -61,7 +61,7 @@ class CategoryGroupModel
      * The id of the Category Group that is the root of the CG/C/I tree
      * that this Model handles. 
      */
-    private int     cgID;
+    private long     cgID;
     
     
     /**
@@ -70,7 +70,7 @@ class CategoryGroupModel
      * @param cgID The id of the Category Group that is the root of the CG/C/I
      *             tree that this Model will handle. 
      */
-    CategoryGroupModel(int cgID) 
+    CategoryGroupModel(long cgID) 
     {
         super();
         this.cgID = cgID; 

@@ -87,6 +87,12 @@ public interface ClipBoard
     /** Identifies the <i>Discarded annotations</i> state. */
     public static final int     DISCARDED_ANNOTATIONS = 203;
     
+    /** Indicates to retrieve the image annotations. */
+    public static final int     IMAGE_ANNOTATIONS = 300;
+    
+    /** Indicates to retrieve the dataset annotations. */
+    public static final int     DATASET_ANNOTATIONS = 301;
+    
     /**
      * Returns the {@link LoadingWin}.
      * 
@@ -121,13 +127,13 @@ public interface ClipBoard
     /**
      * Retrieves the annotations for the specified object.
      * 
-     * @param objectID The ID of the data object.
-     * @param annotationIndex The annotation index,
-     * one of the following constant:
-     * {@link AnnotationEditor#DATASET_ANNOTATION}, 
-     * {@link AnnotationEditor#IMAGE_ANNOTATION}.
+     * @param objectID          The ID of the data object.
+     * @param annotationIndex   The annotation index.
+     *                          One of the following constants:
+     *                          {@link #DATASET_ANNOTATIONS}, 
+     *                          {@link #IMAGE_ANNOTATIONS}.
      */
-    public void retrieveAnnotations(int objectID, int annotationIndex);
+    public void retrieveAnnotations(long objectID, int annotationIndex);
 
     /** 
      * Creates a new annotation.
@@ -171,6 +177,13 @@ public interface ClipBoard
      * @param node  Pass <code>null</code> to modify the diplay.
      */
     public void setPaneIndex(int index, ImageDisplay node);
+
+    /**
+     * Queries the current state.
+     * 
+     * @return One of the state flags defined by this interface.
+     */
+    public int getState();
     
 }
 

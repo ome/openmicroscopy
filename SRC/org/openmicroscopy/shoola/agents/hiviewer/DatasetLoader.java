@@ -62,7 +62,7 @@ public class DatasetLoader
 {
     
     /** The id of the root dataset. */
-    private int         datasetID;
+    private long        datasetID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -74,7 +74,7 @@ public class DatasetLoader
      *                  Mustn't be <code>null</code>.
      * @param datasetID The id of the root dataset.
      */
-    public DatasetLoader(HiViewer viewer, int datasetID)
+    public DatasetLoader(HiViewer viewer, long datasetID)
     {
         super(viewer);
         this.datasetID = datasetID;

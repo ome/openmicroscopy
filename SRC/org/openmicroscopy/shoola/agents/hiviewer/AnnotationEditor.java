@@ -40,6 +40,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -74,32 +75,17 @@ public class AnnotationEditor
     /** Identifies the <code>DELETE</code> annotation action. */
     public static final int         DELETE = 2;
     
-    /** Indicates that we manipulate image annotations. */
-    public static final int         IMAGE_ANNOTATION = 101;
-    
-    /** Indicates that we manipulate dataset annotations. */
-    public static final int         DATASET_ANNOTATION = 104;
-    
-    /** 
-     * The Annotation index, one of the following constants:
-     * {@link #IMAGE_ANNOTATION} or {@link #DATASET_ANNOTATION}.
-     */ 
-    private int             annotationIndex;
-    
     /** One of the constants defined by this class. */
-    private int             actionIndex;
+    private int             operation;
     
-    /** The ID of the object to annotate. */
-    private int             objectID;
+    /** The object to annotate. */
+    private DataObject      annotatedObject;
     
     /** The annotation data object to update or delete. */
     private AnnotationData  data;
     
-    /** The text of the annotation to create. */
-    private String          text;
-    
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle      handle;
     
     /**
      * Controls if the action index is valid.
@@ -109,47 +95,11 @@ public class AnnotationEditor
     private void checkActionIndex(int i)
     {
         switch (i) {
-            case CREATE:
             case UPDATE:
             case DELETE:    
                 return;
             default:
-                throw new IllegalArgumentException("Action not supported: "
-                        +i);
-        }
-    }
-    
-    /**
-     * Controls if the annotation index is valid.
-     * 
-     * @param i The index to control.
-     */
-    private void checkAnnotationIndex(int i)
-    {
-        switch (i) {
-            case IMAGE_ANNOTATION:
-            case DATASET_ANNOTATION:  
-                return;
-            default:
-                throw new IllegalArgumentException("Annotation not supported: "
-                        +i);
-        }
-    }
-    
-    /**
-     * Returns the Class corresponding to the annotation index.
-     * 
-     * @return See above.
-     */
-    private Class getAnnotationClass()
-    {
-        switch (annotationIndex) {
-            case IMAGE_ANNOTATION:
-                return ImageData.class;
-            case DATASET_ANNOTATION:
-                return DatasetData.class;
-            default:
-                return null;
+                throw new IllegalArgumentException("Action not supported: "+i);
         }
     }
     
@@ -158,86 +108,26 @@ public class AnnotationEditor
      * 
      * @param clipBoard         The viewer this data loader is for.
      *                          Mustn't be <code>null</code>.
-     * @param actionIndex       The action index. One of the following constants
-     *                          {@link #CREATE}, {@link #DELETE} or
-     *                          {@link #UPDATE}.
-     * @param annotationIndex   The annotation index. One of the following 
-     *                          constants: {@link #IMAGE_ANNOTATION} or 
-     *                          {@link #DATASET_ANNOTATION}.
+     * @param annotatedObject   The {@link DataObject} to annotate.
      * @param data              The annotation to handle.
+     * @param operation         The action index. One of the constants
+     *                          defined by this class.
      */
-    public AnnotationEditor(ClipBoard clipBoard, int actionIndex, 
-                            int annotationIndex, AnnotationData data)
+    public AnnotationEditor(ClipBoard clipBoard, DataObject annotatedObject, 
+                            AnnotationData data, int operation)
     {
         super(clipBoard);
-        checkActionIndex(actionIndex);
-        checkAnnotationIndex(annotationIndex);
-        if (data == null)
-            throw new IllegalArgumentException("Annotation not valid");
-        this.annotationIndex = annotationIndex;
-        this.actionIndex = actionIndex;
+        if (data == null) throw new IllegalArgumentException("No Annotation.");
+        if (annotatedObject == null) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        if (!(annotatedObject instanceof DatasetData) && 
+                !(annotatedObject instanceof ImageData))
+            throw new IllegalArgumentException("DataObject to annotate not " +
+                    "supported.");
+        checkActionIndex(operation);
+        this.operation = operation;
+        this.annotatedObject = annotatedObject;
         this.data = data;
-    }
-
-    /**
-     * Creates a new instance. 
-     * 
-     * @param clipBoard         The viewer this data loader is for.
-     *                          Mustn't be <code>null</code>.
-     * @param actionIndex       The action index. One of the following constants
-     *                          {@link #CREATE}, {@link #DELETE} or
-     *                          {@link #UPDATE}.
-     * @param annotationIndex   The annotation index. One of the following 
-     *                          constants: {@link #IMAGE_ANNOTATION} or 
-     *                          {@link #DATASET_ANNOTATION}.
-     * @param objectID          The id of the object to annotate.
-     * @param data              The annotation to handle.
-     */
-    public AnnotationEditor(ClipBoard clipBoard, int actionIndex, 
-                            int annotationIndex, int objectID,
-                            AnnotationData data)
-    {
-        super(clipBoard);
-        checkActionIndex(actionIndex);
-        checkAnnotationIndex(annotationIndex);
-        if (data == null)
-            throw new IllegalArgumentException("Annotation not valid");
-        if (objectID < 0)
-            throw new IllegalArgumentException("ObjectID not valid: "+objectID);
-        this.annotationIndex = annotationIndex;
-        this.actionIndex = actionIndex;
-        this.data = data;
-        this.objectID = objectID;
-    }
-    
-    /**
-     * Creates a new instance. 
-     * 
-     * @param clipBoard         The viewer this data loader is for.
-     *                          Mustn't be <code>null</code>.
-     * @param actionIndex       The action index. One of the following constants
-     *                          {@link #CREATE}, {@link #DELETE} or
-     *                          {@link #UPDATE}.
-     * @param annotationIndex   The annotation index. One of the following 
-     *                          constants: {@link #IMAGE_ANNOTATION} or 
-     *                          {@link #DATASET_ANNOTATION}.
-     * @param objectID          The id of the object to annotate.
-     * @param text              The text of the annotation.
-     */
-    public AnnotationEditor(ClipBoard clipBoard, int actionIndex, 
-                            int annotationIndex, int objectID, String text)
-    {
-        super(clipBoard);
-        checkActionIndex(actionIndex);
-        checkAnnotationIndex(annotationIndex);
-        if (text == null)
-            throw new IllegalArgumentException("Annotation not valid");
-        if (objectID < 0)
-            throw new IllegalArgumentException("ObjectID not valid: "+objectID);
-        this.annotationIndex = annotationIndex;
-        this.actionIndex = actionIndex;
-        this.text = text;
-        this.objectID = objectID;
     }
     
     /**
@@ -246,19 +136,18 @@ public class AnnotationEditor
      */
     public void load()
     {
-        switch (actionIndex) {
+        switch (operation) {
             case CREATE:
-                handle = hiBrwView.createAnnotation(getAnnotationClass(),
-                                                    objectID, text, this);
-                break;
-            case UPDATE:
-                handle = hiBrwView.updateAnnotation(getAnnotationClass(),
-                                                    objectID, data, this);
-                break;
-            case DELETE:
-                handle = hiBrwView.deleteAnnotation(getAnnotationClass(), data,
+                handle = hiBrwView.createAnnotation(annotatedObject, data,
                                                     this);
                 break;
+            case UPDATE:
+                handle = hiBrwView.updateAnnotation(annotatedObject, data, 
+                                                    this);
+                break;
+            case DELETE:
+                handle = hiBrwView.deleteAnnotation(annotatedObject, data, 
+                                                    this);
         }
     }
 
@@ -274,7 +163,9 @@ public class AnnotationEditor
      */
     public void handleResult(Object result) 
     {
-        clipBoard.manageAnnotationEditing(((Boolean) result).booleanValue());
+        if (clipBoard.getState() == ClipBoard.DISCARDED_ANNOTATIONS) return;
+        //Review that code.
+        //clipBoard.manageAnnotationEditing(((Boolean) result).booleanValue());
     }
 
 }

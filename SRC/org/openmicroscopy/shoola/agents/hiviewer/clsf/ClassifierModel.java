@@ -38,6 +38,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 
+import pojos.ImageData;
+
 /** 
  * The Model component in the {@link Classifier} MVC triad.
  * This class tracks the {@link Classifier}'s state, knows how to initiate data
@@ -80,8 +82,8 @@ abstract class ClassifierModel
     /** Loads all the required metadata. */
     protected ClassifLoader     loader;
     
-    /** The id of the Image this Model is for. */
-    protected int               imageID;
+    /** The image this Model is for. */
+    protected ImageData         image;
     
     /** Reference to the component that embeds this model. */
     protected Classifier        component;
@@ -92,11 +94,11 @@ abstract class ClassifierModel
      * The {@link #initialize(Classifier) initialize} method should be
      * called straight after creation to complete initialization.
      * 
-     * @param imageID The id of the Image this Model is for.
+     * @param image The image this Model is for.
      */
-    protected ClassifierModel(int imageID) 
+    protected ClassifierModel(ImageData image) 
     { 
-        this.imageID = imageID;
+        this.image = image;
         state = Classifier.NEW; 
     }
     
@@ -116,10 +118,10 @@ abstract class ClassifierModel
     int getState() { return state; }
     
     /**
-     * Returns the id of the Image this Model is working with.
+     * Returns the image this Model is working with.
      * @return See above.
      */
-    int getImageID() { return imageID; }
+    ImageData getImage() { return image; }
     
     /**
      * Starts the asynchronous retrieval of the metadata needed by this

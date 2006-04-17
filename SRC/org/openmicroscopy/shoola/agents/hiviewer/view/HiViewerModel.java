@@ -85,7 +85,7 @@ abstract class HiViewerModel
     private Class               rootLevel;
     
     /** The id of the root. */
-    private int                 rootID;
+    private long                rootID;
 
     /** Holds one of the state flags defined by {@link HiViewer}. */
     private int                 state;
@@ -146,7 +146,7 @@ abstract class HiViewerModel
      *                  <code>ExperimenterData</code>.
      * @param rootID    The root ID.
      */
-    void setRootLevel(Class rootLevel, int rootID)
+    void setRootLevel(Class rootLevel, long rootID)
     {
         this.rootLevel = rootLevel;
         this.rootID = rootID;
@@ -164,7 +164,7 @@ abstract class HiViewerModel
      * 
      * @return See above.
      */
-    int getRootID() { return rootID; }
+    long getRootID() { return rootID; }
     
     /**
      * Returns the current user's details.
@@ -286,7 +286,7 @@ abstract class HiViewerModel
      *                belongs.
      * @param thumb The thumbnail pixels.
      */
-    void setThumbnail(int imageID, BufferedImage thumb)
+    void setThumbnail(long imageID, BufferedImage thumb)
     {
         if (thumbsManager == null) 
             thumbsManager = new ThumbnailsManager(browser.getImageNodes());

@@ -85,7 +85,7 @@ class ThumbWinManager
                                             HiViewer model)
     {
         ImageData ho = (ImageData) node.getHierarchyObject();
-        final Integer id = new Integer(ho.getId());
+        final Long id = new Long(ho.getId());
         TinyDialog w = (TinyDialog) windows.get(id);
         if (w == null) {
             Thumbnail prv = node.getThumbnail();

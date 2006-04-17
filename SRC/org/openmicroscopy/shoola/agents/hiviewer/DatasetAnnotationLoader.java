@@ -60,7 +60,7 @@ public class DatasetAnnotationLoader
 {
 
     /** The id of the dataset. */
-    private int         datasetID;
+    private long        datasetID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -72,7 +72,7 @@ public class DatasetAnnotationLoader
      *                   Mustn't be <code>null</code>.
      * @param datasetID The id of the dataset.
      */
-    public DatasetAnnotationLoader(ClipBoard clipBoard, int datasetID)
+    public DatasetAnnotationLoader(ClipBoard clipBoard, long datasetID)
     {
         super(clipBoard);
         this.datasetID = datasetID;

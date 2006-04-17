@@ -63,7 +63,7 @@ public class ProjectLoader
 {
 
     /** The id of the root project. */
-    private int         projectID;
+    private long        projectID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -76,7 +76,7 @@ public class ProjectLoader
      *                  Mustn't be <code>null</code>.
      * @param projectID The id of the root project.
      */
-    public ProjectLoader(HiViewer viewer, int projectID)
+    public ProjectLoader(HiViewer viewer, long projectID)
     {
         super(viewer);
         this.projectID = projectID;

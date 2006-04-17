@@ -166,9 +166,9 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setThumbnail(int, java.awt.image.BufferedImage)
+     * @see HiViewer#setThumbnail(long, java.awt.image.BufferedImage)
      */
-    public void setThumbnail(int imageID, BufferedImage thumb)
+    public void setThumbnail(long imageID, BufferedImage thumb)
     {
         int state = model.getState();
         switch (state) {
@@ -345,7 +345,7 @@ class HiViewerComponent
      * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#getRootID()
      */
-    public int getRootID()
+    public long getRootID()
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
@@ -362,9 +362,7 @@ class HiViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
-        //view.setExtendedState(JFrame.ICONIFIED);
         view.toBack();
-        
     }
 
 }

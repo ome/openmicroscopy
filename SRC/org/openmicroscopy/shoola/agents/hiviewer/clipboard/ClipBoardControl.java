@@ -157,10 +157,10 @@ class ClipBoardControl
     /**
      * Retrieves the annotations for the specified data object.
      * 
-     * @param objectID The ID of the data object.
-     * @param annotationIndex The annotation index.
+     * @param objectID          The ID of the data object.
+     * @param annotationIndex   The annotation index.
      */
-    void retrieveAnnotations(int objectID, int annotationIndex)
+    void retrieveAnnotations(long objectID, int annotationIndex)
     {
         component.retrieveAnnotations(objectID, annotationIndex);
     }

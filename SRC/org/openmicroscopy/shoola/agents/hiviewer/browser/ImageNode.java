@@ -32,7 +32,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.util.HashSet;
+
 import javax.swing.JComponent;
+
+import pojos.ImageData;
 
 //Third-party libraries
 
@@ -96,6 +100,18 @@ public class ImageNode
     public ImageNode(String title, Object hierarchyObject, Thumbnail t)
     {
         super(title, "", hierarchyObject);
+        //Probably cleaner to use a visitor but for performance reason better
+        //that way.
+        if (hierarchyObject instanceof ImageData) { 
+            ImageData data = (ImageData) hierarchyObject;
+            HashSet nodes = new HashSet();
+            Integer n = data.getAnnotationCount();
+            if (n != null && n.intValue() > 0) nodes.add(new AnnotatedButton());
+            Integer m = data.getClassificationCount();
+            if (m != null && m.intValue() > 0) 
+                nodes.add(new ClassifiedButton());
+            if (nodes.size() > 0) setDecoration(nodes);
+        }
         setTitleBarType(SMALL_BAR);
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;

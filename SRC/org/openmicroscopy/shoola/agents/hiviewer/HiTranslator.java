@@ -31,10 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -44,10 +42,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -91,10 +87,7 @@ public class HiTranslator
      * given container. 
      */
     private static final String RIGHT = "]";
-    
-    /** Helper class to sort elements. */
-    private static ViewerSorter sorter = new ViewerSorter();
-    
+  
     /** 
      * Returns the first element of the specified set. 
      * Returns <code>null</code> if the set is empty or <code>null</code>.
@@ -114,47 +107,21 @@ public class HiTranslator
         return display;
     }
     
-    /**
-     * Returns the first annotation of the specified set.
-     * Returns <code>null</code> if the set is empty or <code>null</code>.
-     * We first make sure that the annotations are ordered by date (ascending
-     * order).
-     * 
-     * @param set The set to analyse.
-     * @return See above.
-     */
-    private static AnnotationData getFirstAnnotation(Set set)
-    {
-        if (set == null || set.size() == 0) return null;
-        HashMap map = new HashMap(set.size());
-        Iterator i = set.iterator();
-        AnnotationData data;
-        HashSet timestamps = new HashSet(set.size());
-        while (i.hasNext()) {
-            data = (AnnotationData) i.next();
-            map.put(data.getLastModified(), data);
-            timestamps.add(data.getLastModified());
-        }
-        sorter.setAscending(false);
-        List l = sorter.sort(timestamps);
-        return (AnnotationData) map.get(l.get(0));
-    }
-    
     /** 
      * Transforms each {@link ImageData} object into a visualisation object
      * i.e. {@link ImageNode}.
      * Then adds the newly created {@link ImageNode} to the specified 
      * {@link ImageSet parent}. 
      * 
-     * @param is The {@link ImageData} to transform.
-     * @param parent The {@link ImageSet parent} of the image node.
+     * @param is        The {@link ImageData} to transform.
+     * @param parent    The {@link ImageSet parent} of the image node.
      */
     private static void linkImageTo(ImageData is, ImageSet parent)
     {
         ThumbnailProvider provider = new ThumbnailProvider(is);
         ImageNode node = new ImageNode(is.getName(), is, provider);
         provider.setImageNode(node);
-        formatToolTipFor(node, getFirstAnnotation(is.getAnnotations()));  
+        formatToolTipFor(node);  
         parent.addChildDisplay(node);
     }
     
@@ -194,7 +161,7 @@ public class HiTranslator
             String note = "";
             if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(ds.getName(), note, ds);
-            formatToolTipFor(node, getFirstAnnotation(ds.getAnnotations()));
+            formatToolTipFor(node);
             linkImagesTo(images, node);
         } else if (uo instanceof CategoryData) {
             CategoryData data = (CategoryData) uo;
@@ -202,7 +169,7 @@ public class HiTranslator
             images = data.getImages();
             if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(data.getName(), note, data);
-            formatToolTipFor(node, null);
+            formatToolTipFor(node);
             linkImagesTo(images, node);
         }
         return node;
@@ -233,7 +200,7 @@ public class HiTranslator
             datasets = ps.getDatasets();
             if (datasets != null) note += LEFT+datasets.size()+RIGHT;
             project = new ImageSet(ps.getName(), note, ps);
-            formatToolTipFor(project, null);
+            formatToolTipFor(project);
             if (datasets != null) {
                 j = datasets.iterator();
                 while (j.hasNext())
@@ -317,7 +284,7 @@ public class HiTranslator
             categories = cgData.getCategories();
             if (categories != null) note = LEFT+categories.size()+RIGHT;
             group = new ImageSet(cgData.getName(), note, cgData);
-            formatToolTipFor(group, null);
+            formatToolTipFor(group);
             
             if (categories != null) {
                 j = categories.iterator();
@@ -364,7 +331,7 @@ public class HiTranslator
             images = data.getImages();
             if (images != null) note = LEFT+images.size()+RIGHT;
             parent = new ImageSet(data.getName(), note, data);
-            formatToolTipFor(parent, null);
+            formatToolTipFor(parent);
             linkImagesTo(images, parent);
             results.add(parent);
         }
@@ -465,7 +432,7 @@ public class HiTranslator
             else if (ho instanceof ImageData) {
                 if (unclassified == null) {
                     unclassified = new ImageSet(UNCLASSIFIED, new Object());
-                    formatToolTipFor(unclassified, null);
+                    formatToolTipFor(unclassified);
                 }
                 linkImageTo((ImageData) ho, unclassified);
             }
@@ -525,16 +492,11 @@ public class HiTranslator
      * Formats the toolTip of the specified {@link ImageDisplay} node.
      * 
      * @param node The specified node. Mustn't be <code>null</code>.
-     * @param data The annotation data.
      */
-    public static void formatToolTipFor(ImageDisplay node, AnnotationData data)
+    public static void formatToolTipFor(ImageDisplay node)
     {
         if (node == null) throw new IllegalArgumentException("No node");
-        String toolTip = "";
-        if (data != null)
-            toolTip = UIUtilities.makeParagraph(node.getTitle(), 
-                    data.getText(), UIUtilities.TABLE_WIDTH);
-        else toolTip = UIUtilities.formatToolTipText(node.getTitle());  
+        String toolTip = UIUtilities.formatToolTipText(node.getTitle());  
         node.getTitleBar().setToolTipText(toolTip);
     }
    

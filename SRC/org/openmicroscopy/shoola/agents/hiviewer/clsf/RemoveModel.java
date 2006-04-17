@@ -39,6 +39,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassificationSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.DeclassifPathsLoader;
+import pojos.ImageData;
 
 /** 
  * The concrete Model used by a {@link Classifier} component that was created
@@ -88,15 +89,15 @@ class RemoveModel
     {
         state = Classifier.SAVING_METADATA;
         loader = new ClassificationSaver(component, 
-                    ClassificationSaver.DECLASSIFY, imageID, categories);
+                    ClassificationSaver.DECLASSIFY, image, categories);
         loader.load();
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param imageID The id of the Image the component will be working with.
+     * @param image The image the component will be working with.
      */
-    RemoveModel(int imageID) { super(imageID); }
+    RemoveModel(ImageData image) { super(image); }
 
 }

@@ -104,98 +104,119 @@ public class IconManager
     /** ID of the <code>Save</code> icon. */
     public static final int     SAVE = 13;
     
-    /** ID of the <code>Annotated</code> icon. */
-    public static final int     ANNOTATED = 14;
-    
     /** ID of the <code>Clear</code> icon. */
-    public static final int     CLEAR = 15;
+    public static final int     CLEAR = 14;
     
     /** ID of the <code>Classify</code> icon. */
-    public static final int     CLASSIFY = 16;
+    public static final int     CLASSIFY = 15;
     
     /** ID of the <code>Filter with annotation</code> icon. */
-    public static final int     FILTER_W_ANNOTATION = 17;
+    public static final int     FILTER_W_ANNOTATION = 16;
     
     /** ID of the <code>Filter with Title</code> icon. */
-    public static final int     FILTER_W_TITLE = 18;
+    public static final int     FILTER_W_TITLE = 17;
     
     /** ID of the <code>Squary Layout</code> icon. */
-    public static final int     SQUARY_LAYOUT = 19;
+    public static final int     SQUARY_LAYOUT = 18;
     
     /** ID of the <code>Tree Layout</code> icon. */
-    public static final int     TREE_LAYOUT = 20;
+    public static final int     TREE_LAYOUT = 19;
     
     /** ID of the <code>Status Info</code> icon. */
-    public static final int     STATUS_INFO = 21;
+    public static final int     STATUS_INFO = 20;
     
     /** ID of the <code>Root</code> icon. */
-    public static final int     ROOT = 22;
+    public static final int     ROOT = 21;
     
     /** ID of the <code>Project</code> icon. */
-    public static final int     PROJECT = 23;
+    public static final int     PROJECT = 22;
     
     /** ID of the <code>Dataset</code> icon. */
-    public static final int     DATASET = 24;
+    public static final int     DATASET = 23;
     
     /** ID of the <code>CategoryGroup</code> icon. */
-    public static final int     CATEGORY_GROUP = 25;
+    public static final int     CATEGORY_GROUP = 24;
     
     /** ID of the <code>Category</code> icon. */
-    public static final int     CATEGORY = 26;
+    public static final int     CATEGORY = 25;
     
     /** ID of the <code>Image</code> icon. */
-    public static final int     IMAGE = 27;
+    public static final int     IMAGE = 26;
     
     /** ID of the single-view icon in the browser's internal frame. */
-    public static final int     SINGLE_VIEW_MODE = 28;
+    public static final int     SINGLE_VIEW_MODE = 27;
     
     /** ID of the single-view over icon in the browser's internal frame. */
-    public static final int     SINGLE_VIEW_MODE_OVER = 29;
+    public static final int     SINGLE_VIEW_MODE_OVER = 28;
 
     /** ID of the multi-view icon in the browser's internal frame. */
-    public static final int     MULTI_VIEW_MODE = 30;
+    public static final int     MULTI_VIEW_MODE = 29;
     
     /** ID of the views list icon in the browser's internal frame. */
-    public static final int     VIEWS_LIST = 31;
+    public static final int     VIEWS_LIST = 30;
     
     /** ID of the views list over icon in the browser's internal frame. */
-    public static final int     VIEWS_LIST_OVER = 32;
+    public static final int     VIEWS_LIST_OVER = 31;
     
     /** ID of the big <code>Category</code> icon. */
-    public static final int     CATEGORY_BIG = 33;
+    public static final int     CATEGORY_BIG = 32;
     
     /** ID of the <code>Refresh</code> icon. */
-    public static final int     REFRESH = 34;
+    public static final int     REFRESH = 33;
     
     /** ID of the big <code>Save As</code> icon. */
-    public static final int     SAVE_AS_BIG = 35;
+    public static final int     SAVE_AS_BIG = 34;
     
     /** ID of the <code>Question</code> icon. */
-    public static final int     QUESTION = 36;
+    public static final int     QUESTION = 35;
     
     /** ID of the <code>Image medium</code> icon. */
-    public static final int     IMAGE_MEDIUM = 37;
+    public static final int     IMAGE_MEDIUM = 36;
     
     /** ID of the <code>Collapse</code> icon. */
-    public static final int     COLLAPSE = 38;
+    public static final int     COLLAPSE = 37;
     
     /** ID of the <code>Close View</code> icon. */
-    public static final int     CLOSE_VIEW = 39;
+    public static final int     CLOSE_VIEW = 38;
     
     /** ID of the <code>Exit Application</code> icon. */
-    public static final int     EXIT_APPLICATION = 40;
+    public static final int     EXIT_APPLICATION = 39;
     
     /** ID of the <code>Transparent</code> icon. */
-    public static final int     TRANSPARENT = 41;
+    public static final int     TRANSPARENT = 40;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     FIND = 42;
+    public static final int     FIND = 41;
+    
+    /** ID of the <code>Annotated Dataset</code> icon. */
+    public static final int     ANNOTATED_DATASET = 42;
+    
+    /** ID of the <code>Annotated Image</code> icon. */
+    public static final int     ANNOTATED_IMAGE = 43;
+    
+    /** ID of the <code>Find</code> icon. */
+    public static final int     CLASSIFIED_IMAGE = 44;
+    
+    /** ID of the <code>Find</code> icon. */
+    public static final int     ANNOTATED_CLASSIFIED_IMAGE = 45;
+    
+    /** ID of the small <code>Annotated</code> icon. */
+    public static final int     ANNOTATED_SMALL = 46;
+    
+    /** ID of the small <code>Annotated</code> icon. */
+    public static final int     ANNOTATED_SMALL_OVER = 47;
+    
+    /** ID of the small <code>Classified</code> icon. */
+    public static final int     CLASSIFIED_SMALL = 48;
+    
+    /** ID of the small <code>Annotated</code> icon. */
+    public static final int     CLASSIFIED_SMALL_OVER = 49;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 42;
+    private static int          MAX_ID = 49;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -209,14 +230,12 @@ public class IconManager
         relPaths[CLOSE_OVER] = "cross_over.png";
         relPaths[PROPERTIES] = "nuvola_kate16.png";
         relPaths[VIEWER] = "viewer16.png";
-        //relPaths[ANNOTATE] = "nuvola_kwrite16.png";
-        relPaths[ANNOTATE] = "eclipse_annotate16.png";
+        relPaths[ANNOTATE] = "nuvola_kwrite16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[EXIT] = "eclipse_close_view16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
-        relPaths[ANNOTATED] = "annotated_image16.png";
         relPaths[CLEAR] = "eclipse_clear_co16.png";
         relPaths[CLASSIFY] = "category16.png";
         relPaths[FILTER_W_ANNOTATION] = "eclipse_filter_ps16.png";
@@ -245,6 +264,16 @@ public class IconManager
         relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[FIND] = "eclipse_searchrecord16.png";
+        relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";
+        relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
+        relPaths[CLASSIFIED_IMAGE] = "classified_image16.png";
+        relPaths[ANNOTATED_CLASSIFIED_IMAGE] = 
+                                    "annotated_classified_image16.png";
+        relPaths[ANNOTATED_SMALL] = "kwrite8.png";
+        relPaths[ANNOTATED_SMALL_OVER] = "kwrite_over8.png";
+        relPaths[CLASSIFIED_SMALL] = "classified8.png";
+        relPaths[CLASSIFIED_SMALL_OVER] = "classified_over8.png";
+        
     }
     
     /** The sole instance. */

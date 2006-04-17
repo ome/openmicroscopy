@@ -106,7 +106,7 @@ class ClipBoardComponent
      * Implemented as specified by the {@link ClipBoard} interface.
      * @see ClipBoard#retrieveAnnotations(int, int)
      */
-    public void retrieveAnnotations(int objectID, int annotationIndex)
+    public void retrieveAnnotations(long objectID, int annotationIndex)
     {
         model.fireAnnotationsLoading(objectID, annotationIndex);
         fireStateChange();
@@ -252,5 +252,10 @@ class ClipBoardComponent
                     "in the DISCARDED state.");
         return model.getLoadingWin();
     }
-    
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getState()
+     */
+    public int getState() { return model.getState(); }
 }

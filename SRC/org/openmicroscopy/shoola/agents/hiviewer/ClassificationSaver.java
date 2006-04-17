@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -38,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ImageData;
 
 
 /** 
@@ -66,8 +68,8 @@ public class ClassificationSaver
     /** Indicates to declassify the specified image. */
     public static final int DECLASSIFY = 1;
     
-    /** The id of the image to classify or declassify. */
-    private int         imageID;
+    /** The image to classify or declassify. */
+    private ImageData   image;
     
     /** The type of classifier. */
     private int         mode;
@@ -105,20 +107,21 @@ public class ClassificationSaver
      *                      Mustn't be <code>null</code>.
      * @param mode          The classification's mode.
      *                      One of the constants defined by this class.
-     * @param imageID       The id of the image to classify.
+     * @param image         The image to classify or declassify.
+     *                      Mustn't be <code>null</code>.
      * @param categories    The categories to add to or remove from.
      *                      Mustn't be <code>null</code>.
      */
-    public ClassificationSaver(Classifier classifier, int mode, int imageID,
+    public ClassificationSaver(Classifier classifier, int mode, ImageData image,
                                 Set categories)
     {
         super(classifier);
         checkMode(mode);
-        if (imageID < 0) 
-            throw new IllegalArgumentException("Image Id not valid.");
+        if (image ==  null) 
+            throw new IllegalArgumentException("No image to handle.");
         if (categories == null || categories.size() == 0) 
             throw new IllegalArgumentException("No category selected.");
-        this.imageID = imageID; 
+        this.image = image; 
         this.mode = mode;
         this.categories = categories;
     }
@@ -129,12 +132,14 @@ public class ClassificationSaver
      */
     public void load()
     {
+        Set images = new HashSet(1);
+        images.add(image);
         switch (mode) {
             case CLASSIFY:
-                handle = hiBrwView.classify(imageID, categories, this);
+                handle = hiBrwView.classify(images, categories, this);
                 break;
             case DECLASSIFY:
-                handle = hiBrwView.declassify(imageID, categories, this);
+                handle = hiBrwView.declassify(images, categories, this);
         } 
     }
 

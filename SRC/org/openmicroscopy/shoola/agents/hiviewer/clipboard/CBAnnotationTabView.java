@@ -468,15 +468,13 @@ class CBAnnotationTabView
         if (hierarchyObject instanceof ImageData) {
             //Make sure that any ongoing annotationLoading is cancelled
             controller.discardAnnotation();
-            int id = ((ImageData) hierarchyObject).getId();
-            controller.retrieveAnnotations(id,
-                    AnnotationEditor.IMAGE_ANNOTATION);
+            long id = ((ImageData) hierarchyObject).getId();
+            controller.retrieveAnnotations(id, ClipBoard.IMAGE_ANNOTATIONS);
         } else if (hierarchyObject instanceof DatasetData) {
             //Make sure that any ongoing annotationLoading is cancelled
             controller.discardAnnotation();
-            int id = ((DatasetData) hierarchyObject).getId();
-            controller.retrieveAnnotations(id,
-                    AnnotationEditor.DATASET_ANNOTATION);
+            long id = ((DatasetData) hierarchyObject).getId();
+            controller.retrieveAnnotations(id, ClipBoard.DATASET_ANNOTATIONS);
         }
     }
     

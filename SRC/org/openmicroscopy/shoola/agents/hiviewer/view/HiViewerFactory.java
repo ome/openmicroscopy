@@ -87,8 +87,8 @@ public class HiViewerFactory
      * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Project.
      */
-    public static HiViewer getProjectViewer(int projectID, Class rootLevel,
-                                            int rootID)
+    public static HiViewer getProjectViewer(long projectID, Class rootLevel,
+                                            long rootID)
     {
         HiViewerModel model = new ProjectModel(projectID);
         model.setRootLevel(rootLevel, rootID);
@@ -106,8 +106,8 @@ public class HiViewerFactory
      * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Dataset.
      */
-    public static HiViewer getDatasetViewer(int datasetID, Class rootLevel,
-                                            int rootID)
+    public static HiViewer getDatasetViewer(long datasetID, Class rootLevel,
+                                            long rootID)
     {
         HiViewerModel model = new DatasetModel(datasetID);
         model.setRootLevel(rootLevel, rootID);
@@ -125,8 +125,8 @@ public class HiViewerFactory
      * @param rootID    The Id of the root.
      * @return A {@link HiViewer} component for the specified Category Group.
      */
-    public static HiViewer getCategoryGroupViewer(int cgID, Class rootLevel,
-                                                int rootID)
+    public static HiViewer getCategoryGroupViewer(long cgID, Class rootLevel,
+                                                long rootID)
     {
         HiViewerModel model = new CategoryGroupModel(cgID);
         model.setRootLevel(rootLevel, rootID);
@@ -144,8 +144,8 @@ public class HiViewerFactory
      * @param rootID        The Id of the root.
      * @return A {@link HiViewer} component for the specified Category.
      */
-    public static HiViewer getCategoryViewer(int categoryID, Class rootLevel,
-                                            int rootID)
+    public static HiViewer getCategoryViewer(long categoryID, Class rootLevel,
+                                            long rootID)
     {
         HiViewerModel model = new CategoryModel(categoryID);
         model.setRootLevel(rootLevel, rootID);
@@ -164,7 +164,8 @@ public class HiViewerFactory
      * @param rootID        The Id of the root.        
      * @return A {@link HiViewer} component for the specified images.
      */
-    public static HiViewer getPDIViewer(Set images, Class rootLevel, int rootID)
+    public static HiViewer getPDIViewer(Set images, Class rootLevel,
+                                        long rootID)
     {
         HiViewerModel model = new HierarchyModel(images, 
                 								HiViewer.PDI_HIERARCHY);
@@ -186,7 +187,7 @@ public class HiViewerFactory
      * @return A {@link HiViewer} component for the specified images.
      */
     public static HiViewer getCGCIViewer(Set images, Class rootLevel, 
-                                         int rootID)
+                                         long rootID)
     {
         HiViewerModel model = new HierarchyModel(images,
                                             HiViewer.CGCI_HIERARCHY);

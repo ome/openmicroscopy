@@ -70,7 +70,7 @@ class SearchResultsPane
     private void initialize()
     {
         putClientProperty("JTree.lineStyle", "Angled");
-        setCellRenderer(new TreeCellRenderer());
+        setCellRenderer(new TreeCellRenderer(false, true));
         getSelectionModel().setSelectionMode(
                                     TreeSelectionModel.SINGLE_TREE_SELECTION);
     }

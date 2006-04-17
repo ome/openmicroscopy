@@ -40,6 +40,10 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
@@ -170,10 +174,12 @@ class TitleBar
     /**
      * Updates the title bar to the new title bar type in the Model.
      * 
-     * @param titleBarType The title bar type.
+     * @param titleBarType  The title bar type.
+     * @param decoration    The decoration to add to the title bar.
      */
-    private void update(int titleBarType)
+    private void update(int titleBarType, Set decoration)
     {
+        Iterator i = decoration.iterator();
         detachAll();
         removeAll();
         switch (titleBarType) {
@@ -187,6 +193,8 @@ class TitleBar
                 fixedHeight = 12;
                 sizeButton = new SizeButton(model);
                 add(sizeButton);
+                while (i.hasNext())
+                    add((JComponent) i.next());
                 //title = new TinyPaneTitle(model);
                 //add(title);
                 break;
@@ -198,6 +206,8 @@ class TitleBar
                 add(viewModeButton);
                 sizeButton = new SizeButton(model);
                 add(sizeButton);
+                while (i.hasNext())
+                    add((JComponent) i.next());
                 title = new TinyPaneTitle(model);
                 add(title);
                 break;
@@ -224,7 +234,7 @@ class TitleBar
         this.model = model;
         model.addPropertyChangeListener(this);
         update(model.getHighlight());
-        update(model.getTitleBarType());
+        update(model.getTitleBarType(), model.getDecoration());
         setBorder(BorderFactory.createEmptyBorder());
         setLayout(new TitleBarLayout());
     }
@@ -262,7 +272,10 @@ class TitleBar
         if (TinyPane.HIGHLIGHT_PROPERTY.equals(propName))
             update((Color) pce.getNewValue());
         else if (TinyPane.TITLEBAR_TYPE_PROPERTY.equals(propName))
-            update(((Integer) pce.getNewValue()).intValue());
+            update(((Integer) pce.getNewValue()).intValue(), 
+                    model.getDecoration());
+        else if (TinyPane.DECORATION_PROPERTY.equals(propName))
+            update(model.getTitleBarType(), (Set) pce.getNewValue());
     }
 
 }

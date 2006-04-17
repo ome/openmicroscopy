@@ -67,17 +67,18 @@ public class ImgDisplayAnnotationVisitor
     protected AnnotationData    data;
     
     /** The id of the selected hierarchy object. */
-    protected int               hierarchyObjectID;
+    protected long              hierarchyObjectID;
     
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
-     * @param data The annotation.
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
+     * @param data              The annotation.
      * @param hierarchyObjectID The id of the hierarchy object.
      */
     public ImgDisplayAnnotationVisitor(HiViewer model, AnnotationData data,
-                                        int hierarchyObjectID)
+                                        long hierarchyObjectID)
     {
         super(model);
         if (hierarchyObjectID < 0)
@@ -98,7 +99,7 @@ public class ImgDisplayAnnotationVisitor
             HashSet set = new HashSet(1);
             set.add(data);
             is.setAnnotations(set);
-            HiTranslator.formatToolTipFor(node, data);
+            //HiTranslator.formatToolTipFor(node, data);
         }       
     }  
     
@@ -116,7 +117,7 @@ public class ImgDisplayAnnotationVisitor
                 HashSet set = new HashSet(1);
                 set.add(data);
                 ds.setAnnotations(set);     
-                HiTranslator.formatToolTipFor(node, data);
+               // HiTranslator.formatToolTipFor(node, data);
             }    
         }
     }

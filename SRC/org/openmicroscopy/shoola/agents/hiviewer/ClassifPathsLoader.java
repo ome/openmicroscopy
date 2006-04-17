@@ -81,7 +81,8 @@ public class ClassifPathsLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadClassificationPaths(classifier.getImageID(),
+        handle = hiBrwView.loadClassificationPaths(
+                        classifier.getImage().getId(),
                 		HierarchyBrowsingView.CLASSIFICATION_ME, this);
     }
     

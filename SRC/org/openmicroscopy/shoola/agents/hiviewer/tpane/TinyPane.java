@@ -38,6 +38,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.Set;
 
 import javax.swing.DesktopManager;
 import javax.swing.Icon;
@@ -135,6 +137,9 @@ public class TinyPane
     
     /** Bound property name indicating if the frame is resizable. */
     public final static String  RESIZABLE_PROPERTY = "resizable";  
+    
+    /** Bound property name indicating if the frame is resizable. */
+    public final static String  DECORATION_PROPERTY = "decoration";  
     
     /** The View component that renders this frame. */
     private TinyPaneUI      uiDelegate;
@@ -247,6 +252,13 @@ public class TinyPane
      */
     String getNote() { return model.getNote(); }
     
+    /**
+     * Returns the collection of buttons to add to the <code>TitleBar</code>.
+     * 
+     * @return See above.
+     */
+    Set getDecoration() { return model.getDecoration(); }
+    
     /** Resizes and repaints the component. */
     public void pack()
     {
@@ -356,7 +368,7 @@ public class TinyPane
     {
         Integer oldValue = new Integer(model.getTitleBarType()),
                 newValue = new Integer(type);
-        if (model.setTitleBarType(type))
+        if (model.setTitleBarType(type)) 
             firePropertyChange(TITLEBAR_TYPE_PROPERTY, oldValue, newValue);
     }
 
@@ -458,6 +470,13 @@ public class TinyPane
         return uiDelegate.getDeskDecorator();
     }
     
+    /**
+     * Allows to resize the window, <code>true</code> if the window can be 
+     * resized, <code>false</code> otherwise.
+     * 
+     * @param resizable Passed <code>true</code> to resize the window
+     *                  <code>false</code> otherwise.
+     */
     public void setResizable(boolean resizable) 
     {
         Boolean oldValue = 
@@ -545,7 +564,6 @@ public class TinyPane
     {
         if (getParent() != null && getParent() instanceof JLayeredPane) 
             ((JLayeredPane) getParent()).moveToBack(this);
-
     }
     
     /**
@@ -561,6 +579,17 @@ public class TinyPane
     
     /** Restores the original display. */
     public void restoreDisplay() { model.restoreDisplay(uiDelegate); }
+    
+    /**
+     * Sets the buttons to add to the <code>TitleBar</code>
+     * @param decoration
+     */
+    public void setDecoration(Set decoration)
+    {
+        Set oldValue = model.getDecoration();
+        model.setDecoration(decoration);
+        firePropertyChange(DECORATION_PROPERTY, oldValue, decoration);
+    }
     
     /**
      * Overrides to return the title of the frame.

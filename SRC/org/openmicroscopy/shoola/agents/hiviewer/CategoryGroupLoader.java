@@ -63,7 +63,7 @@ public class CategoryGroupLoader
 {
 
     /** The id of the root Category Group. */
-    private int         cgID;
+    private long         cgID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -76,7 +76,7 @@ public class CategoryGroupLoader
      *               Mustn't be <code>null</code>.
      * @param cgID  The id of the root Category Group.
      */
-    public CategoryGroupLoader(HiViewer viewer, int cgID)
+    public CategoryGroupLoader(HiViewer viewer, long cgID)
     {
         super(viewer);
         this.cgID = cgID;

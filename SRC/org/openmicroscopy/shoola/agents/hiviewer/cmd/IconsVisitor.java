@@ -76,9 +76,14 @@ public class IconsVisitor
         Object ho = node.getHierarchyObject();
         if (ho instanceof ProjectData)
             node.setFrameIcon(icons.getIcon(IconManager.PROJECT));
-        else if (ho instanceof DatasetData)
-            node.setFrameIcon(icons.getIcon(IconManager.DATASET));
-        else if (ho instanceof CategoryGroupData)
+        else if (ho instanceof DatasetData) {
+            DatasetData data = (DatasetData) ho;
+            Integer n = data.getAnnotationCount();
+            if (n != null && n.intValue() > 0 )
+                node.setFrameIcon(icons.getIcon(IconManager.ANNOTATED_DATASET));
+            else 
+                node.setFrameIcon(icons.getIcon(IconManager.DATASET));
+        } else if (ho instanceof CategoryGroupData)
             node.setFrameIcon(icons.getIcon(IconManager.CATEGORY_GROUP));
         else if (ho instanceof CategoryData)
             node.setFrameIcon(icons.getIcon(IconManager.CATEGORY));

@@ -61,7 +61,7 @@ class DatasetModel
      * The id of the Dataset that is the root of the P/D/I tree that this 
      * Model handles.
      */
-    private int     datasetID;
+    private long     datasetID;
     
     
     /**
@@ -70,7 +70,7 @@ class DatasetModel
      * @param datasetID The id of the Dataset that is the root of the P/D/I
      *                   tree that this Model will handle. 
      */
-    DatasetModel(int datasetID) 
+    DatasetModel(long datasetID) 
     {
         super();
         this.datasetID = datasetID; 

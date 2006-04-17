@@ -39,6 +39,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifPathsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassificationSaver;
+import pojos.ImageData;
 
 
 /** 
@@ -88,15 +89,15 @@ class AddModel
     {
         state = Classifier.SAVING_METADATA;
         loader = new ClassificationSaver(component, 
-                    ClassificationSaver.CLASSIFY, imageID, categories);
+                    ClassificationSaver.CLASSIFY, image, categories);
         loader.load();
     }
 
     /**
      * Creates a new instance.
      * 
-     * @param imageID The id of the Image the component will be working with.
+     * @param image The image the component will be working with.
      */
-    AddModel(int imageID) { super(imageID); }
+    AddModel(ImageData image) { super(image); }
 
 }

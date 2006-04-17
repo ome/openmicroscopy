@@ -142,8 +142,8 @@ public class HiViewerAgent
      *                      <code>ExperimenterData</code>.
      * @param rootID        The Id of the root.
      */
-    public static void browse(int eventIndex, int id, Class rootLevel, 
-                                int rootID)
+    public static void browse(int eventIndex, long id, Class rootLevel,
+                                long rootID)
     {
         HiViewer viewer = null;
         switch (eventIndex) {

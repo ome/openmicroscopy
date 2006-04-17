@@ -257,7 +257,7 @@ public interface HiViewer
      * @param thumb The thumbnail pixels.
      * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
-    public void setThumbnail(int imageID, BufferedImage thumb);
+    public void setThumbnail(long imageID, BufferedImage thumb);
     
     /**
      * Callback used by data loaders to provide the viewer with feedback about
@@ -355,7 +355,7 @@ public interface HiViewer
      * 
      * @return See above.
      */
-    public int getRootID();
+    public long getRootID();
     
     /**
      * Moves the window to the back.

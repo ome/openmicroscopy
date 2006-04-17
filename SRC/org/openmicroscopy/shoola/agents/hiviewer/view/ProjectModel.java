@@ -61,7 +61,7 @@ class ProjectModel
      * The id of the Project that is the root of the P/D/I tree that this 
      * Model handles.
      */
-    private int     projectID;
+    private long     projectID;
     
     
     /**
@@ -70,7 +70,7 @@ class ProjectModel
      * @param projectID The id of the Project that is the root of the P/D/I
      *                  tree that this Model will handle. 
      */
-    ProjectModel(int projectID) 
+    ProjectModel(long projectID) 
     {
         super();
         this.projectID = projectID; 

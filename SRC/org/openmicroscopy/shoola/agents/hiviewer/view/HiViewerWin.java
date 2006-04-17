@@ -237,6 +237,7 @@ class HiViewerWin
         menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW_PDI)));
         menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW_CGCI)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(controller.getAction(HiViewer.SQUARY)));
         menu.add(new JMenuItem(controller.getAction(HiViewer.TREE_VIEW)));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewer.SHOW_TITLEBAR)));

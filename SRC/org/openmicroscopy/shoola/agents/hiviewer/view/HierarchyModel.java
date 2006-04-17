@@ -29,27 +29,28 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.view;
 
+
+
+
+
+//Java imports
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.hiviewer.CGCILoader;
-import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.PDILoader;
-
-import pojos.ImageData;
-
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.CGCILoader;
+import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.PDILoader;
+import pojos.ImageData;
 
 /** 
- * 
+ * A concrete Model for a PDI or CGCI hierarchy consisting of a single tree
+ * rooted whose leaves are the specified images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -134,11 +135,11 @@ class HierarchyModel
         Iterator i = images.iterator(), j = hm.images.iterator();
         while (i.hasNext()) {
             data = (ImageData) i.next();
-            myImgs.put(new Integer(data.getId()), data);
+            myImgs.put(new Long(data.getId()), data);
         }
         while (j.hasNext()) {
             data = (ImageData) j.next();
-            otherImgs.put(new Integer(data.getId()), data);
+            otherImgs.put(new Long(data.getId()), data);
         }
         i = myImgs.keySet().iterator();
         while (i.hasNext())
@@ -155,7 +156,7 @@ class HierarchyModel
         Set ids = new HashSet(images.size());
         Iterator i = images.iterator();
         while (i.hasNext())
-            ids.add(new Integer(((ImageData) i.next()).getId()));
+            ids.add(new Long(((ImageData) i.next()).getId()));
         
         switch (type) {
             case HiViewer.PDI_HIERARCHY: 

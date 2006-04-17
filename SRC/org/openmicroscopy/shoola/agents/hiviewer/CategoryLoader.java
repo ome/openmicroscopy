@@ -62,7 +62,7 @@ public class CategoryLoader
 {
     
     /** The id of the root Category. */
-    private int         categoryID;
+    private long        categoryID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -75,7 +75,7 @@ public class CategoryLoader
      *                      Mustn't be <code>null</code>.
      * @param categoryID    The id of the root Category.
      */
-    public CategoryLoader(HiViewer viewer, int categoryID)
+    public CategoryLoader(HiViewer viewer, long categoryID)
     {
         super(viewer);
         this.categoryID = categoryID;

@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.ImageData;
 
 /** 
  * Implements the {@link Classifier} interface to provide the functionality
@@ -115,9 +116,9 @@ class ClassifierComponent
 
     /**
      * Implemented as specified by the {@link Classifier} interface.
-     * @see Classifier#getImageID()
+     * @see Classifier#getImage()
      */
-    public int getImageID() { return model.getImageID(); }
+    public ImageData getImage() { return model.getImage(); }
 
     /**
      * Implemented as specified by the {@link Classifier} interface.

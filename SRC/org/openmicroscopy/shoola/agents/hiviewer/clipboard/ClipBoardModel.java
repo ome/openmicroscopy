@@ -104,7 +104,7 @@ class ClipBoardModel
     private int                     annotatedObjectIndex;
     
     /** The ID of the currently selected data object. */
-    private int                     annotatedObjectID;
+    private long                    annotatedObjectID;
     
     /** Retrieved annotations for a specified image or dataset.*/
     private Map                     annotations;
@@ -228,7 +228,7 @@ class ClipBoardModel
      * 
      * @return See above.
      */
-    int getAnnotatedObjectID() { return annotatedObjectID; }
+    long getAnnotatedObjectID() { return annotatedObjectID; }
     
     /**
      * Returns the retrieved annotations.
@@ -251,7 +251,7 @@ class ClipBoardModel
         Iterator i = map.keySet().iterator();
         Iterator j;
         AnnotationData annotation;
-        Integer ownerID;
+        Long ownerID;
         List userAnnos;
         while (i.hasNext()) {
             index = (Integer) i.next();
@@ -259,7 +259,7 @@ class ClipBoardModel
             j = set.iterator();
             while (j.hasNext()) {
                 annotation = (AnnotationData) j.next();;
-                ownerID = new Integer(annotation.getOwner().getId());
+                ownerID = new Long(annotation.getOwner().getId());
                 userAnnos = (List) sortedAnnotations.get(ownerID);
                 if (userAnnos == null) {
                     userAnnos = new ArrayList();
@@ -274,7 +274,7 @@ class ClipBoardModel
         Iterator k, l;
         AnnotationData data;
         while (i.hasNext()) {
-            ownerID = (Integer) i.next();
+            ownerID = (Long) i.next();
             annotations = (List) sortedAnnotations.get(ownerID);
             k = annotations.iterator();
             m = new HashMap(annotations.size());
@@ -318,15 +318,15 @@ class ClipBoardModel
         //Visit the tree.
         ExperimenterData details = getParentModel().getUserDetails();
         Map annotations = getAnnotations();
-        List l = (List) annotations.get(new Integer(details.getId()));
+        List l = (List) annotations.get(new Long(details.getId()));
         AnnotationData data = null;
         if (l != null) data = (AnnotationData) l.get(0);
         int algoType = -1;
         switch (annotatedObjectIndex) {
-            case AnnotationEditor.DATASET_ANNOTATION:
+            case ClipBoard.DATASET_ANNOTATIONS:
                 algoType = ImageDisplayVisitor.IMAGE_SET_ONLY;
                 break;
-            case AnnotationEditor.IMAGE_ANNOTATION:
+            case ClipBoard.IMAGE_ANNOTATIONS:
                 algoType = ImageDisplayVisitor.IMAGE_NODE_ONLY;
                 break;
         }
@@ -347,16 +347,15 @@ class ClipBoardModel
      * dataset or an image.
      * @param objectIndex
      */
-    void fireAnnotationsLoading(int nodeID, int objectIndex)
+    void fireAnnotationsLoading(long nodeID, int objectIndex)
     {
-        //annotationStatus = -1;
         annotatedObjectID = nodeID;
         annotatedObjectIndex = objectIndex;
         switch (objectIndex) {
-            case AnnotationEditor.DATASET_ANNOTATION:
+            case ClipBoard.DATASET_ANNOTATIONS:
                 currentLoader = new DatasetAnnotationLoader(component, nodeID);
                 break;
-            case AnnotationEditor.IMAGE_ANNOTATION:
+            case ClipBoard.IMAGE_ANNOTATIONS:
                 currentLoader = new ImageAnnotationLoader(component, nodeID);
         }
         if (currentLoader != null) currentLoader.load();            
@@ -371,10 +370,15 @@ class ClipBoardModel
     void fireCreateAnnotation(String txt)
     {
         annotationStatus = CREATE;
+        //AnnotationData data = new AnnotationData();
+        //data.setText(txt);
+        //data.setOwner(parentModel.getUserDetails());
+        /*
         currentLoader = new AnnotationEditor(component, 
                 AnnotationEditor.CREATE, annotatedObjectIndex,
-                annotatedObjectID, txt);
+                annotatedObjectID, data);
         currentLoader.load();
+        */
         state = ClipBoard.EDIT_ANNOTATIONS;
     }
     
@@ -386,9 +390,11 @@ class ClipBoardModel
     void fireUpdateAnnotation(AnnotationData data)
     {
         annotationStatus = UPDATE;
-        currentLoader = new AnnotationEditor(component, AnnotationEditor.UPDATE,
-                annotatedObjectIndex, annotatedObjectID, data);
+        /*
+        currentLoader = new AnnotationEditor(component, data, 
+                                            AnnotationEditor.UPDATE);
         currentLoader.load(); 
+        */
         state = ClipBoard.EDIT_ANNOTATIONS;
     }
 
@@ -400,9 +406,11 @@ class ClipBoardModel
     void fireDeleteAnnotation(AnnotationData data)
     {
         annotationStatus = DELETE;
-        currentLoader = new AnnotationEditor(component, AnnotationEditor.DELETE,
-                                        annotatedObjectIndex, data);
+        /*
+        currentLoader = new AnnotationEditor(component, data, 
+                                            AnnotationEditor.DELETE);
         currentLoader.load();
+        */
         state = ClipBoard.EDIT_ANNOTATIONS;
     }
     

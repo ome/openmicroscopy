@@ -91,7 +91,7 @@ public class ClassifyCmd
     
     /** 
      * Represents the Image to classify/declassify.
-     * If <code>null</code>, no acion is taken.
+     * If <code>null</code>, no action is taken.
      */
     private ImageData           img;
     
@@ -143,8 +143,7 @@ public class ClassifyCmd
     {
         if (img == null) return;
         Classifier classifier = ClassifierFactory.createComponent(
-                                                    mode, img.getId(),
-                                                    owner);
+                                                    mode, img, owner);
         classifier.activate();
     }
 

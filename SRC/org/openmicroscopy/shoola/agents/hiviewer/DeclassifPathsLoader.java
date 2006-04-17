@@ -37,7 +37,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -81,8 +81,9 @@ public class DeclassifPathsLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadClassificationPaths(classifier.getImageID(),
-                             OmeroPojoService.DECLASSIFICATION, this);
+        handle = hiBrwView.loadClassificationPaths(
+                            classifier.getImage().getId(),
+                             OmeroService.DECLASSIFICATION, this);
     }
     
     /** 

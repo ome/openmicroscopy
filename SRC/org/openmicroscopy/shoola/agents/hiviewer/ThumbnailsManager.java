@@ -42,7 +42,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
-
 import pojos.ImageData;
 
 /** 
@@ -107,12 +106,12 @@ public class ThumbnailsManager
         Iterator i = imageNodes.iterator();
         ImageNode node;
         ImageData is;
-        Integer id;
+        Long id;
         Set providers;
         while (i.hasNext()) {
             node = (ImageNode) i.next();
             is = (ImageData) node.getHierarchyObject();
-            id = new Integer(is.getId());
+            id = new Long(is.getId());
             providers = (Set) thumbProviders.get(id);
             if (providers == null) {
                 totalIDs++;
@@ -129,10 +128,10 @@ public class ThumbnailsManager
      * @param imageID The id of the Image.
      * @param thumb   The thumbnail pixels. Mustn't be <code>null</code>.
      */
-    public void setThumbnail(int imageID, BufferedImage thumb)
+    public void setThumbnail(long imageID, BufferedImage thumb)
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
-        Integer id = new Integer(imageID);
+        Long id = new Long(imageID);
         Set providers = (Set) thumbProviders.get(id);
         if (providers != null) {
             Iterator p = providers.iterator();

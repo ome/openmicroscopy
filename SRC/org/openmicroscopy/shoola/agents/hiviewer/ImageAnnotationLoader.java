@@ -60,7 +60,7 @@ public class ImageAnnotationLoader
 {
 
     /** The id of the image. */
-    private int         imageID;
+    private long        imageID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -72,7 +72,7 @@ public class ImageAnnotationLoader
      *                   Mustn't be <code>null</code>.
      * @param imageID The id of the image.
      */
-    public ImageAnnotationLoader(ClipBoard clipBoard, int imageID)
+    public ImageAnnotationLoader(ClipBoard clipBoard, long imageID)
     {
         super(clipBoard);
         this.imageID = imageID;
