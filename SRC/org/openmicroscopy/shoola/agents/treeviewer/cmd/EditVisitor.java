@@ -41,11 +41,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import pojos.DataObject;
 
 /** 
  * Retrieves the nodes hosting the same <code>DataObject</code> than the 
@@ -64,7 +60,7 @@ public class EditVisitor
 {
 
     /** The ID of original node. */
-    private int 				originalNodeID;
+    private long                originalNodeID;
     
     /** The original node. */
     private Object              originalNode;
@@ -79,18 +75,10 @@ public class EditVisitor
      * @param userObject The object to analyse.
      * @return See above.
      */
-    private int getNodeID(Object userObject)
+    private long getNodeID(Object userObject)
     {
-        if (userObject instanceof ProjectData)
-            return ((ProjectData) userObject).getId();
-        else if (userObject instanceof DatasetData)
-            return ((DatasetData) userObject).getId();
-        else if (userObject instanceof ImageData)
-            return ((ImageData) userObject).getId();
-        else if (userObject instanceof CategoryData)
-            return ((CategoryData) userObject).getId();
-        else if (userObject instanceof CategoryGroupData)
-            return ((CategoryGroupData) userObject).getId();
+        if (userObject instanceof DataObject)
+            return ((DataObject) userObject).getId();
         return -1; //root
     }
     

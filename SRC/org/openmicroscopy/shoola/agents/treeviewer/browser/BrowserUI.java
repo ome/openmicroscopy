@@ -63,7 +63,6 @@ import javax.swing.tree.TreeSelectionModel;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
-
 import pojos.DataObject;
 
 /** 
@@ -318,8 +317,7 @@ class BrowserUI
             while (i.hasNext())
                 root.addChildDisplay((TreeImageDisplay) i.next()) ;
             buildTreeNode(root, sorter.sort(nodes));
-        }
-        else buildEmptyNode(root);
+        } else buildEmptyNode(root);
         dtm.reload();
     }
     
@@ -354,13 +352,13 @@ class BrowserUI
         TreeImageDisplay node = model.getSelectedDisplay();
         if (node instanceof TreeImageNode) return;
         node.removeAllChildren();
+        node.setChildrenLoaded(Boolean.TRUE);
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 node.addChildDisplay((TreeImageDisplay) i.next()) ;
             buildTreeNode(node, sorter.sort(nodes));
-        }
-        else buildEmptyNode(node);
+        } else buildEmptyNode(node);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         dtm.reload(node);
     }
@@ -512,7 +510,7 @@ class BrowserUI
         while (i.hasNext()) {
             node = (TreeImageDisplay) i.next();
             node.setUserObject(object);
-            dtm.reload(node);
+            dtm.nodeChanged(node);
         }
     }
     
@@ -532,7 +530,7 @@ class BrowserUI
         while (i.hasNext()) {
             node = (TreeImageDisplay) i.next();
             parent = node.getParentDisplay();
-            if (parent.hasChildrenDisplay()) {
+            if (parent.isChildrenLoaded()) {
                 parent.removeChildDisplay(node);
                 parent.remove(node);
                 dtm.reload(parent);
@@ -560,10 +558,12 @@ class BrowserUI
         Iterator j;
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         buildEmptyNode(newNode);
+        boolean toLoad = false;
         while (i.hasNext()) {
             parent = (TreeImageDisplay) i.next();
-            if (parent.hasChildrenDisplay()) {
-                parent.addChildDisplay(newNode);
+            //problem will come when we have images
+            if (parent.isChildrenLoaded()) {
+                parent.addChildDisplay(newNode); 
                 list = sorter.sort(parent.getChildrenDisplay());
                 parent.removeAllChildren();
                 j = list.iterator();
@@ -575,7 +575,15 @@ class BrowserUI
                 if (parent.equals(parentDisplay))
                     treeDisplay.setSelectionPath(
                             new TreePath(newNode.getPath()));
+            } else { //Only the currently selected one will be loaded.
+                if (parent.equals(parentDisplay)) toLoad = true;
             }
+        }
+        //should be leaves. Need to review that code.
+        if (toLoad) {
+            if (parentDisplay.getParentDisplay() == null) //root
+                controller.loadData();
+            else controller.loadLeaves();
         }
     }
     

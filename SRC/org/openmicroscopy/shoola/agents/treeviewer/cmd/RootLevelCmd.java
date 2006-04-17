@@ -72,7 +72,7 @@ public class RootLevelCmd
      * The id of the root node. This field is only used if the 
      * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
      */
-    private int 		rootID;
+    private long        rootID;
     
     /**
      * Checks if the specified level is supported.
@@ -100,7 +100,7 @@ public class RootLevelCmd
      * 					{@link TreeViewer#GROUP_ROOT}.
      * @param rootID    The id of the root node.
      */
-    public RootLevelCmd(TreeViewer model, int rootLevel, int rootID)
+    public RootLevelCmd(TreeViewer model, int rootLevel, long rootID)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         checkLevel(rootLevel);

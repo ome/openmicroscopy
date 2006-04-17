@@ -37,7 +37,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -58,7 +58,7 @@ public class ClassificationPathsLoader
 {
     
     /** The id of the image. */
-    private int         imageID;
+    private long        imageID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -70,7 +70,7 @@ public class ClassificationPathsLoader
      *                  Mustn't be <code>null</code>.
      * @param imageID   The id of the image. 
      */
-    public ClassificationPathsLoader(Editor viewer, int imageID)
+    public ClassificationPathsLoader(Editor viewer, long imageID)
     {
         super(viewer);
         if (imageID < 0) 
@@ -85,7 +85,7 @@ public class ClassificationPathsLoader
     public void load()
     {
         handle = dmView.loadClassificationPaths(imageID,
-                                    OmeroPojoService.DECLASSIFICATION, this);
+                                    OmeroService.DECLASSIFICATION, this);
     }
 
     /** 

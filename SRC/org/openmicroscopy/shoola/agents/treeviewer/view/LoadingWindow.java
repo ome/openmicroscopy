@@ -177,6 +177,7 @@ public class LoadingWindow
         messagePanel.add(iconLabel);
         messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
         messagePanel.add(messageLabel);
+        messagePanel.setOpaque(true);
         return messagePanel;
     }
     
@@ -193,6 +194,7 @@ public class LoadingWindow
         contentPanel.add(progressBar);
         contentPanel.add(Box.createRigidArea(V_SPACER_SIZE));
         contentPanel.add(buildButtonsPanel());
+        contentPanel.setOpaque(true);
         getContentPane().add(contentPanel);
     }
     

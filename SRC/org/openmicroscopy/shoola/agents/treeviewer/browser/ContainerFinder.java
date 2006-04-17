@@ -76,7 +76,7 @@ public class ContainerFinder
     public Set getContainerNodes() { return containerNodes; }
     
     /**
-     * Returns the collection of found nodes.
+     * Returns the collection of found <code>DataObject</code>s.
      * 
      * @return See above.
      */
@@ -99,7 +99,7 @@ public class ContainerFinder
         if ((userObject instanceof DatasetData) || 
             (userObject instanceof CategoryData)) {
             containerNodes.add(node); 
-            containers.add(node.getUserObject());
+            containers.add(userObject);
         }
     }
 

@@ -389,7 +389,7 @@ public interface Browser
      * 					{@link TreeViewer#USER_ROOT}.
      * @param rootID	The Id of the root.
      */
-    public void setHierarchyRoot(int rootLevel, int rootID);
+    public void setHierarchyRoot(int rootLevel, long rootID);
     
     /**
      * Returns the level of the root. One of the following constants:
@@ -404,7 +404,7 @@ public interface Browser
      * 
      * @return See above.
      */
-    public int getRootID();
+    public long getRootID();
     
     /**
      * Sets the number of items contained in the specified container.
@@ -412,7 +412,7 @@ public interface Browser
      * @param containerID 	The id of the container.
      * @param value			The number of items contained in the container.
      */
-    public void setContainerCountValue(int containerID, int value);
+    public void setContainerCountValue(long containerID, int value);
     
     /**
      * Returns a collection of containers which contain <code>Image</code>s

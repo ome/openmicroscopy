@@ -62,7 +62,7 @@ import pojos.DataObject;
 public class EditorControl
     implements ChangeListener, PropertyChangeListener
 {
-
+    
     /** 
      * Reference to the {@link Editor} component, which, in this context,
      * is regarded as the Model.
@@ -144,42 +144,6 @@ public class EditorControl
             throw new IllegalArgumentException("No Data object to update.");
         model.saveObject(object, Editor.UPDATE_OBJECT);
     }
-    
-    /**
-     * Creates a new annotation.
-     * 
-     * @param object The annotation to create.
-     */
-    void createAnnotation(AnnotationData object)
-    {
-        if (object == null) 
-            throw new IllegalArgumentException("No annotation to create.");
-        model.saveAnnotation(object, Editor.CREATE_ANNOTATION);
-    }
-    
-    /**
-     * Updates the specified annotation.
-     * 
-     * @param object The annotation to update.
-     */
-    void updateAnnotation(AnnotationData object)
-    {
-        if (object == null) 
-            throw new IllegalArgumentException("No annotation to update.");
-        model.saveAnnotation(object, Editor.UPDATE_ANNOTATION);
-    }
-    
-    /**
-     * Rmoves the specified annotation.
-     * 
-     * @param object The annotation to remove.
-     */
-    void deleteAnnotation(AnnotationData object)
-    {
-        if (object == null) 
-            throw new IllegalArgumentException("No annotation to delete.");
-        model.saveAnnotation(object, Editor.DELETE_ANNOTATION);
-    }
   
     /**
      * Updates the specified <code>DataObject</code> and creates a annotation 
@@ -228,6 +192,9 @@ public class EditorControl
             throw new IllegalArgumentException("No annotation to remove.");
         model.saveObjectAndAnnotation(data, object, Editor.DELETE_ANNOTATION);
     }
+    
+    /** Reloads the classifications. */
+    void reloadClassifications() { model.reloadClassifications(); }
     
     /**
      * Reacts to state changes in the {@link Editor}.

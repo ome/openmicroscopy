@@ -57,6 +57,8 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -110,6 +112,9 @@ class DOAnnotation
     /** The index of the current user.*/
     private int                 userIndex;
     
+    /** A {@link DocumentListener} for the {@link #annotationArea}. */
+    private DocumentListener    annotationAreaListener;
+    
     /** Reference to the View. */
     private EditorUI            view;
     
@@ -135,6 +140,35 @@ class DOAnnotation
                  }
             }
         });
+        annotationAreaListener = new DocumentListener() {
+            
+            /** 
+             * Indicates that the object is annotated. 
+             * @see DocumentListener#insertUpdate(DocumentEvent)
+             */
+            public void insertUpdate(DocumentEvent de)
+            {
+                model.setAnnotated(true);
+            }
+            
+            /** 
+             * Indicates that the object is annotated. 
+             * @see DocumentListener#removeUpdate(DocumentEvent)
+             */
+            public void removeUpdate(DocumentEvent de)
+            {
+                model.setAnnotated(true);
+            }
+
+            /** 
+             * Required by I/F but no-op implementation in our case. 
+             * @see DocumentListener#changedUpdate(DocumentEvent)
+             */
+            public void changedUpdate(DocumentEvent de) {}
+            
+        };
+        annotationArea.getDocument().addDocumentListener(
+                            annotationAreaListener);
         setComponentsEnabled(false);
         deleteBox.setSelected(false);
     }
@@ -168,6 +202,20 @@ class DOAnnotation
         return p;
     }
 
+    /**
+     * Sets the specified text to the {@link #annotationArea}.
+     * 
+     * @param text  The text to set.
+     */
+    private void addAnnotationText(String text)
+    {
+        annotationArea.getDocument().removeDocumentListener(
+                                        annotationAreaListener);
+        annotationArea.setText(text);
+        annotationArea.getDocument().addDocumentListener(
+                                        annotationAreaListener);
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -213,7 +261,7 @@ class DOAnnotation
     private List getOwnerAnnotation(int index)
     { 
         Map annotations = model.getAnnotations();
-        Integer ownerID = (Integer) ownersMap.get(new Integer(index));
+        Long ownerID = (Long) ownersMap.get(new Integer(index));
         if (ownerID == null) return new ArrayList();    //empty list
         return (List) annotations.get(ownerID);
     }
@@ -240,7 +288,7 @@ class DOAnnotation
         view.handleAnnotationAreaInsert();
         if (index == -1) {
             ExperimenterData details = model.getUserDetails();
-            annotationArea.setText("No annotations for "+details.getLastName()); 
+            addAnnotationText("No annotations for "+details.getLastName());
             setComponentsEnabled(true);
             deleteBox.setEnabled(false);
             return;
@@ -248,7 +296,7 @@ class DOAnnotation
         List list = getOwnerAnnotation(index);
         if (list.size() > 0) {
             AnnotationData data = (AnnotationData) list.get(0);
-            annotationArea.setText(data.getText());          
+            addAnnotationText(data.getText());  
         }
         setComponentsEnabled(index == userIndex);
     }
@@ -278,13 +326,13 @@ class DOAnnotation
         Map annotations = model.getAnnotations();
         String[] owners = new String[annotations.size()];
         Iterator i = annotations.keySet().iterator();
-        Integer id;
+        Long id;
         int index = 0;
         ownersMap = new HashMap();
         List list;
         ExperimenterData data;
         while (i.hasNext()) {
-            id = (Integer) i.next();
+            id = (Long) i.next();
             list = (List) annotations.get(id);
             data = ((AnnotationData) list.get(0)).getOwner();
             if (userDetails.getId() == id.intValue()) userIndex = index;

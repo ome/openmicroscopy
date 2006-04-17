@@ -145,7 +145,7 @@ class EditorUtil
             
         } else {
             details.put("Name", data.getName());
-            ExperimenterData exp = data.getLeader();
+            ExperimenterData exp = data.getOwner();
             if (exp != null)
                 details.put("Leader", exp.getFirstName()+" "+exp.getLastName());
             else details.put("Leader", "");

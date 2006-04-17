@@ -92,10 +92,16 @@ class DOBasic
     private JTabbedPane         tabbedPane;
     
     /** 
-     * The component hosting the annotation. <code>null</code> if the data 
+     * The component hosting the annotation, <code>null</code> if the data 
      * object is not annotable.
      */
     private DOAnnotation        annotator;
+    
+    /** 
+     * The component hosting the images' annotation when the edited object
+     * is either a <code>Dataset</code> or <code>Category</code>.
+     */
+    private DOImagesAnnotation  leavesAnnotator;
     
     /** 
      * The component hosting the classification. <code>null</code> if the data 
@@ -111,6 +117,9 @@ class DOBasic
     
     /** Reference to the Model. */
     private EditorModel         model;
+    
+    /** Reference to the Control. */
+    private EditorControl       controller;
     
     /**
      * Sets the defaults for the specified area.
@@ -140,16 +149,17 @@ class DOBasic
             descriptionArea.getDocument().addDocumentListener(
                     new DocumentListener() {
 
+                /** Handles text insertion. */
                 public void insertUpdate(DocumentEvent de)
                 {
                     view.handleDescriptionAreaInsert();
                 }
                 
-                /** 
-                 * Required by I/F but no-op implementation in our case. 
-                 * @see DocumentListener#removeUpdate(DocumentEvent)
-                 */
-                public void removeUpdate(DocumentEvent de) {}
+                /** Handles text insertion. */
+                public void removeUpdate(DocumentEvent de)
+                {
+                    view.handleDescriptionAreaInsert();
+                }
 
                 /** 
                  * Required by I/F but no-op implementation in our case. 
@@ -170,7 +180,7 @@ class DOBasic
                             im.getIcon(IconManager.ANNOTATION), annotator);
             }
             if (model.isClassified()) {
-                classifier = new DOClassification(model);
+                classifier = new DOClassification(model, controller);
                 tabbedPane.addTab(CLASSIFICATION, 
                       IconManager.getInstance().getIcon(IconManager.CATEGORY),
                       classifier);
@@ -179,7 +189,7 @@ class DOBasic
         nameAreaListener = new DocumentListener() {
             
             /** 
-             * Updates the editor's controlswhen some text is inserted. 
+             * Updates the editor's controls when some text is inserted. 
              * @see DocumentListener#insertUpdate(DocumentEvent)
              */
             public void insertUpdate(DocumentEvent de)
@@ -193,8 +203,7 @@ class DOBasic
              */
             public void removeUpdate(DocumentEvent de)
             {
-                if (de.getDocument().getLength() == 0)
-                    view.handleEmptyNameArea();
+                view.handleNameAreaRemove(de.getDocument().getLength());
             }
 
             /** 
@@ -273,19 +282,24 @@ class DOBasic
     /**
      * Creates a new instance.
      * 
-     * @param view      Reference to the {@link EditorUI}.
-     *                  Mustn't be <code>null</code>.
-     * @param model     Reference to the {@link EditorModel}.
-     *                  Mustn't be <code>null</code>.            
+     * @param view          Reference to the {@link EditorUI}.
+     *                      Mustn't be <code>null</code>.
+     * @param model         Reference to the {@link EditorModel}.
+     *                      Mustn't be <code>null</code>.  
+     * @param controller    Reference to the {@link EditorControl}.
+     *                      Mustn't be <code>null</code>.                           
      */
-    DOBasic(EditorUI view, EditorModel model)
+    DOBasic(EditorUI view, EditorModel model, EditorControl controller)
     {
         if (view == null) 
-            throw new IllegalArgumentException("No view.");
+            throw new IllegalArgumentException("No View.");
         if (model == null) 
-            throw new IllegalArgumentException("No model.");
+            throw new IllegalArgumentException("No Model.");
+        if (controller == null) 
+            throw new IllegalArgumentException("No Control.");
         this.view = view;
         this.model = model;
+        this.controller = controller;
         initComponents();
         buildGUI();
     }   
@@ -352,6 +366,13 @@ class DOBasic
         nameArea.getDocument().removeDocumentListener(nameAreaListener);
         nameArea.setText(null);
         nameArea.getDocument().addDocumentListener(nameAreaListener);
+    }
+    
+    /** Displays the images annotations. */
+    void showLeavesAnnotations()
+    {
+        if (leavesAnnotator == null) return;
+        leavesAnnotator.showAnnotations();
     }
     
     /** Displays the annotations. */

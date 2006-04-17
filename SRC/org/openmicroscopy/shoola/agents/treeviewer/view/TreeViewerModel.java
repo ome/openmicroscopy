@@ -200,8 +200,11 @@ class TreeViewerModel
        TreeImageDisplay parent = 
            selectedBrowser.getSelectedDisplay().getParentDisplay();
        Object po = parent.getUserObject();
-       if (po instanceof String) po = null; //root.
-       currentLoader = new DataObjectRemover(component, userObject, po);
+       if (po instanceof String) //root.
+           currentLoader = new DataObjectRemover(component, userObject, null);
+       else 
+           currentLoader = new DataObjectRemover(component, userObject, 
+                                                 (DataObject) po);
        currentLoader.load();
    }
    

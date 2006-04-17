@@ -47,6 +47,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Application-internal dependencies
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -201,7 +202,7 @@ public abstract class TreeImageDisplay
      * @return See above.
      */
     public boolean hasChildrenDisplay()
-    {
+    { 
         return (childrenDisplay.size() != 0);
     }
     
@@ -344,6 +345,7 @@ public abstract class TreeImageDisplay
     public String getNodeName()
     { 
         Object obj = getUserObject();
+        //System.out.println("Node: "+obj+" "+obj.hashCode());
         if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
         else if (obj instanceof DatasetData) 
             return ((DatasetData) obj).getName();
@@ -429,5 +431,20 @@ public abstract class TreeImageDisplay
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
+    
+    /**
+     * Tells if the children of this node were requested.
+     * 
+     * @return  <code>true</code> if the children were requested,
+     *          <code>false</code> otherwise.
+     */
+    public abstract boolean isChildrenLoaded();
+    
+    /**
+     * Indicates if the children were requested for this node.
+     * 
+     * @param childrenLoaded    The value to set.
+     */
+    public abstract void setChildrenLoaded(Boolean childrenLoaded);
     
 }

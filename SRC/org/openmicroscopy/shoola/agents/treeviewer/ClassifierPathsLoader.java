@@ -61,7 +61,7 @@ public class ClassifierPathsLoader
 {
 
     /** The id of the image to classify or declassify. */
-    private int         imageID;
+    private long        imageID;
     
     /** The type of classifier. */
     private int         mode;
@@ -95,7 +95,7 @@ public class ClassifierPathsLoader
      *                  {@link Classifier#DECLASSIFY_MODE} or 
      *                  {@link Classifier#CLASSIFY_MODE}.
      */
-    public ClassifierPathsLoader(Classifier viewer, int imageID, int mode)
+    public ClassifierPathsLoader(Classifier viewer, long imageID, int mode)
     {
         super(viewer);
         if (imageID < 0) 

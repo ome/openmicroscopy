@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.EditorLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ObjectAnnotationEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -110,8 +109,14 @@ class EditorModel
     /** The annotations related to the currently edited {@link DataObject}. */ 
     private Map                 annotations;
     
+    /** The images' annotations. */
+    private Map                 leavesAnnotations;
+    
     /** The set of retrieved classifications */
     private Set                 classifications;
+    
+    /** Flag to indicate if the object is annotated. */
+    private boolean             annotated;
     
     /** Reference to the component that embeds this model. */
     protected Editor            component;
@@ -119,14 +124,14 @@ class EditorModel
     /** 
      * Returns the last annotation.
      * 
-     * @param annotations Collection of {@link AnnotationData} 
-     *                      related to the {@link DataObject} if any
+     * @param annotations   Collection of {@link AnnotationData} linked to 
+     *                      the currently edited <code>Dataset</code> or
+     *                      <code>Image</code>.
      * @return See above.
      */
-    private AnnotationData getLastAnnotation(Set annotations)
+    private AnnotationData getLastAnnotation(List annotations)
     {
         if (annotations == null || annotations.size() == 0) return null;
-        List list = new ArrayList(annotations);
         Comparator c = new Comparator() {
             public int compare(Object o1, Object o2)
             {
@@ -140,8 +145,8 @@ class EditorModel
                 return v;
             }
         };
-        Collections.sort(list, c);
-        return (AnnotationData) list.get(list.size()-1);
+        Collections.sort(annotations, c);
+        return (AnnotationData) annotations.get(annotations.size()-1);
     }
     
     /**
@@ -167,6 +172,7 @@ class EditorModel
         this.editorType = editorType;
         this.parentModel = parentModel;
         this.hierarchyObject = hierarchyObject;
+        annotated = false;
     }
     
     /**
@@ -250,10 +256,11 @@ class EditorModel
      */
     boolean isClassified()
     {
-        if (hierarchyObject == null) return false;
-        else if (hierarchyObject instanceof ImageData)
-            return true;
-        return false;
+        if (hierarchyObject == null || !(hierarchyObject instanceof ImageData))
+                return false;
+        Integer i = ((ImageData) hierarchyObject).getClassificationCount();
+        if (i == null || i.intValue() == 0) return false;
+        return true;
     }
     
     /**
@@ -339,13 +346,11 @@ class EditorModel
      */
     AnnotationData getAnnotationData()
     {
+        Long id = getUserDetails().getId();
         if (hierarchyObject == null) return null;
-        else if (hierarchyObject instanceof ImageData)
-            return getLastAnnotation(
-                    ((ImageData) hierarchyObject).getAnnotations());
-        else if (hierarchyObject instanceof DatasetData)
-            return getLastAnnotation(
-                    ((DatasetData) hierarchyObject).getAnnotations());
+        else if ((hierarchyObject instanceof ImageData) || 
+                (hierarchyObject instanceof DatasetData))
+            return getLastAnnotation(getAnnotations(id.longValue()));
         return null;
     }
     
@@ -382,9 +387,9 @@ class EditorModel
      * @param ownerID   The id of the owner.
      * @return See above.
      */
-    List getAnnotations(int ownerID)
+    List getAnnotations(long ownerID)
     {
-        return (List) annotations.get(new Integer(ownerID));
+        return (List) annotations.get(new Long(ownerID));
     }
     
     /**
@@ -398,19 +403,21 @@ class EditorModel
         sorter.setAscending(false);
         HashMap sortedAnnotations = new HashMap();
         Set set;
-        Integer index;
+        Long index;
         Iterator i = map.keySet().iterator();
         Iterator j;
         AnnotationData annotation;
-        Integer ownerID;
+        Long ownerID;
         List userAnnos;
+        System.out.println("index: "+map.size());
         while (i.hasNext()) {
-            index = (Integer) i.next();
+            index = (Long) i.next();
             set = (Set) map.get(index);
             j = set.iterator();
+            System.out.println("index: "+index);
             while (j.hasNext()) {
                 annotation = (AnnotationData) j.next();;
-                ownerID = new Integer(annotation.getOwner().getId());
+                ownerID = new Long(annotation.getOwner().getId());
                 userAnnos = (List) sortedAnnotations.get(ownerID);
                 if (userAnnos == null) {
                     userAnnos = new ArrayList();
@@ -425,7 +432,7 @@ class EditorModel
         Iterator k, l;
         AnnotationData data;
         while (i.hasNext()) {
-            ownerID = (Integer) i.next();
+            ownerID = (Long) i.next();
             annotations = (List) sortedAnnotations.get(ownerID);
             k = annotations.iterator();
             m = new HashMap(annotations.size());
@@ -443,6 +450,11 @@ class EditorModel
             sortedAnnotations.put(ownerID, list);
         }
         this.annotations = sortedAnnotations;
+    }
+    
+    void setLeavesAnnotations(Map map)
+    {
+        
     }
     
     /** 
@@ -498,7 +510,6 @@ class EditorModel
      */
     JDialog getLoadingWindow() { return parentModel.getLoadingWindow(); }
     
-    
     /**
      * Fires an asynchronous annotation retrieval for the currently edited 
      * <code>DataObject</code>.
@@ -517,7 +528,7 @@ class EditorModel
     void fireClassificationLoading()
     {
         state = Editor.LOADING_CLASSIFICATION;
-        int imageID = ((ImageData) hierarchyObject).getId();
+        long imageID = ((ImageData) hierarchyObject).getId();
         currentLoader = new ClassificationPathsLoader(component, imageID);
         currentLoader.load();
     }
@@ -533,8 +544,10 @@ class EditorModel
         if (b == null) return;
         state = Editor.SAVE_EDITION;
         Object p =  b.getSelectedDisplay().getUserObject();
-        if (p instanceof String) p = null;
-        currentLoader = new DataObjectCreator(component, object, p);
+        if (p instanceof String) //root
+            currentLoader = new DataObjectCreator(component, object, null);
+        else currentLoader = new DataObjectCreator(component, object,
+                                                    (DataObject) p);
         currentLoader.load();
     }
     
@@ -560,8 +573,8 @@ class EditorModel
     void fireAnnotationCreate(DataObject object, AnnotationData data)
     {
         state = Editor.SAVE_EDITION;
-        currentLoader = new ObjectAnnotationEditor(component, object, data, 
-                                    ObjectAnnotationEditor.CREATE);
+        currentLoader = new AnnotationEditor(component, object, data, 
+                                        AnnotationEditor.CREATE);
         currentLoader.load();
     }
     
@@ -575,8 +588,8 @@ class EditorModel
     void fireAnnotationDelete(DataObject object, AnnotationData data)
     {
         state = Editor.SAVE_EDITION;
-        currentLoader = new ObjectAnnotationEditor(component, object, data, 
-                                    ObjectAnnotationEditor.DELETE);
+        currentLoader = new AnnotationEditor(component, object, data, 
+                                            AnnotationEditor.DELETE);
         currentLoader.load();
     }
     
@@ -590,46 +603,7 @@ class EditorModel
     void fireAnnotationUpdate(DataObject object, AnnotationData data)
     {
         state = Editor.SAVE_EDITION;
-        currentLoader = new ObjectAnnotationEditor(component, object, data, 
-                                    ObjectAnnotationEditor.UPDATE);
-        currentLoader.load();
-    }
-    
-    /**
-     * Starts the asynchronous creation of the specified annotation.
-     * 
-     * @param data The annotation to create.
-     */
-    void fireAnnotationCreate(AnnotationData data)
-    {
-        state = Editor.SAVE_EDITION;
-        currentLoader = new AnnotationEditor(component, hierarchyObject, data, 
-                                            AnnotationEditor.CREATE);
-        currentLoader.load();
-    }
-    
-    /**
-     * Starts the asynchronous deletion of the specified annotation.
-     * 
-     * @param data The annotation to create.
-     */
-    void fireAnnotationDelete(AnnotationData data)
-    {
-        state = Editor.SAVE_EDITION;
-        currentLoader = new AnnotationEditor(component, hierarchyObject, data, 
-                                            AnnotationEditor.DELETE);
-        currentLoader.load();
-    }
-    
-    /**
-     * Starts the asynchronous update of the specified annotation.
-     * 
-     * @param data The annotation to create.
-     */
-    void fireAnnotationUpdate(AnnotationData data)
-    {
-        state = Editor.SAVE_EDITION;
-        currentLoader = new AnnotationEditor(component, hierarchyObject, data, 
+        currentLoader = new AnnotationEditor(component, object, data, 
                                             AnnotationEditor.UPDATE);
         currentLoader.load();
     }
@@ -645,5 +619,22 @@ class EditorModel
         state = Editor.READY;
         parentModel.onDataObjectSave(object, operation);
     }
+    
+    /**
+     * Sets to <code>true</code> if the object is annotated, <code>false</code>
+     * otherwise;
+     * 
+     * @param annotated Passed <code>true</code> if the object is annotated,
+     *                  <code>false</code> otherwise.
+     */
+    void setAnnotated(boolean annotated) { this.annotated = annotated; }
+    
+    /**
+     * Returns <code>true</code> if the object is annotated, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isAnnotated() { return annotated; }
     
 }

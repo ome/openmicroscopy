@@ -195,7 +195,7 @@ class TreeViewerControl
         GroupData group;
         while (i.hasNext()) {
             group = (GroupData) i.next();
-            groupLevelActionsMap.put(new Integer(group.getId()), 
+            groupLevelActionsMap.put(new Long(group.getId()), 
                     new RootLevelAction(model, TreeViewer.GROUP_ROOT, 
                             group.getId(), group.getName()));
         }
@@ -304,7 +304,7 @@ class TreeViewerControl
      * @param id One of the group id.
      * @return The specified action.
      */
-    Action getGroupLevelAction(Integer id) 
+    Action getGroupLevelAction(Long id) 
     { 
         return (Action) groupLevelActionsMap.get(id);
     }

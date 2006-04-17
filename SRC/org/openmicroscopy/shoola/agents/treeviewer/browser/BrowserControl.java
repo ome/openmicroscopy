@@ -211,6 +211,12 @@ class BrowserControl
      */
     Action getAction(Integer id) { return (Action) actionsMap.get(id); }
     
+    /** Forwards event to the {@link Browser} to load the leaves. */
+    void loadLeaves() { model.loadLeaves(); }
+    
+    /** Forwards event to the {@link Browser} to load the hiearchy data. */
+    void loadData() { model.loadData(); }
+    
     /**
      * Detects when the {@link Browser} is ready and then registers for
      * property change notification.

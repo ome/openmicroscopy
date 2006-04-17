@@ -65,6 +65,8 @@ public class TreeImageSet
      */
     private Boolean     containsImages;
     
+    private Boolean     childrenLoaded;
+    
 
     /**
      * Implemented as specified by superclass.
@@ -86,6 +88,7 @@ public class TreeImageSet
     public TreeImageSet(Object hierarchyObject)
     {
         super(hierarchyObject);
+        childrenLoaded = null;
     }
 
 
@@ -146,5 +149,30 @@ public class TreeImageSet
      * @param value The number of items.
      */
     public void setNumberItems(int value) { numberItems = value; }
+    
+    /** 
+     * Tells if the children of this node have been loaded. 
+     * The node may not contain children but the children were requested.
+     * Note that this method will return <code>false</code> if the value of the 
+     * {@link #childrenLoaded} is <code>null</code>.
+     * 
+     * @return  <code>true</code> if the children have been loaded, 
+     *          <code>false</code> otherwise.
+     */
+    public boolean isChildrenLoaded()
+    { 
+        if (childrenLoaded == null) return false;
+        return childrenLoaded.booleanValue();
+    }
+    
+    /**
+     * Indicates if the children were requested for this node.
+     * 
+     * @param childrenLoaded    The value to set.
+     */
+    public void setChildrenLoaded(Boolean childrenLoaded)
+    {
+        this.childrenLoaded = childrenLoaded;
+    }
     
 }

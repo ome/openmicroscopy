@@ -102,7 +102,7 @@ public class ClassificationVisitor
         CategoryData element;
         while (i.hasNext()) {
             element = (CategoryData) i.next();
-            dataObjects.add(new Integer(element.getId()));
+            dataObjects.add(new Long(element.getId()));
         }
         foundNodes = new ArrayList();
     }
@@ -125,8 +125,8 @@ public class ClassificationVisitor
             TreeImageDisplay display = node.getParentDisplay();
             Object p = display.getUserObject();
             if (p instanceof CategoryData) {
-                int id = ((CategoryData) p).getId();
-                if (dataObjects.contains(new Integer(id)))
+                long id = ((CategoryData) p).getId();
+                if (dataObjects.contains(new Long(id)))
                     foundNodes.add(node);
             } else foundNodes.add(node);
         }

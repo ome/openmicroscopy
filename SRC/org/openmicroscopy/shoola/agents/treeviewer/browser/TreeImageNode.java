@@ -94,4 +94,21 @@ public class TreeImageNode
      */
     public boolean containsImages() { return false; }
 
+    /**
+     * Always returns <code>false</code> as this is not a container node.
+     * @see TreeImageDisplay#isChildrenLoaded()
+     */
+    public boolean isChildrenLoaded() { return false; }
+
+    /**
+     * Spits out a runtime exception because it's not possible to add a
+     * child to a leaf node.
+     * @see TreeImageDisplay#setChildrenLoaded(Boolean)
+     */
+    public void setChildrenLoaded(Boolean childrenLoaded)
+    {
+        throw new IllegalArgumentException(
+                "A TreeImageNode doesn't have children.");
+    }
+
 }

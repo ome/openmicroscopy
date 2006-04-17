@@ -66,7 +66,7 @@ public class DataObjectEditor
     private int				operation;
     
     /** The parent of the {@link #userObject}. */
-    private Object			parent;
+    private DataObject      parent;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
@@ -97,11 +97,11 @@ public class DataObjectEditor
      * @param parent        The parent of the {@link DataObject} to handle.
      */
     public DataObjectEditor(Editor viewer, DataObject userObject,
-            				Object parent)
+                            DataObject parent)
     {
         super(viewer);
         if (userObject == null)
-            throw new IllegalArgumentException("No DataObject");
+            throw new IllegalArgumentException("No DataObject.");
         this.userObject = userObject;
         this.parent = parent;
         operation = Editor.DELETE_OBJECT;

@@ -99,7 +99,7 @@ public class ImagesInContainerLoader
      * @param nodeType      The type of the node.
      * @param nodeID        The ID of the node.
      */
-    public ImagesInContainerLoader(Browser viewer, Class nodeType, int nodeID)
+    public ImagesInContainerLoader(Browser viewer, Class nodeType, long nodeID)
     {
         super(viewer);
         if (!validate(nodeType))
@@ -108,7 +108,7 @@ public class ImagesInContainerLoader
             throw new IllegalArgumentException("RootId not valid");
         this.nodeType = nodeType;
         nodeIDs = new HashSet(1);
-        nodeIDs.add(new Integer(nodeID));
+        nodeIDs.add(new Long(nodeID));
     }
     
     /**

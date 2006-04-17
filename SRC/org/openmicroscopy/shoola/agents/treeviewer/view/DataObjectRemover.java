@@ -58,7 +58,7 @@ public class DataObjectRemover
     private DataObject      userObject;
     
     /** The parent of the {@link #userObject}. */
-    private Object          parent;
+    private DataObject      parent;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle      handle;
@@ -72,7 +72,7 @@ public class DataObjectRemover
      * @param parent        The parent of the {@link DataObject} to handle.
      */
     public DataObjectRemover(TreeViewer viewer, DataObject userObject,
-                            Object parent)
+                            DataObject parent)
     {
         super(viewer);
         if (userObject == null)

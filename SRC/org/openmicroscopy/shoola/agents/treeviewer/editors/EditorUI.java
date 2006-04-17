@@ -41,7 +41,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -192,7 +191,7 @@ public class EditorUI
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  finish(); }
         });
-        doBasic = new DOBasic(this, model); 
+        doBasic = new DOBasic(this, model, controller); 
     }
     
     /** 
@@ -337,7 +336,7 @@ public class EditorUI
         String s = doBasic.getNameText();
         if (s == null || s.length() == 0) {
             doBasic.resetNameArea();
-            handleEmptyNameArea();
+            handleNameAreaRemove(0);
             return;
         }
         switch (model.getEditorType()) {
@@ -349,25 +348,13 @@ public class EditorUI
         }
     }
     
-    /** Creates, updates or deletes the annotation. */
-    private void annotateOnly()
+    /** Removes the annotation. */
+    private void removeAnnotate()
     {
-        AnnotationData data = null;
-        int userID = model.getUserDetails().getId();
-        List l = model.getAnnotations(userID);
-        if (l != null && l.size() != 0) 
-            data = model.getAnnotationData();
+        AnnotationData data = model.getAnnotationData();
         if (doBasic.isAnnotationDeleted()) {
-            if (data != null) controller.deleteAnnotation(data);
-        } else { 
-            if (data == null) {
-                data = new AnnotationData();
-                data.setText(doBasic.getAnnotationText());
-                controller.createAnnotation(data);
-            } else {
-                data.setText(doBasic.getAnnotationText());
-                controller.updateAnnotation(data);
-            }
+            if (data != null) 
+                controller.deleteAnnotation(fillDataObject(), data);
         }
     }
     
@@ -380,7 +367,12 @@ public class EditorUI
                 controller.deleteAnnotation(fillDataObject(), data);
         } else {  
             if (data == null) { 
-                data = new AnnotationData();
+                DataObject ho = model.getHierarchyObject();
+                if (ho instanceof ImageData)
+                    data = new AnnotationData(AnnotationData.IMAGE_ANNOTATION);
+                else 
+                    data = new AnnotationData(
+                            AnnotationData.DATASET_ANNOTATION); 
                 data.setText(doBasic.getAnnotationText());
                 controller.createAnnotation(fillDataObject(), data);
             } else {
@@ -396,11 +388,26 @@ public class EditorUI
      */
     private void finishEdit()
     {
+        System.out.println("Edit: " +edit+" "+model.isAnnotated());
         if (edit) {
-            if (doBasic.isAnnotable()) editAndAnnotate();
-            else controller.updateObject(fillDataObject());
+            if (doBasic.isAnnotable()) {
+                if (model.isAnnotated()) editAndAnnotate();
+                else {
+                    AnnotationData data = model.getAnnotationData();
+                    if (doBasic.isAnnotationDeleted()) {
+                        if (data != null) 
+                            controller.deleteAnnotation(fillDataObject(), data);
+                    } else {
+                        System.out.println("HERe");
+                        controller.updateObject(fillDataObject());
+                    }
+                }
+            } else controller.updateObject(fillDataObject());
         } else {
-            if (doBasic.isAnnotable()) annotateOnly();
+            if (doBasic.isAnnotable()) {
+                if (model.isAnnotated()) editAndAnnotate();
+                else removeAnnotate();
+            }
         }
     } 
     
@@ -466,15 +473,19 @@ public class EditorUI
     }
     
     /**
-     * Resets the UI components when the name's of the <code>DataObject</code>
-     * is null or of lenght 0.
+     * Displays an error message when the length of the inserted name is
+     * <code>0</code>.
+     * 
+     * @param length The length of the 
      */
-    void handleEmptyNameArea()
+    void handleNameAreaRemove(int length)
     {
-        warning = true;
-        finishButton.setEnabled(false);
-        buildEmptyPanel();
-        titleLayer.add(emptyMessagePanel, new Integer(1));
+        if (length == 0) {
+            warning = true;
+            finishButton.setEnabled(false);
+            buildEmptyPanel();
+            titleLayer.add(emptyMessagePanel, new Integer(1)); 
+        } else finishButton.setEnabled(true);
     }
     
     /**
@@ -535,7 +546,13 @@ public class EditorUI
         doBasic.addListeners();
     }
 
-    /** Shows the retrieves annotations.  */
+    /** Shows the images' annotations. */
+    void showLeavesAnnotations()
+    {
+        if (doBasic != null) doBasic.showLeavesAnnotations();
+    }
+    
+    /** Shows the retrieved annotations.  */
     void showAnnotations()
     {
         if (doBasic != null) doBasic.showAnnotations();

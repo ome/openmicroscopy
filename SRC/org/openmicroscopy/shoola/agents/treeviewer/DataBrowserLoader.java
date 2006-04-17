@@ -96,7 +96,7 @@ public abstract class DataBrowserLoader
      *     
      * @return See above.
      */
-    protected int getRootID()
+    protected long getRootID()
     {
         switch (viewer.getRootLevel()) {
             case TreeViewer.USER_ROOT:

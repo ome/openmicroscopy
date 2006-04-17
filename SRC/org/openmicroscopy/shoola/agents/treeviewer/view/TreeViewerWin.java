@@ -279,7 +279,7 @@ class TreeViewerWin
         while (i.hasNext()) {
             group = (GroupData) i.next();
             item = new JRadioButtonMenuItem(
-                    controller.getGroupLevelAction(new Integer(group.getId())));
+                    controller.getGroupLevelAction(new Long(group.getId())));
             bGroup.add(item);
             rootLevelMenu.add(item);
         }

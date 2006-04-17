@@ -113,20 +113,6 @@ public class AnnotationEditor
     }
     
     /**
-     * Returns the ID of the object to annotate.
-     * 
-     * @return See above.
-     */
-    private int getAnnotatedObjectID()
-    {
-        if (annotatedObject instanceof ImageData) 
-            return ((ImageData) annotatedObject).getId();
-        else if (annotatedObject instanceof DatasetData) 
-            return ((DatasetData) annotatedObject).getId();
-        return -1;
-    }
-    
-    /**
      * Creates a new instance.
      * 
      * @param viewer            The Editor this data loader is for.
@@ -142,6 +128,8 @@ public class AnnotationEditor
         super(viewer);   
         if (data == null)
             throw new IllegalArgumentException("No annotation.");
+        if (annotatedObject == null)
+            throw new IllegalArgumentException("No DataObject to annotate.");
         checkAnnotatedObject(annotatedObject);
         checkOperation(operation);
         this.data = data;
@@ -157,17 +145,13 @@ public class AnnotationEditor
     {
         switch (operation) {
 	        case CREATE:
-	            handle = dmView.createAnnotation(annotatedObject.getClass(),
-                        				getAnnotatedObjectID(), data.getText(),
-                        				this);
+	            handle = dmView.createAnnotation(annotatedObject, data, this);
 	            break;
 	        case UPDATE:
-	            handle = dmView.updateAnnotation(annotatedObject.getClass(),
-        								getAnnotatedObjectID(), data, this);
+	            handle = dmView.updateAnnotation(annotatedObject, data, this);
 	            break;
 	        case DELETE:
-	            handle = dmView.deleteAnnotation(annotatedObject.getClass(),
-	                    					data, this);
+	            handle = dmView.deleteAnnotation(annotatedObject, data, this);
 	            break;
         }
     }
@@ -185,7 +169,7 @@ public class AnnotationEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult(annotatedObject, Editor.UPDATE_OBJECT); 
+        viewer.setSaveResult((DataObject) result, Editor.UPDATE_OBJECT); 
     }
     
 }

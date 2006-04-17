@@ -41,7 +41,6 @@ import javax.swing.JTree;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
@@ -102,7 +101,7 @@ class BrowserModel
      * The ID of the root. This parameter will be used only when the 
      * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
      */
-    private int					rootID;
+    private long                rootID;
     
     /** List of founds nodes. */
     private List				foundNodes;
@@ -245,12 +244,12 @@ class BrowserModel
         Iterator i = nodes.iterator();
         if (filterType == Browser.IN_DATASET_FILTER) {
             while (i.hasNext())
-                ids.add(new Integer(((DatasetData) i.next()).getId()));
+                ids.add(new Long(((DatasetData) i.next()).getId()));
             currentLoader = new ImagesInContainerLoader(component, 
                                             DatasetData.class, ids, true);
         } else if (filterType == Browser.IN_CATEGORY_FILTER) {
             while (i.hasNext())
-                ids.add(new Integer(((CategoryData) i.next()).getId()));
+                ids.add(new Long(((CategoryData) i.next()).getId()));
             currentLoader = new ImagesInContainerLoader(component, 
                                                 CategoryData.class, ids, true);
         }
@@ -266,7 +265,7 @@ class BrowserModel
     void fireLeavesLoading()
     {
         Object ho = selectedDisplay.getUserObject();
-        int id = 0;
+        long id = 0;
         Class nodeType = null;
         if (ho instanceof DatasetData) {
             nodeType = DatasetData.class;
@@ -307,7 +306,7 @@ class BrowserModel
     {
         if (selectedDisplay == null) return;
         Object ho = selectedDisplay.getUserObject();
-        int id = -1;
+        long id = -1;
         Class nodeType = null;
         if (ho instanceof ProjectData) {
             id = ((ProjectData) ho).getId();
@@ -330,6 +329,10 @@ class BrowserModel
      */
     void fireContainerCountLoading()
     {
+        state = Browser.READY;
+        return;
+        
+        /*
         Set containers = component.getContainersWithImages();
         if (containers.size() == 0) {
             state = Browser.READY;
@@ -338,6 +341,8 @@ class BrowserModel
         state = Browser.COUNTING_ITEMS;
         currentLoader = new ContainerCounterLoader(component, containers);
         currentLoader.load();
+        */
+        
     }
     
     /**
@@ -400,7 +405,7 @@ class BrowserModel
      * 					{@link TreeViewer#USER_ROOT}.
      * @param rootID	The Id of the root.
      */
-    void setHierarchyRoot(int rootLevel, int rootID)
+    void setHierarchyRoot(int rootLevel, long rootID)
     {
     	this.rootLevel = rootLevel;
     	this.rootID = rootID;
@@ -420,7 +425,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    int getRootID() { return rootID; }
+    long getRootID() { return rootID; }
 
     /**
      * Sets the number of items contained in the specified container.
@@ -429,7 +434,7 @@ class BrowserModel
      * @param containerID The ID of the container.
      * @param value	The number of items.
      */
-    void setContainerCountValue(JTree tree, int containerID, int value)
+    void setContainerCountValue(JTree tree, long containerID, int value)
     {
         if (containersManager == null)
             containersManager = new ContainersManager(tree, 

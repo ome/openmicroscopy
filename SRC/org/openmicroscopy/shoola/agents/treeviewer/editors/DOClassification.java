@@ -33,15 +33,19 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -50,6 +54,7 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -86,8 +91,14 @@ class DOClassification
     /** Reference to the Model. */
     private EditorModel         model;
     
+    /** Reference to the Control. */
+    private EditorControl       controller;
+    
     /** The tree hosting the classification. */
     private JTree               treeDisplay;
+    
+    /** Button to reload the classification. */
+    private JButton             refreshButton;
     
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
@@ -142,6 +153,18 @@ class DOClassification
     /** Initializes the UI components. */
     private void initComponents()
     {
+        IconManager im = IconManager.getInstance();
+        refreshButton = new JButton(im.getIcon(IconManager.REFRESH));
+        refreshButton.setEnabled(false);
+        refreshButton.setToolTipText(
+                        UIUtilities.formatToolTipText("Reload data.")); 
+        refreshButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {  
+                refreshButton.setEnabled(false);
+                controller.reloadClassifications();
+            }
+        });
         treeDisplay = new JTree();
         treeDisplay.setCellRenderer(new TreeCellRenderer(false));
         treeDisplay.setShowsRootHandles(true);
@@ -157,6 +180,21 @@ class DOClassification
         });
     }
     
+    /** 
+     * Builds the tool bar hosting the buttons. 
+     * 
+     * @return See above.
+     */
+    private JToolBar createToolBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setBorder(null);
+        bar.setRollover(true);
+        bar.setFloatable(false);
+        bar.add(refreshButton);
+        return bar;
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -165,6 +203,7 @@ class DOClassification
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(new JLabel(PANEL_NOTE));
         p.add(new JLabel(PANEL_SUBNOTE));
+        p.add(createToolBar());
         add(UIUtilities.buildComponentPanel(p), BorderLayout.NORTH);
         add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
@@ -172,12 +211,18 @@ class DOClassification
     /**
      * Creates a new instance.
      * 
-     * @param model     Reference to the Model. Mustn't be <code>null</code>.
+     * @param model         Reference to the Model. 
+     *                      Mustn't be <code>null</code>.
+     * @param controller    Reference to the Control. 
+     *                      Mustn't be <code>null</code>.
      */
-    DOClassification(EditorModel model)
+    DOClassification(EditorModel model, EditorControl controller)
     {
         if (model == null)  throw new IllegalArgumentException("No Model.");
+        if (controller == null) 
+            throw new IllegalArgumentException("No Control.");
         this.model = model;
+        this.controller = controller;
         sorter = new ViewerSorter();
         initComponents();
         buildGUI();
@@ -187,9 +232,12 @@ class DOClassification
     void showClassifications()
     {
         if (!model.isClassificationLoaded()) return;
+        refreshButton.setEnabled(true);
         Set nodes = model.getClassifications();
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        root.removeAllChildren();
+        root.removeAllChildrenDisplay();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())

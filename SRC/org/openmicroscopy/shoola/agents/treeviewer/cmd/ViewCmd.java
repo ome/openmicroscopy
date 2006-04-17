@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import pojos.CategoryData;
@@ -77,7 +77,7 @@ public class ViewCmd
     
     /**
      * Converts the specified UI rootLevel into its corresponding 
-     * constant defined by the {@link OmeroPojoService}.
+     * constant defined by the {@link OmeroService}.
      * 
      * @param level The level to convert.
      * @return See above.
@@ -85,10 +85,8 @@ public class ViewCmd
     private Class convertRootLevel(int level)
     {
         switch (level) {
-            case TreeViewer.USER_ROOT:
-                return ExperimenterData.class;
-            case TreeViewer.GROUP_ROOT:
-                return GroupData.class;
+            case TreeViewer.USER_ROOT: return ExperimenterData.class;
+            case TreeViewer.GROUP_ROOT: return GroupData.class;
             default:
                 throw new IllegalArgumentException("Level not supported");
         }

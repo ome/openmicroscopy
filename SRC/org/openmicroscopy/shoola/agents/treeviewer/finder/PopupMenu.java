@@ -128,7 +128,7 @@ class PopupMenu
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(inNameItem);
         add(inDescriptionItem);
-        add(inAnnotationItem);
+        //add(inAnnotationItem);
     }
     
     /**

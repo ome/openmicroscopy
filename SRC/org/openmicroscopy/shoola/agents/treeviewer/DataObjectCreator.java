@@ -61,7 +61,7 @@ public class DataObjectCreator
     private DataObject      userObject;
     
     /** The parent of the data object to create. */
-    private Object			parent;
+    private DataObject      parent;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
@@ -76,7 +76,7 @@ public class DataObjectCreator
      *                      <code>null</code> if no parent.
      */
     public DataObjectCreator(Editor viewer, DataObject userObject, 
-            				Object parent)
+                            DataObject parent)
     {
         super(viewer);
         if (userObject == null)

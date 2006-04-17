@@ -61,7 +61,7 @@ public class ContainerCounterLoader
 	extends DataBrowserLoader
 {
 
-    /** The collection of containers we want to analyse. */
+    /** The collection of container's ID we want to analyse. */
     private Set			rootIDs;
     
     /** Handle to the async call so that we can cancel it. */
@@ -71,9 +71,9 @@ public class ContainerCounterLoader
      * Creates a new instance.
      * 
      * @param viewer 	Reference to the Model. Mustn't be <code>null</code>.
-     * @param rootIDs 	Collection of 
-     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet}s 
-     * containing <code>Images</code> e.g. <code>Dataset</code>.
+     * @param rootIDs 	Collection of container's IDs which contain 
+     *                  <code>Image</code>s i.e. <code>Dataset</code> 
+     *                  or <code>Dataset</code>.
      */
     public ContainerCounterLoader(Browser viewer, Set rootIDs)
     {
@@ -106,16 +106,18 @@ public class ContainerCounterLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return; //Async cancel
         Map map = (Map) fe.getPartialResult();
+        System.out.println("containerID: "+map);
         if (map == null) return; //Last fe has null object.
         //map should be only size == 1
         if (map.size() == 1) {
             Iterator i = map.keySet().iterator();
-            Integer containerID;
+            Long containerID;
             Integer value;
             while (i.hasNext()) {
-                containerID = (Integer) i.next();
+                containerID = (Long) i.next();
                 value = (Integer) map.get(containerID);
-                viewer.setContainerCountValue(containerID.intValue(),
+                System.out.println("containerID: "+containerID+" "+value);
+                viewer.setContainerCountValue(containerID.longValue(),
                         						value.intValue());
             }
         }

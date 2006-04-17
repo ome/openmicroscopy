@@ -235,7 +235,8 @@ public interface TreeViewer
      * Brings up the editor corresponding to the specified type ang object.
      * 
      * @param object The {@link DataObject} to edit or create.
-     * @param editorType The type of editor.
+     * @param editorType The type of editor. One of the following constants
+     * {@link #CREATE_EDITOR} or {@link #PROPERTIES_EDITOR}.
      */
     public void showProperties(DataObject object, int editorType);
     

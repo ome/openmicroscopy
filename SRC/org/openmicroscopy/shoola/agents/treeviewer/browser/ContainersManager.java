@@ -96,14 +96,14 @@ public class ContainersManager
         TreeImageSet node;
         Object userObject;
         Set p;
-        Integer id = null;
+        Long id = null;
         while (i.hasNext()) {
             node = (TreeImageSet) i.next();
             userObject = node.getUserObject();
             if (userObject instanceof DatasetData) 
-                id = new Integer(((DatasetData) userObject).getId());
+                id = new Long(((DatasetData) userObject).getId());
             else if (userObject instanceof CategoryData) 
-                id = new Integer(((CategoryData) userObject).getId());
+                id = new Long(((CategoryData) userObject).getId());
             if (id != null) {
                 p = (Set) providers.get(id);
                 if (p == null) {
@@ -122,10 +122,10 @@ public class ContainersManager
      * @param containerID 	The ID of the container.
      * @param value			The number of items in the container.	
      */
-    public void setNumberItems(int containerID, int value)
+    public void setNumberItems(long containerID, int value)
     {
         if (value < 0) throw new IllegalArgumentException("Value not valid.");
-        Integer id = new Integer(containerID);
+        Long id = new Long(containerID);
         Set p = (Set) providers.get(id);
         if (p != null) {
             Iterator i = p.iterator();

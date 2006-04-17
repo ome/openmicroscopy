@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -109,10 +110,8 @@ public class ClassificationSaver
     private int convertMode()
     {
         switch (mode) {
-            case CLASSIFY:
-                return Classifier.CLASSIFY_MODE;
-            case DECLASSIFY:
-                return Classifier.DECLASSIFY_MODE;
+            case CLASSIFY: return Classifier.CLASSIFY_MODE;
+            case DECLASSIFY: return Classifier.DECLASSIFY_MODE;
             default:
                 throw new IllegalArgumentException(
                     "Classification mode not supported.");
@@ -150,12 +149,14 @@ public class ClassificationSaver
      */
     public void load()
     {
+        Set images = new HashSet(1);
+        images.add(image);
         switch (mode) {
             case CLASSIFY:
-                handle = dmView.classify(image.getId(), categories, this);
+                handle = dmView.classify(images, categories, this);
                 break;
             case DECLASSIFY:
-                handle = dmView.declassify(image.getId(), categories, this);
+                handle = dmView.declassify(images, categories, this);
         }       
     }
 

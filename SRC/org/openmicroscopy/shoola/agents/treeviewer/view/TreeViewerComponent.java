@@ -414,7 +414,7 @@ class TreeViewerComponent
     {
         int state = model.getState();
         if (operation == REMOVE_OBJECT && state != SAVE)
-            throw new IllegalStateException("This method cannot be " +
+            throw new IllegalStateException("This method can only be " +
                     "invoked in the SAVE state");
         switch (state) {
             case DISCARDED:

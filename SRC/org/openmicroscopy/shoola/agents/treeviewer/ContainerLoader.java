@@ -90,13 +90,13 @@ public class ContainerLoader
      * @param type          One of the type supported by this class.
      * @param nodeID        The ID of the container node.        
      */
-    public ContainerLoader(Browser viewer, Class type, int nodeID)
+    public ContainerLoader(Browser viewer, Class type, long nodeID)
     {
         super(viewer);
         checkClassType(type);
         nodeType = type;
         nodeIDs = new HashSet(1);
-        nodeIDs.add(new Integer(nodeID));
+        nodeIDs.add(new Long(nodeID));
     }
 
     /**

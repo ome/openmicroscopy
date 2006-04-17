@@ -43,7 +43,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
+import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.DatasetData;
 
 
 /** 
@@ -305,37 +307,6 @@ class EditorComponent
         }
         fireStateChange();
     }
-
-    /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#saveAnnotation(AnnotationData, int)
-     */
-    public void saveAnnotation(AnnotationData object, int operation)
-    {
-        switch (model.getState()) {
-            case DISCARDED:
-            case LOADING_ANNOTATION:   
-            case LOADING_CLASSIFICATION:  
-                throw new IllegalStateException(
-                "This method cannot be invoked in the DISCARDED, " +
-                "LOADING_ANNOTATION or LOADING_CLASSIFICATION state.");
-        }
-        if (object == null)
-            throw new IllegalArgumentException("No annotation.");
-        checkAnnotationOperation(operation);
-        switch (operation) {
-            case CREATE_ANNOTATION:
-                model.fireAnnotationCreate(object);
-                break;
-            case UPDATE_ANNOTATION:
-                model.fireAnnotationUpdate(object);
-                break;
-            case DELETE_ANNOTATION:
-                model.fireAnnotationDelete(object);
-        }
-        fireStateChange();
-    }
-
     /**
      * Implemented as specified by the {@link Editor} interface.
      * @see Editor#saveObjectAndAnnotation(DataObject, AnnotationData, int)
@@ -367,6 +338,42 @@ class EditorComponent
                 model.fireAnnotationDelete(data, object);
         }
         fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#reloadClassifications()
+     */
+    public void reloadClassifications()
+    {
+        switch (model.getState()) {
+            case DISCARDED:
+            case LOADING_ANNOTATION:   
+            case LOADING_CLASSIFICATION:  
+                throw new IllegalStateException(
+                "This method cannot be invoked in the DISCARDED, " +
+                "LOADING_ANNOTATION or LOADING_CLASSIFICATION state.");
+        }
+        //model.setClassifications(null);
+        model.fireClassificationLoading();
+    }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#setLeavesAnnotations(Map)
+     */
+    public void setLeavesAnnotations(Map annotations)
+    {
+        if (model.getState() != LOADING_ANNOTATION)
+            throw new IllegalStateException("This method can only be invoked " +
+                    "in the LOADING_ANNOTATION state.");
+        if (annotations == null)
+            throw new IllegalArgumentException("No annotations.");
+        DataObject object = model.getHierarchyObject();
+        if ((object instanceof DatasetData) ||
+            (object instanceof CategoryData)) {
+            view.showLeavesAnnotations();
+        }
     }
     
 }

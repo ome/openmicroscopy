@@ -85,13 +85,13 @@ public class RootLevelAction
     											"within the specified group.";
     
     /** Identifies the root's level. */
-    private int rootLevel;
+    private int     rootLevel;
     
     /**
      * The Id of the root if the {@link #rootLevel}
      * is {@link TreeViewer#GROUP_ROOT}.
      */
-    private int rootID;
+    private long    rootID;
     
     /**
      * Sets the name and the description of the action.
@@ -136,7 +136,7 @@ public class RootLevelAction
      * @param rootID The Id of the root node.
      * @param rootName The name of the group.
      */
-    public RootLevelAction(TreeViewer model, int rootLevel, int rootID,
+    public RootLevelAction(TreeViewer model, int rootLevel, long rootID,
             				String rootName)
     {
         super(model);

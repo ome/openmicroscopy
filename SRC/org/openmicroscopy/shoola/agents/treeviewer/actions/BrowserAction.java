@@ -83,10 +83,11 @@ public class BrowserAction
     {
         super();
         setEnabled(false);
-        if (model == null) throw new IllegalArgumentException("no hiViewer");
+        if (model == null) throw new IllegalArgumentException("No Model.");
         this.model = model;
         model.addChangeListener(this);
-        model.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY, this);
+        model.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY,
+                                        this);
     }
 
     /** 

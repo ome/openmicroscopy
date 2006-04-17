@@ -92,7 +92,7 @@ class PopupMenu
     /** Button to delete the selected elements. */
     private JMenuItem           deleteElement;
     
-    /** Reference to the control. */
+    /** Reference to the Control. */
     private TreeViewerControl   controller;
     
     /**

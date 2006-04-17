@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
-import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -85,16 +84,24 @@ public class TreeCellRenderer
         if (usrObject instanceof ProjectData)
             icon = icons.getIcon(IconManager.PROJECT);
         else if (usrObject instanceof DatasetData) {
-            Set annotations = ((DatasetData) usrObject).getAnnotations();
-            if (annotations == null || annotations.size() == 0)
+            Integer i = ((DatasetData) usrObject).getAnnotationCount();
+            if (i == null || i.intValue() == 0)
                 icon = icons.getIcon(IconManager.DATASET);
             else icon = icons.getIcon(IconManager.ANNOTATED_DATASET);
         } else if (usrObject instanceof ImageData) {
-            Set annotations = ((ImageData) usrObject).getAnnotations();
-            if (annotations == null || annotations.size() == 0)
-                icon = icons.getIcon(IconManager.IMAGE);
-            else icon = icons.getIcon(IconManager.ANNOTATED_IMAGE);
-            
+            ImageData img = (ImageData) usrObject;
+            Integer a = img.getAnnotationCount();
+            Integer c = img.getClassificationCount();
+            int n = 0, m = 0;
+            if (a != null) n = a.intValue();
+            if (c != null) m = c.intValue();
+            if (n == 0 && m == 0) icon = icons.getIcon(IconManager.IMAGE);
+            else if (n == 0 && m != 0)
+                icon = icons.getIcon(IconManager.CLASSIFIED_IMAGE);
+            else if (n != 0 && m == 0)
+                icon = icons.getIcon(IconManager.ANNOTATED_IMAGE);
+            else if (n != 0 && m != 0)
+                icon = icons.getIcon(IconManager.ANNOTATED_CLASSIFIED_IMAGE);
         } else if (usrObject instanceof CategoryGroupData)
             icon = icons.getIcon(IconManager.CATEGORY_GROUP);
         else if (usrObject instanceof CategoryData)

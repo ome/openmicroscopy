@@ -123,6 +123,40 @@ public interface Editor
     /** Bounds property to indicate to close the {@link Editor}. */
     public static final String      CLOSE_EDITOR_PROPERTY = "closeEditor";
     
+    /** 
+     * Closes the {@link Editor}. 
+     * 
+     * @throws IllegalStateException If the current state is
+     *                               {@link #DISCARDED}.
+     */
+    void close();
+    
+    /**
+     * Creates or updates the specified <code>DataObject</code> depending
+     * on the specified operation.
+     * 
+     * @param object    The object to handle.
+     * @param operation The type of operation. One of the following constants:
+     *                  {@link #CREATE_OBJECT} or {@link #UPDATE_OBJECT}.
+     */
+    void saveObject(DataObject object, int operation);
+    
+    /**
+     * Updates the specified <code>DataObject</code> and creates, updates or
+     * deletes the specified annotation depending on the specified operation.
+     * 
+     * @param data      The object to update.
+     * @param object    The annotation to handle.
+     * @param operation The type of operation. One of the following constants:
+     *                  {@link #CREATE_ANNOTATION}, {@link #UPDATE_ANNOTATION}
+     *                  or {@link #DELETE_ANNOTATION}.
+     */
+    void saveObjectAndAnnotation(DataObject data, AnnotationData object, 
+                                int operation);
+
+    /** Reloads the classifications. */
+    void reloadClassifications();
+    
     /**
      * Queries the current state.
      * 
@@ -186,46 +220,13 @@ public interface Editor
      */
     public void setSaveResult(DataObject object, int operation);
     
-    /** 
-     * Closes the {@link Editor}. 
-     * 
-     * @throws IllegalStateException If the current state is
-     *                               {@link #DISCARDED}.
-     */
-    void close();
-    
     /**
-     * Creates or updates the specified <code>DataObject</code> depending
-     * on the specified operation.
+     * Sets the images' annotations. This method should be invoked 
+     * if the edited object contains images i.e. if the container is a
+     * <code>Dataset</code> or a <code>Category</code>.
      * 
-     * @param object    The object to handle.
-     * @param operation The type of operation. One of the following constants:
-     *                  {@link #CREATE_OBJECT} or {@link #UPDATE_OBJECT}.
+     * @param annotations   The annotations to set.
      */
-    void saveObject(DataObject object, int operation);
-    
-    /**
-     * Creates, updates or deletes the specified annotation depending
-     * on the specified operation.
-     * 
-     * @param object    The annotation to handle.
-     * @param operation The type of operation. One of the following constants:
-     *                  {@link #CREATE_ANNOTATION}, {@link #UPDATE_ANNOTATION}
-     *                  or {@link #DELETE_ANNOTATION}.
-     */
-    void saveAnnotation(AnnotationData object, int operation);
-    
-    /**
-     * Updates the specified <code>DataObject</code> and creates, updates or
-     * deletes the specified annotation depending on the specified operation.
-     * 
-     * @param data      The object to update.
-     * @param object    The annotation to handle.
-     * @param operation The type of operation. One of the following constants:
-     *                  {@link #CREATE_ANNOTATION}, {@link #UPDATE_ANNOTATION}
-     *                  or {@link #DELETE_ANNOTATION}.
-     */
-    void saveObjectAndAnnotation(DataObject data, AnnotationData object, 
-                                int operation);
+    public void setLeavesAnnotations(Map annotations);
     
 }
