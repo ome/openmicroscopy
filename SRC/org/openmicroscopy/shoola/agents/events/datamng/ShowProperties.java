@@ -103,12 +103,12 @@ public class ShowProperties
             ImageData data = new ImageData();
             data.setId(is.getID());
             data.setName(is.getName());
-            data.setCreated(is.getDate());
+            //data.setCreated(is.getDate());
             PixelsDescription pix = is.getDefaultPixels();
             PixelsData pixData = new PixelsData();
             pixData.setId(pix.getID());
-            pixData.setImageServerID(pix.getImageServerID());
-            pixData.setImageServerURL(pix.getImageServerUrl());
+            //pixData.setImageServerID(pix.getImageServerID());
+            //pixData.setImageServerURL(pix.getImageServerUrl());
             data.setDefaultPixels(pixData);
             userObject = data;
         } else
