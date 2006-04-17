@@ -35,7 +35,6 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.annotator.AnnotateImage;
 import org.openmicroscopy.shoola.agents.events.roi.AddROICanvas;
 import org.openmicroscopy.shoola.agents.events.roi.AnnotateROI;
 import org.openmicroscopy.shoola.agents.events.roi.DisplayROI;
@@ -196,8 +195,8 @@ public class Viewer
      */
     void annotateImage()
     {
-        registry.getEventBus().post(
-                new AnnotateImage(curImageID, curImageName, curPixelsID));
+        //registry.getEventBus().post(
+         //       new AnnotateImage(curImageID, curImageName, curPixelsID));
     }
 
     /** 
@@ -276,8 +275,8 @@ public class Viewer
             PixelsDimensions pxsDims = renderingControl.getPixelsDims();
             buildPresentation(pxsDims);
             initPresentation(request.getImageName(), pxsDims, false);
-            curImageID = request.getImageID();
-            curPixelsID = request.getPixelsID();
+            curImageID = (new Long(request.getImageID())).intValue();
+            curPixelsID = (new Long(request.getPixelsID())).intValue();
             registry.getEventBus().post(new RenderImage(curPixelsID));
         } else presentation.deIconify();//showPresentation();
     }
