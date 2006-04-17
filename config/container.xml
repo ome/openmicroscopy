@@ -33,28 +33,13 @@
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <services>
-   
-    <!-- OME Data Server (OMEDS) configuration.
-         This entry only specifies the URL to use to connect to OMEDS.
-    -->
-    <structuredEntry name="/services/OMEDS" type="OMEDS">
-      <url>http://yourhost/shoola/</url>
-    </structuredEntry>
-
  
    <!-- OMERO Data Server (OMERO) configuration.
-         This entry only specifies the URL to use to connect to OMERO.
+         This entry specifies the hostname and the port to use to connect to OMERO.
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
       <hostName>yourhost</hostName>
-      <port>8080</port>
-    </structuredEntry>
-
-    <!-- OME Image Server (OMEIS) configuration.
-         This entry is currently unused.
-    -->
-    <structuredEntry name="/services/OMEIS" type="OMEIS">
-      <url>http://yourhost/cgi-bin/omeis/</url> 
+      <port>1099</port>
     </structuredEntry>
     
     <!-- Login Service configuration.
@@ -141,11 +126,6 @@
            The config tag specifies the name of the Agent's configuration file
            within the config directory.
       -->
-      <agent>
-        <name>Annotator</name>
-        <class>org.openmicroscopy.shoola.agents.annotator.Annotator</class>
-        <config>annotator.xml</config>
-      </agent>
  	    <agent>
         <name>Viewer</name>
         <class>org.openmicroscopy.shoola.agents.viewer.Viewer</class>
