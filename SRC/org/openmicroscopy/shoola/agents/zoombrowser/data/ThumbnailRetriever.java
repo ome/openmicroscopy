@@ -77,6 +77,7 @@ public class ThumbnailRetriever {
 		this.registry = registry;
 		Environment env = (Environment) registry.lookup(LookupNames.ENV);
 		ps = registry.getPixelsService();
+        /*
 		if (env != null) {
 			URL url = env.getOMEDSAddress();
 			String host = url.getHost();
@@ -89,6 +90,7 @@ public class ThumbnailRetriever {
 			catch (Exception e) {
 			} 
 		}
+        */
 	}
 	
 	private File getImageFile(BrowserImageSummary image) {
