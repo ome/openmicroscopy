@@ -71,23 +71,23 @@ public class Browse
     
 
     /** ID of the top element in the hierarchy. */
-    private int hierarchyObjectID;
+    private long    hierarchyObjectID;
     
     /** 
      * Index of the top element in the hierarchy e.g.
      * if eventIndex = PROJECT, this means that we want to browse the selected
      * project.
      */
-    private int eventIndex;
+    private int     eventIndex;
     
     /** 
      * The level of the root, either {@link ExperimenterData} or
      * {@link  GroupData}.
      */
-    private Class rootLevel;
+    private Class   rootLevel;
     
     /** The Id of the root. */
-    private int rootID;
+    private long    rootID;
     
     /**
      * Checks if the specified level is supported.
@@ -133,7 +133,8 @@ public class Browse
      *                          into account if only if the root level is a 
      *                          group.
      */
-    public Browse(int hierarchyObjectID, int index, Class rootLevel, int rootID)
+    public Browse(long hierarchyObjectID, int index, Class rootLevel,
+                  long rootID)
     {
         checkEventIndex(index); 
         checkRootLevel(rootLevel);
@@ -155,7 +156,7 @@ public class Browse
      * 
      * @return See above.
      */
-    public int getHierarchyObjectID() { return hierarchyObjectID; }
+    public long getHierarchyObjectID() { return hierarchyObjectID; }
     
     /**
      * Returns the root level.
@@ -169,6 +170,6 @@ public class Browse
      * 
      * @return See above.
      */
-    public int getRootID() { return rootID; }
+    public long getRootID() { return rootID; }
     
 }
