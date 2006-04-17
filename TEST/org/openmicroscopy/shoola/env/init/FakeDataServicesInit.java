@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.data.NullDataManagementService;
 import org.openmicroscopy.shoola.env.data.NullOmeroPojoService;
 import org.openmicroscopy.shoola.env.data.NullPixelsService;
 import org.openmicroscopy.shoola.env.data.NullSemanticTypesService;
-import org.openmicroscopy.shoola.env.data.OmeroPojoService;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
 import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 
@@ -88,7 +88,7 @@ public class FakeDataServicesInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static OmeroPojoService      ops = new NullOmeroPojoService();
+    public static OmeroService      ops = new NullOmeroPojoService();
 
     /**
      * Constructor required by superclass.
