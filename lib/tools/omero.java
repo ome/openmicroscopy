@@ -264,6 +264,9 @@ public class omero
         //Set Ant properties.
         System.setProperty("ant.home", toolsDir.getAbsolutePath());
         System.setProperty("ant.library.dir", toolsDir.getAbsolutePath());
+	System.setProperty("build.sysclasspath","last"); // or first, ignore, only
+	// This solves the problem of users having conflicting
+	// versions on their CLASSPATH
         
         //Set Xerces properties. 
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory", 
