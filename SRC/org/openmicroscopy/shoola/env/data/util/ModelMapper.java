@@ -181,7 +181,7 @@ public class ModelMapper
             annotation.setDataset(m);
             return annotation;
         } else if (annotatedObject instanceof ImageData) {
-            Image m = new Image(new Long(annotatedObject.getId()), false);
+            Image m = new Image(annotatedObject.getId(), false);
             ImageAnnotation annotation = new ImageAnnotation();
             annotation.setContent(data.getText());
             annotation.setImage(m);
