@@ -346,11 +346,11 @@ class EditorModel
      */
     AnnotationData getAnnotationData()
     {
-        Long id = getUserDetails().getId();
+        long id = getUserDetails().getId();
         if (hierarchyObject == null) return null;
         else if ((hierarchyObject instanceof ImageData) || 
                 (hierarchyObject instanceof DatasetData))
-            return getLastAnnotation(getAnnotations(id.longValue()));
+            return getLastAnnotation(getAnnotations(id));
         return null;
     }
     
