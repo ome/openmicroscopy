@@ -107,11 +107,10 @@
 		<iterate target="integration"/>
 	</target>
 
-	<target name="dist" depends="integration,javadoc">
-<!-- JAVAODC and DISt to release.xml (nodocumentation.xml) -->
-<!-- this task calls release.dist -->
+	<target name="dist" depends="integration">
 		<mkdir dir="${dist.dir}"/>
 		<echo>javadoc needs to copy images</echo>
+
 		<!-- 
 			etc/
 			========================================================
@@ -119,10 +118,12 @@
 			for use by the user to configure the install.
 		-->
 		<copy todir="${dist.dir}/etc">
-			<fileset dir="${omero.home}/docs">
-				<include name="examples/*.properties.example"/>
+			<fileset dir="${omero.home}/docs/examples">
+				<include name="*.properties.example"/>
 			</fileset>
+			<globmapper from="*.properties.example" to="*.properties"/>
 		</copy>
+
 
 		<!-- 
 			Copies ...
@@ -135,14 +136,48 @@
 				<include name="lib/repository/ant/**"/>
 				<include name="lib/repository/xml-apis/**"/>
 				<include name="lib/repository/xerces/**"/>
-				<include name="${app.comp}/${target.dir}/*.ear"/>
+				<include name="lib/repository/omero/postgresql/**"/>
+				<!-- For testing purposes -->
+				<include name="lib/repository/groovy/**"/>
 			</fileset>
 		</copy>
+		<copy todir="${dist.dir}">
+			<fileset dir="${app.comp}/${target.rel}">
+				<include name="*.ear"/>
+			</fileset>
+		</copy>
+
+		<!-- 
+			SQL to createdb.
+		-->
+		<copy todir="${dist.dir}/sql">
+			<fileset dir="${common.comp}/${generated.rel}/resources" includes="*.sql"/>
+                </copy>
+		<!-- 
+			Copy new build.xml to ${dist.dir}
+		-->
                 <copy
                         file="${import.dir}/omero.xml"
                         tofile="${dist.dir}/build.xml"
                         overwrite="true"
                 />
+		<copy todir="${dist.dir}/client">
+			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>
+			<fileset dir="${client.comp}/${target.rel}" includes="*.jar"/>
+			<fileset dir="${lib.dir}/repository">
+				<include name="omero/jboss*/**/*.jar"/>
+				<include name="org/springframework/spring/**/*.jar"/>
+				<include name="commons-logging/commons-logging/**/*.jar"/>
+			</fileset>
+			<flattenmapper/>
+		</copy>
+
+	</target>
+
+	<target name="zip">
+		<zip destfile="omero-${omero.version}.zip">
+			<zipfileset dir="${dist.dir}" prefix="omero-${omero.version}"/>
+		</zip>
 	</target>
 
 	<target name="clean" depends="multiproject"
