@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
-
-
 //Java imports
 import java.util.HashSet;
 import java.util.Set;
