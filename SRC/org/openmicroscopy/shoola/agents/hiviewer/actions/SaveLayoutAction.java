@@ -93,7 +93,10 @@ public class SaveLayoutAction
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.SAVE));
     }
 
-    /** Handle the action. */
+    /** 
+     * Handle the action. 
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         //TODO: implement action command
