@@ -30,13 +30,11 @@
 package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Java imports
+import java.util.HashSet;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.HashSet;
-
-import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.HiViewerVisitor;
@@ -99,7 +97,6 @@ public class ImgDisplayAnnotationVisitor
             HashSet set = new HashSet(1);
             set.add(data);
             is.setAnnotations(set);
-            //HiTranslator.formatToolTipFor(node, data);
         }       
     }  
     
@@ -117,7 +114,6 @@ public class ImgDisplayAnnotationVisitor
                 HashSet set = new HashSet(1);
                 set.add(data);
                 ds.setAnnotations(set);     
-               // HiTranslator.formatToolTipFor(node, data);
             }    
         }
     }
