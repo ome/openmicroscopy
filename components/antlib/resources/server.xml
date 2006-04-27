@@ -57,7 +57,7 @@
    </target>
 
 	<target name="earfiles">
-		<fileset dir="${target.dir}" includes="*.ear" id="ear.files"/>
+		<fileset dir="${app.comp}/${target.rel}" includes="*.ear" id="ear.files"/>
 	</target>
 
 	<target name="deploy-ear-jboss" depends="check-system,earfiles">

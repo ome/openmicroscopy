@@ -40,7 +40,29 @@
 
 -->
 
+	<!-- TODO: need to get /etc working -->
+        <property name="omero.repo.local" value="lib/repository"/>
+	<property file="etc/omero.properties"/>
+	<property file="etc/hibernate.properties"/>
+
 	<import file="components/antlib/resources/global.xml"/>
+
+	<path id="generated.compile.classpath">
+		<pathelement path="${omero.home}/etc"/>
+		<fileset dir="${omero.home}">
+			<include name="client/*.jar"/>
+			<include name="lib/repository/groovy/**/*.jar"/>
+			<include name="lib/repository/omero/postgresql/**/*.jar"/>
+		</fileset>
+	</path>
+
+	<path id="generated.test.classpath">
+		<path refid="generated.compile.classpath"/>
+	</path>
+
+	<path id="omero.classpath">
+		<path refid="generated.compile.classpath"/>
+	</path>
 
 	<target name="usage"
 		description="Usage information">
@@ -51,7 +73,7 @@
 
 	<target name="update">
 		<jar update="true"
-		  destfile="${omero.home}/${artifact.final.name}">
+		  destfile="${omero.home}/omero-app-${omero.version}.ear">
 			<fileset dir="${etc.dir}">
 				<include name="omero.properties"/>
 				<include name="hibernate.properties"/>
@@ -59,4 +81,31 @@
 		</jar>
 	</target>
 
+	<target name="setup-db">
+		<sql_run>
+  			<transaction src="sql/ddl.sql"/>
+  			<transaction src="sql/data.sql"/>
+		</sql_run>
+	</target>
+
+	<target name="earfiles">
+		<fileset dir="${omero.home}" includes="*.ear" id="ear.files"/>
+	</target>
+	<target name="deploy" depends="deploy-ear-jboss"/>
+
+	<target name="check" depends="classpath-define,load-groovy">
+
+		<groovy classpathRef="generated.compile.classpath">
+		println System.getProperty("java.class.path")
+		sf = new ome.system.ServiceFactory()
+		p = sf.getPojosService()
+
+		s = new HashSet()
+		s.add(new Long(1))
+		s.add(new Long(5588))
+
+		r = p.findCGCPaths(s,ome.api.IPojos.CLASSIFICATION_ME,None)
+		</groovy>
+	</target>
 </project>
+

@@ -60,6 +60,7 @@
 	<property name="nio.comp"       value="${components.dir}/omeio-nio"/>
 	<property name="render.comp" 	value="${components.dir}/rendering"/>
 	<property name="app.comp" 	value="${components.dir}/omero-app"/>
+	<property name="client.comp"    value="${components.dir}/client"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

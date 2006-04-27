@@ -193,6 +193,12 @@
 		</antRun>
 	</target>
 
+	<target name="adduser">
+		<antRun component="common">
+			<target name="adduser"/>
+		</antRun>
+	</target>
+
 	<target name="build-client" depends="check-system,model">
 		<antRun component="common"><target name="install"/></antRun>
 		<antRun component="client"><target name="install"/></antRun>
