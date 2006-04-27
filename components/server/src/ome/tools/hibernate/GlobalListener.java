@@ -140,6 +140,18 @@ public class GlobalListener
 
     public boolean onPreUpdate(PreUpdateEvent event)
     {
+//        int[] changed = event.getPersister().findModified( 
+//                event.getOldState(), 
+//                event.getState(),
+//                event.getEntity(),
+//                event.getSource());
+//        String[] names = event.getPersister().getClassMetadata()
+//                .getPropertyNames();
+//        
+//        for (int i = 0; i < changed.length; i++)
+//        {
+//            System.out.println(names[changed[i]]);
+//        }
         return false;
     }
     

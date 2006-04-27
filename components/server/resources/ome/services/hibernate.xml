@@ -68,6 +68,8 @@
     <property name="allowCreate" value="false"/>
 	</bean>
 	
+  <bean id="interceptor" class="ome.tools.hibernate.OmeroInterceptor"/>
+  
 	<bean id="globalListener" class="ome.tools.hibernate.GlobalListener">
     <constructor-arg>
       <bean class="ome.tools.hibernate.EventDiffHolder"/>
@@ -83,6 +85,7 @@
       </props>      
 		</property>
 		<property name="dataSource" ref="dataSource"/>
+    <property name="entityInterceptor" ref="interceptor"/>
 		<property name="eventListeners">
       <!-- Possible listeners as of 3.1.2:
  					  auto-flush merge create create-onflush delete

@@ -46,6 +46,7 @@ import org.hibernate.Hibernate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 // Application-internal dependencies
+import ome.conditions.ValidationException;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
@@ -157,7 +158,6 @@ public class UpdateFilter extends ContextFilter
                     break;
                 case MANAGED:
                     checkManagedState( obj );
-                    reloadDetails( obj );
                     result = super.filter( fieldId, obj );
                     break;
                 default:
@@ -303,61 +303,73 @@ public class UpdateFilter extends ContextFilter
 
     /* TODO what else should be preserved?
      * should be able to switch group if member, e.g. */
-    protected void reloadDetails( IObject updated )
+    protected void checkManagedState( IObject obj )
     {
-
-        if ( updated.getId() == null)
-            throw new IllegalStateException(
+        
+        if ( obj.getId() == null)
+            throw new ValidationException(
                     "Id required on all detached instances.");
 
         // Throws an exception if does not exist
         IObject original = (IObject) ht.load( 
-                    Utils.trueClass( updated.getClass() ), 
-                    updated.getId() );
+                    Utils.trueClass( obj.getClass() ), 
+                    obj.getId() );
+        
+        if ( obj == original)
+            return; // Early exit. Obj is in session.
         
         Details oldDetails = original.getDetails(); // must exist!
-        Details updatedDetails = updated.getDetails();
+        Details updatedDetails = obj.getDetails();
         
-        if ( oldDetails == null ) /* FIXME temporary this shouldn't be null */
+        /* FIXME temporary this shouldn't be null */
+        if ( oldDetails == null ) 
         {
-            updated.setDetails( null );
+            //obj.setDetails( null );
             log.warn( " Original details null for: " + original );
         }
+        
+        // TODO perhaps this should throw an exception. But we have 
+        // defaults to handle this kind of thing, so currently, not throwing.
         else if ( updatedDetails == null )
         {
+            obj.setDetails( oldDetails );
+            log.warn( " Updated details null for: " + original );
             
-            updated.setDetails( oldDetails );
-            
+        // Now we have to make sure certain things do not happen:
         } else {
             
             if ( ! idEqual( 
                     oldDetails.getOwner(), 
                     updatedDetails.getOwner() ))
+            {
                 updatedDetails.setOwner( oldDetails.getOwner() );
+                log.warn( " Resetting owner for: " + original );
+            }
 
             if ( ! idEqual( 
                     oldDetails.getGroup(), 
                     updatedDetails.getGroup() ))
+            {
                 updatedDetails.setGroup( oldDetails.getGroup() );
+                log.warn( " Resetting group for: " + original );
+            }
             
             if ( ! idEqual( 
                     oldDetails.getCreationEvent(), 
                     updatedDetails.getCreationEvent()))
+            {
                 updatedDetails.setCreationEvent( oldDetails.getCreationEvent() );
+                log.warn( " Resetting creation for: " + original );
+            }
             
         }
-            
         
-    }
-    
-    protected void checkManagedState( IObject obj )
-    {
         if ( obj instanceof IMutable )
         {
             Integer version = ((IMutable) obj).getVersion();
             if ( version == null || version.intValue() < 0 )
-                throw new IllegalArgumentException(
-                        "Version must be set on managed objects :\n"+
+                throw new ValidationException(
+                        "Version must properly be set on managed objects :\n"+
                         obj.toString()
                         );
         }
