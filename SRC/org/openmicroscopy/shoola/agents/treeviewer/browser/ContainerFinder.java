@@ -29,20 +29,23 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-import java.util.HashSet;
-import java.util.Set;
 
-import pojos.CategoryData;
-import pojos.DatasetData;
+
 
 //Java imports
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.CategoryData;
+import pojos.DatasetData;
 
 /** 
- *
+ * Finds the {@link TreeImageSet} representing either a {@link CategoryData} or 
+ * a {@link DatasetData}.
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2

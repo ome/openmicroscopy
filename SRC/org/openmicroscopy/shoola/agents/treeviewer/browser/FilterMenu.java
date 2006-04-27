@@ -147,8 +147,7 @@ class FilterMenu
         ButtonGroup group = new ButtonGroup();
         group.add(dataset);
         group.add(category);
-        group.add(allImages);
-        
+        group.add(allImages); 
     }
     
     /** Builds and lays out the GUI. */
