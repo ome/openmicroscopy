@@ -38,9 +38,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
-import java.util.HashMap;
 import java.util.Set;
-
 import javax.swing.DesktopManager;
 import javax.swing.Icon;
 import javax.swing.JComponent;

@@ -41,9 +41,7 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
