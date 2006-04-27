@@ -79,6 +79,8 @@ public class FinderAction
      * Callback to notify a {@link Finder#RETRIEVED_PROPERTY} property change
      * in the {@link Finder}. 
      * Subclasses override the method.
+     * 
+     * @param n The number of children of the container.
      */
     protected void onRetrievedChanged(int n) {};
     
