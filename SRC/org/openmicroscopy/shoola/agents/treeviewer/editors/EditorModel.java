@@ -452,11 +452,6 @@ class EditorModel
         this.annotations = sortedAnnotations;
     }
     
-    void setLeavesAnnotations(Map map)
-    {
-        
-    }
-    
     /** 
      * Browses or view the specified <code>DataObject</code>.
      * 

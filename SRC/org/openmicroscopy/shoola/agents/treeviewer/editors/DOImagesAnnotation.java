@@ -33,8 +33,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
-import java.util.Map;
-
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
