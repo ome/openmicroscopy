@@ -30,13 +30,12 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginConfig;

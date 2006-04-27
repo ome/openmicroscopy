@@ -30,7 +30,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;

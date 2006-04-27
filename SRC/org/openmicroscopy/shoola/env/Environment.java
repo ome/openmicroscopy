@@ -32,12 +32,10 @@ package org.openmicroscopy.shoola.env;
 
 //Java imports
 import java.io.File;
-import java.net.URL;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
  * Lets agents access information about the container's runtime environment.

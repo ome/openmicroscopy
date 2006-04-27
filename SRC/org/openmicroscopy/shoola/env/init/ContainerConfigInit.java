@@ -60,9 +60,7 @@ public final class ContainerConfigInit
 	extends InitializationTask 
 {
 	
-	/**
-	 * Constructor required by superclass.
-	 */
+	/** Constructor required by superclass. */
 	public ContainerConfigInit() {}
 	
 	/**
@@ -88,7 +86,6 @@ public final class ContainerConfigInit
 		throws StartupException
 	{
 		String file = container.getConfigFile();
-		
 		Registry reg = container.getRegistry();
 		try {
 			RegistryFactory.fillFromFile(file, reg);
