@@ -74,7 +74,7 @@ public class CopyAction
             setEnabled(false);
             return;
         }
-        Object ho = selectedDisplay.getUserObject();
+        //Object ho = selectedDisplay.getUserObject();
         //setEnabled(!(ho instanceof String)); // false if root.
     }
     
