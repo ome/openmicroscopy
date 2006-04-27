@@ -79,9 +79,6 @@ class TreeLayout
     /** The tree representation of the display. */
     private JTree                   treeDisplay;
     
-    /** The root of the tree. */
-    //private DefaultMutableTreeNode  root;
-    
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
@@ -118,7 +115,11 @@ class TreeLayout
         
     }
     
-    /** Creates the tree hosting the display. */
+    /**
+     * Creates the tree hosting the display.
+     * 
+     * @return The root node of the tree.
+     */
     private DefaultMutableTreeNode createTree()
     {
         treeDisplay = new JTree();
@@ -141,7 +142,8 @@ class TreeLayout
     /** 
      * Builds a node corresponding to the specified {@link ImageDisplay}.
      * 
-     * @param parent  The specified {@link ImageDisplay}.
+     * @param parent    The specified {@link ImageDisplay}.
+     * @param nodes     The list of nodes to add to the specified parent.
      */
     private void buildTreeNode(DefaultMutableTreeNode parent, List nodes)
     {
