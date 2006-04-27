@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<chapter id="todo">
-  <title>Todo List</title>
-  <para>or, "Who what when?"</para>
-
-  <para>For a list of todo items, their priorities, assignees, and so
-forth please see <ulink url="./TODO.html">TODO.html</ulink>.
-  </para>
-</chapter>
