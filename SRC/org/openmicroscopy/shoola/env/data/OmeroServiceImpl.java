@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
@@ -335,10 +334,8 @@ class OmeroServiceImpl
         if (obj == null) 
             throw new NullPointerException("Cannot convert object.");
         IObject created = gateway.createObject(obj, (new PojoOptions()).map());
-        //DataObject doCreated = PojoMapper.asDataObject(created);
         if (parent != null)
-          ModelMapper.linkParentToChild(created, parent.asIObject());
-        
+            ModelMapper.linkParentToChild(created, parent.asIObject());
         return  PojoMapper.asDataObject(created);
     }
 
@@ -367,7 +364,9 @@ class OmeroServiceImpl
     {
         if (object == null) 
             throw new DSAccessException("No object to update.");  
-        IObject updated = gateway.updateObject(object.asIObject(),
+        IObject ob = object.asIObject();
+        //ModelMapper.unloadCollections(ob);;
+        IObject updated = gateway.updateObject(ob,
                                         (new PojoOptions()).map());
         return PojoMapper.asDataObject(updated);
     }

@@ -35,7 +35,9 @@ package org.openmicroscopy.shoola.env.data.util;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import ome.model.IObject;
@@ -43,10 +45,15 @@ import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
+import ome.util.Filter;
+import ome.util.Filterable;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -69,7 +76,30 @@ import pojos.ProjectData;
  */
 public class ModelMapper
 {
+    /*
+    private static class CollectionUnloader implements Filter
+    {
+        public Filterable filter(String arg0, Filterable arg1){return arg1;}
+        public Collection filter(String arg0, Collection arg1){return null;}
+        public Map filter(String arg0, Map arg1){return arg1;}
+        public Object filter(String arg0, Object arg1){return arg1;}
+    }
     
+    static Filter unloader = new CollectionUnloader();
+    
+    public static void unloadCollections(IObject obj)
+    {
+        obj.acceptFilter( unloader );
+    }
+    */
+    
+    /**
+     * Links the newly created {@link IObject child} to its
+     * {@link IObject parent}.
+     * 
+     * @param child The newly created child. 
+     * @param parent The parent of the newly created child.
+     */
     public static void linkParentToChild(IObject child, IObject parent)
     {
         if (parent == null) return;
@@ -78,21 +108,52 @@ public class ModelMapper
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            Project p = ((Project) parent);
-            Dataset d = ((Dataset) child);
-            Set links = d.findProjectDatasetLink(p);
-            if (links != null) {
-                Iterator i = links.iterator();
-                int j = 0;
-                
-                while (i.hasNext()) {
-                    System.out.println("creation: "+j);
-                    p.addProjectDatasetLink((ProjectDatasetLink)  i.next(), false);
-                }
+            Project p = (Project) parent;
+            Dataset d = (Dataset) child;
+            ProjectDatasetLink link;
+            Iterator it = d.iterateProjectLinks();
+            while (it.hasNext()) {
+                link = (ProjectDatasetLink) it.next();
+                if (p.getId().equals(link.parent().getId()))
+                    p.addProjectDatasetLink(link, false);
             }
-            //((ProjectData) parent).getDatasets().add(child);
-           // (parent.asProject()).linkDataset(child.asDataset());
-        } 
+        } else if (parent instanceof CategoryGroup) {
+            if (!(child instanceof Category))
+                throw new IllegalArgumentException("Child not valid.");
+            CategoryGroup p = (CategoryGroup) parent;
+            Category d = (Category) child;
+            CategoryGroupCategoryLink link;
+            Iterator it = d.iterateCategoryGroupLinks();
+            while (it.hasNext()) {
+                link = (CategoryGroupCategoryLink) it.next();
+                if (p.getId().equals(link.parent().getId()))
+                    p.addCategoryGroupCategoryLink(link, false);
+            }
+        } else if (parent instanceof Dataset) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            Dataset p = (Dataset) parent;
+            Image d = (Image) child;
+            DatasetImageLink link;
+            Iterator it = d.iterateDatasetLinks();
+            while (it.hasNext()) {
+                link = (DatasetImageLink) it.next();
+                if (p.getId().equals(link.parent().getId()))
+                    p.addDatasetImageLink(link, false);
+            }
+        } else if (parent instanceof Category) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            Category p = (Category) parent;
+            Image d = (Image) child;
+            CategoryImageLink link;
+            Iterator it = d.iterateCategoryLinks();
+            while (it.hasNext()) {
+                link = (CategoryImageLink) it.next();
+                if (p.getId().equals(link.parent().getId()))
+                    p.addCategoryImageLink(link, false);
+            }
+        }
     }
     
     /**
@@ -125,6 +186,7 @@ public class ModelMapper
             model.setName(data.getName());
             model.setDescription(data.getDescription());
             model.linkProject(new Project(new Long(parent.getId()), false));
+            //model.linkProject(parent.asProject());
             return model;
         } else if (child instanceof CategoryData) {
             if (!(parent instanceof CategoryGroupData)) 
