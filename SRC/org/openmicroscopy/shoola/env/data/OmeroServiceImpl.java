@@ -334,6 +334,8 @@ class OmeroServiceImpl
         if (obj == null) 
             throw new NullPointerException("Cannot convert object.");
         IObject created = gateway.createObject(obj, (new PojoOptions()).map());
+        if (parent != null)
+            ModelMapper.linkParentToChild(created, parent.asIObject());  
         return PojoMapper.asDataObject(created);
     }
 
