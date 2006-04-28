@@ -35,6 +35,9 @@ package org.openmicroscopy.shoola.env.data.util;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Iterator;
+import java.util.Set;
+
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
@@ -42,6 +45,7 @@ import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -74,20 +78,21 @@ public class ModelMapper
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            ((Project) parent).linkDataset((Dataset) child);
-        } else if (parent instanceof CategoryGroup) {
-            if (!(child instanceof Category))
-                throw new IllegalArgumentException("Child not valid.");
-            ((CategoryGroup) parent).linkCategory((Category) child);
-        } else if (parent instanceof Dataset) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            ((Dataset) parent).linkImage((Image) child);
-        } else if (parent instanceof Category) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            ((Category) parent).linkImage((Image) child);
-        }
+            Project p = ((Project) parent);
+            Dataset d = ((Dataset) child);
+            Set links = d.findProjectDatasetLink(p);
+            if (links != null) {
+                Iterator i = links.iterator();
+                int j = 0;
+                
+                while (i.hasNext()) {
+                    System.out.println("creation: "+j);
+                    p.addProjectDatasetLink((ProjectDatasetLink)  i.next(), false);
+                }
+            }
+            //((ProjectData) parent).getDatasets().add(child);
+           // (parent.asProject()).linkDataset(child.asDataset());
+        } 
     }
     
     /**
@@ -119,8 +124,7 @@ public class ModelMapper
             Dataset model = new Dataset();
             model.setName(data.getName());
             model.setDescription(data.getDescription());
-            //model.linkProject(new Project(new Long(parent.getId()), false));
-            model.linkProject(parent.asProject());
+            model.linkProject(new Project(new Long(parent.getId()), false));
             return model;
         } else if (child instanceof CategoryData) {
             if (!(parent instanceof CategoryGroupData)) 

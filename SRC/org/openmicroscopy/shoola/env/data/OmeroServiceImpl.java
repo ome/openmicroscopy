@@ -40,6 +40,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.util.ReverseModelMapper;
 import ome.util.builders.PojoOptions;
@@ -334,9 +335,11 @@ class OmeroServiceImpl
         if (obj == null) 
             throw new NullPointerException("Cannot convert object.");
         IObject created = gateway.createObject(obj, (new PojoOptions()).map());
+        //DataObject doCreated = PojoMapper.asDataObject(created);
         if (parent != null)
-            ModelMapper.linkParentToChild(created, parent.asIObject());  
-        return PojoMapper.asDataObject(created);
+          ModelMapper.linkParentToChild(created, parent.asIObject());
+        
+        return  PojoMapper.asDataObject(created);
     }
 
     /**
