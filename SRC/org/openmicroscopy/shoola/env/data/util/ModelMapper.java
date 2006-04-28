@@ -66,6 +66,30 @@ import pojos.ProjectData;
 public class ModelMapper
 {
     
+    public static void linkParentToChild(IObject child, IObject parent)
+    {
+        if (parent == null) return;
+        if (child == null) throw new IllegalArgumentException("Child cannot" +
+                                "be null.");
+        if (parent instanceof Project) {
+            if (!(child instanceof Dataset))
+                throw new IllegalArgumentException("Child not valid.");
+            ((Project) parent).linkDataset((Dataset) child);
+        } else if (parent instanceof CategoryGroup) {
+            if (!(child instanceof Category))
+                throw new IllegalArgumentException("Child not valid.");
+            ((CategoryGroup) parent).linkCategory((Category) child);
+        } else if (parent instanceof Dataset) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            ((Dataset) parent).linkImage((Image) child);
+        } else if (parent instanceof Category) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            ((Category) parent).linkImage((Image) child);
+        }
+    }
+    
     /**
      * Converts the specified <code>DataObject</code> into its corresponding 
      * <code>IObject</code>.
@@ -95,7 +119,8 @@ public class ModelMapper
             Dataset model = new Dataset();
             model.setName(data.getName());
             model.setDescription(data.getDescription());
-            model.linkProject(new Project(new Long(parent.getId()), false));
+            //model.linkProject(new Project(new Long(parent.getId()), false));
+            model.linkProject(parent.asProject());
             return model;
         } else if (child instanceof CategoryData) {
             if (!(parent instanceof CategoryGroupData)) 
