@@ -367,11 +367,12 @@ public class UpdateFilter extends ContextFilter
         if ( obj instanceof IMutable )
         {
             Integer version = ((IMutable) obj).getVersion();
-            if ( version == null || version.intValue() < 0 )
-                throw new ValidationException(
-                        "Version must properly be set on managed objects :\n"+
-                        obj.toString()
-                        );
+            if ( version == null || version.intValue() < 0 );
+//                throw new ValidationException(
+//                        "Version must properly be set on managed objects :\n"+
+//                        obj.toString()
+//                        );
+                //TODO
         }
             
     }
