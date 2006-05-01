@@ -40,9 +40,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
-import ome.model.containers.Project;
 import ome.model.core.Image;
-import ome.util.ReverseModelMapper;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -76,12 +74,6 @@ class OmeroServiceImpl
     
     /** Reference to the entry point to access the <i>OMERO</i> services. */
     private OMEROGateway            gateway;
-    
-    /** 
-     * Reference to the mapper transforming pojos objects into their
-     * corresponding IObject.
-     */
-    private ReverseModelMapper      rmapper;
     
     /**
      * Helper method to return the user's details.
@@ -143,7 +135,6 @@ class OmeroServiceImpl
             throw new IllegalArgumentException("No gateway.");
         context = registry;
         this.gateway = gateway;
-        rmapper = new ReverseModelMapper();
     }
     
     /** 
@@ -293,7 +284,7 @@ class OmeroServiceImpl
                     "ImageData and DatasetData objects.");
         Map options = (new PojoOptions()).map();
         gateway.deleteObject(data.asIObject(), options);
-        return annotatedObject;
+        return updateDataObject(annotatedObject);
     }
 
     /**
@@ -365,7 +356,7 @@ class OmeroServiceImpl
         if (object == null) 
             throw new DSAccessException("No object to update.");  
         IObject ob = object.asIObject();
-        //ModelMapper.unloadCollections(ob);;
+        ModelMapper.unloadCollections(ob);;
         IObject updated = gateway.updateObject(ob,
                                         (new PojoOptions()).map());
         return PojoMapper.asDataObject(updated);

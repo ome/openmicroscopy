@@ -31,15 +31,13 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
@@ -76,23 +74,59 @@ import pojos.ProjectData;
  */
 public class ModelMapper
 {
-    /*
-    private static class CollectionUnloader implements Filter
+   
+    /**
+     * Helper field used to unlink an <code>IObject</code> and its related
+     * collections.
+     */
+    private static Filter unloader = new CollectionUnloader();
+    
+    /**
+     *  Utility inner class to unload all collections linked to a given 
+     *  <code>IObject</code> e.g. a {@link Project} linked to its
+     *  {@link Dataset}s.
+     */
+    private static class CollectionUnloader
+        implements Filter
     {
-        public Filterable filter(String arg0, Filterable arg1){return arg1;}
-        public Collection filter(String arg0, Collection arg1){return null;}
-        public Map filter(String arg0, Map arg1){return arg1;}
-        public Object filter(String arg0, Object arg1){return arg1;}
+        /** 
+         * Implemented as specified by the {@link Filter} I/F.
+         * @see Filter#filter(String, Filterable)
+         */
+        public Filterable filter(String arg0, Filterable arg1) { return arg1; }
+        
+        /** 
+         * Implemented as specified by the {@link Filter} I/F.
+         * @see Filter#filter(String, Collection)
+         */
+        public Collection filter(String arg0, Collection arg1) { return null; }
+        
+        /** 
+         * Implemented as specified by the {@link Filter} I/F.
+         * @see Filter#filter(String, Map)
+         */
+        public Map filter(String arg0, Map arg1) { return arg1; }
+        
+        /** 
+         * Implemented as specified by the {@link Filter} I/F.
+         * @see Filter#filter(String, Object)
+         */
+        public Object filter(String arg0, Object arg1) { return arg1; }
+        
     }
     
-    static Filter unloader = new CollectionUnloader();
-    
-    public static void unloadCollections(IObject obj)
+    /**
+     * Unlinks the collections linked to the specified {@link IObject}.
+     * 
+     * @param object The object.
+     */
+    public static void unloadCollections(IObject object)
     {
-        obj.acceptFilter( unloader );
+        if (object == null)
+            throw new IllegalArgumentException("The object mustn't be null.");
+        object.acceptFilter(unloader);
     }
-    */
-    
+
     /**
      * Links the newly created {@link IObject child} to its
      * {@link IObject parent}.
@@ -186,7 +220,6 @@ public class ModelMapper
             model.setName(data.getName());
             model.setDescription(data.getDescription());
             model.linkProject(new Project(new Long(parent.getId()), false));
-            //model.linkProject(parent.asProject());
             return model;
         } else if (child instanceof CategoryData) {
             if (!(parent instanceof CategoryGroupData)) 
@@ -230,24 +263,24 @@ public class ModelMapper
         if ((child instanceof Dataset) && (parent instanceof Project)) {
             Dataset mChild = (Dataset) child;
             Project mParent = (Project) parent;
-            mChild.unlinkProject(mParent);
-            return mChild;
+            mParent.unlinkDataset(mChild);
+            return mParent;
         } else if ((child instanceof Category) && 
                 (parent instanceof CategoryGroup)) {
             Category mChild = (Category) child;
-            CategoryGroup mParent = (CategoryGroup) parent;;
-            mChild.unlinkCategoryGroup(mParent);
-            return mChild;
+            CategoryGroup mParent = (CategoryGroup) parent;
+            mParent.unlinkCategory(mChild);
+            return mParent;
         } else if ((child instanceof Image) && (parent instanceof Dataset)) {
             Image mChild = (Image) child;
             Dataset mParent = (Dataset) parent;
-            mChild.unlinkDataset(mParent);
-            return mChild;
+            mParent.unlinkImage(mChild);
+            return mParent;
         } else if ((child instanceof Image) && (parent instanceof Category)) {
             Image mChild = (Image) child;
             Category mParent = (Category) parent;
-            mChild.unlinkCategory(mParent);
-            return mChild;
+            mParent.unlinkImage(mChild);
+            return mParent;
         }
         throw new IllegalArgumentException("DataObject not supported.");
     }
