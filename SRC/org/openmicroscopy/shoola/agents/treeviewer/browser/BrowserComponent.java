@@ -142,7 +142,6 @@ class BrowserComponent
         view.createNodes(nodes, display, parentDisplay);
     }
     
-
     /**
      * Handles the node selection when the user clicks on find next or find 
      * previous.
