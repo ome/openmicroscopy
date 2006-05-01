@@ -357,8 +357,8 @@ public class ModulePaletteWindow
 			group.setAllLoadersAdded();
 			dataState = LOADING;
 		}
-		else if (dataState == LOADED)
-			topWindowManager.continueHandleDisplay();
+		//else if (dataState == LOADED)
+			//topWindowManager.continueHandleDisplay();
 	}
 	
 	public void contentComplete() {
@@ -371,7 +371,7 @@ public class ModulePaletteWindow
 				System.err.println("time spent on module palette .."+guiTime);
 			}
 			uiManager.contentComplete();
-			topWindowManager.continueHandleDisplay();
+			//topWindowManager.continueHandleDisplay();
 			if (ChainBuilderAgent.DEBUG_TIMING) {
 				totalTime = System.currentTimeMillis()-start;
 				System.err.println("time for chainbuilder start..."+totalTime);
