@@ -297,7 +297,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 			dataState = LOADING;
 		}
 		else if (dataState == LOADED) { // already done just go ahead and show the window
-			topWindowManager.continueHandleDisplay();
+			//topWindowManager.continueHandleDisplay();
 		}
 		// otherwise, we're loading. disregard.
 	}
@@ -306,7 +306,7 @@ public class MainWindow extends TopWindow implements ComponentListener,
 		if (dataManager.getDatasets() != null || dataManager.getProjects() != null) {
 			
 			buildGUI();
-			topWindowManager.continueHandleDisplay();
+			//topWindowManager.continueHandleDisplay();
 			dataState = LOADED;
 		}
 	}
