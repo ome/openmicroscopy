@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import javax.swing.AbstractButton;
 import javax.swing.JFrame;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -108,8 +110,8 @@ public class TopWindowManager
 	public static final int		ON_SCREEN = 3;
 
 
-	/** The managed window. */
-	private ManageableTopWindow	window;
+	/** The window this manager is for. */
+	private TopWindow          window;
 	
 	/**
 	 * The set of buttons that have to trigger a Display event whenever clicked.
@@ -173,31 +175,19 @@ public class TopWindowManager
 	private void handleDisplay()
 	{
 		if (state == ON_SCREEN)	toForeground();
-		else   //DISPLAYABLE or UNLINKED.
-			window.preHandleDisplay(this); 
-	}
-	
-	/** 
-	 * Continues handling of the display - does the actual work after the window 
-	 * says that it is ready. should be called via a callback from
-	 * (<code>window.preHandleDisplay(this)</code>)
-	 *
-	 */
-	public void continueHandleDisplay()
-    {
-		window.setOnScreen();
-		toForeground();
-		window.postHandleDisplay();
-		state = ON_SCREEN;
-		
-		//NOTE: setOnScreen() shows the window on screen, which will
-		//eventually cause another call to componentShown() and, in turn,
-		//another call to this method.  However, the state is now ON_SCREEN
-		//so we just invoke toForeground().  This could be avoided if we
-		//kept track of the fg/bg state of the window as well, but it would
-		//make the implementation more complex.  As an extra call to
-		//toForeground() is harmless, we favour an easier implementation
-		//over logic soundness.
+		else  {
+            window.setOnScreen(); 
+            toForeground(); 
+            state = ON_SCREEN; 
+            //NOTE: setOnScreen() shows the window on screen, which will  
+            //eventually cause another call to componentShown() and, in turn,  
+            //another call to this method. However, the state is now ON_SCREEN 
+            //so we just invoke toForeground(). This could be avoided if we  
+            //kept track of the fg/bg state of the window as well, but it would  
+            //make the implementation more complex. As an extra call to  
+            //toForeground() is harmless, we favour an easier implementation  
+            //over logic soundness.
+        }
 	}
 	
 	/**
@@ -243,8 +233,7 @@ public class TopWindowManager
      *                         Display event whenever clicked. Pass  
 	 * 						   <code>null</code> if there are no such buttons.
 	 */
-	public TopWindowManager(ManageableTopWindow window,
-			AbstractButton[]	displayButtons) 
+	public TopWindowManager(TopWindow window, AbstractButton[]	displayButtons) 
 	{
 		if (window == null)	throw new NullPointerException("No window.");
 		this.window = window;
@@ -268,5 +257,5 @@ public class TopWindowManager
 	 * 			this class.
 	 */
 	public int getState() { return state; }
-
+    
 }

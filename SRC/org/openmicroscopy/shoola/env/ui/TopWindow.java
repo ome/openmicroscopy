@@ -36,6 +36,7 @@ import java.awt.Frame;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
@@ -73,7 +74,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public abstract class TopWindow
-	extends ManageableTopWindow
+	extends JFrame
 {
 	
 	/** 
@@ -197,7 +198,18 @@ public abstract class TopWindow
 		taskBar.removeFromToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
 	}
 	
+    /**
+     * Packs and shows the {@link #window} at the center of the screen.
+     * Default location. Any class can override the method to specify the size
+     * and the location of the {@link #window}.
+     */
+    public void setOnScreen()
+    {
+        pack();
+        UIUtilities.centerAndShow(this);
+    }
+    
 	/** A call for post-processing after the window is shown */
-	 public void postHandleDisplay() {}
+	 //public void postHandleDisplay() {}
      
 }

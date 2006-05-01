@@ -58,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.ToolBarButtonMenu;
  * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and
  * a sub-menu to the {@link TaskBar#WINDOW_MENU}. These menus contain an entry
  * for each window in the group and are populated/depopulated via the
- * {@link #add(JFrame, String, Icon) add}/{@link #remove(JFrame) remove}
+ * {@link #add(TopWindow, String, Icon) add}/{@link #remove(JFrame) remove}
  * methods.</p>
  * <p>All those menu entries are display-trigger buttons that cause the 
  * corresponding window to be shown on screen.  This class uses the
@@ -92,22 +92,22 @@ public class TopWindowGroup
 
 
 	/** Cached reference to the {@link TaskBar}. */
-	private TaskBar		taskBar;
+	private TaskBar                taskBar;
 	
 	/** The sub-menu in the {@link TaskBar#WINDOW_MENU}. */
-	private JMenu		winSubMenu;
+	private JMenu		           winSubMenu;
 	
 	/** The drop-down button on  the {@link TaskBar#QUICK_LAUNCH_TOOLBAR}. */
-	private ToolBarButtonMenu	dropDownButton;
+	private ToolBarButtonMenu      dropDownButton;
 	
 	/** Maps each window in the group to its configuration object. */
-	private Map			windows;
+	private Map			           windows;
 	
 	/** The close all item in the {@link #winSubMenu}.*/
-	private JMenuItem	closeAllWinSubMenuEntry;
+	private JMenuItem              closeAllWinSubMenuEntry;
 	
 	/** The close all item in the {@link #dropDownButton}. */
-	private JMenuItem	closeAllDropDownButtonEntry;
+	private JMenuItem              closeAllDropDownButtonEntry;
 	
 	/**
 	 * Helper method to create the display buttons and the manager for the
@@ -117,7 +117,7 @@ public class TopWindowGroup
 	 * @return	A record-like class containing the display buttons and the
 	 * 			manager for <code>window</code>.
 	 */
-	private WindowConfig makeConfigFor(ManageableTopWindow window)
+	private WindowConfig makeConfigFor(TopWindow window)
 	{
 		WindowConfig cfg = new WindowConfig();
 		cfg.winSubMenuEntry = new JMenuItem();
@@ -172,7 +172,7 @@ public class TopWindowGroup
 	 * This constructor adds a drop-down button to the 
 	 * {@link TaskBar#QUICK_LAUNCH_TOOLBAR} and a sub-menu to the
 	 * {@link TaskBar#WINDOW_MENU}.  These menus can then be populated/
-	 * depopulated via the {@link #add(JFrame, String, Icon) add}/
+	 * depopulated via the {@link #add(TopWindow, String, Icon) add}/
 	 * {@link #remove(JFrame) remove} methods. 
 	 * 
 	 * @param name	The name of this window group.  This will also be the
@@ -219,7 +219,7 @@ public class TopWindowGroup
 	 * @param name		The text label for the display buttons.
 	 * @param icon		The icon for the display buttons.
 	 */
-	public void add(ManageableTopWindow window, String name, Icon icon)
+	public void add(TopWindow window, String name, Icon icon)
 	{
 		if (window == null)	return;
 		if (name == null || name.length() == 0)
