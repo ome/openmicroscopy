@@ -89,18 +89,15 @@ public abstract class CmdProcessor
     /**
      * Executes the specified <code>task</code>.
      *   
-     * @param task  The task to execute.  Mustn't be <code>null</code>.
+     * @param task  The task to execute. Mustn't be <code>null</code>.
      * @return An {@link ExecHandle} which can be used to cancel execution.
      */
-    public ExecHandle exec(Runnable task) 
-    { 
-        return exec(task, null); 
-    }
+    public ExecHandle exec(Runnable task) { return exec(task, null); }
     
     /**
      * Executes the specified <code>task</code>.
      *   
-     * @param task  The task to execute.  Mustn't be <code>null</code>.
+     * @param task  The task to execute. Mustn't be <code>null</code>.
      * @param observer  To get feedback about the execution progress.
      * @return An {@link ExecHandle} which can be used to cancel execution.
      */
@@ -130,10 +127,7 @@ public abstract class CmdProcessor
      * @return A {@link Future} to collect the result of the call.  It can also
      *          be used to cancel execution.
      */
-    public Future exec(Invocation call) 
-    { 
-        return exec(call, null); 
-    }
+    public Future exec(Invocation call) { return exec(call, null); }
     
     /**
      * Executes the specified <code>call</code>.
@@ -168,9 +162,9 @@ public abstract class CmdProcessor
      * following the array order (<code>chain[0]</code>, <code>chain[1]</code>,
      * and so on). 
      *   
-     * @param chain  The {@link Invocation} chain to execute.  Mustn't be 
-     *                  <code>null</code> or <code>0</code>-length and none of
-     *                  its elements must be <code>null</code> either.
+     * @param chain The {@link Invocation} chain to execute. Mustn't be 
+     *              <code>null</code> or <code>0</code>-length and none of
+     *              its elements must be <code>null</code> either.
      * @return A {@link Future} to collect the result of the invocation.  In
      *          this case, the object returned by the <code>getResult</code>
      *          method is a {@link java.util.List} whose first element is
