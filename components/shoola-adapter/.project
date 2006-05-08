@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <projectDescription>
-  <name>OME_2_5-omero-pojos-adapter</name>
+  <name>omero-pojos-adapter-3.0-M1</name>
   <comment>Shoola Adapter for Omero. This code should really be in the Shoola code base.</comment>
   <projects>
   </projects>

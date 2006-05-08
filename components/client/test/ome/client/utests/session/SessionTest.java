@@ -37,10 +37,14 @@ public class SessionTest extends AbstractTest
 
     public void test_mock_flush() throws Exception
     {
+        Project retVal = new Project( new Long(1L) );
         Mock m = mock(IUpdate.class);
         serviceFactory.mockUpdate = m;
         m.expects( atLeastOnce() ).method( "saveAndReturnArray" )
             .will( returnValue( new IObject[]{} )).id("save");
+        m.expects( atLeastOnce() ).method( "saveAndReturnArray" ).after("save")
+        .will( returnValue( new IObject[]{ retVal} )).id("update");
+    
         
         Project p = new Project( new Long(1L) );
         p.setVersion( new Integer(1) );

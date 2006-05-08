@@ -13,3 +13,6 @@ hibernate.connection.username=user
 hibernate.connection.password=secret
 hibernate.cglib.use_reflection_optimizer=false
 hibernate.show_sql=false
+
+data.source=dbcp
+#This will be overwritten by ejb.properties during deployment

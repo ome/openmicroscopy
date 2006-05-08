@@ -30,22 +30,26 @@
 package ome.tools.hibernate;
 
 // Java imports
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // Third-party libraries
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.hibernate.Hibernate;
+import org.hibernate.collection.AbstractPersistentCollection;
+
+// Application-internal dependencies
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.Hibernate;
-
-// Application-internal dependencies
 
 /**
  * removes all proxies from a return graph to prevent ClassCastExceptions and
@@ -112,7 +116,21 @@ public class ProxyCleanupFilter extends ContextFilter
         {
             return null;
         }
-        return super.filter(fieldId, c);
+        
+        Collection retVal = super.filter(fieldId, c);
+        
+        // BUG 647 : preventing Hibernate collection types from escaping.
+        if ( retVal instanceof AbstractPersistentCollection )
+        { 
+            if ( retVal instanceof Set)
+                retVal = new HashSet( retVal );
+        
+            else if ( retVal instanceof List )
+                retVal = new ArrayList( retVal );
+            
+        } // end bug
+        
+        return retVal;
     }
 
     /** wraps a filter for each invocation */

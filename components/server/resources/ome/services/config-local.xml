@@ -45,7 +45,8 @@
 	<!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
       class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="ignoreResourceNotFound" value="true"/>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+    		<property name="ignoreResourceNotFound" value="true"/>
 		<property name="locations">
     <!-- Note: later properties overwrite earlier ones -->
 		<list>

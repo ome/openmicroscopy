@@ -99,7 +99,7 @@
 		<junit 
 			printsummary="withOutAndErr" 
 			haltonfailure="${test.with.fail}"
-			fork="off"
+			fork="on"
 			forkmode="perTest"
 			>
  			<classpath>

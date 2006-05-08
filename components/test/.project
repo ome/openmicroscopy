@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>omero-test</name>
+	<name>omero-test-3.0-M1</name>
 	<comment>The test code for the Omero server and clients. Test code is in its own package due to the complex dependencies dealing with the legacy code and Shoola.</comment>
 	<projects>
 	</projects>

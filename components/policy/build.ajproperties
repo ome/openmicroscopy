@@ -1,7 +1,10 @@
-src.includes = src/,\
+src.includes = server_test/ome/services/utests/,\
+               server_test/ome/server/,\
+               server_test/ome/io/,\
+               src/,\
+               resources/,\
                test/unit/,\
                server_src/,\
-               resources/,\
                dsl_src/,\
                common_src/,\
                sandbox_src/,\
@@ -10,7 +13,6 @@ src.includes = src/,\
                ice_src/,\
                sandbox_generated/,\
                nio_test/,\
-               server_test/,\
                ejb_src/,\
                ejb_test/,\
                rendering_src/,\

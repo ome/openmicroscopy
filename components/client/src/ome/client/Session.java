@@ -235,7 +235,7 @@ public class Session
         IObject[] delete = storage.copyDeletedEntities();
         
         IObject[] inserted = iUpdate.saveAndReturnArray( insert );
-        if (insert.length == inserted.length)
+        if (insert.length != inserted.length)
             throw new RuntimeException("Differing sizes returned from server.");
         
         for ( int i = 0; i < inserted.length; i++ )
@@ -244,7 +244,7 @@ public class Session
         }
         
         IObject[] updated = iUpdate.saveAndReturnArray( update );
-        if (update.length == updated.length)
+        if (update.length != updated.length)
             throw new RuntimeException("Differing sizes returned from server.");
         
         for ( int i = 0; i < updated.length; i++ )
