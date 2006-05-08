@@ -61,6 +61,7 @@ importing this file.
 	<file name="org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar"/>
 	<file name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<file name="testng/testng/4.7-jdk15/testng-4.7-jdk15.jar"/>
 	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
   </filelist>
@@ -77,6 +78,7 @@ importing this file.
 	<include name="org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar"/>
 	<include name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<include name="testng/testng/4.7-jdk15/testng-4.7-jdk15.jar"/>
 	<include name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<include name="velocity/velocity/1.4/velocity-1.4.jar"/>
   </patternset>
