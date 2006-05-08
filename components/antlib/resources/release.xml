@@ -42,7 +42,7 @@
 
   run() {
 	find -name $1
-	find -name $1 -exec perl -i -pe 's/3.0-alpha-SNAPSHOT/3.0-M1/g' {} \;
+	find -name $1 -exec perl -i -pe 's/3.0-alpha-SNAPSHOT/3.0-TRUNK/g' {} \;
   } 
   run pom.xml 
   run classpath.xml

@@ -6,7 +6,7 @@
     <description>Open Microscopy Environment - RemoteObjects Server</description>
 
     <module>
-      <ejb>omero-ejb-3.0-M1.jar</ejb>
+      <ejb>omero-ejb-3.0-TRUNK.jar</ejb>
     </module>
 
 </application>

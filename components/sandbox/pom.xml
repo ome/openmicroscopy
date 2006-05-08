@@ -3,7 +3,7 @@
   <parent>
     <groupId>omero</groupId>
     <artifactId>main</artifactId>
-    <version>3.0-M1</version>
+    <version>3.0-TRUNK</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -14,12 +14,12 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>server</artifactId>
-      <version>3.0-M1</version>
+      <version>3.0-TRUNK</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
       <artifactId>omero-ice</artifactId>
-      <version>3.0-M1</version>
+      <version>3.0-TRUNK</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
