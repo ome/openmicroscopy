@@ -212,11 +212,20 @@ public class IconManager
     /** ID of the small <code>Annotated</code> icon. */
     public static final int     CLASSIFIED_SMALL_OVER = 49;
     
+    /** The <code>Filter Menu</code> icon. */
+    public static int           FILTER_MENU = 50;
+    
+    /** The <code>Warning</code> icon. */
+    public static int           WARNING = 51;
+    
+    /** The <code>Highlight</code> icon. */
+    public static int           HIGHLIGHT = 52;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 49;
+    private static int          MAX_ID = 52;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -273,7 +282,9 @@ public class IconManager
         relPaths[ANNOTATED_SMALL_OVER] = "kwrite_over8.png";
         relPaths[CLASSIFIED_SMALL] = "classified8.png";
         relPaths[CLASSIFIED_SMALL_OVER] = "classified_over8.png";
-        
+        relPaths[FILTER_MENU] = "eclipse_view_menu16.png";  
+        relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
+        relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
     }
     
     /** The sole instance. */
