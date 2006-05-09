@@ -409,12 +409,10 @@ class EditorModel
         AnnotationData annotation;
         Long ownerID;
         List userAnnos;
-        System.out.println("index: "+map.size());
         while (i.hasNext()) {
             index = (Long) i.next();
             set = (Set) map.get(index);
             j = set.iterator();
-            System.out.println("index: "+index);
             while (j.hasNext()) {
                 annotation = (AnnotationData) j.next();;
                 ownerID = new Long(annotation.getOwner().getId());

@@ -230,7 +230,6 @@ class DOBasic
         content.setLayout(new GridBagLayout());
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(3, 3, 3, 3);
         JLabel label = UIUtilities.setTextFont("Name");

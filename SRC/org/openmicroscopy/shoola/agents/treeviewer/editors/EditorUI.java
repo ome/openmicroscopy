@@ -388,7 +388,6 @@ public class EditorUI
      */
     private void finishEdit()
     {
-        System.out.println("Edit: " +edit+" "+model.isAnnotated());
         if (edit) {
             if (doBasic.isAnnotable()) {
                 if (model.isAnnotated()) editAndAnnotate();
@@ -398,7 +397,6 @@ public class EditorUI
                         if (data != null) 
                             controller.deleteAnnotation(fillDataObject(), data);
                     } else {
-                        System.out.println("HERe");
                         controller.updateObject(fillDataObject());
                     }
                 }
