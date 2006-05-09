@@ -92,15 +92,29 @@ public class AnnotationEditor
      * 
      * @param i The index to control.
      */
-    private void checkActionIndex(int i)
+    private void checkOperation(int i)
     {
         switch (i) {
+            case CREATE:
             case UPDATE:
             case DELETE:    
                 return;
             default:
                 throw new IllegalArgumentException("Action not supported: "+i);
         }
+    }
+    
+    /**
+     * Controls if the specified <code>DataObject</code> can be annotated.
+     * 
+     * @param object The object to control.
+     */
+    private void checkAnnotatedObject(DataObject object)
+    {
+        if ((object instanceof ImageData) || (object instanceof DatasetData))
+            return;
+        throw new IllegalArgumentException("Data object cannot be " +
+                "annotated.");
     }
     
     /**
@@ -120,11 +134,8 @@ public class AnnotationEditor
         if (data == null) throw new IllegalArgumentException("No Annotation.");
         if (annotatedObject == null) 
             throw new IllegalArgumentException("No DataObject to annotate.");
-        if (!(annotatedObject instanceof DatasetData) && 
-                !(annotatedObject instanceof ImageData))
-            throw new IllegalArgumentException("DataObject to annotate not " +
-                    "supported.");
-        checkActionIndex(operation);
+        checkAnnotatedObject(annotatedObject);
+        checkOperation(operation);
         this.operation = operation;
         this.annotatedObject = annotatedObject;
         this.data = data;
@@ -164,8 +175,7 @@ public class AnnotationEditor
     public void handleResult(Object result) 
     {
         if (clipBoard.getState() == ClipBoard.DISCARDED_ANNOTATIONS) return;
-        //Review that code.
-        //clipBoard.manageAnnotationEditing(((Boolean) result).booleanValue());
+        clipBoard.setAnnotationEdition((DataObject) result);
     }
 
 }
