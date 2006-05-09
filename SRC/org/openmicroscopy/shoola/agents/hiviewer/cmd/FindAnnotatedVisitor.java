@@ -33,23 +33,24 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.Color;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * Highlights all annotated DataObject i.e. images or datasets.
+ * Replaces the hierarchy object by the specified <code>DataObject</code>
+ * and repaints the node.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,59 +63,38 @@ import pojos.ImageData;
  * </small>
  * @since OME2.2
  */
-class FindAnnotatedVisitor
+public class FindAnnotatedVisitor
     extends HiViewerVisitor
 {
     
-    private Colors colors;
-    
-    /** Set containing the nodes found. */
-    private Set         foundNodes;
-    
-    /** 
-     * Sets the color of the titleBar of the specified node. 
-     * 
-     * @param node The node to highlight.
-     */
-    private void setHighlight(ImageDisplay node)
-    {
-        foundNodes.add(node);
-        if (node.equals(model.getBrowser().getSelectedDisplay()))
-            node.setHighlight(
-                    colors.getColor(Colors.ANNOTATED_HIGHLIGHT));
-        else node.setHighlight(colors.getColor(Colors.ANNOTATED));
-    }
+    /** The updated hierarchy object. */
+    private DataObject  ho;
     
     /**
      * Creates a new instance. 
      * 
-     * @param viewer Reference to the model. Mustn't be <code>null</code>.
+     * @param viewer    Reference to the model. Mustn't be <code>null</code>.
+     * @param ho        The updated <code>DataObject</code>.
+     *                  Mustn't be <code>null</code>.
      */
-    FindAnnotatedVisitor(HiViewer viewer)
+    public FindAnnotatedVisitor(HiViewer viewer, DataObject ho)
     {
         super(viewer);
-        colors = Colors.getInstance();
-        foundNodes = new HashSet();
+        if (ho == null) throw new IllegalArgumentException("No DataObject.");
+        this.ho = ho;
     }
     
-    /** 
-     * Returns the set of nodes found. 
-     * 
-     * @return See above.
-     */
-    public Set getFoundNodes() { return foundNodes; }
-    
     /**
-     * Highlights the annotated image.
+     * Highlights the images.
      * @see HiViewerVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node)
     {
-        Object ho = node.getHierarchyObject();
-        if (ho instanceof ImageData) {
-            Set annotations = ((ImageData) ho).getAnnotations();
-            if (annotations != null && annotations.size() > 0)
-                setHighlight(node);   
+        Object object = node.getHierarchyObject();
+        if (object instanceof ImageData) {
+            if (((ImageData) object).getId() == ho.getId()) {
+                node.setHierarchyObject(ho);
+            }
         }
     }
 
@@ -124,11 +104,19 @@ class FindAnnotatedVisitor
      */
     public void visit(ImageSet node)
     {
-        Object ho = node.getHierarchyObject();
-        if (ho instanceof DatasetData) {
-            Set annotations = ((DatasetData) ho).getAnnotations();
-            if (annotations != null && annotations.size() > 0)
-                setHighlight(node);  
+        Object object = node.getHierarchyObject();
+        if (object instanceof DatasetData) {
+            if (((DatasetData) object).getId() == ho.getId()) {
+                DatasetData data = (DatasetData) ho;
+                Integer n = data.getAnnotationCount();
+                IconManager im = IconManager.getInstance();
+                if (n != null && n.intValue() > 0 )
+                    node.setFrameIcon(im.getIcon(
+                            IconManager.ANNOTATED_DATASET));
+                else 
+                    node.setFrameIcon(im.getIcon(IconManager.DATASET));
+                node.setHierarchyObject(ho);
+            }
         }
     }
     

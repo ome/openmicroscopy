@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
@@ -59,83 +60,47 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 public class FindRegExCmd
     implements ActionCmd
 {
-    
-    /** Indicates to search in the title of the dataObject. */
-    public static final int IN_TITLE = 0;
-    
-    /** Indicates to search in the annotation of the dataObject. */
-    public static final int IN_ANNOTATION = 1;
-    
-    /** Indicates to search in the title and annotation of the dataObject. */
-    public static final int IN_T_AND_A = 2;
-    
+
     /** Reference to the model. */
     private HiViewer    model;
     
     /** The pattern created from the regular expression.*/
     private Pattern     pattern;
     
-    /** One of the constants defined above. */
-    private int         index;
-    
-    /**
-     * Checks the index passed.
-     * 
-     * @param i The passed index.
-     * @return true if the index is one the constants defined by this class.
-     */
-    private boolean checkIndex(int i)
-    {
-        switch (i) {
-            case IN_TITLE:
-            case IN_ANNOTATION:
-            case IN_T_AND_A:
-                return true;
-        }
-        return false;
-    }
+    /** The context of the find. */
+    private FindData    findContext;
     
     /**
      * Creates a new instance.
      * 
-     * @param model     The <code>HiViewer</code> model.
-     *                  Mustn't be <code>null</code>. 
-     * @param pattern   The pattern. Mustn't be <code>null</code>. 
-     * @param index     The search index.
-     *                  One of the constants defined by this class.
+     * @param model         The <code>HiViewer</code> model.
+     *                      Mustn't be <code>null</code>. 
+     * @param pattern       The pattern to find. Mustn't be <code>null</code>. 
+     * @param findContext   The context of the find action.
+     *                      Mustn't be <code>null</code>. 
      */
-    public FindRegExCmd(HiViewer model, Pattern pattern, int index)
+    public FindRegExCmd(HiViewer model, Pattern pattern, FindData findContext)
     {
         if (model == null)
             throw new IllegalArgumentException("No model.");
         if (pattern == null)
             throw new IllegalArgumentException("No pattern.");
-        if (!checkIndex(index))
-            throw new IllegalArgumentException("Search index not valid.");
+        if (findContext == null)
+            throw new IllegalArgumentException("No context.");
         this.model = model;
         this.pattern = pattern;
-        this.index = index;
+        this.findContext = findContext;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        FindRegExVisitor visitor = null;
-        switch (index) {
-            case IN_TITLE:
-                visitor = new FindRegExTitleVisitor(model, pattern);
-                break;
-            case IN_ANNOTATION:
-                visitor = new FindRegExAnnotationVisitor(model, pattern);
-                break;
-            case IN_T_AND_A:
-                visitor = new FindRegExTitleAndAnnotationVisitor(model,
-                                pattern);    
-        }
-        if (visitor == null) return;
         Browser browser = model.getBrowser();
         ImageDisplay selectedDisplay = browser.getSelectedDisplay();
-        if (selectedDisplay.getParentDisplay() == null) //root
+        if (selectedDisplay == null) return; 
+        FindRegExVisitor visitor = new FindRegExVisitor(model, pattern, 
+                findContext);
+        if (selectedDisplay.getParentDisplay() == null)
             browser.accept(visitor);
         else {
             if (selectedDisplay instanceof ImageSet)
@@ -143,13 +108,7 @@ public class FindRegExCmd
         } 
         TreeView tree = model.getTreeView();
         if (tree != null) tree.repaint();
-        /*
-        if (browser.getSelectedLayout() == LayoutFactory.TREE_LAYOUT) {
-            if (browser.getTreeDisplay() != null)
-                browser.getTreeDisplay().repaint();
-        }
-        */
-        model.getClipBoard().setSearchResults(visitor.getFoundNodes());
+        model.getClipBoard().setFindResults(visitor.getFoundNodes());
     }
 
 }

@@ -93,11 +93,11 @@ public class AnnotateCmd
         if ((hierarchyObject instanceof DatasetData) ||
                 (hierarchyObject instanceof ImageData)) {
             if (b) {
-                model.getClipBoard().setPaneIndex(
-                        ClipBoard.ANNOTATION_PANEL, null);
+                model.getClipBoard().setSelectedPane(
+                        ClipBoard.ANNOTATION_PANE, null);
             } else {
-                model.getClipBoard().setPaneIndex(
-                        ClipBoard.ANNOTATION_PANEL, node);
+                model.getClipBoard().setSelectedPane(
+                        ClipBoard.ANNOTATION_PANE, node);
                 model.getBrowser().setSelectedDisplay(node);
             }
         } 

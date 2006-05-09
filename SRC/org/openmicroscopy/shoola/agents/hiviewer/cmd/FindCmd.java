@@ -80,7 +80,7 @@ public class FindCmd
         if (node.getHierarchyObject() == null) return;
         DataObject ho = (DataObject) node.getHierarchyObject();
         if (!(ho instanceof ImageData)) 
-            model.getClipBoard().setPaneIndex(ClipBoard.SEARCH_PANEL, null);
+            model.getClipBoard().setSelectedPane(ClipBoard.FIND_PANE, null);
     }
     
 }
