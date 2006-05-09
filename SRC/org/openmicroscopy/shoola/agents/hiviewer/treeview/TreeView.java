@@ -34,11 +34,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.treeview;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -47,6 +45,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
  * A Component hosting a tree view of the data displayed in the 
@@ -80,8 +79,8 @@ public class TreeView
      * Bound property name indicating an {@link ImageDisplay} object has been
      * selected in the visualization tree. 
      */
-    public static final String 	SELECTED_DISPLAY_PROPERTY = 
-        										"treeSelectedDisplay";
+    public static final String 	TREE_SELECTED_DISPLAY_PROPERTY = 
+       										"treeSelectedDisplay";
     
     /** 
      * Bound property name indicating an {@link ImageDisplay} object has been
@@ -116,32 +115,6 @@ public class TreeView
 	        default:
 	            throw new IllegalArgumentException("Algo not supported.");
         }
-    }
-    
-    /**
-     * Brings on screen the selected node. The nodes containing the child
-     * are visited i.e. parent then grandparent all the way up to the root node.
-     * 
-     * @param childBounds 	The bounds of the selected node.
-     * @param parent 		The node containing the child.
-     * @param isRoot		<code>true</code> if its the root node, 
-     * 						<code>false</code> otherwise.	
-     */
-    private void scrollToNode(Rectangle childBounds, ImageDisplay parent,
-                                boolean isRoot)
-    {
-        JScrollPane dskDecorator = parent.getDeskDecorator();
-        Rectangle viewRect = dskDecorator.getViewport().getViewRect();
-        if (!viewRect.contains(childBounds)) {
-            JScrollBar vBar = dskDecorator.getVerticalScrollBar();
-            JScrollBar hBar = dskDecorator.getHorizontalScrollBar();
-            vBar.setValue(childBounds.y);
-            hBar.setValue(childBounds.x);
-        }
-        if (!isRoot) {
-            ImageDisplay node = parent.getParentDisplay();
-            scrollToNode(childBounds, node, (node.getParentDisplay() == null));       
-        }      
     }
     
     /** Builds and lays out the GUI. */
@@ -201,18 +174,14 @@ public class TreeView
     /** 
      * Sets the selected node. 
      * 
-     * @param selectedDisplay The selected node.
+     * @param node The selected node.
      */
-    void setSelectedDisplay(ImageDisplay selectedDisplay)
+    void setSelectedDisplay(ImageDisplay node)
     {
         selectedNode = (TreeViewNode) 
         				uiDelegate.getTree().getLastSelectedPathComponent();
-        //Bring the node on screen.
-        ImageDisplay parent = selectedDisplay.getParentDisplay();
-        if (parent != null)
-            scrollToNode(selectedDisplay.getBounds(), parent,
-                    (parent.getParentDisplay() == null));  
-        firePropertyChange(SELECTED_DISPLAY_PROPERTY, null, selectedDisplay);
+        firePropertyChange(TREE_SELECTED_DISPLAY_PROPERTY, null, node);
+        firePropertyChange(HiViewer.SCROLL_TO_NODE_PROPERTY, null, node);
     }
     
     /**
