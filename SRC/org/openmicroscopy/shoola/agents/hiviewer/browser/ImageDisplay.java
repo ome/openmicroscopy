@@ -40,9 +40,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame;
 import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -87,7 +85,7 @@ import pojos.ProjectData;
  * that implements the {@link ImageDisplayVisitor} interface to lay out the
  * contents of every {@link ImageSet} node in a visualization tree.</p>
  * 
- * @see org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame
+ * @see org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane
  * @see ImageNode
  * @see ImageSet
  * @see ImageDisplayVisitor
@@ -196,7 +194,7 @@ public abstract class ImageDisplay
      * and then added to this node. 
      * 
      * @param child The node to add.  Mustn't be <code>null</code>.
-     * @see TinyFrame
+     * @see TinyPane
      */
     public void addChildDisplay(ImageDisplay child)
     {
@@ -229,6 +227,18 @@ public abstract class ImageDisplay
             child.parentDisplay.getInternalDesktop().remove(child);
             child.parentDisplay = null;
         }
+    }
+    
+    /**
+     * Updates the hierarchy object.
+     * 
+     * @param ho    The hierarchy object to set. Mustn't be <code>null</code>.
+     */
+    public void setHierarchyObject(Object ho)
+    {
+        if (ho == null) 
+            throw new NullPointerException("No hierarchy object.");
+        hierarchyObject = ho;
     }
     
     /**
