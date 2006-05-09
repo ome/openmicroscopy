@@ -31,11 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
-import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -45,16 +42,17 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import pojos.AnnotationData;
 
 /** 
  * The {@link ClipBoard}'s controller.
  * 
- * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * after code by
+ *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
- *              banderson@comnputing.dundee.ac.uk
+ *              banderson@computing.dundee.ac.uk 
  *              </a>
  * @version 2.2
  * <small>
@@ -66,6 +64,12 @@ class ClipBoardControl
     implements ChangeListener, PropertyChangeListener
 {
 
+    /** Message displayed when the annotation is sent back to the server. */
+    private static final String EDIT_MSG = "Save the annotation.";
+    
+    /** Message displayed when the annotation is sent back to the server. */
+    private static final String LOADING_MSG = "Loading annotation.";
+    
     /** The {@link ClipBoardUI} View. */
     private ClipBoardUI         view;
     
@@ -100,33 +104,6 @@ class ClipBoardControl
     }
     
     /**
-     * Brings on screen the selected node. The nodes containing the child
-     * are visited i.e. parent then grandparent all the way up to the root node.
-     * 
-     * @param childBounds 	The bounds of the selected node.
-     * @param parent 		The node containing the child.
-     * @param isRoot		<code>true</code> if its the root node, 
-     * 						<code>false</code> otherwise.	
-     */
-    private void scrollToNode(Rectangle childBounds, ImageDisplay parent,
-                                boolean isRoot)
-    {
-        JScrollPane dskDecorator = parent.getDeskDecorator();
-        Rectangle viewRect = dskDecorator.getViewport().getViewRect();
-        if (!viewRect.contains(childBounds)) {
-            JScrollBar vBar = dskDecorator.getVerticalScrollBar();
-            JScrollBar hBar = dskDecorator.getHorizontalScrollBar();
-            vBar.setValue(childBounds.y);
-            hBar.setValue(childBounds.x);
-        }
-        if (!isRoot) {
-            ImageDisplay node = parent.getParentDisplay();
-            scrollToNode(childBounds, node, (node.getParentDisplay() == null));       
-        }      
-    }
-    
-    
-    /**
      * Creates a new instance.
      * 
      * @param component A reference to the model. Mustn't be <code>null</code>.
@@ -153,17 +130,6 @@ class ClipBoardControl
         component.addChangeListener(this);
         model.getParentModel().addChangeListener(this);
     }
-
-    /**
-     * Retrieves the annotations for the specified data object.
-     * 
-     * @param objectID          The ID of the data object.
-     * @param annotationIndex   The annotation index.
-     */
-    void retrieveAnnotations(long objectID, int annotationIndex)
-    {
-        component.retrieveAnnotations(objectID, annotationIndex);
-    }
     
     /**
      * Sets the selected tabbed pane. If the Annotation tabbed pane is
@@ -171,35 +137,7 @@ class ClipBoardControl
      * 
      * @param index The index of the selected pane.
      */
-    void setPaneIndex(int index){ component.setPaneIndex(index, null); }
-    
-    /**
-     * Updates the specified annotation.
-     * 
-     * @param data The annotation data object.
-     */
-    void updateAnnotation(AnnotationData data)
-    {
-        component.updateAnnotation(data);
-    }
-    
-    /**
-     * Creates a new annotation for the currently selected data object.
-     * 
-     * @param txt The text of the annotation.
-     */
-    void createAnnotation(String txt) { component.createAnnotation(txt); }
-    
-    /**
-     * Deletes the specified annotation.
-     * 
-     * @param data The annotation data objetc.
-     */
-    void deleteAnnotation(AnnotationData data)
-    {
-        component.deleteAnnotation(data);
-    }
-    
+    void setSelectedPane(int index) { component.setSelectedPane(index, null); }
     /**
      * Discards any on-going annotation retrieval.
      */
@@ -215,12 +153,6 @@ class ClipBoardControl
         String name = pce.getPropertyName();
         if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY))
             handleBrowserSelectedDisplay(pce); 
-        else if (name.equals(ClipBoard.LOCALIZE_IMAGE_DISPLAY)) {
-            ImageDisplay node = (ImageDisplay) pce.getNewValue();
-            ImageDisplay parent = node.getParentDisplay();
-            scrollToNode(node.getBounds(), parent,
-                        (parent.getParentDisplay() == null));
-        }
     }
 
     /**
@@ -239,13 +171,17 @@ class ClipBoardControl
             }  
         } else if (source instanceof ClipBoard) {
             switch (model.getState()) {
+                //We don't know how long the call is going to take so set to
+                // indeterminate
                 case ClipBoard.EDIT_ANNOTATIONS:
+                    model.getParentModel().setStatus(EDIT_MSG, -1);
+                    break;
                 case ClipBoard.LOADING_ANNOTATIONS:
-                    model.getLoadingWin().setOnScreen();
+                    model.getParentModel().setStatus(LOADING_MSG, -1);
                     break;
                 case ClipBoard.ANNOTATIONS_READY:
                 case ClipBoard.DISCARDED_ANNOTATIONS:
-                    model.getLoadingWin().setClosed(true);
+                    model.getParentModel().setStatus("", -1);
                     break;
             }
         }

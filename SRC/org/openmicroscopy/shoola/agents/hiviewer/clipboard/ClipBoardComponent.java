@@ -30,17 +30,26 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
+import java.awt.Point;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Implements the {@link ClipBoard} interface to provide the functionality
@@ -53,10 +62,12 @@ import pojos.AnnotationData;
  * @see org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardControl
  * @see org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardUI
  * 
- * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * after code by
+ *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
- *              banderson@comnputing.dundee.ac.uk
- *              </a>
+ *              banderson@computing.dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -92,24 +103,25 @@ class ClipBoardComponent
         view = new ClipBoardUI();
     }
     
-    /**
-     * Links up the MVC triad.
-     */
+    /** Links up the MVC triad. */
     void initialize()
     {
         model.initialize(this);
-        view.initialize(controller, model);
+        view.initialize(model, controller);
         controller.initialize(view, model);
     }
     
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#retrieveAnnotations(int, int)
+     * @see ClipBoard#retrieveAnnotations(DataObject)
      */
-    public void retrieveAnnotations(long objectID, int annotationIndex)
+    public void retrieveAnnotations(DataObject object)
     {
-        model.fireAnnotationsLoading(objectID, annotationIndex);
-        fireStateChange();
+        //TODO: Check state
+        if ((object instanceof ImageData) || (object instanceof DatasetData)) {
+            model.fireAnnotationsLoading(object);
+            fireStateChange();
+        }
     }
     
     /**
@@ -130,7 +142,6 @@ class ClipBoardComponent
                     "LOADING_ANNOTATIONS state.");
         model.setAnnotations(map);
         view.showAnnotations();
-        model.updateNodeAnnotation();
         fireStateChange();
     }
 
@@ -148,9 +159,9 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setSearchResults(Set)
+     * @see ClipBoard#setFindResults(Set)
      */
-    public void setSearchResults(Set foundNodes)
+    public void setFindResults(Set foundNodes)
     {
         view.setSearchResults(foundNodes);
     }
@@ -163,72 +174,28 @@ class ClipBoardComponent
     {
         discardAnnotation();
     }
-
+    
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#createAnnotation(String)
+     * @see ClipBoard#setAnnotationEdition(DataObject)
      */
-    public void createAnnotation(String text)
-    {
-        if (model.getState() != ClipBoard.ANNOTATIONS_READY)
-            throw new IllegalStateException("This method can only be invoked " +
-                    "in the ANNOTATIONS_READY state.");
-        model.fireCreateAnnotation(text);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#updateAnnotation(AnnotationData)
-     */
-    public void updateAnnotation(AnnotationData data)
-    {
-        if (model.getState() != ClipBoard.ANNOTATIONS_READY)
-            throw new IllegalStateException("This method can only be invoked " +
-                    "in the ANNOTATIONS_READY state.");
-        model.fireUpdateAnnotation(data);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#deleteAnnotation(AnnotationData)
-     */
-    public void deleteAnnotation(AnnotationData data)
-    {
-        if (model.getState() != ClipBoard.ANNOTATIONS_READY)
-            throw new IllegalStateException("This method can only be invoked " +
-                    "in the ANNOTATIONS_READY state.");
-        model.fireDeleteAnnotation(data);
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#manageAnnotationEditing(boolean)
-     */
-    public void manageAnnotationEditing(boolean b)
+    public void setAnnotationEdition(DataObject object)
     {
         if (model.getState() != ClipBoard.EDIT_ANNOTATIONS)
             throw new IllegalStateException("This method can only be invoked " +
                     "in the EDIT_ANNOTATIONS state.");
-        if (b) {
-            view.manageAnnotation();
-            retrieveAnnotations(model.getAnnotatedObjectID(), 
-                    model.getAnnotatedObjectIndex());
-        } else {
-            model.setState(ANNOTATIONS_READY);
-            fireStateChange();
-        }
+        if (object == null)
+        retrieveAnnotations(object);
+        model.getParentModel().setAnnotationEdition(object);
     }
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setPaneIndex(int, ImageDisplay)
+     * @see ClipBoard#setSelectedPane(int, ImageDisplay)
      */
-    public void setPaneIndex(int index, ImageDisplay node)
+    public void setSelectedPane(int index, ImageDisplay node)
     {
-        if (index != SEARCH_PANEL && index != ANNOTATION_PANEL)
+        if (index != FIND_PANE && index != ANNOTATION_PANE)
             throw new IllegalArgumentException("Pane index not valid.");
         if (model.getPaneIndex() == index) return;
         model.setPaneIndex(index);
@@ -236,21 +203,7 @@ class ClipBoardComponent
         if (node == null)
             view.onDisplayChange(
                     model.getParentModel().getBrowser().getSelectedDisplay());
-        else
-            firePropertyChange(ClipBoard.LOCALIZE_IMAGE_DISPLAY, null, node);
-        if (index != ANNOTATION_PANEL) discardAnnotation();
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#getLoadingWin()
-     */
-    public LoadingWin getLoadingWin()
-    {
-        if (model.getState() == DISCARDED_ANNOTATIONS)
-            throw new IllegalStateException("This method cannot be invoked " +
-                    "in the DISCARDED state.");
-        return model.getLoadingWin();
+        if (index != ANNOTATION_PANE) discardAnnotation();
     }
 
     /**
@@ -258,4 +211,113 @@ class ClipBoardComponent
      * @see ClipBoard#getState()
      */
     public int getState() { return model.getState(); }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#showMenu(JComponent, Point)
+     */
+    public void showMenu(JComponent invoker, Point p)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getAnnotations()
+     */
+    public Map getAnnotations()
+    {
+        // TODO: check state.
+        return model.getAnnotations();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getSelectedPaneIndex()
+     */
+    public int getSelectedPaneIndex()
+    {
+        //TODO: Check state
+        return model.getPaneIndex();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getUserDetails()
+     */
+    public ExperimenterData getUserDetails()
+    {
+        //      TODO: Check state
+        return model.getUserDetails();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#clear()
+     */
+    public void clear()
+    {
+        // TODO: check the state
+        ClearCmd cmd = new ClearCmd(model.getParentModel());
+        cmd.execute();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#find(Pattern, FindData)
+     */
+    public void find(Pattern p, FindData context)
+    {
+        //TODO: Check state.
+        if (p == null) throw new IllegalArgumentException("No pattern.");
+        if (context == null)
+            throw new IllegalArgumentException("No context");
+        FindRegExCmd cmd = new FindRegExCmd(model.getParentModel(), p, context);
+        cmd.execute();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#editAnnotation(AnnotationData, int)
+     */
+    public void editAnnotation(AnnotationData data, int index)
+    {
+        if (data == null) throw new IllegalArgumentException("No annotation.");
+        switch (index) {
+            case CREATE_ANNOTATION:
+                model.fireCreateAnnotation(data);
+                break;
+            case UPDATE_ANNOTATION:  
+                model.fireUpdateAnnotation(data);
+                break;
+            case DELETE_ANNOTATION:
+                model.fireDeleteAnnotation(data);
+                break;
+            default:
+                throw new IllegalArgumentException("Annotation index not " +
+                                                    "supported");
+        }
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getUserAnnotationData()
+     */
+    public AnnotationData getUserAnnotationData()
+    {
+        // TODO Auto-generated method stub
+        return model.getUserAnnotationData();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getHierarchyObject()
+     */
+    public Object getHierarchyObject()
+    {
+        // TODO Auto-generated method stub
+        return model.getParentModel().getHierarchyObject();
+    }
+    
 }

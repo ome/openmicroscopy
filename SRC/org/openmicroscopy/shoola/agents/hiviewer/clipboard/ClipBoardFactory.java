@@ -42,10 +42,12 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 /** 
  * Factory to create {@link ClipBoard} components.
  *
- * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * after code by
+ *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
- *              banderson@comnputing.dundee.ac.uk
- *              </a>
+ *              banderson@computing.dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)

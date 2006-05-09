@@ -30,18 +30,21 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
+import java.awt.Point;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.util.LoadingWin;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
+import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Defines the interface provided by clip board component.
@@ -50,10 +53,12 @@ import pojos.AnnotationData;
  * Use the {@link ClipBoardFactory} to create an object implementing this 
  * interface.
  * 
- * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * after code by
+ *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
- *              banderson@comnputing.dundee.ac.uk
- *              </a>
+ *              banderson@computing.dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -63,17 +68,12 @@ import pojos.AnnotationData;
 public interface ClipBoard
     extends ObservableComponent
 {
- 
-    /** 
-     * Bound property name to bring on screen the selected {@link ImageDisplay}. 
-     */
-    public static final String LOCALIZE_IMAGE_DISPLAY = "localize";
     
-    /** Identifies the index of the search panel. */
-    public static final int     SEARCH_PANEL = 0;
+    /** Identifies the index of the <code>Find</code> panel. */
+    public static final int     FIND_PANE = 0;
     
-    /** Identifies the index of the annotation panel. */
-    public static final int     ANNOTATION_PANEL = 1;
+    /** Identifies the index of the <code>Annotation</code> pane. */
+    public static final int     ANNOTATION_PANE = 1;
     
     /** Identifies the <i>Loading annotations</i> state. */
     public static final int     LOADING_ANNOTATIONS = 200;
@@ -93,12 +93,14 @@ public interface ClipBoard
     /** Indicates to retrieve the dataset annotations. */
     public static final int     DATASET_ANNOTATIONS = 301;
     
-    /**
-     * Returns the {@link LoadingWin}.
-     * 
-     * @return See above.
-     */
-    LoadingWin getLoadingWin();
+    /** Identifies to create a new annotation. */
+    public static final int     CREATE_ANNOTATION = 100;
+    
+    /** Identifies to update the currently edited annotation. */
+    public static final int     UPDATE_ANNOTATION = 101;
+    
+    /** Identifies to delete the currently edited annotation. */
+    public static final int     DELETE_ANNOTATION = 102;
     
     /** Any ongoing data loading is cancelled. */
     public void discard();
@@ -115,7 +117,7 @@ public interface ClipBoard
      * 
      * @param foundNodes The set of found nodes.
      */
-    public void setSearchResults(Set foundNodes);
+    public void setFindResults(Set foundNodes);
     
     /**
      * Sets the annotations retrieved.
@@ -127,34 +129,19 @@ public interface ClipBoard
     /**
      * Retrieves the annotations for the specified object.
      * 
-     * @param objectID          The ID of the data object.
-     * @param annotationIndex   The annotation index.
-     *                          One of the following constants:
-     *                          {@link #DATASET_ANNOTATIONS}, 
-     *                          {@link #IMAGE_ANNOTATIONS}.
+     * @param object    The annotated <code>DataObject</code>.
+     *                  Mustn't be <code>null</code>.
      */
-    public void retrieveAnnotations(long objectID, int annotationIndex);
+    public void retrieveAnnotations(DataObject object);
 
-    /** 
-     * Creates a new annotation.
-     * 
-     * @param text The text of the annotation.
-     */
-    public void createAnnotation(String text);
-    
     /**
-     * Edits an existing annotation.
-     * 
-     * @param data The annotation data object.
+     * Creates, updates or deletes the annotation depending on the specified
+     * index. 
+     * @param data  The annotation to edit. Mustn't be <code>null</code>.
+     * @param index One of the following constants: {@link #CREATE_ANNOTATION},
+     *              {@link #UPDATE_ANNOTATION} or {@link #DELETE_ANNOTATION}.
      */
-    public void updateAnnotation(AnnotationData data);
-    
-    /**
-     * Deletes the specified annotation.
-     * 
-     * @param data The annotation data object.
-     */
-    public void deleteAnnotation(AnnotationData data);
+    public void editAnnotation(AnnotationData data, int index);
     
     /**
      * Transitions the viewer to the {@link #DISCARDED_ANNOTATIONS} state.
@@ -163,20 +150,20 @@ public interface ClipBoard
     public void discardAnnotation();
     
     /**
-     * Sets the result of the creation, update or deletion of an annotation.
+     * Sets the result of the annotation edition.
      * 
-     * @param b Flag to indicate if the operation was successful.
-     * 			Right now it is always true b/c of OME-Java
+     * @param object The annotated object. Mustn't be <code>null</code>.
      */
-    public void manageAnnotationEditing(boolean b);
+    public void setAnnotationEdition(DataObject object);
 
     /**
-     * Sets the selected panel.
+     * Sets the selected {@link ClipBoardPane}.
      * 
-     * @param index The index of the panel
-     * @param node  Pass <code>null</code> to modify the diplay.
+     * @param index The index of the {@link ClipBoardPane}. One of the following
+     *              constants: {@link #FIND_PANE}, {@link #ANNOTATION_PANE}.
+     * @param node  Passed <code>null</code> to modify the diplay.
      */
-    public void setPaneIndex(int index, ImageDisplay node);
+    public void setSelectedPane(int index, ImageDisplay node);
 
     /**
      * Queries the current state.
@@ -184,6 +171,66 @@ public interface ClipBoard
      * @return One of the state flags defined by this interface.
      */
     public int getState();
+    
+    /**
+     * Brings up the popup menu for the specified {@link ImageDisplay} node.
+     * 
+     * @param invoker   The component in whose space the popup menu is to
+     *                  appear.
+     * @param p         The coordinate in invoker's coordinate space at which 
+     *                  the popup menu is to be displayed.
+     */
+    public void showMenu(JComponent invoker, Point p);
+    
+    /**
+     * Returns the current user's details. Helper method
+     * 
+     * @return See above.
+     */
+    public ExperimenterData getUserDetails();
+    
+    /**
+     * Returns the ordered retrieved annotations.
+     * 
+     * @return See above.
+     */
+    public Map getAnnotations();
+    
+    /**
+     * Returns the annotation <code>DataObject</code> for the current user.
+     * 
+     * @return See above.
+     */
+    public AnnotationData getUserAnnotationData();
+    
+    /**
+     * Returns the index of the currently selected {@link ClipBoardPane}. 
+     * One of the following constants: {@link #FIND_PANE},
+     * {@link #ANNOTATION_PANE}.
+     * 
+     * @return See above.
+     */
+    public int getSelectedPaneIndex();
+    
+    /** Clears the results of a previous find action. */
+    public void clear();
+    
+    /**
+     * Finds the patterns in the browser depending on the context.
+     * 
+     * @param p             The pattern to find. Mustn't be <code>null</code>.
+     * @param findContext   The context of the find action. 
+     *                      Mustn't be <code>null</code>.
+     */
+    public void find(Pattern p, FindData findContext);
+    
+    /**
+     * Returns the currently selected hierarchy object, <code>null</code>
+     * if no node selected.
+     * 
+     * @return See above.
+     */
+    public Object getHierarchyObject();
     
 }
 

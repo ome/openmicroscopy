@@ -31,7 +31,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -41,16 +45,20 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 
 /** 
  * The {@link ClipBoard}'s view.
  * This component hosts the different panels implementing the
- * {@link ClipBoardTab} interface.
+ * {@link ClipBoardPane} interface.
  *
- * @author  Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * after code by
+ *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:banderson@computing.dundee.ac.uk">
- *              banderson@comnputing.dundee.ac.uk
- *              </a>
+ *              banderson@computing.dundee.ac.uk</a>
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -61,31 +69,16 @@ class ClipBoardUI
     extends JScrollPane
 {
 
-    /** Position of the search tabbed pane. */
-    private static final int    SEARCH_TAB = 0;
+    /** The position of the <code>Find</code> pane. */
+    private static final int    FIND_TAB = 0;
     
-    /** Position of the annotation tabbed pane. */
+    /** The position of the <code>Annotate</code>  pane. */
     private static final int    ANNOTATE_TAB = 1;
     
-    /** The title of the <code>Search</code> pane. */
-    private static final String SEARCH = "Search";
-    
-    /** The title of the <code>Annotate</code> pane. */
-    private static final String ANNOTATIONS = "Annotations";
-    
-    /** The <code>Search</code> pane. */
-    private CBSearchTabView     searchView;
-    
-    /** The <code>Annotate</code> pane. */
-    private CBAnnotationTabView annotationView;
-    
-    /** The popup menu. */
-    private TreePopupMenu       popupMenu;
-    
-    /** Reference to the <code>ClipBoardControl</code> Control. */
+    /** Reference to the Control. */
     private ClipBoardControl    controller;
     
-    /** Reference to the <code>ClipBoardModel</code> Model. */
+    /** Reference to the model. */
     private ClipBoardModel      model;
     
     /** The tabbedPane hosting the display. */
@@ -94,32 +87,31 @@ class ClipBoardUI
     /** Initializes the UI components. */
     private void initComponents()
     {
-        popupMenu = new TreePopupMenu(model);
-        searchView = new CBSearchTabView(model, this, controller);
-        annotationView = new CBAnnotationTabView(model, this, controller);
         tabPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabPane.setAlignmentX(LEFT_ALIGNMENT);
     }
-    
+
     /** Builds and lays out the GUI. */
     private void buildUI()
     {
-        tabPane.add(searchView, SEARCH_TAB);
-        tabPane.setTitleAt(SEARCH_TAB, SEARCH);
-        tabPane.add(annotationView, ANNOTATE_TAB);
-        tabPane.setTitleAt(ANNOTATE_TAB, ANNOTATIONS); 
+        ClipBoardPane pane = model.getClipboardPane(ClipBoard.FIND_PANE);
+        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
+                        pane, pane.getPaneDescription());
+        pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
+                pane, pane.getPaneDescription());
+        tabPane.setSelectedIndex(model.getPaneIndex());
         setViewportView(tabPane);
+        //add(tabPane);
     }
     
     /**
-     * Links the MVC triad.
+     * Links the UI .
      * 
-     * @param controller The {@link ClipBoardControl} control. Mustn't be 
-     *                  <code>null</code>.
-     * @param model The {@link ClipBoardModel} model. Mustn't be 
-     *                  <code>null</code>.
+     * @param model         The Model. Mustn't be <code>null</code>.
+     * @param controller    The Control. Mustn't be <code>null</code>.
      */
-    void initialize(ClipBoardControl controller, ClipBoardModel model)
+    void initialize(ClipBoardModel model, ClipBoardControl controller)
     {
         if (controller == null) throw new NullPointerException("No control.");
         if (model == null) throw new NullPointerException("No model.");
@@ -138,29 +130,26 @@ class ClipBoardUI
         tabPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
             {
-                int index = -1;
                 switch (tabPane.getSelectedIndex()) {
-                    case SEARCH_TAB:
-                        index = ClipBoard.SEARCH_PANEL;
+                    case FIND_TAB:
+                        controller.setSelectedPane(ClipBoard.FIND_PANE);
                         break;
                     case ANNOTATE_TAB:
-                        index = ClipBoard.ANNOTATION_PANEL;
+                        controller.setSelectedPane(ClipBoard.ANNOTATION_PANE);
                         break;
                 };
-                controller.setPaneIndex(index);
+                
             }
         });
     }
-    
-    /** 
-     * Returns the popup menu. 
-     * 
-     * @return See above.
-     */
-    TreePopupMenu getPopupMenu() { return popupMenu; }
 
     /** Displays the retrieved annotations. */
-    void showAnnotations() { annotationView.showAnnotations(); }
+    void showAnnotations()
+    { 
+        AnnotationPane pane = (AnnotationPane) 
+                    model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+        pane.showAnnotations();
+    }
     
     /**
      * Displays the results of a search action.
@@ -169,7 +158,8 @@ class ClipBoardUI
      */
     void setSearchResults(Set foundNodes)
     {
-        searchView.setSearchResults(foundNodes);
+        FindPane pane = (FindPane) model.getClipboardPane(ClipBoard.FIND_PANE);
+        pane.setResults(foundNodes);
     }
     
     /**
@@ -180,12 +170,17 @@ class ClipBoardUI
      */
     void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        searchView.onDisplayChange(selectedDisplay);
-        annotationView.onDisplayChange(selectedDisplay);
+        Map m = model.getClipBoardPanes();
+        Iterator i = m.keySet().iterator();
+        while (i.hasNext()) 
+            ((ClipBoardPane) m.get(i.next())).onDisplayChange(selectedDisplay);
     }
     
     /** Updates the annotation tabbed pane. */
-    void manageAnnotation() { annotationView.manageAnnotation(); }
+    void manageAnnotation()
+    { 
+        //annotationPane.manageAnnotation();
+    }
     
     /** 
      * Returns the height of the tabbed pane. 
