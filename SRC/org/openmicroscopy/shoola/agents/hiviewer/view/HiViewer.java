@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -210,10 +212,17 @@ public interface HiViewer
     public static final Integer     FIND = new Integer(22);
     
     /** 
+     * Bound property name indicating to bring up on screen the currently 
+     * selected node.
+     */
+    public static final String      SCROLL_TO_NODE_PROPERTY = "scrollToNode";
+        
+    /** 
      * The message displayed in the status bar when the metadata retrieval 
      * process is completed.
      */
     public static final String      PAINTING_TEXT = "Painting container tree";
+    
     
     /**
      * Queries the current state.
@@ -363,5 +372,20 @@ public interface HiViewer
      *                               {@link #DISCARDED}.
      */
     public void moveToBack();
+    
+    /**
+     * Returns the currently selected hierarchy object, <code>null</code>
+     * if no node selected.
+     * 
+     * @return See above.
+     */
+    public Object getHierarchyObject();
        
+    /**
+     * Sets the result of the annotation edition.
+     * 
+     * @param object The annotated object. Mustn't be <code>null</code>.
+     */
+    public void setAnnotationEdition(DataObject object);
+    
 }

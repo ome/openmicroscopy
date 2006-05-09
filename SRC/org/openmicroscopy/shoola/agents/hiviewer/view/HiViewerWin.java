@@ -124,13 +124,10 @@ class HiViewerWin
     private JSplitPane createSplitPane(JComponent browserUI,
                                         JComponent clipBoardUI)
     {
-        mainPane = new JSplitPane();
-        mainPane.setResizeWeight(1);
-        mainPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, browserUI, 
+                                    clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
-        mainPane.setTopComponent(browserUI);
-        mainPane.setBottomComponent(clipBoardUI);
         return mainPane;
     }
     

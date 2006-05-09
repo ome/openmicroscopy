@@ -39,10 +39,16 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Implements the {@link HiViewer} interface to provide the functionality
@@ -160,7 +166,8 @@ class HiViewerComponent
         model.fireThumbnailLoading();
         //b/c fireThumbnailLoading() sets the state to READY if there is no
         //image.
-        setStatus(HiViewer.PAINTING_TEXT, -1);
+        if (model.getBrowser().getImages().size() == 0) setStatus("Done", -1);
+        else setStatus(HiViewer.PAINTING_TEXT, -1);
         fireStateChange();
     }
 
@@ -363,6 +370,38 @@ class HiViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
         view.toBack();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getHierarchyObject()
+     */
+    public Object getHierarchyObject()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        ImageDisplay node = model.getBrowser().getSelectedDisplay();
+        if (node == null) return null;
+        return node.getHierarchyObject();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setAnnotationEdition(DataObject)
+     */
+    public void setAnnotationEdition(DataObject ho)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        if (ho == null) throw new IllegalArgumentException("No DataObject.");
+        Browser browser = model.getBrowser();
+        FindAnnotatedVisitor visitor = new FindAnnotatedVisitor(this, ho);
+        if (ho instanceof ImageData)
+            browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+        else browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
+        model.getTreeView().repaint();
     }
 
 }

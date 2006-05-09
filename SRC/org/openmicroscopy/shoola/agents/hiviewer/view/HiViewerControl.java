@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 //Java imports
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -45,6 +46,8 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -233,6 +236,32 @@ class HiViewerControl
     }
     
     /**
+     * Brings up on screen the selected node. The nodes containing the child
+     * are visited i.e. parent then grandparent all the way up to the root node.
+     * 
+     * @param childBounds   The bounds of the selected node.
+     * @param parent        The node containing the child.
+     * @param isRoot        <code>true</code> if its the root node, 
+     *                      <code>false</code> otherwise.   
+     */
+    private void scrollToNode(Rectangle childBounds, ImageDisplay parent,
+                                boolean isRoot)
+    {
+        JScrollPane dskDecorator = parent.getDeskDecorator();
+        Rectangle viewRect = dskDecorator.getViewport().getViewRect();
+        if (!viewRect.contains(childBounds)) {
+            JScrollBar vBar = dskDecorator.getVerticalScrollBar();
+            JScrollBar hBar = dskDecorator.getHorizontalScrollBar();
+            vBar.setValue(childBounds.y);
+            hBar.setValue(childBounds.x);
+        }
+        if (!isRoot) {
+            ImageDisplay node = parent.getParentDisplay();
+            scrollToNode(childBounds, node, (node.getParentDisplay() == null));       
+        }      
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(HiViewerWin) initialize} method 
      * should be called straigh 
@@ -318,6 +347,11 @@ class HiViewerControl
         } else if (Browser.THUMB_SELECTED_PROPERTY.equals(propName)) {  
             ImageDisplay d = model.getBrowser().getSelectedDisplay();
             ThumbWinManager.display((ImageNode) d, model);
+        } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
+                TreeView treeView = model.getTreeView();
+                if (treeView == null) return; 
+                ImageDisplay d = model.getBrowser().getSelectedDisplay();
+                treeView.accept(new SelectedNodeVisitor(treeView, d)); 
         } else if (TreeView.TREE_POPUP_POINT_PROPERTY.equals(propName))  {
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; //tree shouldn't be null
@@ -325,17 +359,19 @@ class HiViewerControl
             if (p != null) view.showPopup(((JComponent) pce.getNewValue()), p);
         } else if (TreeView.CLOSE_PROPERTY.equals(propName)) {
             model.showTreeView(false);
-        } else if (TreeView.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
+        } else if (TreeView.TREE_SELECTED_DISPLAY_PROPERTY.equals(propName)) {
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; //tree shouldn't be null
             model.getBrowser().setSelectedDisplay(
                     (ImageDisplay) pce.getNewValue());
-        } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
-            TreeView treeView = model.getTreeView();
-            if (treeView == null) return; 
-            ImageDisplay d = model.getBrowser().getSelectedDisplay();
-            treeView.accept(new SelectedNodeVisitor(treeView, d)); 
+        } else if (HiViewer.SCROLL_TO_NODE_PROPERTY.equals(propName)) {
+            ImageDisplay node = (ImageDisplay) pce.getNewValue();
+            //Brings up the node on screen.
+            ImageDisplay parent = node.getParentDisplay();
+            if (parent != null)
+                scrollToNode(node.getBounds(), parent,
+                        (parent.getParentDisplay() == null));  
         }
     }
-    
+
 }
