@@ -1,5 +1,6 @@
 package ome.ejb.itests;
 
+import org.testng.annotations.*;
 import ome.ro.ejb.RenderingBean;
 
 import omeis.providers.re.data.PlaneDef;
@@ -13,6 +14,7 @@ public class ExampleUsageTest extends TestCase
     RenderingBean re;
     
     @Override
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         re = new RenderingBean();
@@ -20,6 +22,7 @@ public class ExampleUsageTest extends TestCase
     }
         
     
+  @Test
     public void testLookupConstruction() throws Exception
     {
         re.lookupPixels(1);

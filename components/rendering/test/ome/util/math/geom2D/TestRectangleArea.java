@@ -31,6 +31,7 @@ package ome.util.math.geom2D;
 
 
 //Java imports
+import org.testng.annotations.*;
 import java.awt.Rectangle;
 
 //Third-party libraries
@@ -58,6 +59,7 @@ public class TestRectangleArea
     
     private static final int        MAX_ITER = 100;
     
+  @Test
     public void testRectangle1()
     {
         RectangleArea area = new RectangleArea();
@@ -68,6 +70,7 @@ public class TestRectangleArea
         assertEquals("Should set h to 0.", 0, r.height, 0);
     }
     
+  @Test
     public void testRectangle2()
     {
         RectangleArea area = new RectangleArea(Integer.MIN_VALUE, 
@@ -83,6 +86,7 @@ public class TestRectangleArea
                     Integer.MAX_VALUE, r.height, 0);
     }
     
+  @Test
     public void testSetBounds()
     {
         RectangleArea area = new RectangleArea();
@@ -99,6 +103,7 @@ public class TestRectangleArea
                 Integer.MAX_VALUE, r.height, 0);
     }
     
+  @Test
     public void testScale()
     {
         RectangleArea area = new RectangleArea(0, 0, 1, 1);
@@ -120,6 +125,7 @@ public class TestRectangleArea
         }
     }
     
+  @Test
     public void testPlanePoints1()
     {
         RectangleArea area = new RectangleArea();
@@ -128,6 +134,7 @@ public class TestRectangleArea
         assertEquals("Wrong size of the array", 0, points.length, 0);
     }
     
+  @Test
     public void testPlanePoints2()
     {
         RectangleArea area = new RectangleArea(0, 0, MAX_ITER, MAX_ITER);
@@ -136,6 +143,7 @@ public class TestRectangleArea
                 points.length, 0);
     }
     
+  @Test
     public void testPlanePoints3()
     {
         RectangleArea area = new RectangleArea(0, 0, MAX_ITER, MAX_ITER);
@@ -155,6 +163,7 @@ public class TestRectangleArea
         }
     }
     
+  @Test
     public void testOnBoundaries()
     {
         RectangleArea area = new RectangleArea(0, 0, MAX_ITER, MAX_ITER);

@@ -33,6 +33,7 @@ package ome.util.mem;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -56,6 +57,7 @@ public class TestReadOnlyByteArray
     extends TestCase
 {
 
+  @Test
     public void testReadOnlyByteArray()
     {
         try {
@@ -78,6 +80,7 @@ public class TestReadOnlyByteArray
         } catch (IllegalArgumentException iae) {}
     }
 
+  @Test
     public void testGetEmptyArray()
     {
         byte[] base = new byte[] {0, 1, 2};
@@ -96,6 +99,7 @@ public class TestReadOnlyByteArray
         } catch (ArrayIndexOutOfBoundsException aiobe) {}
     }
     
+  @Test
     public void testGet1LengthArray()
     {
         byte[] base = new byte[] {0, 1};
@@ -111,6 +115,7 @@ public class TestReadOnlyByteArray
         } catch (ArrayIndexOutOfBoundsException aiobe) {}
     }
     
+  @Test
     public void testGet2LengthArray()
     {
         byte[] base = new byte[] {0, 1, 2, 3, 4};
@@ -127,6 +132,7 @@ public class TestReadOnlyByteArray
         } catch (ArrayIndexOutOfBoundsException aiobe) {}
     }
     
+  @Test
     public void testGet3LengthArray()
     {
         byte[] base = new byte[] {0, 1, 2};

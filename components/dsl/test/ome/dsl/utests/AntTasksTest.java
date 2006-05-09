@@ -1,5 +1,6 @@
 package ome.dsl.utests;
 
+import org.testng.annotations.*;
 import java.io.File;
 
 import org.apache.commons.logging.Log;
@@ -18,6 +19,7 @@ public class AntTasksTest extends TestCase
 
     private static Log log = LogFactory.getLog(AntTasksTest.class);
 
+  @Test
     public void testAPITask() {}
     /** disabling; need logic to find common/ 
      * perhaps OMERO_HOME has to be set. FIXME

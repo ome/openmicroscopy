@@ -1,5 +1,6 @@
 package ome.dsl.utests;
 
+import org.testng.annotations.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.StringWriter;
@@ -23,16 +24,19 @@ public class ExampleUsageTest extends TestCase
 
     SaxReader          sr;
 
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         sr = new SaxReader("type.xml");
     }
 
+  @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception
     {
         sr = null;
     }
 
+  @Test
     public void testONE()
     {
         Set set = sr.parse();
@@ -51,6 +55,7 @@ public class ExampleUsageTest extends TestCase
 
     }
 
+  @Test
     public void testWithWriting() throws Exception
     {
         Set set = sr.parse();

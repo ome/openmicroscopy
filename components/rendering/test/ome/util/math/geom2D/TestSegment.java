@@ -35,6 +35,7 @@ package ome.util.math.geom2D;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -61,6 +62,7 @@ public class TestSegment
 
     private static final int    INTERVAL = 10;
     
+  @Test
     public void testSegmentBadArgs()
     {
         try {
@@ -90,6 +92,7 @@ public class TestSegment
     }
     
     
+  @Test
     public void testSegment()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1);
@@ -98,6 +101,7 @@ public class TestSegment
                 o, r.origin);
     }
     
+  @Test
     public void testGetPointXAxis()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 0); 
@@ -111,6 +115,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testGetPointYAxis()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(0, 1); 
@@ -124,6 +129,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testGetPointParallelXAxis()
     {
         PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1); 
@@ -137,6 +143,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testGetPointParallelYAxis()
     {
         PlanePoint o = new PlanePoint(1, 0), p = new PlanePoint(1, 1); 
@@ -150,6 +157,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testLiesNull()
     {
         PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1); 
@@ -162,6 +170,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testLies1()
     {
         PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1); 
@@ -176,6 +185,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testLies2()
     {
         PlanePoint o = new PlanePoint(1, 0), p = new PlanePoint(1, 1); 
@@ -190,6 +200,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testLies3()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1); 
@@ -204,6 +215,7 @@ public class TestSegment
         }
     }
     
+  @Test
     public void testEquals()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1);
@@ -217,6 +229,7 @@ public class TestSegment
                 r.equals(new Line(p, o)));
     }
     
+  @Test
     public void testHashCodeDiffCalls()
     {
         PlanePoint p = new PlanePoint(500, -30000), q = new PlanePoint(0, 0);
@@ -227,6 +240,7 @@ public class TestSegment
                     h, r.hashCode());
     }
     
+  @Test
     public void testHashCodeObjectEquality()
     {
         PlanePoint p, q;

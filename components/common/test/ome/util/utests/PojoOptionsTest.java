@@ -1,5 +1,6 @@
 package ome.util.utests;
 
+import org.testng.annotations.*;
 import java.util.HashMap;
 
 import ome.util.builders.PojoOptions;
@@ -15,14 +16,17 @@ public class PojoOptionsTest extends TestCase {
 	
 	PojoOptions ob;
 	
+  @Configuration(beforeTestMethod = true)
 	protected void setUp() throws Exception {
 		ob=new PojoOptions();
 	}
 	
+  @Test
 	public void testDefaults(){
 		log.info(ob.map());
 	}
 	
+  @Test
 	public void testAllMethods(){
 		log.info(
 		ob.allCounts()
@@ -35,6 +39,7 @@ public class PojoOptionsTest extends TestCase {
 		);
 	}
 	
+  @Test
 	public void testNullMap(){
 		ob = new PojoOptions(null);
         PojoOptions test = new PojoOptions();

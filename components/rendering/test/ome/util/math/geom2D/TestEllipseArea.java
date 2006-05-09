@@ -30,6 +30,7 @@
 package ome.util.math.geom2D;
 
 //Java imports
+import org.testng.annotations.*;
 import java.awt.Rectangle;
 
 //Third-party libraries
@@ -71,6 +72,7 @@ public class TestEllipseArea
                     Integer.MAX_VALUE, r.height, 0);
     }
     
+  @Test
     public void testSetBounds()
     {
         EllipseArea area = new EllipseArea(0, 0, 1, 1);
@@ -86,6 +88,7 @@ public class TestEllipseArea
                 2, r.height, 0);
     }
     
+  @Test
     public void testScale()
     {
         EllipseArea area = new EllipseArea(0, 0, 1, 1);
@@ -107,6 +110,7 @@ public class TestEllipseArea
         }
     }
     
+  @Test
     public void testPlanePoints1()
     {
         EllipseArea area = new EllipseArea(0, 0, 1, 1);
@@ -115,6 +119,7 @@ public class TestEllipseArea
         assertEquals("Wrong size of the array", 0, points.length, 0);
     }
     
+  @Test
     public void testPlanePoints2()
     {
         //Ellipse which only contains the origin.
@@ -125,6 +130,7 @@ public class TestEllipseArea
         assertEquals("Wrong y coordinate", 0, points[0].x2, 0);
     }
 
+  @Test
     public void testPlanePoints3()
     {
         //Ellipse containing 9 points.
@@ -148,6 +154,7 @@ public class TestEllipseArea
        }
     }
 
+  @Test
     public void testOnBoundaries()
     {
         EllipseArea area = new EllipseArea(-1, -1, 2, 2);

@@ -1,5 +1,6 @@
 package ome.server.itests;
 
+import org.testng.annotations.*;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.meta.Experimenter;
@@ -24,6 +25,7 @@ public class LoginTest extends TestCase
     protected IUpdate u = (IUpdate) ctx.getBean("updateService");
     protected EventContext ec = (EventContext) ctx.getBean("eventContext");
     
+  @Test
     public void testNoLoginThrowsException() throws Exception
     {
         try {
@@ -34,12 +36,14 @@ public class LoginTest extends TestCase
         }
     }
     
+  @Test
     public void testLoggedInAllowed() throws Exception
     {
         login("root","system","Test");
         q.getById(Experimenter.class,0l);
     }
 
+  @Test
     public void testLoggedOutAfterCall() throws Exception
     {
         login("root","system","Test");
@@ -49,6 +53,7 @@ public class LoginTest extends TestCase
         assertNull(CurrentDetails.getCreationEvent());
     }
     
+  @Test
     public void testLoginWithInvalidThrowsException() throws Exception
     {
         try {
@@ -76,6 +81,7 @@ public class LoginTest extends TestCase
     }
     
     @Override
+  @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception
     {
     }

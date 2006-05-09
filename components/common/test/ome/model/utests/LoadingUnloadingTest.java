@@ -1,5 +1,6 @@
 package ome.model.utests;
 
+import org.testng.annotations.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ public class LoadingUnloadingTest extends TestCase
     Image i;
     Pixels pix;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         p = new Project();
@@ -32,6 +34,7 @@ public class LoadingUnloadingTest extends TestCase
         pix = new Pixels();
     }
     
+  @Test
     public void test_unloaded_allow_only_ID_accessors() throws Exception
     {
     
@@ -42,6 +45,7 @@ public class LoadingUnloadingTest extends TestCase
         
     }
 
+  @Test
     public void test_model_mapping_events() throws Exception
     {
         ModelMapper m = new ModelMapper(){

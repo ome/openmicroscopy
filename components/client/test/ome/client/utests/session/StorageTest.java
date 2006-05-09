@@ -1,5 +1,6 @@
 package ome.client.utests.session;
 
+import org.testng.annotations.*;
 import ome.client.Storage;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -12,11 +13,13 @@ public class StorageTest extends TestCase
 
     Storage storage;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         storage = new Storage();
     }
 
+  @Test
     public void test_store_persistent() throws Exception
     {
         try { 
@@ -42,6 +45,7 @@ public class StorageTest extends TestCase
         assertFalse(storage.isPersistent(Dataset.class, new Long(0)));
     }
     
+  @Test
     public void test_make_dirty() throws Exception
     {
         Dataset d;
@@ -59,6 +63,7 @@ public class StorageTest extends TestCase
         assertTrue( storage.isDirty( Dataset.class, new Long(1) ) );
     }
 
+  @Test
     public void test_new_new() throws Exception
     {
         Image i;
@@ -77,6 +82,7 @@ public class StorageTest extends TestCase
         
     }
     
+  @Test
     public void test_deleted() throws Exception
     {
         Image i;

@@ -70,4 +70,8 @@
 
    <target name="deploy-jboss" depends="package,deploy-ear-jboss"/>
 
+   <target name="test">
+     <echo>Should deploy to server for integration tests</echo>
+   </target>
+
 </project>

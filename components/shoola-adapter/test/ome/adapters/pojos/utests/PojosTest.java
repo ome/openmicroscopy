@@ -1,5 +1,6 @@
 package ome.adapters.pojos.utests;
 
+import org.testng.annotations.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -37,6 +38,7 @@ public class PojosTest extends TestCase
     Experimenter e;
     ExperimenterGroup g;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         p = new Project(new Long(1));
         d1 = new Dataset(new Long(2));
@@ -82,6 +84,7 @@ public class PojosTest extends TestCase
         }
     }
     
+  @Test
     public void test(){
         ProjectData pd = new ProjectData( p );
         assertNotNull( pd.getDatasets() );
@@ -90,6 +93,7 @@ public class PojosTest extends TestCase
         System.out.println( pd );
     }
     
+  @Test
     public void test_modying_got_set_does_nothing() throws Exception
     {
         ProjectData pd = new ProjectData( p );
@@ -101,6 +105,7 @@ public class PojosTest extends TestCase
         
     }
     
+  @Test
     public void testReverseMapping() throws Exception
     {
         ProjectData pd = new ProjectData();
@@ -120,6 +125,7 @@ public class PojosTest extends TestCase
                 .sizeOfProjectLinks() > 0);
     }
     
+  @Test
     public void testNoDuplicateLinks() throws Exception
     {
         Project p_2 = new Project();
@@ -153,6 +159,7 @@ public class PojosTest extends TestCase
         assertTrue( d2_links.containsAll( i2_links ) );
     }
     
+  @Test
     public void test_p_and_d() throws Exception
     {
         Project p = new Project();
@@ -174,6 +181,7 @@ public class PojosTest extends TestCase
         assertTrue( test.sizeOfDatasetLinks() > 1 );
     }
     
+  @Test
     public void test_walk_a_graph() throws Exception
     {
         ProjectData pd = new ProjectData( p );
@@ -213,6 +221,7 @@ public class PojosTest extends TestCase
         
     }
     
+  @Test
     public void test_bidirectional() throws Exception
     {
         CategoryData cd = new CategoryData( c );

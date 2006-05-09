@@ -33,6 +33,7 @@ package ome.util.math.geom2D;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -58,6 +59,7 @@ public class TestPlanePoint
     private static final int    MAX_ITER = 30000;  //Max iterations in a test.
     
     
+  @Test
     public void testPoint()
     {
         PlanePoint p = new PlanePoint(Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -67,6 +69,7 @@ public class TestPlanePoint
                 Integer.MAX_VALUE, p.x2, 0);
     }
     
+  @Test
     public void testDistanceNull()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -78,6 +81,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDistanceSqrt2()
     {
         double sqrt2 = Math.sqrt(2);
@@ -90,6 +94,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDisance1()
     {
         PlanePoint p, q;
@@ -101,6 +106,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDisance2()
     {
         PlanePoint p, q;
@@ -112,6 +118,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testSumNull()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -123,6 +130,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testSum()
     {
         PlanePoint p, q;
@@ -134,6 +142,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDiffNull()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -145,6 +154,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDiff()
     {
         PlanePoint p, q, diff = new PlanePoint(1234-2, -8765);
@@ -156,6 +166,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testScalarInteger()
     {
         PlanePoint p;
@@ -166,6 +177,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testScalarDouble()
     {
         PlanePoint p;
@@ -176,6 +188,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testVecNull()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -187,6 +200,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testVec()
     {
         PlanePoint p, q, diff = new PlanePoint(2-1234, 8765);
@@ -198,6 +212,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDotNull()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -209,6 +224,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testDot()
     {
         PlanePoint p, q;
@@ -220,6 +236,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testNormSqrt2()
     {
         double sqrt2 = Math.sqrt(2);
@@ -232,6 +249,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testNorm1()
     {
         PlanePoint p, q;
@@ -243,6 +261,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testNorm2()
     {
         PlanePoint p, q;
@@ -254,6 +273,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testNormalize()
     {
         PlanePoint p, u;
@@ -277,6 +297,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testAngleNull()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -288,6 +309,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testAngleNullVector()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -311,6 +333,7 @@ public class TestPlanePoint
         }
     }
     
+  @Test
     public void testAngle()
     {
         PlanePoint xAxis = new PlanePoint(1, 0), p;
@@ -327,6 +350,7 @@ public class TestPlanePoint
         assertEquals("Should be PI/2.", Math.PI/2, xAxis.angle(p), 0);
     }
     
+  @Test
     public void testEquals()
     {
         PlanePoint p = new PlanePoint(0, 0);
@@ -343,6 +367,7 @@ public class TestPlanePoint
                 p.equals(new PlanePoint(0, 0)));
     }
     
+  @Test
     public void testHashCodeDiffCalls()
     {
         PlanePoint p = new PlanePoint(500, -30000);
@@ -352,6 +377,7 @@ public class TestPlanePoint
                     h, p.hashCode());
     }
     
+  @Test
     public void testHashCodeObjectEquality()
     {
         PlanePoint p, q;

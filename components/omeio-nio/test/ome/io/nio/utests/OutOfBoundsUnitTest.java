@@ -28,6 +28,7 @@
  */
 package ome.io.nio.utests;
 
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -45,6 +46,7 @@ public class OutOfBoundsUnitTest extends TestCase
     private Pixels pixels;
     private PixelBuffer pixelBuffer;
 
+  @Configuration(beforeTestMethod = true)
     protected void setUp()
     {
         pixels = new Pixels();
@@ -63,6 +65,7 @@ public class OutOfBoundsUnitTest extends TestCase
         pixelBuffer = service.getPixelBuffer(pixels);
     }
     
+  @Test
     public void testYUpperBounds()
     {
         try
@@ -77,6 +80,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
 
+  @Test
     public void testZUpperBounds()
     {
         try
@@ -91,6 +95,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
     
+  @Test
     public void testCUpperBounds()
     {
         try
@@ -105,6 +110,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
     
+  @Test
     public void testTUpperBounds()
     {
         try
@@ -119,6 +125,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
     
+  @Test
     public void testYLowerBounds()
     {
         try
@@ -133,6 +140,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
 
+  @Test
     public void testZLowerBounds()
     {
         try
@@ -147,6 +155,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
     
+  @Test
     public void testCLowerBounds()
     {
         try
@@ -161,6 +170,7 @@ public class OutOfBoundsUnitTest extends TestCase
         fail("Out of bounds dimension was not caught.");
     }
     
+  @Test
     public void testTLowerBounds()
     {
         try

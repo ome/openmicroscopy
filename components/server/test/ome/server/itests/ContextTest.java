@@ -1,5 +1,6 @@
 package ome.server.itests;
 
+import org.testng.annotations.*;
 import java.util.Arrays;
 
 import org.springframework.aop.framework.Advised;
@@ -29,11 +30,13 @@ public class ContextTest extends TestCase
     }
     
     @Override
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         re = new RE();
     }
 
+  @Test
     public void testListBeans() throws Exception
     {
         
@@ -43,12 +46,14 @@ public class ContextTest extends TestCase
                     Object.class, true, true)));
     }
     
+  @Test
     public void testManagedContext() throws Exception
     {
         OmeroContext ctx = OmeroContext.getManagedServerContext();
         onContext(ctx);
     }
     
+  @Test
     public void testInternalContext() throws Exception
     {
         OmeroContext ctx = OmeroContext.getInternalServerContext();
@@ -61,6 +66,7 @@ public class ContextTest extends TestCase
         System.out.println(Arrays.asList(aop.getAdvisors()));
     }
     
+  @Test
     public void testConfigureBean() throws Exception
     {
         
@@ -70,6 +76,7 @@ public class ContextTest extends TestCase
         assertTrue(re.pmCalled);
     }
     
+  @Test
     public void testSelfConfigureBean() throws Exception
     {
         re.selfConfigure();
@@ -77,6 +84,7 @@ public class ContextTest extends TestCase
         assertTrue(re.pmCalled);
     }
     
+  @Test
     public void testReferentialIntegrity() throws Exception
     {
         OmeroContext mCtx = OmeroContext.getManagedServerContext();

@@ -30,6 +30,7 @@
 package ome.adapters.pojos.itests;
 
 //Java imports
+import org.testng.annotations.*;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -110,6 +111,7 @@ public class PojosServiceTest extends TestCase {
     Dataset ds;
     DatasetData dsData;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         data = (OMEData) factory.ctx.getBean("data");
@@ -118,6 +120,7 @@ public class PojosServiceTest extends TestCase {
         iUpdate = factory.getUpdateService();
     }
     
+  @Test
     public void testGetSomethingThatsAlwaysThere() throws Exception
     {
         List l = iQuery.getListByExample(new Experimenter());
@@ -134,6 +137,7 @@ public class PojosServiceTest extends TestCase {
         assertNotNull("And various other things",expData.getFirstName());
     }
     
+  @Test
     public void testNowLetsTryToSaveSomething() throws Exception
     {
         imgData = simpleImageData();
@@ -148,6 +152,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void testAndSaveSomtheingWithParents() throws Exception
     {
         saveImage();
@@ -166,6 +171,7 @@ public class PojosServiceTest extends TestCase {
         assertTrue("And the ids have to be the same",id.equals(ds2.getId()));
     }
  
+  @Test
     public void testButWeHaveToHandleTheVersions() throws Exception
     {
         Image img = new Image();
@@ -200,6 +206,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void testNowOnToSavingAndDeleting() throws Exception
     {
         imgData = simpleImageData();
@@ -215,6 +222,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void testLetsTryToLinkTwoThingsTogether() throws Exception
     {
         imgData = simpleImageData();
@@ -231,6 +239,7 @@ public class PojosServiceTest extends TestCase {
         
     }
 
+  @Test
     public void testAndHeresHowWeUnlinkThings() throws Exception
     {
 
@@ -279,6 +288,7 @@ public class PojosServiceTest extends TestCase {
         link.setChild( d );
     }
     
+  @Test
     public void testHeresHowWeUnlinkFromJustOneSide() throws Exception
     {
         saveImage();
@@ -324,6 +334,7 @@ public class PojosServiceTest extends TestCase {
     
     public final static String TESTER = "tester"; // Defined in create_pojos.sql
 
+  @Test
     public void test_loadContainerHierarchy() throws Exception
     {
         
@@ -336,6 +347,7 @@ public class PojosServiceTest extends TestCase {
     }
 
     
+  @Test
     public void test_findContainerHierarchies(){
         
         PojoOptions defaults = new PojoOptions(), empty = new PojoOptions(null);
@@ -355,6 +367,7 @@ public class PojosServiceTest extends TestCase {
         
     }
 
+  @Test
     public void test_findAnnotations(){
         
         Map m;
@@ -367,6 +380,7 @@ public class PojosServiceTest extends TestCase {
 
     }
 
+  @Test
     public void test_retrieveCollection() throws Exception
     {
         Image i = (Image) iQuery.getById(Image.class,5551);
@@ -375,6 +389,7 @@ public class PojosServiceTest extends TestCase {
         assertTrue(annotations.size() > 0);
     }
 
+  @Test
     public void test_findCGCPaths() throws Exception
     {
         ids = new HashSet(data.getMax("Image.ids",2));
@@ -383,6 +398,7 @@ public class PojosServiceTest extends TestCase {
         results = iPojos.findCGCPaths(ids, IPojos.DECLASSIFICATION,null);
     }
     
+  @Test
     public void test_findCGCPaths_declass() throws Exception
     {
         Paths paths = new Paths(data.get("CGCPaths.all"));
@@ -421,6 +437,7 @@ public class PojosServiceTest extends TestCase {
 
     }
 
+  @Test
     public void test_findCGCPaths_class() throws Exception
     {
         // Finding a good test
@@ -472,6 +489,7 @@ public class PojosServiceTest extends TestCase {
 
     }
     
+  @Test
     public void testCountingApiExceptions(){
 
         Set ids = Collections.singleton(new Long(1));
@@ -543,6 +561,7 @@ public class PojosServiceTest extends TestCase {
     }
 
     
+  @Test
     public void test_getCollectionCount() throws Exception    
     {
         Long id = new Long(5551);
@@ -565,18 +584,21 @@ public class PojosServiceTest extends TestCase {
         
     }
 
+  @Test
     public void test_getImages() throws Exception
     {
         ids = new HashSet(data.getMax("Project.ids",2));
         Set imagse = iPojos.getImages(Project.class, ids, null );
     }
 
+  @Test
     public void test_getUserDetails() throws Exception
     {
         Map m = iPojos.getUserDetails(Collections.singleton(TESTER),null);
         Experimenter e = (Experimenter) m.get(TESTER);
     }
 
+  @Test
     public void test_getUserImages() throws Exception
     {
         try {
@@ -593,6 +615,7 @@ public class PojosServiceTest extends TestCase {
     // Misc
     //
     
+  @Test
     public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception
     {
 
@@ -610,6 +633,7 @@ public class PojosServiceTest extends TestCase {
     /// ~ Versions
     /// ========================================================================
 
+  @Test
     public void test_version_doesnt_increase_on_non_change() throws Exception
     {
         Image img = new Image();
@@ -625,6 +649,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void test_version_doesnt_increase_on_linked_update() throws Exception
     {
         ImageAnnotation ann = new ImageAnnotation();
@@ -660,6 +685,7 @@ public class PojosServiceTest extends TestCase {
     /// ~ Counts
     /// ========================================================================
 
+  @Test
     public void test_counts() throws Exception
     {
         Map counts;
@@ -692,6 +718,7 @@ public class PojosServiceTest extends TestCase {
     /// ~ Various bug-like checks
     /// ========================================================================
  
+  @Test
     public void test_no_duplicate_rows() throws Exception
     {
         String name = "TEST:"+System.currentTimeMillis();
@@ -729,6 +756,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void test_no_duplicate_links() throws Exception
     {
         Image img = new Image();
@@ -759,6 +787,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void test_no_duplicates_on_save_array() throws Exception
     {
         Image img = new Image();
@@ -790,6 +819,7 @@ public class PojosServiceTest extends TestCase {
         
     }
 
+  @Test
     public void test_annotating_a_dataset_cglib_issue() throws Exception
     {
 
@@ -814,6 +844,7 @@ public class PojosServiceTest extends TestCase {
         assertTrue( original.getClass().equals( annotation.getClass() ));
     }
 
+  @Test
     public void test_annotating_a_dataset() throws Exception
     {
         String name = " two rows "+System.currentTimeMillis();
@@ -857,6 +888,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void test_two_datasets_and_a_project() throws Exception
     {
         String name = " 2&1 "+System.currentTimeMillis();
@@ -924,6 +956,7 @@ public class PojosServiceTest extends TestCase {
 
     }
     
+  @Test
     public void test_delete_annotation() throws Exception
     {
         String string = "delete_annotation"+System.currentTimeMillis();
@@ -944,6 +977,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void test_duplicate_links_again() throws Exception
     {
     
@@ -976,6 +1010,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
+  @Test
     public void test_update_annotation() throws Exception
     {
         DataObject annotatedObject;
@@ -1000,6 +1035,7 @@ public class PojosServiceTest extends TestCase {
 
     }
     
+  @Test
     public void test_unloaded_ds_in_ui() throws Exception
     {
 //        Project p = new Project(); p.setName("ui");

@@ -1,5 +1,6 @@
 package ome.io.nio.utests;
 
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
@@ -17,6 +18,7 @@ public class HugePixelBufferUnitTest extends TestCase
     private static final int stackSize = planeSize * 64;
     private static final int timepointSize = stackSize * 3;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp()
     {
         pixels = new Pixels();
@@ -35,32 +37,38 @@ public class HugePixelBufferUnitTest extends TestCase
         pixelBuffer = service.getPixelBuffer(pixels);
     }
     
+  @Test
     public void testGetPlaneSize()
     {
         assertEquals(pixelBuffer.getPlaneSize().intValue(), planeSize);
     }
     
+  @Test
     public void testGetStackSize()
     {
         assertEquals(pixelBuffer.getStackSize().intValue(), stackSize);
     }
     
+  @Test
     public void testGetTimepointSize()
     {
         assertEquals(pixelBuffer.getTimepointSize().intValue(), timepointSize);
     }
     
+  @Test
     public void testGetInitialPlaneOffset() throws DimensionsOutOfBoundsException
     {
         assertEquals(pixelBuffer.getPlaneOffset(0, 0, 0).longValue(), 0L);
     }
     
+  @Test
     public void testGetPlaneOffset1() throws DimensionsOutOfBoundsException
     {
         long offset = ((long)timepointSize * 25) + ((long)planeSize * 25);
         assertEquals(pixelBuffer.getPlaneOffset(25, 0, 25).longValue(), offset);
     }
     
+  @Test
     public void testGetPlaneOffset2() throws DimensionsOutOfBoundsException
     {
         long offset = ((long)timepointSize * 25) + ((long)stackSize * 1) +

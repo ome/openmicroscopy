@@ -29,6 +29,7 @@
 package ome.server.utests;
 
 //Java imports
+import org.testng.annotations.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,15 +60,18 @@ import ome.util.builders.PojoOptions;
 public class PojosConstraintsTest extends TestCase {
     protected PojosImpl manager;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
         manager = new PojosImpl();
     }
     
+  @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         manager = null;
     }
 
+  @Test
 	public void testFindAnnotations() {
 		T t = new T(IllegalArgumentException.class){
 			@Override
@@ -90,6 +94,7 @@ public class PojosConstraintsTest extends TestCase {
 			
 	}
 
+  @Test
 	public void testFindCGCPaths() {
 		T t = new T(IllegalArgumentException.class){
 			@Override
@@ -108,6 +113,7 @@ public class PojosConstraintsTest extends TestCase {
 		
 	}
 
+  @Test
 	public void testFindContainerHierarchies() {
 		T t = new T(IllegalArgumentException.class){
 			@Override
@@ -129,6 +135,7 @@ public class PojosConstraintsTest extends TestCase {
 
 	}
 
+  @Test
 	public void testGetImages() {
 		T t = new T(IllegalArgumentException.class){
 			@Override
@@ -143,7 +150,8 @@ public class PojosConstraintsTest extends TestCase {
 
 	}
 
-	public void testGetUserImages(Map options) {
+  @Test
+	public void testGetUserImages() {
 		T t = new T(IllegalArgumentException.class){
 			@Override
 			public void doTest(Object[] arg) {
@@ -156,6 +164,7 @@ public class PojosConstraintsTest extends TestCase {
 		
 	}
 
+  @Test
 	public void testLoadContainerHierary() {
 		Set ids;
 		Map options;

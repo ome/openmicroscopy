@@ -1,5 +1,6 @@
 package ome.client.itests;
 
+import org.testng.annotations.*;
 import java.util.Date;
 
 import junit.framework.TestCase;
@@ -13,6 +14,7 @@ public class EjbTest extends TestCase
 
     ServiceFactory sf = new ServiceFactory();
 
+  @Test
     public void test_withLogin() throws Exception
     {
         IUpdate iUpdate = sf.getUpdateService();

@@ -1,5 +1,6 @@
 package ome.services.utests;
 
+import org.testng.annotations.*;
 import java.util.Set;
 
 import ome.model.annotations.ImageAnnotation;
@@ -20,6 +21,7 @@ public class CountCollectorTest extends TestCase
     
     protected Long next() { return current++; }
     
+  @Test
     public void testSingleField() throws Exception
     {
         c = new CountCollector(new String[]{Dataset.ANNOTATIONS});
@@ -34,6 +36,7 @@ public class CountCollectorTest extends TestCase
         assertTrue(s.contains(d.getId()));
     }
     
+  @Test
     public void testMultipleFields() throws Exception
     {
         c = new CountCollector(new String[]{Dataset.IMAGELINKS,Image.ANNOTATIONS});
@@ -57,6 +60,7 @@ public class CountCollectorTest extends TestCase
         
     }
     
+  @Test
     public void testMultipleIdsInOneField() throws Exception
     {
         
@@ -75,6 +79,7 @@ public class CountCollectorTest extends TestCase
         assertTrue(s.contains(i2.getId()));
     }
     
+  @Test
     public void testLookupTablesCreated() throws Exception
     {
          c = new CountCollector(new String[]{Project.DATASETLINKS});
@@ -84,6 +89,7 @@ public class CountCollectorTest extends TestCase
          c.addCounts(Project.DATASETLINKS,p.getId(),10);
     }
     
+  @Test
     public void testNoCountGiven() throws Exception
     {
         c = new CountCollector(new String[]{Project.DATASETLINKS});
@@ -93,6 +99,7 @@ public class CountCollectorTest extends TestCase
         c.addCounts(Project.DATASETLINKS,p.getId(),null);
     }    
 
+  @Test
     public void testNegativeCountGiven() throws Exception
     {
         c = new CountCollector(new String[]{Project.DATASETLINKS});
@@ -102,6 +109,7 @@ public class CountCollectorTest extends TestCase
         c.addCounts(Project.DATASETLINKS,p.getId(),-10);
     }    
     
+  @Test
     public void testWhatHappensOnNullIdThough() throws Exception
     {
         c = new CountCollector(new String[]{Project.DATASETLINKS});

@@ -1,5 +1,6 @@
 package ome.client.itests;
 
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 import ome.api.IQuery;
@@ -18,6 +19,7 @@ public class VersionIncrementTest extends TestCase
         Project p = new Project(), p2;
         Dataset d = new Dataset(), d2;
 
+  @Configuration(beforeTestMethod = true)
         protected void setUp() throws Exception
         {
             p.setName(NAME);
@@ -33,11 +35,13 @@ public class VersionIncrementTest extends TestCase
         }
         public final static String NAME = "vers++"+new java.util.Date();
         
+  @Test
         public void test_link_versions_shouldnt_increase() throws Exception
         {
             assertTrue( d.getVersion().equals( d2.getVersion() ));
         }
 
+  @Test
         public void test_if_version_increases_exception() throws Exception
         {
             d.setName( d.getName() + "updated.");
@@ -50,6 +54,7 @@ public class VersionIncrementTest extends TestCase
             
         }
         
+  @Test
         public void test_if_versions_do_increase_let_me_override() throws Exception
         {
             d.setName( d.getName() + "updated.");

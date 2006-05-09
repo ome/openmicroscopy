@@ -33,6 +33,7 @@ package ome.util.mem;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -60,12 +61,14 @@ public class TestHandle
     private MockBody        body;  //Mock to play the Body role.
     
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp()
     {
         handle = new SimpleHandle();
         body = handle.getInitialBody();
     }
     
+  @Test
     public void testSharing()
     {
         //Set up expected calls.
@@ -88,6 +91,7 @@ public class TestHandle
         body.verify();
     }
     
+  @Test
     public void testWriteStateWhenNoSharing()
     {
         //Set up expected calls.
@@ -108,6 +112,7 @@ public class TestHandle
         body.verify();
     }
     
+  @Test
     public void testBreakSharing()
     {
         //Set up expected calls.

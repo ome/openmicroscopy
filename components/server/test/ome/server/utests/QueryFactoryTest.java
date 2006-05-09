@@ -1,5 +1,6 @@
 package ome.server.utests;
 
+import org.testng.annotations.*;
 import java.util.Arrays;
 
 import ome.model.containers.Project;
@@ -22,6 +23,7 @@ public class QueryFactoryTest extends TestCase
     QuerySource nullQS, stringQS, classQS;
 
     @Override
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         nullQS = new NullQuerySource();
@@ -34,6 +36,7 @@ public class QueryFactoryTest extends TestCase
         
     }    
 
+  @Test
     public void testQueryFactoryWithoutStringQuerySourceThrowsUnfoundExceptionOnUnkownQuery()
             throws Exception
     {
@@ -48,6 +51,7 @@ public class QueryFactoryTest extends TestCase
         }
     }
 
+  @Test
     public void testQueryFactoryWithStringQuerySourceNeverThrowsUnfoundException() throws Exception
     {
         qf = new QueryFactory(stringQS);
@@ -55,6 +59,7 @@ public class QueryFactoryTest extends TestCase
         assertNotNull("We should have a string query",q);
     }
     
+  @Test
     public void testQFWithClassQuerySource() throws Exception
     {
         qf = new QueryFactory(classQS);

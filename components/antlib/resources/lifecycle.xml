@@ -86,8 +86,47 @@
 		</javac>
 	</target>
 
+	<target name="testng-init" unless="test.skip">
+		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.classpath"/>
+	</target>
 
-	<target name="test" depends="compile" unless="test.skip">
+	<target name="test" depends="compile,testng-init" unless="test.skip">
+		<copyTestResources/>
+		<javac 
+			fork="yes"
+			destdir="${testclasses.dir}"
+			classpathref="omero.classpath" >
+			<src path="${test.dir}"/>
+		</javac>
+		<echo> Skipping DBUnit Tests ... </echo>
+
+		<testng outputDir="${testreports.dir}"
+			haltOnFailure="${test.with.fail}"
+			haltOnSkipped="${test.with.fail}"
+			>
+			<!--excludedgroups="broken,ignore,skip"-->
+ 			<classpath>
+				<path refid="omero.classpath"/>
+				<pathelement location="${testclasses.dir}"/>
+			</classpath>
+			<xmlfileset dir="${import.dir}">
+				<include name="testng.xml"/>
+			</xmlfileset>
+<!--
+			<classfileset dir="${testclasses.dir}">
+				<include name="**/*Test.class"/>
+				<include name="**/*Tests.class"/>
+				<exclude name="**/AllTests.class"/>
+				<exclude name="**/Abstract*.class"/>
+				<!-exclude name="**/itests/**/*"/->
+				<exclude name="**/dbtests/**/*"/>
+			</classfileset>
+-->
+		</testng>
+
+	</target>
+		
+	<target name="junittest" depends="compile" unless="test.skip">
 		<copyTestResources/>
 		<javac 
 			fork="yes"

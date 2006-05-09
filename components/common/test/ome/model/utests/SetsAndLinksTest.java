@@ -1,5 +1,6 @@
 package ome.model.utests;
 
+import org.testng.annotations.*;
 import java.util.List;
 
 import ome.model.containers.Dataset;
@@ -18,6 +19,7 @@ public class SetsAndLinksTest extends TestCase
     Image i;
     Pixels pix;
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         p = new Project();
@@ -26,6 +28,7 @@ public class SetsAndLinksTest extends TestCase
         pix = new Pixels();
     }
     
+  @Test
     public void test_linking() throws Exception
     {
         p.linkDataset( d );
@@ -35,6 +38,7 @@ public class SetsAndLinksTest extends TestCase
         
     }
     
+  @Test
     public void test_unlinking() throws Exception
     {
         p.linkDataset( d );
@@ -47,6 +51,7 @@ public class SetsAndLinksTest extends TestCase
         
     }
     
+  @Test
     public void test_retrieving() throws Exception
     {
         p.linkDataset( d );
@@ -55,6 +60,7 @@ public class SetsAndLinksTest extends TestCase
         assertTrue( l.get(0).equals( d ));
     }
     
+  @Test
     public void test_adding_a_placeholder() throws Exception
     {
         Project p = new Project();

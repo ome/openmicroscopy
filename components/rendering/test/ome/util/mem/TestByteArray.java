@@ -31,6 +31,7 @@ package ome.util.mem;
 
 
 //Java imports
+import org.testng.annotations.*;
 import java.io.IOException;
 
 //Third-party libraries
@@ -213,6 +214,7 @@ public class TestByteArray
         //NOTE: expected value is 1 b/c mock read writes 1 into the buffer.
     }
     
+  @Test
     public void testByteArray()
     {
         try {
@@ -235,6 +237,7 @@ public class TestByteArray
         } catch (IllegalArgumentException iae) {}
     }
 
+  @Test
     public void testSetWhenEmptySlice()
     {
         byte[] base = new byte[] {0};
@@ -242,6 +245,7 @@ public class TestByteArray
         doTestSetBoundaryCases(target);
     }
     
+  @Test
     public void testSetBufferWhenEmptySlice()
     {
         byte[] base = new byte[] {0};
@@ -249,6 +253,7 @@ public class TestByteArray
         doTestSetBufferBoundaryCases(target);
     }
     
+  @Test
     public void testSetStreamWhenEmptySlice() 
         throws IOException
     {
@@ -257,6 +262,7 @@ public class TestByteArray
         doTestSetStreamBoundaryCases(target);
     }
     
+  @Test
     public void testSetWhen1LengthSlice()
     {
         byte[] values = new byte[] {25};
@@ -266,6 +272,7 @@ public class TestByteArray
         doTestSet(base, 1, target, values);
     }
     
+  @Test
     public void testSetBufferWhen1LengthSlice()
     {
         byte[] values = new byte[] {25};
@@ -275,6 +282,7 @@ public class TestByteArray
         doTestSetBuffer(base, 1, 0, target, values);
     }
     
+  @Test
     public void testSetStreamWhen1LengthSlice() 
         throws IOException
     {
@@ -297,6 +305,7 @@ public class TestByteArray
         stream.verify();
     }
     
+  @Test
     public void testSetWhen2LengthSlice()
     {
         byte[] values = new byte[] {25, -1};
@@ -306,6 +315,7 @@ public class TestByteArray
         doTestSet(base, 0, target, values);
     }
     
+  @Test
     public void testSetBufferWhen2LengthSlice()
     {
         byte[] values = new byte[] {25, -1};
@@ -315,6 +325,7 @@ public class TestByteArray
         doTestSetBuffer(base, 0, 0, target, values);
     }
     
+  @Test
     public void testSetStreamWhen2LengthSlice() 
         throws IOException
     {
@@ -337,6 +348,7 @@ public class TestByteArray
         stream.verify();
     }
     
+  @Test
     public void testSetWhen3LengthSlice()
     {
         byte[] values = new byte[] {25, -1, 7};
@@ -346,6 +358,7 @@ public class TestByteArray
         doTestSet(base, 1, target, values);
     }
     
+  @Test
     public void testSetBufferWhen3LengthSlice()
     {
         byte[] values = new byte[] {25, -1, 7};
@@ -355,6 +368,7 @@ public class TestByteArray
         doTestSetBuffer(base, 1, 0, target, values);
     }
     
+  @Test
     public void testSetStreamWhen3LengthSlice() 
         throws IOException
     {

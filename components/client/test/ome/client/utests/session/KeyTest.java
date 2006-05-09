@@ -1,5 +1,6 @@
 package ome.client.utests.session;
 
+import org.testng.annotations.*;
 import ome.client.Storage;
 import ome.model.IObject;
 import ome.model.containers.Project;
@@ -9,6 +10,7 @@ import junit.framework.TestCase;
 public class KeyTest extends TestCase
 {
 
+  @Test
     public void test_nullConstraints() throws Exception
     {
         try
@@ -45,6 +47,7 @@ public class KeyTest extends TestCase
         
     }
     
+  @Test
     public void test_equality() throws Exception
     {
         Storage.Key k1 = new Storage.Key(Project.class, new Long(1));

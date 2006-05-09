@@ -32,6 +32,7 @@ package ome.util.mem;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -60,12 +61,14 @@ public class TestCopiableArray
     
     private MockBody                element;  //Mock to play the element role.
     
+  @Configuration(beforeTestMethod = true)
     protected void setUp()
     {
         copiableArray = new SimpleCopiableArray(SIZE);
         element = new MockBody();
     }
     
+  @Test
     public void testMakeNew()
     {
         try {
@@ -75,6 +78,7 @@ public class TestCopiableArray
         }
     }
     
+  @Test
     public void testSize() 
     {
         assertEquals("Should setthe size to argument passed to constructor.", 
@@ -82,6 +86,7 @@ public class TestCopiableArray
         
     }
     
+  @Test
     public void testSet()
     {
         try {
@@ -96,6 +101,7 @@ public class TestCopiableArray
         }
     }
     
+  @Test
     public void testGet()
     {
         try {
@@ -110,6 +116,7 @@ public class TestCopiableArray
         }
     }
     
+  @Test
     public void testSetAndGet()
     {
         for (int i = 0; i < copiableArray.getSize(); i++)
@@ -120,6 +127,7 @@ public class TestCopiableArray
         } 
     }
     
+  @Test
     public void testSetAndGet1()
     {
         SimpleCopiableArray 
@@ -134,6 +142,7 @@ public class TestCopiableArray
             assertSame("Wrong Copiable", array.get(i), copiableArray.get(i));
     }
 
+  @Test
     public void testCopy()
     {
         try {
@@ -158,6 +167,7 @@ public class TestCopiableArray
         }
     }
     
+  @Test
     public void testCopy1()
     {
         SimpleCopiableArray array = new SimpleCopiableArray(2);
@@ -172,6 +182,7 @@ public class TestCopiableArray
         assertEquals("Wrong Copiable", element, array.get(1));
     }
     
+  @Test
     public void testCopyNull()
     {
         SimpleCopiableArray array = new SimpleCopiableArray(2);

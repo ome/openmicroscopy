@@ -33,6 +33,7 @@ package ome.util.math.geom2D;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.*;
 import junit.framework.TestCase;
 
 //Application-internal dependencies
@@ -58,6 +59,7 @@ public class TestLine
     private static final int    MAX_ITER = 30000;  //Max iterations in a test.
 
     
+  @Test
     public void testLineBadArgs()
     {
         try {
@@ -86,6 +88,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testLineBadArgs2()
     {
         try {
@@ -120,6 +123,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testLine()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1), 
@@ -131,6 +135,7 @@ public class TestLine
                 u, r.direction);
     }
     
+  @Test
     public void testLine2()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1), 
@@ -142,6 +147,7 @@ public class TestLine
                 u, r.direction);
     }
     
+  @Test
     public void testGetPointXAxis()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 0); 
@@ -153,6 +159,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testGetPointYAxis()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(0, 1); 
@@ -164,6 +171,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testGetPointParallelXAxis()
     {
         PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(-1, 1); 
@@ -175,6 +183,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testGetPointParallelYAxis()
     {
         PlanePoint o = new PlanePoint(1, 0), p = new PlanePoint(1, 1); 
@@ -186,6 +195,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testLiesNull()
     {
         PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1); 
@@ -210,6 +220,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testLies1()
     {
         PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1); 
@@ -243,6 +254,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testLies2()
     {
         PlanePoint o = new PlanePoint(-1, 0), p = new PlanePoint(-1, -1); 
@@ -276,6 +288,7 @@ public class TestLine
         }
     }
     
+  @Test
     public void testLies3()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1); 
@@ -307,6 +320,7 @@ public class TestLine
         } 
     }
     
+  @Test
     public void testEquals()
     {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1);
@@ -320,6 +334,7 @@ public class TestLine
                 r.equals(new Line(p, o)));
     }
     
+  @Test
     public void testHashCodeDiffCalls()
     {
         PlanePoint p = new PlanePoint(500, -30000), q = new PlanePoint(0, 0);
@@ -330,6 +345,7 @@ public class TestLine
                     h, r.hashCode());
     }
     
+  @Test
     public void testHashCodeObjectEquality()
     {
         PlanePoint p, q;
