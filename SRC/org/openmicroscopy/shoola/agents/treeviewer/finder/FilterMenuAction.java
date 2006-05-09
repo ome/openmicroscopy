@@ -36,8 +36,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 
 
@@ -61,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class FilterMenuAction
 	extends FinderAction
-	implements MouseListener, PropertyChangeListener
+	implements MouseListener
 {
     
     /** The description of the action. */
@@ -70,6 +68,12 @@ public class FilterMenuAction
     
     /** The location of the mouse pressed. */
     private Point pressedPoint;
+    
+    /** 
+     * Sets the action enabled depending on the text entered.
+     * @see FinderAction#onTextChanged()
+     */
+    protected void onTextChanged() { setEnabled(!model.isTextEmpty()); }
     
     /**
      * Creates a new instance. 
@@ -83,19 +87,6 @@ public class FilterMenuAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.FILTER_MENU));
-        //register for property change.
-        model.addPropertyChangeListener(Finder.TEXT_ENTERED_PROPERTY, this);
-    }
-    
-    /** 
-     * Reacts to property changes fired by {@link Finder}. 
-     * The component only registers for the 
-     * {@link Finder#TEXT_ENTERED_PROPERTY}.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt) 
-    {
-        setEnabled(!model.isTextEmpty());
     }
     
     /** 
@@ -117,21 +108,21 @@ public class FilterMenuAction
     }
     
     /** 
-     * Required by {@link MouseListener }I/F but not actually needed in our
+     * Required by {@link MouseListener} I/F but not actually needed in our
      * case, no-op implementation.
      * @see MouseListener#mouseEntered(MouseEvent)
      */   
     public void mouseEntered(MouseEvent e) {}
 
     /** 
-     * Required by {@link MouseListener }I/F but not actually needed in our
+     * Required by {@link MouseListener} I/F but not actually needed in our
      * case, no-op implementation.
      * @see MouseListener#mouseExited(MouseEvent)
      */   
     public void mouseExited(MouseEvent e) {}
     
     /** 
-     * Required by {@link MouseListener }I/F but not actually needed in our
+     * Required by {@link MouseListener} I/F but not actually needed in our
      * case, no-op implementation.
      * @see MouseListener#mouseClicked(MouseEvent)
      */   

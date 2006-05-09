@@ -196,8 +196,8 @@ public class Finder
     boolean isCaseSensitive() { return model.isCaseSensitive(); }
     
     /** 
-     * Returns <code>true</code> if some text is entered in the text area,
-     * <code>false</code> if no text selected.
+     * Returns <code>true</code> if there is some text is entered in the text
+     * area, <code>false</code> if no text selected.
      * 
      * @return See above.
      */

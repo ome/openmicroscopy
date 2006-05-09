@@ -105,7 +105,7 @@ class FinderUI
     /** Check box to match the case or not. */
     private JCheckBox		caseSensitive;
     
-    /** The tool bar hosting the controls.. */
+    /** The tool bar hosting the controls. */
     private JToolBar		controlsBar;
     
     /** The tool bar hosting the controls. */
@@ -114,7 +114,7 @@ class FinderUI
     /** The popup menu. */
     private PopupMenu		popupMenu;
     
-    /** The panel hosting an information. */
+    /** The panel hosting information. */
     private JPanel			infoComponent;
     
     /** Initializes the components composing the display. */
@@ -198,8 +198,6 @@ class FinderUI
         leftBar.setFloatable(false);
         JButton button = new JButton(controller.getAction(FinderControl.CLOSE));	
         leftBar.add(button);
-        //button = new JButton(controller.getAction(FinderControl.FIND));	
-        //leftBar.add(button);
     }
     
     /** Helper method to create the menu bar. */
@@ -217,7 +215,6 @@ class FinderUI
         controlsBar.add(button);
         button = new JButton(
                 controller.getAction(FinderControl.HIGHLIGHT));	
-        //controlsBar.add(button);
         button = new JButton(
                 controller.getAction(FinderControl.FILTER_MENU));
         button.addMouseListener(
