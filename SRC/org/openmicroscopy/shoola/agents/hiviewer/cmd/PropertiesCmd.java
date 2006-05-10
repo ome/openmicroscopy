@@ -82,6 +82,7 @@ public class PropertiesCmd
     
     /**
      * Creates a new instance.
+     * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
      */
     public PropertiesCmd(HiViewer model)
@@ -90,17 +91,31 @@ public class PropertiesCmd
         this.model = model;
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
+     * @param hierarchyObject   The selected hierarchy object.
+     */
+    public PropertiesCmd(HiViewer model, DataObject hierarchyObject)
+    {
+        if (model == null) throw new IllegalArgumentException("No model");
+        this.model = model;
+        this.hierarchyObject = hierarchyObject;
+    }
+    
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        if (model != null) {
+        if (model != null && hierarchyObject == null) {
             ImageDisplay selectedDisplay = model.getBrowser().
                                                     getSelectedDisplay();
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;
         //post a show properties event.
-        model.moveToBack(); //move the window to the back.
+        if (model != null) model.moveToBack(); //move the window to the back.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
         eventBus.post(new ShowProperties(hierarchyObject, ShowProperties.EDIT)); 
     }
