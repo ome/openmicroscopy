@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.util.Map;
 import javax.swing.Icon;
 
@@ -83,6 +84,7 @@ public class AnnotationPane
     {
         super(model);
         uiDelegate = new AnnotationPaneUI(this);
+        setLayout(new FlowLayout(FlowLayout.LEFT));
         add(uiDelegate);
     }
 
