@@ -175,7 +175,10 @@ class PopupMenu
             public void actionPerformed(ActionEvent e)
             {
                 DataObject object = getDataObject();
-                if (object != null) new ViewCmd(object).execute();
+                if (object != null) {
+                    ViewCmd cmd = new ViewCmd(model.getParentModel(), object);
+                    cmd.execute();
+                }
             }
         });
     }
