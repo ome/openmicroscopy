@@ -169,10 +169,9 @@ class HiViewerWin
         JMenu menu = new JMenu("Classify");
         menu.setMnemonic(KeyEvent.VK_C);
         menu.setIcon(im.getIcon(IconManager.CLASSIFY));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.CLASSIFY)));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.DECLASSIFY)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.CLASSIFY)));
+        menu.add(new JMenuItem(controller.getAction(
+                                HiViewerControl.DECLASSIFY)));
         return menu;
     }
     
@@ -186,15 +185,12 @@ class HiViewerWin
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
         menu.add(new JMenuItem(
-                controller.getAction(HiViewer.SAVE_THUMB)));
+                controller.getAction(HiViewerControl.SAVE_THUMB)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
-                controller.getAction(HiViewer.EXIT)));
+                controller.getAction(HiViewerControl.EXIT)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.REFRESH)));
-        //menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        //menu.add(new JMenuItem(controller.getAction(
-        //                        HiViewer.EXIT_APPLICATION)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
         return menu;
     }
     
@@ -207,18 +203,15 @@ class HiViewerWin
     {
         JMenu menu = new JMenu("Edit");
         menu.setMnemonic(KeyEvent.VK_E);
-        menu.add(new JMenuItem(controller.getAction(HiViewer.FIND)));
-        //menu.add(new JMenuItem(controller.getAction(HiViewer.CLEAR)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.FIND)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.VIEW)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createClassifySubMenu());
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.ANNOTATE)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
-                controller.getAction(HiViewer.PROPERTIES)));
+                    controller.getAction(HiViewerControl.PROPERTIES)));
         return menu;
     }
     
@@ -231,19 +224,21 @@ class HiViewerWin
     {
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
-        menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW_PDI)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.VIEW_CGCI)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.SQUARY)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.TREE_VIEW)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW_PDI)));
         menu.add(new JMenuItem(
-                controller.getAction(HiViewer.SHOW_TITLEBAR)));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewer.HIDE_TITLEBAR)));
+                            controller.getAction(HiViewerControl.VIEW_CGCI)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.ZOOM_IN)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.ZOOM_OUT)));
-        menu.add(new JMenuItem(controller.getAction(HiViewer.ZOOM_FIT)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
+        menu.add(new JMenuItem(controller.getAction(
+                            HiViewerControl.TREE_VIEW)));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.SHOW_TITLEBAR)));
+        menu.add(new JMenuItem(
+                controller.getAction(HiViewerControl.HIDE_TITLEBAR)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT)));
         return menu;
     }
 

@@ -31,8 +31,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Set;
+
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -402,6 +405,17 @@ class HiViewerComponent
             browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
         else browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
         model.getTreeView().repaint();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#scrollToNode(ImageDisplay)
+     */
+    public void scrollToNode(ImageDisplay node)
+    {
+        //TODO: check state.
+        if (node == null) throw new IllegalArgumentException("No node.");
+        controller.scrollToNode(node);
     }
 
 }

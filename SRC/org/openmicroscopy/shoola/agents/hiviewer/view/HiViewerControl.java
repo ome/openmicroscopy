@@ -106,6 +106,75 @@ class HiViewerControl
     implements ChangeListener, PropertyChangeListener
 {
     
+    /** Identifies the <code>Exit action</code> in the File menu. */
+    static final Integer     EXIT = new Integer(0);
+    
+    /** Identifies the <code>View P/D/I</code> action in the View menu. */
+    static final Integer     VIEW_PDI = new Integer(1);
+    
+    /** Identifies the <code>View CG/C/I</code> action in the View menu. */
+    static final Integer     VIEW_CGCI = new Integer(2);
+    
+    /** Identifies the Find With ST action in the Find menu. */
+    static final Integer     FIND_W_ST = new Integer(3);
+    
+    /** Identifies the <code>Clear action</code> in the Edit menu. */
+    static final Integer     CLEAR = new Integer(4);
+    
+    /** Identifies the Squary Layout action in the Layout menu. */
+    static final Integer     SQUARY = new Integer(5);
+    
+    /** Identifies the Tree Layout action in the Layout menu. */
+    static final Integer     TREE = new Integer(6);
+    
+    /** Identifies the <code>Show Title Bar</code> action in the View menu. */
+    static final Integer     SHOW_TITLEBAR = new Integer(7);
+    
+    /** Identifies the Hide Title Bar action in the Layout menu. */
+    static final Integer     HIDE_TITLEBAR = new Integer(8);
+    
+    /** Identifies the Save Layout action in the Layout menu. */
+    static final Integer     SAVE = new Integer(9);
+    
+    /** Identifies the <code>Properties</code> action in the Edit menu. */
+    static final Integer     PROPERTIES = new Integer(10);
+    
+    /** Identifies the <code>Annotate</code> action in the Edit menu. */
+    static final Integer     ANNOTATE = new Integer(11);
+    
+    /** Identifies the <code>Classify</code> action in the Edit menu. */
+    static final Integer     CLASSIFY = new Integer(12);
+    
+    /** Identifies the <code>Declassify</code> action in the Edit menu. */
+    static final Integer     DECLASSIFY = new Integer(13);
+    
+    /** Identifies the <code>View</code> action in the Edit menu. */
+    static final Integer     VIEW = new Integer(14);
+    
+    /** Identifies the <code>Zoom In</code> action in the View menu. */
+    static final Integer     ZOOM_IN = new Integer(15);
+    
+    /** Identifies the <code>Zoom Out</code> action in the View menu. */
+    static final Integer     ZOOM_OUT = new Integer(16);
+    
+    /** Identifies the <code>Zoom Fit</code> action in the View menu. */
+    static final Integer     ZOOM_FIT = new Integer(17);
+    
+    /** Identifies the <code>Refresh</code> action in the File menu. */
+    static final Integer     REFRESH = new Integer(18);
+    
+    /** Identifies the <code>Save thumbnails</code> action in the File menu. */
+    static final Integer     SAVE_THUMB = new Integer(19);
+      
+    /** Identifies the <code>ree view</code>T action in the View menu. */
+    static final Integer     TREE_VIEW = new Integer(20);
+    
+    /** Identifies the <code>Exit Application</code> action in the File menu. */
+    static final Integer     EXIT_APPLICATION = new Integer(21);
+    
+    /** Identifies the <code>Find</code> action in the Edit menu. */
+    static final Integer     FIND = new Integer(22);
+    
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
      * is regarded as the Model.
@@ -124,28 +193,28 @@ class HiViewerControl
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
-        actionsMap.put(HiViewer.EXIT, new ExitAction(model));
-        actionsMap.put(HiViewer.VIEW_CGCI, new ViewCGCIAction(model));
-        actionsMap.put(HiViewer.VIEW_PDI, new ViewPDIAction(model));
-        actionsMap.put(HiViewer.REFRESH, new RefreshAction(model));
-        actionsMap.put(HiViewer.SQUARY, new SquaryLayoutAction(model));
-        actionsMap.put(HiViewer.TREE, new TreeLayoutAction(model));
-        actionsMap.put(HiViewer.SHOW_TITLEBAR, new ShowTitleBarAction(model));
-        actionsMap.put(HiViewer.HIDE_TITLEBAR, new HideTitleBarAction(model));
-        actionsMap.put(HiViewer.SAVE, new SaveLayoutAction(model));
-        actionsMap.put(HiViewer.PROPERTIES, new PropertiesAction(model));
-        actionsMap.put(HiViewer.ANNOTATE, new AnnotateAction(model));
-        actionsMap.put(HiViewer.CLASSIFY, new ClassifyAction(model));
-        actionsMap.put(HiViewer.DECLASSIFY, new DeclassifyAction(model));
-        actionsMap.put(HiViewer.VIEW, new ViewAction(model));
-        actionsMap.put(HiViewer.ZOOM_IN, new ZoomInAction(model));
-        actionsMap.put(HiViewer.ZOOM_OUT, new ZoomOutAction(model));
-        actionsMap.put(HiViewer.ZOOM_FIT, new ZoomFitAction(model));
-        actionsMap.put(HiViewer.FIND_W_ST, new FindwSTAction(model));
-        actionsMap.put(HiViewer.SAVE_THUMB, new SaveThumbnailsAction(model));
-        actionsMap.put(HiViewer.TREE_VIEW, new TreeViewAction(model));
-        actionsMap.put(HiViewer.FIND, new FindAction(model));
-        actionsMap.put(HiViewer.EXIT_APPLICATION, new ExitApplicationAction());
+        actionsMap.put(EXIT, new ExitAction(model));
+        actionsMap.put(VIEW_CGCI, new ViewCGCIAction(model));
+        actionsMap.put(VIEW_PDI, new ViewPDIAction(model));
+        actionsMap.put(REFRESH, new RefreshAction(model));
+        actionsMap.put(SQUARY, new SquaryLayoutAction(model));
+        actionsMap.put(TREE, new TreeLayoutAction(model));
+        actionsMap.put(SHOW_TITLEBAR, new ShowTitleBarAction(model));
+        actionsMap.put(HIDE_TITLEBAR, new HideTitleBarAction(model));
+        actionsMap.put(SAVE, new SaveLayoutAction(model));
+        actionsMap.put(PROPERTIES, new PropertiesAction(model));
+        actionsMap.put(ANNOTATE, new AnnotateAction(model));
+        actionsMap.put(CLASSIFY, new ClassifyAction(model));
+        actionsMap.put(DECLASSIFY, new DeclassifyAction(model));
+        actionsMap.put(VIEW, new ViewAction(model));
+        actionsMap.put(ZOOM_IN, new ZoomInAction(model));
+        actionsMap.put(ZOOM_OUT, new ZoomOutAction(model));
+        actionsMap.put(ZOOM_FIT, new ZoomFitAction(model));
+        actionsMap.put(FIND_W_ST, new FindwSTAction(model));
+        actionsMap.put(SAVE_THUMB, new SaveThumbnailsAction(model));
+        actionsMap.put(TREE_VIEW, new TreeViewAction(model));
+        actionsMap.put(FIND, new FindAction(model));
+        actionsMap.put(EXIT_APPLICATION, new ExitApplicationAction());
     }
   
     /** Creates the windowsMenuItems. */
@@ -309,6 +378,21 @@ class HiViewerControl
     Action getAction(Integer id) { return (Action) actionsMap.get(id); }
 
     /**
+     * Brings up on screen the specified {@link ImageDisplay node} if not
+     * visible. 
+     * 
+     * @param node The node to bring up on screen. Mustn't be <code>null</code>.
+     */
+    void scrollToNode(ImageDisplay node)
+    {
+        if (node == null) throw new IllegalArgumentException("No node.");
+        ImageDisplay parent = node.getParentDisplay();
+        if (parent != null)
+            scrollToNode(node.getBounds(), parent,
+                    (parent.getParentDisplay() == null)); 
+    }
+    
+    /**
      * Detects when the {@link Browser} is ready and then registers for
      * property change notification.
      * @see ChangeListener#stateChanged(ChangeEvent)
@@ -365,12 +449,7 @@ class HiViewerControl
             model.getBrowser().setSelectedDisplay(
                     (ImageDisplay) pce.getNewValue());
         } else if (HiViewer.SCROLL_TO_NODE_PROPERTY.equals(propName)) {
-            ImageDisplay node = (ImageDisplay) pce.getNewValue();
-            //Brings up the node on screen.
-            ImageDisplay parent = node.getParentDisplay();
-            if (parent != null)
-                scrollToNode(node.getBounds(), parent,
-                        (parent.getParentDisplay() == null));  
+            scrollToNode((ImageDisplay) pce.getNewValue());
         }
     }
 

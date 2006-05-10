@@ -39,10 +39,10 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -141,75 +141,6 @@ public interface HiViewer
      * a given set of images. 
      */
     public static final int     	CGCI_HIERARCHY = 106;
-    
-    /** Identifies the <code>Exit action</code> in the File menu. */
-    public static final Integer     EXIT = new Integer(0);
-    
-    /** Identifies the <code>View P/D/I</code> action in the View menu. */
-    public static final Integer     VIEW_PDI = new Integer(1);
-    
-    /** Identifies the <code>View CG/C/I</code> action in the View menu. */
-    public static final Integer     VIEW_CGCI = new Integer(2);
-    
-    /** Identifies the Find With ST action in the Find menu. */
-    public static final Integer     FIND_W_ST = new Integer(3);
-    
-    /** Identifies the <code>Clear action</code> in the Edit menu. */
-    public static final Integer     CLEAR = new Integer(4);
-    
-    /** Identifies the Squary Layout action in the Layout menu. */
-    public static final Integer     SQUARY = new Integer(5);
-    
-    /** Identifies the Tree Layout action in the Layout menu. */
-    public static final Integer     TREE = new Integer(6);
-    
-    /** Identifies the <code>Show Title Bar</code> action in the View menu. */
-    public static final Integer     SHOW_TITLEBAR = new Integer(7);
-    
-    /** Identifies the Hide Title Bar action in the Layout menu. */
-    public static final Integer     HIDE_TITLEBAR = new Integer(8);
-    
-    /** Identifies the Save Layout action in the Layout menu. */
-    public static final Integer     SAVE = new Integer(9);
-    
-    /** Identifies the <code>Properties</code> action in the Edit menu. */
-    public static final Integer     PROPERTIES = new Integer(10);
-    
-    /** Identifies the <code>Annotate</code> action in the Edit menu. */
-    public static final Integer     ANNOTATE = new Integer(11);
-    
-    /** Identifies the <code>Classify</code> action in the Edit menu. */
-    public static final Integer     CLASSIFY = new Integer(12);
-    
-    /** Identifies the <code>Declassify</code> action in the Edit menu. */
-    public static final Integer     DECLASSIFY = new Integer(13);
-    
-    /** Identifies the <code>View</code> action in the Edit menu. */
-    public static final Integer     VIEW = new Integer(14);
-    
-    /** Identifies the <code>Zoom In</code> action in the View menu. */
-    public static final Integer     ZOOM_IN = new Integer(15);
-    
-    /** Identifies the <code>Zoom Out</code> action in the View menu. */
-    public static final Integer     ZOOM_OUT = new Integer(16);
-    
-    /** Identifies the <code>Zoom Fit</code> action in the View menu. */
-    public static final Integer     ZOOM_FIT = new Integer(17);
-    
-    /** Identifies the <code>Refresh</code> action in the File menu. */
-    public static final Integer     REFRESH = new Integer(18);
-    
-    /** Identifies the <code>Save thumbnails</code> action in the File menu. */
-    public static final Integer     SAVE_THUMB = new Integer(19);
-      
-    /** Identifies the <code>ree view</code>T action in the View menu. */
-    public static final Integer     TREE_VIEW = new Integer(20);
-    
-    /** Identifies the <code>Exit Application</code> action in the File menu. */
-    public static final Integer     EXIT_APPLICATION = new Integer(21);
-    
-    /** Identifies the <code>Find</code> action in the Edit menu. */
-    public static final Integer     FIND = new Integer(22);
     
     /** 
      * Bound property name indicating to bring up on screen the currently 
@@ -387,5 +318,13 @@ public interface HiViewer
      * @param object The annotated object. Mustn't be <code>null</code>.
      */
     public void setAnnotationEdition(DataObject object);
+
+    /**
+     * Brings up on screen the specified {@link ImageDisplay node} if not
+     * visible. 
+     * 
+     * @param node The node to bring up on screen. Mustn't be <code>null</code>.
+     */
+    public void scrollToNode(ImageDisplay node);
     
 }
