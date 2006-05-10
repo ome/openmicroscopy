@@ -128,6 +128,10 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
+        Dimension d = clipBoardUI.getMinimumSize();
+        clipBoardUI.setPreferredSize(d);
+        clipBoardUI.setSize(d);
+        mainPane.setResizeWeight(1);
         return mainPane;
     }
     
