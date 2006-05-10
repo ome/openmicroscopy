@@ -51,7 +51,12 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * A general-purpose modal dialog to display a notification message and to 
+ * ask a confirmation question.
+ * An icon can be specified to display by the message and an <i>OK</i>
+ * button is provided to close the dialog.  The dialog is brought up by the
+ * {@link #setVisible(boolean)} method and is automatically disposed after the
+ * user closes it. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,25 +96,25 @@ public class OptionsDialog
 	 * All other widgets are added to this panel, which, in turn, is then 
 	 * added to the dialog's content pane.
 	 */
-	protected JPanel	contentPanel;
+	protected JPanel	  contentPanel;
 	
 	/** Contains the message and the message icon, if any. */
-	protected JPanel	messagePanel;
+	protected JPanel	  messagePanel;
 	
 	/** Contains the {@link #noButton} and {@link #yesButton}. */
-	protected JPanel	buttonPanel;
+	protected JPanel	  buttonPanel;
 	
-	/** Hides and disposes of the dialog. */
-	private JButton	noButton, yesButton;
+	/** Controls to ask a confirmation question */
+	private JButton	       noButton, yesButton;
 	
-    /** Action performed when the button is pressed. */
+    /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()
     { 
         onYesSelection();
         close(); 
     }
     
-    /** Action performed when the button is pressed. */
+    /** Action performed when the {@link #noButton} is pressed. */
     private void noSelection()
     { 
         onNoSelection();
@@ -248,8 +253,10 @@ public class OptionsDialog
 		buildGUI(message, messageIcon);
 	}
 	
+    /** Subclasses should override the method. */
 	protected void onYesSelection() {}
 	
+    /** Subclasses should override the method. */
 	protected void onNoSelection() {}
 	
 }

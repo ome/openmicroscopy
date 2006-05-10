@@ -73,7 +73,7 @@ public class UIUtilities
 {
 
     /** The Steelblue color. */
-    public static final Color   STEELBLUE = new Color(0x4682B4);
+    public static final Color               STEELBLUE = new Color(0x4682B4);
     
     /** Width of the dialog window. */
     public static final int                 DIALOG_WIDTH = 500;
@@ -164,8 +164,8 @@ public class UIUtilities
 	 * passed, in turn, to the <code>setToolTipText</code> method of a 
 	 * {@link javax.swing.JComponent}.
 	 *
-	 * @param   toolTipText     The textual content of the tool tip.
-	 * @return  An <i>HTML</i> fomatted string to be passed to 
+	 * @param toolTipText     The textual content of the tool tip.
+	 * @return An <i>HTML</i> fomatted string to be passed to 
 	 * 			<code>setToolTipText()</code>.
 	 */
 	public static String formatToolTipText(String toolTipText) 
@@ -182,9 +182,9 @@ public class UIUtilities
     /**
      * Builds a tool tip in a fixed font and color.
      * 
-     * @param title The title to format.
-     * @param body The body to format.
-     * @param maxWidth The maximum width of the <code>HTML</code> table.
+     * @param title     The title to format.
+     * @param body      The body to format.
+     * @param maxWidth  The maximum width of the <code>HTML</code> table.
      * @return See below.
      */
     public static String makeParagraph(String title, String body, int maxWidth)
@@ -222,10 +222,10 @@ public class UIUtilities
 	 * Create a separator to add to a toolbar. The separator needs to be 
 	 * set when the layout of the toolbar is reset.
 	 * 
-	 * @param button The button to add to the toolBar. The height of the 
-	 * 				 separator depends of the insets of the button.
-	 * @param icon  The icon to add to the button. The height of the 
-     *              separator depends of the height of the icon.
+	 * @param button   The button to add to the toolBar. The height of the 
+	 * 				   separator depends of the insets of the button.
+	 * @param icon     The icon to add to the button. The height of the 
+     *                 separator depends of the height of the icon.
 	 * @return See below.
 	 */
 	public static JSeparator toolBarSeparator(JButton button, Icon icon)

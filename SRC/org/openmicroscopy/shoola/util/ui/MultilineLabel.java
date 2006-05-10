@@ -69,9 +69,7 @@ public class MultilineLabel
 		super(text == null ? "" : text);
 	}
 	
-	/**
-	 * Plugs into <i>Swing</i>.
-	 */
+	/** Plugs into <i>Swing</i>. */
 	public void updateUI()
 	{
 		super.updateUI();

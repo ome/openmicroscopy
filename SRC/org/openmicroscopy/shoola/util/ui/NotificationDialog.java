@@ -138,9 +138,7 @@ public class NotificationDialog
 		});
 	}
 	
-	/**
-	 * Hides and disposes of the dialog.
-	 */
+	/** Hides and disposes of the dialog. */
 	private void close()
 	{
 		setVisible(false);
