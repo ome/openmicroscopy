@@ -112,9 +112,15 @@ class FindResultsPane
         int row = getRowForLocation(me.getX(), me.getY());
         if (row != -1) {
             setSelectionRow(row);
-            model.setSelectedNode((DefaultMutableTreeNode) 
-                                getLastSelectedPathComponent());
-            if (me.isPopupTrigger()) model.showMenu(this, me.getPoint());
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
+                                            getLastSelectedPathComponent();
+            model.setSelectedNode(node);
+            if (me.isPopupTrigger()) {
+                Object uo = node.getUserObject();
+                if (uo instanceof String) return;
+                ImageDisplay  object = (ImageDisplay) uo;
+                model.showMenu(this, me.getPoint(), object);
+            }
         }
     } 
     
