@@ -31,11 +31,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.awt.Point;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -84,11 +85,15 @@ class ClipBoardUI
     /** The tabbedPane hosting the display. */
     private JTabbedPane         tabPane;
     
+    /** The popup menu. */
+    private PopupMenu           popupMenu;
+    
     /** Initializes the UI components. */
     private void initComponents()
     {
         tabPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabPane.setAlignmentX(LEFT_ALIGNMENT);
+        popupMenu = new PopupMenu(model);
     }
 
     /** Builds and lays out the GUI. */
@@ -102,7 +107,6 @@ class ClipBoardUI
                 pane, pane.getPaneDescription());
         tabPane.setSelectedIndex(model.getPaneIndex());
         setViewportView(tabPane);
-        //add(tabPane);
     }
     
     /**
@@ -141,6 +145,9 @@ class ClipBoardUI
                 
             }
         });
+        //listener
+        ClipBoardPane pane = model.getClipboardPane(ClipBoard.FIND_PANE);
+        pane.addPropertyChangeListener(FindPane.SELECTED_PROPERTY, controller);
     }
 
     /** Displays the retrieved annotations. */
@@ -198,6 +205,20 @@ class ClipBoardUI
     { 
         tabPane.setSelectedIndex(index); 
         //tabPane.repaint();
+    }
+    
+    /**
+     * Brings up the popup menu for the specified {@link ImageDisplay} node.
+     * 
+     * @param invoker   The component in whose space the popup menu is to
+     *                  appear.
+     * @param p         The coordinate in invoker's coordinate space at which 
+     *                  the popup menu is to be displayed.
+     * @param node      The {@link ImageDisplay} object.                 
+     */
+    void showMenu(JComponent invoker, Point p, ImageDisplay node)
+    {
+        popupMenu.showMenuFor(invoker, p.x, p.y, node);
     }
     
 }

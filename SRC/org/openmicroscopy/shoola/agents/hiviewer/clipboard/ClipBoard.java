@@ -179,8 +179,9 @@ public interface ClipBoard
      *                  appear.
      * @param p         The coordinate in invoker's coordinate space at which 
      *                  the popup menu is to be displayed.
+     * @param node      The {@link ImageDisplay} object.                 
      */
-    public void showMenu(JComponent invoker, Point p);
+    public void showMenu(JComponent invoker, Point p, ImageDisplay node);
     
     /**
      * Returns the current user's details. Helper method

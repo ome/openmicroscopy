@@ -214,12 +214,15 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#showMenu(JComponent, Point)
+     * @see ClipBoard#showMenu(JComponent, Point, ImageDisplay)
      */
-    public void showMenu(JComponent invoker, Point p)
+    public void showMenu(JComponent invoker, Point p, ImageDisplay node)
     {
-        // TODO Auto-generated method stub
-        
+        //TODO: check state
+        if (node == null) throw new IllegalArgumentException("No node");
+        if (invoker == null) throw new IllegalArgumentException("No invoker");
+        if (p == null) throw new IllegalArgumentException("No point.");
+        view.showMenu(invoker, p, node);
     }
 
     /**

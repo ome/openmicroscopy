@@ -32,7 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
 import javax.swing.Icon;
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
  * @since OME2.2
  */
 public abstract class ClipBoardPane
-    extends JPanel
+    extends JComponent
 {
     
     /** The {@link ClipBoard} model. */

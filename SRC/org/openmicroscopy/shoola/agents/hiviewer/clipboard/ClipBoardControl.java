@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -153,6 +154,10 @@ class ClipBoardControl
         String name = pce.getPropertyName();
         if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY))
             handleBrowserSelectedDisplay(pce); 
+        else if (name.equals(FindPane.SELECTED_PROPERTY)) {
+            model.getParentModel().scrollToNode(
+                    (ImageDisplay) pce.getNewValue());
+        }
     }
 
     /**
