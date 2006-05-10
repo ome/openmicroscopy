@@ -85,13 +85,17 @@ public class ViewCmd
     {
         if (hierarchyObject == null)
             throw new IllegalArgumentException("No hierarchy object.");
+        if (!(hierarchyObject instanceof ImageData))
+            throw new IllegalArgumentException("Object must be an ImageData " +
+                    "object.");
         this.hierarchyObject = hierarchyObject;
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
      */
     public ViewCmd(HiViewer model)
     {
@@ -99,10 +103,25 @@ public class ViewCmd
         this.model = model;
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model             Reference to the model.
+     *                          Mustn't be <code>null</code>.
+     * @param hierarchyObject   The hierarchy object hosting by the selected
+     *                          {@link ImageDisplay}.
+     */
+    public ViewCmd(HiViewer model, DataObject hierarchyObject)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        this.hierarchyObject = hierarchyObject;
+        this.model = model;
+    }
+    
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        if (model != null) {
+        if (model != null && hierarchyObject == null) {
             ImageDisplay selectedDisplay = model.getBrowser().
                                                     getSelectedDisplay();
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
