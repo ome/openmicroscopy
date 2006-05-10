@@ -32,21 +32,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
 
 
 //Java imports
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 
@@ -127,7 +121,8 @@ public class FindPane
         findData = new FindData();
         uiDelegate = new FindPaneUI(this);
         popupMenu = new FindPopupMenu(this);
-        add(uiDelegate, BorderLayout.WEST);
+        setLayout(new FlowLayout(FlowLayout.LEFT));
+        add(uiDelegate);
     }
     
     /**
@@ -253,10 +248,11 @@ public class FindPane
      *                  appear.
      * @param p         The coordinate in invoker's coordinate space at which 
      *                  the popup menu is to be displayed.
+     * @param node      The {@link ImageDisplay} object.
      */
-    void showMenu(JComponent invoker, Point p)
+    void showMenu(JComponent invoker, Point p, ImageDisplay node)
     {
-        model.showMenu(invoker, p);
+        model.showMenu(invoker, p, node);
     }
     
     /**
