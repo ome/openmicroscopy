@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserImageSummary;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.ThumbnailRetriever;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.IconFactory;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
@@ -146,6 +145,7 @@ public class DataManager implements AgentEventListener {
 	 *
 	 */
 	protected synchronized void retrieveProjects() {
+        /*
 		if (projectHash == null || projectHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
@@ -181,6 +181,7 @@ public class DataManager implements AgentEventListener {
 				registry.getEventBus().post(request);
 			}
 		}
+        */
 	}
 		
 	private HashMap buildProjectHash(Collection projects) {
@@ -225,6 +226,7 @@ public class DataManager implements AgentEventListener {
 		return null;
 	}
 	protected synchronized void retrieveDatasets() {
+        /*
 		if (datasetHash == null ||datasetHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
@@ -263,6 +265,7 @@ public class DataManager implements AgentEventListener {
 				registry.getEventBus().post(request);
 			}
 		}		
+        */
 	}
 	
 	/**
