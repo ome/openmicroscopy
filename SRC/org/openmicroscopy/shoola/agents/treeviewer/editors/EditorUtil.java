@@ -34,8 +34,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-
 
 //Third-party libraries
 
@@ -60,11 +60,47 @@ class EditorUtil
 {
     
     /** Text displayed before the list of existing groups. */
-    static final String	GROUPS = "Belongs to the following groups: ";
-    
+    static final String GROUPS = "Belongs to the following groups: ";
+
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
+    
+    /** Identifies the <code>SizeX</code> field. */
+    private static final String SIZE_X = "Size X";
+    
+    /** Identifies the <code>SizeY</code> field. */
+    private static final String SIZE_Y = "Size Y";
+    
+    /** Identifies the <code>PixelSizeX</code> field. */
+    private static final String PIXEL_SIZE_X = "Pixel size X "+MICRONS;
+    
+    /** Identifies the <code>PixelSizeY</code> field. */
+    private static final String PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
+    
+    /** Identifies the <code>PixelSizeZ</code> field. */
+    private static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
+    
+    /** Identifies the <code>Sections</code> field. */
+    private static final String SECTIONS = "Sections";
+    
+    /** Identifies the <code>Timepoints</code> field. */
+    private static final String TIMEPOINTS = "Timepoints";
+    
+    /** Identifies the <code>PixelType</code> field. */
+    private static final String PIXEL_TYPE = "Pixel Type";
 
+    /** Identifies the <code>Name</code> field. */
+    private static final String NAME = "Name";
+    
+    /** Identifies the <code>Leader</code> field. */
+    private static final String LEADER = "Leader";
+    
+    /** Identifies the <code>Email</code> field. */
+    private static final String EMAIL = "Email";
+    
+    /** Identifies the <code>Institution</code> field. */
+    private static final String INSTITUTION = "Institution";
+    
     /**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
@@ -75,16 +111,16 @@ class EditorUtil
      */
     static Map transformExperimenterData(ExperimenterData data)
     {
-        HashMap details = new HashMap(3);
+        LinkedHashMap details = new LinkedHashMap(3);
         if (data == null) {
-            details.put("Name", "");
-            details.put("Email", "");
-            details.put("Institution", "");
+            details.put(NAME, "");
+            details.put(EMAIL, "");
+            details.put(INSTITUTION, "");
             
         } else {
-            details.put("Name", data.getFirstName()+" "+data.getLastName());
-            details.put("Email", data.getEmail());
-            details.put("Institution", data.getInstitution());
+            details.put(NAME, data.getFirstName()+" "+data.getLastName());
+            details.put(EMAIL, data.getEmail());
+            details.put(INSTITUTION, data.getInstitution());
         }
         return details;
     }
@@ -99,32 +135,28 @@ class EditorUtil
      */
     static Map transformPixelsData(PixelsData data)
     {
-        HashMap details = new HashMap(9);
+        LinkedHashMap details = new LinkedHashMap(8);
         if (data == null) {
-            details.put("Size X", "");
-            details.put("Size Y", "");
-            details.put("Pixel size X "+MICRONS, "");
-            details.put("Pixel size Y "+MICRONS, "");
-            details.put("Pixel size Z "+MICRONS, "");
-            details.put("Sections", "");
-            details.put("Timepoints", "");
+            details.put(SIZE_X, "");
+            details.put(SIZE_Y, "");
+            details.put(PIXEL_SIZE_X, "");
+            details.put(PIXEL_SIZE_Y, "");
+            details.put(PIXEL_SIZE_Z, "");
+            details.put(SECTIONS, "");
+            details.put(TIMEPOINTS, "");
             //details.put("Emission wavelength", "");
-            details.put("Pixel Type", "");  
+            details.put(PIXEL_TYPE, "");  
         } else {
             NumberFormat    nf = NumberFormat.getInstance();
-            
-            details.put("Size X", ""+data.getSizeX());
-            details.put("Size Y", ""+data.getSizeY());
-            details.put("Pixel size X "+MICRONS, 
-                        nf.format(data.getPixelSizeX()));
-            details.put("Pixel size Y "+MICRONS, 
-                        nf.format(data.getPixelSizeY()));
-            details.put("Pixel size Z "+MICRONS, 
-                        nf.format(data.getPixelSizeZ()));
-            details.put("Sections", ""+data.getSizeZ());
-            details.put("Timepoints", ""+data.getSizeT());
+            details.put(SIZE_X, ""+data.getSizeX());
+            details.put(SIZE_Y, ""+data.getSizeY());
+            details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
+            details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
+            details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+            details.put(SECTIONS, ""+data.getSizeZ());
+            details.put(TIMEPOINTS, ""+data.getSizeT());
             //details.put("Emission wavelength", "");
-            details.put("Pixel Type", ""+data.getPixelType());  
+            details.put(PIXEL_TYPE, ""+data.getPixelType());  
         }
         return details;
     }
@@ -141,14 +173,14 @@ class EditorUtil
     {
         HashMap details = new HashMap(2);
         if (data == null) {
-            details.put("Name", "");
-            
+            details.put(NAME, "");
+            details.put(LEADER, "");
         } else {
-            details.put("Name", data.getName());
+            details.put(NAME, data.getName());
             ExperimenterData exp = data.getOwner();
             if (exp != null)
-                details.put("Leader", exp.getFirstName()+" "+exp.getLastName());
-            else details.put("Leader", "");
+                details.put(LEADER, exp.getFirstName()+" "+exp.getLastName());
+            else details.put(LEADER, "");
         }
         return details;
     }
