@@ -38,7 +38,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.ds.Criteria;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 
 /** 
  * 
@@ -60,6 +59,7 @@ public class UserMapper
     public static void setFilters(Criteria c, Map filters, 
                                     Map complexFilters)
     {
+        /*
         if (filters != null) {
             //get Limit
             Integer i = (Integer) 
@@ -85,6 +85,7 @@ public class UserMapper
                 } 
             }
         }
+        */
     }
     
 	public static Criteria getUserStateCriteria()
