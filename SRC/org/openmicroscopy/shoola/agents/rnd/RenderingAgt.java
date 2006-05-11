@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -214,6 +213,7 @@ public class RenderingAgt
     /** Initializes the channel data. */
     void initChannelData()
     {
+        /*
         try {
             SemanticTypesService sts = registry.getSemanticTypesService();
             
@@ -231,11 +231,13 @@ public class RenderingAgt
                                     ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
+        */
     }
     
     /** Update the channel. */
     void updateChannelData(ChannelData cd)
     {
+        /*
         try {
             if (canUpdate) {
                 SemanticTypesService sts = registry.getSemanticTypesService();
@@ -256,6 +258,7 @@ public class RenderingAgt
                                 ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
+        */
     }
     
     /** Return the channelData array of the currentImage. */
