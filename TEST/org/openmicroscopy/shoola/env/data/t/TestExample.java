@@ -37,8 +37,8 @@ package org.openmicroscopy.shoola.env.data.t;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DataServicesTestCase;
+import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ProjectSummary;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
@@ -61,6 +61,7 @@ public class TestExample
     extends DataServicesTestCase
 {
 
+    /** Basic example to show how to access a <code>DataServiceView</code>. */
     public void testADataServicesView()
     {
         //Get a reference to the Data Services View we're going to use.
@@ -99,17 +100,17 @@ public class TestExample
         //in a way known a-priori.
     }
     
-    public void testDataManagementService() 
+    /** Basic example to show how to access the <code>OMERO</code> service. */
+    public void testOmeroService() 
         throws DSOutOfServiceException, DSAccessException
     {
         //Get a reference to the Data Management Service.
-        DataManagementService dms = registry.getDataManagementService();
-        
+        OmeroService os = registry.getOmeroService();
         //Measure how long this call takes and fail if it takes too long.
         //Note that calls to the DMS are synchronous even when the Container
         //is not in test mode.
         long start = System.currentTimeMillis(), end;
-        dms.retrieveUserProjects();
+        os.getUserImages();
         //TODO: check result.
         end = System.currentTimeMillis();
         assertTrue("The call took too long: "+(end-start)+"ms.", 
