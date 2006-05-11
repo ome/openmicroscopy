@@ -35,10 +35,8 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -66,8 +64,6 @@ public class NullRegistry
     public void bind(String name, Object value) {}
     public Object lookup(String name) { return null; }
     public EventBus getEventBus() { return null; }
-    public DataManagementService getDataManagementService() { return null; }
-    public SemanticTypesService getSemanticTypesService() { return null; }
     public Logger getLogger() { return null; }
     public TaskBar getTaskBar() { return null; }
     public UserNotifier getUserNotifier() { return null; }
