@@ -37,14 +37,10 @@ package org.openmicroscopy.shoola.env.init;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
-import org.openmicroscopy.shoola.env.data.NullDataManagementService;
 import org.openmicroscopy.shoola.env.data.NullOmeroPojoService;
 import org.openmicroscopy.shoola.env.data.NullPixelsService;
-import org.openmicroscopy.shoola.env.data.NullSemanticTypesService;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 
 /** 
  * Fake intialization task.
@@ -70,25 +66,13 @@ public class FakeDataServicesInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static DataManagementService dms = new NullDataManagementService();
-    
-    /** 
-     * Default Null service.
-     * Change it to whatever implementation is required by your tests.
-     */
-    public static SemanticTypesService  sts = new NullSemanticTypesService();
-    
-    /** 
-     * Default Null service.
-     * Change it to whatever implementation is required by your tests.
-     */
     public static PixelsService         ps = new NullPixelsService();
     
     /** 
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static OmeroService      ops = new NullOmeroPojoService();
+    public static OmeroService          os = new NullOmeroPojoService();
 
     /**
      * Constructor required by superclass.
@@ -99,10 +83,7 @@ public class FakeDataServicesInit
      * Returns the name of this task.
      * @see InitializationTask#getName()
      */
-    String getName()
-    {
-        return "Starting null data management services";
-    }
+    String getName() { return "Starting null data management services"; }
 
     /** 
      * Does nothing, as this task requires no set up.
@@ -119,10 +100,8 @@ public class FakeDataServicesInit
     {   
         //Link services to the container's registry.
         Registry reg = container.getRegistry();
-        RegistryFactory.linkDMS(dms, reg);
-        RegistryFactory.linkSTS(sts, reg);
         RegistryFactory.linkPS(ps, reg); 
-        RegistryFactory.linkOPS(ops, reg); 
+        RegistryFactory.linkOS(os, reg); 
     }
     
     /** 
