@@ -47,13 +47,11 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.MonitorFactory;
 
 /** 
- * Creates the {@link DataManagementService} and {@link SemanticTypesService}
+ * Creates the {@link org.openmicroscopy.shoola.env.data.OmeroService}
  * and links them to the container's {@link Registry}.
  *
  * @author Douglas Creager (dcreager@alum.mit.edu)
@@ -65,9 +63,7 @@ public final class DataServicesInit
 	extends InitializationTask
 {
 
-	/**
-	 * Constructor required by superclass.
-	 */
+	/** Constructor required by superclass. */
 	public DataServicesInit() {}
 
 	/**
@@ -97,15 +93,11 @@ public final class DataServicesInit
 			DataServicesFactory 
 				factory = DataServicesFactory.getInstance(container);
 			//Retrieve them.
-			DataManagementService dms = factory.getDMS();
-			SemanticTypesService sts = factory.getSTS();
 			PixelsService ps = factory.getPS();
 			//Link them to the container's registry.
 			Registry reg = container.getRegistry();
-			RegistryFactory.linkDMS(dms, reg);
-			RegistryFactory.linkSTS(sts, reg);
 			RegistryFactory.linkPS(ps, reg);
-            RegistryFactory.linkOPS(factory.getOPS(), reg);
+            RegistryFactory.linkOS(factory.getOS(), reg);
             
             //Finally create and bind the factory used by the async data views
             //to create exec monitors.
