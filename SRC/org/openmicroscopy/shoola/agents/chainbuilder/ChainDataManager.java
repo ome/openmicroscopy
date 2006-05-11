@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.chainbuilder.data.layout.LayoutNodeData;
 import org.openmicroscopy.shoola.agents.zoombrowser.DataManager;
 import org.openmicroscopy.shoola.agents.zoombrowser.data.BrowserDatasetData;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
@@ -154,6 +153,7 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	protected synchronized void retrieveModules(final ModuleData modProto) {
+        /*
 		if (moduleHash == null ||moduleHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
@@ -193,6 +193,7 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
+        */
 	}
 	
 	protected Map buildModuleHash(Collection modules) {
@@ -236,6 +237,7 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	public synchronized void retrieveModuleCategories() {
+        /*
 		if (moduleCategoryHash== null ||moduleCategoryHash.size() == 0) {
 			try { 
 				DataManagementService dms = registry.getDataManagementService();
@@ -270,6 +272,7 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
+        */
 	}
 	
 	protected Map buildModuleCategoryHash(Collection moduleCategories) {
@@ -316,6 +319,7 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	protected synchronized void retrieveChains() {
+        /*
 		if (chainHash == null ||chainHash.size() == 0) {
 			try {
 				LayoutChainData acProto = new LayoutChainData();
@@ -358,9 +362,12 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
+        */
 	}
 	
 	protected synchronized LayoutChainData retrieveChain(final int id) {
+        return null;
+        /*
 		try {
 			LayoutChainData acProto = new LayoutChainData();
 			LayoutLinkData alProto = new LayoutLinkData();
@@ -403,6 +410,7 @@ public class ChainDataManager extends DataManager {
 			registry.getEventBus().post(request);
 			return null;
 		}
+        */
 	}
 	
 	protected Map buildChainHash(Collection chains) {
@@ -482,6 +490,7 @@ public class ChainDataManager extends DataManager {
 	}
 	
 	public synchronized void retrieveChainExecutions() {
+        /*
 		if (chainExecutions== null) {
 			try {
 				ChainExecutionData ceProto = new ChainExecutionData();
@@ -523,6 +532,7 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
+        */
 	}
 	
 	public boolean chainHasExecutionsForDataset(int chainID,int datasetID) {
@@ -558,6 +568,7 @@ public class ChainDataManager extends DataManager {
 	
 
 	public void saveChain(final LayoutChainData chain) {
+        /*
 		if (chain != null) {
 			try {
 				DataManagementService dms = registry.getDataManagementService();
@@ -588,6 +599,7 @@ public class ChainDataManager extends DataManager {
 				registry.getEventBus().post(request);
 			}
 		}
+        */
 	}
 	
 	public boolean hasChainWithName(String name) {
