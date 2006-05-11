@@ -47,8 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import pojos.ExperimenterData;
 
 /** 
- * A factory for the {@link DataManagementService} and the
- * {@link SemanticTypesService}.
+ * A factory for the {@link OmeroService}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,22 +80,18 @@ public class DataServicesFactory
 	//Container cfg.
 	private Registry               registry;
 	
-	//Unified access point to the various OMEDS services.
-	//private OMEDSGateway           gateway;
-	
-//  Unified access point to the various OMERO services.
+	//Unified access point to the various OMERO services.
     private OMEROGateway            omeroGateway;
     
 	//Our adapters.
-	private DMSAdapter             dms;
-	private STSAdapter		       sts;
     private PixelsServiceAdapter   ps;
 	
     //Omero Adapter;
     private OmeroService           ops;
     
 	/**
-	 * Try to create a new instance.
+	 * Attempts to create a new instance.
+     * 
 	 * @param c		container.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 * 									or the credentials are invalid.	
@@ -109,9 +104,6 @@ public class DataServicesFactory
         omeroGateway = new OMEROGateway(omeroInfo.getHostName(), 
                                         omeroInfo.getPort(), this);
 		//Create the adapters.
-		//dms = new DMSAdapter(gateway, registry); 
-		//sts = new STSAdapter(gateway, registry);
-        //ps = new PixelsServiceAdapter(gateway.getDataFactory());
         ops = new OmeroServiceImpl(omeroGateway, registry);
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
@@ -122,11 +114,7 @@ public class DataServicesFactory
      * 
      * @return See above.
      */
-    public OmeroService getOPS() { return ops; }
-    
-	public DataManagementService getDMS() { return dms; }
-
-	public SemanticTypesService getSTS() { return sts; }
+    public OmeroService getOS() { return ops; }
     
     public PixelsService getPS() { return ps; }
     
