@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -528,6 +527,7 @@ public class ROIAgt
     /** Initializes the channel information. */
     private void initChannels() 
     {
+        /*
         channels = new String[pxsDims.sizeW];
         //default.
         for (int i = 0; i < pxsDims.sizeW; i++)
@@ -549,6 +549,7 @@ public class ROIAgt
                                     ServiceActivationRequest.DATA_SERVICES);
             registry.getEventBus().post(request);
         } 
+        */
     }
         
     /** Build the AgentUIF. */
