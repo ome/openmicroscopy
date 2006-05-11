@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -123,6 +124,18 @@ public class FindPane
         popupMenu = new FindPopupMenu(this);
         setLayout(new FlowLayout(FlowLayout.LEFT));
         add(uiDelegate);
+        /*
+        GridBagConstraints c = new GridBagConstraints();
+        
+        // griddy constraints
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.BOTH;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.gridheight = GridBagConstraints.REMAINDER;
+        c.weighty = 1;
+        c.weightx = 1;
+        add(uiDelegate, c);
+        */
     }
     
     /**
@@ -281,7 +294,6 @@ public class FindPane
     public void setResults(Set foundNodes)
     {
         if (foundNodes == null) return;
-        uiDelegate.setMessage(foundNodes.size()); //TODO REVIEW
         uiDelegate.setFoundResults(foundNodes);
     }
     

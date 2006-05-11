@@ -94,7 +94,7 @@ class AnnotationPaneUI
 {
 
     /** The default message. */
-    private static final String         DEFAULT_MSG = "Object not annotable.";
+    private static final String         DEFAULT_MSG = "Object not annotatable.";
     
     /** The title to define the context of the annotation. */
     private static final String         TITLE_MSG = "Annotate:";
@@ -206,7 +206,6 @@ class AnnotationPaneUI
      */
     private JPanel buildAnnotationPanel()
     {
-        //Set panel layout and border
         JPanel p = new JPanel();
         p.setBorder(new EtchedBorder());
         p.setLayout(new GridBagLayout());

@@ -35,7 +35,6 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;

@@ -36,17 +36,17 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
@@ -61,6 +61,7 @@ import javax.swing.text.Document;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The UI delegate.
@@ -96,11 +97,17 @@ class FindPaneUI
     /** The message presenting the context of the find action. */
     private static final String     FIND_MSG = "Find in: ";
     
+    /** The message presenting the results found. */
+    private static final String     RESULTS_MSG = "Results found: ";
+    
     /** The find context show when the root node is selected. */
     static final String             IN_ALL_MSG = "browser";
     
     /** The default width of the {@link #findArea}. */
     private static final int        WIDTH = 150;
+    
+    /** The label presenting the annotation context. */
+    private JLabel              titleLabel;
     
     /** The text area hosting the pattern to find. */
     private JTextField          findArea;
@@ -108,56 +115,21 @@ class FindPaneUI
     /** Check box to match the case or not. */
     private JCheckBox           caseSensitive;
     
-    /** The panel hosting information. */
-    private JPanel              infoComponent;
-    
     /** The panel hosting the tree displaying the result. */
     private JPanel              treeHolderPanel;
-    
-    /** The panel hosting the controls. */
-    private JPanel              controlsPanel;
     
     /** The owner of this UI delegate. */
     private FindPane            model;
     
-    /** 
-     * Helper method to create a menu bar. 
-     * 
-     * @return The toolbar hosting the controls. 
-     */
-    private JToolBar createRightMenuBar()
-    {
-        JToolBar controlsBar = new JToolBar();
-        controlsBar.setBorder(null);
-        controlsBar.setRollover(true);
-        controlsBar.setFloatable(false);
-        FilterMenuAction action = new FilterMenuAction(model);
-        JButton button = new JButton(action);
-        button.addMouseListener(action);
-        controlsBar.add(button);
-        return controlsBar;
-    }
-    
-    /** 
-     * Helper method to create a menu bar. 
-     * 
-     * @return The toolbar hosting the controls. 
-     */
-    private JToolBar createLeftMenuBar()
-    {
-        JToolBar controlsBar = new JToolBar();
-        controlsBar.setBorder(null);
-        controlsBar.setRollover(true);
-        controlsBar.setFloatable(false);
-        JButton button = new JButton(new ClearAction(model));
-        controlsBar.add(button);
-        return controlsBar;
-    }
+
     
     /** Initializes the UI components composing the display. */
     private void initComponents()
     {
-        infoComponent = new JPanel();
+        titleLabel = new JLabel(FIND_MSG+DEFAULT);
+        treeHolderPanel = new JPanel();
+        treeHolderPanel.setBorder(new TitledBorder(RESULTS_MSG));
+        //treeHolderPanel.setLayout(new BorderLayout()); 
         caseSensitive = new JCheckBox("Match case");
         caseSensitive.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -225,35 +197,74 @@ class FindPaneUI
         });
     }
     
+    /** 
+     * Helper method to create a menu bar. 
+     * 
+     * @return The toolbar hosting the controls. 
+     */
+    private JToolBar createRightMenuBar()
+    {
+        JToolBar controlsBar = new JToolBar();
+        controlsBar.setBorder(null);
+        controlsBar.setRollover(true);
+        controlsBar.setFloatable(false);
+        FilterMenuAction action = new FilterMenuAction(model);
+        JButton button = new JButton(action);
+        button.addMouseListener(action);
+        controlsBar.add(button);
+        return controlsBar;
+    }
+    
+    /** 
+     * Helper method to create a menu bar. 
+     * 
+     * @return The toolbar hosting the controls. 
+     */
+    private JToolBar createLeftMenuBar()
+    {
+        JToolBar controlsBar = new JToolBar();
+        controlsBar.setBorder(null);
+        controlsBar.setRollover(true);
+        controlsBar.setFloatable(false);
+        JButton button = new JButton(new ClearAction(model));
+        controlsBar.add(button);
+        return controlsBar;
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        treeHolderPanel = new JPanel();
-        treeHolderPanel.setBorder(new TitledBorder("Results found"));
-        treeHolderPanel.setLayout(new BorderLayout());  
-        controlsPanel = new JPanel();
-        controlsPanel.setBorder(new TitledBorder(FIND_MSG+DEFAULT));
         JPanel selectPanel = new JPanel();
         selectPanel.add(createLeftMenuBar());
         selectPanel.add(findArea);
         selectPanel.add(createRightMenuBar());
         selectPanel.add(caseSensitive);
-        controlsPanel.add(selectPanel);
-        //controlsPanel.add(infoComponent);
-        setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
         
-        // griddy constraints
-        c.anchor = GridBagConstraints.WEST;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        add(controlsPanel, c);
-        // add tree panel
-        c.gridy = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        add(treeHolderPanel, c);
+
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(selectPanel);
+        p.add(treeHolderPanel);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(UIUtilities.buildComponentPanel(titleLabel));
+        add(new JSeparator());
+        add(p);
+    }
+    
+    /**
+     * Displays a message depending on the value of the specified parameter.
+     * 
+     * @param n The number of found nodes.
+     */
+    private void setMessage(int n)
+    {
+        String s = RESULTS_MSG;
+        if (n == 0) s += NO_PHRASE_MSG; 
+        else if (n > 0) {
+            if (n > 1) s += n+OCCURENCES_MSG;
+            else s += n+OCCURENCE_MSG;
+        }
+        treeHolderPanel.setBorder(new TitledBorder(s));
     }
     
     /**
@@ -290,9 +301,8 @@ class FindPaneUI
     void onSelectedDisplay(boolean findText, String context)
     {
         findArea.setEditable(findText);
-        if (context == null) 
-            controlsPanel.setBorder(new TitledBorder(FIND_MSG+DEFAULT));
-        else controlsPanel.setBorder(new TitledBorder(FIND_MSG+context));
+        if (context == null) titleLabel.setText(FIND_MSG+DEFAULT);
+        else titleLabel.setText(FIND_MSG+context);
     }
     
     /**
@@ -303,38 +313,10 @@ class FindPaneUI
     void setFoundResults(Set results)
     {
         FindResultsPane p = new FindResultsPane(model, results);
+        setMessage(p.getSizeResults());
         treeHolderPanel.removeAll();
         treeHolderPanel.add(new JScrollPane(p), BorderLayout.CENTER);
         treeHolderPanel.revalidate();
-    }
-    
-    /**
-     * Displays a message depending on the value of the specified parameter.
-     * 
-     * @param n The number of found nodes.
-     */
-    void setMessage(int n)
-    {
-        infoComponent.removeAll();
-        if (n == 0) {
-            IconManager im = IconManager.getInstance();
-            JLabel icon = new JLabel(im.getIcon(IconManager.WARNING));
-            infoComponent.add(icon);
-            JLabel label = new JLabel(NO_PHRASE_MSG); 
-            icon.setLabelFor(label);
-            infoComponent.add(label);
-        } else if (n > 0) {
-            IconManager im = IconManager.getInstance();
-            JLabel icon = new JLabel(im.getIcon(IconManager.HIGHLIGHT));
-            infoComponent.add(icon);
-            JLabel label;
-            if (n > 1) label = new JLabel(n+OCCURENCES_MSG); 
-            else label = new JLabel(n+OCCURENCE_MSG);
-            icon.setLabelFor(label);
-            infoComponent.add(label);
-        }
-        validate();
-        repaint();
     }
     
 }

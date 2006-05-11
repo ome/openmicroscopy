@@ -220,4 +220,10 @@ class FindResultsPane
         buildTree(nodes);
     }
     
+    /**
+     * Returns the number of results found.
+     * 
+     * @return See above.
+     */
+    int getSizeResults() { return identityMap.size(); }
 }

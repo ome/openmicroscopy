@@ -31,7 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator;
 
 
 //Java imports
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.Map;
 import javax.swing.Icon;
 
@@ -42,7 +43,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -84,8 +84,14 @@ public class AnnotationPane
     {
         super(model);
         uiDelegate = new AnnotationPaneUI(this);
-        setLayout(new FlowLayout(FlowLayout.LEFT));
-        add(uiDelegate);
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        // griddy constraints
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1;
+        c.weightx = 1;
+        add(uiDelegate, c);
     }
 
     /**
