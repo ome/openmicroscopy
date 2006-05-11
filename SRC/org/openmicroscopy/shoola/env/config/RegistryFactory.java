@@ -34,10 +34,8 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -78,7 +76,7 @@ public class RegistryFactory
 	 * in the specified cofiguration file.
 	 * 
 	 * @param file	Path to a configuration file.
-	 * @return	A new {@link Registry} built from the specified file.
+	 * @return A new {@link Registry} built from the specified file.
 	 * @throws ConfigException	If an error occurs while accessing the file
 	 * 							or the file contents are not valid.
 	 */
@@ -116,30 +114,6 @@ public class RegistryFactory
 	public static void linkEventBus(EventBus eb, Registry reg)
 	{
 		((RegistryImpl) reg).setEventBus(eb);
-	}
-	
-	/**
-	 * Adds the {@link DataManagementService} instance to the specified
-	 * {@link Registry}.
-	 * 
-	 * @param dms	The {@link DataManagementService} instance.
-	 * @param reg	The {@link Registry}.
-	 */
-	public static void linkDMS(DataManagementService dms, Registry reg)
-	{
-		((RegistryImpl) reg).setDMS(dms);
-	}
-	
-	/**
-	 * Adds the {@link SemanticTypesService} instance to the specified 
-	 * {@link Registry}.
-	 * 
-	 * @param sts	The {@link SemanticTypesService} instance.
-	 * @param reg	The {@link Registry}.
-	 */
-	public static void linkSTS(SemanticTypesService sts, Registry reg)
-	{
-		((RegistryImpl) reg).setSTS(sts);
 	}
     
     /**
@@ -191,10 +165,10 @@ public class RegistryFactory
      * Adds the {@link OmeroService} instance to
      * the specified {@link Registry}.
      * 
-     * @param os   The {@link OmeroService} instance.
+     * @param os    The {@link OmeroService} instance.
      * @param reg   The {@link Registry}.
      */
-    public static void linkOPS(OmeroService os, Registry reg)
+    public static void linkOS(OmeroService os, Registry reg)
     {
         ((RegistryImpl) reg).setOS(os);
     }

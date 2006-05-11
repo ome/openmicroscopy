@@ -34,10 +34,8 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -105,20 +103,6 @@ public interface Registry
    	 * @return See above.
    	 */
 	public EventBus getEventBus();
-	
-	/**
-	 * Returns a reference to the {@link DataManagementService}.
-	 * 
-	 * @return See above.
-	 */
-   	public DataManagementService getDataManagementService();
-   	
-   	/**
-	 * Returns a reference to the {@link SemanticTypesService}.
-	 * 
-	 * @return See above.
-	 */
-    public SemanticTypesService getSemanticTypesService();
     
 	/**
 	 * Returns a reference to the {@link Logger}.

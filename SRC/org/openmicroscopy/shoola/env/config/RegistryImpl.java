@@ -35,10 +35,8 @@ import java.util.HashMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DataManagementService;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.SemanticTypesService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -78,12 +76,6 @@ class RegistryImpl
     private EventBus                eb;
     
 	/** Reference to container's service. */
-    private DataManagementService   dms;
-    
-	/** Reference to container's service. */
-    private SemanticTypesService	sts;
-    
-	/** Reference to container's service. */
 	private Logger             		logger;
 	
 	/** Reference to container's service. */
@@ -97,8 +89,6 @@ class RegistryImpl
     
     /** Reference to the Omero service. */
     private OmeroService            os;
-    
-    //private ImageService			is;
 
     /** Just creates an empty map. */
     RegistryImpl()
@@ -136,18 +126,6 @@ class RegistryImpl
      * @see Registry#getEventBus()
      */
     public EventBus getEventBus() { return eb; }
-    
-	/**
-     * Implemented as specified by {@link Registry}. 
-     * @see Registry#getDataManagementService()
-     */
-	public DataManagementService getDataManagementService() { return dms; }
-	
-	/** 
-     * Implemented as specified by {@link Registry}. 
-     * @see Registry#getSemanticTypesService()
-     */
-	public SemanticTypesService getSemanticTypesService() { return sts; }
 	
 	/**
      * Implemented as specified by {@link Registry}.
@@ -202,20 +180,6 @@ class RegistryImpl
 	 * @param eb	The {@link EventBus}.
 	 */
 	void setEventBus(EventBus eb) { this.eb = eb; }
-	
-   	/**
-	 * Stores a reference to the {@link DataManagementService}.
-	 * 
-	 * @param dms	The {@link DataManagementService}.
-	 */
-	void setDMS(DataManagementService dms) { this.dms = dms; }
-	
-	/**
-	 * Stores a reference to the {@link SemanticTypesService}.
-	 * 
-	 * @param sts	The {@link SemanticTypesService}.
-	 */
-	void setSTS(SemanticTypesService sts) { this.sts = sts; }
     
     /**
      * Stores a reference to the {@link PixelsService}.
