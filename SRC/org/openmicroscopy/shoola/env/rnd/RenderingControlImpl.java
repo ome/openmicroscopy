@@ -251,6 +251,7 @@ class RenderingControlImpl
         int imageID = renderer.getImageID();
         int pixelsID = renderer.getPixelsID();
         Registry context = RenderingEngine.getRegistry();
+        /*
         try {
             context.getSemanticTypesService().saveRenderingSettings(pixelsID, 
                     imageID, renderer.getRenderingDef());
@@ -259,6 +260,7 @@ class RenderingControlImpl
                 "Can't save settings.", e);
             hanldeException(context, "can't save settings", mse);
         }
+        */
 	}
 
 	/** Implemented as specified by {@link RenderingControl}. */

@@ -186,7 +186,7 @@ public class DataSink
             throw new NullPointerException("No metadata source.");
         if (context == null) throw new NullPointerException("No registry.");
         
-        String sessionKey = context.getDataManagementService().getSessionKey();
+        String sessionKey = null;//= context.getDataManagementService().getSessionKey();
         int channelType = HttpChannel.CONNECTION_PER_REQUEST, 
             connTimeout = -1, blockSize = -1;
         ServiceDescriptor srvDesc = new ServiceDescriptor(sessionKey, 
