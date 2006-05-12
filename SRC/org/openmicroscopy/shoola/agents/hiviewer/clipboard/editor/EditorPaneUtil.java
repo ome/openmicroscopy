@@ -29,18 +29,16 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor;
 
+
+//Java imports
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pojos.PixelsData;
-
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.PixelsData;
 
 /** 
  * Helper class to transform a <code>DataObject</code> into a visualization
@@ -56,6 +54,7 @@ import pojos.PixelsData;
  */
 class EditorPaneUtil
 {
+    
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
     
@@ -84,7 +83,7 @@ class EditorPaneUtil
     private static final String PIXEL_TYPE = "Pixel Type";
     
     /** Identifies the <code>EmissionWavelength</code> field. */
-    private static final String EMISSION_WAVELENGTH = "Emission wavelength";
+    //private static final String EMISSION_WAVELENGTH = "Emission wavelength";
     
     /**
      * Transforms the specified {@link PixelsData} object into 

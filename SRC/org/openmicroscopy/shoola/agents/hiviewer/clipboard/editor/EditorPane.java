@@ -123,7 +123,7 @@ public class EditorPane
      */
     public Icon getPaneIcon()
     {
-        return IconManager.getInstance().getIcon(IconManager.STATUS_INFO);
+        return IconManager.getInstance().getIcon(IconManager.INFO);
     }
 
     /**
