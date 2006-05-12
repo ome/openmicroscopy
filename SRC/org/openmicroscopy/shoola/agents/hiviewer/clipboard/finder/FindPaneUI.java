@@ -98,7 +98,7 @@ class FindPaneUI
     private static final String     FIND_MSG = "Find in: ";
     
     /** The message presenting the results found. */
-    private static final String     RESULTS_MSG = "Results found: ";
+    private static final String     RESULTS_MSG = "Results: ";
     
     /** The find context show when the root node is selected. */
     static final String             IN_ALL_MSG = "browser";
@@ -270,7 +270,7 @@ class FindPaneUI
         c.gridy = 2;
         c.weighty = 1;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(5, 10, 5, 10);
+        c.insets = new Insets(5, 0, 5, 10);
         
         controlsPanel.add(new JSeparator(), c);
         c.ipadx = 0; // reset ipadx = 20;
