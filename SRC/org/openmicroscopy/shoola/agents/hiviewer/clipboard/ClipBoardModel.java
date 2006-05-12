@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
@@ -123,7 +124,9 @@ class ClipBoardModel
     {
         cbPanes.put(new Integer(ClipBoard.FIND_PANE), new FindPane(component));
         cbPanes.put(new Integer(ClipBoard.ANNOTATION_PANE), 
-                        new AnnotationPane(component));
+                    new AnnotationPane(component));
+        cbPanes.put(new Integer(ClipBoard.INFO_PANE), 
+                    new EditorPane(component));
     }
     
     /** 

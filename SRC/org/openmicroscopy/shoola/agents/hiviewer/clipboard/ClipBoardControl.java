@@ -172,7 +172,7 @@ class ClipBoardControl
             if (parentModel.getState() == HiViewer.READY) {
                 parentModel.getBrowser().addPropertyChangeListener(
                         Browser.SELECTED_DISPLAY_PROPERTY, this);
-                view.initListener();
+                view.initListeners();
             }  
         } else if (source instanceof ClipBoard) {
             switch (model.getState()) {

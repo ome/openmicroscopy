@@ -75,7 +75,7 @@ import pojos.AnnotationData;
 import pojos.ExperimenterData;
 
 /** 
- * The UI delegate.
+ * The UI delegate for the {@link AnnotationPane}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -75,6 +75,9 @@ public interface ClipBoard
     /** Identifies the index of the <code>Annotation</code> pane. */
     public static final int     ANNOTATION_PANE = 1;
     
+    /** Identifies the index of the <code>Information</code> pane. */
+    public static final int     INFO_PANE = 2;
+    
     /** Identifies the <i>Loading annotations</i> state. */
     public static final int     LOADING_ANNOTATIONS = 200;
     

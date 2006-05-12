@@ -75,6 +75,9 @@ class ClipBoardUI
     /** The position of the <code>Annotate</code>  pane. */
     private static final int    ANNOTATE_TAB = 1;
     
+    /** The position of the <code>Info</code>  pane. */
+    private static final int    INFO_TAB = 2;
+    
     /** Reference to the Control. */
     private ClipBoardControl    controller;
     
@@ -103,7 +106,10 @@ class ClipBoardUI
                         pane, pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
         tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
-                pane, pane.getPaneDescription());
+                        pane, pane.getPaneDescription());
+        pane = model.getClipboardPane(ClipBoard.INFO_PANE);
+        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
+                        pane, pane.getPaneDescription());
         tabPane.setSelectedIndex(model.getPaneIndex());
         setViewportView(tabPane);
     }
@@ -122,13 +128,10 @@ class ClipBoardUI
         this.controller = controller;
         initComponents();
         buildUI();
-        //Initializes the listener otherwise an event is fired when 
-        //components are added to the tabbed pane.
-        //initListener();
     }
     
-    /** Adds a {@link ChangeListener} to the tabbed pane. */
-    void initListener()
+    /** Adds listeners. */
+    void initListeners()
     {
         tabPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
@@ -139,6 +142,9 @@ class ClipBoardUI
                         break;
                     case ANNOTATE_TAB:
                         controller.setSelectedPane(ClipBoard.ANNOTATION_PANE);
+                        break;
+                    case INFO_TAB:
+                        controller.setSelectedPane(ClipBoard.INFO_PANE);
                         break;
                 };
                 
@@ -182,12 +188,6 @@ class ClipBoardUI
             ((ClipBoardPane) m.get(i.next())).onDisplayChange(selectedDisplay);
     }
     
-    /** Updates the annotation tabbed pane. */
-    void manageAnnotation()
-    { 
-        //annotationPane.manageAnnotation();
-    }
-    
     /** 
      * Returns the height of the tabbed pane. 
      * 
@@ -200,11 +200,7 @@ class ClipBoardUI
      *  
      * @param index The index of the selected tabbed pane.
      */
-    void setSelectedPane(int index)
-    { 
-        tabPane.setSelectedIndex(index); 
-        //tabPane.repaint();
-    }
+    void setSelectedPane(int index) { tabPane.setSelectedIndex(index); }
     
     /**
      * Brings up the popup menu for the specified {@link ImageDisplay} node.

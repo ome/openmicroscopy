@@ -169,7 +169,7 @@ public class AnnotationPane
     public int getPaneIndex() { return ClipBoard.ANNOTATION_PANE; }
     
     /**
-     * Overriden to return the index of this UI component.
+     * Overriden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Annotate the selected item."; }

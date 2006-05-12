@@ -195,8 +195,14 @@ class ClipBoardComponent
      */
     public void setSelectedPane(int index, ImageDisplay node)
     {
-        if (index != FIND_PANE && index != ANNOTATION_PANE)
-            throw new IllegalArgumentException("Pane index not valid.");
+        switch (index) {
+            case FIND_PANE:
+            case ANNOTATION_PANE:
+            case INFO_PANE:
+                break;
+            default:
+                throw new IllegalArgumentException("Pane index not valid.");
+        }
         if (model.getPaneIndex() == index) return;
         model.setPaneIndex(index);
         view.setSelectedPane(index);

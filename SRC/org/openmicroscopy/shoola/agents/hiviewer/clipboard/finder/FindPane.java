@@ -34,8 +34,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
 //Java imports
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -119,23 +119,23 @@ public class FindPane
     public FindPane(ClipBoard model)
     {
         super(model);
+        
         findData = new FindData();
         uiDelegate = new FindPaneUI(this);
         popupMenu = new FindPopupMenu(this);
-        setLayout(new FlowLayout(FlowLayout.LEFT));
-        add(uiDelegate);
-        /*
-        GridBagConstraints c = new GridBagConstraints();
         
-        // griddy constraints
+        // Set the layout for the Find pane to gridbaglayout like it's 
+        // components.
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.BOTH;
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.gridheight = GridBagConstraints.REMAINDER;
         c.weighty = 1;
         c.weightx = 1;
+        
+        // add uiDelegate which is the FindPaneUI. 
         add(uiDelegate, c);
-        */
+
     }
     
     /**
@@ -228,9 +228,7 @@ public class FindPane
         popupMenu.show(c, p.x, p.y);
     }
     
-    /** 
-     * Finds the selected patterns.
-     */
+    /** Finds the selected pattern. */
     void find()
     {
         if (findText == null || findText.length() == 0) return;
@@ -337,7 +335,7 @@ public class FindPane
     public int getPaneIndex() { return ClipBoard.FIND_PANE; }
 
     /**
-     * Overriden to return the index of this UI component.
+     * Overriden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Find"; }

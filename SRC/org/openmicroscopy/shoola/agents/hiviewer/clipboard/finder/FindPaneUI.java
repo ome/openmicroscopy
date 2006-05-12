@@ -36,11 +36,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Set;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -60,11 +62,9 @@ import javax.swing.text.Document;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * The UI delegate.
+ * The UI delegate for the {@link FindPane}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -109,6 +109,9 @@ class FindPaneUI
     /** The label presenting the annotation context. */
     private JLabel              titleLabel;
     
+    /** The panel hosting the controls. */
+    private JPanel              controlsPanel;
+    
     /** The text area hosting the pattern to find. */
     private JTextField          findArea;
     
@@ -120,8 +123,6 @@ class FindPaneUI
     
     /** The owner of this UI delegate. */
     private FindPane            model;
-    
-
     
     /** Initializes the UI components composing the display. */
     private void initComponents()
@@ -199,7 +200,7 @@ class FindPaneUI
     
     /** 
      * Helper method to create a menu bar. 
-     * 
+     *     
      * @return The toolbar hosting the controls. 
      */
     private JToolBar createRightMenuBar()
@@ -234,21 +235,65 @@ class FindPaneUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	GridBagConstraints c = new GridBagConstraints();      
+
+    	// create tree holder panel, which will be displayed to the right of the
+    	// find window
+        treeHolderPanel = new JPanel();
+        treeHolderPanel.setBorder(new TitledBorder(RESULTS_MSG));
+        treeHolderPanel.setLayout(new BorderLayout());  
+        
+        // create select panel which will contain find text entry box, match 
+        // case check box 
         JPanel selectPanel = new JPanel();
         selectPanel.add(createLeftMenuBar());
         selectPanel.add(findArea);
         selectPanel.add(createRightMenuBar());
         selectPanel.add(caseSensitive);
+                
+        // title label is the search results status bar which will be displayed 
+        // at top of findpane 
+        titleLabel = new JLabel(FIND_MSG+DEFAULT);
         
-
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(selectPanel);
-        p.add(treeHolderPanel);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(UIUtilities.buildComponentPanel(titleLabel));
-        add(new JSeparator());
-        add(p);
+        // controls panel is the container for all search criterion and title
+        // label. It will use a gridbaglayout and have title followed by
+        // separator then find text box and match case on the same line follow-
+        // -ing it. 
+        controlsPanel = new JPanel();
+        controlsPanel.setLayout(new GridBagLayout());
+        
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.NONE;
+        c.gridy = 1;
+        controlsPanel.add(titleLabel, c);
+        
+        c.gridy = 2;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(5, 10, 5, 10);
+        
+        controlsPanel.add(new JSeparator(), c);
+        c.ipadx = 0; // reset ipadx = 20;
+        
+        c.gridy = 3;
+        controlsPanel.add(selectPanel, c);
+        c.insets = new Insets(0, 0, 0, 0);
+        // the find pane itself has a gridbag layout and will incorporate the
+        // controlsPanel on the left and search results (treeHolder) on the 
+        // right
+        this.setLayout(new GridBagLayout());
+        
+        // griddy constraints
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.1;
+        c.weighty = 0.5;
+        add(controlsPanel, c);
+        
+        // add tree panel
+        c.weightx = 100;
+        c.fill = GridBagConstraints.BOTH;
+        add(treeHolderPanel, c);
     }
     
     /**
