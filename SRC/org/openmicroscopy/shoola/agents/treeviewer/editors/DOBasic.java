@@ -172,7 +172,7 @@ class DOBasic
                 nameArea.setEditable(false);
                 descriptionArea.setEditable(false);
             }
-            if (model.isAnnotable()) {
+            if (model.isAnnotatable()) {
                 annotator = new DOAnnotation(view, model);
                 IconManager im = IconManager.getInstance();
                 //tabbedPane.ins

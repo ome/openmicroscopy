@@ -153,7 +153,7 @@ class EditorComponent
         switch (model.getState()) {
             case NEW:
                 if (model.getEditorType() == PROPERTIES_EDITOR) {
-                    if (model.isAnnotable()) {
+                    if (model.isAnnotatable()) {
                         model.fireAnnotationsLoading();
                         fireStateChange();
                     }

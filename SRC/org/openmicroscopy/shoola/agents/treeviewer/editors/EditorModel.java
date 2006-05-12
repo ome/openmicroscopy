@@ -240,7 +240,7 @@ class EditorModel
      * 
      * @return See above.
      */
-    boolean isAnnotable()
+    boolean isAnnotatable()
     { 
         if (hierarchyObject == null) return false;
         else if ((hierarchyObject instanceof DatasetData) ||
