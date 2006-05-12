@@ -288,7 +288,7 @@ public class IconManager
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";  
         relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
-        relPaths[INFO] = "information16.png";
+        relPaths[INFO] = "nuvola_messagebox_info16.png";
     }
     
     /** The sole instance. */
