@@ -221,11 +221,14 @@ public class IconManager
     /** The <code>Highlight</code> icon. */
     public static int           HIGHLIGHT = 52;
     
+    /** The <code>Info</code> icon. */
+    public static int           INFO = 53;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 52;
+    private static int          MAX_ID = 53;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -285,6 +288,7 @@ public class IconManager
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";  
         relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
+        relPaths[INFO] = "information16.png";
     }
     
     /** The sole instance. */
