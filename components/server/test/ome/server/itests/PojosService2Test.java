@@ -49,8 +49,6 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-import com.sun.tools.javac.tree.Tree.If;
-
 import ome.api.Pojos;
 import ome.model.Category;
 import ome.model.CategoryGroup;

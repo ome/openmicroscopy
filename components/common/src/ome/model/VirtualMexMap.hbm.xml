@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.VirtualMexMap" 
+    table="virtual_mex_map"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+   <composite-id name="id" class="ome.model.VMexId">
+        <key-property 
+            name="attributeId" 
+            column="attribute_id" 
+            type="int"
+            length="4"
+        />
+        <key-many-to-one
+            name="moduleExecution" 
+            column="module_execution_id" 
+            class="ome.model.ModuleExecution"
+        />
+    </composite-id>    
+
+
+    <!-- Associations -->
+    <!-- derived association(s) for compound key -->
+    <!-- end of derived association(s) -->
+  
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+
+</class>
+</hibernate-mapping>

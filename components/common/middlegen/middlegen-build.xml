@@ -133,6 +133,10 @@
 	<table name="formal_outputs"/>
 	<table name="plane_statistics"/>
 	<table name="stack_statistics"/>
+<!-- For Resurrect -->
+	<table name="actual_inputs"/>
+	<table name="original_files"/>
+	<table name="virtual_mex_map"/>
 
          <hibernate
             destination="${dest.dir}"

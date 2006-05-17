@@ -93,6 +93,7 @@
 				<value>ome/model/AnalysisChainLink.hbm.xml</value>
 				<value>ome/model/AnalysisChainNode.hbm.xml</value>
 				<value>ome/model/AnalysisNodeExecution.hbm.xml</value>
+				<value>ome/model/ActualInput.hbm.xml</value>             
 				<value>ome/model/CategoryGroup.hbm.xml</value>
 				<value>ome/model/Category.hbm.xml</value>
 				<value>ome/model/ChannelComponent.hbm.xml</value>
@@ -113,6 +114,7 @@
 				<value>ome/model/ModuleExecution.hbm.xml</value>
 				<value>ome/model/Module.hbm.xml</value>
 				<value>ome/model/OmeSession.hbm.xml</value>
+				<value>ome/model/OriginalFile.hbm.xml</value>             
 				<value>ome/model/PlaneStatistics.hbm.xml</value>
 				<value>ome/model/Project.hbm.xml</value>
 				<value>ome/model/RenderingSetting.hbm.xml</value>
@@ -122,6 +124,7 @@
 				<value>ome/model/SemanticTypeOutput.hbm.xml</value>
 				<value>ome/model/StackStatistics.hbm.xml</value>
 				<value>ome/model/Thumbnail.hbm.xml</value>
+				<value>ome/model/VirtualMexMap.hbm.xml</value>             
 			</list>
        </property>
 <!-- TODO doesn't use cache!

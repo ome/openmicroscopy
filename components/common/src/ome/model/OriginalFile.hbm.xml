@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping>
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="ome.model.OriginalFile" 
+    table="original_files"
+>
+    <meta attribute="implement-equals" inherit="false">true</meta>
+
+    <id
+        name="attributeId"
+        type="java.lang.Integer"
+        column="attribute_id"
+    >
+        <generator class="sequence">
+            <param name="sequence">this_seq_does_not_exist</param>
+        </generator>
+    </id>
+
+    <property
+        name="sha1"
+        type="java.lang.String"
+        column="sha1"
+        length="-1"
+    />
+    <property
+        name="format"
+        type="java.lang.String"
+        column="format"
+        length="-1"
+    />
+    <property
+        name="path"
+        type="java.lang.String"
+        column="path"
+        length="-1"
+    />
+    <property
+        name="fileId"
+        type="java.lang.Long"
+        column="file_id"
+        length="8"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Repository -->
+    <many-to-one
+        name="repository"
+        class="ome.model.Repository"
+        not-null="true"
+    >
+        <column name="repository" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to ModuleExecution -->
+    <many-to-one
+        name="moduleExecution"
+        class="ome.model.ModuleExecution"
+        not-null="true"
+    >
+        <column name="module_execution_id" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
