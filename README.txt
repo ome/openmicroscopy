@@ -1,12 +1,19 @@
 
 -------------------------------------------------
-   OMERO - OME Remote Objects Server
+   OMERO - OME Remote Objects Server v.3.0.M2
 -------------------------------------------------
 
+.................................................
+.WARNING: Omero is currently in development mode.
+.         and should be considered BETA.        .
+.................................................
+
+
 For information on installation and developing omero,
-please see the OMER wiki at : 
+please see the OMER Wiki and the development Trac at : 
 
   http://cvs.openmicroscopy.org.uk/tiki/
+  http://trac.openmicroscopy.org.uk/
 
 Especially:
 
@@ -16,6 +23,8 @@ Especially:
 * Omero Design:
   http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Design
 
+* Development Roadmap:
+  https://trac.openmicroscopy.org.uk/roadmap
 
 The contents of this directory ("OMERO_HOME") are:
 
