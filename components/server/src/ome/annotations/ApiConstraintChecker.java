@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 
@@ -99,7 +100,7 @@ public class ApiConstraintChecker
                         String msg = "Argument " + i + " to " + implMethod
                                 + " may not be null.";
                         log.warn(msg);
-                        throw new IllegalArgumentException(msg);
+                        throw new ApiUsageException(msg);
 
                     }
                 }
@@ -124,7 +125,7 @@ public class ApiConstraintChecker
                         for (Object object : coll)
                         {
                             if ( ! validSet.isValid( object.getClass() ))
-                                throw new IllegalArgumentException(msg);
+                                throw new ApiUsageException(msg);
                         }
 
                     }
@@ -133,7 +134,7 @@ public class ApiConstraintChecker
                     {
                         if ( ! validSet.isValid( arg.getClass() ))
                         {
-                            throw new IllegalArgumentException(msg);
+                            throw new ApiUsageException(msg);
                         }
                     }
                 }
