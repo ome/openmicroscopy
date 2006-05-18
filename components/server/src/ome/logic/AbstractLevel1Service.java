@@ -44,6 +44,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
+import ome.services.query.QueryFactory;
 import ome.system.OmeroContext;
 import ome.system.SelfConfigurableService;
 
@@ -64,6 +67,12 @@ public abstract class AbstractLevel1Service extends HibernateDaoSupport
     protected OmeroContext ctx;
 
     protected abstract String getName();
+
+    protected QueryFactory queryFactory;
+    
+    public void setQueryFactory(QueryFactory factory){
+        this.queryFactory = factory;
+    }
     
     public void setApplicationContext(ApplicationContext appCtx) throws BeansException
     {
