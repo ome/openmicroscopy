@@ -133,6 +133,21 @@ public class ProxyCleanupFilter extends ContextFilter
         return retVal;
     }
 
+    // TODO FIXME need to further test this.
+    @Override
+    protected void doFilter(String arg0, Object arg1)
+    {
+        if ( arg1 instanceof Object[] )
+        {
+            Object[] arr = (Object[]) arg1;
+            for (int i = 0; i < arr.length; i++)
+            {
+                arr[i] = this.filter( arg0, arr[i] );
+            }
+        }
+        
+    }
+    
     /** wraps a filter for each invocation */
     public static class Interceptor implements MethodInterceptor
     {

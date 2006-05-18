@@ -72,7 +72,7 @@ public class ObjectFactory
             ac.setPhotometricInterpretation(pi);
             ac.setMode(mode);
         
-            pt.setValue("test"+System.currentTimeMillis());
+            pt.setValue("int8");
             
             dO.setValue("XXXX"+System.currentTimeMillis());
             

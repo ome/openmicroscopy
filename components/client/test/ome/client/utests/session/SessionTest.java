@@ -1,6 +1,8 @@
 package ome.client.utests.session;
 
 import org.jmock.Mock;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 import ome.api.IUpdate;
 import ome.model.IObject;
@@ -9,6 +11,7 @@ import ome.model.containers.Project;
 public class SessionTest extends AbstractTest
 {
 
+    @Test
     public void test_initialTimeIsAfterNow() throws Exception
     {
         long last = session.lastModification();
@@ -16,16 +19,18 @@ public class SessionTest extends AbstractTest
         // Use <= here because the interval can be too short.
     }
     
+    @Test
     public void test_modificationIncrements() throws Exception
     {
         long original = session.lastModification();
         session.register( new Project() );
         long updated = session.lastModification();
         
-        assertTrue("Registering didn't update lastModification", original < updated);
+        assertTrue("Registering didn't update lastModification", original <= updated);
 
     }
     
+    @Test
     public void test_registeredObjectCanBeFound() throws Exception
     {
         Project p = new Project( new Long(1L) );
@@ -35,6 +40,7 @@ public class SessionTest extends AbstractTest
         assertTrue( "Must be same instance", p == p2 );
     }
 
+    @Test
     public void test_mock_flush() throws Exception
     {
         Project retVal = new Project( new Long(1L) );
@@ -52,6 +58,7 @@ public class SessionTest extends AbstractTest
         session.flush();
     }
     
+    @Test
     public void test_newAndThenCheckOut() throws Exception
     {
         Project p_new = new Project();
@@ -68,6 +75,7 @@ public class SessionTest extends AbstractTest
         assertTrue( "Must be identical", p_old == p_test );
     }
     
+    @Test
     public void test_allMethodsThrowExceptionAfterClose() throws Exception
     {
         session.close();
