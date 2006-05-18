@@ -6,6 +6,8 @@ import java.util.List;
 
 //Third-party libraries
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 
@@ -35,11 +37,26 @@ public class Preferences2Test extends AbstractDependencyInjectionSpringContextTe
 	public void setList(List list){
 		this.l=list;
 	}
-	
+
+    @Test
 	public void testArePreferencesSet(){
 		// if this doesn't explode it's fine.
 	}
 	
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    void adapterSetup() throws Exception
+    {
+        super.setUp();
+    }
+    @Configuration(afterTestMethod = true)
+    void adapterTearDown() throws Exception
+    {
+        super.tearDown();
+    }
+    
+    
 	
 	
 }

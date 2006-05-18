@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
+import org.testng.annotations.Configuration;
 
 import ome.api.IUpdate;
 import ome.client.Session;
@@ -20,10 +21,17 @@ public class AbstractTest extends MockObjectTestCase
     
     Session session;
 
+    @Configuration( beforeTestMethod = true )
     protected void setUp() throws Exception
     {
+        super.setUp();
         session = new Session( serviceFactory );
     }
+    
+    @Configuration( afterTestMethod = true )
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    };
 
     /** takes two arrays for creating the {@link Mock} for {@link IUpdate}.
      * @param createdEntitites array to return from {@link IUpdate#saveAndReturnArray(ome.model.IObject[])}

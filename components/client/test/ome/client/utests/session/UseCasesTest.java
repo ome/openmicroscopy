@@ -2,6 +2,9 @@ package ome.client.utests.session;
 
 import java.util.ConcurrentModificationException;
 
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
+
 import ome.model.IObject;
 import ome.model.containers.Project;
 
@@ -11,13 +14,7 @@ public class UseCasesTest extends AbstractTest
     Agent agent = new Agent();
     Project updated;
 
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        updated = new Project( new Long(1L) );
-        updated.setVersion( new Integer(1) );
-    }
-    
+    @Test
     public void test_agentCreatesNewItemAndSaves() throws Exception
     {
         //
@@ -49,6 +46,7 @@ public class UseCasesTest extends AbstractTest
         assertTrue("Must be updated", test == updated);
     }
     
+    @Test
     public void test_agentQueriesForExistingEntity() throws Exception
     {
         //
@@ -71,6 +69,7 @@ public class UseCasesTest extends AbstractTest
         assertTrue("Must be updated", test == updated);
     }
     
+    @Test
     public void test_agentDeletesAnExistingEntity() throws Exception
     {
         //
@@ -93,6 +92,7 @@ public class UseCasesTest extends AbstractTest
         
     }
 
+    @Test
     public void test_agentDeletesAnEntityAndUpdateIsRegistered() throws Exception
     {
         //
@@ -117,6 +117,7 @@ public class UseCasesTest extends AbstractTest
         
     }
     
+    @Test
     public void test_agentMarksEntityDirty() throws Exception
     {
         //
@@ -143,6 +144,7 @@ public class UseCasesTest extends AbstractTest
         
     }
     
+    @Test
     public void test_agentMarksDirtyAndUpdateIsRegistered() throws Exception
     {
         //
