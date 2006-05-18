@@ -81,10 +81,10 @@ class EditorUtil
     private static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
     
     /** Identifies the <code>Sections</code> field. */
-    private static final String SECTIONS = "Sections";
+    private static final String SECTIONS = "Number of sections";
     
     /** Identifies the <code>Timepoints</code> field. */
-    private static final String TIMEPOINTS = "Timepoints";
+    private static final String TIMEPOINTS = "Number of timepoints";
     
     /** Identifies the <code>PixelType</code> field. */
     private static final String PIXEL_TYPE = "Pixel Type";
