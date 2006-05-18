@@ -281,7 +281,7 @@ class FindPaneUI
         // the find pane itself has a gridbag layout and will incorporate the
         // controlsPanel on the left and search results (treeHolder) on the 
         // right
-        this.setLayout(new GridBagLayout());
+        setLayout(new GridBagLayout());
         
         // griddy constraints
         c.anchor = GridBagConstraints.NORTHWEST;
