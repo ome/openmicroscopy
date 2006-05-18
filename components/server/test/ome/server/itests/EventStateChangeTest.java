@@ -2,8 +2,11 @@ package ome.server.itests;
 
 import java.util.Date;
 
+import org.testng.annotations.Test;
+
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
+import ome.parameters.Parameters;
 
 
 public class EventStateChangeTest extends AbstractManagedContextTest
@@ -21,6 +24,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
 
     String  expName;
 
+    @Test
     public void test_just_experimenter() throws Exception
     {
     
@@ -30,6 +34,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
         
     }
     
+    @Test
     public void test_experimenter_shouldnt_increment_on_update()
             throws Exception
     {
@@ -41,9 +46,9 @@ public class EventStateChangeTest extends AbstractManagedContextTest
 
         p.setName(name);
         id = iUpdate.saveAndReturnObject(p).getId();
-        p = (Project) iQuery.queryUnique("from Project p "
+        p = (Project) iQuery.findByQuery("from Project p "
                 + " join fetch p.details.owner " + " where p.id = ? ",
-                new Object[] { id });
+                new Parameters().addId(id));
         
         p.setName(p.getName() + " updated.");
         p = (Project) this.iUpdate.saveAndReturnObject(p);
@@ -55,7 +60,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
     // =========================================================================
     private Experimenter getExperimenter(String expName)
     {
-        Experimenter e = (Experimenter) iQuery.getUniqueByFieldEq(
+        Experimenter e = (Experimenter) iQuery.findByString(
                 Experimenter.class, "omeName", expName);
         return e;
     }

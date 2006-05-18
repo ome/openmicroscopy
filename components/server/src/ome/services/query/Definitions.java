@@ -1,5 +1,5 @@
 /*
- * ome.services.query.QueryParameter
+ * ome.services.query.Definitions
  *
  *------------------------------------------------------------------------------
  *
@@ -37,6 +37,9 @@
 package ome.services.query;
 
 // Java imports
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 // Third-party libraries
 
@@ -44,50 +47,58 @@ package ome.services.query;
 
 
 /**
- * source of all our queries.
+ * container for {@link ome.services.query.QueryParameterDef} instances.
+ * Typically created as a static variable in a Query and passed to the super
+ * constructor ({@link ome.services.query.Query#Query(Definitions, Parameters))
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public class QueryParameter
-{
+class Definitions {
 
-    public Class type;
-    public String name;
-    public Object value;
+    /** 
+     * internal storage for the {@link QueryParameterDef}s. Should not change
+     * after construction.
+     */
+    final private Map<String,QueryParameterDef> defs 
+        = new HashMap<String, QueryParameterDef>();
     
-    public QueryParameter(String name, Class type, Object value){
-
-        if ( type == null )
-            throw new IllegalArgumentException("Expecting a value for type.");
-        
-        if (value == null || type.isAssignableFrom(value.getClass()))
-        {
-            this.name = name;
-            this.type = type;
-            this.value = value;
-        } else {
-            throw new IllegalArgumentException(
-                    String.format(
-                    "Value object should be of"+
-                    "type %s not %s",type.getName(),value.getClass().getName()));
-        }
-    }
-
-    public String toString()
+    /* no default constructor */
+    private Definitions(){}
+    
+    public Definitions(QueryParameterDef...parameterDefs)
     {
-        StringBuilder sb = new StringBuilder(64);
-        sb.append("QP{");
-        sb.append("name=");
-        sb.append(name);
-        sb.append(",type=");
-        sb.append(type.getName());
-        sb.append(",value=");
-        sb.append(value);
-        sb.append("}");
-        return sb.toString();
+        if ( parameterDefs != null)
+            for (QueryParameterDef def : parameterDefs)
+            {
+                defs.put( def.name, def );
+            }
     }
     
-    
+    public boolean containsKey(Object key)
+    {
+        return defs.containsKey(key);
+    }
+
+    public boolean isEmpty()
+    {
+        return defs.isEmpty();
+    }
+
+    public Set<String> keySet()
+    {
+        return defs.keySet();
+    }
+
+    public int size()
+    {
+        return defs.size();
+    }
+
+    public QueryParameterDef get(Object key)
+    {
+        return defs.get(key);
+    }
+   
 }

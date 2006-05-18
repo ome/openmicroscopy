@@ -42,6 +42,8 @@ package ome.services.query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.parameters.Parameters;
+
 // Application-internal dependencies
 
 
@@ -65,13 +67,13 @@ public class QueryFactory
         this.sources = querySources;
     }
 
-    public Query lookup(String queryID, QueryParameter...qps)
+    public <T> Query<T> lookup(String queryID, Parameters params)
     {
-        Query q = null;
+        Query<T> q = null;
         
         for (QuerySource source : sources)
         {
-            q = source.lookup(queryID, qps);
+            q = source.lookup(queryID, params);
             if (q != null )
                 break;
         }

@@ -8,17 +8,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.testng.annotations.Test;
+
 import ome.api.IPojos;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
-import ome.services.query.PojosQP;
-import ome.services.query.QP;
-import ome.services.query.QueryParameter;
 import ome.services.query.QueryParameterDef;
 import ome.util.builders.PojoOptions;
 
@@ -28,7 +28,7 @@ public class FindAnnotationsQueryTest extends AbstractInternalContextTest
     List                                list;
     Set                                 ids;
 
-    protected void creation_fails(QueryParameter... parameters)
+    protected void creation_fails(Parameters parameters)
     {
         try
         {
@@ -44,58 +44,60 @@ public class FindAnnotationsQueryTest extends AbstractInternalContextTest
         }
     }
 
+    @Test
     public void test_illegal_arguments() throws Exception
     {
 
-        creation_fails( PojosQP.ids( null ), // Null
-                        PojosQP.options( null ),
-                        PojosQP.Class( QP.CLASS,
-                                       Image.class ),
-                        PojosQP.Set( "annotatorIds",
-                                     Collections.emptySet( ) ) );
+        creation_fails( new Parameters()
+                .addIds(null) // Null
+                .addOptions(null)
+                .addClass(Image.class)
+                .addSet("annotatorIds",Collections.emptySet()));
 
-        creation_fails( PojosQP.ids( Collections.emptySet( ) ), // Empty!
-                        PojosQP.options( null ),
-                        PojosQP.Class( QP.CLASS,
-                                       Image.class ),
-                        PojosQP.Set( "annotatorIds",
-                                     Collections.emptySet( ) ) );
-        creation_fails( PojosQP.ids( Arrays.asList( 1L ) ),
-                        PojosQP.Class( QP.CLASS, // Null here.
-                                       null ),
-                        PojosQP.options( null ),
-                        PojosQP.Set( "annotatorIds",
-                                     Collections.emptySet( ) ) );
-        creation_fails( PojosQP.ids( Arrays.asList( 1 ) ), // Integer not Long
-                        PojosQP.options( null ),
-                        PojosQP.Class( QP.CLASS,
-                                       Image.class ),
-                        PojosQP.Set( "annotatorIds",
-                                     Collections.emptySet( ) ) );
+        creation_fails( new Parameters()
+                .addIds(Collections.emptySet()) // Empty!
+                .addOptions(null)
+                .addClass(Image.class)
+                .addSet("annotatorIds",Collections.emptySet()));
+        
+        creation_fails( new Parameters()
+                .addIds(Arrays.asList(1l)) 
+                .addOptions(null)
+                .addClass(null) // Null here
+                .addSet("annotatorIds",Collections.emptySet()));
+        
+        creation_fails( new Parameters()
+                .addIds(Arrays.asList(1)) // Integer not Long
+                .addOptions(null)
+                .addClass(Image.class)
+                .addSet("annotatorIds",Collections.emptySet()));
     }
 
+    @Test
     public void test_simple_usage() throws Exception
     {
         Long doesntExist = -1L;
-        q = new PojosFindAnnotationsQueryDefinition( 
-                                                     PojosQP.ids( Arrays.asList( doesntExist ) ),
-                                                     PojosQP.Class(QP.CLASS, Image.class),
-                                                     PojosQP.options(null),
-                                                     PojosQP.Set("annotatorIds",Collections.EMPTY_SET)
-                                                     );
+        q = new PojosFindAnnotationsQueryDefinition(
+                new Parameters()
+                .addIds(Arrays.asList( doesntExist )) 
+                .addOptions(null)
+                .addClass(Image.class)
+                .addSet("annotatorIds",Collections.emptySet()));
 
         list = (List) iQuery.execute( q );
     }
 
+    @Test
     public void test_images_exist() throws Exception
     {
         ids = new HashSet(data.getMax("Image.Annotated.ids",2));
-        q = new PojosFindAnnotationsQueryDefinition( 
-                                                    PojosQP.ids( ids ),
-                                                    PojosQP.Class(QP.CLASS, Image.class),
-                                                    PojosQP.options(null),
-                                                    PojosQP.Set("annotatorIds",Collections.EMPTY_SET)
-                                                    );
+        q = new PojosFindAnnotationsQueryDefinition(
+                new Parameters()
+                .addIds(ids) 
+                .addOptions(null)
+                .addClass(Image.class)
+                .addSet("annotatorIds",Collections.emptySet()));
+
         Collection<ImageAnnotation> results = (Collection) iQuery.execute(q);
         for ( ImageAnnotation annotation : results )
         {
@@ -103,15 +105,17 @@ public class FindAnnotationsQueryTest extends AbstractInternalContextTest
         }
     }
     
+    @Test
     public void test_dataset_exist() throws Exception
     {
         ids = new HashSet(data.getMax("Dataset.Annotated.ids",2));
-        q = new PojosFindAnnotationsQueryDefinition( 
-                                                    PojosQP.ids( ids ),
-                                                    PojosQP.Class(QP.CLASS, Dataset.class),
-                                                    PojosQP.options(null),
-                                                    PojosQP.Set("annotatorIds",Collections.EMPTY_SET)
-                                                    );
+        q = new PojosFindAnnotationsQueryDefinition(
+                new Parameters()
+                .addIds(ids) 
+                .addOptions(null)
+                .addClass(Dataset.class)
+                .addSet("annotatorIds",Collections.emptySet()));
+
         Collection<DatasetAnnotation> results = (Collection) iQuery.execute(q);
         for ( DatasetAnnotation annotation : results )
         {

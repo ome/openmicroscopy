@@ -34,6 +34,7 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 
@@ -54,32 +55,38 @@ public class AnalysisLogicTest
 
     private static Log log = LogFactory.getLog(AnalysisLogicTest.class);
 
+    @Test
     public void testGetProjectsForUser(){
     	Set s = iAnalysis.getProjectsForUser(1);
     	assertTrue(notNull,s.size()>0);
     }
- 
+    
+    @Test
     public void testAllDatasets(){
     	Set s = iAnalysis.getAllDatasets();
     	assertTrue(notNull,s.size()>0);
     }
 
-// TODO    
+// TODO   
+//  @Test
 //	public void testChainExecutionsForDataset() {
 //		Set s = iAnalysis.getChainExecutionsForDataset(1);
 //		assertTrue(notNull,s.size()>0);
 //	}
 	
+    @Test
 	public void testDsFromPs(){
 		Set s = iAnalysis.getDatasetsForProject(9992);
 		assertTrue(notNull, s.size()>0);
 	}
 
+    @Test
 	public void testPsFromDs(){
 		Set s = iAnalysis.getProjectsForDataset(7772);
 		assertTrue(notNull, s.size()>0);
 	}
 
+    @Test
 	public void testIsFromDs(){
 		Set s = iAnalysis.getImagesForDataset(7772);
 		assertTrue(notNull, s.size()>0);

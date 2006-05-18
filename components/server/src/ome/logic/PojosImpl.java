@@ -63,13 +63,13 @@ import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
+import ome.parameters.Parameters;
 import ome.services.query.CollectionCountQueryDefinition;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.PojosQP;
 import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
@@ -127,9 +127,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
         Query q = queryFactory.lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
-                PojosQP.klass(rootNodeType),
-                PojosQP.ids(rootNodeIds),
-                PojosQP.options(po.map())); // TODO Move PojosQP to PojosOptions
+                new Parameters()
+                    .addClass(rootNodeType)
+                    .addIds(rootNodeIds)
+                    .addOptions(po.map())); //TODO no more "options" just QPs.
         List l = (List) iQuery.execute(q);
 
         collectCounts(l, po);
@@ -146,10 +147,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         
         Query q = queryFactory.lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
-                PojosQP.klass(rootNodeType),
-                PojosQP.ids(imageIds),
-                PojosQP.options(po.map()));
-
+                new Parameters()
+                    .addClass(rootNodeType)
+                    .addIds(imageIds)
+                    .addOptions(po.map()));
         List l = (List) iQuery.execute(q);
         collectCounts(l,po);
 
@@ -200,14 +201,15 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
 		PojoOptions po = new PojoOptions(options);
 		
-        Query q = queryFactory.lookup(
+        Query<List> q = queryFactory.lookup(
                 PojosFindAnnotationsQueryDefinition.class.getName(),
-                PojosQP.klass(rootNodeType),
-                PojosQP.ids(rootNodeIds),
-                PojosQP.Set("annotatorIds",annotatorIds),
-                PojosQP.options(po.map()));
+                new Parameters()
+                    .addIds(rootNodeIds)
+                    .addClass(rootNodeType)
+                    .addSet("annotatorIds",annotatorIds)
+                    .addOptions(po.map()));
 
-        List l = (List) iQuery.execute(q);
+        List l = iQuery.execute(q);
         // no count collection
 
         //
@@ -251,10 +253,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
         Query q = queryFactory.lookup(
                 PojosCGCPathsQueryDefinition.class.getName(),
-                PojosQP.ids(imgIds),
-                PojosQP.String("algorithm",algorithm),
-                PojosQP.options(po.map()));
-
+                new Parameters()
+                    .addIds(imgIds)
+                    .addAlgorithm(algorithm)
+                    .addOptions(po.map()));
         
 		List<Map<String,Object>> result_set = (List) iQuery.execute(q);
 
@@ -308,9 +310,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
         Query q = queryFactory.lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
-                PojosQP.klass(rootNodeType),
-                PojosQP.ids(rootNodeIds),
-                PojosQP.options(po.map()));
+                new Parameters()
+                    .addIds(rootNodeIds)
+                    .addClass(rootNodeType)
+                    .addOptions(po.map()));
 
         List l = (List) iQuery.execute(q);
         collectCounts(l,po);
@@ -332,7 +335,9 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         
         Query q = queryFactory.lookup(" select i from Image i " +
                 "where i.details.owner.id = :id ",
-                PojosQP.Long("id",po.getExperimenter()));
+                new Parameters()
+                    .addId( po.getExperimenter()));
+
         List l = (List) iQuery.execute(q);
         collectCounts(l,po);
 		return new HashSet(l);
@@ -350,10 +355,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         /* query only if we have some ids */
         if (names.size() > 0)
         {
-            Map<String, Set> params = new HashMap<String, Set>();
-            params.put("name_list",names);
-        
-            results = iQuery.queryListMap(
+            Parameters params = new Parameters().addSet("name_list",names);
+            results = iQuery.findAllByQuery(
                     "select e from Experimenter e " +
                     "left outer join fetch e.groupExperimenterMap gs " +
                     "left outer join fetch gs.child g " +
@@ -390,13 +393,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         
         checkType(type);
         checkProperty(type,parsedProperty);
+
+        Map<Long,Integer> results = new HashMap<Long,Integer>();
         
-        String query = "select size(table."+parsedProperty+") from "+type+" table where table.id = ?";
+        String query = "select size(table."+parsedProperty+") from "+type+" table where table.id = :id";
         // FIXME: optimize by doing new list(id,size(table.property)) ... group by id
         for (Iterator iter = ids.iterator(); iter.hasNext();)
         {
             Long id = (Long) iter.next();
-            Integer count = (Integer) iQuery.queryUnique(query,new Object[]{id});
+            Query<List<Integer>> q = queryFactory.lookup(query,new Parameters().addId(id));
+            Integer count = iQuery.execute(q).get(0);
             results.put(id,count);
         }
         
@@ -406,7 +412,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     @Transactional(readOnly=true)
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
     {
-        IObject context = (IObject) iQuery.getById(arg0.getClass(),arg0.getId());
+        IObject context = (IObject) iQuery.get(arg0.getClass(),arg0.getId());
         Collection c = (Collection) context.retrieve(arg1); // FIXME not type.o.null safe
         iQuery.initialize(c);
         return c;
@@ -507,16 +513,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                     continue;
                 }
                 
-                Query q_c = queryFactory.lookup(
+                Query<List<Object[]>> q_c = queryFactory.lookup(
                         /* TODO po.map() here */
                         CollectionCountQueryDefinition.class.getName(),
-                        PojosQP.String("field",key),
-                        PojosQP.ids(c.getIds(key))
-                        );
-                List l_c = (List) iQuery.execute(q_c);
-                for (Object o : l_c)
+                        new Parameters()
+                            .addIds(c.getIds(key))
+                            .addString("field",key));
+                
+                List<Object[]> l_c = iQuery.execute(q_c);
+                for (Object[] results : l_c)
                 {
-                   Object[] results = (Object[]) o;
                    Long id = (Long) results[0];
                    Integer count = (Integer) results[1];
                    c.addCounts(key,id,count);
@@ -526,7 +532,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         }
     }
     
-    final static Map results = new HashMap();
     final static String alphaNumeric = "^\\w+$";
     final static String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
 

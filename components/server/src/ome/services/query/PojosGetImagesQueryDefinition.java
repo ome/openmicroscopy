@@ -2,14 +2,14 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-import ome.model.core.Image;
+import ome.parameters.Parameters;
+import static ome.parameters.Parameters.*;
 
 public class PojosGetImagesQueryDefinition extends Query
 {
@@ -17,9 +17,9 @@ public class PojosGetImagesQueryDefinition extends Query
     static Definitions defs = new Definitions(// TODO same as PojosFindHierarchy
         new IdsQueryParameterDef(),
         new OptionsQueryParameterDef(),
-        new QueryParameterDef(QP.CLASS, Class.class, false));
+        new ClassQueryParameterDef());
     
-    public PojosGetImagesQueryDefinition(QueryParameter... parameters)
+    public PojosGetImagesQueryDefinition(Parameters parameters)
     {
         super( defs, parameters );
     }  
@@ -27,10 +27,10 @@ public class PojosGetImagesQueryDefinition extends Query
     @Override
     protected Object runQuery(Session session) throws HibernateException, SQLException
     {
-        Criteria c = session.createCriteria((Class) value(QP.CLASS));
+        Criteria c = session.createCriteria((Class) value(CLASS));
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
-        Hierarchy.fetchChildren(c,(Class) value(QP.CLASS),Integer.MAX_VALUE);
+        c.add(Restrictions.in("id",(Collection) value(IDS)));
+        Hierarchy.fetchChildren(c,(Class) value(CLASS),Integer.MAX_VALUE);
         
         return c.list();
         

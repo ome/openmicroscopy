@@ -48,6 +48,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
+import ome.parameters.Parameters;
+
 // Application-internal dependencies
 
 
@@ -66,18 +68,11 @@ public class StringQuerySource extends QuerySource
 
     private static Log log = LogFactory.getLog(StringQuerySource.class);
     
-    public Query lookup(String queryID,QueryParameter...parameters)
+    public Query lookup(String queryID,Parameters parameters)
     {
-        QueryParameter stringQP = QP.String("string",queryID);
-        if (parameters != null) 
-        {
-            QueryParameter[] temp = new QueryParameter[parameters.length+1];
-            temp[0] = stringQP;
-            System.arraycopy(parameters,0,temp,1,parameters.length);
-            return new StringQuery(temp);
-        }
-        return new StringQuery(stringQP);
-        
+        Parameters p = new Parameters(parameters);
+        p.addString("string",queryID);
+        return new StringQuery(p);
     }
     
 }
@@ -88,7 +83,7 @@ class StringQuery extends Query
     static Definitions defs = new Definitions(
         new QueryParameterDef("string", String.class, false));
     
-    public StringQuery(QueryParameter...parameters ){
+    public StringQuery(Parameters parameters ){
         super( defs, parameters );
     }
 

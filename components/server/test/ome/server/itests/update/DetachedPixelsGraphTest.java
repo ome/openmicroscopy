@@ -2,6 +2,8 @@ package ome.server.itests.update;
 
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -43,6 +45,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
     }
     
+    @Test
     public void testNewRecursiveEntityFieldOnDetachedPixels() throws Exception
     {
         // PREPARE ----------------------------------------------
@@ -61,6 +64,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
                 p.getRelatedTo().getId().longValue()==id);
         
     }
+    
+    @Test
     public void testDetachedRecursiveEntityFieldOnDetachedPixels() throws Exception
     {
         // PREPARE ----------------------------------------------
@@ -83,6 +88,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
     }
     
+    @Test
     public void testNewEntityFieldOnDetachedPixels() throws Exception
     {
         // PREPARE ----------------------------------------------
@@ -103,6 +109,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
     }
     
+    @Test
     public void testUnloadedEntityFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------
@@ -122,6 +129,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
                 .getId().longValue() > 0);
     }
 
+    @Test
     public void testNulledCollectionFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------
@@ -136,6 +144,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
                 equalCollections(example.getChannels(),p.getChannels()));
     }
     
+    @Test
     public void testFilteredCollectionFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------
@@ -158,6 +167,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
     }
     
+    @Test
     public void testNewCollectionFieldOnDetachedPixels() throws Exception
     {
         // PREPARE -------------------------------------------------

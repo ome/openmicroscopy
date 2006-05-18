@@ -14,6 +14,8 @@ import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
+import ome.parameters.Parameters;
+import static ome.parameters.Parameters.*;
 import ome.util.builders.PojoOptions;
 
 public class PojosFindAnnotationsQueryDefinition extends Query
@@ -22,10 +24,10 @@ public class PojosFindAnnotationsQueryDefinition extends Query
     static Definitions defs = new Definitions(
         new IdsQueryParameterDef(),
         new OptionsQueryParameterDef(),
-        new QueryParameterDef(QP.CLASS,Class.class,false),
+        new ClassQueryParameterDef(),
         new QueryParameterDef("annotatorIds",Collection.class,true));
         
-    public PojosFindAnnotationsQueryDefinition(QueryParameter... parameters)
+    public PojosFindAnnotationsQueryDefinition(Parameters parameters)
     {
         super( defs, parameters );
         // TODO set local fields here.
@@ -49,16 +51,16 @@ public class PojosFindAnnotationsQueryDefinition extends Query
     protected Object runQuery(Session session) 
         throws HibernateException, SQLException
     {
-        PojoOptions po = new PojoOptions((Map) value(QP.OPTIONS));
+        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
         
-        Class target = typeToAnnotationType.get((Class) value(QP.CLASS));
+        Class target = typeToAnnotationType.get((Class) value(CLASS));
         String path = annotationTypeToPath.get(target);
         
         Criteria c = session.createCriteria(target);
         
         c.createCriteria(path,LEFT_JOIN);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.add(Restrictions.in(path+".id",(Collection) value(QP.IDS)));
+        c.add(Restrictions.in(path+".id",(Collection) value(IDS)));
         
         if (check("annotatorIds"))
         {

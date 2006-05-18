@@ -37,6 +37,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.testng.annotations.Test;
+
 //Application-internal dependencies
 import ome.api.IPojos;
 import ome.model.annotations.DatasetAnnotation;
@@ -71,6 +73,7 @@ public class PojosServiceTest
     	iPojos = (IPojos) applicationContext.getBean("pojosService");
     }
     
+    @Test
     public void test_unannotated_Event_version() throws Exception
     {
         DatasetAnnotation da = createLinkedDatasetAnnotation();
@@ -79,6 +82,7 @@ public class PojosServiceTest
         
     }
     
+    @Test
     public void test_cgc_Event_version() throws Exception
     {
             Set results = 

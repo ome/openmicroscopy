@@ -2,33 +2,27 @@ package ome.server.itests.update;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import ome.model.acquisition.AcquisitionContext;
+import org.testng.annotations.Test;
+
 import ome.model.containers.Project;
-import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
-import ome.model.display.Color;
-import ome.model.display.PlaneSlicingContext;
-import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.Family;
-import ome.model.enums.RenderingModel;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.parameters.Parameters;
 import ome.security.CurrentDetails;
 import ome.testing.ObjectFactory;
 
 public class UpdateTest extends AbstractUpdateTest
 {
 
+    @Test
     public void testSaveSimpleObject() throws Exception
     {
         Pixels p = ObjectFactory.createPixelGraph(null);
@@ -38,11 +32,11 @@ public class UpdateTest extends AbstractUpdateTest
         List logs = CurrentDetails.getCreationEvent().collectLogs(null);
         assertTrue(logs.size() > 0);
 
-        Pixels check = (Pixels) iQuery.queryUnique(
+        Pixels check = (Pixels) iQuery.findByQuery(
                 "select p from Pixels p " +
                 " left outer join fetch p.acquisitionContext " +
                 " left outer join fetch p.channels " +
-                "  where p.id = ?",new Object[]{p.getId()});
+                "  where p.id = :id",new Parameters().addId(p.getId()));
                 
         assertTrue("channel ids differ",equalCollections(p.getChannels(),check.getChannels()));
         assertTrue("acq ctx differ",
@@ -50,6 +44,7 @@ public class UpdateTest extends AbstractUpdateTest
                         check.getAcquisitionContext().getId()));
     }
     
+    @Test
     public void test_uh_oh_duplicate_rows_0() throws Exception
     {
         String name = "SIMPLE:"+System.currentTimeMillis();
@@ -58,7 +53,7 @@ public class UpdateTest extends AbstractUpdateTest
         p = (Project) iUpdate.saveAndReturnObject( p );
         
         Project compare = (Project) 
-            iQuery.getUniqueByFieldILike( Project.class, "name", name);
+            iQuery.findByString( Project.class, "name", name);
         
         assertTrue( p.getId().equals( compare.getId() ));
         
@@ -71,10 +66,11 @@ public class UpdateTest extends AbstractUpdateTest
         
         assertTrue( p.getId().equals( test.getId() ));
         
-        iQuery.getUniqueByFieldILike( Project.class, "name", name);
+        iQuery.findByString( Project.class, "name", name);
         
     }
     
+    @Test
     public void test_images_pixels() throws Exception
     {
         Image image = new Image();
@@ -92,6 +88,7 @@ public class UpdateTest extends AbstractUpdateTest
         
     }
     
+    @Test
     public void test_index_save() throws Exception
     {
 
@@ -110,6 +107,7 @@ public class UpdateTest extends AbstractUpdateTest
         
     }
 
+    @Test
     public void test_index_save_order() throws Exception
     {
 
@@ -132,6 +130,7 @@ public class UpdateTest extends AbstractUpdateTest
 
     }
     
+    @Test
     public void test_experimenters_groups() throws Exception
     {
         Experimenter e = new Experimenter();
@@ -162,9 +161,10 @@ public class UpdateTest extends AbstractUpdateTest
         flush();
         clear();
         
-        Experimenter test = (Experimenter) iQuery.queryUnique(
+        Experimenter test = (Experimenter) iQuery.findByQuery(
                 " select e from Experimenter e join fetch e.defaultGroupLink " +
-                " where e.id = ? ", new Object[] { defaultLink.child().getId() });
+                " where e.id = :id ", 
+                new Parameters().addId(defaultLink.child().getId()));
         assertNotNull(test.getDefaultGroupLink());
         assertTrue(test.getDefaultGroupLink().parent().getName().startsWith("DEFAULT"));
         

@@ -30,12 +30,8 @@
 package ome.logic;
 
 //Java imports
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -47,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
@@ -55,9 +51,16 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
 import ome.api.IQuery;
 import ome.api.local.LocalQuery;
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
+import ome.services.dao.Dao;
+import ome.services.query.Query;
 
 /**  Provides methods for directly querying object graphs.
  * 
@@ -84,6 +87,11 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
+    public <T extends IObject> Dao<T> getDao()
+    {
+        return new Dao<T>(this);
+    }
+    
     @Transactional(readOnly=false)
     public void evict(Object obj){
         getHibernateTemplate().evict(obj);
@@ -111,25 +119,43 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return false;
     }
 
-    public Object execute(ome.services.query.Query query)
+    /**
+     * @see ome.api.local.LocalQuery#execute(Query)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T execute(ome.services.query.Query<T> query)
     {
-        return getHibernateTemplate().execute(query);
+        return (T) getHibernateTemplate().execute(query);
     }
     
     // ~ INTERFACE METHODS
     // =========================================================================
 
-    /*
-     * @see ome.api.IQuery#getById(java.lang.Class, long)
+    /**
+     * @see ome.api.IQuery#get(java.lang.Class, long)
+     * @see org.hibernate.Session#load(java.lang.Class, java.io.Serializable)
      * @DEV.TODO weirdness here; learn more about CGLIB initialization.
      */
-    public Object getById(final Class klazz, final long id) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
+    @SuppressWarnings("unchecked")
+    public IObject get(@NotNull final Class klass, final long id) 
+    throws ValidationException
+    {
+        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                IObject o = (IObject) session.get(klazz,id); 
-                // TODO boolean for get vs. load (get vs. "find") ?? 
+                IObject o = null;
+                try 
+                {
+                    o = (IObject) session.load(klass,id);
+                } catch (ObjectNotFoundException onfe)
+                {
+                    throw new ApiUsageException(String.format(
+                            "The requested object (%s,%s) is not available.\n" +
+                            "Please use IQuery.find to deteremine existance.\n",
+                            klass.getName(),id));
+                }
+                
                 Hibernate.initialize(o);
                 return o;
                 
@@ -137,18 +163,62 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
             }
         });
     }
-    
-    /*
+
+    /**
+     * @see ome.api.IQuery#find(java.lang.Class, long)
+     * @see org.hibernate.Session#get(java.lang.Class, java.io.Serializable)
+     * @DEV.TODO weirdness here; learn more about CGLIB initialization.
+     */
+    @SuppressWarnings("unchecked")
+    public IObject find(@NotNull final Class klass, final long id)
+    {
+        if ( klass == null )
+            throw new ApiUsageException(
+                    "Class argument to find cannot be null."
+                    );
+        
+        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException {
+
+                IObject o = (IObject) session.get(klass,id); 
+                Hibernate.initialize(o);
+                return o;
+                
+                
+            }
+        });
+    }
+
+    /**
      * @see ome.api.IQuery#getByClass(java.lang.Class)
      */
-    public List getByClass(Class klass)
+    public List findAll(@NotNull final Class klass, final Filter filter)
     {
-        return getHibernateTemplate().loadAll(klass);
+        if ( filter == null )
+            return getHibernateTemplate().loadAll( klass );
+        
+        return (List) getHibernateTemplate().execute( new HibernateCallback(){
+           public Object doInHibernate(Session session) 
+           throws HibernateException, SQLException
+            {
+               Criteria c = session.createCriteria(klass);
+               parseFilter( c,filter );
+               return c.list();
+            } 
+        });
     }
-    
-    // TODO does example ID not work?
-	public Object getUniqueByExample(final Object example) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
+
+    /**
+     * @see ome.api.IQuery#findByExample(ome.model.IObject)
+     */
+    public IObject findByExample(@NotNull final IObject example) throws ApiUsageException
+    {
+        if ( example == null )
+            throw new ApiUsageException(
+                    "Example argument to findByExample cannot be null.");
+        
+        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
@@ -158,194 +228,127 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 
             }
         });
-	}
+    }
 
-	public List getListByExample(final Object example) {
+    /**
+     * @see ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)
+     */
+    public List findAllByExample(final IObject example, final Filter filter)
+    {
+        if ( example == null )
+            throw new ApiUsageException(
+                    "Example argument to findAllByExample cannot be null.");
+        
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
                 Criteria c = session.createCriteria(example.getClass());
                 c.add(Example.create(example));
+                parseFilter(c,filter);
                 return c.list();
                 
             }
         });
-	}
+    }
 
-	
-	public Object getUniqueByFieldILike(final Class klazz, final String field, final String value) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
+    /**
+     * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String, java.lang.String)
+     */
+    public IObject findByString(
+    @NotNull final Class klass, 
+    @NotNull final String fieldName, 
+    final String value) 
+    throws ApiUsageException
+    {
+        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Criteria c = session.createCriteria(klazz);
-                c.add(Expression.ilike(field,value,MatchMode.ANYWHERE));
+                Criteria c = session.createCriteria(klass);
+                c.add(Expression.like(fieldName,value));
                 return c.uniqueResult();
                 
             }
         });
-	}
+    }
 
-	public List getListByFieldILike(final Class klazz, final String field, final String value) {
+    /**
+     * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String, java.lang.String, boolean, ome.parameters.Filter)
+     */
+    public List findAllByString(
+            @NotNull final Class klass, 
+            @NotNull final String fieldName, 
+            final String value, 
+            final boolean caseSensitive, 
+            final Filter filter) 
+    throws ApiUsageException
+    {
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
-                Criteria c = session.createCriteria(klazz);
-                c.add(Expression.ilike(field,value,MatchMode.ANYWHERE));
+                Criteria c = session.createCriteria(klass);
+                parseFilter( c,filter );
+                
+                if (caseSensitive)
+                    c.add(Expression.like(fieldName,value,MatchMode.ANYWHERE));
+                else 
+                    c.add(Expression.ilike(fieldName,value,MatchMode.ANYWHERE));
+                
                 return c.list();
                 
             }
         });
-	}
+    }
 
-	public Object getUniqueByFieldEq(final Class klazz, final String field, final Object value) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+    /** 
+     * @see ome.api.IQuery#findByQuery(java.lang.String, ome.parameters.Parameters)
+     */
+    public IObject findByQuery(@NotNull String queryName, Parameters params) 
+    throws ValidationException
+    {
+        Query<IObject> q = queryFactory.lookup( queryName, params );
+        IObject result = null;
+        try { 
+            result = execute(q);
+        } catch (ClassCastException cce) {
+            throw new ApiUsageException(
+                    "Query named:\n\t"+queryName+"\n" +
+                    "has returned an Object of type "+cce.getMessage()+"\n" +
+                    "Queries must return IObjects when using findByQuery. \n" +
+                    "Please try findAllByQuery for queries which return Lists."
+                    );
+        }
+        return result;
+        
+    }
 
-                Criteria c = session.createCriteria(klazz);
-                c.add(Expression.eq(field,value));
-                return c.uniqueResult();
-                
-            }
-        });
-	}
+    /** 
+     * @see ome.api.IQuery#findAllByQuery(java.lang.String, ome.parameters.Parameters)
+     */
+    public List findAllByQuery(@NotNull String queryName, Parameters params)
+    {
+        Query<List> q = queryFactory.lookup( queryName, params );
+        return execute(q);
+    }
 
-	public List getListByFieldEq(final Class klazz, final String field, final Object value) {
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                Criteria c = session.createCriteria(klazz);
-                c.add(Expression.eq(field,value));
-                return c.list();
-                
-            }
-        });
-	}	
-	
-	public void persist(final Object[] objects) {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-            	for (Object o : objects){
-            		session.saveOrUpdate(o);
-            	}
-            	
-            	return null;
-                
-            }
-        });
-	}
-	
-	public Object queryUnique(final String query, final Object[] params) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-            	Query q = session.createQuery(query);
-            	fillParams(q,params);
-                return q.uniqueResult();
-                
-            }
-        });
-	}
-	
-	public List queryList(final String query, final Object[] params) {
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-            	Query q = session.createQuery(query);
-            	fillParams(q,params);
-                return q.list();
-                
-            }
-        });
-	}
-
-	public Object queryUniqueMap(final String query, final Map params) {
-        return getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-            	Query q = session.createQuery(query);
-            	fillParamsMap(q,params);
-                return q.uniqueResult();
-                
-            }
-        });
-	}
-	
-	public List queryListMap(final String query, final Map params) {
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-            	Query q = session.createQuery(query);
-            	fillParamsMap(q,params);
-                return q.list();
-                
-            }
-        });
-	}
-	
-	public Object getUniqueByMap(final Class klazz, final Map constraints) {
-        return (Object) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                Criteria c = session.createCriteria(klazz);
-                	c.add(Expression.allEq(constraints));
-                return c.uniqueResult();
-                
-            }
-        });
-	}
-
-	public List getListByMap(final Class klazz, final Map constraints) {
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-
-                Criteria c = session.createCriteria(klazz);
-               	c.add(Expression.allEq(constraints));
-                return c.list();
-                
-            }
-        });
-	}
 
     // ~ HELPERS
     // =========================================================================
     
-	private void fillParams(Query q, final Object[] params) {
-		if (null!=params){
-			for (int i = 0; i < params.length; i++) {
-				q.setParameter(i,params[i]);
-			}
-		}
-	}
-
-	private void fillParamsMap(Query q, final Map params) {
-		if (null!=params){
-            Set availableParameters = new HashSet(Arrays.asList(q.getNamedParameters()));
-			for (Object o : params.keySet()) {
-				String s = (String) o;
-				if (s.endsWith("_list")){ 
-					// Perhaps two arguments. params / paramLists FIXME above too.
-					// TODO only take the existing parameters
-					q.setParameterList(s,(Collection)params.get(o));
-				} else {
-                    if (availableParameters.contains(s))
-                        q.setParameter(s,params.get(o));
-				}
-			}
-		}
-	}
+    /** responsible for applying the information provided in a
+     * {@link ome.parameters.Filter} to a {@link org.hibernate.Critieria} 
+     * instance. 
+     */ 
+    protected void parseFilter( Criteria c, Filter f)
+    {
+        if ( f != null )
+        {
+            c.setFirstResult( f.firstResult() );
+            c.setMaxResults( f.maxResults() );
+        }
+    }
 
 }
 				

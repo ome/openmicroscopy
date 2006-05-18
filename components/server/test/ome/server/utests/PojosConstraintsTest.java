@@ -29,6 +29,7 @@
 package ome.server.utests;
 
 //Java imports
+import org.springframework.aop.framework.ProxyFactory;
 import org.testng.annotations.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,11 +42,14 @@ import junit.framework.TestCase;
 
 //Application-internal dependencies
 import ome.api.IPojos;
+import ome.conditions.ApiUsageException;
 import ome.logic.PojosImpl;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.services.query.QueryFactory;
+import ome.services.util.ServiceHandler;
 import ome.util.builders.PojoOptions;
 
 /**
@@ -58,12 +62,19 @@ import ome.util.builders.PojoOptions;
  * @since Omero 2.0
  */
 public class PojosConstraintsTest extends TestCase {
-    protected PojosImpl manager;
+    protected PojosImpl impl;
+    protected IPojos manager;
+    protected QueryFactory qf;
     
   @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
-        manager = new PojosImpl();
+        qf = new QueryFactory();
+        impl = new PojosImpl();
+        impl.setQueryFactory( qf );
+        ProxyFactory factory = new ProxyFactory(impl);
+        factory.addAdvice(new ServiceHandler());
+        manager = (IPojos) factory.getProxy();
     }
     
   @Configuration(afterTestMethod = true)
@@ -72,8 +83,8 @@ public class PojosConstraintsTest extends TestCase {
     }
 
   @Test
-	public void testFindAnnotations() {
-		T t = new T(IllegalArgumentException.class){
+	public void testFindAnnotations() throws Exception {
+		T t = new T(ApiUsageException.class){
 			@Override
 			public void doTest(Object[] arg) {
 				manager.findAnnotations((Class) arg[0], (Set) arg[1], (Set) arg[2], (Map) arg[3]);
@@ -95,8 +106,8 @@ public class PojosConstraintsTest extends TestCase {
 	}
 
   @Test
-	public void testFindCGCPaths() {
-		T t = new T(IllegalArgumentException.class){
+	public void testFindCGCPaths() throws Exception {
+		T t = new T(ApiUsageException.class){
 			@Override
 			public void doTest(Object[] arg) {
 				manager.findCGCPaths((Set)arg[0],(String)arg[1], (Map)arg[2]);
@@ -114,8 +125,8 @@ public class PojosConstraintsTest extends TestCase {
 	}
 
   @Test
-	public void testFindContainerHierarchies() {
-		T t = new T(IllegalArgumentException.class){
+	public void testFindContainerHierarchies() throws Exception {
+		T t = new T(ApiUsageException.class){
 			@Override
 			public void doTest(Object[] arg) {
 				manager.findContainerHierarchies((Class)arg[0],(Set)arg[1],(Map)arg[2]);
@@ -136,8 +147,8 @@ public class PojosConstraintsTest extends TestCase {
 	}
 
   @Test
-	public void testGetImages() {
-		T t = new T(IllegalArgumentException.class){
+	public void testGetImages() throws Exception {
+		T t = new T(ApiUsageException.class){
 			@Override
 			public void doTest(Object[] arg) {
 				manager.getImages((Class)arg[0],(Set)arg[1],(Map)arg[2]);
@@ -151,24 +162,24 @@ public class PojosConstraintsTest extends TestCase {
 	}
 
   @Test
-	public void testGetUserImages() {
-		T t = new T(IllegalArgumentException.class){
+	public void testGetUserImages() throws Exception {
+		T t = new T(ApiUsageException.class){
 			@Override
 			public void doTest(Object[] arg) {
 				manager.getUserImages((Map)arg[0]);
 			}
 		};
 		
-		t.blowup(true,new PojoOptions().allExps());
-		t.blowup(false,new PojoOptions().exp(1L));
+		t.blowup(true,new PojoOptions().allExps().map());
+		t.blowup(false,new PojoOptions().exp(1L).map());
 		
 	}
 
   @Test
-	public void testLoadContainerHierary() {
+	public void testLoadContainerHierary() throws Exception {
 		Set ids;
 		Map options;
-		T t = new T(IllegalArgumentException.class){
+		T t = new T(ApiUsageException.class){
 			@Override
 			public void doTest(Object[] arg) {
 				manager.loadContainerHierarchy((Class)arg[0],(Set)arg[1],(Map)arg[2]);
@@ -202,11 +213,19 @@ public class PojosConstraintsTest extends TestCase {
 		public abstract void doTest(Object[] arg);
 		public void setException(Class type){t=type;}
 		
-		public void blowup(boolean exceptionExpected,Object... arg){
+        public void blowup(boolean exceptionExpected,Object... arg) throws Exception{
+            boolean failed = false;
 			try {
 				doTest(arg);
-				if (exceptionExpected) fail("Expected an exception here");
-			} catch (Throwable e) {
+				if (exceptionExpected) 
+                {
+                    failed = true;
+                    fail("Expected an exception here");
+                }
+			} catch (Exception e) {
+                if (failed)
+                    throw e;
+                
 				if (! exceptionExpected || (t != null && ! (t.isAssignableFrom(e.getClass())))) {
 					throw new RuntimeException("Exception type "+e.getClass()+" not expected. Rethrowing",e);
 				}

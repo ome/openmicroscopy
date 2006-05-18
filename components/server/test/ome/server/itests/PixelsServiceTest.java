@@ -33,6 +33,8 @@ package ome.server.itests;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.api.IPixels;
@@ -58,20 +60,38 @@ public class PixelsServiceTest
     private static Log log = LogFactory.getLog(PixelsServiceTest.class);
 
     private IPixels pix;
+
+    // =========================================================================
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    public void adaptSetUp() throws Exception
+    {
+        super.setUp();
+    }
+
+    @Configuration(afterTestMethod = true)
+    public void adaptTearDown() throws Exception
+    {
+        super.tearDown();
+    }
+    // =========================================================================
     
     @Override
     protected void onSetUp() throws Exception {
-    	super.onSetUp();
-    	//ome.security.Utils.setUserAuth();
-    	pix = (IPixels) applicationContext.getBean("pixelsService");
+        super.onSetUp();
+        //ome.security.Utils.setUserAuth();
+        pix = (IPixels) applicationContext.getBean("pixelsService");
     }
-    
+
+    @Test
     public void testPix(){
     	Pixels p = pix.retrievePixDescription(1L);
     	assertNotNull(p);
     	log.info(p);
     }
     
+    @Test
     public void testLetsSaveADefinition() throws Exception
     {
         Pixels p = pix.retrievePixDescription(1L);
@@ -80,6 +100,7 @@ public class PixelsServiceTest
 
     }
 
+    @Test
     public void testGetTheDefinitionWeJustMade() {
         RenderingDef test = pix.retrieveRndSettings(1L);
     	assertNotNull(test);

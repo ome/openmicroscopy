@@ -30,29 +30,24 @@ package ome.server.itests.query;
 
 //Java imports
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.QP;
 import ome.services.query.Query;
 import ome.services.query.StringQuerySource;
 import ome.tools.lsid.LsidUtils;
-import ome.util.ContextFilter;
-import ome.util.Filterable;
 import ome.util.RdfPrinter;
 
 /** 
@@ -73,85 +68,83 @@ public class QueryTest
     private static Log log = LogFactory.getLog(QueryTest.class);
     
 
+    @Test
     public void testFindHierarchies() throws Exception
     {
 
         PojosFindHierarchiesQueryDefinition queryDef 
             = new PojosFindHierarchiesQueryDefinition(
-                    QP.Class("class",Project.class),
-                    QP.List("ids",Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L)),
-                    QP.Map("options",null)
-        );
+                    new Parameters()
+                        .addClass(Project.class)
+                        .addIds(Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L))
+                        .addOptions(null));
+
         List result = (List) iQuery.execute(queryDef);
         walkResult(result);
     }
     
+    @Test
     public void testFilteredCalls(){
 
         PojosLoadHierarchyQueryDefinition queryDef 
             = new PojosLoadHierarchyQueryDefinition(
-                    QP.Class("class",Project.class),
-                    QP.List("ids",Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L)),
-                    QP.Long("ownerId",10000L),
-                    QP.Map("options",null)
-        );
+                    new Parameters()
+                        .addClass(Project.class)
+                        .addIds(Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L))
+                        .addLong("ownerId",10000L)
+                        .addOptions(null));
         List result = (List) iQuery.execute(queryDef);
         walkResult(result);
     }
     
+    @Test
     public void testCriteriaCalls(){
+        Parameters p = new Parameters()
+        .addClass(Project.class)
+        .addIds(Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L))
+        .addLong("ownerId",null)
+        .addOptions(null);
+
         PojosLoadHierarchyQueryDefinition queryDef
-            = new PojosLoadHierarchyQueryDefinition(
-                    QP.Class("class",Project.class),
-                    QP.List("ids",
-                    Arrays.asList(9090L,9091L,9092L,9990L,9991L,9992L)),
-                    QP.Long("ownerId",null),
-                    QP.Map("options",null));
-        
+            = new PojosLoadHierarchyQueryDefinition(p);
+
         List result = (List) iQuery.execute(queryDef);
         walkResult(result);
     }
-    
-    protected void walkResult(List result) {
-        RdfPrinter rdf = new RdfPrinter();
-        rdf.filter("results are", result);
-        System.out.println(rdf.getRdf());
-    }
-    
+
+    @Test
 	public void testGetById() {
 	}
 
+    @Test
 	public void testGetByName() {
 	}
 
+    @Test
 	public void testGetListByExample() {
 	}
 
-	public void testGetListByMap() {
-		
-		//Project by id
-		Map projectById = new HashMap();
-		projectById.put("id",1L);
-		List l1 = iQuery.getListByMap(Project.class, projectById );
-		assertTrue("Can't be more than one",l1.size()<=1);
-		
-	}
-
+    @Test
 	public void testGetUniqueByExample() {
 	}
 
+    @Test
 	public void testGetUniqueByMap() {
 	}
 
+    @Test
 	public void testPersist() {
 	}
 
+    @Test
 	public void testQueryList() {
 	}
 
+    @Test
 	public void testQueryUnique() {
 	}
-    
+
+    @Test
     public void testCounts() throws Exception
     {
         String s_dataset = LsidUtils.parseType(Dataset.ANNOTATIONS);
@@ -162,20 +155,34 @@ public class QueryTest
         
         Query q = 
             new StringQuerySource()
-                .lookup(works);
+                .lookup(works,null);
 //                        select sum(*) from Dataset ds " +
 //                        "group by ds.id having ds.id in (1L)");
         List result = (List) iQuery.execute(q);
         System.out.println(result);
     }
-    
+
+    @Test
     public void testGetExperimenter() throws Exception
     {
-        Experimenter e = (Experimenter) iQuery.getById( Experimenter.class, 0);
+        Experimenter e = (Experimenter) iQuery.get( Experimenter.class, 0);
         assertNotNull(e.getDefaultGroupLink());
         assertNotNull(e.getDefaultGroupLink().parent());
         
     }
 
+    @Test
+    public void test_examplById() throws Exception
+    {
+        fail("implement me");
+    }
+
+    protected void walkResult(List result) {
+        RdfPrinter rdf = new RdfPrinter();
+        rdf.filter("results are", result);
+        System.out.println(rdf.getRdf());
+    }
+
+    
 }
 

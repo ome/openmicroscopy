@@ -42,6 +42,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
+import org.testng.annotations.Test;
 
 // Application-internal dependencies
 import ome.dynamic.BuildRunner;
@@ -100,6 +101,7 @@ public class CGCPathsDbUnitTest extends AbstractDbUnitTest
         return new XmlDataSet(new FileInputStream(file.getFile()));
     }
 
+    @Test
     public void testFindCGCPathsContained()
     {
 

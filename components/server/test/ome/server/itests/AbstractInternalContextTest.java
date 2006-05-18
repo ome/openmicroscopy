@@ -8,6 +8,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
+import org.testng.annotations.Configuration;
 
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -22,6 +23,22 @@ import ome.testing.OMEData;
 public class AbstractInternalContextTest
         extends AbstractTransactionalDataSourceSpringContextTests
 {
+    // =========================================================================
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    public void adaptSetUp() throws Exception
+    {
+        super.setUp();
+    }
+
+    @Configuration(afterTestMethod = true)
+    public void adaptTearDown() throws Exception
+    {
+        super.tearDown();
+    }
+    // =========================================================================
+    
     @Override
     protected String[] getConfigLocations()
     {
@@ -42,6 +59,7 @@ public class AbstractInternalContextTest
     
     protected OMEData                       data;
 
+    
     @Override
     protected void onSetUpBeforeTransaction() throws Exception
     {
@@ -72,13 +90,13 @@ public class AbstractInternalContextTest
     {
         /* TODO run experiment as root. Dangerous? */
         Experimenter o = 
-            (Experimenter) iQuery.getById(Experimenter.class,0);
+            (Experimenter) iQuery.get(Experimenter.class,0);
         ExperimenterGroup g = 
-            (ExperimenterGroup) iQuery.getById(ExperimenterGroup.class,0);
+            (ExperimenterGroup) iQuery.get(ExperimenterGroup.class,0);
         CurrentDetails.setOwner(o);
         CurrentDetails.setGroup(g);
         EventType test = 
-            (EventType) iQuery.getUniqueByFieldEq(EventType.class,"value","Test");
+            (EventType) iQuery.findByString(EventType.class,"value","Test");
         CurrentDetails.newEvent(test);
     }
 

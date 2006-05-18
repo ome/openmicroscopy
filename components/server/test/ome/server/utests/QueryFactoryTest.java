@@ -4,10 +4,10 @@ import org.testng.annotations.*;
 import java.util.Arrays;
 
 import ome.model.containers.Project;
+import ome.parameters.Parameters;
 import ome.services.query.ClassQuerySource;
 import ome.services.query.NullQuerySource;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.QP;
 import ome.services.query.Query;
 import ome.services.query.QueryException;
 import ome.services.query.QueryFactory;
@@ -64,10 +64,11 @@ public class QueryFactoryTest extends TestCase
     {
         qf = new QueryFactory(classQS);
         Query q = qf.lookup(PojosLoadHierarchyQueryDefinition.class.getName(),
-                QP.Class("class",Project.class),
-                QP.List("ids",Arrays.asList(0L)),
-                QP.Null("ownerId"),
-                QP.Null("options"));
+                new Parameters()
+                    .addClass(Project.class)
+                    .addIds(Arrays.asList(0L))
+                    .addString(Parameters.OWNER_ID,null)
+                    .addOptions(null));
         assertNotNull("We should have a Pojos Query",q);
     }
     

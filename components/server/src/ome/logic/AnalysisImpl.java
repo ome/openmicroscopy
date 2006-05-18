@@ -50,6 +50,7 @@ import ome.api.IAnalysis;
 import ome.model.containers.Dataset;
 import ome.model.meta.Experimenter;
 import ome.model.containers.Project;
+import ome.parameters.Parameters;
 
 
 /**
@@ -86,13 +87,13 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 		Project prj = new Project();
 		prj.getDetails().setOwner(exp);
 		
-		return new HashSet(iQuery.getListByExample(prj)); 
+		return new HashSet(iQuery.findAllByExample(prj,null)); 
         // FIXME does this work. if not:
         // "from Project p where p.experimenter = :expId"
 	}
 
 	public Set getAllDatasets() {
-		return new HashSet(iQuery.getListByExample(new Dataset()));
+		return new HashSet(iQuery.findAllByExample(new Dataset(),null));
 	}
 
 	public Set getAllForImage(long imageId) {
@@ -122,9 +123,10 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 		sb.append(" select d from Dataset d ");
 		sb.append("  left outer join fetch d.projectLinks pdl ");
         sb.append("  left outer join fetch pdl.parent p ");
-		sb.append("  where p.id = ?");
+		sb.append("  where p.id = :id");
 		
-		return new HashSet(iQuery.queryList(sb.toString(),new Object[]{projectId}));
+		return new HashSet(iQuery.findAllByQuery(
+                sb.toString(),new Parameters().addId( projectId )));
 		
 	}
 
@@ -133,9 +135,10 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 		sb.append(" select p from Project p ");
 		sb.append("  left outer join fetch p.datasetLinks pdl ");
         sb.append("  left outer join fetch pdl.child d ");
-		sb.append("  where d.id = ?");
+		sb.append("  where d.id = :id");
 		
-		return new HashSet(iQuery.queryList(sb.toString(),new Object[]{datasetId}));
+		return new HashSet(iQuery.findAllByQuery(
+                sb.toString(),new Parameters().addId( datasetId )));
 	}
 
 	public Set getImagesForDataset(long datasetId) {
@@ -143,9 +146,10 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 		sb.append(" select i from Image i ");
 		sb.append("  left outer join fetch i.datasetLinks dil ");
         sb.append("  left outer join fetch dil.parent d ");
-		sb.append("  where d.id = ?");
+		sb.append("  where d.id = :id");
 		
-		return new HashSet(iQuery.queryList(sb.toString(),new Object[]{datasetId}));
+		return new HashSet(iQuery.findAllByQuery(
+                sb.toString(),new Parameters().addId( datasetId )));
 	}
 
 	

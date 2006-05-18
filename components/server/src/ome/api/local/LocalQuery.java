@@ -34,6 +34,8 @@ package ome.api.local;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.IObject;
+import ome.services.dao.Dao;
 import ome.services.query.Query;
 
 /**
@@ -47,7 +49,16 @@ import ome.services.query.Query;
  * @since OMERO3.0
  */
 public interface LocalQuery extends ome.api.IQuery {
-
+    
+    /**
+     * creates and returns a convenience Dao which provides generics 
+     * despite the &lt; Java5 requirement on {@link ome.api.IQuery}.
+     * 
+     * @param <T>
+     * @return
+     */
+    //TODO <T extends IObject> Dao<T> getDao();
+    
     /** 
      * Executes a locally defined Query. Currently a thin
      * wrapper around Spring's HibernateTemplate 
@@ -61,7 +72,7 @@ public interface LocalQuery extends ome.api.IQuery {
      * @see org.springframework.orm.hibernate3.HibernateTemplate
      * @see org.springframework.orm.hibernate3.HibernateCallback
      */
-    Object execute(Query query);
+    <T> T execute(Query<T> query);
 
     /** Removes an object graph from the session. This allows for
      * non-permanent, mutable calls on the graph.

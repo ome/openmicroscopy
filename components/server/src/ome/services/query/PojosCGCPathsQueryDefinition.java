@@ -2,23 +2,19 @@ package ome.services.query;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.AliasedProjection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.AliasToEntityMapResultTransformer;
 
 import ome.api.IPojos;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.model.containers.Project;
+import ome.parameters.Parameters;
+import static ome.parameters.Parameters.*;
 import ome.util.builders.PojoOptions;
 
 public class PojosCGCPathsQueryDefinition extends Query
@@ -27,10 +23,9 @@ public class PojosCGCPathsQueryDefinition extends Query
     static Definitions defs = new Definitions(
         new IdsQueryParameterDef(),
         new OptionsQueryParameterDef(),
-        new QueryParameterDef(PojosQP.ALGORITHM, 
-                String.class, false));
+        new AlgorithmQueryParameterDef());
     
-    public PojosCGCPathsQueryDefinition(QueryParameter... parameters)
+    public PojosCGCPathsQueryDefinition(Parameters parameters)
     {
         super(defs, parameters);
     }
@@ -39,10 +34,10 @@ public class PojosCGCPathsQueryDefinition extends Query
     protected Object runQuery(Session session) 
     throws HibernateException, SQLException
     {
-        PojoOptions po = new PojoOptions((Map) value(QP.OPTIONS));
+        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
         
-        String algo = (String) value(PojosQP.ALGORITHM);
-        Collection ids = (Collection) value(QP.IDS);
+        String algo = (String) value(ALGORITHM);
+        Collection ids = (Collection) value(IDS);
 
         Criteria cg = session.createCriteria(CategoryGroup.class);
         cg.setResultTransformer(Hierarchy.getChildTransformer(CategoryGroup.class)); 

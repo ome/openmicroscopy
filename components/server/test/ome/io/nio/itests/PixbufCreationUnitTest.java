@@ -32,6 +32,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.testng.annotations.Test;
+
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -51,6 +53,7 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest
     PixbufIOFixture baseFixture;
     PixelBuffer pixbuf;
     
+    @Test
     public void testValidPixbuf() throws IOException
     {
         String validSHA1 = "caf922a2e71828fd287b75ef30d9bf1c918c96e2";
@@ -59,6 +62,7 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest
         assertEquals(validSHA1, Helper.bytesToHex(md));
     }
     
+    @Test
     public void testNullPlanes()
         throws IOException, DimensionsOutOfBoundsException
     {

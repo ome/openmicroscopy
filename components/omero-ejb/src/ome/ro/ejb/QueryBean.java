@@ -30,7 +30,6 @@ package ome.ro.ejb;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -38,15 +37,20 @@ import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+//Third-party imports
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
-//Third-party imports
-
 //Application-internal dependencies
 import ome.api.IQuery;
 import ome.api.local.LocalQuery;
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
+import ome.model.IObject;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
+import ome.services.dao.Dao;
 import ome.services.query.Query;
 
 
@@ -73,118 +77,74 @@ public class QueryBean extends AbstractBean implements LocalQuery
         super.destroy();
     }
 
-    @RolesAllowed("user") 
-    public Object getById(Class klazz, long id)
+    @RolesAllowed("user") public boolean checkProperty(String arg0, String arg1)
     {
-        return delegate.getById(klazz, id);
+        return delegate.checkProperty(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public List getListByExample(Object example)
+    @RolesAllowed("user") public boolean checkType(String arg0)
     {
-        return delegate.getListByExample(example);
+        return delegate.checkType(arg0);
     }
 
-    @RolesAllowed("user") 
-    public List getListByFieldEq(Class klazz, String field, Object value)
+    @RolesAllowed("user") public void evict(Object arg0)
     {
-        return delegate.getListByFieldEq(klazz, field, value);
+        delegate.evict(arg0);
+    }
+    
+    @RolesAllowed("user") public Object execute(Query arg0)
+    {
+        return delegate.execute(arg0);
     }
 
-    @RolesAllowed("user") 
-    public List getListByFieldILike(Class klazz, String field, String value)
+    @RolesAllowed("user") public IObject find(Class arg0, long arg1)
     {
-        return delegate.getListByFieldILike(klazz, field, value);
+        return delegate.find(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public List getListByMap(Class klazz, Map constraints)
+    @RolesAllowed("user") public List findAll(Class arg0, Filter arg1)
     {
-        return delegate.getListByMap(klazz, constraints);
+        return delegate.findAll(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public Object getUniqueByExample(Object example)
+    @RolesAllowed("user") public List findAllByExample(IObject arg0, Filter arg1)
     {
-        return delegate.getUniqueByExample(example);
+        return delegate.findAllByExample(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public Object getUniqueByFieldEq(Class klazz, String field, Object value)
+    @RolesAllowed("user") public List findAllByQuery(String arg0, Parameters arg1)
     {
-        return delegate.getUniqueByFieldEq(klazz, field, value);
+        return delegate.findAllByQuery(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public Object getUniqueByFieldILike(Class klazz, String field, String value)
+    @RolesAllowed("user") public List findAllByString(Class arg0, String arg1, String arg2, boolean arg3, Filter arg4)
     {
-        return delegate.getUniqueByFieldILike(klazz, field, value);
+        return delegate.findAllByString(arg0, arg1, arg2, arg3, arg4);
     }
 
-    @RolesAllowed("user") 
-    public Object getUniqueByMap(Class klazz, Map constraints)
+    @RolesAllowed("user") public IObject findByExample(IObject arg0) throws ApiUsageException
     {
-        return delegate.getUniqueByMap(klazz, constraints);
+        return delegate.findByExample(arg0);
     }
 
-    @RolesAllowed("user") 
-    public List queryList(String query, Object[] params)
+    @RolesAllowed("user") public IObject findByQuery(String arg0, Parameters arg1) throws ValidationException
     {
-        return delegate.queryList(query, params);
+        return delegate.findByQuery(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public List queryListMap(String query, Map params)
+    @RolesAllowed("user") public IObject findByString(Class arg0, String arg1, String arg2) throws ApiUsageException
     {
-        return delegate.queryListMap(query, params);
+        return delegate.findByString(arg0, arg1, arg2);
     }
 
-    @RolesAllowed("user") 
-    public Object queryUnique(String query, Object[] params)
+    @RolesAllowed("user") public IObject get(Class arg0, long arg1) throws ValidationException
     {
-        return delegate.queryUnique(query, params);
+        return delegate.get(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    public Object queryUniqueMap(String query, Map params)
+    @RolesAllowed("user") public void initialize(Object arg0)
     {
-        return delegate.queryUniqueMap(query, params);
-    }
-
-    @RolesAllowed("user") 
-    public boolean checkProperty(String type, String property)
-    {
-        return delegate.checkProperty(type, property);
-    }
-
-    @RolesAllowed("user") 
-    public boolean checkType(String type)
-    {
-        return delegate.checkType(type);
-    }
-
-    @RolesAllowed("user") 
-    public void evict(Object object)
-    {
-        delegate.evict(object);
-    }
-
-    @RolesAllowed("user") 
-    public Object execute(Query query)
-    {
-        return delegate.execute(query);
-    }
-
-    @RolesAllowed("user") 
-    public List getByClass(Class klazz)
-    {
-        return delegate.getByClass(klazz);
-    }
-
-    @RolesAllowed("user") 
-    public void initialize(Object object)
-    {
-        delegate.initialize(object);
+        delegate.initialize(arg0);
     }
 
 }

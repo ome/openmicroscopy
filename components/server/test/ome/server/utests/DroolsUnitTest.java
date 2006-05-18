@@ -36,6 +36,8 @@ import java.util.Set;
 //Third-party libraries
 import org.drools.spi.ConsequenceException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.model.containers.Category;
@@ -60,6 +62,22 @@ import ome.rules.RulesEngine;
  */
 public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTests{
 
+    // =========================================================================
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    public void adaptSetUp() throws Exception
+    {
+        super.setUp();
+    }
+
+    @Configuration(afterTestMethod = true)
+    public void adaptTearDown() throws Exception
+    {
+        super.tearDown();
+    }
+    // =========================================================================
+    
 	private RulesEngine re;
 
 	@Override
@@ -71,10 +89,12 @@ public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTest
 		this.re = eng;
 	}
 	
+    @Test
 	public void testAssertBaseObject() throws Exception{
 		re.evaluate(new Object());
 	}
 	
+    @Test
 	public void testTimeInTheFuture() throws Exception {
 		Date d = new Date(System.currentTimeMillis()+1000000);
 		Date d2 = new Date(d.getTime());
@@ -83,6 +103,7 @@ public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTest
 		
 	}
 
+    @Test
 	public void testWithGraph() throws Exception {
 		Project p = new Project();
         p.setDetails(new Details());
@@ -99,11 +120,13 @@ public class DroolsUnitTest extends AbstractDependencyInjectionSpringContextTest
 		
 	}
 
+    @Test
 	public void testSameObjectTwice() throws Exception {
 		Object o = new Object();
 		re.evaluate(o,o);
 	}
 	
+    @Test
 	public void testClassificationExclusivity() throws Exception {
 		CategoryGroup cg = new CategoryGroup();
 		Category c1 = new Category();

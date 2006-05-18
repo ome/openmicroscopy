@@ -3,15 +3,15 @@ package ome.server.itests.query;
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.PojosQP;
-import ome.services.query.QP;
-import ome.services.query.QueryParameter;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
@@ -24,7 +24,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     List level1objects = Arrays.asList( 7771L, 7772L  );
     List level0objects = Arrays.asList( 5551L, 5552L  );
     
-    protected void creation_fails(QueryParameter...parameters){
+    protected void creation_fails(Parameters parameters){
         try {
             q= new PojosLoadHierarchyQueryDefinition( // TODO if use lookup, more generic
                     parameters);
@@ -32,22 +32,25 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         } catch (IllegalArgumentException e) {}
     }
     
+    @Test
     public void test_illegal_arguments() throws Exception
     {
 
-        creation_fails( );
+        creation_fails( null );
         
         creation_fails(
-                PojosQP.ids(null), // Null
-                PojosQP.options(null),
-                PojosQP.Class(QP.CLASS, null)
+                new Parameters()
+                    .addIds(null) //Null
+                    .addOptions(null)
+                    .addClass(null)
                 );
         
         creation_fails(
-                PojosQP.ids( Arrays.asList( 1 )), // Not long
-                PojosQP.options( null ),
-                PojosQP.Class(QP.CLASS, Project.class )
-                );
+                new Parameters()
+                .addIds(Arrays.asList( 1 )) // Not long
+                .addOptions(null)
+                .addClass(Project.class)
+            );
 
         /* TODO currently handled by IPojos
         creation_fails(
@@ -66,21 +69,26 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         
     }
 
+    @org.testng.annotations.Test
     public void test_simple_usage() throws Exception
     {
         Long doesntExist = -1L;
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.ids(Arrays.asList(doesntExist)),
-                PojosQP.options(null),
-                PojosQP.Class( QP.CLASS, Project.class ));
+                new Parameters()
+                .addIds(Arrays.asList( doesntExist )) 
+                .addOptions(null)
+                .addClass(Project.class)
+            );
            
         list = (List) iQuery.execute(q);
 
         PojoOptions po = new PojoOptions().exp( doesntExist );
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.ids( null ),
-                PojosQP.options( po.map() ),
-                PojosQP.Class( QP.CLASS, Project.class ));
+                new Parameters()
+                .addIds(null) 
+                .addOptions(po.map())
+                .addClass(Project.class)
+            );
            
         list = (List) iQuery.execute(q);
         
@@ -92,7 +100,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     // =========================================================================
     // =========================================================================
 
-    
+    @org.testng.annotations.Test
     public void test_retrieve_levels() throws Exception
     {
        
@@ -129,44 +137,40 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
 
     
     PojoOptions po10000 = new PojoOptions().exp( 10000L );
-    QueryParameter filterForUser = PojosQP.options( po10000.map() );
-    QueryParameter noFilter = PojosQP.options( null );
+    Parameters filterForUser = new Parameters().addOptions( po10000.map() );
+    Parameters noFilter = new Parameters().addOptions( null );
 
+    @Test
     public void test_owner_filter() throws Exception 
     {
-        QueryParameter ids;
-
+        Parameters ids;
         
         // Belongs to user.
-        ids = PojosQP.ids(Arrays.asList( 9990L ));
+        ids = new Parameters().addIds(Arrays.asList( 9990L ));
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.Class( QP.CLASS, Project.class ),
-                ids, noFilter);
+                new Parameters( ids ).addAll(noFilter).addClass(Project.class));
            
         list = (List) iQuery.execute(q);
         assertTrue( list.size() > 0 );
         
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.Class( QP.CLASS, Project.class ),
-                ids, filterForUser );
+                new Parameters( ids ).addAll(filterForUser).addClass(Project.class));
            
         list = (List) iQuery.execute(q);
         assertTrue( list.size() > 0 );
 
         
         // Doesn't belong to user.
-        ids = PojosQP.ids(Arrays.asList( 9090L ));
+        ids = new Parameters().addIds(Arrays.asList( 9090L ));
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.Class( QP.CLASS, Project.class ),
-                ids, noFilter);
+                new Parameters( ids ).addAll(noFilter).addClass(Project.class));
            
         list = (List) iQuery.execute(q);
         assertTrue( list.size() > 0 );
         
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.Class( QP.CLASS, Project.class ),
-                ids, filterForUser );
-           
+                new Parameters( ids ).addAll(filterForUser).addClass(Project.class));
+        
         list = (List) iQuery.execute(q);
         assertTrue( list.size() == 0 );
 
@@ -204,9 +208,10 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     private void runLevel( Class klass, List ids, PojoOptions po )
     {
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.ids( ids ),
-                PojosQP.options( po.map() ),
-                PojosQP.Class( QP.CLASS, klass ));
+                new Parameters()
+                    .addIds(ids)
+                    .addOptions(po.map())
+                    .addClass(klass));
            
         list = (List) iQuery.execute(q);
         
@@ -287,8 +292,9 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     private void run_null_filter_check_size(Class klass, int size)
     {
         q= new PojosLoadHierarchyQueryDefinition(
-                PojosQP.Class( QP.CLASS, klass ),
-                PojosQP.ids( null ), filterForUser );
+                new Parameters( filterForUser)
+                    .addClass(klass)
+                    .addIds(null));
            
         list = (List) iQuery.execute(q);
         assertTrue( String.format(

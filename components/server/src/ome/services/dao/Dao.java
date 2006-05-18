@@ -30,8 +30,15 @@ public class Dao<T extends IObject> {
     }
     
     @SuppressWarnings("unchecked")
-	T findEntity(){ return (T) iQuery.getById(null,0); }
+	T findEntity( Class klass, long id)
+    { 
+        return (T) iQuery.find(null,id); 
+    }
     
-	List <T> findAll() { return null; }	
+    @SuppressWarnings("unchecked")
+	List <T> findAll( Class klass ) 
+    { 
+        return iQuery.findAll(klass,null); 
+    }	
 	
 }

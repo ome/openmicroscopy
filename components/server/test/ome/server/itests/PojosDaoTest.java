@@ -38,7 +38,10 @@ import java.util.Set;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.api.IQuery;
@@ -47,6 +50,7 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
+import ome.system.OmeroContext;
 import ome.util.builders.PojoOptions;
 
 /** 
@@ -73,6 +77,38 @@ public class PojosDaoTest
 
         return ConfigHelper.getDaoConfigLocations(); 
     }
+    
+    @Override
+    protected ConfigurableApplicationContext getContext(Object key)
+    {
+        return OmeroContext.getManagedServerContext();
+    }
+
+    // =========================================================================
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    public void adaptSetUp() throws Exception
+    {
+        super.setUp();
+    }
+
+    @Configuration(afterTestMethod = true)
+    public void adaptTearDown() throws Exception
+    {
+        super.tearDown();
+    }
+    // =========================================================================
+    
+    @Override
+    protected void onSetUp() throws Exception {
+        _q = (IQuery) applicationContext.getBean("queryService");
+        po = new PojoOptions().exp(1L);
+        ids = new HashSet<Integer>(Arrays.asList(new Integer[]{1,2,3,4,5,6,250,253,249,258}));
+        m = new HashMap();
+        m.put("id_list",ids);
+        m.put("exp",po.getExperimenter());
+    }
 
     IQuery _q;
 
@@ -83,34 +119,28 @@ public class PojosDaoTest
 	Map m = new HashMap();
 	String n;
     
-    @Override
-    protected void onSetUp() throws Exception {
-        _q = (IQuery) applicationContext.getBean("updateService");
-        po = new PojoOptions().exp(1L);
-    	ids = new HashSet<Integer>(Arrays.asList(new Integer[]{1,2,3,4,5,6,250,253,249,258}));
-    	m = new HashMap();
-    	m.put("id_list",ids);
-    	m.put("exp",po.getExperimenter());
-    }
-
     public void runLoad(String name, Class c){
     	// Class, Set<Container>, options
     	//q = PojosQueryBuilder.buildLoadQuery(c,false,po.map());
     	n = name;go();
     }
     
+    @Test
 	public void testLoadProject(){
 		runLoad("Load_p",Project.class);
     }
 
+    @Test
 	public void testLoadDataset(){
 		runLoad("Load_d",Dataset.class);
     }
 
+    @Test
 	public void testLoadCG(){
 		runLoad("Load_cg",CategoryGroup.class);
     }
 
+    @Test
 	public void testLoadC(){
 		runLoad("Load_c",Category.class);
     }
@@ -123,10 +153,12 @@ public class PojosDaoTest
     	n = name;go();
     }
     
+    @Test
     public void testFindProject(){
     	runFind("Find_p",Project.class);
     }
 
+    @Test
     public void testFindDataset(){
     	runFind("Find_cg",CategoryGroup.class);
     }
@@ -139,11 +171,13 @@ public class PojosDaoTest
     	m.remove("exp"); // unused
     	n = name;go();
     }
-    
+
+    @Test
     public void testDatasetAnn(){
     	runAnn("ann_d",Dataset.class);
     }
 
+    @Test
     public void testImageAnn(){
     	runAnn("ann_i",Image.class);
     }
@@ -156,23 +190,28 @@ public class PojosDaoTest
     	n = name;go();
     }
     
+    @Test
     public void testGetFromProject(){
     	runGet("get_p",Project.class);
     }
 
+    @Test
     public void testGetFromDataset(){
     	runGet("get_p",Dataset.class);
     }
 
+    @Test
     public void testGetFromCg(){
     	runGet("get_cg",CategoryGroup.class);
     }
 
+    @Test
     public void testGetFromCat(){
     	runGet("get_c",Category.class);
     }
 
     //TODO how to run getUserImages
+    @Test
     public void testGetUser(){
     	m.remove("id_list");
     	runGet("get_user",Image.class); // TODO make nicer; here Image.class=>noIds in template could just po.set("noIds")
@@ -187,10 +226,12 @@ public class PojosDaoTest
     	n = name;go();
     }
     
+    @Test
     public void testPathsInc() {
     	runPaths("inc_path","INCLUSIVE");
 	}
 
+    @Test
     public void testPathsExc() {
     	runPaths("exc_path","EXCLUSIVE");
 	}

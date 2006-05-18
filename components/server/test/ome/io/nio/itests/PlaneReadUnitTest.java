@@ -33,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 
+import org.testng.annotations.Test;
+
 import junit.framework.TestCase;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -121,6 +123,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest
         createPlanes();
     }
     
+    @Test
     public void testInitialPlane()
         throws IOException, DimensionsOutOfBoundsException
     {
@@ -134,6 +137,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest
                      Helper.bytesToHex(messageDigest));
     }
     
+    @Test
     public void testLastPlane()
         throws IOException, DimensionsOutOfBoundsException
     {
@@ -152,6 +156,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest
                      Helper.bytesToHex(messageDigest));
     }
 
+    @Test
     public void testAllPlanes()
     throws IOException, DimensionsOutOfBoundsException
     {

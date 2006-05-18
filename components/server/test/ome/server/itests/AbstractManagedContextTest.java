@@ -2,6 +2,7 @@ package ome.server.itests;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.testng.annotations.Configuration;
 
 import ome.api.IAnalysis;
 import ome.api.IPixels;
@@ -16,6 +17,23 @@ import ome.system.Principal;
 public class AbstractManagedContextTest
         extends AbstractDependencyInjectionSpringContextTests
 {
+    
+    // =========================================================================
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    public void adaptSetUp() throws Exception
+    {
+        super.setUp();
+    }
+
+    @Configuration(afterTestMethod = true)
+    public void adaptTearDown() throws Exception
+    {
+        super.tearDown();
+    }
+    // =========================================================================
+    
     protected LocalQuery iQuery;
 
     protected LocalUpdate iUpdate;

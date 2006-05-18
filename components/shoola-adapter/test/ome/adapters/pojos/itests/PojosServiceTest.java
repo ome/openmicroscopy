@@ -51,6 +51,7 @@ import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.conditions.OptimisticLockException;
@@ -119,11 +120,22 @@ public class PojosServiceTest extends TestCase {
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
     }
-    
+  
+  @Test( groups = {"temporary"} )
+  public void test_initializeDB() throws Exception
+  {
+      try 
+      {
+          iQuery.get(Experimenter.class,0l);
+      } catch (Throwable t){
+          // no, no, really. This is ok. (And temporary)
+      }
+  }
+  
   @Test
     public void testGetSomethingThatsAlwaysThere() throws Exception
     {
-        List l = iQuery.getListByExample(new Experimenter());
+        List l = iQuery.findAllByExample(new Experimenter(),null);
         assertTrue("Root has to exist.",l.size()>0);
         Experimenter exp = (Experimenter) l.get(0);
         assertNotNull("Must have an id",exp.getId());
@@ -147,7 +159,7 @@ public class PojosServiceTest extends TestCase {
         assertNotNull("We should get something back",img);
         assertNotNull("Should have an id",img.getId());
         
-        Image img2 = (Image) iQuery.getById(Image.class,img.getId().longValue());
+        Image img2 = (Image) iQuery.get(Image.class,img.getId().longValue());
         assertNotNull("And we should be able to find it again.",img2);
         
     }
@@ -160,18 +172,18 @@ public class PojosServiceTest extends TestCase {
         Long id = ds.getId();
         
         // another copy
-        Image img2 = (Image) iQuery.queryUnique(
+        Image img2 = (Image) iQuery.findAllByQuery(
                 "select i from Image i " +
                 "left outer join fetch i.datasetLinks " +
-                "where i.id = ?",
-                new Object[]{img.getId()});
+                "where i.id = :id",
+                new Parameters().addId(img.getId())).get(0);
         assertTrue("It better have a dataset link too",
                 img2.sizeOfDatasetLinks()>0);
         Dataset ds2 = (Dataset) img2.linkedDatasetIterator().next();
         assertTrue("And the ids have to be the same",id.equals(ds2.getId()));
     }
  
-  @Test
+  @Test( groups = {"versions"} )
     public void testButWeHaveToHandleTheVersions() throws Exception
     {
         Image img = new Image();
@@ -195,8 +207,8 @@ public class PojosServiceTest extends TestCase {
         try {
             iUpdate.saveAndReturnObject( iann );
             fail("Need optmistic lock exception.");
-        } catch (EJBException e) {
-            errorIfNotAssignableFrom(e,OptimisticLockException.class);
+        } catch (OptimisticLockException e) {
+            // ok.
         }
         
         // Fixing the change;
@@ -217,7 +229,7 @@ public class PojosServiceTest extends TestCase {
         assertNotNull("Presto change-o, now it does.",img.getId());
         iPojos.deleteDataObject(img,null);
         
-        img = (Image) iQuery.getById(Image.class,img.getId().longValue());
+        img = (Image) iQuery.find(Image.class,img.getId().longValue());
         assertNull("we should have deleted it ",img);
         
     }
@@ -250,7 +262,8 @@ public class PojosServiceTest extends TestCase {
 
         // Make sure it's not linked.
         List list = 
-        iQuery.getListByFieldEq( DatasetImageLink.class, "child.id", img.getId() );
+        iQuery.findAllByQuery( DatasetImageLink.class.getName(), 
+                new Parameters().addLong("child.id", img.getId()));
         assertTrue( list.size() == 0 );
         
         // Method 2:
@@ -260,7 +273,8 @@ public class PojosServiceTest extends TestCase {
                 (IObject[]) updated.toArray(new IObject[updated.size()]), null);
 
         List list2 = 
-            iQuery.getListByFieldEq( DatasetImageLink.class, "child.id", img.getId() );
+            iQuery.findAllByQuery( DatasetImageLink.class.getName(),
+                    new Parameters().addLong("child.id", img.getId() ));
             assertTrue( list.size() == 0 );
         
         // Method 3:
@@ -273,7 +287,7 @@ public class PojosServiceTest extends TestCase {
         img.unlinkDataset( target );
         img = (Image) iPojos.updateDataObject( img, null );
         
-        ILink test = (ILink) iQuery.getById( 
+        ILink test = (ILink) iQuery.find( 
                 DatasetImageLink.class, dslink.getId().longValue() );
         assertNull( test );
             
@@ -299,7 +313,7 @@ public class PojosServiceTest extends TestCase {
         iPojos.updateDataObject( img, null );
         
         DatasetImageLink test = (DatasetImageLink)
-        iQuery.getById( DatasetImageLink.class, link.getId().longValue() );
+        iQuery.find( DatasetImageLink.class, link.getId().longValue() );
         
         assertNull( test );
         
@@ -358,8 +372,8 @@ public class PojosServiceTest extends TestCase {
         try {
         results = iPojos.findContainerHierarchies(Dataset.class,ids,empty.map());
         fail("Should fail");
-        } catch (EJBException e) {
-            errorIfNotAssignableFrom(e,ApiUsageException.class);
+        } catch (ApiUsageException e) {
+            // ok.
         }
         
         ids = new HashSet(data.getMax("Image.ids",2)); 
@@ -383,7 +397,7 @@ public class PojosServiceTest extends TestCase {
   @Test
     public void test_retrieveCollection() throws Exception
     {
-        Image i = (Image) iQuery.getById(Image.class,5551);
+        Image i = (Image) iQuery.get(Image.class,5551);
         i.unload();
         Set annotations = (Set) iPojos.retrieveCollection(i,Image.ANNOTATIONS,null);
         assertTrue(annotations.size() > 0);
@@ -498,7 +512,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("DoesNotExist","meNeither",ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -506,7 +520,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("ome.model.containers.Project","dataset",ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -514,7 +528,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("ome.model.containers.Project","datasets",null,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -522,7 +536,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("hackers.rock!!!","",ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -530,7 +544,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("","datasets",ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -538,7 +552,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount(null,"datasets",ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -546,7 +560,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("ome.model.core.Image","",ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -554,7 +568,7 @@ public class PojosServiceTest extends TestCase {
         try {
             iPojos.getCollectionCount("ome.model.core.Image",null,ids,null);
             fail("An exception should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
             // Good.
         }
 
@@ -603,8 +617,8 @@ public class PojosServiceTest extends TestCase {
     {
         try {
             results = iPojos.getUserImages(null);
-            fail("Illegal argument: experimenter/group option must be set.");
-        } catch (EJBException e) { }
+            fail("APIUsage: experimenter/group option must be set.");
+        } catch (ApiUsageException e) { }
         
         results = iPojos.getUserImages(new PojoOptions().exp(new Long(10000)).map());
         assertTrue(results.size() > 0);
@@ -619,7 +633,7 @@ public class PojosServiceTest extends TestCase {
     public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception
     {
 
-        Pixels pix = (Pixels) iQuery.getByClass(Pixels.class).get(0);
+        Pixels pix = (Pixels) iQuery.findAll(Pixels.class,null).get(0);
         IPixels pixDB = factory.getPixelsService();
         RenderingEngine re = factory.getRenderingService(); 
         
@@ -633,7 +647,7 @@ public class PojosServiceTest extends TestCase {
     /// ~ Versions
     /// ========================================================================
 
-  @Test
+  @Test( groups = {"versions"} )
     public void test_version_doesnt_increase_on_non_change() throws Exception
     {
         Image img = new Image();
@@ -649,7 +663,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
-  @Test
+  @Test( groups = {"versions"} )
     public void test_version_doesnt_increase_on_linked_update() throws Exception
     {
         ImageAnnotation ann = new ImageAnnotation();
@@ -729,7 +743,7 @@ public class PojosServiceTest extends TestCase {
         p = (Project) iUpdate.saveAndReturnObject( p );
         
         // Check only one
-        List list = iQuery.getListByFieldILike( Project.class, "name", name);
+        List list = iQuery.findAllByString( Project.class, "name", name, true, null);
         assertTrue(list.size() == 1);
         assertTrue( 
                 ((Project)list.get(0)).getId()
@@ -748,7 +762,7 @@ public class PojosServiceTest extends TestCase {
         assertEquals( test.getId(), p.getId().intValue() );
         
         // Check again.
-        List list2 = iQuery.getListByFieldILike( Project.class, "name", name);
+        List list2 = iQuery.findAllByString( Project.class, "name", name, true, null);
         assertTrue(list2.size() == 1);
         assertTrue( 
                 ((Project)list.get(0)).getId()
@@ -771,12 +785,14 @@ public class PojosServiceTest extends TestCase {
         ds = (Dataset) img.linkedDatasetIterator().next();
         
         List imgLinks = 
-            iQuery.getListByFieldEq( 
-                    DatasetImageLink.class, "child.id", img.getId() );
+            iQuery.findAllByQuery( 
+                    DatasetImageLink.class.getName(), 
+                    new Parameters().addLong("child.id", img.getId() ));
         
         List dsLinks = 
-            iQuery.getListByFieldEq( 
-                    DatasetImageLink.class, "parent.id", ds.getId() );
+            iQuery.findAllByQuery( 
+                    DatasetImageLink.class.getName(), 
+                    new Parameters().addLong("parent.id", ds.getId() ));
         
         assertTrue( imgLinks.size() == 1 );
         assertTrue( dsLinks.size() == 1 );
@@ -803,12 +819,14 @@ public class PojosServiceTest extends TestCase {
         ds = (Dataset) retVal[1];
         
         List imgLinks = 
-            iQuery.getListByFieldEq( 
-                    DatasetImageLink.class, "child.id", img.getId() );
+            iQuery.findAllByQuery( 
+                    DatasetImageLink.class.getName(),
+                    new Parameters().addLong("child.id", img.getId() ));
         
         List dsLinks = 
-            iQuery.getListByFieldEq( 
-                    DatasetImageLink.class, "parent.id", ds.getId() );
+            iQuery.findAllByQuery( 
+                    DatasetImageLink.class.getName(),
+                    new Parameters().addLong("parent.id", ds.getId() ));
         
         assertTrue( imgLinks.size() == 1 );
         assertTrue( dsLinks.size() == 1 );
@@ -874,7 +892,7 @@ public class PojosServiceTest extends TestCase {
         assertUniqueAnnotationCreation(name, text);
         
         Dataset test = 
-            (Dataset) iQuery.getById( Dataset.class, original.getId().longValue() );
+            (Dataset) iQuery.get( Dataset.class, original.getId().longValue() );
         
         assertTrue( desc.equals( test.getDescription() ));
 
@@ -939,7 +957,7 @@ public class PojosServiceTest extends TestCase {
         Dataset test = (Dataset) iPojos.updateDataObject( d1, null );
         
         ProjectDatasetLink link1 = 
-                (ProjectDatasetLink) iQuery.getById( 
+                (ProjectDatasetLink) iQuery.get( 
                         ProjectDatasetLink.class, l1.getId().longValue() );
             
         assertNotNull( link1 );
@@ -947,7 +965,7 @@ public class PojosServiceTest extends TestCase {
         assertTrue( link1.child().getId().equals( d1.getId() ));
 
         ProjectDatasetLink link2 = 
-            (ProjectDatasetLink) iQuery.getById( 
+            (ProjectDatasetLink) iQuery.get( 
                     ProjectDatasetLink.class, l2.getId().longValue() );
         
         assertNotNull( link2 );
@@ -972,7 +990,7 @@ public class PojosServiceTest extends TestCase {
         
         iPojos.deleteDataObject( a, null );
         
-        Object o = iQuery.getById( DatasetAnnotation.class, a.getId().longValue() );
+        Object o = iQuery.find( DatasetAnnotation.class, a.getId().longValue() );
         assertNull( o );
         
     }
@@ -1061,7 +1079,7 @@ public class PojosServiceTest extends TestCase {
         try { 
             dd_test.getName();
             fail(" this should blow up ");
-        } catch (Exception e ){
+        } catch (Exception e ){ // TODO which exception?
             // good.
         }
         
@@ -1100,20 +1118,12 @@ public class PojosServiceTest extends TestCase {
     private void assertUniqueAnnotationCreation(String name, String text)
     {
         // Test
-        List ds = iQuery.getListByFieldILike( Dataset.class, "name", name);
-        List as = iQuery.getListByFieldILike( DatasetAnnotation.class, "content", text);
+        List ds = iQuery.findAllByString( Dataset.class, "name", name, true, null);
+        List as = iQuery.findAllByString( DatasetAnnotation.class, "content", text, true, null);
         
         assertTrue( ds.size() == 1 );
         assertTrue( as.size() == 1 );
     }
 
-    protected void errorIfNotAssignableFrom(EJBException ejbe, Class k)
-    {
-        Throwable t = ejbe.getCause();
-        if (! k.isAssignableFrom( ejbe.getClass() ))
-            throw ejbe;
-    }
-
-    
 }
 

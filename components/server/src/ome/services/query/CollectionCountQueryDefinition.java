@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
+import ome.parameters.Parameters;
 import ome.tools.lsid.LsidUtils;
 
 public class CollectionCountQueryDefinition extends Query
@@ -16,7 +17,7 @@ public class CollectionCountQueryDefinition extends Query
             new QueryParameterDef("field", String.class, false)
             );
     
-    public CollectionCountQueryDefinition(QueryParameter...parameters)
+    public CollectionCountQueryDefinition(Parameters parameters)
     {
         super( defs, parameters );
     }

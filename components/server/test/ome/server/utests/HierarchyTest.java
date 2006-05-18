@@ -6,6 +6,8 @@ import org.hibernate.Criteria;
 import org.hibernate.transform.ResultTransformer;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -17,24 +19,29 @@ import ome.services.query.Query;
 public class HierarchyTest extends MockObjectTestCase
 {
 
-    Mock mockCriteria;
-
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
     @Override
     protected void setUp() throws Exception
     {
         mockCriteria = mock( Criteria.class );
     }
 
+    @Configuration(afterTestMethod = true)
     @Override
     protected void tearDown() throws Exception
     {
         mockCriteria.reset( );
     }
+    
+    Mock mockCriteria;
 
     /*
      * Test method for 'ome.services.query.Hierarchy.fetchParents(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchParentsProject()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -50,6 +57,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchParents(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchParentsDataset()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -65,6 +73,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchParents(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchParentsCategoryGroup()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -80,6 +89,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchParents(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchParentsCategory()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -97,6 +107,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchChildren(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchChildrenProject()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -111,6 +122,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchChildren(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchChildrenDataset()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -125,6 +137,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchChildren(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchChildrenCategoryGroup()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -139,6 +152,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.fetchChildren(Criteria,
      * Class, int)'
      */
+    @Test
     public void testFetchChildrenCategory()
     {
         addCreateCriteriaToMock( mockCriteria,
@@ -155,6 +169,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.joinParents(Criteria,
      * Class, int)'
      */
+    @Test
     public void testJoinParents()
     {
 
@@ -164,6 +179,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for 'ome.services.query.Hierarchy.joinChildren(Criteria,
      * Class, int)'
      */
+    @Test
     public void testJoinChildren()
     {
 
@@ -179,6 +195,7 @@ public class HierarchyTest extends MockObjectTestCase
     /*
      * Test method for 'ome.services.query.Hierarchy.getChildTransformer(Class)'
      */
+    @Test
     public void testGetChildTransformerProject()
     {
         ResultTransformer rt = Hierarchy.getChildTransformer( Project.class );
@@ -195,6 +212,7 @@ public class HierarchyTest extends MockObjectTestCase
     /*
      * Test method for 'ome.services.query.Hierarchy.getChildTransformer(Class)'
      */
+    @Test
     public void testGetChildTransformerCategoryGroup()
     {
         ResultTransformer rt = Hierarchy.getChildTransformer( CategoryGroup.class );
@@ -212,6 +230,7 @@ public class HierarchyTest extends MockObjectTestCase
      * Test method for
      * 'ome.services.query.Hierarchy.getParentTransformer(Class)'
      */
+    @Test
     public void testGetParentTransformer()
     {
 

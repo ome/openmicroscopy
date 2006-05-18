@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ome.api.IPixels;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
+import ome.parameters.Parameters;
 import ome.security.CurrentDetails;
 
 /** 
@@ -70,7 +71,7 @@ class PixelsImpl extends AbstractLevel2Service
     }
     
 	public Pixels retrievePixDescription(long pixId) {
-		Pixels p = (Pixels) iQuery.getById(Pixels.class, pixId);
+		Pixels p = (Pixels) iQuery.get(Pixels.class, pixId);
 		return p;
 	}
 
@@ -78,10 +79,10 @@ class PixelsImpl extends AbstractLevel2Service
 	public RenderingDef retrieveRndSettings(final long pixId) {
         
         final Long userId = CurrentDetails.getOwner().getId();
-        return (RenderingDef) iQuery.queryUnique(
+        return (RenderingDef) iQuery.findByQuery(
                 " select rdef from RenderingDef rdef where " +
-                " rdef.pixels.id = ? and rdef.details.owner.id = ?",
-                new Object[]{pixId, userId});
+                " rdef.pixels.id = :pixid and rdef.details.owner.id = :ownerid",
+                new Parameters().addLong("pixid",pixId).addLong("ownerid",userId));
 	}
 
     @Transactional(readOnly=false)

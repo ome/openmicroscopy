@@ -9,6 +9,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import ome.model.core.Image;
+import ome.parameters.Parameters;
+import static ome.parameters.Parameters.*;
 
 public class PojosFindHierarchiesQueryDefinition extends Query
 {
@@ -16,9 +18,9 @@ public class PojosFindHierarchiesQueryDefinition extends Query
     static Definitions defs = new Definitions(
         new IdsQueryParameterDef(),
         new OptionsQueryParameterDef(),
-        new QueryParameterDef(QP.CLASS, Class.class, false));
+        new ClassQueryParameterDef());
 
-    public PojosFindHierarchiesQueryDefinition(QueryParameter... parameters)
+    public PojosFindHierarchiesQueryDefinition(Parameters parameters)
     {
         super( defs, parameters );
     }  
@@ -28,8 +30,8 @@ public class PojosFindHierarchiesQueryDefinition extends Query
     {
         Criteria c = session.createCriteria(Image.class);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.add(Restrictions.in("id",(Collection) value(QP.IDS)));
-        Hierarchy.fetchParents(c,(Class) value(QP.CLASS),Integer.MAX_VALUE);
+        c.add(Restrictions.in("id",(Collection) value(IDS)));
+        Hierarchy.fetchParents(c,(Class) value(CLASS),Integer.MAX_VALUE);
         
         return c.list();
         

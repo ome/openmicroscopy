@@ -38,16 +38,15 @@ package ome.services.query;
 
 // Java imports
 
-
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-
+import ome.parameters.Parameters;
 
 /**
- * source of all our queries.
+ * contract for any source of {@link ome.services.query.Query queries}. 
+ * Instances should be registered with the 
+ * {@link ome.services.query.QueryFactory} in the Spring configuration.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
@@ -55,9 +54,5 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class QuerySource
 {
-
-    private static Log log = LogFactory.getLog(QuerySource.class);
-    
-    public abstract Query lookup(String queryID, QueryParameter...parameters);
-    
+    public abstract <T> Query<T> lookup(String queryID, Parameters parameters);
 }

@@ -43,6 +43,8 @@ package ome.services.query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.parameters.Parameters;
+
 // Application-internal dependencies
 
 
@@ -58,7 +60,7 @@ public class NullQuerySource extends QuerySource
 
     private static Log log = LogFactory.getLog(NullQuerySource.class);
     
-    public Query lookup(String queryID, QueryParameter...parameters)
+    public Query lookup(String queryID, Parameters parameters)
     {
         return null;
     }

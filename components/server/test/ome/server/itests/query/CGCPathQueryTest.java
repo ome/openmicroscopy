@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import ome.api.IPojos;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
-import ome.services.query.PojosQP;
-import ome.services.query.QP;
-import ome.services.query.QueryParameter;
 import ome.util.builders.PojoOptions;
 
 /*
@@ -41,7 +41,7 @@ public class CGCPathQueryTest extends AbstractInternalContextTest
     PojosCGCPathsQueryDefinition q;
     List list;
 
-    protected void creation_fails(QueryParameter...parameters){
+    protected void creation_fails(Parameters parameters){
         try {
             q= new PojosCGCPathsQueryDefinition(
                     parameters);
@@ -49,114 +49,129 @@ public class CGCPathQueryTest extends AbstractInternalContextTest
         } catch (IllegalArgumentException e) {}
     }
     
+    @Test
     public void test_illegal_arguments() throws Exception
     {
 
         creation_fails(
-                PojosQP.ids(null), // Null
-                QP.String("algorithm","CLASSIFICATION_NME"),
-                QP.Map("options",null));
+                new Parameters()
+                    .addIds(null) // Null
+                    .addAlgorithm(IPojos.CLASSIFICATION_NME)
+                    .addOptions(null));
+                
         creation_fails(
-                PojosQP.ids(new ArrayList()), // Empty !
-                QP.String("algorithm","CLASSIFICATION_NME"),
-                QP.Map("options",null));
+                new Parameters()
+                .addIds(new ArrayList()) // Empty!
+                .addAlgorithm(IPojos.CLASSIFICATION_NME)
+                .addOptions(null));
         creation_fails(
-                PojosQP.ids(Arrays.asList(1)),
-                QP.String("algorithm",null), // Null here
-                QP.Map("options",null));
+                new Parameters()
+                .addIds(Arrays.asList(1L)) 
+                .addAlgorithm(null) // Null here
+                .addOptions(null));
         creation_fails(
-                PojosQP.ids(Arrays.asList(1)), // Integer not Long !
-                QP.String("algorithm","DECLASSIFICATION"),
-                QP.Map("options",null));
-        
+                new Parameters()
+                .addIds(Arrays.asList(1)) // Integer not Long
+                .addAlgorithm(IPojos.CLASSIFICATION_NME)
+                .addOptions(null));
     }
 
+    @Test
     public void test_simple_usage() throws Exception
     {
         Long doesntExist = -1L;
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(doesntExist)),
-                PojosQP.algorithm(IPojos.DECLASSIFICATION),
-                QP.Map("options",null));
+                new Parameters()
+                .addIds(Arrays.asList(doesntExist)) 
+                .addAlgorithm(IPojos.DECLASSIFICATION)
+                .addOptions(null));
            
         list = (List) iQuery.execute(q);
  
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(doesntExist)),
-                PojosQP.algorithm(IPojos.CLASSIFICATION_NME),
-                QP.Map("options",null));
+                new Parameters()
+                .addIds(Arrays.asList(doesntExist)) 
+                .addAlgorithm(IPojos.CLASSIFICATION_NME)
+                .addOptions(null));
            
         list = (List) iQuery.execute(q);
  
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(doesntExist)),
-                PojosQP.algorithm(IPojos.CLASSIFICATION_ME),
-                QP.Map("options",null));
+                new Parameters()
+                .addIds(Arrays.asList(doesntExist)) 
+                .addAlgorithm(IPojos.CLASSIFICATION_ME)
+                .addOptions(null));
            
         list = (List) iQuery.execute(q);
  
     }
     
+    @Test
     public void test_declassification() throws Exception 
     {
-        QueryParameter declassification = PojosQP.algorithm(IPojos.DECLASSIFICATION);
+        Parameters declassification 
+            = new Parameters().addAlgorithm(IPojos.DECLASSIFICATION);
         run_tests( declassification, 0, 4, 4, 0, 4);
     }
     
+    @Test
     public void test_classification_nme() throws Exception
     {
-        QueryParameter classificationNME = PojosQP.algorithm(IPojos.CLASSIFICATION_NME);
+        Parameters classificationNME 
+            = new Parameters().addAlgorithm(IPojos.CLASSIFICATION_NME);
         run_tests( classificationNME, 16, 12, 12, 8, 4); // TODO need more
     }
 
+    @Test
     public void test_classification_me() throws Exception
     {
-        QueryParameter classificationME = PojosQP.algorithm(IPojos.CLASSIFICATION_ME);
+        Parameters classificationME 
+            = new Parameters().addAlgorithm(IPojos.CLASSIFICATION_ME);
         run_tests( classificationME, 16, 12, 12, 0, 12); // TODO need more
     }
     
-    private void run_tests(QueryParameter algorithm, int...sizes)
+    private void run_tests(Parameters algorithm, int...sizes)
     {
-        QueryParameter noOptions = QP.Map("options", null);
         PojoOptions po = new PojoOptions().exp(10000L);
-        QueryParameter notRootOptions = QP.Map("options", po.map());
+        Parameters notRootOptions = new Parameters().addOptions(po.map());
+        Parameters noOptions = new Parameters().addOptions(null);
 
         // No categories for image.
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(5050L)),
-                algorithm,noOptions);
+                new Parameters(noOptions).addAll(algorithm)
+                        .addIds(Arrays.asList(5050L)));
            
         list = (List) iQuery.execute(q);
         assertListSize( sizes[0] );
         
         // Well-defined categories (root).
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(5051L)),
-                algorithm,noOptions);
+                new Parameters(noOptions).addAll(algorithm)
+                    .addIds(Arrays.asList(5051L)));
            
         list = (List) iQuery.execute(q);
         assertListSize( sizes[1] );
 
         // Well-defined categories (user).
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(5551L)),
-                algorithm,noOptions);
+                new Parameters(noOptions).addAll(algorithm)
+                    .addIds(Arrays.asList(5551L)));
            
         list = (List) iQuery.execute(q);
         assertListSize( sizes[2] );
         
         // Filtering out root on root's objects.
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(5051L)), // Belongs to root.
-                algorithm,notRootOptions); // Not root.
+                new Parameters(notRootOptions).addAll(algorithm) // Not root
+                    .addIds(Arrays.asList(5051L))); // Belongs to root.
            
         list = (List) iQuery.execute(q);
         assertListSize( sizes[3] );
 
         // Filtering out root on user's objects.
         q= new PojosCGCPathsQueryDefinition(
-                PojosQP.ids(Arrays.asList(5551L)), // Belongs to user.
-                algorithm,notRootOptions); // Not root.
+                new Parameters(notRootOptions).addAll(algorithm) // Not root
+                    .addIds(Arrays.asList(5551L))); // Belongs to user.
            
         list = (List) iQuery.execute(q);
         assertListSize(  sizes[4] );

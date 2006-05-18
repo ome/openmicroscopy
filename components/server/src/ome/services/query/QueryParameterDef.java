@@ -3,6 +3,9 @@ package ome.services.query;
 import java.util.Collection;
 import java.util.Map;
 
+import ome.parameters.Parameters;
+import ome.parameters.QueryParameter;
+
 public class QueryParameterDef
 {
 
@@ -56,11 +59,28 @@ public class QueryParameterDef
     
 }
 
+class AlgorithmQueryParameterDef extends QueryParameterDef 
+{
+    public AlgorithmQueryParameterDef()
+    {
+        super( Parameters.ALGORITHM, String.class, false );
+    }
+}
+
+class ClassQueryParameterDef extends QueryParameterDef 
+{
+    public ClassQueryParameterDef()
+    {
+        super( Parameters.CLASS, Class.class, false );
+    }
+}
+
+
 class OptionsQueryParameterDef extends QueryParameterDef 
 {
     public OptionsQueryParameterDef()
     {
-        super( "options", Map.class, true );
+        super( Parameters.OPTIONS, Map.class, true );
     }
 }
 
@@ -106,6 +126,6 @@ class IdsQueryParameterDef extends CollectionQueryParameterDef
 {
     public IdsQueryParameterDef( ) 
     {
-        super( QP.IDS, false, Long.class );
+        super( Parameters.IDS, false, Long.class );
     }
 }

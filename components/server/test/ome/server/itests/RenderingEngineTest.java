@@ -2,6 +2,8 @@ package ome.server.itests;
 
 import java.util.concurrent.locks.ReadWriteLock;
 
+import org.testng.annotations.Test;
+
 import omeis.providers.re.RenderingEngine;
 
 public class RenderingEngineTest extends AbstractManagedContextTest
@@ -16,12 +18,14 @@ public class RenderingEngineTest extends AbstractManagedContextTest
         re = (RenderingEngine) applicationContext.getBean("renderService");
     }
 
+    @Test
     public void test_simple_usage() throws Exception
     {
         re.lookupPixels(1L);
         re.lookupRenderingDef(1L);
     }
     
+    @Test
     public void test_multi_txs() throws Exception
     {
         ReadWriteLock rwl = null;

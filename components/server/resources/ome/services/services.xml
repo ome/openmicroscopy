@@ -76,6 +76,7 @@
     -->
   <bean id="level1">
 		<property name="hibernateTemplate" ref="hibernateTemplate"/>
+    <property name="queryFactory"   ref="queryFactory"/>    
   </bean>
 
   <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 

@@ -38,12 +38,8 @@ package ome.services.query;
 
 // Java imports
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,48 +52,54 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
+// Application-internal dependencies
+import ome.parameters.Parameters;
+import static ome.parameters.Parameters.*;
+import ome.parameters.QueryParameter;
 import ome.util.builders.PojoOptions;
 
-// Application-internal dependencies
-
 /**
- * source of all our queries.
+ * base Query type. 
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public abstract class Query implements HibernateCallback
+public abstract class Query<T> implements HibernateCallback
 {
     private static Log log = LogFactory.getLog(Query.class);
     
-    public final static String OWNER_ID = "ownerId"; // TODO from Fitlers I/F
-
     // For Criteria
     public final static FetchMode FETCH = FetchMode.JOIN;
     public final static int LEFT_JOIN = Criteria.LEFT_JOIN;
     public final static int INNER_JOIN = Criteria.INNER_JOIN;
-    
-    // FOR DEFINITIONS
+
+    /**
+     * container of {@link QueryParameterDef} instances. Typically created 
+     * statically in Query subclasses and passed to the constructor in 
+     * {@link Query}
+     */
     protected Definitions defs;
     
-    protected Map<String, QueryParameter> qps 
-        = new HashMap<String, QueryParameter>();
+    /** container of {@link QueryParameter} instances. These must at least cover
+     * all the {@link QueryParameterDef}s defined for this {@link Query} but can
+     * define more. Other special fields of {@link Parameters}, such as a 
+     * {@link ome.parameters.Filter} instance can also be used by {@link Query}
+     * instances.
+     */
+    protected Parameters params;
 
     private Query() { /* have to have the Parameters */ }
-    public Query(Definitions definitions, QueryParameter... parameters)
+    
+    /** 
+     * main constructor used by subclasses. Both arguments must be provided. 
+     * @param definitions Not null.
+     * @param parameters Not null.
+     */
+    public Query(Definitions definitions, Parameters parameters)
     {
         this.defs = definitions;
-        if ( parameters != null)
-            for (QueryParameter parameter : parameters)
-            {
-                qps.put( parameter.name, parameter );
-            }
+        this.params = parameters;
         checkParameters();
     }
     
@@ -106,11 +108,11 @@ public abstract class Query implements HibernateCallback
     }
     
     public QueryParameter get(String name){
-        return qps.get(name);
+        return params.get(name);
     }
     
     public Object value(String name){
-        return qps.get(name).value;
+        return params.get(name).value;
     }
     
     protected void checkParameters(){
@@ -119,15 +121,15 @@ public abstract class Query implements HibernateCallback
             throw new IllegalStateException(
                     "Query parameter definitions not set.");
         
-        if (qps == null) 
+        if (params == null) 
             throw new IllegalArgumentException(
                     "Null arrays "+
                     "are not valid for definitions.");
         
-        if (! qps.keySet().containsAll( defs.keySet() ) )
+        if (! params.keySet().containsAll( defs.keySet() ) )
         {
             Set diff = new HashSet( defs.keySet() );
-            diff.removeAll( qps.keySet() );
+            diff.removeAll( params.keySet() );
             throw new IllegalArgumentException(
                     "Required parameters missing from query: "+ diff 
                     );
@@ -135,7 +137,7 @@ public abstract class Query implements HibernateCallback
             
         for (String name : defs.keySet())
         {
-            QueryParameter parameter = qps.get( name );
+            QueryParameter parameter = params.get( name );
             QueryParameterDef def = defs.get( name );
             
             def.errorIfInvalid( parameter );
@@ -155,7 +157,7 @@ public abstract class Query implements HibernateCallback
         }
     }
     
-    protected abstract Object 
+    protected abstract T 
     runQuery(Session session) throws HibernateException, SQLException;
     
     protected Set<String> newlyEnabledFilters = new HashSet<String>();
@@ -167,9 +169,9 @@ public abstract class Query implements HibernateCallback
     protected void ownerFilter(Session session, String...filters)
     {
     
-        if (check(QP.OPTIONS) )
+        if (check(OPTIONS) )
         {
-            PojoOptions po = new PojoOptions( (Map)value( QP.OPTIONS ) );
+            PojoOptions po = new PojoOptions( (Map)value( OPTIONS ) );
             if ( po.isExperimenter() ) // TODO || is Group();
             {
                 for (String filter : filters)
@@ -195,48 +197,3 @@ public abstract class Query implements HibernateCallback
     }    
 }
 
-class Definitions {
-    
-    public Definitions(QueryParameterDef...parameterDefs)
-    {
-        if ( parameterDefs != null)
-            for (QueryParameterDef def : parameterDefs)
-            {
-                defs.put( def.name, def );
-            }
-    }
-    
-    Map<String,QueryParameterDef> defs = new HashMap<String, QueryParameterDef>();
-
-    public boolean containsKey(Object key)
-    {
-        return defs.containsKey(key);
-    }
-
-    public boolean isEmpty()
-    {
-        return defs.isEmpty();
-    }
-
-    public Set<String> keySet()
-    {
-        return defs.keySet();
-    }
-
-    public QueryParameterDef put(String key, QueryParameterDef value)
-    {
-        return defs.put(key, value);
-    }
-
-    public int size()
-    {
-        return defs.size();
-    }
-
-    public QueryParameterDef get(Object key)
-    {
-        return defs.get(key);
-    }
-   
-   
-}
