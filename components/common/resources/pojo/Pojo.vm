@@ -1,6 +1,7 @@
 $pojo.getPackageDeclaration()
 
 $secondpassclassimports
+import ome.conditions.*;
 
 $templates.PojoTypeDeclaration 
 {

@@ -3,6 +3,7 @@ package ome.model.utests;
 import org.testng.annotations.*;
 import java.util.List;
 
+import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -68,4 +69,38 @@ public class SetsAndLinksTest extends TestCase
         
         p.linkDataset( d );
     }
+  
+  @Test( groups = "ticket:60" )
+  public void test_cantLinkNullSet() throws Exception
+  {
+      p.putAt( Project.DATASETLINKS, null); // This is a workaround.
+      try { 
+          p.linkDataset( d );
+          fail("Should not be allowed.");
+      } catch (ApiUsageException api) {
+          // ok.
+      }
+  
+  }
+  
+  @Test( groups = "ticket:60" )
+  public void test_butWeStillWantToUseUnloadeds() throws Exception
+  {
+      d.unload();
+      p.linkDataset( d );
+  }
+  
+  @Test( groups = "ticket:60" )
+  public void test_andTheReverseToo() throws Exception
+  {
+      d.putAt( Dataset.PROJECTLINKS, null); // This is a workaround.
+      try { 
+          p.linkDataset( d );
+          fail("Should not be allowed.");
+      } catch (ApiUsageException api) {
+          // ok.
+      }
+  }
+  
+  
 }

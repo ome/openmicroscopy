@@ -14,7 +14,18 @@
 	}
 	
 	protected void postSetter( String field, Object value ) {}
-	
+
+## TODO could combine this with preSetter.
+	protected void throwNullCollectionException(String propertyName)
+	{
+		throw new ApiUsageException(
+			"Error updating collection:" + propertyName +"\n"+
+			"Collection is currently null. This can be seen\n"+
+			"by testing \"sizeOf"+ propertyName +" < 0\". This implies\n"+
+			"that this collection was unloaded. Please refresh this object\n"+
+			"in order to update this collection.\n"
+			);
+	}
 	
 	// Property accessors
 #foreach($property in $pojo.getAllPropertiesIterator())
@@ -70,6 +81,9 @@
 
 	/**
 	 * should be used rather than accessing the ${property.name} set directly.
+	 * This method will never return null, but rather will return an instance
+	 * of {@link ome.util.EmptyIterator}. To test for a null collection,
+	 * see of {@link #sizeOf${PropertyName}()} is less than zero.
 	 */ 
 	public Iterator iterate${PropertyName}() {
 		
@@ -92,7 +106,9 @@
 	/**
 	 * takes a CBlock and calls the block once for each $elementtype while 
 	 * collecting the results. If <code>block == null</code>, then the 
-	 * iterator values themselves are collected.
+	 * iterator values themselves are collected. This method uses 
+	 * {@link #iterate${PropertyName}} internally and so will return a value
+	 * even if the underlying collection is null.
 	 */ 
 	public List collect${PropertyName}(ome.util.CBlock block) {
 		
@@ -137,8 +153,8 @@
 			preSetter( $FIELD, target );
 		
     		if ( get${PropertyName}() == null )
-    			set${PropertyName}( new HashSet() );
-    			
+				throwNullCollectionException("${PropertyName}");
+				
     		get${PropertyName}().add( target );
     		target.set${inverse} ( this );
 			
@@ -155,18 +171,17 @@
 		
 		try {
 			preSetter( $FIELD, targets );
-		
+
+			if ( get${PropertyName}() == null )
+				throwNullCollectionException("${PropertyName}");
+
+    		get${PropertyName}().addAll( targets );
     		Iterator it = targets.iterator();
     		while ( it.hasNext() )
     		{
     		  $elementtype target = ($elementtype) it.next();
     		  target.set${inverse} ( this );
     		}
-    		
-    		if ( get${PropertyName}() == null )
-    			set${PropertyName}( new HashSet() );
-    
-    		get${PropertyName}().addAll( targets );
 		
 		} finally {
 			postSetter( $FIELD, targets );
@@ -181,11 +196,12 @@
 		
 		try {
 			preSetter( $FIELD, target );
-		
+
+			if ( get${PropertyName}() == null )
+				throwNullCollectionException("${PropertyName}");
+
+   			get${PropertyName}().remove( target );
     		target.set${inverse} ( null );
-    		
-    		if ( get${PropertyName}() != null )
-    			get${PropertyName}().remove( target );
 			
 		} finally {
 			postSetter( $FIELD, target );
@@ -200,16 +216,17 @@
 		
 		try {
 			preSetter( $FIELD, targets );
-    		
+
+			if ( get${PropertyName}() == null )
+				throwNullCollectionException("${PropertyName}");
+
+   			get${PropertyName}().removeAll( targets );
     		Iterator it = targets.iterator();
     		while ( it.hasNext() ) 
     		{
     			${elementtype} target = ($elementtype) it.next();
     			target.set${inverse} ( null );
     		}
-    		
-    		if ( get${PropertyName}() != null )
-    			get${PropertyName}().removeAll( targets );
     			
 		} finally {
 			postSetter( $FIELD, targets );
@@ -224,7 +241,11 @@
 	
 		try {
 			preSetter( $FIELD, null );
-    		
+
+			if ( get${PropertyName}() == null )
+				throwNullCollectionException("${PropertyName}");
+			
+			get${PropertyName}().clear();
     		Iterator it = iterate${PropertyName}();
     		while ( it.hasNext() )
     		{
@@ -232,9 +253,6 @@
     			target.set${inverse} ( null );
     		}
     		
-    		if ( get${PropertyName}() != null )
-    			get${PropertyName}().clear();
-
 		} finally {
 			postSetter( $FIELD, null );
 		}
@@ -285,8 +303,8 @@
 		try {
 			preSetter( $FIELD, link );
 	
-    		if ( get${PropertyName}() == null )
-    			set${PropertyName}( new HashSet() );
+			if ( get${PropertyName}() == null )
+				throwNullCollectionException("${PropertyName}");
     
     		get${PropertyName}().add( link );
     
@@ -445,9 +463,10 @@
 		try {
 			preSetter( $FIELD, link );
 	
-    		if ( get${PropertyName}() != null )
-    			get${PropertyName}().remove( link );		
-    			
+			if ( get${PropertyName}() == null )
+				throwNullCollectionException("${PropertyName}");
+				
+   			get${PropertyName}().remove( link );		
     		if ( bothSides && link.${other}().isLoaded() )
     			link.${other}().remove${Link}( link, false );
 			
