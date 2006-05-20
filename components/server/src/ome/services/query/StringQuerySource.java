@@ -92,10 +92,10 @@ class StringQuery extends Query
         throws HibernateException, SQLException
     {
         org.hibernate.Query query = session.createQuery((String) value("string"));
-        String[] params = query.getNamedParameters();
-        for (int i = 0; i < params.length; i++)
+        String[] nParams = query.getNamedParameters();
+        for (int i = 0; i < nParams.length; i++)
         {
-            String p = params[i];
+            String p = nParams[i];
             Object v = value(p);
             if (Collection.class.isAssignableFrom(v.getClass()))
             {
@@ -105,7 +105,11 @@ class StringQuery extends Query
             }
         }
         
-        return query.list();
+        return this.params.getFilter().isUnique() ? 
+                query.uniqueResult() : query.list();
+                // TODO check other queries for this type of participatin
+                // TODO test.
+                
         
     }
 }

@@ -52,9 +52,39 @@ package ome.parameters;
  */
 public class Filter
 {
+
+    /**
+     * flag determining if a {@link ome.services.query.Query} will attempt 
+     * to return a single value <em>if supported</em>.
+     */
+    private boolean unique = false;
+    
     private long id_owner, id_group;
     private Page page = new Page( 0, Integer.MAX_VALUE );
 
+    // ~ Flags
+    // =========================================================================
+    /** 
+     * state that this Filter should only return a single value if possible. 
+     * By default, a Filter will make no assumptions regarding the uniquesness
+     * of a query. 
+     */
+    public Filter unique()
+    {
+        unique = true;
+        return this;
+    }
+
+    /**
+     * check uniqueness for this query. Participating queries will attempt to
+     * call <code>uniqueResult</code> rather than <code>list</code>. This may
+     * throw a {@link ome.conditions.ValidationException} on execution. 
+     */
+    public boolean isUnique()
+    {
+        return unique;
+    }
+    
     // ~ Owner
     // =========================================================================
     public Filter owner( long ownerId )

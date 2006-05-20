@@ -308,6 +308,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     public IObject findByQuery(@NotNull String queryName, Parameters params) 
     throws ValidationException
     {
+        
+        // specify that we should only return a single value if possible
+        params.getFilter().unique();
+        
         Query<IObject> q = queryFactory.lookup( queryName, params );
         IObject result = null;
         try { 

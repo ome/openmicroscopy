@@ -48,6 +48,16 @@ import ome.conditions.ApiUsageException;
 
 /** 
  * container object for {@link QueryParameter} and {@link Filter} instances.
+ * Parameters are provided to {@link IQuery} calls 
+ * {@link IQuery#findByQuery(String, Parameters)} and 
+ * {@link IQuery#findAllByQuery(String, Parameters)}, and define all named query
+ * parameters needed for the call. 
+ * 
+ * The public Strings available here are used throughout this class and should 
+ * also be used in query strings as named parameteres. For example, the field 
+ * {@link Parameters#ID} has the value "id", and a query which would like to use
+ * the {@link Parameters#addId(Long)} method, should define a named parameter
+ * of the form ":id". 
  * 
  * @author  <br>Josh Moore&nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">
@@ -60,15 +70,41 @@ import ome.conditions.ApiUsageException;
  */
 public class Parameters implements Serializable
 {
-       
-    // For Queries
+    
+    /**
+     * named parameter "id". Used in query strings as ":id"
+     */
     public final static String ID = "id";
+    
+    /**
+     * named parameter "ids". Used in query strings as ":ids"
+     */
     public final static String IDS = "ids";
+    
+    /**
+     * named parameter "class". Used in query strings as ":class"
+     */
     public final static String CLASS = "class";
+    
+    /**
+     * named parameter "options". Used in query strings as ":options"
+     */
     public final static String OPTIONS = "options";
+    
+    /**
+     * named parameter "algorithm". Used in query strings as ":algorithm"
+     */
     public final static String ALGORITHM = "algorithm";
+    
+    /**
+     * named parameter "ownerId". Used in query strings as ":ownerId"
+     */
     public final static String OWNER_ID = "ownerId"; // TODO from Fitlers I/F
     
+    /**
+     * single {@link Filter} instance for this Parameters. Is lazily-loaded by
+     * the getter.  
+     */
     private Filter filter;
     
     private transient Map queryParameters = new HashMap();
@@ -80,9 +116,8 @@ public class Parameters implements Serializable
     public Parameters( )
     {}
     
-    /** copy constructor. {@link Filter} is taken from old instance, unless one
-     * is already present, in which case an {@link ApiUsageException} is thrown.
-     * {@link QueryParameter queryParameters} are merged.
+    /** copy constructor. {@link Filter} is taken from old instance
+     * and {@link QueryParameter queryParameters} are merged.
      * @param old
      */ 
     public Parameters( Parameters old )
@@ -91,8 +126,31 @@ public class Parameters implements Serializable
         addAll( old );
     }
 
+    /** copy constructor. Merges {@link QueryParameter}s.
+     */
+    public Parameters( QueryParameter[] queryParameters)
+    {
+        addAll( queryParameters );
+    }
+    
     // ~ READ METHODS
     // =========================================================================
+    /**
+     * returns the Filter for this instance. If there was previously not a 
+     * Filter, a default will be instantiated.
+     */
+    public Filter getFilter()
+    {
+        if ( filter == null ) filter = new Filter();
+        return filter;
+    }
+
+    /**
+     * copies all QueryParameters to an array. Changes to this array do not 
+     * effect the internal QueryParameters.
+     * 
+     * @return array of QueryParameter.  
+     */
     public QueryParameter[] queryParameters()
     {
         return (QueryParameter[]) 
@@ -100,11 +158,20 @@ public class Parameters implements Serializable
                 new QueryParameter[queryParameters.size()]);
     }
     
+    /**
+     * lookup a QueryParameter by name. 
+     */
     public QueryParameter get(String name)
     {
         return (QueryParameter) queryParameters.get(name);
     }
-    
+
+    /**
+     * the Set of all names which would would return a non-null value from
+     * {@link Parameters#get(String)}
+     * 
+     * @return a Set of Strings.
+     */
     public Set keySet()
     {
         return queryParameters.keySet();
@@ -129,6 +196,13 @@ public class Parameters implements Serializable
         return this;
     }
 
+    /**
+     * adds all the information from the passed in Parameters instance to this 
+     * instance. All {@link QueryParameter}s are added, and the {@link Filter}
+     * instance is added <em>if</em> the current 
+     * @param old Non-null Parameters instance.
+     * @return this
+     */
     public Parameters addAll( Parameters old )
     {
         if ( old == null )
@@ -136,7 +210,7 @@ public class Parameters implements Serializable
         
         if ( old.filter != null )
         {
-            if ( filter == null )
+            if ( filter != null )
             {
                 throw new ApiUsageException(
                     "Two filters not allowed during copy constructor.");
@@ -144,11 +218,28 @@ public class Parameters implements Serializable
                 filter = old.filter;
             }
         }
+     
+        return addAll( old.queryParameters() );
+
+    }
         
-        QueryParameter[] qps = old.queryParameters();
-        for (int i = 0; i < qps.length; i++)
+    /**
+     * adds all the information from the passed in Parameters instance to this 
+     * instance. All {@link QueryParameter}s are added, and the {@link Filter}
+     * instance is added <em>if</em> the current 
+     * @param queryParameters Non-null array of QueryParameters.
+     * @return this
+     */
+    public Parameters addAll( QueryParameter[] queryParameters )
+    {
+        
+        if ( queryParameters == null )
+            throw new ApiUsageException(
+                    "Array of QueryParameters may not be null.");
+        
+        for (int i = 0; i < queryParameters.length; i++)
         {
-            add(qps[i]);
+            add( queryParameters[i] );
         }
         
         return this;
