@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import ome.conditions.InternalException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
@@ -61,6 +62,7 @@ import ome.util.RdfPrinter;
  * </small>
  * @since 1.0
  */
+@Test( groups = "managed")
 public class QueryTest
         extends
             AbstractManagedContextTest {
@@ -171,10 +173,22 @@ public class QueryTest
         
     }
 
+    /** currently documentation in
+     * {@link ome.api.IQuery#findByExample(ome.model.IObject)} and 
+     * {@link ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)}
+     * states that findByExample doesn't work on ids. If this changes, update. 
+     */
     @Test
     public void test_examplById() throws Exception
     {
-        fail("implement me");
+        Experimenter ex = new Experimenter( new Long(0) );
+        try 
+        {
+            Experimenter e = (Experimenter) iQuery.findByExample( ex );
+        } catch (InternalException ie) {
+            assertTrue( ie.getMessage().contains( "unique result"));
+        }
+        
     }
 
     protected void walkResult(List result) {

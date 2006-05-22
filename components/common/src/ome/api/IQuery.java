@@ -100,6 +100,11 @@ public interface IQuery extends ServiceInterface {
     /** search based on provided example entity. The example entity should 
      * <em>uniquely</em> specify the entity or an exception will be thrown.
      * 
+     * Note: findByExample does not operate on the <code>id</code> field. 
+     * For that, use {@link #find(Class, long)}, {@link #get(Class, long)}, 
+     * {@link #findByQuery(String, Parameters)}, or 
+     * {@link #findAllByQuery(String, Parameters)}
+     * 
      * @param example Non-null example object.
      * @return Possibly null IObject result.
      * @throws ApiUsageException if more than one result is return.
@@ -108,6 +113,12 @@ public interface IQuery extends ServiceInterface {
     
     /** search based on provided example entity. The returned entities
      * will be limited by the {@link Filter} object.
+     * 
+     * Note: findAllbyExample does not operate on the <code>id</code> field. 
+     * For that, use {@link #find(Class, long)}, {@link #get(Class, long)}, 
+     * {@link #findByQuery(String, Parameters)}, or 
+     * {@link #findAllByQuery(String, Parameters)}
+     * 
      * 
      * @param example Non-null example object.
      * @param filter filters the result set. Can be null.
