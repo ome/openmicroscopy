@@ -58,7 +58,6 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
@@ -74,7 +73,6 @@ import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
-import ome.tools.hibernate.ProxyCleanupFilter;
 import ome.tools.lsid.LsidUtils;
 import ome.util.builders.PojoOptions;
 
@@ -125,17 +123,17 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                 "{Project,Dataset,Category,CategoryGroup}, not "
                         + rootNodeType);
 
-        Query q = queryFactory.lookup(
+        Query<List<IObject>> q = queryFactory.lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
                 new Parameters()
                     .addClass(rootNodeType)
                     .addIds(rootNodeIds)
                     .addOptions(po.map())); //TODO no more "options" just QPs.
-        List l = (List) iQuery.execute(q);
+        List<IObject> l = iQuery.execute(q);
 
         collectCounts(l, po);
     	
-        return new HashSet(l);
+        return new HashSet<IObject>(l);
         
 	}
     
@@ -145,20 +143,20 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 		PojoOptions po = new PojoOptions(options);
         
-        Query q = queryFactory.lookup(
+        Query<List<IObject>> q = queryFactory.lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
                 new Parameters()
                     .addClass(rootNodeType)
                     .addIds(imageIds)
                     .addOptions(po.map()));
-        List l = (List) iQuery.execute(q);
+        List<IObject> l = iQuery.execute(q);
         collectCounts(l,po);
 
 
         //
         // Destructive changes below this point.
         //
-        for (Object object : l)
+        for (IObject object : l)
         {
             iQuery.evict(object);    
         }
@@ -172,7 +170,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 				return new HashSet();
 			}
             
-			return HierarchyTransformations.invertPDI(new HashSet(l)); 
+			return HierarchyTransformations.invertPDI(new HashSet<IObject>(l)); 
 			
 		}
 
@@ -181,7 +179,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 				return new HashSet();
 			}
 			
-			return HierarchyTransformations.invertCGCI(new HashSet(l)); 
+			return HierarchyTransformations.invertCGCI(new HashSet<IObject>(l)); 
 		}
 		
 		else {throw new IllegalArgumentException( // TODO refactor. move this up.
@@ -201,7 +199,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
 		PojoOptions po = new PojoOptions(options);
 		
-        Query<List> q = queryFactory.lookup(
+        Query<List<IObject>> q = queryFactory.lookup(
                 PojosFindAnnotationsQueryDefinition.class.getName(),
                 new Parameters()
                     .addIds(rootNodeIds)
@@ -209,7 +207,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                     .addSet("annotatorIds",annotatorIds)
                     .addOptions(po.map()));
 
-        List l = iQuery.execute(q);
+        List<IObject> l = iQuery.execute(q);
         // no count collection
 
         //
@@ -220,12 +218,15 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
             iQuery.evict(object);    
         }
 
-        // TODO these here or in Query Definition? Does it belong to API or to query?
+        // TODO these here or in Query Definition? 
+        // Does it belong to API or to query?
         if (Dataset.class.equals(rootNodeType)){ 
-            return AnnotationTransformations.sortDatasetAnnotatiosn(new HashSet(l));
+            return AnnotationTransformations.sortDatasetAnnotatiosn(
+                    new HashSet<IObject>(l));
         } 
         else if (Image.class.equals(rootNodeType)){
-            return AnnotationTransformations.sortImageAnnotatiosn(new HashSet(l));
+            return AnnotationTransformations.sortImageAnnotatiosn(
+                    new HashSet<IObject>(l));
         }
         else { 
             throw new IllegalArgumentException(
@@ -251,21 +252,21 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 		PojoOptions po = new PojoOptions(options);
 
-        Query q = queryFactory.lookup(
+        Query<List<Map<String,IObject>>> q = queryFactory.lookup(
                 PojosCGCPathsQueryDefinition.class.getName(),
                 new Parameters()
                     .addIds(imgIds)
                     .addAlgorithm(algorithm)
                     .addOptions(po.map()));
         
-		List<Map<String,Object>> result_set = (List) iQuery.execute(q);
+		List<Map<String,IObject>> result_set = iQuery.execute(q);
 
         Map<CategoryGroup,Set<Category>> map 
         = new HashMap<CategoryGroup,Set<Category>>();
         Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
         
         // Parse
-        for (Map<String,Object> entry : result_set){
+        for (Map<String,IObject> entry : result_set){
             CategoryGroup cg = (CategoryGroup) entry.get(CategoryGroup.class.getName());
             Category c = (Category) entry.get(Category.class.getName());
 
@@ -281,13 +282,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         {
             iQuery.evict(cg);
             // Overriding various checks.
-            cg.putAt(CategoryGroup.CATEGORYLINKS,null);
+            // Ticket #92 :  
+            // We know what we're doing so we place a new HashSet here.
+            cg.putAt(CategoryGroup.CATEGORYLINKS, new HashSet() );
 
             for (Category c : map.get(cg))
             {
                 iQuery.evict(c);
                 // Overriding various checks.
-                c.putAt(Category.CATEGORYGROUPLINKS,null);
+                // Ticket #92 again.  
+                c.putAt(Category.CATEGORYGROUPLINKS, new HashSet() );
                 cg.linkCategory(c);
             }
             returnValues.add(cg);
@@ -308,16 +312,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
 		PojoOptions po = new PojoOptions(options);
 
-        Query q = queryFactory.lookup(
+        Query<List<IObject>> q = queryFactory.lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
                 new Parameters()
                     .addIds(rootNodeIds)
                     .addClass(rootNodeType)
                     .addOptions(po.map()));
 
-        List l = (List) iQuery.execute(q);
+        List<IObject> l = iQuery.execute(q);
         collectCounts(l,po);
-        return new HashSet(l);
+        return new HashSet<IObject>(l);
 		
 	}
 
@@ -333,14 +337,14 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		}
 	
         
-        Query q = queryFactory.lookup(" select i from Image i " +
+        Query<List<Image>> q = queryFactory.lookup(" select i from Image i " +
                 "where i.details.owner.id = :id ",
                 new Parameters()
                     .addId( po.getExperimenter()));
 
-        List l = (List) iQuery.execute(q);
+        List<Image> l = iQuery.execute(q);
         collectCounts(l,po);
-		return new HashSet(l);
+		return new HashSet<Image>(l);
 		
 	}
     
