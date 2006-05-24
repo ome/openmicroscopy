@@ -48,25 +48,21 @@
       Compare to similar definition in services.xml
 	-->
     
-	<bean 
-  	 			id="managedService" 
-	    	class="org.springframework.aop.framework.ProxyFactoryBean"
-     abstract="true"
-  >
+	<bean id="managedService" class="org.springframework.aop.framework.ProxyFactoryBean" abstract="true">
 		<property name="interceptorNames">
 			<list>
-      <value>serviceHandler</value>
-      <value>proxyFilter</value>
-      <value>transactionHandler</value>
-      <value>sessionHandler</value>
-      <value>eventHandler</value>
+				<value>serviceHandler</value>
+				<value>proxyFilter</value>
+				<value>transactionHandler</value>
+				<value>sessionHandler</value>
+				<value>eventHandler</value>
 <!--			
 			<value>serviceSecurity</value>
 			<value>serviceTracing</value>
   		<value>aop.*</value>
 -->
-    	</list>
-    </property>
+			</list>
+		</property>
 	</bean>
   
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
