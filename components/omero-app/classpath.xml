@@ -47,8 +47,8 @@ importing this file.
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<file name="omero/jboss-annotations-ejb3/4.0.4RC1/jboss-annotations-ejb3-4.0.4RC1.jar"/>
-	<file name="omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
+	<file name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<file name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<file name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
 	<file name="omero/omero-ejb/3.0-TRUNK/omero-ejb-3.0-TRUNK.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
@@ -85,8 +85,8 @@ importing this file.
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<include name="omero/jboss-annotations-ejb3/4.0.4RC1/jboss-annotations-ejb3-4.0.4RC1.jar"/>
-	<include name="omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
+	<include name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<include name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<include name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
 	<include name="omero/omero-ejb/3.0-TRUNK/omero-ejb-3.0-TRUNK.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
@@ -125,8 +125,8 @@ importing this file.
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<file name="omero/jboss-annotations-ejb3/4.0.4RC1/jboss-annotations-ejb3-4.0.4RC1.jar"/>
-	<file name="omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
+	<file name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<file name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<file name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
 	<file name="omero/omero-ejb/3.0-TRUNK/omero-ejb-3.0-TRUNK.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
@@ -167,8 +167,8 @@ importing this file.
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<include name="omero/jboss-annotations-ejb3/4.0.4RC1/jboss-annotations-ejb3-4.0.4RC1.jar"/>
-	<include name="omero/jboss-ejb3x/4.0.4RC1/jboss-ejb3x-4.0.4RC1.jar"/>
+	<include name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<include name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<include name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
 	<include name="omero/omero-ejb/3.0-TRUNK/omero-ejb-3.0-TRUNK.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>

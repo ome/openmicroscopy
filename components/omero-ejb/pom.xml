@@ -31,12 +31,12 @@
     <dependency>
       <groupId>omero</groupId>
       <artifactId>jboss-ejb3x</artifactId>
-      <version>4.0.4RC1</version>
+      <version>4.0.4.GA</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
       <artifactId>jboss-annotations-ejb3</artifactId>
-      <version>4.0.4RC1</version>
+      <version>4.0.4.GA</version>
     </dependency>
   </dependencies>
 </project>

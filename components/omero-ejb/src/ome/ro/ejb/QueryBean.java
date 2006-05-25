@@ -31,9 +31,9 @@ package ome.ro.ejb;
 //Java imports
 import java.util.List;
 
+import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
-import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 

@@ -30,10 +30,10 @@
 package ome.ro.ejb;
 
 // Java imports
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
-import javax.ejb.PostConstruct;
-import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 
@@ -52,7 +52,7 @@ import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.quantum.QuantizationException;
+
 
 
 /**

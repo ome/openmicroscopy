@@ -30,11 +30,9 @@ package ome.ro.ejb;
 
 //Java imports
 import javax.annotation.Resource;
-import javax.ejb.AroundInvoke;
-import javax.ejb.InvocationContext;
 import javax.ejb.SessionContext;
-import javax.security.auth.Subject;
-import javax.transaction.UserTransaction;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 //Third-party imports
 import org.apache.commons.logging.Log;
