@@ -1,0 +1,17 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="dsl" >
+  
+  <test name="dsl.active">
+    <groups>
+      <run>
+        <exclude name="broken"/>
+        <exclude name="ignore"/>
+      </run>        
+    </groups>
+    <packages>
+      <package name="ome.*"/>
+    </packages>
+  </test>
+
+</suite>

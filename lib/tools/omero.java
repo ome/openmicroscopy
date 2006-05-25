@@ -212,13 +212,14 @@ public class omero
     private File[] locateBuildJars()
         throws Exception
     {
-        File[] jars = new File[6];
+        File[] jars = new File[7];
 	jars[0] = new File(mavenPath("ant","ant","1.6.5"));
 	jars[1] = new File(mavenPath("ant","ant-launcher","1.6.5"));
 	jars[2] = new File(mavenPath("xml-apis","xml-apis","1.0.b2"));
 	jars[3] = new File(mavenPath("xerces","xerces","2.0.2"));
 	jars[4] = new File(mavenPath("junit","junit","3.8.1"));
 	jars[5] = new File("lib/tools/ant-junit-1.6.5.jar");
+	jars[6] = new File("lib/tools/bsh-2.0b4.jar");
 	//jars[7] = new File("lib/tools/ant-apache-log4j.jar");
 	//jars[5] = new File(mavenPath("log4j","log4j","1.2.8"));
 

@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="omero-tests" >
+<suite name="shoola-adapter" >
   
-  <test name="Active Omero Tests">
+  <test name="shoola-adapter.active">
     <groups>
       <run>
         <exclude name="broken"/>

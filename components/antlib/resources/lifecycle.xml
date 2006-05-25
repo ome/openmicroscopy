@@ -100,16 +100,19 @@
 		</javac>
 		<echo> Skipping DBUnit Tests ... </echo>
 
+		<!-- may be overriden by fail-on-error -->
+		<property name="test.with.fail" value="false"/>
+
 		<testng outputDir="${testreports.dir}"
-			haltOnFailure="${test.with.fail}"
-			haltOnSkipped="${test.with.fail}"
+			haltonfailure="${test.with.fail}"
+			haltonskipped="${test.with.fail}"
 			>
 			<!--excludedgroups="broken,ignore,skip"-->
  			<classpath>
 				<path refid="omero.classpath"/>
 				<pathelement location="${testclasses.dir}"/>
 			</classpath>
-			<xmlfileset dir="${import.dir}">
+			<xmlfileset dir="${test.dir}">
 				<include name="testng.xml"/>
 			</xmlfileset>
 <!--
