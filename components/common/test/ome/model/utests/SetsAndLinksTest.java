@@ -2,12 +2,16 @@ package ome.model.utests;
 
 import org.testng.annotations.*;
 import java.util.List;
+import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 
 import junit.framework.TestCase;
 
@@ -101,6 +105,46 @@ public class SetsAndLinksTest extends TestCase
           // ok.
       }
   }
+  
+  
+  // Default Experimenter Group
+  @Test
+  public void test_one_way_to_default_link() throws Exception
+  {
+      Experimenter experimenter = new Experimenter();
+      ExperimenterGroup defaultGroup = new ExperimenterGroup();
+      
+      experimenter.linkExperimenterGroup(defaultGroup);
+      Set s = experimenter.findGroupExperimenterMap(defaultGroup);
+      for (Object o : s)
+      {
+          GroupExperimenterMap map = (GroupExperimenterMap) o;
+          map.setDefaultGroupLink( true );
+      }
+      testIsDefault(experimenter);
+  }
+
+  @Test
+  public void test_easier_default_linking() throws Exception
+  {
+      Experimenter experimenter = new Experimenter();
+      ExperimenterGroup defaultGroup = new ExperimenterGroup();
+      GroupExperimenterMap map = new GroupExperimenterMap();
+      map.link( defaultGroup, experimenter );
+      map.setDefaultGroupLink( true );
+      experimenter.addGroupExperimenterMap( map, true );
+      testIsDefault(experimenter);
+  }
+  
+  // ~ Private helpers
+  // ===========================================================================
+  private void testIsDefault(Experimenter experimenter)
+  {
+      assert( Boolean.TRUE.equals(
+                ((GroupExperimenterMap)
+                experimenter.iterateGroupExperimenterMap().next()).getDefaultGroupLink()));
+  }
+
   
   
 }
