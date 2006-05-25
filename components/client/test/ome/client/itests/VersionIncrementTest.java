@@ -10,6 +10,7 @@ import ome.model.containers.Project;
 import ome.system.ServiceFactory;
 
 
+@Test( groups = {"broken","version"}, enabled = false )
 public class VersionIncrementTest extends TestCase
 {
         ServiceFactory sf = new ServiceFactory();

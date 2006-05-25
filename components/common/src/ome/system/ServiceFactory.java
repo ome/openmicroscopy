@@ -88,7 +88,7 @@ public class ServiceFactory {
     }
     
     public RenderingEngine getRenderingService(){
-        return (RenderingEngine) this.ctx.getBean("renderingService");
+        return (RenderingEngine) this.ctx.getBean("renderService");
     }
     
 }
