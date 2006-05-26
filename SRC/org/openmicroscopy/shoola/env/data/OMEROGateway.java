@@ -326,7 +326,9 @@ class OMEROGateway
         throws DSOutOfServiceException
     {
         System.getProperties().setProperty("omero.user", userName);
-        System.getProperties().setProperty("omero.pass", password);
+        //TODO: Remove it asap
+        System.getProperties().setProperty("omero.pass", "ome");
+        //System.getProperties().setProperty("omero.pass", password);
         try {
             entry = new ServiceFactory(); 
             connected = true;
