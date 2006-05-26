@@ -100,7 +100,7 @@ public class PixelsServiceTest
 
     }
 
-    @Test
+    @Test( groups = {"broken","119"} )
     public void testGetTheDefinitionWeJustMade() {
         RenderingDef test = pix.retrieveRndSettings(1L);
     	assertNotNull(test);

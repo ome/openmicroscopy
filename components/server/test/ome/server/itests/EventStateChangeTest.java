@@ -47,7 +47,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
         p.setName(name);
         id = iUpdate.saveAndReturnObject(p).getId();
         p = (Project) iQuery.findByQuery("from Project p "
-                + " join fetch p.details.owner " + " where p.id = ? ",
+                + " join fetch p.details.owner " + " where p.id = :id ",
                 new Parameters().addId(id));
         
         p.setName(p.getName() + " updated.");

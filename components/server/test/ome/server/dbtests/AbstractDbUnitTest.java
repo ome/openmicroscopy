@@ -38,6 +38,7 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.springframework.context.ApplicationContext;
+import org.testng.annotations.Configuration;
 
 //Application-internal dependencies
 import ome.server.itests.*;
@@ -48,19 +49,26 @@ import ome.server.itests.*;
  */
 public abstract class AbstractDbUnitTest extends AbstractInternalContextTest {
 
+    // ~ Testng Adapter
+    // =========================================================================
+    @Configuration(beforeTestMethod = true)
+    public void adaptSetUp() throws Exception{setUp();}
+    @Configuration(afterTestMethod = true)
+    public void adaptTearDown() throws Exception{tearDown();}
+    // =========================================================================
+    
     protected static IDatabaseConnection c = null;
-    protected ApplicationContext ctx;
     protected DataSource ds = null;
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractDbUnitTest.class);
     }
 
-        @Override
-        protected void onSetUpInTransaction() throws Exception
-        {
-
-            if (null==c) {
+    @Override
+    protected void onSetUpInTransaction() throws Exception
+    {
+        ds = (DataSource) applicationContext.getBean("dataSource");
+        if (null==c) {
             try {
                 c = new DatabaseConnection(ds.getConnection());
                 DatabaseOperation.CLEAN_INSERT.execute(c,getData());
@@ -69,7 +77,6 @@ public abstract class AbstractDbUnitTest extends AbstractInternalContextTest {
                 throw e;
             }
         }
-
     }
     
     public abstract IDataSet getData() throws Exception;

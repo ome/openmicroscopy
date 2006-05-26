@@ -38,6 +38,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 //import com.caucho.burlap.io.BurlapOutput;
@@ -141,21 +142,33 @@ public class ServiceHandler implements MethodInterceptor {
             
             log.error("Exception thrown: "+msg);
             
-            if ( RootException.class.isAssignableFrom( t.getClass() ) )
+            if ( RootException.class
+                    .isAssignableFrom( t.getClass() ) )
                 return t;
 
-            else if ( OptimisticLockingFailureException.class.isAssignableFrom( t.getClass() ))
+            else if ( OptimisticLockingFailureException.class
+                    .isAssignableFrom( t.getClass() ))
             {
                 OptimisticLockException ole = new OptimisticLockException( t.getMessage() );
                 ole.setStackTrace( t.getStackTrace() );
                 return ole;
             }
             
-            else if ( IllegalArgumentException.class.isAssignableFrom( t.getClass() ))
+            else if ( IllegalArgumentException.class
+                    .isAssignableFrom( t.getClass() ))
             {
                 ApiUsageException aue = new ApiUsageException( t.getMessage() );
                 aue.setStackTrace( t.getStackTrace() );
                 log.warn("IllegalArgumentException thrown:\n"+aue.getStackTrace());
+                return aue;
+            }
+            
+            else if ( InvalidDataAccessResourceUsageException.class
+                    .isAssignableFrom( t.getClass() ) )
+            {
+                ApiUsageException aue = new ApiUsageException( t.getMessage() );
+                aue.setStackTrace( t.getStackTrace() );
+                log.warn("InvalidDataAccessResourceUsageException thrown:\n"+aue.getStackTrace());
                 return aue;
             }
             

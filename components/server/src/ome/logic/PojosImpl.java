@@ -54,6 +54,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
 import ome.api.IPojos;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Category;
@@ -138,10 +140,22 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 	}
     
     @Transactional(readOnly=true)
-	public Set findContainerHierarchies(@NotNull Class rootNodeType, 
-            @NotNull @Validate(Long.class) Set imageIds, Map options) {
+	public Set findContainerHierarchies(
+            @NotNull final Class rootNodeType, 
+            @NotNull @Validate(Long.class) final Set imageIds, 
+            Map options) {
 		
 		PojoOptions po = new PojoOptions(options);
+        
+        // TODO refactor to use Hierarchy class H.isTopLevel()
+        if (!(Project.class.equals(rootNodeType)
+                ||CategoryGroup.class.equals(rootNodeType)))
+        {
+            throw new ApiUsageException( 
+                "Class parameter for findContainerHierarchies() must be" +
+                " in {Project,CategoryGroup}, not " + rootNodeType);
+        }
+        
         
         Query<List<IObject>> q = queryFactory.lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
@@ -182,15 +196,15 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 			return HierarchyTransformations.invertCGCI(new HashSet<IObject>(l)); 
 		}
 		
-		else {throw new IllegalArgumentException( // TODO refactor. move this up.
-	                "Class parameter for findContainerHierarchies() must be" +
-                    " in {Project,CategoryGroup}, not " + rootNodeType);
+		else {
+            throw new InternalException("This can't be reached.");
 		}
 		
 	}
 
     @Transactional(readOnly=true)
-	public Map findAnnotations(Class rootNodeType, 
+	public Map findAnnotations(
+            @NotNull Class rootNodeType, 
             @NotNull @Validate(Long.class) Set rootNodeIds, 
             @Validate(Long.class) Set annotatorIds, Map options) {
 		

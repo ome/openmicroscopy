@@ -41,7 +41,7 @@ package ome.services.query;
 // Third-party libraries
 
 // Application-internal dependencies
-
+import ome.conditions.ApiUsageException;
 
 /**
  * something failed in looking up a query
@@ -50,7 +50,7 @@ package ome.services.query;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public class QueryException extends RuntimeException
+public class QueryException extends ApiUsageException
 {
     public QueryException(String message)
     {

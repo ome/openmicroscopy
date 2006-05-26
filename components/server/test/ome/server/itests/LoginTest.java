@@ -12,6 +12,7 @@ import ome.system.Principal;
 import junit.framework.TestCase;
 
 
+@Test( groups = {"mockable","security"} )
 public class LoginTest extends TestCase
 {
 
@@ -28,6 +29,7 @@ public class LoginTest extends TestCase
   @Test
     public void testNoLoginThrowsException() throws Exception
     {
+      ec.setPrincipal( null );
         try {
             q.find(Experimenter.class,0l);
             fail("Non-logged-in call allowed!");

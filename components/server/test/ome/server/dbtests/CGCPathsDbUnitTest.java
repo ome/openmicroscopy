@@ -42,6 +42,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
+import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 // Application-internal dependencies
@@ -52,6 +53,7 @@ import ome.server.itests.*;
  * @author josh
  * @DEV.TODO test "valid=false" sections of queries
  */
+@Test(enabled = false, groups = {"broken","fix"})
 public class CGCPathsDbUnitTest extends AbstractDbUnitTest
 {
 

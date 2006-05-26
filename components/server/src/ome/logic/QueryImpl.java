@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Example;
@@ -172,11 +173,6 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     @SuppressWarnings("unchecked")
     public IObject find(@NotNull final Class klass, final long id)
     {
-        if ( klass == null )
-            throw new ApiUsageException(
-                    "Class argument to find cannot be null."
-                    );
-        
         return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
@@ -214,10 +210,6 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     public IObject findByExample(@NotNull final IObject example) throws ApiUsageException
     {
-        if ( example == null )
-            throw new ApiUsageException(
-                    "Example argument to findByExample cannot be null.");
-        
         return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
@@ -233,12 +225,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)
      */
-    public List findAllByExample(final IObject example, final Filter filter)
+    public List findAllByExample(@NotNull final IObject example, final Filter filter)
     {
-        if ( example == null )
-            throw new ApiUsageException(
-                    "Example argument to findAllByExample cannot be null.");
-        
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
@@ -321,6 +309,13 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     "Query named:\n\t"+queryName+"\n" +
                     "has returned an Object of type "+cce.getMessage()+"\n" +
                     "Queries must return IObjects when using findByQuery. \n" +
+                    "Please try findAllByQuery for queries which return Lists."
+                    );
+        } catch (NonUniqueResultException nure) {
+            throw new ApiUsageException(
+                    "Query named:\n\t"+queryName+"\n" +
+                    "has returned more than one Object\n" +
+                    "findByQuery must return a single value.\n" +
                     "Please try findAllByQuery for queries which return Lists."
                     );
         }

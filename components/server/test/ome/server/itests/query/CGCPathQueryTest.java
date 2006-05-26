@@ -106,7 +106,7 @@ public class CGCPathQueryTest extends AbstractInternalContextTest
  
     }
     
-    @Test
+    @Test( groups = "broken" )
     public void test_declassification() throws Exception 
     {
         Parameters declassification 
@@ -114,7 +114,7 @@ public class CGCPathQueryTest extends AbstractInternalContextTest
         run_tests( declassification, 0, 4, 4, 0, 4);
     }
     
-    @Test
+    @Test( groups = "broken" )
     public void test_classification_nme() throws Exception
     {
         Parameters classificationNME 
@@ -122,7 +122,7 @@ public class CGCPathQueryTest extends AbstractInternalContextTest
         run_tests( classificationNME, 16, 12, 12, 8, 4); // TODO need more
     }
 
-    @Test
+    @Test( groups = "broken" )
     public void test_classification_me() throws Exception
     {
         Parameters classificationME 

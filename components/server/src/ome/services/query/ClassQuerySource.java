@@ -161,7 +161,8 @@ class IObjectClassQuery extends Query
                 c.add(Expression.eq(qp.name,qp.value)); // TODO checks for type.                
             }
         }
-        return c.list();
+        return this.params.getFilter().isUnique() ? 
+                c.uniqueResult() : c.list();
         
     }
 }

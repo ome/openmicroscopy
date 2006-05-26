@@ -38,14 +38,17 @@ import org.hibernate.Session;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.testng.annotations.*;
 
 // Application-internal dependencies
+import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
 import ome.logic.QueryImpl;
 import ome.model.containers.Project;
 import ome.parameters.Filter;
+import ome.services.util.ServiceHandler;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -56,14 +59,18 @@ import ome.parameters.Filter;
 public class IQueryMockSessionTest extends MockObjectTestCase
 {
 
-    protected QueryImpl iQuery;
+    protected IQuery iQuery;
+    protected QueryImpl impl;
     protected Mock mockSession;
 
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         super.setUp();
-        iQuery = new QueryImpl();
+        impl = new QueryImpl();
+        ProxyFactory pf = new ProxyFactory( impl );
+        pf.addAdvice( new ServiceHandler() );
+        iQuery = (IQuery) pf.getProxy();
         mockSession = newMock();
     }
     
@@ -76,7 +83,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase
     
     protected Mock newMock(){
         final Mock mock = mock(Session.class);
-        iQuery.setHibernateTemplate(new HibernateTemplate(){
+        impl.setHibernateTemplate(new HibernateTemplate(){
             @Override
             protected Session getSession()
             {
@@ -116,7 +123,6 @@ public class IQueryMockSessionTest extends MockObjectTestCase
     @ExpectedExceptions(ApiUsageException.class)
     public void test_get_nulls() throws Exception
     {
-        mockSession.expects( once() ).method( "load" ).id("test");
         iQuery.get(null,1L);
     }
     

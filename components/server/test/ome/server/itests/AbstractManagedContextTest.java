@@ -18,20 +18,12 @@ public class AbstractManagedContextTest
         extends AbstractDependencyInjectionSpringContextTests
 {
     
-    // =========================================================================
     // ~ Testng Adapter
     // =========================================================================
     @Configuration(beforeTestMethod = true)
-    public void adaptSetUp() throws Exception
-    {
-        super.setUp();
-    }
-
+    public void adaptSetUp() throws Exception{setUp();}
     @Configuration(afterTestMethod = true)
-    public void adaptTearDown() throws Exception
-    {
-        super.tearDown();
-    }
+    public void adaptTearDown() throws Exception{tearDown();}
     // =========================================================================
     
     protected LocalQuery iQuery;

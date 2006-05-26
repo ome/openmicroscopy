@@ -24,7 +24,7 @@ public class InvariantsTest
             iQuery.findByQuery(Experimenter.class.getName(),
                     new Parameters().addId(0L));
         
-        assertNotNull("Root has to be define.",root);
+        assertNotNull("Root has to be defined.",root);
         // FIXME assertNotNull("And it should have details",root.getDetails());
         
         List<Experimenter> l = iQuery.findAllByQuery("from Experimenter",null);
