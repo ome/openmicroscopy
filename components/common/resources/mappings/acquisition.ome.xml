@@ -493,6 +493,7 @@
 	<enum id="ome.model.enums.Format">
 		<entry name="DV"/>
 		<entry name="STK"/>
+		<entry name="TIFF"/>
 	</enum>
 
   <!-- Pixels Entity -->
