@@ -88,10 +88,9 @@
 		<property file="${etc.dir}/local.properties.example"/>		
 
 		<skip prop="omero.user"/>
-                <input 
-			message="Please enter username [${omero.user}]"
-			addproperty="config_omero.user" 
-			defaultValue="${omero.user}"/>
+                <input addproperty="config_omero.user" defaultValue="${omero.user}">
+		${msg.setup.omero.user}
+		</input>
 
 <!-- Have to find a workaround for password entry.
      See http://issues.apache.org/bugzilla/show_bug.cgi?id=33354 
@@ -122,34 +121,31 @@
 -->
 
 		<skip prop="server.host"/>
-                <input 
-			message="Please enter server host [${server.host}]"
-			addproperty="config_server.host" 
-			defaultvalue="${server.host}"/>
+                <input addproperty="config_server.host" defaultvalue="${server.host}">
+		${msg.setup.server.host}
+		</input>
 
+<!-- Skipping for now. No one knows what 1099 is anyway.
 		<skip prop="server.port"/>
                 <input 
 			message="Please enter server port [${server.port}]" 
 			addproperty="config_server.port"
 			defaultvalue="${server.port}"/>
-	
+-->
 		<skip prop="database.host"/>
-                <input 
-			message="Please enter database host [${database.host}]"
-			addproperty="config_database.host" 
-			defaultvalue="${database.host}"/>
+                <input addproperty="config_database.host" defaultvalue="${database.host}">
+		${msg.setup.database.host}
+		</input>
 
 		<skip prop="database.name"/>
-                <input 
-			message="Please enter database name [${database.name}]"
-			addproperty="config_database.name" 
-			defaultvalue="${database.name}"/>
+                <input addproperty="config_database.name" defaultvalue="${database.name}">
+		${msg.setup.database.name}
+		</input>
 
 		<skip prop="hibernate.connection.username"/>
-                <input 
-			message="Please enter database user [${hibernate.connection.username}]" 
-			addproperty="config_hibernate.connection.username"
-			defaultvalue="${hibernate.connection.username}"/>
+                <input addproperty="config_hibernate.connection.username" defaultvalue="${hibernate.connection.username}">
+		${msg.setup.hibernate.connection.username}
+		</input>
 
 <!-- See comment above on password entry
                 <input 
@@ -178,11 +174,8 @@
 -->
 
 		<skip prop="database.profile"/>
-		<input 
-			message="Please choose a database profile"
-			validargs="psql,mysql"
-			addproperty="config_database.profile"
-			defaultValue="psql"/>
+		<input validargs="psql,mysql" addproperty="config_database.profile" defaultValue="psql">
+		${msg.setup.database.profile} </input>
 
 		<tstamp prefix="config"/>
 
@@ -212,10 +205,7 @@ database.name=${config_database.name}
 		<property file="${etc.dir}/local.properties"/>
 
 		<input>
-
-You will now need to set the passwords in
-${etc.dir}/local.properties in order to use the system.
-
+		${msg.setup.passwords}
 		</input>
 	
 	</target>

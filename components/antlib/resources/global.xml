@@ -79,8 +79,24 @@
 
 
     <!-- = = = = = = = = = = = = = = = = =
-          variables
+          init
          = = = = = = = = = = = = = = = = = -->
+
+	<target name="init" depends="compatibility,variables-define"/>
+
+	<target name="compatibility">
+		<condition property="old.files"><or>
+			<available file="${omero.home}/omero.properties"/>
+			<available file="${omero.home}/hibernate.properties"/>
+			<available file="${omero.home}/log4j.properties"/>
+			<available file="${omero.home}/jndi.properties"/>
+		</or></condition>
+		<fail if="old.files">
+${msg.global.old.files}
+		</fail>
+
+	</target>
+
 	<target name="variables-define">
 		<condition property="test.with.fail">
 			<equals arg1="${multi.test.with.fail}" arg2="true"/>

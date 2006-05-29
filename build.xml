@@ -58,21 +58,6 @@
 		</concat>
 	</target>
 
-	<target name="compatibility">
-		<condition property="old.files"><or>
-			<available file="${omero.home}/omero.properties"/>
-			<available file="${omero.home}/hibernate.properties"/>
-			<available file="${omero.home}/log4j.properties"/>
-			<available file="${omero.home}/jndi.properties"/>
-		</or></condition>
-		<fail if="old.files">
-It appears you are working from an old install. 
-Please move the *.properties files out of OMERO_HOME, 
-and run the "setup" task.
-		</fail>
-
-	</target>
-
 	<!-- Multiproject:
 	  The idea for these targets is taken from maven2 and is
 	  supported by the antlib/resources/lifecycle.xml ant script.
@@ -80,7 +65,7 @@ and run the "setup" task.
 	  these targets can only be called from the top-level because
 	  they mask the lifecycle.xml target definitions.
 	 -->
-	<target name="multiproject" depends="compatibility,variables-define"/>
+	<target name="multiproject" depends="compatibility,init"/>
 
 	<target name="multi" depends="multiproject"
 		description="Convenience target. Iterates over all components calling the $${defaultTarget} method (default=${defaultTarget}">

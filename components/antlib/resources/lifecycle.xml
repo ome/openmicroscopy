@@ -49,7 +49,7 @@
 		</echo>
 	</target>
 
-	<target name="prepare" depends="variables-define,classpath-define">
+	<target name="prepare" depends="init,classpath-define">
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
