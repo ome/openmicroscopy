@@ -39,7 +39,6 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -114,10 +113,9 @@ class TreeCheckLabel
      */
     public void paintComponent(Graphics g)
     {
-        if (selected) 
-            g.setColor(UIManager.getColor("Tree.selectionBackground"));
-        else
-            g.setColor(UIManager.getColor("Tree.textBackground"));
+        Color c = UIManager.getColor("Tree.textBackground");
+        if (selected) c = UIManager.getColor("Tree.selectionBackground");
+        g.setColor(c);
         Dimension d = getPreferredSize();
         int offset = 0;
         Icon currentI = getIcon();

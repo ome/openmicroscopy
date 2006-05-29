@@ -112,6 +112,8 @@ public class TreeCheck
         setShowsRootHandles(true);
         super.setModel(new TreeCheckModel(root));
         addMouseListener(new MouseAdapter() {
+            
+            /** Handles the node selection. */
             public void mouseClicked(MouseEvent me) {
                 int row = getRowForLocation(me.getX(), me.getY());
                 TreePath path = getPathForRow(row);
@@ -134,8 +136,8 @@ public class TreeCheck
     /**
      * Creates a new instance.
      * 
-     * @param rootObject                The object hosted by the root node.
-     * @param rootIcon                  The icon of the root node.
+     * @param rootObject    The object hosted by the root node.
+     * @param rootIcon      The icon of the root node.
      */
     public TreeCheck(Object rootObject, Icon rootIcon)
     {
@@ -155,11 +157,10 @@ public class TreeCheck
     /**
      * Creates a new instance.
      * 
-     * @param rootObject                The object hosted by the root node.
-     * @param rootIcon                  The icon of the root node.
-     * @param leafOnly                  Passed <code>true</code> to allow 
-     *                                  leaves selection only <code>false</code>
-     *                                  otherwise.               
+     * @param rootObject    The object hosted by the root node.
+     * @param rootIcon      The icon of the root node.
+     * @param leafOnly      Passed <code>true</code> to allow leaves selection
+     *                      only, <code>false</code> otherwise.               
      */
     public TreeCheck(Object rootObject, Icon rootIcon, boolean leafOnly)
     {
