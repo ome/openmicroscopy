@@ -69,6 +69,7 @@
 			<value>classpath:omero.properties</value>
  			<value>classpath:hibernate.properties</value>      
  			<value>classpath:jndi.properties</value>
+      <value>classpath:local.properties</value>
 		</list>
 		</property>
 	</bean>

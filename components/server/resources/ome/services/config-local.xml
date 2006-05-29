@@ -51,7 +51,8 @@
     <!-- Note: later properties overwrite earlier ones -->
 		<list>
 			<value>hibernate.properties</value>
-			<value>omero.properties</value>            
+			<value>omero.properties</value>
+			<value>local.properties</value>
 			<value>ejb.properties</value>
 		</list>
 		</property>

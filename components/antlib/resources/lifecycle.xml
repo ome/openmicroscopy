@@ -51,10 +51,11 @@
 
 	<target name="prepare" depends="variables-define,classpath-define">
 		<makeDirectories/>
-		<copyResource file="${root.dir}/omero.properties"/>
-		<copyResource file="${root.dir}/hibernate.properties"/>
-		<copyResource file="${root.dir}/log4j.properties"/>
-		<copyResource file="${root.dir}/jndi.properties"/>
+		<copyResource file="${root.dir}/etc/local.properties"/>
+		<copyResource file="${root.dir}/etc/omero.properties"/>
+		<copyResource file="${root.dir}/etc/hibernate.properties"/>
+		<copyResource file="${root.dir}/etc/log4j.properties"/>
+		<copyResource file="${root.dir}/etc/jndi.properties"/>
 	</target>
 
 
@@ -175,6 +176,7 @@
 				<attribute name="Class-Path" value="${mf.classpath}"/>
 			</manifest>
 			<fileset dir="${classes.dir}">	
+				<exclude name="local.properties"/>
 				<exclude name="omero.properties"/>
 				<exclude name="hibernate.properties"/>
 				<exclude name="jndi.properties"/>

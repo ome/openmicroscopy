@@ -41,49 +41,10 @@
 -->
 
 	<!-- 	===============================================
-		CHECK SYSTEM 
-	==================================================  -->
-	<target name="check-system" 
-		depends="check-java5,check-jboss"
-		description="Verifies that system is ready to build">
-
-		<echo>
-${msg.check.report}
-1) Java5: ${check-java5-value}
-2) JBoss: ${check-jboss-value}
-
-		</echo>
-
-		<fail message="Check failed. See report.">
-			<condition><or>
-				<not><length string="${check-java5-value}" length="3"/></not>
-				<not><length string="${check-jboss-value}" length="3"/></not>
-			</or></condition>
-		</fail>
-
-	</target>
-
-	<target name="check-java5">
-		<sys_test name="java5">
-			<not>
-			<equals arg1="${ant.java.version}" arg2="1.5"/>
-			</not>
-		</sys_test>
-	</target>
-
-	<target name="check-jboss">
-		<sys_test name="jboss">
-			<not>
-			<isset property="env.JBOSS_HOME"/>
-			</not>
-		</sys_test>
-	</target>
-	
-	<!-- 	===============================================
 		SETUP
 	==================================================  -->
 	<target name="setup" 
-		depends="warning,copy-examples,prompt-for-config"
+		depends="configure,check-system"
 		description="Prepares code base for compilation"/>
 		
 	<target name="warning">
@@ -108,23 +69,184 @@ ${msg.check.report}
 		<svn command="up"/>
 	</target>
 
-	<target name="database-exists">
-		<sql_run>
-			<transaction> select 'database exists.' </transaction>
-		</sql_run>
-	</target>
+	<macrodef name="skip">
+		<attribute name="prop"/>
+		<sequential>
+		<condition property="config_@{prop}" value="${@{prop}}">
+			<and><isset property="@{prop}"/><isset property="skip.config"/></and>
+		</condition>
+		</sequential>
+	</macrodef>
 
-	<target name="copy-examples">
-		<copy todir="${basedir}" verbose="true">
-			<fileset dir="${basedir}/docs/examples/" includes="*.properties.example"/>
-			<globmapper from="*.properties.example" to="*.properties"/>
-		</copy>
-	</target>
+	<target name="configure">
 
-	<target name="prompt-for-config">
+		<!-- Read defaults where possible:
+			First read the values provided last time, then
+			our standard defaults.
+		-->
+		<property file="${etc.dir}/local.properties"/>
+		<property file="${etc.dir}/local.properties.example"/>		
+
+		<skip prop="omero.user"/>
+                <input 
+			message="Please enter username [${omero.user}]"
+			addproperty="config_omero.user" 
+			defaultValue="${omero.user}"/>
+
+<!-- Have to find a workaround for password entry.
+     See http://issues.apache.org/bugzilla/show_bug.cgi?id=33354 
+     One solution http://homepage.ntlworld.com/wayne_grant/ant.html
+                <input 
+			message="Please enter password:" 
+			addproperty="config.pass" />
+
+		<fail message="Password cannot be empty">
+			<condition><not>
+			<length 
+				string="${config.pass}" 
+				trim="true"
+				when="greater" 
+				length="0"/>
+			</not></condition>
+		</fail>
+
+                <input 
+			message="Please re-enter password" 
+			addproperty="config.test" />
+
+		<fail message="Password did not match">
+			<condition><not>
+				<equals arg1="${config.pass}" arg2="${config.test}"/>
+			</not></condition>
+		</fail>
+-->
+
+		<skip prop="server.host"/>
+                <input 
+			message="Please enter server host [${server.host}]"
+			addproperty="config_server.host" 
+			defaultvalue="${server.host}"/>
+
+		<skip prop="server.port"/>
+                <input 
+			message="Please enter server port [${server.port}]" 
+			addproperty="config_server.port"
+			defaultvalue="${server.port}"/>
+	
+		<skip prop="database.host"/>
+                <input 
+			message="Please enter database host [${database.host}]"
+			addproperty="config_database.host" 
+			defaultvalue="${database.host}"/>
+
+		<skip prop="database.name"/>
+                <input 
+			message="Please enter database name [${database.name}]"
+			addproperty="config_database.name" 
+			defaultvalue="${database.name}"/>
+
+		<skip prop="hibernate.connection.username"/>
+                <input 
+			message="Please enter database user [${hibernate.connection.username}]" 
+			addproperty="config_hibernate.connection.username"
+			defaultvalue="${hibernate.connection.username}"/>
+
+<!-- See comment above on password entry
+                <input 
+			message="Please enter database password:" 
+			addproperty="config.dbpass" />
+
+		<fail message="Password cannot be empty">
+			<condition><not>
+			<length 
+				string="${config.dbpass}" 
+				trim="true"
+				when="greater" 
+				length="0"/>
+			</not></condition>
+		</fail>
+
+                <input 
+			message="Please re-enter database password" 
+			addproperty="config.dbtest" />
+
+		<fail message="Password did not match">
+			<condition><not>
+				<equals arg1="${config.dbpass}" arg2="${config.dbtest}"/>
+			</not></condition>
+		</fail>
+-->
+
+		<skip prop="database.profile"/>
+		<input 
+			message="Please choose a database profile"
+			validargs="psql,mysql"
+			addproperty="config_database.profile"
+			defaultValue="psql"/>
+
+		<tstamp prefix="config"/>
+
+		<echo file="${etc.dir}/local.properties">
+#
+# This file was generated by the configure task at ${config.DSTAMP} ${config.TSTAMP}
+#
+server.host=${config_server.host}
+server.port=${config_server.port}
+omero.user=${config_omero.user}
+omero.pass=${config_omero.pass}
+hibernate.connection.username=${config_hibernate.connection.username}
+hibernate.connection.password=${config_hibernate.connection.password}
+database.host=${config_database.host}
+database.name=${config_database.name}
+</echo>
+
+
+		<loadfile property="profile" srcFile="${etc.dir}/profiles/${config_database.profile}">
+			<filterchain>
+				<expandproperties/>
+			</filterchain>
+		</loadfile>
+
+		<echo append="true" file="${etc.dir}/local.properties">${profile}</echo>
+
+		<property file="${etc.dir}/local.properties"/>
+
 		<input>
-			${msg.setup.prompt}
+
+You will now need to set the passwords in
+${etc.dir}/local.properties in order to use the system.
+
 		</input>
+	
+	</target>
+
+	<!-- 	===============================================
+		CHECK SYSTEM 
+	==================================================  -->
+	<target name="check-system" 
+		depends="check-java5,check-appserver,check-database"
+		description="Verifies that system is ready to build"/>
+
+	<target name="check-java5">
+		<fail message="Omero requires Java5">
+			<condition><not>
+			<equals arg1="${ant.java.version}" arg2="1.5"/>
+			</not></condition>
+		</fail>
+	</target>
+
+	<target name="check-appserver">
+		<fail message="No application server found">
+			<condition><not>
+			<isset property="env.JBOSS_HOME"/>
+			</not></condition>
+		</fail>
+	</target>
+	
+	<target name="check-database">
+                <antRun component="common">
+                        <target name="check-db"/>
+                </antRun>
 	</target>
 
 </project>

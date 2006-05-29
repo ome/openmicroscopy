@@ -57,6 +57,13 @@
 	</target>
 	
 	<target name="hib" depends="dsl,hib-init" unless="hib.not.required">
+		<concat destfile="${resrc.dest}/hibernate.properties" append="true">
+			<filelist dir="${etc.dir}">
+				<file name="hibernate.properties"/>
+				<file name="local.properties"/>
+			</filelist>
+		</concat>
+
 		<hibernate>			
 			<hbm2java destdir="${src.dest}"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
@@ -75,6 +82,12 @@
           misc          
          = = = = = = = = = = = = = = = = = -->
 	
+	<target name="check-db" depends="lifecycle.prepare">
+		<sql_run>
+			<transaction> select 'database exists.' </transaction>
+		</sql_run>
+	</target>
+
 	<target name="reload-db" depends="lifecycle.prepare">
 		<sql_run>
   			<transaction src="${resrc.dest}/${ddl.file}"/>

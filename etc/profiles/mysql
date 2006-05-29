@@ -1,0 +1,7 @@
+#
+# mysql profile
+#
+hibernate.dialect=org.hibernate.dialect.MySQLDialect
+hibernate.connection.driver_class=com.mysql.jdbc.Driver
+hibernate.connection.url=jdbc\:mysql\://${database.host}/${database.name}
+

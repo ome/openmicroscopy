@@ -53,7 +53,8 @@
 			<value>hibernate.properties</value>
 			<value>omero.properties</value>            
 			<value>ejb.properties</value>
-      <value>ome/server/itests/context/ContextPropertiesTest.properties</value>
+			<value>local.properties</value>
+			<value>ome/server/itests/context/ContextPropertiesTest.properties</value>
 		</list>
 		</property>
 	</bean>

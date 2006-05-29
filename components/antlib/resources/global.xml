@@ -48,10 +48,16 @@
 	<dirname property="import.dir"  file="${ant.file.global}"/>
 	<import file="${import.dir}/directories.xml"/>
 
-	<!-- Define properties -->
+	<!-- Define properties :
+		The user's environment (env) overrides all other
+		variables, then comes the user defined
+		local.properties, then the controlled *.properties
+		files.
+	-->
 	<property environment="env" />
-	<property file="${root.dir}/omero.properties" />
-	<property file="${root.dir}/hibernate.properties" />
+	<property file="${root.dir}/etc/local.properties" />
+	<property file="${root.dir}/etc/omero.properties" />
+	<property file="${root.dir}/etc/hibernate.properties" />
 	<property file="${import.dir}/messages.properties" />
 	
 	<!-- Imports -->

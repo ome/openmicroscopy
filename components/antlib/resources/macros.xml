@@ -90,19 +90,6 @@
 		</sequential>
 	</macrodef>
 
- 	<macrodef name="sys_test">
-		<attribute name="name"/>
-		<element name="tests" implicit="yes"/>
-		<sequential>
-                <condition
-			property="check-@{name}-value"
-                           value="${msg.check.@{name}}"
-                           else="ok.">
-			<tests/>
-		</condition>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="svn">
 		<attribute name="command"/>
 		<sequential>
@@ -182,7 +169,7 @@
         <sequential>
     		<hibernatetool destdir="${generated.dir}" templatepath="${resrc.dir}">
     			<classpath refid="omero.classpath"/>
-    			
+
     			<configuration propertyfile="${hibernate.properties}">
     				<fileset dir="${resrc.dir}" includes="${hbm.pat}"/>
     				<fileset dir="@{mappings}" includes="${hbm.pat}">

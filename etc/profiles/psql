@@ -1,0 +1,7 @@
+#
+# postgres profile
+#
+hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+hibernate.connection.driver_class=org.postgresql.Driver
+hibernate.connection.url=jdbc\:postgresql\://${database.host}/${database.name}
+
