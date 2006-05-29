@@ -31,7 +31,8 @@ public class LargePixelBufferUnitTest extends TestCase
         pixels.setSizeT(50);
         
         PixelsType type = new PixelsType();
-        pixels.setPixelsType(type); // FIXME
+        type.setValue("uint16");
+        pixels.setPixelsType(type);
 
         PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         pixelBuffer = service.getPixelBuffer(pixels);

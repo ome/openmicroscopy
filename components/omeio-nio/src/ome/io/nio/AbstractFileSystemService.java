@@ -88,16 +88,14 @@ public class AbstractFileSystemService
 
         while (remaining > 999)
         {
-            System.out.println("Remaining: " + remaining);
             remaining /= 1000;
             
             if (remaining > 0)
             {
                 Formatter formatter = new Formatter();
                 dirno = remaining % 1000;
-                suffix = formatter.format("Dir-%03d/%s", dirno, suffix)
-                                  .out().toString();
-                System.out.println("Suffix: " + suffix);
+                suffix = formatter.format("Dir-%03d", dirno)
+                                  .out().toString() + File.separator + suffix;
             }
         }
         
