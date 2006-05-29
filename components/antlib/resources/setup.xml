@@ -73,19 +73,22 @@
 		<attribute name="prop"/>
 		<sequential>
 		<condition property="config_@{prop}" value="${@{prop}}">
-			<and><isset property="@{prop}"/><isset property="skip.config"/></and>
+			<and><isset property="@{prop}"/><isset property="config.skip"/></and>
 		</condition>
 		</sequential>
 	</macrodef>
 
+	<property name="omero.user" value="${user.name}"/>
+	<property name="hibernate.connection.username" value="${user.name}"/>
 	<target name="configure">
 
 		<!-- Read defaults where possible:
 			First read the values provided last time, then
-			our standard defaults.
+			what can be gathered from the environment,
+			then our standard defaults.
 		-->
 		<property file="${etc.dir}/local.properties"/>
-		<property file="${etc.dir}/local.properties.example"/>		
+		<property file="${etc.dir}/local.properties.example"/>
 
 		<skip prop="omero.user"/>
                 <input addproperty="config_omero.user" defaultValue="${omero.user}">
@@ -125,6 +128,7 @@
 		${msg.setup.server.host}
 		</input>
 
+		<property name="config_server.port" value="${server.port}"/>
 <!-- Skipping for now. No one knows what 1099 is anyway.
 		<skip prop="server.port"/>
                 <input 

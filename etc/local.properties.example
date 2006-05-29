@@ -13,9 +13,16 @@ omero.repo.remote=file://${user.home}/.m2/repository
 ############################################
 omero.user=user
 omero.pass=secret
-omero.group=user
-omero.event=User
 
+############################################
+# database connection
+############################################
+hibernate.connection.username=user
+hibernate.connection.password=secret
+
+############################################
+# jndi connection
+############################################
 server.host=localhost
 server.port=1099
 

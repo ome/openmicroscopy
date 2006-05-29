@@ -54,11 +54,11 @@
 		local.properties, then the controlled *.properties
 		files.
 	-->
+
 	<property environment="env" />
 	<property file="${root.dir}/etc/local.properties" />
 	<property file="${root.dir}/etc/omero.properties" />
 	<property file="${root.dir}/etc/hibernate.properties" />
-	<property file="${import.dir}/messages.properties" />
 	
 	<!-- Imports -->
 	<import file="${import.dir}/patterns.xml"/>
@@ -68,6 +68,9 @@
 	<import file="${import.dir}/server.xml"/>
 	<import file="${import.dir}/release.xml"/>
 	
+	<!-- Message bundles, so all properties are defined -->
+	<property file="${import.dir}/messages.properties" />
+
     <!-- = = = = = = = = = = = = = = = = =
           help 
          = = = = = = = = = = = = = = = = = -->

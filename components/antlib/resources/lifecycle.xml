@@ -208,6 +208,7 @@
 	<!-- NON-LIFECYCLE HELPER TARGETS -->
 
 	<target name="quick">
+		<property name="config.skip" value="true"/>
 		<property name="test.skip" value="true"/>
 		<property name="generate.skip" value="true"/>
 	</target>
