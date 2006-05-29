@@ -37,6 +37,7 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -108,12 +109,26 @@ class SplashScreenView
     private static final Rectangle  CANCEL_BOUNDS = 
                                             new Rectangle(172, 323, 50, 20);
     
+    /** Absolute positioning of the version label. */
+    private static final Rectangle  VERSION_BOUNDS =
+                                            new Rectangle(62, 346, 50, 20);
+    
 	/** Font for progress bar label and text fields. */
 	private static final Font		FONT = 
 										new Font("SansSerif", Font.PLAIN, 10);
+    
 	/** Font for progress bar label and text fields. */
 	private static final Font		TASK_FONT = 
 										new Font("SansSerif", Font.PLAIN, 8);
+    
+    /** Font for the version label. */
+    private static final Font       VERSION_FONT = 
+                                        new Font("SansSerif", 
+                                                Font.PLAIN+Font.BOLD, 12);
+    
+    /** The font color for the version label. */
+    private static final Color      VERSION_FONT_COLOR = 
+                                        new Color(225, 225, 225);
     
 	/** The font color for the login text fields. */
 	private static final Color		FONT_COLOR = new Color(250, 100, 0);
@@ -121,31 +136,36 @@ class SplashScreenView
 	/** The font color for the login text fields. */
 	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
+    /** The client's version. */
+    private static final String     VERSION = "3.0_M1";
+    
 	/** Text field to enter the login user name. */
-	JTextField      				user;
+	JTextField     user;
 	
 	/** Password field to enter login password. */
-	JPasswordField  				pass;
+	JPasswordField pass;
 	
 	/** Login button. */
-	JButton         				login;
+	JButton        login;
 	
     /** Cancel button. */
-    JButton                         cancel;
+    JButton         cancel;
     
 	/** Displays the name of the task that is currently being executed. */
-	JLabel							currentTask;
+	JLabel         currentTask;
 	
 	/** Provides feedback on the state of the initialization process. */
-	JProgressBar					progressBar;
+	JProgressBar   progressBar;
 	
-
+    /** Label hosting the version of shoola. */
+	JLabel         versionLabel;
+    
 	/** Creates the splash screen UI. */
 	SplashScreenView() 
 	{
 		super("Open Microscopy Environment");
 		initProgressDisplay(); 
-		initLoginFields();
+		initFields();
 		initButtons();
 		buildGUI();
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -167,10 +187,8 @@ class SplashScreenView
 		progressBar.setStringPainted(true);
 	}
 	
-	/** 
-	 * Creates and initializes the login fields.
-	 */
-	private void initLoginFields()
+	/** Creates and initializes the login fields and the version label. */
+	private void initFields()
 	{
 		user = new JTextField();
 		user.setFont(FONT);
@@ -180,19 +198,26 @@ class SplashScreenView
 		pass.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		pass.setFont(FONT);
 		pass.setForeground(FONT_COLOR);
+        versionLabel = new JLabel();
+        versionLabel.setDoubleBuffered(false);
+        versionLabel.setText(VERSION);
+        versionLabel.setForeground(VERSION_FONT_COLOR);
+        versionLabel.setFont(VERSION_FONT);
 	}
     
     /**
      * Removes border and margin for the specified button and sets the default
      * cursor to {@link Cursor#HAND_CURSOR}.
      * 
-     * @param button The buton to set the default for.
+     * @param button        The button to set the default for.
+     * @param rollOverIcon  The rollover icon for the specified button.
      */
-    private void setButtonDefault(JButton button)
+    private void setButtonDefault(JButton button, Icon rollOverIcon)
     {
         //Next two statements get rid of surrounding border.
         button.setBorder(null);
         button.setMargin(null);  
+        button.setRolloverIcon(rollOverIcon);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
     
@@ -200,11 +225,9 @@ class SplashScreenView
 	private void initButtons()
 	{
 		login = new JButton(IconManager.getLoginButton());
-		login.setRolloverIcon(IconManager.getLoginButtonOver());
-        setButtonDefault(login);
+        setButtonDefault(login, IconManager.getLoginButtonOver());
         cancel = new JButton(IconManager.getCancelButton());
-        cancel.setRolloverIcon(IconManager.getCancelButtonOver());
-        setButtonDefault(cancel);
+        setButtonDefault(cancel, IconManager.getCancelButtonOver());
 	}
     
 	/** 
@@ -232,7 +255,7 @@ class SplashScreenView
 		layers.add(pass, new Integer(1));
         layers.add(cancel, new Integer(1));
 		layers.add(login, new Integer(1));
-		
+		layers.add(versionLabel, new Integer(1));
 		//Add components to content pane.
 		getContentPane().setLayout(null);  //Absolute layout.
 		getContentPane().add(layers);
@@ -246,6 +269,7 @@ class SplashScreenView
 		pass.setBounds(PASS_BOUNDS);
         cancel.setBounds(CANCEL_BOUNDS);
 		login.setBounds(LOGIN_BOUNDS);
+        versionLabel.setBounds(VERSION_BOUNDS);
 	}
 
 }
