@@ -36,6 +36,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -137,7 +140,7 @@ class SplashScreenView
 	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
     /** The client's version. */
-    private static final String     VERSION = "3.0_M1 "+"(r+$Rev$)";
+    private static final String     VERSION = "3.0_M1 ";
     
 	/** Text field to enter the login user name. */
 	JTextField     user;
@@ -200,7 +203,10 @@ class SplashScreenView
 		pass.setForeground(FONT_COLOR);
         versionLabel = new JLabel();
         versionLabel.setDoubleBuffered(false);
-        versionLabel.setText(VERSION);
+        String version = "$Rev$";
+        Pattern p = Pattern.compile("\\d{1, 9}");
+        Matcher m = p.matcher(version);
+        versionLabel.setText(VERSION+"(r"+m.group()+")");
         versionLabel.setForeground(VERSION_FONT_COLOR);
         versionLabel.setFont(VERSION_FONT);
 	}
