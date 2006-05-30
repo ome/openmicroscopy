@@ -64,6 +64,9 @@ import ome.util.builders.PojoOptions;
  * </small>
  * @since 2.0
  */ // FIXME
+@Test(
+	groups = "integration"
+)
 public class PojosDaoTest
         extends
             AbstractDependencyInjectionSpringContextTests {

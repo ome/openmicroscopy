@@ -1,12 +1,13 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="common" >
+<suite name="client.unit" >
   
-  <test name="common.active">
+  <test name="client.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
+        <exclude name="integration"/>
       </run>        
     </groups>
     <packages>

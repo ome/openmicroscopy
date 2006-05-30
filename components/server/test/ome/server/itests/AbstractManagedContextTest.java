@@ -3,6 +3,7 @@ package ome.server.itests;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 import ome.api.IAnalysis;
 import ome.api.IPixels;
@@ -13,7 +14,10 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 
-
+@Test(
+        groups = {"integration"}
+)
+        
 public class AbstractManagedContextTest
         extends AbstractDependencyInjectionSpringContextTests
 {

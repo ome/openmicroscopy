@@ -77,7 +77,7 @@
 	</target>
 
 	<target name="start-as-jboss" depends="check-system">
-		<exec executable="${env.JBOSS_HOME}/bin/run.sh"/>
+		<exec executable="${env.JBOSS_HOME}/bin/run.sh" spawn="true"/>
 	</target>
 
 	<target name="stop-as-jboss" depends="check-system">

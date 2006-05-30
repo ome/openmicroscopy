@@ -7,7 +7,9 @@ import omeis.providers.re.data.PlaneDef;
 
 import junit.framework.TestCase;
 
-
+@Test(
+        groups = {"integration"}
+)
 public class ExampleUsageTest extends TestCase
 {
 

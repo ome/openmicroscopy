@@ -49,6 +49,9 @@ import org.testng.annotations.Test;
  * </small>
  * @since 1.0
  */
+@Test(
+        groups = "integration"
+)
 public class AnalysisLogicTest
         extends
             AbstractManagedContextTest {

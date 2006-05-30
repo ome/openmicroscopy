@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -19,7 +20,9 @@ import ome.security.CurrentDetails;
 import ome.system.OmeroContext;
 import ome.testing.OMEData;
 
-
+@Test(
+        groups = { "integration" }
+)
 public class AbstractInternalContextTest
         extends AbstractTransactionalDataSourceSpringContextTests
 {

@@ -53,6 +53,9 @@ import ome.model.enums.RenderingModel;;
  * </small>
  * @since 1.0
  */
+@Test(
+	groups = "integration"
+)
 public class PixelsServiceTest
         extends
             AbstractManagedContextTest {

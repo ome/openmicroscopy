@@ -1,12 +1,13 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="omero-ejb" >
+<suite name="romio.unit" >
   
-  <test name="omer-ejb.active">
+  <test name="romio.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
+        <exclude name="integration"/>
       </run>        
     </groups>
     <packages>

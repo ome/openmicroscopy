@@ -53,7 +53,7 @@ import ome.server.itests.*;
  * @author josh
  * @DEV.TODO test "valid=false" sections of queries
  */
-@Test(enabled = false, groups = {"broken","fix"})
+@Test(enabled = false, groups = {"broken","fix","integration"})
 public class CGCPathsDbUnitTest extends AbstractDbUnitTest
 {
 

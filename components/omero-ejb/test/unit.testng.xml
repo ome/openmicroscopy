@@ -1,12 +1,13 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="server" >
+<suite name="omero-ejb.unit" >
   
-  <test name="server.active">
+  <test name="omer-ejb.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
+        <exclude name="integration"/>
       </run>        
     </groups>
     <packages>

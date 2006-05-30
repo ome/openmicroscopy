@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="romio" >
+<suite name="common.integration" >
   
-  <test name="romio.active">
+  <test name="common.integration.active">
     <groups>
       <run>
         <exclude name="broken"/>

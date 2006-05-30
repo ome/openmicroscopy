@@ -1,5 +1,8 @@
 package ome.server.itests;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.testng.annotations.*;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -12,7 +15,7 @@ import ome.system.Principal;
 import junit.framework.TestCase;
 
 
-@Test( groups = {"mockable","security"} )
+@Test( groups = {"mockable","security","integration"} )
 public class LoginTest extends TestCase
 {
 
@@ -21,10 +24,18 @@ public class LoginTest extends TestCase
         ec.setPrincipal( new Principal( user, group, eventType ));
     }
     
-    protected OmeroContext ctx = OmeroContext.getManagedServerContext();
-    protected IQuery q = (IQuery) ctx.getBean("queryService");
-    protected IUpdate u = (IUpdate) ctx.getBean("updateService");
-    protected EventContext ec = (EventContext) ctx.getBean("eventContext");
+    protected OmeroContext ctx;
+    protected IQuery q;
+    protected IUpdate u;
+    protected EventContext ec;
+
+    //@Configuration( beforeTest = true )
+    public void config(){
+        ctx = OmeroContext.getManagedServerContext();
+        q = (IQuery) ctx.getBean("queryService");
+        u = (IUpdate) ctx.getBean("updateService");
+        ec = (EventContext) ctx.getBean("eventContext");
+    }
     
   @Test
     public void testNoLoginThrowsException() throws Exception

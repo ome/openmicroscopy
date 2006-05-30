@@ -7,7 +7,9 @@ import org.testng.annotations.Test;
 
 import ome.model.meta.Experimenter;
 
-
+@Test(
+        groups = "integration"
+)
 public class ContextPropertiesTest extends AbstractDependencyInjectionSpringContextTests
 {
 

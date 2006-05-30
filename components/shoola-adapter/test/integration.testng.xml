@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="rendering" >
+<suite name="shoola-adapter.integration" >
   
-  <test name="rendering.active">
+  <test name="shoola-adapter.integration.active">
     <groups>
       <run>
         <exclude name="broken"/>
@@ -11,6 +11,7 @@
     </groups>
     <packages>
       <package name="ome.*"/>
+      <package name="pojos.*"/>
     </packages>
   </test>
 

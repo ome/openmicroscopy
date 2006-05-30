@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="shoola-adapter" >
+<suite name="client.integration" >
   
-  <test name="shoola-adapter.active">
+  <test name="client.integration.active">
     <groups>
       <run>
         <exclude name="broken"/>

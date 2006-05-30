@@ -1,16 +1,18 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="client" >
+<suite name="shoola-adapter.unit" >
   
-  <test name="client.active">
+  <test name="shoola-adapter.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
+        <exclude name="integration"/>
       </run>        
     </groups>
     <packages>
       <package name="ome.*"/>
+      <package name="pojos.*"/>
     </packages>
   </test>
 

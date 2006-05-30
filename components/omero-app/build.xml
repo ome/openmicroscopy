@@ -70,8 +70,11 @@
 
    <target name="deploy-jboss" depends="package,deploy-ear-jboss"/>
 
-   <target name="test">
-     <echo>Should deploy to server for integration tests</echo>
+   <target name="test"/>
+
+   <target name="integration">
+	<antcall inheritrefs="true" target="deploy-ear-jboss"/>
+	<antcall inheritrefs="true" target="wait-on-as-jboss"/>
    </target>
 
 </project>

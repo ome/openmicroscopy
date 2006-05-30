@@ -9,6 +9,9 @@ import ome.api.IUpdate;
 import ome.model.containers.Project;
 import ome.system.ServiceFactory;
 
+@Test( 
+	groups = {"client","integration"} 
+)
 public class EjbTest extends TestCase
 {
 

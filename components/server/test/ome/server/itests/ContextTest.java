@@ -1,6 +1,7 @@
 package ome.server.itests;
 
 import org.testng.annotations.*;
+
 import java.util.Arrays;
 
 import org.springframework.aop.framework.Advised;
@@ -13,6 +14,9 @@ import ome.api.IQuery;
 import ome.system.OmeroContext;
 import omeis.providers.re.RenderingEngineImpl;
 
+@Test(
+        groups = "integration"
+)
 public class ContextTest extends TestCase
 {
 

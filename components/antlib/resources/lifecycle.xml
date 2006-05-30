@@ -91,6 +91,22 @@
 		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.classpath"/>
 	</target>
 
+	<macrodef name="suite">
+		<element name="files" implicit="yes"/>
+		<sequential>
+		<testng outputDir="${testreports.dir}"
+			haltonfailure="${test.with.fail}"
+			haltonskipped="${test.with.fail}"
+			>
+ 			<classpath>
+				<path refid="omero.classpath"/>
+				<pathelement location="${testclasses.dir}"/>
+			</classpath>
+			<files/>
+		</testng>
+		</sequential>
+	</macrodef>
+
 	<target name="test" depends="compile,testng-init" unless="test.skip">
 		<copyTestResources/>
 		<javac 
@@ -103,31 +119,11 @@
 
 		<!-- may be overriden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
-
-		<testng outputDir="${testreports.dir}"
-			haltonfailure="${test.with.fail}"
-			haltonskipped="${test.with.fail}"
-			>
-			<!--excludedgroups="broken,ignore,skip"-->
- 			<classpath>
-				<path refid="omero.classpath"/>
-				<pathelement location="${testclasses.dir}"/>
-			</classpath>
+		<suite>
 			<xmlfileset dir="${test.dir}">
-				<include name="testng.xml"/>
+				<include name="unit.testng.xml"/>
 			</xmlfileset>
-<!--
-			<classfileset dir="${testclasses.dir}">
-				<include name="**/*Test.class"/>
-				<include name="**/*Tests.class"/>
-				<exclude name="**/AllTests.class"/>
-				<exclude name="**/Abstract*.class"/>
-				<!-exclude name="**/itests/**/*"/->
-				<exclude name="**/dbtests/**/*"/>
-			</classfileset>
--->
-		</testng>
-
+		</suite>
 	</target>
 		
 	<target name="junittest" depends="compile" unless="test.skip">
@@ -198,7 +194,11 @@
 	</target>
 
 	<target name="integration" depends="install">
-		
+		<suite>
+			<xmlfileset dir="${test.dir}">
+				<include name="integration.testng.xml"/>
+			</xmlfileset>
+		</suite>
 	</target>
 
 	<target name="clean">

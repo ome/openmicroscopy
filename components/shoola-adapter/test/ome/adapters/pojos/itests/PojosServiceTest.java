@@ -94,6 +94,9 @@ import pojos.ProjectData;
  * </small>
  * @since 2.0
  */
+@Test(
+	groups = {"client","integration"}
+)
 public class PojosServiceTest extends TestCase {
 
     protected static Log log = LogFactory.getLog(PojosServiceTest.class);
@@ -112,27 +115,26 @@ public class PojosServiceTest extends TestCase {
     Dataset ds;
     DatasetData dsData;
     
-  @Configuration(beforeTestMethod = true)
+  @Configuration(beforeTestClass = true)
     protected void setUp() throws Exception
     {
         data = (OMEData) factory.ctx.getBean("data");
         iPojos = factory.getPojosService();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
+
+        try 
+            {
+                iQuery.get(Experimenter.class,0l);
+            } catch (Throwable t){
+                // TODO no, no, really. This is ok. (And temporary) 
+            }
+  
+      iQuery.get(Experimenter.class,0l);
+      // if this one fails, skip rest.
+
     }
   
-  @Test( groups = {"temporary"} )
-  public void test_initializeDB() throws Exception
-  {
-      try 
-      {
-          iQuery.get(Experimenter.class,0l);
-      } catch (Throwable t){
-          // no, no, really. This is ok. (And temporary)
-      }
-  }
-  
-  @Test
     public void testGetSomethingThatsAlwaysThere() throws Exception
     {
         List l = iQuery.findAllByExample(new Experimenter(),null);
