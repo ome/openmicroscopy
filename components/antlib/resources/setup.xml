@@ -197,6 +197,20 @@ database.host=${config_database.host}
 database.name=${config_database.name}
 </echo>
 
+		<input>
+		${msg.setup.passwords}
+		</input>
+
+		<antcall target="load-profile" inheritAll="false">
+			<param name="etc.dir" value="${etc.dir}"/>
+			<param name="config_database.profile" value="${config_database.profile}"/>
+		</antcall>
+	
+	</target>
+
+	<target name="load-profile">
+	
+		<property file="${etc.dir}/local.properties"/>
 
 		<loadfile property="profile" srcFile="${etc.dir}/profiles/${config_database.profile}">
 			<filterchain>
@@ -206,12 +220,6 @@ database.name=${config_database.name}
 
 		<echo append="true" file="${etc.dir}/local.properties">${profile}</echo>
 
-		<property file="${etc.dir}/local.properties"/>
-
-		<input>
-		${msg.setup.passwords}
-		</input>
-	
 	</target>
 
 	<!-- 	===============================================
