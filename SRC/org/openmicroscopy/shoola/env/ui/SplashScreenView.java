@@ -206,7 +206,8 @@ class SplashScreenView
         String version = "$Rev$";
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
-        versionLabel.setText(VERSION+"(r"+m.group()+")");
+        m.find();
+        versionLabel.setText(VERSION+"(rev "+m.group()+")");
         versionLabel.setForeground(VERSION_FONT_COLOR);
         versionLabel.setFont(VERSION_FONT);
 	}
