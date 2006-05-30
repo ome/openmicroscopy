@@ -190,9 +190,9 @@
 server.host=${config_server.host}
 server.port=${config_server.port}
 omero.user=${config_omero.user}
-omero.pass=${config_omero.pass}
+omero.pass=CHANGE_ME
 hibernate.connection.username=${config_hibernate.connection.username}
-hibernate.connection.password=${config_hibernate.connection.password}
+hibernate.connection.password=CHANGE_ME
 database.host=${config_database.host}
 database.name=${config_database.name}
 </echo>

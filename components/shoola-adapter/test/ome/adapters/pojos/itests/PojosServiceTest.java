@@ -135,6 +135,7 @@ public class PojosServiceTest extends TestCase {
 
     }
   
+  @Test  
     public void testGetSomethingThatsAlwaysThere() throws Exception
     {
         List l = iQuery.findAllByExample(new Experimenter(),null);
