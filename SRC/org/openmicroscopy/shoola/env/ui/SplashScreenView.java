@@ -204,7 +204,7 @@ class SplashScreenView
         versionLabel = new JLabel();
         versionLabel.setDoubleBuffered(false);
         String version = "$Rev$";
-        Pattern p = Pattern.compile("\\d{1, 9}");
+        Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         versionLabel.setText(VERSION+"(r"+m.group()+")");
         versionLabel.setForeground(VERSION_FONT_COLOR);
