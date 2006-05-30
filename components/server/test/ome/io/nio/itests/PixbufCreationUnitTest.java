@@ -40,8 +40,6 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 
-import junit.framework.TestCase;
-
 
 /**
  * @author callan
@@ -52,11 +50,11 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest
     Pixels pixels;
     PixbufIOFixture baseFixture;
     PixelBuffer pixbuf;
-    
+
     @Test
     public void testValidPixbuf() throws IOException
     {
-        String validSHA1 = "caf922a2e71828fd287b75ef30d9bf1c918c96e2";
+        String validSHA1 = "11875aa5c6e7c09d433b1b0c793761001f8f34e7";
         
         byte[] md = pixbuf.calculateMessageDigest();
         assertEquals(validSHA1, Helper.bytesToHex(md));

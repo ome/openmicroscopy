@@ -57,7 +57,7 @@ public class PixbufIOFixture
         p.setSizeZ(new Integer(16));
         p.setSizeC(new Integer(2));
         p.setSizeT(new Integer(10));
-        // FIXME: Bit of a hack until the model is updated, the follwing
+        // FIXME: Bit of a hack until the model is updated, the following
         // is a SHA1 of "pixels"
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");
         

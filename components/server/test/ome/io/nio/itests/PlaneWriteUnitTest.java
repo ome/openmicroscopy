@@ -40,8 +40,6 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 
-import junit.framework.TestCase;
-
 
 /**
  * @author callan

@@ -374,13 +374,11 @@ public class PixelBuffer extends AbstractBuffer
     
     int getByteWidth ()
     {
-        return getBitDepth() / 8;
+        return getBitDepth(pixels.getPixelsType()) / 8;
     }
     
-    int getBitDepth()
+    public static int getBitDepth(PixelsType type)
     {
-        PixelsType type = pixels.getPixelsType();
-        
         if (type.getValue().equals("int8")
             || type.getValue().equals("uint8"))
         {

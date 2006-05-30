@@ -35,7 +35,6 @@ import java.nio.MappedByteBuffer;
 
 import org.testng.annotations.Test;
 
-import junit.framework.TestCase;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -92,11 +91,9 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest
     
     private void createPlanes() throws IOException
     {
-        planeCount = pixels.getSizeZ() * pixels.getSizeC() *
-                     pixels.getSizeT();
-        // FIXME: *Hack* right now we assume everything is 16-bits wide
-        planeSize  = pixels.getSizeX() * pixels.getSizeY() *
-                     2;
+    	int byteWidth = PixelBuffer.getBitDepth(pixels.getPixelsType()) / 8;
+        planeCount = pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
+        planeSize  = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
         path = new PixelsService(PixelsService.ROOT_DEFAULT).getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
         
