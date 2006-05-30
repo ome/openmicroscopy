@@ -137,7 +137,7 @@ class SplashScreenView
 	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
     /** The client's version. */
-    private static final String     VERSION = "3.0_M1";
+    private static final String     VERSION = "$Rev$";
     
 	/** Text field to enter the login user name. */
 	JTextField     user;
