@@ -111,7 +111,7 @@ class SplashScreenView
     
     /** Absolute positioning of the version label. */
     private static final Rectangle  VERSION_BOUNDS =
-                                            new Rectangle(62, 346, 50, 20);
+                                            new Rectangle(62, 346, 150, 20);
     
 	/** Font for progress bar label and text fields. */
 	private static final Font		FONT = 
@@ -137,7 +137,7 @@ class SplashScreenView
 	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
     /** The client's version. */
-    private static final String     VERSION = "$Rev$";
+    private static final String     VERSION = "3.0_M1 "+"(r+$Rev$)";
     
 	/** Text field to enter the login user name. */
 	JTextField     user;
