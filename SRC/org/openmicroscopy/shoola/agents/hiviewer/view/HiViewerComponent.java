@@ -31,11 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Set;
-
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -48,7 +45,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
