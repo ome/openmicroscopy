@@ -36,6 +36,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.model.internal.Details;
+import ome.model.internal.GraphHolder;
 import ome.util.Filterable;
 import ome.util.Validation;
 
@@ -72,7 +73,7 @@ public interface IObject extends Filterable{
     public void setId(Long id);
     
     // ~ Security
-    // ==============================================
+    // =========================================================================
     /** 
      * value (i.e. not entity) which is available on all rows in the database.
      * Low-level "details" such as security, ownership, auditing are managed 
@@ -88,7 +89,7 @@ public interface IObject extends Filterable{
     public void setDetails(Details details);
     
     //  ~ Lifecycle
-    // ==============================================
+    // =========================================================================
     /** transient field (not stored in the DB) which specifies whether this 
      * object has been loaded from the DB or is only a wrapper around the ID.
      */
@@ -102,7 +103,7 @@ public interface IObject extends Filterable{
     public void unload() throws ApiUsageException;
    
     // ~ Validation
-    // ==============================================    
+    // =========================================================================    
     /** calls the class-specific validator for this instance and returns
      * the value from {@link Validation#isValid()}
      */
@@ -115,7 +116,7 @@ public interface IObject extends Filterable{
     public Validation validate();
     
     // ~ For dynamic/generic programming
-    // ==============================================    
+    // =========================================================================    
     /** retrieves a value from this instance. Values for <code>field</code>
      * which match a field of this instance will be delegated to the accessors.
      * Otherwise, values will be retrieved from a lazy-loaded map filled by calls
@@ -134,4 +135,12 @@ public interface IObject extends Filterable{
     
     /** returns a Set of field names that belong to this class */ 
     public Set fields();
+    
+    // ~ Graph information
+    // =========================================================================
+    /** retrieves the {@link GraphHolder} for this entity. If the GraphHolder
+     * has not been actively set, a new one will be instatiated. 
+     * @return Non-null GraphHolder
+     */
+    public GraphHolder getGraphHolder();
 }

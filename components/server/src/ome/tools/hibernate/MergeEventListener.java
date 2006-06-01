@@ -76,11 +76,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
         if ( event.getOriginal() instanceof IObject)
         {
             IObject obj = (IObject)  event.getOriginal();
-            if ( obj.getDetails() == null )
-                obj.setDetails( new Details() );
-            
-            obj.getDetails().setReplacement( (IObject) event.getResult() );
-            
+            obj.getGraphHolder().setReplacement( (IObject) event.getResult() );
         }
     }
 

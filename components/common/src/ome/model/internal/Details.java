@@ -74,7 +74,6 @@ public class Details implements IDetails, Filterable, Serializable
     public final static String GROUP = "Details_group";
     
     IObject _context;
-    IObject _replacement;
     
     Permissions _perms;
     Event _creation;
@@ -163,26 +162,6 @@ public class Details implements IDetails, Filterable, Serializable
         _context = myContext;
     }
 
-    /** a replacement is a <em>managed</em> entity instance which has the same
-     * primary key as this instance. Storing this value here allows for several
-     * optimizations.
-     * @return entity 
-     */
-    public IObject getReplacement()
-    {
-        return _replacement;
-    }
-
-    /** used mostly by {@link ome.api.IUpdate}. Improper use of this method 
-     * may cause erratic behavior.
-     * 
-     * @param myReplacement
-     */
-    public void setReplacement(IObject myReplacement)
-    {
-        _replacement = myReplacement;
-    }
-    
     /** simple view of the Details. Accesses only the ids of the contained 
      * entities 
      */

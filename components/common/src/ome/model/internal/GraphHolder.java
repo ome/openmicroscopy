@@ -1,5 +1,5 @@
 /*
- * ome.conditions.SecurityException
+ * ome.model.internal.GraphHolder
  *
  *------------------------------------------------------------------------------
  *
@@ -26,29 +26,54 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.conditions;
+package ome.model.internal;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
 
-/** 
- * User does not have permissions to perform given action. 
+/**
+ * holds information regarding the graph to which an {@link ome.model.IObject}
+ * belongs.
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
+ *               <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Rev$ $Date$)
  * </small>
- * @since 2.5
+ * @since 3.0
+ * @author josh
  */
-public abstract class SecurityException extends RuntimeException{
+public class GraphHolder
+{
 
-	public SecurityException(String msg){
-		super(msg);
-	}
-	
+    private IObject replacement;
+
+    /** a replacement is a <em>managed</em> entity instance which has the same
+     * primary key as this instance. Storing this value here allows for several
+     * optimizations.
+     * 
+     * @return entity 
+     */
+    public IObject getReplacement()
+    {
+        return replacement;
+    }
+
+
+    /** used mostly by {@link ome.api.IUpdate}. Improper use of this method 
+     * may cause erratic behavior.
+     * 
+     * @param replacement
+     */
+
+    public void setReplacement( IObject replacement)
+    {
+        this.replacement = replacement;
+    }
+    
 }

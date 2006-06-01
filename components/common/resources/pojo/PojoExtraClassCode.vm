@@ -44,22 +44,24 @@ $pojo.getExtraClassCode()
   
   	public Set fields()
     {
-	    return new HashSet(${pojo.getDeclarationName()}.FIELDS);
+	    return ${pojo.getDeclarationName()}.FIELDS;
     }
   
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $field = $property.name )
 	public final static String ${field.toUpperCase()} = "${pojo.declarationName}_${field}";
 #end ## foreach
-	public final static Set FIELDS = new HashSet();
+	public final static Set FIELDS;
 	static {
+	   Set raw = new HashSet();
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $field = $property.name )
-	   FIELDS.add(${field.toUpperCase()});
+	   raw.add(${field.toUpperCase()});
 #if($pojo.isSubclass())
-	   FIELDS.addAll(${pojo.extends}.FIELDS);
+	   raw.addAll(${pojo.extends}.FIELDS);
 #end	   
 #end ## foreach
+	   FIELDS = java.util.Collections.unmodifiableSet( raw );
 	}
 	
 	
@@ -147,6 +149,15 @@ $pojo.getExtraClassCode()
 	{
 		if ( ! _loaded )
 			throw new IllegalStateException("Object unloaded:"+this);
+	}
+	
+	private transient ome.model.internal.GraphHolder _graphHolder;
+	public ome.model.internal.GraphHolder getGraphHolder()
+	{
+		if ( _graphHolder == null )
+			_graphHolder = new ome.model.internal.GraphHolder();
+			
+		return _graphHolder;
 	}
 
 ##parse( "$clazz.vm" ) TODO

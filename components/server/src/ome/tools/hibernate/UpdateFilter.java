@@ -43,9 +43,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateOperations;
 
 // Application-internal dependencies
+import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IMutable;
 import ome.model.IObject;
@@ -75,25 +76,41 @@ public class UpdateFilter extends ContextFilter
 
     private static Log log = LogFactory.getLog(UpdateFilter.class);
     
-    protected HibernateTemplate ht;
+    protected HibernateOperations hibernateOps;
 
     private UpdateFilter(){} // We need the template
     
-    public UpdateFilter(HibernateTemplate template)
+    public UpdateFilter(HibernateOperations hibernateOperations)
     {
-        this.ht = template;
+        this.hibernateOps = hibernateOperations;
     }
     
+    /** provides an external hook to unload all files which have already been
+     * merged. 
+     * <p>
+     * Merging produces a copy of an entity, so that all old entities should
+     * be considered stale. By unloading them, one is forcing the API user
+     * to use the 
+     * {@link ome.model.internal.GraphHolder#getReplacement() replacement}
+     *  instead.
+     *  </p>
+     *  <p>
+     *  The replacement is set by {@link MergeEventListener} and this is the 
+     *  signal that that entity can be unloaded. Usually, this method is 
+     *  invoked by {@link ome.logic.UpdateImpl} 
+     *  </p>
+     *
+     * @see MergeEventListener
+     * @see UpdateImpl
+     * @see IObject#unload()
+     */
     public void unloadReplacedObjects( )
     {
         for ( Object obj : _cache.keySet() )
         {
-            if ( obj instanceof IObject )
+            if ( hasReplacement( obj ))
             {
-                IObject  iobj = (IObject )  obj;
-                if ( iobj.isLoaded() && iobj.getDetails() != null)
-                    if ( iobj.getDetails().getReplacement() != null)
-                        iobj.unload( );
+                ((IObject) obj).unload();
             }
         }
     }
@@ -302,6 +319,7 @@ public class UpdateFilter extends ContextFilter
     }
 
     /* TODO what else should be preserved?
+     * TODO should move to @Validation.
      * should be able to switch group if member, e.g. */
     protected void checkManagedState( IObject obj )
     {
@@ -311,29 +329,39 @@ public class UpdateFilter extends ContextFilter
                     "Id required on all detached instances.");
 
         // Throws an exception if does not exist
-        IObject original = (IObject) ht.load( 
+        IObject original = (IObject) hibernateOps.load( 
                     Utils.trueClass( obj.getClass() ), 
                     obj.getId() );
         
         if ( obj == original)
             return; // Early exit. Obj is in session.
         
-        Details oldDetails = original.getDetails(); // must exist!
+        Details oldDetails = original.getDetails(); 
         Details updatedDetails = obj.getDetails();
         
-        /* FIXME temporary this shouldn't be null */
+        // This happens if all fields of details are null.
         if ( oldDetails == null ) 
         {
-            //obj.setDetails( null );
-            log.warn( " Original details null for: " + original );
+            if ( obj.getDetails() != null )
+            {
+                obj.setDetails( null );
+                if ( log.isDebugEnabled() )
+                {
+                    log.debug("Setting details on "+
+                            obj+" to null like original");
+                }
+            }
         }
-        
-        // TODO perhaps this should throw an exception. But we have 
-        // defaults to handle this kind of thing, so currently, not throwing.
+
+        // Probably common since users don't worry about this information.
         else if ( updatedDetails == null )
         {
-            obj.setDetails( oldDetails );
-            log.warn( " Updated details null for: " + original );
+            obj.setDetails( new Details( oldDetails ) );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug("Setting details on "+
+                        obj+" to copy of original details.");
+            }
             
         // Now we have to make sure certain things do not happen:
         } else {
@@ -342,24 +370,27 @@ public class UpdateFilter extends ContextFilter
                     oldDetails.getOwner(), 
                     updatedDetails.getOwner() ))
             {
-                updatedDetails.setOwner( oldDetails.getOwner() );
-                log.warn( " Resetting owner for: " + original );
+                throw new SecurityViolation(String.format(
+                        "Owner id changed for %s", obj 
+                        ));
             }
 
             if ( ! idEqual( 
                     oldDetails.getGroup(), 
                     updatedDetails.getGroup() ))
             {
-                updatedDetails.setGroup( oldDetails.getGroup() );
-                log.warn( " Resetting group for: " + original );
+                throw new SecurityViolation(String.format(
+                        "Group id changed for %s", obj 
+                        ));
             }
             
             if ( ! idEqual( 
                     oldDetails.getCreationEvent(), 
                     updatedDetails.getCreationEvent()))
             {
-                updatedDetails.setCreationEvent( oldDetails.getCreationEvent() );
-                log.warn( " Resetting creation for: " + original );
+                throw new SecurityViolation(String.format(
+                        "Creation event changed for %s", obj 
+                        ));
             }
             
         }
@@ -430,7 +461,7 @@ public class UpdateFilter extends ContextFilter
      */
     protected Object loadFromEntityField(IObject ctx, String fieldId)
     {
-        IObject context = (IObject) ht.load( 
+        IObject context = (IObject) hibernateOps.load( 
                 Utils.trueClass( ctx.getClass() ),
                 ctx.getId());
         return context.retrieve( fieldId );
@@ -438,7 +469,7 @@ public class UpdateFilter extends ContextFilter
 
     protected IObject loadFromUnloaded(IObject ctx)
     {
-        IObject result = (IObject) ht.load(ctx.getClass(),ctx.getId());
+        IObject result = (IObject) hibernateOps.load(ctx.getClass(),ctx.getId());
         return result;
     }
     
@@ -466,13 +497,12 @@ public class UpdateFilter extends ContextFilter
         if ( o instanceof IObject)
         {
             IObject obj = (IObject)  o;
-            if ( obj.isLoaded() )
-                if ( obj.getDetails() != null)
-                    if ( obj.getDetails().getReplacement() != null)
-                        return true;
+            if ( obj.getGraphHolder().getReplacement() != null )
+                return true;
         }
         return false;
     }
+    
     protected boolean alreadySeen( Object o )
     {
         if ( o == null ) return false;
@@ -487,7 +517,7 @@ public class UpdateFilter extends ContextFilter
         if ( hasReplacement( o ))
         {   
             IObject obj = (IObject) o;
-            IObject replacement = obj.getDetails().getReplacement();
+            IObject replacement = obj.getGraphHolder().getReplacement();
             obj.unload();
             return replacement; 
         }
