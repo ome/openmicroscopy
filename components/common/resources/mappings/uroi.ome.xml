@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Documentation:
+  uroi.ome.xml defines the types outlined at
+  http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Unified+ROI+Model
+
+  This is currently in the proposal phase.
+
+-->
+<types>
+
+	<!-- Unified ROIS -->
+	<type id="ome.model.uroi.Region">
+		<properties>
+			<required name="pixels" type="ome.model.core.Pixels"/>
+			<optional name="type" type="ome.model.enums.RegionType"/>
+			<onemany  name="urois" type="ome.model.uroi.URoi" inverse="region"/>
+			<onemany  name="boxes" type="ome.model.uroi.BoundingBox" inverse="region"/>
+		</properties>
+	</type>
+
+	<enum id="ome.model.enums.RegionType">
+		<entry name="a"/>
+		<entry name="b"/>
+	</enum>  
+  
+	<link id="ome.model.uroi.ULink">
+		<properties>
+			<from_parent type="ome.model.uroi.BoundingBox"/>
+			<to_child type="ome.model.uroi.URoi"/>
+		</properties>
+	</link>
+
+	<abstract id="ome.model.uroi.BoundingBox">
+		<properties>
+			<required name="x1" type="int"/>
+			<required name="x2" type="int"/>
+			<required name="y1" type="int"/>
+			<required name="y2" type="int"/>
+			<required name="z1" type="int"/>
+			<required name="z2" type="int"/>
+			<required name="c1" type="int"/>
+			<required name="c2" type="int"/>
+			<required name="t1" type="int"/>
+			<required name="t2" type="int"/>
+			<required name="z"  type="int"/>
+			<required name="c"  type="int"/>
+			<required name="t"  type="int"/>
+                        <child   name="links" type="ome.model.uroi.ULink"
+                                 target="ome.model.uroi.URoi"/>
+			<manyone name="region" type="ome.model.uroi.Region"/>
+		</properties>
+	</abstract>
+
+	<type id="ome.model.uroi.XYZCT" superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XYZC"  superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XYZT"  superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XYCT"  superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XYC"   superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XYT"   superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XYZ"   superclass="ome.model.uroi.BoundingBox"/>
+	<type id="ome.model.uroi.XY"    superclass="ome.model.uroi.BoundingBox"/>
+
+	<type id="ome.model.uroi.URoi">
+		<properties>
+                        <parent  name="links" type="ome.model.uroi.ULink"
+                                 target="ome.model.uroi.BoundingBox"/>
+			<manyone name="region" type="ome.model.uroi.Region"/>
+			<onemany name="slices" type="ome.model.uroi.USlice" inverse="uroi"/>
+		</properties>
+	</type>
+
+	<type id="ome.model.uroi.USlice">
+		<properties>
+			<required name="z" type="int"/>
+			<required name="c" type="int"/>
+			<required name="t" type="int"/>
+			<manyone  name="uroi" type="ome.model.uroi.URoi"/>
+			<onemany  name="shapes" type="ome.model.uroi.UShape" inverse="uslice"/>
+		</properties>
+	</type>
+
+	<abstract id="ome.model.uroi.UShape">
+		<properties>
+			<manyone name="uslice" type="ome.model.uroi.USlice"/>
+		</properties>
+	</abstract>
+
+	<type id="ome.model.uroi.USquare" superclass="ome.model.uroi.UShape">
+		<properties>
+			<required name="upperLeftX" type="int"/>
+			<required name="upperLeftY" type="int"/>
+			<required name="lowerRightX" type="int"/>
+			<required name="lowerRightY" type="int"/>
+		</properties>
+	</type>
+
+</types>
