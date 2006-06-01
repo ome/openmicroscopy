@@ -40,6 +40,7 @@
 			<required name="pixels" type="ome.model.core.Pixels"/>
 			<optional name="type" type="ome.model.enums.RegionType"/>
 			<onemany  name="urois" type="ome.model.uroi.URoi" inverse="region"/>
+			<onemany  name="nDimShapes" type="ome.model.uroi.NDimShape" inverse="region"/>
 			<onemany  name="boxes" type="ome.model.uroi.BoundingBox" inverse="region"/>
 		</properties>
 	</type>
@@ -49,13 +50,6 @@
 		<entry name="b"/>
 	</enum>  
   
-	<link id="ome.model.uroi.ULink">
-		<properties>
-			<from_parent type="ome.model.uroi.BoundingBox"/>
-			<to_child type="ome.model.uroi.URoi"/>
-		</properties>
-	</link>
-
 	<abstract id="ome.model.uroi.BoundingBox">
 		<properties>
 			<required name="x1" type="int"/>
@@ -71,8 +65,6 @@
 			<required name="z"  type="int"/>
 			<required name="c"  type="int"/>
 			<required name="t"  type="int"/>
-                        <child   name="links" type="ome.model.uroi.ULink"
-                                 target="ome.model.uroi.URoi"/>
 			<manyone name="region" type="ome.model.uroi.Region"/>
 		</properties>
 	</abstract>
@@ -86,10 +78,14 @@
 	<type id="ome.model.uroi.XYZ"   superclass="ome.model.uroi.BoundingBox"/>
 	<type id="ome.model.uroi.XY"    superclass="ome.model.uroi.BoundingBox"/>
 
+	<type id="ome.model.uroi.NDimShape">
+		<properties>
+			<manyone name="region" type="ome.model.uroi.Region"/>
+		</properties>
+	</type>
+  
 	<type id="ome.model.uroi.URoi">
 		<properties>
-                        <parent  name="links" type="ome.model.uroi.ULink"
-                                 target="ome.model.uroi.BoundingBox"/>
 			<manyone name="region" type="ome.model.uroi.Region"/>
 			<onemany name="slices" type="ome.model.uroi.USlice" inverse="uroi"/>
 		</properties>
