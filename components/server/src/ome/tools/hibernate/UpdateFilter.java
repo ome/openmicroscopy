@@ -52,6 +52,8 @@ import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.CurrentDetails;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
@@ -302,27 +304,83 @@ public class UpdateFilter extends ContextFilter
     // TODO is this natural? perhaps permissions don't belong in details
     // details are the only thing that users can change the rest is
     // read only...
+    /** fills in security details ({@link IObject#getDetails()}) for all 
+     * transient entities. Non-privileged users can only edit the 
+     * {@link Details#getPermissions() Permissions} field. Privileged users
+     * can use the {@link Details} object as a single-step <code>chmod</code>
+     * and <code>chgrp</code>. 
+     */ 
     protected void transferDetails( IObject obj )
     {
         Details source = obj.getDetails();
-        Details newDetails = CurrentDetails.createDetails();
-
+        Details currentDetails = CurrentDetails.createDetails();
+        Experimenter user = currentDetails.getOwner();
+        ExperimenterGroup group = currentDetails.getGroup();
+        
         if ( source != null )
         {
+            // TODO everyone is allowed to set the umask if desired.
             if (source.getPermissions() != null)
-                newDetails.setPermissions( source.getPermissions() );
+            {
+                currentDetails.setPermissions( source.getPermissions() );
+            }
+            
+            // users *aren't* allowed to set the owner/group of an item.
+            if (source.getOwner() != null 
+                    && ! source.getOwner().getId().equals( 
+                            currentDetails.getOwner().getId() ))
+            {
+                // but this is root
+                if ( user.getId().equals( 0L ))
+                {
+                    currentDetails.setOwner( source.getOwner() );
+                } else {
+                    throw new SecurityViolation(String.format(
+                        "You are not authorized to set the ExperimenterID" +
+                        " for %s to %d", obj, source.getOwner().getId() 
+                        ));
+                }
+                
+            }
+
+            // users *argen't allowed to set the owner/group of an item
+            if (source.getGroup() != null 
+                    && ! source.getGroup().getId().equals( 
+                            currentDetails.getGroup().getId() ))
+            {
+                
+                // but this is root
+                if ( user.getId().equals( 0L ))
+                {
+                    currentDetails.setGroup( source.getGroup() );
+                } else {
+                    throw new SecurityViolation(String.format(
+                        "You are not authorized to set the ExperimenterGroupID"+
+                        " for %s to %d", obj, source.getGroup().getId() 
+                        ));
+                }
+            }
             
         }
 
-        obj.setDetails( newDetails );
+        obj.setDetails( currentDetails );
         
     }
 
     /* TODO what else should be preserved?
      * TODO should move to @Validation.
      * should be able to switch group if member, e.g. */
+    /** checks that a non-privileged user has not attempted to edit the 
+     * entity's {@link IObject#getDetails() security details}. Privileged 
+     * users can set fields on {@link Details} as a single-step 
+     * <code>chmod</code> and <code>chgrp</code>.
+     */
     protected void checkManagedState( IObject obj )
     {
+        
+        Details currentDetails = CurrentDetails.createDetails();
+        Experimenter user = currentDetails.getOwner();
+        ExperimenterGroup group = currentDetails.getGroup();
         
         if ( obj.getId() == null)
             throw new ValidationException(
@@ -333,7 +391,7 @@ public class UpdateFilter extends ContextFilter
                     Utils.trueClass( obj.getClass() ), 
                     obj.getId() );
         
-        if ( obj == original)
+        if ( obj == original )
             return; // Early exit. Obj is in session.
         
         Details oldDetails = original.getDetails(); 
@@ -370,27 +428,37 @@ public class UpdateFilter extends ContextFilter
                     oldDetails.getOwner(), 
                     updatedDetails.getOwner() ))
             {
-                throw new SecurityViolation(String.format(
+                
+                if (! user.getId().equals( 0L ))
+                {
+                    throw new SecurityViolation(String.format(
                         "Owner id changed for %s", obj 
                         ));
+                }
             }
 
             if ( ! idEqual( 
                     oldDetails.getGroup(), 
                     updatedDetails.getGroup() ))
             {
-                throw new SecurityViolation(String.format(
+                if (! user.getId().equals( 0L ))
+                {
+                    throw new SecurityViolation(String.format(
                         "Group id changed for %s", obj 
                         ));
+                }
             }
             
             if ( ! idEqual( 
                     oldDetails.getCreationEvent(), 
                     updatedDetails.getCreationEvent()))
             {
-                throw new SecurityViolation(String.format(
+                if (! user.getId().equals( 0L ))
+                {
+                    throw new SecurityViolation(String.format(
                         "Creation event changed for %s", obj 
                         ));
+                }
             }
             
         }
