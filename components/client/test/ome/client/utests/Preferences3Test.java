@@ -31,8 +31,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
+import ome.system.Login;
 import ome.system.OmeroContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 //Application-internal dependencies
 
@@ -170,6 +172,43 @@ public class Preferences3Test extends TestCase {
 
         
     }
+  
+  @Test
+  public void test_using_OmeroContext() throws Exception
+  {
+      OmeroContext defaultCtx = OmeroContext.getClientContext();
+      OmeroContext runtimeCtx = OmeroContext.getClientContext( props );
+      
+      Principal defaultPrincipal = (Principal) defaultCtx.getBean("principal");
+      Principal runtimePrincipal = (Principal) runtimeCtx.getBean("principal");
+
+      // It's difficult to know what the real user name is.
+      assertFalse( defaultPrincipal.getName().equals( "bar" ));
+      assertTrue( runtimePrincipal.getName().equals( "bar" ));
+  }
+  
+  @Test
+  public void test_using_ServiceFactory() throws Exception
+  {
+      ServiceFactory basicSF = new ServiceFactory();
+      ServiceFactory loginSF = new ServiceFactory( new Login( "bar", "ome" ));
+      Properties p = new Properties();
+      p.setProperty( Login.OMERO_USER, "bax" );
+      ServiceFactory propsSF = new ServiceFactory( p );
+      
+      Principal basicP = (Principal) basicSF.ctx.getBean( "principal" );
+      Principal loginP = (Principal) loginSF.ctx.getBean( "principal" );
+      Principal propsP = (Principal) propsSF.ctx.getBean( "principal" );
+      
+      assertTrue( loginP.getName().equals( "bar" ));
+      assertTrue( propsP.getName().equals( "bax" ));
+      // It's difficult to know what the real user name is. 
+      assertFalse( basicP.getName().equals( "bar" ));
+      assertFalse( basicP.getName().equals( "bax" ));
+
+      
+      
+  }
 	
 }
 

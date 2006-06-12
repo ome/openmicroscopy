@@ -30,17 +30,32 @@
 package ome.system;
 
 //Java imports
+import java.util.Properties;
 
 //Third-party libraries
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
 
 //Application-internal dependencies
+import ome.conditions.ApiUsageException;
 
 /**
-* global application context. 
+* Provides static access for the creation of singleton and non-singleton 
+* application contexts. Also provides context names as constant fields which
+* can be used for the lookup of particular contexts, through either
+* {@link #getInstance(String)} or 
+* {@link ome.system.ServiceFactory#ServiceFactory(String)}.
+* 
+* By passing a {@link java.util.Properties} instance into the 
+* {@link #getClientContext(Properties)} method, a non-static version is created.
+* Currently this is only supported for the client context.
 * 
 * @author <br>
 *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -59,39 +74,47 @@ public class OmeroContext extends ClassPathXmlApplicationContext
     private static OmeroContext _internal;
     private static OmeroContext _managed;;
     
-    // ~ Super-Constructors
+    // ~ Constructors
     // =========================================================================
+    
     public OmeroContext(String configLocation) 
     throws BeansException {
-        super(configLocation);
+        super( configLocation );
     }
 
     public OmeroContext(String[] configLocations) 
     throws BeansException {
-        super(configLocations);
+        super( configLocations );
     }
 
     public OmeroContext(String[] configLocations, boolean refresh) 
     throws BeansException {
-        super(configLocations,refresh);
+        super( configLocations, refresh );
     }
     
     public OmeroContext(String[] configLocations, ApplicationContext parent)
     throws BeansException {
-        super(configLocations, parent);
+        super( configLocations, parent );
     }
 
-    public OmeroContext(String[] configLocations, boolean refresh, ApplicationContext parent)
+    public OmeroContext(
+            String[] configLocations, 
+            boolean refresh, 
+            ApplicationContext parent)
     throws BeansException {
-        super(configLocations,refresh,parent);
+        super( configLocations, refresh, parent );
     }
-
     
     // ~ Creation
     // =========================================================================
 
     private final static Object mutex = new Object();
     
+    /** 
+     * create (if necessary) and return the single default client OmeroContext.
+     * Any two calls to this method will return the same (==) context instance.
+     * @see #CLIENT_CONTEXT
+     */
     public static OmeroContext getClientContext()
     {
         synchronized (mutex)
@@ -103,6 +126,46 @@ public class OmeroContext extends ClassPathXmlApplicationContext
         }    
     }
     
+    /**
+     * initialize a new client OmeroContext (named {@link #CLIENT_CONTEXT}), 
+     * using the {@link Properties} provided as a values for property 
+     * (e.g. ${name}) replacement in Spring. Two calls to this method with the 
+     * same argument will return different ( =! ) contexts.
+     * 
+     * @see #CLIENT_CONTEXT
+     * @see ServiceFactory#ServiceFactory(Login)
+     * @see ServiceFactory#ServiceFactory(Properties)
+     */
+    public static OmeroContext getClientContext( Properties props )
+    {
+        if ( props ==  null )
+            throw new ApiUsageException(
+                    "Properties argument may not be null."
+                    );
+        
+        Properties copy = new Properties( props );
+        ConstructorArgumentValues ctorArg = new ConstructorArgumentValues();
+        ctorArg.addGenericArgumentValue( copy );
+        BeanDefinition definition 
+            = new RootBeanDefinition(Properties.class, ctorArg, null);
+        StaticApplicationContext staticContext = new StaticApplicationContext();
+        staticContext.registerBeanDefinition( "properties", definition );
+        staticContext.refresh();
+        
+        OmeroContext ctx = new Locator( ).lookup( CLIENT_CONTEXT );
+        ctx.setParent( staticContext );
+        ctx.refresh();
+        return ctx;
+    }
+
+    /** 
+     * create (if necessary) and return the single default internal OmeroContext.
+     * Any two calls to this method will return the same (==) context instance.
+     * In general, internal means that the services are less wrapped by
+     * interceptors.
+     * 
+     * @see #INTERNAL_CONTEXT
+     */
     public static OmeroContext getInternalServerContext()
     {
         synchronized (mutex)
@@ -113,7 +176,15 @@ public class OmeroContext extends ClassPathXmlApplicationContext
             return _internal; 
         }
     }
-    
+
+    /** 
+     * create (if necessary) and return the single default managed OmeroContext.
+     * Any two calls to this method will return the same (==) context instance.
+     * Managed means that the services are fully wrapped by interceptors, and
+     * are essentially the services made available remotely.
+     * 
+     * @see #INTERNAL_CONTEXT
+     */
     public static OmeroContext getManagedServerContext()
     {
         synchronized (mutex)
@@ -125,7 +196,17 @@ public class OmeroContext extends ClassPathXmlApplicationContext
         }
         
     }
-    
+
+    /** 
+     * create (if necessary) and return the single default OmeroContext named
+     * by the beanFactoryName parameter. 
+     * Any two calls to this method with the same parameter will return the 
+     * same (==) context instance.
+     * 
+     * @see #getClientContext()
+     * @see #getInternalServerContext()
+     * @see #getManagedServerContext()
+     */
     public static OmeroContext getInstance(String beanFactoryName)
     {
         OmeroContext ctx = (OmeroContext) 
@@ -134,10 +215,50 @@ public class OmeroContext extends ClassPathXmlApplicationContext
         return ctx;
     }
     
+    /** 
+     * uses the methods of this context's {@link BeanFactory} to autowire
+     * any Object based on the given beanName. This is used by 
+     * {@link SelfConfigurableService} instances to acquire dependencies. 
+     *  
+     * @see SelfConfigurableService
+     * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#applyBeanPropertyValues(java.lang.Object, java.lang.String)
+     */
     public void applyBeanPropertyValues(Object target, String beanName)
     {
         this.getAutowireCapableBeanFactory().
             applyBeanPropertyValues(target,beanName);
     }
+
+    // ~ Non-singleton locator
+    // =========================================================================
+
+    /** provides access to the protected methods of 
+     * {@link org.springframework.context.access.ContextSingletonBeanFactoryLocator}
+     * which cannot be used externally. 
+     */
+    protected static class Locator extends ContextSingletonBeanFactoryLocator
+    {
+        // copied from ContextSingletonBeanFactoryLocator
+        private static final String BEANS_REFS_XML_NAME 
+            = "classpath*:beanRefContext.xml";
+        public Locator( )
+        {
+            super();
+        }
     
+        /** uses 
+         * {@link ContextSingletonBeanFactoryLocator#createDefinition(java.lang.String, java.lang.String)}
+         * and {@link ContextSingletonBeanFactoryLocator#initializeDefinition(org.springframework.beans.factory.BeanFactory)}
+         * to create a new context from a given definition.
+         */
+        public OmeroContext lookup( String selector )
+        {
+            BeanFactory beanRefContext 
+                = createDefinition( BEANS_REFS_XML_NAME, "manual");
+            initializeDefinition( beanRefContext );
+            return (OmeroContext) beanRefContext.getBean( selector ) ;
+        }
+        
+    }
+
 }

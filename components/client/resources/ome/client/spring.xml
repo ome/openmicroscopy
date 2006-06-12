@@ -61,9 +61,10 @@
   <!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
-		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_FALLBACK"/>
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="localOverride" value="true"/>
+    <property name="properties" ref="properties"/>
 		<property name="locations">
 		<list>
 			<value>classpath:omero.properties</value>
@@ -104,6 +105,11 @@
   <!--
       SERVICES
   -->
+  <bean id="adminService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.IAdmin"/>
+    <property name="proxyInterface" value="ome.api.IAdmin"/>
+  </bean>    
+    
   <bean id="analysisService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IAnalysis"/>
     <property name="proxyInterface" value="ome.api.IAnalysis"/>
@@ -128,6 +134,11 @@
   <bean id="queryService" parent="jndi">
     <property name="jndiName" value="omero/remote/ome.api.IQuery"/>
     <property name="proxyInterface" value="ome.api.IQuery"/>
+  </bean>
+
+  <bean id="typesService" parent="jndi">
+    <property name="jndiName" value="omero/remote/ome.api.ITypes"/>
+    <property name="proxyInterface" value="ome.api.ITypes"/>
   </bean>
 
   <bean id="updateService" parent="jndi">

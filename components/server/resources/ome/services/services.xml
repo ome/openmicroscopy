@@ -79,6 +79,7 @@
     <property name="queryFactory"   ref="queryFactory"/>    
   </bean>
 
+  <bean parent="level1" id="ome.api.IAdmin" class="ome.logic.AdminImpl"/> 
   <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 
   <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl"/>
 
@@ -95,7 +96,8 @@
   <bean parent="level2" id="ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
   <bean parent="level2" id="ome.api.IPixels" class="ome.logic.PixelsImpl"/>
   <bean parent="level2" id="ome.api.IPojos" class="ome.logic.PojosImpl"/>
-
+  <bean parent="level2" id="ome.api.ITypes" class="ome.logic.TypesImpl"/>
+  
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL THREE
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -132,6 +134,10 @@
     -->
   
    <!-- 1 -->
+  <bean id="adminService" parent="internalService">
+    <property name="proxyInterfaces" value="ome.api.IAdmin"/>
+    <property name="target" ref="ome.api.IAdmin"/>
+  </bean>  
   <bean id="queryService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IQuery"/>
     <property name="target" ref="ome.api.IQuery"/>
@@ -152,6 +158,10 @@
   <bean id="pojosService" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IPojos"/>
     <property name="target" ref="ome.api.IPojos"/>
+  </bean>
+  <bean id="typesService" parent="internalService">
+    <property name="proxyInterfaces" value="ome.api.ITypes"/>
+    <property name="target" ref="ome.api.ITypes"/>
   </bean>
   <!-- FS -->
   <bean id="renderService" parent="internalService">

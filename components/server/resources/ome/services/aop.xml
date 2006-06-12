@@ -80,6 +80,10 @@
     -->
   
    <!-- 1 -->
+  <bean id="adminService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.IAdmin"/>
+    <property name="target" ref="ome.api.IAdmin"/>
+  </bean>  
   <bean id="queryService" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IQuery,ome.api.local.LocalQuery"/>
     <property name="target" ref="ome.api.IQuery"/>
@@ -100,6 +104,10 @@
   <bean id="pojosService" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IPojos"/>
     <property name="target" ref="ome.api.IPojos"/>
+  </bean>
+  <bean id="typesService" parent="managedService">
+    <property name="proxyInterfaces" value="ome.api.ITypes"/>
+    <property name="target" ref="ome.api.ITypes"/>
   </bean>
   <!-- FS -->
   <bean id="renderService" parent="managedService">

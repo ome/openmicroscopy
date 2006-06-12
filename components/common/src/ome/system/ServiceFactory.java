@@ -30,14 +30,17 @@
 package ome.system;
 
 //Java imports
+import java.util.Properties;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.system.OmeroContext;
 
@@ -63,10 +66,22 @@ public class ServiceFactory {
         this.ctx = OmeroContext.getClientContext();
     }
     
+    public ServiceFactory( Login login ){
+        this.ctx = OmeroContext.getClientContext( login.asProperties() );
+    }
+    
+    public ServiceFactory( Properties properties ){
+        this.ctx = OmeroContext.getClientContext( properties );
+    }
+    
     public ServiceFactory(String contextName){
         this.ctx = OmeroContext.getInstance(contextName);
     }
 
+    public IAdmin getAdminService(){
+        return (IAdmin) this.ctx.getBean("adminService");
+    }
+    
     public IAnalysis getAnalysisService(){
         return (IAnalysis) this.ctx.getBean("analysisService");
     }
@@ -81,6 +96,10 @@ public class ServiceFactory {
     
     public IQuery getQueryService(){
         return (IQuery) this.ctx.getBean("queryService");
+    }
+
+    public ITypes getTypesService(){
+        return (ITypes) this.ctx.getBean("typesService");
     }
     
     public IUpdate getUpdateService(){
