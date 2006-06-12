@@ -297,6 +297,11 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     throws ValidationException
     {
         
+        if ( params == null )
+        {
+            params = new Parameters();
+        }
+        
         // specify that we should only return a single value if possible
         params.getFilter().unique();
         
