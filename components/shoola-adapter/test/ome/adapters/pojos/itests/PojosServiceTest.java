@@ -118,7 +118,7 @@ public class PojosServiceTest extends TestCase {
   @Configuration(beforeTestClass = true)
     protected void setUp() throws Exception
     {
-        data = (OMEData) factory.ctx.getBean("data");
+        data = (OMEData) factory.getContext().getBean("data");
         iPojos = factory.getPojosService();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
