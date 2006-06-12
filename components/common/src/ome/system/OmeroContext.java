@@ -66,8 +66,25 @@ import ome.conditions.ApiUsageException;
 */
 public class OmeroContext extends ClassPathXmlApplicationContext
 {
+    /**
+     * identifier for an OmeroContext configured in classpath*:beanRefContext.xml 
+     * for use by remote (via JNDI/RMI) clients.
+     */
     public final static String CLIENT_CONTEXT = "ome.client";
+    
+    /**
+     * identifier for an OmeroContext configured in classpath*:beanRefContext.xml
+     * for use by server-side processes. All objects obtained from the context
+     * are in a state for immediate use.
+     */
     public final static String MANAGED_CONTEXT = "ome.server";
+    
+    /**
+     * identifier for an OmeroContext configured in classpath*:beanRefContext.xml
+     * for internal use only. Transactions, security, and other container 
+     * aspects may not be configured properly. If needed, use the 
+     * {@link #MANAGED_CONTEXT} identifier.  
+     */
     public final static String INTERNAL_CONTEXT = "ome.internal";
 
     private static OmeroContext _client;

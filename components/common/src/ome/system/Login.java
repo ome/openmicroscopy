@@ -56,9 +56,24 @@ import ome.conditions.ApiUsageException;
  */
 public class Login {
 
+    /**
+     * Java property name for use in configuration of client login. 
+     */
     public final static String OMERO_USER = "omero.user";
+    
+    /**
+     * Java property name for use in configuration of client login. 
+     */
     public final static String OMERO_GROUP = "omero.group";
+    
+    /**
+     * Java property name for use in configuration of client login. 
+     */
     public final static String OMERO_PASS = "omero.pass";
+    
+    /**
+     * Java property name for use in configuration of client login. 
+     */
     public final static String OMERO_EVENT = "omero.event";
     
     private String _user, _group, _pass, _event;

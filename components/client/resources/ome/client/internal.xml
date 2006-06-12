@@ -35,8 +35,9 @@
 
 <!--
 
-  The initial.xml configuration file is used to override system properties
-  to allow for non-static login.
+  The initial.xml configuration file is used as default system properties
+  for all static client contexts. For non-static login, provide an instance
+  of java.util.Properties yourself in the OmeroContext.getClientContext call.
   
 -->
 

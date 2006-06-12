@@ -196,9 +196,9 @@ public class Preferences3Test extends TestCase {
       p.setProperty( Login.OMERO_USER, "bax" );
       ServiceFactory propsSF = new ServiceFactory( p );
       
-      Principal basicP = (Principal) basicSF.ctx.getBean( "principal" );
-      Principal loginP = (Principal) loginSF.ctx.getBean( "principal" );
-      Principal propsP = (Principal) propsSF.ctx.getBean( "principal" );
+      Principal basicP = (Principal) basicSF.getContext().getBean( "principal" );
+      Principal loginP = (Principal) loginSF.getContext().getBean( "principal" );
+      Principal propsP = (Principal) propsSF.getContext().getBean( "principal" );
       
       assertTrue( loginP.getName().equals( "bar" ));
       assertTrue( propsP.getName().equals( "bax" ));

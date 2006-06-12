@@ -30,9 +30,6 @@
 package ome.logic;
 
 //Java imports
-import java.sql.SQLException;
-import java.util.List;
-
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
@@ -42,35 +39,13 @@ import javax.management.ReflectionException;
 
 //Third-party libraries
 import org.springframework.jmx.support.JmxUtils;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Criteria;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.NonUniqueResultException;
-import org.hibernate.ObjectNotFoundException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Example;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
-import ome.annotations.NotNull;
 import ome.api.IAdmin;
-import ome.api.IQuery;
-import ome.api.local.LocalQuery;
-import ome.conditions.ApiUsageException;
-import ome.conditions.ValidationException;
-import ome.model.IObject;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
-import ome.services.dao.Dao;
-import ome.services.query.Query;
 
 /**  Provides methods for directly querying object graphs.
  * 

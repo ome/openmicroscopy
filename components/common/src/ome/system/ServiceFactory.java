@@ -60,20 +60,67 @@ import omeis.providers.re.RenderingEngine;
  */
 public class ServiceFactory {
 
-    public OmeroContext ctx;
+    private OmeroContext ctx;
+
+    /** public access to the context. This may not always be available, but
+     * for this initial phase, it makes some sense. Completely non-dangerous on
+     * the client-side.
+     *  
+     * @deprecated
+     */
+    public OmeroContext getContext()
+    {
+        return ctx;
+    }
     
+    /** default constructor which obtains the global static
+     * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context} from 
+     * {@link ome.system.OmeroContext}. This can be done manually by calling
+     * {@link ome.system.OmeroContext#getClientContext()}
+     * @see OmeroContext#CLIENT_CONTEXT
+     * @see OmeroContext#getClientContext()
+     */ 
     public ServiceFactory(){
         this.ctx = OmeroContext.getClientContext();
     }
     
+    /** 
+     * constructor which obtains a new 
+     * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context},
+     * passing in the {@link Properties} representation of the Login
+     * for configuration.
+     * @see Login#asProperties()
+     * @see #ServiceFactory(Properties)
+     */
     public ServiceFactory( Login login ){
         this.ctx = OmeroContext.getClientContext( login.asProperties() );
     }
     
+    /** 
+     * constructor which obtains a new 
+     * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context},
+     * passing in the provided properties for configuration.
+     * @see OmeroContext#getClientContext(Properties)
+     */
     public ServiceFactory( Properties properties ){
         this.ctx = OmeroContext.getClientContext( properties );
     }
-    
+
+    /** 
+     * constructor which uses the provided {@link OmeroContext} for all
+     * loookups.
+     */ 
+    public ServiceFactory( OmeroContext context ){
+        this.ctx = context;
+    }
+
+    /** 
+     * constructor which finds the global static {@link OmeroContext} with the
+     * given name.
+     * @see OmeroContext#CLIENT_CONTEXT
+     * @see OmeroContext#INTERNAL_CONTEXT
+     * @see OmeroContext#MANAGED_CONTEXT
+     */ 
     public ServiceFactory(String contextName){
         this.ctx = OmeroContext.getInstance(contextName);
     }
