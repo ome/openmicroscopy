@@ -88,7 +88,7 @@
 		</sql_run>
 	</target>
 
-	<target name="reload-db" depends="lifecycle.prepare">
+	<target name="reload-db" depends="lifecycle.prepare,generate">
 		<sql_run>
   			<transaction src="${resrc.dest}/${ddl.file}"/>
   			<transaction src="${resrc.dest}/data.sql"/>
