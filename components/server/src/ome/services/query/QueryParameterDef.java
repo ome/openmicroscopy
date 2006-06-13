@@ -30,31 +30,44 @@ public class QueryParameterDef
 
     public void errorIfInvalid( QueryParameter parameter ) 
     {
-        if ( parameter.type == null )
+        // If paramter is null, skip the rest
+        if ( parameter == null )
         {
             if (! this.optional )
                 throw new IllegalArgumentException(
-                        "Non-optional parameter type cannot be null.");
-            
+                "Non-optional parameter cannot be null.");
+                
+        // If parameter.type is null, skip the rest.
+        } else if ( parameter.type == null )
+        {
+            if (! this.optional )
+                throw new IllegalArgumentException(
+                "Non-optional parameter type cannot be null.");
+
+        // If value is null, skip the rest
+        } else if ( parameter.value == null )
+        {
+            if ( ! this.optional )
+            throw new IllegalArgumentException( 
+                "Non-optional parameter "+this.name+" may not be null.");
+
         } else {
+            // Fields are non-null, check them.
             if ( ! this.type.isAssignableFrom( parameter.type ))
                     throw new IllegalArgumentException(
-                            String.format(
+                    String.format(
                             " Type of parameter %s doesn't match: %s != %s",
-                                    name,this.type,parameter.type));
+                            name,this.type,parameter.type));
+        
+            if ( ! this.optional 
+                && Collection.class.isAssignableFrom( this.type )
+                && ((Collection) parameter.value ).size() < 1 )
+                    throw new IllegalArgumentException(
+                    "Non-optional collections may not be empty.");
         
         }
         
-        if ( parameter.value == null && ! this.optional ) 
-            throw new IllegalArgumentException( 
-                    "Non-optional parameter "+this.name+" may not be null.");
         
-        if ( ! this.optional 
-                && Collection.class.isAssignableFrom( this.type )
-                && ((Collection) parameter.value ).size() < 1 )
-            throw new IllegalArgumentException(
-                    "Non-optional collections may not be empty.");
-
     }
     
 }

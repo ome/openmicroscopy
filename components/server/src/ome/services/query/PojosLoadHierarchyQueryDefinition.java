@@ -17,21 +17,18 @@ import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;
 import ome.util.builders.PojoOptions;
 
-public class PojosLoadHierarchyQueryDefinition extends Query
+public class PojosLoadHierarchyQueryDefinition 
+    extends AbstractClassIdsOptionsQuery
 {
 
-    static Definitions defs = new Definitions(// TODO same as findHierarchy
-        new OptionsQueryParameterDef(),
-        new ClassQueryParameterDef(),
-        new CollectionQueryParameterDef( IDS, true, Long.class ));        
-    
     public PojosLoadHierarchyQueryDefinition(Parameters parameters)
     {
-        super( defs, parameters);
+        super( parameters);
     }
 
     @Override
-    protected Object runQuery(Session session) throws HibernateException, SQLException
+    protected void buildQuery(Session session) 
+    throws HibernateException, SQLException
     {
         PojoOptions po = new PojoOptions((Map) value(OPTIONS));
         Class klass = (Class)value(CLASS);
@@ -47,8 +44,8 @@ public class PojosLoadHierarchyQueryDefinition extends Query
         // fetch hierarchy
         int depth = po.isLeaves() ? Integer.MAX_VALUE : 1; 
         Hierarchy.fetchChildren(c,klass,depth); 
-      
-        return c.list();
+    
+        setCriteria( c );
     }
 
     @Override

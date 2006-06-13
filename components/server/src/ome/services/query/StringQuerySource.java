@@ -40,25 +40,16 @@ package ome.services.query;
 
 
 // Third-party libraries
-import java.sql.SQLException;
-import java.util.Collection;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-
-import ome.parameters.Parameters;
 
 // Application-internal dependencies
+import ome.parameters.Parameters;
 
 
 /**
  * creates a query based on the id string.
  *  
- * TODO: should we get rid of the session here? 
- * then we can't parse the query string....
- * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
@@ -71,45 +62,8 @@ public class StringQuerySource extends QuerySource
     public Query lookup(String queryID,Parameters parameters)
     {
         Parameters p = new Parameters(parameters);
-        p.addString("string",queryID);
+        p.addString(StringQuery.STRING,queryID);
         return new StringQuery(p);
     }
     
-}
-
-class StringQuery extends Query 
-{
-
-    static Definitions defs = new Definitions(
-        new QueryParameterDef("string", String.class, false));
-    
-    public StringQuery(Parameters parameters ){
-        super( defs, parameters );
-    }
-
-    @Override
-    protected Object runQuery(Session session) 
-        throws HibernateException, SQLException
-    {
-        org.hibernate.Query query = session.createQuery((String) value("string"));
-        String[] nParams = query.getNamedParameters();
-        for (int i = 0; i < nParams.length; i++)
-        {
-            String p = nParams[i];
-            Object v = value(p);
-            if (Collection.class.isAssignableFrom(v.getClass()))
-            {
-                query.setParameterList(p,(Collection)v);
-            } else {
-                query.setParameter(p,v);
-            }
-        }
-        
-        return this.params.getFilter().isUnique() ? 
-                query.uniqueResult() : query.list();
-                // TODO check other queries for this type of participatin
-                // TODO test.
-                
-        
-    }
 }

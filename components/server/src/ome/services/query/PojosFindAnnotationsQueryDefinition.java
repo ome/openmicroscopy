@@ -48,10 +48,19 @@ public class PojosFindAnnotationsQueryDefinition extends Query
     }
     
     @Override
-    protected Object runQuery(Session session) 
+    protected void buildQuery(Session session) 
         throws HibernateException, SQLException
     {
         PojoOptions po = new PojoOptions((Map) value(OPTIONS));
+
+        Class k = (Class) value(CLASS);
+        if ( ! typeToAnnotationType.containsKey( k ))
+        {
+            throw new IllegalArgumentException(
+                    "Class "+k+" is not accepted by "+
+                    PojosFindAnnotationsQueryDefinition.class.getName()
+                    );
+        }
         
         Class target = typeToAnnotationType.get((Class) value(CLASS));
         String path = annotationTypeToPath.get(target);
@@ -68,8 +77,7 @@ public class PojosFindAnnotationsQueryDefinition extends Query
             if (annotatorIds != null && annotatorIds.size() > 0)
                 c.add(Restrictions.in("details.id", annotatorIds ));
         }
-
-        return c.list();
+        setCriteria( c );
     }
 
 

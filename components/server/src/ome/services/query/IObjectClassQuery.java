@@ -1,5 +1,5 @@
 /*
- * ome.services.query.CollectionCountQueryDefinition
+ * ome.services.query.IObjectClassQuery
  *
  *------------------------------------------------------------------------------
  *
@@ -36,63 +36,64 @@
 
 package ome.services.query;
 
-//Java imports
+// Java imports
 import java.sql.SQLException;
-import java.util.Collection;
 
 // Third-party libraries
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
 
 // Application-internal dependencies
 import ome.parameters.Parameters;
-import ome.tools.lsid.LsidUtils;
+import ome.parameters.QueryParameter;
 
 /**
- * counts the number of members in a collection. This query is used 
- * by the {@link ome.api.IPojos IPojos} interface (possbly among others) to
- * add information to outgoing results.  
+ * simple query subclass which uses the {@link ome.parameters.Parameters#CLASS}
+ * parameter value to create a {@link org.hibernate.Criteria} and then 
+ * adds {@link org.hibernate.criterion.Expression} instances based on all
+ * other parameter names.
+ * <p>
+ * For example:
+ * </p>
+ * <code>
+ *   Parameters p = new Parameters().addClass( Image.class )
+ *   .addString( "name", "LT-3059");
+ * </code>
+ * <p>  
+ * produces a query of the form "select i from Image i where name = 'LT-3059'"
+ * </p>
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
- * @see Details#getCounts()
+
  */
-public class CollectionCountQueryDefinition extends Query
+public class IObjectClassQuery extends Query 
 {
 
-    static Definitions defs = new Definitions(
-            new IdsQueryParameterDef(),
-            new QueryParameterDef("field", String.class, false)
-            );
+    static String CLASS = Parameters.CLASS;
     
-    public CollectionCountQueryDefinition(Parameters parameters)
-    {
+    static Definitions defs = new Definitions(
+        new QueryParameterDef(CLASS, Class.class, false));
+    
+    public IObjectClassQuery(Parameters parameters ){
         super( defs, parameters );
     }
 
     @Override
-    protected void buildQuery(Session session)
-            throws HibernateException, SQLException
+    protected void buildQuery(Session session) 
+        throws HibernateException, SQLException
     {
-        String s_field = (String) value("field"); // TODO Generics??? if not
-        // in arrays!
-        String s_target = LsidUtils.parseType(s_field);
-        String s_collection = LsidUtils.parseField(s_field);
-        String s_query = String.format(
-                "select target.id, count(collection) from %s target "
-                        + "join target.%s collection "
-                        + ( check("ids") ? "where target.id in (:ids)" : "" )
-                        + "group by target.id",
-                        s_target, s_collection);
-
-        org.hibernate.Query q = session.createQuery(s_query);
-        if (check("ids")){
-            q.setParameterList("ids",(Collection) value("ids"));
+        Criteria c = session.createCriteria((Class) value(CLASS));
+        for (QueryParameter qp : params.queryParameters())
+        {
+            if ( ! qp.name.equals( CLASS ) )
+            {
+                c.add(Expression.eq(qp.name,qp.value)); // TODO checks for type.                
+            }
         }
-        setQuery( q );
-
+        setCriteria( c );
     }
-
-    // TODO filters...?
 }

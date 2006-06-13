@@ -136,33 +136,3 @@ public class ClassQuerySource extends QuerySource
     }
     
 }
-
-class IObjectClassQuery extends Query 
-{
-
-    static String CLASS = Parameters.CLASS;
-    
-    static Definitions defs = new Definitions(
-        new QueryParameterDef(CLASS, Class.class, false));
-    
-    public IObjectClassQuery(Parameters parameters ){
-        super( defs, parameters );
-    }
-
-    @Override
-    protected Object runQuery(Session session) 
-        throws HibernateException, SQLException
-    {
-        Criteria c = session.createCriteria((Class) value(CLASS));
-        for (QueryParameter qp : params.queryParameters())
-        {
-            if ( ! qp.name.equals( CLASS ) )
-            {
-                c.add(Expression.eq(qp.name,qp.value)); // TODO checks for type.                
-            }
-        }
-        return this.params.getFilter().isUnique() ? 
-                c.uniqueResult() : c.list();
-        
-    }
-}

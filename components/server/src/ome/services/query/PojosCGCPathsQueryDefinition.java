@@ -31,7 +31,7 @@ public class PojosCGCPathsQueryDefinition extends Query
     }
     
     @Override
-    protected Object runQuery(Session session) 
+    protected void buildQuery(Session session) 
     throws HibernateException, SQLException
     {
         PojoOptions po = new PojoOptions((Map) value(OPTIONS));
@@ -50,11 +50,11 @@ public class PojosCGCPathsQueryDefinition extends Query
         if (IPojos.DECLASSIFICATION.equals(algo))
         {
             img.add(Restrictions.in("id",ids));
-            return cg.list();
+            setCriteria( cg );
 
         } else if (IPojos.CLASSIFICATION_NME.equals(algo)) {
             img.add(Restrictions.not(Restrictions.in("id",ids)));
-            return cg.list();
+            setCriteria( cg );
         
         } else if (IPojos.CLASSIFICATION_ME.equals(algo)) {
 
@@ -69,10 +69,10 @@ public class PojosCGCPathsQueryDefinition extends Query
             if (ids != null && ids2.size() > 0)
                 cg.add(Restrictions.not(Restrictions.in("id",ids2)));
 
-            return cg.list();
+            setCriteria( cg );
             
         } else {
-            throw new IllegalArgumentException("Unkown algo: "+algo);
+            throw new IllegalArgumentException("Unkown algorithm: "+algo);
             // TODO here or in PojosImpl?
         }
 

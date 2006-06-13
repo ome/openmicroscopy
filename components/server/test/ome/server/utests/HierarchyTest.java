@@ -247,7 +247,7 @@ public class HierarchyTest extends MockObjectTestCase
         {
             mock.expects( once( ) ).method( "createCriteria" ).with( stringContains( path ),
                                                                      ANYTHING,
-                                                                     eq( Query.LEFT_JOIN ) ).will( returnValue( null ) );
+                                                                     eq( Criteria.LEFT_JOIN ) ).will( returnValue( null ) );
 
         }
     }
