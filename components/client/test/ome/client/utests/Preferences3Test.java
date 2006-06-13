@@ -3,8 +3,9 @@ package ome.client.utests;
 
 //Java imports
 import org.testng.annotations.*;
+
+import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -13,30 +14,25 @@ import junit.framework.TestCase;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.springframework.core.io.ClassPathResource;
 
+//Application-internal dependencies
 import ome.system.Login;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-
-//Application-internal dependencies
 
 
 /**
@@ -173,7 +169,7 @@ public class Preferences3Test extends TestCase {
         
     }
   
-  @Test
+  @Test( groups = "ticket:148")
   public void test_using_OmeroContext() throws Exception
   {
       OmeroContext defaultCtx = OmeroContext.getClientContext();
@@ -187,7 +183,7 @@ public class Preferences3Test extends TestCase {
       assertTrue( runtimePrincipal.getName().equals( "bar" ));
   }
   
-  @Test
+  @Test( groups = "ticket:148")
   public void test_using_ServiceFactory() throws Exception
   {
       ServiceFactory basicSF = new ServiceFactory();
@@ -205,10 +201,34 @@ public class Preferences3Test extends TestCase {
       // It's difficult to know what the real user name is. 
       assertFalse( basicP.getName().equals( "bar" ));
       assertFalse( basicP.getName().equals( "bax" ));
-
-      
       
   }
+  
+  @Test( groups = "ticket:62")
+  @ExpectedExceptions( BeanInitializationException.class )
+  public void test_missingLoadProperties()
+  {
+      StaticApplicationContext ac = new StaticApplicationContext();
+      PreferencesPlaceholderConfigurer ppc = new PreferencesPlaceholderConfigurer();
+      ppc.setLocation( new ClassPathResource( "DOES--NOT--EXIST") );
+      
+      ac.addBeanFactoryPostProcessor( ppc );
+      ac.refresh();
+  }
+
+  @Test( groups = "ticket:62")
+  public void test_missingLoadPropertiesIgnore()
+  {
+      StaticApplicationContext ac = new StaticApplicationContext();
+      PreferencesPlaceholderConfigurer ppc = new PreferencesPlaceholderConfigurer();
+      ppc.setLocation( new ClassPathResource( "DOES--NOT--EXIST") );
+      ppc.setIgnoreResourceNotFound( true );
+      
+      ac.addBeanFactoryPostProcessor( ppc );
+      ac.refresh();
+
+  }
+
 	
 }
 
