@@ -30,6 +30,8 @@
 package ome.system;
 
 //Java imports
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 //Third-party libraries
@@ -39,6 +41,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
@@ -231,6 +234,10 @@ public class OmeroContext extends ClassPathXmlApplicationContext
             .useBeanFactory(beanFactoryName).getFactory();
         return ctx;
     }
+
+    // ~ Utilities
+    // =========================================================================
+
     
     /** 
      * uses the methods of this context's {@link BeanFactory} to autowire
@@ -245,7 +252,36 @@ public class OmeroContext extends ClassPathXmlApplicationContext
         this.getAutowireCapableBeanFactory().
             applyBeanPropertyValues(target,beanName);
     }
-
+    
+    /**
+     * refreshes all the nested OmeroContexts within this instance. This is 
+     * useful when using a static context, and {@link Properties} which were
+     * pulled from {@link System#getProperties()} have been changed. 
+     * 
+     *  If this is a server-side instance ({@link OmeroContext#MANAGED_CONTEXT}
+     *  or {@link OmeroContext#INTERNAL_CONTEXT}), this may take a significant
+     * amount of time.
+     * 
+     * @see org.springframework.context.ConfigurableApplicationContext#refresh()
+     */
+    public void refreshAll()
+    {
+        ApplicationContext ac = this;
+        List<ConfigurableApplicationContext> list 
+            = new LinkedList<ConfigurableApplicationContext>();
+        while ( ac instanceof ConfigurableApplicationContext )
+        {
+            list.add( (ConfigurableApplicationContext) ac );
+            ac = (ConfigurableApplicationContext) ac.getParent();
+        }
+        
+        for (int i = list.size()-1; i >= 0; i--)
+        {
+            list.get( i ).refresh();
+        }
+        
+    }
+    
     // ~ Non-singleton locator
     // =========================================================================
 
