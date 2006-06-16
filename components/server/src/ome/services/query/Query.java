@@ -266,8 +266,8 @@ public abstract class Query<T> implements HibernateCallback
             } else {
                 _criteria.setFirstResult( params.getFilter().firstResult() );
                 _criteria.setMaxResults( params.getFilter().maxResults() );
-                return _criteria != null ? 
-                        _criteria.list() : 
+                return unique ? 
+                        _criteria.uniqueResult() : 
                             _criteria.list();
             }
             

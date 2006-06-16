@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="services" default="install" basedir=".">
     
+        <!-- Default overrides -->
+        <property name="test.with.fail" value="true"/>
+
 	<import file="classpath.xml"/>
 	
 </project>

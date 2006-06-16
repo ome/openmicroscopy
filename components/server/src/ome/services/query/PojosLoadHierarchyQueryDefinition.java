@@ -18,12 +18,17 @@ import static ome.parameters.Parameters.*;
 import ome.util.builders.PojoOptions;
 
 public class PojosLoadHierarchyQueryDefinition 
-    extends AbstractClassIdsOptionsQuery
+    extends Query
 {
+
+    static Definitions defs = new Definitions(
+            new CollectionQueryParameterDef(Parameters.IDS,true,Long.class),
+            new OptionsQueryParameterDef(),
+            new ClassQueryParameterDef());
 
     public PojosLoadHierarchyQueryDefinition(Parameters parameters)
     {
-        super( parameters);
+            super( defs, parameters );
     }
 
     @Override

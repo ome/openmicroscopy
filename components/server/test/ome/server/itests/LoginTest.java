@@ -29,7 +29,7 @@ public class LoginTest extends TestCase
     protected IUpdate u;
     protected EventContext ec;
 
-    //@Configuration( beforeTest = true )
+    @Configuration( beforeTestClass = true )
     public void config(){
         ctx = OmeroContext.getManagedServerContext();
         q = (IQuery) ctx.getBean("queryService");
@@ -91,12 +91,6 @@ public class LoginTest extends TestCase
             // TODO Otherexception
             
         
-    }
-    
-    @Override
-  @Configuration(afterTestMethod = true)
-    protected void tearDown() throws Exception
-    {
     }
     
 }

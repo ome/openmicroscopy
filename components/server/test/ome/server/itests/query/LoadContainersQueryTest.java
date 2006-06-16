@@ -85,7 +85,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         PojoOptions po = new PojoOptions().exp( doesntExist );
         q= new PojosLoadHierarchyQueryDefinition(
                 new Parameters()
-                .addIds(null) 
+                .addIds(Arrays.asList( doesntExist )) 
                 .addOptions(po.map())
                 .addClass(Project.class)
             );
@@ -141,7 +141,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     Parameters noFilter = new Parameters().addOptions( null );
 
     @Test
-    public void test_owner_filter() throws Exception 
+    public void test_owner_filter_user_obj() throws Exception 
     {
         Parameters ids;
         
@@ -159,12 +159,18 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         list = (List) iQuery.execute(q);
         assertTrue( list.size() > 0 );
 
+    }
+// TODO commenting out this new method declaration, causes an exception. ??
+    @Test
+    public void test_owner_filter_root_obj() throws Exception 
+    {
+        Parameters ids;
         
         // Doesn't belong to user.
         ids = new Parameters().addIds(Arrays.asList( 9090L ));
         q= new PojosLoadHierarchyQueryDefinition(
                 new Parameters( ids ).addAll(noFilter).addClass(Project.class));
-           
+   
         list = (List) iQuery.execute(q);
         assertTrue( list.size() > 0 );
         
@@ -174,7 +180,12 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         list = (List) iQuery.execute(q);
         assertTrue( list.size() == 0 );
 
-       
+    }
+ 
+    @Test
+    public void test_null_owner_filter() throws Exception 
+    {
+    
         // Null ids.
         run_null_filter_check_size(Project.class, 3);
         run_null_filter_check_size(CategoryGroup.class, 8);

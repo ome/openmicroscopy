@@ -429,7 +429,16 @@ public class UpdateFilter extends ContextFilter
                     updatedDetails.getOwner() ))
             {
                 
-                if (! user.getId().equals( 0L ))
+                if ( user.getId().equals( 0L ))
+                {
+                    // even root can't set them to null.
+                    if ( updatedDetails.getOwner() == null )
+                    {
+                        updatedDetails.setOwner( oldDetails.getOwner() );
+                    }
+                }
+                // everyone else can't change them at all.
+                else 
                 {
                     throw new SecurityViolation(String.format(
                         "Owner id changed for %s", obj 
@@ -441,7 +450,17 @@ public class UpdateFilter extends ContextFilter
                     oldDetails.getGroup(), 
                     updatedDetails.getGroup() ))
             {
-                if (! user.getId().equals( 0L ))
+                
+                if ( user.getId().equals( 0L ))
+                {
+                    // even root can't set them to null.
+                    if ( updatedDetails.getGroup() == null )
+                    {
+                        updatedDetails.setGroup( oldDetails.getGroup() );
+                    }
+                }
+                // everyone else can't change them at all.
+                else                     
                 {
                     throw new SecurityViolation(String.format(
                         "Group id changed for %s", obj 
@@ -449,12 +468,22 @@ public class UpdateFilter extends ContextFilter
                 }
             }
             
+            // TODO should just be immutable even for root.
             if ( ! idEqual( 
                     oldDetails.getCreationEvent(), 
                     updatedDetails.getCreationEvent()))
             {
-                if (! user.getId().equals( 0L ))
+                if ( user.getId().equals( 0L ))
                 {
+                    // even root can't set them to null.
+                    if ( updatedDetails.getCreationEvent() == null )
+                    {
+                        updatedDetails.setCreationEvent( 
+                                oldDetails.getCreationEvent() );
+                    }
+                }
+                // everyone else can't change them at all.
+                else                 {
                     throw new SecurityViolation(String.format(
                         "Creation event changed for %s", obj 
                         ));

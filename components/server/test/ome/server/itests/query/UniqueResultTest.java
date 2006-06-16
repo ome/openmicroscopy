@@ -182,7 +182,9 @@ public class UniqueResultTest extends AbstractManagedContextTest
     public void test_IObjectClassQuery_unique() throws Exception
     {
         p = new Parameters()
-            .addClass( Project.class );
+            .addClass( Project.class )
+            .addLong( "id", getNewProjects(1,TICKET_83).iterator().next());
+        
         p.getFilter().unique();
         Query q = new IObjectClassQuery(p);
         iQuery.execute( q );

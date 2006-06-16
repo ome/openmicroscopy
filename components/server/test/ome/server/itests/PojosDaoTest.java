@@ -122,7 +122,7 @@ public class PojosDaoTest
 	Map m = new HashMap();
 	String n;
     
-    public void runLoad(String name, Class c){
+    private void runLoad(String name, Class c){
     	// Class, Set<Container>, options
     	//q = PojosQueryBuilder.buildLoadQuery(c,false,po.map());
     	n = name;go();
@@ -150,7 +150,7 @@ public class PojosDaoTest
 	
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 	
-    public void runFind(String name, Class c){
+    private void runFind(String name, Class c){
     	// Class, Set<Image>, options
     	//q = PojosQueryBuilder.buildFindQuery(c,po.map());
     	n = name;go();
@@ -168,7 +168,7 @@ public class PojosDaoTest
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
-    public void runAnn(String name, Class c){
+    private void runAnn(String name, Class c){
     	// Class, Set<Container>, Map
     	//q = PojosQueryBuilder.buildAnnsQuery(c,po.map());
     	m.remove("exp"); // unused
@@ -187,7 +187,7 @@ public class PojosDaoTest
    
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
-    public void runGet(String name, Class c){
+    private void runGet(String name, Class c){
     	// Class, Set<Container>, Map
     	//q = PojosQueryBuilder.buildGetQuery(c,po.map());
     	n = name;go();
@@ -223,7 +223,7 @@ public class PojosDaoTest
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
     
-    public void runPaths(String name, String algorithm){
+    private void runPaths(String name, String algorithm){
     	// Set<Image>, Algorithm options
     	//q = PojosQueryBuilder.buildPathsQuery(algorithm,po.map());
     	n = name;go();
