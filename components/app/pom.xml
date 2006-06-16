@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>omero</groupId>
+    <artifactId>main</artifactId>
+    <version>3.0-TRUNK</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Ome Remote Objects - EJB3 Deployment</name>
+  <artifactId>app</artifactId>
+  <packaging>pom</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>8.1-405.jdbc3</version>
+    </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>omero-ejb</artifactId>
+      <version>3.0-TRUNK</version>
+      <type>ejb</type>
+      <exclusions>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-ejb3x</artifactId>
+        </exclusion>
+        <!--exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate</artifactId>
+        </exclusion-->
+        <exclusion>
+          <groupId>commons-dbcp</groupId>
+          <artifactId>commons-dbcp</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+</project>

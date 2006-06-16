@@ -17,12 +17,12 @@
 	<classpathentry kind="var" path="M2_REPO/commons-dbcp/commons-dbcp/1.2.1/commons-dbcp-1.2.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.2/commons-pool-1.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/dbunit/dbunit/2.1/dbunit-2.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ehcache/ehcache/1.1/ehcache-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/geronimo-spec/geronimo-spec-j2ee/1.4-rc4/geronimo-spec-j2ee-1.4-rc4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/geronimo-spec/geronimo-spec-jms/1.1-rc4/geronimo-spec-jms-1.1-rc4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/geronimo-spec/geronimo-spec-jta/1.0.1B-rc4/geronimo-spec-jta-1.0.1B-rc4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
@@ -31,9 +31,12 @@
 	<classpathentry kind="var" path="M2_REPO/lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-m3/spring-hibernate3-2.0-m3.jar"/>

@@ -92,16 +92,13 @@
 		<fileset dir="components/server/" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
-		<fileset dir="components/omeio-nio/" defaultexcludes="yes">
+		<fileset dir="components/romio/" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
 		<fileset dir="components/rendering/" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
 		<fileset dir="components/client/" defaultexcludes="yes">
-			<patternset refid="all.java.files"/>
-		</fileset>
-		<fileset dir="components/shoola-adapter/" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
 

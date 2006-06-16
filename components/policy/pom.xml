@@ -7,20 +7,19 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>omero-policy</artifactId>
+  <artifactId>policy</artifactId>
   <packaging>pom</packaging>
   <name>Omero Coding Policy - Enforced by AspectJ</name>
   <dependencies>
     <!-- ALL other JAR components from Omero -->
-    <dependency><groupId>omero</groupId><artifactId>client-ejb</artifactId><version>3.0-TRUNK</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>client</artifactId><version>3.0-TRUNK</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>common</artifactId><version>3.0-TRUNK</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>dsl</artifactId><version>3.0-TRUNK</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>omeio-nio</artifactId><version>3.0-TRUNK</version></dependency>
-    <dependency><groupId>omero</groupId><artifactId>omero-ejb</artifactId><version>3.0-TRUNK</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>romio</artifactId><version>3.0-TRUNK</version></dependency>
+    <dependency><groupId>omero</groupId><artifactId>ejb</artifactId><version>3.0-TRUNK</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>rendering</artifactId><version>3.0-TRUNK</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>sandbox</artifactId><version>3.0-TRUNK</version></dependency>
     <dependency><groupId>omero</groupId><artifactId>server</artifactId><version>3.0-TRUNK</version></dependency>
-<!--<dependency><groupId>omero</groupId><artifactId>shoola-adapter</artifactId><version>3.0-TRUNK</version></dependency>TODO-->
     <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjlib</artifactId>

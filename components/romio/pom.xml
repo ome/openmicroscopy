@@ -7,13 +7,13 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>rendering</artifactId>
+  <artifactId>romio</artifactId>
   <packaging>pom</packaging>
-  <name>Omero Rendering Engine</name>
+  <name>Omero IO Library - NIO</name>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>romio</artifactId>
+      <artifactId>common</artifactId>
       <version>3.0-TRUNK</version>
     </dependency>
   </dependencies>

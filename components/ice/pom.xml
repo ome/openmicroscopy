@@ -7,14 +7,20 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>rendering</artifactId>
+  <artifactId>ice</artifactId>
   <packaging>pom</packaging>
-  <name>Omero Rendering Engine</name>
+  <name>Ome Remote Objects - ICE</name>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>romio</artifactId>
-      <version>3.0-TRUNK</version>
+      <artifactId>ice</artifactId>
+      <version>3.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-tools</artifactId>
+      <version>3.1.0.beta4</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

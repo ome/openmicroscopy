@@ -56,15 +56,14 @@
 		<attribute name="inheritRefs" default="false"/>
 		<attribute name="file" default="build.xml"/>
 		<sequential>
-		<antRun component="dsl" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="common" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="omeio-nio" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="dsl"       file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="common"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="romio"     file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="rendering" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="server" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="omero-ejb" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="omero-app" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="client" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
-		<antRun component="shoola-adapter" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="server"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="ejb"       file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="app"       file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="client"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		</sequential>
 	</macrodef>
 

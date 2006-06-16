@@ -38,14 +38,8 @@ The contents of this directory ("OMERO_HOME") are:
 	a Maven Project Object Model (POM) defining the 
 	build dependencies
 
- omero.properties:
-	property values for the build (global)
-
- hibernate.properties:
-	property values specifically for Hibernate 
-
- log4j.properties:
-	logging configuration for all components
+ etc:
+        Configuration directory
 
  docs:
 	documentation, license (LICENSE), and

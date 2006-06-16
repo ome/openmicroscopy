@@ -6,25 +6,27 @@
     <groupId>omero</groupId>
     <artifactId>main</artifactId>
     <version>3.0-TRUNK</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>Ome Client Library</name>
-  <artifactId>client</artifactId>
+  <name>Ome Remote Objects - EJB3</name>
+  <artifactId>ejb</artifactId>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>server</artifactId>
       <version>3.0-TRUNK</version>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>jbossall-client</artifactId>
-      <version>4.0.4.GA</version>
+      <artifactId>rendering</artifactId>
+      <version>3.0-TRUNK</version>
     </dependency>
     <dependency>
-      <groupId>omero</groupId>
-      <artifactId>jboss-aop-jdk50-client</artifactId>
-      <version>4.0.4.GA</version>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jms</artifactId>
+      <version>1.1-rc4</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>omero</groupId>
@@ -33,12 +35,7 @@
     </dependency>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>jboss-ejb3</artifactId>
-      <version>4.0.4.GA</version>
-    </dependency>
-    <dependency>
-      <groupId>omero</groupId>
-      <artifactId>jboss-aspect-library-jdk50</artifactId>
+      <artifactId>jboss-annotations-ejb3</artifactId>
       <version>4.0.4.GA</version>
     </dependency>
   </dependencies>

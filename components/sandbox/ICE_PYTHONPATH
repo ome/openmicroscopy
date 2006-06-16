@@ -1,3 +1,0 @@
-PYTHONPATH=$PYTHONPATH:target/generated-sources/slice2py
-PYTHONPATH=$PYTHONPATH:../common/target/generated-sources/slice2py
-export PYTHONPATH

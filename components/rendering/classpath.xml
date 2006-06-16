@@ -33,7 +33,7 @@ importing this file.
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<file name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
+	<file name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<file name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
 	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
@@ -48,7 +48,7 @@ importing this file.
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<include name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
+	<include name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<include name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
 	<include name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
@@ -65,8 +65,8 @@ importing this file.
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<file name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
+	<file name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<file name="org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar"/>
 	<file name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
@@ -85,8 +85,8 @@ importing this file.
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<include name="omero/omeio-nio/3.0-TRUNK/omeio-nio-3.0-TRUNK.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
+	<include name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<include name="org/springframework/spring-mock/2.0-m3/spring-mock-2.0-m3.jar"/>
 	<include name="org/springframework/spring/2.0-m3/spring-2.0-m3.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
