@@ -2,10 +2,6 @@
 <!-- TODO add properties goal to update pref.properties -->
 <project name="common" default="install" basedir=".">
     
-	<!-- Default overrides -->
-	<property name="javac.source" value="1.4"/>
-	<property name="javac.target" value="1.4"/>
-    
 	<import file="classpath.xml"/>
 	
 	<!-- Local properties -->
