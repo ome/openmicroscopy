@@ -1,5 +1,5 @@
 /*
- * ome.parameters.Page
+ * ome.parameters.Filter
  *
  *------------------------------------------------------------------------------
  *
@@ -30,6 +30,7 @@
 package ome.parameters;
 
 //Java imports
+import java.io.Serializable;
 
 //Third-party libraries
 
@@ -50,7 +51,7 @@ package ome.parameters;
  * @see ome.parameters.Order
  * @see 
  */
-public class Filter
+public class Filter implements Serializable
 {
 
     /**
@@ -128,4 +129,8 @@ public class Filter
         return page.limit();
     }
     
+    // ~ Serialization
+    // =========================================================================
+    private static final long serialVersionUID = 60649802598825408L;
+
 }
