@@ -46,6 +46,10 @@ import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
 import ome.api.IAdmin;
+import ome.model.IObject;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 /**  Provides methods for directly querying object graphs.
  * 
@@ -117,6 +121,124 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
             throw new RuntimeException("Unimplemented exception.");
         }
         
+        
+    }
+
+    public Experimenter getExperimenter(Long id)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public Experimenter lookupExperimenter(String omeName)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public ExperimenterGroup getGroup(Long id)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public ExperimenterGroup lookupGroup(String groupName)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public Experimenter[] containedExperimenters(Long groupId)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public ExperimenterGroup[] containedGroups(Long experimenterId)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public Experimenter createUser(Experimenter newUser)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public Experimenter createSystemUser(Experimenter newSystemUser)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public Experimenter createExperimenter(Experimenter experimenter, ExperimenterGroup defaultGroup, ExperimenterGroup[] otherGroups)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public ExperimenterGroup createGroup(ExperimenterGroup group)
+    {
+        // TODO Auto-generated method stub
+        return null;
+        
+    }
+
+    public void addGroups(Experimenter user, ExperimenterGroup[] groups)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void removeGroups(Experimenter user, ExperimenterGroup[] groups)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setDefaultGroup(Experimenter user, ExperimenterGroup group)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void changeOwner(IObject iObject, String omeName)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void changeGroup(IObject iObject, String groupName)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void changePermissions(IObject iObject, Permissions perms)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void changePassword(String newPassword)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void changeUserPassword(String omeName, String newPassword)
+    {
+        // TODO Auto-generated method stub
         
     }
 

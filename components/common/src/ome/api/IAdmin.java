@@ -34,12 +34,21 @@ package ome.api;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.IObject;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 
 /**
  *  Administration interface providing access to admin-only functionality as 
- *  well as JMX-based server access. All methods require membership in
- *  privileged {@link ExperimenterGroup groups}.
+ *  well as JMX-based server access and selected user functions. Most methods 
+ *  require membership in privileged {@link ExperimenterGroup groups}.
  * 
+ *  Methods which return {@link ome.model.meta.Experimenter} or 
+ *  {@link ome.model.meta.ExperimenterGroup} instances fetch and load all 
+ *  related instances of {@link ome.model.meta.ExperimenterGroup} or
+ *  {@link ome.model.meta.Experimenter}, respectively.
+ *  
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
@@ -48,6 +57,162 @@ package ome.api;
  * @since OME3.0
  */
 public interface IAdmin extends ServiceInterface{
+    
+    // ~ Getting users and groups
+    // =========================================================================
+    
+    /** fetch an {@link Experimenter} and all related 
+     * {@link ExperimenterGroup groups}. 
+     * @param id id of the Experimenter
+     * @return an Experimenter. Never null.
+     * @throws ome.conditions.ApiUsageException if id does not exist.
+     */
+    Experimenter getExperimenter( Long id );
+
+    /** look up an {@link Experimenter} and all related 
+     * {@link ExperimenterGroup groups} by name.
+     * @param omeName Name of the Experimenter 
+     * @return an Experimenter. Never null.
+     * @throws ome.conditions.ApiUsageException if omeName does not exist.
+     */
+    Experimenter lookupExperimenter( String omeName );
+
+    /** fetch an {@link ExperimenterGroup} and all contained
+     * {@link Experimenter users}.
+     * @param id id of the ExperimenterGroup 
+     * @return an ExperimenterGroup. Never null.
+     * @throws ome.conditions.ApiUsageException if id does not exist.
+     */
+    ExperimenterGroup getGroup( Long id );
+    
+    /** look up an {@link ExperimenterGroup} and all contained 
+     * {@link Experimenter users} by name.
+     * @param groupName Name of the ExperimenterGroup 
+     * @return an ExperimenterGroup. Never null.
+     * @throws ome.conditions.ApiUsageException if groupName does not exist.
+     */
+    ExperimenterGroup lookupGroup( String groupName );
+    
+    /** fetch all {@link Experimenter users} contained in this group.
+     * 
+     * @param groupId id of the ExperimenterGroup
+     * @return non-null array of all {@link Experimenter users} in this group.
+     */
+    Experimenter[] containedExperimenters( Long groupId );
+    
+    /** fetch all {@link ExperimenterGroup groups} of which the given user
+     * is a member.
+     * 
+     * @param experimenterId id of the Experimenter
+     * @return non-null array of all {@link ExperimenterGroup groups} for
+     *  this user.
+     */
+    ExperimenterGroup[] containedGroups( Long experimenterId );
+    
+    // ~ Creating users in groups
+    // =========================================================================
+    
+    /** create and return a new user. This user will be created in the default
+     * "User" group.
+     * @param newUser a new {@link Experimenter} instance 
+     * @return a copy of the new user. Existing instances should be replaced.
+     */
+    Experimenter createUser( Experimenter newUser );
+    
+    /** create and return a new system user. This user will be created in the 
+     * "System" (administration) group.
+     * @param newUser a new {@link Experimenter} instance 
+     * @return a copy of the new user. Existing instances should be replaced.
+     */
+    Experimenter createSystemUser( Experimenter newSystemUser );
+
+    /** create and return a new user in the given groups. 
+     * @param experimenter. A new {@link Experimenter} instance. Not null.
+     * @param defaultGroup. Instance of {@link ExperimenterGroup. Not null.
+     * @param otherGroups. Array of {@link ExperimenterGroup} instances. Can be null.     
+     * @return a copy of the new user. Existing instances should be replaced. 
+     *  Not null.
+     */
+    Experimenter createExperimenter( 
+            Experimenter experimenter, 
+            ExperimenterGroup defaultGroup,
+            ExperimenterGroup[] otherGroups );
+    
+    /** create and return a new group. 
+     * @param newGroup a new {@link ExperimenterGroup} instance. Not null. 
+     * @return a copy of the new group. Existing instances should be replaced.
+     *  Not null.
+     */
+    ExperimenterGroup createGroup( ExperimenterGroup group );
+
+    /** adds a user to the given groups. 
+     * @param user. A currently managed entity. Not null.
+     * @param groups. Groups to which the user will be added. Not null. 
+     */
+    void addGroups( Experimenter user, ExperimenterGroup[] groups );
+    
+    /** removes a user from the given groups. 
+     * @param user. A currently managed entity. Not null.
+     * @param groups. Groups from which the user will be removed. Not null. 
+     */
+    void removeGroups( Experimenter user, ExperimenterGroup[] groups );
+    
+    /** sets the default group for a given user. 
+     * @param user. A currently managed entity. Not null.
+     * @param group. The group which should be set as default group for this 
+     *  user. Not null. 
+     */
+    void setDefaultGroup( Experimenter user, ExperimenterGroup group );
+    
+    // ~ Permissions and Ownership
+    // =========================================================================
+
+    /** call 
+     * {@link ome.model.internal.Details#setOwner(Experimenter) details.setOwner()}
+     * on this instance. It is valid for the instance to be 
+     * {@link IObject#unload() unloaded} (or constructed with an 
+     * unloading-constructor.)
+     * @param iObject. An entity or an unloaded reference to an entity. Not null.
+     * @param omeName. The user name who should gain ownership of this entity. Not null.
+     */
+    void changeOwner( IObject iObject, String omeName );
+
+    /** call 
+     * {@link ome.model.internal.Details#setGroup(ExperimenterGroup) details.setGroup()}
+     * on this instance. It is valid for the instance to be 
+     * {@link IObject#unload() unloaded} (or constructed with an 
+     * unloading-constructor.)
+     * @param iObject. An entity or an unloaded reference to an entity. Not null.
+     * @param groupName. The group name who should gain ownership of this entity. Not null.
+     */
+    void changeGroup( IObject iObject, String groupName );
+
+    /** call 
+     * {@link ome.model.internal.Details#setPermissions(Permissions) defaults.setPermissions()}
+     * on this instance. It is valid for the instance to be 
+     * {@link IObject#unload() unloaded} (or constructed with an 
+     * unloading-constructor.)
+     * @param iObject. An entity or an unloaded reference to an entity. Not null.
+     * @param perms. The permissions value for this entity. Not null.
+     */
+    void changePermissions( IObject iObject, Permissions perms );
+    
+    // ~ Authentication and Authorization
+    // =========================================================================
+    
+    /** change the password for the current user
+     * @param newPassword. Not-null. 
+     * Must pass validation in the security sub-system.
+     * @throws ome.conditions.SecurityViolation if the new password is too weak. 
+     */
+    void changePassword( String newPassword );
+    
+    /** change the password for the a given user.
+     * @param newPassword. Not-null. 
+     * Might must pass validation in the security sub-system.
+     * @throws ome.conditions.SecurityViolation if the new password is too weak. 
+     */
+    void changeUserPassword( String omeName, String newPassword );
     
     /** uses JMX to refresh the login cache <em>if supported</em>. Some backends
      * may not provide refreshing. This may be called internally during some
