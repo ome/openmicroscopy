@@ -123,6 +123,13 @@ class CollectionQueryParameterDef extends QueryParameterDef
         if ( parameter.value != null ) 
             for (Object element : (Collection) parameter.value )
             {
+                
+                if ( element == null )
+                    throw new IllegalArgumentException(
+                            "Null elements are not allowed " +
+                            "in parameter collections"
+                    );
+                
                 if ( ! elementType.isAssignableFrom( element.getClass() ))  
                     throw new IllegalArgumentException(
                             "Elements of type "+element.getClass().getName()+

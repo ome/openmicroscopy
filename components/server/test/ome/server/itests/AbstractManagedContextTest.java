@@ -52,9 +52,19 @@ public class AbstractManagedContextTest
         iPojos = (IPojos) applicationContext.getBean("pojosService");
         iPixels = (IPixels) applicationContext.getBean("pixelsService");
         eContext = (EventContext) applicationContext.getBean("eventContext");
-        
+        loginRoot();
+    }
+    
+    protected void loginRoot()
+    {
         login("root","system","Test");
     }
+
+    protected void loginUser( String omeName )
+    {
+        login(omeName,"user","Test");
+    }
+
     
     protected String[] getConfigLocations() { return new String[]{}; }
     protected ConfigurableApplicationContext getContext(Object key)

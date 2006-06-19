@@ -57,6 +57,7 @@ public class PojosLoadHierarchyQueryDefinition
     protected void enableFilters(Session session)
     {
         ownerFilter(session, 
+//              TODO this needs to be moved to Hierarchy.
                 CategoryGroup.OWNER_FILTER, 
                 Category.OWNER_FILTER,
                 Project.OWNER_FILTER,
