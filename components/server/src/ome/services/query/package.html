@@ -30,20 +30,50 @@
 </head>
 <body bgcolor="white">
 
-facilitates the creation of Queries and Criteria.
+	facilitates the creation of Hibernate Queries and Criteria.
     
-<p>
-  ORM solutions like Hibernate, TopLink, and JDO provide mechanisms for storing
-  queries by name for faster lookups. Producing parameterizable queries, 
-  however, is far more difficult. The <code>query</code> package intends to make
-  writing 
-</p>
+	<p>
+  	ORM solutions like Hibernate, TopLink, and JDO provide mechanisms for storing
+  	queries by name for faster lookups. Producing parameterizable queries, 
+  	however, is far more difficult. The <code>query</code> package intends to make
+  	writing such queries as easy as possible.
+	</p>
   
-<p>
-  Effort has been placed into making certain activities, like walking (and 
-  fetching) OME hierarchies simpler. These queries are used heavily by the 
-  IPojos interface.
-</p>
+	<p>
+  	Effort has been placed into making certain activities, like walking (and 
+  	fetching) OME hierarchies simpler. These queries are used heavily by the 
+  	IPojos interface. Also, having this work available in code rather than the
+    Strings of previous methods (XML files, Velocity templates, etc.) allows
+    for significantly more reuse and easier re-factoring.
+	</p>
+  
+  <p>
+  	A second design goal is allowing <em>clients</em> to write queries themselves. 
+    Parameters allow for the passing of arbitrary arguments (like named 
+    arguments in dynamic languages), and the QueryFactory#lookup mechanism 
+    allows for a wide variety of client-definition styles. Probably the most 
+    useful is the saving of a QueryDefinition using IUpdate, and the subsequent
+    lookup referring to the queryName. (NYI)
+  </p>
+  
+  <h3>Examples</h3>
+  
+  <code>
+    QueryFactory factory = new QueryFactory(new StringQuerySource());
+    Query q = factory.lookup("select p from Project p",null);
+    List allProjects = (List) iQuery.execute( q );
+  </code>
+
+  <code>
+    QueryFactory factory = new QueryFactory(new ClassNameSource());
+    Query subclassQ = factory.lookup(PojosFindAnnotationsQueryDefinition.class.getName(),
+    	new Parameters().addIds(Collections.singleton(1L)).addClass(Image.class));
+    Query datasetQ  = factory.lookup(Dataset.class,
+    	new Parameters( new Filter().unique() ).addString("name","16.3093-A93"));
+
+    List imageAnnotations = (List) iQuery.execute( subclassQ );
+    Dataset dataset = (Dataset) iQuery.execute(datasetQ);
+  </code>  
 
 <h2>Related Documentation</h2>
 
@@ -58,6 +88,7 @@ For more information, please see:
 <!-- Put @see and @since tags down here. -->
   @see ome.api.IPojos  
 	@see ome.api.local.LocalQuery
-  
+  @see org.hibernate.Criteria
+  @see org.hibernate.Query
 </body>
 </html>

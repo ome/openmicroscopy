@@ -7,6 +7,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ome.api.IPojos;
+import ome.conditions.ApiUsageException;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
@@ -46,7 +47,9 @@ public class CGCPathQueryTest extends AbstractInternalContextTest
             q= new PojosCGCPathsQueryDefinition(
                     parameters);
             fail("Should have failed!");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
+        }
     }
     
     @Test

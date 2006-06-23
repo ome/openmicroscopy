@@ -38,7 +38,6 @@ package ome.services.query;
 
 // Java imports
 
-
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,7 +47,15 @@ import ome.parameters.Parameters;
 
 
 /**
- * creates a query based on the id string.
+ * interprets the query id as an HQL query. In this implementation, no parsing
+ * is done at lookup or creation-time, but an implementation which does so 
+ * is conceivable. The id itself is added to the list of parameters with the 
+ * name {@link ome.services.query.StringQuery#STRING}
+ * 
+ * This query source should be placed at the end of the array of query sources
+ * provided to {@link ome.services.query.QueryFactory}  because it will 
+ * always return a {@link ome.services.query.Query} regardless of the id. An 
+ * exception will be thrown at execution time if the HQL is invalid. 
  *  
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>

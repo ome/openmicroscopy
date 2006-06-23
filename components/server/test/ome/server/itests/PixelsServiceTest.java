@@ -41,7 +41,9 @@ import ome.api.IPixels;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.RenderingModel;;
+import ome.model.enums.RenderingModel;import ome.parameters.Filter;
+import ome.parameters.Parameters;
+;
 
 /** 
  * 
@@ -89,25 +91,25 @@ public class PixelsServiceTest
 
     @Test
     public void testPix(){
-    	Pixels p = pix.retrievePixDescription(1L);
-    	assertNotNull(p);
-    	log.info(p);
+        
+        Parameters param = new Parameters( new Filter().unique().page(0,1) );
+        Pixels p = (Pixels) iQuery.findByQuery("select p from Pixels p",param);
+        assertNotNull(p);
+        
+    	Pixels test = pix.retrievePixDescription( p.getId() );
+    	assertNotNull(test);
     }
     
-    @Test
+    @Test( groups = {"broken","119"} )
     public void testLetsSaveADefinition() throws Exception
     {
         Pixels p = pix.retrievePixDescription(1L);
+        assertNotNull( p );
         RenderingDef r = makeRndDef(p);
         r = (RenderingDef) iUpdate.saveAndReturnObject(r);
 
-    }
-
-    @Test( groups = {"broken","119"} )
-    public void testGetTheDefinitionWeJustMade() {
         RenderingDef test = pix.retrieveRndSettings(1L);
     	assertNotNull(test);
-    	log.info(test);
     }
 
     // TODO to ObjectFactory

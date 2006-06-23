@@ -31,7 +31,8 @@ public class PojosGetImagesQueryDefinition
     {
         Criteria c = session.createCriteria(Image.class);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-
+        c.createCriteria("defaultPixels",LEFT_JOIN);
+        
         // Add restrictions to the most distant criteria
         Criteria[] hy = 
             Hierarchy.fetchParents(c,(Class) value(CLASS),Integer.MAX_VALUE);

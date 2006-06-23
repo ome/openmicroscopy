@@ -3,6 +3,7 @@ package ome.server.utests;
 import org.testng.annotations.*;
 import java.util.Arrays;
 
+import ome.conditions.ApiUsageException;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
 import ome.services.query.ClassQuerySource;
@@ -12,6 +13,7 @@ import ome.services.query.Query;
 import ome.services.query.QueryException;
 import ome.services.query.QueryFactory;
 import ome.services.query.QuerySource;
+import ome.services.query.StringQuery;
 import ome.services.query.StringQuerySource;
 
 import junit.framework.TestCase;
@@ -19,11 +21,12 @@ import junit.framework.TestCase;
 public class QueryFactoryTest extends TestCase
 {
 
+    Query q;
     QueryFactory qf;
     QuerySource nullQS, stringQS, classQS;
 
     @Override
-  @Configuration(beforeTestMethod = true)
+    @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
         nullQS = new NullQuerySource();
@@ -36,7 +39,21 @@ public class QueryFactoryTest extends TestCase
         
     }    
 
-  @Test
+    @Test
+    @ExpectedExceptions( ApiUsageException.class )
+    public void testQueryFactoryWithNullThrowsException() throws Exception
+    {
+        qf = new QueryFactory();
+    }
+    
+    @Test
+    @ExpectedExceptions( ApiUsageException.class )
+    public void testQueryFactoryWithEmptySourcesThrowsOnLookup() throws Exception
+    {
+        qf = new QueryFactory(new QuerySource[]{});
+    }
+    
+    @Test
     public void testQueryFactoryWithoutStringQuerySourceThrowsUnfoundExceptionOnUnkownQuery()
             throws Exception
     {
@@ -51,19 +68,19 @@ public class QueryFactoryTest extends TestCase
         }
     }
 
-  @Test
+    @Test
     public void testQueryFactoryWithStringQuerySourceNeverThrowsUnfoundException() throws Exception
     {
         qf = new QueryFactory(stringQS);
-        Query q = qf.lookup("UNKNOWN QUERY ID BUT STILL WORKS",null);
+        q = qf.lookup("UNKNOWN QUERY ID BUT STILL WORKS",null);
         assertNotNull("We should have a string query",q);
     }
     
-  @Test
+    @Test
     public void testQFWithClassQuerySource() throws Exception
     {
         qf = new QueryFactory(classQS);
-        Query q = qf.lookup(PojosLoadHierarchyQueryDefinition.class.getName(),
+        q = qf.lookup(PojosLoadHierarchyQueryDefinition.class.getName(),
                 new Parameters()
                     .addClass(Project.class)
                     .addIds(Arrays.asList(0L))
@@ -71,7 +88,12 @@ public class QueryFactoryTest extends TestCase
                     .addOptions(null));
         assertNotNull("We should have a Pojos Query",q);
     }
-    
-    
+
+    @Test
+    @ExpectedExceptions( ApiUsageException.class )
+    public void test_StringSourceDoesntTakeNull() throws Exception
+    {
+        q = stringQS.lookup(null,null);
+    }
     
 }

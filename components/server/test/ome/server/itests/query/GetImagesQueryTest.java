@@ -12,6 +12,7 @@ import java.util.Set;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -19,6 +20,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
+import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosGetImagesQueryDefinition;
@@ -35,7 +37,10 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
             q= new PojosGetImagesQueryDefinition( 
                     parameters);
             fail("Should have failed!");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException aue ) {
+        }
+        
     }
     
     @Test
@@ -103,10 +108,6 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
     @Test( groups = { "ticket:159" })
     public void test_shouldReturnImages() throws Exception
     {
-        Parameters p = new Parameters();
-        p.getFilter().page( 0,1 );
-        p.getFilter().unique();
-        
         Project prj = (Project)
         iQuery.findByQuery( 
 //                FIXME NullPointerException in Antlr. Report bug.
@@ -117,7 +118,8 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
                 " left outer join pdl.child as d " +
                 " left outer join d.imageLinks as dil " +
                 " left outer join dil.child as i " +
-                " where i is not null",p);
+                " where i is not null",
+                new Parameters( new Filter().unique().page(0,1)));
         
         q= new PojosGetImagesQueryDefinition(
                 new Parameters()
@@ -191,16 +193,12 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
         // ~ USER FILTER
         // =====================================================================
         
-        // TODO add SingleFilter() which shortcuts this.
-        // and Parameters ctor should also take Filter
-        Parameters p = new Parameters();
-        p.getFilter().page(0,1);
-        p.getFilter().unique();
         // TODO submit bug. leaving out the e of "Experimenter e" throws a 
         // null pointer exception in org.hibernate.hql.ast.*
         user = (Experimenter) iQuery.findByQuery(
                 "select e from Experimenter e " +
-                "where e.id != 0",p);
+                "where e.id != 0",
+                new Parameters( new Filter().unique().page(0,1)));
 
         userPO = new PojoOptions().exp( user.getId() );
         filterForUser = new Parameters().addOptions( userPO.map() );
@@ -382,6 +380,41 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
 
     }
 
+    @Test( groups = "broken" )
+    public void test_defaultPixelsIsFilled() throws Exception
+    {
+        Parameters param = new Parameters( new Filter().unique().page(0,1) );
+        Image i = (Image) iQuery.findByQuery( 
+                "select i from Image i " +
+                "left join fetch i.datasetLinks idl " +
+                "left join fetch idl.parent d " +
+                "left join fetch d.projectLinks dpl " +
+                "left join fetch dpl.parent p " +
+                "where i.defaultPixels is not null and p is not null",param);
+        assertNotNull( i );
+        assertTrue( i.sizeOfDatasetLinks() > 0 );
+        Dataset d = (Dataset) i.linkedDatasetList().get(0);
+        assertTrue( d.sizeOfProjectLinks() > 0 );
+        Project p = (Project) d.linkedProjectList().get(0);
+        
+        q= new PojosGetImagesQueryDefinition(
+                new Parameters( )
+                .addClass(Project.class)
+                .addIds(Collections.singleton(p.getId())));
+        List<Image> testImages = (List) iQuery.execute(q);
+        boolean found = false;
+        for (Image test : testImages)
+        {
+            if ( test.getId().equals( i.getId() ))
+            {
+                assertNotNull( test );
+                assertNotNull( test.getDefaultPixels() );
+                found = true;
+            }
+        }
+        assertTrue( found );
+        
+    }
     // ~ Helpers
     // =========================================================================
 

@@ -116,7 +116,7 @@ public class CountCollector extends ProxySafeFilter {
         
     }
     
-    public void addCounts(String field, Long id, Integer count) 
+    public void addCounts(String field, Long id, Long count) 
     {
         
         int idx = Arrays.binarySearch(fields,field);

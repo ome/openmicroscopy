@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
+import ome.conditions.ApiUsageException;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -34,7 +35,7 @@ public class CollectionCountTest extends AbstractInternalContextTest
                     parameters);
             fail("Should have failed!");
         } catch (IllegalArgumentException e) {
-            log.info ( "Expected: "+e.getMessage() );
+        } catch (ApiUsageException e) {
         }
     }
     

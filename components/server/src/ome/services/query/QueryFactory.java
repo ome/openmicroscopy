@@ -42,13 +42,18 @@ package ome.services.query;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+// Application-internal dependencies
+import ome.conditions.ApiUsageException;
 import ome.parameters.Parameters;
 
-// Application-internal dependencies
-
-
 /**
- * source of all our queries.
+ * query locator which is configured by Spring. A QueryFactory instance is
+ * created in the ome/services/services.xml Spring config and is injected with
+ * multiple {@link ome.services.query.QuerySource "query sources"}. The lookup 
+ * proceeds through the available query sources calling 
+ * {@link ome.services.query.QuerySource#lookup(String, Parameters) querySource.lookup()}, 
+ * and returns the first non-null result. If no result is found, an exception is
+ * thrown. 
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
@@ -59,14 +64,40 @@ public class QueryFactory
 
     private static Log log = LogFactory.getLog(QueryFactory.class);
 
+    /** 
+     * sources available for lookups. This array will never be null.
+     */
     protected QuerySource[] sources;
 
     private QueryFactory(){}; // We need the sources
+    
+    /**
+     * main constructor which takes a non-null array of query sources as its
+     * only argument. This array is copied, so modifications will not be 
+     * noticed.
+     * 
+     * @param querySources Array of query sources. Not null.
+     */
     public QueryFactory(QuerySource... querySources)
     {
-        this.sources = querySources;
+        if ( querySources == null || querySources.length == 0)
+        {
+            throw new ApiUsageException(
+                    "QuerySource[] argument to QueryFactory constructor " +
+                    "may not be null or empty.");
+        }
+        int size = querySources.length;
+        this.sources = new QuerySource[size];
+        System.arraycopy(querySources,0,this.sources,0,size);
     }
 
+    /** 
+     * 
+     * @param <T>
+     * @param queryID
+     * @param params
+     * @return
+     */
     public <T> Query<T> lookup(String queryID, Parameters params)
     {
         Query<T> q = null;

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ome.api.IPojos;
+import ome.conditions.ApiUsageException;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
@@ -38,9 +39,8 @@ public class FindAnnotationsQueryTest extends AbstractInternalContextTest
             // new QueryParameterDef("annotatorIds",Collection.class,true));
             q = new PojosFindAnnotationsQueryDefinition( parameters );
             fail( "Should have failed!" );
-        }
-        catch ( IllegalArgumentException e )
-        {
+        } catch ( IllegalArgumentException e ) {
+        } catch ( ApiUsageException e ) {
         }
     }
 

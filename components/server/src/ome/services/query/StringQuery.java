@@ -54,6 +54,8 @@ import ome.parameters.Parameters;
  * Parameters with a value of type {@link Collection} are added as
  * {@link org.hibernate.Query#setParameterList(java.lang.String, java.util.Collection)} 
  * 
+ * No parsing is done until execution time.
+ * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0

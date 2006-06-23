@@ -62,9 +62,12 @@ import ome.util.builders.PojoOptions;
  * attempts to enforce a strict usage pattern. First, subclasses must define
  * a {@link ome.services.query.Definitions} instance, which can optionally 
  * (and perhaps preferrably) be static, which must be passed into the 
- * super constructor.
+ * super constructor along with the {@link ome.parameters.Parameters} provided
+ * during lookup.
  * <p>
- *  Then the 
+ *  Queries can optionally define a {@link #enableFilters(Session)} method
+ *  (perhaps using pre-defined filters like {@link #ownerFilter(Session, String[])}
+ *  to limit the entities returned.
  * </p>
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

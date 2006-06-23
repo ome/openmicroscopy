@@ -60,7 +60,7 @@
       </list>
     </constructor-arg>      
     <constructor-arg index="1" value="true"/>
-		<constructor-arg index="2" ref="ome.client.internal"/>      
+    <constructor-arg index="2" ref="ome.client.internal"/>      
   </bean>
 
   <bean    id="ome.client.test"
@@ -72,6 +72,8 @@
         <value>ome/testing/data.xml</value>        
       </list>
     </constructor-arg>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" ref="ome.client.internal"/>      
   </bean>  
     
  </beans>

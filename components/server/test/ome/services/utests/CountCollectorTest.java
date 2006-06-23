@@ -86,7 +86,7 @@ public class CountCollectorTest extends TestCase
          
          Project p = new Project(next());
          c.collect(p);
-         c.addCounts(Project.DATASETLINKS,p.getId(),10);
+         c.addCounts(Project.DATASETLINKS,p.getId(),10L);
     }
     
   @Test
@@ -106,7 +106,7 @@ public class CountCollectorTest extends TestCase
         
         Project p = new Project(next());
         c.collect(p);
-        c.addCounts(Project.DATASETLINKS,p.getId(),-10);
+        c.addCounts(Project.DATASETLINKS,p.getId(),-10L);
     }    
     
   @Test

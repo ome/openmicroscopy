@@ -1,5 +1,42 @@
+/*
+ * ome.services.query.IObjectClassQuery
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+/*------------------------------------------------------------------------------
+ *
+ * Written by:    Josh Moore <josh.moore@gmx.de>
+ *
+ *------------------------------------------------------------------------------
+ */
+
 package ome.services.query;
 
+//Java imports
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,18 +44,42 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+// Third-party libraries
 import org.hibernate.Criteria;
 import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.hibernate.transform.ResultTransformer;
 
+// Application-internal dependencies
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 
+/**
+ * single-point of entry for walking of OME container hierarchies. 
+ * 
+ *  
+ * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @since OMERO 3.0
+ */
 public class Hierarchy {
 
+    /** TODO
+     * Nodes currently uses statically defined arrays containing the Hierarchy
+     * information. This needs to be refactored to use ITypes. 
+     * 
+     * The rather complicated data structures are used to efficiently 
+     * produce chains which represent a walk up from Image to higher-level
+     * containers, or a walk down from any container to Image.
+     * 
+     * klass and depth are fairly self-descriptive.
+     * child and parent represent the name of the fields which lead 
+     *   down and up, respectively.
+     * ptr is a pointer to the index in the other arrays of the child.
+     *   image (without a child) is -1.
+     */
     static class Nodes {
         
         static Class[] klass   = new Class[] {  Project.class, Dataset.class, Image.class, Category.class, CategoryGroup.class };
@@ -27,6 +88,7 @@ public class Hierarchy {
         static String[] parent = new String[]{ "projectLinks","datasetLinks",null,         "categoryLinks","categoryGroupLinks"};
         static int[]    ptr    = new int[]   {  1,            2,             -1,           2,               3};
         
+        /** pointer to the right index in the arrays */
         private static Map<Class,Integer> lookup = new HashMap<Class,Integer>();
         static {
             lookup.put(Project.class,0);
@@ -36,19 +98,28 @@ public class Hierarchy {
             lookup.put(CategoryGroup.class,4);
         }
 
+        /** uses the {@link #lookup} map to get the proper index. Values less 
+         * than zero signal an unknown class.
+         */
         static int lookup(Class k)
         {
             int i = lookup.containsKey(k) ? lookup.get(k).intValue() : -1;
             return i;
         }
         
+        /** calls {@link #lookup(Class)} and throws an exception if the value
+         * is less than 0.
+         */
         static int lookupWithError(Class k)
         {
             int i = lookup(k);
             if ( i < 0 ) throw new IllegalArgumentException("Unknown class:"+k);
             return i;
         }
-        
+
+        /** a container is defined to be any known class (see {@link #lookup})
+         * which is not an {@link Image}
+         */
         static boolean isContainer(Class k)
         {
             int i = lookup( k );
@@ -218,6 +289,13 @@ public class Hierarchy {
        
 }
 
+/**
+ * transforms a hierarchy to a map by using the aliases provided to the 
+ * constructor. 
+ * 
+ * @see ome.services.query.PojosCGCPathsQueryDefinition
+ *
+ */
 class HierarchyToMapTransformer extends AliasToEntityMapResultTransformer {
 
     Map _aliases;

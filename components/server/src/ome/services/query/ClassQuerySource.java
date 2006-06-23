@@ -78,6 +78,7 @@ import ome.parameters.QueryParameter;
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
+ * @see ome.services.query.IObjectClassQuery
  */
 public class ClassQuerySource extends QuerySource
 {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ome.conditions.ApiUsageException;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -29,7 +30,9 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
             q= new PojosLoadHierarchyQueryDefinition( // TODO if use lookup, more generic
                     parameters);
             fail("Should have failed!");
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
+        }
     }
     
     @Test
