@@ -36,6 +36,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -107,16 +108,33 @@ public class Parameters implements Serializable
      */
     private Filter filter;
     
+    /** storage for the {@link QueryParameter query parameters}. For 
+     * serialization, {@link #writeObject(ObjectOutputStream)} and 
+     * {@link #readObject(ObjectInputStream)} have been over-written for a 
+     * more compact form.
+     */ 
     private transient Map queryParameters = new HashMap();
 
-    /** default constructor. {@link Filter} is left null. 
+    /** 
+     * default constructor. {@link Filter} is left null. 
      * {@link QueryParameter queryParameters} collection is initialized to empty
      * {@link Collection}
      */ 
     public Parameters( )
     {}
     
-    /** copy constructor. {@link Filter} is taken from old instance
+    /** 
+     * Filter constructor. Allows for the simple specification of "unique" 
+     * results. <code>new Parameters( new Filter().unique() ); </code>
+     * Filter can be null since this is the default behavior anyway. 
+     */
+    public Parameters( Filter filter )
+    {
+        this.filter = filter;
+    }
+    
+    /** 
+     * copy constructor. {@link Filter} is taken from old instance
      * and {@link QueryParameter queryParameters} are merged.
      * @param old
      */ 
@@ -126,7 +144,8 @@ public class Parameters implements Serializable
         addAll( old );
     }
 
-    /** copy constructor. Merges {@link QueryParameter}s.
+    /** 
+     * copy constructor. Merges {@link QueryParameter}s.
      */
     public Parameters( QueryParameter[] queryParameters)
     {
@@ -174,7 +193,7 @@ public class Parameters implements Serializable
      */
     public Set keySet()
     {
-        return queryParameters.keySet();
+        return new HashSet( queryParameters.keySet() );
     }
 
     // ~ WRITE METHODS
