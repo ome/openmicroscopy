@@ -484,10 +484,11 @@
 		try {
 			preSetter( $FIELD, null );
 		
-    		Iterator it = iterate${PropertyName}();
-    		while ( it.hasNext() )
-    		{
-    			$LinkType link = ($LinkType) it.next();
+			List list = new ArrayList( get${PropertyName}() );
+    		for (Object object : list)
+            {
+    			$LinkType link = 
+                    ($LinkType) object;
     			remove${Link}( link, true );
     		}
 			
