@@ -29,6 +29,7 @@
       <delete>
         <fileset dir="${target.dir}/libs" includes="commons-logging*"/>
         <fileset dir="${target.dir}/libs" includes="jboss*"/>
+        <fileset dir="${target.dir}/libs" includes="log4j*"/>
         <fileset dir="${target.dir}/libs" includes="geronimo*"/>
       </delete>
       
@@ -72,7 +73,7 @@
 
    <target name="test"/>
 
-   <target name="integration">
+   <target name="integration" depends="package">
 	<antcall inheritrefs="true" target="deploy-ear-jboss"/>
 	<antcall inheritrefs="true" target="wait-on-as-jboss"/>
    </target>

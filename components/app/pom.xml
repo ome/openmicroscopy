@@ -18,7 +18,7 @@
     </dependency>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>omero-ejb</artifactId>
+      <artifactId>ejb</artifactId>
       <version>3.0-TRUNK</version>
       <type>ejb</type>
       <exclusions>
