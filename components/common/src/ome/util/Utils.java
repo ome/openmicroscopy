@@ -30,10 +30,6 @@
 package ome.util;
 
 //Java imports
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,6 +54,7 @@ import java.util.Set;
 public class Utils {
 
     protected final static String CGLIB_IDENTIFIER = "$$EnhancerByCGLIB$$";
+    protected final static String JAVASSIST_IDENTIFIER = "_$$_javassist";
     
     /** 
      * finds the "true" class identified by a given Class object. This is 
@@ -77,6 +74,17 @@ public class Utils {
             {
                 throw new RuntimeException( /* TODO */
                         "Classname contains "+CGLIB_IDENTIFIER+
+                        " but base class cannout be found.");
+            }
+        } else if (s.contains(JAVASSIST_IDENTIFIER)) {
+            try
+            {
+                return Class.forName(
+                        s.substring(0,s.indexOf(JAVASSIST_IDENTIFIER)));
+            } catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException( /* TODO */
+                        "Classname contains "+JAVASSIST_IDENTIFIER+
                         " but base class cannout be found.");
             }
         }
