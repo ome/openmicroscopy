@@ -57,20 +57,14 @@
     <constructor-arg ref="sessionFactory"/>    
   </bean>
     
-	<bean id="transactionManager" lazy-init="true"
-    	class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="sessionFactory" ref="sessionFactory"/>
-	</bean>
-
-	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
-		<property name="sessionFactory" ref="sessionFactory"/>
+  <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+    <property name="sessionFactory" ref="sessionFactory"/>
     <property name="allowCreate" value="false"/>
-	</bean>
+  </bean>
 	
   <bean id="interceptor" class="ome.tools.hibernate.OmeroInterceptor"/>
   
-	<bean id="globalListener" class="ome.tools.hibernate.GlobalListener">
+  <bean id="globalListener" class="ome.tools.hibernate.GlobalListener">
     <constructor-arg>
       <bean class="ome.tools.hibernate.EventDiffHolder"/>
     </constructor-arg>
@@ -79,11 +73,7 @@
 	<!-- TODO ome.tools.hibernate.OmeroSessionFactoryBean -->
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
 		<property name="configLocation" value="classpath:hibernate.cfg.xml"/>
-		<property name="hibernateProperties">
-  		<props>
-      	<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-      </props>      
-		</property>
+		<property name="hibernateProperties" ref="hibernateProperties"/>
 		<property name="dataSource" ref="dataSource"/>
     <property name="entityInterceptor" ref="interceptor"/>
 		<property name="eventListeners">

@@ -42,6 +42,7 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
+import ome.api.RawPixelsStore;
 import ome.system.OmeroContext;
 
 import omeis.providers.re.RenderingEngine;
@@ -125,6 +126,9 @@ public class ServiceFactory {
         this.ctx = OmeroContext.getInstance(contextName);
     }
 
+    // ~ Stateless services
+    // =========================================================================
+    
     public IAdmin getAdminService(){
         return (IAdmin) this.ctx.getBean("adminService");
     }
@@ -153,8 +157,15 @@ public class ServiceFactory {
         return (IUpdate) this.ctx.getBean("updateService");
     }
     
-    public RenderingEngine getRenderingService(){
-        return (RenderingEngine) this.ctx.getBean("renderService");
+    // ~ Stateful services
+    // =========================================================================
+
+    public RawPixelsStore createRawPixelsStore(){
+        return (RawPixelsStore) this.ctx.getBean("rawPixelsStore");
     }
     
+    public RenderingEngine createRenderingEngine(){
+        return (RenderingEngine) this.ctx.getBean("renderService");
+    }
+
 }

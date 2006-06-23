@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -60,8 +61,10 @@ public class PojosBean extends AbstractBean implements IPojos
 
     IPojos delegate;
     
-    public PojosBean(){
-        super();
+    @PostConstruct
+    public void create()
+    {
+        super.create();
         delegate = (IPojos) applicationContext.getBean("pojosService");
     }
     

@@ -29,6 +29,7 @@
 package ome.ro.ejb;
 
 //Java imports
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -57,9 +58,11 @@ public class AdminBean extends AbstractBean implements IAdmin
 {
 
     IAdmin delegate;
-    
-    public AdminBean(){
-        super();
+
+    @PostConstruct
+    public void create()
+    {
+        super.create();
         delegate = (IAdmin) applicationContext.getBean("adminService");
     }
     

@@ -31,6 +31,7 @@ package ome.ro.ejb;
 //Java imports
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -65,8 +66,10 @@ public class QueryBean extends AbstractBean implements LocalQuery
 
     LocalQuery delegate;
     
-    public QueryBean(){
-        super();
+    @PostConstruct
+    public void create()
+    {
+        super.create();
         delegate = (LocalQuery) applicationContext.getBean("queryService");
     }
     

@@ -660,7 +660,7 @@ public class PojosServiceTest extends TestCase {
 
         Pixels pix = (Pixels) iQuery.findAll(Pixels.class,null).get(0);
         IPixels pixDB = factory.getPixelsService();
-        RenderingEngine re = factory.getRenderingService(); 
+        RenderingEngine re = factory.createRenderingEngine(); 
         
         PlaneDef pd = new PlaneDef(0,0);
         pd.setX(0); pd.setY(0); pd.setZ(0);
@@ -740,7 +740,7 @@ public class PojosServiceTest extends TestCase {
         counts = getCounts( Dataset.class, new Long(7771L), null );
         assertNull( counts.get( Image.ANNOTATIONS ));
         assertTrue( counts.containsKey( Dataset.ANNOTATIONS ));
-        assertTrue( ( (Integer) counts.get( Dataset.ANNOTATIONS) ).intValue() == 1 );
+        assertTrue( ( (Long) counts.get( Dataset.ANNOTATIONS) ).intValue() == 1 );
                 
     }
 

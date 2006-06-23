@@ -157,7 +157,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                             klass.getName(),id));
                 }
                 
-                //Hibernate.initialize(o);
+                Hibernate.initialize(o);
                 return o;
                 
                 
@@ -178,7 +178,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     throws HibernateException {
 
                 IObject o = (IObject) session.get(klass,id); 
-                //Hibernate.initialize(o);
+                Hibernate.initialize(o);
                 return o;
                 
                 

@@ -85,11 +85,21 @@
     <property name="target" ref="ome.api.IAdmin"/>
   </bean>  
   <bean id="queryService" parent="managedService">
-    <property name="proxyInterfaces" value="ome.api.IQuery,ome.api.local.LocalQuery"/>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.api.IQuery</value>
+        <value>ome.api.local.LocalQuery</value>        
+      </list>
+    </property>
     <property name="target" ref="ome.api.IQuery"/>
   </bean>  
   <bean id="updateService" parent="managedService">
-    <property name="proxyInterfaces" value="ome.api.IUpdate,ome.api.local.LocalUpdate"/>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.api.IUpdate</value>
+        <value>ome.api.local.LocalUpdate</value>        
+      </list>
+    </property>
     <property name="target" ref="ome.api.IUpdate"/>
   </bean>
   <!-- 2 -->

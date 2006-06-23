@@ -30,12 +30,26 @@
 package ome.ro.ejb;
 
 // Java imports
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
+import javax.ejb.TransactionAttribute;
+import static javax.ejb.TransactionAttributeType.*;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.sql.DataSource;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
@@ -45,6 +59,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
+import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.model.display.QuantumDef;
 
 import omeis.providers.re.RGBBuffer;
@@ -90,30 +106,50 @@ import omeis.providers.re.data.PlaneDef;
 public class RenderingBean extends AbstractBean implements RenderingEngine
 {
 
-    private RenderingEngine delegate;
+    private transient RenderingEngine delegate;
     
-    /*
-     * CREATION:
-     */
-    public  RenderingBean()
-    {
-        super();
-        delegate = (RenderingEngine) applicationContext.getBean("renderService");
-    }
+    private transient Connection connection;
 
+    @PostActivate
     @PostConstruct
     public void create()
-    { }
+    {
+        super.create();
+        delegate = (RenderingEngine) applicationContext.getBean("renderService");
+    }
     
+    @PrePassivate
     @PreDestroy
     public void destroy()
     {
-        delegate = null;
         super.destroy();
     }
     
     // ~ DELEGATION
     // =========================================================================
+
+    @RolesAllowed("user")
+    @TransactionAttribute(REQUIRED)
+    public void lookupPixels(long arg0)
+    {
+        delegate.lookupPixels(arg0);
+    }
+
+    @RolesAllowed("user")
+    @TransactionAttribute(REQUIRED)
+    public void lookupRenderingDef(long arg0)
+    {
+        delegate.lookupRenderingDef(arg0);
+    }
+    
+    @RolesAllowed("user")
+    @TransactionAttribute(REQUIRED)
+    public void load()
+    {
+        delegate.load();
+    }
+
+    // -------------------------------------------------------------------------
     
     @RolesAllowed("user") 
     public void addCodomainMap(CodomainMapContext arg0)
@@ -191,24 +227,6 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     public boolean isActive(int arg0)
     {
         return delegate.isActive(arg0);
-    }
-
-    @RolesAllowed("user") 
-    public void load()
-    {
-        delegate.load();
-    }
-
-    @RolesAllowed("user") 
-    public void lookupPixels(long arg0)
-    {
-        delegate.lookupPixels(arg0);
-    }
-
-    @RolesAllowed("user") 
-    public void lookupRenderingDef(long arg0)
-    {
-        delegate.lookupRenderingDef(arg0);
     }
 
     @RolesAllowed("user") 

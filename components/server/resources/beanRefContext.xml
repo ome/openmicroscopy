@@ -41,7 +41,7 @@
         <value>ome/services/security.xml</value>
         <value>ome/services/services.xml</value>
         <value>ome/services/hibernate.xml</value>
-        <value>ome/services/${data.source}.xml</value>
+        <value>ome/services/${container.status}.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>

@@ -34,19 +34,12 @@ package ome.api;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.RenderingDef;
-import ome.model.enums.PixelsType;
 
 /** 
  * metadata gateway for the {@link omeis.providers.re.RenderingEngine}. This 
  * service provides all DB access that the rendering engine needs. This allows
  * the rendering engine to also be run external to the server (e.g. client-side)  
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
  * @author  <br>Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:josh.moore@gmx.de">
  *                  josh.moore@gmx.de</a>
@@ -56,35 +49,38 @@ import ome.model.enums.PixelsType;
  * </small>
  * @since OME2.2
  */
-public interface IPixels extends ServiceInterface
+public interface RawPixelsStore extends StatefulServiceInterface
 {
-
-    /**
-     * Retrieves the IPixels Description i.e. the dimensions of the pixels set
-     * in microns, the omeis id and the image id.
-     * Other information will retrieve from omeis.
-     * @return See below.
-     * @throws PixServiceException If the connection is broken, or logged in
-     *          or if an error occured while trying to. 
-     */
-    public ome.model.core.Pixels retrievePixDescription(long pixId);
+    //State management.
+    public void setPixelsId( long pixelsId );
+    public void load();
     
     /**
-     * Retrieves the rendering settings.
-     * @return See below.
-     * @throws PixServiceException If the connection is broken, or logged in
-     *          or if an error occured while trying to. 
+     * delegates to {@link ome.io.nio.PixelBuffer}
+     * 
+     * @param pixelsId
+     * @return
+     * @see ome.io.nio.PixelBuffer#getPlaneSize()
      */
-    public RenderingDef retrieveRndSettings(long pixId);
-    
-    /**
-     * Saves the specified rendering settings.
-     * @param rndSettings
-     * @throws PixServiceException If the connection is broken, or logged in
-     *          or if an error occured while trying to. 
-     */
-    public void saveRndSettings(RenderingDef rndSettings);
-
-    public int getBitDepth( PixelsType type ); 
+    public Integer getPlaneSize( );
+    public Integer getRowSize( );
+    public Integer getStackSize( );
+    public Integer getTimepointSize( );
+    public Integer getTotalSize( );
+    public Long getRowOffset( Integer y, Integer z, Integer c, Integer t );
+    public Long getPlaneOffset( Integer z, Integer c, Integer t );
+    public Long getStackOffset( Integer c, Integer t );
+    public Long getTimepointOffset( Integer t );
+    public byte[] getRegion( Integer size, Long offset );
+    public byte[] getRow( Integer y, Integer z, Integer c, Integer t );
+    public byte[] getPlane( Integer z, Integer c, Integer t );
+    public byte[] getStack( Integer c, Integer t );
+    public byte[] getTimepoint( Integer t );
+    public void setRegion( Integer size, Long offset, byte[] buffer );
+    public void setRow( byte[] buffer, Integer y, Integer z, Integer c, Integer t );
+    public void setPlane( byte[] buffer, Integer z, Integer c, Integer t );
+    public void setStack( byte[] buffer, Integer z, Integer c, Integer t );
+    public void setTimepoint( byte[] buffer, Integer t );
+    public byte[] calculateMessageDigest( );
     
 }

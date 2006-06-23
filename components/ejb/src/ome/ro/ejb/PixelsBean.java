@@ -29,6 +29,7 @@
 package ome.ro.ejb;
 
 //Java imports
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -42,8 +43,10 @@ import org.jboss.annotation.security.SecurityDomain;
 
 //Application-internal dependencies
 import ome.api.IPixels;
+import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
+import ome.model.enums.PixelsType;
 
 @Stateless
 @Remote(IPixels.class)
@@ -56,8 +59,10 @@ public class PixelsBean extends AbstractBean implements IPixels
 
     IPixels delegate;
     
-    public PixelsBean(){
-        super();
+    @PostConstruct
+    public void create()
+    {
+        super.create();
         delegate = (IPixels) applicationContext.getBean("pixelsService");
     }
     
@@ -88,6 +93,11 @@ public class PixelsBean extends AbstractBean implements IPixels
     {
         delegate.saveRndSettings(rndSettings);
     }
-    
+
+    @RolesAllowed("user") 
+    public int getBitDepth(PixelsType type)
+    {
+        return PixelBuffer.getBitDepth( type );
+    }
     
 }

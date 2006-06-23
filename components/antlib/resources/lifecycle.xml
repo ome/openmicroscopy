@@ -194,9 +194,10 @@
 	</target>
 
 	<target name="integration" depends="install">
+		<property name="integration.suite" value="integration.testng.xml"/>
 		<suite>
 			<xmlfileset dir="${test.dir}">
-				<include name="integration.testng.xml"/>
+				<include name="${integration.suite}"/>
 			</xmlfileset>
 		</suite>
 	</target>

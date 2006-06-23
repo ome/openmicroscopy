@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import ome.model.meta.Experimenter;
 
 @Test(
-        groups = "integration"
+        groups = {"integration","ignore"}
 )
 public class ContextPropertiesTest extends AbstractDependencyInjectionSpringContextTests
 {
@@ -35,7 +35,7 @@ public class ContextPropertiesTest extends AbstractDependencyInjectionSpringCont
     protected String[] getConfigLocations()
     {
         return new String[]{
-                "ome/services/dbcp.xml",
+                "ome/services/out-of-container.xml",
                 "ome/services/hibernate.xml",
                 "ome/server/itests/context/ContextPropertiesTest.xml"}; 
         // sets initial url (for *first* call)

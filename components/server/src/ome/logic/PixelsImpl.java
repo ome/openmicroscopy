@@ -38,8 +38,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.api.IPixels;
+import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
+import ome.model.enums.PixelsType;
 import ome.parameters.Parameters;
 import ome.security.CurrentDetails;
 
@@ -64,10 +67,17 @@ class PixelsImpl extends AbstractLevel2Service
 
 	private static Log log = LogFactory.getLog(PixelsImpl.class);
 
+    protected PixelsService pixelsData;
+    
     @Override
     protected String getName()
     {
         return IPixels.class.getName();
+    }
+    
+    public void setPixelsData( PixelsService pixelsData )
+    {
+        this.pixelsData = pixelsData;
     }
     
 	public Pixels retrievePixDescription(long pixId) {
@@ -89,5 +99,10 @@ class PixelsImpl extends AbstractLevel2Service
 	public void saveRndSettings(RenderingDef rndSettings) {
 	    iUpdate.saveObject(rndSettings);
 	}
+
+    public int getBitDepth(PixelsType pixelsType)
+    {
+        return PixelBuffer.getBitDepth( pixelsType );
+    }
 
 }

@@ -32,6 +32,7 @@ package ome.ro.ejb;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -59,8 +60,10 @@ public class UpdateBean extends AbstractBean implements LocalUpdate
 
     LocalUpdate delegate;
     
-    public UpdateBean(){
-        super();
+    @PostConstruct
+    public void create()
+    {
+        super.create();
         delegate = (LocalUpdate) applicationContext.getBean("updateService");
     }
     

@@ -542,7 +542,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                 for (Object[] results : l_c)
                 {
                    Long id = (Long) results[0];
-                   Integer count = (Integer) results[1];
+                   Long count = (Long) results[1];
                    c.addCounts(key,id,count);
                 }
                 

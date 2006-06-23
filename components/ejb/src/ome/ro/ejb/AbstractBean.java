@@ -43,28 +43,36 @@ import ome.conditions.ApiUsageException;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 public class AbstractBean 
 {
     
     private static Log log = LogFactory.getLog(AbstractBean.class);
 
-    protected OmeroContext  applicationContext;
+    protected transient OmeroContext  applicationContext;
 
-    protected EventContext  eventContext;
+    protected transient ServiceFactory serviceFactory;
+    
+    protected transient EventContext  eventContext;
     
     // java:comp.ejb3/EJBContext
-    protected @Resource SessionContext sessionContext; 
-    //protected @Resource(mappedName="UserTransaction") UserTransaction ut;
+    protected @Resource SessionContext sessionContext;
     //protected @Resource(mappedName="security/subject") Subject subject;
-    
-    public AbstractBean()
+
+    public void create()
     {
         applicationContext = OmeroContext.getManagedServerContext();
+        serviceFactory = new ServiceFactory( applicationContext );
         eventContext = (EventContext) applicationContext.getBean("eventContext");
         log.debug("Created:\n"+getLogString());
     }
 
+    public void destroy()
+    {
+        log.debug("Destroying:\n"+getLogString());
+    }
+    
     @AroundInvoke 
     public Object around( InvocationContext ctx ) throws Exception
     {
@@ -91,10 +99,8 @@ public class AbstractBean
         
     }
     
-    public void destroy()
-    {
-        log.debug("Destroying:\n"+getLogString());
-    }
+    // ~ Helpers
+    // =========================================================================
     
     protected String getLogString()
     {
