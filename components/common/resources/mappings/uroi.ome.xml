@@ -37,57 +37,255 @@
 	<!-- Unified ROIS -->
 	<type id="ome.model.uroi.Region">
 		<properties>
-			<required name="pixels" type="ome.model.core.Pixels"/>
-			<optional name="type" type="ome.model.enums.RegionType"/>
-			<onemany  name="urois" type="ome.model.uroi.URoi" inverse="region"/>
-			<onemany  name="nDimShapes" type="ome.model.uroi.NDimShape" inverse="region"/>
-			<onemany  name="boxes" type="ome.model.uroi.BoundingBox" inverse="region"/>
+			<optional name="type"     type="ome.model.enums.RegionType"/>
+			<required name="pixels"   type="ome.model.core.Pixels"/>
+			<onemany  name="boxes"    type="ome.model.uroi.BoundingBox" inverse="region"/>
+			<onemany  name="metadata" type="ome.model.uroi.Metadata" inverse="region"/>
+			<onemany  name="specs"    type="ome.model.uroi.Specification" inverse="region"/>
 		</properties>
 	</type>
 
 	<enum id="ome.model.enums.RegionType">
 		<entry name="a"/>
 		<entry name="b"/>
-	</enum>  
+	</enum> 
   
+	<!-- DIMENSIONALITY -->
 	<abstract id="ome.model.uroi.BoundingBox">
 		<properties>
+			<manyone name="region" type="ome.model.uroi.Region"/>
 			<required name="x1" type="int"/>
 			<required name="x2" type="int"/>
 			<required name="y1" type="int"/>
 			<required name="y2" type="int"/>
+		</properties>
+	</abstract>
+
+	<type id="ome.model.uroi.XYZCT" superclass="ome.model.uroi.BoundingBox">
+		<properties>
 			<required name="z1" type="int"/>
 			<required name="z2" type="int"/>
 			<required name="c1" type="int"/>
 			<required name="c2" type="int"/>
 			<required name="t1" type="int"/>
 			<required name="t2" type="int"/>
-			<required name="z"  type="int"/>
-			<required name="c"  type="int"/>
-			<required name="t"  type="int"/>
+  		<child name="xyzcLinks" type="ome.model.uroi.XYZCTtoXYZCLink"
+        target="ome.model.uroi.XYZC"/>
+  		<child name="xyztLinks" type="ome.model.uroi.XYZCTtoXYZTLink"
+        target="ome.model.uroi.XYZT"/>
+  		<child name="xyctLinks" type="ome.model.uroi.XYZCTtoXYCTLink"
+        target="ome.model.uroi.XYCT"/>
+		</properties>
+	</type>
+
+  <!-- 5D to 4D links -->  
+  <link id="ome.model.uroi.XYZCTtoXYZCLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZCT"/>
+      <to_child type="ome.model.uroi.XYZC"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYZCTtoXYZTLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZCT"/>
+      <to_child type="ome.model.uroi.XYZT"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYZCTtoXYCTLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZCT"/>
+      <to_child type="ome.model.uroi.XYCT"/>
+    </properties>
+  </link>
+	<!-- -->
+        
+	<type id="ome.model.uroi.XYZC"  superclass="ome.model.uroi.BoundingBox">
+		<properties>
+			<parent name="xyzctLinks" type="ome.model.uroi.XYZCTtoXYZCLink"
+        target="ome.model.uroi.XYZCT"/>
+			<required name="z1" type="int"/>
+			<required name="z2" type="int"/>
+			<required name="c1" type="int"/>
+			<required name="c2" type="int"/>
+			<optional name="t"  type="int"/>
+  		<child name="xyzLinks" type="ome.model.uroi.XYZCtoXYZLink"
+        target="ome.model.uroi.XYZ"/>
+  		<child name="xycLinks" type="ome.model.uroi.XYZCtoXYCLink"
+        target="ome.model.uroi.XYC"/>
+		</properties>
+	</type>
+	<type id="ome.model.uroi.XYZT"  superclass="ome.model.uroi.BoundingBox">
+		<properties>
+			<parent name="xyzctLinks" type="ome.model.uroi.XYZCTtoXYZTLink"
+        target="ome.model.uroi.XYZCT"/>
+			<required name="z1" type="int"/>
+			<required name="z2" type="int"/>
+			<required name="t1" type="int"/>
+			<required name="t2" type="int"/>
+			<optional name="c"  type="int"/>
+  		<child name="xyzLinks" type="ome.model.uroi.XYZTtoXYZLink"
+        target="ome.model.uroi.XYZ"/>
+  		<child name="xytLinks" type="ome.model.uroi.XYZTtoXYTLink"
+        target="ome.model.uroi.XYT"/>
+		</properties>
+	</type>
+	<type id="ome.model.uroi.XYCT"  superclass="ome.model.uroi.BoundingBox">
+		<properties>
+			<parent name="xyzctLinks" type="ome.model.uroi.XYZCTtoXYCTLink"
+        target="ome.model.uroi.XYZCT"/>
+			<required name="c1" type="int"/>
+			<required name="c2" type="int"/>
+			<required name="t1" type="int"/>
+			<required name="t2" type="int"/>
+			<optional name="z"  type="int"/>
+  		<child name="xycLinks" type="ome.model.uroi.XYCTtoXYCLink"
+        target="ome.model.uroi.XYC"/>
+  		<child name="xytLinks" type="ome.model.uroi.XYCTtoXYTLink"
+        target="ome.model.uroi.XYT"/>
+		</properties>
+	</type>
+  
+  <!-- 4D to 3D Links -->
+  <link id="ome.model.uroi.XYZCtoXYZLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZC"/>
+      <to_child type="ome.model.uroi.XYZ"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYZCtoXYCLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZC"/>
+      <to_child type="ome.model.uroi.XYC"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYZTtoXYZLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZT"/>
+      <to_child type="ome.model.uroi.XYZ"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYZTtoXYTLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZT"/>
+      <to_child type="ome.model.uroi.XYT"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYCTtoXYCLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYCT"/>
+      <to_child type="ome.model.uroi.XYC"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYCTtoXYTLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYCT"/>
+      <to_child type="ome.model.uroi.XYT"/>
+    </properties>
+  </link>
+  <!-- -->
+
+	<type id="ome.model.uroi.XYZ"   superclass="ome.model.uroi.BoundingBox">
+		<properties>
+  		<parent name="xyzcLinks" type="ome.model.uroi.XYZCtoXYZLink"
+        target="ome.model.uroi.XYZC"/>
+  		<parent name="xyztLinks" type="ome.model.uroi.XYZTtoXYZLink"
+        target="ome.model.uroi.XYZT"/>
+			<required name="z1" type="int"/>
+			<required name="z2" type="int"/>
+			<optional name="c"  type="int"/>
+			<optional name="t"  type="int"/>
+  		<child name="xyLinks" type="ome.model.uroi.XYZtoXYLink"
+        target="ome.model.uroi.XY"/>
+		</properties>
+	</type>
+	<type id="ome.model.uroi.XYC"   superclass="ome.model.uroi.BoundingBox">
+		<properties>
+  		<parent name="xyzcLinks" type="ome.model.uroi.XYZCtoXYCLink"
+        target="ome.model.uroi.XYZC"/>
+  		<parent name="xyctLinks" type="ome.model.uroi.XYCTtoXYCLink"
+        target="ome.model.uroi.XYCT"/>
+			<required name="c1" type="int"/>
+			<required name="c2" type="int"/>
+			<optional name="z"  type="int"/>
+			<optional name="t"  type="int"/>
+  		<child name="xyLinks" type="ome.model.uroi.XYCtoXYLink"
+        target="ome.model.uroi.XY"/>
+		</properties>
+	</type>
+	<type id="ome.model.uroi.XYT"   superclass="ome.model.uroi.BoundingBox">
+		<properties>
+  		<parent name="xyztLinks" type="ome.model.uroi.XYZTtoXYTLink"
+        target="ome.model.uroi.XYZT"/>
+  		<parent name="xyctLinks" type="ome.model.uroi.XYCTtoXYTLink"
+        target="ome.model.uroi.XYCT"/>
+			<required name="t1" type="int"/>
+			<required name="t2" type="int"/>
+			<optional name="z"  type="int"/>
+			<optional name="c"  type="int"/>
+  		<child name="xyLinks" type="ome.model.uroi.XYTtoXYLink"
+        target="ome.model.uroi.XY"/>
+		</properties>
+	</type>
+  
+  <!-- 3D to 2D Links -->
+  <link id="ome.model.uroi.XYZtoXYLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYZ"/>
+      <to_child type="ome.model.uroi.XY"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYCtoXYLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYC"/>
+      <to_child type="ome.model.uroi.XY"/>
+    </properties>
+  </link>
+  <link id="ome.model.uroi.XYTtoXYLink">
+    <properties>
+    	<from_parent type="ome.model.uroi.XYT"/>
+      <to_child type="ome.model.uroi.XY"/>
+    </properties>
+  </link>
+  <!-- -->
+  
+	<type id="ome.model.uroi.XY"    superclass="ome.model.uroi.BoundingBox">
+		<properties>
+  		<parent name="xyzLinks" type="ome.model.uroi.XYZtoXYLink"
+        target="ome.model.uroi.XYZ"/>
+  		<parent name="xycLinks" type="ome.model.uroi.XYCtoXYLink"
+        target="ome.model.uroi.XYC"/>
+  		<parent name="xytLinks" type="ome.model.uroi.XYTtoXYLink"
+        target="ome.model.uroi.XYT"/>
+			<optional name="z"  type="int"/>
+			<optional name="c"  type="int"/>
+			<optional name="t"  type="int"/>
+		</properties>
+	</type>
+
+	<!-- METADATA -->
+	<abstract id="ome.model.uroi.Metadata">
+		<properties>
 			<manyone name="region" type="ome.model.uroi.Region"/>
 		</properties>
 	</abstract>
 
-	<type id="ome.model.uroi.XYZCT" superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XYZC"  superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XYZT"  superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XYCT"  superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XYC"   superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XYT"   superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XYZ"   superclass="ome.model.uroi.BoundingBox"/>
-	<type id="ome.model.uroi.XY"    superclass="ome.model.uroi.BoundingBox"/>
-
-	<type id="ome.model.uroi.NDimShape">
+  <type id="ome.model.uroi.DummyStatistics" superclass="ome.model.uroi.Metadata">
+    <properties>
+      <required name="example" type="float"/>
+    </properties>
+  </type>
+  
+	<!-- SPECIFICATION -->
+	<abstract id="ome.model.uroi.Specification">
 		<properties>
 			<manyone name="region" type="ome.model.uroi.Region"/>
 		</properties>
-	</type>
-  
-	<type id="ome.model.uroi.URoi">
+	</abstract>
+
+	<type id="ome.model.uroi.URoi" superclass="ome.model.uroi.Specification">
 		<properties>
-			<manyone name="region" type="ome.model.uroi.Region"/>
-			<onemany name="slices" type="ome.model.uroi.USlice" inverse="uroi"/>
+			<manyzero name="box"    type="ome.model.uroi.BoundingBox"/>
+			<onemany  name="slices" type="ome.model.uroi.USlice" inverse="uroi"/>
 		</properties>
 	</type>
 
@@ -109,11 +307,28 @@
 
 	<type id="ome.model.uroi.USquare" superclass="ome.model.uroi.UShape">
 		<properties>
-			<required name="upperLeftX" type="int"/>
-			<required name="upperLeftY" type="int"/>
+			<required name="upperLeftX"  type="int"/>
+			<required name="upperLeftY"  type="int"/>
 			<required name="lowerRightX" type="int"/>
 			<required name="lowerRightY" type="int"/>
 		</properties>
 	</type>
 
+  <!-- OVERLAYS -->
+	<enum id="ome.model.enums.OverlayType">
+		<entry name="arrow"/>
+		<entry name="text"/>
+	</enum> 
+  
+  <type id="ome.model.uroi.Overlay" superclass="ome.model.uroi.Specification">
+    <properties>
+      <required name="plane"   type="ome.model.uroi.XY"/>
+			<required name="type"	   type="ome.model.enums.OverlayType"/>      
+      <optional name="color"   type="string"/>
+			<optional name="text"    type="string"/>      
+			<optional name="filled"  type="boolean"/>            
+			<optional name="grouped" type="string"/>                  
+    </properties>  
+  </type>
+  
 </types>

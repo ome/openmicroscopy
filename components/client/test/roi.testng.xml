@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="client.roi" >
+  
+  <test name="client.roi">
+    <classes>
+      <class name="ome.client.itests.rois.URoiTest"/>
+    </classes>
+  </test>
+
+</suite>

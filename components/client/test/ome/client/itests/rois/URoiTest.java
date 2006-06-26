@@ -1,37 +1,83 @@
 package ome.client.itests.rois;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.*;
 
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
+import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.core.Pixels;
+import ome.model.enums.OverlayType;
 import ome.model.enums.RegionType;
+import ome.model.meta.Experimenter;
 import ome.model.uroi.BoundingBox;
+import ome.model.uroi.Overlay;
 import ome.model.uroi.Region;
 import ome.model.uroi.URoi;
+import ome.model.uroi.UShape;
 import ome.model.uroi.USlice;
 import ome.model.uroi.USquare;
+import ome.model.uroi.XY;
+import ome.model.uroi.XYZ;
 import ome.model.uroi.XYZCT;
+import ome.model.uroi.XYZT;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 
-@Test( 
-	groups = {"client","integration","roi","proposal"} 
+@Test(
+        // "ignored" because it should only be run manually
+        groups = {"ignore","client","integration","roi","proposal"} 
 )
 public class URoiTest extends TestCase
 {
 
-    ServiceFactory sf = new ServiceFactory();
-    IUpdate up = sf.getUpdateService();
-    Random rnd = new Random();
-
+    private static Log TESTLOG = LogFactory.getLog("TEST-"+URoiTest.class.getName());
+    
     static int Xmax = 1024, Ymax = 1024, Zmax = 24, Tmax = 120, Cmax = 3;
 
+    ServiceFactory sf;
+    IQuery iQuery;
+    IUpdate up;
+    Random rnd;
+    
+    DataSource ds;
+    SimpleJdbcTemplate jdbc;
+    
+    @Configuration( beforeTestClass = true )
+    public void config()
+    {
+        TESTLOG.info("INIT");
+        sf = new ServiceFactory("ome.client.test");
+        iQuery = sf.getQueryService();
+        up = sf.getUpdateService();
+        rnd = new Random();
+
+        ds = (DataSource) sf.getContext().getBean("dataSource");
+        jdbc = new SimpleJdbcTemplate(ds);
+        
+        TESTLOG.info("PSQL/bug649");        
+        try {
+            iQuery.get(Experimenter.class,0L);
+        } catch (Exception e ) {
+            // ok. http://bugs.openmicroscopy.org.uk/show_bug.cgi?id=649
+        }
+        
+    }
+    
+    @Test
     public void test_createRoisOnNewPixels() throws Exception
     {
 
@@ -44,17 +90,18 @@ public class URoiTest extends TestCase
       pix.setSizeC( Cmax );
       List<Region> l = new ArrayList<Region>();
       
-      for (int i = 0; i < 50; i++)
+      for (int i = 0; i < 5; i++)
       {
-          int j = rnd.nextInt(3);
+          int j = rnd.nextInt(4);
+          TESTLOG.info("Creating region with:"+j);
           switch (j)
-        {
+          {
             case 0: l.add( singlePlane( pix ));break;
             case 1: l.add( continuousPlanes( pix ));break;
             case 2: l.add( randomPlanes( pix ));break;
+            case 3: l.add( cellLineage( pix ));break;
             default: throw new RuntimeException();
-
-        }
+          }
       }
       
       up.saveArray( (Region[]) l.toArray(new Region[l.size()]));
@@ -90,7 +137,7 @@ public class URoiTest extends TestCase
         
         // Bottom to top (left)
 
-        BoundingBox bb = new XYZCT();
+        XYZCT bb = new XYZCT();
         bb.setX1( x[0] );
         bb.setX2( x[1] );
         bb.setY1( y[0] );
@@ -101,10 +148,6 @@ public class URoiTest extends TestCase
         bb.setT2( t );
         bb.setC1( c );
         bb.setC2( c );
-        // This is a mistake.
-        bb.setZ(new Integer(-1));
-        bb.setC(new Integer(-1));
-        bb.setT(new Integer(-1));
 
         // Bottom to top (right)
 
@@ -115,8 +158,8 @@ public class URoiTest extends TestCase
         Region region = new Region();
         region.setPixels(pix);
         region.setType(type);
-        region.addToBoxes(bb);
-        region.addToUrois(roi);
+        region.addBoundingBox(bb);
+        region.addSpecification(roi);
 
         return region;
 
@@ -134,10 +177,10 @@ public class URoiTest extends TestCase
         slice.setC(c);
         slice.setT(t);
         slice.setZ(z);
-        slice.addToShapes(square);
+        slice.addUShape(square);
 
         URoi roi = new URoi();
-        roi.addToSlices(slice);
+        roi.addUSlice(slice);
         return roi;
     }
 
@@ -154,7 +197,7 @@ public class URoiTest extends TestCase
         
         // Bottom to top (left)
 
-        BoundingBox bb = new XYZCT();
+        XYZCT bb = new XYZCT();
         bb.setX1( x[0] );
         bb.setX2( x[1] );
         bb.setY1( y[0] );
@@ -165,10 +208,6 @@ public class URoiTest extends TestCase
         bb.setT2( t[1] );
         bb.setC1( c[0] );
         bb.setC2( c[1] );
-        // This is a mistake.
-        bb.setZ(new Integer(-1));
-        bb.setC(new Integer(-1));
-        bb.setT(new Integer(-1));
 
         // Bottom to top (right)
 
@@ -189,8 +228,8 @@ public class URoiTest extends TestCase
                     slice.setC(C);
                     slice.setT(T);
                     slice.setZ(Z);
-                    slice.addToShapes(square);
-                    roi.addToSlices(slice);
+                    slice.addUShape(square);
+                    roi.addUSlice(slice);
                 }
             }
         }
@@ -200,8 +239,8 @@ public class URoiTest extends TestCase
         Region region = new Region();
         region.setPixels(pix);
         region.setType(type);
-        region.addToBoxes(bb);
-        region.addToUrois(roi);
+        region.addBoundingBox(bb);
+        region.addSpecification(roi);
 
         return region;
 
@@ -228,7 +267,7 @@ public class URoiTest extends TestCase
             int t = pickSingle( pix.getSizeT() );
             int c = pickSingle( pix.getSizeC() );
             URoi roi = singleRoi(x,y,z,t,c);
-            region.addToUrois(roi);
+            region.addSpecification(roi);
         }
 
         int[] 
@@ -238,7 +277,7 @@ public class URoiTest extends TestCase
             c = new int[]{-1,-1},
             t = new int[]{-1,-1};
         
-        for (URoi roi : (List<URoi>) region.collectUrois(null))
+        for (URoi roi : (List<URoi>) region.collectSpecs(null))
         {
             for(USlice slice : (List<USlice>) roi.collectSlices(null))
             {
@@ -300,7 +339,7 @@ public class URoiTest extends TestCase
         
         // Bottom to top (left)
 
-        BoundingBox bb = new XYZCT();
+        XYZCT bb = new XYZCT();
         bb.setX1( x[0] );
         bb.setX2( x[1] );
         bb.setY1( y[0] );
@@ -311,15 +350,106 @@ public class URoiTest extends TestCase
         bb.setT2( t[1] );
         bb.setC1( c[0] );
         bb.setC2( c[1] );
-        // This is a mistake.
-        bb.setZ(new Integer(-1));
-        bb.setC(new Integer(-1));
-        bb.setT(new Integer(-1));
-        region.addToBoxes(bb);
+        region.addBoundingBox(bb);
 
         return region;
 
     }
 
+    /**
+     * data for this method must be manually added via:
+     * --------------------------------------------------------
+       create table CellLineage2 
+       (type varchar, slice int, time int, 
+           x1 real, y1 real, x2 real, y2 real, 
+           text varchar, color char(6), filled boolean, grouped varchar, 
+           Notes varchar);
+       copy CellLineage2 from '/tmp/cell2' with null as 'N/A';
+     * --------------------------------------------------------       
+     */
+    protected Region cellLineage(final Pixels pix)
+    {
+        RegionType regionType = new RegionType();
+        regionType.setValue("cellLineage");
+
+        Region region = new Region();
+        region.setPixels(pix);
+        region.setType(regionType);
+
+        XYZT topBox = new XYZT();
+        region.addBoundingBox( topBox );
+
+        ParameterizedRowMapper<Overlay> prm = 
+        new ParameterizedRowMapper<Overlay>(){
+            public Overlay mapRow(java.sql.ResultSet rs, int row)
+            throws java.sql.SQLException {
+                String type = rs.getString("type");
+                int slice   = rs.getInt("slice");
+                int time    = rs.getInt("time");
+                float x1    = rs.getFloat("x1");
+                float y1    = rs.getFloat("y1");
+                float x2    = rs.getFloat("x2");
+                float y2    = rs.getFloat("y2");
+                String text = rs.getString("text");
+                String color= rs.getString("color");
+                boolean fill= rs.getBoolean("filled");
+                String group= rs.getString("grouped");
+                String notes= rs.getString("notes");
+
+                XYZ volume = new XYZ();
+                volume.setT( time );
+                
+                XY plane = new XY();
+                plane.setX1( (int) x1 );
+                plane.setY1( (int) y1 );
+                plane.setX2( (int) x2 );
+                plane.setY2( (int) y2 );
+                plane.setZ( slice );
+                plane.linkXYZ( volume );
+                
+                OverlayType overlayType = new OverlayType();
+                overlayType.setValue(type);
+                
+                Overlay overlay = new Overlay();
+                overlay.setColor(color);
+                overlay.setText(text);
+                overlay.setType(overlayType);
+                overlay.setPlane(plane);
+
+                return overlay;
+            };   
+        };
+        
+        List<Overlay> list = jdbc.query(
+                "select * from CellLineage2 where time = 1",
+                prm);
+        Map<Integer,XYZ> timePoints = new HashMap<Integer,XYZ>();
+
+        for (Overlay overlay : list)
+        {
+            XY plane = overlay.getPlane();
+            XYZ vol = (XYZ) plane.linkedXYZList().get(0);
+            Integer time = vol.getT();
+            assertNotNull( time );
+            
+            if ( ! timePoints.containsKey( time ))
+            {
+                timePoints.put( time, vol );
+            } else {
+                XYZ extant = timePoints.get( vol.getT() );
+                extant.linkXY( (XY) vol.linkedXYList().get(0) );
+                vol.clearXYLinks();
+            }
+        }
+        //assertions!
+        
+        for (XYZ volume : timePoints.values())
+        {
+            topBox.linkXYZ( volume );
+        }
+        
+        return region;
+
+    }
     
 }
