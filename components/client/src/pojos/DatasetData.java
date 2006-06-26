@@ -298,7 +298,7 @@ public class DatasetData
         
         while (m.moreDeletions()) {
             setDirty(true);
-            asDataset().removeFromAnnotations(
+            asDataset().removeDatasetAnnotation(
                         m.nextDeletion().asDatasetAnnotation());
             annotationCount = annotationCount == null ? null :
                 new Integer(annotationCount.intValue()-1);
@@ -306,7 +306,7 @@ public class DatasetData
         
         while (m.moreAdditions()) {
             setDirty(true);
-            asDataset().removeFromAnnotations(
+            asDataset().removeDatasetAnnotation(
                         m.nextAddition().asDatasetAnnotation());
             annotationCount = annotationCount == null ? null :
                 new Integer(annotationCount.intValue()+1);

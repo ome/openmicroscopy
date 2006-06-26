@@ -60,7 +60,7 @@ public class TicketsUpTo199Test extends TestCase
         IUpdate iUpdate = sf.getUpdateService();
         Pixels pixels = ObjectFactory.createPixelGraph(null);
         PlaneInfo planeInfo = createPlaneInfo();
-        pixels.addToPlaneInfo(planeInfo);
+        pixels.addPlaneInfo(planeInfo);
         pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
         PlaneInfo test = (PlaneInfo)
         iQuery.findByQuery( "select pi from PlaneInfo pi " +

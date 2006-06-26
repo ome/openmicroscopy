@@ -49,7 +49,7 @@ public class CountCollectorTest extends TestCase
         d.linkImage(i);
         
         ImageAnnotation iann = new ImageAnnotation(next());
-        i.addToAnnotations( iann );
+        i.addImageAnnotation( iann );
         
         c.collect(p);
         Set s_1 = (Set) c.getIds(Dataset.IMAGELINKS);

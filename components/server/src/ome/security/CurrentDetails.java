@@ -119,7 +119,7 @@ public abstract class CurrentDetails
             l.setIdList(id.toString());
             l.setDetails(createDetails());
     
-            getCreationEvent().addToLogs( l );
+            getCreationEvent().addEventLog( l );
         }
     }
     

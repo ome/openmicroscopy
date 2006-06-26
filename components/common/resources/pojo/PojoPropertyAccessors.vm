@@ -32,6 +32,7 @@
 #set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
 #set( $fieldtype =  $pojo.getJavaTypeName($property, $jdk5) )
 #set( $elementtype = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
+#set( $Name = $c2j.unqualify( $elementtype ) )
 #set( $field = $property.name )
 #set( $FIELD = ${field.toUpperCase()} )
 #if( $c2j.hasMetaAttribute($property, "set-add-method") || $c2j.hasMetaAttribute($property, "link-add-method") )
@@ -147,7 +148,7 @@
 	 * use instead of set${PropertyName} . Makes the necessary
 	 * call on $elementtype as well.
 	 */
-	public void addTo${PropertyName}($elementtype target) {
+	public void add${Name}($elementtype target) {
 		
 		try {
 			preSetter( $FIELD, target );
@@ -165,9 +166,9 @@
 	}
 
 	/** 
-	 * use like addTo${PropertyName}. 
+	 * use like add${Name}. 
 	 */
-	public void addAllTo${PropertyName}(Set targets) {
+	public void add${Name}Set(Set targets) {
 		
 		try {
 			preSetter( $FIELD, targets );
@@ -192,7 +193,7 @@
 	/**
 	 * removes a single element from this set and makes the inverse call on ${elementtype} 
 	 */
-	public void removeFrom${PropertyName}(${elementtype} target) {
+	public void remove${Name}(${elementtype} target) {
 		
 		try {
 			preSetter( $FIELD, target );
@@ -210,9 +211,9 @@
 	}
 
 	/**
-	 * use like removeFrom${PropertyName}
+	 * use like remove${Name}
 	 */
-	public void removeAllFrom${PropertyName}( Set targets ) {
+	public void remove${Name}Set( Set targets ) {
 		
 		try {
 			preSetter( $FIELD, targets );

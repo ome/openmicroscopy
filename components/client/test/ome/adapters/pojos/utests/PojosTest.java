@@ -66,8 +66,8 @@ public class PojosTest extends TestCase
         d3.linkImage( i3 );
         i2.linkCategory( c );
         c.linkCategoryGroup( cg );
-        i3.addToAnnotations( iann );
-        d3.addToAnnotations( dann );
+        i3.addImageAnnotation( iann );
+        d3.addDatasetAnnotation( dann );
         
         e.linkExperimenterGroup( g );
 

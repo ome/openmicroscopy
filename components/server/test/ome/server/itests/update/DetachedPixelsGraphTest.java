@@ -187,8 +187,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         pi2.setExposureTime(new Float(100));
         pi2.setTimestamp(new Float(-193));
         
-        p.addToPlaneInfo( pi1 );
-        p.addToPlaneInfo( pi2 );
+        p.addPlaneInfo( pi1 );
+        p.addPlaneInfo( pi2 );
         p = (Pixels) iUpdate.saveAndReturnObject(p);
         flush();
         clear();

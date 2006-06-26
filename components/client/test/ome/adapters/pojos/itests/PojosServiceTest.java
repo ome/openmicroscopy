@@ -696,7 +696,7 @@ public class PojosServiceTest extends TestCase {
         
         img.setName( "version_test" );
         ann.setContent( "version_test" );
-        img.addToAnnotations( ann );
+        img.addImageAnnotation( ann );
         
         img = (Image) iUpdate.saveAndReturnObject( img );
         ann = (ImageAnnotation) img.iterateAnnotations().next();

@@ -290,12 +290,12 @@ public class ImageData
         
         while (m.moreDeletions()) {
             setDirty(true);
-            asImage().removeFromPixels(m.nextDeletion().asPixels());
+            asImage().removePixels(m.nextDeletion().asPixels());
         }
         
         while (m.moreAdditions()) {
             setDirty(true);
-            asImage().addToPixels(m.nextAddition().asPixels());
+            asImage().addPixels(m.nextAddition().asPixels());
         }
 
         allPixels = m.result();    
@@ -420,7 +420,7 @@ public class ImageData
         while (m.moreDeletions())
         {
             setDirty(true);
-            asImage().removeFromAnnotations(
+            asImage().removeImageAnnotation(
                         m.nextDeletion().asImageAnnotation());
             annotationCount = annotationCount == null ? null :
                     new Integer(annotationCount.intValue()-1);
@@ -428,7 +428,7 @@ public class ImageData
         
         while (m.moreAdditions()) {
             setDirty(true);
-            asImage().addToAnnotations(m.nextAddition().asImageAnnotation());
+            asImage().addImageAnnotation(m.nextAddition().asImageAnnotation());
             annotationCount =  annotationCount == null ? null :
                 new Integer(annotationCount.intValue()+1);
         }
