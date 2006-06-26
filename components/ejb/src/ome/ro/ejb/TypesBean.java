@@ -35,6 +35,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 //Third-party imports
 import org.jboss.annotation.ejb.LocalBinding;
@@ -61,7 +63,14 @@ public class TypesBean extends AbstractBean implements ITypes
     public void create()
     {
         super.create();
-        delegate = (ITypes) applicationContext.getBean("typesService");
+        delegate = (ITypes) applicationContext.getBean(
+                ITypes.class.getName());
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&typesService" );
     }
     
     @PreDestroy

@@ -35,6 +35,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 //Third-party imports
 import org.jboss.annotation.ejb.LocalBinding;
@@ -63,7 +65,14 @@ public class AdminBean extends AbstractBean implements IAdmin
     public void create()
     {
         super.create();
-        delegate = (IAdmin) applicationContext.getBean("adminService");
+        delegate = (IAdmin) applicationContext.getBean(
+                IAdmin.class.getName());
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&adminService" );
     }
     
     @PreDestroy

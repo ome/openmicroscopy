@@ -37,6 +37,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 //Third-party imports
 import org.jboss.annotation.ejb.LocalBinding;
@@ -70,7 +72,14 @@ public class QueryBean extends AbstractBean implements LocalQuery
     public void create()
     {
         super.create();
-        delegate = (LocalQuery) applicationContext.getBean("queryService");
+        delegate = (LocalQuery) applicationContext.getBean(
+                IQuery.class.getName());
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&queryService" );
     }
     
     @PreDestroy

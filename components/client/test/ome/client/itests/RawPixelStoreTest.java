@@ -22,7 +22,7 @@ public class RawPixelStoreTest extends TestCase
     IUpdate iUpdate = sf.getUpdateService();
     
     @Test
-    public void test_connectionClosed() throws Exception
+    public void test_simpleDigest() throws Exception
     {
         try {
             sf.getQueryService().get(Experimenter.class,0L);

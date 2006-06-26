@@ -37,6 +37,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 //Third-party imports
 import org.jboss.annotation.ejb.LocalBinding;
@@ -65,7 +67,14 @@ public class PixelsBean extends AbstractBean implements IPixels
     public void create()
     {
         super.create();
-        delegate = (IPixels) applicationContext.getBean("pixelsService");
+        delegate = (IPixels) applicationContext.getBean(
+                IPixels.class.getName());
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&pixelsService" );
     }
     
     @PreDestroy

@@ -132,7 +132,8 @@ public class RawPixelsBean extends AbstractBean
             pixelsInstance = null;
             buffer = null;
 
-            IPixels metadataService = serviceFactory.getPixelsService();
+            IPixels metadataService = (IPixels) serviceFactory.getContext()
+                .getBean(IPixels.class.getName());
             PixelsService dataService = (PixelsService) 
             applicationContext.getBean("/OME/OMEIS/Pixels"); // FIXME in SFactory.
             pixelsInstance = metadataService.retrievePixDescription( id );
