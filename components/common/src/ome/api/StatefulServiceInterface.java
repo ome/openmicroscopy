@@ -53,7 +53,7 @@ public interface StatefulServiceInterface extends ServiceInterface {
     void create();
     
     /** signals the end of the service lifecycle. Resources such as Sessions
-     * can be released. All further calls will through an ApiUsageException.
+     * can be released. All further calls will throw an ApiUsageException.
      * @throws ApiUsageException
      */
     void destroy() throws ApiUsageException;

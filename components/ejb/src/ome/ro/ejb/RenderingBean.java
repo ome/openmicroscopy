@@ -30,13 +30,11 @@
 package ome.ro.ejb;
 
 // Java imports
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.PostActivate;
@@ -44,24 +42,22 @@ import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionAttribute;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
+
 import static javax.ejb.TransactionAttributeType.*;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.sql.DataSource;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
 import ome.conditions.InternalException;
-import ome.conditions.ResourceError;
+import ome.conditions.RootException;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
@@ -107,19 +103,27 @@ import omeis.providers.re.data.PlaneDef;
 @Local(RenderingEngine.class)
 @LocalBinding (jndiBinding="omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")
-public class RenderingBean extends AbstractBean implements RenderingEngine
+public class RenderingBean extends AbstractBean 
+    implements RenderingEngine, Serializable
 {
 
-    private transient RenderingEngine delegate;
-    
-    private transient Connection connection;
+    private static final long serialVersionUID = -4383698215540637032L;
+
+    private RenderingEngine delegate;
 
     @PostActivate
     @PostConstruct
     public void create()
     {
         super.create();
-        delegate = (RenderingEngine) applicationContext.getBean("renderService");
+        delegate = (RenderingEngine) applicationContext.getBean(
+                RenderingEngine.class.getName());
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&renderService" );
     }
     
     @PrePassivate
@@ -127,6 +131,7 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     public void destroy()
     {
         super.destroy();
+        delegate = null;
     }
     
     // ~ DELEGATION

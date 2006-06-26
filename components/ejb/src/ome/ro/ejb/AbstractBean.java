@@ -37,9 +37,12 @@ import javax.interceptor.InvocationContext;
 //Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.ProxyFactoryBean;
 
 //Application-internal dependencies
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+import ome.conditions.RootException;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -72,31 +75,57 @@ public class AbstractBean
     {
         log.debug("Destroying:\n"+getLogString());
     }
-    
-    @AroundInvoke 
-    public Object around( InvocationContext ctx ) throws Exception
+
+    protected void login( )
     {
         Principal p;
         if ( sessionContext.getCallerPrincipal() instanceof Principal )
         {
             p = (Principal) sessionContext.getCallerPrincipal();
+            eventContext.setPrincipal( p );
+            if ( log.isDebugEnabled() )
+                log.debug( "Running with user: "+p.getName() );
         }
         else
         {
             throw new ApiUsageException(
                     "ome.system.Principal instance must be provided on login.");
         }
-                
-        if ( log.isDebugEnabled() )
-            log.debug( "Running with user: "+p.getName() );
         
+    }
+    
+    protected void logout( )
+    {
+        eventContext.setPrincipal( null );
+    }
+    
+    protected Object wrap( InvocationContext context, String factoryName ) throws Exception
+    {
         try {
-            eventContext.setPrincipal( p );
-            return ctx.proceed();    
+            login();
+            AOPAdapter adapter = 
+            AOPAdapter.create( 
+                    (ProxyFactoryBean) applicationContext.getBean(factoryName),
+                    context );
+            return adapter.proceed( );   
+        } catch (Throwable t) {
+            throw translateException( t );
         } finally {
-            eventContext.setPrincipal( null );
+            logout();
         }
-        
+
+    }
+    
+    protected Exception translateException( Throwable t )
+    {
+        if ( Exception.class.isAssignableFrom( t.getClass() ))
+        {
+            return (Exception) t;
+        } else {
+            InternalException ie = new InternalException( t.getMessage() );
+            ie.setStackTrace( t.getStackTrace() );
+            return ie;
+        }
     }
     
     // ~ Helpers

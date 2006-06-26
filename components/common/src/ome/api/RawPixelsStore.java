@@ -53,7 +53,6 @@ public interface RawPixelsStore extends StatefulServiceInterface
 {
     //State management.
     public void setPixelsId( long pixelsId );
-    public void load();
     
     /**
      * delegates to {@link ome.io.nio.PixelBuffer}

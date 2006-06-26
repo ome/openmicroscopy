@@ -31,8 +31,8 @@ package ome.ro.ejb;
 
 // Java imports
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
 import javax.annotation.PostConstruct;
@@ -43,6 +43,8 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
@@ -52,6 +54,7 @@ import org.jboss.annotation.security.SecurityDomain;
 // Application-internal dependencies
 import ome.api.IPixels;
 import ome.api.RawPixelsStore;
+import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -76,70 +79,93 @@ import omeis.providers.re.RenderingEngine;
 @Local(RenderingEngine.class)
 @LocalBinding (jndiBinding="omero/local/ome.api.RawPixelsStore")
 @SecurityDomain("OmeroSecurity")
-public class RawPixelsBean extends AbstractBean implements RawPixelsStore
+public class RawPixelsBean extends AbstractBean 
+    implements RawPixelsStore, Serializable
 {
 
-    private long id = -1;
+    private static final long serialVersionUID = -6640632220587930165L;
+
+    private Long id; 
     
-    private transient Pixels pixelsInstance;
+    private Pixels pixelsInstance;
     
-    private transient PixelBuffer buffer;
+    private PixelBuffer buffer;
     
     @PostConstruct
     @PostActivate
     public void create()
     {  
         super.create();
-        if ( id >= 0 )
+        if ( id != null )
         {
-            load();
+            long reset = id.longValue();
+            id = null;
+            setPixelsId( reset );
         }
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&pixelsService" ); // FIXME
     }
     
     @PrePassivate
     @PreDestroy
     public void destroy()
     {
-        // id is the only thing passivated.
         super.destroy();
+        // id is the only thing passivated.
+        pixelsInstance = null;
+        buffer = null;
     }
     
     // ~ Lifecycle
     // =========================================================================
     
     @RolesAllowed("user") 
-    public void setPixelsId(long pixelsId)
+    public void setPixelsId( long pixelsId )
     {
-        id = pixelsId;
+        if ( id == null || id.longValue() != pixelsId )
+        {
+            id = new Long( pixelsId );
+            pixelsInstance = null;
+            buffer = null;
+
+            IPixels metadataService = serviceFactory.getPixelsService();
+            PixelsService dataService = (PixelsService) 
+            applicationContext.getBean("/OME/OMEIS/Pixels"); // FIXME in SFactory.
+            pixelsInstance = metadataService.retrievePixDescription( id );
+            try
+            {
+                buffer = dataService.createPixelBuffer( pixelsInstance );
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                // TODO this could throw a ResourceError anyway.
+                throw new ResourceError(
+                        "Failed to create PixelBuffer:\n"
+                        +e.getMessage());
+            }
+        }
     }
     
-    @RolesAllowed("user")
-    public void load()
+    private void errorIfNotLoaded()
     {
-        IPixels metadataService = serviceFactory.getPixelsService();
-        PixelsService dataService = (PixelsService) 
-        applicationContext.getBean("/OME/OMEIS/Pixels"); // FIXME in SFactory.
-        pixelsInstance = metadataService.retrievePixDescription( id );
-        try
-        {
-            buffer = dataService.createPixelBuffer( pixelsInstance );
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            // TODO this could throw a ResourceError anyway.
-            throw new ResourceError(
-                    "Failed to create PixelBuffer:\n"
-                    +e.getMessage());
-        }
-
+        if ( buffer == null )
+        throw new ApiUsageException(
+                "This RawPixelsStore has not been properly initialized.\n" +
+                "Please set the pixels id before executing any other methods.\n");
     }
-
+    
     // ~ Delegation
     // =========================================================================
 
     @RolesAllowed("user")
     public byte[] calculateMessageDigest()
     {
+        errorIfNotLoaded();
+        
         try
         {
             return buffer.calculateMessageDigest();
@@ -153,6 +179,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public byte[] getPlane(Integer arg0, Integer arg1, Integer arg2)
     {
+        errorIfNotLoaded();
+        
         MappedByteBuffer plane;
         try
         {
@@ -172,6 +200,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Long getPlaneOffset(Integer arg0, Integer arg1, Integer arg2)
     {
+        errorIfNotLoaded();
+        
         try
         {
             return buffer.getPlaneOffset(arg0, arg1, arg2);
@@ -185,12 +215,16 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Integer getPlaneSize()
     {
+        errorIfNotLoaded();
+        
         return buffer.getPlaneSize();
     }
 
     @RolesAllowed("user")
     public byte[] getRegion(Integer arg0, Long arg1)
     {
+        errorIfNotLoaded();
+        
         MappedByteBuffer region;
         try
         {
@@ -206,6 +240,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public byte[] getRow(Integer arg0, Integer arg1, Integer arg2, Integer arg3)
     {
+        errorIfNotLoaded();
+        
         MappedByteBuffer row;
         try
         {
@@ -226,6 +262,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Long getRowOffset(Integer arg0, Integer arg1, Integer arg2, Integer arg3)
     {
+        errorIfNotLoaded();
+        
         try
         {
             return buffer.getRowOffset(arg0, arg1, arg2, arg3);
@@ -239,12 +277,16 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Integer getRowSize()
     {
+        errorIfNotLoaded();
+        
         return buffer.getRowSize();
     }
 
     @RolesAllowed("user")
     public byte[] getStack(Integer arg0, Integer arg1)
     {
+        errorIfNotLoaded();
+        
         MappedByteBuffer stack;
         try
         {
@@ -264,6 +306,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Long getStackOffset(Integer arg0, Integer arg1)
     {
+        errorIfNotLoaded();
+        
         try
         {
             return buffer.getStackOffset(arg0, arg1);
@@ -277,12 +321,16 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Integer getStackSize()
     {
+        errorIfNotLoaded();
+        
         return buffer.getStackSize();
     }
 
     @RolesAllowed("user")
     public byte[] getTimepoint(Integer arg0)
     {
+        errorIfNotLoaded();
+        
         MappedByteBuffer timepoint;
         try
         {
@@ -302,6 +350,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Long getTimepointOffset(Integer arg0)
     {
+        errorIfNotLoaded();
+        
         try
         {
             return buffer.getTimepointOffset(arg0);
@@ -315,18 +365,24 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public Integer getTimepointSize()
     {
+        errorIfNotLoaded();
+        
         return buffer.getTimepointSize();
     }
 
     @RolesAllowed("user")
     public Integer getTotalSize()
     {
+        errorIfNotLoaded();
+        
         return buffer.getTotalSize();
     }
 
     @RolesAllowed("user")
     public void setPlane(byte[] arg0, Integer arg1, Integer arg2, Integer arg3)
     {
+        errorIfNotLoaded();
+        
         try
         {
             buffer.setPlane(arg0, arg1, arg2, arg3);
@@ -348,6 +404,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public void setRegion(Integer arg0, Long arg1, byte[] arg2)
     {
+        errorIfNotLoaded();
+        
         try
         {
             buffer.setRegion(arg0, arg1, arg2);
@@ -365,6 +423,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public void setRow(byte[] arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4)
     {
+        errorIfNotLoaded();
+        
         // FIXME buffer.setRow(arg0, arg1, arg2, arg3, arg4);
         throw new RuntimeException("Not implemented yet.");
     }
@@ -372,6 +432,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public void setStack(byte[] arg0, Integer arg1, Integer arg2, Integer arg3)
     {
+        errorIfNotLoaded();
+        
         try
         {
             buffer.setStack(arg0, arg1, arg2, arg3);
@@ -393,6 +455,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     @RolesAllowed("user")
     public void setTimepoint(byte[] arg0, Integer arg1)
     {
+        errorIfNotLoaded();
+        
         try
         {
             buffer.setTimepoint(arg0, arg1);
@@ -416,6 +480,7 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore
     
     private byte[] bufferAsByteArrayWithExceptionIfNull( MappedByteBuffer buffer )
     {
+        // FIXME For Chris to implement.
         return null;
     }
     

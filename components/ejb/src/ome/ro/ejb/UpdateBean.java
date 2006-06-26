@@ -38,6 +38,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 //Third-party imports
 import org.jboss.annotation.ejb.LocalBinding;
@@ -64,7 +66,14 @@ public class UpdateBean extends AbstractBean implements LocalUpdate
     public void create()
     {
         super.create();
-        delegate = (LocalUpdate) applicationContext.getBean("updateService");
+        delegate = (LocalUpdate) applicationContext.getBean(
+            IUpdate.class.getName());
+    }
+    
+    @AroundInvoke
+    public Object invoke( InvocationContext context ) throws Exception
+    {
+        return wrap( context, "&updateService" );
     }
     
     @PreDestroy

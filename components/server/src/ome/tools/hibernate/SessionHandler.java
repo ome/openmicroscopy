@@ -52,6 +52,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 // Application-internal dependencies
 import ome.api.StatefulServiceInterface;
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 
 /**
@@ -118,14 +119,45 @@ public class SessionHandler implements MethodInterceptor
 
     private SessionFactory             factory;
 
+    final private static String CTOR_MSG = "Both arguments to the SessionHandler" +
+            " constructor should be not null."; 
+    
+    /** constructor taking a {@link DataSource} and a {@link SessionFactory}.
+     * A new {@link HibernateInterceptor} will be created.
+     * @param dataSource Not null.
+     * @param factory Not null.
+     */
     public SessionHandler(DataSource dataSource, SessionFactory factory)
     {
+        if ( dataSource == null | factory == null )
+        {
+            throw new ApiUsageException(CTOR_MSG);
+        }
+
         this.dataSource = dataSource;
         this.delegate = new HibernateInterceptor();
         this.factory = factory;
 
         this.delegate.setSessionFactory(factory);
-
+    }
+    
+    /** constructor taking a {@link DataSource} and a {@link HibernateInterceptor}
+     * as arguments. The needed {@link SessionFactory} will be taken from the
+     * interceptor's {@link HibernateInterceptor#getSessionFactory() getSessionFactory}
+     * method.  
+     * @param dataSource Not null.
+     * @param interceptor Not null.
+     */
+    public SessionHandler(DataSource dataSource, HibernateInterceptor interceptor)
+    {
+        if ( dataSource == null | interceptor == null )
+        {
+            throw new ApiUsageException(CTOR_MSG);
+        }
+        
+        this.dataSource = dataSource;
+        this.delegate = interceptor;
+        this.factory = interceptor.getSessionFactory();
     }
 
     /**
@@ -157,23 +189,34 @@ public class SessionHandler implements MethodInterceptor
             result = invocation.proceed();
             return result;
         }
-
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+            throw e;
+        }
         finally
         {
-            if (isCloseSession(invocation))
-            {
-                closeSession();
-            }
-            else
-            {
-                disconnectSession();
-            }
-            resetThreadSession();
+            try {
+                if (isCloseSession(invocation))
+                {
+                    closeSession();
+                }
+                else
+                {
+                    disconnectSession();
+                }
+            } catch (Exception e) {
+                
+                debug("Error while closing/disconnecting session.");
+                
+            } finally {
+                resetThreadSession();
 
-            // Everything successfully turned off. Decrement.
-            if (sessions.containsKey(invocation.getThis()))
-            {
-                sessions.get(invocation.getThis()).calls--;
+                // Everything successfully turned off. Decrement.
+                if (sessions.containsKey(invocation.getThis()))
+                {
+                    sessions.get(invocation.getThis()).calls--;
+                }
             }
 
         }
