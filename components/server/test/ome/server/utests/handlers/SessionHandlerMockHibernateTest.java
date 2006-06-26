@@ -73,6 +73,7 @@ import omeis.providers.re.RenderingEngine;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
+@Test( groups = {"ignore","sessions","hibernate","priority"} )
 public class SessionHandlerMockHibernateTest extends MockObjectTestCase
 {
 
