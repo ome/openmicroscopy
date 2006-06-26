@@ -42,7 +42,7 @@ import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
 import ome.util.math.geom2D.PlanePoint;
 import ome.util.math.geom2D.Segment;
-import omeis.providers.re.data.Helper;
+import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -215,7 +215,7 @@ public class StatsFactory
     	StatsInfo stats = channel.getStatsInfo();
     	double gMin = stats.getGlobalMin().doubleValue();
     	double gMax = stats.getGlobalMax().doubleValue();
-    	Plane2D plane2D = Helper.createPlane(pd, index, metadata, pixelsData);
+    	Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata, pixelsData);
     	if (gMax - gMin >= NB_BIN) 
     		computeBins(plane2D, stats, sizeY, sizeX);
     }

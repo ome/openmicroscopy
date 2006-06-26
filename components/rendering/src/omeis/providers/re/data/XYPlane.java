@@ -29,6 +29,10 @@
 
 package omeis.providers.re.data;
 
+import java.nio.MappedByteBuffer;
+
+import ome.model.core.Pixels;
+
 //Java imports
 
 //Third-party libraries
@@ -56,19 +60,13 @@ class XYPlane
     /**
      * Creates a new instance.
      * 
-     * @param data          Contains the data of the whole stack in which the 
-     *                      <i>XZ</i>-plane belongs.
-     * @param pDef          The type of plane.
-     * @param sizeX         The number of pixels along the <i>X</i>-axis.
-     * @param sizeY         The number of pixels along the <i>Y</i>-axis.
-     * @param bytesPerPixel How many bytes make up a pixel value.
-     * @param strategy      The strategy to convert the pixel bytes into a
-     *                      double.
+     * @param pDef The type of plane.
+     * @param pixels The pixels set which the Plane2D references.
+     * @param data The raw pixels.
      */
-    XYPlane(byte[] data, PlaneDef pDef, int sizeX, int sizeY, 
-            int bytesPerPixel, BytesConverter strategy)
+    XYPlane(PlaneDef pDef, Pixels pixels, MappedByteBuffer data)
 	{
-		super(data, pDef, sizeX, sizeY, bytesPerPixel, strategy);
+		super(pDef, pixels, data);
 	}
 
     /** 

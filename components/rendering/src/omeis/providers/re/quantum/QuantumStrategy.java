@@ -36,9 +36,9 @@ package omeis.providers.re.quantum;
 
 //Application-internal dependencies
 import ome.model.display.QuantumDef;
+import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
-
-import tmp.PixelTypeHelper;
+import omeis.providers.re.data.PlaneFactory;
 
 
 /** 
@@ -97,11 +97,8 @@ public abstract class QuantumStrategy
 	/** The upper limit of the input Interval i.e. pixel intensity interval. */
 	private double      			windowEnd;
 	
-    /** 
-     * Identifies a family of maps. 
-     * One of the constants defined by {@link QuantumFactory}.
-     */
-    private int                     family;
+    /** Identifies a family of maps. */
+    private Family                  family;
     
     /** Selects a curve in the family. */
     private double                  curveCoefficient;
@@ -129,23 +126,17 @@ public abstract class QuantumStrategy
      * 
      * @param family The family identifying the value mapper.
      */
-    private void defineMapper(int family)
+    private void defineMapper(Family family)
     {
-        verifyFamily(family);
-        switch (family) {
-            case QuantumFactory.LINEAR:
-            case QuantumFactory.POLYNOMIAL:
+    	String value = family.getValue();
+        verifyFamily(value);
+        if (value.equals(QuantumFactory.LINEAR)
+        	|| value.equals(QuantumFactory.POLYNOMIAL))
                 valueMapper = new PolynomialMap();
-                break;
-            case QuantumFactory.LOGARITHMIC:
-                valueMapper = new LogarithmicMap();
-                break;
-            case QuantumFactory.EXPONENTIAL:
-                valueMapper = new ExponentialMap(); 
-                break;
-            default: 
-                // never reached: verify throws exception.
-        } 
+        else if (value.equals(QuantumFactory.LOGARITHMIC))
+        	valueMapper = new LogarithmicMap();
+        else if (value.equals(QuantumFactory.EXPONENTIAL))
+        	valueMapper = new ExponentialMap();
     }
     
     /** 
@@ -153,19 +144,16 @@ public abstract class QuantumStrategy
      * The family must be one of the constant defined in
      * {@link QuantumFactory}.
      * 
-     * @param family The family to control
+     * @param value The family we're checking for validity.
      */
-    private static void verifyFamily(int family)
+    private static void verifyFamily(String value)
     {
-        switch (family) {
-            case QuantumFactory.LINEAR:
-            case QuantumFactory.LOGARITHMIC:
-            case QuantumFactory.EXPONENTIAL:
-            case QuantumFactory.POLYNOMIAL:
-                return;
-            default:
-                throw new IllegalArgumentException("Unsupported family type");
-        }
+    	if (!value.equals(QuantumFactory.LINEAR)
+    		&& !value.equals(QuantumFactory.LOGARITHMIC)
+    		&& !value.equals(QuantumFactory.EXPONENTIAL)
+    		&& !value.equals(QuantumFactory.POLYNOMIAL))
+    		throw new IllegalArgumentException(
+    				"Unsupported family type: '" + value + "'");
     }
 
     /**
@@ -182,15 +170,15 @@ public abstract class QuantumStrategy
         boolean b = false;
         if (min <= max) {
             double range = max-min;
-            if (PixelTypeHelper.in(type, new String[] { "int8", "uint8" })) {
+            if (PlaneFactory.in(type, new String[] { "int8", "uint8" })) {
                 if (range < 0x100) b = true;
-            } else if (PixelTypeHelper.in(type, 
+            } else if (PlaneFactory.in(type, 
                     new String[] { "int16", "uint16" })) {
                 if (range < 0x10000) b = true;
-            } else if (PixelTypeHelper.in(type,
+            } else if (PlaneFactory.in(type,
                     new String[] { "int32", "uint32" })) {
                 if (range < 0x100000000L) b = true;
-            } else if (PixelTypeHelper.in(type,
+            } else if (PlaneFactory.in(type,
                     new String[] { "float", "double" }))
                 b = true;
         }
@@ -208,7 +196,7 @@ public abstract class QuantumStrategy
 	{
 		windowStart = globalMin = 0.0;
 		windowEnd = globalMax = 1.0;
-        family = QuantumFactory.LINEAR;
+        family = QuantumFactory.getFamily(QuantumFactory.LINEAR);
         curveCoefficient = 1.0;
 		if (qd == null)    
 			throw new NullPointerException("No quantum definition");
@@ -254,12 +242,11 @@ public abstract class QuantumStrategy
      * Sets the selected family, the curve coefficient and the noise reduction
      * flag.
      * 
-     * @param family            The mapping family. One of the constants defined
-     *                          by {@link QuantumFactory}. 
+     * @param family            The mapping family.
      * @param k                 The curve coefficient.
      * @param noiseReduction    The noise reduction flag.
      */
-	public void setMapping(int family, double k, boolean noiseReduction)
+	public void setMapping(Family family, double k, boolean noiseReduction)
     {
         defineMapper(family);
         this.family = family;
@@ -271,12 +258,11 @@ public abstract class QuantumStrategy
      * Sets the selected family, the curve coefficient and the noise reduction
      * flag and rebuilds the look-up table.
      * 
-     * @param family            The mapping family. One of the constants defined
-     *                          by {@link QuantumFactory}. 
+     * @param family            The mapping family.
      * @param k                 The curve coefficient.
      * @param noiseReduction    The noise reduction flag.
      */
-    public void setQuantizationMap(int family, double k, boolean noiseReduction)
+    public void setQuantizationMap(Family family, double k, boolean noiseReduction)
     {
         setMapping(family, k, noiseReduction);
         onWindowChange();
@@ -284,7 +270,7 @@ public abstract class QuantumStrategy
     
 	void setMap(QuantumMap qMap) { valueMapper = qMap; }
 	
-    int getFamily() { return family; }
+    Family getFamily() { return family; }
     
     double getCurveCoefficient() { return curveCoefficient; }
     

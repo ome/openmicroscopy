@@ -36,6 +36,7 @@ package omeis.providers.re;
 
 //Application-internal dependencies
 import ome.model.core.Channel;
+import ome.model.display.Color;
 
 /** 
  * Utility class to determine the color usually associated to a specified
@@ -54,19 +55,6 @@ import ome.model.core.Channel;
  */
 public class ColorsFactory
 {
-    
-    /** Identifies the <code>RED</code> band in the RGBA-array. */
-    static final int            RED = 0;
-    
-    /** Identifies the <code>GREEN</code> band in the RGBA-array. */
-    static final int            GREEN = 1;
-    
-    /** Identifies the <code>BLUE</code> band in the RGBA-array. */
-    static final int            BLUE = 2;
-    
-    /** Identifies the <code>ALPHA</code> band in the RGBA-array. */
-    static final int            ALPHA = 3;
-    
     /** The Default value for the alpha component. */
     static final int            DEFAULT_ALPHA = 255;
     
@@ -107,31 +95,28 @@ public class ColorsFactory
     private static final int    RED_MAX = 700;
     
     /** The RGBA-array corresponding to the <code>RED</code> color. */
-    private static final int[]  RED_COLOR;
+    private static final Color  RED_COLOR = new Color();
     
     /** The RGBA-array corresponding to the <code>GREEN</code> color. */
-    private static final int[]  GREEN_COLOR;
+    private static final Color  GREEN_COLOR = new Color();
     
     /** The RGBA-array corresponding to the <code>BLUE</code> color. */
-    private static final int[]  BLUE_COLOR;
+    private static final Color  BLUE_COLOR = new Color();
     
     /** Initializes the RGB-arrays. */
     static {
-        RED_COLOR = new int[4];
-        RED_COLOR[RED] = 255;
-        RED_COLOR[GREEN] = 0;
-        RED_COLOR[BLUE] = 0;
-        RED_COLOR[ALPHA] = DEFAULT_ALPHA;
-        GREEN_COLOR = new int[4];
-        GREEN_COLOR[RED] = 0;
-        GREEN_COLOR[GREEN] = 255;
-        GREEN_COLOR[BLUE] = 0;
-        GREEN_COLOR[ALPHA] = DEFAULT_ALPHA;
-        BLUE_COLOR = new int[4];
-        BLUE_COLOR[RED] = 0;
-        BLUE_COLOR[GREEN] = 0;
-        BLUE_COLOR[BLUE] = 255;
-        BLUE_COLOR[ALPHA] = DEFAULT_ALPHA;
+        RED_COLOR.setRed(255);
+        RED_COLOR.setGreen(0);
+        RED_COLOR.setBlue(0);
+        RED_COLOR.setAlpha(DEFAULT_ALPHA);
+        GREEN_COLOR.setRed(0);
+        GREEN_COLOR.setGreen(255);
+        GREEN_COLOR.setBlue(0);
+        GREEN_COLOR.setAlpha(DEFAULT_ALPHA);
+        BLUE_COLOR.setRed(0);
+        BLUE_COLOR.setGreen(0);
+        BLUE_COLOR.setBlue(255);
+        BLUE_COLOR.setAlpha(DEFAULT_ALPHA);
     }
     
     /**
@@ -172,12 +157,12 @@ public class ColorsFactory
     
     /**
      * Determines the color usually associated to the specified 
-     * emission wavelenght.
+     * emission wavelength.
      * 
      * @param channel The channel to determine the color for.
-     * @return An RGB array defining the color.
+     * @return A color.
      */
-    private static int[] getColor(Channel channel)
+    private static Color getColor(Channel channel)
     {
     	int emWave = channel.getLogicalChannel().getEmissionWave().intValue();
         if (rangeBlue(emWave)) return BLUE_COLOR;
@@ -188,15 +173,15 @@ public class ColorsFactory
     
     /**
      * Determines the color usually associated to the specified 
-     * emission wavelenght.
+     * emission wavelength.
      * 
      * @param index     The channel index.
      * @param channel   The channel to determine the color for.
-     * @return  An RGB array defining the color.
+     * @return  A color.
      */
-    public static int[] getColor(int index, Channel channel)
+    public static Color getColor(int index, Channel channel)
     {
-        int[] c = ColorsFactory.getColor(channel);
+        Color c = ColorsFactory.getColor(channel);
         if (c != null) return c;
         switch (index) {
         	case  0: return BLUE_COLOR;

@@ -112,7 +112,7 @@
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     -->
   <bean name="fsService">
-		<constructor-arg value="/OME/OMEIS"/>			
+		<constructor-arg value="/OME/OMEIS/"/>			
   </bean>
   
 	<bean name="/OME/OMEIS/Pixels" class="ome.io.nio.PixelsService" 

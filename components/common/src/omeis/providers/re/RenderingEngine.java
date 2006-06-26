@@ -36,6 +36,8 @@ import java.io.IOException;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ValidationException;
 import ome.model.display.QuantumDef;
+import ome.model.enums.Family;
+import ome.model.enums.RenderingModel;
 import ome.system.SelfConfigurableService;
 
 //Third-party libraries
@@ -112,8 +114,8 @@ extends SelfConfigurableService, StatefulServiceInterface
     public int getSizeY();
 	
 	//RenderingDef fields.
-	public void setModel(int model);
-	public int getModel();
+	public void setModel(RenderingModel model);
+	public RenderingModel getModel();
 	public int getDefaultZ();
 	public int getDefaultT();
 	//Is it the best way to do it?
@@ -127,9 +129,9 @@ extends SelfConfigurableService, StatefulServiceInterface
 	public QuantumDef getQuantumDef();
 	
 	//ChannelBindings[] elements' fields.
-    public void setQuantizationMap(int w, int family, double coefficient, 
+    public void setQuantizationMap(int w, Family family, double coefficient, 
                                     boolean noiseReduction);
-    public int getChannelFamily(int w);
+    public Family getChannelFamily(int w);
     public boolean getChannelNoiseReduction(int w);
     public double[] getChannelStats(int w);
     public double getChannelCurveCoefficient(int w);

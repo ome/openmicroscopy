@@ -109,7 +109,7 @@ class QuantumManager
 			gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
 			stg.setExtent(gMin, gMax);
             stg.setMapping(
-                    QuantumFactory.convertFamilyType(waves[w].getFamily()), 
+                    waves[w].getFamily(), 
                     waves[w].getCoefficient().doubleValue(), 
                     waves[w].getNoiseReduction().booleanValue());
 			if (wavesStg[w] == null)

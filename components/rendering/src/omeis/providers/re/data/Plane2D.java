@@ -29,17 +29,18 @@
 
 package omeis.providers.re.data;
 
-
-
-
-
 //Java imports
 
 //Third-party libraries
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
 import omeis.providers.re.Renderer;
 
 /** 
@@ -80,10 +81,7 @@ public abstract class Plane2D
     private static Log log = LogFactory.getLog(Renderer.class);
     
     /** Contains the plane data. */
-    private byte[]         data;
-    
-    /** Knows how to convert the pixel bytes into a double. */
-	private BytesConverter strategy;
+    private MappedByteBuffer data;
     
     /** The type of plane. */
 	protected PlaneDef	   planeDef;
@@ -96,28 +94,35 @@ public abstract class Plane2D
     
     /** Number of pixels along the <i>Y</i>-axis. */
     protected int          sizeY;
+    
+    /** The Java type that we're using for pixel value retrieval */
+    protected int          javaType;
 	
 
     /**
      * Constructor that sub-classes must call.
      * 
-     * @param data          Contains the plane data.
-     * @param pDef          The type of plane.
-     * @param sizeX         The number of pixels along the <i>X</i>-axis.
-     * @param sizeY         The number of pixels along the <i>Y</i>-axis.
-     * @param bytesPerPixel How many bytes make up a pixel value.
-     * @param strategy      The strategy to convert the pixel bytes into a 
-     *                      double.
+     * @param pDef The type of plane.
+     * @param pixels The pixels set which the Plane2D references.
+     * @param data The raw pixels.
      */
-	protected Plane2D(byte[] data, PlaneDef pDef, int sizeX, int sizeY, 
-                      int bytesPerPixel, BytesConverter strategy)
+	protected Plane2D(PlaneDef pDef, Pixels pixels, MappedByteBuffer data)
 	{
-        this.data = data;
         this.planeDef = pDef;
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-		this.bytesPerPixel = bytesPerPixel;
-		this.strategy = strategy;
+        this.sizeX = pixels.getSizeX();
+        this.sizeY = pixels.getSizeY();
+        this.data = data;
+        
+        // FIXME: Hack for now while we're still using pixel data from the old
+        // OMEIS repository! There really should be a configuration option for
+        // this or potentially usage of an endianness flag on the Pixels set.
+        this.data.order(ByteOrder.LITTLE_ENDIAN);
+        
+        // Grab the pixel type from the pixels set
+        PixelsType type = pixels.getPixelsType();
+        
+        this.bytesPerPixel = PlaneFactory.bytesPerPixel(type);
+        this.javaType = PlaneFactory.javaType(type);
         
         log.info("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
                 + bytesPerPixel);
@@ -150,7 +155,22 @@ public abstract class Plane2D
 	public double getPixelValue(int x1, int x2) 
 	{
 		int offset = calculateOffset(x1, x2);
-		return strategy.pack(data, offset, bytesPerPixel);
+
+		switch(javaType)
+		{
+			case PlaneFactory.BYTE:
+				byte i = data.get(offset);
+				return i;
+			case PlaneFactory.SHORT:
+				return data.getShort(offset);
+			case PlaneFactory.INT:
+				return data.getInt(offset);
+			case PlaneFactory.FLOAT:
+				return data.getFloat(offset);
+			case PlaneFactory.DOUBLE:
+				return data.getDouble(offset);
+		}
+		throw new RuntimeException("Unknown pixel type.");
 	}
 	
 }

@@ -36,9 +36,11 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IQuery;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
+import ome.system.OmeroContext;
 
 /** 
  * Factory to create objects to carry out quantization for a given context.
@@ -92,7 +94,7 @@ public class QuantumFactory
      * and <i>b</i> coefficients depend on the input and output (codomain) 
      * interval of the map.
      */
-	public static final int   LINEAR = 0;
+	public static final String   LINEAR = "linear";
 
     /**
      * Flag to select a exponential map for the quantization process. 
@@ -101,7 +103,7 @@ public class QuantumFactory
      * (codomain) interval of the map.  The <i>k</i> coefficient is the one
      * specified by the {@link QuantumDef context}.
      */
-    public static final int   EXPONENTIAL = 1;
+    public static final String   EXPONENTIAL = "exponential";
 	
     /**
      * Flag to select a logarithmic map for the quantization process. 
@@ -109,7 +111,7 @@ public class QuantumFactory
      * The <i>a</i> and <i>b</i> coefficients depend on the input and output 
      * (codomain) interval of the map.
      */
-	public static final int   LOGARITHMIC = 2;
+	public static final String   LOGARITHMIC = "logarithmic";
 	
     /**
      * Flag to select a polynomial map for the quantization process. 
@@ -121,25 +123,24 @@ public class QuantumFactory
      * We keep the {@link #LINEAR} constant for some UI reason but we apply the
      * same algorithm.
      */
-	public static final int   POLYNOMIAL = 3;
+	public static final String   POLYNOMIAL = "polynomial";
 
-    private static final Map familyNames = new HashMap();
-    static {
-        familyNames.put("linear",Integer.valueOf(LINEAR));
-        familyNames.put("exponential",Integer.valueOf(EXPONENTIAL));
-        familyNames.put("logarithmic",Integer.valueOf(LOGARITHMIC));
-        familyNames.put("polynomial",Integer.valueOf(POLYNOMIAL));
-    }
-    
-    public static int convertFamilyType(Family type)
-    {
-    	// FIXME: This really needs to use the database enumerations properly.
-        return ((Integer) familyNames.get(type.getValue())).intValue();
-    }
-    
     /** Default value. */
     public static final boolean NOISE_REDUCTION = true;
     
+    /**
+     * Helper method to retrieve a Family enumeration from the database.
+     * 
+     * @param value The enumeration value.
+     * @return A family enumeration object.
+     */
+    public static Family getFamily(String value)
+    {
+        OmeroContext ctx = OmeroContext.getInternalServerContext();
+        IQuery iQuery = (IQuery) ctx.getBean("queryService");
+    	return (Family) iQuery.findByString(Family.class, "value", value);
+    }
+
 	/**
      * Verifies that <code>qd</code> is not <code>null</code> and has been
      * properly defined.

@@ -44,7 +44,7 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.data.Helper;
+import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
@@ -134,6 +134,7 @@ class GreyScaleStrategy
                             QuantumStrategy qs)
         throws QuantizationException
     {
+    	System.err.println("Render wave.");
         CodomainChain cc = renderer.getCodomainChain();
         int x1, x2, discreteValue, pixelIndex;
         byte value;
@@ -182,7 +183,7 @@ class GreyScaleStrategy
 			if (cBindings[i].getActive().booleanValue()) {
                 //Get the raw data.
 			    performanceStats.startIO(i);
-                wData = Helper.createPlane(planeDef, i, metadata, pixels);
+                wData = PlaneFactory.createPlane(planeDef, i, metadata, pixels);
                 performanceStats.endIO(i);
                 
 				try {  //Transform it into an RGB image.

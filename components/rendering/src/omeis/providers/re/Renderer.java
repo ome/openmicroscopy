@@ -47,15 +47,18 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.enums.Family;
+import ome.model.enums.PixelsType;
+import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
 
-import tmp.RenderingDefConstants;
 
 /** 
  * Transforms raw image data into an <i>RGB</i> image that can be displayed on
@@ -98,6 +101,18 @@ public class Renderer
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
     
+	/** Identifies the type used to store model values. */
+	public static final String MODEL_GREYSCALE = "greyscale";
+
+	/** Identifies the type used to store model values. */
+	public static final String MODEL_HSB = "hsb";
+	
+	/** Identifies the type used to store model values. */
+	public static final String MODEL_RGB = "rgb";
+	
+	/** Identifies the type used to store photometric interpretation values. */
+	public static final String PHOTOMETRIC_RGB = "RGB";
+	
     static final String RGB_COLOR_DOMAIN = "RGB";
     
     /**
@@ -170,13 +185,12 @@ public class Renderer
         
         //Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), 
-                                           qd.getCdEnd().intValue(),
+                                          qd.getCdEnd().intValue(),
                                           rndDef.getSpatialDomainEnhancement());
         
         
         //Create an appropriate rendering strategy.
-        int m = RenderingDefConstants.convertType(rndDef.getModel());
-        renderingStrategy = RenderingStrategy.makeNew(m);
+        renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
     }
     
     /**
@@ -186,12 +200,11 @@ public class Renderer
      * which is selected depending on that model. So setting the model also
      * results in changing the rendering strategy.
      * 
-     * @param model Identifies the color space model. One of the constants
-     *              defined by {@link RenderingDef}.
+     * @param model Identifies the color space model.
      */
-	public void setModel(int model)
+	public void setModel(RenderingModel model)
 	{
-        rndDef.setModel(RenderingDefConstants.convertToType(model));
+        rndDef.setModel(model);
 		renderingStrategy = RenderingStrategy.makeNew(model);
 	}
 	
@@ -266,7 +279,6 @@ public class Renderer
                 + "' rendering strategy.");
         RGBBuffer img = renderingStrategy.render(this, pd);
         stats.stop();
-        //j.m Logger log = Env.getSvcRegistry().getLogger();
         log.info(stats.getStats());
         //TODO: is this the right place to log??? We want to have as little
         //impact on performance as possible.
@@ -352,13 +364,13 @@ public class Renderer
     public Pixels getMetadata() { return metadata; }
     
     /**
-     * Returns the string identifier of the pixels type.
+     * Returns the pixels type.
      * 
-     * @return One of the string identifiers: "UINT8", "INT8", etc. 
+     * @return A pixels type enumeration object. 
      */
-    public String getPixelsType()
+    public PixelsType getPixelsType()
     {
-        return metadata.getPixelsType().getValue();
+        return metadata.getPixelsType();
     }
 
     /**
@@ -399,7 +411,9 @@ public class Renderer
         for (Iterator i = getMetadata().getChannels().iterator(); i.hasNext(); )
         {
         	// FIXME: This is where we need to have the ChannelBinding -->
-        	// Channel linkage.
+        	// Channel linkage. Without it, we have to assume that the order in
+        	// which the channel bindings was created matches up with the order
+        	// of the channels linked to the pixels set.
         	Channel channel = (Channel) i.next();
         	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
         	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
@@ -412,7 +426,7 @@ public class Renderer
         	//TODO: find a better way.
         	if (gMax == end && gMin == start)
         		cb[w].setInputStart(new Float(sf.getInputStart()));
-        	cb[w].setInputEnd(new Float(sf.getInputEnd())); // TODO double / Float? 
+        	cb[w].setInputEnd(new Float(sf.getInputEnd()));
         }
     }
     
@@ -461,19 +475,20 @@ public class Renderer
         cb[w].setInputEnd(new Float(end)); // TODO double / Float
     }
     
-    public void setQuantizationMap(int w, int family,
+    public void setQuantizationMap(int w, Family family,
             double coefficient, boolean noiseReduction)
     {
         QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
         qs.setQuantizationMap(family, coefficient, noiseReduction);
         ChannelBinding[] cb = getChannelBindings();
-        // FIXME cb[w].setQuantizationMap(family, coefficient, noiseReduction);
+        cb[w].setFamily(family);
+        cb[w].setCoefficient(coefficient);
+        cb[w].setNoiseReduction(noiseReduction);
     }
 
     public void setRGBA(int w, int red, int green, int blue, int alpha)
     {
         ChannelBinding[] cb = getChannelBindings();
-        // TODO cb[w].setRGBA(red, green, blue, alpha);
         Color c = cb[w].getColor();
         c.setRed(Integer.valueOf(red));
         c.setGreen(Integer.valueOf(green));
@@ -491,7 +506,8 @@ public class Renderer
         // Make active only the first channel.
         ChannelBinding[] cb = getChannelBindings();
         boolean active = false;
-        int model = RenderingDefConstants.GS;
+        RenderingModel model =
+        	PlaneFactory.getRenderingModel(MODEL_GREYSCALE);
         
         List channels = getMetadata().getChannels();
         int w = 0;
@@ -499,18 +515,18 @@ public class Renderer
         {
         	// The channel we're operating on
         	Channel channel = (Channel) i.next();
-            if (channel.getPixels().getAcquisitionContext().getPhotometricInterpretation().getValue() == "RGB") // FIXME
+            if (channel.getPixels().getAcquisitionContext().
+            	getPhotometricInterpretation().getValue() == PHOTOMETRIC_RGB)
             {
                 active = true;
-                model = RenderingDefConstants.RGB;
+                model = PlaneFactory.getRenderingModel(MODEL_RGB);
             }
             cb[w].setActive(Boolean.valueOf(active));
             double start = channel.getStatsInfo().getGlobalMin().doubleValue();
             double end   = channel.getStatsInfo().getGlobalMax().doubleValue();
             setChannelWindow(w, start, end);
-            int c[] = ColorsFactory.getColor(w, channel);
-            setRGBA(w, c[ColorsFactory.RED], c[ColorsFactory.GREEN],
-                    c[ColorsFactory.BLUE], c[ColorsFactory.ALPHA]);
+            Color c = ColorsFactory.getColor(w, channel);
+            setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
             w++;
         }
         cb[0].setActive(Boolean.valueOf(active));

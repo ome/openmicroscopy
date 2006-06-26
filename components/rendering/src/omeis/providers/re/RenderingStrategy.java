@@ -33,13 +33,16 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
+import ome.model.enums.RenderingModel;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
-import tmp.RenderingDefConstants;
 
 /** 
  * Defines how to encapsulate a specific rendering algorithm. 
@@ -65,7 +68,9 @@ import tmp.RenderingDefConstants;
  */
 abstract class RenderingStrategy
 {
-	
+	/** The logger for this particular class */
+    private static Log log = LogFactory.getLog(RenderingStrategy.class);
+    
     /**
      * Factory method to retrieve a concrete strategy.
      * The strategy is selected according to the model that dictates how 
@@ -75,29 +80,17 @@ abstract class RenderingStrategy
      * @param model Identifies the color space model. 
      * @return A strategy suitable for the specified model.
      */
-	static RenderingStrategy makeNew(int model)
+	static RenderingStrategy makeNew(RenderingModel model)
 	{
-		RenderingStrategy strategy = null;
-		try {
-			switch (model) {
-				case RenderingDefConstants.GS:
-					strategy = new GreyScaleStrategy();
-					break;
-				case RenderingDefConstants.HSB:
-                    strategy = new HSBStrategy();
-                    break;
-				case RenderingDefConstants.RGB:
-					strategy = new RGBStrategy();
-					break;
-				default:
-					//Set the GreyScaleStrategy as the default one.
-					strategy = new GreyScaleStrategy();
-					//TODO: log debug?
-			}	
-		} catch(NumberFormatException nfe) {   
-			throw new RuntimeException("Invalid model ID "+model+".", nfe);
-		} 
-		return strategy;
+		String value = model.getValue();
+		if (value == Renderer.MODEL_GREYSCALE)
+			return new GreyScaleStrategy();
+		else if (value == Renderer.MODEL_HSB)
+			return new HSBStrategy();
+		else if (value == Renderer.MODEL_RGB)
+			return new RGBStrategy();
+		log.warn("WARNING: Unknown model '" + value + "' using greyscale.");
+		return new GreyScaleStrategy();
 	}
 	
     

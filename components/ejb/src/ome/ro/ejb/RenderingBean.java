@@ -62,6 +62,8 @@ import org.springframework.context.ApplicationContext;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.model.display.QuantumDef;
+import ome.model.enums.Family;
+import ome.model.enums.RenderingModel;
 
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
@@ -164,7 +166,7 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     }
 
     @RolesAllowed("user") 
-    public int getChannelFamily(int arg0)
+    public Family getChannelFamily(int arg0)
     {
         return delegate.getChannelFamily(arg0);
     }
@@ -206,7 +208,7 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     }
 
     @RolesAllowed("user") 
-    public int getModel()
+    public RenderingModel getModel()
     {
         return delegate.getModel();
     }
@@ -296,13 +298,13 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     }
 
     @RolesAllowed("user") 
-    public void setModel(int arg0)
+    public void setModel(RenderingModel arg0)
     {
         delegate.setModel(arg0);
     }
 
     @RolesAllowed("user") 
-    public void setQuantizationMap(int arg0, int arg1, double arg2, boolean arg3)
+    public void setQuantizationMap(int arg0, Family arg1, double arg2, boolean arg3)
     {
         delegate.setQuantizationMap(arg0, arg1, arg2, arg3);
     }

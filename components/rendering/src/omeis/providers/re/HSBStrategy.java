@@ -49,7 +49,7 @@ import ome.model.display.ChannelBinding;
 
 //j.mimport omeis.env.Env;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.data.Helper;
+import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
@@ -162,7 +162,7 @@ class HSBStrategy
                 
                 //Get the raw data.
                 performanceStats.startIO(w);
-                wData = Helper.createPlane(planeDef, w, metadata, pixels);
+                wData = PlaneFactory.createPlane(planeDef, w, metadata, pixels);
                 performanceStats.endIO(w);
                 
                 //Create a rendering task for this wavelength.

@@ -252,13 +252,11 @@ public class RenderingStats
      * 
      * @return A log message embedding the stats report.
      */
-    public String getStats() // j.m
+    public String getStats()
     {
-        //j.mLogMessage msg = new LogMessage();
-    	//BELOW msg.print-->StringBuilder();
     	StringBuilder sb = new StringBuilder(2048);
         String n = "\n";
-    	sb.append(n);//TODO
+    	sb.append(n);
         sb.append(RENDERING_STATS);
         sb.append(n);
         sb.append(CONTEXT);
@@ -277,7 +275,7 @@ public class RenderingStats
         sb.append(context.getImageSize(plane));
         sb.append(BYTES);
         sb.append(COLOR_MODEL);
-        sb.append(context.getRenderingDef().getModel()); // FIXME is this ok?
+        sb.append(context.getRenderingDef().getModel().getValue());
         sb.append(CODOMAIN_MAPS);
         sb.append(context.getCodomainChain());
         sb.append(n);
@@ -293,7 +291,7 @@ public class RenderingStats
         sb.append(totalTime);
         sb.append(n);
         sb.append(BOTTOM_LINE);
-        return sb.toString(); //j.m
+        return sb.toString();
     }
     
 }

@@ -51,6 +51,8 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.enums.Family;
+import ome.model.enums.RenderingModel;
 import ome.system.OmeroContext;
 
 import omeis.providers.re.RGBBuffer;
@@ -61,7 +63,6 @@ import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
-import tmp.RenderingDefConstants;
 
 /**
  * Provides the {@link RenderingEngine} service. This class is an Adapter to
@@ -102,9 +103,8 @@ public class RenderingEngineImpl implements RenderingEngine
      * 4. optionally: return to 2.
      * 5. destroy() 
      *
-     * TODO: when a
-     * setXXX() method is called, when do I reload? always? or on dirty?
-     * volatile boolean loaded;
+     * TODO: when a setXXX() method is called, when do I reload? always?
+     * or ondirty?
      */
 
     /**
@@ -221,6 +221,10 @@ public class RenderingEngineImpl implements RenderingEngine
         try {
             this.rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
             this.renderer = null;
+            
+            if ( rendDefObj == null )
+                throw new ValidationException(
+                        "RenderingDef with id "+pixelsId+" not found.");
         } finally {
             rwl.writeLock().unlock();
         }
@@ -244,16 +248,6 @@ public class RenderingEngineImpl implements RenderingEngine
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             StatsFactory sf = new StatsFactory();
-            
-            // FIXME: This should be stripped out
-            /*
-            if (rendDefObj == null) 
-            {
-                this.rendDefObj = 
-                        Helper.createDefaultRenderingDef(pixelsObj,pixelStats);
-                pixelsObj.getSettings().add(rendDefObj);   
-            }
-            */
             
             renderer = new Renderer(pixelsObj, rendDefObj, buffer);
         } finally {
@@ -325,7 +319,7 @@ public class RenderingEngineImpl implements RenderingEngine
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    public void setModel(int model)
+    public void setModel(RenderingModel model)
     {
         rwl.writeLock().lock();
 
@@ -403,7 +397,7 @@ public class RenderingEngineImpl implements RenderingEngine
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    public void setQuantizationMap(int w, int family,
+    public void setQuantizationMap(int w, Family family,
             double coefficient, boolean noiseReduction)
     {
         rwl.writeLock().lock();
@@ -450,14 +444,14 @@ public class RenderingEngineImpl implements RenderingEngine
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    public int getChannelFamily(int w)
+    public Family getChannelFamily(int w)
     {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            return QuantumFactory.convertFamilyType(cb[w].getFamily());
+            return cb[w].getFamily();
         } finally {
             rwl.readLock().unlock();
         }
@@ -528,12 +522,8 @@ public class RenderingEngineImpl implements RenderingEngine
             errorIfInvalidState();
             int[] rgba = new int[4];
             ChannelBinding[] cb = renderer.getChannelBindings();
-    //        int[] rgba = cb[w].getColor, copy = new int[rgba.length];
-    //        System.arraycopy(rgba, 0, copy, 0, rgba.length);
-    //        return copy;
             // NOTE: The rgba is supposed to be read-only; however we make a
             // copy to be on the safe side.
-            // TODO
             rgba[0] = cb[w].getColor().getRed().intValue();
             rgba[1] = cb[w].getColor().getGreen().intValue();
             rgba[2] = cb[w].getColor().getBlue().intValue();
@@ -626,13 +616,13 @@ public class RenderingEngineImpl implements RenderingEngine
     // =========================================================================
     
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    public int getModel()
+    public RenderingModel getModel()
     {
         rwl.readLock().lock();
 
         try {
             errorIfNullRenderingDef();
-            return RenderingDefConstants.convertType(rendDefObj.getModel());
+            return rendDefObj.getModel();
         } finally {
             rwl.readLock().unlock();
         }

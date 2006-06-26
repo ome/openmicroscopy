@@ -49,7 +49,7 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 //j.mimport omeis.env.Env;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.data.Helper;
+import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
@@ -178,7 +178,7 @@ class RGBStrategy
             if (cBindings[w].getActive().booleanValue()) {
                 //Get the raw data.
                 performanceStats.startIO(w);
-                wData = Helper.createPlane(planeDef, w, metadata, pixels);
+                wData = PlaneFactory.createPlane(planeDef, w, metadata, pixels);
                 performanceStats.endIO(w);
                 
                 //Create a rendering task for this wavelength.
@@ -220,19 +220,17 @@ class RGBStrategy
         performanceStats.startRendering();
         int n = tasks.length;
         Future[] rndTskFutures = new Future[n];  //[0] unused.
-        //j.m CmdProcessor processor = Env.getProcessor();
         ExecutorService processor = Executors.newCachedThreadPool();//FIXME fast enough?
         while (0 < --n)
-            rndTskFutures[n] = processor.submit(tasks[n]);// j.m exec(tasks[n]);
+            rndTskFutures[n] = processor.submit(tasks[n]);
         if (n == 0)
             tasks[0].call(); 
         
         //Wait for all forked tasks (if any) to complete.
-        processor.shutdown();//j.m
-        //j.mTODO processor.awaitTermination(Long.MAX_VALUE,TimeUnit.SECONDS);
+        processor.shutdown();
         for (n = 1; n < rndTskFutures.length; ++n) {
             try {
-                rndTskFutures[n].get();//j.m Result();
+                rndTskFutures[n].get();
             } catch (Exception e) {
                 if (e instanceof QuantizationException)
                     throw (QuantizationException) e;
