@@ -29,6 +29,8 @@
 
 package omeis.providers.re;
 
+import java.io.Serializable;
+
 
 //Java imports
 
@@ -51,10 +53,15 @@ package omeis.providers.re;
  * </small>
  * @since OME2.2
  */
-public class RGBBuffer
+public class RGBBuffer implements Serializable
 {
 
-    /** Index of the red band in the image's data buffer. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5319594152389817322L;
+
+	/** Index of the red band in the image's data buffer. */
     private static final int    R_BAND = 0;
     
     /** Index of the green band in the image's data buffer. */

@@ -29,6 +29,8 @@
 
 package omeis.providers.re.data;
 
+import java.io.Serializable;
+
 
 //Java imports
 
@@ -52,9 +54,13 @@ package omeis.providers.re.data;
  * </small>
  * @since OME2.2
  */
-public class PlaneDef
+public class PlaneDef implements Serializable
 {
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3200013163481587159L;
+
 	/** Flag to identify an <i>XY</i>-plane. */
 	public static final int		XY = 0 ;
 	
