@@ -159,8 +159,7 @@ public abstract class Plane2D
 		switch(javaType)
 		{
 			case PlaneFactory.BYTE:
-				byte i = data.get(offset);
-				return i;
+				return data.get(offset);
 			case PlaneFactory.SHORT:
 				return data.getShort(offset);
 			case PlaneFactory.INT:

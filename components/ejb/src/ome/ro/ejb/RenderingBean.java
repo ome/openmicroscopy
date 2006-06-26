@@ -32,6 +32,7 @@ package ome.ro.ejb;
 // Java imports
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -61,6 +62,7 @@ import org.springframework.context.ApplicationContext;
 // Application-internal dependencies
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
@@ -212,7 +214,25 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     {
         return delegate.getModel();
     }
+    
+    @RolesAllowed("user") 
+    public Pixels getPixels()
+    {
+        return delegate.getPixels();
+    }
+    
+    @RolesAllowed("user") 
+    public List getAvailableModels()
+    {
+        return delegate.getAvailableModels();
+    }
 
+    @RolesAllowed("user") 
+    public List getAvailableFamilies()
+    {
+        return delegate.getAvailableFamilies();
+    }
+    
     @RolesAllowed("user") 
     public QuantumDef getQuantumDef()
     {
@@ -326,18 +346,4 @@ public class RenderingBean extends AbstractBean implements RenderingEngine
     {
         delegate.updateCodomainMap(arg0);
     }
-
-    @RolesAllowed("user") 
-    public int getSizeX()
-    {
-        return delegate.getSizeX();
-    }
-
-    @RolesAllowed("user") 
-    public int getSizeY()
-    {
-        return delegate.getSizeY();
-    }
-    
-    
 }

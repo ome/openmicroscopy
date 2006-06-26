@@ -32,6 +32,8 @@ package ome.logic;
 //Java imports
 
 //Third-party libraries
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,4 +107,13 @@ class PixelsImpl extends AbstractLevel2Service
         return PixelBuffer.getBitDepth( pixelsType );
     }
 
+    public Object getEnumeration(Class klass, String value)
+    {
+    	return iQuery.findByString(klass, "value", value);
+    }
+
+    public List getAllEnumerations(Class klass)
+    {
+    	return iQuery.findAll(klass, null);
+    }
 }

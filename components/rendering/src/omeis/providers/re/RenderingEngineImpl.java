@@ -31,6 +31,7 @@ package omeis.providers.re;
 
 // Java imports
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 // Third-party libraries
@@ -41,6 +42,7 @@ import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
 import ome.api.IPixels;
+import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
@@ -247,9 +249,8 @@ public class RenderingEngineImpl implements RenderingEngine
              * better caching, etc.
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
-            StatsFactory sf = new StatsFactory();
             
-            renderer = new Renderer(pixelsObj, rendDefObj, buffer);
+            renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
         } finally {
             rwl.writeLock().unlock();
         }
@@ -667,35 +668,44 @@ public class RenderingEngineImpl implements RenderingEngine
             rwl.readLock().unlock();
         }
     }
-    
-    // ~ PixelsObj Delegation
-    // =========================================================================
-    
-    public int getSizeX()
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public Pixels getPixels()
     {
         rwl.readLock().lock();
 
         try {
-            errorIfNullPixels();
-            return pixelsObj.getSizeX().intValue();
-            
+            errorIfNullRenderingDef();
+            return pixelsObj;
         } finally {
             rwl.readLock().unlock();
         }
     }
-
-    public int getSizeY()
+    
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public List getAvailableModels()
     {
         rwl.readLock().lock();
 
         try {
-            errorIfNullPixels();
-            return pixelsObj.getSizeY().intValue();
+        	return pixMetaSrv.getAllEnumerations(RenderingModel.class);
         } finally {
             rwl.readLock().unlock();
         }
     }
+    
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    public List getAvailableFamilies()
+    {
+        rwl.readLock().lock();
 
+        try {
+        	return pixMetaSrv.getAllEnumerations(Family.class);
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
     // ~ Error checking methods
     // =========================================================================
     

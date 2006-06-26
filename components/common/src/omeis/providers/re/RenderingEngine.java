@@ -32,9 +32,11 @@ package omeis.providers.re;
 
 //Java imports
 import java.io.IOException;
+import java.util.List;
 
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ValidationException;
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
@@ -109,18 +111,18 @@ extends SelfConfigurableService, StatefulServiceInterface
 	public void lookupRenderingDef(long pixelsId);
 	public void load();
     
-    //FIXME: Hacks!
-    public int getSizeX();
-    public int getSizeY();
-	
 	//RenderingDef fields.
 	public void setModel(RenderingModel model);
 	public RenderingModel getModel();
 	public int getDefaultZ();
 	public int getDefaultT();
-	//Is it the best way to do it?
     public void setDefaultZ(int z);
     public void setDefaultT(int t);
+
+    //Metadata fields.
+    public Pixels getPixels();
+    public List getAvailableModels();
+    public List getAvailableFamilies();
     
 	//QuantumDef fields.  Two setters b/c we don't wanna rebuild all LUT's
 	//if not necessary.

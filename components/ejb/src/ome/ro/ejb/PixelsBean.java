@@ -29,6 +29,8 @@
 package ome.ro.ejb;
 
 //Java imports
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
@@ -100,4 +102,15 @@ public class PixelsBean extends AbstractBean implements IPixels
         return PixelBuffer.getBitDepth( type );
     }
     
+    @RolesAllowed("user") 
+    public Object getEnumeration(Class klass, String value)
+    {
+        return delegate.getEnumeration(klass, value);
+    }
+    
+    @RolesAllowed("user") 
+    public List getAllEnumerations(Class klass)
+    {
+        return delegate.getAllEnumerations(klass);
+    }
 }

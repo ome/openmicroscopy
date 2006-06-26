@@ -30,8 +30,6 @@
 package omeis.providers.re.quantum;
 
 //Java imports
-import java.util.HashMap;
-import java.util.Map;
 
 //Third-party libraries
 

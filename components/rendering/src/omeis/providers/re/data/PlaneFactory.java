@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -14,10 +15,8 @@ import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
-import ome.system.OmeroContext;
 
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
@@ -169,12 +168,11 @@ public class PlaneFactory
      * @param value The enumeration value.
      * @return A rendering model enumeration object.
      */
-    public static RenderingModel getRenderingModel(String value)
+    public static RenderingModel getRenderingModel(IPixels iPixels,
+    		                                       String value)
     {
-        OmeroContext ctx = OmeroContext.getManagedServerContext();
-        IQuery iQuery = (IQuery) ctx.getBean("queryService");
     	return (RenderingModel)
-    		iQuery.findByString(RenderingModel.class, "value", value);
+    		iPixels.getEnumeration(RenderingModel.class, value);
     }
     
     /** 
@@ -183,11 +181,12 @@ public class PlaneFactory
      * the pixels file.  The mapping is linear and the intervals are selected
      * according to a "best-guess" statistical approach.
      * 
-     * @param stats For each wavelength, it contains the global minimum and
-     *              maximum of the wavelength stack across time.
-     * @return  The default rendering settings.
+     * @param iPixels An IPixels service.
+     * @param metadata Pixels object.
+     * @return The default rendering settings.
      */
-    public static RenderingDef createDefaultRenderingDef(Pixels metadata)
+    public static RenderingDef createDefaultRenderingDef(IPixels iPixels,
+    		                                             Pixels metadata)
     {
         int c_size = metadata.getSizeC().intValue();
         int z_size = metadata.getSizeZ().intValue();
@@ -199,7 +198,8 @@ public class PlaneFactory
         
         ChannelBinding[] waves = new ChannelBinding[c_size];
         boolean active = false;
-        RenderingModel model = getRenderingModel(Renderer.MODEL_GREYSCALE);
+        RenderingModel model =
+        	getRenderingModel(iPixels, Renderer.MODEL_GREYSCALE);
         
         List channels = metadata.getChannels();
         int w = 0;
@@ -213,7 +213,7 @@ public class PlaneFactory
             	getPhotometricInterpretation().getValue() == Renderer.PHOTOMETRIC_RGB)
             { 
                 active = true;
-                model = getRenderingModel(Renderer.MODEL_RGB);
+                model = getRenderingModel(iPixels, Renderer.MODEL_RGB);
             }
             waves[w] = new ChannelBinding();
             // FIXME: These downcasts should probably be dealt with. The input

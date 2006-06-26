@@ -34,6 +34,9 @@ package ome.api;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
+import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
 
@@ -58,33 +61,47 @@ import ome.model.enums.PixelsType;
  */
 public interface IPixels extends ServiceInterface
 {
-
     /**
-     * Retrieves the IPixels Description i.e. the dimensions of the pixels set
-     * in microns, the omeis id and the image id.
-     * Other information will retrieve from omeis.
-     * @return See below.
-     * @throws PixServiceException If the connection is broken, or logged in
-     *          or if an error occured while trying to. 
+     * Retrieves the pixels metadata (description).
+     * @param pixId Pixels id.
+     * @return Pixels object which matches <i>id</i>.
      */
-    public ome.model.core.Pixels retrievePixDescription(long pixId);
+    public Pixels retrievePixDescription(long pixId);
     
     /**
-     * Retrieves the rendering settings.
-     * @return See below.
-     * @throws PixServiceException If the connection is broken, or logged in
-     *          or if an error occured while trying to. 
+     * Retrieves the rendering settings for a given pixels set and the currently
+     * logged in user.
+     * @param pixId Pixels id.
+     * @return Rendering definition.
      */
     public RenderingDef retrieveRndSettings(long pixId);
     
     /**
      * Saves the specified rendering settings.
-     * @param rndSettings
-     * @throws PixServiceException If the connection is broken, or logged in
-     *          or if an error occured while trying to. 
+     * @param rndSettings Rendering settings.
      */
     public void saveRndSettings(RenderingDef rndSettings);
 
-    public int getBitDepth( PixelsType type ); 
+    /**
+     * Bit depth for a given pixel type.
+     * @param type Pixels type.
+     * @return Bit depth in bits.
+     */
+    public int getBitDepth(PixelsType type); 
+ 
+    /**
+     * Retrieves a particular enumeration for a given enumeration class.
+     * @param klass Enumeration class.
+     * @param value Enumeration string value.
+     * @return Enumeration object.
+     */
+    public Object getEnumeration(Class klass, String value);
     
+    /**
+     * Retrieves the exhaustive list of enumerations for a given enumeration
+     * class.
+     * @param klass Enumeration class.
+     * @return List of all enumeration objects for the <i>klass</i>.
+     */
+    public List getAllEnumerations(Class klass);
 }

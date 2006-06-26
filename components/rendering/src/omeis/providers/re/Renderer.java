@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.api.IPixels;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -150,22 +151,30 @@ public class Renderer
      * {@link #render(PlaneDef) render} method.
      */
     private RenderingStats      stats;
+    
+    /** Omero Pixels service */
+    private IPixels             iPixels;
      
     /**
      * Creates a new instance to render the specified pixels set.
      * The {@link #initialize() initialize} method has to be called straight
      * after in order to get this new instance ready for rendering.
      * 
+     * @param iPixels An IPixels service.
+     * @param pixelsObj Pixels object.
+     * @param renderingDefObj Rendering definition object.
+     * @param bufferObj PixelBuffer object.
      * @param metadata The service to access the metadata of the pixels
      *                 set bound to this <code>Renderer</code>.
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
-    public Renderer(Pixels pixelsObj, RenderingDef renderingDefObj,
-                    PixelBuffer bufferObj)
+    public Renderer(IPixels iPixels, Pixels pixelsObj,
+    		        RenderingDef renderingDefObj, PixelBuffer bufferObj)
     { 
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
+        this.iPixels = iPixels;
         
         if (metadata == null)
         	throw new NullPointerException("Expecting not null metadata");
@@ -507,7 +516,7 @@ public class Renderer
         ChannelBinding[] cb = getChannelBindings();
         boolean active = false;
         RenderingModel model =
-        	PlaneFactory.getRenderingModel(MODEL_GREYSCALE);
+        	PlaneFactory.getRenderingModel(iPixels, MODEL_GREYSCALE);
         
         List channels = getMetadata().getChannels();
         int w = 0;
@@ -519,7 +528,7 @@ public class Renderer
             	getPhotometricInterpretation().getValue() == PHOTOMETRIC_RGB)
             {
                 active = true;
-                model = PlaneFactory.getRenderingModel(MODEL_RGB);
+                model = PlaneFactory.getRenderingModel(iPixels, MODEL_RGB);
             }
             cb[w].setActive(Boolean.valueOf(active));
             double start = channel.getStatsInfo().getGlobalMin().doubleValue();
