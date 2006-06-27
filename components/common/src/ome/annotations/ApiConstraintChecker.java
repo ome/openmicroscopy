@@ -80,7 +80,8 @@ public class ApiConstraintChecker
         for (int j = 0; j < allAnnotations.length; j++)
         {
             Annotation[][] anns = (Annotation[][]) allAnnotations[j];            
-
+            if (anns == null) continue;
+            
             for (int i = 0; i < args.length; i++)
             {
                 Object arg = args[i];

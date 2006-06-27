@@ -1,5 +1,5 @@
 /*
- * ome.server.utests.ApiConstraintCheckerTest
+ * ome.ejb.utests.ApiConstraintCheckerTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.utests;
+package ome.ejb.utests;
 
 //Java imports
 
@@ -34,6 +34,8 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import javax.interceptor.InvocationContext;
 
 import org.testng.annotations.*;
 
@@ -45,6 +47,9 @@ import ome.conditions.ValidationException;
 import ome.logic.PojosImpl;
 import ome.model.IObject;
 import ome.model.containers.Project;
+import ome.ro.ejb.RenderingBean;
+
+import omeis.providers.re.RenderingEngineImpl;
 
 
 //Third-party libraries
@@ -67,6 +72,62 @@ public class ApiConstraintCheckerTest extends TestCase {
     Class c;
     Method m;
     Object[] args;
+
+    @Test
+    public void testInterface() throws Exception {
+        c = IObject.class;
+        m = IObject.class.getMethod("isLoaded");
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
+    
+    @Test
+    public void testNotService() throws Exception {
+        c = Project.class;
+        m = Project.class.getMethod("isLoaded");
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
+
+    @Test
+    public void testRenderingImplCreate() throws Exception {
+        c = RenderingEngineImpl.class;
+        m = RenderingEngineImpl.class.getMethod("create");
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
+
+    @Test
+    public void testRenderingImplGetModel() throws Exception {
+        c = RenderingEngineImpl.class;
+        m = RenderingEngineImpl.class.getMethod("getModel");
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
+
+    @Test
+    public void testRenderingBeanCreate() throws Exception {
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("create");
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
+
+    @Test
+    public void testRenderingBeanGetModel() throws Exception {
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("getModel");
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
+
+    @Test
+    public void testRenderingBeanInvoke() throws Exception {
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("invoke",InvocationContext.class);
+        args = null;
+        ApiConstraintChecker.errorOnViolation(c,m,args);
+    }
     
     @Test
     @ExpectedExceptions(ApiUsageException.class)
