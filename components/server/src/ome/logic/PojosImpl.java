@@ -51,8 +51,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
-import ome.annotations.NotNull;
-import ome.annotations.Validate;
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -106,7 +104,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, 
-            @Validate(Long.class) Set rootNodeIds, Map options) {
+            Set rootNodeIds, Map options) {
         
         PojoOptions po = new PojoOptions(options);
         
@@ -141,8 +139,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     
     @Transactional(readOnly=true)
 	public Set findContainerHierarchies(
-            @NotNull final Class rootNodeType, 
-            @NotNull @Validate(Long.class) final Set imageIds, 
+            final Class rootNodeType, 
+            final Set imageIds, 
             Map options) {
 		
 		PojoOptions po = new PojoOptions(options);
@@ -204,9 +202,9 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
     @Transactional(readOnly=true)
 	public Map findAnnotations(
-            @NotNull Class rootNodeType, 
-            @NotNull @Validate(Long.class) Set rootNodeIds, 
-            @Validate(Long.class) Set annotatorIds, Map options) {
+            Class rootNodeType, 
+            Set rootNodeIds, 
+            Set annotatorIds, Map options) {
 		
         if (rootNodeIds.size()==0)
             return new HashMap();
@@ -252,7 +250,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 	}
 
     @Transactional(readOnly=true)
-	public Set findCGCPaths(@NotNull @Validate(Long.class) Set imgIds, 
+	public Set findCGCPaths(Set imgIds, 
             String algorithm, Map options) {
 
 		if (imgIds.size()==0){
@@ -317,8 +315,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 	}
 
     @Transactional(readOnly=true)
-	public Set getImages(@NotNull Class rootNodeType, 
-            @NotNull @Validate(Long.class) Set rootNodeIds, Map options) {
+	public Set getImages(Class rootNodeType, 
+            Set rootNodeIds, Map options) {
 		
 		if (rootNodeIds.size()==0){
 			return new HashSet();
@@ -363,7 +361,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 	}
     
     @Transactional(readOnly=true)
-    public Map getUserDetails(@NotNull @Validate(String.class) Set names, 
+    public Map getUserDetails(Set names, 
             Map options)
     {
         
@@ -403,8 +401,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     }
     
     @Transactional(readOnly=true)
-    public Map getCollectionCount(@NotNull String type, @NotNull String property, 
-            @NotNull @Validate(Long.class) Set ids, Map options)
+    public Map getCollectionCount(String type, String property, 
+            Set ids, Map options)
     {
         
         String parsedProperty = LsidUtils.parseField(property);

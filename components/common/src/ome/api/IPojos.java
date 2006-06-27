@@ -36,12 +36,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ome.model.ILink;
-import ome.model.IObject;
-
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.annotations.NotNull;
+import ome.annotations.Validate;
+import ome.model.ILink;
+import ome.model.IObject;
+import ome.model.core.Image;
 
 /**
  * Provides methods for dealing with the core "Pojos" of OME. Included are:
@@ -159,7 +161,9 @@ public interface IPojos extends ServiceInterface {
 	 * 			The requested node as root and all of its descendants. The type
 	 *         	of the returned value will be <code>rootNodeType</code>. 
 	 */
-	public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
+	public <T extends IObject> Set<T> loadContainerHierarchy(
+            @NotNull Class<T> rootNodeType, 
+            @Validate(Long.class) Set<Long> rootNodeIds,
 			Map options);
 
 	/**
@@ -220,7 +224,9 @@ public interface IPojos extends ServiceInterface {
 	 * @return A <code>Set</code> with all root nodes that were found.
 	 * @DEV.TODO decide on use of experimenter option
 	 */
-	public Set findContainerHierarchies(Class rootNodeType, Set imagesIds,
+	public <T extends IObject> Set<IObject> findContainerHierarchies(
+            @NotNull Class<T> rootNodeType, 
+            @NotNull @Validate(Long.class) Set<Long> imagesIds,
 			Map options);
 
 	/**
@@ -248,8 +254,11 @@ public interface IPojos extends ServiceInterface {
 	 * @return A map whose key is rootNodeId and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 */
-	public Map findAnnotations(Class rootNodeType, Set rootNodeIds, 
-            Set annotatorIds, Map options);
+	public <T extends IObject> Map findAnnotations(
+            @NotNull Class<T> rootNodeType, 
+            @NotNull @Validate(Long.class) Set<Long> rootNodeIds, 
+            @Validate(Long.class) Set<Long> annotatorIds, 
+            Map options);
 
 	/**
 	 * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
@@ -275,7 +284,10 @@ public interface IPojos extends ServiceInterface {
 	 *            {@link #findContainerHierarchies(Class, Set, Map)}
 	 * @return A <code>Set</code> of hierarchy trees with all root nodes that were found.
 	 */
-	public Set findCGCPaths(Set imgIds, String algorithm, Map options);
+	public <T extends IObject> Set<T> findCGCPaths(
+            @NotNull @Validate(Long.class) Set<Long> imgIds, 
+            @NotNull String algorithm, 
+            Map options);
     
     /**
      * algorithm which given a set of images ids retrieve the CG-C hierarchy where 
@@ -296,8 +308,8 @@ public interface IPojos extends ServiceInterface {
     */
     public final static String DECLASSIFICATION = "DECLASSIFICATION";
 	
-    public final static Set ALGORITHMS = new HashSet(
-            Arrays.asList(new Object[]{
+    public final static Set<String> ALGORITHMS = new HashSet<String>(
+            Arrays.asList(new String[]{
                     CLASSIFICATION_ME,
                     CLASSIFICATION_NME,
                     DECLASSIFICATION}));
@@ -314,7 +326,10 @@ public interface IPojos extends ServiceInterface {
 	 *            <code>experimenter|group</code> apply at the Image level. 
 	 * @return A set of images.
 	 */
-	public Set getImages(Class rootNodeType, Set rootNodeIds, Map options);
+	public <T extends IObject> Set<Image> getImages(
+            @NotNull Class<T> rootNodeType, 
+            @NotNull @Validate(Long.class) Set<Long> rootNodeIds, 
+            Map options);
 
 	/**
 	 * Retrieve a user's images. 
@@ -325,7 +340,7 @@ public interface IPojos extends ServiceInterface {
 	 *            <b>must be present</b>. 
 	 * @return A set of images.
 	 */
-	public Set getUserImages(Map options);
+	public Set<Image> getUserImages(Map options);
 	
 	 /**
      * Retrieves <code>Experimenter</code> instances based on unique user name
@@ -335,7 +350,9 @@ public interface IPojos extends ServiceInterface {
      *          Map. Unused.
      * @return A map from username to <code>Experimenter</code>
      */
-    public Map getUserDetails(Set names, Map options);
+    public Map getUserDetails(
+            @NotNull @Validate(String.class) Set<String> names, 
+            Map options);
 
     /**
      * Counts the number of members in a collection for a given object. 
@@ -346,13 +363,16 @@ public interface IPojos extends ServiceInterface {
      * @param property
      *          Name of the property on that class, omitting getters and setters.
      * @param ids
-     *          Set of Integers, the ids of the objects to test
+     *          Set of Longs, the ids of the objects to test
      * @param options
      *          Map. Unused.
      * @return A map from id integer to count integer
      */
-     public Map 
-     getCollectionCount(String type, String property, Set ids, Map options);
+     public Map getCollectionCount(
+             @NotNull String type, 
+             @NotNull String property, 
+             @NotNull @Validate(Long.class) Set<Long> ids, 
+             Map options);
 	
      /** 
       * retrieves a collection with all members initialized ("loaded"). This
@@ -366,8 +386,10 @@ public interface IPojos extends ServiceInterface {
       * @return
       *     An initialized collection.
       */
-     public Collection  
-     retrieveCollection(IObject dataObject, String collectionName, Map options);
+     public Collection retrieveCollection(
+             @NotNull IObject dataObject, 
+             @NotNull String collectionName, 
+             Map options);
 	
 
     // ~ WRITE API
@@ -398,7 +420,9 @@ public interface IPojos extends ServiceInterface {
      *      Map as above.
      * @return the created object
      */
-    public IObject createDataObject(IObject object, Map options);
+    public <T extends IObject> T createDataObject(
+            @NotNull T object, 
+            Map options);
     
     /**
      * convenience method to save network calls. Loops over the array of 
@@ -410,7 +434,9 @@ public interface IPojos extends ServiceInterface {
      * 
      * @see createDataObject
      */
-    public IObject[] createDataObjects(IObject[] dataObjects, Map options);
+    public IObject[] createDataObjects(
+            @NotNull IObject[] dataObjects, 
+            Map options);
     
     /**
      * Removes links between OmeroDataObjects e.g Project-Dataset, Dataset-Image
@@ -422,7 +448,9 @@ public interface IPojos extends ServiceInterface {
      * @param options
      *      Map as above.
      */
-    public void unlink(ILink[] dataOjectLinks, Map options);
+    public void unlink(
+            @NotNull ILink[] dataOjectLinks, 
+            Map options);
     
     /** typed convenience method for creating links. Functionality also availeble
      * from {@see createDataObject}
@@ -432,7 +460,9 @@ public interface IPojos extends ServiceInterface {
      *      Map as above.
      * @return the created links
      */ 
-    public ILink[] link(ILink[] dataObjectLinks, Map options);
+    public ILink[] link(
+            @NotNull ILink[] dataObjectLinks, 
+            Map options);
     
     /**
      * Updates a data object.
@@ -452,7 +482,9 @@ public interface IPojos extends ServiceInterface {
      *      Map as above.
      * @return created data object
      */
-    public IObject updateDataObject(IObject dataObject, Map options);
+    public <T extends IObject> T updateDataObject(
+            @NotNull T dataObject, 
+            Map options);
     
     /**
      * convenience method to save network calls. Loops over the array of IObjects
@@ -463,7 +495,9 @@ public interface IPojos extends ServiceInterface {
      * @return created data objects.
      * @see updateDataObject
      */
-    public IObject[] updateDataObjects(IObject[] dataObjects, Map options);
+    public IObject[] updateDataObjects(
+            @NotNull IObject[] dataObjects, 
+            Map options);
     
     /**
      * Deletes a data object. Currently this method takes a very conservative
@@ -474,7 +508,9 @@ public interface IPojos extends ServiceInterface {
      * @param dataObject
      * @param options
      */
-    public void deleteDataObject(IObject dataObject, Map options);
+    public void deleteDataObject(
+            @NotNull IObject dataObject, 
+            Map options);
     
     /**
      * convenience method to save network calls. Loops over the array of IObjects
@@ -484,6 +520,8 @@ public interface IPojos extends ServiceInterface {
      * @param options
      *      Map as above.
      */
-    public void deleteDataObjects(IObject[] dataObjects, Map options);
+    public void deleteDataObjects(
+            @NotNull IObject[] dataObjects, 
+            Map options);
     
 }

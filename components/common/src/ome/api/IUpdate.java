@@ -36,6 +36,7 @@ import java.util.Map;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.annotations.Validate;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 
@@ -71,15 +72,30 @@ import ome.model.IObject;
  */
 public interface IUpdate extends ServiceInterface {
 
-    /** @see ome.api.IUpdate */ void saveCollection(Collection graph);
-    /** @see ome.api.IUpdate */ void saveObject(IObject graph);
-    /** @see ome.api.IUpdate */ void saveMap(Map graph);
-    /** @see ome.api.IUpdate */ void saveArray(IObject[] graph);
+    /** @see ome.api.IUpdate */ 
+    void saveCollection( @Validate(IObject.class) Collection<IObject> graph);
+    
+    /** @see ome.api.IUpdate */ 
+    void saveObject(IObject graph);
+    
+    /** @see ome.api.IUpdate */ 
+    void saveMap(Map graph);
+    
+    /** @see ome.api.IUpdate */ 
+    void saveArray(IObject[] graph);
  
-    /** @see ome.api.IUpdate */ Collection  saveAndReturnCollection(Collection graph);
-    /** @see ome.api.IUpdate */ Map         saveAndReturnMap(Map map);
-    /** @see ome.api.IUpdate */ IObject     saveAndReturnObject(IObject graph);
-    /** @see ome.api.IUpdate */ IObject[]   saveAndReturnArray(IObject[] graph);
+    /** @see ome.api.IUpdate */ 
+    <T extends IObject> Collection<T>  saveAndReturnCollection(
+                @Validate(IObject.class) Collection<T> graph);
+    
+    /** @see ome.api.IUpdate */ 
+    Map saveAndReturnMap(Map map);
+    
+    /** @see ome.api.IUpdate */ 
+    <T extends IObject> T saveAndReturnObject(T graph);
+    
+    /** @see ome.api.IUpdate */ 
+    IObject[]   saveAndReturnArray(IObject[] graph);
 
     /** deletes a signle entity. Unlike the other IUpdate methods, deleteObject
      * does not propagate to related entites (e.g. foreign key relationships) 

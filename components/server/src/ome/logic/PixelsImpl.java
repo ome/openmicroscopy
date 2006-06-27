@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ome.api.IPixels;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
@@ -107,12 +108,12 @@ class PixelsImpl extends AbstractLevel2Service
         return PixelBuffer.getBitDepth( pixelsType );
     }
 
-    public Object getEnumeration(Class klass, String value)
+    public <T extends IObject> T getEnumeration(Class<T> klass, String value)
     {
     	return iQuery.findByString(klass, "value", value);
     }
 
-    public List getAllEnumerations(Class klass)
+    public <T extends IObject> List<T> getAllEnumerations(Class<T> klass)
     {
     	return iQuery.findAll(klass, null);
     }

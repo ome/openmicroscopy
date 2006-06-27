@@ -52,7 +52,6 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
-import ome.annotations.NotNull;
 import ome.api.IQuery;
 import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
@@ -138,7 +137,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * @DEV.TODO weirdness here; learn more about CGLIB initialization.
      */
     @SuppressWarnings("unchecked")
-    public IObject get(@NotNull final Class klass, final long id) 
+    public IObject get(final Class klass, final long id) 
     throws ValidationException
     {
         return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
@@ -171,7 +170,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * @DEV.TODO weirdness here; learn more about CGLIB initialization.
      */
     @SuppressWarnings("unchecked")
-    public IObject find(@NotNull final Class klass, final long id)
+    public IObject find(final Class klass, final long id)
     {
         return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -189,7 +188,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#getByClass(java.lang.Class)
      */
-    public List findAll(@NotNull final Class klass, final Filter filter)
+    public List findAll(final Class klass, final Filter filter)
     {
         if ( filter == null )
             return getHibernateTemplate().loadAll( klass );
@@ -208,7 +207,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findByExample(ome.model.IObject)
      */
-    public IObject findByExample(@NotNull final IObject example) throws ApiUsageException
+    public IObject findByExample(final IObject example) throws ApiUsageException
     {
         return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -225,7 +224,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)
      */
-    public List findAllByExample(@NotNull final IObject example, final Filter filter)
+    public List findAllByExample(final IObject example, final Filter filter)
     {
         return (List) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
@@ -244,8 +243,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String, java.lang.String)
      */
     public IObject findByString(
-    @NotNull final Class klass, 
-    @NotNull final String fieldName, 
+    final Class klass, 
+    final String fieldName, 
     final String value) 
     throws ApiUsageException
     {
@@ -265,8 +264,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String, java.lang.String, boolean, ome.parameters.Filter)
      */
     public List findAllByString(
-            @NotNull final Class klass, 
-            @NotNull final String fieldName, 
+            final Class klass, 
+            final String fieldName, 
             final String value, 
             final boolean caseSensitive, 
             final Filter filter) 
@@ -293,7 +292,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /** 
      * @see ome.api.IQuery#findByQuery(java.lang.String, ome.parameters.Parameters)
      */
-    public IObject findByQuery(@NotNull String queryName, Parameters params) 
+    public IObject findByQuery(String queryName, Parameters params) 
     throws ValidationException
     {
         
@@ -331,7 +330,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /** 
      * @see ome.api.IQuery#findAllByQuery(java.lang.String, ome.parameters.Parameters)
      */
-    public List findAllByQuery(@NotNull String queryName, Parameters params)
+    public List findAllByQuery(String queryName, Parameters params)
     {
         Query<List> q = queryFactory.lookup( queryName, params );
         return execute(q);

@@ -34,6 +34,7 @@ package ome.api;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
 
 /** 
  * metadata gateway for the {@link omeis.providers.re.RenderingEngine}. This 
@@ -62,24 +63,82 @@ public interface RawPixelsStore extends StatefulServiceInterface
      * @see ome.io.nio.PixelBuffer#getPlaneSize()
      */
     public Integer getPlaneSize( );
+    
     public Integer getRowSize( );
+    
     public Integer getStackSize( );
+    
     public Integer getTimepointSize( );
+    
     public Integer getTotalSize( );
-    public Long getRowOffset( Integer y, Integer z, Integer c, Integer t );
-    public Long getPlaneOffset( Integer z, Integer c, Integer t );
-    public Long getStackOffset( Integer c, Integer t );
-    public Long getTimepointOffset( Integer t );
-    public byte[] getRegion( Integer size, Long offset );
-    public byte[] getRow( Integer y, Integer z, Integer c, Integer t );
-    public byte[] getPlane( Integer z, Integer c, Integer t );
-    public byte[] getStack( Integer c, Integer t );
-    public byte[] getTimepoint( Integer t );
-    public void setRegion( Integer size, Long offset, byte[] buffer );
-    public void setRow( byte[] buffer, Integer y, Integer z, Integer c, Integer t );
-    public void setPlane( byte[] buffer, Integer z, Integer c, Integer t );
-    public void setStack( byte[] buffer, Integer z, Integer c, Integer t );
-    public void setTimepoint( byte[] buffer, Integer t );
+    
+    public Long getRowOffset( 
+            @NotNull Integer y, 
+            @NotNull Integer z, 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    public Long getPlaneOffset( 
+            @NotNull Integer z, 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public Long getStackOffset( 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public Long getTimepointOffset( 
+            @NotNull Integer t );
+    
+    public byte[] getRegion( 
+            @NotNull Integer size, 
+            Long offset );
+    
+    public byte[] getRow( 
+            @NotNull Integer y, 
+            @NotNull Integer z, 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public byte[] getPlane( 
+            @NotNull Integer z, 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public byte[] getStack( 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public byte[] getTimepoint( 
+            @NotNull Integer t );
+    
+    public void setRegion( 
+            @NotNull Integer size, 
+            Long offset, 
+            @NotNull byte[] buffer );
+    
+    public void setRow( 
+            @NotNull byte[] buffer, 
+            @NotNull Integer y, 
+            @NotNull Integer z, 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public void setPlane( 
+            @NotNull byte[] buffer, 
+            @NotNull Integer z, 
+            @NotNull Integer c,
+            @NotNull Integer t );
+    
+    public void setStack( 
+            @NotNull byte[] buffer, 
+            @NotNull Integer z, 
+            @NotNull Integer c, 
+            @NotNull Integer t );
+    
+    public void setTimepoint( 
+            @NotNull byte[] buffer, 
+            @NotNull Integer t );
+    
     public byte[] calculateMessageDigest( );
     
 }

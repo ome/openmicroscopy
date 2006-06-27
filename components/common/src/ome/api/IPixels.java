@@ -36,6 +36,7 @@ package ome.api;
 //Application-internal dependencies
 import java.util.List;
 
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
@@ -95,7 +96,7 @@ public interface IPixels extends ServiceInterface
      * @param value Enumeration string value.
      * @return Enumeration object.
      */
-    public Object getEnumeration(Class klass, String value);
+    public <T extends IObject> T getEnumeration(Class<T> klass, String value);
     
     /**
      * Retrieves the exhaustive list of enumerations for a given enumeration
@@ -103,5 +104,5 @@ public interface IPixels extends ServiceInterface
      * @param klass Enumeration class.
      * @return List of all enumeration objects for the <i>klass</i>.
      */
-    public List getAllEnumerations(Class klass);
+    public <T extends IObject> List<T> getAllEnumerations(Class<T> klass);
 }

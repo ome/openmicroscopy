@@ -46,6 +46,7 @@ import org.testng.annotations.*;
 import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
 import ome.logic.QueryImpl;
+import ome.model.IObject;
 import ome.model.containers.Project;
 import ome.parameters.Filter;
 import ome.services.util.ServiceHandler;
@@ -116,7 +117,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase
     public void test_get() throws Exception
     {
         mockSession.expects( once() ).method( "load" ).id( "test" );
-        iQuery.get(this.getClass(),1L);
+        iQuery.get(IObject.class,1L);
     }
 
     @Test
@@ -130,7 +131,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase
     public void test_find() throws Exception
     {
         mockSession.expects( once() ).method( "get" ).id( "test" );
-        iQuery.find( this.getClass(),1L );
+        iQuery.find( IObject.class,1L );
     }
     
     @Test

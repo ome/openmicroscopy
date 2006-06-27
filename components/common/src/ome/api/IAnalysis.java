@@ -35,6 +35,10 @@ import java.util.Set;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
+import ome.model.core.Image;
 
 /**
  * Provides access to the model objects involved in analysis. Based on
@@ -50,12 +54,12 @@ import java.util.Set;
 public interface IAnalysis extends ServiceInterface{
 
 	// TODO plural arguments for each
-	public Set getProjectsForUser(long experimenterId); // TODO or map?
-	public Set getDatasetsForProject(long projectId);
-	public Set getAllDatasets();
-	public Set getProjectsForDataset(long datasetId);
-	public Set getImagesForDataset(long datasetId );
-	public Set getAllForImage(long imageId);
+	public Set<Project> getProjectsForUser(long experimenterId); // TODO or map?
+	public Set<Dataset> getDatasetsForProject(long projectId);
+	public Set<Dataset> getAllDatasets();
+	public Set<Project> getProjectsForDataset(long datasetId);
+	public Set<Image> getImagesForDataset(long datasetId );
+	public Set<IObject> getAllForImage(long imageId);
 	// TODO public Set getChainExecutionsForDataset(long datasetId);
 	
 

@@ -55,7 +55,6 @@ import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
-import ome.annotations.Validate;
 import ome.api.IUpdate;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
@@ -141,7 +140,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         return graph;
     }
 
-    public void saveCollection(@Validate(IObject.class) Collection graph)
+    public void saveCollection(Collection graph)
     {
         UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
         beforeUpdate( graph, filter );
@@ -153,8 +152,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         afterUpdate( graph, filter );
     }
     
-    public Collection saveAndReturnCollection(
-            @Validate(IObject.class) Collection graph)
+    public Collection saveAndReturnCollection( Collection graph)
     {
         throw new RuntimeException("Not implemented yet.");
     }

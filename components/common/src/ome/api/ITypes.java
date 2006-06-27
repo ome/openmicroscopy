@@ -53,13 +53,13 @@ import ome.model.internal.Permissions;
 public interface ITypes
 {
     
-    Class[] getResultTypes ( ); 
-    Class[] getAnnotationTypes ( );
-    Class[] getContainerTypes ( );
-    Class[] getPojoTypes ( );
-    Class[] getImportTypes ( );
-    IObject[] allEnumerations( Class k);
-    IObject getEnumeration( Class k, String string ); // TODO generics 
-    Permissions permissions( Class k );
+    <T extends IObject> Class<T>[] getResultTypes ( ); 
+    <T extends IObject> Class<T>[] getAnnotationTypes ( );
+    <T extends IObject> Class<T>[] getContainerTypes ( );
+    <T extends IObject> Class<T>[] getPojoTypes ( );
+    <T extends IObject> Class<T>[] getImportTypes ( );
+    <T extends IObject> T[] allEnumerations( Class<T> k);
+    <T extends IObject> T getEnumeration( Class<T> k, String string ); 
+    <T extends IObject> Permissions permissions( Class<T> k );
     
 }
