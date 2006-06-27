@@ -48,6 +48,7 @@ import org.jboss.annotation.security.SecurityDomain;
 //Application-internal dependencies
 import ome.api.IPixels;
 import ome.io.nio.PixelBuffer;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
@@ -112,13 +113,13 @@ public class PixelsBean extends AbstractBean implements IPixels
     }
     
     @RolesAllowed("user") 
-    public Object getEnumeration(Class klass, String value)
+    public <T extends IObject> T getEnumeration(Class<T> klass, String value)
     {
         return delegate.getEnumeration(klass, value);
     }
     
     @RolesAllowed("user") 
-    public List getAllEnumerations(Class klass)
+    public <T extends IObject> List<T> getAllEnumerations(Class<T> klass)
     {
         return delegate.getAllEnumerations(klass);
     }
