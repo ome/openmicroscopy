@@ -45,6 +45,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.collection.AbstractPersistentCollection;
 
 // Application-internal dependencies
+import ome.api.StatefulServiceInterface;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.util.ContextFilter;
@@ -154,7 +155,16 @@ public class ProxyCleanupFilter extends ContextFilter
         
         public Object invoke(MethodInvocation arg0) throws Throwable
         {
-            return new ProxyCleanupFilter().filter(null, arg0.proceed());
+            Object result = arg0.proceed();
+            
+            if (!StatefulServiceInterface.class
+                    .isAssignableFrom(
+                            arg0.getThis().getClass()))
+            {
+                result = new ProxyCleanupFilter().filter(null, result);
+            }
+            
+            return result;
         }
     }
     

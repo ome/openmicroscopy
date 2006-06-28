@@ -7,6 +7,7 @@ $pojo.getExtraClassCode()
 ###########################################################
 ## <CustomCode>
 ###########################################################
+
   public boolean isValid() 
   {
       return ome.util.Validator.validate(this).isValid();
@@ -16,7 +17,20 @@ $pojo.getExtraClassCode()
   {
       return ome.util.Validator.validate(this);
   }
-  
+
+#if(!$pojo.classModifiers.contains("abstract")) ## start !abstract
+  public ome.util.Filterable newInstance() 
+  ## TODO should return $pojo.getDeclarationName()
+  ## but javassist in hibernate has problems with covariant return types
+  ##  http://jboss.org/index.html?module=bb&op=viewtopic&t=83199
+  ##  http://www.jboss.org/index.html?module=bb&op=viewtopic&p=3950680
+  ##
+  {
+      return new $pojo.getDeclarationName()( );
+  }
+
+#end ## end !abstract
+
   public boolean acceptFilter(ome.util.Filter filter){
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)

@@ -98,7 +98,31 @@ public class Details implements IDetails, Filterable, Serializable
         setGroup(copy.getGroup());
         // Non-entity fields 
         _filteredCollections = copy.filteredSet();
-        _counts = new HashMap(copy.getCounts());
+        _counts = copy.getCounts() == null ? null :
+            new HashMap(copy.getCounts());
+    }
+    
+    public Details shallowCopy( )
+    {
+        Details newDetails = new Details();
+        newDetails.setOwner( this.getOwner() == null ? null :
+                new Experimenter( this.getOwner().getId(), false ));
+        newDetails.setGroup( this.getGroup() == null ? null :
+                new ExperimenterGroup( this.getGroup().getId(), false ));
+        newDetails.setCreationEvent( this.getCreationEvent() == null ? null :
+                new Event( this.getCreationEvent().getId(), false ));
+        newDetails.setUpdateEvent( this.getUpdateEvent() == null ? null :
+                new Event( this.getUpdateEvent().getId(), false ));
+        newDetails.setPermissions(this.getPermissions());
+        newDetails._filteredCollections = this.filteredSet();
+        newDetails.setCounts( this.getCounts() == null ? null :
+            new HashMap(this.getCounts()));
+        return newDetails;
+    }
+    
+    public Details newInstance()
+    {
+        return new Details();
     }
     
     // Loaded&Filtering methods

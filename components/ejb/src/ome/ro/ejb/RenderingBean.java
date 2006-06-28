@@ -31,7 +31,12 @@ package ome.ro.ejb;
 
 // Java imports
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -58,10 +63,17 @@ import org.springframework.context.ApplicationContext;
 // Application-internal dependencies
 import ome.conditions.InternalException;
 import ome.conditions.RootException;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.internal.Details;
+import ome.model.meta.Event;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.util.Filter;
+import ome.util.Filterable;
 
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
@@ -175,7 +187,8 @@ public class RenderingBean extends AbstractBean
     @RolesAllowed("user") 
     public Family getChannelFamily(int arg0)
     {
-        return delegate.getChannelFamily(arg0);
+        Family family = delegate.getChannelFamily(arg0);
+        return copyFamily(family);
     }
 
     @RolesAllowed("user") 
@@ -217,31 +230,45 @@ public class RenderingBean extends AbstractBean
     @RolesAllowed("user") 
     public RenderingModel getModel()
     {
-        return delegate.getModel();
+        return copyRenderingModel(delegate.getModel());
     }
-    
+
     @RolesAllowed("user") 
     public Pixels getPixels()
     {
-        return delegate.getPixels();
+        Pixels pix = delegate.getPixels();
+        return (Pixels) new ShallowCopy().copy(pix);
     }
     
     @RolesAllowed("user") 
     public List getAvailableModels()
     {
-        return delegate.getAvailableModels();
+        List<RenderingModel> models = delegate.getAvailableModels();
+        List result = new ArrayList();
+        for (RenderingModel model : models)
+        {
+            result.add( copyRenderingModel(model));
+        }
+        return result; 
     }
 
     @RolesAllowed("user") 
     public List getAvailableFamilies()
     {
-        return delegate.getAvailableFamilies();
+        List<Family> families = delegate.getAvailableFamilies();
+        List result = new ArrayList();
+        for (Family family : families)
+        {
+            result.add( copyFamily(family) );
+        }
+        return result;
     }
     
     @RolesAllowed("user") 
     public QuantumDef getQuantumDef()
     {
-        return delegate.getQuantumDef();
+        QuantumDef def = delegate.getQuantumDef();
+        return (QuantumDef) new ShallowCopy().copy(def);
     }
 
     @RolesAllowed("user") 
@@ -351,4 +378,131 @@ public class RenderingBean extends AbstractBean
     {
         delegate.updateCodomainMap(arg0);
     }
+
+    // ~ Helpers
+    // =========================================================================
+
+    private RenderingModel copyRenderingModel(RenderingModel model)
+    {
+        if (model == null) return null;
+        RenderingModel newModel = new RenderingModel();
+        newModel.setId( model.getId() );
+        newModel.setValue( model.getValue() );
+        newModel.setDetails( model.getDetails() == null ? null :
+            model.getDetails().shallowCopy() );
+        return newModel;
+    }
+
+    private Family copyFamily(Family family)
+    {
+        if (family == null) return null;
+        Family newFamily = new Family( );
+        newFamily.setId( family.getId() );
+        newFamily.setValue( family.getValue() );
+        newFamily.setDetails( 
+                family.getDetails() == null ? null : 
+                    family.getDetails().shallowCopy() );
+        return newFamily;
+    }
+
+    private static class ShallowCopy {
+
+        public Filterable copy(Filterable original)
+        {
+            Filterable f = original.newInstance();
+            StoreValues store = new StoreValues();
+            SetValues set = new SetValues(store);
+            f.acceptFilter(store);
+            f.acceptFilter(set);
+            return f;
+        }
+        
+    }    
+
+    private static class SetValues implements Filter {
+
+        private StoreValues store;
+        
+        public SetValues(StoreValues store)
+        {
+            this.store = store;
+        }
+        
+        public Filterable filter(String fieldId, Filterable f)
+        {
+            return (Filterable) store.values.get(fieldId);  
+        }
+
+        public Collection filter(String fieldId, Collection c)
+        {
+            return (Collection) store.values.get(fieldId);        
+        }
+
+        public Map filter(String fieldId, Map m)
+        {
+            return (Map) store.values.get(fieldId);
+        }
+
+        public Object filter(String fieldId, Object o)
+        {
+            return store.values.get(fieldId);
+        }
+    
+    }
+
+    private static class StoreValues implements Filter {
+
+        public Map values = new HashMap();
+        
+        public Filterable filter(String fieldId, Filterable f)
+        {
+            if (f==null) return null;
+            if ( Details.class.isAssignableFrom( f.getClass() ))
+            {
+                values.put(fieldId, ((Details)f).shallowCopy());
+            } 
+            
+            else if (IObject.class.isAssignableFrom( f.getClass() ))
+            {
+                IObject old = (IObject) f;
+                IObject iobj = (IObject) f.newInstance();
+                iobj.setId( old.getId() );
+                iobj.unload();
+                values.put(fieldId,iobj);
+            } 
+            
+            else 
+            {
+                throw new InternalException(
+                        "Unknown filterable type:"+f.getClass());
+            }
+            
+            return f;
+            
+        }
+
+        public Collection filter(String fieldId, Collection c)
+        {
+            values.put(fieldId,null);
+            return c;
+        }
+
+        public Map filter(String fieldId, Map m)
+        {
+            values.put(fieldId,null);
+            return m;
+        }
+
+        public Object filter(String fieldId, Object o)
+        {
+            if (o == null) 
+            {
+                values.put(fieldId,null);
+            }
+            values.put(fieldId,o);
+            return o;
+        }
+        
+    }
+    
 }

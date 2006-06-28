@@ -53,5 +53,6 @@ package ome.util;
 public interface Filterable {
 
 	public boolean acceptFilter(Filter filter);
+    public Filterable newInstance();
 	
 }
