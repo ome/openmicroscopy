@@ -230,8 +230,12 @@ public abstract class QuantumStrategy
 	 */
 	public void setWindow(double start, double end)
 	{
-		if (start < globalMin || globalMax < end)
-			throw new IllegalArgumentException("Wrong interval definition");
+		if (start < globalMin)
+			throw new IllegalArgumentException("'" + start +
+					" less than global minimum: '" + globalMin + "'");
+		if (globalMax < end)
+			throw new IllegalArgumentException("'" + end +
+					" greater than global maximum: '" + globalMax + "'");
         verifyInterval(start, end);
 		windowStart = start;
 		windowEnd = end;

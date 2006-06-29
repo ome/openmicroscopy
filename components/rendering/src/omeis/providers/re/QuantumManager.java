@@ -120,6 +120,7 @@ class QuantumManager
 				              wavesStg[w].getWindowEnd());
 	
 			wavesStg[w] = stg;
+			w++;
 		}
 	}
     
