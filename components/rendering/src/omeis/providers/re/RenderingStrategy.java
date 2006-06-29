@@ -83,11 +83,11 @@ abstract class RenderingStrategy
 	static RenderingStrategy makeNew(RenderingModel model)
 	{
 		String value = model.getValue();
-		if (value == Renderer.MODEL_GREYSCALE)
+		if (value.equals(Renderer.MODEL_GREYSCALE))
 			return new GreyScaleStrategy();
-		else if (value == Renderer.MODEL_HSB)
+		else if (value.equals(Renderer.MODEL_HSB))
 			return new HSBStrategy();
-		else if (value == Renderer.MODEL_RGB)
+		else if (value.equals(Renderer.MODEL_RGB))
 			return new RGBStrategy();
 		log.warn("WARNING: Unknown model '" + value + "' using greyscale.");
 		return new GreyScaleStrategy();
