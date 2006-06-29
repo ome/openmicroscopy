@@ -62,18 +62,10 @@ import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
 import ome.conditions.InternalException;
-import ome.conditions.RootException;
-import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.internal.Details;
-import ome.model.meta.Event;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.util.Filter;
-import ome.util.Filterable;
 
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
@@ -138,7 +130,6 @@ public class RenderingBean extends AbstractBean
         return wrap( context, "&renderService" );
     }
     
-    @PrePassivate
     @PreDestroy
     public void destroy()
     {

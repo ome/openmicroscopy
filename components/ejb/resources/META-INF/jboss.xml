@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC
+   "-//JBoss//DTD JBOSS 3.2//EN"
+   "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+
+<jboss>
+   <container-configurations>
+      <container-configuration extends="Standard Stateful SessionBean">
+         <!-- Override the cache policy to allow a max of one bean -->
+         <container-name>MaxOne Stateful Session</container-name>
+         <container-cache-conf>
+            <cache-policy>org.jboss.ejb.plugins.NoPassivationCachePolicy</cache-policy>
+         </container-cache-conf>
+      </container-configuration>
+   </container-configurations>
+</jboss>
+

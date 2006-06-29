@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="client.3.0-M2-demo" >
+  
+  <test name="client.3.0-M2-demo">
+    <classes>
+      <class name="ome.client.itests.demos.Demo_3_0_M2_Test"/>
+    </classes>
+  </test>
+
+</suite>

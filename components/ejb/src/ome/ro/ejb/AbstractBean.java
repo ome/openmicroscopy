@@ -30,8 +30,8 @@ package ome.ro.ejb;
 
 //Java imports
 import javax.annotation.Resource;
+import javax.ejb.PrePassivate;
 import javax.ejb.SessionContext;
-import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
 //Third-party imports
@@ -42,7 +42,6 @@ import org.springframework.aop.framework.ProxyFactoryBean;
 //Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
-import ome.conditions.RootException;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -70,7 +69,16 @@ public class AbstractBean
         eventContext = (EventContext) applicationContext.getBean("eventContext");
         log.debug("Created:\n"+getLogString());
     }
-
+    
+    @PrePassivate
+    public void passivationNotAllowed()
+    {
+    		throw new InternalException(
+    				"Passivation should have been disabled for all Stateful Session Beans.\n" +
+    				"Please contact the Omero development team for how to ensure that passivation\n" +
+    				"is disabled on your application server.");
+    }
+    
     public void destroy()
     {
         log.debug("Destroying:\n"+getLogString());
