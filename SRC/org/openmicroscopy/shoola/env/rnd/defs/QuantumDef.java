@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.env.rnd.defs;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
 
 /** 
  * Defines the mapping context used during the quantization process.
@@ -87,9 +86,7 @@ public class QuantumDef
      * @param cdStart The lower bound of the codomain interval of the 
      *                  quantum map.
      * @param cdEnd The upper bound of the codomain interval of the quantum map.
-     * @param bitResolution The depth, in bits, of the rendered image.  Must be
-     *                      one of the constants defined by 
-     *                      {@link QuantumFactory}.
+     * @param bitResolution The depth, in bits, of the rendered image. 
      */
 	public QuantumDef(int pixelType, int cdStart, int cdEnd, int bitResolution)
 	{ 
