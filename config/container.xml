@@ -126,30 +126,15 @@
            The config tag specifies the name of the Agent's configuration file
            within the config directory.
       -->
- 	    <agent>
-        <name>Viewer</name>
-        <class>org.openmicroscopy.shoola.agents.viewer.Viewer</class>
-        <config>viewer.xml</config>
-      </agent>
-	    <agent>
-        <name>Renderer</name>
-        <class>org.openmicroscopy.shoola.agents.rnd.RenderingAgt</class>
-        <config>rnd.xml</config>
+     <agent>
+        <name>ImViewer</name>
+        <class>org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent</class>
+        <config>imviewer.xml</config>
       </agent>
       <agent>
         <name>ROI Analysis Tool</name>
         <class>org.openmicroscopy.shoola.agents.roi.ROIAgt</class>
         <config>roi.xml</config>
-      </agent>
-      <agent>
-	      <name>Zoomable Browser Agent</name>
-	  <class>org.openmicroscopy.shoola.agents.zoombrowser.ZoomBrowserAgent</class>  
-        <config>zoombrowser.xml</config>
-      </agent>  
-      <agent>
-        <name>Chain Builder Agent</name>
-	<class>org.openmicroscopy.shoola.agents.chainbuilder.ChainBuilderAgent</class>  
-        <config>chainbuilder.xml</config>
       </agent>
       <agent> 
         <name>Hierarchy Viewer</name>
