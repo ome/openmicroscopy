@@ -193,12 +193,14 @@ class TreeViewerControl
         Set groups = model.getUserDetails().getGroups();
         Iterator i = groups.iterator();
         GroupData group;
+        /*
         while (i.hasNext()) {
             group = (GroupData) i.next();
             groupLevelActionsMap.put(new Long(group.getId()), 
                     new RootLevelAction(model, TreeViewer.GROUP_ROOT, 
                             group.getId(), group.getName()));
         }
+        */
     }
     
     /** 

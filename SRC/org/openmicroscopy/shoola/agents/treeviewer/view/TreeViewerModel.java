@@ -53,9 +53,8 @@ import pojos.ImageData;
  * The Model component in the <code>TreeViewer</code> MVC triad.
  * This class tracks the <code>TreeViewer</code>'s state and knows how to
  * initiate data retrievals. It also knows how to store and manipulate
- * the results. However, this class doesn't know the actual hierarchy
- * the <code>TreeViewer</code> is for. Subclasses fill this gap and provide  
- * a suitable data loader. The {@link TreeViewerComponent} intercepts the 
+ * the results. This class  provide  a suitable data loader. 
+ * The {@link TreeViewerComponent} intercepts the 
  * results of data loadings, feeds them back to this class and fires state
  * transitions as appropriate.
  *

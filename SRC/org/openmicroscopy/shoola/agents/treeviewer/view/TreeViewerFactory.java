@@ -41,7 +41,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- *  Factory to create {@link TreeViewer} component.
+ * Factory to create {@link TreeViewer} component.
  * This class keeps track of the {@link TreeViewer} instance that has been 
  * created and is not yet in the {@link TreeViewer#DISCARDED} state.
  *
