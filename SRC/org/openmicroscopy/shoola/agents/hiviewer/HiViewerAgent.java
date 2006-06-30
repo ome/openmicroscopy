@@ -130,7 +130,6 @@ public class HiViewerAgent
             handleBrowse((Browse) e);
     }
     
-
     /** 
      * Browse the specified element.
      * 
