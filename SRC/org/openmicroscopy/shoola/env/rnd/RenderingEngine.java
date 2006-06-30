@@ -52,10 +52,7 @@ import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import org.openmicroscopy.shoola.env.rnd.events.ROIAnalysisResults;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage;
 import org.openmicroscopy.shoola.env.rnd.events.RenderImage3D;
-import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
-import org.openmicroscopy.shoola.env.rnd.metadata.MetadataSourceException;
 import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.env.rnd.quantum.QuantizationException;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyzer;
 import org.openmicroscopy.shoola.util.concur.tasks.AsyncProcessor;
 import org.openmicroscopy.shoola.util.concur.tasks.CmdProcessor;
@@ -98,7 +95,7 @@ public class RenderingEngine
     
     static Registry getRegistry() { return registry; }
     
-    private RenderingManager    rndManager;
+    //private RenderingManager    rndManager;
     
     //Used by DataSink for async operation.
     private CmdProcessor        cmdProcessor;
@@ -132,6 +129,7 @@ public class RenderingEngine
 	
 	private void handleLoadImage(LoadImage request)
 	{
+        /*
 		try {
             rndManager = RenderingManager.makeNew(this, 
                                 (new Long(request.getImageID())).intValue(), 
@@ -148,10 +146,12 @@ public class RenderingEngine
             handleException("Can't load image metadata. Image id: "+
                             request.getImageID(), dse);
         }   
+        */
 	}
 	
 	private void handleRenderImage(RenderImage request)
 	{
+        /*
         if (rndManager == null) return;  //TODO: if null, log?
         try {
             PlaneDef pd = request.getPlaneDef();
@@ -167,10 +167,12 @@ public class RenderingEngine
             handleException("Can't map the wavelength "
                             +qee.getWavelength(), qee);
         }
+        */
 	}
 	
 	private void handleRenderImage3D(RenderImage3D request)
 	{
+        /*
         if (rndManager == null) return;  //TODO: if null, log?
         try {
             PlaneDef xyPD = request.getXYPlaneDef(), 
@@ -192,10 +194,12 @@ public class RenderingEngine
             handleException("Can't map the wavelength "
                             +qee.getWavelength(), qee);
         }
+        */
 	}
     
     private void handleAnalyzeROIs(AnalyzeROIs request)
     {
+        /*
         if (rndManager == null) return;  //TODO: if null, log?
         try {
             //PlaneDef pd = request.getPlaneDef();
@@ -211,13 +215,9 @@ public class RenderingEngine
         } catch (DataSourceException dse) {
             handleException("Can't load pixels data.", dse);
         }
+        */
     }
-	
-	private void handleRenderingPropChange(RenderingPropChange event)
-	{
-		event.doUpdate();
-        rndManager.onRenderingPropChange();
-	}
+
     
     CmdProcessor getCmdProcessor() { return cmdProcessor; }
 	
@@ -226,7 +226,6 @@ public class RenderingEngine
 		EventBus eventBus = registry.getEventBus();
 		eventBus.register(this, LoadImage.class);
 		eventBus.register(this, RenderImage.class);
-		eventBus.register(this, RenderingPropChange.class);
 		eventBus.register(this, RenderImage3D.class);
         eventBus.register(this, AnalyzeROIs.class);
 		//TODO: start event loop in its own thread.
@@ -242,8 +241,6 @@ public class RenderingEngine
 		//TODO: put event on the queue and remove the following.
 		if (e instanceof LoadImage)	handleLoadImage((LoadImage) e);
 		else if	(e instanceof RenderImage)	handleRenderImage((RenderImage) e);
-		else if (e instanceof RenderingPropChange)
-			handleRenderingPropChange((RenderingPropChange) e);
 		else if (e instanceof RenderImage3D)
 			handleRenderImage3D((RenderImage3D) e);
         else if (e instanceof AnalyzeROIs)
