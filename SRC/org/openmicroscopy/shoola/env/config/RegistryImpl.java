@@ -36,7 +36,7 @@ import java.util.HashMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.RenderingService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -84,8 +84,8 @@ class RegistryImpl
 	/** Reference to container's service. */
    	private UserNotifier            un;
    	
-    /** Reference to the container's pixel service. */
-    private PixelsService           ps;
+    /** Reference to the container's rendering service. */
+    private RenderingService        rds;
     
     /** Reference to the Omero service. */
     private OmeroService            os;
@@ -147,9 +147,9 @@ class RegistryImpl
    	
 	/** 
      * Implemented as specified by {@link Registry}.
-     * @see Registry#getPixelsService()
+     * @see Registry#getRenderingService()
      */
-    public PixelsService getPixelsService() { return ps; }
+    public RenderingService getRenderingService() { return rds; }
     
     /** 
      * Implemented as specified by {@link Registry}.
@@ -182,11 +182,11 @@ class RegistryImpl
 	void setEventBus(EventBus eb) { this.eb = eb; }
     
     /**
-     * Stores a reference to the {@link PixelsService}.
+     * Stores a reference to the {@link RenderingService}.
      * 
-     * @param ps The {@link PixelsService}.
+     * @param rds The {@link RenderingService}.
      */
-    void setPS(PixelsService ps) { this.ps = ps; }
+    void setRenderingService(RenderingService rds) { this.rds = rds; }
    	
 	/**
 	 * Stores a reference to the {@link TaskBar}.

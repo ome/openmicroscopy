@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.RenderingService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -126,11 +126,11 @@ public interface Registry
    	public UserNotifier getUserNotifier();
    	
 	/**
-	 * Returns a reference to the {@link PixelsService}.
+	 * Returns a reference to the {@link RenderingService}.
 	 * 
 	 * @return See above.
 	 */
-	public PixelsService getPixelsService();
+	public RenderingService getRenderingService();
     
     /**
      * Returns a reference to the {@link OmeroService}.

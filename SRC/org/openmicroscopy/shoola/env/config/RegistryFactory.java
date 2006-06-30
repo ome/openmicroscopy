@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.RenderingService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -117,15 +117,15 @@ public class RegistryFactory
 	}
     
     /**
-     * Adds the {@link PixelsService} instance to the specified
+     * Adds the {@link RenderingService} instance to the specified
      * {@link Registry}.
      * 
-     * @param ps    The {@link PixelsService} instance.
+     * @param rds   The {@link RenderingService} instance.
      * @param reg   The {@link Registry}.
      */
-    public static void linkPS(PixelsService ps, Registry reg)
+    public static void linkRDS(RenderingService rds, Registry reg)
     {
-        ((RegistryImpl) reg).setPS(ps);
+        ((RegistryImpl) reg).setRenderingService(rds);
     }
 	
 	/**
