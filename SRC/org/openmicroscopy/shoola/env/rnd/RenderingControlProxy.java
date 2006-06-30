@@ -30,20 +30,29 @@
 package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
+import java.awt.Color;
+import java.awt.image.BandedSampleModel;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
-import org.openmicroscopy.shoola.env.rnd.defs.ChannelBindings;
-import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
-import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
-import org.openmicroscopy.shoola.env.rnd.events.RenderingPropChange;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
-import org.openmicroscopy.shoola.env.rnd.quantum.QuantumFactory;
+import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
+import ome.model.display.CodomainMapContext;
+import ome.model.display.QuantumDef;
+import ome.model.enums.Family;
+import ome.model.enums.RenderingModel;
+import omeis.providers.re.RGBBuffer;
+import omeis.providers.re.RenderingEngine;
+import omeis.providers.re.data.PlaneDef;
+
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
@@ -66,298 +75,478 @@ class RenderingControlProxy
 	implements RenderingControl
 {
 
-	private RenderingControlImpl	servant;
-	private RenderingDef			rndDefCopy;
-	private EventBus				eventBus;
-	
-	RenderingControlProxy(RenderingControlImpl servant, RenderingDef copy,
-							EventBus eventBus) 
-	{
-		this.servant = servant;
-		this.rndDefCopy = copy;
-		this.eventBus = eventBus;
-	}
-
-	public PixelsDimensions getPixelsDims() 
-	{
-		return servant.getPixelsDims();  //Read-only, no concurrency problems.
-	}
-
-	public PixelsStats getPixelsStats()
-	{
-		return servant.getPixelsStats();  //Read-only, no concurrency problems.
-	}
-
-	public void setModel(final int model)
-	{
-		rndDefCopy.setModel(model);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.setModel(model);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
-
-    public void setDefaultZ(final int z)
+    /** The default size of the cache. */
+    private static final int    DEFAULT_CACHE_SIZE = 50;  //In MB.
+    
+    /** The dimensions in microns of a pixel. */
+    private final PixelsDimensions  pixDims;
+    
+    
+    /** List of supported families. */
+    private final List              families;
+    
+    /** List of supported models. */
+    private final List              models;
+    
+    /** The pixels set to render. */
+    private final Pixels            pixs;
+    
+    /** Reference to service to render pixels set. */
+    private RenderingEngine         servant;
+    
+    /** The size of an XY image. */
+    private int                     xyImgSize;
+    
+    /** The cache containing XY images. */
+    private XYCache                 xyCache;
+    
+    /** The size of the cache. No caching if <= 0.*/
+    private int                     sizeCache;
+    
+    /**
+     * Returns the size of the cache.
+     * 
+     * @return See above.
+     */
+    private int getCacheSize()
     {
-        rndDefCopy.setDefaultZ(z);
-        MethodCall mCall = new MethodCall() {
-            public void doCall() { 
-                servant.setDefaultZ(z);
-            }
-        };
-        RenderingPropChange rpc = new RenderingPropChange(mCall);
-        eventBus.post(rpc);
+        if (sizeCache <= 0) sizeCache = 0;
+        return sizeCache*1024*1024;
     }
     
-    public void setDefaultT(final int t)
+    /**
+     * Retrieves from the cache the buffered image representing the specified
+     * plane definition. Note that only the images corresponding to an XY-plane
+     * are cached.
+     * 
+     * @param pd    The specified {@link PlaneDef plane definition}.
+     * @return The corresponding bufferedImage.
+     */
+    private BufferedImage getFromCache(PlaneDef pd)
     {
-        rndDefCopy.setDefaultT(t);
-        MethodCall mCall = new MethodCall() {
-            public void doCall() { 
-                servant.setDefaultT(t);
+        BufferedImage img = null;
+        if (pd.getSlice() == PlaneDef.XY) {  //We only cache XY images.
+            if (xyCache != null) {
+                img = xyCache.extract(pd);
+            } else {
+                //Okay, let's see if we can activate the xyCache. In order to 
+                //do that, the dimensions of the pixels array and the xyImgSize
+                //have to be available. 
+                //This happens ifat least one XY plane has been rendered.  
+                //Note that doing remote calls upfront to eagerly instantiate 
+                //the xyCache is in most cases a total waste: the client is 
+                //likely to call getPixelsDims() before an image is ever 
+                //rendered and until an XY plane is not requested it's pointless
+                //to have a cache.
+                if (xyImgSize != 0) {
+                    int cacheSize = getCacheSize();
+                    NavigationHistory nh = new NavigationHistory(
+                                                  cacheSize/xyImgSize, 
+                                                  getPixelsDimensionsZ(), 
+                                                  getPixelsDimensionsT());
+                    xyCache = new XYCache(cacheSize, xyImgSize, nh);
+                }
             }
-        };
-        RenderingPropChange rpc = new RenderingPropChange(mCall);
-        eventBus.post(rpc);
-    }
-    
-	public int getModel() { return rndDefCopy.getModel(); }
-
-	public int getDefaultZ() { return rndDefCopy.getDefaultZ(); }
-
-	public int getDefaultT() { return rndDefCopy.getDefaultT(); }
-
-	public void setQuantumStrategy(final int bitResolution)
-	{
-		//TODO: this might go well w/ our copy, but then throw an exception
-		//in the servant. We need a future.
-        QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
-        newQd = new QuantumDef(qd.pixelType, qd.cdStart, qd.cdEnd, 
-                                bitResolution);
-        rndDefCopy.setQuantumDef(newQd);
-        MethodCall mCall = new MethodCall() {
-            public void doCall() { 
-                servant.setQuantumStrategy(bitResolution);
-            }
-        };
-        RenderingPropChange rpc = new RenderingPropChange(mCall);
-        eventBus.post(rpc);
-	}
-
-	public void setCodomainInterval(final int start, final int end)
-	{
-		//TODO: this might go well w/ our copy, but then throw an exception
-		//in the servant. We need a future.
-        QuantumDef qd = rndDefCopy.getQuantumDef(), newQd;
-        newQd = new QuantumDef(qd.pixelType, start, end, qd.bitResolution);
-        rndDefCopy.setQuantumDef(newQd);
-        CodomainMapContext mapCtx;
-        Iterator i = rndDefCopy.getCodomainChainDef().iterator();
-        while (i.hasNext()) {
-            mapCtx = (CodomainMapContext) i.next();
-            mapCtx.setCodomain(start, end);
         }
-        MethodCall mCall = new MethodCall() {
-            public void doCall() { 
-                servant.setCodomainInterval(start, end);
-            }
-        };
-        RenderingPropChange rpc = new RenderingPropChange(mCall);
-        eventBus.post(rpc); 
-	}
-
-	public QuantumDef getQuantumDef() 
-	{
-		return rndDefCopy.getQuantumDef();
-	}
-
-	public void setQuantizationMap(final int w, final int family, 
-             final double coefficient, final boolean noiseReduction)
-	{
-	    ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-	    cb[w].setQuantizationMap(family, coefficient, noiseReduction);
-	    MethodCall mCall = new MethodCall() {
-	        public void doCall() { 
-	            servant.setQuantizationMap(w, family, coefficient, 
-                        noiseReduction);
-	        }
-	    };
-	    RenderingPropChange rpc = new RenderingPropChange(mCall);
-	    eventBus.post(rpc); 
-	}
-     
-    public double[] getChannelStats(int w)
-    {
-        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-        return cb[w].getStats();
+        return img;
     }
     
+    /**
+     * Caches the specified image if it corresponds to an XYPlane.
+     * 
+     * @param pd    The plane definition.
+     * @param img   The buffered image to cache.
+     */
+    private void cache(PlaneDef pd, BufferedImage img)
+    {
+        if (pd.getSlice() == PlaneDef.XY) {
+            //We only cache XY images.
+            if (xyCache != null) xyCache.add(pd, img);
+        }
+    }
+    
+    /** Clears the cache. */
+    private void invalidateCache()
+    {
+        if (xyCache != null) xyCache.clear();
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param servant   The service to render a pixels set.
+     *                  Mustn't be <code>null</code>.
+     * @param pixDims   The dimensions in microns of the pixels set.
+     *                  Mustn't be <code>null</code>.
+     * @param sizeCache The size of the cache.
+     */
+    RenderingControlProxy(RenderingEngine servant, PixelsDimensions pixDims,
+                          int sizeCache)
+    {
+        if (servant == null)
+            throw new NullPointerException("No rendering engine.");
+        if (pixDims == null)
+            throw new NullPointerException("No pixels dimensions.");
+        this.servant = servant;
+        this.pixDims = pixDims;
+        this.sizeCache = sizeCache;
+        pixs = servant.getPixels();
+        families = servant.getAvailableFamilies(); 
+        models = servant.getAvailableModels();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setModel(String)
+     */
+    public void setModel(String value)
+    { 
+        Iterator i = models.iterator();
+        RenderingModel model;
+        while (i.hasNext()) {
+            model= (RenderingModel) i.next();
+            if (model.getValue().equals(value)) {
+                System.out.println("value "+value+" model "+model);
+                servant.setModel(model); 
+                invalidateCache();
+            }
+        }
+     }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getModel()
+     */
+    public String getModel()
+    { 
+        return servant.getModel().getValue(); 
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getDefaultZ()
+     */
+    public synchronized int getDefaultZ() { return servant.getDefaultZ(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getDefaultT()
+     */
+    public int getDefaultT() { return servant.getDefaultT(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setDefaultZ(int)
+     */
+    public void setDefaultZ(int z) { servant.setDefaultZ(z); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setDefaultT(int)
+     */
+    public void setDefaultT(int t) { servant.setDefaultT(t); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setQuantumStrategy(int)
+     */
+    public void setQuantumStrategy(int bitResolution)
+    {
+        //TODO: need to convert value.
+        servant.setQuantumStrategy(bitResolution);
+        invalidateCache();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setCodomainInterval(int, int)
+     */
+    public void setCodomainInterval(int start, int end)
+    {
+        servant.setCodomainInterval(start, end);
+        invalidateCache();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getQuantumDef()
+     */
+    public QuantumDef getQuantumDef() { return servant.getQuantumDef(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setQuantizationMap(int, String, double, boolean)
+     */
+    public void setQuantizationMap(int w, String value, double coefficient,
+                                    boolean noiseReduction)
+    {
+        List list = servant.getAvailableFamilies();
+        Iterator i = list.iterator();
+        Family family;
+        while (i.hasNext()) {
+            family= (Family) i.next();
+            if (family.getValue().equals(value)) {
+                servant.setQuantizationMap(w, family, coefficient, 
+                                            noiseReduction);
+                invalidateCache();
+            }
+        }
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelFamily(int)
+     */
+    public String getChannelFamily(int w)
+    { 
+        return servant.getChannelFamily(w).getValue();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelNoiseReduction(int)
+     */
     public boolean getChannelNoiseReduction(int w)
     {
-        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-        return cb[w].getNoiseReduction();
+        return servant.getChannelNoiseReduction(w);
     }
-    
-    public int getChannelFamily(int w)
-    {
-        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-        return cb[w].getFamily();
-    }
-    
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelCurveCoefficient(int)
+     */
     public double getChannelCurveCoefficient(int w)
     {
-        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-        return cb[w].getCurveCoefficient();
+        return servant.getChannelCurveCoefficient(w);
     }
 
-	public void setChannelWindow(final int w, 
-								final double start, final double end) 
-	{	
-		//TODO: this might go well w/ our copy, but then throw an exception
-		//in the servant. We need a future.
-		
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		cb[w].setInputWindow(start, end);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.setChannelWindow(w, start, end);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);	
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setChannelWindow(int, double, double)
+     */
+    public void setChannelWindow(int w, double start, double end)
+    {
+        servant.setChannelWindow(w, start, end);
+        invalidateCache();
+    }
 
-	public double getChannelWindowStart(int w) 
-	{
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		return cb[w].getInputStart();
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelWindowStart(int)
+     */
+    public double getChannelWindowStart(int w)
+    {
+        return servant.getChannelWindowStart(w);
+    }
 
-	public double getChannelWindowEnd(int w) 
-	{
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		return cb[w].getInputEnd();
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelWindowEnd(int)
+     */
+    public double getChannelWindowEnd(int w)
+    {
+        return servant.getChannelWindowEnd(w);
+    }
 
-	public void setRGBA(final int w, final int red, final int green, 
-						final int blue, final int alpha) 
-	{
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		cb[w].setRGBA(red, green, blue, alpha);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.setRGBA(w, red, green, blue, alpha);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setRGBA(int, Color)
+     */
+    public void setRGBA(int w, Color c)
+    {
+        servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        invalidateCache();
+    }
 
-	public int[] getRGBA(int w) 
-	{
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		return cb[w].getRGBA();
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getRGBA(int)
+     */
+    public Color getRGBA(int w)
+    {
+        int[] rgba = servant.getRGBA(w);
+        return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+    }
 
-	public void setActive(final int w, final boolean active) 
-	{
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		cb[w].setActive(active);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.setActive(w, active);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#setActive(int, boolean)
+     */
+    public void setActive(int w, boolean active)
+    { 
+        servant.setActive(w, active);
+        invalidateCache();
+    }
 
-	public boolean isActive(int w) 
-	{
-		ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-		return cb[w].isActive();
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#isActive(int)
+     */
+    public boolean isActive(int w) { return servant.isActive(w); }
 
-	public void addCodomainMap(final CodomainMapContext mapCtx) 
-	{
-		rndDefCopy.addCodomainMapCtx(mapCtx);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.addCodomainMap(mapCtx);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#addCodomainMap(CodomainMapContext)
+     */
+    public void addCodomainMap(CodomainMapContext mapCtx)
+    {
+        //servant.addCodomainMap(mapCtx);
+        invalidateCache();
+    }
 
-	public void updateCodomainMap(final CodomainMapContext mapCtx) 
-	{
-		rndDefCopy.updateCodomainMapCtx(mapCtx);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.updateCodomainMap(mapCtx);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#updateCodomainMap(CodomainMapContext)
+     */
+    public void updateCodomainMap(CodomainMapContext mapCtx)
+    {
+        //servant.updateCodomainMap(mapCtx);
+        invalidateCache();
+    }
 
-	public void removeCodomainMap(final CodomainMapContext mapCtx)
-	{
-		rndDefCopy.removeCodomainMapCtx(mapCtx);
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.removeCodomainMap(mapCtx);
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
-	
-	public void saveCurrentSettings() 
-	{
-		MethodCall mCall = new MethodCall() {
-			public void doCall() { 
-				servant.saveCurrentSettings();	
-			}
-		};
-		RenderingPropChange rpc = new RenderingPropChange(mCall);
-		eventBus.post(rpc);
-	}
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#removeCodomainMap(CodomainMapContext)
+     */
+    public void removeCodomainMap(CodomainMapContext mapCtx)
+    {
+        //servant.removeCodomainMap(mapCtx);
+        invalidateCache();
+    }
 
-	/** Implemented as specified by {@link RenderingControl}. */
-	public void resetDefaults()
-	{
-        setQuantumStrategy(QuantumFactory.DEPTH_8BIT);
-        setCodomainInterval(0, QuantumFactory.DEPTH_8BIT);
-        
-        ChannelBindings[] cb = rndDefCopy.getChannelBindings();
-        PixelsStats stats = servant.getPixelsStats();
-        for (int i = 0; i < cb.length; i++)
-                resetDefaultsChannel(i, stats);
-        rndDefCopy.remove();
-        setModel(RenderingDef.GS);
-        
-        MethodCall mCall = new MethodCall() {
-            public void doCall() { 
-                servant.resetDefaults();
-            }
-        };
-        RenderingPropChange rpc = new RenderingPropChange(mCall);
-        eventBus.post(rpc);
-	}
-	
-	/** Reset defaults for all wavelengths. */
-	private void resetDefaultsChannel(int w, PixelsStats stats)
-	{
-		setActive(w, w == 0);
-		double s = stats.getGlobalEntry(w).globalMin,
-		 		e = stats.getGlobalEntry(w).globalMax;
-		setChannelWindow(w, s, e);
-		setRGBA(w, 255, 0, 0, 255); //red-green-blue-alpha
-	}
-	
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getCodomainMaps()
+     */
+    public List getCodomainMaps()
+    {
+        // TODO Auto-generated method stub
+        return new ArrayList(0);
+    }
+    
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#saveCurrentSettings()
+     */
+    public void saveCurrentSettings() { servant.saveCurrentSettings(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#resetDefaults()
+     */
+    public void resetDefaults() { servant.resetDefaults(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#render(PlaneDef)
+     */
+    public BufferedImage render(PlaneDef pDef)
+    {
+        if (pDef == null) 
+            throw new IllegalArgumentException("Plane def cannot be null.");
+        //See if the requested image is in cache.
+        BufferedImage img = getFromCache(pDef);
+        if (img == null) {  //If not, ask the server to render the plane.
+            RGBBuffer buf = servant.render(pDef);   //TO BE modified.
+            
+            //See if we can/need work out the XY image size.
+            if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
+                xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
+                            buf.getBlueBand().length;
+            
+            //Then create a Java2D buffer for buf.
+            RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
+            //Now we only need to tell Java2D how to handle the RGB buffer. 
+            BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
+                                        buf.getSizeX1(), buf.getSizeX2(), 3);
+            
+            img = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
+                                      BufferedImage.TYPE_INT_RGB);
+            img.setData(Raster.createWritableRaster(csm, j2DBuf, null));
+            
+            //Finally add to cache.
+            cache(pDef, img);
+        }
+        return img;
+    }
+    
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#render(PlaneDef)
+     */
+    public void shutDown() { servant.destroy(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsSizeX()
+     */
+    public float getPixelsSizeX()
+    {
+        if (pixDims.getSizeX() == null) return 1;
+        return pixDims.getSizeX().floatValue();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsSizeY()
+     */
+    public float getPixelsSizeY()
+    {
+        if (pixDims.getSizeY() == null) return 1;
+        return pixDims.getSizeY().floatValue();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsSizeZ()
+     */
+    public float getPixelsSizeZ()
+    {
+        if (pixDims.getSizeY() == null) return 1;
+        return pixDims.getSizeY().floatValue();
+    }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsDimensionsX()
+     */
+    public int getPixelsDimensionsX() { return pixs.getSizeX().intValue(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsDimensionsY()
+     */
+    public int getPixelsDimensionsY() { return pixs.getSizeY().intValue(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsDimensionsZ()
+     */
+    public int getPixelsDimensionsZ() { return pixs.getSizeZ().intValue(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsDimensionsT()
+     */
+    public int getPixelsDimensionsT() { return pixs.getSizeT().intValue(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getPixelsDimensionsC()
+     */
+    public int getPixelsDimensionsC() { return pixs.getSizeC().intValue(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getFamilies()
+     */
+    public List getFamilies()
+    { 
+        List l = new ArrayList(families.size());
+        Iterator i= families.iterator();
+        while (i.hasNext())
+            l.add(((Family) i.next()).getValue());
+        return l;
+    }
+    
 }

@@ -30,14 +30,16 @@
 package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.codomain.CodomainMapContext;
-import org.openmicroscopy.shoola.env.rnd.defs.QuantumDef;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsDimensions;
-import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
+import ome.model.display.CodomainMapContext;
+import ome.model.display.QuantumDef;
+import omeis.providers.re.data.PlaneDef;
 
 /** 
  * A facade to a given rendering environment for the UI benefit.
@@ -57,50 +59,324 @@ import org.openmicroscopy.shoola.env.rnd.metadata.PixelsStats;
  */
 public interface RenderingControl
 {
-	
-	//Pixels metadata.
-	public PixelsDimensions getPixelsDims();
-	public PixelsStats getPixelsStats();
-	
-	//RenderingDef fields.
-	public void setModel(int model);
-	public int getModel();
-	public int getDefaultZ();
-	public int getDefaultT();
-	//Is it the best way to do it?
+
+    /** Identifies the <code>RGB</code> color model. */
+    public static final String  RGB = "rgb";
+    
+    /** Identifies the <code>HSB</code> color model. */
+    public static final String  HSB = "hsb";
+    
+    /** Identifies the <code>Grey scale</code> color model. */
+    public static final String  GREY_SCALE = "greyscale";
+    
+    /** Identifies the <code>Linear</code> family. */
+    public static final String  LINEAR = "linear";
+    
+    /** Identifies the <code>Polynomial</code> family. */
+    public static final String  POLYNOMIAL = "polynomial";
+    
+    /** Identifies the <code>Exponential</code> family. */
+    public static final String  EXPONENTIAL = "exponential";
+    
+    /** Identifies the <code>Exponential</code> family. */
+    public static final String  LOGARITHMIC = "logarithmic";
+    
+    /**
+     * Returns the number of pixels along the X-axis.
+     * 
+     * @return See above.
+     */
+    public int getPixelsDimensionsX();
+    
+    /**
+     * Returns the number of pixels along the Y-axis.
+     * 
+     * @return See above.
+     */
+    public int getPixelsDimensionsY();
+    
+    /**
+     * Returns the number of z-sections.
+     * 
+     * @return See above.
+     */
+    public int getPixelsDimensionsZ();
+    
+    /**
+     * Returns the number of timepoints
+     * 
+     * @return See above.
+     */
+    public int getPixelsDimensionsT();
+    
+    /**
+     * Returns the number of channels
+     * 
+     * @return See above.
+     */
+    public int getPixelsDimensionsC();
+    
+    /**
+     * The size in microns of a pixel along the X-axis.
+     * 
+     * @return See above.
+     */
+    public float getPixelsSizeX();
+    
+    /**
+     * The size in microns of a pixel along the Y-axis.
+     * 
+     * @return See above.
+     */
+    public float getPixelsSizeY();
+    
+    /**
+     * The size in microns of a pixel along the Z-axis.
+     * 
+     * @return See above.
+     */
+    public float getPixelsSizeZ();
+    
+    //public PixelsStats getPixelsStats();
+    
+    
+    //public double[] getChannelStats(int w);
+    
+    /**
+     * Specifies the model that dictates how transformed raw data has to be 
+     * mapped onto a color space.
+     * 
+     * @param model Identifies the color space model.
+     */
+    public void setModel(String model);
+    
+    /**
+     * Returns the color space model that dictated how transformed raw data
+     * has to be mapped onto a color space. 
+     * 
+     * @return See above.
+     */
+    public String getModel();
+    
+    /**
+     * Returns the default focal plane. The default value is set to the
+     * middle of the stack.
+     * 
+     * @return See above.
+     */
+    public int getDefaultZ();
+    
+    /**
+     * Returns the default timepoint. The default value is set to the
+     * first timepoint.
+     * 
+     * @return See above.
+     */
+    public int getDefaultT();
+    
+    /**
+     * Sets the index of the default focal section.
+     * This index is used to define a default plane.
+     *  
+     * @param z The stack index.
+     */
     public void setDefaultZ(int z);
+    
+    /**
+     * Sets the default timepoint index.
+     * This index is used to define a default plane.
+     * 
+     * @param t The timepoint index.
+     */
     public void setDefaultT(int t);
     
-	//QuantumDef fields.  Two setters b/c we don't wanna rebuild all LUT's
-	//if not necessary.
-	public void setQuantumStrategy(int bitResolution);
-	public void setCodomainInterval(int start, int end);
-	public QuantumDef getQuantumDef();
-	
-	//ChannelBindings[] elements' fields.
-    public void setQuantizationMap(int w, int family, double coefficient, 
+    /**
+     * Sets the mapping strategy used during the mapping process.
+     * 
+     * @param bitResolution The depth, in bits, of the rendered image.
+     */
+    public void setQuantumStrategy(int bitResolution);
+    
+    /**
+     * Sets the size of sub-interval of the device space.
+     * The interval is a sub-interval of [0, 255].
+     * 
+     * @param start The lower bound of the interval.
+     * @param end   The upper bound of the interval.
+     */
+    public void setCodomainInterval(int start, int end);
+    
+    /**
+     * Returns the mapping context used during the mapping process. 
+     * 
+     * @return See above.
+     */
+    public QuantumDef getQuantumDef();
+    
+    /**
+     * Sets the values used during the mapping of the specified wavelength.
+     * 
+     * @param w                 The index of the channel.
+     * @param family            The mapping family.
+     * @param coefficient       The coefficient identifying a curve in the
+     *                          family.
+     * @param noiseReduction    Pass <code>true</code> to select the 
+     *                          mapping <code>NoiseReduction</code> algorithm,
+     *                          <code>false</code> otherwise.
+     */ 
+    public void setQuantizationMap(int w, String family, double coefficient, 
                                     boolean noiseReduction);
-    public int getChannelFamily(int w);
+    
+    /**
+     * Returns the family used to map the specified channel onto the device
+     * space.
+     * 
+     * @param w The index of the channel.
+     * @return See above.
+     */
+    public String getChannelFamily(int w);
+    
+    /**
+     * Returns <code>true</code> is the <code>NoiseReduction</code> algorithm
+     * is used when mapping the specified channel.
+     * 
+     * @param w The index of the channel.
+     * @return See above.
+     */
     public boolean getChannelNoiseReduction(int w);
-    public double[] getChannelStats(int w);
+
+    /**
+     * Returns the coefficient that identifies a curve in the family of curves.
+     *      
+     * @param w The index of the channel.
+     * @return  See above.
+     * @see #getChannelFamily(int)
+     */
     public double getChannelCurveCoefficient(int w);
-	public void setChannelWindow(int w, double start, double end);
-	public double getChannelWindowStart(int w);
-	public double getChannelWindowEnd(int w);
-	public void setRGBA(int w, int red, int green, int blue, int alpha);
-	public int[] getRGBA(int w);
-	public void setActive(int w, boolean active);
-	public boolean isActive(int w);
+    
+    /**
+     * Sets the size of the pixel intensity interval for the specified channel.
+     * 
+     * @param w     The index of the channel.
+     * @param start The lower bound of the interval.
+     * @param end   The upper bound of the interval.
+     */
+    public void setChannelWindow(int w, double start, double end);
+    
+    /**
+     * Returns the lower bound of the pixel intensity interval.
+     * 
+     * @param w The index of the channel.
+     * @return See above.
+     * @see #setChannelWindow(int, double, double)
+     */
+    public double getChannelWindowStart(int w);
+    
+    /**
+     * Returns the upper bound of the pixel intensity interval.
+     * 
+     * @param w The index of the channel.
+     * @return See above.
+     * @see #setChannelWindow(int, double, double)
+     */
+    public double getChannelWindowEnd(int w);
+    
+    /**
+     * Sets the color on which the specified channel is mapped onto.
+     * 
+     * @param w     The index of the channel.
+     * @param color The color selected.
+     */
+    public void setRGBA(int w, Color color);
+    
+    /**
+     * Returns the color the channel is mapped onto.
+     * 
+     * @param w The index of the channel.
+     * @return  See above.
+     */
+    public Color getRGBA(int w);
+    
+    /**
+     * Sets the flag to map the channel, passed <code>true</code> to map the
+     * channel, <code>false</code> otherwise.
+     * 
+     * @param w         The index of the channel.
+     * @param active    <code>true</code> if the channel is mapped, 
+     *                  <code>false</code> otherwise.
+     */
+    public void setActive(int w, boolean active);
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped, <code>false</code>
+     * otherwise.
+     * 
+     * @param w The index of the channel.
+     * @return  See above.
+     */
+    public boolean isActive(int w);
+    
+    /**
+     * Adds the <code>CodomainMapContext</code> to the list of transformations.
+     * Only one codomain map can be added to the transformations list.
+     * When a new element is added to the list, the look-up table
+     * managing the codomain transformations is rebuilt. 
+     * 
+     * @param mapCtx The context to add.
+     */
+    public void addCodomainMap(CodomainMapContext mapCtx);
+    
+    /**
+     * Updates the specified <code>CodomainMapContext</code>.
+     * The transformation associated should already be in the transformations.
+     * 
+     * @param mapCtx The context to update.
+     */
+    public void updateCodomainMap(CodomainMapContext mapCtx);
+    
+    /**
+     * Removed the <code>CodomainMapContext</code> from the list of
+     * transformations.
+     * 
+     * @param mapCtx    The context to remove.
+     */
+    public void removeCodomainMap(CodomainMapContext mapCtx);
+    
+    /**
+     * Returns a read-only list of {@link CodomainMapContext}s using during
+     * the mapping process in the device space.
+     * 
+     * @return See above.
+     */
+    public List getCodomainMaps();
+
+    /**
+     * Returns a list of string representing the mapping families supported by
+     * the rendering engine.
+     * 
+     * @return See above.
+     */
+    public List getFamilies();
+    
+    
+    /** Saves the current rendering settings to the database. */
+    public void saveCurrentSettings();
+    
+    /** 
+     * Resets the original default values. 
+     * The default values aren't values previously saved.
+     */
+    public void resetDefaults();
+   
+    /**
+     * Renders the specified {@link PlaneDef plane}.
+     * 
+     * @param pDef
+     * @return The rendered image.
+     */
+    public BufferedImage render(PlaneDef pDef);
 	
-	//Codomain chain definition.
-	public void addCodomainMap(CodomainMapContext mapCtx);
-	public void updateCodomainMap(CodomainMapContext mapCtx);
-	public void removeCodomainMap(CodomainMapContext mapCtx);
-	
-	//Save display options to db.
-	public void saveCurrentSettings();
-	
-	//ResetDefaults values.
-	public void resetDefaults();
-	
+    /** Shuts down the service. */
+    public void shutDown();
+    
 }
