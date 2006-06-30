@@ -27,15 +27,8 @@
  *------------------------------------------------------------------------------
  */
  
- //the above license blurb is required, the following "Written by" clause is
- //optional
+ //the above license blurb is required
  
-/*------------------------------------------------------------------------------
- *
- * Written by:    Your Name <your@email>
- *
- *------------------------------------------------------------------------------
- */
  
 package org.openmicroscopy.package.ClassName;
 
