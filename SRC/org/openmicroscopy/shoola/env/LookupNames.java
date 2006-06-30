@@ -53,7 +53,7 @@ package org.openmicroscopy.shoola.env;
 
 public class LookupNames
 {
-
+    
     /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	
@@ -91,9 +91,12 @@ public class LookupNames
     /** Field to access the <code>Log file</code> information. */
 	public static final String LOG_FILE = "/services/LOG/file";
 	
+    /** Field to access the <code>Size</code> of the cache. */
+    public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
+    
 	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
 	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";
-    public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
+
     public static final String RE_MAX_PRE_FETCH = "/services/RE/maxPreFetch";
     
     public static final String CMD_PROCESSOR = "/services/CmdProcessor";

@@ -67,7 +67,7 @@ public interface Agent
     public void terminate();
     
 	/** 
-	 * Container create a Registry  from entries in agent's configuration 
+	 * Container create a Registry from entries in agent's configuration 
 	 * file and add entries for services that can be accessed by agent. 
 	 * It then passes  this to setContext
      * 
