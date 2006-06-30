@@ -38,7 +38,6 @@ package org.openmicroscopy.shoola.agents.events.roi;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.roi.canvas.DrawingCanvas;
-import org.openmicroscopy.shoola.agents.viewer.defs.ImageAffineTransform;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -62,19 +61,17 @@ public class DisplayROI
     private DrawingCanvas           drawingCanvas;
 
     
-    private ImageAffineTransform    affineTransform;
+    //private ImageAffineTransform    affineTransform;
     
     
     /** Creates a new instance. */
-    public DisplayROI(DrawingCanvas drawingCanvas, 
-                        ImageAffineTransform affineTransform)
+    public DisplayROI(DrawingCanvas drawingCanvas)
     {
       this.drawingCanvas = drawingCanvas;
-      this.affineTransform = affineTransform;
     }
 
     public DrawingCanvas getDrawingCanvas() { return drawingCanvas; }
   
-    public ImageAffineTransform getAffineTransform() { return affineTransform; }
+    //public ImageAffineTransform getAffineTransform() { return affineTransform; }
     
 }
