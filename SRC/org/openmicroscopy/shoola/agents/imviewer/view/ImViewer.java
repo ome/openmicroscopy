@@ -1,0 +1,210 @@
+/*
+ * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2004 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.imviewer.view;
+
+
+//Java imports
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+/** 
+ * Defines the interface provided by the viewer component. 
+ * The Viewer provides a top-level window to host the rendered image.
+ *
+ * When the user quits the window, the {@link #discard() discard} method is
+ * invoked and the object transitions to the {@link #DISCARDED} state.
+ * At which point, all clients should de-reference the component to allow for
+ * garbage collection.
+ * 
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
+public interface ImViewer
+    extends ObservableComponent
+{
+
+    /** Flag to denote the <i>New</i> state. */
+    public static final int     NEW = 1;
+    
+    /** Flag to denote the <i>Loading Rendering Settings</i> state. */
+    public static final int     LOADING_RENDERING_CONTROL = 2;
+    
+    /** Flag to denote the <i>Loading Image</i> state. */
+    public static final int     LOADING_IMAGE = 3;
+    
+    /** Flag to denote the <i>Loading Metadata</i> state. */
+    public static final int     LOADING_METADATA = 4;
+    
+    /** Flag to denote the <i>Loading Plane Info</i> state. */
+    public static final int     LOADING_PLANE_INFO = 5;
+    
+    /** Flag to denote the <i>Ready Image</i> state. */
+    public static final int     READY_IMAGE = 6;
+    
+    /** Flag to denote the <i>Ready</i> state. */
+    public static final int     READY = 7;
+    
+    /** Flag to denote the <i>Discarded</i> state. */
+    public static final int     DISCARDED = 8;
+    
+    /** Flag to denote the <i>Channel Movie</i> state. */
+    public static final int     CHANNEL_MOVIE = 9;
+    
+    /** Bound property name indicating that a new z-section is selected. */
+    public final static String  Z_SELECTED_PROPERTY = "z_selected";
+    
+    /** Bound property name indicating that a new timepoint is selected. */
+    public final static String  T_SELECTED_PROPERTY = "t_selected";
+    
+    /** Identifies the grey scale color model. */
+    public static final String  GREY_SCALE_MODEL = RenderingControl.GREY_SCALE;
+    
+    /** Identifies the RGB color model. */
+    public static final String  RGB_MODEL = RenderingControl.RGB;
+    
+    /** Identifies the HSB color model. */
+    public static final String  HSB_MODEL = RenderingControl.HSB;
+    
+    /**
+     * Starts the data loading process when the current state is {@link #NEW} 
+     * and puts the window on screen.
+     * If the state is not {@link #NEW}, then this method simply moves the
+     * window to front.
+     * 
+     * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
+     */
+    public void activate();
+    
+    /**
+     * Transitions the viewer to the {@link #DISCARDED} state.
+     * Any ongoing data loading is cancelled.
+     */
+    public void discard();
+    
+    /**
+     * Queries the current state.
+     * 
+     * @return One of the state flags defined by this interface.
+     */
+    public int getState();
+
+    /**
+     * Callback used by data loaders to provide the viewer with feedback about
+     * the data retrieval.
+     * 
+     * @param description   Textual description of the ongoing operation.
+     * @param perc          Percentage of the total work done. If negative, 
+     *                      it is interpreted as not available.
+     */
+    public void setStatus(String description, int perc);
+    
+    public void setZoomFactor(double factor);
+    
+    public void setRateImage(int level);
+    
+    public void setColorModel(int colorModel);
+
+    public void setSelectedXYPlane(int z, int t);
+
+    /**
+     * Sets the image to display.
+     * 
+     * @param image The image to display.
+     */
+    public void setImage(BufferedImage image);
+
+    /**
+     * Plays a movie across channel i.e. one channel is selected at a time.
+     */
+    public void playChannelMovie();
+    
+    /**
+     * Sets the color of the specified channel depending on the current color
+     * model.
+     * 
+     * @param index The OME index of the channel.
+     * @param c     The color to set.
+     */
+    public void setChannelColor(int index, Color c);
+    
+    /**
+     * Selects or deselects the specified channel.
+     * The selection process depends on the currently selected color model.
+     * 
+     * @param index The OME index of the channel.
+     * @param b     Pass <code>true</code> to select the channel,
+     *              <code>false</code> otherwise.
+     */
+    public void setChannelSelection(int index, boolean b);
+    
+    public void setChannelActive(int index, boolean b);
+    
+    public void displayChannelMovie();
+    
+    /**
+     * Returns the number of channels.
+     * 
+     * @return See above.
+     */
+    public int getMaxC();
+    
+    /**
+     * Sets the metadata related to the pixels set.
+     * 
+     * @param metadata  Te metadata to set.
+     */
+    public void setChannelMetadata(Object metadata);
+
+    /**
+     * Sets the {@link RenderingControl}.
+     * 
+     * @param result The {@link RenderingControl} to set.
+     */
+    public void setRenderingControl(RenderingControl result);
+    
+    /** Renders the current XY-plane. */
+    public void renderXYPlane();
+    
+}
