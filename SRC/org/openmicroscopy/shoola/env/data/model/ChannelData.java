@@ -77,6 +77,13 @@ public class ChannelData
     private String         fluor, auxTechnique, contrastMethod, mode, 
                            illuminationType;
     
+    public ChannelData(int id, int index, int nanometer)
+    {
+        this.id = id;
+        this.index = index;  
+        this.nanometer = nanometer;
+    }
+    
 	public ChannelData(int id, int index, int nanometer, String interpretation,
 						int excitation, String fluor)
 	{
