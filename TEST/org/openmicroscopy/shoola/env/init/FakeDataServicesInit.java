@@ -38,9 +38,9 @@ package org.openmicroscopy.shoola.env.init;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.NullOmeroPojoService;
-import org.openmicroscopy.shoola.env.data.NullPixelsService;
+import org.openmicroscopy.shoola.env.data.NullRenderingService;
 import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.RenderingService;
 
 /** 
  * Fake intialization task.
@@ -66,7 +66,7 @@ public class FakeDataServicesInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static PixelsService         ps = new NullPixelsService();
+    public static RenderingService      rds = new NullRenderingService();
     
     /** 
      * Default Null service.
@@ -100,7 +100,7 @@ public class FakeDataServicesInit
     {   
         //Link services to the container's registry.
         Registry reg = container.getRegistry();
-        RegistryFactory.linkPS(ps, reg); 
+        RegistryFactory.linkRDS(rds, reg); 
         RegistryFactory.linkOS(os, reg); 
     }
     

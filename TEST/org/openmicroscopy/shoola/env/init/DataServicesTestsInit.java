@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.Env;
 import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.RenderingService;
 import org.openmicroscopy.shoola.env.data.views.SyncMonitorFactory;
 
 /** 
@@ -108,8 +108,8 @@ public class DataServicesTestsInit
                                      DataServicesFactory.getInstance(container);
             
             //Link them to the container's registry.
-            PixelsService ps = factory.getPS();
-            RegistryFactory.linkPS(ps, reg);
+            RenderingService ps = factory.getRDS();
+            RegistryFactory.linkRDS(ps, reg);
             
             OmeroService ops = factory.getOS();
             RegistryFactory.linkOS(ops, reg);
