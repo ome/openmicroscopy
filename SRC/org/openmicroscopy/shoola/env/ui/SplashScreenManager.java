@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -168,6 +169,7 @@ class SplashScreenManager
         view.login.setEnabled(true);
         view.cancel.setEnabled(true);
         if (!init) {
+            view.setCursor(Cursor.getDefaultCursor());
             view.user.setText("");
             view.pass.setText("");
         }
@@ -206,6 +208,8 @@ class SplashScreenManager
                 view.pass.setEnabled(false);
                 view.login.setEnabled(false);
                 view.cancel.setEnabled(false);
+                view.setCursor(
+                        Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             }
         } catch (IllegalArgumentException iae) {
             UserNotifier un = UIFactory.makeUserNotifier();

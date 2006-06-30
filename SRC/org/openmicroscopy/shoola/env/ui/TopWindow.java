@@ -199,9 +199,9 @@ public abstract class TopWindow
 	}
 	
     /**
-     * Packs and shows the {@link #window} at the center of the screen.
+     * Packs and shows the window at the center of the screen.
      * Default location. Any class can override the method to specify the size
-     * and the location of the {@link #window}.
+     * and the location of the window.
      */
     public void setOnScreen()
     {
