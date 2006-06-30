@@ -12,6 +12,13 @@
             <cache-policy>org.jboss.ejb.plugins.NoPassivationCachePolicy</cache-policy>
          </container-cache-conf>
       </container-configuration>
+      <container-configuration extends="Clustered Stateful SessionBean">
+         <!-- Override the cache policy to allow a max of one bean -->
+         <container-name>MaxOne Stateful Session</container-name>
+         <container-cache-conf>
+            <cache-policy>org.jboss.ejb.plugins.NoPassivationCachePolicy</cache-policy>
+         </container-cache-conf>
+      </container-configuration>
    </container-configurations>
 </jboss>
 

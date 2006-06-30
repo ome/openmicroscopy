@@ -61,7 +61,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
+import ome.api.local.LocalUpdate;
 import ome.conditions.InternalException;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
@@ -161,14 +163,46 @@ public class RenderingBean extends AbstractBean
         delegate.load();
     }
 
+    @RolesAllowed("user") 
+    public void selfConfigure()
+    {
+        delegate.selfConfigure();
+    }
+    
+
+    @RolesAllowed("user") 
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+    {
+        delegate.setApplicationContext(applicationContext);
+    }
+    
     // -------------------------------------------------------------------------
     
     @RolesAllowed("user") 
-    public void addCodomainMap(CodomainMapContext arg0)
+    public RGBBuffer render(PlaneDef arg0)
     {
-        delegate.addCodomainMap(arg0);
+        return delegate.render(arg0);
+    }
+    
+    // -------------------------------------------------------------------------
+    
+    @RolesAllowed("user") 
+    public void resetDefaults()
+    {
+        delegate.resetDefaults();
     }
 
+    @RolesAllowed("user") 
+    public void saveCurrentSettings()
+    {
+        delegate.saveCurrentSettings();
+        LocalUpdate localUpdate = (LocalUpdate) serviceFactory
+        		.getContext().getBean(LocalUpdate.class.getName());
+        localUpdate.flush();
+    }
+
+    // -------------------------------------------------------------------------
+    
     @RolesAllowed("user") 
     public double getChannelCurveCoefficient(int arg0)
     {
@@ -274,6 +308,14 @@ public class RenderingBean extends AbstractBean
         return delegate.isActive(arg0);
     }
 
+    // -------------------------------------------------------------------------
+    
+    @RolesAllowed("user") 
+    public void addCodomainMap(CodomainMapContext arg0)
+    {
+        delegate.addCodomainMap(arg0);
+    }
+    
     @RolesAllowed("user") 
     public void removeCodomainMap(CodomainMapContext arg0)
     {
@@ -281,39 +323,9 @@ public class RenderingBean extends AbstractBean
     }
 
     @RolesAllowed("user") 
-    public RGBBuffer render(PlaneDef arg0)
-    {
-        return delegate.render(arg0);
-    }
-
-    @RolesAllowed("user") 
-    public void resetDefaults()
-    {
-        delegate.resetDefaults();
-    }
-
-    @RolesAllowed("user") 
-    public void saveCurrentSettings()
-    {
-        delegate.saveCurrentSettings();
-    }
-
-    @RolesAllowed("user") 
-    public void selfConfigure()
-    {
-        delegate.selfConfigure();
-    }
-
-    @RolesAllowed("user") 
     public void setActive(int arg0, boolean arg1)
     {
         delegate.setActive(arg0, arg1);
-    }
-
-    @RolesAllowed("user") 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
-    {
-        delegate.setApplicationContext(applicationContext);
     }
 
     @RolesAllowed("user") 
@@ -343,13 +355,15 @@ public class RenderingBean extends AbstractBean
     @RolesAllowed("user") 
     public void setModel(RenderingModel arg0)
     {
-        delegate.setModel(arg0);
+        RenderingModel m = lookup(arg0);
+        delegate.setModel(m);
     }
 
     @RolesAllowed("user") 
     public void setQuantizationMap(int arg0, Family arg1, double arg2, boolean arg3)
     {
-        delegate.setQuantizationMap(arg0, arg1, arg2, arg3);
+        Family f = lookup(arg1);
+        delegate.setQuantizationMap(arg0, f, arg2, arg3);
     }
 
     @RolesAllowed("user") 
@@ -373,6 +387,15 @@ public class RenderingBean extends AbstractBean
     // ~ Helpers
     // =========================================================================
 
+    private <T extends IObject> T lookup( T argument )
+    {
+    		if ( argument == null ) return null;
+    		if ( argument.getId() == null ) return argument;
+    		return (T) serviceFactory.getQueryService().get(
+    				argument.getClass(),
+    				argument.getId());
+    }
+    
     private RenderingModel copyRenderingModel(RenderingModel model)
     {
         if (model == null) return null;

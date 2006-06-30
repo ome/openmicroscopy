@@ -1,5 +1,7 @@
 package ome.client.itests.demos;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -14,6 +16,7 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
 import ome.model.core.Pixels;
+import ome.model.enums.RenderingModel;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
@@ -58,7 +61,7 @@ public class Demo_3_0_M2_Test extends TestCase {
 
 	}
 
-	@Test
+	@Test( groups = {"ticket:193","ticket:195"} )
 	public void testRenderingEngineDataSavedOnlyManuallys() throws Exception {
 		Pixels pix = ObjectFactory.createPixelGraph(null);
 		pix.setSizeX(16);
@@ -69,12 +72,19 @@ public class Demo_3_0_M2_Test extends TestCase {
 		pix = up.saveAndReturnObject(pix);
 
 		RenderingEngine re = sf.createRenderingEngine();
-		RawPixelsStore raw = sf.createRawPixelsStore();
-		raw.setPixelsId(pix.getId());
-		raw.calculateMessageDigest();
-		TESTLOG.info(raw.getRowSize());
-		TESTLOG.info("WAITING...");
-		Thread.sleep(30L * 1000L);
+		RenderingModel model = re.getModel();
+		List<RenderingModel> models = re.getAvailableModels();
+		boolean modified = false;
+		for (RenderingModel newModel : models) {
+			if (! newModel.getId().equals( model.getId()))
+			{
+				re.setModel(newModel);
+				modified = true;
+				break;
+			}
+		}
+		assertTrue( modified );
+		re.getDefaultT();
 	}
 
 }

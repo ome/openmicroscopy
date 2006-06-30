@@ -41,6 +41,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -244,7 +245,7 @@ public class SessionHandler implements MethodInterceptor
         {
             
             debug("Replacing null or closed session.");
-            status = new SessionStatus(acquireAndBindSession());
+            status = new SessionStatus(acquireBindAndConfigureSession());
             sessions.put(invocation.getThis(), status);
         } else
         {
@@ -298,10 +299,11 @@ public class SessionHandler implements MethodInterceptor
         return "destroy".equals(invocation.getMethod().getName());
     }
 
-    private Session acquireAndBindSession() throws HibernateException
+    private Session acquireBindAndConfigureSession() throws HibernateException
     {
         debug("Opening and binding session.");
         Session session = factory.openSession();
+        session.setFlushMode( FlushMode.NEVER );
         bindSession(session);
         return session;
     }
