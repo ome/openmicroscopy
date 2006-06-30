@@ -118,12 +118,13 @@ public abstract class TreeViewerAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (evt.getNewValue() == null) {
+        Object newValue = evt.getNewValue();
+        if (newValue == null) {
             onDisplayChange(null);
             return;
         }
-        if (evt.getNewValue().equals(evt.getOldValue())) return;
-        onDisplayChange((TreeImageDisplay) evt.getNewValue());
+        if (newValue.equals(evt.getOldValue())) return;
+        onDisplayChange((TreeImageDisplay) newValue);
     }
     
     /** 

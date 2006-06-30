@@ -106,7 +106,7 @@ public class CreateAction
 	            setEnabled(false);
 	            break;
 	        default:
-                onDisplayChange(browser.getSelectedDisplay());
+                //onDisplayChange(browser.getSelectedDisplay());
 	            break;
         }
     }

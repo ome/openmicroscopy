@@ -106,6 +106,7 @@ public class ViewAction
     public ViewAction(TreeViewer model)
     {
         super(model);
+        setEnabled(true);
         putValue(Action.NAME, VIEW);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
