@@ -111,6 +111,8 @@ public class DataViewsFactory
             dsv = new HierarchyBrowsingViewImpl();
         else if (view.equals(DataManagerView.class)) 
             dsv = new DataManagerViewImpl();
+        else if (view.equals(ImViewerView.class))
+            dsv = new ImViewerViewImpl();
         if (dsv == null) 
             throw new IllegalArgumentException("Unknown view type: "+view+".");
         return dsv;
