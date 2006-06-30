@@ -37,9 +37,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.model.CategoryData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.CategoryData;
 import pojos.ImageData;
 
 /** 
