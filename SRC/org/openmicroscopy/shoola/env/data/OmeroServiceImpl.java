@@ -152,7 +152,7 @@ class OmeroServiceImpl
         if (!withLeaves) po.noLeaves();
         po.countsFor(new Long(getUserDetails().getId()));
         return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
-                                            po.map());
+                                            po.map());                              
     }
 
     /** 

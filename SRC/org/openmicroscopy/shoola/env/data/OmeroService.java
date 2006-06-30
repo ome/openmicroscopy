@@ -37,12 +37,11 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.Map;
 import java.util.Set;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.AnnotationData;
+import pojos.DataObject;
 
 /** 
  * List of methods to retrieve data using OMERO.
