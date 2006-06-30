@@ -40,6 +40,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
 
 //Application-internal dependencies
+import ome.api.IQuery;
+import ome.api.IUpdate;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.system.EventContext;
@@ -58,6 +62,10 @@ public class AbstractBean
     
     protected transient EventContext  eventContext;
     
+    protected transient LocalQuery localQuery;
+    
+    protected transient LocalUpdate localUpdate;
+    
     // java:comp.ejb3/EJBContext
     protected @Resource SessionContext sessionContext;
     //protected @Resource(mappedName="security/subject") Subject subject;
@@ -67,6 +75,8 @@ public class AbstractBean
         applicationContext = OmeroContext.getManagedServerContext();
         serviceFactory = new ServiceFactory( applicationContext );
         eventContext = (EventContext) applicationContext.getBean("eventContext");
+        localQuery = (LocalQuery) applicationContext.getBean(IQuery.class.getName());
+        localUpdate = (LocalUpdate) applicationContext.getBean(IUpdate.class.getName());
         log.debug("Created:\n"+getLogString());
     }
     

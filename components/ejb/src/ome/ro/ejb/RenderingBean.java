@@ -196,8 +196,6 @@ public class RenderingBean extends AbstractBean
     public void saveCurrentSettings()
     {
         delegate.saveCurrentSettings();
-        LocalUpdate localUpdate = (LocalUpdate) serviceFactory
-        		.getContext().getBean(LocalUpdate.class.getName());
         localUpdate.flush();
     }
 
@@ -321,6 +319,12 @@ public class RenderingBean extends AbstractBean
     {
         delegate.removeCodomainMap(arg0);
     }
+    
+    @RolesAllowed("user") 
+    public void updateCodomainMap(CodomainMapContext arg0)
+    {
+        delegate.updateCodomainMap(arg0);
+    }
 
     @RolesAllowed("user") 
     public void setActive(int arg0, boolean arg1)
@@ -378,11 +382,6 @@ public class RenderingBean extends AbstractBean
         delegate.setRGBA(arg0, arg1, arg2, arg3, arg4);
     }
 
-    @RolesAllowed("user") 
-    public void updateCodomainMap(CodomainMapContext arg0)
-    {
-        delegate.updateCodomainMap(arg0);
-    }
 
     // ~ Helpers
     // =========================================================================
@@ -391,7 +390,7 @@ public class RenderingBean extends AbstractBean
     {
     		if ( argument == null ) return null;
     		if ( argument.getId() == null ) return argument;
-    		return (T) serviceFactory.getQueryService().get(
+    		return (T) localQuery.get(
     				argument.getClass(),
     				argument.getId());
     }
