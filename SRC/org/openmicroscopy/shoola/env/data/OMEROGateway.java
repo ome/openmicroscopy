@@ -38,22 +38,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import ome.api.IPojos;
 import ome.api.IQuery;
-import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.core.PixelsDimensions;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
+import omeis.providers.re.RenderingEngine;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -78,6 +79,23 @@ import pojos.ProjectData;
 class OMEROGateway
 {
     
+
+    /** System property key for JBoss security package. */
+    private static final String  JBOSS_SECURITY_KEY = 
+                                    "java.naming.factory.initial";
+    
+    /** System property value for JBoss security package. */
+    private static final String  JBOSS_SECURITY_VALUE =
+                    "org.jboss.security.jndi.JndiLoginInitialContextFactory";
+    
+    /** System property key for JBoss naming package. */
+    private static final String JBOSS_NAMING_KEY = 
+                                    "java.naming.factory.url.pkgs";
+    
+    /** System property value for JBoss naming package. */
+    private static final String JBOSS_NAMING_VALUE = 
+                                    "org.jboss.naming:org.jnp.interfaces";
+
     /**
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
@@ -253,7 +271,6 @@ class OMEROGateway
                 throw new DSOutOfServiceException("Cannot retrieve user's " +
                 "data");
             }
-                
             return data;
         } catch (Exception e) {
             e.printStackTrace(); 
@@ -277,6 +294,16 @@ class OMEROGateway
     private IQuery getIQueryService() { return entry.getQueryService(); }
     
     /**
+     * Returns the {@link RenderingEngine Rendering service}.
+     * 
+     * @return See above.
+     */
+    private RenderingEngine getRenderingService()
+    {
+        return entry.createRenderingEngine();
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param hostName The name of the server.
@@ -295,10 +322,10 @@ class OMEROGateway
         //TODO: find a cleaner solution
         System.getProperties().setProperty("omero.group", "user");
         System.getProperties().setProperty("omero.event", "User");
-        System.getProperties().setProperty("java.naming.factory.initial",
-                "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-        System.getProperties().setProperty("java.naming.factory.url.pkgs", 
-                    "org.jboss.naming:org.jnp.interfaces");
+        System.getProperties().setProperty(JBOSS_NAMING_KEY, 
+                                            JBOSS_NAMING_VALUE);
+        System.getProperties().setProperty(JBOSS_SECURITY_KEY, 
+                                            JBOSS_SECURITY_VALUE);
         this.dsFactory = dsFactory;
     }
     
@@ -685,6 +712,53 @@ class OMEROGateway
             return service.updateDataObjects(objects, options);
         } catch (Exception e) {
             handleException(e, "Cannot update the object.");
+        }
+        return null;
+    }
+    
+    /**
+     * Creates a new rendering service for the specified pixels set.
+     * 
+     * @param pixelsID  The pixels set ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    RenderingEngine createRenderingEngine(long pixelsID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            RenderingEngine service = getRenderingService();
+            service.lookupPixels(pixelsID);
+            service.lookupRenderingDef(pixelsID);
+            service.load();
+            return service;
+        } catch (Exception e) {
+            handleException(e, "Cannot start the Rendering Engine.");
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the dimensions in microns of the specified pixels set.
+     * 
+     * @param pixelsID  The pixels set ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    PixelsDimensions getPixelsDimensions(long pixelsID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IQuery query = getIQueryService();
+            return (PixelsDimensions) query.get(PixelsDimensions.class,
+                                                pixelsID);
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the dimension of "+
+                                "the pixels set.");
         }
         return null;
     }
