@@ -45,8 +45,6 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.events.roi.AddROICanvas;
 import org.openmicroscopy.shoola.agents.events.roi.AnnotateROI;
 import org.openmicroscopy.shoola.agents.events.roi.DisplayROI;
-import org.openmicroscopy.shoola.agents.events.viewer.DisplayViewerRelatedAgent;
-import org.openmicroscopy.shoola.agents.events.viewer.IATChanged;
 import org.openmicroscopy.shoola.agents.roi.defs.ScreenROI;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -152,10 +150,8 @@ public class ROIAgt
         bus.register(this, ImageLoaded.class);
         bus.register(this, DisplayROI.class);
         bus.register(this, AddROICanvas.class);
-        bus.register(this, IATChanged.class);
         bus.register(this, ImageRendered.class);
         bus.register(this, ROIAnalysisResults.class);
-        bus.register(this, DisplayViewerRelatedAgent.class);
     }
 
     /** Implemented as specified by {@link Agent}. */
@@ -170,14 +166,10 @@ public class ROIAgt
             handleDisplayROI((DisplayROI) e); 
         else if (e instanceof AddROICanvas) 
             handleAddROICanvas((AddROICanvas) e); 
-        else if (e instanceof IATChanged)
-            handleIATChanged((IATChanged) e);
         else if (e instanceof ImageRendered)
             handleImageRendered();
         else if (e instanceof ROIAnalysisResults)
             handleROIAnalysisResults((ROIAnalysisResults) e);
-        else if (e instanceof DisplayViewerRelatedAgent)
-            handleDisplayViewerRelatedAgents((DisplayViewerRelatedAgent) e);
     }
 
     /** Return reference to the {@link Registry}. */
@@ -281,6 +273,7 @@ public class ROIAgt
     /** Create a new {@link ScreenROI} and add it to the list. */
     void createScreenROI(int index, String name, String annotation, Color c)
     {
+        /*
         PixelsDimensions pxsDims = renderingControl.getPixelsDims();
         ROI4D logicalROI = new ROI4D(pxsDims.sizeT);
         
@@ -290,6 +283,7 @@ public class ROIAgt
         
         ScreenROI roi = new ScreenROI(index, name, annotation, c, logicalROI);
         listScreenROI.add(roi);
+        */
     }
     
     /** Set the {@link PlaneaArea} drawn on screen. */
@@ -451,13 +445,6 @@ public class ROIAgt
         if (roi != null) roi.copyStack(from, to, pxsDims.sizeZ);
     }
     
-    /** Handle the event @see DisplayViewerRelatedAgents. */
-    private void handleDisplayViewerRelatedAgents(DisplayViewerRelatedAgent 
-                                                    response)
-    {
-        if (!response.isOnOff())    removePresentation();
-    }
-    
     /** Handle the event @see ImageRendered. */
     private void handleImageRendered()
     {
@@ -472,19 +459,10 @@ public class ROIAgt
         curT = renderingControl.getDefaultT();
     }
     
-    /** Handle the event @see IATChanged. */
-    private void handleIATChanged(IATChanged response)
-    {
-        magFactor = response.getAffineTransform().getMagFactor();
-        imageOnScreen = response.getImageDisplayed();
-        if (listScreenROI.size() != 0) 
-            control.magnifyScreenROIs();
-            
-    }
-    
     /** Handle the event @see ImageLoaded. */
     private void handleImageLoaded(ImageLoaded response)
     {
+        /*
         LoadImage request = (LoadImage) response.getACT();
         if (request.getImageID() != curImageID) {
             renderingControl = response.getProxy();
@@ -498,6 +476,7 @@ public class ROIAgt
             listScreenROI.clear();  //clear the map
             control.clearScreenPlaneAreas();
         }         
+        */
     }
     
     /** Handle the event @see DisplayROI. */

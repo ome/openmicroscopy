@@ -119,7 +119,7 @@ public class ROIImageCanvas
         this.h = h;
         AffineTransform at = new AffineTransform();
         at.scale(level, level);
-        displayedImage = Factory.magnifyImage(roiImage, level, at, 0);
+        //displayedImage = Factory.magnifyImage(roiImage, level, at, 0);
         repaint();
     }
     
