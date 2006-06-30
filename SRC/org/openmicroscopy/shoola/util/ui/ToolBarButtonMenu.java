@@ -49,8 +49,8 @@ import javax.swing.plaf.basic.BasicArrowButton;
 //Application-internal dependencies
 
 /** 
- * A drop-down button, for use by a {@link TaskBar} in a {@link
- * TopWindowGroup}. Similar to {@link ButtonMenu}, but containing
+ * A drop-down button, for use by a {@link TaskBar} in a 
+ * {@link TopWindowGroup}. Similar to {@link ButtonMenu}, but containing
  * only one item.
  *
  *
