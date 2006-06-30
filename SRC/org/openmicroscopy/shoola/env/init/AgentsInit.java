@@ -123,13 +123,12 @@ public final class AgentsInit
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
 		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
-        RegistryFactory.linkPS(containerReg.getPixelsService(),
+        RegistryFactory.linkRDS(containerReg.getRenderingService(),
                                agentReg);
 		RegistryFactory.linkTaskBar(containerReg.getTaskBar(), agentReg);
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);
         RegistryFactory.linkOS(containerReg.getOmeroService(), agentReg);
-		//TODO: Link Image Service when ready.
 		return agentReg;
 	}
 	

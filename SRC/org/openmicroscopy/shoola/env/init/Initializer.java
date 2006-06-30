@@ -93,6 +93,7 @@ public class Initializer
         initList.add(EventBusInit.class);
         initList.add(CmdProcessorInit.class);
         initList.add(DataServicesInit.class);
+        initList.add(RenderingServicesInit.class);
         initList.add(LoginServiceInit.class);
         initList.add(TaskBarInit.class);
         initList.add(UserNotifierInit.class);
@@ -212,7 +213,7 @@ public class Initializer
 	/**
 	 * Creates a new instance.
 	 * The {@link Container} is the only class that can possibly create this
-	 * object.  In fact, the {@link Container} is the only class to have
+	 * object. In fact, the {@link Container} is the only class to have
 	 * a reference to the singleton {@link Container}.
 	 * 
 	 * @param c	A reference to the singleton {@link Container}.
@@ -301,7 +302,7 @@ public class Initializer
 	 * @param subscriber	The listener.
 	 * @return	<code>true</code> if <code>subscriber</code> is not already in 
 	 * 			the notification set, <code>false</code> otherwise.
-	 * @throws	NullPointerException If <code>null</code>is passed in. 
+	 * @throws	NullPointerException If <code>null</code> is passed in. 
 	 */
 	public boolean register(InitializationListener subscriber) 
 	{

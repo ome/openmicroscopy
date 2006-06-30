@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
-import org.openmicroscopy.shoola.env.data.PixelsService;
+import org.openmicroscopy.shoola.env.data.RenderingService;
 import org.openmicroscopy.shoola.env.data.views.MonitorFactory;
 
 /** 
@@ -70,10 +70,7 @@ public final class DataServicesInit
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName()
-	{
-		return "Starting data management services";
-	}
+	String getName() { return "Starting data management services"; }
 
 	/** 
 	 * Does nothing, as this task requires no set up.
@@ -93,10 +90,10 @@ public final class DataServicesInit
 			DataServicesFactory 
 				factory = DataServicesFactory.getInstance(container);
 			//Retrieve them.
-			PixelsService ps = factory.getPS();
+			RenderingService rds = factory.getRDS();
 			//Link them to the container's registry.
 			Registry reg = container.getRegistry();
-			RegistryFactory.linkPS(ps, reg);
+			RegistryFactory.linkRDS(rds, reg);
             RegistryFactory.linkOS(factory.getOS(), reg);
             
             //Finally create and bind the factory used by the async data views
