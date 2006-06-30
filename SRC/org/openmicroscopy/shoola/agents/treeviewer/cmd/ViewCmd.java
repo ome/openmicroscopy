@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
@@ -137,11 +138,13 @@ public class ViewCmd
         Class root = convertRootLevel(browser.getRootLevel());
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
-            bus.post(new LoadImage(data.getId(), 
-                    data.getDefaultPixels().getId(), data.getName()));
+            bus.post(new ViewImage(data.getId(), 
+                    166, data.getName()));
+            //TODO: remove 166 and put
+            //data.getDefaultPixels().getId()
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
-                    root, browser.getRootID())); 
+                     root, browser.getRootID())); 
         else if (ho instanceof ProjectData)
             bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
                     root, browser.getRootID())); 
