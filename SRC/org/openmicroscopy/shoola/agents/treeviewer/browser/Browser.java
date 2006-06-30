@@ -152,7 +152,7 @@ public interface Browser
     /** 
      * The browser's title corresponding to {@link #HIERARCHY_EXPLORER} type.
      */
-    public static final String     HIERARCHY_TITLE = "Hierarchy Explorer";
+    public static final String     HIERARCHY_TITLE = "Project Explorer";
     
     /** 
      * The browser's title corresponding to {@link #CATEGORY_EXPLORER} type.

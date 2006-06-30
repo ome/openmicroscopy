@@ -41,6 +41,7 @@ import javax.swing.JTree;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
@@ -329,10 +330,10 @@ class BrowserModel
      */
     void fireContainerCountLoading()
     {
-        state = Browser.READY;
-        return;
+        //state = Browser.READY;
+        //return;
         
-        /*
+        
         Set containers = component.getContainersWithImages();
         if (containers.size() == 0) {
             state = Browser.READY;
@@ -341,8 +342,6 @@ class BrowserModel
         state = Browser.COUNTING_ITEMS;
         currentLoader = new ContainerCounterLoader(component, containers);
         currentLoader.load();
-        */
-        
     }
     
     /**

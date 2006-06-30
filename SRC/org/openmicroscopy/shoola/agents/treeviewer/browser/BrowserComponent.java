@@ -214,16 +214,7 @@ class BrowserComponent
     }
 
     /**
-     * Imple
-    private void handleNodeDisplay(TreeImageDisplay node)
-    {
-        view.selectFoundNode(node);
-        Object ho = node.getUserObject();
-        if (ho instanceof DataObject) {
-            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
-        }
-    }mented as specified by the {@link Browser} interface.
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#discard()
      */
     public void discard()
