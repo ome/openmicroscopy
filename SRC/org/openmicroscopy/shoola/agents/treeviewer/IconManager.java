@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
  * {@link #getInstance() getInstance} method and then the 
  * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
  * by the static constants within this class &#151; icons will be retrieved
- * from the HiViewer's graphics bundle, which implies that its
+ * from the TreeViewer's graphics bundle, which implies that its
  * configuration has been read in (this happens during the initialization
  * procedure).</p>
  *

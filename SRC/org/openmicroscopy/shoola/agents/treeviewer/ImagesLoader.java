@@ -79,8 +79,8 @@ public class ImagesLoader
     public void load() { handle = dmView.loadImages(this); }
 
     /**
-     * Retrieves the Category tree.
-     * @see DataBrowserLoader#load()
+     * Cancels the ongoing data retrieval.
+     * @see DataBrowserLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
