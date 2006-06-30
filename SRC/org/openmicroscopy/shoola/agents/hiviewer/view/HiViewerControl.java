@@ -287,8 +287,7 @@ class HiViewerControl
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.discard(); }
-        });
-        
+        }); 
     }
     
     /** Sets the browser UI, the clipboard UI and attaches listeners. */
