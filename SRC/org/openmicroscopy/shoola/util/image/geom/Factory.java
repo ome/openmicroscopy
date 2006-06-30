@@ -30,6 +30,9 @@
 package org.openmicroscopy.shoola.util.image.geom;
 
 //Java imports
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -45,7 +48,7 @@ import java.awt.image.RescaleOp;
 //Application-internal dependencies
 
 /** 
- * Apply some basic filtering methods and affine transfromations
+ * Utility class. Applies some basic filtering methods and affine transformations
  * to a {@link BufferedImage}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,6 +65,21 @@ import java.awt.image.RescaleOp;
 public class Factory
 {
         
+    /** Indicates that the text will be added in the top-left corner. */ 
+    public static final int            LOC_TOP_LEFT = 0;
+    
+    /** Indicates that the text will be added in the top-right corner. */ 
+    public static final int            LOC_TOP_RIGHT = 1;
+    
+    /** Indicates that the text will be added in the bottom-left corner. */ 
+    public static final int            LOC_BOTTOM_LEFT = 2;
+    
+    /** Indicates that the text will be added in the bottom-right corner. */ 
+    public static final int            LOC_BOTTOM_RIGHT = 3;
+
+    /** Border added to the text. */
+    private static final int            BORDER = 2;
+    
     /** Sharpen filter. */
     public static final float[] SHARPEN = {
             0.f, -1.f,  0.f,
@@ -75,42 +93,34 @@ public class Factory
             0.1f, 0.1f, 0.1f};
     
     /** 
-     * Magnifies the selected {@link BufferedImage}.
+     * Magnifies the specified {@link BufferedImage}.
      * 
-     * @param img       BufferedImage to zoom in or out.
-     * @param level     magnification factor.
-     * @param at        Affine transformation.
-     * @param w         extra space, necessary b/c of the lens option.         
-     * @return          The zoomed BufferedImage.
+     * @param img   The buffered image to magnify.
+     * @param level The magnification factor.
+     * @param w     Extra space, necessary b/c of the lens option.         
+     * @return      The magnified image.
      */
     public static BufferedImage magnifyImage(BufferedImage img, double level, 
-                                        AffineTransform at, int w)
+                                         int w)
     {
-        int width = img.getWidth(), height = img.getHeight();
-        BufferedImage bimg = new BufferedImage(width, height, 
-                                                BufferedImage.TYPE_INT_RGB);
-        RescaleOp rop = new RescaleOp(1, 0.0f, null);
-        rop.filter(img, bimg);
-        BufferedImageOp biop = new AffineTransformOp(at, 
-                                AffineTransformOp.TYPE_BILINEAR); 
-        BufferedImage rescaleBuff = new BufferedImage((int) (width*level)+w, 
-                                            (int) (height*level)+w,
-                                            BufferedImage.TYPE_INT_RGB);
-        Graphics2D bigGc = rescaleBuff.createGraphics();
-        bigGc.setRenderingHint(RenderingHints.KEY_RENDERING,
-                                RenderingHints.VALUE_RENDER_QUALITY);
-        bigGc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
-                            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        bigGc.drawImage(bimg, biop, 0, 0);
+        AffineTransform a = new AffineTransform();
+        a.scale(level, level);
+        BufferedImageOp biop = new AffineTransformOp(a,
+                                        AffineTransformOp.TYPE_BILINEAR); 
+        BufferedImage rescaleBuff = new BufferedImage(
+                (int) (img.getWidth()*level)+w, (int) (img.getHeight()*level)+w,
+                BufferedImage.TYPE_INT_RGB);
+
+        biop.filter(img, rescaleBuff);
         return rescaleBuff;
-    } 
+    }   
     
     /** 
      * Applies a sharpen filter or a low_pass filter. 
      * 
      * @param img       The image to transform.
      * @param filter    The filter to apply.
-     * @return The transformed image.
+     * @return          The transformed image.
      */
     public static BufferedImage convolveImage(BufferedImage img, float[] filter)
     {
@@ -126,6 +136,61 @@ public class Factory
                                     BufferedImage.TYPE_INT_RGB);
         cop.filter(bimg, finalImg);
         return finalImg;
+    }
+    
+    /**
+     * Creates a buffered image from another buffered image with 
+     * some text on top.
+     * 
+     * @param img           The original buffered image.
+     * @param text          The text to add.
+     * @param indexLocation The location of the text.
+     * @param c             The color of the text.
+     * @return              A new buffered image.
+     */
+    public static BufferedImage createImageWithText(BufferedImage img, 
+            String text, int indexLocation, Color c)
+    {
+        int w = img.getWidth();
+        int h = img.getHeight();
+        BufferedImage newImage = new BufferedImage(w, h, 
+                                            BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = (Graphics2D) newImage.getGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+        //Paint the original image.
+        g2.drawImage(img, null, 0, 0); 
+        //Paint the text
+        FontMetrics fontMetrics = g2.getFontMetrics();
+        int charWidth = fontMetrics.charWidth('m');
+        int hFont = fontMetrics.getHeight();
+        int length = text.length()*charWidth;
+        int xTxt = 0, yTxt = 0;
+        switch (indexLocation) {
+            case LOC_TOP_LEFT:
+                xTxt = BORDER;
+                yTxt = BORDER+hFont;
+                break;
+            case LOC_TOP_RIGHT:
+                xTxt = w-BORDER-length;
+                yTxt = BORDER+hFont;
+                break;
+            case LOC_BOTTOM_LEFT:
+                xTxt = BORDER;
+                yTxt = h-BORDER-hFont;
+                break;
+            case LOC_BOTTOM_RIGHT:
+                xTxt = w-BORDER-length;
+                yTxt = h-BORDER-hFont;
+        }
+        if (c != null) {
+            g2.setColor(c);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD));
+            g2.drawString(text, xTxt, yTxt);
+        }
+        return newImage;
     }
     
 }
