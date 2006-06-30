@@ -34,10 +34,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.is.StackStatistics;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.PixelsService;
-import org.openmicroscopy.shoola.env.data.model.PixelsDescription;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.defs.RenderingDef;
 
@@ -132,40 +129,6 @@ public class MetadataSource
         this.imageID = imageID;
         this.pixelsID = pixelsID;
     }
-    
-    /**
-     * Helper object to extract relevant statistic from the more general
-     * purpose stats stored in <i>OME</i>.
-     * 
-     * @param s The <i>OME</i> stats.
-     * @param d The dimensions of the pixels set.
-     * @return A {@link PixelsStats} object containing only the stats that
-     *          are relevant to the Rendering Engine.
-     */
-    private PixelsStats makeStats(StackStatistics s, PixelsDimensions d)
-    {
-        double gMin = 0;
-        double gMax = 1;
-        double min, max;
-        PixelsStats ps = new PixelsStats(d.sizeW, d.sizeT);
-        for (int w = 0; w < d.sizeW; w++) {
-            for (int t = 0; t < d.sizeT; t++) {
-                min = s.minimum[w][t];
-                max = s.maximum[w][t];
-                if (t == 0) {
-                    gMin = min;
-                    gMax = max;
-                } else {
-                    gMin = Math.min(gMin, min);
-                    gMax = Math.max(gMax, max);
-                }
-                
-                ps.setEntry(w, t, min, max); 
-            }
-            ps.setGlobalEntry(w, gMin, gMax);
-        }
-        return ps;
-    }
 	
 	/**
 	 * Loads metadata associated to the pixels set.
@@ -177,6 +140,7 @@ public class MetadataSource
 	private void load(Registry context)
 		throws MetadataSourceException
 	{
+        /*
 		//SemanticTypesService sts =null;//= context.getSemanticTypesService();
 		PixelsService ps = context.getPixelsService();
 		StackStatistics stackStats;
@@ -209,6 +173,7 @@ public class MetadataSource
 			throw new MetadataSourceException(
 				"Can't retrieve the pixels metadata.", e);
 		}
+        */
 	}
 	
     /**
