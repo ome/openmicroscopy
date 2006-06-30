@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import pojos.ExperimenterData;
 
 /** 
- * A factory for the {@link OmeroService}.
+ * A factory for the {@link OmeroService} and the {@link RenderingService}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,6 +63,7 @@ import pojos.ExperimenterData;
 public class DataServicesFactory
 {
 	
+    /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
 	//NB: this can't be called outside of container b/c agents have no refs
@@ -80,14 +81,14 @@ public class DataServicesFactory
 	//Container cfg.
 	private Registry               registry;
 	
-	//Unified access point to the various OMERO services.
+	/** Unified access point to the various OMERO services. */
     private OMEROGateway            omeroGateway;
-    
-	//Our adapters.
-    private PixelsServiceAdapter   ps;
 	
-    //Omero Adapter;
+    /** The omero service adapter. */
     private OmeroService           ops;
+    
+    /** The rendering service adapter. */
+    private RenderingService        rds;
     
 	/**
 	 * Attempts to create a new instance.
@@ -105,18 +106,24 @@ public class DataServicesFactory
                                         omeroInfo.getPort(), this);
 		//Create the adapters.
         ops = new OmeroServiceImpl(omeroGateway, registry);
+        rds = new RenderingServiceImpl(omeroGateway, registry);
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
 	}
 	
     /**
-     * Returns the {@link OmeroService}
+     * Returns the {@link OmeroService}.
      * 
      * @return See above.
      */
     public OmeroService getOS() { return ops; }
     
-    public PixelsService getPS() { return ps; }
+    /**
+     * Returns the {@link RenderingService}.
+     * 
+     * @return See above.
+     */
+    public RenderingService getRDS() { return rds; }
     
     /**
      * Returns the {@link LoginService}. 
@@ -165,6 +172,10 @@ public class DataServicesFactory
 	public boolean isConnected() { return omeroGateway.isConnected(); }
 	
     /** Shuts down the connection. */
-	public void shutdown() { omeroGateway.logout(); }
+	public void shutdown()
+    { 
+        ((RenderingServiceImpl) rds).shutDown();
+        omeroGateway.logout(); 
+    }
 	
 }
