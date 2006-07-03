@@ -138,7 +138,8 @@ public class ViewCmd
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
             bus.post(new ViewImage(data.getId(), 
-                    data.getDefaultPixels().getId(), data.getName()));
+                    166 , data.getName()));
+            //data.getDefaultPixels().getId()
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
                      root, browser.getRootID())); 
