@@ -19,11 +19,13 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosGetImagesQueryDefinition;
+import ome.testing.ObjectFactory;
 import ome.util.builders.PojoOptions;
 
 @Test( groups = "integration" )
@@ -379,42 +381,35 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
         assertTrue( list.size() +" not 0", list.size() == 0 );
 
     }
-
-    @Test( groups = "broken" )
-    public void test_defaultPixelsIsFilled() throws Exception
+    
+    @Test( groups = { "ticket:177" } )
+    public void testGetImagesReturnsDefaultPixels() throws Exception
     {
-        Parameters param = new Parameters( new Filter().unique().page(0,1) );
-        Image i = (Image) iQuery.findByQuery( 
-                "select i from Image i " +
-                "left join fetch i.datasetLinks idl " +
-                "left join fetch idl.parent d " +
-                "left join fetch d.projectLinks dpl " +
-                "left join fetch dpl.parent p " +
-                "where i.defaultPixels is not null and p is not null",param);
-        assertNotNull( i );
-        assertTrue( i.sizeOfDatasetLinks() > 0 );
-        Dataset d = (Dataset) i.linkedDatasetList().get(0);
-        assertTrue( d.sizeOfProjectLinks() > 0 );
-        Project p = (Project) d.linkedProjectList().get(0);
-        
-        q= new PojosGetImagesQueryDefinition(
-                new Parameters( )
-                .addClass(Project.class)
-                .addIds(Collections.singleton(p.getId())));
-        List<Image> testImages = (List) iQuery.execute(q);
-        boolean found = false;
-        for (Image test : testImages)
-        {
-            if ( test.getId().equals( i.getId() ))
-            {
-                assertNotNull( test );
-                assertNotNull( test.getDefaultPixels() );
-                found = true;
-            }
-        }
-        assertTrue( found );
-        
+    		Pixels p = ObjectFactory.createPixelGraph(null);
+    		p.setDefaultPixels(Boolean.TRUE);
+    		p = iUpdate.saveAndReturnObject(p);
+    		
+    		Image i = iQuery.findByQuery( 
+    				"select i from Image i left outer join i.defaultPixels " +
+    				"where i.defaultPixels.id = :id",
+    				new Parameters().addId(p.getId()));
+    		assertNotNull( i.getDefaultPixels() );
+    		
+    		Dataset d = new Dataset();
+    		d.setName("ticket:177");
+    		d.putAt(Dataset.IMAGELINKS,new HashSet());
+    		i.putAt(Image.DATASETLINKS, new HashSet());
+    		d.linkImage( i );
+    		d = iUpdate.saveAndReturnObject(d);
+    		
+    		q= new PojosGetImagesQueryDefinition(
+                    new Parameters( new Filter().unique() )
+                    .addClass(Dataset.class)
+                    .addIds(Collections.singleton(d.getId())));
+         Image test = (Image) iQuery.execute(q);
+         assertNotNull( test.getDefaultPixels());
     }
+    
     // ~ Helpers
     // =========================================================================
 

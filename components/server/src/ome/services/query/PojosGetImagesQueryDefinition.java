@@ -8,10 +8,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;
