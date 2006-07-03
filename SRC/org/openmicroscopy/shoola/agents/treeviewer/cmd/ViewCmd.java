@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -139,9 +138,7 @@ public class ViewCmd
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
             bus.post(new ViewImage(data.getId(), 
-                    166, data.getName()));
-            //TODO: remove 166 and put
-            //data.getDefaultPixels().getId()
+                    data.getDefaultPixels().getId(), data.getName()));
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
                      root, browser.getRootID())); 
