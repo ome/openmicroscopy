@@ -46,6 +46,11 @@
       <artifactId>postgresql</artifactId>
       <version>8.1-405.jdbc3</version>
     </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>jbosssx</artifactId>
+      <version>4.0.4.GA</version>
+    </dependency>
     
     <!-- FROM project.xml -->
     <dependency>

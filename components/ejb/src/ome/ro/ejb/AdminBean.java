@@ -91,122 +91,113 @@ public class AdminBean extends AbstractBean implements IAdmin
         delegate.synchronizeLoginCache();
     }
 
+    @RolesAllowed("user")
     public Experimenter getExperimenter(Long arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.getExperimenter(arg0);
     }
 
+    @RolesAllowed("user")
     public Experimenter lookupExperimenter(String arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.lookupExperimenter(arg0);
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup getGroup(Long arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.getGroup(arg0);
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup lookupGroup(String arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.lookupGroup(arg0);
     }
 
+    @RolesAllowed("user")
     public Experimenter[] containedExperimenters(Long arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.containedExperimenters(arg0);
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup[] containedGroups(Long arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.containedGroups(arg0);
     }
 
+    @RolesAllowed("system")
     public Experimenter createUser(Experimenter arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.createUser(arg0);
     }
 
+    @RolesAllowed("system")
     public Experimenter createSystemUser(Experimenter arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.createSystemUser(arg0);
     }
 
+    @RolesAllowed("system")
     public Experimenter createExperimenter(Experimenter arg0, ExperimenterGroup arg1, ExperimenterGroup[] arg2)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.createExperimenter(arg0, arg1, arg2);
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup createGroup(ExperimenterGroup arg0)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return delegate.createGroup(arg0);
     }
 
+    @RolesAllowed("system")
     public void addGroups(Experimenter arg0, ExperimenterGroup[] arg1)
     {
-        // TODO Auto-generated method stub
-        
+	    delegate.addGroups(arg0, arg1);    
     }
 
+    @RolesAllowed("sytem")
     public void removeGroups(Experimenter arg0, ExperimenterGroup[] arg1)
     {
-        // TODO Auto-generated method stub
-        
+    	delegate.removeGroups(arg0, arg1);
     }
 
+    @RolesAllowed("system")
     public void setDefaultGroup(Experimenter arg0, ExperimenterGroup arg1)
     {
-        // TODO Auto-generated method stub
-        
+    	delegate.setDefaultGroup(arg0, arg1);
     }
 
+    @RolesAllowed("system")
     public void changeOwner(IObject arg0, String arg1)
     {
-        // TODO Auto-generated method stub
-        
+    	delegate.changeOwner(arg0, arg1);
     }
 
+    @RolesAllowed("system")
     public void changeGroup(IObject arg0, String arg1)
     {
-        // TODO Auto-generated method stub
-        
+    	delegate.changeGroup(arg0, arg1);
     }
 
+    @RolesAllowed("system")
     public void changePermissions(IObject arg0, Permissions arg1)
     {
-        // TODO Auto-generated method stub
-        
+    	delegate.changePermissions(arg0, arg1);   
     }
 
+    @RolesAllowed("user")
     public void changePassword(String arg0)
     {
-        // TODO Auto-generated method stub
-        
+
+    	delegate.changePassword(arg0);    
     }
 
+    @RolesAllowed("system")
     public void changeUserPassword(String arg0, String arg1)
     {
-        // TODO Auto-generated method stub
-        
+    	delegate.changeUserPassword(arg0, arg1);
     }
 
 

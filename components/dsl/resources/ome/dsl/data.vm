@@ -37,4 +37,7 @@ insert into $table (id,owner_id,group_id,creation_id,value)
 #end
 #end
 
+create table password ( experimenter_id bigint unique not null REFERENCES experimenter (id) , hash char(40) );
+insert into password values (0,'d41d8cd98f00b204e9800998ecf8427e'); -- root can now login with 'ome'
+
 commit;

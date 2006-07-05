@@ -75,11 +75,13 @@
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     -->
   <bean id="level1">
-		<property name="hibernateTemplate" ref="hibernateTemplate"/>
+    <property name="hibernateTemplate" ref="hibernateTemplate"/>
     <property name="queryFactory"   ref="queryFactory"/>    
   </bean>
 
-  <bean parent="level1" id="ome.api.IAdmin" class="ome.logic.AdminImpl"/> 
+  <bean parent="level1" id="ome.api.IAdmin" class="ome.logic.AdminImpl">
+    <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
+  </bean> 
   <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 
   <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl"/>
 
@@ -88,7 +90,7 @@
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     -->
   <bean id="level2">
-		<property name="updateService" 	ref="ome.api.IUpdate"/>
+    <property name="updateService" 	ref="ome.api.IUpdate"/>
     <property name="queryService"		ref="ome.api.IQuery"/>	
     <property name="queryFactory"   ref="queryFactory"/>
   </bean>

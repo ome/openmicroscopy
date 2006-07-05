@@ -14,16 +14,27 @@
  <policy>
    <application-policy name="OmeroSecurity">
       <authentication>
-          <login-module code = "org.jboss.security.auth.spi.DatabaseServerLoginModule" flag = "required">
+          <login-module code = "ome.security.JBossLoginModule" flag = "required">
             <module-option name = "unauthenticatedIdentity">guest</module-option>
             <module-option name = "dsJndiName">java:/omeroDS</module-option>
+            <module-option name = "hashAlgorithm">MD5</module-option>
+            <module-option name = "hashCharset">ISO-8859-1</module-option>
+            <module-option name = "hashEncoding">base64</module-option>
             <module-option name = "principalsQuery">
-select 'ome' as PASSWD from experimenter where omename=?
+
+select p.hash as PASSWD 
+   from experimenter e, password p 
+   where e.omename=? 
+   and e.id = p.experimenter_id
+
             </module-option>
             <module-option name = "rolesQuery">
-select g.name, 'Roles' from experimenter e, experimentergroup g,
-groupexperimentermap m where e.omename = ? and e.id = m.child and
-m.parent = g.id;
+
+select g.name, 'Roles' 
+  from experimenter e, experimentergroup g, groupexperimentermap m 
+  where e.omename = ? and e.id = m.child
+  and m.parent = g.id;
+
             </module-option>
           </login-module>
        </authentication>

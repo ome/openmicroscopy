@@ -30,6 +30,8 @@
 package ome.logic;
 
 //Java imports
+import java.sql.SQLException;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
@@ -38,18 +40,27 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 //Third-party libraries
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.jboss.security.Util;
 
 //Application-internal dependencies
 import ome.api.IAdmin;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.CurrentDetails;
+
 
 /**  Provides methods for directly querying object graphs.
  * 
@@ -67,10 +78,17 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 
     private static Log log = LogFactory.getLog(AdminImpl.class);
 
+    protected SimpleJdbcTemplate jdbc;
+    
     @Override
     protected String getName()
     {
         return IAdmin.class.getName();
+    }
+    
+    public void setJdbcTemplate( SimpleJdbcTemplate jdbcTemplate )
+    {
+    	jdbc = jdbcTemplate;
     }
     
     // ~ LOCAL PUBLIC METHODS
@@ -82,46 +100,22 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 
     public void synchronizeLoginCache()
     {
-
+    	// using Spring utilities to get MBeanServer
         MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
-        String[] params = { "jmx-console" };
-        String[] signature = { "java.lang.String" };
-
+        log.debug("Acquired MBeanServer.");
         ObjectName name;
         try
         {
-            name = new ObjectName(
-                    "jboss.security:service=JaasSecurityManager");
+        	// defined in app/resources/jboss-service.xml
+            name = new ObjectName("omero:service=LoginConfig");
             mbeanServer.invoke(
-                    name, "flushAuthenticationCache", params, signature);
-        } catch (MalformedObjectNameException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (NullPointerException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (InstanceNotFoundException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (MBeanException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (ReflectionException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+            name, "flushAuthenticationCaches", new Object[]{}, new String[]{});       
+            log.debug("Flushed authentication caches.");
+        } catch (Exception e) {
+        	InternalException ie = new InternalException(e.getMessage());
+        	ie.setStackTrace(e.getStackTrace());
+        	throw ie;
         }
-        
-        
     }
 
     public Experimenter getExperimenter(Long id)
@@ -131,13 +125,28 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
         
     }
 
-    public Experimenter lookupExperimenter(String omeName)
+    public Experimenter lookupExperimenter(final String omeName)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
-    }
+        return (Experimenter) getHibernateTemplate().execute(new HibernateCallback(){
+            public Object doInHibernate(Session session) 
+            throws HibernateException ,SQLException {
+                org.hibernate.Query q = session.createQuery("select e from " +
+                        "Experimenter e " +
+                        "left join fetch e.groupExperimenterMap m " +
+                        "left join fetch m.parent g " +
+                        "where e.omeName = :name");
+                q.setParameter("name",omeName);
+                Object o = q.uniqueResult();
 
+                if (o == null)
+                    throw new RuntimeException("No such experimenter: "
+                            + omeName);
+
+                return o; // TODO make level2 and use iQuery?
+            };
+        });
+    }
+            
     public ExperimenterGroup getGroup(Long id)
     {
         // TODO Auto-generated method stub
@@ -145,11 +154,28 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
         
     }
 
-    public ExperimenterGroup lookupGroup(String groupName)
+    public ExperimenterGroup lookupGroup(final String groupName)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+        return (ExperimenterGroup) getHibernateTemplate().execute(
+                new HibernateCallback(){
+            public Object doInHibernate(Session session) 
+            throws HibernateException ,SQLException {
+                org.hibernate.Query q = session.createQuery("select g from " +
+                        "ExperimenterGroup g " +
+                        "left join fetch g.groupExperimenterMap m " +
+                        "left join fetch m.child user " +
+                        "where g.name = :name");
+                
+                q.setParameter("name",groupName);
+                Object o = q.uniqueResult();
+                
+                if (o == null)
+                    throw new RuntimeException("No such experimenter: "
+                            + groupName);
+
+                return o;
+            };
+        });    
     }
 
     public Experimenter[] containedExperimenters(Long groupId)
@@ -232,15 +258,52 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 
     public void changePassword(String newPassword)
     {
-        // TODO Auto-generated method stub
-        
+        int results = jdbc.update(
+        		"update password set hash = ? " +
+        		"where experimenter_id = ? ",
+        		newPassword == null ? null : passwordDigest(newPassword),
+        		CurrentDetails.getOwner().getId()	
+        		); // TODO when AdminBean+AdminImpl then use EventContext.
+        synchronizeLoginCache();
     }
 
     public void changeUserPassword(String omeName, String newPassword)
     {
-        // TODO Auto-generated method stub
-        
+    	Experimenter e = lookupExperimenter(omeName);
+    	int results = jdbc.update(
+        		"update password set hash = ? " +
+        		"where experimenter_id = ? ",
+        		newPassword == null ? null : passwordDigest(newPassword),
+        		e.getId()	
+        		); 
+    	synchronizeLoginCache();
     }
+    
+    // ~ Helpers
+	// =========================================================================
 
+    protected String passwordDigest( String clearText )
+    {
+    	if ( clearText == null )
+    	{
+    		throw new ApiUsageException("Value for digesting may not be null");
+    	}
+    	
+    	// This allows empty passwords to be considered "open-access"
+    	if ( clearText.trim().length() == 0 )
+    	{
+    		return clearText;
+    	}
+    	// These constants are also defined in app/resources/jboss-login.xml
+    	// and this method is called from {@link JBossLoginModule}
+    	String hashedText = Util
+    	.createPasswordHash("MD5", "base64", "ISO-8859-1", null, clearText, null);
+    	
+		if ( hashedText == null )
+		{
+			throw new InternalException("Failed to obtain digest.");
+		}
+		return hashedText;
+    }
 }
 				
