@@ -79,9 +79,6 @@
     <property name="queryFactory"   ref="queryFactory"/>    
   </bean>
 
-  <bean parent="level1" id="ome.api.IAdmin" class="ome.logic.AdminImpl">
-    <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
-  </bean> 
   <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 
   <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl"/>
 
@@ -95,6 +92,9 @@
     <property name="queryFactory"   ref="queryFactory"/>
   </bean>
 
+  <bean parent="level2" id="ome.api.IAdmin" class="ome.logic.AdminImpl">
+    <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
+  </bean> 
   <bean parent="level2" id="ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
   <bean parent="level2" id="ome.api.IPixels" class="ome.logic.PixelsImpl"/>
   <bean parent="level2" id="ome.api.IPojos" class="ome.logic.PojosImpl"/>
@@ -106,7 +106,7 @@
     -->
   <bean id="level3">
     <property name="pixelsService"  ref="ome.api.IPixels"/>
- 		<property name="pojosService" 	ref="ome.api.IPojos"/>
+    <property name="pojosService" 	ref="ome.api.IPojos"/>
   </bean>
 
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

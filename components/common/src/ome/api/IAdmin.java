@@ -34,6 +34,7 @@ package ome.api;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.annotations.NotNull;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
@@ -67,7 +68,7 @@ public interface IAdmin extends ServiceInterface{
      * @return an Experimenter. Never null.
      * @throws ome.conditions.ApiUsageException if id does not exist.
      */
-    Experimenter getExperimenter( Long id );
+    Experimenter getExperimenter( @NotNull Long id );
 
     /** look up an {@link Experimenter} and all related 
      * {@link ExperimenterGroup groups} by name.
@@ -75,7 +76,7 @@ public interface IAdmin extends ServiceInterface{
      * @return an Experimenter. Never null.
      * @throws ome.conditions.ApiUsageException if omeName does not exist.
      */
-    Experimenter lookupExperimenter( String omeName );
+    Experimenter lookupExperimenter( @NotNull String omeName );
 
     /** fetch an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users}.
@@ -83,7 +84,7 @@ public interface IAdmin extends ServiceInterface{
      * @return an ExperimenterGroup. Never null.
      * @throws ome.conditions.ApiUsageException if id does not exist.
      */
-    ExperimenterGroup getGroup( Long id );
+    ExperimenterGroup getGroup( @NotNull Long id );
     
     /** look up an {@link ExperimenterGroup} and all contained 
      * {@link Experimenter users} by name.
@@ -91,14 +92,14 @@ public interface IAdmin extends ServiceInterface{
      * @return an ExperimenterGroup. Never null.
      * @throws ome.conditions.ApiUsageException if groupName does not exist.
      */
-    ExperimenterGroup lookupGroup( String groupName );
+    ExperimenterGroup lookupGroup( @NotNull String groupName );
     
     /** fetch all {@link Experimenter users} contained in this group.
      * 
      * @param groupId id of the ExperimenterGroup
      * @return non-null array of all {@link Experimenter users} in this group.
      */
-    Experimenter[] containedExperimenters( Long groupId );
+    Experimenter[] containedExperimenters( @NotNull Long groupId );
     
     /** fetch all {@link ExperimenterGroup groups} of which the given user
      * is a member.
@@ -107,24 +108,24 @@ public interface IAdmin extends ServiceInterface{
      * @return non-null array of all {@link ExperimenterGroup groups} for
      *  this user.
      */
-    ExperimenterGroup[] containedGroups( Long experimenterId );
+    ExperimenterGroup[] containedGroups( @NotNull Long experimenterId );
     
     // ~ Creating users in groups
     // =========================================================================
     
-    /** create and return a new user. This user will be created in the default
+    /** create and return a new user. This user will be created with the default
      * "User" group.
      * @param newUser a new {@link Experimenter} instance 
      * @return a copy of the new user. Existing instances should be replaced.
      */
-    Experimenter createUser( Experimenter newUser );
+    Experimenter createUser( @NotNull Experimenter newUser );
     
-    /** create and return a new system user. This user will be created in the 
-     * "System" (administration) group.
+    /** create and return a new system user. This user will be created with the 
+     * "System" (administration) group and will also be in the "user" group.
      * @param newUser a new {@link Experimenter} instance 
      * @return a copy of the new user. Existing instances should be replaced.
      */
-    Experimenter createSystemUser( Experimenter newSystemUser );
+    Experimenter createSystemUser( @NotNull Experimenter newSystemUser );
 
     /** create and return a new user in the given groups. 
      * @param experimenter. A new {@link Experimenter} instance. Not null.
@@ -134,8 +135,8 @@ public interface IAdmin extends ServiceInterface{
      *  Not null.
      */
     Experimenter createExperimenter( 
-            Experimenter experimenter, 
-            ExperimenterGroup defaultGroup,
+            @NotNull Experimenter experimenter, 
+            @NotNull ExperimenterGroup defaultGroup,
             ExperimenterGroup[] otherGroups );
     
     /** create and return a new group. 
@@ -149,20 +150,26 @@ public interface IAdmin extends ServiceInterface{
      * @param user. A currently managed entity. Not null.
      * @param groups. Groups to which the user will be added. Not null. 
      */
-    void addGroups( Experimenter user, ExperimenterGroup[] groups );
+    void addGroups( 
+    		@NotNull Experimenter user, 
+    		@NotNull ExperimenterGroup[] groups );
     
     /** removes a user from the given groups. 
      * @param user. A currently managed entity. Not null.
      * @param groups. Groups from which the user will be removed. Not null. 
      */
-    void removeGroups( Experimenter user, ExperimenterGroup[] groups );
+    void removeGroups( 
+    		@NotNull Experimenter user, 
+    		@NotNull ExperimenterGroup[] groups );
     
     /** sets the default group for a given user. 
      * @param user. A currently managed entity. Not null.
      * @param group. The group which should be set as default group for this 
      *  user. Not null. 
      */
-    void setDefaultGroup( Experimenter user, ExperimenterGroup group );
+    void setDefaultGroup( 
+    		@NotNull Experimenter user, 
+    		@NotNull ExperimenterGroup group );
     
     // ~ Permissions and Ownership
     // =========================================================================
@@ -175,7 +182,7 @@ public interface IAdmin extends ServiceInterface{
      * @param iObject. An entity or an unloaded reference to an entity. Not null.
      * @param omeName. The user name who should gain ownership of this entity. Not null.
      */
-    void changeOwner( IObject iObject, String omeName );
+    void changeOwner( @NotNull IObject iObject, @NotNull String omeName );
 
     /** call 
      * {@link ome.model.internal.Details#setGroup(ExperimenterGroup) details.setGroup()}
@@ -185,7 +192,7 @@ public interface IAdmin extends ServiceInterface{
      * @param iObject. An entity or an unloaded reference to an entity. Not null.
      * @param groupName. The group name who should gain ownership of this entity. Not null.
      */
-    void changeGroup( IObject iObject, String groupName );
+    void changeGroup( @NotNull IObject iObject, @NotNull String groupName );
 
     /** call 
      * {@link ome.model.internal.Details#setPermissions(Permissions) defaults.setPermissions()}
@@ -195,7 +202,7 @@ public interface IAdmin extends ServiceInterface{
      * @param iObject. An entity or an unloaded reference to an entity. Not null.
      * @param perms. The permissions value for this entity. Not null.
      */
-    void changePermissions( IObject iObject, Permissions perms );
+    void changePermissions( @NotNull IObject iObject, @NotNull Permissions perms );
     
     // ~ Authentication and Authorization
     // =========================================================================
@@ -212,7 +219,7 @@ public interface IAdmin extends ServiceInterface{
      * Might must pass validation in the security sub-system.
      * @throws ome.conditions.SecurityViolation if the new password is too weak. 
      */
-    void changeUserPassword( String omeName, String newPassword );
+    void changeUserPassword( @NotNull String omeName, String newPassword );
     
     /** uses JMX to refresh the login cache <em>if supported</em>. Some backends
      * may not provide refreshing. This may be called internally during some

@@ -49,6 +49,7 @@ importing this file.
 	<file name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<file name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<file name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<file name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
@@ -87,6 +88,7 @@ importing this file.
 	<include name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<include name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<include name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<include name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
@@ -128,6 +130,7 @@ importing this file.
 	<file name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<file name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<file name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<file name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
@@ -171,6 +174,7 @@ importing this file.
 	<include name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<include name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<include name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<include name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>

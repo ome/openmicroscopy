@@ -33,33 +33,39 @@ package ome.logic;
 import java.sql.SQLException;
 
 import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
 //Third-party libraries
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.jboss.security.Util;
 
 //Application-internal dependencies
 import ome.api.IAdmin;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
+import ome.parameters.Filter;
+import ome.parameters.Parameters;
 import ome.security.CurrentDetails;
+import ome.services.query.Definitions;
+import ome.services.query.Query;
+import ome.services.query.QueryParameterDef;
 
 
 /**  Provides methods for directly querying object graphs.
@@ -74,7 +80,7 @@ import ome.security.CurrentDetails;
  * 
  */
 @Transactional
-public class AdminImpl extends AbstractLevel1Service implements IAdmin {
+public class AdminImpl extends AbstractLevel2Service implements IAdmin {
 
     private static Log log = LogFactory.getLog(AdminImpl.class);
 
@@ -100,6 +106,7 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 
     public void synchronizeLoginCache()
     {
+    	String string = "omero:service=LoginConfig";
     	// using Spring utilities to get MBeanServer
         MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
         log.debug("Acquired MBeanServer.");
@@ -107,10 +114,12 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
         try
         {
         	// defined in app/resources/jboss-service.xml
-            name = new ObjectName("omero:service=LoginConfig");
+            name = new ObjectName(string);
             mbeanServer.invoke(
             name, "flushAuthenticationCaches", new Object[]{}, new String[]{});       
             log.debug("Flushed authentication caches.");
+        } catch (InstanceNotFoundException infe) {
+        	log.warn(string+" not found. Won't synchronize login cache.");
         } catch (Exception e) {
         	InternalException ie = new InternalException(e.getMessage());
         	ie.setStackTrace(e.getStackTrace());
@@ -118,71 +127,62 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
         }
     }
 
-    public Experimenter getExperimenter(Long id)
+    public Experimenter getExperimenter(final Long id)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	Experimenter e = iQuery.execute(
+    			new UserQ( new Parameters( ).addId(id)));
+   
+    	if (e == null) 
+    	{
+    		throw new ApiUsageException("No such experimenter: " + id);
+    	}
+
+    	return e;
     }
 
     public Experimenter lookupExperimenter(final String omeName)
     {
-        return (Experimenter) getHibernateTemplate().execute(new HibernateCallback(){
-            public Object doInHibernate(Session session) 
-            throws HibernateException ,SQLException {
-                org.hibernate.Query q = session.createQuery("select e from " +
-                        "Experimenter e " +
-                        "left join fetch e.groupExperimenterMap m " +
-                        "left join fetch m.parent g " +
-                        "where e.omeName = :name");
-                q.setParameter("name",omeName);
-                Object o = q.uniqueResult();
+    	Experimenter e = iQuery.execute(
+    			new UserQ( new Parameters( )
+    			.addString("name",omeName)));
+   
+    	if (e == null) 
+    	{
+    		throw new ApiUsageException("No such experimenter: " + omeName);
+    	}
 
-                if (o == null)
-                    throw new RuntimeException("No such experimenter: "
-                            + omeName);
-
-                return o; // TODO make level2 and use iQuery?
-            };
-        });
+    	return e;
     }
             
     public ExperimenterGroup getGroup(Long id)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	ExperimenterGroup g = iQuery.execute(
+    			new GroupQ( new Parameters( ).addId(id)));
+   
+    	if (g == null) 
+    	{
+    		throw new ApiUsageException("No such group: " + id);
+    	}
+
+    	return g;
     }
 
     public ExperimenterGroup lookupGroup(final String groupName)
     {
-        return (ExperimenterGroup) getHibernateTemplate().execute(
-                new HibernateCallback(){
-            public Object doInHibernate(Session session) 
-            throws HibernateException ,SQLException {
-                org.hibernate.Query q = session.createQuery("select g from " +
-                        "ExperimenterGroup g " +
-                        "left join fetch g.groupExperimenterMap m " +
-                        "left join fetch m.child user " +
-                        "where g.name = :name");
-                
-                q.setParameter("name",groupName);
-                Object o = q.uniqueResult();
-                
-                if (o == null)
-                    throw new RuntimeException("No such experimenter: "
-                            + groupName);
+    	ExperimenterGroup g = iQuery.execute(
+    			new GroupQ( new Parameters( ).addString("name",groupName)));
+   
+    	if (g == null) 
+    	{
+    		throw new ApiUsageException("No such group: " + groupName);
+    	}
 
-                return o;
-            };
-        });    
+    	return g;
     }
 
     public Experimenter[] containedExperimenters(Long groupId)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	return null;
     }
 
     public ExperimenterGroup[] containedGroups(Long experimenterId)
@@ -194,30 +194,61 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 
     public Experimenter createUser(Experimenter newUser)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	Experimenter e = createExperimenter(newUser, lookupGroup("user"),null);
+    	return e;
     }
 
     public Experimenter createSystemUser(Experimenter newSystemUser)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	Experimenter e = createExperimenter(
+    			newSystemUser, 
+    			lookupGroup("system"), 
+    			new ExperimenterGroup[]{ lookupGroup("user") } );
+    	return e;
     }
 
     public Experimenter createExperimenter(Experimenter experimenter, ExperimenterGroup defaultGroup, ExperimenterGroup[] otherGroups)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+//    	 TODO check that no other group is default
+	
+    	Experimenter e = copyUser( experimenter );
+    	    	
+    	if ( defaultGroup == null || defaultGroup.getId() == null )
+    	{
+    		throw new ApiUsageException("Default group may not be null.");
+    	} 
+
+    	GroupExperimenterMap defaultGroupMap = new GroupExperimenterMap();
+		defaultGroupMap.link( getGroup(defaultGroup.getId()), e);
+		defaultGroupMap.setDefaultGroupLink(Boolean.TRUE);
+		e.addGroupExperimenterMap(defaultGroupMap, false);
+
+    	if ( null != otherGroups )
+    	{
+    		for (ExperimenterGroup group : otherGroups) {
+    			if ( group == null ) continue;
+    			if ( group.getId() == null)
+    			{
+    				throw new ApiUsageException(
+    						"Groups must be previously saved during " +
+    						"Experimenter creation.");
+    			}
+    			GroupExperimenterMap groupMap = new GroupExperimenterMap();
+    			groupMap.link( getGroup(group.getId()), e);
+    			e.addGroupExperimenterMap(groupMap, false);
+    		}
+    	}
+    	
+    	e = iUpdate.saveAndReturnObject( e );
+    	changeUserPassword(e.getOmeName()," ");
+    	return lookupExperimenter(e.getOmeName());    
     }
 
     public ExperimenterGroup createGroup(ExperimenterGroup group)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	group = copyGroup( group );
+    	ExperimenterGroup g = iUpdate.saveAndReturnObject( group );
+    	return g;
     }
 
     public void addGroups(Experimenter user, ExperimenterGroup[] groups)
@@ -258,30 +289,75 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 
     public void changePassword(String newPassword)
     {
-        int results = jdbc.update(
-        		"update password set hash = ? " +
-        		"where experimenter_id = ? ",
-        		newPassword == null ? null : passwordDigest(newPassword),
-        		CurrentDetails.getOwner().getId()	
-        		); // TODO when AdminBean+AdminImpl then use EventContext.
-        synchronizeLoginCache();
+    	internalChangeUserPasswordById(
+    			//  TODO when AdminBean+AdminImpl then use EventContext.
+    			CurrentDetails.getOwner().getId(),
+    			newPassword);
     }
 
     public void changeUserPassword(String omeName, String newPassword)
     {
     	Experimenter e = lookupExperimenter(omeName);
-    	int results = jdbc.update(
-        		"update password set hash = ? " +
-        		"where experimenter_id = ? ",
-        		newPassword == null ? null : passwordDigest(newPassword),
-        		e.getId()	
-        		); 
-    	synchronizeLoginCache();
+    	internalChangeUserPasswordById(e.getId(),newPassword);
     }
     
     // ~ Helpers
 	// =========================================================================
 
+    protected Experimenter copyUser(Experimenter e)
+    {
+    	if ( e.getOmeName() == null )
+    	{
+    		throw new ValidationException("OmeName may not be null.");
+    	}
+    	Experimenter copy = new Experimenter();
+    	copy.setOmeName( e.getOmeName() );
+    	copy.setFirstName( e.getOmeName() );
+    	copy.setLastName( e.getLastName() );
+    	copy.setEmail( e.getEmail() );
+    	// TODO make ShallowCopy-like which ignores collections and details.
+    	// if possible, values should be validated. i.e. iTypes should say what
+    	// is non-null
+    	return copy;
+    }
+    
+    protected ExperimenterGroup copyGroup(ExperimenterGroup g)
+    {
+    	if ( g.getName() == null )
+    	{
+    		throw new ValidationException("OmeName may not be null.");
+    	}
+    	ExperimenterGroup copy = new ExperimenterGroup();
+    	copy.setDescription( g.getDescription() );
+    	copy.setName( g.getName() );
+    	// TODO see shallow copy comment on copy user
+    	return copy;
+    }
+    
+    protected void internalChangeUserPasswordById(Long id, String password)
+    {
+    	int results = jdbc.update(
+        		"update password set hash = ? " +
+        		"where experimenter_id = ? ",
+        		preparePassword(password),id	
+        		); 
+    	if ( results < 1 )
+    	{
+    		results = jdbc.update("insert into password values (?,?) ",
+    				id,preparePassword(password));
+    	}
+    	synchronizeLoginCache();    	
+    }
+    
+	protected String preparePassword(String newPassword) {
+		// This allows setting passwords to "null" - locked account.
+		return newPassword == null ? null 
+		    	// This allows empty passwords to be considered "open-access"
+				: newPassword.trim().length() == 0 ? newPassword
+						// Regular MD5 digest.
+						: passwordDigest(newPassword);
+	}
+    
     protected String passwordDigest( String clearText )
     {
     	if ( clearText == null )
@@ -289,11 +365,6 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
     		throw new ApiUsageException("Value for digesting may not be null");
     	}
     	
-    	// This allows empty passwords to be considered "open-access"
-    	if ( clearText.trim().length() == 0 )
-    	{
-    		return clearText;
-    	}
     	// These constants are also defined in app/resources/jboss-login.xml
     	// and this method is called from {@link JBossLoginModule}
     	String hashedText = Util
@@ -304,6 +375,89 @@ public class AdminImpl extends AbstractLevel1Service implements IAdmin {
 			throw new InternalException("Failed to obtain digest.");
 		}
 		return hashedText;
+    }
+    
+    static abstract class BaseQ<T> extends Query<T>
+    {
+    	static Definitions defs = new Definitions(
+    			new QueryParameterDef("name",String.class,true),
+    			new QueryParameterDef("id",Long.class,true)
+    			);
+    	
+    	public BaseQ(Parameters params)
+    	{
+    		super(defs,new Parameters( new Filter().unique() ).addAll( params ));
+    	}
+    	    	
+    }
+    
+    static class UserQ extends BaseQ<Experimenter> 
+    {
+    	public UserQ(Parameters params)
+    	{
+    		super(params);
+    	}
+    	
+    	@Override
+    	protected void buildQuery(Session session) 
+    	throws HibernateException, SQLException {
+    		Criteria c = session.createCriteria(Experimenter.class);
+    		
+    		Criteria m = c.createCriteria("groupExperimenterMap",Query.LEFT_JOIN);
+    		Criteria g = m.createCriteria("parent",Query.LEFT_JOIN);
+    		
+    		if (value("name") != null)
+    		{
+    			c.add( Restrictions.eq("omeName", value("name")));
+    		} 
+    		
+    		else if (value("id") != null)
+    		{
+    			c.add( Restrictions.eq("id", value("id")));
+    		}
+    		
+    		else 
+    		{
+    			throw new InternalException(
+    					"Name and id are both null for user query.");
+    		}
+    		setCriteria( c );
+    		
+    	}
+    }
+    
+    static class GroupQ extends BaseQ<ExperimenterGroup> 
+    {
+    	public GroupQ(Parameters params)
+    	{
+    		super(params);
+    	}
+    	
+    	@Override
+    	protected void buildQuery(Session session) 
+    	throws HibernateException, SQLException {
+    		Criteria c = session.createCriteria(ExperimenterGroup.class);    		
+    		Criteria m = c.createCriteria("groupExperimenterMap",Query.LEFT_JOIN);
+    		Criteria e = m.createCriteria("child",Query.LEFT_JOIN);
+    		
+    		if (value("name") != null)
+    		{
+    			c.add( Restrictions.eq("name", value("name")));
+    		} 
+    		
+    		else if (value("id") != null)
+    		{
+    			c.add( Restrictions.eq("id", value("id")));
+    		}
+
+    		else 
+    		{
+    			throw new InternalException(
+    					"Name and id are both null for group query.");
+    		}
+    		setCriteria( c );
+    		
+    	}
     }
 }
 				

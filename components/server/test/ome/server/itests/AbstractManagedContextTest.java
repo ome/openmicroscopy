@@ -5,6 +5,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
+import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IPixels;
 import ome.api.IPojos;
@@ -13,6 +14,7 @@ import ome.api.local.LocalUpdate;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 @Test(
         groups = {"integration"}
@@ -34,6 +36,8 @@ public class AbstractManagedContextTest
 
     protected LocalUpdate iUpdate;
     
+    protected IAdmin iAdmin;
+    
     protected IAnalysis iAnalysis;
     
     protected IPojos iPojos;
@@ -46,11 +50,13 @@ public class AbstractManagedContextTest
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
-        iQuery = (LocalQuery) applicationContext.getBean("queryService");
-        iUpdate = (LocalUpdate) applicationContext.getBean("updateService");
-        iAnalysis = (IAnalysis) applicationContext.getBean("analysisService");
-        iPojos = (IPojos) applicationContext.getBean("pojosService");
-        iPixels = (IPixels) applicationContext.getBean("pixelsService");
+    	ServiceFactory factory = new ServiceFactory( (OmeroContext) applicationContext );
+        iQuery = (LocalQuery) factory.getQueryService();
+        iUpdate = (LocalUpdate) factory.getUpdateService();
+        iAdmin = factory.getAdminService();
+        iAnalysis = factory.getAnalysisService();
+        iPojos = factory.getPojosService();
+        iPixels = factory.getPixelsService();
         eContext = (EventContext) applicationContext.getBean("eventContext");
         loginRoot();
     }
