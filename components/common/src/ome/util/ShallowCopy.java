@@ -1,4 +1,4 @@
-package ome.ro.ejb;
+package ome.util;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -14,19 +14,20 @@ import ome.util.Utils;
 
 public class ShallowCopy {
 
-	public IObject copy(IObject original) {
-		IObject f = ShallowCopy.reflectiveNewInstance(original);
+	public <T extends IObject> T copy(T original) {
+		T f = ShallowCopy.reflectiveNewInstance(original);
 		SetValues set = new SetValues(f);
 		original.acceptFilter(set);
 		return f;
 	}
 
-	public static IObject reflectiveNewInstance(Filterable f) {
+	@SuppressWarnings("unchecked")
+	public static <T extends IObject> T reflectiveNewInstance(T f) {
 		Method m;
-		IObject iobj;
+		T iobj;
 		try {
-			Class c = Utils.trueClass(f.getClass());
-			iobj = (IObject) c.newInstance();
+			Class<T> c = (Class<T>) Utils.trueClass(f.getClass());
+			iobj = c.newInstance();
 		} catch (Exception e) {
 			InternalException ie = new InternalException(e.getMessage());
 			ie.setStackTrace(e.getStackTrace());
@@ -55,7 +56,7 @@ class SetValues implements Filter {
 
 		else if (IObject.class.isAssignableFrom(f.getClass())) {
 			IObject old = (IObject) f;
-			IObject iobj = (IObject) ShallowCopy.reflectiveNewInstance(f);
+			IObject iobj = (IObject) ShallowCopy.reflectiveNewInstance(old);
 			iobj.setId(old.getId());
 			iobj.unload();
 			target.putAt(fieldId, iobj);
@@ -113,7 +114,7 @@ class StoreValues implements Filter {
 
 		else if (IObject.class.isAssignableFrom(f.getClass())) {
 			IObject old = (IObject) f;
-			IObject iobj = (IObject) ShallowCopy.reflectiveNewInstance(f);
+			IObject iobj = ShallowCopy.reflectiveNewInstance(old);
 			iobj.setId(old.getId());
 			iobj.unload();
 			values.put(fieldId, iobj);

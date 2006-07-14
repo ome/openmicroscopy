@@ -34,6 +34,8 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
+import ome.model.IObject;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -62,13 +64,13 @@ public class Utils {
      * @param source Regular or CGLIB-based class.
      * @return the regular Java class.
      */
-    public static Class trueClass(Class source)
+    public static <T extends IObject> Class<T> trueClass(Class<T> source)
     {
         String s = source.getName();
         if (s.contains(CGLIB_IDENTIFIER)) { // TODO any other test?
             try
             {
-                return Class.forName(
+                return (Class<T>) Class.forName(
                         s.substring(0,s.indexOf(CGLIB_IDENTIFIER)));
             } catch (ClassNotFoundException e)
             {
@@ -79,7 +81,7 @@ public class Utils {
         } else if (s.contains(JAVASSIST_IDENTIFIER)) {
             try
             {
-                return Class.forName(
+                return (Class<T>) Class.forName(
                         s.substring(0,s.indexOf(JAVASSIST_IDENTIFIER)));
             } catch (ClassNotFoundException e)
             {
