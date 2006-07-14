@@ -1,10 +1,9 @@
-package ome.ejb.utests;
+package ome.util.utests;
 
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.internal.Details;
-import ome.ro.ejb.PixelsBean;
-import ome.ro.ejb.ShallowCopy;
+import ome.util.ShallowCopy;
 
 import org.testng.annotations.Test;
 
