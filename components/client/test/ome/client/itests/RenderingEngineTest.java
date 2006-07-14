@@ -2,6 +2,7 @@ package ome.client.itests;
 
 import org.testng.annotations.*;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -15,15 +16,18 @@ import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
+import ome.model.enums.Family;
 import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
+import ome.model.enums.RenderingModel;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
 
 @Test( 
-	groups = {"client","integration", "renderingengine"} 
+	groups = {"client","integration", "renderingengine", "broken"} 
+	// Needs an ImporterFixture
 )
 public class RenderingEngineTest extends TestCase
 {
@@ -85,5 +89,42 @@ public class RenderingEngineTest extends TestCase
         assertTrue( re != re2 );
     }
 
+    private final static Long MAGE_PIXELS_54 = 54L;
     
+    @Test( groups = {"magedb","ticket:194"} )
+    public void testUnloadedDetails() throws Exception
+    {
+        re.lookupPixels(MAGE_PIXELS_54);
+        re.lookupRenderingDef(MAGE_PIXELS_54);
+        re.load();
+        
+        RenderingModel m = re.getModel();
+        List families = re.getAvailableFamilies();
+        Pixels pix = re.getPixels();
+        test( m, families, pix );
+    }
+    
+    @Test( groups = {"magedb","ticket:194"} )
+    public void testUnloadedDetailsWithGetBean() throws Exception
+    {
+        RenderingEngine gotBean = sf.createRenderingEngine();
+        
+        gotBean.lookupPixels(MAGE_PIXELS_54);
+        gotBean.lookupRenderingDef(MAGE_PIXELS_54);
+        gotBean.load();
+        
+        RenderingModel m = gotBean.getModel();
+        List families = gotBean.getAvailableFamilies();
+        Pixels pix = gotBean.getPixels();
+        test( m, families, pix );
+    }
+    
+    private void test( RenderingModel m, List<Family> families, Pixels pix)
+    {
+        assertNotNull(m);
+        assertNotNull(pix);
+        assertNotNull(families);
+        assertTrue(families.size()>0);
+        
+    }
 }
