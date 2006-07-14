@@ -43,6 +43,7 @@ import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
+import ome.api.ServiceInterface;
 import ome.system.OmeroContext;
 
 import omeis.providers.re.RenderingEngine;
@@ -61,8 +62,18 @@ import omeis.providers.re.RenderingEngine;
  */
 public class ServiceFactory {
 
-    private OmeroContext ctx;
+    protected OmeroContext ctx;
 
+    protected String getPrefix()
+    {
+    	return "managed:";
+    }
+    
+    protected String getDefaultContext()
+    {
+    	return OmeroContext.CLIENT_CONTEXT;
+    }
+    
     /** public access to the context. This may not always be available, but
      * for this initial phase, it makes some sense. Completely non-dangerous on
      * the client-side.
@@ -82,7 +93,10 @@ public class ServiceFactory {
      * @see OmeroContext#getClientContext()
      */ 
     public ServiceFactory(){
-        this.ctx = OmeroContext.getClientContext();
+    	if ( getDefaultContext() != null )
+    	{
+    		this.ctx = OmeroContext.getInstance(getDefaultContext());	
+    	}
     }
     
     /** 
@@ -130,42 +144,49 @@ public class ServiceFactory {
     // =========================================================================
     
     public IAdmin getAdminService(){
-        return (IAdmin) this.ctx.getBean("adminService");
+    	return getServiceByClass(IAdmin.class);
     }
     
     public IAnalysis getAnalysisService(){
-        return (IAnalysis) this.ctx.getBean("analysisService");
+    	return getServiceByClass(IAnalysis.class);
     }
     
     public IPixels getPixelsService(){
-        return (IPixels) this.ctx.getBean("pixelsService");
+        return getServiceByClass(IPixels.class);
     }
     
     public IPojos getPojosService(){
-        return (IPojos) this.ctx.getBean("pojosService");
+        return getServiceByClass(IPojos.class);
     }
     
     public IQuery getQueryService(){
-        return (IQuery) this.ctx.getBean("queryService");
+        return getServiceByClass(IQuery.class);
     }
 
     public ITypes getTypesService(){
-        return (ITypes) this.ctx.getBean("typesService");
+        return getServiceByClass(ITypes.class);
     }
     
     public IUpdate getUpdateService(){
-        return (IUpdate) this.ctx.getBean("updateService");
+        return getServiceByClass(IUpdate.class);
     }
     
     // ~ Stateful services
     // =========================================================================
 
     public RawPixelsStore createRawPixelsStore(){
-        return (RawPixelsStore) this.ctx.getBean("rawPixelsStore");
+        return getServiceByClass(RawPixelsStore.class);
     }
     
     public RenderingEngine createRenderingEngine(){
-        return (RenderingEngine) this.ctx.getBean("renderService");
+        return getServiceByClass(RenderingEngine.class);
     }
+    
+    // ~ Helpers
+	// =========================================================================
 
+    protected <T extends ServiceInterface> T getServiceByClass(Class<T> klass)
+    {
+    	return klass.cast(this.ctx.getBean(getPrefix()+klass.getName()));
+    }
 }

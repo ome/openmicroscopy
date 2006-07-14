@@ -70,7 +70,7 @@ public class PojosServiceTest
         DataSource dataSource = (DataSource) applicationContext.getBean("dataSource");
         data = new OMEData();
         data.setDataSource(dataSource);
-    	iPojos = (IPojos) applicationContext.getBean("pojosService");
+    	iPojos = factory.getPojosService();
     }
     
     @Test

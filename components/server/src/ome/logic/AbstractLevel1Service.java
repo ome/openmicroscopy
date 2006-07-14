@@ -44,8 +44,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
+import ome.api.ServiceInterface;
+import ome.security.SecuritySystem;
 import ome.services.query.QueryFactory;
 import ome.system.OmeroContext;
 import ome.system.SelfConfigurableService;
@@ -66,12 +66,19 @@ public abstract class AbstractLevel1Service extends HibernateDaoSupport
 
     protected OmeroContext ctx;
 
-    protected abstract String getName();
+    protected abstract Class<? extends ServiceInterface> getServiceInterface();
 
     protected QueryFactory queryFactory;
     
+    protected SecuritySystem securitySystem;
+    
     public void setQueryFactory(QueryFactory factory){
         this.queryFactory = factory;
+    }
+    
+    public void setSecuritySystem(SecuritySystem securitySystem)
+    {
+    	this.securitySystem = securitySystem;
     }
     
     public void setApplicationContext(ApplicationContext appCtx) throws BeansException
@@ -82,7 +89,7 @@ public abstract class AbstractLevel1Service extends HibernateDaoSupport
     public void selfConfigure()
     {
         this.ctx = OmeroContext.getInternalServerContext();
-        this.ctx.applyBeanPropertyValues(this,getName());
+        this.ctx.applyBeanPropertyValues(this,getServiceInterface());
     }
 }
 

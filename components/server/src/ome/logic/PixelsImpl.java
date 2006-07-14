@@ -30,16 +30,16 @@
 package ome.logic;
 
 //Java imports
-
-//Third-party libraries
 import java.util.List;
 
+//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.api.IPixels;
+import ome.api.ServiceInterface;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -47,7 +47,6 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
 import ome.parameters.Parameters;
-import ome.security.CurrentDetails;
 
 /** 
  * 
@@ -73,9 +72,9 @@ class PixelsImpl extends AbstractLevel2Service
     protected PixelsService pixelsData;
     
     @Override
-    protected String getName()
+    protected Class<? extends ServiceInterface> getServiceInterface()
     {
-        return IPixels.class.getName();
+        return IPixels.class;
     }
     
     public void setPixelsData( PixelsService pixelsData )
@@ -91,7 +90,7 @@ class PixelsImpl extends AbstractLevel2Service
     //TODO we need to validate and make sure only one RndDef per user. 
 	public RenderingDef retrieveRndSettings(final long pixId) {
         
-        final Long userId = CurrentDetails.getOwner().getId();
+        final Long userId = securitySystem.currentUserId();
         return (RenderingDef) iQuery.findByQuery(
                 " select rdef from RenderingDef rdef where " +
                 " rdef.pixels.id = :pixid and rdef.details.owner.id = :ownerid",

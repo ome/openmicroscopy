@@ -1,5 +1,7 @@
 package ome.server.itests;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
@@ -15,6 +17,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.testing.OMEData;
 
 @Test(
         groups = {"integration"}
@@ -32,6 +35,8 @@ public class AbstractManagedContextTest
     public void adaptTearDown() throws Exception{tearDown();}
     // =========================================================================
     
+    protected ServiceFactory factory;
+    
     protected LocalQuery iQuery;
 
     protected LocalUpdate iUpdate;
@@ -46,11 +51,13 @@ public class AbstractManagedContextTest
     
     protected EventContext eContext;
     
+    protected OMEData data;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     protected void onSetUp() throws Exception {
-    	ServiceFactory factory = new ServiceFactory( (OmeroContext) applicationContext );
+    	factory = new ServiceFactory( (OmeroContext) applicationContext );
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = factory.getAdminService();
@@ -59,6 +66,9 @@ public class AbstractManagedContextTest
         iPixels = factory.getPixelsService();
         eContext = (EventContext) applicationContext.getBean("eventContext");
         loginRoot();
+        
+        data = new OMEData();
+        data.setDataSource((DataSource) applicationContext.getBean("dataSource"));
     }
     
     protected void loginRoot()

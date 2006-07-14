@@ -43,6 +43,8 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.RenderingModel;import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.system.OmeroContext;
+import ome.system.ServiceFactory;
 ;
 
 /** 
@@ -86,7 +88,7 @@ public class PixelsServiceTest
     protected void onSetUp() throws Exception {
         super.onSetUp();
         //ome.security.Utils.setUserAuth();
-        pix = (IPixels) applicationContext.getBean("pixelsService");
+        pix = factory.getPixelsService();
     }
 
     @Test

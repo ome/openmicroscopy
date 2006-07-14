@@ -56,11 +56,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
 import ome.api.IUpdate;
+import ome.api.ServiceInterface;
+import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.meta.Event;
-import ome.security.CurrentDetails;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
@@ -78,9 +79,17 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     private static Log log = LogFactory.getLog(UpdateImpl.class);
 
+    protected LocalQuery localQuery;
+    
+    public void setQueryService( LocalQuery query )
+    {
+    	this.localQuery = query;
+    }
+    
     @Override
-    protected String getName() {
-        return IUpdate.class.getName();
+    protected Class<? extends ServiceInterface> getServiceInterface()
+    {
+        return IUpdate.class;
     };
 
     // ~ LOCAL PUBLIC METHODS
@@ -125,7 +134,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public void saveObject(IObject graph)
     {
-        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
         beforeUpdate( graph, filter );
         graph = internalSave( graph, filter );
         afterUpdate( graph, filter );
@@ -133,7 +142,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public IObject saveAndReturnObject( IObject graph )
     {
-        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
         beforeUpdate( graph, filter );
         graph = internalSave( graph, filter );
         afterUpdate( graph, filter );
@@ -142,7 +151,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public void saveCollection(Collection graph)
     {
-        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
         beforeUpdate( graph, filter );
         for (Object _object : graph)
         {
@@ -164,7 +173,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
-        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
         beforeUpdate( graph, filter );
         for (int i = 0; i < graph.length; i++)
         {
@@ -177,7 +186,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public void saveArray(IObject[] graph)
     {
-        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
         beforeUpdate( graph, filter );
         for (int i = 0; i < graph.length; i++)
         {
@@ -195,7 +204,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public void deleteObject( IObject row )
     {
-        UpdateFilter filter = new UpdateFilter( getHibernateTemplate() );
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
         beforeUpdate( row, filter );
         internalDelete( row, filter );
         afterUpdate( row, filter );
@@ -214,15 +223,16 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
             logger.debug( " Saving event before merge. " );
         
         // Save event before we enter.
-        Event currentEvent = CurrentDetails.getCreationEvent();
+        Event currentEvent = securitySystem.getCurrentEvent();
         Event mergedEvent = (Event) internalSave( currentEvent, filter );
 //        FIXME ERROR HERE: 
 //            internalSave is replacing details of Event even though it should be
 //            persistent. 
         
-        CurrentDetails.setCreationEvent( mergedEvent );
+        securitySystem.setCurrentEvent( mergedEvent );
 
         // Don't flush until we're done.
+        filter.previousFlushMode = currentSession().getFlushMode();
         currentSession().setFlushMode(FlushMode.COMMIT);
     }
 
@@ -260,10 +270,10 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         
         // Save all that and go back to AUTO flush.
         getHibernateTemplate().flush(); // TODO performance?
-        currentSession().setFlushMode(FlushMode.AUTO);
+        currentSession().setFlushMode( FlushMode.AUTO );
         
         // Let's save the event again using a temporary event.
-        Event currentEvent = CurrentDetails.getCreationEvent();
+        Event currentEvent = securitySystem.getCurrentEvent();
         EventType internal = (EventType) getHibernateTemplate().execute(
                 new HibernateCallback(){
                     public Object doInHibernate(Session session) 
@@ -276,20 +286,21 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
                 }
                 );
 
-        CurrentDetails.newEvent( internal );
+        securitySystem.newEvent( internal );
         internalSave( currentEvent, filter );
 
         // Checks.
-        List logs = CurrentDetails.getCreationEvent().collectLogs( null );
+        List logs = securitySystem.getCurrentEvent().collectLogs( null );
         if (logs.size() > 0)
             log.error("New logs created on update.afterSave:\n"+logs);
         // FIXME we shouldn't be updating experimenter etc. here.
         
         // Return the previous event.
-        CurrentDetails.setCreationEvent( currentEvent );
+        securitySystem.setCurrentEvent( currentEvent );
         
         // Clean up
         filter.unloadReplacedObjects();
+        currentSession().setFlushMode( filter.previousFlushMode );
         
     }
 

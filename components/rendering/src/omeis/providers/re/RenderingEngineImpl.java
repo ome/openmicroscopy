@@ -149,7 +149,7 @@ public class RenderingEngineImpl implements RenderingEngine
     public void selfConfigure()
     {
         this.ctx = OmeroContext.getInternalServerContext();
-        this.ctx.applyBeanPropertyValues(this,RenderingEngine.class.getName());
+        this.ctx.applyBeanPropertyValues(this,RenderingEngine.class);
     }
     
     public void destroy()
@@ -226,13 +226,13 @@ public class RenderingEngineImpl implements RenderingEngine
             
             if ( rendDefObj == null )
                 throw new ValidationException(
-                        "RenderingDef with id "+pixelsId+" not found.");
+                        "RenderingDef for Pixels="+pixelsId+" not found.");
         } finally {
             rwl.writeLock().unlock();
         }
         
         if (log.isDebugEnabled())
-            log.debug("lookupRenderingDef for id "+pixelsId+" succeeded: "+this.rendDefObj);
+            log.debug("lookupRenderingDef for Pixels="+pixelsId+" succeeded: "+this.rendDefObj);
         
     }
 

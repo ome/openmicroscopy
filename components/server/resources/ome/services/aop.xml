@@ -52,7 +52,7 @@
 		<property name="interceptorNames">
 			<list>
 				<value>serviceHandler</value>
-				<value>proxyFilter</value>
+				<value>proxyHandler</value>
 				<value>transactionHandler</value>
 				<value>sessionHandler</value>
 				<value>eventHandler</value>
@@ -80,49 +80,51 @@
     -->
   
    <!-- 1 -->
-  <bean id="adminService" parent="managedService">
+  <bean id="managed:ome.api.IAdmin" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IAdmin"/>
-    <property name="target" ref="ome.api.IAdmin"/>
+    <property name="target" ref="internal:ome.api.IAdmin"/>
   </bean>  
-  <bean id="queryService" parent="managedService">
+  <alias name="managed:ome.api.IQuery" alias="managed:ome.api.LocalQuery"/>
+  <bean id="managed:ome.api.IQuery" parent="managedService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IQuery</value>
         <value>ome.api.local.LocalQuery</value>        
       </list>
     </property>
-    <property name="target" ref="ome.api.IQuery"/>
+    <property name="target" ref="internal:ome.api.IQuery"/>
   </bean>  
-  <bean id="updateService" parent="managedService">
+  <alias name="managed:ome.api.IUpdate" alias="managed:ome.api.LocalUpdate"/>
+  <bean id="managed:ome.api.IUpdate" parent="managedService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IUpdate</value>
         <value>ome.api.local.LocalUpdate</value>        
       </list>
     </property>
-    <property name="target" ref="ome.api.IUpdate"/>
+    <property name="target" ref="internal:ome.api.IUpdate"/>
   </bean>
   <!-- 2 -->
-  <bean id="analysisService" parent="managedService">
+  <bean id="managed:ome.api.IAnalysis" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IAnalysis"/>
-    <property name="target" ref="ome.api.IAnalysis"/>
+    <property name="target" ref="internal:ome.api.IAnalysis"/>
   </bean>
-  <bean id="pixelsService" parent="managedService">
+  <bean id="managed:ome.api.IPixels" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IPixels"/>
-    <property name="target" ref="ome.api.IPixels"/>
+    <property name="target" ref="internal:ome.api.IPixels"/>
   </bean>
-  <bean id="pojosService" parent="managedService">
+  <bean id="managed:ome.api.IPojos" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IPojos"/>
-    <property name="target" ref="ome.api.IPojos"/>
+    <property name="target" ref="internal:ome.api.IPojos"/>
   </bean>
-  <bean id="typesService" parent="managedService">
+  <bean id="managed:ome.api.ITypes" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.ITypes"/>
-    <property name="target" ref="ome.api.ITypes"/>
+    <property name="target" ref="internal:ome.api.ITypes"/>
   </bean>
   <!-- FS -->
-  <bean id="renderService" parent="managedService">
+  <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedService">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
-    <property name="target" ref="omeis.providers.re.RenderingEngine"/>
+    <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
   </bean>
           
 </beans>

@@ -67,14 +67,13 @@ public class PojosBean extends AbstractBean implements IPojos
     public void create()
     {
         super.create();
-        delegate = (IPojos) applicationContext.getBean(
-                IPojos.class.getName());
+        delegate = serviceFactory.getPojosService();
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&pojosService" );
+        return wrap( context, IPojos.class );
     }
     
     @PreDestroy

@@ -42,6 +42,7 @@ import org.springframework.aop.framework.ProxyFactoryBean;
 //Application-internal dependencies
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
@@ -50,6 +51,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.spring.InternalServiceFactory;
 
 public class AbstractBean 
 {
@@ -73,10 +75,12 @@ public class AbstractBean
     public void create()
     {
         applicationContext = OmeroContext.getManagedServerContext();
-        serviceFactory = new ServiceFactory( applicationContext );
+        serviceFactory = new InternalServiceFactory( applicationContext );
+        localQuery = (LocalQuery) serviceFactory.getQueryService();
+        localUpdate = (LocalUpdate) serviceFactory.getUpdateService();
+
         eventContext = (EventContext) applicationContext.getBean("eventContext");
-        localQuery = (LocalQuery) applicationContext.getBean(IQuery.class.getName());
-        localUpdate = (LocalUpdate) applicationContext.getBean(IUpdate.class.getName());
+
         log.debug("Created:\n"+getLogString());
     }
     
@@ -117,10 +121,13 @@ public class AbstractBean
         eventContext.setPrincipal( null );
     }
     
-    protected Object wrap( InvocationContext context, String factoryName ) throws Exception
+    protected Object wrap( 
+    		InvocationContext context, 
+    		Class<? extends ServiceInterface> factoryClass ) throws Exception
     {
         try {
             login();
+            String factoryName = "&managed:"+factoryClass.getName();
             AOPAdapter adapter = 
             AOPAdapter.create( 
                     (ProxyFactoryBean) applicationContext.getBean(factoryName),

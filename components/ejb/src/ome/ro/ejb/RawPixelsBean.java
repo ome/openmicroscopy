@@ -107,7 +107,7 @@ public class RawPixelsBean extends AbstractBean
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&pixelsService" ); // FIXME
+        return wrap( context, IPixels.class ); // FIXME
     }
     
     @PrePassivate
@@ -132,8 +132,7 @@ public class RawPixelsBean extends AbstractBean
             pixelsInstance = null;
             buffer = null;
 
-            IPixels metadataService = (IPixels) serviceFactory.getContext()
-                .getBean(IPixels.class.getName());
+            IPixels metadataService = serviceFactory.getPixelsService();
             PixelsService dataService = (PixelsService) 
             applicationContext.getBean("/OME/OMEIS/Pixels"); // FIXME in SFactory.
             pixelsInstance = metadataService.retrievePixDescription( id );

@@ -53,7 +53,6 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.services.dao.Dao;
 import ome.services.query.Query;
 
 
@@ -66,97 +65,93 @@ import ome.services.query.Query;
 public class QueryBean extends AbstractBean implements LocalQuery
 {
 
-    LocalQuery delegate;
-    
     @PostConstruct
     public void create()
     {
         super.create();
-        delegate = (LocalQuery) applicationContext.getBean(
-                IQuery.class.getName());
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&queryService" );
+        return wrap( context, IQuery.class );
     }
     
     @PreDestroy
     public void destroy()
     {
-        delegate = null;
+        localQuery = null;
         super.destroy();
     }
 
     @RolesAllowed("user") public boolean checkProperty(String arg0, String arg1)
     {
-        return delegate.checkProperty(arg0, arg1);
+        return localQuery.checkProperty(arg0, arg1);
     }
 
     @RolesAllowed("user") public boolean checkType(String arg0)
     {
-        return delegate.checkType(arg0);
+        return localQuery.checkType(arg0);
     }
 
     @RolesAllowed("user") public void evict(Object arg0)
     {
-        delegate.evict(arg0);
+        localQuery.evict(arg0);
     }
     
     @RolesAllowed("user") public Object execute(Query arg0)
     {
-        return delegate.execute(arg0);
+        return localQuery.execute(arg0);
     }
 
     @RolesAllowed("user") public IObject find(Class arg0, long arg1)
     {
-        return delegate.find(arg0, arg1);
+        return localQuery.find(arg0, arg1);
     }
 
     @RolesAllowed("user") public List findAll(Class arg0, Filter arg1)
     {
-        return delegate.findAll(arg0, arg1);
+        return localQuery.findAll(arg0, arg1);
     }
 
     @RolesAllowed("user") public List findAllByExample(IObject arg0, Filter arg1)
     {
-        return delegate.findAllByExample(arg0, arg1);
+        return localQuery.findAllByExample(arg0, arg1);
     }
 
     @RolesAllowed("user") public List findAllByQuery(String arg0, Parameters arg1)
     {
-        return delegate.findAllByQuery(arg0, arg1);
+        return localQuery.findAllByQuery(arg0, arg1);
     }
 
     @RolesAllowed("user") public List findAllByString(Class arg0, String arg1, String arg2, boolean arg3, Filter arg4)
     {
-        return delegate.findAllByString(arg0, arg1, arg2, arg3, arg4);
+        return localQuery.findAllByString(arg0, arg1, arg2, arg3, arg4);
     }
 
     @RolesAllowed("user") public IObject findByExample(IObject arg0) throws ApiUsageException
     {
-        return delegate.findByExample(arg0);
+        return localQuery.findByExample(arg0);
     }
 
     @RolesAllowed("user") public IObject findByQuery(String arg0, Parameters arg1) throws ValidationException
     {
-        return delegate.findByQuery(arg0, arg1);
+        return localQuery.findByQuery(arg0, arg1);
     }
 
     @RolesAllowed("user") public IObject findByString(Class arg0, String arg1, String arg2) throws ApiUsageException
     {
-        return delegate.findByString(arg0, arg1, arg2);
+        return localQuery.findByString(arg0, arg1, arg2);
     }
 
     @RolesAllowed("user") public IObject get(Class arg0, long arg1) throws ValidationException
     {
-        return delegate.get(arg0, arg1);
+        return localQuery.get(arg0, arg1);
     }
 
     @RolesAllowed("user") public void initialize(Object arg0)
     {
-        delegate.initialize(arg0);
+        localQuery.initialize(arg0);
     }
 
 }

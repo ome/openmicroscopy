@@ -68,6 +68,7 @@ import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.util.ShallowCopy;
 
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
@@ -122,14 +123,13 @@ public class RenderingBean extends AbstractBean
     public void create()
     {
         super.create();
-        delegate = (RenderingEngine) applicationContext.getBean(
-                RenderingEngine.class.getName());
+        delegate = serviceFactory.createRenderingEngine();
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&renderService" );
+        return wrap( context, RenderingEngine.class );
     }
     
     @PreDestroy

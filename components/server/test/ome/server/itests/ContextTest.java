@@ -12,6 +12,9 @@ import junit.framework.TestCase;
 import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.system.OmeroContext;
+import ome.system.ServiceFactory;
+import ome.tools.spring.InternalServiceFactory;
+import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.RenderingEngineImpl;
 
 @Test(
@@ -44,10 +47,10 @@ public class ContextTest extends TestCase
     public void testListBeans() throws Exception
     {
         
-        System.out.println(Arrays.asList(
+        assertTrue(0 < Arrays.asList(
             BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
                     OmeroContext.getManagedServerContext().getBeanFactory(), 
-                    Object.class, true, true)));
+                    Object.class, true, true)).size());
     }
     
   @Test
@@ -63,11 +66,12 @@ public class ContextTest extends TestCase
         OmeroContext ctx = OmeroContext.getInternalServerContext();
         onContext(ctx);
     }
-    
-    protected void onContext(OmeroContext ctx) {
-        IQuery q = (IQuery) ctx.getBean("queryService");
-        Advised aop = (Advised) q;
-        System.out.println(Arrays.asList(aop.getAdvisors()));
+  
+   protected void onContext(OmeroContext ctx)
+   {
+        ServiceFactory sf = new ServiceFactory( ctx );
+        IQuery q = sf.getQueryService();
+        assertTrue( Advised.class.isAssignableFrom( q.getClass() ));
     }
     
   @Test
@@ -75,7 +79,7 @@ public class ContextTest extends TestCase
     {
         
         OmeroContext ctx = OmeroContext.getInternalServerContext();
-        ctx.applyBeanPropertyValues(re,"omeis.providers.re.RenderingEngine");
+        ctx.applyBeanPropertyValues(re,RenderingEngine.class);
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);
     }

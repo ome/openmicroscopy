@@ -47,6 +47,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 
 //Application-internal dependencies
+import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 
 /**
@@ -247,10 +248,15 @@ public class OmeroContext extends ClassPathXmlApplicationContext
      * @see SelfConfigurableService
      * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#applyBeanPropertyValues(java.lang.Object, java.lang.String)
      */
-    public void applyBeanPropertyValues(Object target, String beanName)
+    public void applyBeanPropertyValues(
+    		Object target, 
+    		Class<? extends ServiceInterface> beanInterface)
     {
+    	// TODO: it would be better to have this as <? extends SelfConfigurableService>
+    	// but there are issues because of the ApplicationContextAware. Perhaps
+    	// we can combine them later.
         this.getAutowireCapableBeanFactory().
-            applyBeanPropertyValues(target,beanName);
+            applyBeanPropertyValues(target,"internal:"+beanInterface.getName());
     }
     
     /**
@@ -280,6 +286,11 @@ public class OmeroContext extends ClassPathXmlApplicationContext
             list.get( i ).refresh();
         }
         
+    }
+    
+    public String getProperty(String propertyName)
+    {
+    	return null;
     }
     
     // ~ Non-singleton locator

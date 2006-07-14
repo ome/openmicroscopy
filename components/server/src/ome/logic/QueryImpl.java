@@ -53,6 +53,7 @@ import org.hibernate.metadata.ClassMetadata;
 
 //Application-internal dependencies
 import ome.api.IQuery;
+import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
@@ -79,9 +80,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     private static Log log = LogFactory.getLog(QueryImpl.class);
 
     @Override
-    protected String getName()
+    protected Class<? extends ServiceInterface> getServiceInterface()
     {
-        return IQuery.class.getName();
+        return IQuery.class;
     }
     
     // ~ LOCAL PUBLIC METHODS
@@ -188,12 +189,13 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#getByClass(java.lang.Class)
      */
-    public List findAll(final Class klass, final Filter filter)
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> List<T> findAll(final Class<T> klass, final Filter filter)
     {
         if ( filter == null )
             return getHibernateTemplate().loadAll( klass );
         
-        return (List) getHibernateTemplate().execute( new HibernateCallback(){
+        return (List<T>) getHibernateTemplate().execute( new HibernateCallback(){
            public Object doInHibernate(Session session) 
            throws HibernateException, SQLException
             {
@@ -207,9 +209,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findByExample(ome.model.IObject)
      */
-    public IObject findByExample(final IObject example) throws ApiUsageException
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T findByExample(final T example) throws ApiUsageException
     {
-        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
+        return (T) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
@@ -224,9 +227,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)
      */
-    public List findAllByExample(final IObject example, final Filter filter)
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> List<T> findAllByExample(final T example, final Filter filter)
     {
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+        return (List<T>) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
@@ -242,13 +246,14 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String, java.lang.String)
      */
-    public IObject findByString(
-    final Class klass, 
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T findByString(
+    final Class<T> klass, 
     final String fieldName, 
     final String value) 
     throws ApiUsageException
     {
-        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
+        return (T) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
@@ -263,15 +268,16 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String, java.lang.String, boolean, ome.parameters.Filter)
      */
-    public List findAllByString(
-            final Class klass, 
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> List<T> findAllByString(
+            final Class<T> klass, 
             final String fieldName, 
             final String value, 
             final boolean caseSensitive, 
             final Filter filter) 
     throws ApiUsageException
     {
-        return (List) getHibernateTemplate().execute(new HibernateCallback() {
+        return (List<T>) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
@@ -292,7 +298,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /** 
      * @see ome.api.IQuery#findByQuery(java.lang.String, ome.parameters.Parameters)
      */
-    public IObject findByQuery(String queryName, Parameters params) 
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T findByQuery(String queryName, Parameters params) 
     throws ValidationException
     {
         
@@ -304,8 +311,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         // specify that we should only return a single value if possible
         params.getFilter().unique();
         
-        Query<IObject> q = queryFactory.lookup( queryName, params );
-        IObject result = null;
+        Query<T> q = queryFactory.lookup( queryName, params );
+        T result = null;
         try { 
             result = execute(q);
         } catch (ClassCastException cce) {
@@ -330,9 +337,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /** 
      * @see ome.api.IQuery#findAllByQuery(java.lang.String, ome.parameters.Parameters)
      */
-    public List findAllByQuery(String queryName, Parameters params)
+    public <T extends IObject> List<T> findAllByQuery(String queryName, Parameters params)
     {
-        Query<List> q = queryFactory.lookup( queryName, params );
+        Query<List<T>> q = queryFactory.lookup( queryName, params );
         return execute(q);
     }
 

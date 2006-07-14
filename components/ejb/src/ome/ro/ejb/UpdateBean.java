@@ -60,26 +60,22 @@ import ome.model.IObject;
 public class UpdateBean extends AbstractBean implements LocalUpdate
 {
 
-    LocalUpdate delegate;
-    
     @PostConstruct
     public void create()
     {
         super.create();
-        delegate = (LocalUpdate) applicationContext.getBean(
-            IUpdate.class.getName());
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&updateService" );
+        return wrap( context, IUpdate.class );
     }
     
     @PreDestroy
     public void destroy()
     {
-        delegate = null;
+        localUpdate = null;
         super.destroy();
     }
     
@@ -89,73 +85,73 @@ public class UpdateBean extends AbstractBean implements LocalUpdate
     @RolesAllowed("user")
     public void saveArray(IObject[] arg0)
     {
-        delegate.saveArray(arg0);
+        localUpdate.saveArray(arg0);
     }
 
     @RolesAllowed("user")
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
-        return delegate.saveAndReturnArray(graph);
+        return localUpdate.saveAndReturnArray(graph);
     }
 
     @RolesAllowed("user")
     public Collection saveAndReturnCollection(Collection graph)
     {
-        return delegate.saveAndReturnCollection(graph);
+        return localUpdate.saveAndReturnCollection(graph);
     }
 
     @RolesAllowed("user")
     public Map saveAndReturnMap(Map map)
     {
-        return delegate.saveAndReturnMap(map);
+        return localUpdate.saveAndReturnMap(map);
     }
 
     @RolesAllowed("user")
     public IObject saveAndReturnObject(IObject graph)
     {
-        return delegate.saveAndReturnObject(graph);
+        return localUpdate.saveAndReturnObject(graph);
     }
 
     @RolesAllowed("user")
     public void saveObject(IObject graph)
     {
-        delegate.saveObject(graph);
+        localUpdate.saveObject(graph);
     }
 
     @RolesAllowed("user")
     public void saveCollection(Collection arg0)
     {
-        delegate.saveCollection(arg0);
+        localUpdate.saveCollection(arg0);
     }
 
     @RolesAllowed("user")
     public void saveMap(Map arg0)
     {
-        delegate.saveMap(arg0);
+        localUpdate.saveMap(arg0);
     }
 
     @RolesAllowed("user")
     public void deleteObject(IObject row)
     {
-        delegate.deleteObject(row);
+        localUpdate.deleteObject(row);
     }
 
     @RolesAllowed("user")
     public void commit()
     {
-        delegate.commit();
+        localUpdate.commit();
     }
 
     @RolesAllowed("user")
     public void flush()
     {
-        delegate.flush();
+        localUpdate.flush();
     }
 
     @RolesAllowed("user")
     public void rollback()
     {
-        delegate.rollback();
+        localUpdate.rollback();
     }
 
 }

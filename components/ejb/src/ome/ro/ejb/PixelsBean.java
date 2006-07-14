@@ -68,14 +68,13 @@ public class PixelsBean extends AbstractBean implements IPixels
     public void create()
     {
         super.create();
-        delegate = (IPixels) applicationContext.getBean(
-                IPixels.class.getName());
+        delegate = serviceFactory.getPixelsService();
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&pixelsService" );
+        return wrap( context, IPixels.class );
     }
     
     @PreDestroy

@@ -52,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.api.IPojos;
+import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.ILink;
@@ -94,9 +95,9 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     private static Log log = LogFactory.getLog(PojosImpl.class);
 
     @Override
-    protected final String getName()
+    protected final Class<? extends ServiceInterface> getServiceInterface()
     {
-        return IPojos.class.getName();
+        return IPojos.class;
     }
     
     // ~ READ

@@ -34,10 +34,12 @@ package ome.testing;
 import org.jmock.Mock;
 
 // Application-internal dependencies
+import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
@@ -66,7 +68,18 @@ import omeis.providers.re.RenderingEngine;
  */
 public class MockServiceFactory extends ServiceFactory
 {
+	
+	@Override
+	protected String getDefaultContext() {
+		return null;
+	}
     
+	public Mock mockAdmin;
+	public IAdmin getAdminService()
+	{
+		return (IAdmin) mockAdmin.proxy( ); 
+	}
+	
     public Mock mockAnalysis;
     public IAnalysis getAnalysisService()
     {
@@ -101,6 +114,12 @@ public class MockServiceFactory extends ServiceFactory
     public IUpdate getUpdateService()
     {
         return (IUpdate) mockUpdate.proxy( );
+    }
+    
+    public Mock mockTypes;
+    public ITypes getTypesService()
+    {
+    	return (ITypes) mockTypes.proxy();
     }
 
 }

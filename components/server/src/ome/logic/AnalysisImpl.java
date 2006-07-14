@@ -47,10 +47,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
 import ome.api.IAnalysis;
+import ome.api.ServiceInterface;
 import ome.model.containers.Dataset;
 import ome.model.meta.Experimenter;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
+import ome.system.SelfConfigurableService;
 
 
 /**
@@ -69,9 +71,9 @@ public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
     private static Log log = LogFactory.getLog(AnalysisImpl.class);
 
     @Override
-    protected String getName()
+    protected Class<? extends ServiceInterface> getServiceInterface()
     {
-        return IAnalysis.class.getName();
+        return IAnalysis.class;
     }
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
