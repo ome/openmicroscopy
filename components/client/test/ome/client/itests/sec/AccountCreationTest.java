@@ -17,25 +17,25 @@ public class AccountCreationTest extends AbstractAccountTest
 {
 
     @Test
-    public void testRootCreatesAccountThroughIUpdate() throws Exception {
-    	Experimenter e = createNewExperimenter();
+    public void testSudoCreatesAccountThroughIUpdate() throws Exception {
+    	Experimenter e = createNewExperimenter( getSudoUpdate("ome"), userGrp );
     	assertNull( getPasswordFromDb(e));
     	assertCannotLogin(e.getOmeName(),"ome");
     	assertCannotLogin(e.getOmeName(),"");
     	
     	doesNotHaveSystemPrivileges(e);
     	
-    	getRootAdmin("ome").changeUserPassword(e.getOmeName(),"test");
+    	getSudoAdmin("ome").changeUserPassword(e.getOmeName(),"test");
     	assertCanLogin(e.getOmeName(),"test");
     }
     
     @Test
-    public void testRootCreatesUserAccountThroughIAdmin() throws Exception {
+    public void testSudoCreatesUserAccountThroughIAdmin() throws Exception {
     	Experimenter e = new Experimenter();
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
-    	e = getRootAdmin("ome").createUser(e);
+    	e = getSudoAdmin("ome").createUser(e);
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
@@ -44,19 +44,19 @@ public class AccountCreationTest extends AbstractAccountTest
     }
     
     @Test
-    public void testRootCreatesSystemAccountThroughIAdmin() throws Exception {
+    public void testSudoCreatesSystemAccountThroughIAdmin() throws Exception {
 		Experimenter e = new Experimenter();
 		e.setOmeName(new GUID().asString());
 		e.setFirstName("ticket:181");
 		e.setLastName("ticket:199");
-		e = getRootAdmin("ome").createSystemUser(e);
+		e = getSudoAdmin("ome").createSystemUser(e);
 		assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
     	
 		hasSystemPrivileges(e);
 		
-		getRootAdmin("ome").changeUserPassword(e.getOmeName(), "bob");
+		getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "bob");
 		
 		assertCannotLogin(e.getOmeName(),"");
     	assertCannotLogin(e.getOmeName(),"ome");
@@ -65,19 +65,19 @@ public class AccountCreationTest extends AbstractAccountTest
 	}
 
     @Test
-    public void testRootCreatesAccountThroughIAdmin() throws Exception {
+    public void testSudoCreatesAccountThroughIAdmin() throws Exception {
     	Experimenter e = new Experimenter();
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
-    	e = getRootAdmin("ome").createExperimenter(e, new ExperimenterGroup(1L,false),null);
+    	e = getSudoAdmin("ome").createExperimenter(e, userGrp,null);
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
     
     	doesNotHaveSystemPrivileges(e);
     	
-    	getRootAdmin("ome").changeUserPassword(e.getOmeName(), "bob");
+    	getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "bob");
 		
 		assertCannotLogin(e.getOmeName(),"");
     	assertCannotLogin(e.getOmeName(),"ome");
@@ -86,20 +86,20 @@ public class AccountCreationTest extends AbstractAccountTest
     }
 
     @Test
-    public void testRootSysCreatesAccountThroughIAdmin() throws Exception {
+    public void testSudoSysCreatesAccountThroughIAdmin() throws Exception {
     	Experimenter e = new Experimenter();
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
-    	e = getRootAdmin("ome").createExperimenter(e, new ExperimenterGroup(1L,false),
-    			new ExperimenterGroup[]{new ExperimenterGroup(0L,false)});
+    	e = getSudoAdmin("ome").createExperimenter(e, userGrp,
+    			new ExperimenterGroup[]{ sysGrp });
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
     
     	hasSystemPrivileges(e);
     	
-    	getRootAdmin("ome").changeUserPassword(e.getOmeName(), "bob");
+    	getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "bob");
 		
 		assertCannotLogin(e.getOmeName(),"");
     	assertCannotLogin(e.getOmeName(),"ome");

@@ -7,6 +7,7 @@
 omero.version=3.0-M1
 omero.repo.local=${omero.home}/lib/repository
 omero.repo.remote=file://${user.home}/.m2/repository
+omero.rootpass=ome
 
 ############################################
 # client connection

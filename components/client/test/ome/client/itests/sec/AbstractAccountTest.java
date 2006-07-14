@@ -1,6 +1,5 @@
 package ome.client.itests.sec;
 
-import javax.ejb.EJBException;
 import javax.sql.DataSource;
 
 import org.jboss.util.id.GUID;
@@ -29,27 +28,34 @@ public class AbstractAccountTest extends TestCase
 
     protected static final String OME_HASH = "vvFwuczAmpyoRC0Nsv8FCw==";
 
+    protected ExperimenterGroup 
+    	userGrp = new ExperimenterGroup( 1L, false ),
+		sysGrp = new ExperimenterGroup( 0L, false );
+
 	protected Experimenter root, sudo;
+	protected String sudo_name;
+	protected String sudo_id;
 
     protected ServiceFactory tmp = new ServiceFactory( "ome.client.test" );
     protected DataSource dataSource = (DataSource) tmp.getContext().getBean("dataSource");
     protected SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate( dataSource );
+    protected Login rootLogin = (Login) tmp.getContext().getBean("rootLogin");
+    
+    protected ServiceFactory rootServices;
+    protected IAdmin rootAdmin;
+    protected IQuery rootQuery;
+    protected IUpdate rootUpdate;
     
     // ~ Testng Adapter
     // =========================================================================
-    @Configuration( afterTestMethod = true, alwaysRun = true )
-    public void resetRootLoginTo_ome() throws Exception
-    {
-    	resetPasswordTo_ome(root);
-    	assertCanLogin("root","ome");
-    }
-    
     @Configuration(beforeTestClass = true)
     public void rootCanLoginWith_ome() throws Exception
     {
         super.setUp();
-
-        IQuery rootQuery = new ServiceFactory( new Login("root","ome")).getQueryService();
+        rootServices = new ServiceFactory( rootLogin );
+        rootAdmin = rootServices.getAdminService();
+        rootQuery = rootServices.getQueryService();
+        rootUpdate = rootServices.getUpdateService();
         try 
         {
             rootQuery.get(Experimenter.class,0l);
@@ -58,20 +64,22 @@ public class AbstractAccountTest extends TestCase
         }
         
         root = rootQuery.get( Experimenter.class, 0L );
-        sudo = createNewExperimenter(getRootUpdate("ome"),
+        sudo = createNewExperimenter( rootUpdate,
         		new ExperimenterGroup(0L,false),
         		new ExperimenterGroup(1L,false));
+        sudo_name = sudo.getOmeName();
         resetPasswordTo_ome(sudo);
-        assertCanLogin(sudo.getOmeName(),"ome");
+        assertCanLogin(sudo_name,"ome");
     }
-      
+    
+//    @Configuration( afterTestMethod = true, alwaysRun = true )
+//    public void deleteSudo() throws Exception
+//    {	
+//    	rootAdmin.deleteExperimenter( new Experimenter( sudo.getId(), false ) );
+//    }
+    
     // ~ Helpers
     // =========================================================================
-
-	protected Experimenter createNewExperimenter() {
-		return createNewExperimenter( getUpdateBackdoor(), 
-				new ExperimenterGroup( 1L, false  ));
-	}
 
 	protected Experimenter createNewExperimenter(IUpdate iUpdate, 
 			ExperimenterGroup...groups) {
@@ -93,27 +101,31 @@ public class AbstractAccountTest extends TestCase
 		try {
 			return jdbc.queryForObject("select hash from password " +
 				"where experimenter_id = ?",
-				String.class, e.getId());
+				String.class, e.getId()).trim(); // TODO remove trim in sync with JBossLoginModule
 		} catch (EmptyResultDataAccessException ex){
 			return null;
 		}
 	}
 	
 	protected void resetPasswordTo_ome(Experimenter e) throws Exception {
+		resetPasswordTo_ome(e.getId());
+	}
+	
+	protected void resetPasswordTo_ome(Long id) throws Exception {
 		int count = jdbc.update("update password set hash = ? where experimenter_id = ?",
     			AbstractAccountTest.OME_HASH,
-    			e.getId());
+    			id);
     	
 		if ( count < 1 )
 		{
 		
 			count = jdbc.update("insert into password values (?,?)",
-    			e.getId(),
+    			id,
     			AbstractAccountTest.OME_HASH);
 			assertTrue( count == 1 );
 		}
 		dataSource.getConnection().commit();
-    	getAdminBackdoor().synchronizeLoginCache();
+    	rootAdmin.synchronizeLoginCache();
 	}
 
 	protected int setPasswordtoEmptyString(Experimenter e) throws Exception {
@@ -127,7 +139,7 @@ public class AbstractAccountTest extends TestCase
 					"");
 		}
 		dataSource.getConnection().commit();
-		getAdminBackdoor().synchronizeLoginCache();
+		rootAdmin.synchronizeLoginCache();
 		return count;
 	}
 	
@@ -135,7 +147,7 @@ public class AbstractAccountTest extends TestCase
 		int count = jdbc.update("delete from password where experimenter_id = ?",
     			e.getId());
 		dataSource.getConnection().commit();
-		getAdminBackdoor().synchronizeLoginCache();
+		rootAdmin.synchronizeLoginCache();
 	}
 	
 	protected void nullPasswordEntry(Experimenter e) throws Exception {
@@ -147,7 +159,7 @@ public class AbstractAccountTest extends TestCase
 					e.getId());
 		}
 		dataSource.getConnection().commit();
-		getAdminBackdoor().synchronizeLoginCache();
+		rootAdmin.synchronizeLoginCache();
 	}
 
 	protected void assertCanLogin(String name, String password)
@@ -172,34 +184,23 @@ public class AbstractAccountTest extends TestCase
     	
     }
   
-    protected IAdmin getRootAdmin( String password )
+    protected IAdmin getSudoAdmin( String password )
     {
-    	return new ServiceFactory( new Login( root.getOmeName(),password))
+    	return new ServiceFactory( new Login( sudo_name,password))
 		.getAdminService();
     }
     
-    protected IQuery getRootQuery( String password )
+    protected IQuery getSudoQuery( String password )
     {
-    	return new ServiceFactory( new Login( root.getOmeName(),password))
+    	return new ServiceFactory( new Login( sudo_name,password))
 		.getQueryService();
     }
     
-    protected IUpdate getRootUpdate( String password )
+    protected IUpdate getSudoUpdate( String password )
     {
-    	return new ServiceFactory( new Login( root.getOmeName(),password))
+    	return new ServiceFactory( new Login( sudo_name,password))
 		.getUpdateService();
     }
-    
-    protected IAdmin getAdminBackdoor()
-    {
-    	return new ServiceFactory( new Login( sudo.getOmeName(),"ome"))
-    		.getAdminService();
-    }
 
-    protected IUpdate getUpdateBackdoor()
-    {
-    	return new ServiceFactory( new Login( sudo.getOmeName(),"ome"))
-    		.getUpdateService();
-    }
     
 }

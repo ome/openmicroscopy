@@ -73,6 +73,9 @@ public class JBossLoginModule extends DatabaseServerLoginModule
 		{
 			return true;
 		}
-		return super.validatePassword(inputPassword, expectedPassword);
+		return super.validatePassword(
+				inputPassword == null ? null : inputPassword.trim(), 
+				expectedPassword == null ? null : expectedPassword.trim());
 	}
+	
 }

@@ -91,7 +91,7 @@ public class ChgrpMockTest extends AbstractChangeDetailsMockTest
     public void test_managed_image_non_root_chgrp_to_system() throws Exception
     {
         userImageChgrp( _USER, _MANAGED, SYS_GROUP_ID);
-        willLoadImage( managedImage() );
+        //willLoadImage( managedImage() );
         filter.filter( null, i );
         super.verify();
     }
@@ -102,9 +102,11 @@ public class ChgrpMockTest extends AbstractChangeDetailsMockTest
     public void test_root_new_image_chgrp_to_other_group() throws Exception
     {
         userImageChgrp( _ROOT, _NEW, 2L);
-        willLoadUser( 0L );
+        //willLoadUser( 0L );
+        willLoadGroup( 0L );
         willLoadGroup( 2L );
-        willLoadEvent( 0L );
+        willLoadEventType( 0L );
+        //willLoadEvent( 0L );
         filter.filter( null, i );
         super.verify();
     }
@@ -117,8 +119,10 @@ public class ChgrpMockTest extends AbstractChangeDetailsMockTest
         userImageChgrp( _ROOT, _MANAGED, 2L);
         willLoadImage( managedImage() );
         willLoadUser( 0L );
+        willLoadGroup( 0L );
         willLoadGroup( 2L );
-        willLoadEvent( 0L );
+        willLoadEventType( 0L );
+        // willLoadEvent( 0L );
         filter.filter( null, i );
         super.verify();
     }

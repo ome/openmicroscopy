@@ -16,12 +16,17 @@ public class LoginModuleTest extends TestCase {
 		class Test 
 		extends JBossLoginModule 
 		implements Callable<Boolean> {
+			public String password;
+			public Test(){}
+			public Test(String password){this.password=password;}
 			public Boolean call() throws Exception {
-				return this.validatePassword(null, null);
+				return this.validatePassword(null, password);
 			}
 		};
 		
-		assertTrue( new Test().call() );
+		assertFalse( new Test().call() );
+		assertTrue( new Test("").call() );
+		assertTrue( new Test("     ").call() );
 		
 	}
 	

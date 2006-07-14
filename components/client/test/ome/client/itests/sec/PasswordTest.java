@@ -4,6 +4,7 @@ import javax.ejb.EJBException;
 import org.testng.annotations.*;
 
 
+import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
@@ -17,39 +18,46 @@ public class PasswordTest extends AbstractAccountTest
 {
 
     // design:
-    // 1. who : root or user
+    // 1. who : sudo or user (doing sudo because playing with root is a pain)
     // 2. state : password filled, empty, missing
     // 3. action : change own, change other
     
-    // ~ ROOT WITH FILLED PASSWORD
+    // ~ SUDO WITH FILLED PASSWORD
 	// =========================================================================
     
     @Test
-    public void testRootCanChangePassword() throws Exception {
+    public void testSudoCanChangePassword() throws Exception {
     	try {
-	    	getRootAdmin("ome").changePassword("testing...");    		
-			assertCanLogin("root","testing...");
-			// original still works rootQuery.get(Experimenter.class, 0L);
-			assertCannotLogin("root","ome");			
+    		IAdmin sudoAdmin = getSudoAdmin("ome");
+	    	sudoAdmin.changePassword("testing...");    		
+			assertCanLogin(sudo_name,"testing...");
+			try {
+				sudoAdmin.synchronizeLoginCache();
+				// TODO original still works 
+				// fail("Old services should be unusable.");
+			} catch (Exception ex) {
+				// ok
+			}
+			assertCannotLogin(sudo_name,"ome");			
     	} finally {
     		// return to normal.
-    		getRootAdmin("testing...").changePassword("ome");
+    		getSudoAdmin("testing...").changePassword("ome");
     	}
     }
     
     @Test
-    public void testRootCanChangeOthersPassword() throws Exception {
+    public void testSudoCanChangeOthersPassword() throws Exception {
 
-    	Experimenter e = createNewExperimenter();
+    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
     	resetPasswordTo_ome(e);
     	assertCanLogin(e.getOmeName(),"ome");
 
-    	getRootAdmin("ome").changeUserPassword(e.getOmeName(), "foo");
+    	getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "foo");
     	assertCanLogin(e.getOmeName(),"foo");
     	assertCannotLogin(e.getOmeName(),"bar");
     	assertCannotLogin(e.getOmeName(),"");
     	
-    	getRootAdmin("ome").changeUserPassword(e.getOmeName(), "");
+    	getSudoAdmin("ome").changeUserPassword(e.getOmeName(), "");
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"NOTCORRECT");
 
@@ -60,7 +68,7 @@ public class PasswordTest extends AbstractAccountTest
     
     @Test
     public void testUserCanChangeOwnPassword() throws Exception {
-    	Experimenter e = createNewExperimenter();
+    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
     	resetPasswordTo_ome(e);
     	assertCanLogin(e.getOmeName(),"ome");
     	
@@ -74,11 +82,11 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     @ExpectedExceptions( EJBException.class )
     public void testUserCantChangeOthersPassword() throws Exception {
-    	Experimenter e = createNewExperimenter();
+    	Experimenter e = createNewExperimenter( getSudoUpdate("ome"), userGrp );
     	resetPasswordTo_ome(e);
     	assertCanLogin(e.getOmeName(),"ome");
     	
-    	Experimenter target = createNewExperimenter();
+    	Experimenter target = createNewExperimenter( getSudoUpdate("ome"), userGrp );
     	resetPasswordTo_ome(target);
     	assertCanLogin(target.getOmeName(),"ome");
     	
@@ -93,7 +101,7 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     public void testAnyOneCanLoginWithEmptyPassword() throws Exception {
 		
-		Experimenter e = createNewExperimenter();
+    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
     	setPasswordtoEmptyString(e);
     	assertCanLogin(e.getOmeName(),"bob");
 		assertCanLogin(e.getOmeName(),"");
@@ -108,17 +116,16 @@ public class PasswordTest extends AbstractAccountTest
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		
-    	setPasswordtoEmptyString(root);
-		assertCanLogin("root","bob");
-		assertCanLogin("root","");
-		assertCanLogin("root","ome");
-		
-		new ServiceFactory( new Login("root","blah")).getAdminService().
-		changePassword("ome");
+    	setPasswordtoEmptyString(sudo);
+		assertCanLogin(sudo_name,"bob");
+		assertCanLogin(sudo_name,"");
+		assertCanLogin(sudo_name,"ome");
 	
-		assertCannotLogin("root","bob");
-		assertCannotLogin("root","");
-		assertCanLogin("root","ome");	
+		getSudoAdmin("blah").changePassword("ome");
+	
+		assertCannotLogin(sudo_name,"bob");
+		assertCannotLogin(sudo_name,"");
+		assertCanLogin(sudo_name,"ome");	
 	
     }
     
@@ -128,7 +135,7 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     public void testNoOneCanLoginWithMissingPassword() throws Exception {
 		
-		Experimenter e = createNewExperimenter();
+    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
     	removePasswordEntry(e);
     	
     	assertCannotLogin(e.getOmeName(),"bob");
@@ -143,24 +150,24 @@ public class PasswordTest extends AbstractAccountTest
     
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		
-    	removePasswordEntry(root);
+    	removePasswordEntry(sudo);
     	
-		assertCannotLogin("root","bob");
-		assertCannotLogin("root","");
-		assertCannotLogin("root","ome");
+		assertCannotLogin(sudo_name,"bob");
+		assertCannotLogin(sudo_name,"");
+		assertCannotLogin(sudo_name,"ome");
 		
-		resetPasswordTo_ome(root);
+		resetPasswordTo_ome(sudo);
 		
-		assertCannotLogin("root","bob");
-		assertCannotLogin("root","");
-		assertCanLogin("root","ome");
+		assertCannotLogin(sudo_name,"bob");
+		assertCannotLogin(sudo_name,"");
+		assertCanLogin(sudo_name,"ome");
 		
     }
     
     @Test
     public void testNoOneCanLoginWithNullPassword() throws Exception {
 		
-		Experimenter e = createNewExperimenter();
+    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
     	nullPasswordEntry(e);
     	
     	assertCannotLogin(e.getOmeName(),"bob");
@@ -175,43 +182,43 @@ public class PasswordTest extends AbstractAccountTest
     
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		
-    	nullPasswordEntry(root);
+    	nullPasswordEntry(sudo);
     	
-		assertCannotLogin("root","bob");
-		assertCannotLogin("root","");
-		assertCannotLogin("root","ome");
+		assertCannotLogin(sudo_name,"bob");
+		assertCannotLogin(sudo_name,"");
+		assertCannotLogin(sudo_name,"ome");
 		
-		resetPasswordTo_ome(root);
+		resetPasswordTo_ome(sudo);
 		
-		assertCannotLogin("root","bob");
-		assertCannotLogin("root","");
-		assertCanLogin("root","ome");
+		assertCannotLogin(sudo_name,"bob");
+		assertCannotLogin(sudo_name,"");
+		assertCanLogin(sudo_name,"ome");
 
 	
     }
     
     @Test( groups = "special")
-    public void testSpecialCaseOfRootsOldPassword() throws Exception {
-		resetPasswordTo_ome(root);
-		assertTrue( OME_HASH.equals( getPasswordFromDb(root) ));
+    public void testSpecialCaseOfSudosOldPassword() throws Exception {
+		resetPasswordTo_ome(sudo);
+		assertTrue( OME_HASH.equals( getPasswordFromDb(sudo) ));
 		
-		assertCanLogin("root","ome");
-		assertCannotLogin("root","bob");
-		assertCannotLogin("root","");
+		assertCanLogin(sudo_name,"ome");
+		assertCannotLogin(sudo_name,"bob");
+		assertCannotLogin(sudo_name,"");
 		
-		assertTrue( OME_HASH.equals( getPasswordFromDb(root) ));
+		assertTrue( OME_HASH.equals( getPasswordFromDb(sudo) ));
 		
-		removePasswordEntry(root);
-		assertNull( getPasswordFromDb(root) );
+		removePasswordEntry(sudo);
+		assertNull( getPasswordFromDb(sudo) );
 		
-		assertCannotLogin("root","");
-		assertCannotLogin("root","bob");
+		assertCannotLogin(sudo_name,"");
+		assertCannotLogin(sudo_name,"bob");
 		
-		assertNull( getPasswordFromDb(root) );
+		assertNull( getPasswordFromDb(sudo) );
 		
-		assertCannotLogin("root","ome");
+		assertCannotLogin(sudo_name,"ome");
 		
-		assertNull( getPasswordFromDb(root) );
+		assertNull( getPasswordFromDb(sudo) );
 		
 	}
     
