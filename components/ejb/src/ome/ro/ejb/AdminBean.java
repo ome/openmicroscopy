@@ -65,14 +65,13 @@ public class AdminBean extends AbstractBean implements IAdmin
     public void create()
     {
         super.create();
-        delegate = (IAdmin) applicationContext.getBean(
-                IAdmin.class.getName());
+        delegate = serviceFactory.getAdminService();
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&adminService" );
+        return wrap( context, IAdmin.class );
     }
     
     @PreDestroy
@@ -170,6 +169,12 @@ public class AdminBean extends AbstractBean implements IAdmin
     }
 
     @RolesAllowed("system")
+	public void deleteExperimenter(Experimenter user)
+    {
+    	delegate.deleteExperimenter(user);
+    }
+    
+    @RolesAllowed("system")
     public void changeOwner(IObject arg0, String arg1)
     {
     	delegate.changeOwner(arg0, arg1);
@@ -199,6 +204,5 @@ public class AdminBean extends AbstractBean implements IAdmin
     {
     	delegate.changeUserPassword(arg0, arg1);
     }
-
 
 }

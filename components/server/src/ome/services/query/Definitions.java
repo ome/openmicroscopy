@@ -55,7 +55,7 @@ import java.util.Set;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-class Definitions {
+public class Definitions {
 
     /** 
      * internal storage for the {@link QueryParameterDef}s. Should not change

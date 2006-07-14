@@ -171,6 +171,12 @@ public interface IAdmin extends ServiceInterface{
     		@NotNull Experimenter user, 
     		@NotNull ExperimenterGroup group );
     
+    /** removes a user after removing the password information for that user. 
+     * This prevents constraint violations for DB-based login modules. 
+     * @param user. Experimenter to be deleted. Not null.
+     */
+    void deleteExperimenter( @NotNull Experimenter user );
+    
     // ~ Permissions and Ownership
     // =========================================================================
 

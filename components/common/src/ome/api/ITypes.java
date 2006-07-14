@@ -30,10 +30,12 @@
 package ome.api;
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 
@@ -50,16 +52,26 @@ import ome.model.internal.Permissions;
  * @since OMERO3
  */
 
-public interface ITypes
+public interface ITypes extends ServiceInterface
 {
     
-    <T extends IObject> Class<T>[] getResultTypes ( ); 
-    <T extends IObject> Class<T>[] getAnnotationTypes ( );
-    <T extends IObject> Class<T>[] getContainerTypes ( );
-    <T extends IObject> Class<T>[] getPojoTypes ( );
-    <T extends IObject> Class<T>[] getImportTypes ( );
-    <T extends IObject> T[] allEnumerations( Class<T> k);
-    <T extends IObject> T getEnumeration( Class<T> k, String string ); 
+    <T extends IObject> List<Class<T>> getResultTypes ( ); 
+    <T extends IObject> List<Class<T>> getAnnotationTypes ( );
+    <T extends IObject> List<Class<T>> getContainerTypes ( );
+    <T extends IObject> List<Class<T>> getPojoTypes ( );
+    <T extends IObject> List<Class<T>> getImportTypes ( );
+    <T extends IEnum> List<T> allEnumerations( Class<T> k);
+    
+    /** lookup an enumeration value. As with the get-methods of {@link IQuery}
+     * queries returning no results will through an exception.
+     * 
+     * @param <T> The type of the enumeration. Must extend {@link IEnum}
+     * @param k An enumeration class which should be searched.
+     * @param string The value for which an enumeration should be found.
+     * @return A managed enumeration. Never null.
+     * @throws ApiUsageException if {@link IEnum} is not found.
+     */
+    <T extends IEnum> T getEnumeration( Class<T> k, String string ); 
     <T extends IObject> Permissions permissions( Class<T> k );
     
 }

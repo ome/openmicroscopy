@@ -29,6 +29,8 @@
 package ome.ro.ejb;
 
 //Java imports
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
@@ -45,6 +47,7 @@ import org.jboss.annotation.security.SecurityDomain;
 
 //Application-internal dependencies
 import ome.api.ITypes;
+import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 
@@ -63,14 +66,13 @@ public class TypesBean extends AbstractBean implements ITypes
     public void create()
     {
         super.create();
-        delegate = (ITypes) applicationContext.getBean(
-                ITypes.class.getName());
+        delegate = serviceFactory.getTypesService();
     }
     
     @AroundInvoke
     public Object invoke( InvocationContext context ) throws Exception
     {
-        return wrap( context, "&typesService" );
+        return wrap( context, ITypes.class );
     }
     
     @PreDestroy
@@ -84,49 +86,49 @@ public class TypesBean extends AbstractBean implements ITypes
     // =========================================================================
     
     @RolesAllowed("user") 
-    public IObject[] allEnumerations(Class k)
+    public <T extends IEnum> List<T> allEnumerations(Class<T> k)
     {
         return delegate.allEnumerations(k);
     }
 
     @RolesAllowed("user") 
-    public Class[] getAnnotationTypes()
+    public <T extends IObject> List<Class<T>> getAnnotationTypes()
     {
         return delegate.getAnnotationTypes();
     }
 
     @RolesAllowed("user") 
-    public Class[] getContainerTypes()
+    public <T extends IObject> List<Class<T>> getContainerTypes()
     {
         return delegate.getContainerTypes();
     }
 
     @RolesAllowed("user") 
-    public IObject getEnumeration(Class k, String string)
+    public <T extends IEnum> T getEnumeration(Class<T> k, String string)
     {
         return delegate.getEnumeration(k, string);
     }
 
     @RolesAllowed("user") 
-    public Class[] getImportTypes()
+    public <T extends IObject> List<Class<T>>  getImportTypes()
     {
         return delegate.getImportTypes();
     }
 
     @RolesAllowed("user") 
-    public Class[] getPojoTypes()
+    public <T extends IObject> List<Class<T>>  getPojoTypes()
     {
         return delegate.getPojoTypes();
     }
 
     @RolesAllowed("user") 
-    public Class[] getResultTypes()
+    public <T extends IObject> List<Class<T>>  getResultTypes()
     {
         return delegate.getResultTypes();
     }
 
     @RolesAllowed("user") 
-    public Permissions permissions(Class k)
+    public <T extends IObject> Permissions permissions(Class<T> k)
     {
         return delegate.permissions(k);
     }

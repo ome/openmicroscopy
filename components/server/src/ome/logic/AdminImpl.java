@@ -52,6 +52,7 @@ import org.jboss.security.Util;
 
 //Application-internal dependencies
 import ome.api.IAdmin;
+import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
@@ -62,10 +63,10 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.security.CurrentDetails;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.system.SelfConfigurableService;
 
 
 /**  Provides methods for directly querying object graphs.
@@ -87,9 +88,9 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     protected SimpleJdbcTemplate jdbc;
     
     @Override
-    protected String getName()
+    protected Class<? extends ServiceInterface> getServiceInterface()
     {
-        return IAdmin.class.getName();
+        return IAdmin.class;
     }
     
     public void setJdbcTemplate( SimpleJdbcTemplate jdbcTemplate )
@@ -268,6 +269,22 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
         // TODO Auto-generated method stub
         
     }
+    
+    public void deleteExperimenter( Experimenter user )
+    {
+    	Experimenter e = getExperimenter(user.getId());
+    	int count = 
+    		jdbc.update("delete from password where experimenter_id = ?", e.getId());
+    	
+    	if ( count == 0 )
+    	{
+    		log.info("No password found for user "
+    				+e.getOmeName()
+    				+". Cannot delete.");
+    	}
+    	
+    	iUpdate.deleteObject(e);
+    }
 
     public void changeOwner(IObject iObject, String omeName)
     {
@@ -291,7 +308,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     {
     	internalChangeUserPasswordById(
     			//  TODO when AdminBean+AdminImpl then use EventContext.
-    			CurrentDetails.getOwner().getId(),
+    			securitySystem.currentUserId(),
     			newPassword);
     }
 
