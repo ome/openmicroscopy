@@ -11,14 +11,20 @@ import org.springframework.test.AbstractTransactionalDataSourceSpringContextTest
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
+import ome.api.IAdmin;
+import ome.api.IAnalysis;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.enums.EventType;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.CurrentDetails;
+import ome.security.SecuritySystem;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.testing.OMEData;
+import ome.tools.spring.InternalServiceFactory;
 
 @Test(
         groups = { "integration" }
@@ -53,15 +59,20 @@ public class AbstractInternalContextTest
         return OmeroContext.getInternalServerContext();
     }
 
-    private   Session                       session;
-    private   DataSource                    dataSource;
+    protected Session                       session;
+    protected DataSource                    dataSource;
     protected SessionFactory                sessionFactory;
+    protected ServiceFactory				serviceFactory;
     protected LocalQuery                    iQuery;
     protected LocalUpdate                   iUpdate;
+    protected IAdmin						iAdmin;
+    protected IAnalysis						iAnalysis;
     protected JdbcTemplate                  jdbcTemplate;
     
     protected OMEData                       data;
 
+    protected SecuritySystem				securitySystem;
+    protected EventContext					eventContext;
     
     @Override
     protected void onSetUpBeforeTransaction() throws Exception
@@ -71,12 +82,17 @@ public class AbstractInternalContextTest
         jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
         
         // This is an internal test we don't want the wrapped spring beans. 
-        iQuery = (LocalQuery) applicationContext.getBean("ome.api.IQuery");
-        iUpdate = (LocalUpdate) applicationContext.getBean("ome.api.IUpdate");
+        serviceFactory = new InternalServiceFactory( (OmeroContext) applicationContext );
+        iQuery = (LocalQuery) serviceFactory.getQueryService();
+        iUpdate = (LocalUpdate) serviceFactory.getUpdateService();
+        iAnalysis = serviceFactory.getAnalysisService();
+        iAdmin = serviceFactory.getAdminService();
         
         data = new OMEData();
         data.setDataSource(dataSource);
 
+        eventContext = (EventContext) applicationContext.getBean("eventContext");
+        securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
     }
 
     @Override
@@ -92,15 +108,13 @@ public class AbstractInternalContextTest
     protected void prepareCurrentDetails()
     {
         /* TODO run experiment as root. Dangerous? */
-        Experimenter o = 
-            (Experimenter) iQuery.get(Experimenter.class,0);
-        ExperimenterGroup g = 
-            (ExperimenterGroup) iQuery.get(ExperimenterGroup.class,0);
-        CurrentDetails.setOwner(o);
-        CurrentDetails.setGroup(g);
-        EventType test = 
-            (EventType) iQuery.findByString(EventType.class,"value","Test");
-        CurrentDetails.newEvent(test);
+    	login( new Principal("root","system","Test") );
+    }
+    
+    protected void login( Principal p )
+    {
+    	eventContext.setPrincipal( p );
+    	securitySystem.setCurrentDetails();
     }
 
     protected void openSession()

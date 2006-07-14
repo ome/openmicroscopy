@@ -34,15 +34,13 @@ import java.util.Map;
 // Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 import org.hibernate.event.EventSource;
 import org.hibernate.event.MergeEvent;
 import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.internal.Details;
-import ome.security.CurrentDetails;
-import ome.util.Utils;
 
 /**
  * responsible for responding to all Hibernate Events. Delegates tasks to
@@ -52,8 +50,32 @@ import ome.util.Utils;
 public class MergeEventListener extends IdTransferringMergeEventListener
 {
 
-    private static Log log = LogFactory.getLog( MergeEventListener.class );
+	private static final long serialVersionUID = 240558701677298961L;
 
+	private static Log log = LogFactory.getLog( MergeEventListener.class );
+
+    @Override
+    public void onMerge(MergeEvent event) 
+    throws HibernateException 
+    {
+    	if (isUnloaded(event.getOriginal()))
+    	{
+    		reload(event);
+    	}
+		super.onMerge(event);
+    }
+    
+    @Override
+    public void onMerge(MergeEvent event, Map copyCache) 
+    throws HibernateException 
+    {
+    	if (isUnloaded( event.getOriginal() )) // TODO happening twice
+    	{
+    		reload(event);
+    	}
+    	super.onMerge(event, copyCache);
+    }
+    
     @Override
     protected void entityIsTransient( MergeEvent event, Map copyCache )
     {
@@ -70,6 +92,29 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     
     // ~ Helpers
     // =========================================================================
+
+    protected boolean isUnloaded( Object original )
+    {
+		if ( original != null 
+				&& original instanceof IObject 
+				&& ! ((IObject) original).isLoaded()) {
+			return true;
+		}
+		return false;
+    }
+
+    protected void reload(MergeEvent event)
+    {
+       	final EventSource source = event.getSession();
+		log.warn("Reloading unloaded entity in MergeEventListener.\n" +
+				 "Not caught by UpdateFilter: "+
+				 event.getEntityName()+":"+event.getRequestedId());
+		event.setResult( 
+				source.load( 
+						event.getEntityName(), 
+						event.getRequestedId() ) );
+		return; //EARLY EXIT!    	
+    }
     
     protected void fillReplacement( MergeEvent event )
     {

@@ -16,7 +16,6 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
-import ome.security.CurrentDetails;
 import ome.testing.ObjectFactory;
 
 public class UpdateTest extends AbstractUpdateTest
@@ -29,7 +28,7 @@ public class UpdateTest extends AbstractUpdateTest
         p = (Pixels) iUpdate.saveAndReturnObject(p); 
         flush();
 
-        List logs = CurrentDetails.getCreationEvent().collectLogs(null);
+        List logs = securitySystem.getCurrentEvent().collectLogs(null);
         assertTrue(logs.size() > 0);
 
         Pixels check = (Pixels) iQuery.findByQuery(

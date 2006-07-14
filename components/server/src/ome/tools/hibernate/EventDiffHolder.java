@@ -38,26 +38,26 @@ import java.util.Set;
 // Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
-import ome.security.CurrentDetails;
+import ome.security.SecuritySystem;
 
 public class EventDiffHolder// FIXME Rename
 {
 
     private static Log log = LogFactory.getLog(EventDiffHolder.class);
 
+    private SecuritySystem secSys;
+    
+    public EventDiffHolder( SecuritySystem securitySystem )
+    {
+    	this.secSys = securitySystem;
+    }
+    
     // TODO http://www.hibernate.org/195.html
     // http://www.jroller.com/page/ksevindik/20050417
     class Events
@@ -112,9 +112,7 @@ public class EventDiffHolder// FIXME Rename
         // perform inserting audit logs for entities those were enlisted in
         // inserts, updates, and deletes sets...
 
-        if (entity.getClass() != EventLog.class 
-                && entity.getClass() != EventDiff.class) // FIXME got to get this centralized!
-        CurrentDetails.addLog(action,entity.getClass().getName(),(Long)id);
+        secSys.addLog(action,entity.getClass(),(Long)id);
         
     }
 

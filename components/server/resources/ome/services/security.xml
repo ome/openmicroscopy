@@ -46,5 +46,13 @@
 
 <beans default-lazy-init="true">
 
+  <bean id="eventContext" class="ome.system.ThreadLocalEventContext"/>
+
+  <bean id="securitySystem" class="ome.security.BasicSecuritySystem">
+    <constructor-arg>
+      <bean class="ome.tools.spring.InternalServiceFactory"/>
+    </constructor-arg>
+  	<constructor-arg ref="eventContext"/>
+  </bean>
  
 </beans>

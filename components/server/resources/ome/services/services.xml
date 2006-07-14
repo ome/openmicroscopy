@@ -76,37 +76,43 @@
     -->
   <bean id="level1">
     <property name="hibernateTemplate" ref="hibernateTemplate"/>
-    <property name="queryFactory"   ref="queryFactory"/>    
+    <property name="queryFactory"      ref="queryFactory"/>
+    <property name="securitySystem"    ref="securitySystem"/>
   </bean>
 
-  <bean parent="level1" id="ome.api.IQuery" class="ome.logic.QueryImpl"/> 
-  <bean parent="level1" id="ome.api.IUpdate" class="ome.logic.UpdateImpl"/>
+  <bean parent="level1" id="internal:ome.api.IQuery" class="ome.logic.QueryImpl"/>
+  <alias name="internal:ome.api.IQuery" alias="internal:ome.api.LocalQuery"/> 
+  <bean parent="level1" id="internal:ome.api.IUpdate" class="ome.logic.UpdateImpl">
+  	<property name="queryService" ref="internal:ome.api.LocalQuery"/>
+  </bean>
+  <alias name="internal:ome.api.IUpdate" alias="internal:ome.api.LocalUpdate"/>
 
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL TWO
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     -->
   <bean id="level2">
-    <property name="updateService" 	ref="ome.api.IUpdate"/>
-    <property name="queryService"		ref="ome.api.IQuery"/>	
+    <property name="updateService" 	ref="internal:ome.api.IUpdate"/>
+    <property name="queryService"	ref="internal:ome.api.IQuery"/>	
     <property name="queryFactory"   ref="queryFactory"/>
+    <property name="securitySystem" ref="securitySystem"/>
   </bean>
 
-  <bean parent="level2" id="ome.api.IAdmin" class="ome.logic.AdminImpl">
+  <bean parent="level2" id="internal:ome.api.IAdmin" class="ome.logic.AdminImpl">
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
   </bean> 
-  <bean parent="level2" id="ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
-  <bean parent="level2" id="ome.api.IPixels" class="ome.logic.PixelsImpl"/>
-  <bean parent="level2" id="ome.api.IPojos" class="ome.logic.PojosImpl"/>
-  <bean parent="level2" id="ome.api.ITypes" class="ome.logic.TypesImpl"/>
+  <bean parent="level2" id="internal:ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
+  <bean parent="level2" id="internal:ome.api.IPixels" class="ome.logic.PixelsImpl"/>
+  <bean parent="level2" id="internal:ome.api.IPojos" class="ome.logic.PojosImpl"/>
+  <bean parent="level2" id="internal:ome.api.ITypes" class="ome.logic.TypesImpl"/>
   
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 				SERVICE LEVEL THREE
 				~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     -->
   <bean id="level3">
-    <property name="pixelsService"  ref="ome.api.IPixels"/>
-    <property name="pojosService" 	ref="ome.api.IPojos"/>
+    <property name="pixelsService"  ref="internal:ome.api.IPixels"/>
+    <property name="pojosService" 	ref="internal:ome.api.IPojos"/>
   </bean>
 
 	<!-- 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -124,9 +130,9 @@
     parent="fsService"/>
 
   <bean singleton="false"
-        id="omeis.providers.re.RenderingEngine" 
+        id="internal:omeis.providers.re.RenderingEngine" 
      class="omeis.providers.re.RenderingEngineImpl">
-      <property name="pixelsMetadata" ref="ome.api.IPixels"/>
+      <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
       <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
   </bean>
 
@@ -136,39 +142,39 @@
     -->
   
    <!-- 1 -->
-  <bean id="adminService" parent="internalService">
+  <bean id="managed:ome.api.IAdmin" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IAdmin"/>
-    <property name="target" ref="ome.api.IAdmin"/>
+    <property name="target" ref="internal:ome.api.IAdmin"/>
   </bean>  
-  <bean id="queryService" parent="internalService">
+  <bean id="managed:ome.api.IQuery" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IQuery"/>
-    <property name="target" ref="ome.api.IQuery"/>
+    <property name="target" ref="internal:ome.api.IQuery"/>
   </bean>  
-  <bean id="updateService" parent="internalService">
+  <bean id="managed:ome.api.IUpdate" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IUpdate"/>
-    <property name="target" ref="ome.api.IUpdate"/>
+    <property name="target" ref="internal:ome.api.IUpdate"/>
   </bean>
   <!-- 2 -->
-  <bean id="analysisService" parent="internalService">
+  <bean id="managed:ome.api.IAnalysis" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IAnalysis"/>
-    <property name="target" ref="ome.api.IAnalysis"/>
+    <property name="target" ref="internal:ome.api.IAnalysis"/>
   </bean>
-  <bean id="pixelsService" parent="internalService">
+  <bean id="managed:ome.api.IPixels" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IPixels"/>
-    <property name="target" ref="ome.api.IPixels"/>
+    <property name="target" ref="internal:ome.api.IPixels"/>
   </bean>
-  <bean id="pojosService" parent="internalService">
+  <bean id="managed:ome.api.IPojos" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.IPojos"/>
-    <property name="target" ref="ome.api.IPojos"/>
+    <property name="target" ref="internal:ome.api.IPojos"/>
   </bean>
-  <bean id="typesService" parent="internalService">
+  <bean id="managed:ome.api.ITypes" parent="internalService">
     <property name="proxyInterfaces" value="ome.api.ITypes"/>
-    <property name="target" ref="ome.api.ITypes"/>
+    <property name="target" ref="internal:ome.api.ITypes"/>
   </bean>
   <!-- FS -->
-  <bean id="renderService" parent="internalService">
+  <bean id="managed:omeis.providers.re.RenderingEngine" parent="internalService">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
-    <property name="target" ref="omeis.providers.re.RenderingEngine"/>
+    <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
   </bean>
 
   
@@ -180,7 +186,7 @@
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
     <constructor-arg>
       <list>
-				<bean class="ome.services.query.ClassQuerySource"/>
+		<bean class="ome.services.query.ClassQuerySource"/>
         <bean class="ome.services.query.StringQuerySource"/>
       </list>
     </constructor-arg>

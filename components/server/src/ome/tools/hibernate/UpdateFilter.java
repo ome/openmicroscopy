@@ -42,10 +42,12 @@ import java.util.Set;
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
 import org.springframework.orm.hibernate3.HibernateOperations;
 
 // Application-internal dependencies
+import ome.api.local.LocalQuery;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IMutable;
@@ -54,7 +56,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.CurrentDetails;
+import ome.security.SecuritySystem;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
@@ -78,13 +80,20 @@ public class UpdateFilter extends ContextFilter
 
     private static Log log = LogFactory.getLog(UpdateFilter.class);
     
-    protected HibernateOperations hibernateOps;
+    public FlushMode previousFlushMode;
+    
+    protected SecuritySystem securitySys;
+    
+    protected LocalQuery localQuery;
 
     private UpdateFilter(){} // We need the template
     
-    public UpdateFilter(HibernateOperations hibernateOperations)
+    public UpdateFilter(
+    		SecuritySystem securitySystem, 
+    		LocalQuery query)
     {
-        this.hibernateOps = hibernateOperations;
+    	this.securitySys = securitySystem;
+        this.localQuery = query;
     }
     
     /** provides an external hook to unload all files which have already been
@@ -172,11 +181,11 @@ public class UpdateFilter extends ContextFilter
                     result = loadUnloadedEntity( fieldId, obj ); 
                     break;
                 case TRANSIENT:
-                    transferDetails( obj );
+                    //securitySys.transferDetails( obj );
                     result = super.filter( fieldId, obj );  
                     break;
                 case MANAGED:
-                    checkManagedState( obj );
+                	//securitySys.checkManagedState( obj );
                     result = super.filter( fieldId, obj );
                     break;
                 default:
@@ -294,216 +303,6 @@ public class UpdateFilter extends ContextFilter
 
     // Actions
     // ====================================================
-
-
-    /*
-     * FIXME check for valid type creation i.e. no creating types, users,
-     * etc.
-     */
-
-    // TODO is this natural? perhaps permissions don't belong in details
-    // details are the only thing that users can change the rest is
-    // read only...
-    /** fills in security details ({@link IObject#getDetails()}) for all 
-     * transient entities. Non-privileged users can only edit the 
-     * {@link Details#getPermissions() Permissions} field. Privileged users
-     * can use the {@link Details} object as a single-step <code>chmod</code>
-     * and <code>chgrp</code>. 
-     */ 
-    protected void transferDetails( IObject obj )
-    {
-        Details source = obj.getDetails();
-        Details currentDetails = CurrentDetails.createDetails();
-        Experimenter user = currentDetails.getOwner();
-        ExperimenterGroup group = currentDetails.getGroup();
-        
-        if ( source != null )
-        {
-            // TODO everyone is allowed to set the umask if desired.
-            if (source.getPermissions() != null)
-            {
-                currentDetails.setPermissions( source.getPermissions() );
-            }
-            
-            // users *aren't* allowed to set the owner/group of an item.
-            if (source.getOwner() != null 
-                    && ! source.getOwner().getId().equals( 
-                            currentDetails.getOwner().getId() ))
-            {
-                // but this is root
-                if ( user.getId().equals( 0L ))
-                {
-                    currentDetails.setOwner( source.getOwner() );
-                } else {
-                    throw new SecurityViolation(String.format(
-                        "You are not authorized to set the ExperimenterID" +
-                        " for %s to %d", obj, source.getOwner().getId() 
-                        ));
-                }
-                
-            }
-
-            // users *argen't allowed to set the owner/group of an item
-            if (source.getGroup() != null 
-                    && ! source.getGroup().getId().equals( 
-                            currentDetails.getGroup().getId() ))
-            {
-                
-                // but this is root
-                if ( user.getId().equals( 0L ))
-                {
-                    currentDetails.setGroup( source.getGroup() );
-                } else {
-                    throw new SecurityViolation(String.format(
-                        "You are not authorized to set the ExperimenterGroupID"+
-                        " for %s to %d", obj, source.getGroup().getId() 
-                        ));
-                }
-            }
-            
-        }
-
-        obj.setDetails( currentDetails );
-        
-    }
-
-    /* TODO what else should be preserved?
-     * TODO should move to @Validation.
-     * should be able to switch group if member, e.g. */
-    /** checks that a non-privileged user has not attempted to edit the 
-     * entity's {@link IObject#getDetails() security details}. Privileged 
-     * users can set fields on {@link Details} as a single-step 
-     * <code>chmod</code> and <code>chgrp</code>.
-     */
-    protected void checkManagedState( IObject obj )
-    {
-        
-        Details currentDetails = CurrentDetails.createDetails();
-        Experimenter user = currentDetails.getOwner();
-        ExperimenterGroup group = currentDetails.getGroup();
-        
-        if ( obj.getId() == null)
-            throw new ValidationException(
-                    "Id required on all detached instances.");
-
-        // Throws an exception if does not exist
-        IObject original = (IObject) hibernateOps.load( 
-                    Utils.trueClass( obj.getClass() ), 
-                    obj.getId() );
-        
-        if ( obj == original )
-            return; // Early exit. Obj is in session.
-        
-        Details oldDetails = original.getDetails(); 
-        Details updatedDetails = obj.getDetails();
-        
-        // This happens if all fields of details are null.
-        if ( oldDetails == null ) 
-        {
-            if ( obj.getDetails() != null )
-            {
-                obj.setDetails( null );
-                if ( log.isDebugEnabled() )
-                {
-                    log.debug("Setting details on "+
-                            obj+" to null like original");
-                }
-            }
-        }
-
-        // Probably common since users don't worry about this information.
-        else if ( updatedDetails == null )
-        {
-            obj.setDetails( new Details( oldDetails ) );
-            if ( log.isDebugEnabled() )
-            {
-                log.debug("Setting details on "+
-                        obj+" to copy of original details.");
-            }
-            
-        // Now we have to make sure certain things do not happen:
-        } else {
-            
-            if ( ! idEqual( 
-                    oldDetails.getOwner(), 
-                    updatedDetails.getOwner() ))
-            {
-                
-                if ( user.getId().equals( 0L ))
-                {
-                    // even root can't set them to null.
-                    if ( updatedDetails.getOwner() == null )
-                    {
-                        updatedDetails.setOwner( oldDetails.getOwner() );
-                    }
-                }
-                // everyone else can't change them at all.
-                else 
-                {
-                    throw new SecurityViolation(String.format(
-                        "Owner id changed for %s", obj 
-                        ));
-                }
-            }
-
-            if ( ! idEqual( 
-                    oldDetails.getGroup(), 
-                    updatedDetails.getGroup() ))
-            {
-                
-                if ( user.getId().equals( 0L ))
-                {
-                    // even root can't set them to null.
-                    if ( updatedDetails.getGroup() == null )
-                    {
-                        updatedDetails.setGroup( oldDetails.getGroup() );
-                    }
-                }
-                // everyone else can't change them at all.
-                else                     
-                {
-                    throw new SecurityViolation(String.format(
-                        "Group id changed for %s", obj 
-                        ));
-                }
-            }
-            
-            // TODO should just be immutable even for root.
-            if ( ! idEqual( 
-                    oldDetails.getCreationEvent(), 
-                    updatedDetails.getCreationEvent()))
-            {
-                if ( user.getId().equals( 0L ))
-                {
-                    // even root can't set them to null.
-                    if ( updatedDetails.getCreationEvent() == null )
-                    {
-                        updatedDetails.setCreationEvent( 
-                                oldDetails.getCreationEvent() );
-                    }
-                }
-                // everyone else can't change them at all.
-                else                 {
-                    throw new SecurityViolation(String.format(
-                        "Creation event changed for %s", obj 
-                        ));
-                }
-            }
-            
-        }
-        
-        if ( obj instanceof IMutable )
-        {
-            Integer version = ((IMutable) obj).getVersion();
-            if ( version == null || version.intValue() < 0 );
-//                throw new ValidationException(
-//                        "Version must properly be set on managed objects :\n"+
-//                        obj.toString()
-//                        );
-                //TODO
-        }
-            
-    }
     
     protected Filterable loadUnloadedEntity(String fieldId, IObject obj)
     {
@@ -556,17 +355,17 @@ public class UpdateFilter extends ContextFilter
     /** used to load the context object and then find its named field.
      * Should only be called with detached or managed objects (id needed).
      */
+    @SuppressWarnings("unchecked")
     protected Object loadFromEntityField(IObject ctx, String fieldId)
     {
-        IObject context = (IObject) hibernateOps.load( 
-                Utils.trueClass( ctx.getClass() ),
-                ctx.getId());
+    	Class k = Utils.trueClass( ctx.getClass() );
+        IObject context = localQuery.get( k, ctx.getId());
         return context.retrieve( fieldId );
     }
 
     protected IObject loadFromUnloaded(IObject ctx)
     {
-        IObject result = (IObject) hibernateOps.load(ctx.getClass(),ctx.getId());
+        IObject result = (IObject) localQuery.get(ctx.getClass(),ctx.getId());
         return result;
     }
     
@@ -619,20 +418,6 @@ public class UpdateFilter extends ContextFilter
             return replacement; 
         }
         return o;
-    }
-
-   
-    protected boolean idEqual( IObject arg1, IObject arg2 )
-    {
-        if ( arg1 == null || arg1.getId() == null )
-            return false;
-        
-        else if ( arg2 == null || arg2.getId() == null )
-            return false;
-        
-        else
-            return arg1.getId().equals( arg2.getId() );
-        
     }
     
 }

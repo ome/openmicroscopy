@@ -33,8 +33,6 @@ package ome.tools.hibernate;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Iterator;
 
 //Third-party libraries
 import org.hibernate.EmptyInterceptor;
@@ -42,8 +40,10 @@ import org.hibernate.type.Type;
 
 //Application-internal dependencies
 import ome.conditions.InternalException;
+import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
+import ome.security.SecuritySystem;
 
 
 
@@ -61,38 +61,80 @@ import ome.model.meta.Experimenter;
  */
 public class OmeroInterceptor extends EmptyInterceptor{
 
+	protected SecuritySystem secSys;
+	
+	public OmeroInterceptor( SecuritySystem securitySystem )
+	{
+		this.secSys = securitySystem;
+	}
+	
     @Override
-    public int[] findDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types)
+    public int[] findDirty(Object entity, Serializable id, 
+    		Object[] currentState, Object[] previousState, 
+    		String[] propertyNames, Type[] types)
     {
-        if ( entity instanceof Experimenter )
-        {
-            return new int[]{};
-        }
+    	if ( ! secSys.isReady())
+    	{
+    		return null; // EARLY EXIT
+    	}
+    	
+    	if ( IObject.class.isAssignableFrom( entity.getClass() ) )
+    	{
+    		int idx = detailsIndex(propertyNames);
+    		secSys.managedDetails( 
+    				(IObject) entity, 
+    				(Details) previousState[idx]);
+    	}
+    	
+//        if ( entity instanceof Experimenter )
+//        {
+//            return new int[]{};
+//        }
         
         // Use default logic.
         return null;
     }
     
     @Override
-    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types)
+    public boolean onSave(Object entity, Serializable id, 
+    		Object[] state, 
+    		String[] propertyNames, Type[] types)
     {
-        int i = detailsIndex( propertyNames );
-        Details details = (Details) state[i];
-        return false;
+    	if ( entity instanceof IObject )
+    	{
+    		int idx = detailsIndex(propertyNames);
+    		IObject iobj = (IObject) entity;
+    		Details d = secSys.transientDetails( iobj );
+    		state[idx] = d;
+    	}
+    	
+        return true; // transferDetails ALWAYS edits the new entity.
     }
     
     @Override
-    public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types)
+    public boolean onFlushDirty(Object entity, Serializable id, 
+    		Object[] currentState, Object[] previousState, 
+    		String[] propertyNames, Type[] types)
     {
-        int i = detailsIndex( propertyNames );
-        Details currentDetails = (Details) currentState[i];
-        Details previousDetails = (Details) previousState[i];
-        
+    	boolean altered = false;
+    	if ( entity instanceof IObject)
+    	{
+    		int idx = detailsIndex(propertyNames);
+    		Details d = secSys.managedDetails( 
+    				(IObject) entity, 
+    				(Details) previousState[idx] );
+    		if ( null != d )
+    		{
+    			currentState[idx] = d;
+    			return true;
+    		}
+    	}
         return false;
     }
     
     // ~ Helpers
-    // =========================================================================
+	// =========================================================================
+
     private int detailsIndex( String[] propertyNames )
     {
         for (int i = 0; i < propertyNames.length; i++)
@@ -102,8 +144,8 @@ public class OmeroInterceptor extends EmptyInterceptor{
         }
         throw new InternalException( "No \"details\" property found." );
     }
-
-    // ~ Serialiation
+    
+    // ~ Serialization
     // =========================================================================
     
     private static final long serialVersionUID = 7616611615023614920L;

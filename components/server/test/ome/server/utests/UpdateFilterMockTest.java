@@ -124,7 +124,7 @@ public class UpdateFilterMockTest extends AbstractLoginMockTest
     public void test_managed() throws Exception
     {
         Image i = managedImage();
-        willLoadImage( managedImage() );
+        //willLoadImage( managedImage() );
         willCheckRootDetails();
         
         filter.filter( null, i );

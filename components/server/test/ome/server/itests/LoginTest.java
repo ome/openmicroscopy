@@ -7,10 +7,11 @@ import org.testng.annotations.*;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.meta.Experimenter;
-import ome.security.CurrentDetails;
+import ome.security.SecuritySystem;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 import junit.framework.TestCase;
 
@@ -25,16 +26,20 @@ public class LoginTest extends TestCase
     }
     
     protected OmeroContext ctx;
+    protected ServiceFactory sf;
     protected IQuery q;
     protected IUpdate u;
     protected EventContext ec;
+    protected SecuritySystem sec;
 
     @Configuration( beforeTestClass = true )
     public void config(){
         ctx = OmeroContext.getManagedServerContext();
-        q = (IQuery) ctx.getBean("queryService");
-        u = (IUpdate) ctx.getBean("updateService");
+        sf = new ServiceFactory( ctx );
+        q = sf.getQueryService();
+        u = sf.getUpdateService();
         ec = (EventContext) ctx.getBean("eventContext");
+        sec = (SecuritySystem) ctx.getBean("securitySystem");
     }
     
   @Test
@@ -61,9 +66,7 @@ public class LoginTest extends TestCase
     {
         login("root","system","Test");
         q.find(Experimenter.class,0l);
-        assertNull(CurrentDetails.getOwner());
-        assertNull(CurrentDetails.getGroup());
-        assertNull(CurrentDetails.getCreationEvent());
+        assertTrue( sec.emptyDetails() );
     }
     
   @Test

@@ -37,7 +37,6 @@ import org.testng.annotations.*;
 // Application-internal dependencies
 import ome.model.core.Image;
 import ome.model.meta.Event;
-import ome.security.CurrentDetails;
 import ome.tools.hibernate.UpdateFilter;
 
 /**
@@ -46,7 +45,7 @@ import ome.tools.hibernate.UpdateFilter;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
-@Test( groups = {"ticket:52","security"} )
+@Test( groups = {"ticket:52","security", "broken"} )
 public class AbstractChangeDetailsMockTest extends AbstractLoginMockTest
 {
 

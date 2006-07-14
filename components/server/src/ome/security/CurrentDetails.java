@@ -30,14 +30,10 @@
 package ome.security;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.api.IUpdate;
-import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -61,7 +57,7 @@ import ome.model.meta.ExperimenterGroup;
  * CurrentDetails:  user == null ==> current user is "nobody" (anonymous)
  * 
  */
-public abstract class CurrentDetails
+abstract class CurrentDetails
 {
     private static Log log = LogFactory.getLog(CurrentDetails.class);
     
@@ -101,26 +97,6 @@ public abstract class CurrentDetails
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
         setCreationEvent(e);
-    }
-    
-    public static void addLog(String action, String klass, Long id)
-    {
-
-        if (Event.class.getName() != klass 
-                && EventLog.class.getName() != klass
-                && EventDiff.class.getName() != klass)
-        {
-        
-            log.info("Adding log:"+action+","+klass+","+id);
-            
-            EventLog l = new EventLog();
-            l.setAction(action);
-            l.setType(klass); // TODO could be id to Type entity
-            l.setIdList(id.toString());
-            l.setDetails(createDetails());
-    
-            getCreationEvent().addEventLog( l );
-        }
     }
     
     public static void clearLogs()
