@@ -1,16 +1,18 @@
 package ome.client.itests.sec;
 
+import java.util.UUID;
+
 import org.testng.annotations.*;
 
 import junit.framework.TestCase;
 
+import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
@@ -20,10 +22,12 @@ import ome.system.ServiceFactory;
 public class AbstractChangeDetailClientTest extends TestCase
 {
     
+	private ServiceFactory tmp = new ServiceFactory();
+	
     protected Login
-    asRoot = new Login( "root", "ome" ),
-    asUser = new Login( "user1", "ome" ),
-    other = new Login( "user2", "ome" );
+    asRoot = (Login) tmp.getContext().getBean("rootLogin"),
+    asUser = new Login( UUID.randomUUID().toString(), "ome" ),
+    other = new Login( UUID.randomUUID().toString(), "ome" );
 
     protected Experimenter toRoot, toUser, toOther;
     
@@ -41,6 +45,7 @@ public class AbstractChangeDetailClientTest extends TestCase
         ServiceFactory rootServices = new ServiceFactory( asRoot );
         IQuery iQuery = rootServices.getQueryService();
         IUpdate iUpdate = rootServices.getUpdateService();
+        IAdmin iAdmin = rootServices.getAdminService();
         
         try 
         {
@@ -49,61 +54,29 @@ public class AbstractChangeDetailClientTest extends TestCase
             // TODO no, no, really. This is ok. (And temporary) 
         }
         
-        toRoot = (Experimenter) iQuery.get( Experimenter.class, 0L );
-        
-        toUser = (Experimenter) iQuery.findByString( 
-                Experimenter.class, "omeName", asUser.getName() );
-        
-        toOther = (Experimenter) iQuery.findByString( 
-                Experimenter.class, "omeName", other.getName() );
-        
-        toSystem = (ExperimenterGroup) 
-        iQuery.get( ExperimenterGroup.class, 0L );
-        
-        toUserGroup = (ExperimenterGroup) 
-        iQuery.get( ExperimenterGroup.class, 1L );
+        toRoot = new Experimenter( 0L, false );        
+        toSystem = new ExperimenterGroup( 0L, false ); 
+        toUserGroup = new ExperimenterGroup( 1L, false ); 
+        toOtherGroup = new ExperimenterGroup( 2L, false ); 
 
-        toOtherGroup = (ExperimenterGroup)
-        iQuery.find( ExperimenterGroup.class, 2L );
+        toUser = new Experimenter();
+        toUser.setFirstName("test");
+        toUser.setLastName("test");
+        toUser.setOmeName(asUser.getName());
+        toUser = iAdmin.createUser( toUser );
+        toUser.unload();
         
-        ExperimenterGroup userGroupProxy = new ExperimenterGroup( 1L, false );
+        toOther = new Experimenter();
+        toOther.setFirstName("test");
+        toOther.setLastName("test");
+        toOther.setOmeName(other.getName());
+        toOther = iAdmin.createUser(toOther);
+        toOther.unload();
         
-        if (toUser == null)
-        {
-            toUser = new Experimenter();
-            toUser.setFirstName("test");
-            toUser.setLastName("test");
-            toUser.setOmeName(asUser.getName());
-            GroupExperimenterMap map = new GroupExperimenterMap();
-            map.setDefaultGroupLink( Boolean.TRUE );
-            map.link( userGroupProxy, toUser );
-            toUser.addGroupExperimenterMap( map,false );
-            toUser = (Experimenter) iUpdate.saveAndReturnObject( toUser );
-            rootServices.getAdminService().synchronizeLoginCache();
-        }
-        
-        if (toOther == null)
-        {
-            toOther = new Experimenter();
-            toOther.setFirstName("test");
-            toOther.setLastName("test");
-            toOther.setOmeName(other.getName());
-            GroupExperimenterMap map = new GroupExperimenterMap();
-            map.setDefaultGroupLink( Boolean.TRUE );
-            map.link( userGroupProxy, toOther );
-            toOther.addGroupExperimenterMap( map,false );
-            toOther = (Experimenter) iUpdate.saveAndReturnObject( toOther );
-            rootServices.getAdminService().synchronizeLoginCache();
-        }
-
-        if (toOtherGroup == null)
-        {
-            toOtherGroup = new ExperimenterGroup();
-            toOtherGroup.setName("test");
-            toOtherGroup = (ExperimenterGroup)
-            iUpdate.saveAndReturnObject( toOtherGroup );
-            rootServices.getAdminService().synchronizeLoginCache();
-        }
+        toOtherGroup = new ExperimenterGroup();
+        toOtherGroup.setName(UUID.randomUUID().toString());
+        toOtherGroup = iAdmin.createGroup( toOtherGroup );
+        toOther.unload();
         
         rootImage = getManageImageId( asRoot );
         userImage = getManageImageId( asUser );
@@ -121,50 +94,72 @@ public class AbstractChangeDetailClientTest extends TestCase
         return i.getId();
     }
 
-    protected void createAsUserToOwner(Login login, Experimenter owner) 
-    throws ValidationException
-    {
-        ServiceFactory factory = new ServiceFactory( login );
-        IUpdate iUpdate = factory.getUpdateService();
-        Image i = new Image();
-        i.setName( "test" );
-        i.getDetails().setOwner( owner );
-        iUpdate.saveObject( i );
+    protected <E extends Exception> void verify(Exception e, Class<E>[] exs)
+    {	
+    	boolean match = false;
+		for (Class<E> ex : exs) {
+			if (ex.isAssignableFrom(e.getClass()))
+			{
+				match = true;
+			}
+		}
+		if (!match) throw new RuntimeException("Unexected exception thrown.",e);
     }
     
-    protected void updateAsUserToOwner(
-            Long imageId, Login login, Experimenter owner) 
+    protected <E extends Exception> void createAsUserToOwner(
+    		Login login, Experimenter owner) 
     throws ValidationException
     {
-        ServiceFactory factory = new ServiceFactory( login );
-        IQuery iQuery = factory.getQueryService();
-        Image i = (Image) iQuery.get( Image.class, imageId );
-        i.getDetails().setOwner( owner );
-        IUpdate iUpdate = factory.getUpdateService();
-        iUpdate.saveObject( i );
+
+			ServiceFactory factory = new ServiceFactory(login);
+			IUpdate iUpdate = factory.getUpdateService();
+			Image i = new Image();
+			i.setName("test");
+			i.getDetails().setOwner(owner);
+			iUpdate.saveObject(i);
+     
+    }
+    
+    protected <E extends Exception> void updateAsUserToOwner(
+            Long imageId, Login login, Experimenter owner)
+    throws ValidationException
+    {
+
+			ServiceFactory factory = new ServiceFactory( login );
+			IQuery iQuery = factory.getQueryService();
+			Image i = (Image) iQuery.get( Image.class, imageId );
+			i.getDetails().setOwner( owner );
+			IUpdate iUpdate = factory.getUpdateService();
+			iUpdate.saveObject( i );
+
     }
 
-    protected void createAsUserToGroup(Login login, ExperimenterGroup group) 
+    protected <E extends Exception> void createAsUserToGroup(
+    		Login login, ExperimenterGroup group)
     throws ValidationException
     {
-        ServiceFactory factory = new ServiceFactory( login );
-        IUpdate iUpdate = factory.getUpdateService();
-        Image i = new Image();
-        i.setName( "test" );
-        i.getDetails().setGroup( group );
-        iUpdate.saveObject( i );
+
+			ServiceFactory factory = new ServiceFactory( login );
+			IUpdate iUpdate = factory.getUpdateService();
+			Image i = new Image();
+			i.setName( "test" );
+			i.getDetails().setGroup( group );
+			iUpdate.saveObject( i );
+
     }
     
-    protected void updateAsUserToGroup(
-            Long imageId, Login login, ExperimenterGroup group) 
+    protected <E extends Exception> void updateAsUserToGroup(
+            Long imageId, Login login, ExperimenterGroup group)
     throws ValidationException
     {
-        ServiceFactory factory = new ServiceFactory( login );
-        IQuery iQuery = factory.getQueryService();
-        Image i = (Image) iQuery.get( Image.class, imageId );
-        i.getDetails().setGroup( group);
-        IUpdate iUpdate = factory.getUpdateService();
-        iUpdate.saveObject( i );
+
+			ServiceFactory factory = new ServiceFactory( login );
+			IQuery iQuery = factory.getQueryService();
+			Image i = (Image) iQuery.get( Image.class, imageId );
+			i.getDetails().setGroup( group);
+			IUpdate iUpdate = factory.getUpdateService();
+			iUpdate.saveObject( i );
+
     }
 
 

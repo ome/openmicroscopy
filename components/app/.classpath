@@ -1,9 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="output" path="target/classes"/>
-	<classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC"/>
-	<classpathentry excluding="**/.svn" kind="src" path="resources" />
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src" />
-	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources" />
+	<classpathentry sourcepath="JRE_SRC" kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB"/>
+	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
+	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
 	<classpathentry kind="var" path="M2_REPO/activemq/activemq-core/3.2/activemq-core-3.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant-launcher/1.6.5/ant-launcher-1.6.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
@@ -35,7 +35,7 @@
 	<classpathentry kind="var" path="M2_REPO/omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.0.cr2/hibernate-3.2.0.cr2.jar"/>
+	<classpathentry sourcepath="/HIBERNATE_HOME/src" kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.0.cr2/hibernate-3.2.0.cr2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-rc1/spring-hibernate3-2.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0-rc1/spring-mock-2.0-rc1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0-rc1/spring-2.0-rc1.jar"/>
@@ -43,4 +43,5 @@
 	<classpathentry kind="var" path="M2_REPO/testng/testng/4.7-jdk15/testng-4.7-jdk15.jar"/>
 	<classpathentry kind="var" path="M2_REPO/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

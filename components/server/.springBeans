@@ -7,12 +7,11 @@
 		<config>resources/ome/services/services.xml</config>
 		<config>resources/ome/services/drools.xml</config>
 		<config>resources/ome/services/security.xml</config>
-		<config>resources/ome/services/hibernate.xml</config>
-		<config>resources/ome/services/out-of-container.xml</config>
 		<config>resources/beanRefContext.xml</config>
-		<config>resources/ome/services/config-local.xml</config>
+		<config>resources/ome/services/out-of-container.xml</config>
+		<config>resources/ome/services/hibernate.xml</config>
 		<config>resources/ome/services/vm.xml</config>
-		<config>resources/ome/services/aop.xml</config>
+		<config>resources/ome/services/config-local.xml</config>
 		<config>resources/ome/services/in-container.xml</config>
 		<config>resources/ome/services/jms.xml</config>
 	</configs>
@@ -22,7 +21,6 @@
 			<allowBeanDefinitionOverriding>false</allowBeanDefinitionOverriding>
 			<incomplete>false</incomplete>
 			<configs>
-				<config>resources/ome/services/aop.xml</config>
 				<config>resources/ome/services/config-local.xml</config>
 				<config>resources/ome/services/drools.xml</config>
 				<config>resources/ome/services/hibernate.xml</config>

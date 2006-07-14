@@ -35,6 +35,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
@@ -75,7 +76,8 @@ public interface IQuery extends ServiceInterface {
      * @return an initialized entity
      * @throws ValidationException if the id doesn't exist.
      */
-    <T extends IObject> T get(Class<T> klass, long id) throws ValidationException;
+    <T extends IObject> T get(@NotNull Class<T> klass, long id) 
+    throws ValidationException;
 
     /** lookup an entity by class and id. If no such objects exists, return a 
      * null.
@@ -83,7 +85,7 @@ public interface IQuery extends ServiceInterface {
      * @param id the entity's id
      * @return an initialized entity or null if id doesn't exist.
      */
-    <T extends IObject> T find(Class<T> klass, long id);
+    <T extends IObject> T find(@NotNull Class<T> klass, long id);
     
     /** lookup all entities that belong to this class and match filter.
      * 
@@ -92,7 +94,7 @@ public interface IQuery extends ServiceInterface {
      * @return a collection if initialized entities or an empty List if none
      *      exist.
      */
-    <T extends IObject> List<T> findAll(Class<T> klass, Filter filter); 
+    <T extends IObject> List<T> findAll(@NotNull Class<T> klass, Filter filter); 
     
     // ~ Example-based Queries
     // =========================================================================
@@ -109,7 +111,8 @@ public interface IQuery extends ServiceInterface {
      * @return Possibly null IObject result.
      * @throws ApiUsageException if more than one result is return.
      */ 
-    <T extends IObject> T findByExample(T example) throws ApiUsageException;
+    <T extends IObject> T findByExample(@NotNull T example)
+    throws ApiUsageException;
     
     /** search based on provided example entity. The returned entities
      * will be limited by the {@link Filter} object.
@@ -124,7 +127,7 @@ public interface IQuery extends ServiceInterface {
      * @param filter filters the result set. Can be null.
      * @return Possibly empty List of IObject results.
      */
-    <T extends IObject> List<T> findAllByExample(T example, Filter filter);
+    <T extends IObject> List<T> findAllByExample(@NotNull T example, Filter filter);
 
     // ~ String-field-Queries
     // =========================================================================
@@ -143,7 +146,7 @@ public interface IQuery extends ServiceInterface {
      * @throws ome.conditions.ApiUsageException if more than one result. 
      */
     <T extends IObject> T findByString(
-        Class<T> klass, String field, String value)
+        @NotNull Class<T> klass, @NotNull String field, String value)
         throws ApiUsageException;
 
     
@@ -161,7 +164,7 @@ public interface IQuery extends ServiceInterface {
      * @return A list (possibly empty) with the results.
      */
     <T extends IObject> List<T> findAllByString(
-        Class<T> klass, String field, String stringValue, 
+        @NotNull Class<T> klass, @NotNull String field, String stringValue, 
         boolean caseSensitive, Filter filter);
 
 	// ~ Parameter-based Queries
@@ -195,7 +198,7 @@ public interface IQuery extends ServiceInterface {
      * @return Possibly null IObject result.
      * @throws ValidationException
      */
-    <T extends IObject> T findByQuery( String queryName, Parameters parameters)
+    <T extends IObject> T findByQuery( @NotNull String queryName, Parameters parameters)
         throws ValidationException;
     
     /** executes the stored query with the given name. If a query with the name
@@ -207,13 +210,13 @@ public interface IQuery extends ServiceInterface {
      * 
      * If a {@link Page} is desired, add it to the query parameters. 
      * 
-     * @param queryName String identifier of the query to execute
-     * @param parameters array of {@link QueryParameter}. Not null.
+     * @param queryName String identifier of the query to execute. Not null.
+     * @param parameters array of {@link QueryParameter}. 
      *      The {@link QueryParameter#name} field maps to a field-name
      *      which is then matched against the {@link QueryParameter#value}
      * @return Possibly empty List of IObject results.
      */
     <T extends IObject> List<T> findAllByQuery(
-            String queryName, Parameters parameters);
+            @NotNull String queryName, Parameters parameters);
     
 }

@@ -221,7 +221,7 @@ public class PojosTest extends TestCase
         
     }
     
-  @Test
+  @Test( groups = {"broken","clientsession"} )
     public void test_bidirectional() throws Exception
     {
         CategoryData cd = new CategoryData( c );

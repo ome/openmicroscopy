@@ -164,7 +164,7 @@ public class Session
         
         // Silently ignore.
         if (iObject == null) return;
-        switch ( getState(iObject) )
+        switch ( getState(iObject) ) // TODO refactor out.
         {
         case TRANSIENT :
             storage.storeTransient( iObject ); break;

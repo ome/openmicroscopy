@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
+	<configExtensions>
+		<configExtension>xml</configExtension>
+	</configExtensions>
 	<configs>
+		<config>resources/ome/client/internal.xml</config>
+		<config>resources/ome/client/spring.xml</config>
 	</configs>
 	<configSets>
 		<configSet>

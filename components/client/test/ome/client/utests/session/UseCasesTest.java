@@ -50,6 +50,11 @@ public class UseCasesTest extends AbstractTest
     public void test_agentQueriesForExistingEntity() throws Exception
     {
         //
+        // Mock setup
+        //
+        updatedProjectArray();
+        
+        //
         // Use case
         //
         
@@ -95,6 +100,11 @@ public class UseCasesTest extends AbstractTest
     @Test
     public void test_agentDeletesAnEntityAndUpdateIsRegistered() throws Exception
     {
+        //
+        // Mock setup
+        //
+        updatedProjectArray();
+        
         //
         // Use case
         //
@@ -147,6 +157,11 @@ public class UseCasesTest extends AbstractTest
     @Test
     public void test_agentMarksDirtyAndUpdateIsRegistered() throws Exception
     {
+        //
+        // Mock setup
+        //
+        updatedProjectArray();
+        
         //
         // Use case
         //
