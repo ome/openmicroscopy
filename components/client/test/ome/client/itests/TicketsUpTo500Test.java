@@ -87,7 +87,11 @@ public class TicketsUpTo500Test extends TestCase
   	  	d = iUpdate.saveAndReturnObject(d);
   	  	
   	  	Set<Image> set = 
-  	  	iPojos.getImages(Dataset.class, Collections.singleton(d.getId()), null);
+  	  	sf.getPojosService().getImages(
+  	  			Dataset.class, 
+  	  			Collections.singleton(
+  	  					d.getId()), 
+  	  					null);
   	  	Image img = set.iterator().next();
   	  	ImageData test = new ImageData( img );
   	  	assertNotNull(test);
