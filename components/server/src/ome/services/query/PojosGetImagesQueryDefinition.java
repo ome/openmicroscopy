@@ -27,7 +27,10 @@ public class PojosGetImagesQueryDefinition
     {
         Criteria c = session.createCriteria(Image.class);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.createCriteria("defaultPixels",LEFT_JOIN);
+        
+        Criteria pix = c.createCriteria("defaultPixels",LEFT_JOIN);
+        pix.createCriteria("pixelsType",LEFT_JOIN);
+        pix.createCriteria("pixelsDimensions",LEFT_JOIN);
         
         // Add restrictions to the most distant criteria
         Criteria[] hy = 

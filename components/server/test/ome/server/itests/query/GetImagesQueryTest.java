@@ -419,6 +419,29 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
          Image test = (Image) iQuery.execute(q);
          assertNotNull( test.getDefaultPixels());
     }
+
+    @Test( groups = { "ticket:221"} )
+    public void testGetImagesReturnsNoNulls() throws Exception {
+    	Dataset d = new Dataset();
+    	d.setName("ticket:221");
+    	Image i = new Image();
+    	i.setName("ticket:221");
+    	Pixels p = ObjectFactory.createPixelGraph(null);
+    	p.setDefaultPixels( Boolean.TRUE );
+    	i.addPixels(p);
+    	d.linkImage(i);
+    	d = iUpdate.saveAndReturnObject(d);
+    	
+		q= new PojosGetImagesQueryDefinition(
+				new Parameters( new Filter().unique() ).
+				addClass(Dataset.class).
+				addIds(Collections.singleton(d.getId())));
+		Image test = (Image) iQuery.execute(q);
+		assertNotNull(test);
+		assertNotNull(test.getDefaultPixels());
+		assertNotNull(test.getDefaultPixels().getPixelsDimensions());
+		assertNotNull(test.getDefaultPixels().getPixelsType());
+	}
     
     // ~ Helpers
     // =========================================================================
