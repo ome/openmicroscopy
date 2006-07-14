@@ -32,7 +32,7 @@ import org.springframework.core.io.ClassPathResource;
 
 //Application-internal dependencies
 import ome.api.RawPixelsStore;
-import ome.client.JndiStatefulObjectFactoryBean;
+import ome.client.ConfigurableJndiObjectFactoryBean;
 import ome.system.Login;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -63,8 +63,11 @@ public class JndiStatefulObjectFactoryBeanTest extends TestCase {
         mpv.addPropertyValue("lookupOnStartup",Boolean.FALSE);
         mpv.addPropertyValue("jndiName","omero/remote/ome.api.RawPixelStore");
         mpv.addPropertyValue("proxyInterface",RawPixelsStore.class.getName());
+        mpv.addPropertyValue("principal",new Principal("a","b","c"));
+        mpv.addPropertyValue("credentials","password");
+        mpv.addPropertyValue("stateful","true");
         BeanDefinition def = new RootBeanDefinition(
-                JndiStatefulObjectFactoryBean.class, null, mpv);
+                ConfigurableJndiObjectFactoryBean.class, null, mpv);
         StaticApplicationContext context = new StaticApplicationContext();
         context.registerBeanDefinition( "jndi", def );
         context.refresh();

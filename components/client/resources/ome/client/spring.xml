@@ -82,6 +82,12 @@
 		<constructor-arg index="2" value="${omero.event}"/>        
 	</bean>
 
+  <!-- properly configured principal for login -->
+	<bean id="rootLogin" class="ome.system.Login">
+		<constructor-arg index="0" value="root"/>
+		<constructor-arg index="1" value="${omero.rootpass}"/>     
+	</bean>
+
   <!-- hashtable for InitialContext constructor -->
   <bean id="env" class="java.util.Hashtable">
     <constructor-arg>
@@ -97,64 +103,65 @@
     
   <!-- jndi parent class -->
   <bean id="statelessJndi" abstract="true"
-    class="org.springframework.jndi.JndiObjectFactoryBean">
+    class="ome.client.ConfigurableJndiObjectFactoryBean">
     <property name="jndiEnvironment" ref="env"/>
     <property name="lookupOnStartup" value="false"/>    
+    <property name="principal"       ref="principal"/>
+    <property name="credentials"     value="${omero.pass}"/>
   </bean>
-  <bean id="statefulJndi" abstract="true"
-    class="ome.client.JndiStatefulObjectFactoryBean">
-    <property name="jndiEnvironment" ref="env"/>
-    <property name="lookupOnStartup" value="false"/>    
+  <bean id="statefulJndi" abstract="true" parent="statelessJndi"
+    class="ome.client.ConfigurableJndiObjectFactoryBean">
+    <property name="stateful" value="true"/>
   </bean>
     		
   <!--
       STATELESS SERVICES
   -->
-  <bean id="adminService" parent="statelessJndi">
+  <bean id="managed:ome.api.IAdmin" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IAdmin"/>
     <property name="proxyInterface" value="ome.api.IAdmin"/>
   </bean>    
     
-  <bean id="analysisService" parent="statelessJndi">
+  <bean id="managed:ome.api.IAnalysis" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IAnalysis"/>
     <property name="proxyInterface" value="ome.api.IAnalysis"/>
   </bean>
 
-  <bean id="pixelsService" parent="statelessJndi">
+  <bean id="managed:ome.api.IPixels" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IPixels"/>
     <property name="proxyInterface" value="ome.api.IPixels"/>
   </bean>
 
-  <bean id="pojosService" parent="statelessJndi">
+  <bean id="managed:ome.api.IPojos" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IPojos"/>
     <property name="proxyInterface" value="ome.api.IPojos"/>
   </bean>
 
-  <bean id="queryService" parent="statelessJndi">
+  <bean id="managed:ome.api.IQuery" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IQuery"/>
     <property name="proxyInterface" value="ome.api.IQuery"/>
   </bean>
 
-  <bean id="typesService" parent="statelessJndi">
+  <bean id="managed:ome.api.ITypes" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.ITypes"/>
     <property name="proxyInterface" value="ome.api.ITypes"/>
   </bean>
 
-  <bean id="updateService" parent="statelessJndi">
+  <bean id="managed:ome.api.IUpdate" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IUpdate"/>
     <property name="proxyInterface" value="ome.api.IUpdate"/>
   </bean>
 
   <!--
-      STATELESS SERVICES
+      STATEFUL SERVICES
   -->
 
-  <bean id="rawPixelsStore" parent="statefulJndi">
+  <bean id="managed:ome.api.RawPixelsStore" parent="statefulJndi">
     <property name="jndiName" value="omero/remote/ome.api.RawPixelsStore"/>
     <property name="proxyInterface" value="ome.api.RawPixelsStore"/>
   </bean>
     
-  <bean id="renderService" parent="statefulJndi">
+  <bean id="managed:omeis.providers.re.RenderingEngine" parent="statefulJndi">
     <property name="jndiName" value="omero/remote/omeis.providers.re.RenderingEngine"/>
     <property name="proxyInterface" value="omeis.providers.re.RenderingEngine"/>
   </bean>
