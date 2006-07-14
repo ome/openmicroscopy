@@ -1,4 +1,4 @@
-package ome.server.itests.query;
+package ome.server.itests.query.pojos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import ome.api.IPojos;
@@ -21,6 +22,7 @@ import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.QueryParameterDef;
+import ome.testing.CreatePojosFixture;
 import ome.util.builders.PojoOptions;
 
 public class FindAnnotationsQueryTest extends AbstractInternalContextTest
@@ -28,7 +30,21 @@ public class FindAnnotationsQueryTest extends AbstractInternalContextTest
     PojosFindAnnotationsQueryDefinition q;
     List                                list;
     Set                                 ids;
-
+    CreatePojosFixture					DATA;
+    
+    @Configuration( beforeTestClass = true )
+    public void makePojos() throws Exception
+    {
+    	try {
+    		setUp();
+    		DATA = new CreatePojosFixture( this.serviceFactory );
+    		DATA.pdi();
+    		DATA.annotations();
+    	} finally {
+    		tearDown();
+    	}
+    }
+    
     protected void creation_fails(Parameters parameters)
     {
         try

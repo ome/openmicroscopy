@@ -1,8 +1,9 @@
-package ome.server.itests.query;
+package ome.server.itests.query.pojos;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
@@ -13,6 +14,7 @@ import ome.model.containers.Project;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
+import ome.testing.CreatePojosFixture;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
@@ -21,10 +23,38 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     PojosLoadHierarchyQueryDefinition q;
     List list;
 
-    List level2objects = Arrays.asList( 9991L, 9992L  );
-    List level1objects = Arrays.asList( 7771L, 7772L  );
-    List level0objects = Arrays.asList( 5551L, 5552L  );
+    List level2cg;
+    List level2p;
+	List level1c;
+    List level1ds;
+    List level0img;
+	PojoOptions po10000;
+	Parameters filterForUser;
+	Parameters noFilter;
+	CreatePojosFixture DATA;
+        
+    @Configuration( beforeTestClass = true )
+    public void makePojos() throws Exception
+    {
+    	try {
+    		setUp();
+    		DATA = new CreatePojosFixture( this.serviceFactory );
+    		DATA.createAllPojos();
+    		level2cg = DATA.asIdList( DATA.cgu9991, DATA.cgu9992 );
+    		level2p = DATA.asIdList( DATA.pu9991, DATA.pu9992 );
+    		level1c = DATA.asIdList( DATA.cu7771, DATA.cu7772 );
+    	    level1ds = DATA.asIdList( DATA.du7771, DATA.du7772 );
+    	    level0img = DATA.asIdList( DATA.iu5551, DATA.iu5552 );
     
+    	    po10000 = new PojoOptions().exp( DATA.e.getId() );
+			filterForUser = new Parameters().addOptions( po10000.map() );
+			noFilter = new Parameters().addOptions( null );
+
+    	} finally {
+    		tearDown();
+    	}
+    }
+        
     protected void creation_fails(Parameters parameters){
         try {
             q= new PojosLoadHierarchyQueryDefinition( // TODO if use lookup, more generic
@@ -107,27 +137,29 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     public void test_retrieve_levels() throws Exception
     {
        
-        runLevel2( Project.class );
-        check_pd_ids( level1objects );
+        runLevel( Project.class, level2p, new PojoOptions().noLeaves() );
+        check_pd_ids( level1ds);
 
-        runLevel2WithLeaves( Project.class );
-        check_pdi_ids( level1objects, level0objects );
+        runLevel( Project.class, level2p, new PojoOptions().leaves() );
+        check_pdi_ids( level1ds, level0img );
         
-        runLevel2( CategoryGroup.class );
-        check_cgc_ids( level1objects );
+        runLevel( CategoryGroup.class, level2cg, new PojoOptions().noLeaves() );
+        check_cgc_ids( level1c );
 
-        runLevel2WithLeaves( CategoryGroup.class );
-        check_cgci_ids( level1objects, level0objects );
+        runLevel( CategoryGroup.class, level2cg, new PojoOptions().leaves() );
+        check_cgci_ids( level1c, level0img );
 
-        runLevel1( Dataset.class );
-
-        runLevel1WithLeaves( Dataset.class );
-        check_di_ids( level0objects );
+        runLevel( Dataset.class, level1ds, new PojoOptions().noLeaves() );
+        // TODO why no check?
         
-        runLevel1( Category.class );
-
-        runLevel1WithLeaves( Category.class );
-        check_ci_ids( level0objects );
+        runLevel( Dataset.class, level1ds, new PojoOptions().leaves() );
+        check_di_ids( level0img );
+        
+        runLevel( Category.class, level1c, new PojoOptions().noLeaves() );
+        // TODO why no check?
+        
+        runLevel( Category.class, level1c, new PojoOptions().leaves() );
+        check_ci_ids( level0img );
 
         
     }
@@ -138,18 +170,13 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     // =========================================================================
     // =========================================================================
 
-    
-    PojoOptions po10000 = new PojoOptions().exp( 10000L );
-    Parameters filterForUser = new Parameters().addOptions( po10000.map() );
-    Parameters noFilter = new Parameters().addOptions( null );
-
     @Test
     public void test_owner_filter_user_obj() throws Exception 
     {
         Parameters ids;
         
         // Belongs to user.
-        ids = new Parameters().addIds(Arrays.asList( 9990L ));
+        ids = new Parameters().addIds( DATA.asIdList( DATA.pu9990 ));
         q= new PojosLoadHierarchyQueryDefinition(
                 new Parameters( ids ).addAll(noFilter).addClass(Project.class));
            
@@ -170,7 +197,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
         Parameters ids;
         
         // Doesn't belong to user.
-        ids = new Parameters().addIds(Arrays.asList( 9090L ));
+        ids = new Parameters().addIds( DATA.asIdList(DATA.pr9090));
         q= new PojosLoadHierarchyQueryDefinition(
                 new Parameters( ids ).addAll(noFilter).addClass(Project.class));
    
@@ -199,26 +226,6 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     // ~ Helpers
     // =========================================================================
 
-    private void runLevel2( Class klass )
-    {
-        runLevel( klass, level2objects, new PojoOptions() );
-    }
-
-    private void runLevel2WithLeaves( Class klass )
-    {
-        runLevel( klass, level2objects, new PojoOptions().leaves() );
-    }
-
-    private void runLevel1( Class klass )
-    {
-        runLevel( klass, level1objects, new PojoOptions() );
-    }
-
-    private void runLevel1WithLeaves( Class klass )
-    {
-        runLevel( klass, level1objects, new PojoOptions().leaves() );
-    }
-    
     private void runLevel( Class klass, List ids, PojoOptions po )
     {
         q= new PojosLoadHierarchyQueryDefinition(

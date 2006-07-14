@@ -1,4 +1,4 @@
-package ome.server.itests.query;
+package ome.server.itests.query.pojos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,26 +14,6 @@ import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.util.builders.PojoOptions;
 
 /*
-
- cg |  cg  | cg_owner | cg_group | c |  c   | c_owner | c_group | img | img  | i_owner | i_group | iann | iann_owner | iann_group 
-----+------+----------+----------+---+------+---------+---------+-----+------+---------+---------+------+------------+------------
- CG | 9091 |        0 |        0 | C | 7071 |       0 |       0 | Img | 5051 |       0 |       0 | 3031 |          0 |          0
- CG | 9092 |        0 |        0 | C | 7071 |       0 |       0 | Img | 5051 |       0 |       0 | 3031 |          0 |          0
- CG | 9091 |        0 |        0 | C | 7072 |       0 |       0 | Img | 5051 |       0 |       0 | 3031 |          0 |          0
- CG | 9092 |        0 |        0 | C | 7072 |       0 |       0 | Img | 5051 |       0 |       0 | 3031 |          0 |          0
- CG | 9091 |        0 |        0 | C | 7071 |       0 |       0 | Img | 5052 |       0 |       0 | 3332 |      10000 |          0
- CG | 9092 |        0 |        0 | C | 7071 |       0 |       0 | Img | 5052 |       0 |       0 | 3332 |      10000 |          0
- CG | 9091 |        0 |        0 | C | 7072 |       0 |       0 | Img | 5052 |       0 |       0 | 3332 |      10000 |          0
- CG | 9092 |        0 |        0 | C | 7072 |       0 |       0 | Img | 5052 |       0 |       0 | 3332 |      10000 |          0
- CG | 9991 |    10000 |        0 | C | 7771 |   10000 |       0 | Img | 5551 |   10000 |       0 | 3033 |          0 |          0
- CG | 9992 |    10000 |        0 | C | 7771 |   10000 |       0 | Img | 5551 |   10000 |       0 | 3033 |          0 |          0
- CG | 9991 |    10000 |        0 | C | 7772 |   10000 |       0 | Img | 5551 |   10000 |       0 | 3033 |          0 |          0
- CG | 9992 |    10000 |        0 | C | 7772 |   10000 |       0 | Img | 5551 |   10000 |       0 | 3033 |          0 |          0
- CG | 9991 |    10000 |        0 | C | 7771 |   10000 |       0 | Img | 5552 |   10000 |       0 | 3334 |      10000 |          0
- CG | 9992 |    10000 |        0 | C | 7771 |   10000 |       0 | Img | 5552 |   10000 |       0 | 3334 |      10000 |          0
- CG | 9991 |    10000 |        0 | C | 7772 |   10000 |       0 | Img | 5552 |   10000 |       0 | 3334 |      10000 |          0
- CG | 9992 |    10000 |        0 | C | 7772 |   10000 |       0 | Img | 5552 |   10000 |       0 | 3334 |      10000 |          0
-
 TODO FIXME NEW Data with only one in each group (not all images in all categories in cg e.g.)
  */ 
 

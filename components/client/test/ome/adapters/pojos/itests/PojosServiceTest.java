@@ -52,6 +52,7 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.parameters.Parameters;
+import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.conditions.OptimisticLockException;
@@ -68,6 +69,7 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.testing.CreatePojosFixture;
 import ome.testing.OMEData;
 import ome.testing.Paths;
 import ome.util.CBlock;
@@ -102,7 +104,8 @@ public class PojosServiceTest extends TestCase {
     protected static Log log = LogFactory.getLog(PojosServiceTest.class);
 
     ServiceFactory factory = new ServiceFactory("ome.client.test");
-   
+
+    CreatePojosFixture fixture;
     OMEData data;
     Set ids, results, mapped;
     IPojos iPojos;
@@ -133,6 +136,10 @@ public class PojosServiceTest extends TestCase {
       iQuery.get(Experimenter.class,0l);
       // if this one fails, skip rest.
 
+      Login rootLogin = (Login) factory.getContext().getBean("rootLogin");
+      ServiceFactory rootFactory = new ServiceFactory( rootLogin );
+      fixture = new CreatePojosFixture( rootFactory );
+      fixture.createAllPojos();
     }
   
   @Test  
@@ -402,7 +409,7 @@ public class PojosServiceTest extends TestCase {
   @Test
     public void test_retrieveCollection() throws Exception
     {
-        Image i = (Image) iQuery.get(Image.class,5551);
+        Image i = (Image) iQuery.get(Image.class,fixture.iu5551.getId());
         i.unload();
         Set annotations = (Set) iPojos.retrieveCollection(i,Image.ANNOTATIONS,null);
         assertTrue(annotations.size() > 0);
@@ -599,7 +606,7 @@ public class PojosServiceTest extends TestCase {
   @Test
     public void test_getCollectionCount() throws Exception    
     {
-        Long id = new Long(5551);
+        Long id = fixture.iu5551.getId();
         Map m = iPojos.getCollectionCount(
                 Image.class.getName(),
                 Image.ANNOTATIONS,
@@ -608,7 +615,7 @@ public class PojosServiceTest extends TestCase {
         Integer count = (Integer) m.get(id);
         assertTrue(count.intValue() > 0);
         
-        id = new Long(7771);
+        id = fixture.du7771.getId();
         m = iPojos.getCollectionCount(
                 Dataset.class.getName(),
                 Dataset.IMAGELINKS,
@@ -645,7 +652,8 @@ public class PojosServiceTest extends TestCase {
             log.warn("Should not be here."); //TODO
         }
         
-        results = iPojos.getUserImages(new PojoOptions().exp(new Long(10000)).map());
+        results = iPojos.getUserImages(
+        		new PojoOptions().exp(fixture.e.getId()).map());
         assertTrue(results.size() > 0);
 
     }
@@ -661,9 +669,11 @@ public class PojosServiceTest extends TestCase {
         Pixels pix = (Pixels) iQuery.findAll(Pixels.class,null).get(0);
         IPixels pixDB = factory.getPixelsService();
         RenderingEngine re = factory.createRenderingEngine(); 
+        re.lookupPixels(pix.getId());
+        re.load();
         
         PlaneDef pd = new PlaneDef(0,0);
-        pd.setX(0); pd.setY(0); pd.setZ(0);
+        pd.setZ(0);
         re.render(pd);
         
     }
@@ -729,15 +739,15 @@ public class PojosServiceTest extends TestCase {
     {
         Map counts;
         
-        counts = getCounts( Dataset.class, new Long(7770L), null );
+        counts = getCounts( Dataset.class, fixture.du7770.getId(), null );
         assertNull( counts );
 
         PojoOptions po = new PojoOptions().leaves();
-        counts = getCounts( Dataset.class, new Long(7770L), po.map() );
+        counts = getCounts( Dataset.class, fixture.du7770.getId(), po.map() );
         assertTrue( counts == null || null == counts.get( Image.ANNOTATIONS ));
         assertTrue( counts == null || null == counts.get( Dataset.ANNOTATIONS ) );
         
-        counts = getCounts( Dataset.class, new Long(7771L), null );
+        counts = getCounts( Dataset.class, fixture.du7771.getId(), null );
         assertNull( counts.get( Image.ANNOTATIONS ));
         assertTrue( counts.containsKey( Dataset.ANNOTATIONS ));
         assertTrue( ( (Long) counts.get( Dataset.ANNOTATIONS) ).intValue() == 1 );
@@ -884,7 +894,9 @@ public class PojosServiceTest extends TestCase {
         DataObject returnedToUser = new AnnotationData( object );
         
         // Now working but iPojos is still returning a CGLIB class.
-        assertTrue( original.getClass().equals( annotation.getClass() ));
+        assertTrue( String.format("Class %s should equal class %s",
+        		object.getClass(), annotation.getClass()), 
+        		object.getClass().equals( annotation.getClass() ));
     }
 
   @Test
@@ -924,7 +936,7 @@ public class PojosServiceTest extends TestCase {
         assertNotNull(original.getDetails().getCounts());
         assertNotNull(original.getDetails().getCounts().get( Dataset.ANNOTATIONS ));
         assertTrue(
-                ((Integer) original.getDetails().getCounts().get( Dataset.ANNOTATIONS)).intValue() > 0
+                ((Long) original.getDetails().getCounts().get( Dataset.ANNOTATIONS)).intValue() > 0
                 );
 
         System.out.println( original.getDetails().getCounts());
@@ -942,9 +954,11 @@ public class PojosServiceTest extends TestCase {
         
         Dataset d1 = new Dataset();
         d1.setName( name );
+        d1 = (Dataset) iPojos.createDataObject( d1, null );
         
         Dataset d2 = new Dataset();
         d2.setName( name );
+        d2 = (Dataset) iPojos.createDataObject( d2, null );
         
         ProjectDatasetLink l1 = new ProjectDatasetLink();
         ProjectDatasetLink l2 = new ProjectDatasetLink();
@@ -1078,22 +1092,21 @@ public class PojosServiceTest extends TestCase {
 
     }
     
-  @Test
+  @Test( groups = {"version","broken"} )
     public void test_unloaded_ds_in_ui() throws Exception
     {
-//        Project p = new Project(); p.setName("ui");
-//        Dataset d = new Dataset(); d.setName("ui");
-//        Image i = new Image(); i.setName("ui");
-//        p.linkDataset( d );
-//        d.linkImage( i );
-//        
-//        ProjectData pd = new ProjectData( (Project)
-//                iPojos.createDataObject( p, null )
-//                );
+        Project p = new Project(); p.setName("ui");
+        Dataset d = new Dataset(); d.setName("ui");
+        Image i = new Image(); i.setName("ui");
+        p.linkDataset( d );
+        d.linkImage( i );
+
+        p = iPojos.createDataObject( p, null );
         
-        PojoOptions po = new PojoOptions().exp( new Long( 0L ) );
         ProjectData pd_test = new ProjectData( (Project)
-                iPojos.loadContainerHierarchy( Project.class, null, po.map())
+                iPojos.loadContainerHierarchy( 
+                		Project.class, 
+                		Collections.singleton(p.getId()), null)
                 .iterator().next()
                 );
         DatasetData dd_test = (DatasetData) pd_test.getDatasets().iterator().next();

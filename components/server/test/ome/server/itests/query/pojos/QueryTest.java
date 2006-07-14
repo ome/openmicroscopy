@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests.query;
+package ome.server.itests.query.pojos;
 
 //Java imports
 import java.util.Arrays;
@@ -43,6 +43,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
+import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
@@ -62,10 +63,10 @@ import ome.util.RdfPrinter;
  * </small>
  * @since 1.0
  */
-@Test( groups = "managed")
+@Test( groups = "internal")
 public class QueryTest
         extends
-            AbstractManagedContextTest {
+            AbstractInternalContextTest {
 
     private static Log log = LogFactory.getLog(QueryTest.class);
     
@@ -185,8 +186,8 @@ public class QueryTest
         try 
         {
             Experimenter e = (Experimenter) iQuery.findByExample( ex );
-        } catch (InternalException ie) {
-            assertTrue( ie.getMessage().contains( "unique result"));
+        } catch (Exception e) {
+            assertTrue( e.getMessage().contains( "unique result"));
         }
         
     }

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -201,6 +202,15 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
                 "select e from Experimenter e " +
                 "where e.id != 0",
                 new Parameters( new Filter().unique().page(0,1)));
+        
+        if ( user == null )
+        {
+        	user = new Experimenter();
+        	user.setOmeName(UUID.randomUUID().toString());
+        	user.setFirstName("Get");
+        	user.setLastName("Images");
+        	user = iAdmin.createUser(user);
+        }
 
         userPO = new PojoOptions().exp( user.getId() );
         filterForUser = new Parameters().addOptions( userPO.map() );
