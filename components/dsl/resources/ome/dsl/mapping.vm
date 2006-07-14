@@ -41,6 +41,9 @@
 #if(!$type.immutable)
 	<meta attribute="implements">ome.model.IMutable</meta>
 #end
+#if($type.class.name.equals( "ome.dsl.EnumType" ) )
+	<meta attribute="implements">ome.model.IEnum</meta>
+#end
 #if( ! $type.class.name.equals("ome.dsl.LinkType"))
 	<meta attribute="implements">ome.model.IObject</meta>
 #else
@@ -107,7 +110,10 @@
 #end
 #end
             <component name="permissions" class="ome.model.internal.Permissions">
-                <property name="bytes" type="binary" column="permissions"/> 
+                <!-- meta is ignored. We control Details -->
+				<meta attribute="default-value">new Permissions()</meta>
+                <property name="perm1" not-null="true" 
+                    type="long" column="permissions"/> 
                 <!-- TODO possibly just default CHMOD here -->
             </component>
         </component>

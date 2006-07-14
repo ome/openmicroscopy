@@ -66,7 +66,9 @@ import ome.util.Filterable;
 public class Details implements IDetails, Filterable, Serializable
 {
 
-    public final static String CONTEXT = "Details_context";
+	private static final long serialVersionUID = 1176546684904748976L;
+	
+	public final static String CONTEXT = "Details_context";
     public final static String PERMISSIONS = "Details_permissions";
     public final static String CREATIONEVENT = "Details_creationEvent";
     public final static String UPDATEEVENT = "Details_updateEvent";
@@ -75,7 +77,7 @@ public class Details implements IDetails, Filterable, Serializable
     
     IObject _context;
     
-    Permissions _perms;
+    Permissions _perms = new Permissions();
     Event _creation;
     Event _update;
     Experimenter _owner;
@@ -91,7 +93,7 @@ public class Details implements IDetails, Filterable, Serializable
     /** copy-constructor */
     public Details(Details copy){
         setContext(copy.getContext());
-        setPermissions(copy.getPermissions());
+        setPermissions( new Permissions().applyMask( copy.getPermissions() ));
         setCreationEvent(copy.getCreationEvent());
         setUpdateEvent(copy.getUpdateEvent());
         setOwner(copy.getOwner());
@@ -113,7 +115,8 @@ public class Details implements IDetails, Filterable, Serializable
                 new Event( this.getCreationEvent().getId(), false ));
         newDetails.setUpdateEvent( this.getUpdateEvent() == null ? null :
                 new Event( this.getUpdateEvent().getId(), false ));
-        newDetails.setPermissions(this.getPermissions());
+        newDetails.setPermissions( this.getPermissions() == null ? null :
+        		new Permissions( ).applyMask( this.getPermissions() ));
         newDetails._filteredCollections = this.filteredSet();
         newDetails.setCounts( this.getCounts() == null ? null :
             new HashMap(this.getCounts()));
@@ -195,7 +198,7 @@ public class Details implements IDetails, Filterable, Serializable
         sb.append("Details:{");
         sb.append("user=");sb.append(_owner==null?null:_owner.getId());
         sb.append(";group=");sb.append(_group==null?null:_group.getId());
-        sb.append(";perm=");sb.append(_perms==null?null:Arrays.toString(_perms.getBytes()));
+        sb.append(";perm=");sb.append(_perms==null?null:_perms.toString());
         sb.append(";create=");sb.append(_creation==null?null:_creation.getId());
         sb.append(";update=");sb.append(_update==null?null:_update.getId());
         sb.append("}");
