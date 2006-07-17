@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
@@ -91,11 +92,12 @@ abstract class CurrentDetails
 
     // ~ Main methods
     // =================================================================
-    public static void newEvent(EventType type) // TODO keep up with stack here?
+    public static void newEvent(EventType type, Token token) // TODO keep up with stack here?
     {
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
+        e.getGraphHolder().setToken(null, token);
         setCreationEvent(e);
     }
     

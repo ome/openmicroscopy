@@ -33,6 +33,7 @@ package ome.model.internal;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 
 /**
@@ -71,9 +72,48 @@ public class GraphHolder
      * @param replacement
      */
 
-    public void setReplacement( IObject replacement)
+    public void setReplacement( IObject replacement )
     {
         this.replacement = replacement;
     }
     
+    private Token token;
+ 
+    /** tests if this {@link GraphHolder} contains a {@link Token} reference.
+     */
+    public final boolean hasToken( )
+    {
+    	return this.token != null;
+    }
+    
+    /** check the {@link Token} for the {@link IObject} represented by this 
+     * {@link GraphHolder}. This can be seen to approximate "ownership" of this
+     * Object within the JVM.
+     * 
+     * @return true only if the two instances are identical.
+     */
+    public final boolean tokenMatches( Token token )
+    {
+    	return this.token == token;
+    }
+
+    /** set the {@link Token} for this {@link GraphHolder} but only if you 
+     * posses the current {@link Token}. The first call to {@link #setToken(Token, Token)}
+     * will succeed when {@link #token} is null.
+     * 
+     * @param previousToken
+     * @param newToken
+     */
+    public final void setToken( Token previousToken, Token newToken )
+    {
+    	if ( token == null || previousToken == token )
+    	{
+    		this.token = newToken;
+    	}
+    	
+    	else 
+    	{
+    		throw new SecurityViolation("Tokens do not match.");
+    	}
+    }
 }
