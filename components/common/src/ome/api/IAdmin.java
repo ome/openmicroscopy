@@ -152,7 +152,7 @@ public interface IAdmin extends ServiceInterface{
      */
     void addGroups( 
     		@NotNull Experimenter user, 
-    		@NotNull ExperimenterGroup[] groups );
+    		@NotNull ExperimenterGroup...groups );
     
     /** removes a user from the given groups. 
      * @param user. A currently managed entity. Not null.
@@ -160,7 +160,7 @@ public interface IAdmin extends ServiceInterface{
      */
     void removeGroups( 
     		@NotNull Experimenter user, 
-    		@NotNull ExperimenterGroup[] groups );
+    		@NotNull ExperimenterGroup...groups );
     
     /** sets the default group for a given user. 
      * @param user. A currently managed entity. Not null.

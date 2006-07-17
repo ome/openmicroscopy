@@ -254,8 +254,16 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
 
     public void addGroups(Experimenter user, ExperimenterGroup[] groups)
     {
-        // TODO Auto-generated method stub
-        
+    	if (user == null) return; // Handled by annotations
+    	if (groups == null) return;
+    	
+        Experimenter foundUser = iQuery.get(Experimenter.class,user.getId());
+    	for (ExperimenterGroup group : groups) {
+        	ExperimenterGroup foundGroup = 
+        		iQuery.get(ExperimenterGroup.class, group.getId());
+        	foundUser.linkExperimenterGroup(foundGroup);
+		}
+    	iUpdate.flush();
     }
 
     public void removeGroups(Experimenter user, ExperimenterGroup[] groups)

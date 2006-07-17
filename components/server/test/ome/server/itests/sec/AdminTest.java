@@ -107,6 +107,17 @@ public class AdminTest extends AbstractManagedContextTest
 		assertTrue(e.sizeOfGroupExperimenterMap() == 1);
 	}
 	
+	// ~ Groups
+	// =========================================================================
+	@Test
+	public void testUserCanOnlySetDetailsOnOwnObject() throws Exception 
+	{
+		fail("implement"); // also verify for 
+	}
 	
-	
+	@Test
+	public void testUserCanOnlySetDetailsToOwnGroup() throws Exception 
+	{
+		fail("implement"); // also verify iupdate 
+	}
 }
