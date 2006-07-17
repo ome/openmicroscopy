@@ -67,14 +67,14 @@ public class ObjectFactory
         else
         {
         
-            mode.setValue("test"+System.currentTimeMillis());
-            pi.setValue("test"+System.currentTimeMillis());                    
+            mode.setValue("Wide-field");
+            pi.setValue("RGB");                    
             ac.setPhotometricInterpretation(pi);
             ac.setMode(mode);
         
             pt.setValue("int8");
-            
-            dO.setValue("XXXX"+System.currentTimeMillis());
+     
+            dO.setValue("XYZTC");
             
             pd.setSizeX(new Float(1.0));
             pd.setSizeY(new Float(1.0));
@@ -117,7 +117,7 @@ public class ObjectFactory
         color.setRed( new Integer(1) );
         
         Family family = new Family();
-        family.setValue( "test" );
+        family.setValue( "linear" );
         
         ChannelBinding binding = new ChannelBinding();
         binding.setActive( Boolean.FALSE );
@@ -135,7 +135,7 @@ public class ObjectFactory
     {
         // Prereqs for RenderingDef
         RenderingModel model = new RenderingModel();
-        model.setValue( "test" );
+        model.setValue( "rgb" );
         
         QuantumDef qdef = new QuantumDef();
         qdef.setBitResolution( new Integer(1) );
