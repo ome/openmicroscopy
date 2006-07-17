@@ -136,18 +136,8 @@ public class RawPixelsBean extends AbstractBean
             PixelsService dataService = (PixelsService) 
             applicationContext.getBean("/OME/OMEIS/Pixels"); // FIXME in SFactory.
             pixelsInstance = metadataService.retrievePixDescription( id );
-            try
-            {
-                buffer = dataService.createPixelBuffer( pixelsInstance );
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-                // TODO this could throw a ResourceError anyway.
-                throw new ResourceError(
-                        "Failed to create PixelBuffer:\n"
-                        +e.getMessage());
-            }
-        }
+        	buffer = dataService.getPixelBuffer( pixelsInstance );
+		}
     }
     
     private void errorIfNotLoaded()
@@ -182,18 +172,15 @@ public class RawPixelsBean extends AbstractBean
         errorIfNotLoaded();
         
         MappedByteBuffer plane;
-        try
-        {
-            plane = buffer.getPlane(arg0, arg1, arg2);
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        }
+		try
+		{
+			plane = buffer.getPlane(arg0, arg1, arg2);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+
         return bufferAsByteArrayWithExceptionIfNull( plane );
     }
 
@@ -480,8 +467,8 @@ public class RawPixelsBean extends AbstractBean
     
     private byte[] bufferAsByteArrayWithExceptionIfNull( MappedByteBuffer buffer )
     {
-        // FIXME For Chris to implement.
-        return null;
+		byte[] b = new byte[buffer.capacity()];
+		buffer.get(b, 0, buffer.capacity());
+		return b;
     }
-    
 }
