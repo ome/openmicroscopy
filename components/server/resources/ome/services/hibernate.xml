@@ -45,6 +45,7 @@
 
   <bean id="eventHandler" class="ome.tools.hibernate.EventHandler">
   	<constructor-arg ref="securitySystem"/>
+  	<constructor-arg ref="hibernateTemplate"/>
   </bean>
   
   <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor"/>
@@ -58,49 +59,29 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="allowCreate" value="false"/>
   </bean>
-	
-  <bean id="interceptor" class="ome.tools.hibernate.OmeroInterceptor">
-    <constructor-arg ref="securitySystem"/>
-  </bean>
   
-  <bean id="globalListener" class="ome.tools.hibernate.GlobalListener">
-    <constructor-arg>
-      <bean class="ome.tools.hibernate.EventDiffHolder">
-        <constructor-arg ref="securitySystem"/>
-      </bean>
-    </constructor-arg>
-  </bean>
-	
-  <!-- TODO ome.tools.hibernate.OmeroSessionFactoryBean -->
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
     <property name="hibernateProperties" ref="hibernateProperties"/>
     <property name="dataSource" ref="dataSource"/>
-    <property name="entityInterceptor" ref="interceptor"/>
-    <property name="eventListeners">
-    <!-- Possible listeners as of 3.1.2:
- 					  auto-flush merge create create-onflush delete
-						dirty-check evict flush flush-entity load
-						load-collection lock refresh replicate
-						save-update save update pre-load pre-update
-					  pre-delete pre-insert post-load post-update
-						post-delete post-insert post-commit-update
- 					  post-commit-delete post-commit-insert
-    -->
-      <map>
-        <entry key="merge">
-          <bean class="ome.tools.hibernate.MergeEventListener"/>
-        </entry> 
-        <entry key="pre-insert"  value-ref="globalListener"/>         
-        <entry key="pre-load"    value-ref="globalListener"/>
-        <entry key="pre-delete"  value-ref="globalListener"/>
-        <entry key="pre-update"  value-ref="globalListener"/>
-        <entry key="post-insert" value-ref="globalListener"/>
-        <entry key="post-load"   value-ref="globalListener"/>
-        <entry key="post-update" value-ref="globalListener"/>
-        <entry key="post-delete" value-ref="globalListener"/>
-      </map>
+    <property name="entityInterceptor">
+      	<bean id="interceptor" class="ome.tools.hibernate.OmeroInterceptor">
+    		<constructor-arg ref="securitySystem"/>
+  		</bean>
     </property>
+    <property name="eventListeners">
+		<bean class="ome.tools.hibernate.EventListenersFactoryBean">
+			<constructor-arg ref="securitySystem"/>
+			<property name="debugAll" value="false"/>
+		</bean>
+    </property>
+	<property name="filterDefinitions">
+		<list>
+			<bean class="ome.tools.hibernate.SecurityFilter">
+				<constructor-arg ref="securitySystem"/>
+			</bean>
+		</list>
+	</property>
   </bean>
 
 </beans>

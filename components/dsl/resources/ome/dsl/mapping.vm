@@ -250,6 +250,10 @@
     <filter name="${efilter}" condition=":eventId = event_id"/>
     <filter name="${pfilter}" condition=":permsStr = permissions"/>
 
+#if(!$type.global)
+	<filter name="securityFilter"/>
+#end
+
 </class>
 #else</joined-subclass>
 #end
