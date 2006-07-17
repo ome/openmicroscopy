@@ -32,13 +32,20 @@ package ome.security;
 //Java imports
 
 //Third-party libraries
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 //Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.ITypes;
+import ome.api.IUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -48,6 +55,8 @@ import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
+import ome.model.internal.GraphHolder;
+import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
@@ -55,6 +64,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.SecurityFilter;
+import ome.util.IdBlock;
 import ome.util.Utils;
 
 /** 
@@ -74,13 +85,15 @@ public class BasicSecuritySystem implements SecuritySystem
 {
 	private final static Log log = LogFactory.getLog(BasicSecuritySystem.class);
 	
+	private Token token = new Token();
+	
 	private ServiceFactory sf;
 	
 	private EventContext ec;
-	
+
 	public BasicSecuritySystem( 
 			ServiceFactory factory, 
-			EventContext eventContext )
+			EventContext eventContext)
 	{
 		this.sf = factory;
 		this.ec = eventContext;
@@ -126,21 +139,101 @@ public class BasicSecuritySystem implements SecuritySystem
 		return false;
 	}
 	
-	public void setDetails( IObject iObject )
-	{
-		if (iObject == null) return;
-	}
-	
-	public boolean canUpdate( IObject iObject )
-	{
-		return false;
-	}
-	
-	// ~ Group definitions
+	// ~ Read security
 	// =========================================================================
-	// This information is also encoded at:
-	// TODO
-	//
+	
+	public void enableReadFilter( Object session ) 
+	{
+		Session sess = (Session) session;
+		sess.enableFilter(SecurityFilter.filterName)
+			.setParameter(
+					SecurityFilter.current_user,
+					currentUserId())
+			.setParameterList(
+					SecurityFilter.current_groups, 
+					currentUser().eachLinkedExperimenterGroup(new IdBlock()))
+			.setParameterList(
+					SecurityFilter.leader_of_groups,
+					Collections.singleton(1000L)); // FIXME
+	}
+	
+	public void disableReadFilter( Object session ) {
+		Session sess = (Session) session;
+		sess.disableFilter(SecurityFilter.filterName);
+	}
+	
+	// ~ Write security (mostly for the Hibernate events)
+	// =========================================================================
+	
+	public boolean allowCreation( IObject iObject )
+	{
+		Class cls = iObject.getClass();
+		GraphHolder gh = iObject.getGraphHolder();
+		
+		if ( gh.hasToken() && gh.tokenMatches(token) )
+		{
+			return true;
+		}
+		
+		else if ( isSystemType( (Class<? extends IObject>) cls )
+				&& ! currentUserId().equals( getRootId() ) )
+		{
+			return false;
+		}
+		
+		return true;
+	}
+
+	public void throwCreationViolation( IObject iObject ) throws SecurityViolation {
+		throw new SecurityViolation(
+				iObject.getClass().getName()
+				+" is a System-type, and may only be " 
+				+"created through privileged APIs.");
+	}
+	
+	public boolean allowUpdate( IObject iObject )
+	{
+		GraphHolder gh = iObject.getGraphHolder();
+		if ( gh.hasToken() && gh.tokenMatches(token))
+		{
+			return true;
+		}
+		
+		else if ( isSystemType( (Class<? extends IObject>) iObject.getClass())
+			&& (! currentUserId().equals( getRootId() )))
+		{
+			return false;
+		}
+
+		return true;
+	}
+	
+	public void throwUpdateViolation( IObject iObject ) throws SecurityViolation {
+		throw new SecurityViolation( "Updating "+iObject+" not allowed." );
+	}
+	
+	// ~ Privileged accounts
+	// =========================================================================
+	// TODO This information is also encoded at:
+
+	public long getRootId()
+	{
+		return 0L;
+	}
+	public long getSystemGroupId()
+	{
+		return 0L;
+	}
+	
+	public long getUserGroupId()
+	{
+		return 1L;
+	}
+	public String getRootName()
+	{
+		return "root";
+	}
+
 	public boolean isSystemGroup( ExperimenterGroup group )
 	{
 		return false;
@@ -399,23 +492,76 @@ public class BasicSecuritySystem implements SecuritySystem
             
     }
 	
-	// ~ CurrentDetails delegation
+	// ~ CurrentDetails delegation (ensures proper settings of Tokens)
 	// =========================================================================
-	
-    public boolean emptyDetails( )
+	    
+	public void setCurrentDetails()
     {
-    	return CurrentDetails.getOwner() == null 
-    		&& CurrentDetails.getGroup() == null
-    		&& CurrentDetails.getCreationEvent() == null;
+		IAdmin iAdmin = sf.getAdminService();
+		ITypes iTypes = sf.getTypesService();
+		IUpdate iUpdate = sf.getUpdateService();
+		
+		clearCurrentDetails();
+
+        if ( ec == null ) 
+            throw new InternalException(
+                    "EventContext is null in EventHandler. Invalid configuration."
+            );
+        
+        if ( ec.getPrincipal() == null )
+            throw new InternalException(
+                    "Principal is null in EventHandler. Security system failure."
+            );
+        
+        if (getName() == null)
+            throw new InternalException(
+                    "Principal.name is null in EventHandler. Security system failure.");
+
+        Experimenter exp = iAdmin.lookupExperimenter(getName());
+        exp.getGraphHolder().setToken(token, token);
+        CurrentDetails.setOwner(exp);
+        
+        if (getGroup() == null)
+            throw new InternalException(
+            "Principal.group is null in EventHandler. Security system failure.");
+
+        ExperimenterGroup grp = iAdmin.lookupGroup(getGroup()); 
+        exp.getGraphHolder().setToken(token, token);
+        CurrentDetails.setGroup(grp);
+
+        if (getType() == null)
+            throw new InternalException(
+            "Principal.eventType is null in EventHandler. Security system failure.");
+
+        EventType type = iTypes.getEnumeration(EventType.class,getType());
+        type.getGraphHolder().setToken(token, token);
+        CurrentDetails.newEvent(type,token);
+        // hack
+        Event orig = CurrentDetails.getCreationEvent();
+        HibernateTemplate ht=
+        (HibernateTemplate) sf.getContext().getBean("hibernateTemplate");
+        try 
+        {
+        	Object retVal = ht.merge(CurrentDetails.getCreationEvent());
+        	CurrentDetails.setCreationEvent((Event)retVal);
+        } catch (InvalidDataAccessApiUsageException ex) {
+        	// probably read-only
+        	setCurrentEvent(orig);
+        }
     }
-    
+	
+	public void newEvent( EventType type )
+	{
+		CurrentDetails.newEvent( type, token );
+	}
+	
     public void addLog( String action, Class klass, Long id )
     {
 
         if ( EventLog.class.isAssignableFrom( klass )  
         		|| EventDiff.class.isAssignableFrom( klass ) ) 
         {
-        	log.debug( "Not logging creation of logging type:");
+        	log.debug( "Not logging creation of logging type:"+klass);
         } 
         
         else 
@@ -429,9 +575,29 @@ public class BasicSecuritySystem implements SecuritySystem
             l.setType(klass.getName()); // TODO could be id to Type entity
             l.setIdList(id.toString());
             l.setDetails(CurrentDetails.createDetails());
+            l.getGraphHolder().setToken(null, token);
     
             CurrentDetails.getCreationEvent().addEventLog( l );
         }
+    }
+    	
+	public void setCurrentEvent( Event event )
+	{
+		CurrentDetails.setCreationEvent( event );
+	}
+	
+	public void clearCurrentDetails()
+	{
+		CurrentDetails.clear();
+	}
+	
+	// read-only ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    public boolean emptyDetails( )
+    {
+    	return CurrentDetails.getOwner() == null 
+    		&& CurrentDetails.getGroup() == null
+    		&& CurrentDetails.getCreationEvent() == null;
     }
     
 	public Long currentUserId()
@@ -455,67 +621,12 @@ public class BasicSecuritySystem implements SecuritySystem
 	{
 		return CurrentDetails.getCreationEvent();
 	}
-
-	public void newEvent( EventType type )
-	{
-		CurrentDetails.newEvent( type );
-	}
 	
 	public Event getCurrentEvent()
 	{
 		return CurrentDetails.getCreationEvent();
 	}
-	
-	public void setCurrentEvent( Event event )
-	{
-		CurrentDetails.setCreationEvent( event );
-	}
-	
-	public void clearCurrentDetails()
-	{
-		CurrentDetails.clear();
-	}
-	
-	public void setCurrentDetails()
-    {
-		IAdmin iAdmin = sf.getAdminService();
-		ITypes iTypes = sf.getTypesService();
 		
-		clearCurrentDetails();
-
-        if ( ec == null ) 
-            throw new InternalException(
-                    "EventContext is null in EventHandler. Invalid configuration."
-            );
-        
-        if ( ec.getPrincipal() == null )
-            throw new InternalException(
-                    "Principal is null in EventHandler. Security system failure."
-            );
-        
-        if (getName() == null)
-            throw new InternalException(
-                    "Principal.name is null in EventHandler. Security system failure.");
-
-        Experimenter exp = iAdmin.lookupExperimenter(getName());
-        CurrentDetails.setOwner(exp);
-        
-        if (getGroup() == null)
-            throw new InternalException(
-            "Principal.group is null in EventHandler. Security system failure.");
-
-        ExperimenterGroup grp = iAdmin.lookupGroup(getGroup()); 
-        CurrentDetails.setGroup(grp);
-
-        if (getType() == null)
-            throw new InternalException(
-            "Principal.eventType is null in EventHandler. Security system failure.");
-
-        EventType type = iTypes.getEnumeration(EventType.class,getType()); 
-        CurrentDetails.newEvent(type);
-
-    }
-
 	// ~ Helpers
 	// =========================================================================
 	

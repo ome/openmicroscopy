@@ -34,6 +34,7 @@ package ome.security;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -58,7 +59,29 @@ public interface SecuritySystem
 	boolean isSystemType( Class<? extends IObject> klass );	
 	boolean isPrivileged( IObject obj );
 	
-	// ~ Details (for UpdateImpl)
+	// ~ Read security
+	// =========================================================================
+	void enableReadFilter( Object session );
+	void disableReadFilter( Object session );
+	
+	// ~ Write security
+	// =========================================================================
+	
+	boolean allowCreation( IObject iObject );
+	boolean allowUpdate( IObject iObject );
+	void throwCreationViolation( IObject iObject ) throws SecurityViolation;
+	void throwUpdateViolation( IObject iObject ) throws SecurityViolation;
+	
+	// ~ Privileged accounts
+	// =========================================================================
+	long getRootId();
+	long getSystemGroupId();
+	long getUserGroupId();
+	String getRootName();
+	String getSystemGroupName();
+	String getUserGroupName();
+	
+	// ~ Details (for OmeroInterceptor)
 	// =========================================================================
 	Details transientDetails( IObject iObject );
 	Details managedDetails( IObject iObject, Details previousDetails );
