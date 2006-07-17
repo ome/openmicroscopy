@@ -1,4 +1,4 @@
-/* ome.tools.hibernate.GlobalListener
+/* ome.tools.hibernate.EventLogListener
  *
  *------------------------------------------------------------------------------
  *
@@ -61,7 +61,7 @@ import org.hibernate.event.def.DefaultPreLoadEventListener;
  * which produces these events have already been processed by the 
  * {@link ome.tools.hibernate.UpdateFilter}
  */
-public class GlobalListener
+public class EventLogListener
         implements /* Turning off AutoFlushEventListener, DeleteEventListener,
         DirtyCheckEventListener, EvictEventListener, FlushEntityEventListener,
         FlushEventListener, InitializeCollectionEventListener,
@@ -77,7 +77,7 @@ public class GlobalListener
     // TODO does LoadEvent call PreLoad/PostLoad?
     
     private static Log                   log       = LogFactory
-                                                           .getLog(GlobalListener.class);
+                                                           .getLog(EventLogListener.class);
 
     /** actions to be performed on insert/update/delete */
     protected EventDiffHolder            actions;
@@ -95,7 +95,7 @@ public class GlobalListener
      * main constructor. Replaces the default Hibernate merge listener with the
      * Spring IdTransferringMergeEventListener.
      */
-    public GlobalListener(EventDiffHolder actions)
+    public EventLogListener(EventDiffHolder actions)
     {
         this.actions = actions;
         this.preLoad = new DefaultPreLoadEventListener();
