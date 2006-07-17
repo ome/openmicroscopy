@@ -90,17 +90,37 @@ public class PermissionsTest extends TestCase {
 		assertFalse( p.isGranted(WORLD, WRITE) );
 	}
 	
+	// ~ Internal-state dependent tests
+	// =========================================================================
+
+	private static class Perms extends Permissions {
+		public long toLong() { return super.getPerm1(); }
+		@Override
+		public Perms revoke(Role role, Right... rights) {
+			return (Perms) super.revoke(role, rights);
+		}
+	}
+
 	@Test
 	public void testLongValues() throws Exception {
 		Perms pp = new Perms();
 		assertEquals(pp.toLong(),-1);
 		pp.revoke(GROUP, WRITE);
 		pp.revoke(WORLD, WRITE);
-		assertEquals(pp.toLong(),-37);
+		assertEquals(pp.toLong(),-35);
 	}
-	
-	private static class Perms extends Permissions {
-		public long toLong() { return super.getPerm1(); }
+
+	@Test
+	public void testToBits() throws Exception {
+		bitCompare(USER, READ);
+		bitCompare(USER, WRITE);
+		bitCompare(USER, USE);
+		bitCompare(GROUP, READ);
+		bitCompare(GROUP, WRITE);
+		bitCompare(GROUP, USE);
+		bitCompare(WORLD, READ);
+		bitCompare(WORLD, WRITE);
+		bitCompare(WORLD, USE);
 	}
 
 	// ~ Private helpers
@@ -111,6 +131,17 @@ public class PermissionsTest extends TestCase {
 		assertFalse(p.isGranted(role, right));
 		p.grant(role, right);
 		assertTrue(p.isGranted(role, right));
+	}
+	
+	private void bitCompare(Role role, Right right)
+	{
+		Perms pp = new Perms().revoke(role,right);
+		long l = pp.toLong();
+		System.out.println(l+":"+Long.toBinaryString(l));
+		long bit = (long) Perms.bit(role, right);
+		System.out.println(bit+":"+Long.toBinaryString(bit));
+		assertTrue( (l ^ bit) == -1L);
+
 	}
 
 }

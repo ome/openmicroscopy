@@ -64,9 +64,9 @@ public class Permissions implements Serializable
 	 * can be implemented. 
 	 */
 	public enum Role {
-		USER(1<<4),
-		GROUP(1<<2),
-		WORLD(1<<0);
+		USER(8),
+		GROUP(4),
+		WORLD(0);
 		
 		private final int shift;
 		Role(int shift){ this.shift = shift; }
@@ -86,10 +86,10 @@ public class Permissions implements Serializable
 	 * data in the future.
 	 */ 
 	public enum Right {
-		USE(1<<0),
-		WRITE(1<<1),
-		READ(1<<2),
-		/* UNUSED(1<<3) */ ;
+		USE(1),
+		WRITE(2),
+		READ(4),
+		/* UNUSED(8) */ ;
 		
 		private final int mask;
 		Right(int mask){ this.mask = mask; }
@@ -111,6 +111,16 @@ public class Permissions implements Serializable
     {
     	return ( perm1 & right.mask() << role.shift() ) 
     		== ( right.mask() << role.shift() );
+    }
+    
+    /** returns the order of the bit representing the given {@link Role} and 
+     * {@link Right}. This is dependent on the internal representation of
+     * {@link Permissions} and should only be used when necessary.
+     * @see ome.tools.hibernate.SecurityFilter
+     */ 
+    public static int bit( Role role, Right right )
+    {
+    	return right.mask() << role.shift();
     }
 
     // ~ Setters (return this)
