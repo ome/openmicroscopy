@@ -68,7 +68,7 @@ import ome.util.Validation;
  * (with ID) are checked for validity (i.e. must have a version); and 
  * unloaded/filtered objects & collections are re-filled.
  * 
- * Various other actions are taken in {@link ome.tools.hibernate.GlobalListener}
+ * Various other actions are taken in {@link ome.tools.hibernate.EventLogListener}
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

@@ -31,8 +31,6 @@ package ome.server.utests.handlers;
 // Java imports
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.util.Arrays;
-import java.util.Collections;
 
 import javax.sql.DataSource;
 
@@ -53,8 +51,6 @@ import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
 import org.jmock.core.stub.DefaultResultStub;
-import org.jmock.expectation.Expectation;
-import org.jmock.expectation.ExpectationCounter;
 import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;

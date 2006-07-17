@@ -310,6 +310,30 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
                 getHibernateTemplate().getSessionFactory(),false);
         return s;
     }
+    
+    private Object doAction( UpdateAction action )
+    {
+    	Object retVal;
+        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
+        try 
+        {
+        	beforeUpdate( action.graph, filter );
+        	retVal = action.run( filter );
+        	afterUpdate( action.graph, filter );
+        } finally {
+        	if ( filter.previousFlushMode != null )
+        	{
+        		currentSession().setFlushMode( filter.previousFlushMode );
+        	}
+        }
+        return retVal;
+    }
+    
+    private abstract class UpdateAction{
+    	public Object graph;
+    	public UpdateAction(Object obj){this.graph = obj;}
+    	public abstract Object run( UpdateFilter filter );
+    }
 
     
 }
