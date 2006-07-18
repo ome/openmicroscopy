@@ -84,7 +84,7 @@ public class Details implements IDetails, Filterable, Serializable
     ExperimenterGroup _group;
 
     // Non-entity fields
-    Set _filteredCollections;
+    Set<String> _filteredCollections;
     Map _counts;
     
     /** default constructor. Leaves values null to save resources. */
@@ -164,9 +164,9 @@ public class Details implements IDetails, Filterable, Serializable
      * collection are not propagated.
      * @return filtered set copy.
      */
-    public Set filteredSet(){
-        if (_filteredCollections == null) return new HashSet();
-        return new HashSet(_filteredCollections);
+    public Set<String> filteredSet(){
+        if (_filteredCollections == null) return new HashSet<String>();
+        return new HashSet<String>(_filteredCollections);
     }
  
     // ~ Other
@@ -192,6 +192,7 @@ public class Details implements IDetails, Filterable, Serializable
     /** simple view of the Details. Accesses only the ids of the contained 
      * entities 
      */
+    @Override
     public String toString()
     {
         StringBuffer sb = new StringBuffer(128);
