@@ -35,15 +35,21 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.SessionImplementor;
 import org.hibernate.event.EventSource;
 import org.hibernate.event.MergeEvent;
+import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
+import ome.conditions.InternalException;
 import ome.model.IEnum;
 import ome.model.IObject;
+import ome.model.internal.Details;
 import ome.security.SecuritySystem;
 
 /**
@@ -71,11 +77,11 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 	}
     
     @Override
-    @SuppressWarnings("cast")
+    @SuppressWarnings({"cast","unchecked"})
     protected void entityIsTransient( MergeEvent event, Map copyCache )
     {
     	Class cls = event.getOriginal().getClass();
-    	
+    	IEnum extant = null;
     	if ( IEnum.class.isAssignableFrom( cls ))
     	{
     		String value = ((IEnum) event.getOriginal()).getValue();
@@ -83,7 +89,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     		Criteria c =
     		event.getSession().createCriteria(type)
     			.add(Restrictions.eq("value",value));
-    		IEnum extant = (IEnum) c.uniqueResult();
+    		extant = (IEnum) c.uniqueResult();
     		if (null != extant)
     		{
 	    		log.warn("Using existing Enum("
@@ -94,35 +100,42 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 	    		event.setResult(extant);
     		}
     	}
-    	else if ( ! secSys.allowCreation( (IObject) event.getOriginal() ) )
- 		{
-    		secSys.throwCreationViolation( (IObject) event.getOriginal() );
-		}
     	
-    	else
+    	// the above didn't succeed. process normally.
+    	if ( extant == null )
     	{
-    		super.entityIsTransient( event, copyCache );
+    		if ( ! secSys.allowCreation( (IObject) event.getOriginal() ) )
+    		{
+    			secSys.throwCreationViolation( (IObject) event.getOriginal() );
+    		}
+    	
+    		else 
+    		{
+    			super.entityIsTransient( event, copyCache );
+    		}
     	}
         fillReplacement( event );
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void entityIsDetached(MergeEvent event, Map copyCache)
     {
-    	if (isUnloaded( event.getOriginal() ))
+    	IObject orig = (IObject) event.getOriginal();
+    	if (isUnloaded( orig ))
     	{
            	final EventSource source = event.getSession();
     		log.warn("Reloading unloaded entity in MergeEventListener.\n" +
     				 "Not caught by UpdateFilter: "+
     				 event.getEntityName()+":"+event.getRequestedId());
-    		
-    		Object obj = source.load( 
-    						event.getEntityName(), 
-    						event.getRequestedId());	
-    		event.setResult(obj);
-    		copyCache.put(event.getEntity(), obj);
-    		fillReplacement( event );
-    		return; //EARLY EXIT! 
+    		throw new InternalException("Filter didn't catch unloaded:"+orig);
+//    		Object obj = source.load( 
+//    						orig.getClass(), 
+//    						orig.getId());	
+//    		event.setResult(obj);
+//    		copyCache.put(event.getEntity(), obj);
+//    		fillReplacement( event );
+//    		return; //EARLY EXIT! 
     		// TODO this was maybe a bug. check if findDirty is superfluous.
     	}
     	

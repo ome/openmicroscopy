@@ -79,9 +79,7 @@ public class UpdateFilter extends ContextFilter
 {
 
     private static Log log = LogFactory.getLog(UpdateFilter.class);
-    
-    public FlushMode previousFlushMode;
-    
+
     protected SecuritySystem securitySys;
     
     protected LocalQuery localQuery;

@@ -134,31 +134,40 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     
     public void saveObject(IObject graph)
     {
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
-        beforeUpdate( graph, filter );
-        graph = internalSave( graph, filter );
-        afterUpdate( graph, filter );
+    	doAction(graph,new UpdateAction<IObject>()
+    	{
+    		@Override
+    		public IObject run(IObject value, UpdateFilter filter) {
+    			return internalSave(value, filter); 
+    		}
+    	});
     }
     
     public IObject saveAndReturnObject( IObject graph )
     {
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
-        beforeUpdate( graph, filter );
-        graph = internalSave( graph, filter );
-        afterUpdate( graph, filter );
-        return graph;
+    	return doAction( graph, new UpdateAction<IObject>()
+    	{
+    		@Override
+    		public IObject run( IObject value, UpdateFilter filter) {
+    			return internalSave(value, filter); 
+    		}
+    	});
     }
 
     public void saveCollection(Collection graph)
     {
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
-        beforeUpdate( graph, filter );
-        for (Object _object : graph)
-        {
-            IObject obj = (IObject) _object;
-            obj = internalSave( obj, filter );
-        }
-        afterUpdate( graph, filter );
+    	doAction( graph, new UpdateAction<Collection>()
+    	{
+    		@Override
+    		public Collection run(Collection value, UpdateFilter filter) {
+    	        for (Object o : value)
+    	        {
+    	            IObject obj = (IObject) o;
+    	            obj = internalSave( obj, filter );
+    	        }
+    	        return null;
+    		}
+    	});
     }
     
     public Collection saveAndReturnCollection( Collection graph)
@@ -173,26 +182,32 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
-        beforeUpdate( graph, filter );
-        for (int i = 0; i < graph.length; i++)
-        {
-            
-            graph[i] = internalSave( graph[i], filter );
-        }
-        afterUpdate( graph, filter );
-        return graph;
+    	return doAction( graph, new UpdateAction<IObject[]>(){
+    		@Override
+    		public IObject[] run(IObject[] value, UpdateFilter filter) {
+    	        IObject[] copy = new IObject[value.length];
+    			for (int i = 0; i < value.length; i++)
+    	        {
+    	            copy[i] = internalSave( value[i], filter );
+    	        }
+    	        return value;
+    		}
+    	});
     }
     
     public void saveArray(IObject[] graph)
     {
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
-        beforeUpdate( graph, filter );
-        for (int i = 0; i < graph.length; i++)
-        {
-            graph[i] = internalSave( graph[i], filter );
-        }
-        afterUpdate( graph, filter );
+    	doAction( graph, new UpdateAction<IObject[]>(){
+    		@Override
+    		public IObject[] run(IObject[] value, UpdateFilter filter) {
+    	        IObject[] copy = new IObject[value.length];
+    			for (int i = 0; i < value.length; i++)
+    	        {
+    	            copy[i] = internalSave( value[i], filter );
+    	        }
+    	        return value;
+    		}
+    	});
     }
 
     public Map saveAndReturnMap( Map map )
@@ -204,10 +219,14 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     public void deleteObject( IObject row )
     {
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
-        beforeUpdate( row, filter );
-        internalDelete( row, filter );
-        afterUpdate( row, filter );
+    	doAction( row, new UpdateAction<IObject>()
+    	{
+    		@Override
+    		public IObject run(IObject value, UpdateFilter filter) {
+    			internalDelete(value, filter); 
+    			return null;
+    		}
+    	});
     }
     
     // ~ Internals
@@ -225,15 +244,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         // Save event before we enter.
         Event currentEvent = securitySystem.getCurrentEvent();
         Event mergedEvent = (Event) internalSave( currentEvent, filter );
-//        FIXME ERROR HERE: 
-//            internalSave is replacing details of Event even though it should be
-//            persistent. 
-        
         securitySystem.setCurrentEvent( mergedEvent );
 
-        // Don't flush until we're done.
-        filter.previousFlushMode = currentSession().getFlushMode();
-        currentSession().setFlushMode(FlushMode.COMMIT);
     }
 
     /** 
@@ -241,16 +253,17 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
      * from {@link ome.tools.hibernate.MergeEventListener} needs to be 
      * moved to {@link UpdateFilter} or to another event listener.
      */
-    private IObject internalSave (IObject obj, UpdateFilter filter )
+    protected IObject internalSave (IObject obj, UpdateFilter filter )
     {
         if ( logger.isDebugEnabled() )
             logger.debug( " Internal save. " );
         
         IObject result = (IObject) filter.filter(null,obj); 
-        return (IObject) getHibernateTemplate().merge(result);
+        result = (IObject) getHibernateTemplate().merge(result);
+        return result;
     }
 
-    private void internalDelete(IObject obj, UpdateFilter filter )
+    protected void internalDelete(IObject obj, UpdateFilter filter )
     {
         if ( logger.isDebugEnabled() )
             logger.debug( " Internal delete. " );
@@ -262,77 +275,37 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     }
     
     
-    private void afterUpdate( Object argument, UpdateFilter filter)
+    private void afterUpdate( Event currentEvent, UpdateFilter filter)
     {
         
         if ( logger.isDebugEnabled() )
             logger.debug( " Post-save cleanup. " );
-        
-        // Save all that and go back to AUTO flush.
-        getHibernateTemplate().flush(); // TODO performance?
-        currentSession().setFlushMode( FlushMode.AUTO );
-        
-        // Let's save the event again using a temporary event.
-        Event currentEvent = securitySystem.getCurrentEvent();
-        EventType internal = (EventType) getHibernateTemplate().execute(
-                new HibernateCallback(){
-                    public Object doInHibernate(Session session) 
-                    throws HibernateException, SQLException
-                    {
-                        Criteria c = session.createCriteria(EventType.class)
-                        .add( Restrictions.like( "value", "Internal" ));
-                        return c.uniqueResult();
-                    }
-                }
-                );
-
-        securitySystem.newEvent( internal );
-        internalSave( currentEvent, filter );
-
-        // Checks.
-        List logs = securitySystem.getCurrentEvent().collectLogs( null );
-        if (logs.size() > 0)
-            log.error("New logs created on update.afterSave:\n"+logs);
-        // FIXME we shouldn't be updating experimenter etc. here.
-        
-        // Return the previous event.
-        securitySystem.setCurrentEvent( currentEvent );
-        
+           
         // Clean up
+        getHibernateTemplate().flush();
         filter.unloadReplacedObjects();
-        currentSession().setFlushMode( filter.previousFlushMode );
-        
-    }
-
-    private Session currentSession()
-    {
-        Session s = SessionFactoryUtils.getSession(
-                getHibernateTemplate().getSessionFactory(),false);
-        return s;
+      
     }
     
-    private Object doAction( UpdateAction action )
+    private <T> T doAction( T graph, UpdateAction<T> action )
     {
-    	Object retVal;
+    	T retVal;
         UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
+        Event currentEvent = securitySystem.getCurrentEvent();
         try 
         {
-        	beforeUpdate( action.graph, filter );
-        	retVal = action.run( filter );
-        	afterUpdate( action.graph, filter );
+        	beforeUpdate( graph, filter );
+        	retVal = action.run( graph, filter );
+        	afterUpdate( currentEvent, filter );
         } finally {
-        	if ( filter.previousFlushMode != null )
-        	{
-        		currentSession().setFlushMode( filter.previousFlushMode );
-        	}
+            // Return the previous event.
+            securitySystem.setCurrentEvent( currentEvent );
         }
         return retVal;
     }
     
-    private abstract class UpdateAction{
-    	public Object graph;
-    	public UpdateAction(Object obj){this.graph = obj;}
-    	public abstract Object run( UpdateFilter filter );
+    private abstract class UpdateAction<T>{
+    	public abstract T run( T value, UpdateFilter filter );
     }
 
     

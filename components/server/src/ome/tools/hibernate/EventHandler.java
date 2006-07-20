@@ -131,7 +131,7 @@ public class EventHandler implements MethodInterceptor
         	try {
 	        	if (!failure)
 	        	{
-	        		ht.execute(new FlushAction(secSys)); // without breaks 3; with only one fails ?!
+	        		ht.flush();
 	        		ht.execute(new CheckDirtyAction(secSys));
 	        		ht.execute(new DisableFilterAction(secSys));
 	        	}
@@ -196,30 +196,6 @@ class CheckReadOnlyAction implements HibernateCallback
 		return new Boolean(session.connection().isReadOnly());
 	}
 	
-}
-
-/**
- * {@link HibernateCallback} which flushes the current session.
- */
-class FlushAction implements HibernateCallback
-{
-	private SecuritySystem secSys;
-	public FlushAction( SecuritySystem sec )
-	{
-		this.secSys = sec;
-	}
-	public Object doInHibernate(Session session) 
-	throws HibernateException, SQLException {
-		FlushMode flushMode = session.getFlushMode();
-		try 
-		{
-			session.setFlushMode(FlushMode.AUTO);
-			session.flush();
-		} finally {
-			session.setFlushMode(flushMode);
-		}
-		return null;
-	}
 }
 
 /**

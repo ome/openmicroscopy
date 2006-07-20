@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
@@ -44,27 +45,32 @@ import org.hibernate.EntityMode;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
+import org.springframework.util.Assert;
 
 //Application-internal dependencies
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.security.SecuritySystem;
+import ome.tools.lsid.LsidUtils;
 
 
 
 /** 
- * extends {@link org.hibernate.EmptyInterceptor} for controlling various
- * aspects of the Hibernate runtime.
+ * implements {@link org.hibernate.Interceptor} for controlling various
+ * aspects of the Hibernate runtime. Where no special requirements exist, 
+ * methods delegate to {@link EmptyInterceptor}
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
- * @since 3.0
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see 	EmptyInterceptor
+ * @see 	Interceptor
+ * @since   3.0-M3
  */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 public class OmeroInterceptor implements Interceptor
 {
 
@@ -77,55 +83,48 @@ public class OmeroInterceptor implements Interceptor
 	private Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 	
 	protected SecuritySystem secSys;
-	
+
+	/** only public ctor, requires a non-null {@link SecuritySystem} */
 	public OmeroInterceptor( SecuritySystem securitySystem )
 	{
+		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;
 	}
 
-	// we may want to use them eventually for dependency-injection.
-	public Object instantiate(String entityName, EntityMode entityMode, Serializable id) 
-	throws CallbackException {
+	/** default logic, but we may want to use them eventually for 
+	 * dependency-injection.
+	 */
+	public Object instantiate(String entityName, EntityMode entityMode, 
+			Serializable id) throws CallbackException {
+		
 		debug("Intercepted instantiate.");
 		return EMPTY.instantiate(entityName, entityMode, id);
+	
 	}
 	
-	// this will need to be implemented for security
-	public boolean onLoad(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) throws CallbackException {
+	/** default logic, but this will need to be implemented for security TODO */
+	public boolean onLoad(Object entity, Serializable id, Object[] state, 
+			String[] propertyNames, Type[] types) throws CallbackException {
+		
 		debug("Intercepted load.");
 		return EMPTY.onLoad(entity, id, state, propertyNames, types);
+		
 	}
 	
+	/** default logic */
     public int[] findDirty(Object entity, Serializable id, 
     		Object[] currentState, Object[] previousState, 
     		String[] propertyNames, Type[] types)
     {
     	debug("Intercepted dirty check.");
-    	// Checks for dirty happen even when we've done nothing, and therefore
-    	// a strict exception here isn't appropriate. Testing to see if we can
-    	// even evaluate objects.
-    	if ( ! secSys.isReady())
-    	{
-    		return null; // EARLY EXIT
-    	}
-    	
-    	if ( IObject.class.isAssignableFrom( entity.getClass() ) )
-    	{
-    		int idx = detailsIndex(propertyNames);
-    		secSys.managedDetails( 
-    				(IObject) entity, 
-    				(Details) previousState[idx]);
-    	}
-    	
-//        if ( entity instanceof Experimenter )
-//        {
-//            return new int[]{};
-//        }
-        
-        // Use default logic.
-        return null;
+       	return EMPTY.findDirty(
+    			entity, id, currentState, previousState, 
+    			propertyNames, types);
     }
     
+    /** callsback to {@link SecuritySystem#transientDetails(IObject)} for 
+     * properly setting {@link IObject#getDetails() Details}
+     */
     public boolean onSave(Object entity, Serializable id, 
     		Object[] state, 
     		String[] propertyNames, Type[] types)
@@ -142,7 +141,13 @@ public class OmeroInterceptor implements Interceptor
     	
         return true; // transferDetails ALWAYS edits the new entity.
     }
-    
+
+    /** callsback to {@link SecuritySystem#managedDetails(IObject, Details)} for 
+     * properly setting {@link IObject#getDetails() Details}. Also checks
+     * if any collections have been left null or 
+     * {@link Details#filteredSet() filtered} and throws an exception if 
+     * necessary.
+     */
     public boolean onFlushDirty(Object entity, Serializable id, 
     		Object[] currentState, Object[] previousState, 
     		String[] propertyNames, Type[] types)
@@ -152,19 +157,17 @@ public class OmeroInterceptor implements Interceptor
     	boolean altered = false;
     	if ( entity instanceof IObject)
     	{
+    		IObject obj = (IObject) entity;
     		int idx = detailsIndex(propertyNames);
-    		Details d = secSys.managedDetails( 
-    				(IObject) entity, 
-    				(Details) previousState[idx] );
-    		if ( null != d )
-    		{
-    			currentState[idx] = d;
-    			return true;
-    		}
+        	checkCollections(obj,(Long)id,
+        			currentState, previousState, 
+        			propertyNames, types, idx);
+    		altered |= resetDetails(obj,currentState,previousState,idx);
     	}
-        return false;
+        return altered;
     }
 
+    /** default logic, will be needed for security */
 	public void onDelete(Object entity, Serializable id, 
 			Object[] state, String[] propertyNames, Type[] types) 
 	throws CallbackException 
@@ -200,14 +203,19 @@ public class OmeroInterceptor implements Interceptor
     // ~ Helpers
 	// =========================================================================
 
-    private int detailsIndex( String[] propertyNames )
+    protected int detailsIndex( String[] propertyNames )
+    {
+    	return index( "details", propertyNames );
+    }
+    
+    protected int index( String str, String[] propertyNames )
     {
         for (int i = 0; i < propertyNames.length; i++)
         {
-            if ( propertyNames[i].equals( "details" ))
+            if ( propertyNames[i].equals( str ))
                 return i;
         }
-        throw new InternalException( "No \"details\" property found." );
+        throw new InternalException( "No \""+str+"\" property found." );
     }
     
     private void debug(String msg)
@@ -249,34 +257,114 @@ public class OmeroInterceptor implements Interceptor
 	}
 	
 	public String onPrepareStatement(String sql) {
+		// start
+		StringBuilder sb = new StringBuilder();
+
 		String[] first  = sql.split("\\sfrom\\s");
+		sb.append(first[0]);
 		if (first.length == 1)
 		{
-			return sql;
-		}
-		
-		else if (first.length == 2)
-		{
-			String[] second = first[1].split("\\swhere\\s");
-			StringBuilder sb = new StringBuilder();
-			sb.append(first[0]);
-			sb.append("\n from ");
-			sb.append(second[0]);
-			sb.append("\n where ");
-			sb.append(second[1]);
 			return sb.toString();
 		}
-		
-		else 
+		else if (first.length == 2)
 		{
-			throw new InternalException("Assumption about the number of " +
-					"\"froms\" in sql query failed. ");
+			// from
+			sb.append("\n from ");			
+			
+			String[] second = first[1].split("\\swhere\\s");
+			sb.append(second[0]);
+			if (second.length == 1)
+			{
+				return sb.toString();
+			}
+			else if (second.length == 2)
+			{
+				// where
+				sb.append("\n where ");
+				sb.append(second[1]);
+				return sb.toString();
+			}
 		}
+		
+		throw new InternalException("Assumptions about the number of " +
+					"\"froms\" and \"wheres\" in sql query failed. ");
 	}
 	
 	// ~ Helpers
 	// =========================================================================
 	
+	/** asks {@link SecuritySystem} to create a new managed {@link Details}
+	 * based on the previous state of this entity.
+	 * 
+	 * @param entity IObject to be updated
+	 * @param currentState the possibly changed field data for this entity
+	 * @param previousState the field data as seen in the db
+	 * @param idx the index of Details in the state arrays.
+	 */
+	protected boolean resetDetails(IObject entity, Object[] currentState,
+			Object[] previousState, int idx)
+	{
+		Details previous = (Details) previousState[idx];
+		Details result = secSys.managedDetails( entity, previous ); 
+
+		if ( previous != result )
+		{
+			currentState[idx] = result;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/** loads collections which have been filtered or nulled by the user 
+	 * 
+	 * @param entity IObject to have its collections reloaded
+	 * @param id persistent (db) id of this entity
+	 * @param currentState the possibly changed field data for this entity
+	 * @param previousState the field data as seen in the db
+	 * @param propertyNames field names
+	 * @param types Hibernate {@link Type} for each field
+	 * @param detailsIndex the index of the {@link Details} instance (perf opt)
+	 */
+	@SuppressWarnings("unchecked")
+	protected void checkCollections(IObject entity,Long id,
+			Object[] currentState, Object[] previousState, 
+			String[] propertyNames, Type[] types, int detailsIndex)
+	{
+		boolean unloaded = false;
+		
+		Details d = (Details) previousState[detailsIndex];
+		if ( d != null )
+		{
+			Set<String> s = d.filteredSet();
+			for (String string : s) {
+				string = LsidUtils.parseField(string);
+				int idx = index(string,propertyNames);
+				// currentState[idx] = reloadCollection(entity, id, types[idx], string);
+				unloaded = true;
+				break;
+			}
+		}
+		
+		if (!unloaded)
+		for (int i = 0; i < types.length; i++) {
+			Type t = types[i];
+			if ( t.isCollectionType() && null == currentState[i] )
+			{
+				//currentState[i] = reloadCollection(entity,id,t,propertyNames[i]);
+				unloaded = true;
+				break;
+			}
+		}
+		
+		if (unloaded)
+		{
+			throw new InternalException(
+					"Filter didn't catch unloaded/filtered collection.");
+		}
+	}
+
+		
 	protected void log(String msg)
 	{
 		if ( msg.equals(last))
@@ -284,10 +372,10 @@ public class OmeroInterceptor implements Interceptor
 			count++;
 		}
 	
-		else if ( log.isInfoEnabled() )
+		else if ( log.isDebugEnabled() )
 		{
 			String times = " ( "+count+" times )";
-			log.info(msg+times);
+			log.debug(msg+times);
 			last = msg;
 			count = 1;
 		}
