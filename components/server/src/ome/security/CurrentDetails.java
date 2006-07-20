@@ -97,7 +97,7 @@ abstract class CurrentDetails
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
-        e.getGraphHolder().setToken(null, token);
+        e.getGraphHolder().setToken(token, token);
         setCreationEvent(e);
     }
     

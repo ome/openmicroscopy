@@ -55,9 +55,11 @@ import ome.model.meta.ExperimenterGroup;
  */
 public interface SecuritySystem
 {
+
+	// ~ Checks
+	// =========================================================================
 	boolean isReady( );
 	boolean isSystemType( Class<? extends IObject> klass );	
-	boolean isPrivileged( IObject obj );
 	
 	// ~ Read security
 	// =========================================================================
@@ -66,7 +68,6 @@ public interface SecuritySystem
 	
 	// ~ Write security
 	// =========================================================================
-	
 	boolean allowCreation( IObject iObject );
 	boolean allowUpdate( IObject iObject );
 	void throwCreationViolation( IObject iObject ) throws SecurityViolation;
@@ -101,4 +102,8 @@ public interface SecuritySystem
 	void setCurrentEvent( Event event );
 	void clearCurrentDetails();
 	void setCurrentDetails();
+	
+	// ~ Actions
+	// =========================================================================
+	<T extends IObject> T doAction( T obj, SecureAction action );
 }
