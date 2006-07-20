@@ -2,21 +2,21 @@ begin;
 set constraints all deferred;
 
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
-        values (0,-37,0,'root','root','root');
-insert into event (id,permissions,version,time) values (0,-37,0,now());
+        values (0,-35,0,'root','root','root');
+insert into event (id,permissions,version,time) values (0,-35,0,now());
 insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,name)
-        values (0,-37,0,0,0,0,'system');
+        values (0,-35,0,0,0,0,'system');
 insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,name)
-        values (nextval('seq_experimentergroup'),-37,0,0,0,0,'user');
+        values (nextval('seq_experimentergroup'),-35,0,0,0,0,'user');
 insert into eventtype (id,permissions,owner_id,group_id,creation_id,value) values
-        (0,-37,0,0,0,'Bootstrap');
+        (0,-35,0,0,0,'Bootstrap');
 insert into groupexperimentermap 
         (id,permissions,version,owner_id,group_id,creation_id, defaultgrouplink, parent, child) 
 		values
-		(0,-37,0,0,0,0,true,0,0);
+		(0,-35,0,0,0,0,true,0,0);
 insert into groupexperimentermap 
         (id,permissions,version,owner_id,group_id,creation_id, defaultgrouplink, parent, child) 
-		select nextval('seq_groupexperimentermap'),-37,0,0,0,0,false,1,0;
+		select nextval('seq_groupexperimentermap'),-35,0,0,0,0,false,1,0;
 
 		
 update event set type = 0;
@@ -32,7 +32,7 @@ alter table event alter column type set not null;
 #set($table = ${enum.typeToColumn($enum.id)} )
 #if($prop.class.name == "ome.dsl.EntryField")
 insert into $table (id,permissions,owner_id,group_id,creation_id,value)
-	select nextval('seq_$table'),-37,0,0,0,'$prop.name';
+	select nextval('seq_$table'),-35,0,0,0,'$prop.name';
 #end
 #end
 #end
