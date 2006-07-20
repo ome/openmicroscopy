@@ -40,6 +40,10 @@ import ome.model.IObject;
  * holds information regarding the graph to which an {@link ome.model.IObject}
  * belongs.
  * 
+ * {@link GraphHolder#hasToken()}, {@link GraphHolder#tokenMatches(Token)}, 
+ * and {@link GraphHolder#setToken(Token, Token)} are final so that subclasses
+ * cannot intercept tokens.
+ * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  *               <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 3.0
@@ -49,7 +53,7 @@ import ome.model.IObject;
  * @since 3.0
  * @author josh
  */
-public class GraphHolder
+public final class GraphHolder
 {
 
     private IObject replacement;
