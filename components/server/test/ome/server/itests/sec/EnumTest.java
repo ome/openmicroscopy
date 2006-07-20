@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import ome.conditions.SecurityViolation;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.internal.Permissions;
@@ -29,6 +30,7 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.testing.ObjectFactory;
 import ome.tools.hibernate.SecurityFilter;
 
 import static ome.model.internal.Permissions.Role.*;
@@ -54,7 +56,7 @@ public class EnumTest extends AbstractManagedContextTest {
 	
 		tearDown();
     }
-
+    
 	@Test
 	public void testEnumsAreReloaded() throws Exception {
 		
@@ -66,4 +68,16 @@ public class EnumTest extends AbstractManagedContextTest {
 	
 	}
 
+	@Test
+	public void testEvenWhenInAGraph() throws Exception {
+		
+		loginUser(e.getOmeName());
+		
+		Pixels test = ObjectFactory.createPixelGraph(null);
+		factory.getUpdateService().saveObject(test);
+	
+	}
+
+	
+	
 }

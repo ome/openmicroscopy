@@ -34,6 +34,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.RunAs;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -84,6 +85,12 @@ public class TypesBean extends AbstractBean implements ITypes
 
     // ~ DELEGATION
     // =========================================================================
+    
+    @RolesAllowed("user")
+    public <T extends IEnum> T createEnumeration(T newEnum)
+    {
+    	return delegate.createEnumeration(newEnum);
+    }
     
     @RolesAllowed("user") 
     public <T extends IEnum> List<T> allEnumerations(Class<T> k)

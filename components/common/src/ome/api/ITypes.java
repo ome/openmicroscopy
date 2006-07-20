@@ -60,6 +60,8 @@ public interface ITypes extends ServiceInterface
     <T extends IObject> List<Class<T>> getContainerTypes ( );
     <T extends IObject> List<Class<T>> getPojoTypes ( );
     <T extends IObject> List<Class<T>> getImportTypes ( );
+    
+    <T extends IEnum> T createEnumeration( T newEnum );
     <T extends IEnum> List<T> allEnumerations( Class<T> k);
     
     /** lookup an enumeration value. As with the get-methods of {@link IQuery}

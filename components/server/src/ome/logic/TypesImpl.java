@@ -63,6 +63,7 @@ import ome.annotations.Validate;
 import ome.api.IPojos;
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IEnum;
@@ -78,6 +79,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.SecureAction;
 import ome.services.query.CollectionCountQueryDefinition;
 import ome.services.query.Definitions;
 import ome.services.query.PojosCGCPathsQueryDefinition;
@@ -118,6 +120,16 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
 
     // ~ Service methods
     // =========================================================================
+    
+    public <T extends IEnum> T createEnumeration( T newEnum )
+    {
+    	final LocalUpdate up = iUpdate;
+    	return securitySystem.doAction(newEnum, new SecureAction(){
+    		public IObject updateObject(IObject iObject) {
+    			return up.saveAndReturnObject(iObject);
+    		}
+    	});
+    }
     
     public <T extends IEnum> List<T> allEnumerations(Class<T> k)
     {
