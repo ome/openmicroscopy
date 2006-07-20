@@ -95,11 +95,10 @@
             <meta attribute="default-value">new Details()</meta>
 #if(!$type.global)	
             <many-to-one name="owner" class="ome.model.meta.Experimenter" 
-                column="owner_id" update="false"
-                not-null="true" cascade="$cascade_settings"/>
+                column="owner_id" not-null="true" cascade="$cascade_settings"/>
             <many-to-one name="group" class="ome.model.meta.ExperimenterGroup" 
-                column="group_id" update="false"
-                not-null="true" cascade="$cascade_settings"/>
+                column="group_id" not-null="true" cascade="$cascade_settings"/>
+            <!-- creationEvent is not updateable -->
             <many-to-one name="creationEvent" class="ome.model.meta.Event" 
                 column="creation_id" update="false"
                 not-null="true" cascade="$cascade_settings"/>		

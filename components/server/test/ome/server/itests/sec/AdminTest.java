@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
+import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
@@ -120,4 +121,57 @@ public class AdminTest extends AbstractManagedContextTest
 	{
 		fail("implement"); // also verify iupdate 
 	}
+	
+	// ~ chgrp
+	// =========================================================================
+	@Test
+	public void testUserUsesChgrpThroughAdmin() throws Exception {
+		// create a new user for the test
+		Experimenter e = new Experimenter();
+		e.setFirstName("chgrp");
+		e.setLastName("test");
+		e.setOmeName(UUID.randomUUID().toString());
+		e = iAdmin.createUser(e);
+	
+		// and a new group
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(UUID.randomUUID().toString());
+		g = iAdmin.createGroup(g);
+		
+		// and user to group
+		iAdmin.addGroups(e, g);
+		
+		// login
+		loginUser(e.getOmeName());
+		
+		// create a new image
+		Image i = new Image();
+		i.setName(UUID.randomUUID().toString());
+		i = factory.getUpdateService().saveAndReturnObject(i);
+		
+		// it should be in some other group
+		Long group = i.getDetails().getGroup().getId();
+		assertFalse( group.equals(g.getId()));
+		
+		// now let's try to change that group
+		factory.getAdminService().changeGroup(i, g.getName());
+		Image copy = factory.getQueryService().get(Image.class, i.getId());
+		Long test = copy.getDetails().getGroup().getId();
+		
+		assertFalse( test.equals( group     ));
+		assertTrue(  test.equals( g.getId() ));
+		
+		
+	}
+	
+	@Test
+	public void testCanOnlyChgrpOnOwnObject() throws Exception {
+		
+	}
+	
+	@Test
+	public void testCanOnlyChgrpToOwnGroups() throws Exception {
+		
+	}
+
 }

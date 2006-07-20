@@ -44,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -53,20 +52,22 @@ import org.jboss.security.Util;
 //Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.ServiceInterface;
+import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.SecureAction;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
-import ome.system.SelfConfigurableService;
 
 
 /**  Provides methods for directly querying object graphs.
@@ -195,7 +196,8 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
 
     public Experimenter createUser(Experimenter newUser)
     {
-    	Experimenter e = createExperimenter(newUser, lookupGroup("user"),null);
+    	Experimenter e = createExperimenter(
+    			newUser, internalLookupGroup("user"),null);
     	return e;
     }
 
@@ -203,12 +205,15 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     {
     	Experimenter e = createExperimenter(
     			newSystemUser, 
-    			lookupGroup("system"), 
+    			internalLookupGroup("system"), 
     			new ExperimenterGroup[]{ lookupGroup("user") } );
     	return e;
     }
 
-    public Experimenter createExperimenter(Experimenter experimenter, ExperimenterGroup defaultGroup, ExperimenterGroup[] otherGroups)
+    public Experimenter createExperimenter(
+    		Experimenter experimenter, 
+    		ExperimenterGroup defaultGroup, 
+    		ExperimenterGroup[] otherGroups)
     {
 //    	 TODO check that no other group is default
 	
@@ -220,7 +225,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     	} 
 
     	GroupExperimenterMap defaultGroupMap = new GroupExperimenterMap();
-		defaultGroupMap.link( getGroup(defaultGroup.getId()), e);
+		defaultGroupMap.link( internalGetGroup(defaultGroup.getId()), e);
 		defaultGroupMap.setDefaultGroupLink(Boolean.TRUE);
 		e.addGroupExperimenterMap(defaultGroupMap, false);
 
@@ -235,7 +240,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     						"Experimenter creation.");
     			}
     			GroupExperimenterMap groupMap = new GroupExperimenterMap();
-    			groupMap.link( getGroup(group.getId()), e);
+    			groupMap.link( internalGetGroup(group.getId()), e);
     			e.addGroupExperimenterMap(groupMap, false);
     		}
     	}
@@ -249,7 +254,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     {
     	group = copyGroup( group );
     	ExperimenterGroup g = iUpdate.saveAndReturnObject( group );
-    	return g;
+    	return lookupGroup(g.getName());
     }
 
     public void addGroups(Experimenter user, ExperimenterGroup[] groups)
@@ -257,10 +262,10 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     	if (user == null) return; // Handled by annotations
     	if (groups == null) return;
     	
-        Experimenter foundUser = iQuery.get(Experimenter.class,user.getId());
+        Experimenter foundUser = internalGetExperimenter(user.getId());
     	for (ExperimenterGroup group : groups) {
         	ExperimenterGroup foundGroup = 
-        		iQuery.get(ExperimenterGroup.class, group.getId());
+        		internalGetGroup(group.getId());
         	foundUser.linkExperimenterGroup(foundGroup);
 		}
     	iUpdate.flush();
@@ -280,7 +285,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     
     public void deleteExperimenter( Experimenter user )
     {
-    	Experimenter e = getExperimenter(user.getId());
+    	Experimenter e = internalGetExperimenter(user.getId());
     	int count = 
     		jdbc.update("delete from password where experimenter_id = ?", e.getId());
     	
@@ -293,23 +298,41 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     	
     	iUpdate.deleteObject(e);
     }
+    
+    // ~ chown / chgrp / chmod
+	// =========================================================================
 
     public void changeOwner(IObject iObject, String omeName)
     {
-        // TODO Auto-generated method stub
-        
+    	// should take an Owner
+    	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
+    	Experimenter owner = internalLookupExperimenter(omeName);
+    	copy.getDetails().setOwner(owner);
+    	iUpdate.saveObject(copy);
     }
 
     public void changeGroup(IObject iObject, String groupName)
     {
-        // TODO Auto-generated method stub
-        
+    	final LocalUpdate update = iUpdate;
+    	// should take a group
+    	final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
+    	ExperimenterGroup group = internalLookupGroup(groupName);
+    	copy.getDetails().setGroup(group);
+    	securitySystem.doAction(copy, new SecureAction(){
+    		public IObject updateObject(IObject obj)
+    		{
+    			update.flush(); return null;
+    		}
+    	});
     }
 
     public void changePermissions(IObject iObject, Permissions perms)
     {
-        // TODO Auto-generated method stub
-        
+    	// should take a group
+    	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
+    	Permissions p = new Permissions().applyMask(perms); // FIXME ticket:215
+    	copy.getDetails().setPermissions(p);
+    	iUpdate.saveObject(copy);    
     }
 
     public void changePassword(String newPassword)
@@ -359,6 +382,47 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     	return copy;
     }
     
+    // ~ Internal lookups. Don't pull full graphs since not needed. 
+	// =========================================================================
+    protected Experimenter internalGetExperimenter(final Long id)
+    {
+    	Experimenter e = iQuery.get(Experimenter.class, id);
+    	return e;
+    }
+
+    protected Experimenter internalLookupExperimenter(final String omeName)
+    {
+    	Experimenter e = iQuery.findByString(Experimenter.class,"omeName",omeName);
+   
+    	if (e == null) 
+    	{
+    		throw new ApiUsageException("No such experimenter: " + omeName);
+    	}
+
+    	return e;
+    }
+            
+    protected ExperimenterGroup internalGetGroup(Long id)
+    {
+    	ExperimenterGroup g = iQuery.get(ExperimenterGroup.class,id);
+    	return g;
+    }
+
+    public ExperimenterGroup internalLookupGroup(final String groupName)
+    {
+    	ExperimenterGroup g = iQuery.findByString(
+    			ExperimenterGroup.class,"name",groupName);
+
+    	if (g == null) 
+    	{
+    		throw new ApiUsageException("No such group: " + groupName);
+    	}
+
+    	return g;
+    }
+    // ~ Password access
+	// =========================================================================
+    
     protected void internalChangeUserPasswordById(Long id, String password)
     {
     	int results = jdbc.update(
@@ -401,6 +465,9 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
 		}
 		return hashedText;
     }
+    
+    // ~ Queries for pulling full experimenter/experimenter group graphs
+	// =========================================================================
     
     static abstract class BaseQ<T> extends Query<T>
     {
