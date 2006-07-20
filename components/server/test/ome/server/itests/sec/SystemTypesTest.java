@@ -16,9 +16,13 @@ import org.testng.annotations.Test;
 import ome.conditions.SecurityViolation;
 import ome.model.core.Image;
 import ome.model.enums.AcquisitionMode;
+import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.meta.Event;
+import ome.model.meta.EventDiff;
+import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Filter;
@@ -54,6 +58,9 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 	
 		tearDown();
     }
+    
+    // ~ Admin types
+	// =========================================================================
 
 	@Test
 	@ExpectedExceptions( SecurityViolation.class )
@@ -70,7 +77,61 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 
 	@Test
 	@ExpectedExceptions( SecurityViolation.class )
-	public void testCannotCreateEnums() throws Exception {
+	public void testCannotCreateGroup() throws Exception {
+		
+		loginUser(e.getOmeName());
+		
+		ExperimenterGroup test = new ExperimenterGroup();
+		test.setName(UUID.randomUUID().toString());
+		factory.getUpdateService().saveObject(test);
+	}
+		
+	// ~ Events
+	// =========================================================================
+	
+	@Test
+	@ExpectedExceptions( SecurityViolation.class )
+	public void testCannotCreateEvents() throws Exception {
+		
+		loginUser(e.getOmeName());
+		
+		Event test = new Event();
+		test.setStatus("hi");
+		test.setType(new EventType(0L,false));
+		factory.getUpdateService().saveObject(test);
+	}
+	
+	@Test
+	@ExpectedExceptions( SecurityViolation.class )
+	public void testCannotCreateEventLogs() throws Exception {
+		
+		loginUser(e.getOmeName());
+		
+		EventLog test = new EventLog();
+		test.setAction("BOINK");
+		test.setEvent(new Event(0L,false));
+		test.setIdList("1");
+		test.setType("ome.model.Something");
+		factory.getUpdateService().saveObject(test);
+	}
+	
+	@Test
+	@ExpectedExceptions( SecurityViolation.class )
+	public void testCannotCreateEventDiff() throws Exception {
+		
+		loginUser(e.getOmeName());
+		
+		EventDiff test = new EventDiff();
+		test.setLogs(new EventLog(0L,false));
+		factory.getUpdateService().saveObject(test);
+	}
+	
+	// ~ Enums
+	// =========================================================================
+	
+	@Test
+	@ExpectedExceptions( SecurityViolation.class )
+	public void testCannotCreateEnumsWithIUpdate() throws Exception {
 		
 		loginUser(e.getOmeName());
 
@@ -86,7 +147,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 
 		AcquisitionMode test = new AcquisitionMode();
 		test.setValue("ticket:157");
-		fail("factory.getTypesService().createEnum()");
+		factory.getTypesService().createEnumeration(test);
 	}
 	
 }
