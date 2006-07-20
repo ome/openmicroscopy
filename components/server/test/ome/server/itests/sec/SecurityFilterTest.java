@@ -119,7 +119,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
 	@Test
 	public void testGroupLeadersCanReadAllInGroup() throws Exception {
-
+		fail("hardcoded to 1000");
 	}
 
 	@Test
