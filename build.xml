@@ -51,6 +51,7 @@
 
 	<import file="components/antlib/resources/global.xml"/>
 
+	<target name="help" depends="usage"/>
 	<target name="usage"
 		description="Usage information">
 		<concat>
