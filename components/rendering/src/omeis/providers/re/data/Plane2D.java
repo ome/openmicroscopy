@@ -32,6 +32,7 @@ package omeis.providers.re.data;
 //Java imports
 
 //Third-party libraries
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
@@ -97,6 +98,9 @@ public abstract class Plane2D
     
     /** The Java type that we're using for pixel value retrieval */
     protected int          javaType;
+    
+    /** The sign of the type **/
+    protected boolean      signed;
 	
 
     /**
@@ -123,6 +127,7 @@ public abstract class Plane2D
         
         this.bytesPerPixel = PlaneFactory.bytesPerPixel(type);
         this.javaType = PlaneFactory.javaType(type);
+        this.signed = PlaneFactory.isTypeSigned(type);
         
         log.info("Created Plane2D with dimensions " + sizeX + "x" + sizeY + "x"
                 + bytesPerPixel);
@@ -139,7 +144,7 @@ public abstract class Plane2D
      * @param x2 The second coordinate.
      * @return The offset.
      */
-	protected abstract int calculateOffset(int x1, int x2);
+	 protected abstract int calculateOffset(int x1, int x2);
 
     /**
      * Returns the pixel intensity value of the pixel at <code>(x1, x2)</code>.
@@ -156,20 +161,33 @@ public abstract class Plane2D
 	{
 		int offset = calculateOffset(x1, x2);
 
-		switch(javaType)
+		if (signed)
 		{
-			case PlaneFactory.BYTE:
-				return data.get(offset);
-			case PlaneFactory.SHORT:
-				return data.getShort(offset);
-			case PlaneFactory.INT:
-				return data.getInt(offset);
-			case PlaneFactory.FLOAT:
-				return data.getFloat(offset);
-			case PlaneFactory.DOUBLE:
-				return data.getDouble(offset);
-		}
+		    switch(javaType)
+		    {
+		        case PlaneFactory.BYTE:
+		            return data.get(offset);
+		        case PlaneFactory.SHORT:
+		            return data.getShort(offset);
+		        case PlaneFactory.INT:
+		            return data.getInt(offset);
+		        case PlaneFactory.FLOAT:
+		            return data.getFloat(offset);
+		        case PlaneFactory.DOUBLE:
+		            return data.getDouble(offset);
+		    }
+		} else
+        {
+            switch(javaType)
+            {
+                case PlaneFactory.BYTE:
+                    return (short) (data.get(offset) & 0xff);
+                case PlaneFactory.SHORT:
+                    return (int) (data.getShort(offset) & 0xffff);
+                case PlaneFactory.INT:
+                    return (long) (data.getInt(offset) & 0xffffffffL);
+            }            
+        }       
 		throw new RuntimeException("Unknown pixel type.");
 	}
-	
 }

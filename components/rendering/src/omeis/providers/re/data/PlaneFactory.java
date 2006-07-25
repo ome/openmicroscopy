@@ -116,6 +116,24 @@ public class PlaneFactory
     }
     
     /**
+     * A static helper method to retrieve pixel byte signage.
+     * 
+     * @param type The pixels type for which you want to know the byte width.
+     * @return The number of bytes per pixel value.
+     */
+    static boolean isTypeSigned(PixelsType type)
+    {
+        if (in(type, new String[] {"uint8", "uint16", "uint32"}))
+            return false;
+        else if (in(type, new String[] { "int8", "int16", "int32", "float", "double"}))
+            return true;
+        else
+            throw new RuntimeException("Unknown pixel type: '"
+                    + type.getValue() + "'");
+    }
+    
+    
+    /**
      * Factory method to fetch plane data and create an object to access it.
      * 
      * @param planeDef Defines the plane to be retrieved. Must not be null.
