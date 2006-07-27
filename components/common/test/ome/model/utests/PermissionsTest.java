@@ -86,8 +86,65 @@ public class PermissionsTest extends TestCase {
 		mask.revoke(WORLD, WRITE);
 		assertFalse(mask.isGranted(WORLD, WRITE));
 		
-		p.applyMask( mask );
+		p.revokeAll( mask );
 		assertFalse( p.isGranted(WORLD, WRITE) );
+	
+		mask = new Permissions( Permissions.EMPTY );
+		mask.grant(USER,READ);
+		assertTrue(mask.isGranted(USER, READ));
+		
+		p.grantAll(mask);
+		assertTrue( p.isGranted(USER, READ));
+	
+	}
+	
+	// ~ Testing immutability
+	// =========================================================================
+	
+	@Test
+	@ExpectedExceptions(UnsupportedOperationException.class)
+	public void testRevokeOnImmutable() throws Exception {
+		Permissions.READ_ONLY.revoke(GROUP, READ);
+	}
+	
+	@Test
+	@ExpectedExceptions(UnsupportedOperationException.class)
+	public void testGrantOnImmutable() throws Exception {
+		Permissions.READ_ONLY.grant(GROUP, WRITE);
+	}
+
+	@Test
+	@ExpectedExceptions(UnsupportedOperationException.class)
+	public void testRevokeAllOnImmutable() throws Exception {
+		Permissions.READ_ONLY.revokeAll(Permissions.GROUP_PRIVATE);
+	}
+	
+	@Test
+	@ExpectedExceptions(UnsupportedOperationException.class)
+	public void testGrantAllOnImmutable() throws Exception {
+		Permissions.READ_ONLY.grantAll(Permissions.GROUP_PRIVATE);
+	}
+
+	
+	@Test
+	public void testCopyConstructor() throws Exception {
+		Permissions p1 = new Permissions();
+		p1.revoke(GROUP, WRITE);
+		assertFalse(p1.isGranted(GROUP, WRITE));
+		Permissions p2 = new Permissions(p1);
+		assertFalse(p2.isGranted(GROUP, WRITE));
+		
+		Permissions none = new Permissions(Permissions.EMPTY);
+		assertFalse(none.isGranted(USER, READ));
+		assertFalse(none.isGranted(USER, WRITE));
+		assertFalse(none.isGranted(USER, USE));
+		assertFalse(none.isGranted(GROUP, READ));
+		assertFalse(none.isGranted(GROUP, WRITE));
+		assertFalse(none.isGranted(GROUP, USE));
+		assertFalse(none.isGranted(WORLD, READ));
+		assertFalse(none.isGranted(WORLD, WRITE));
+		assertFalse(none.isGranted(WORLD, USE));
+		
 	}
 	
 	// ~ Internal-state dependent tests

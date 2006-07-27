@@ -30,7 +30,7 @@ package ome.model.internal;
 
 //Java imports
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -93,7 +93,7 @@ public class Details implements IDetails, Filterable, Serializable
     /** copy-constructor */
     public Details(Details copy){
         setContext(copy.getContext());
-        setPermissions( new Permissions().applyMask( copy.getPermissions() ));
+        setPermissions( new Permissions().revokeAll( copy.getPermissions() ));
         setCreationEvent(copy.getCreationEvent());
         setUpdateEvent(copy.getUpdateEvent());
         setOwner(copy.getOwner());
@@ -116,7 +116,7 @@ public class Details implements IDetails, Filterable, Serializable
         newDetails.setUpdateEvent( this.getUpdateEvent() == null ? null :
                 new Event( this.getUpdateEvent().getId(), false ));
         newDetails.setPermissions( this.getPermissions() == null ? null :
-        		new Permissions( ).applyMask( this.getPermissions() ));
+        		new Permissions( ).revokeAll( this.getPermissions() ));
         newDetails._filteredCollections = this.filteredSet();
         newDetails.setCounts( this.getCounts() == null ? null :
             new HashMap(this.getCounts()));
@@ -138,9 +138,22 @@ public class Details implements IDetails, Filterable, Serializable
     public void addFiltered(String collectionName)
     {
         if (_filteredCollections == null)
-            _filteredCollections = new HashSet();
+            _filteredCollections = new HashSet<String>();
         
         _filteredCollections.add(collectionName);
+    }
+    
+    /** consider all the collections named by the elements of collection to be
+     * a "filtered" representation of the DB. This collection should not 
+     * be saved, at most compared with the current DB to find <em>added</em>
+     * entities.
+     */
+    public void addFiltered(Collection<String> collection)
+    {
+        if (_filteredCollections == null)
+            _filteredCollections = new HashSet<String>();
+        
+        _filteredCollections.addAll(collection);
     }
     
     /** Was this collection filtered during creation? If so, it should not
@@ -160,6 +173,14 @@ public class Details implements IDetails, Filterable, Serializable
         _filteredCollections = null;
     }
 
+    /** the count of collections which were filtered.
+     * @return number of String keys in the filtered set. 
+     */
+    public int filteredSize(){
+        if (_filteredCollections == null) return 0;
+        return _filteredCollections.size();
+    }
+    
     /** copy of the current collection of filtered names. Changes to this 
      * collection are not propagated.
      * @return filtered set copy.

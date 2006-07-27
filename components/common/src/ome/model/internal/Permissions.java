@@ -51,7 +51,7 @@ import static ome.model.internal.Permissions.Right.*;
 public class Permissions implements Serializable
 {
 
-	private static final long serialVersionUID = 7089149309186580235L;
+	private static final long serialVersionUID = 7089149309186580236L;
 
 	/** enumeration of currently active roles. The {@link #USER} role is active 
 	 * when the contents of {@link Details#getOwner()} equals the current user
@@ -94,6 +94,26 @@ public class Permissions implements Serializable
 		private final int mask;
 		Right(int mask){ this.mask = mask; }
 		int mask(){ return this.mask; }
+	}
+	
+	// ~ Constructors
+	// =========================================================================
+	/** simple contructor. Will turn on all {@link Right rights} for all 
+	 * {@link Role roles}
+	 */
+	public Permissions() {}
+	
+	/** copy constructor. Will create a new {@link Permissions} with the same
+	 * {@link Right rights} as the argument.
+	 */
+	public Permissions( Permissions p )
+	{
+		if ( p == null )
+		{
+			throw new IllegalArgumentException(
+					"Permissions argument cannot be null.");
+		}
+		this.revokeAll(p);
 	}
 	
     // ~ Fields
@@ -163,6 +183,24 @@ public class Permissions implements Serializable
     	return this;
     }
     
+    /** takes a permissions instance and ORs it with the current instance. This
+     * means that any privileges which have been granted to the argument will
+     * also be granted to the current instance. For example,
+     * <code>
+     *   Permissions mask = new Permissions().grant(WORLD,READ);
+     *   someEntity.getDetails().getPermissions().grantAllk(mask);
+     * </code>
+     * will allow READ access (and possibly more) to <code>someEntity</code> 
+     * for members of WORLD.
+     */
+    public Permissions grantAll( Permissions mask )
+    {
+    	if ( mask == null ) return this;
+    	long maskPerm1 = mask.getPerm1();
+    	this.perm1 = this.perm1 | maskPerm1;
+    	return this;
+    }
+    
     /** takes a permissions instance and ANDs it with the current instance. This
      * means that any privileges which have been revoked from the argument will
      * also be revoked from the current instance. For example,
@@ -181,7 +219,7 @@ public class Permissions implements Serializable
      * 
      * Note: the logic here is different from Unix UMASKS. 
      */
-    public Permissions applyMask( Permissions mask )
+    public Permissions revokeAll( Permissions mask )
     {
     	if ( mask == null ) return this;
     	long maskPerm1 = mask.getPerm1();
@@ -231,12 +269,148 @@ public class Permissions implements Serializable
 	// =========================================================================
     
     /** returns a long with only a single 0 defined by role/right */ 
-	protected long singleBitOut(Role role, Right right) {
+	final protected static long singleBitOut(Role role, Right right) {
 		return ( -1L ^ ( right.mask() << role.shift() ) );
 	}
 	
 	/** returns a long with only a single 1 defined by role/right */
-	protected long singleBitOn(Role role, Right right) {
+	final protected static long singleBitOn(Role role, Right right) {
 		return ( 0L | ( right.mask() << role.shift() ) );
 	}
+	
+	/** an immutable wrapper around {@link Permission} instances so that 
+	 * 	commonly used permissions can be made available as public final static
+	 *  constants.
+	 */
+	private static class ImmutablePermissions extends Permissions
+	{
+		/** the delegate {@link Permissions} which this immutable wrapper
+		 * bases all of its logic on.
+		 */
+		final private Permissions delegate;
+		
+		/** the sole constructor for an {@link ImmutablePermissions}. Note: this
+		 * does not behave like {@link Permissions#Permissions(Permissions)} --
+		 * the copy constructor. Rather stores the {@link Permissions} instance
+		 * for delegation
+		 * 
+		 * @param p Non-null {@link Permissions} instance.
+		 */
+		ImmutablePermissions( Permissions p )
+		{
+			this.delegate = p;
+		}
+	
+		// ~ SETTERS
+		// =====================================================================		
+		/** throws {@link UnsupportedOperationException}  
+		 */
+		@Override
+		public Permissions grant(Role role, Right... rights) {
+			throw new UnsupportedOperationException();
+		}
+		
+		/** throws {@link UnsupportedOperationException}  
+		 */
+		@Override
+		public Permissions revoke(Role role, Right... rights) {
+			throw new UnsupportedOperationException();
+		}
+		
+		/** throws {@link UnsupportedOperationException}  
+		 */
+		@Override
+		public Permissions grantAll(Permissions mask) {
+			throw new UnsupportedOperationException();
+		}
+		
+		/** throws {@link UnsupportedOperationException}  
+		 */
+		@Override
+		public Permissions revokeAll(Permissions mask) {
+			throw new UnsupportedOperationException();
+		}
+	
+		// ~ GETTERS
+		// =========================================================================
+		
+		/** delegates to {@link #delegate}
+		 */
+		@Override
+		public boolean isGranted(Role role, Right right) {
+			return delegate.isGranted(role, right);
+		}
+
+		/** delegates to {@link #delegate}
+		 */
+		@Override
+	    protected long getPerm1()
+	    {
+	        return delegate.getPerm1();
+	    }
+
+		/** delegates to {@link #delegate}
+		 */
+		@Override
+	    protected void setPerm1(long value)
+	    {
+	        delegate.setPerm1(value);
+	    }
+	}
+
+	/** only used to construct the {@link #EMPTY} instance }
+	 */
+	final static private Permissions ZERO;
+	static {
+		ZERO = new Permissions();
+		ZERO.setPerm1(0L);
+	}
+	
+	/** an immutable {@link Permissions} instance with all {@link Right rights} 
+	 * turned off.
+	 */
+	public final static Permissions EMPTY = new ImmutablePermissions(ZERO);
+	
+	/** an immutable {@link Permissions} instance which is used as the default
+	 * value in all persistent classes. It revokes {@link Right#WRITE} to both
+	 * {@link Role#GROUP} and {@link Role#WORLD} 
+	 */
+	public final static Permissions DEFAULT = new ImmutablePermissions(
+			new Permissions()
+				.revoke(GROUP,WRITE)
+				.revoke(WORLD,WRITE));
+	
+	/** an immutable {@link Permissions} instance with all {@link Right#WRITE}
+	 * and {@link Right#USE} rights turned off.
+	 */
+	public final static Permissions READ_ONLY = new ImmutablePermissions(
+			new Permissions()
+				.revoke(USER, WRITE, USE)
+				.revoke(GROUP, WRITE, USE)
+				.revoke(WORLD, WRITE, USE));
+
+	/** an immutable {@link Permissions} instance with all {@link Right#WRITE}
+	 * rights turned off.
+	 */
+	public final static Permissions IMMUTABLE = new ImmutablePermissions(
+			new Permissions()
+				.revoke(USER, WRITE)
+				.revoke(GROUP, WRITE)
+				.revoke(WORLD, WRITE));
+	
+	/** an immutable {@link Permissions} instance with all {@link Right rights}
+	 * turned off for {@link Role#GROUP} and {@link Role#WORLD}.
+	 */
+	public final static Permissions PRIVATE = new ImmutablePermissions(
+			new Permissions()
+				.revoke(GROUP, READ, WRITE, USE)
+				.revoke(WORLD, READ, WRITE, USE));
+	
+	/** an immutable {@link Permissions} instance with all {@link Right rights}
+	 * turned off for {@link Role#WORLD}.
+	 */
+	public final static Permissions GROUP_PRIVATE = new ImmutablePermissions(
+			new Permissions()
+				.revoke(WORLD, READ, WRITE, USE));
+	
 }
