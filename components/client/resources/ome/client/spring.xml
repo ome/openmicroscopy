@@ -86,6 +86,8 @@
 	<bean id="rootLogin" class="ome.system.Login">
 		<constructor-arg index="0" value="root"/>
 		<constructor-arg index="1" value="${omero.rootpass}"/>     
+		<constructor-arg index="2" value="system"/>
+		<constructor-arg index="3" value="Test"/>
 	</bean>
 
   <!-- hashtable for InitialContext constructor -->

@@ -37,31 +37,31 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     // =========================================================================
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_NewImageAsUserChgrpToSystem() throws Exception
     {
         createAsUserToGroup( asUser, toSystem );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_UserImageAsUserChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( userImage, asUser, toSystem );
+        updateAsUserToGroup( managedImage(asUser), asUser, toSystem );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( otherImage, asUser, toSystem );
+        updateAsUserToGroup( managedImage(other), asUser, toSystem );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    // already belongs to system group
     public void test_RootImageAsUserChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( rootImage, asUser, toSystem );
+        updateAsUserToGroup( managedImage(asRoot), asUser, toSystem );
     }
 
     // ~ AS USER TO USER
@@ -75,51 +75,51 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsUserChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( userImage, asUser, toUserGroup );
+        updateAsUserToGroup( managedImage(asUser), asUser, toUserGroup );
     }
     
     @Test
     // no change
     public void test_OtherImageAsUserChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( otherImage, asUser, toUserGroup );
+        updateAsUserToGroup( managedImage(other), asUser, toUserGroup );
     }
     
     @Test
     // no change.
     public void test_RootImageAsUserChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( rootImage, asUser, toUserGroup );
+        updateAsUserToGroup( managedImage(asRoot), asUser, toUserGroup );
     }
     
     // ~ AS USER TO OTHER
     // =========================================================================
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_NewImageAsUserChgrpToOtherGroup() throws Exception
     {
         createAsUserToGroup( asUser, toOtherGroup );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_UserImageAsUserChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( userImage, asUser, toOtherGroup );
+        updateAsUserToGroup( managedImage(asUser), asUser, toOtherGroup );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( otherImage, asUser, toOtherGroup );
+        updateAsUserToGroup( managedImage(other), asUser, toOtherGroup );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_RootImageAsUserChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( rootImage, asUser, toOtherGroup );
+        updateAsUserToGroup( managedImage(asRoot), asUser, toOtherGroup );
     }
 
     
@@ -134,19 +134,19 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsRootChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( userImage, asRoot, toUserGroup );
+        updateAsUserToGroup( managedImage(asUser), asRoot, toUserGroup );
     }
     
     @Test
     public void test_OtherImageAsRootChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( otherImage, asRoot, toUserGroup );
+        updateAsUserToGroup( managedImage(other), asRoot, toUserGroup );
     }
     
     @Test
     public void test_RootImageAsRootChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( rootImage, asRoot, toUserGroup );
+        updateAsUserToGroup( managedImage(asRoot), asRoot, toUserGroup );
     }
 
     
@@ -161,19 +161,19 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsRootChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( userImage, asRoot, toOtherGroup );
+        updateAsUserToGroup( managedImage(asUser), asRoot, toOtherGroup );
     }
     
     @Test
     public void test_OtherImageAsRootChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( otherImage, asRoot, toOtherGroup );
+        updateAsUserToGroup( managedImage(other), asRoot, toOtherGroup );
     }
     
     @Test
     public void test_RootImageAsRootChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( rootImage, asRoot, toOtherGroup );
+        updateAsUserToGroup( managedImage(asRoot), asRoot, toOtherGroup );
     }
 
     // ~ AS ROOT TO ROOT
@@ -188,19 +188,19 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsRootChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( userImage, asRoot, toSystem );
+        updateAsUserToGroup( managedImage(asUser), asRoot, toSystem );
     }
     
     @Test
     public void test_OtherImageAsRootChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( otherImage, asRoot, toSystem );
+        updateAsUserToGroup( managedImage(other), asRoot, toSystem );
     }
     
     @Test
     public void test_RootImageAsRootChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( rootImage, asRoot, toSystem );
+        updateAsUserToGroup( managedImage(asRoot), asRoot, toSystem );
     }
     
 }

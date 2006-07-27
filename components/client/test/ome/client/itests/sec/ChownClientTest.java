@@ -33,31 +33,31 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     // =========================================================================
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_NewImageAsUserChownToROOT() throws Exception
     {
         createAsUserToOwner( asUser, toRoot );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_UserImageAsUserChownToROOT() throws Exception
     {
-        updateAsUserToOwner( userImage, asUser, toRoot );
+        updateAsUserToOwner( managedImage(asUser), asUser, toRoot );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChownToROOT() throws Exception
     {
-        updateAsUserToOwner( otherImage, asUser, toRoot );
+        updateAsUserToOwner( managedImage(other), asUser, toRoot );
     }
     
     @Test
     // This should be ok since it already belongs to root.
     public void test_RootImageAsUserChownToROOT() throws Exception
     {
-        updateAsUserToOwner( rootImage, asUser, toRoot );
+        updateAsUserToOwner( managedImage(asRoot), asUser, toRoot );
     }
 
     // ~ AS USER TO USER
@@ -71,50 +71,50 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsUserChownToUSER() throws Exception
     {
-        updateAsUserToOwner( userImage, asUser, toUser );
+        updateAsUserToOwner( managedImage(asUser), asUser, toUser );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChownToUSER() throws Exception
     {
-        updateAsUserToOwner( otherImage, asUser, toUser );
+        updateAsUserToOwner( managedImage(other), asUser, toUser );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_RootImageAsUserChownToUSER() throws Exception
     {
-        updateAsUserToOwner( rootImage, asUser, toUser );
+        updateAsUserToOwner( managedImage(asRoot), asUser, toUser );
     }
     
     // ~ AS USER TO OTHER
     // =========================================================================
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_NewImageAsUserChownToOTHER() throws Exception
     {
         createAsUserToOwner( asUser, toOther );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_UserImageAsUserChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( userImage, asUser, toOther );
+        updateAsUserToOwner( managedImage(asUser), asUser, toOther );
     }
     
     @Test
     public void test_OtherImageAsUserChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( otherImage, asUser, toOther );
+        updateAsUserToOwner( managedImage(other), asUser, toOther );
     }
     
     @Test
-    /* FIXME */ @ExpectedExceptions( EJBException.class )
+    @ExpectedExceptions( SecurityViolation.class )
     public void test_RootImageAsUserChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( rootImage, asUser, toOther );
+        updateAsUserToOwner( managedImage(asRoot), asUser, toOther );
     }
 
     
@@ -129,19 +129,19 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsRootChownToUSER() throws Exception
     {
-        updateAsUserToOwner( userImage, asRoot, toUser );
+        updateAsUserToOwner( managedImage(asUser), asRoot, toUser );
     }
     
     @Test
     public void test_OtherImageAsRootChownToUSER() throws Exception
     {
-        updateAsUserToOwner( otherImage, asRoot, toUser );
+        updateAsUserToOwner( managedImage(other), asRoot, toUser );
     }
     
     @Test
     public void test_RootImageAsRootChownToUSER() throws Exception
     {
-        updateAsUserToOwner( rootImage, asRoot, toUser );
+        updateAsUserToOwner( managedImage(asRoot), asRoot, toUser );
     }
 
     
@@ -156,19 +156,19 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsRootChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( userImage, asRoot, toOther );
+        updateAsUserToOwner( managedImage(asUser), asRoot, toOther );
     }
     
     @Test
     public void test_OtherImageAsRootChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( otherImage, asRoot, toOther );
+        updateAsUserToOwner( managedImage(other), asRoot, toOther );
     }
     
     @Test
     public void test_RootImageAsRootChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( rootImage, asRoot, toOther );
+        updateAsUserToOwner( managedImage(asRoot), asRoot, toOther );
     }
 
     // ~ AS ROOT TO ROOT
@@ -183,19 +183,19 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_UserImageAsRootChownToROOT() throws Exception
     {
-        updateAsUserToOwner( userImage, asRoot, toRoot );
+        updateAsUserToOwner( managedImage(asUser), asRoot, toRoot );
     }
     
     @Test
     public void test_OtherImageAsRootChownToROOT() throws Exception
     {
-        updateAsUserToOwner( otherImage, asRoot, toRoot );
+        updateAsUserToOwner( managedImage(other), asRoot, toRoot );
     }
     
     @Test
     public void test_RootImageAsRootChownToROOT() throws Exception
     {
-        updateAsUserToOwner( rootImage, asRoot, toRoot );
+        updateAsUserToOwner( managedImage(asRoot), asRoot, toRoot );
     }
     
 }

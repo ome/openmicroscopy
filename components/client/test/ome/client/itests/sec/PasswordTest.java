@@ -48,7 +48,7 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     public void testSudoCanChangeOthersPassword() throws Exception {
 
-    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
+    	Experimenter e = createNewUser( rootAdmin );
     	resetPasswordTo_ome(e);
     	assertCanLogin(e.getOmeName(),"ome");
 
@@ -68,7 +68,7 @@ public class PasswordTest extends AbstractAccountTest
     
     @Test
     public void testUserCanChangeOwnPassword() throws Exception {
-    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
+    	Experimenter e = createNewUser( rootAdmin );
     	resetPasswordTo_ome(e);
     	assertCanLogin(e.getOmeName(),"ome");
     	
@@ -82,11 +82,11 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     @ExpectedExceptions( EJBException.class )
     public void testUserCantChangeOthersPassword() throws Exception {
-    	Experimenter e = createNewExperimenter( getSudoUpdate("ome"), userGrp );
+    	Experimenter e = createNewUser( getSudoAdmin("ome") );
     	resetPasswordTo_ome(e);
     	assertCanLogin(e.getOmeName(),"ome");
     	
-    	Experimenter target = createNewExperimenter( getSudoUpdate("ome"), userGrp );
+    	Experimenter target = createNewUser( getSudoAdmin("ome") );
     	resetPasswordTo_ome(target);
     	assertCanLogin(target.getOmeName(),"ome");
     	
@@ -101,7 +101,7 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     public void testAnyOneCanLoginWithEmptyPassword() throws Exception {
 		
-    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
+    	Experimenter e = createNewUser( rootAdmin );
     	setPasswordtoEmptyString(e);
     	assertCanLogin(e.getOmeName(),"bob");
 		assertCanLogin(e.getOmeName(),"");
@@ -135,7 +135,7 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     public void testNoOneCanLoginWithMissingPassword() throws Exception {
 		
-    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
+    	Experimenter e = createNewUser( rootAdmin );
     	removePasswordEntry(e);
     	
     	assertCannotLogin(e.getOmeName(),"bob");
@@ -167,7 +167,7 @@ public class PasswordTest extends AbstractAccountTest
     @Test
     public void testNoOneCanLoginWithNullPassword() throws Exception {
 		
-    	Experimenter e = createNewExperimenter( rootUpdate, userGrp );
+    	Experimenter e = createNewUser( rootAdmin );
     	nullPasswordEntry(e);
     	
     	assertCannotLogin(e.getOmeName(),"bob");
