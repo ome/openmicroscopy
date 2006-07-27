@@ -100,15 +100,42 @@ public class ServiceFactory {
     }
     
     /** 
-     * constructor which obtains a new 
+     * constructor which obtains a new (non-static)
      * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context},
-     * passing in the {@link Properties} representation of the Login
+     * passing in the {@link Properties} representation of the {@link Login}
      * for configuration.
      * @see Login#asProperties()
      * @see #ServiceFactory(Properties)
      */
     public ServiceFactory( Login login ){
         this.ctx = OmeroContext.getClientContext( login.asProperties() );
+    }
+
+    /** 
+     * constructor which obtains a new (non-static)
+     * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context},
+     * passing in the {@link Properties} representation of the {@link Server}
+     * for configuration.
+     * @see Server#asProperties()
+     * @see #ServiceFactory(Properties)
+     */
+    public ServiceFactory( Server server ){
+        this.ctx = OmeroContext.getClientContext( server.asProperties() );
+    }
+
+    /** 
+     * constructor which obtains a new (non-static)
+     * {@link ome.system.OmeroContext#CLIENT_CONTEXT client context},
+     * passing in the {@link Properties} representation of both the 
+     * {@link Server} and the {@link Login} for configuration.
+     * @see Login#asProperties()
+     * @see #ServiceFactory(Properties)
+     */
+    public ServiceFactory( Server server, Login login ){
+    	Properties s = server.asProperties();
+    	Properties l = login.asProperties();
+    	s.putAll(l);
+    	this.ctx = OmeroContext.getClientContext( s );
     }
     
     /** 
