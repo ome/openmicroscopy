@@ -31,7 +31,8 @@
           public final static String OWNER_FILTER = "${ofilter}";
           public final static String GROUP_FILTER = "${gfilter}";
           public final static String EVENT_FILTER = "${efilter}";
-          public final static String PERMS_FILTER = "${pfilter}";                        
+          public final static String PERMS_FILTER = "${pfilter}";    
+          private final static long creation_time = ${type.time}L;                     
         </meta>
 ##
 ## INTERFACES:
@@ -110,7 +111,7 @@
 #end
             <component name="permissions" class="ome.model.internal.Permissions">
                 <!-- meta is ignored. We control Details -->
-				<meta attribute="default-value">new Permissions()</meta>
+				<meta attribute="default-value">new Permissions(Permissions.DEFAULT)</meta>
                 <property name="perm1" not-null="true" 
                     type="long" column="permissions"/> 
                 <!-- TODO possibly just default CHMOD here -->
@@ -177,7 +178,8 @@
         cascade="$cascade_settings">
         <key column="${prop.foreignKey}" not-null="${prop.required}"/>
         <list-index column="index"/>
-        <one-to-many class="${prop.type}"/>        
+        <one-to-many class="${prop.type}"/>      
+        <filter name="securityFilter"/>  
     </list>
 
 #else ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ORDERED
@@ -204,6 +206,7 @@
 #end
         <key column="${prop.foreignKey}" not-null="${prop.required}"/>
         <one-to-many class="${prop.type}"/>
+        <filter name="securityFilter"/>
     </set>
     
 #end ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ORDERED

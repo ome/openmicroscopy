@@ -77,6 +77,8 @@ public abstract class SemanticType {
 		TYPES2CLASSES.put(ENUM,EnumType.class);
 	}
 	
+	private static long time = System.currentTimeMillis();
+	
 	// all properties
 	private Set properties = new HashSet();
 	
@@ -157,6 +159,11 @@ public abstract class SemanticType {
 	//
 	// Getters and Setters
 	// 
+	
+	public Long getTime( )
+	{
+		return new Long(time);
+	}
 	
 	public void setAbstract(Boolean abstrakt) {
 		this.abstrakt = abstrakt;
