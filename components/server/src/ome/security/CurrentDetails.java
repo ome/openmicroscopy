@@ -30,9 +30,12 @@
 package ome.security;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jmock.core.constraint.IsLessThan;
 
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -67,9 +70,27 @@ abstract class CurrentDetails
 
     private static ThreadLocal<Permissions> umaskHolder = 
         new ThreadLocal<Permissions>();
+
+    private static ThreadLocal<Boolean> isAdminHolder = 
+    	new ThreadLocal<Boolean>();
+
+    private static ThreadLocal<Collection<Long>> memberOfGroupsHolder =
+    	new ThreadLocal<Collection<Long>>();
     
-    private static ThreadLocal<String> principalHolder = 
-        new ThreadLocal<String>();
+    private static ThreadLocal<Collection<Long>> leaderOfGroupsHolder =
+    	new ThreadLocal<Collection<Long>>();
+    
+    /** removes all current context. This must stay in sync with the instance
+     * fields. If a new {@link ThreadLocal} is added, {@link ThreadLocal#remove()}
+     * <em>must</em> be called.
+     */
+    public static void clear(){
+        detailsHolder.remove();
+        isAdminHolder.remove();
+        umaskHolder.remove();
+        leaderOfGroupsHolder.remove();
+        memberOfGroupsHolder.remove();
+    }
     
     // ~ Internals
     // ================================================================
@@ -115,20 +136,6 @@ abstract class CurrentDetails
         d.setPermissions(getUmask());
         return d;
     }
-    
-    // ~ Principal
-    // =========================================================================
-    public static String getPrincipal()
-    {
-        String principal = principalHolder.get();
-        return principal;
-    }
-    
-    public static void setPrincipal( String principal )
-    {
-        principalHolder.set( principal );
-    }
-    
     
     // ~ Umask
     // =========================================================================
@@ -207,8 +214,44 @@ abstract class CurrentDetails
         getDetails().setGroup(group);
     }
  
-    public static void clear(){
-        detailsHolder.remove();
+    public static void setAdmin( boolean isAdmin )
+    {
+    	isAdminHolder.set( Boolean.valueOf(isAdmin));
     }
     
+    public static boolean isAdmin( )
+    {
+    	return isAdminHolder.get() == null ? false : 
+    		isAdminHolder.get().booleanValue();
+    }
+        
+    public static void setMemberOfGroups( Collection<Long> groupIds )
+    {
+    	memberOfGroupsHolder.set( groupIds );
+    }
+    
+    public static Collection<Long> getMemberOfGroups( )
+    {
+		Collection<Long> c = memberOfGroupsHolder.get();    	
+    	if ( c == null || c.size() == 0 )
+    	{
+    		c = Collections.singletonList(Long.MIN_VALUE); // FIXME hack as well.
+    	}
+    	return c;
+    }
+    
+    public static void setLeaderOfGroups( Collection<Long> groupIds )
+    {
+    	leaderOfGroupsHolder.set( groupIds );
+    }
+    
+    public static Collection<Long> getLeaderOfGroups( )
+    {
+		Collection<Long> c = leaderOfGroupsHolder.get();    	
+    	if ( c == null || c.size() == 0 )
+    	{
+    		c = Collections.singletonList(Long.MIN_VALUE); // FIXME hack as well.
+    	}
+    	return c;
+    }
 }

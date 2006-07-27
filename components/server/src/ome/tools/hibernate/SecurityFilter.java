@@ -30,6 +30,7 @@
 package ome.tools.hibernate;
 
 // Java imports
+import java.util.Collection;
 import java.util.Properties;
 
 // Third-party libraries
@@ -37,10 +38,12 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 // Application-internal dependencies
+import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.security.SecuritySystem;
+import ome.util.IdBlock;
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 
@@ -52,56 +55,94 @@ import static ome.model.internal.Permissions.Right.*;
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
- * @see https://trac.openmicroscopy.org.uk/omero/ticket/117 
+ * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/117">ticket117</a> 
  */
 public class SecurityFilter 
 extends FilterDefinitionFactoryBean
 {
 
+	static public final String is_admin = "is_admin";
 	static public final String current_user = "current_user";
 	static public final String current_groups = "current_groups";
 	static public final String leader_of_groups = "leader_of_groups"; 
 	
 	static public final String filterName = "securityFilter";
-	static private Properties parameterTypes = new Properties();
+	static private final Properties parameterTypes = new Properties();
 	static private String defaultFilterCondition;
 	static {
+		parameterTypes.setProperty(is_admin, "java.lang.Boolean");
 		parameterTypes.setProperty(current_user,"long");
 		parameterTypes.setProperty(current_groups,"long");
 		parameterTypes.setProperty(leader_of_groups,"long");
+		// This can't be done statically because we need the securitySystem.
+		defaultFilterCondition = String.format(
+				"\n( "+
+				"\n :is_admin OR "                             + 
+				"\n (group_id in (:leader_of_groups)) OR "     +
+				"\n (owner_id = :current_user AND %s) OR "     + // 1st arg  U
+				"\n (group_id in (:current_groups) AND %s) OR "+ // 2nd arg  G
+				"\n (%s) " +                                     // 3rd arg  W
+				"\n)\n",
+				isGranted(USER,READ),
+				isGranted(GROUP,READ),
+				isGranted(WORLD,READ));
 	}
 	
-	protected SecuritySystem secSys;
-	
 	/** default constructor which calls all the necessary setters for this
-	 * {@link FactoryBean}.
+	 * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
+	 * This query clause must be kept in sync with 
+	 * {@link #passesFilter(SecuritySystem, Details)}
+	 * 
+	 * @see #passesFilter(SecuritySystem, Details)
 	 * @see FilterDefinitionFactoryBean#setFilterName(String)
 	 * @see FilterDefinitionFactoryBean#setParameterTypes(Properties)
 	 * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
 	 */
-	public SecurityFilter(SecuritySystem securitySystem)
+	public SecurityFilter()
 	{
-		this.secSys = securitySystem;
 		this.setFilterName(filterName);
 		this.setParameterTypes(parameterTypes);
-		
-		// This can't be done statically because we need the securitySystem.
-		defaultFilterCondition = String.format(
-				"\n("+
-				"\n (:current_user = %s) OR "                  + // 1st arg root
-				"\n (group_id in (:leader_of_groups)) OR "     +
-				"\n (owner_id = :current_user AND %s) OR "     + // 2nd arg  U
-				"\n (group_id in (:current_groups) AND %s) OR "+ // 3rd arg  G
-				"\n (%s)" +                                      // 4th arg  W
-				"\n)\n",
-				secSys.getRootId(),
-				isGranted(USER,READ),
-				isGranted(GROUP,READ),
-				isGranted(WORLD,READ));
-		
 		this.setDefaultFilterCondition(defaultFilterCondition);
 	}
 	
+	/** tests that the {@link Details} argument passes the security test that
+	 * this filter defines. The two must be kept in sync. This will be used
+	 * mostly by the 
+	 * {@link OmeroInterceptor#onLoad(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])}
+	 * method.
+	 * 
+	 * @param secSys Not null. Should be the same {@link SecuritySystem} that is 
+	 * 		currently in effect for all queries. 
+	 * 		See {@link EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)}
+	 * @param d Details instance. If null (or if its {@link Permissions} are null
+	 * 		all {@link Right rights} will be assumed.
+	 * @return true if the object to which this 
+	 */
+	public static boolean passesFilter( SecuritySystem secSys, Details d )
+	{
+		if ( d == null || d.getPermissions() == null ) return false;
+		
+		Permissions p = d.getPermissions();
+		Long o = d.getOwner().getId();
+		Long g = d.getGroup().getId();
+	
+		// most likely and fastest first
+		if ( p.isGranted(WORLD, READ)) return true;
+		
+		if ( secSys.currentUserId().equals( o ) 
+				&& p.isGranted(USER, READ)) return true;
+		
+		// TODO these ids should be stored in CurrentDetails. perf opt.
+		if ( secSys.currentUser().eachLinkedExperimenterGroup(new IdBlock()).contains( g )
+				&& d.getPermissions().isGranted(GROUP, READ)) return true;
+		
+		if ( secSys.currentUserIsAdmin()) return true;
+		
+		Collection<Long> groups = secSys.leaderOfGroups();
+		if ( groups != null && groups.contains(g)) return true;
+		
+		return false;
+	}
 	// ~ Helpers
 	// =========================================================================
 	

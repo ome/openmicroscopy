@@ -38,7 +38,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 	Permissions userReadableOnly = new Permissions().revoke(GROUP, READ)
 			.revoke(WORLD, READ);
 
-	Permissions unreadable = new Permissions().applyMask(userReadableOnly)
+	Permissions unreadable = new Permissions( userReadableOnly )
 			.revoke(USER, READ);
 
 	Permissions groupReadable = new Permissions().revoke(WORLD, READ);
@@ -93,7 +93,8 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 		loginRoot();
 		ExperimenterGroup group = new ExperimenterGroup();
 		group.setName(UUID.randomUUID().toString());
-		group = factory.getAdminService().createGroup(group);
+		group = factory.getAdminService().getGroup(
+				factory.getAdminService().createGroup(group));
 
 		ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
 		factory.getAdminService().addGroups(users.get(0), proxy);
@@ -113,22 +114,56 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 	}
 
 	@Test
+	public void testGroupLeadersCanReadAllInGroup() throws Exception {
+		Image i;
+
+		loginRoot();
+		// add user(2) as PI of a new group
+		ExperimenterGroup group = new ExperimenterGroup();
+		group.setName(UUID.randomUUID().toString());
+		group.getDetails().setOwner(users.get(2));
+		group = factory.getAdminService().getGroup(
+				factory.getAdminService().createGroup(group));
+
+		// add all users to that group
+		ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
+		factory.getAdminService().addGroups(users.get(0), proxy);
+		factory.getAdminService().addGroups(users.get(1), proxy);
+		factory.getAdminService().addGroups(users.get(2), proxy);
+
+		// as non-PI create an image..
+		loginUser(users.get(0).getOmeName());
+		i = createImage(userReadableOnly);
+		factory.getAdminService().changeGroup(i, group.getName());
+		assertCanReadImage(i);
+
+		// others in group can't read
+		loginUser(users.get(1).getOmeName());
+		assertCannotReadImage(i);
+
+		// but PI can
+		loginUser(users.get(2).getOmeName());
+		assertCanReadImage(i);
+	}
+	
+	@Test
+	public void testUserCanHideFromSelf() throws Exception {
+		Image i;
+
+		// create an image with no permissions
+		loginUser(users.get(0).getOmeName());
+		i = createImage(unreadable);
+		assertCannotReadImage(i);
+
+	}
+	
+	@Test
 	public void testFilterDoesntHinderOuterJoins() throws Exception {
 
 	}
 
 	@Test
-	public void testGroupLeadersCanReadAllInGroup() throws Exception {
-		fail("hardcoded to 1000");
-	}
-
-	@Test
 	public void testWorldReadable() throws Exception {
-
-	}
-
-	@Test
-	public void testUserCanHideFromSelf() throws Exception {
 
 	}
 
@@ -145,7 +180,8 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 		e2.setOmeName(UUID.randomUUID().toString());
 		e2.setFirstName("security");
 		e2.setLastName("filter too");
-		e2 = factory.getAdminService().createUser(e2);
+		e2 = factory.getAdminService().getExperimenter(
+				factory.getAdminService().createUser(e2));
 		return e2;
 	}
 

@@ -77,9 +77,7 @@
     </property>
 	<property name="filterDefinitions">
 		<list>
-			<bean class="ome.tools.hibernate.SecurityFilter">
-				<constructor-arg ref="securitySystem"/>
-			</bean>
+			<bean class="ome.tools.hibernate.SecurityFilter"/>
 		</list>
 	</property>
   </bean>
