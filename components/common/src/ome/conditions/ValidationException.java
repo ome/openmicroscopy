@@ -29,6 +29,7 @@
 package ome.conditions;
 
 //Java imports
+import javax.ejb.ApplicationException;
 
 //Third-party libraries
 
@@ -60,6 +61,7 @@ package ome.conditions;
  * </small>
  * @since 3.0
  */
+@ApplicationException
 public class ValidationException extends ApiUsageException{
 	
 	public ValidationException(String msg){

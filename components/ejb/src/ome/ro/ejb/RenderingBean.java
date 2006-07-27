@@ -55,7 +55,9 @@ import static javax.ejb.TransactionAttributeType.*;
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.cache.Cache;
 import org.jboss.annotation.security.SecurityDomain;
+import org.jboss.ejb3.cache.NoPassivationCache;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -110,6 +112,7 @@ import omeis.providers.re.data.PlaneDef;
 @Local(RenderingEngine.class)
 @LocalBinding (jndiBinding="omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")
+@Cache(NoPassivationCache.class)
 public class RenderingBean extends AbstractBean 
     implements RenderingEngine, Serializable
 {
@@ -130,6 +133,12 @@ public class RenderingBean extends AbstractBean
     public Object invoke( InvocationContext context ) throws Exception
     {
         return wrap( context, RenderingEngine.class );
+    }
+    
+    @PrePassivate
+    public void passivate()
+    {
+    	super.passivationNotAllowed();
     }
     
     @PreDestroy
@@ -197,6 +206,7 @@ public class RenderingBean extends AbstractBean
     {
         delegate.saveCurrentSettings();
         localUpdate.flush();
+        localUpdate.commit();
     }
 
     // -------------------------------------------------------------------------

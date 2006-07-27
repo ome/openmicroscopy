@@ -76,6 +76,11 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>omero</groupId>
+      <artifactId>jboss-ejb3x</artifactId>
+      <version>4.0.4.GA</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
       <version>2.0-rc1</version>

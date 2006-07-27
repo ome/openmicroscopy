@@ -84,13 +84,12 @@ public class AbstractBean
         log.debug("Created:\n"+getLogString());
     }
     
-    @PrePassivate
-    public void passivationNotAllowed()
+    protected void passivationNotAllowed()
     {
-    		throw new InternalException(
-    				"Passivation should have been disabled for all Stateful Session Beans.\n" +
+    		throw new InternalException(String.format(
+    				"Passivation should have been disabled for this Stateful Session Beans (%s).\n" +
     				"Please contact the Omero development team for how to ensure that passivation\n" +
-    				"is disabled on your application server.");
+    				"is disabled on your application server.",this.getClass().getName()));
     }
     
     public void destroy()

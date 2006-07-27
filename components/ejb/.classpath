@@ -34,6 +34,7 @@
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3/4.0.4.GA/jboss-ejb3-4.0.4.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>

@@ -29,6 +29,7 @@
 package ome.conditions;
 
 //Java imports
+import javax.ejb.ApplicationException;
 
 //Third-party libraries
 
@@ -45,6 +46,7 @@ package ome.conditions;
  * </small>
  * @since 2.5
  */
+@ApplicationException
 public class SecurityViolation extends RootException
 {
 
