@@ -319,7 +319,10 @@
 	}
 
 	/**
-	 * provides an iterator over the $next values of the ${property.name}
+	 * provides an iterator over the $next values of the ${property.name}. Like
+	 * with most Collection iterators, modificiations to the underlying collection
+	 * while iterating will result in an {@link ConcurrentModificationException}.
+	 * Use {@link #linked${Name}List()} instead. 
 	 */ 
 	 public Iterator linked${Name}Iterator() {
 
@@ -384,6 +387,11 @@
 			
     }
 
+	/** produces a {@link List}-copy of the underlying collection. Unlike, 
+	 *  {@link #linked${Name}Iterator()}, while using the returned {@link List},
+	 * modifications can be made to the underlying collection without throwing
+	 * {@link ConcurrentModificationExceptions}
+	 */
 	public List linked${Name}List() {
 	
 		try {

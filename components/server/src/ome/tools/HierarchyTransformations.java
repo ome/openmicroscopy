@@ -30,6 +30,7 @@ package ome.tools;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import ome.model.containers.Category;
@@ -57,7 +58,9 @@ public class HierarchyTransformations {
         while (i.hasNext()) {
             Image img = (Image) i.next();
 
-            Iterator d = img.linkedDatasetIterator();
+            // Copy needed to prevent ConcurrentModificationExceptions
+            List<Dataset> d_list = img.linkedDatasetList();
+            Iterator d = d_list.iterator();
             if ( ! d.hasNext() ) {
                 hierarchies.add(img);
             } else {
@@ -71,7 +74,9 @@ public class HierarchyTransformations {
                     }
                     ds.linkImage( img );
 
-                    Iterator p = ds.linkedProjectIterator();
+                    // Copy needed to prevent ConcurrentModificationExceptions
+                    List<Project> p_list = ds.linkedProjectList();
+                    Iterator p = p_list.iterator();
                     if ( ! p.hasNext() ) {
                         hierarchies.add( ds );
                     } else {
@@ -103,7 +108,9 @@ public class HierarchyTransformations {
         while (i.hasNext()) {
             Image img = (Image) i.next();
             
-            Iterator c = img.linkedCategoryIterator();
+            // Copy needed to prevent ConcurrentModificationExceptions
+            List<Category> c_list = img.linkedCategoryList();
+            Iterator c = c_list.iterator();
             if ( ! c.hasNext() ) {
                 hierarchies.add(img);
             } else {
@@ -117,7 +124,9 @@ public class HierarchyTransformations {
                     }
                     ca.linkImage( img );
 
-                    Iterator g = ca.linkedCategoryGroupIterator();
+                    // Copy needed to prevent ConcurrentModificationExceptions
+                    List<CategoryGroup> cg_list = ca.linkedCategoryGroupList();
+                    Iterator g = cg_list.iterator();
                     if ( ! g.hasNext() ) {
                         hierarchies.add(ca);
                     } else {
