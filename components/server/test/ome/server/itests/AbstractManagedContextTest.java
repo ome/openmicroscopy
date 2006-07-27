@@ -2,7 +2,10 @@ package ome.server.itests;
 
 import javax.sql.DataSource;
 
+import org.hibernate.SessionFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -11,6 +14,7 @@ import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IPixels;
 import ome.api.IPojos;
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.system.EventContext;
@@ -41,7 +45,7 @@ public class AbstractManagedContextTest
 
     protected LocalUpdate iUpdate;
     
-    protected IAdmin iAdmin;
+    protected LocalAdmin iAdmin;
     
     protected IAnalysis iAnalysis;
     
@@ -53,6 +57,8 @@ public class AbstractManagedContextTest
     
     protected OMEData data;
     
+    protected JdbcTemplate jdbcTemplate;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
@@ -60,7 +66,7 @@ public class AbstractManagedContextTest
     	factory = new ServiceFactory( (OmeroContext) applicationContext );
         iQuery = (LocalQuery) factory.getQueryService();
         iUpdate = (LocalUpdate) factory.getUpdateService();
-        iAdmin = factory.getAdminService();
+        iAdmin = (LocalAdmin) factory.getAdminService();
         iAnalysis = factory.getAnalysisService();
         iPojos = factory.getPojosService();
         iPixels = factory.getPixelsService();
@@ -69,6 +75,10 @@ public class AbstractManagedContextTest
         
         data = new OMEData();
         data.setDataSource((DataSource) applicationContext.getBean("dataSource"));
+    
+        DataSource dataSource = (DataSource) applicationContext.getBean("dataSource");
+        jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
+    
     }
     
     protected void loginRoot()

@@ -209,7 +209,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
         	user.setOmeName(UUID.randomUUID().toString());
         	user.setFirstName("Get");
         	user.setLastName("Images");
-        	user = iAdmin.createUser(user);
+        	user = iAdmin.getExperimenter(iAdmin.createUser(user));
         }
 
         userPO = new PojoOptions().exp( user.getId() );

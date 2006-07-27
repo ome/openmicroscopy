@@ -34,6 +34,8 @@ package ome.api.local;
 // Third-party libraries
 
 // Application-internal dependencies
+import org.springframework.orm.hibernate3.HibernateCallback;
+
 import ome.model.IObject;
 import ome.services.dao.Dao;
 import ome.services.query.Query;
@@ -58,19 +60,25 @@ public interface LocalQuery extends ome.api.IQuery {
      * @return
      */
     //TODO <T extends IObject> Dao<T> getDao();
-    
-    /** 
-     * Executes a locally defined Query. Currently a thin
-     * wrapper around Spring's HibernateTemplate 
+
+	/** 
+     * Executes a {@link HibernateCallback}  
      * 
-     * @param query
+     * @param callback
      *      An implementation of the HibernateCallback interface.
-     * @return result of the query 
-     *      See document for the query for the return type.
-     * 
      * 
      * @see org.springframework.orm.hibernate3.HibernateTemplate
      * @see org.springframework.orm.hibernate3.HibernateCallback
+     */
+    <T> T execute(HibernateCallback callback);
+	
+    /** 
+     * Executes a locally defined Query. 
+     * 
+     * @param query
+     *      A subclass of the {@link Query} interface.
+     * @return result of the query 
+     *      See document for the query for the return type.
      */
     <T> T execute(Query<T> query);
 

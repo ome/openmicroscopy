@@ -84,7 +84,7 @@ public class CreatePojosFixture
 			e.setOmeName(UUID.randomUUID().toString());
 			e.setFirstName("Mr.");
 			e.setLastName("Allen");
-			e = new Experimenter( iAdmin.createUser(e).getId(), false );
+			e = new Experimenter( iAdmin.createUser(e), false );
 			init = true;
 		}
 	}

@@ -121,6 +121,15 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     }
 
     /**
+     * @see LocalQuery#execute(HibernateCallback)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T execute(HibernateCallback callback)
+    {
+        return (T) getHibernateTemplate().execute(callback);
+    }
+    
+    /**
      * @see ome.api.local.LocalQuery#execute(Query)
      */
     @SuppressWarnings("unchecked")

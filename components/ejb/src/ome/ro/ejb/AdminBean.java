@@ -44,6 +44,7 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
 import ome.api.IAdmin;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -90,6 +91,9 @@ public class AdminBean extends AbstractBean implements IAdmin
         delegate.synchronizeLoginCache();
     }
 
+    // ~ User-also getters
+	// =========================================================================
+    
     @RolesAllowed("user")
     public Experimenter getExperimenter(Long arg0)
     {
@@ -125,43 +129,52 @@ public class AdminBean extends AbstractBean implements IAdmin
     {
     	return delegate.containedGroups(arg0);
     }
-
+    
+    @RolesAllowed("user")
+    public ExperimenterGroup getDefaultGroup( @NotNull Long experimenterId )
+    {
+    	return delegate.getDefaultGroup(experimenterId);
+    }
+    
+    // ~ System only
+	// =========================================================================
+    
     @RolesAllowed("system")
-    public Experimenter createUser(Experimenter arg0)
+    public long createUser(Experimenter arg0)
     {
     	return delegate.createUser(arg0);
     }
 
     @RolesAllowed("system")
-    public Experimenter createSystemUser(Experimenter arg0)
+    public long createSystemUser(Experimenter arg0)
     {
     	return delegate.createSystemUser(arg0);
     }
 
     @RolesAllowed("system")
-    public Experimenter createExperimenter(Experimenter arg0, ExperimenterGroup arg1, ExperimenterGroup[] arg2)
+    public long createExperimenter(Experimenter arg0, ExperimenterGroup arg1, ExperimenterGroup[] arg2)
     {
     	return delegate.createExperimenter(arg0, arg1, arg2);
     }
 
-    @RolesAllowed("user")
-    public ExperimenterGroup createGroup(ExperimenterGroup arg0)
+    @RolesAllowed("system")
+    public long createGroup(ExperimenterGroup arg0)
     {
     	return delegate.createGroup(arg0);
     }
 
     @RolesAllowed("system")
-    public void addGroups(Experimenter arg0, ExperimenterGroup[] arg1)
+    public void addGroups(Experimenter arg0, ExperimenterGroup... arg1)
     {
 	    delegate.addGroups(arg0, arg1);    
     }
 
     @RolesAllowed("sytem")
-    public void removeGroups(Experimenter arg0, ExperimenterGroup[] arg1)
+    public void removeGroups(Experimenter arg0, ExperimenterGroup... arg1)
     {
     	delegate.removeGroups(arg0, arg1);
     }
-
+    
     @RolesAllowed("system")
     public void setDefaultGroup(Experimenter arg0, ExperimenterGroup arg1)
     {
@@ -173,24 +186,29 @@ public class AdminBean extends AbstractBean implements IAdmin
     {
     	delegate.deleteExperimenter(user);
     }
-    
-    @RolesAllowed("system")
+        
+    // ~ User setters (SecurityViolation thrown from delegate if needed)
+	// =========================================================================
+    @RolesAllowed("user")
     public void changeOwner(IObject arg0, String arg1)
     {
     	delegate.changeOwner(arg0, arg1);
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public void changeGroup(IObject arg0, String arg1)
     {
     	delegate.changeGroup(arg0, arg1);
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public void changePermissions(IObject arg0, Permissions arg1)
     {
     	delegate.changePermissions(arg0, arg1);   
     }
+    
+    // ~ Passwords
+	// =========================================================================
 
     @RolesAllowed("user")
     public void changePassword(String arg0)
@@ -198,7 +216,7 @@ public class AdminBean extends AbstractBean implements IAdmin
 
     	delegate.changePassword(arg0);    
     }
-
+    
     @RolesAllowed("system")
     public void changeUserPassword(String arg0, String arg1)
     {

@@ -81,7 +81,12 @@
   
    <!-- 1 -->
   <bean id="managed:ome.api.IAdmin" parent="managedService">
-    <property name="proxyInterfaces" value="ome.api.IAdmin"/>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.api.IAdmin</value>
+        <value>ome.api.local.LocalAdmin</value>        
+      </list>
+    </property>
     <property name="target" ref="internal:ome.api.IAdmin"/>
   </bean>  
   <alias name="managed:ome.api.IQuery" alias="managed:ome.api.LocalQuery"/>

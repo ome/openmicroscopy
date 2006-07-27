@@ -52,7 +52,8 @@ public class EnumTest extends AbstractManagedContextTest {
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName("enums");
 		e.setLastName("enums");
-		e = factory.getAdminService().createUser(e);
+		e = factory.getAdminService().getExperimenter(
+				factory.getAdminService().createUser(e));
 	
 		tearDown();
     }

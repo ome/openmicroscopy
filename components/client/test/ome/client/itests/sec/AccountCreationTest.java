@@ -18,8 +18,8 @@ public class AccountCreationTest extends AbstractAccountTest
 
     @Test
     public void testSudoCreatesAccountThroughIUpdate() throws Exception {
-    	Experimenter e = createNewExperimenter( getSudoUpdate("ome"), userGrp );
-    	assertNull( getPasswordFromDb(e));
+    	Experimenter e = createNewUser(getSudoUpdate("ome"));
+    	assertNull( getPasswordFromDb(e) );
     	assertCannotLogin(e.getOmeName(),"ome");
     	assertCannotLogin(e.getOmeName(),"");
     	
@@ -35,7 +35,8 @@ public class AccountCreationTest extends AbstractAccountTest
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
-    	e = getSudoAdmin("ome").createUser(e);
+    	e = getSudoAdmin("ome").getExperimenter(
+    			getSudoAdmin("ome").createUser(e));
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
@@ -49,7 +50,8 @@ public class AccountCreationTest extends AbstractAccountTest
 		e.setOmeName(new GUID().asString());
 		e.setFirstName("ticket:181");
 		e.setLastName("ticket:199");
-		e = getSudoAdmin("ome").createSystemUser(e);
+		e = getSudoAdmin("ome").getExperimenter(
+				getSudoAdmin("ome").createSystemUser(e));
 		assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
@@ -70,7 +72,8 @@ public class AccountCreationTest extends AbstractAccountTest
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
-    	e = getSudoAdmin("ome").createExperimenter(e, userGrp,null);
+		e = getSudoAdmin("ome").getExperimenter(
+				getSudoAdmin("ome").createExperimenter(e, userGrp,null));
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");
@@ -91,8 +94,9 @@ public class AccountCreationTest extends AbstractAccountTest
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
-    	e = getSudoAdmin("ome").createExperimenter(e, userGrp,
-    			new ExperimenterGroup[]{ sysGrp });
+		e = getSudoAdmin("ome").getExperimenter(
+				getSudoAdmin("ome").createExperimenter(e, userGrp,
+    			new ExperimenterGroup[]{ sysGrp }));
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");

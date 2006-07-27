@@ -104,11 +104,20 @@ public interface IAdmin extends ServiceInterface{
     /** fetch all {@link ExperimenterGroup groups} of which the given user
      * is a member.
      * 
-     * @param experimenterId id of the Experimenter
+     * @param experimenterId id of the Experimenter. Not null.
      * @return non-null array of all {@link ExperimenterGroup groups} for
      *  this user.
      */
     ExperimenterGroup[] containedGroups( @NotNull Long experimenterId );
+    
+    /** retrieve the default {@link ExperimenterGroup group} for the given
+     * user id.
+     * 
+     * @param experimenterId of the Experimenter. Not null.
+     * @return non-null {@link ExperimenterGroup}. If no default group is found,
+     * 		an exception will be thrown. 
+     */
+    ExperimenterGroup getDefaultGroup( @NotNull Long experimenterId );
     
     // ~ Creating users in groups
     // =========================================================================
@@ -116,35 +125,34 @@ public interface IAdmin extends ServiceInterface{
     /** create and return a new user. This user will be created with the default
      * "User" group.
      * @param newUser a new {@link Experimenter} instance 
-     * @return a copy of the new user. Existing instances should be replaced.
+     * @return id of the newly created {@link Experimenter}
      */
-    Experimenter createUser( @NotNull Experimenter newUser );
+    long createUser( @NotNull Experimenter newUser );
     
     /** create and return a new system user. This user will be created with the 
      * "System" (administration) group and will also be in the "user" group.
      * @param newUser a new {@link Experimenter} instance 
-     * @return a copy of the new user. Existing instances should be replaced.
+     * @return id of the newly created {@link Experimenter}
      */
-    Experimenter createSystemUser( @NotNull Experimenter newSystemUser );
+    long createSystemUser( @NotNull Experimenter newSystemUser );
 
     /** create and return a new user in the given groups. 
      * @param experimenter. A new {@link Experimenter} instance. Not null.
      * @param defaultGroup. Instance of {@link ExperimenterGroup. Not null.
      * @param otherGroups. Array of {@link ExperimenterGroup} instances. Can be null.     
-     * @return a copy of the new user. Existing instances should be replaced. 
+     * @return id of the newly created {@link Experimenter}
      *  Not null.
      */
-    Experimenter createExperimenter( 
+    long createExperimenter( 
             @NotNull Experimenter experimenter, 
             @NotNull ExperimenterGroup defaultGroup,
             ExperimenterGroup[] otherGroups );
     
     /** create and return a new group. 
      * @param newGroup a new {@link ExperimenterGroup} instance. Not null. 
-     * @return a copy of the new group. Existing instances should be replaced.
-     *  Not null.
+     * @return id of the newly created {@link ExperimenterGroup}
      */
-    ExperimenterGroup createGroup( ExperimenterGroup group );
+    long createGroup( ExperimenterGroup group );
 
     /** adds a user to the given groups. 
      * @param user. A currently managed entity. Not null.

@@ -98,6 +98,7 @@
     <property name="securitySystem" ref="securitySystem"/>
   </bean>
 
+  <alias name="internal:ome.api.IAdmin" alias="internal:ome.api.LocalAdmin"/> 
   <bean parent="level2" id="internal:ome.api.IAdmin" class="ome.logic.AdminImpl">
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
   </bean> 
@@ -143,15 +144,30 @@
   
    <!-- 1 -->
   <bean id="managed:ome.api.IAdmin" parent="internalService">
-    <property name="proxyInterfaces" value="ome.api.IAdmin"/>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.api.IAdmin</value>
+        <value>ome.api.local.LocalAdmin</value>        
+      </list>
+    </property>
     <property name="target" ref="internal:ome.api.IAdmin"/>
   </bean>  
   <bean id="managed:ome.api.IQuery" parent="internalService">
-    <property name="proxyInterfaces" value="ome.api.IQuery"/>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.api.IQuery</value>
+        <value>ome.api.local.LocalQuery</value>        
+      </list>
+    </property>
     <property name="target" ref="internal:ome.api.IQuery"/>
   </bean>  
   <bean id="managed:ome.api.IUpdate" parent="internalService">
-    <property name="proxyInterfaces" value="ome.api.IUpdate"/>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.api.IUpdate</value>
+        <value>ome.api.local.LocalUpdate</value>        
+      </list>
+    </property>
     <property name="target" ref="internal:ome.api.IUpdate"/>
   </bean>
   <!-- 2 -->

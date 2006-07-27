@@ -31,6 +31,8 @@ package ome.logic;
 
 //Java imports
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -39,7 +41,9 @@ import javax.management.ObjectName;
 //Third-party libraries
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,14 +54,15 @@ import org.hibernate.criterion.Restrictions;
 import org.jboss.security.Util;
 
 //Application-internal dependencies
+import ome.annotations.NotNull;
 import ome.api.IAdmin;
 import ome.api.ServiceInterface;
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
-import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -82,7 +87,7 @@ import ome.services.query.QueryParameterDef;
  * 
  */
 @Transactional
-public class AdminImpl extends AbstractLevel2Service implements IAdmin {
+public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     private static Log log = LogFactory.getLog(AdminImpl.class);
 
@@ -101,7 +106,59 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
+    public Experimenter userProxy(final Long id)
+    {
+    	Experimenter e = iQuery.get(Experimenter.class, id);
+    	return e;
+    }
 
+    public Experimenter userProxy(final String omeName)
+    {
+    	Experimenter e = iQuery.findByString(Experimenter.class,"omeName",omeName);
+   
+    	if (e == null) 
+    	{
+    		throw new ApiUsageException("No such experimenter: " + omeName);
+    	}
+
+    	return e;
+    }
+            
+    public ExperimenterGroup groupProxy(Long id)
+    {
+    	ExperimenterGroup g = iQuery.get(ExperimenterGroup.class,id);
+    	return g;
+    }
+
+    public ExperimenterGroup groupProxy(final String groupName)
+    {
+    	ExperimenterGroup g = iQuery.findByString(
+    			ExperimenterGroup.class,"name",groupName);
+
+    	if (g == null) 
+    	{
+    		throw new ApiUsageException("No such group: " + groupName);
+    	}
+
+    	return g;
+    }
+    
+    public List<Long> getLeaderOfGroupIds( final Experimenter e )
+    {
+    	Assert.notNull(e);
+    	Assert.notNull(e.getId());
+    	
+    	List<Long> groupIds = iQuery.execute(new HibernateCallback(){
+        	public Object doInHibernate(Session session) 
+        	throws HibernateException, SQLException {
+        		org.hibernate.Query q = session.createQuery(
+        		"select g.id from ExperimenterGroup g where g.details.owner.id = :id");
+        		q.setParameter("id", e.getId());
+        		return q.list();
+        	}
+        });
+    	return groupIds;
+    }
     
     // ~ INTERFACE METHODS
     // =========================================================================
@@ -184,33 +241,58 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
 
     public Experimenter[] containedExperimenters(Long groupId)
     {
-    	return null;
+    	ExperimenterGroup g = iQuery.execute(
+    			new GroupQ( new Parameters( ).addId(groupId)));
+    	
+    	if (g == null)
+    	{
+    		throw new ApiUsageException("No such group: "+groupId);
+    	}
+    	
+    	int count = g.sizeOfGroupExperimenterMap();
+    	if ( count < 1 )
+    	{
+    		return new Experimenter[]{};
+    	}
+    	
+    	return (Experimenter[]) g.linkedExperimenterList()
+    		.toArray(new Experimenter[count]);
     }
 
     public ExperimenterGroup[] containedGroups(Long experimenterId)
     {
-        // TODO Auto-generated method stub
-        return null;
-        
+    	Experimenter e = iQuery.execute(
+    			new UserQ( new Parameters( ).addId(experimenterId)));
+    	if (e == null)
+    	{
+    		throw new ApiUsageException("No such user: "+experimenterId);
+    	}
+    	
+    	int count = e.sizeOfGroupExperimenterMap();
+    	if ( count < 1 )
+    	{
+    		return new ExperimenterGroup[]{};
+    	}
+    	
+    	return (ExperimenterGroup[]) e.linkedExperimenterGroupList()
+    		.toArray(new ExperimenterGroup[count]);
     }
 
-    public Experimenter createUser(Experimenter newUser)
+    public long createUser(Experimenter newUser)
     {
-    	Experimenter e = createExperimenter(
-    			newUser, internalLookupGroup("user"),null);
-    	return e;
+    	return createExperimenter(
+    			newUser, groupProxy("user"),null);
     }
 
-    public Experimenter createSystemUser(Experimenter newSystemUser)
+    public long createSystemUser(Experimenter newSystemUser)
     {
-    	Experimenter e = createExperimenter(
+    	return createExperimenter(
     			newSystemUser, 
-    			internalLookupGroup("system"), 
-    			new ExperimenterGroup[]{ lookupGroup("user") } );
-    	return e;
+    			groupProxy("system"), 
+    			new ExperimenterGroup[]{ groupProxy("user") } );
     }
 
-    public Experimenter createExperimenter(
+    public long createExperimenter(
     		Experimenter experimenter, 
     		ExperimenterGroup defaultGroup, 
     		ExperimenterGroup[] otherGroups)
@@ -224,11 +306,20 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     		throw new ApiUsageException("Default group may not be null.");
     	} 
 
-    	GroupExperimenterMap defaultGroupMap = new GroupExperimenterMap();
-		defaultGroupMap.link( internalGetGroup(defaultGroup.getId()), e);
+    	SecureAction action = new SecureAction(){
+    		public <T extends IObject> T updateObject(T obj) {
+    			return iUpdate.saveAndReturnObject( obj );
+    		}
+    	};
+    	
+    	e = securitySystem.doAction(e, action);
+    	
+    	final GroupExperimenterMap defaultGroupMap = new GroupExperimenterMap();
+		defaultGroupMap.link( groupProxy(defaultGroup.getId()), userProxy(e.getId()));
 		defaultGroupMap.setDefaultGroupLink(Boolean.TRUE);
-		e.addGroupExperimenterMap(defaultGroupMap, false);
-
+		defaultGroupMap.setDetails( securitySystem.transientDetails( defaultGroupMap ));
+		securitySystem.doAction(defaultGroupMap,action);
+		
     	if ( null != otherGroups )
     	{
     		for (ExperimenterGroup group : otherGroups) {
@@ -240,52 +331,135 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     						"Experimenter creation.");
     			}
     			GroupExperimenterMap groupMap = new GroupExperimenterMap();
-    			groupMap.link( internalGetGroup(group.getId()), e);
-    			e.addGroupExperimenterMap(groupMap, false);
+    			groupMap.link( groupProxy(group.getId()), userProxy(e.getId()));
+    			groupMap.setDefaultGroupLink(Boolean.FALSE);
+    			groupMap.setDetails( securitySystem.transientDetails( groupMap ));
+    			securitySystem.doAction(groupMap, action);
     		}
     	}
     	
-    	e = iUpdate.saveAndReturnObject( e );
     	changeUserPassword(e.getOmeName()," ");
-    	return lookupExperimenter(e.getOmeName());    
+    	return e.getId();
     }
 
-    public ExperimenterGroup createGroup(ExperimenterGroup group)
+    public long createGroup(ExperimenterGroup group)
     {
     	group = copyGroup( group );
-    	ExperimenterGroup g = iUpdate.saveAndReturnObject( group );
-    	return lookupGroup(g.getName());
+    	ExperimenterGroup g = securitySystem.doAction(group, new SecureAction(){
+    		public <T extends IObject> T updateObject(T obj) {
+    			return iUpdate.saveAndReturnObject( obj );
+    		}
+    	});
+    	return g.getId();
     }
 
-    public void addGroups(Experimenter user, ExperimenterGroup[] groups)
+    public void addGroups(Experimenter user, ExperimenterGroup... groups)
     {
     	if (user == null) return; // Handled by annotations
     	if (groups == null) return;
     	
-        Experimenter foundUser = internalGetExperimenter(user.getId());
+        Experimenter foundUser = userProxy(user.getId());
     	for (ExperimenterGroup group : groups) {
         	ExperimenterGroup foundGroup = 
-        		internalGetGroup(group.getId());
-        	foundUser.linkExperimenterGroup(foundGroup);
+        		groupProxy(group.getId());
+        	GroupExperimenterMap map = new GroupExperimenterMap();
+        	map.link(foundGroup,foundUser);
+        	map.setDetails( securitySystem.transientDetails(map));
+        	securitySystem.doAction(map,new SecureAction(){
+        		public <T extends IObject> T updateObject(T obj) {
+        			return iUpdate.saveAndReturnObject( obj );
+        		}
+        	});
 		}
     	iUpdate.flush();
     }
 
-    public void removeGroups(Experimenter user, ExperimenterGroup[] groups)
+    public void removeGroups(Experimenter user, ExperimenterGroup... groups)
     {
-        // TODO Auto-generated method stub
+    	if (user == null) return;
+    	if (groups == null) return;
+    	
+        Experimenter foundUser = getExperimenter(user.getId());
+        List<Long> toRemove = new ArrayList<Long>();
         
+        for (ExperimenterGroup g : groups) {
+        	if (g.getId()!=null) toRemove.add(g.getId());
+		}
+        for (GroupExperimenterMap map : (List<GroupExperimenterMap>)
+        		foundUser.collectGroupExperimenterMap(null)) 
+        {
+			if (toRemove.contains(map.parent().getId()))
+			{
+				map.child().removeGroupExperimenterMap(map, false);
+				map.parent().removeGroupExperimenterMap(map, false);
+	        	securitySystem.doAction(map,new SecureAction(){
+	        		public <T extends IObject> T updateObject(T obj) {
+	        			iUpdate.deleteObject( obj );
+	        			return null;
+	        		}
+	        	});
+			}
+        }
+        iUpdate.flush();
     }
 
     public void setDefaultGroup(Experimenter user, ExperimenterGroup group)
     {
-        // TODO Auto-generated method stub
+        if (user == null) return;
+        if (group == null) return;
         
+        if (group.getId() == null) 
+        {
+        	throw new ApiUsageException("Group argument to setDefaultGroup " +
+        			"must be managed (i.e. have an id)");
+        }
+        
+        boolean newDefaultSet = false;
+        Experimenter foundUser = getExperimenter(user.getId());
+        for (GroupExperimenterMap map : (List<GroupExperimenterMap>)
+        		foundUser.collectGroupExperimenterMap(null))
+        {
+        	if (map.parent().getId().equals(group.getId()))
+        	{
+        		map.setDefaultGroupLink(Boolean.TRUE);
+        		newDefaultSet = true;
+        	}
+        	else 
+        	{
+        		map.setDefaultGroupLink(Boolean.FALSE);
+        	}
+		}
+        
+        if ( ! newDefaultSet)
+        {
+        	throw new ApiUsageException("Group "+group.getId()+" was not " +
+        			"found for user "+user.getId());
+        }
+        
+        iUpdate.flush();
     }
-    
+
+    public ExperimenterGroup getDefaultGroup( @NotNull Long experimenterId )
+    {
+    	ExperimenterGroup g = 
+    	iQuery.findByQuery(
+    			"select g from ExperimenterGroup g " +
+    			"join fetch g.groupExperimenterMap m " +
+    			"join fetch m.child  e " +
+    			"where e.id = :id " +
+    			"and m.defaultGroupLink = true",
+    			new Parameters().addId(experimenterId));
+    	if (g==null)
+    	{
+    		throw new ValidationException(
+    				"The user "+experimenterId+" has no default group set.");
+    	}
+    	return g;
+    }
+        
     public void deleteExperimenter( Experimenter user )
     {
-    	Experimenter e = internalGetExperimenter(user.getId());
+    	Experimenter e = userProxy(user.getId());
     	int count = 
     		jdbc.update("delete from password where experimenter_id = ?", e.getId());
     	
@@ -306,7 +480,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     {
     	// should take an Owner
     	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-    	Experimenter owner = internalLookupExperimenter(omeName);
+    	Experimenter owner = userProxy(omeName);
     	copy.getDetails().setOwner(owner);
     	iUpdate.saveObject(copy);
     }
@@ -316,7 +490,7 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     	final LocalUpdate update = iUpdate;
     	// should take a group
     	final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-    	ExperimenterGroup group = internalLookupGroup(groupName);
+    	ExperimenterGroup group = groupProxy(groupName);
     	copy.getDetails().setGroup(group);
     	securitySystem.doAction(copy, new SecureAction(){
     		public IObject updateObject(IObject obj)
@@ -330,11 +504,14 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     {
     	// should take a group
     	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-    	Permissions p = new Permissions().applyMask(perms); // FIXME ticket:215
+    	Permissions p = new Permissions(perms); // FIXME ticket:215
     	copy.getDetails().setPermissions(p);
     	iUpdate.saveObject(copy);    
     }
 
+    // ~ Passwords
+	// =========================================================================
+    
     public void changePassword(String newPassword)
     {
     	internalChangeUserPasswordById(
@@ -363,7 +540,11 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     	copy.setFirstName( e.getOmeName() );
     	copy.setLastName( e.getLastName() );
     	copy.setEmail( e.getEmail() );
-    	// TODO make ShallowCopy-like which ignores collections and details.
+    	if (e.getDetails()!=null && e.getDetails().getPermissions()!=null)
+    	{
+    		copy.getDetails().setPermissions(e.getDetails().getPermissions());
+    	}
+    		// TODO make ShallowCopy-like which ignores collections and details.
     	// if possible, values should be validated. i.e. iTypes should say what
     	// is non-null
     	return copy;
@@ -373,53 +554,16 @@ public class AdminImpl extends AbstractLevel2Service implements IAdmin {
     {
     	if ( g.getName() == null )
     	{
-    		throw new ValidationException("OmeName may not be null.");
+    		throw new ValidationException("Group name may not be null.");
     	}
     	ExperimenterGroup copy = new ExperimenterGroup();
     	copy.setDescription( g.getDescription() );
     	copy.setName( g.getName() );
+    	copy.setDetails( securitySystem.transientDetails(g));
     	// TODO see shallow copy comment on copy user
     	return copy;
     }
     
-    // ~ Internal lookups. Don't pull full graphs since not needed. 
-	// =========================================================================
-    protected Experimenter internalGetExperimenter(final Long id)
-    {
-    	Experimenter e = iQuery.get(Experimenter.class, id);
-    	return e;
-    }
-
-    protected Experimenter internalLookupExperimenter(final String omeName)
-    {
-    	Experimenter e = iQuery.findByString(Experimenter.class,"omeName",omeName);
-   
-    	if (e == null) 
-    	{
-    		throw new ApiUsageException("No such experimenter: " + omeName);
-    	}
-
-    	return e;
-    }
-            
-    protected ExperimenterGroup internalGetGroup(Long id)
-    {
-    	ExperimenterGroup g = iQuery.get(ExperimenterGroup.class,id);
-    	return g;
-    }
-
-    public ExperimenterGroup internalLookupGroup(final String groupName)
-    {
-    	ExperimenterGroup g = iQuery.findByString(
-    			ExperimenterGroup.class,"name",groupName);
-
-    	if (g == null) 
-    	{
-    		throw new ApiUsageException("No such group: " + groupName);
-    	}
-
-    	return g;
-    }
     // ~ Password access
 	// =========================================================================
     

@@ -1,7 +1,9 @@
 package ome.server.itests.sec;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,7 +56,8 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName(ticket156);
 		e.setLastName(ticket156);
-		e = factory.getAdminService().createUser(e);
+		e = factory.getAdminService().getExperimenter(
+				factory.getAdminService().createUser(e));
 	
 		tearDown();
     }
@@ -96,6 +99,7 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 		loginUser(e.getOmeName());
 		
 		Event test = new Event();
+		test.setTime( new Timestamp( System.currentTimeMillis()) );
 		test.setStatus("hi");
 		test.setType(new EventType(0L,false));
 		factory.getUpdateService().saveObject(test);

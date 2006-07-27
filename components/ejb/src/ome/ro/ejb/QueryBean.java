@@ -44,6 +44,7 @@ import javax.interceptor.InvocationContext;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.orm.hibernate3.HibernateCallback;
 
 //Application-internal dependencies
 import ome.api.IQuery;
@@ -97,6 +98,11 @@ public class QueryBean extends AbstractBean implements LocalQuery
     @RolesAllowed("user") public void evict(Object arg0)
     {
         localQuery.evict(arg0);
+    }
+    
+    @RolesAllowed("user") public Object execute(HibernateCallback arg0)
+    {
+        return localQuery.execute(arg0);
     }
     
     @RolesAllowed("user") public Object execute(Query arg0)
