@@ -51,6 +51,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
+import ome.security.ACLEventListener;
 import ome.security.SecuritySystem;
 
 /**
@@ -130,14 +131,18 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	{
 		override("merge", 
 				new ome.tools.hibernate.MergeEventListener(secSys));
-		override("save-update",
-				new ome.tools.hibernate.SaveOrUpdateEventListener(secSys));
 		override(new String[]{"pre-load","post-load","pre-update","post-update",
 				"pre-insert","post-insert","pre-delete","post-delete"},
 				new ome.tools.hibernate.EventLogListener(
 						new EventDiffHolder(secSys)));
 		override(new String[]{"replicate","save","update"},
 				getDisablingProxy());
+		
+		ACLEventListener acl = new ACLEventListener(secSys);
+		map.get("post-load").add(acl);
+		map.get("pre-insert").add(acl);
+		map.get("pre-update").add(acl);
+		map.get("pre-delete").add(acl);
 	}
 		
 	

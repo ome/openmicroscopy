@@ -33,6 +33,7 @@ package ome.tools.hibernate;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -44,6 +45,7 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
+import org.hibernate.collection.PersistentCollection;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
@@ -62,6 +64,8 @@ import ome.tools.lsid.LsidUtils;
  * implements {@link org.hibernate.Interceptor} for controlling various
  * aspects of the Hibernate runtime. Where no special requirements exist, 
  * methods delegate to {@link EmptyInterceptor}
+ * 
+ * Current responsibilities include the proper (re-)setting of {@link Details}
  * 
  * @author  Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
@@ -102,7 +106,7 @@ public class OmeroInterceptor implements Interceptor
 	
 	}
 	
-	/** default logic, but this will need to be implemented for security TODO */
+	/** default logic. */
 	public boolean onLoad(Object entity, Serializable id, Object[] state, 
 			String[] propertyNames, Type[] types) throws CallbackException {
 		
@@ -130,11 +134,11 @@ public class OmeroInterceptor implements Interceptor
     		String[] propertyNames, Type[] types)
     {
     	debug("Intercepted save.");
-    	
+    	    	
     	if ( entity instanceof IObject )
     	{
-    		int idx = detailsIndex(propertyNames);
     		IObject iobj = (IObject) entity;
+    		int idx = detailsIndex(propertyNames);
     		Details d = secSys.transientDetails( iobj );
     		state[idx] = d;
     	}
@@ -157,22 +161,23 @@ public class OmeroInterceptor implements Interceptor
     	boolean altered = false;
     	if ( entity instanceof IObject)
     	{
-    		IObject obj = (IObject) entity;
+    		IObject obj = (IObject) entity;		
     		int idx = detailsIndex(propertyNames);
-        	checkCollections(obj,(Long)id,
-        			currentState, previousState, 
-        			propertyNames, types, idx);
+//        	checkCollections(obj,(Long)id,
+//        			currentState, previousState, 
+//        			propertyNames, types, idx);
     		altered |= resetDetails(obj,currentState,previousState,idx);
     	}
         return altered;
     }
 
-    /** default logic, will be needed for security */
+    /** default logic */
 	public void onDelete(Object entity, Serializable id, 
 			Object[] state, String[] propertyNames, Type[] types) 
 	throws CallbackException 
 	{ 
 		debug("Intercepted delete."); 
+    	EMPTY.onDelete(entity, id, state, propertyNames, types);
 	}
     
     // ~ Collections (of interest)
@@ -202,13 +207,13 @@ public class OmeroInterceptor implements Interceptor
     
     // ~ Helpers
 	// =========================================================================
-
-    protected int detailsIndex( String[] propertyNames )
+// TODO move somewhere sensible.
+    public static int detailsIndex( String[] propertyNames )
     {
     	return index( "details", propertyNames );
     }
     
-    protected int index( String str, String[] propertyNames )
+    public static int index( String str, String[] propertyNames )
     {
         for (int i = 0; i < propertyNames.length; i++)
         {
@@ -315,56 +320,7 @@ public class OmeroInterceptor implements Interceptor
 		
 		return false;
 	}
-	
-	/** loads collections which have been filtered or nulled by the user 
-	 * 
-	 * @param entity IObject to have its collections reloaded
-	 * @param id persistent (db) id of this entity
-	 * @param currentState the possibly changed field data for this entity
-	 * @param previousState the field data as seen in the db
-	 * @param propertyNames field names
-	 * @param types Hibernate {@link Type} for each field
-	 * @param detailsIndex the index of the {@link Details} instance (perf opt)
-	 */
-	@SuppressWarnings("unchecked")
-	protected void checkCollections(IObject entity,Long id,
-			Object[] currentState, Object[] previousState, 
-			String[] propertyNames, Type[] types, int detailsIndex)
-	{
-		boolean unloaded = false;
-		
-		Details d = (Details) previousState[detailsIndex];
-		if ( d != null )
-		{
-			Set<String> s = d.filteredSet();
-			for (String string : s) {
-				string = LsidUtils.parseField(string);
-				int idx = index(string,propertyNames);
-				// currentState[idx] = reloadCollection(entity, id, types[idx], string);
-				unloaded = true;
-				break;
-			}
-		}
-		
-		if (!unloaded)
-		for (int i = 0; i < types.length; i++) {
-			Type t = types[i];
-			if ( t.isCollectionType() && null == currentState[i] )
-			{
-				//currentState[i] = reloadCollection(entity,id,t,propertyNames[i]);
-				unloaded = true;
-				break;
-			}
-		}
-		
-		if (unloaded)
-		{
-			throw new InternalException(
-					"Filter didn't catch unloaded/filtered collection.");
-		}
-	}
-
-		
+			
 	protected void log(String msg)
 	{
 		if ( msg.equals(last))

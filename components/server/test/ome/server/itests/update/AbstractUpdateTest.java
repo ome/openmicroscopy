@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ome.model.IObject;
-import ome.server.itests.AbstractInternalContextTest;
+import ome.server.itests.AbstractManagedContextTest;
 
 
 public class AbstractUpdateTest
-        extends AbstractInternalContextTest
+        extends AbstractManagedContextTest
 {
     
     protected boolean equalCollections(Collection<IObject> before, Collection<IObject> after)

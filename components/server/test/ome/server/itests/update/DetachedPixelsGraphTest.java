@@ -25,18 +25,14 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
     int channelsSizeBefore;
     
     @Override
-    protected void onSetUpInTransaction() throws Exception
+    protected void onSetUp() throws Exception
     {
-        super.onSetUpInTransaction();
+        super.onSetUp();
 
         example = ObjectFactory.createPixelGraph(null);
         assertNotNull("need to start off with acq. ctx", example
                 .getAcquisitionContext());
         example = (Pixels) iUpdate.saveAndReturnObject(example);
-        flush();
-        clear();
-
-        prepareCurrentDetails(); // Need new event now
 
         p = ObjectFactory.createPixelGraph(example);
         assertTrue("Starting off empty", p.getChannels() != null);
@@ -51,8 +47,6 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         // PREPARE ----------------------------------------------
         p.setRelatedTo(ObjectFactory.createPixelGraph(null));
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
         
         // TEST -------------------------------------------------
         assertTrue("Related-to is null",p.getRelatedTo()!=null);
@@ -72,15 +66,11 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         // Make field entry; we have to re-do what is done in setup above.
         Pixels example2 = ObjectFactory.createPixelGraph(null);
         example2 = (Pixels) iUpdate.saveAndReturnObject(example2);
-        flush();
-        clear();
-        prepareCurrentDetails();
+
         Pixels p2 = ObjectFactory.createPixelGraph(example2);
         
         p.setRelatedTo(p2);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
         
         // TEST -------------------------------------------------
         assertTrue("Related-to is null",p.getRelatedTo()!=null);
@@ -99,8 +89,6 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
         p.setPixelsDimensions(pd);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
         
         // TEST -------------------------------------------------
         assertTrue("Dimensions is valid.",
@@ -120,8 +108,6 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         
         p.setAcquisitionContext(ac);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
         
         // TEST -------------------------------------------------
         assertNotNull("should be back.", p.getAcquisitionContext());
@@ -135,8 +121,6 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         // PREPARE -------------------------------------------------
         p.setChannels(null);
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
         
         // TEST -------------------------------------------------
         assertTrue("Didn't get re-filled", p.getChannels() != null);
@@ -153,9 +137,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         p.getDetails().addFiltered(Pixels.CHANNELS);
         
         // Save and it should be back
-        p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
+        p = iUpdate.saveAndReturnObject(p);
         
         // TEST -------------------------------------------------        
         int channelsSizeAfter = p.getChannels().size();
@@ -190,8 +172,6 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         p.addPlaneInfo( pi1 );
         p.addPlaneInfo( pi2 );
         p = (Pixels) iUpdate.saveAndReturnObject(p);
-        flush();
-        clear();
         
         // TEST ----------------------------------------------------
         assertTrue("Need two pixInfos, please.",p.collectPlaneInfo(null).size() == 2);

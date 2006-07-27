@@ -30,70 +30,38 @@
 package ome.tools.hibernate;
 
 // Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
-import org.springframework.orm.hibernate3.HibernateOperations;
 
 // Application-internal dependencies
-import ome.api.local.LocalQuery;
-import ome.conditions.SecurityViolation;
-import ome.conditions.ValidationException;
-import ome.model.IMutable;
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
 import ome.model.IObject;
-import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.security.SecuritySystem;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
-import ome.util.Utils;
-import ome.util.Validation;
 
-/**
- * enforces the detached-graph re-attachment "Commandments" as outlined in TODO.
- * Objects that are transient (no ID) are unchanged; objects that are managed 
- * (with ID) are checked for validity (i.e. must have a version); and 
- * unloaded/filtered objects & collections are re-filled.
+/** responsible for correlating entity identities during multiple calls to 
+ * merge. This occurs when {@link Collection collections} or arrays are passed
+ * into the {@link ome.logic.UpdateImpl} save methods. 
  * 
- * Various other actions are taken in {@link ome.tools.hibernate.EventLogListener}
- * 
- * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
- * @since 1.0
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see     ome.api.IUpdate
+ * @see     ome.logic.UpdateImpl
+ * @since   3.0-M3
  */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 public class UpdateFilter extends ContextFilter 
 {
 
-    private static Log log = LogFactory.getLog(UpdateFilter.class);
-
-    protected SecuritySystem securitySys;
-    
-    protected LocalQuery localQuery;
-
-    private UpdateFilter(){} // We need the template
-    
-    public UpdateFilter(
-    		SecuritySystem securitySystem, 
-    		LocalQuery query)
-    {
-    	this.securitySys = securitySystem;
-        this.localQuery = query;
-    }
-    
     /** provides an external hook to unload all files which have already been
      * merged. 
      * <p>
@@ -110,7 +78,7 @@ public class UpdateFilter extends ContextFilter
      *  </p>
      *
      * @see MergeEventListener
-     * @see UpdateImpl
+     * @see ome.logic.UpdateImpl
      * @see IObject#unload()
      */
     public void unloadReplacedObjects( )
@@ -124,6 +92,9 @@ public class UpdateFilter extends ContextFilter
         }
     }
     
+    /** overrides {@link ContextFilter#filter(String, Object)} to allow only
+     * certain types to enter the Hibernate system
+     */
     @Override
     public Object filter(String fieldId, Object o)
     {
@@ -157,64 +128,22 @@ public class UpdateFilter extends ContextFilter
         return result;
     }
     
+    /** overrides {@link ContextFilter#filter(String, Filterable)} to return
+     * previously merged or previously checked items.
+     */
     @Override
     public Filterable filter(String fieldId, Filterable f)
     {
         if (alreadySeen( f ))
             return (Filterable) returnSeen( f );
         
-        Filterable result = f; // Don't reuse f
-        
-        if ( result instanceof Details )
-        {
-            result = super.filter( fieldId, result );
-            // TODO any other clean up? "replacement", etc. 
-        }
-        else if ( result instanceof IObject )
-        {
-            IObject obj = (IObject) result;
-            switch ( getEntityState(obj) ) // can't be null
-            {
-                case UNLOADED:  
-                    result = loadUnloadedEntity( fieldId, obj ); 
-                    break;
-                case TRANSIENT:
-                    //securitySys.transferDetails( obj );
-                    result = super.filter( fieldId, obj );  
-                    break;
-                case MANAGED:
-                	//securitySys.checkManagedState( obj );
-                    result = super.filter( fieldId, obj );
-                    break;
-                default:
-                    throw new RuntimeException("Unkown state:"+getEntityState(obj));
-            }
-
-            // FOR ALL OBJECTS now that in session!
-            // First need to check that we won't validate internal objects.
-            Validation v = Validation.VALID(); // FIXME result.validate();
-            if (!v.isValid())
-                throw new RuntimeException(v.toString()); // TODO validation exception
-            
-            /*
-             * Need to check if it's a hibernate proxy and NOT walk it,
-             * but otherwise validate! 
-             */
-            
-//            // TODO DELETE PERHAPS?
-//            if (!(currentContext() instanceof Details) 
-//                    && (obj instanceof Event 
-//                    || obj instanceof EventLog 
-//                    || obj instanceof EventDiff))
-//                throw new RuntimeException(
-//                        "Events can only be managed through the Details object"); 
-
-        }
-
-        return result;
+        return super.filter(fieldId, f);
         
     }
 
+    /** overrides {@link ContextFilter#filter(String, Collection)} to return
+     * previously checked {@link Collection collections}.
+     */
     @Override
     public Collection filter(String fieldId, Collection c)
     {
@@ -222,169 +151,12 @@ public class UpdateFilter extends ContextFilter
         if ( alreadySeen( c ))
             return (Collection) returnSeen( c );
         
-        Collection result = c; // Don't reuse c
-        Object o = this.currentContext();
-        if (o instanceof IObject) 
-        {
-            IObject ctx = (IObject) o;
-            switch (getCollectionState(ctx, fieldId, result))
-            {
-                case MANAGED:   // Don't need to load.
-                case TRANSIENT: // Can't load.
-                    result = super.filter(fieldId, result);
-                    break;
-                case NULL:
-                case FILTERED:
-                    // TODO possible check for NEW items
-                    result = collectionIsUnloaded(fieldId, ctx);
-                default:
-                    break;
-            }
-        } 
-        else
-        {
-            throw new RuntimeException("Not handled yet: nonIObject context");
-        }
-        
-        
-        return result;
+        return super.filter(fieldId, c);
         
     }
 
-    // State Detection
-    // ===================================================
-
-    public enum EntityState
-    {
-        MANAGED, TRANSIENT, UNLOADED
-    };
-
-    public EntityState getEntityState(IObject obj)
-    {
-        if (obj.getId() == null) return EntityState.TRANSIENT;
-        if (!obj.isLoaded()) return EntityState.UNLOADED;
-        return EntityState.MANAGED;
-    }
-
-    public enum CollectionState
-    {
-        NULL, MANAGED, TRANSIENT, FILTERED
-    };
-
-    public CollectionState getCollectionState(IObject ctx, String fieldId,
-            Collection c)
-    {
-        if (ctx == null) 
-            return CollectionState.TRANSIENT;
-
-        switch (getEntityState(ctx))
-        {
-            case TRANSIENT:
-            case UNLOADED:
-                return CollectionState.TRANSIENT;
-            default:
-                break;
-        }
-        
-        if (ctx.getDetails() != null) { /* FIXME should NOT be null */
-            if ( ctx.getDetails().isFiltered(fieldId) )
-                return CollectionState.FILTERED;
-        } else {
-            log.warn( "Details null for: " + ctx);
-        }
-        
-        if (c == null) 
-            return CollectionState.NULL;
-        
-        return CollectionState.MANAGED;
-    }
-
-    // Actions
-    // ====================================================
-    
-    protected Filterable loadUnloadedEntity(String fieldId, IObject obj)
-    {
-        if ( obj != null && obj.getId() != null)
-        {
-           return loadFromUnloaded(obj); 
-        }
-        
-        else if (currentContext() instanceof IObject)
-        {
-            IObject ctx = (IObject) currentContext();
-            EntityState ctxState = getEntityState(ctx);
-            if (!EntityState.MANAGED.equals(ctxState))
-                throw new IllegalStateException(
-                        "UNLOADED entity cannot be found "
-                                + "in an non-MANAGED entity!");
-
-            // EARLY EXIT!
-            return (IObject) loadFromEntityField(ctx, fieldId);
-
-        } 
-        
-        else  
-        {
-            // TODO: InvalidException?
-            throw new IllegalStateException(
-                "Impossible to load an entity from a collection without an id."
-            ); 
-        }
-    }
-
-    private Collection collectionIsUnloaded(String fieldId, IObject ctx)
-    {
-        Collection current = (Collection) loadFromEntityField(ctx, fieldId);
-        
-        if (current == null)
-            return null; // EARLY EXIT
-        
-        Collection copied = makeNew(current);
-        for (Iterator it = current.iterator(); it.hasNext();)
-        {
-            Object o = (Object) it.next();
-            copied.add(o); // TODO needed?
-        }
-        return copied;
-    }
- 
-    // Loading
-    // =======================================================
-    /** used to load the context object and then find its named field.
-     * Should only be called with detached or managed objects (id needed).
-     */
-    @SuppressWarnings("unchecked")
-    protected Object loadFromEntityField(IObject ctx, String fieldId)
-    {
-    	Class k = Utils.trueClass( ctx.getClass() );
-        IObject context = localQuery.get( k, ctx.getId());
-        return context.retrieve( fieldId );
-    }
-
-    protected IObject loadFromUnloaded(IObject ctx)
-    {
-        IObject result = (IObject) localQuery.get(ctx.getClass(),ctx.getId());
-        return result;
-    }
-    
     // Helpers
     //  =======================================================
-    /**
-     * @param example not null collection
-     */
-    private Collection makeNew(Collection example)
-    {
-        if (example instanceof Set)
-        {
-            return new HashSet(example.size());
-        } else if (example instanceof List)
-        {
-            return new ArrayList(example.size());
-        }
-        
-        throw new RuntimeException("Unknown collection type:"+example.getClass());
-        
-    }
 
     protected boolean hasReplacement( Object o )
     {

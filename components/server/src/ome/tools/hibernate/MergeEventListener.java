@@ -29,34 +29,53 @@
 package ome.tools.hibernate;
 
 // Java imports
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
-import org.hibernate.EntityMode;
+import org.hibernate.collection.PersistentCollection;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.event.EventSource;
 import org.hibernate.event.MergeEvent;
 import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.type.ForeignKeyDirection;
 import org.hibernate.type.Type;
 import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.security.SecuritySystem;
+import ome.tools.lsid.LsidUtils;
 
 /**
- * responsible for responding to all Hibernate Events. Delegates tasks to
- * various components. It is assumed that graphs coming to the Hibernate methods
- * which produces these events have already been processed by the UpdateFilter.
+ * responsible for responding to merge events. in particular in load/re-loading
+ * certain types to make use by clients easier.
+ * 
+ * In general, enforces the detached-graph re-attachment "Commandments" as 
+ * outlined in TODO. Objects that are transient (no ID) are unchanged; 
+ * objects that are managed (with ID) are checked for validity (i.e. must have 
+ * a version); and unloaded/filtered objects & collections are re-filled.
+ * 
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @since   3.0
  */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 public class MergeEventListener extends IdTransferringMergeEventListener
 {
 
@@ -66,16 +85,39 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 	
 	private SecuritySystem secSys;
 	
-	private SaveEventSupport support;
-	
 	/** main constructor. Requires a non-null security system */
 	public MergeEventListener( SecuritySystem securitySystem )
 	{
 		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;
-		this.support = new SaveEventSupport(securitySystem);
 	}
     
+	@Override
+	protected void copyValues(EntityPersister persister, Object entity, 
+			Object target, SessionImplementor source, Map copyCache) {
+		
+		if (entity instanceof IObject)
+		{
+			fixNulledOrFilteredCollections((IObject)entity,(IObject)target,persister,source);
+			propagateHiddenValues((IObject)entity,(IObject)target);
+		}
+		super.copyValues(persister, entity, target, source, copyCache);
+	}
+
+	@Override
+	protected void copyValues(EntityPersister persister, Object entity, 
+			Object target, SessionImplementor source, Map copyCache, 
+			ForeignKeyDirection foreignKeyDirection) {
+		
+		if (entity instanceof IObject)
+		{
+			fixNulledOrFilteredCollections((IObject)entity,(IObject)target,persister,source);
+			propagateHiddenValues((IObject)entity, (IObject)target);
+		}
+		super.copyValues(persister, entity, target, source, copyCache,
+				foreignKeyDirection);
+	}
+	
     @Override
     @SuppressWarnings({"cast","unchecked"})
     protected void entityIsTransient( MergeEvent event, Map copyCache )
@@ -92,10 +134,8 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     		extant = (IEnum) c.uniqueResult();
     		if (null != extant)
     		{
-	    		log.warn("Using existing Enum("
-	    				+event.getEntityName()
-	    				+") with value:"
-	    				+value);
+	    		log("Using existing Enum(",event.getEntityName()
+	    				,") with value:",value);
 	    		copyCache.put(event.getEntity(), extant);
 	    		event.setResult(extant);
     		}
@@ -104,15 +144,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     	// the above didn't succeed. process normally.
     	if ( extant == null )
     	{
-    		if ( ! secSys.allowCreation( (IObject) event.getOriginal() ) )
-    		{
-    			secSys.throwCreationViolation( (IObject) event.getOriginal() );
-    		}
-    	
-    		else 
-    		{
-    			super.entityIsTransient( event, copyCache );
-    		}
+			super.entityIsTransient( event, copyCache );
     	}
         fillReplacement( event );
     }
@@ -125,25 +157,17 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     	if (isUnloaded( orig ))
     	{
            	final EventSource source = event.getSession();
-    		log.warn("Reloading unloaded entity in MergeEventListener.\n" +
-    				 "Not caught by UpdateFilter: "+
-    				 event.getEntityName()+":"+event.getRequestedId());
-    		throw new InternalException("Filter didn't catch unloaded:"+orig);
-//    		Object obj = source.load( 
-//    						orig.getClass(), 
-//    						orig.getId());	
-//    		event.setResult(obj);
-//    		copyCache.put(event.getEntity(), obj);
-//    		fillReplacement( event );
-//    		return; //EARLY EXIT! 
+    		log("Reloading unloaded entity:",event.getEntityName(),":", orig.getId());
+    		Object obj = source.load( 
+    						orig.getClass(), 
+    						orig.getId());	
+    		event.setResult(obj);
+    		copyCache.put(event.getEntity(), obj);
+    		fillReplacement( event );
+    		return; //EARLY EXIT! 
     		// TODO this was maybe a bug. check if findDirty is superfluous.
     	}
-    	
-    	else if ( ! secSys.allowUpdate( (IObject) event.getOriginal() ))
-    	{
-    		secSys.throwUpdateViolation( (IObject) event.getOriginal() );
-    	}
-    	
+    	    	
     	else 
     	{
     		super.entityIsDetached( event, copyCache );
@@ -172,5 +196,102 @@ public class MergeEventListener extends IdTransferringMergeEventListener
             obj.getGraphHolder().setReplacement( (IObject) event.getResult() );
         }
     }
+    
+	protected void propagateHiddenValues(IObject from, IObject to) {
+		secSys.copyToken(from,to);
+		if ( from.getDetails().filteredSize() > 0 )
+		{
+			to.getDetails().addFiltered(from.getDetails().filteredSet());
+		}
+	}
+	
+	/** loads collections which have been filtered or nulled by the user 
+	 * 
+	 * @param entity IObject to have its collections reloaded
+	 * @param id persistent (db) id of this entity
+	 * @param currentState the possibly changed field data for this entity
+	 * @param previousState the field data as seen in the db
+	 * @param propertyNames field names
+	 * @param types Hibernate {@link Type} for each field
+	 * @param detailsIndex the index of the {@link Details} instance (perf opt)
+	 */
+	protected void fixNulledOrFilteredCollections(IObject entity, 
+			IObject target, EntityPersister persister, SessionImplementor source)
+	{
+		
+		Object[] currentState  = persister.getPropertyValues( entity, source.getEntityMode() );
+		Object[] previousState = persister.getPropertyValues( target, source.getEntityMode() );
+		String[] propertyNames = persister.getPropertyNames();
+		Type[] types   = persister.getPropertyTypes();
 
+		int detailsIndex = OmeroInterceptor.detailsIndex(propertyNames);
+		Details d = (Details) currentState[detailsIndex];
+		if ( d != null )
+		{
+			Set<String> s = d.filteredSet();
+			for (String string : s) {
+				string = LsidUtils.parseField(string);
+				int idx = OmeroInterceptor.index(string,propertyNames);
+				Object previous = previousState[idx];
+				if ( ! (previous instanceof PersistentCollection) ) // implies not null
+				{
+					throw new InternalException(String.format(
+							"Invalid collection found for filtered " +
+							"field %s in previous state for %s",
+							string,entity));
+				}
+				log("Copying filtered collection ",string);
+				Collection copy = copy(((PersistentCollection)previous));
+				persister.setPropertyValue(entity,idx,copy,source.getEntityMode());
+			}
+		}
+		
+		for (int i = 0; i < types.length; i++) {
+			Type t = types[i];
+			if ( t.isCollectionType() && null == currentState[i] )
+			{
+				Object previous = previousState[i];
+				if ( ! (previous instanceof Collection) ) // implies not null
+				{
+					throw new InternalException(String.format(
+							"Invalid collection found for null " +
+							"field %s in previous state for %s",
+							propertyNames[i],entity));
+				}
+				log("Copying nulled collection ",propertyNames[i]);
+				Collection copy = copy(((PersistentCollection)previous));
+				persister.setPropertyValue(entity,i,copy,source.getEntityMode());
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Collection copy(PersistentCollection c)
+	{
+		if (c instanceof Set)
+		{
+			return new HashSet((Set)c);
+		} 
+		
+		else if (c instanceof List)
+		{
+			return new ArrayList((List)c);
+		}
+		
+		else 
+			throw new InternalException("Unsupported collection type:"+
+					c.getClass().getName());
+	}
+
+	private void log(Object...objects)
+	{
+		if ( log.isDebugEnabled() && objects != null && objects.length > 0)
+		{
+			StringBuilder sb = new StringBuilder(objects.length*16);
+			for (Object obj : objects) {
+				sb.append(obj.toString());
+			}
+			log.debug(sb.toString());
+		}
+	}
 }
