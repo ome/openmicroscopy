@@ -240,11 +240,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
         if ( logger.isDebugEnabled() )
             logger.debug( " Saving event before merge. " );
-        
-        // Save event before we enter.
-        Event currentEvent = securitySystem.getCurrentEvent();
-        Event mergedEvent = (Event) internalSave( currentEvent, filter );
-        securitySystem.setCurrentEvent( mergedEvent );
 
     }
 
@@ -290,7 +285,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     private <T> T doAction( T graph, UpdateAction<T> action )
     {
     	T retVal;
-        UpdateFilter filter = new UpdateFilter( securitySystem, localQuery );
+        UpdateFilter filter = new UpdateFilter( );
         Event currentEvent = securitySystem.getCurrentEvent();
         try 
         {

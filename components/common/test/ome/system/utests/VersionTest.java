@@ -22,11 +22,11 @@ public class VersionTest extends TestCase {
 	public void testGetRevision() throws Exception {
 		assertEquals(
 				(Integer)100,
-				(Integer)Version.getRevision(new Blank()));
+				(Integer)Version.getRevision(Blank.class));
 	}
 	
 	public void testGetDate() throws Exception {
-		assertNotNull(Version.getDate(new Blank()));
+		assertNotNull(Version.getDate(Blank.class));
 	}
 	
 	public void testSvnDateFormat() throws Exception
