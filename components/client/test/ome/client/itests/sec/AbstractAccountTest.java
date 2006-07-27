@@ -23,7 +23,7 @@ import ome.system.ServiceFactory;
 			  "ticket:181","ticket:199", 
 			  "password"} 
 )
-public class AbstractAccountTest extends TestCase
+public class AbstractAccountTest extends AbstractSecurityTest
 {
 
     protected static final String OME_HASH = "vvFwuczAmpyoRC0Nsv8FCw==";
@@ -36,65 +36,56 @@ public class AbstractAccountTest extends TestCase
 	protected String sudo_name;
 	protected String sudo_id;
 
-    protected ServiceFactory tmp = new ServiceFactory( "ome.client.test" );
-    protected DataSource dataSource = (DataSource) tmp.getContext().getBean("dataSource");
-    protected SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate( dataSource );
-    protected Login rootLogin = (Login) tmp.getContext().getBean("rootLogin");
-    
-    protected ServiceFactory rootServices;
-    protected IAdmin rootAdmin;
-    protected IQuery rootQuery;
-    protected IUpdate rootUpdate;
+
+
     
     // ~ Testng Adapter
     // =========================================================================
     @Configuration(beforeTestClass = true)
     public void rootCanLoginWith_ome() throws Exception
     {
-        super.setUp();
-        rootServices = new ServiceFactory( rootLogin );
-        rootAdmin = rootServices.getAdminService();
-        rootQuery = rootServices.getQueryService();
-        rootUpdate = rootServices.getUpdateService();
-        try 
-        {
-            rootQuery.get(Experimenter.class,0l);
-        } catch (Throwable t){
-            // TODO no, no, really. This is ok. (And temporary) 
-        }
-        
+        init();
         root = rootQuery.get( Experimenter.class, 0L );
-        sudo = createNewExperimenter( rootUpdate,
-        		new ExperimenterGroup(0L,false),
-        		new ExperimenterGroup(1L,false));
+        sudo = createNewSystemUser( rootAdmin );
         sudo_name = sudo.getOmeName();
         resetPasswordTo_ome(sudo);
         assertCanLogin(sudo_name,"ome");
     }
-    
-//    @Configuration( afterTestMethod = true, alwaysRun = true )
-//    public void deleteSudo() throws Exception
-//    {	
-//    	rootAdmin.deleteExperimenter( new Experimenter( sudo.getId(), false ) );
-//    }
+
     
     // ~ Helpers
     // =========================================================================
 
-	protected Experimenter createNewExperimenter(IUpdate iUpdate, 
-			ExperimenterGroup...groups) {
+	protected Experimenter createNewUser(IUpdate iUpdate ) {
 		
 		Experimenter e = new Experimenter();
     	e.setOmeName(new GUID().asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:181");
-    	for (ExperimenterGroup group : groups) {
-    		GroupExperimenterMap map = new GroupExperimenterMap();
-    		map.link(group,e);
-			e.addGroupExperimenterMap(map, false);
-		}
-    	e = iUpdate.saveAndReturnObject(e);
-		return e;
+    	GroupExperimenterMap map = new GroupExperimenterMap();
+    	map.link(userGrp,e);
+    	e.addGroupExperimenterMap(map, false);
+		return iUpdate.saveAndReturnObject(e);
+	}
+    
+	protected Experimenter createNewUser(IAdmin iAdmin ) {
+		
+		Experimenter e = new Experimenter();
+    	e.setOmeName(new GUID().asString());
+    	e.setFirstName("ticket:181");
+    	e.setLastName("ticket:181");
+    	long id = iAdmin.createUser(e);
+		return iAdmin.getExperimenter(id);
+	}
+    
+	protected Experimenter createNewSystemUser(IAdmin iAdmin ) {
+		
+		Experimenter e = new Experimenter();
+    	e.setOmeName(new GUID().asString());
+    	e.setFirstName("ticket:181");
+    	e.setLastName("ticket:181");
+    	long id = iAdmin.createSystemUser(e);
+		return iAdmin.getExperimenter(id);
 	}
 	
 	protected String getPasswordFromDb(Experimenter e) throws Exception {
@@ -186,19 +177,19 @@ public class AbstractAccountTest extends TestCase
   
     protected IAdmin getSudoAdmin( String password )
     {
-    	return new ServiceFactory( new Login( sudo_name,password))
+    	return new ServiceFactory( new Login( sudo_name,password,"system","Test"))
 		.getAdminService();
     }
     
     protected IQuery getSudoQuery( String password )
     {
-    	return new ServiceFactory( new Login( sudo_name,password))
+    	return new ServiceFactory( new Login( sudo_name,password,"system","Test"))
 		.getQueryService();
     }
     
     protected IUpdate getSudoUpdate( String password )
     {
-    	return new ServiceFactory( new Login( sudo_name,password))
+    	return new ServiceFactory( new Login( sudo_name,password,"system","Test"))
 		.getUpdateService();
     }
 

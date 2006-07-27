@@ -13,6 +13,7 @@ import ome.model.display.Color;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.Family;
@@ -31,6 +32,14 @@ import ome.model.internal.Details;
  */
 public class ObjectFactory
 {
+	public static Thumbnail createThumbnails(Pixels p)
+	{
+		Thumbnail t = new Thumbnail();
+		t.setMimeType(1);
+		p.addThumbnail(t);
+		return t;
+	}
+	
     public static Pixels createPixelGraph(Pixels example)
     {
 

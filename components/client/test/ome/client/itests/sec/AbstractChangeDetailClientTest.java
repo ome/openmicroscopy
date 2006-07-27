@@ -19,40 +19,24 @@ import ome.system.ServiceFactory;
 @Test( 
 	groups = {"client","integration","security","ticket:52", "init"} 
 )
-public class AbstractChangeDetailClientTest extends TestCase
+public class AbstractChangeDetailClientTest extends AbstractSecurityTest
 {
-    
-	private ServiceFactory tmp = new ServiceFactory();
 	
     protected Login
-    asRoot = (Login) tmp.getContext().getBean("rootLogin"),
-    asUser = new Login( UUID.randomUUID().toString(), "ome" ),
-    other = new Login( UUID.randomUUID().toString(), "ome" );
+    asRoot = super.rootLogin,
+    asUser = new Login( UUID.randomUUID().toString()+"1", "ome" ),
+    other = new Login( UUID.randomUUID().toString()+"2", "ome" );
 
     protected Experimenter toRoot, toUser, toOther;
     
     protected ExperimenterGroup toSystem, toUserGroup, toOtherGroup;
-    
-    protected Long rootImage, userImage, otherImage;
 
     // ~ Testng Adapter
     // =========================================================================
     @Configuration(beforeTestClass = true)
-    public void setUp() throws Exception
+    public void createUsersAndImages() throws Exception
     {
-        super.setUp();
-        
-        ServiceFactory rootServices = new ServiceFactory( asRoot );
-        IQuery iQuery = rootServices.getQueryService();
-        IUpdate iUpdate = rootServices.getUpdateService();
-        IAdmin iAdmin = rootServices.getAdminService();
-        
-        try 
-        {
-            iQuery.get(Experimenter.class,0l);
-        } catch (Throwable t){
-            // TODO no, no, really. This is ok. (And temporary) 
-        }
+        init();
         
         toRoot = new Experimenter( 0L, false );        
         toSystem = new ExperimenterGroup( 0L, false ); 
@@ -63,50 +47,35 @@ public class AbstractChangeDetailClientTest extends TestCase
         toUser.setFirstName("test");
         toUser.setLastName("test");
         toUser.setOmeName(asUser.getName());
-        toUser = iAdmin.createUser( toUser );
-        toUser.unload();
+        toUser = new Experimenter( rootAdmin.createUser( toUser ), false );
         
         toOther = new Experimenter();
         toOther.setFirstName("test");
         toOther.setLastName("test");
         toOther.setOmeName(other.getName());
-        toOther = iAdmin.createUser(toOther);
-        toOther.unload();
+        toOther = new Experimenter( rootAdmin.createUser(toOther), false );
         
         toOtherGroup = new ExperimenterGroup();
         toOtherGroup.setName(UUID.randomUUID().toString());
-        toOtherGroup = iAdmin.createGroup( toOtherGroup );
-        toOther.unload();
-        
-        rootImage = getManageImageId( asRoot );
-        userImage = getManageImageId( asUser );
-        otherImage = getManageImageId( other );
+        toOtherGroup = new ExperimenterGroup( rootAdmin.createGroup( toOtherGroup ), false );
+
     }
 
     // ~ Helpers
     // =========================================================================
-    private Long getManageImageId( Login login )
+    protected Long managedImage( Login login )
     {
         ServiceFactory services = new ServiceFactory( login );
         Image i = new Image();
         i.setName( "test" );
         i = (Image) services.getUpdateService().saveAndReturnObject( i );
+        // They need to actual belong to the right people
+        assertEquals( rootAdmin.lookupExperimenter(login.getName()).getId(), 
+        		rootQuery.get(Image.class, i.getId()).getDetails().getOwner().getId());
         return i.getId();
     }
-
-    protected <E extends Exception> void verify(Exception e, Class<E>[] exs)
-    {	
-    	boolean match = false;
-		for (Class<E> ex : exs) {
-			if (ex.isAssignableFrom(e.getClass()))
-			{
-				match = true;
-			}
-		}
-		if (!match) throw new RuntimeException("Unexected exception thrown.",e);
-    }
     
-    protected <E extends Exception> void createAsUserToOwner(
+    protected void createAsUserToOwner(
     		Login login, Experimenter owner) 
     throws ValidationException
     {
@@ -120,7 +89,7 @@ public class AbstractChangeDetailClientTest extends TestCase
      
     }
     
-    protected <E extends Exception> void updateAsUserToOwner(
+    protected void updateAsUserToOwner(
             Long imageId, Login login, Experimenter owner)
     throws ValidationException
     {
@@ -134,7 +103,7 @@ public class AbstractChangeDetailClientTest extends TestCase
 
     }
 
-    protected <E extends Exception> void createAsUserToGroup(
+    protected void createAsUserToGroup(
     		Login login, ExperimenterGroup group)
     throws ValidationException
     {
@@ -148,7 +117,7 @@ public class AbstractChangeDetailClientTest extends TestCase
 
     }
     
-    protected <E extends Exception> void updateAsUserToGroup(
+    protected void updateAsUserToGroup(
             Long imageId, Login login, ExperimenterGroup group)
     throws ValidationException
     {

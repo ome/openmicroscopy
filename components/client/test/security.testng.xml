@@ -1,0 +1,17 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="client.security" >
+  
+  <test name="client.security.active">
+    <groups>
+      <run>
+        <exclude name="broken"/>
+        <exclude name="ignore"/>
+      </run>        
+    </groups>
+    <packages>
+      <package name="ome.client.itests.sec.*"/>
+    </packages>
+  </test>
+
+</suite>
