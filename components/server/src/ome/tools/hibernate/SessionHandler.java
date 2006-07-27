@@ -303,7 +303,7 @@ public class SessionHandler implements MethodInterceptor
     {
         debug("Opening and binding session.");
         Session session = factory.openSession();
-        session.setFlushMode( FlushMode.NEVER );
+        session.setFlushMode( FlushMode.COMMIT );
         bindSession(session);
         return session;
     }

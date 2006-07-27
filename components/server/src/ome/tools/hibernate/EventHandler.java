@@ -47,6 +47,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
+import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
 import ome.model.meta.Event;
 import ome.security.SecuritySystem;
@@ -129,7 +130,7 @@ public class EventHandler implements MethodInterceptor
         	throw ex;
         } finally {
         	try {
-	        	if (!failure)
+	        	if (!failure && !(arg0.getThis() instanceof StatefulServiceInterface) )
 	        	{
 	        		ht.flush();
 	        		ht.execute(new CheckDirtyAction(secSys));

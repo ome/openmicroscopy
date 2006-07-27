@@ -26,7 +26,7 @@ import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
 
 @Test( 
-	groups = {"client","integration", "renderingengine", "broken"} 
+	groups = {"client", "integration", "renderingengine", "broken"} 
 	// Needs an ImporterFixture
 )
 public class RenderingEngineTest extends TestCase
@@ -119,6 +119,16 @@ public class RenderingEngineTest extends TestCase
         test( m, families, pix );
     }
     
+    @Test( groups = {"manualimport","ticket:258"})
+    public void testQuantumDefTransientObjectException() throws Exception {
+		RenderingEngine re = sf.createRenderingEngine();
+		re.lookupPixels(1L);
+		re.lookupRenderingDef(1L);
+		re.load();
+		
+		re.getModel();
+		re.setQuantumStrategy(1);
+	}
     private void test( RenderingModel m, List<Family> families, Pixels pix)
     {
         assertNotNull(m);
