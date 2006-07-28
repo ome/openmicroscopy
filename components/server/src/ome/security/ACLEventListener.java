@@ -31,14 +31,9 @@ package ome.security;
 // Java imports
 
 // Third-party imports
-import java.util.Iterator;
-
-import ome.conditions.InternalException;
-import ome.model.IObject;
-import ome.model.internal.Details;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -55,18 +50,34 @@ import org.hibernate.event.PreLoadEvent;
 import org.hibernate.event.PreLoadEventListener;
 import org.hibernate.event.PreUpdateEvent;
 import org.hibernate.event.PreUpdateEventListener;
-import org.hibernate.event.def.DefaultPostLoadEventListener;
-import org.hibernate.event.def.DefaultPreLoadEventListener;
 
 // Application-internal dependencies
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.conditions.InternalException;
+import ome.conditions.SecurityViolation;
+import ome.model.IObject;
+import ome.model.internal.Details;
+import ome.tools.hibernate.EventListenersFactoryBean;
+
 
 
 /**
- * responsible for responding to all Hibernate Events. Delegates tasks to
- * various components. It is assumed that graphs coming to the Hibernate methods
- * which produces these events have already been processed by the 
- * {@link ome.tools.hibernate.UpdateFilter}
+ * responsible for intercepting all pre-INSERT, pre-UPDATE, pre-DELETE, and 
+ * post-LOAD events to apply access control. For each event, a call is made
+ * to the {@link SecuritySystem} to see if the event is allowed, and if not,
+ * another call is made to the {@link  SecuritySystem} to throw a 
+ * {@link SecurityViolation}.
+ * 
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see     SecuritySystem
+ * @see		SecurityViolation
+ * @see     EventListenersFactoryBean
+ * @since   3.0-M3
  */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 public class ACLEventListener
         implements 
         /* BEFORE... */ PreDeleteEventListener, PreInsertEventListener,
@@ -95,13 +106,15 @@ public class ACLEventListener
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //
 
-    // Unused
-    public void onPostDelete(PostDeleteEvent event) {}
-    public void onPostInsert(PostInsertEvent event) {}
-    public void onPostUpdate(PostUpdateEvent event) {}
-    public void onPreLoad(PreLoadEvent event) {}
+    /** unused */ public void onPostDelete(PostDeleteEvent event) {}
+    /** unused */ public void onPostInsert(PostInsertEvent event) {}
+    /** unused */ public void onPostUpdate(PostUpdateEvent event) {}
+    /** unused */ public void onPreLoad(PreLoadEvent event) {}
 
-    // have to use post load because preload doesn't contain db information.
+    /** catches all load events after the fact, and tests the current users
+     * permissions to read that object. We have to catch the load after the fact
+     * because the permissions information is stored in the db.
+     */
     public void onPostLoad(PostLoadEvent event)
     {
     	Object entity = event.getEntity();
@@ -114,6 +127,7 @@ public class ACLEventListener
             }
     	}
     }
+
     
     public boolean onPreInsert(PreInsertEvent event)
     {

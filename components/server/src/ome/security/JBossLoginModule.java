@@ -30,16 +30,21 @@
 package ome.security;
 
 //Java imports
-
-//Third-party libraries
 import javax.security.auth.login.LoginException;
 
+//Third-party libraries
 import org.jboss.security.auth.spi.DatabaseServerLoginModule;
 
 //Application-internal dependencies
 
 /** 
- * various tools needed throughout Omero. 
+ * configured in jboss-login.xml to add logic to the JBoss authentication 
+ * procedure.
+ * 
+ * Specifically, we override {@link #validatePassword(String, String)} here
+ * in order to interpret empty string passwords as "open", i.e. any password
+ * will be accepted. This eases entry into the system in that passwords can
+ * be initially ignored.
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>

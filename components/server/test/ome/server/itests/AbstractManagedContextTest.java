@@ -17,6 +17,7 @@ import ome.api.IPojos;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.security.SecuritySystem;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -59,6 +60,8 @@ public class AbstractManagedContextTest
     
     protected JdbcTemplate jdbcTemplate;
     
+    protected SecuritySystem securitySystem;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
@@ -78,6 +81,8 @@ public class AbstractManagedContextTest
     
         DataSource dataSource = (DataSource) applicationContext.getBean("dataSource");
         jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
+        
+        securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
     
     }
     

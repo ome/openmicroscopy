@@ -30,12 +30,11 @@
 package ome.security;
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
@@ -47,6 +46,9 @@ import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.tools.hibernate.EventHandler;
+import ome.tools.hibernate.MergeEventListener;
+
 
 /** 
  * central security interface. All queries and actions that deal with a secure
@@ -57,6 +59,8 @@ import ome.model.meta.ExperimenterGroup;
  * @see 	Token
  * @see     Details
  * @see     Permissions
+ * @see		ACLEventListener
+ * @see 	MergeEventListener
  * @since   3.0-M3
  */
 @RevisionDate("$Date$")
@@ -73,7 +77,7 @@ public interface SecuritySystem
 	 * 
 	 * Not all methods require that the instance is ready. 
 	 * 
-	 * @param true if all methods on this interface are ready to be called.
+	 * @return true if all methods on this interface are ready to be called.
 	 */
 	boolean isReady( );
 	
@@ -93,7 +97,7 @@ public interface SecuritySystem
 	/** enables the read filter such that graph queries will have non-visible
 	 * entities silently removed from the return value. This filter does <em>
 	 * not</em> apply to single value loads from the database. See 
-	 * {@lnk {@link #allowLoad(Class, Details)} for more.
+	 * {@link #allowLoad(Class, Details)} for more.
 	 * 
 	 * Note: this filter must be disabled on logout, otherwise the necessary
 	 * parameters (current user, current group, etc.) for building the filters 
@@ -103,6 +107,7 @@ public interface SecuritySystem
 	 * @param session a generic session object which can be used to enable
 	 *   this filter. Each {@link SecuritySystem} implementation will require
 	 *   a specific session type.
+	 * @see EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	void enableReadFilter( Object session );
 	
@@ -112,6 +117,7 @@ public interface SecuritySystem
 	 * @param session a generic session object which can be used to disable
 	 * 		this filter. Each {@link SecuritySystem} implementation will require
 	 * 		a specifc session type.
+	 * @see EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	void disableReadFilter( Object session );
 	
@@ -130,6 +136,7 @@ public interface SecuritySystem
 	 * @param d the non-null trusted details (usually from the db) 
 	 * 		for this instance
 	 * @return true if loading of this object can proceed
+	 * @see ACLEventListener#onPostLoad(org.hibernate.event.PostLoadEvent)
 	 */
 	boolean allowLoad( Class<? extends IObject> klass, Details trustedDetails );
 	
@@ -143,6 +150,7 @@ public interface SecuritySystem
 	 * 
 	 * @param iObject a non-null entity to test for creation.
 	 * @return true if creation of this object can proceed
+	 * @see ACLEventListener#onPreInsert(org.hibernate.event.PreInsertEvent)
 	 */
 	boolean allowCreation( IObject iObject );
 	
@@ -156,6 +164,7 @@ public interface SecuritySystem
 	 * @param iObject a non-null entity to test for update.
 	 * @param trustedDetails a {@link Details} instance that is known to be valid.
 	 * @return true if update of this object can proceed
+	 * @see ACLEventListener#onPreUpdate(org.hibernate.event.PreUpdateEvent)
 	 */
 	boolean allowUpdate( IObject iObject, Details trustedDetails );
 	
@@ -169,12 +178,44 @@ public interface SecuritySystem
 	 * @param iObject a non-null entity to test for deletion.
 	 * @param trustedDetails a {@link Details} instance that is known to be valid.
 	 * @return true if deletion of this object can proceed
+	 * @see ACLEventListener#onPreDelete(org.hibernate.event.PreDeleteEvent)
 	 */
 	boolean allowDelete( IObject iObject, Details trustedDetails );
 
+	/** throws a {@link SecurityViolation} based on the given {@link IObject}
+	 * and the context of the current user.
+	 * 
+	 * @param iObject Non-null object which caused this violation
+	 * @throws SecurityViolation
+	 * @see {@link ACLEventListener#onPostLoad(org.hibernate.event.PostLoadEvent)}
+	 */
 	void throwLoadViolation( IObject iObject ) throws SecurityViolation;
+
+	/** throws a {@link SecurityViolation} based on the given {@link IObject}
+	 * and the context of the current user.
+	 * 
+	 * @param iObject Non-null object which caused this violation
+	 * @throws SecurityViolation
+	 * @see {@link ACLEventListener#onPreInsert(org.hibernate.event.PreInsertEvent)}
+	 */
 	void throwCreationViolation( IObject iObject ) throws SecurityViolation;
+	
+	/** throws a {@link SecurityViolation} based on the given {@link IObject}
+	 * and the context of the current user.
+	 * 
+	 * @param iObject Non-null object which caused this violation
+	 * @throws SecurityViolation
+	 * @see ACLEventListener#onPreUpdate(org.hibernate.event.PreUpdateEvent)
+	 */
 	void throwUpdateViolation( IObject iObject ) throws SecurityViolation;
+	
+	/** throws a {@link SecurityViolation} based on the given {@link IObject}
+	 * and the context of the current user.
+	 * 
+	 * @param iObject Non-null object which caused this violation
+	 * @throws SecurityViolation
+	 * @see ACLEventListener#onPreDelete(org.hibernate.event.PreDeleteEvent)
+	 */
 	void throwDeleteViolation( IObject iObject ) throws SecurityViolation;
 	
 	// ~ Privileged accounts

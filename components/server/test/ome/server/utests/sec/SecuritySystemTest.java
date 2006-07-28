@@ -160,8 +160,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sec.isSystemType( null );	
 		sec.allowLoad( user.getClass(), new Details() );
 		sec.allowCreation( user );
-		sec.allowUpdate( user );
-		sec.allowDelete( user );
+		sec.allowUpdate( user, new Details() );
+		sec.allowDelete( user, new Details() );
 		sec.getRootId();
 		sec.getRootName();
 		sec.getSystemGroupName();
@@ -396,8 +396,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		// uses Springs assert
 		try { sec.allowLoad( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		try { sec.allowCreation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.allowUpdate( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.allowDelete( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.allowUpdate( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.allowDelete( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		try { sec.doAction( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		try { sec.addLog( null, null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		try { sec.throwLoadViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
@@ -481,14 +481,14 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		// 1. not system type
 		sec.setCurrentDetails();
-		assertFalse(sec.allowUpdate(e));
-		assertTrue(sec.allowUpdate(i));
+		assertFalse(sec.allowUpdate(e,e.getDetails()));
+		assertTrue(sec.allowUpdate(i,i.getDetails()));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
 		SecureAction checkAllowCreate = new SecureAction(){
 			public <T extends IObject> T updateObject(T obj) {
-				assertTrue(sec.allowUpdate(obj));
+				assertTrue(sec.allowUpdate(obj,obj.getDetails()));
 				return null;
 			}
 		};
@@ -498,8 +498,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		// 3. user is admin.
 		prepareMocksWithRootDetails();
 		sec.setCurrentDetails();
-		assertTrue(sec.allowUpdate(e));
-		assertTrue(sec.allowUpdate(i));
+		assertTrue(sec.allowUpdate(e,e.getDetails()));
+		assertTrue(sec.allowUpdate(i,i.getDetails()));
 		sec.clearCurrentDetails();
 		
 		// PERMISSIONS BASED
@@ -510,11 +510,11 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		i = new Image(2L);
 		i.getDetails().setOwner(new Experimenter(2L));
 		i.getDetails().setGroup(new ExperimenterGroup(2L));
-		assertTrue(sec.allowUpdate(i));
+		assertTrue(sec.allowUpdate(i,i.getDetails()));
 		
 		// now lower permissions
 		i.getDetails().setPermissions(Permissions.READ_ONLY);
-		assertFalse(sec.allowUpdate(i));
+		assertFalse(sec.allowUpdate(i,i.getDetails()));
 	
 	}
 
@@ -534,14 +534,14 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		// 1. not system type
 		sec.setCurrentDetails();
-		assertFalse(sec.allowDelete(e));
-		assertTrue(sec.allowDelete(i));
+		assertFalse(sec.allowDelete(e,e.getDetails()));
+		assertTrue(sec.allowDelete(i,i.getDetails()));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
 		SecureAction checkAllowCreate = new SecureAction(){
 			public <T extends IObject> T updateObject(T obj) {
-				assertTrue(sec.allowDelete(obj));
+				assertTrue(sec.allowDelete(obj,obj.getDetails()));
 				return null;
 			}
 		};
@@ -551,8 +551,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		// 3. user is admin.
 		prepareMocksWithRootDetails();
 		sec.setCurrentDetails();
-		assertTrue(sec.allowDelete(e));
-		assertTrue(sec.allowDelete(i));
+		assertTrue(sec.allowDelete(e,e.getDetails()));
+		assertTrue(sec.allowDelete(i,i.getDetails()));
 		sec.clearCurrentDetails();
 		
 		// PERMISSIONS BASED
@@ -563,11 +563,11 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		i = new Image(2L);
 		i.getDetails().setOwner(new Experimenter(2L));
 		i.getDetails().setGroup(new ExperimenterGroup(2L));
-		assertTrue(sec.allowDelete(i));
+		assertTrue(sec.allowDelete(i,i.getDetails()));
 		
 		// now lower permissions
 		i.getDetails().setPermissions(Permissions.READ_ONLY);
-		assertFalse(sec.allowDelete(i));
+		assertFalse(sec.allowDelete(i,i.getDetails()));
 	}
 	
 	/*

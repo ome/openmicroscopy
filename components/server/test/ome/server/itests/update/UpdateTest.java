@@ -26,7 +26,6 @@ public class UpdateTest extends AbstractUpdateTest
     {
         Pixels p = ObjectFactory.createPixelGraph(null);
         p = (Pixels) iUpdate.saveAndReturnObject(p); 
-        flush();
 
         List logs = securitySystem.getCurrentEvent().collectLogs(null);
         assertTrue(logs.size() > 0);
@@ -156,9 +155,6 @@ public class UpdateTest extends AbstractUpdateTest
 
         GroupExperimenterMap notDefaultLink = 
             (GroupExperimenterMap) iUpdate.saveAndReturnObject( m_2 );
-        
-        flush();
-        clear();
         
         Experimenter test = (Experimenter) iQuery.findByQuery(
                 " select e from Experimenter e join fetch e.defaultGroupLink " +

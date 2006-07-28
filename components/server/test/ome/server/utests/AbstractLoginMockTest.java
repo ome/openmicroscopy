@@ -106,7 +106,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         sf.mockQuery = mock(LocalQuery.class);
         sf.mockTypes = mock(ITypes.class);
 
-        filter = new UpdateFilter( sec, (LocalQuery) sf.getQueryService() );
+        filter = new UpdateFilter( );
         
         rootLogin();
         
