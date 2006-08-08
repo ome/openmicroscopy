@@ -29,16 +29,19 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
-import java.awt.event.ActionEvent;
-
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.util.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -59,6 +62,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class MovieAction
     extends ViewerAction
+    implements PropertyChangeListener
 {
 
     /** The name of the action. */
@@ -67,10 +71,32 @@ public class MovieAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the movie player.";
 
+    /** The movie player. */
+    private MoviePlayerDialog   moviePlayer;
+    
+    /** Discards the movie player. */
+    private void discard()
+    {
+        if (moviePlayer == null) return;
+        moviePlayer.setVisible(false);
+        moviePlayer.dispose();
+        moviePlayer = null;
+    }
+    
+    /**
+     * Disposes and closes the movie player when the {@link ImViewer} is
+     * discarded.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+        if (model.getState() == ImViewer.DISCARDED) discard();
+    }
+    
     /**
      * Creates a new instance.
      * 
-     * @param model The model. Mustn't be <code>null</code>.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      */
     public MovieAction(ImViewer model)
     {
@@ -79,14 +105,28 @@ public class MovieAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.MOVIE));
+        model.addPropertyChangeListener(ImViewer.ICONIFIED_PROPERTY, this);
     }
     
     /** 
-     * TODO: command to execute the action.
+     * Brings the movie player on screen.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
+        if (moviePlayer == null) moviePlayer = new MoviePlayerDialog(model);
+        UIUtilities.centerAndShow(moviePlayer);   
+    }
+
+    /**
+     * Reacts to {@link ImViewer#ICONIFIED_PROPERTY}.
+     * 
+     * @param evt The event to handle.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if (((Boolean) evt.getNewValue()).booleanValue()) discard();
     }
     
 }

@@ -33,12 +33,9 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
 import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-
 
 //Third-party libraries
 
@@ -47,7 +44,7 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
- * 
+ * Top class that each action should extend.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,7 +76,7 @@ public class RndAction
         super();
         setEnabled(false);
         if (model == null) throw new NullPointerException("No model.");
-        model.getParentModel().addChangeListener(this);
+        this.model = model;
     }
     
     /** 
@@ -94,8 +91,10 @@ public class RndAction
      */
     public void stateChanged(ChangeEvent e)
     {
+        /*
         int state = model.getParentModel().getState();
-        switch (state) {
+        System.out.println("state: "+state);
+        switch (model.getParentModel().getState()) {
             case ImViewer.DISCARDED:
             case ImViewer.LOADING_IMAGE:
                 setEnabled(false);
@@ -105,6 +104,7 @@ public class RndAction
             case ImViewer.READY_IMAGE:
                 setEnabled(true);
         }
+        */
     }
 
 }

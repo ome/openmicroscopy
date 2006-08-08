@@ -87,6 +87,7 @@ public class RateImageAction
     /** The array containing the actions' name. */
     private static String[]     names;
     
+    /** Defines the static fields. */
     static {
         names = new String[MAX+1];
         names[RATE_ONE] = "*";
@@ -143,7 +144,7 @@ public class RateImageAction
     }
     
     /** 
-     * TODO: command to execute the action.
+     * Sets the selected rating index.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

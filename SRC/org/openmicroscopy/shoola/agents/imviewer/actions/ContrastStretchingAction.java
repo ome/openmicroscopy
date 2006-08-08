@@ -31,22 +31,20 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+import javax.swing.JCheckBox;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.JCheckBox;
-
 import ome.model.display.ContrastStretchingContext;
-
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Adds or removes the <code>Contrast stretching</code> codomain 
+ * transformations to the codomain chain.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,13 +76,15 @@ public class ContrastStretchingAction
     public ContrastStretchingAction(Renderer model)
     {
         super(model);
+        setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
     
     /**
-     * 
+     * Adds or removes the <code>Contrast stretching</code> codomain 
+     * transformations to the codomain chain.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

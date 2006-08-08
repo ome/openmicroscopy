@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Sets the magnification factor.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -121,6 +121,7 @@ public class ZoomAction
     /** The array containing the zooming factor. */
     private static double[]     factors;
     
+    /** Defines the static fields. */
     static {
         names = new String[MAX+1];
         names[ZOOM_25] = "25%";
@@ -185,7 +186,8 @@ public class ZoomAction
     /**
      * Creates a new instance.
      * 
-     * @param model         The model. Mustn't be <code>null</code>.
+     * @param model         Reference to the model. Mustn't be
+     *                      <code>null</code>.
      * @param zoomingIndex  The index of the zooming action.
      *                      One of the constants defined by this class.
      */
@@ -202,7 +204,7 @@ public class ZoomAction
     }
     
     /** 
-     * TODO: command to execute the action.
+     * Sets the zooming factor.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

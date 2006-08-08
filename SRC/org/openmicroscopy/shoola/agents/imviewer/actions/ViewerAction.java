@@ -70,6 +70,13 @@ public class ViewerAction
     private String      name;
     
     /**
+     * Subclasses can override the method if necessary.
+     * 
+     * @param e The event to handle.
+     */
+    protected void onStateChange(ChangeEvent e) {}
+    
+    /**
      * Creates a new instance.
      * 
      * @param model The model. Mustn't be <code>null</code>.

@@ -29,22 +29,23 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
-import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Plays a movie across channels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,10 +69,20 @@ public class ChannelMovieAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Play movie across channels";
     
+    /** 
+     * Overriden to make sure that the movie player is not enabled when 
+     * there is only one channel.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+        if (model.getMaxC() <= 1) setEnabled(false);
+    }
+    
     /**
      * Creates a new instance.
      * 
-     * @param model         The model. Mustn't be <code>null</code>.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      */
     public ChannelMovieAction(ImViewer model)
     {
@@ -82,7 +93,7 @@ public class ChannelMovieAction
     }
 
     /** 
-     * Plays movie
+     * Plays movie across channels.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

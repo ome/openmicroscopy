@@ -31,12 +31,8 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -47,7 +43,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up on screen the rendering controls tool.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,7 +71,7 @@ public class RendererAction
     /**
      * Creates a new instance.
      * 
-     * @param model The model. Mustn't be <code>null</code>.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      */
     public RendererAction(ImViewer model)
     {
@@ -87,11 +83,9 @@ public class RendererAction
     }
     
     /** 
-     * TODO: command to execute the action.
+     * Brings up on screen the rendering controls tool.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    }
+    public void actionPerformed(ActionEvent e) { model.showRenderer(); }
     
 }

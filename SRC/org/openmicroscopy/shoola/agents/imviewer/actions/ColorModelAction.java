@@ -43,7 +43,8 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Selects the color model i.e. <code>GreyScale</code>, <code>RGB</code>
+ * or <code>HSB</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -87,6 +88,7 @@ public class ColorModelAction
      */
     private static String[] names;
     
+    /** Defines the static fields. */
     static {
         names = new String[MAX+1];
         names[GREY_SCALE_MODEL] = "Grey Scale";
@@ -117,7 +119,8 @@ public class ColorModelAction
     /**
      * Creates a new instance.
      * 
-     * @param model         The model. Mustn't be <code>null</code>.
+     * @param model         Reference to the model.
+     *                      Mustn't be <code>null</code>.
      * @param modelIndex    The index of the action.
      *                      One of the constants defined by this class.
      */
@@ -133,7 +136,7 @@ public class ColorModelAction
     }
     
     /** 
-     * TODO: command to execute the action.
+     * Sets the selected color model.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

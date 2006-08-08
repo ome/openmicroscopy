@@ -75,6 +75,7 @@ public class ReverseIntensityAction
     public ReverseIntensityAction(Renderer model)
     {
         super(model);
+        setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

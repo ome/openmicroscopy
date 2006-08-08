@@ -43,8 +43,9 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
+ * Adds/removes the the <code>PlaneSlicing</code>  transformation
+ * to/from the list of codomain transformations.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,7 +63,7 @@ public class PlaneSlicingAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Contrast Stretching";
+    private static final String NAME = "Plane Slicing";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "";
@@ -75,13 +76,15 @@ public class PlaneSlicingAction
     public PlaneSlicingAction(Renderer model)
     {
         super(model);
+        setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
     
     /**
-     * 
+     * Adds/removes the the <code>PlaneSlicing</code>  transformation
+     * to/from the list of codomain transformations.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
