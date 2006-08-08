@@ -33,14 +33,14 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import javax.swing.Timer;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
+
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -278,10 +278,18 @@ class ImViewerComponent
         //depends on model
         if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
             if (model.isChannelActive(index)) return;
-            for (int i = 0; i < model.getMaxC(); i++)
-                model.setChannelActive(i, i == index);  
+            boolean c;
+            for (int i = 0; i < model.getMaxC(); i++) {
+                c = i == index;
+                model.setChannelActive(i, c);  
+                if (c) 
+                    firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+                            new Integer(index-1), new Integer(index));
+            }
         } else {
             model.setChannelActive(index, b);
+            firePropertyChange(CHANNEL_ACTIVE_PROPERTY, new Integer(index-1),
+                    new Integer(index));
         }
         view.setChannelsSelection();
         renderXYPlane();
@@ -289,9 +297,9 @@ class ImViewerComponent
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setChannelMetadata(Object)
+     * @see ImViewer#setChannelMetadata(Pixels)
      */
-    public void setChannelMetadata(Object metadata)
+    public void setChannelMetadata(Pixels metadata)
     {
         model.setChannelMetadata(metadata);
         view.buildComponents();
@@ -308,11 +316,18 @@ class ImViewerComponent
     public void setRenderingControl(RenderingControl result)
     {
         model.setRenderingControl(result);
+        //Register the renderer
+        model.getRenderer().addPropertyChangeListener(controller);
         LoadingWindow window = view.getLoadingWindow();
         window.setStatus("rendering settings. Loading: metadata");
         window.setProgress(50);
-        model.fireChannelMetadataLoading();
-        fireStateChange();
+        view.buildComponents();
+        view.setSize(500, 500);
+        view.setOnScreen();
+        view.setStatus(RENDERING_MSG, -1, false);
+        renderXYPlane();
+        //model.fireChannelMetadataLoading();
+        //fireStateChange();
     }
     
     /** 
@@ -333,6 +348,9 @@ class ImViewerComponent
     public void setChannelActive(int index, boolean b)
     {
         model.setChannelActive(index, b);
+        if (b)
+            firePropertyChange(CHANNEL_ACTIVE_PROPERTY, new Integer(index-1),
+                                new Integer(index));
     }
 
     /** 
@@ -353,5 +371,101 @@ class ImViewerComponent
     {
         return model.getMaxC();
     }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getMaxT()
+     */
+    public int getMaxT()
+    {
+        return model.getMaxT();
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getMaxZ()
+     */
+    public int getMaxZ()
+    {
+        return model.getMaxZ();
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#showRenderer()
+     */
+    public void showRenderer()
+    {
+        // TODO check state;
+        model.getRenderer().moveToFront();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getImageName()
+     */
+    public String getImageName()
+    {
+        // TODO check state;
+        return model.getImageName();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getColorModel()
+     */
+    public String getColorModel()
+    {
+        // TODO check state;
+        return model.getColorModel();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getUI()
+     */
+    public JFrame getUI()
+    {
+        // TODO Auto-generated method stub
+        return view;
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#iconified(boolean)
+     */
+    public void iconified(boolean b)
+    {
+        Boolean newValue =  Boolean.FALSE;
+        Boolean oldValue = Boolean.TRUE;
+        
+        if (b) {
+            newValue = Boolean.TRUE;
+            oldValue = Boolean.FALSE;
+        } 
+        firePropertyChange(ICONIFIED_PROPERTY, oldValue, newValue);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getDefaultZ()
+     */
+    public int getDefaultZ()
+    {
+        // TODO Check state
+        return model.getDefaultZ();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getDefaultT()
+     */
+    public int getDefaultT()
+    {
+        //      TODO Check state
+        return model.getDefaultT();
+    }
+
+
    
 }

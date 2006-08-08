@@ -33,10 +33,12 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -75,7 +77,7 @@ public interface ImViewer
     public static final int     LOADING_IMAGE = 3;
     
     /** Flag to denote the <i>Loading Metadata</i> state. */
-    public static final int     LOADING_METADATA = 4;
+    //public static final int     LOADING_METADATA = 4;
     
     /** Flag to denote the <i>Loading Plane Info</i> state. */
     public static final int     LOADING_PLANE_INFO = 5;
@@ -97,6 +99,12 @@ public interface ImViewer
     
     /** Bound property name indicating that a new timepoint is selected. */
     public final static String  T_SELECTED_PROPERTY = "t_selected";
+    
+    /** Bound property name indicating that a channel is activated. */
+    public final static String  CHANNEL_ACTIVE_PROPERTY = "channel_active";
+    
+    /** Bound property indicating that the window state has changed. */
+    public final static String  ICONIFIED_PROPERTY = "iconified";
     
     /** Identifies the grey scale color model. */
     public static final String  GREY_SCALE_MODEL = RenderingControl.GREY_SCALE;
@@ -140,12 +148,34 @@ public interface ImViewer
      */
     public void setStatus(String description, int perc);
     
+    /**
+     * Sets the zoom factor.
+     * 
+     * @param factor The value ot set.
+     */
     public void setZoomFactor(double factor);
     
+    /**
+     * Sets the image rate.
+     * 
+     * @param level The value to set.
+     */
     public void setRateImage(int level);
     
+    /**
+     * Sets the color model. One of the following constants 
+     * {@link #GREY_SCALE_MODEL}, {@link #RGB_MODEL} or {@link #HSB_MODEL}.
+     * 
+     * @param colorModel The value to set.
+     */
     public void setColorModel(int colorModel);
 
+    /**
+     * Sets the selected XY-plane. A new plane is then rendered.
+     * 
+     * @param z The selected z-section.
+     * @param t The selected timepoint.
+     */
     public void setSelectedXYPlane(int z, int t);
 
     /**
@@ -179,8 +209,16 @@ public interface ImViewer
      */
     public void setChannelSelection(int index, boolean b);
     
+    /** 
+     * Activates/desactivates the specified channel
+     * 
+     * @param index The index of the channel.
+     * @param b     Pass <code>true</code> to activate the channel, 
+     *              <code>false</code> otherwise.
+     */
     public void setChannelActive(int index, boolean b);
     
+    /** Plays a movie across channels. */
     public void displayChannelMovie();
     
     /**
@@ -191,11 +229,25 @@ public interface ImViewer
     public int getMaxC();
     
     /**
+     * Returns the number of timepoints.
+     * 
+     * @return See above.
+     */
+    public int getMaxT();
+    
+    /**
+     * Returns the number of z-sections.
+     * 
+     * @return See above.
+     */
+    public int getMaxZ();
+    
+    /**
      * Sets the metadata related to the pixels set.
      * 
-     * @param metadata  Te metadata to set.
+     * @param metadata  The metadata to set.
      */
-    public void setChannelMetadata(Object metadata);
+    public void setChannelMetadata(Pixels metadata);
 
     /**
      * Sets the {@link RenderingControl}.
@@ -207,4 +259,51 @@ public interface ImViewer
     /** Renders the current XY-plane. */
     public void renderXYPlane();
     
+    /** 
+     * Brings up on screen the widget controlling the rendering settings
+     * If the widget is already visible, nothing happens. If iconified, the 
+     * widget is de-iconified.
+     */
+    public void showRenderer();
+    
+    /**
+     * Returned the name of the rendered image.
+     * 
+     * @return See above.
+     */
+    public String getImageName();
+    
+    /**
+     * Returns the currently selected color model.
+     * 
+     * @return See above.
+     */
+    public String getColorModel();
+   
+    /**
+     * Returns the {@link ImViewerUI View}.
+     * 
+     * @return See above.
+     */
+    public JFrame getUI();
+    
+    /**
+     * Returns the default z-section.
+     * 
+     * @return See above.
+     */
+    public int getDefaultZ();
+    
+    /**
+     * Returns the default timepoint.
+     * 
+     * @return See above.
+     */
+    public int getDefaultT();
+    
+    /**
+     * 
+     * @param b
+     */
+    void iconified(boolean b);
 }

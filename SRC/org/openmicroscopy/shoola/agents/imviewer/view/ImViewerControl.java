@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -268,6 +269,16 @@ class ImViewerControl
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.discard(); }
+            public void windowDeiconified(WindowEvent e) { 
+                model.iconified(false);
+    
+            }
+    
+            public void windowIconified(WindowEvent e)
+            {
+                model.iconified(true);
+    
+            }
         });
         view.getLoadingWindow().addPropertyChangeListener(
                 LoadingWindow.CLOSED_PROPERTY, this);
@@ -341,7 +352,8 @@ class ImViewerControl
                 UIUtilities.centerAndShow(view.getLoadingWindow());
                 break;
             case ImViewer.LOADING_IMAGE:
-                if (historyState == ImViewer.LOADING_METADATA)
+                //if (historyState == ImViewer.LOADING_METADATA)
+                 if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
                     view.getLoadingWindow().setVisible(false);
                 view.onStateChange(false);
              break;   
@@ -397,6 +409,13 @@ class ImViewerControl
             model.discard();
         } else if (Renderer.RENDER_PLANE_PROPERTY.equals(propName)) {
             model.renderXYPlane();
+        } else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(propName)) {
+            if (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+                int c = ((Integer) pce.getNewValue()).intValue();
+                for (int i = 0; i < model.getMaxC(); i++)
+                    model.setChannelActive(i, i == c);
+                model.displayChannelMovie();
+            }
         }
     }
 

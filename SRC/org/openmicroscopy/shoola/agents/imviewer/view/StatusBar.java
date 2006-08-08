@@ -40,11 +40,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Presents the progress of the data retrieval.

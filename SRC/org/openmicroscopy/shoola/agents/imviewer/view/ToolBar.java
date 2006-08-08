@@ -91,9 +91,6 @@ class ToolBar
     /** Action command ID to indicate that a new timepoint is selected.*/
     private static final int        T_SELECTED = 1;
     
-    /** Action command ID to indicate that a new timepoint is selected.*/
-    private static final int        SEARCH = 2;
-    
     /** Reference to the control. */
     private ImViewerControl controller;
     

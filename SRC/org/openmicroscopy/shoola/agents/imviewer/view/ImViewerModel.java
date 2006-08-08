@@ -35,10 +35,12 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
@@ -51,8 +53,8 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.Player;
 import org.openmicroscopy.shoola.env.data.RenderingService;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 
 
 /** 
@@ -121,6 +123,11 @@ class ImViewerModel
     /** Reference to the current player. */
     private ChannelPlayer       player;
     
+    /** The set of pixels. */
+    private Pixels              metadata;
+    
+    private List                channelData;
+    
     /**
      * Creates a new object and sets its state to {@link ImViewer#NEW}.
      * 
@@ -187,6 +194,7 @@ class ImViewerModel
             currentLoader.cancel();
             currentLoader = null;
         }
+        if (renderer != null) renderer.discard();
         //Shut down the service
         ImViewerAgent.getRegistry().getRenderingService().shutDown(pixelsID);
         state = ImViewer.DISCARDED;
@@ -242,15 +250,9 @@ class ImViewerModel
      * 
      * @return See above.
      */
-    ChannelData[] getChannelData()
+    ChannelMetadata[] getChannelData()
     {
-        int sizeC = rndControl.getPixelsDimensionsC();
-        ChannelData[] data = new ChannelData[sizeC];
-        for (int i = 0; i < data.length; i++) {
-            int j = i+1;
-            data[i] = new ChannelData(j, i, 400+100*i);
-        }
-        return data;
+        return rndControl.getChannelData();
     }
     
     /**
@@ -278,7 +280,7 @@ class ImViewerModel
     {
         currentLoader = new ChannelMetadataLoader(component, imageID);
         currentLoader.load();
-        state = ImViewer.LOADING_METADATA;
+        //state = ImViewer.LOADING_METADATA;
     }
 
     /**
@@ -326,9 +328,9 @@ class ImViewerModel
      * 
      * @param metadata
      */
-    void setChannelMetadata(Object metadata)
+    void setChannelMetadata(Pixels metadata)
     {
-        
+        this.metadata = metadata;
     }
 
     /**
@@ -438,6 +440,25 @@ class ImViewerModel
         });
         state = ImViewer.CHANNEL_MOVIE;
         return player;
+    }
+    
+    /**
+     * Returns the {@link Renderer}.
+     * 
+     * @return See above.
+     */
+    Renderer getRenderer() { return renderer; }
+
+    double getGlobalMinimum(int index)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    
+    double getGlobalMaximum(int index)
+    {
+        // TODO Auto-generated method stub
+        return 0;
     }
     
 }

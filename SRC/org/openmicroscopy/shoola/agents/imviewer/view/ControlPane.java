@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoButton;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -292,7 +292,7 @@ class ControlPane
      * @param d The metadata associated.
      * @return See above.
      */
-    private JPanel createButtonPane(ChannelButton b, ChannelData d)
+    private JPanel createButtonPane(ChannelButton b, ChannelMetadata d)
     {
         JPanel p = new JPanel();
         IconManager im = IconManager.getInstance();
@@ -319,18 +319,17 @@ class ControlPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        ChannelData[] data = model.getChannelData();
+        ChannelMetadata[] data = model.getChannelData();
         ChannelButton button;
-        ChannelData d;
-        for (int i = 0; i < data.length; i++) {
-            d = data[i];
-            button = new ChannelButton(""+d.getNanometer(), 
-                    model.getChannelColor(i), i, model.isChannelActive(i));
+        ChannelMetadata d;
+        for (int k = 0; k < data.length; k++) {
+            d = data[k];
+            button = new ChannelButton(""+d.getEmissionWavelength(), 
+                    model.getChannelColor(k), k, model.isChannelActive(k));
             button.addPropertyChangeListener(controller);
             channelButtons.add(button);
             p.add(createButtonPane(button, d));
         }
-        
         p.add(channelMovie);
         return p;
     }
