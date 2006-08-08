@@ -42,7 +42,8 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 
 /** 
- * 
+ * Defines the interface provided by the browser component.
+ * The Viewer provides a UI component to display the rendered image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

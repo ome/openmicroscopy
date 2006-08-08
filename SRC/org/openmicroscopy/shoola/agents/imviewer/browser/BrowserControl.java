@@ -35,14 +35,13 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
 
 /** 
- * 
+ * The Browser's Controller.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,6 +65,12 @@ class BrowserControl
     /** The View controlled by this Controller.*/
     private BrowserUI       view;
     
+    /**
+     * Creates and adds the magnifier to the UI.
+     * 
+     * @param b Pass <code>true</code> to add the component, <code>false</code>
+     *          to remove.
+     */
     private void createMagnifier(boolean b)
     {
         Magnifier magnifier;
@@ -109,6 +114,10 @@ class BrowserControl
         this.view = view;
     }
 
+    /**
+     * 
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent pce)
     {
         String propName = pce.getPropertyName();

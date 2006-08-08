@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
- * 
+ * The Model component in the <code>Browser</code> MVC triad.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -99,10 +99,7 @@ class BrowserModel
      * 
      * @param component The embedding component.
      */
-    void initialize(Browser component) 
-    {
-        this.component = component;
-    }
+    void initialize(Browser component) { this.component = component; }
 
     /**
      * Sets the rendered image.

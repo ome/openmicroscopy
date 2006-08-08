@@ -44,7 +44,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -52,7 +51,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * UI component where the renderered image is painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

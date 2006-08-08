@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
@@ -44,7 +43,7 @@ import javax.swing.JScrollPane;
 //Application-internal dependencies
 
 /** 
- * 
+ * Hosts the UI components displaying the rendered image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
