@@ -39,10 +39,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.CodomainMapContext;
@@ -103,6 +106,14 @@ class RenderingControlProxy
     /** The size of the cache. No caching if <= 0.*/
     private int                     sizeCache;
     
+    /** The default z-section. Cached value to speed up the process. */
+    private int                     defaultZ;
+    
+    /** The default timepoint. Cached value to speed up the process. */
+    private int                     defaultT;
+    
+    private ChannelMetadata[]       metadata;
+    
     /**
      * Returns the size of the cache.
      * 
@@ -126,13 +137,14 @@ class RenderingControlProxy
     {
         BufferedImage img = null;
         if (pd.getSlice() == PlaneDef.XY) {  //We only cache XY images.
+            
             if (xyCache != null) {
                 img = xyCache.extract(pd);
             } else {
                 //Okay, let's see if we can activate the xyCache. In order to 
                 //do that, the dimensions of the pixels array and the xyImgSize
                 //have to be available. 
-                //This happens ifat least one XY plane has been rendered.  
+                //This happens if at least one XY plane has been rendered.  
                 //Note that doing remote calls upfront to eagerly instantiate 
                 //the xyCache is in most cases a total waste: the client is 
                 //likely to call getPixelsDims() before an image is ever 
@@ -171,6 +183,35 @@ class RenderingControlProxy
         if (xyCache != null) xyCache.clear();
     }
     
+    /** Sets the default z-section and the default timepoint. */
+    private void setDefaultPlane()
+    {
+        defaultZ = servant.getDefaultZ();
+        defaultT = servant.getDefaultT();
+    }
+    
+    /**
+     * Checks if the passed bit resolution is supported.
+     * 
+     * @param v The value to check.
+     */
+    private void checkBitResolution(int v)
+    {
+        switch (v) {
+            case DEPTH_1BIT:
+            case DEPTH_2BIT:
+            case DEPTH_3BIT:
+            case DEPTH_4BIT:
+            case DEPTH_5BIT:
+            case DEPTH_6BIT:
+            case DEPTH_7BIT:
+            case DEPTH_8BIT:
+                return;
+            default:
+                throw new IllegalArgumentException("Bit resolution " +
+                        "not supported.");
+        }
+    }
     /**
      * Creates a new instance.
      * 
@@ -181,7 +222,7 @@ class RenderingControlProxy
      * @param sizeCache The size of the cache.
      */
     RenderingControlProxy(RenderingEngine servant, PixelsDimensions pixDims,
-                          int sizeCache)
+                            int sizeCache)
     {
         if (servant == null)
             throw new NullPointerException("No rendering engine.");
@@ -193,6 +234,16 @@ class RenderingControlProxy
         pixs = servant.getPixels();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
+        
+        List l = pixs.getChannels();
+        System.out.println("servant.getPixels() "+pixs.getId());
+        //Channel[] channels = (Channel[])
+       //     l.toArray(new Channel[l.size()]);
+        metadata = new ChannelMetadata[getPixelsDimensionsC()];
+        for (int i = 0; i < metadata.length; i++) {
+            metadata[i] = new ChannelMetadata(null);
+        }
+        setDefaultPlane();
     }
 
     /** 
@@ -206,7 +257,6 @@ class RenderingControlProxy
         while (i.hasNext()) {
             model= (RenderingModel) i.next();
             if (model.getValue().equals(value)) {
-                System.out.println("value "+value+" model "+model);
                 servant.setModel(model); 
                 invalidateCache();
             }
@@ -226,25 +276,33 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getDefaultZ()
      */
-    public synchronized int getDefaultZ() { return servant.getDefaultZ(); }
+    public int getDefaultZ() { return defaultZ; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getDefaultT()
      */
-    public int getDefaultT() { return servant.getDefaultT(); }
+    public int getDefaultT() { return defaultT; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#setDefaultZ(int)
      */
-    public void setDefaultZ(int z) { servant.setDefaultZ(z); }
+    public void setDefaultZ(int z)
+    { 
+        servant.setDefaultZ(z);
+        defaultZ = z;
+    }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#setDefaultT(int)
      */
-    public void setDefaultT(int t) { servant.setDefaultT(t); }
+    public void setDefaultT(int t)
+    { 
+        servant.setDefaultT(t);
+        defaultT = t;
+    }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -253,6 +311,7 @@ class RenderingControlProxy
     public void setQuantumStrategy(int bitResolution)
     {
         //TODO: need to convert value.
+        checkBitResolution(bitResolution);
         servant.setQuantumStrategy(bitResolution);
         invalidateCache();
     }
@@ -434,7 +493,11 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#resetDefaults()
      */
-    public void resetDefaults() { servant.resetDefaults(); }
+    public void resetDefaults()
+    { 
+        servant.resetDefaults();
+        setDefaultPlane();
+    }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -548,5 +611,12 @@ class RenderingControlProxy
             l.add(((Family) i.next()).getValue());
         return l;
     }
+    
+    public ChannelMetadata getChannelData(int w)
+    {
+        return metadata[w];
+    }
+    
+    public ChannelMetadata[] getChannelData() { return metadata; }
     
 }

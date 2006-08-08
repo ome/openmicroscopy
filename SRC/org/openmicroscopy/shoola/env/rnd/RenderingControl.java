@@ -34,6 +34,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -60,6 +62,30 @@ import omeis.providers.re.data.PlaneDef;
 public interface RenderingControl
 {
 
+    /** Flag to select a 1-bit depth (<i>=2^1-1</i>) output interval. */
+    public static final int     DEPTH_1BIT = 1;
+
+    /** Flag to select a 2-bit depth (<i>=2^2-1</i>) output interval. */
+    public static final int     DEPTH_2BIT = 3;
+    
+    /** Flag to select a 3-bit depth (<i>=2^3-1</i>) output interval. */
+    public static final int     DEPTH_3BIT = 7;
+    
+    /** Flag to select a 4-bit depth (<i>=2^4-1</i>) output interval. */
+    public static final int     DEPTH_4BIT = 15;
+    
+    /** Flag to select a 5-bit depth (<i>=2^5-1</i>) output interval. */
+    public static final int     DEPTH_5BIT = 31;
+    
+    /** Flag to select a 6-bit depth (<i>=2^6-1</i>) output interval. */
+    public static final int     DEPTH_6BIT = 63;
+    
+    /** Flag to select a 7-bit depth (<i>=2^7-1</i>) output interval. */
+    public static final int     DEPTH_7BIT = 127;
+    
+    /** Flag to select a 8-bit depth (<i>=2^8-1</i>) output interval. */
+    public static final int     DEPTH_8BIT = 255;
+    
     /** Identifies the <code>RGB</code> color model. */
     public static final String  RGB = "rgb";
     
@@ -376,6 +402,10 @@ public interface RenderingControl
      */
     public BufferedImage render(PlaneDef pDef);
 	
+    public ChannelMetadata getChannelData(int w);
+    
+    public ChannelMetadata[] getChannelData();
+    
     /** Shuts down the service. */
     public void shutDown();
     
