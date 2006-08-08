@@ -406,4 +406,5 @@ public interface OmeroService
     public void declassify(Set images, Set categories)
         throws DSOutOfServiceException, DSAccessException;
     
+    
 }

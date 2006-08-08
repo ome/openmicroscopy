@@ -31,7 +31,9 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +42,9 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
+import ome.model.containers.CategoryImageLink;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -339,10 +343,26 @@ class OmeroServiceImpl
     {
         if (child == null) 
             throw new IllegalArgumentException("The child cannot be null.");
-        IObject object = ModelMapper.removeIObject(child.asIObject(),
-                                                   parent.asIObject());
-        PojoMapper.asDataObject(gateway.updateObject(object,
-                                (new PojoOptions()).map()));
+        if (!(child instanceof ImageData)) {
+            IObject object = ModelMapper.removeIObject(child.asIObject(),
+                    parent.asIObject());
+            PojoMapper.asDataObject(gateway.updateObject(object,
+                    (new PojoOptions()).map()));
+        } else {
+            IObject p = parent.asIObject();
+            Image img = child.asImage();
+            IObject link = ModelMapper.unlinkChildFromParent(img, p);
+            if (link != null)
+                gateway.deleteObject(link, (new PojoOptions()).map());
+            IObject[] objects = new IObject[1];
+            objects[0] = p;
+            //objects[1] = p;
+            IObject[] results = gateway.updateObjects(objects,
+                                (new PojoOptions()).map());
+            for (int i = 0; i < results.length; i++)
+                PojoMapper.asDataObject(results[i]);
+        }
+        
         return child;
     }
 
@@ -384,21 +404,28 @@ class OmeroServiceImpl
         
         Iterator category = categories.iterator();
         Iterator image;
-        IObject[] objects = new IObject[categories.size()];
-        int index = 0;
-        Image mChild;
+        List objects = new ArrayList();
         Category mParent;
+        CategoryImageLink l;
         while (category.hasNext()) {
             mParent = ((DataObject) category.next()).asCategory();
             image = images.iterator();
             while (image.hasNext()) {
-                mChild = ((DataObject) image.next()).asImage();
-                mParent.linkImage(mChild);
+                l = new CategoryImageLink();
+                l.link(mParent, ((DataObject) image.next()).asImage());
+                objects.add(l);
             }   
-            objects[index] = mParent;
-            index++;
         }
-        gateway.updateObject(objects, (new PojoOptions()).map());
+        if (objects.size() != 0) {
+            Iterator i = objects.iterator();
+            IObject[] array = new IObject[objects.size()];
+            int index = 0;
+            while (i.hasNext()) {
+                array[index] = (IObject) i.next();
+                index++;
+            }
+            gateway.createObjects(array, (new PojoOptions()).map());
+        }
     }
 
     /**
@@ -421,22 +448,28 @@ class OmeroServiceImpl
                     "The categories set only contains CategoryData elements.");
         }
         Iterator category = categories.iterator();
-        Iterator image;
-        IObject[] objects = new IObject[categories.size()];
-        int index = 0;
-        Image mChild;
-        Category mParent;
+        List links = new ArrayList();
+        Iterator i;
+        IObject mParent;
+        IObject link;
         while (category.hasNext()) {
-            mParent = ((DataObject) category.next()).asCategory();
-            image = images.iterator();
-            while (image.hasNext()) {
-                mChild = ((DataObject) image.next()).asImage();
-                mParent.unlinkImage(mChild);
+            mParent = ((DataObject) category.next()).asIObject();
+            i = images.iterator();
+            while (i.hasNext()) {
+                link = ModelMapper.unlinkChildFromParent(
+                        ((DataObject) i.next()).asImage(), mParent);
+                if (link != null)
+                    links.add(link);
             }   
-            objects[index] = mParent;
+        }
+        IObject[] objects = new IObject[links.size()];
+        i = links.iterator();
+        int index = 0;
+        while (i.hasNext()) {
+            objects[index] = (IObject) i.next();
             index++;
         }
-        gateway.updateObject(objects, (new PojoOptions()).map());
+        gateway.deleteObjects(objects);
     }
     
 }

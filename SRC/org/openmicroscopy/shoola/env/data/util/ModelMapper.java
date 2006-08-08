@@ -33,7 +33,9 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -128,6 +130,38 @@ public class ModelMapper
     }
 
     /**
+     * Unlinks the specified child from its parent and returns the link to 
+     * remove.
+     * 
+     * @param child     The child to unlink.
+     * @param parent    The child's parent.
+     * @return See above
+     */
+    public static IObject unlinkChildFromParent(Image child, IObject parent)
+    {
+        if (parent instanceof Dataset) {
+            List links = child.collectDatasetLinks(null);
+            Iterator i = links.iterator();
+            DatasetImageLink link = null;
+            while (i.hasNext()) {
+                link = (DatasetImageLink) i.next();
+                if (link.getParent().getId() == parent.getId()) break;  
+            }
+            return link;
+        } else if (parent instanceof Category) {
+            List links = child.collectCategoryLinks(null);
+            Iterator i = links.iterator();
+            CategoryImageLink link = null;
+            while (i.hasNext()) {
+                link = (CategoryImageLink) i.next();
+                if (link.getParent().getId() == parent.getId())
+                    break;
+            }
+            return link;
+        } throw new IllegalArgumentException("Parent not supported.");
+    }
+    
+    /**
      * Links the newly created {@link IObject child} to its
      * {@link IObject parent}.
      * 
@@ -188,6 +222,7 @@ public class ModelMapper
                     p.addCategoryImageLink(link, false);
             }
         }
+        throw new IllegalArgumentException("DataObject not supported.");
     }
     
     /**
@@ -263,23 +298,23 @@ public class ModelMapper
         if ((child instanceof Dataset) && (parent instanceof Project)) {
             Dataset mChild = (Dataset) child;
             Project mParent = (Project) parent;
-            mParent.unlinkDataset(mChild);
+            Set s = mParent.findProjectDatasetLink(mChild);
+            Iterator i = s.iterator();
+            while (i.hasNext()) { 
+                mParent.removeProjectDatasetLink( 
+                        (ProjectDatasetLink) i.next(), false);
+            }
             return mParent;
         } else if ((child instanceof Category) && 
                 (parent instanceof CategoryGroup)) {
             Category mChild = (Category) child;
             CategoryGroup mParent = (CategoryGroup) parent;
-            mParent.unlinkCategory(mChild);
-            return mParent;
-        } else if ((child instanceof Image) && (parent instanceof Dataset)) {
-            Image mChild = (Image) child;
-            Dataset mParent = (Dataset) parent;
-            mParent.unlinkImage(mChild);
-            return mParent;
-        } else if ((child instanceof Image) && (parent instanceof Category)) {
-            Image mChild = (Image) child;
-            Category mParent = (Category) parent;
-            mParent.unlinkImage(mChild);
+            Set s = mParent.findCategoryGroupCategoryLink(mChild);
+            Iterator i = s.iterator();
+            while (i.hasNext()) { 
+                mParent.removeCategoryGroupCategoryLink( 
+                        (CategoryGroupCategoryLink) i.next(), false);
+            }
             return mParent;
         }
         throw new IllegalArgumentException("DataObject not supported.");
@@ -304,8 +339,8 @@ public class ModelMapper
             annotation.setContent(data.getText());
             annotation.setDataset(m);
             return annotation;
-        } else if (annotatedObject instanceof ImageData) {
-            Image m = new Image(annotatedObject.getId(), false);
+        } else if (annotatedObject instanceof Image) {
+            Image m = (Image) annotatedObject; 
             ImageAnnotation annotation = new ImageAnnotation();
             annotation.setContent(data.getText());
             annotation.setImage(m);

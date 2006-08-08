@@ -53,7 +53,7 @@ public class ChannelData
 {
 	
 	/** Attribute ID in DB. */
-	private final int      id;
+	private final long      id;
 	
 	/** OME index of the channel. */
 	private final int      index;
@@ -77,14 +77,14 @@ public class ChannelData
     private String         fluor, auxTechnique, contrastMethod, mode, 
                            illuminationType;
     
-    public ChannelData(int id, int index, int nanometer)
+    public ChannelData(long id, int index, int nanometer)
     {
         this.id = id;
         this.index = index;  
         this.nanometer = nanometer;
     }
     
-	public ChannelData(int id, int index, int nanometer, String interpretation,
+	public ChannelData(long id, int index, int nanometer, String interpretation,
 						int excitation, String fluor)
 	{
 		this.id = id;
@@ -97,7 +97,7 @@ public class ChannelData
     
 	public int getNanometer() { return nanometer; }
 	
-	public int getID() { return id; }
+	public long getID() { return id; }
 	
 	public int getIndex() { return index; }
 

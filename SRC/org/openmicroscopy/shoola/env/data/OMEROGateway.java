@@ -43,15 +43,23 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
+
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Channel;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.display.ChannelBinding;
+import ome.model.display.RenderingDef;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
@@ -292,6 +300,15 @@ class OMEROGateway
      * @return See above.
      */
     private IQuery getIQueryService() { return entry.getQueryService(); }
+    
+    /**
+     * Returns the {@link IUpdate} service.
+     *  
+     * @return See above.
+     */
+    private IUpdate getIUPdateService() { return entry.getUpdateService(); }
+    
+    private IPixels getIPixels() { return entry.getPixelsService(); }
     
     /**
      * Returns the {@link RenderingEngine Rendering service}.
@@ -641,6 +658,29 @@ class OMEROGateway
     }
     
     /**
+     * Creates the speficied objects.
+     * 
+     * @param objects   The object to create.
+     * @param options   Options to create the data.  
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    IObject[] createObjects(IObject[] objects, Map options)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IPojos service = getIPojosService();
+            
+            return service.createDataObjects(objects, options);
+        } catch (Exception e) {
+            handleException(e, "Cannot update the object.");
+        }
+        return null;
+    }
+    
+    /**
      * Deletes the specified object.
      * 
      * @param object    The object to delete.
@@ -653,13 +693,36 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IPojos service = getIPojosService();
-            service.deleteDataObject(object, options);
+            //IPojos service = getIPojosService();
+            IUpdate service = getIUPdateService();
+            service.deleteObject(object);
         } catch (Exception e) {
             handleException(e, "Cannot delete the object.");
         }
     }
 
+    /**
+     * Deletes the specified objects.
+     * 
+     * @param objects                  The objects to delete.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException       If an error occured while trying to 
+     *                                 retrieve data from OMEDS service. 
+     */
+    void deleteObjects(IObject[] objects)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            //IPojos service = getIPojosService();
+            IUpdate service = getIUPdateService();
+            for (int i = 0; i < objects.length; i++) {
+                service.deleteObject(objects[i]);
+            }
+        } catch (Exception e) {
+            handleException(e, "Cannot delete the object.");
+        }
+    }
+    
     /**
      * Updates the specified object.
      * 
@@ -675,17 +738,6 @@ class OMEROGateway
     {
         try {
             IPojos service = getIPojosService();
-            /*
-            IQuery query = getIQueryService();
-            Object o = query.getById(object.getClass(),
-                                     object.getId().longValue());
-            if (object instanceof IMutable) {
-                IMutable io = (IMutable) o;
-                System.out.println("version: "+io.getVersion());
-                ((IMutable) object).setVersion(io.getVersion());
-            }
-            System.out.println("Object: "+((IMutable) object).getVersion());
-            */
             return service.updateDataObject(object, options);
         } catch (Exception e) {
             handleException(e, "Cannot update the object.");
@@ -704,7 +756,7 @@ class OMEROGateway
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    IObject[] updateObject(IObject[] objects, Map options)
+    IObject[] updateObjects(IObject[] objects, Map options)
         throws DSOutOfServiceException, DSAccessException
     {
         try {
@@ -733,6 +785,7 @@ class OMEROGateway
             service.lookupPixels(pixelsID);
             service.lookupRenderingDef(pixelsID);
             service.load();
+            System.out.println("L:"+service.getPixels().getChannels());
             return service;
         } catch (Exception e) {
             handleException(e, "Cannot start the Rendering Engine.");
@@ -754,6 +807,7 @@ class OMEROGateway
     {
         try {
             IQuery query = getIQueryService();
+            Pixels pixs = (Pixels) query.get(Pixels.class, pixelsID);
             return (PixelsDimensions) query.get(PixelsDimensions.class,
                                                 pixelsID);
         } catch (Exception e) {

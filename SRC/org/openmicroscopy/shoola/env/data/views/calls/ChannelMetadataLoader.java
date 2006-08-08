@@ -68,16 +68,16 @@ public class ChannelMetadataLoader
     /**
      * Creates a {@link BatchCall} to retrieve the channels metadat.
      * 
+     * @param pixelsID The ID of the pixels set.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(long pixelsID) 
+    private BatchCall makeBatchCall(final long pixelsID) 
     {
         return new BatchCall("Loading channel Metadata: ") {
             public void doCall() throws Exception
             {
                 OmeroService os = context.getOmeroService();
-                Thread.sleep(1000);
-                results = new Object();
+                results = new Object();//os.getChannelMetadata(pixelsID);
             }
         };
     }
