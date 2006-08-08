@@ -64,18 +64,19 @@ public class TestImageFutureCacheExtract
     private static final int    CACHE_SIZE = 1;  //Passed to target.
     private static final int    IMAGE_SIZE = 1;  //Passed to target.
     
-    private ImageFutureCache    target;  //Object under test.
+    //private ImageFutureCache    target;  //Object under test.
     
     
     public void setUp()
     {
-        target = new ImageFutureCache(CACHE_SIZE, IMAGE_SIZE, 
-                                        new MockNavigationHistory());
+        //target = new ImageFutureCache(CACHE_SIZE, IMAGE_SIZE, 
+         //                               new MockNavigationHistory());
     }
     
     public void testExtract()
         throws Exception
     {
+        /*
         PlaneDef key = new PlaneDef(PlaneDef.XY, 0);
         BufferedImage img = new FakeBufferedImage();
         target.add(key, img); //Assume it works -- verified by other unit tests.
@@ -83,8 +84,10 @@ public class TestImageFutureCacheExtract
                 img, target.extract(key));
         assertTrue("Should never discard an entry after extracting.", 
                 target.getCache().containsValue(img));
+                */
     }
     
+    /*
     public void testExtractNoValue()
         throws Exception
     {
@@ -123,5 +126,5 @@ public class TestImageFutureCacheExtract
         //Make sure all expected calls were performed.
         mf.verify();
     }
-    
+    */
 }
