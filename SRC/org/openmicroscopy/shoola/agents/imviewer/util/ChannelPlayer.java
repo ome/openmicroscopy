@@ -33,8 +33,6 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.Timer;
-
 
 //Third-party libraries
 
