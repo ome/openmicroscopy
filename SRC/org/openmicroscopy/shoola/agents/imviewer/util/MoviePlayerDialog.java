@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 
 //Third-party libraries
@@ -91,13 +92,15 @@ public class MoviePlayerDialog
     /**
      * Creates a new instance.
      * 
+     * @param owner The owner of the this dialog.
      * @param model Reference to the {@link ImViewer}.
      *              Mustn't be <code>null</code>.
      */
-    public MoviePlayerDialog(ImViewer model)
+    public MoviePlayerDialog(JFrame owner, ImViewer model)
     {
-        super(model.getUI(), "Movie Player: "+model.getImageName());
+        super(owner);
         if (model == null) throw new NullPointerException("No model.");
+        setTitle("Movie Player: "+model.getImageName());
         this.model = model;
         player = new MoviePlayer(model, this);
         uiDelegate = new MoviePlayerUI(player);
