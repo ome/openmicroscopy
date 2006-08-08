@@ -33,14 +33,20 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JTabbedPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-
+import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 
@@ -63,6 +69,10 @@ class RendererUI
     extends TopWindow
 {
     
+    static final Integer        DOMAIN = new Integer(0);
+    
+    static final Integer        CODOMAIN = new Integer(1);
+    
     /** Reference to the control. */
     private RendererControl     controller;
     
@@ -71,6 +81,9 @@ class RendererUI
 
     /** The tool bar composing the display. */
     private ToolBar             toolBar;
+    
+    /** The map hosting the controls pane. */
+    private HashMap             controlPanes;
     
     /**
      * Creates the menu bar.
@@ -92,7 +105,26 @@ class RendererUI
     private JMenu createControlsMenu()
     {
         JMenu menu = new JMenu("Controls");
+        Action a = controller.getAction(RendererControl.SAVE_SETTINGS);
+        JMenuItem item = new JMenuItem(a);
+        item.setText(SaveSettingsAction.NAME);
+        menu.add(item);
+        a = controller.getAction(RendererControl.RESET_SETTINGS);
+        item = new JMenuItem(a);
+        item.setText(ResetSettingsAction.NAME);
+        menu.add(item);
         return menu;
+    }
+    
+    /** Creates the panels hosting the rendering controls. */
+    private void createControlPanes()
+    {
+        ControlPane p = new DomainPane(model, controller);
+        p.addPropertyChangeListener(controller);
+        controlPanes.put(DOMAIN, p);
+        p = new CodomainPane(model, controller);
+        p.addPropertyChangeListener(controller);
+        controlPanes.put(CODOMAIN, p);
     }
     
     /** Builds and lays out the UI. */
@@ -100,7 +132,18 @@ class RendererUI
     {
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
+        //      Create and initialize the tabs
+        JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
+                                JTabbedPane.WRAP_TAB_LAYOUT);
+        tabs.setAlignmentX(LEFT_ALIGNMENT);
+        ControlPane pane = (ControlPane) controlPanes.get(DOMAIN);
+        tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
+                        pane.getPaneDescription(), pane.getPaneIndex());
+        pane = (ControlPane) controlPanes.get(CODOMAIN);
+        tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
+                        pane.getPaneDescription(), pane.getPaneIndex());
         c.add(toolBar, BorderLayout.NORTH);
+        c.add(tabs, BorderLayout.CENTER);
         pack();
     }
     
@@ -114,6 +157,7 @@ class RendererUI
     RendererUI(String title)
     {
         super("Renderer:  "+title);
+        controlPanes = new HashMap(2);
     }
     
     /**
@@ -132,13 +176,50 @@ class RendererUI
         this.model = model;
         setJMenuBar(createMenuBar());
         toolBar = new ToolBar(controller);
+        createControlPanes();
         buildGUI();
     }
 
     void onStateChange(boolean b)
     {
-        // TODO Auto-generated method stub
-        
+        Iterator i = controlPanes.keySet().iterator();
+        while (i.hasNext())
+            ((ControlPane) i.next()).onStateChange(b);
+    }
+
+    /**
+     * Updates the corresponding controls when a codomain transformation
+     * is added.
+     * 
+     * @param mapType The type of codomain transformation. 
+     */
+    void addCodomainMap(Class mapType)
+    {
+        CodomainPane pane = (CodomainPane) controlPanes.get(CODOMAIN);
+        pane.addCodomainMap(mapType);
+    }
+    
+    /**
+     * Updates the corresponding controls when a codomain transformation
+     * is added.
+     * 
+     * @param mapType The type of codomain transformation. 
+     */
+    void removeCodomainMap(Class mapType)
+    {
+        CodomainPane pane = (CodomainPane) controlPanes.get(CODOMAIN);
+        pane.removeCodomainMap(mapType);
+    }
+    
+    /**
+     * Sets the specified channel as current.
+     * 
+     * @param c The channel to set.
+     */
+    void setSelectedChannel(int c)
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.setSelectedChannel(c);
     }
     
 }

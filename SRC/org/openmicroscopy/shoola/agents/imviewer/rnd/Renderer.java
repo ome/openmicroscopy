@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -119,42 +120,26 @@ public interface Renderer
     void addCodomainMap(Class mapType);
     
     /** 
-     * Sets the upper bound of the pixels intensity interval for the
+     * Sets the pixels intensity interval for the
      * currently selected channel.
      * 
-     * @param v         The value to set.
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
      * @param released  If <code>true</code>, we fire a property change event
      *                  to render a new plane.
      */
-    void setInputEnd(double v, boolean released);
+    void setInputInterval(double s, double e, boolean released);
+
     
     /** 
-     * Sets the lower bound of the pixels intensity interval for the
-     * currently selected channel.
+     * Sets the sub-interval of the device space. 
      * 
-     * @param v The value to set.
-     * @param released If <code>true</code>, we fire a property change event
-     * to render a new plane.
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
+     * @param released  If <code>true</code>, we fire a property change event
+     *                  to render a new plane.
      */
-    void setInputStart(double v, boolean released);
-    
-    /** 
-     * Sets the upper bound of the sub-interval of the device space. 
-     * 
-     * @param v The value to set.
-     * @param released If <code>true</code>, we fire a property change event
-     * to render a new plane.
-     */
-    void setCodomainEnd(int v, boolean released);
-    
-    /** 
-     * Sets the lower bound of the sub-interval of the device space. 
-     * 
-     * @param v The value to set.
-     * @param released If <code>true</code>, we fire a property change event
-     * to render a new plane.
-     */
-    void setCodomainStart(int v, boolean released);
+    void setCodomainInterval(int s, int e, boolean released);
     
     /**
      * Sets the bit resolution and updates the image.
@@ -167,8 +152,10 @@ public interface Renderer
      * Sets the selected channel.
      * 
      * @param c The new selected channel.
+     * @param b Flag to fire a property change. Pass <code>true</code> to fire
+     *          a property change, <code>false</code> otherwise.
      */
-    void setSelectedChannel(int c);
+    void setSelectedChannel(int c, boolean b);
     
     /**
      * Sets the family and updates the image.
@@ -201,12 +188,5 @@ public interface Renderer
     ImViewer getParentModel();
     
     CodomainMapContext getCodomainMapContext(Class mapType);
-
-    /** 
-     * Returns the UI component. 
-     * 
-     * @return See above.
-     */
-    JFrame getUI();
     
 }

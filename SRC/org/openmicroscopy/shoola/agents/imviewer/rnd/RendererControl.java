@@ -48,8 +48,12 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ContrastStretchingAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.HistogramAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
@@ -101,6 +105,9 @@ class RendererControl
      */
     static final Integer    CONTRAST_STRETCHING = new Integer(8);
     
+    /** Identifies the action to bring up the histogram widget. */
+    static final Integer    HISTOGRAM = new Integer(9);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -120,6 +127,10 @@ class RendererControl
         actionsMap.put(PLANE_SLICING, new PlaneSlicingAction(model));
         actionsMap.put(CONTRAST_STRETCHING, 
                         new ContrastStretchingAction(model));
+        actionsMap.put(SAVE_SETTINGS, new SaveSettingsAction(model));
+        actionsMap.put(RESET_SETTINGS, new ResetSettingsAction(model));
+        actionsMap.put(NOISE_REDUCTION, new NoiseReductionAction(model));
+        actionsMap.put(HISTOGRAM, new HistogramAction(model));
     }
     
     /** 
@@ -161,6 +172,7 @@ class RendererControl
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
+        model.getParentModel().addPropertyChangeListener(this);
         createActions();
         attachWindowListeners();
     }
@@ -173,11 +185,43 @@ class RendererControl
      */
     Action getAction(Integer id) { return (Action) actionsMap.get(id); }
     
+    /**
+     * Registers the specified observer.
+     * 
+     * @param observer  The observer to register.
+     */
     void addPropertyListener(PropertyChangeListener observer)
     {
         model.addPropertyChangeListener(observer);
     }
 
+    /** 
+     * Sets the the pixels intensity interval for the
+     * currently selected channel.
+     * 
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
+     * @param released  If <code>true</code>, we fire a property change event
+     *                  to render a new plane.
+     */
+    void setInputInterval(double s, double e, boolean released)
+    {
+        model.setInputInterval(s, e, released);
+    }
+    
+    /** 
+     * Sets the sub-interval of the device space. 
+     * 
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
+     * @param released  If <code>true</code>, we fire a property change event
+     *                  to render a new plane.
+     */
+    void setCodomainInterval(int s, int e, boolean released)
+    {
+        model.setCodomainInterval(s, e, released);
+    }
+    
     public void stateChanged(ChangeEvent e)
     {
         switch (model.getParentModel().getState()) {
@@ -189,8 +233,7 @@ class RendererControl
             case ImViewer.READY:
             case ImViewer.READY_IMAGE:
                 view.onStateChange(true);
-        }
-        
+        }  
     }
 
     /**
@@ -202,13 +245,37 @@ class RendererControl
     {
         String name = evt.getPropertyName();
         if (name.equals(ImViewer.Z_SELECTED_PROPERTY) || 
-            name.equals(ImViewer.Z_SELECTED_PROPERTY)) {
+            name.equals(ImViewer.T_SELECTED_PROPERTY)) {
             //retrieve plane statistics for specific channel.
         } else if (name.equals(
             CodomainMapContextDialog.UPDATE_MAP_CONTEXT_PROPERTY)) {
             CodomainMapContext ctx = (CodomainMapContext)  evt.getNewValue();
             model.updateCodomainMap(ctx);
-        } 
+        } else if (name.equals(ControlPane.FAMILY_PROPERTY)) {
+            String oldValue = (String) evt.getOldValue();
+            String newValue = (String) evt.getNewValue();
+            if (newValue.equals(oldValue)) return;
+            model.setFamily(newValue);
+        } else if (name.equals(ControlPane.GAMMA_PROPERTY)) {
+            Double oldValue = (Double) evt.getOldValue();
+            Double newValue = (Double) evt.getNewValue();
+            if (newValue.equals(oldValue)) return;
+            model.setCurveCoefficient(newValue.doubleValue());
+        } else if (name.equals(ControlPane.BIT_RESOLUTION_PROPERTY)) {
+            Integer oldValue = (Integer) evt.getOldValue();
+            Integer newValue = (Integer) evt.getNewValue();
+            if (newValue.equals(oldValue)) return;
+            model.setBitResolution(newValue.intValue());
+        } else if (name.equals(ControlPane.CHANNEL_SELECTION_PROPERTY)) {
+            int v = ((Integer) evt.getNewValue()).intValue();
+            model.setSelectedChannel(v, true);
+        } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
+            int v = ((Integer) evt.getNewValue()).intValue();
+            model.setSelectedChannel(v, false);
+        } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
+            if (((Boolean) evt.getNewValue()).booleanValue()) view.iconify();
+            else view.deIconify();
+        }
     }
     
 }

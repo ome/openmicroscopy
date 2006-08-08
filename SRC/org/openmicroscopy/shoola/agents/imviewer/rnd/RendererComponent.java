@@ -31,13 +31,13 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -80,12 +80,16 @@ class RendererComponent
     {
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
+        controller = new RendererControl();
+        view = new RendererUI(getParentModel().getImageName());
     }
     
     /** Links up the MVC triad. */
     void initialize()
     {
         model.initialize(this);
+        controller.initialize(this, view);
+        view.initialize(controller, model);
     }
     
     /** 
@@ -107,6 +111,7 @@ class RendererComponent
     {
         //if (model.getState() != DISCARDED) return;
         view.deIconify();
+        UIUtilities.centerOnScreen(view);
     }
 
     /** 
@@ -122,45 +127,24 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setInputEnd(double, boolean)
+     * @see Renderer#setInputInterval(double, double, boolean)
      */
-    public void setInputEnd(double v, boolean released)
+    public void setInputInterval(double s, double e, boolean released)
     {
         //if (model.getState() != DISCARDED) return;
-        model.setInputEnd(v);
+        model.setInputInterval(s, e);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setInputStart(double, boolean)
+     * @see Renderer#setCodomainInterval(int, int, boolean)
      */
-    public void setInputStart(double v, boolean released)
+    public void setCodomainInterval(int s, int e, boolean released)
     {
         //if (model.getState() != DISCARDED) return;
-        model.setInputStart(v);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-    }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setCodomainEnd(int, boolean)
-     */
-    public void setCodomainEnd(int v, boolean released)
-    {
-        //if (model.getState() != DISCARDED) return;
-        model.setCodomainEnd(v);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-    }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setCodomainStart(int, boolean)
-     */
-    public void setCodomainStart(int v, boolean released)
-    {
-        //if (model.getState() != DISCARDED) return;
-        model.setCodomainStart(v);
+        //TODO: remove comments when server problem is fixed
+        //model.setCodomainInterval(s, e);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
@@ -171,21 +155,25 @@ class RendererComponent
     public void setBitResolution(int v)
     {
         //if (model.getState() != DISCARDED) return;
-        model.setBitResolution(v);
+//      TODO: remove comments when server problem is fixed
+        //model.setBitResolution(v);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setSelectedChannel(int)
+     * @see Renderer#setSelectedChannel(int, boolean)
      */
-    public void setSelectedChannel(int c)
+    public void setSelectedChannel(int c, boolean b)
     {
         //if (model.getState() != DISCARDED) return;
         int selectedChannel  = model.getSelectedChannel();
         if (selectedChannel == c) return;
         model.setSelectedChannel(c);
-        firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
+        view.setSelectedChannel(c);
+        
+        if (b)
+            firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
                     new Integer(selectedChannel), new Integer(c));
     }
 
@@ -196,6 +184,7 @@ class RendererComponent
     public void setFamily(String family)
     {
         //if (model.getState() != DISCARDED) return;
+        
         model.setFamily(family);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -250,6 +239,7 @@ class RendererComponent
     public void removeCodomainMap(Class mapType)
     {
         model.removeCodomainMap(mapType);
+        view.removeCodomainMap(mapType);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
@@ -259,15 +249,10 @@ class RendererComponent
      */
     public void addCodomainMap(Class mapType)
     {
-        if (model.getCodomainMap(mapType) != null) return;
+        if (model.getCodomainMap(mapType) != null) return; //already
         model.addCodomainMap(mapType);
+        view.addCodomainMap(mapType);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#getUI()
-     */
-    public JFrame getUI() { return view; }
 
 }

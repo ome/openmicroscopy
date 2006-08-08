@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.ComboBoxModel;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -46,6 +44,7 @@ import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 
 /** 
  * 
@@ -71,11 +70,29 @@ class RendererModel
     /** Identifies the maximum value of the device space. */
     static final int    CD_END = 255;
     
-    /** Identifies the minimum value for the bit resolution. */
-    static final int    MIN_BIT_RESOLUTION = 1;
+    /** Flag to select a 1-bit depth (<i>=2^1-1</i>) output interval. */
+    static final int   DEPTH_1BIT = RenderingControl.DEPTH_1BIT;
+
+    /** Flag to select a 2-bit depth (<i>=2^2-1</i>) output interval. */
+    static final int   DEPTH_2BIT = RenderingControl.DEPTH_2BIT;
     
-    /** Identifies the maximum value for the bit resolution. */
-    static final int    MAX_BIT_RESOLUTION = 8;
+    /** Flag to select a 3-bit depth (<i>=2^3-1</i>) output interval. */
+    static final int   DEPTH_3BIT = RenderingControl.DEPTH_3BIT;
+    
+    /** Flag to select a 4-bit depth (<i>=2^4-1</i>) output interval. */
+    static final int   DEPTH_4BIT = RenderingControl.DEPTH_4BIT;
+    
+    /** Flag to select a 5-bit depth (<i>=2^5-1</i>) output interval. */
+    static final int   DEPTH_5BIT = RenderingControl.DEPTH_5BIT;
+    
+    /** Flag to select a 6-bit depth (<i>=2^6-1</i>) output interval. */
+    static final int   DEPTH_6BIT = RenderingControl.DEPTH_6BIT;
+    
+    /** Flag to select a 7-bit depth (<i>=2^7-1</i>) output interval. */
+    static final int   DEPTH_7BIT = RenderingControl.DEPTH_7BIT;
+    
+    /** Flag to select a 8-bit depth (<i>=2^8-1</i>) output interval. */
+    static final int   DEPTH_8BIT = RenderingControl.DEPTH_8BIT;
     
     /** Identifies the <code>Linear</code> family. */
     static final String LINEAR = RenderingControl.LINEAR;
@@ -97,6 +114,9 @@ class RendererModel
     /** The index of the selected channel. */
     private int                 selectedChannelIndex;
     
+    /** Flag to denote if the widget is visible or not. */
+    private boolean             visible;
+    
     /**
      * Creates a new instance.
      * 
@@ -112,8 +132,17 @@ class RendererModel
         if (rndControl == null)
             throw new NullPointerException("No rendering control.");
         this.parentModel = parentModel;
+        this.rndControl = rndControl;
+        visible = false;
         //state = Renderer.READY;
     }
+    
+    /**
+     * Returns the status of the window.
+     * 
+     * @return See above.
+     */
+    boolean isVisible() { return visible; }
     
     /**
      * Called by the <code>Renderer</code> after creation to allow this
@@ -137,19 +166,20 @@ class RendererModel
      */
     void setInputEnd(double end)
     {
-       double start = rndControl.getChannelWindowStart(selectedChannelIndex);
-       rndControl.setChannelWindow(selectedChannelIndex, start, end);
+       rndControl.setChannelWindow(selectedChannelIndex, getWindowStart(), 
+                                   end);
     } 
 
     /**
-     * Sets the lower bound of the pixels intensity interval.
+     * Sets the pixels intensity interval for the
+     * currently selected channel.
      * 
-     * @param start The upper bound to set.
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
      */
-    void setInputStart(double start)
+    void setInputInterval(double s, double e)
     {
-        double end = rndControl.getChannelWindowEnd(selectedChannelIndex);
-        rndControl.setChannelWindow(selectedChannelIndex, start, end);
+        rndControl.setChannelWindow(selectedChannelIndex, s, e);
     }
 
     /**
@@ -172,25 +202,15 @@ class RendererModel
         return rndControl.getQuantumDef().getCdStart().intValue();
     }
     
-    
     /**
-     * Sets the upper bound of the sub-interval of the device space.
+     * Sets the sub-interval of the device space. 
      * 
-     * @param end   The upper bound to set.
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
      */
-    void setCodomainEnd(int end)
+    void setCodomainInterval(int s, int e)
     {
-        rndControl.getQuantumDef().setCdEnd(new Integer(end)); 
-    }
-
-    /**
-     * Sets the lower bound of the sub-interval of the device space.
-     * 
-     * @param start   The lower bound to set.
-     */
-    void setCodomainStart(int start)
-    {
-        rndControl.getQuantumDef().setCdStart(new Integer(start));  
+        rndControl.setCodomainInterval(s, e);
     }
 
     /**
@@ -347,7 +367,58 @@ class RendererModel
      */
     double getCurveCoefficient()
     {
+        
         return rndControl.getChannelCurveCoefficient(selectedChannelIndex);
     }
     
+    /**
+     * Returns the bit resolution value.
+     * 
+     * @return See above.
+     */
+    int getBitResolution()
+    {
+        return rndControl.getQuantumDef().getBitResolution().intValue();
+    }
+    
+    /**
+     * Returns <code>true</code> if the noise reduction flag is turned on 
+     * for the selected channel, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isNoiseReduction()
+    {
+        return rndControl.getChannelNoiseReduction(selectedChannelIndex);
+    }
+    
+    /**
+     * Returns a list of <code>Channel Data</code> objects.
+     * 
+     * @return See above.
+     */
+    ChannelMetadata[] getChannelData()
+    {
+        return rndControl.getChannelData();
+    }
+    
+    double getGlobalMin()
+    {
+        return getWindowStart()-5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMin();
+    }
+    
+    double getGlobalMax()
+    {
+        return getWindowEnd()+5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
+    }
+    
+    double getWindowStart()
+    {
+        return rndControl.getChannelWindowStart(selectedChannelIndex);
+    }
+    
+    double getWindowEnd()
+    {
+        return rndControl.getChannelWindowEnd(selectedChannelIndex);
+    }
 }
