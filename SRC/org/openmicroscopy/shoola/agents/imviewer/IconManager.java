@@ -95,17 +95,35 @@ public class IconManager
     /** The <code>Plane slicing</code> icon. */
     public static  int          PLANE_SLICING = 9;
     
-    /** The <code>Contrast Stretching</code> icon. */
+    /** The big <code>Contrast Stretching</code> icon. */
     public static  int          CONTRAST_STRETCHING_BIG = 10;
     
-    /** The <code>Plane slicing</code> icon. */
+    /** The big <code>Plane slicing</code> icon. */
     public static  int          PLANE_SLICING_BIG = 11;
+    
+    /** The <code>Save settings</code> icon. */
+    public static  int          SAVE_SETTINGS = 12;
+    
+    /** The <code>Reset settings</code> icon. */
+    public static  int          RESET_SETTINGS = 13;
+    
+    /** The <code>Histogram</code> icon. */
+    public static  int          HISTOGRAM = 14;
+   
+    /** The <code>Play</code> icon. */
+    public static  int          PLAY = 15;
+    
+    /** The <code>Pause</code> icon. */
+    public static  int          STOP = 16;
+    
+    /** The <code>Stop</code> icon. */
+    public static  int          PAUSE = 17;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 11;
+    private static int          MAX_ID = 17;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -117,11 +135,19 @@ public class IconManager
         relPaths[SAVE] = "nuvola_filesaveas16.png";
         relPaths[LENS] = "nuvola_viewmag16.png";
         relPaths[TINY_INFO] = "messagebox_info8.png";
-        relPaths[DOMAIN] = "nuvola_viewmag16.png";
-        relPaths[CODOMAIN] = "nuvola_viewmag16.png";
-        relPaths[CONTRAST_STRETCHING] = "nuvola_viewmag16.png";
-        relPaths[PLANE_SLICING] = "nuvola_viewmag16.png";
-        relPaths[CONTRAST_STRETCHING_BIG] = "nuvola_viewmag16.png";
+        relPaths[DOMAIN] = "nuvola_kmplot16.png";
+        relPaths[CODOMAIN] = "codomain16.png";
+        relPaths[CONTRAST_STRETCHING] = "openOffice_stock_new-drawing-16.png";
+        relPaths[PLANE_SLICING] = "openOffice_stock_new-labels-16.png";
+        relPaths[CONTRAST_STRETCHING_BIG] = 
+                                "openOffice_stock_new-drawing-48.png";
+        relPaths[PLANE_SLICING_BIG] = "openOffice_stock_new-labels-48.png";
+        relPaths[SAVE_SETTINGS] = "nuvola_viewmag16.png";
+        relPaths[RESET_SETTINGS] = "nuvola_viewmag16.png";
+        relPaths[HISTOGRAM] = "histogram16.png";
+        relPaths[PLAY] = "nuvola_player_play16.png";
+        relPaths[PAUSE] = "nuvola_player_pause16.png";
+        relPaths[STOP] = "nuvola_player_stop16.png";
     }
     
     /** The sole instance. */
