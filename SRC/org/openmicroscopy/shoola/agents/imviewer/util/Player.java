@@ -68,7 +68,9 @@ public abstract class Player
     /** Indicates the <i>Stop</i> state of the timer. */
     public static final int     STOP = 1;
     
-
+    /** Indicates the <i>Pause</i> state of the timer. */
+    public static final int     PAUSE = 2;
+    
     /** The delay between to image. */
     protected static final int  DELAY = 1000;
     
@@ -84,6 +86,11 @@ public abstract class Player
     /** The state of the timer. */
     protected int       state;
     
+    /** The state of the timer before setting it. */
+    protected int       historyState;
+    
+    /** The delay used by the timer. */
+    protected int       delay;
     
     /**
      * Subclasses should override the method to synchronize the timer.
@@ -102,9 +109,10 @@ public abstract class Player
             throw new IllegalArgumentException("Model cannot be null.");
         this.model = model;
         state = -1;
+        delay = DELAY;
         model.addChangeListener(this);
         timer = new Timer(DELAY, this);
-        timer.setInitialDelay(INITIAL_DELAY);
+        timer.setInitialDelay(DELAY/10);
         timer.setCoalesce(true);
     }
 
@@ -118,15 +126,31 @@ public abstract class Player
         switch (state) {
             case START:
             case STOP: 
+            case PAUSE:
                 break;
             default:
                 throw new IllegalArgumentException("State not supported.");
         }
+
         if (this.state == state) return;
+        historyState = this.state;
         this.state = state;
         onPlayerStateChange();
     }
 
+    /**
+     * Sets the delay of the timer.
+     * 
+     * @param v The value to set.
+     */
+    public void setDelay(int v)
+    {
+        if (state != STOP) return;
+        delay = DELAY/v;
+        timer.setDelay(delay);
+        timer.setInitialDelay(delay*10);//to check if that's correct.
+    }
+    
     /** 
      * Reacts to change event from the {@link ImViewer}.
      * @see ChangeListener#stateChanged(ChangeEvent)
