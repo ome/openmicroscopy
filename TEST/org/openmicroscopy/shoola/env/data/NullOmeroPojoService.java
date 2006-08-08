@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.Map;
 import java.util.Set;
 
+import ome.model.core.Pixels;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -211,6 +213,13 @@ public class NullOmeroPojoService
                                             AnnotationData data)
             throws DSOutOfServiceException, DSAccessException
     {
+        return null;
+    }
+
+    public Pixels getChannelMetadata(long pixelsID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
         return null;
     }
 
