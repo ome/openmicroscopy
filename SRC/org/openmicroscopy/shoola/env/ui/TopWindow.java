@@ -173,6 +173,14 @@ public abstract class TopWindow
 		setVisible(true);	
 	}
 	
+    /** Iconifies the frame depending on the extended state. */
+    public void iconify()
+    {
+        if (getExtendedState() == Frame.NORMAL)
+            setExtendedState(Frame.ICONIFIED);
+        setVisible(false);
+    }
+    
 	/**
 	 * Enables or disables the display buttons.
 	 * 
@@ -208,8 +216,5 @@ public abstract class TopWindow
         pack();
         UIUtilities.centerAndShow(this);
     }
-    
-	/** A call for post-processing after the window is shown */
-	 //public void postHandleDisplay() {}
      
 }

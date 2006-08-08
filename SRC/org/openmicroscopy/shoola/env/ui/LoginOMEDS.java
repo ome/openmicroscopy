@@ -158,7 +158,11 @@ public class LoginOMEDS
     }
 
     
-    /** Builds the body panel. */
+    /** 
+     * Builds the body panel.
+     * 
+     *  @return See above.
+     */
     private JPanel buildBody()
     {
         
@@ -195,6 +199,8 @@ public class LoginOMEDS
     /**
      * Builds and lays out the buttons.
      * The {@link #loginButton} will be added to this panel.
+     * 
+     * @return See above.
      */
     private JPanel buildButtonsPanel()
     {

@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import javax.swing.AbstractButton;
 import javax.swing.JFrame;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies

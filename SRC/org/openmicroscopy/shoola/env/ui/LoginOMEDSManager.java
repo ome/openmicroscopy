@@ -117,6 +117,7 @@ class LoginOMEDSManager
 	 * button will be disabled and the Login Service will  be invoked to
      * log onto <i>OMEDS</i> with the given credentials.  The login dialog
      * is then disposed.
+     * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
@@ -134,7 +135,10 @@ class LoginOMEDSManager
         }
 	}
 
-	/** Required by {@link DocumentListener} interface. */
+	/** 
+     * Required by {@link DocumentListener} interface. 
+     * @see DocumentListener#changedUpdate(DocumentEvent)
+     */
 	public void changedUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
@@ -143,7 +147,10 @@ class LoginOMEDSManager
 		setLoginButtonIcon();
 	}
 
-	/** Required by {@link DocumentListener} interface. */
+	/** 
+     * Required by {@link DocumentListener} interface. 
+     * @see DocumentListener#insertUpdate(DocumentEvent)
+     */
 	public void insertUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();
@@ -152,7 +159,10 @@ class LoginOMEDSManager
 		setLoginButtonIcon();
 	}
 
-	/** Required by {@link DocumentListener} interface. */
+	/** 
+     * Required by {@link DocumentListener} interface. 
+     * @see DocumentListener#removeUpdate(DocumentEvent)
+     */
 	public void removeUpdate(DocumentEvent e)
 	{
 		Document doc = e.getDocument();

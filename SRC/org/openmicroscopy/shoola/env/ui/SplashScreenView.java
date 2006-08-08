@@ -114,7 +114,7 @@ class SplashScreenView
     
     /** Absolute positioning of the version label. */
     private static final Rectangle  VERSION_BOUNDS =
-                                            new Rectangle(62, 346, 150, 20);
+                                            new Rectangle(62, 346, 250, 20);
     
 	/** Font for progress bar label and text fields. */
 	private static final Font		FONT = 
@@ -141,6 +141,9 @@ class SplashScreenView
 		
     /** The client's version. */
     private static final String     VERSION = "3.0_M2 ";
+    
+    /** The server's version. For developers' purpose only. */
+    private static final String     OMERO_VERSION = " server: OMERO 3";
     
 	/** Text field to enter the login user name. */
 	JTextField     user;
@@ -207,7 +210,7 @@ class SplashScreenView
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
-        versionLabel.setText(VERSION+"(rev "+m.group()+")");
+        versionLabel.setText(VERSION+"(rev "+m.group()+")"+OMERO_VERSION);
         versionLabel.setForeground(VERSION_FONT_COLOR);
         versionLabel.setFont(VERSION_FONT);
 	}
