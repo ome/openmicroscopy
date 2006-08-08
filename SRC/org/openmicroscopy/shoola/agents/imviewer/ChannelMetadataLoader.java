@@ -36,6 +36,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
+
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -98,12 +100,12 @@ public class ChannelMetadataLoader
 
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        viewer.setChannelMetadata(result);
+        viewer.setChannelMetadata((Pixels) result);
     }
     
 }

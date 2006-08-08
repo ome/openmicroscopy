@@ -37,12 +37,13 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
 /** 
- * 
+ * Loads the rendering control proxy for the specified pixels' set.
+ * This class calls the <code>loadRenderingControl</code> method in the
+ * <code>ImViewerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
