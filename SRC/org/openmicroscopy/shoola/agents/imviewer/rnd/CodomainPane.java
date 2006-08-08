@@ -36,8 +36,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Icon;
@@ -55,11 +53,11 @@ import ome.model.display.ContrastStretchingContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.util.ContrastStretchingDialog;
-import org.openmicroscopy.shoola.agents.imviewer.util.PlaneSlicingDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
+ * Pane displaying the controls used to define the transformations happening 
+ * in the device space or codomain i.e. sub-interval of [0, 255].
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -76,7 +74,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class CodomainPane
     extends ControlPane
-    implements PropertyChangeListener 
 {
 
     /** Button to bring up the contrast stretching modal dialog. */
@@ -101,31 +98,39 @@ class CodomainPane
         IconManager icons = IconManager.getInstance();
         contrastStretchingButton = new JButton(icons.getIcon(
                         IconManager.CONTRAST_STRETCHING));
+        contrastStretchingButton.setEnabled(false);
         contrastStretchingButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)
             {
+                /*
                 CodomainMapContext ctx = 
                     model.getCodomainMap(PlaneSlicingContext.class);
                 JDialog dialog = new ContrastStretchingDialog(view, ctx, 
                         model.getCodomainStart(), model.getCodomainEnd());
                 dialog.addPropertyChangeListener(controller);
                 UIUtilities.centerAndShow(dialog);
+                */
+                
+                
             }
         });
         
         planeSlicingButton = new JButton(icons.getIcon(
                             IconManager.PLANE_SLICING));
+        planeSlicingButton.setEnabled(false);
         planeSlicingButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e)
             {
+                /*
                 CodomainMapContext ctx = 
                     model.getCodomainMap(PlaneSlicingContext.class);
                 JDialog dialog = new PlaneSlicingDialog(view, ctx, 
                         model.getCodomainStart(), model.getCodomainEnd());
                 dialog.addPropertyChangeListener(controller);
                 UIUtilities.centerAndShow(dialog);
+                */
             }
 
         });
@@ -169,9 +174,9 @@ class CodomainPane
     }
     
     /**
-     * Builds the pane co
+     * lays out the controls.
      * 
-     * @return See above.
+     * @return See below.
      */
     private JPanel buildControlsPane()
     {
@@ -184,9 +189,9 @@ class CodomainPane
         c.fill = GridBagConstraints.HORIZONTAL;
         p.add(reverseIntensity, c);
         c.gridy = 1;
-        p.add(buildPane(contrastStretching, contrastStretchingButton));
+        p.add(buildPane(contrastStretching, contrastStretchingButton), c);
         c.gridy = 2;
-        p.add(buildPane(planeSlicing, planeSlicingButton));
+        p.add(buildPane(planeSlicing, planeSlicingButton), c);
         return p;
     }
     
@@ -209,7 +214,6 @@ class CodomainPane
         super(model, controller);
         initComponents();
         buildGUI();
-        controller.addPropertyListener(this);
     }
     
     /** 
@@ -234,7 +238,7 @@ class CodomainPane
      */
     protected String getPaneDescription()
     {
-        return "Sets the context used during the mapping progress.";
+        return "Selects the transformations happening in the device space.";
     }
     
     /**
@@ -244,22 +248,39 @@ class CodomainPane
     protected int getPaneIndex() { return ControlPane.CODOMAIN_PANE_INDEX; }
     
     
-    protected void onStateChange()
+    protected void onStateChange(boolean b)
     {
         // TODO Auto-generated method stub
         
     }
     
-    public void propertyChange(PropertyChangeEvent evt)
+
+    /**
+     * Updates the corresponding controls when a codomain transformation
+     * is added.
+     * 
+     * @param mapType The type of codomain transformation. 
+     */
+    void addCodomainMap(Class mapType)
     {
-        String name = evt.getPropertyName();
-        if (name.equals(Renderer.CONTRAST_STRETCHING_PROPERTY)) {
-            boolean b = ((Boolean) evt.getNewValue()).booleanValue();
-            contrastStretchingButton.setEnabled(b);
-        }  else if (name.equals(Renderer.PLANE_SLICING_PROPERTY)) {
-            boolean b = ((Boolean) evt.getNewValue()).booleanValue();
-            planeSlicingButton.setEnabled(b);
-        }  
+        if (mapType.equals(PlaneSlicingContext.class))
+            planeSlicingButton.setEnabled(true);
+        else if (mapType.equals(ContrastStretchingContext.class))
+            contrastStretchingButton.setEnabled(true);
+    }
+    
+    /**
+     * Updates the corresponding controls when a codomain transformation
+     * is added.
+     * 
+     * @param mapType The type of codomain transformation. 
+     */
+    void removeCodomainMap(Class mapType)
+    {
+        if (mapType.equals(PlaneSlicingContext.class))
+            planeSlicingButton.setEnabled(false);
+        else if (mapType.equals(ContrastStretchingContext.class))
+            contrastStretchingButton.setEnabled(false);
     }
 
 }

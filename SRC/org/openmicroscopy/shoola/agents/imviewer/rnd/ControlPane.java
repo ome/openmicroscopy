@@ -41,7 +41,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * Top-class that each pane hosting mapping controls should extend.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,6 +64,17 @@ abstract class ControlPane
     
     /** The index of the codomain. */
     static final int    CODOMAIN_PANE_INDEX = 1;
+    
+    /** Bounds property indicating that a family is selected. */
+    static final String FAMILY_PROPERTY = "family";
+    
+    /** Bounds property indicating that a family is selected. */
+    static final String GAMMA_PROPERTY = "gamma";
+    
+    /** Bounds property indicating that a family is selected. */
+    static final String BIT_RESOLUTION_PROPERTY = "bit_resolution";
+    
+    static final String CHANNEL_SELECTION_PROPERTY = "channel_selection";
     
     /** Reference to the Model.*/
     protected RendererModel     model;
@@ -104,7 +115,7 @@ abstract class ControlPane
     protected abstract int getPaneIndex();
     
     /** Reacts to change in the <code>ImViewer</code>. */
-    protected abstract void onStateChange();
+    protected abstract void onStateChange(boolean b);
     
     /**
      * Creates a new instance.
