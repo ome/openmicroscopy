@@ -99,6 +99,8 @@ public class RefreshAction
 	            break;
 	        default:
 	            setEnabled(true);
+                onDisplayChange(
+                        model.getSelectedBrowser().getSelectedDisplay());
 	            break;
         }
     }

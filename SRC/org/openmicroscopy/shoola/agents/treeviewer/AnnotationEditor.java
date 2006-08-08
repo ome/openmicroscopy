@@ -169,6 +169,7 @@ public class AnnotationEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
+        System.out.println(result);
         viewer.setSaveResult((DataObject) result, Editor.UPDATE_OBJECT); 
     }
     

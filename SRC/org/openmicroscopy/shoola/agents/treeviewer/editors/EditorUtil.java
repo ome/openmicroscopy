@@ -136,7 +136,6 @@ class EditorUtil
     static Map transformPixelsData(PixelsData data)
     {
         LinkedHashMap details = new LinkedHashMap(8);
-        data = null;
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");

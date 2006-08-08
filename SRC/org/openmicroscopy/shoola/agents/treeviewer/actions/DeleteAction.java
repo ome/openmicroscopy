@@ -84,9 +84,8 @@ public class DeleteAction
         }
         Object ho = selectedDisplay.getUserObject(); 
         if (ho instanceof ProjectData)
-            //setEnabled(((ProjectData) ho).getOwner().getId() == 
-        	//	model.getUserDetails().getId()); 
-            setEnabled(false); //TODO: remove ASAP
+            setEnabled(((ProjectData) ho).getOwner().getId() == 
+        		model.getUserDetails().getId()); 
         else if (ho instanceof DatasetData) 
             setEnabled(((DatasetData) ho).getOwner().getId() == 
         		model.getUserDetails().getId());
@@ -94,13 +93,11 @@ public class DeleteAction
             setEnabled(((ImageData) ho).getOwner().getId() == 
         		model.getUserDetails().getId());
         else if (ho instanceof CategoryData) 
-            //setEnabled(((CategoryData) ho).getOwner().getId() == 
-            //    model.getUserDetails().getId());
-            setEnabled(false); //TODO: remove ASAP
+            setEnabled(((CategoryData) ho).getOwner().getId() == 
+                model.getUserDetails().getId());
         else if (ho instanceof CategoryGroupData) 
-            //setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
-            //    model.getUserDetails().getId());
-            setEnabled(false); //TODO: remove ASAP
+            setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
+                model.getUserDetails().getId());
         else setEnabled(false);
     }
     
