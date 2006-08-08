@@ -52,7 +52,7 @@ import javax.swing.plaf.basic.BasicButtonUI;
 //Application-internal dependencies
 
 /** 
- * 
+ * Customized button used to select the rendered channel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

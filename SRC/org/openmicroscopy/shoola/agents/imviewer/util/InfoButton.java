@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
