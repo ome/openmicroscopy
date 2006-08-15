@@ -59,9 +59,7 @@ import omeis.providers.re.data.PlaneDef;
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
- * Transforms method calls into execution requests, which then posts on the 
- * event bus.  Keeps in sync the local copy of the rendering settings, so 
- * reads are made against this copy.  Runs in the Swing thread.
+ * Runs in the Swing thread.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -234,14 +232,19 @@ class RenderingControlProxy
         pixs = servant.getPixels();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
-        
-        List l = pixs.getChannels();
-        System.out.println("servant.getPixels() "+pixs.getId());
         //Channel[] channels = (Channel[])
        //     l.toArray(new Channel[l.size()]);
         metadata = new ChannelMetadata[getPixelsDimensionsC()];
+        /*
+        Iterator j = pixs.getChannels().iterator();
+        int k = 0;
+        while (j.hasNext()) {
+            metadata[k] = new ChannelMetadata((Channel) j.next(), null);
+            k++;
+        }
+        */
         for (int i = 0; i < metadata.length; i++) {
-            metadata[i] = new ChannelMetadata(null);
+            metadata[i] = new ChannelMetadata(i, null, null);
         }
         setDefaultPlane();
     }
