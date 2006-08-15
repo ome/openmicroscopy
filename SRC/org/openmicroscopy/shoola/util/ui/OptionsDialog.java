@@ -213,6 +213,7 @@ public class OptionsDialog
         buildButtonsPanel();
         contentPanel.add(buttonPanel);
         getContentPane().add(contentPanel);
+        pack();
     }
     
 	/**
@@ -253,10 +254,16 @@ public class OptionsDialog
 		buildGUI(message, messageIcon);
 	}
 	
-    /** Subclasses should override the method. */
-	protected void onYesSelection() {}
-	
-    /** Subclasses should override the method. */
-	protected void onNoSelection() {}
-	
+    /**
+     * Subclasses should override the method to perform an action.
+     * We cannot fire a property change event b/c the dialog is modal.
+     */
+    protected void onYesSelection() {}
+    
+    /**
+     * Subclasses should override the method to perform an action.
+     * We cannot fire a property change event b/c the dialog is modal.
+     */
+    protected void onNoSelection() {}
+    
 }
