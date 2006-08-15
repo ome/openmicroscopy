@@ -91,8 +91,15 @@ public class ContrastStretchingContext
 	 */
 	private void verifyInputInterval(int start, int end)
 	{
-		if (start >= end || start < intervalStart || end > intervalEnd)
-			throw new IllegalArgumentException("Interval not consistent " +				"in contrast stretching context.");
+        if (start >= end)
+            throw new IllegalArgumentException(start+" cannot greater than " +
+                    end+" in contrast stretching context.");
+		if (start < intervalStart)
+            throw new IllegalArgumentException(start+" cannot lower than " +
+                    intervalStart+" in contrast stretching context.");
+        if (end > intervalEnd)
+			throw new IllegalArgumentException(end+" cannot be greater than "+
+                    intervalStart+" in contrast stretching context.");
 	}
 	
 	/** 
