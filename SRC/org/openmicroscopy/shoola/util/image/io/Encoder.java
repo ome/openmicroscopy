@@ -67,16 +67,19 @@ public abstract class Encoder
     static final int    BLUE_BAND = 2;
     
     /** The output stream. */
-    protected DataOutputStream    output;
+    protected DataOutputStream      output;
     
     /** The image to encode. */
-    protected BufferedImage       image;
+    protected BufferedImage         image;
 
     /** The width of the image. */
-    protected int                 imageWidth;
+    protected int                   imageWidth;
     
     /** The height of the image. */
-    protected int                 imageHeight;
+    protected int                   imageHeight;
+    
+    /** The color type of the image. */
+    protected int                   colorType;
     
     /** 
      * Controls if the color model associated to the specified image is
@@ -87,11 +90,11 @@ public abstract class Encoder
      * */
     private int checkColorModel(BufferedImage img)
     {
-        int colorType = img.getColorModel().getColorSpace().getType();
-        if (colorType != ColorSpace.TYPE_RGB && 
-            colorType != ColorSpace.TYPE_GRAY)
+        int c = img.getColorModel().getColorSpace().getType();
+        if (c != ColorSpace.TYPE_RGB && 
+            c != ColorSpace.TYPE_GRAY)
             throw new IllegalArgumentException("Color Type not supported");
-        return colorType;
+        return c;
     }
     
     /**
@@ -105,7 +108,7 @@ public abstract class Encoder
         if (output == null) new IllegalArgumentException("Output not valid");
         if (image == null)  
             new IllegalArgumentException("Image to encode not valid");
-        checkColorModel(image);
+        colorType = checkColorModel(image);
         this.image = image;
         this.imageHeight = image.getWidth();
         this.imageWidth = image.getHeight();
