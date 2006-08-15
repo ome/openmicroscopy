@@ -120,9 +120,15 @@ public class CodomainChain
      */
     private void verifyInterval(int start, int end)
     {
-        if (start >= end || start < QuantumStrategy.MIN ||
-                end > QuantumStrategy.MAX)
-            throw new IllegalArgumentException("Interval not consistent.");
+        if (start >= end)
+            throw new IllegalArgumentException(start+" cannot be greater than "
+                    +end);
+        if (start < QuantumStrategy.MIN)
+            throw new IllegalArgumentException(start+" cannot be lower than "
+                    +QuantumStrategy.MIN);
+        if (end > QuantumStrategy.MAX)
+            throw new IllegalArgumentException(end+" cannot be greater than "
+                    +QuantumStrategy.MAX);
     }
     
     /** 
