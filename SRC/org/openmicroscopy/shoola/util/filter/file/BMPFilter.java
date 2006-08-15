@@ -67,7 +67,7 @@ public class BMPFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-	public String getDescription() { return "BMP images."; }
+	public String getDescription() { return "BMP images"; }
 		
     /**
      * Overriden to accept file with the declared file extensions.
