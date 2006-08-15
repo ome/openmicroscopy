@@ -453,20 +453,6 @@ class TwoKnobsSliderUI
      */
     int yPositionForValue(int value)
     {
-        /*
-        int min = model.getMinimum();
-        int max = model.getMaximum();
-        int trackLength = trackRect.height; 
-        double valueRange = (double)max -(double)min;
-        double pixelsPerValue = trackLength/valueRange;
-        int trackTop = trackRect.y;
-        int trackBottom = trackRect.y+trackRect.height-1;
-        int yPosition = trackTop;
-        yPosition += Math.round(pixelsPerValue*((double) max - value));
-        yPosition = Math.max(trackTop, yPosition);
-        yPosition = Math.min(trackBottom, yPosition);
-        return yPosition;
-        */
         int min = model.getMinimum();
         int max = model.getMaximum();
         int trackLength = trackRect.height; 
@@ -518,23 +504,6 @@ class TwoKnobsSliderUI
      */
     int yValueForPosition(int yPosition)
     {
-        /*
-        int value;
-        int minValue = model.getMinimum();
-        int maxValue = model.getMaximum();
-        int trackLength = trackRect.height;
-        int trackTop = trackRect.y;
-        int trackBottom = trackRect.y+trackRect.height;
-        if (yPosition <= trackTop ) value =  maxValue;
-        else if (yPosition >= trackBottom) value = minValue;
-        else {
-            double valueRange = (double) maxValue-(double) minValue;
-            double valuePerPixel = valueRange/trackLength;
-            value = maxValue-(int) Math.round(
-                    (yPosition-trackTop)*valuePerPixel);
-        }
-        return value;
-        */
         int value;
         int minValue = model.getMinimum();
         int maxValue = model.getMaximum();
