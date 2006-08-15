@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 
 //Application-internal dependencies
 import ome.model.core.Channel;
+import ome.model.core.LogicalChannel;
 
 /** 
  * 
@@ -55,26 +56,56 @@ import ome.model.core.Channel;
 public class ChannelMetadata
 {
 
-    private final Channel channel;
+    /** The OME index of the channel. */
+    private final int               index;
     
-    public ChannelMetadata(Channel channel)
+    private final Channel           channel;
+    
+    private PixelsStatsEntry[]      stats;
+    
+    public ChannelMetadata(int index, Channel channel, PixelsStatsEntry[] stats)
     {
+        this.index = index;
         this.channel = channel;
+        this.stats = stats;
     }
     
+    /**
+     * Returns the emission wavelength of the channel.
+     * 
+     * @return See above
+     */
     public int getEmissionWavelength()
     {
         return 400;//channel.getLogicalChannel().getEmissionWave().intValue();
     }
     
+    /** 
+     * Returns the global minimum of the channel i.e. the minimum of all minima.
+     * 
+     * @return See above.
+     */
     public int getGlobalMin()
     {
         return 0;//channel.getStatsInfo().getGlobalMin().intValue();
     }
     
+    /** 
+     * Returns the global maximum of the channel i.e. the minimum of all minima.
+     * 
+     * @return See above.
+     */
     public int getGlobalMax()
     {
         return 700;//channel.getStatsInfo().getGlobalMax().intValue();
     }
+    
+    /**
+     * Returns the array of {@link PixelsStatsEntry} objects, indexed by 
+     * timepoint.
+     * 
+     * @return See above
+     */
+    public PixelsStatsEntry[] getStatsEntry() { return stats; }
     
 }
