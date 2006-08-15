@@ -370,6 +370,11 @@ public class Renderer
      */
     public PixelBuffer getPixels() { return buffer; }
     
+    /**
+     * Returns the {@link Pixels} set the rendering engine is for.
+     * 
+     * @return See above.
+     */
     public Pixels getMetadata() { return metadata; }
     
     /**
@@ -377,10 +382,7 @@ public class Renderer
      * 
      * @return A pixels type enumeration object. 
      */
-    public PixelsType getPixelsType()
-    {
-        return metadata.getPixelsType();
-    }
+    public PixelsType getPixelsType() { return metadata.getPixelsType(); }
 
     /**
      * Returns the object that defines the sequence of spatial transformations 
@@ -426,7 +428,7 @@ public class Renderer
         	Channel channel = (Channel) i.next();
         	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
         	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
-            //TEst
+            //Test
         	sf.computeLocationStats(metadata, buffer, pd, w);
         	//cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
             cb[w].setNoiseReduction(Boolean.TRUE);
