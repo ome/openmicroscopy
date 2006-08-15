@@ -34,6 +34,10 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -464,6 +468,43 @@ class ImViewerComponent
     {
         //      TODO Check state
         return model.getDefaultT();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getImageComponents()
+     */
+    public List getImageComponents()
+    {
+        if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+        List l = model.getActiveChannels();
+        if (l.size() < 2) return null;
+        Iterator i = l.iterator();
+        int index;
+        ArrayList images = new ArrayList(l.size());
+        while (i.hasNext()) {
+            index = ((Integer) i.next()).intValue();
+            for (int j = 0; j < model.getMaxC(); j++)
+                model.setChannelActive(j, j == index);
+            images.add(model.getRenderedImage());
+        }
+        i = l.iterator();
+        while (i.hasNext()) { //reset values.
+            index = ((Integer) i.next()).intValue();
+            model.setChannelActive(index, true);
+        }
+        // TODO Auto-generated method stub
+        return images;
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getImageComponents()
+     */
+    public BufferedImage getImage()
+    {
+        // TODO Auto-generated method stub
+        return model.getDisplayedImage();
     }
 
 

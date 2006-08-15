@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -44,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
  * Defines the interface provided by the viewer component. 
- * The Viewer provides a top-level window to host the rendered image.
+ * The Viewer provides a top-level window hosting the rendered image.
  *
  * When the user quits the window, the {@link #discard() discard} method is
  * invoked and the object transitions to the {@link #DISCARDED} state.
@@ -293,6 +295,23 @@ public interface ImViewer
      * @return See above.
      */
     public int getDefaultZ();
+    
+    /** 
+     * Returns a list of {@link BufferedImage}s composing the displayed image.
+     * Returns <code>null</code> if the the color model is
+     * {@link #GREY_SCALE_MODEL} or if the image isn't the combination of at 
+     * least two channels.
+     * 
+     * @return See above.
+     */
+    public List getImageComponents();
+    
+    /**
+     * Returns the image currently displayed.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getImage();
     
     /**
      * Returns the default timepoint.

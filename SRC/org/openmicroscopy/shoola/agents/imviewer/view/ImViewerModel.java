@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -312,6 +313,20 @@ class ImViewerModel
         
     }
     
+    BufferedImage getRenderedImage()
+    {
+        PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
+        pDef.setZ(getDefaultZ());
+        state = ImViewer.LOADING_IMAGE;
+        RenderingService rs = ImViewerAgent.getRegistry().getRenderingService();
+        try {
+            return rs.renderImage(pixelsID, pDef);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return null;
+    }
+    
     /**
      * Sets the rendering control.
      * 
@@ -424,6 +439,20 @@ class ImViewerModel
         return active;
     }
 
+    /**
+     * Returns a list of active channels.
+     * 
+     * @return See above.
+     */
+    List getActiveChannels()
+    {
+        ArrayList active = new ArrayList();
+        for (int i = 0; i < getMaxC(); i++) {
+            if (rndControl.isActive(i)) active.add(new Integer(i));
+        }
+        return active;
+    }
+    
     /** 
      * Starts the channels movie player, invokes in the event-dispatcher 
      * thread for safety reason.
@@ -459,6 +488,11 @@ class ImViewerModel
     {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    BufferedImage getDisplayedImage()
+    {
+        return browser.getDisplayedImage();
     }
     
 }
