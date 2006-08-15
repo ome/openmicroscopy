@@ -56,7 +56,6 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.system.OmeroContext;
-
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.Renderer;
@@ -92,7 +91,8 @@ import omeis.providers.re.quantum.QuantumFactory;
  *          2005/07/05 16:13:52 $) </small>
  * @since OME2.2
  */
-public class RenderingEngineImpl implements RenderingEngine
+public class RenderingEngineImpl
+    implements RenderingEngine
 {
 
     private static Log log = LogFactory.getLog(RenderingEngineImpl.class);
@@ -114,18 +114,25 @@ public class RenderingEngineImpl implements RenderingEngine
      * not null, the Engine is ready to use.
      */
     private OmeroContext                   ctx;
+    
+    /** Transforms the raw data. */
     private Renderer                       renderer;
+    
+    /** The pixels set to the rendering engine is for. */
     private Pixels                         pixelsObj;
+    
+    /** The rendering settings associated to the pixels set. */
     private RenderingDef                   rendDefObj;
+    
+    /** Reference to the service used to retrieve the pixels data. */
     private PixelsService                  pixDataSrv;
+    
+    /** Reference to the service used to retrieve the pixels metadata. */
     private IPixels                        pixMetaSrv;
     private ReentrantReadWriteLock         rwl = new ReentrantReadWriteLock();
 
 
-    // ~ CREATION/CONFIGURATION/DESTRUCTION
-    // =========================================================================
-    public  RenderingEngineImpl()
-    { }
+    public  RenderingEngineImpl() {}
 
     public void create() 
     { }
@@ -173,6 +180,11 @@ public class RenderingEngineImpl implements RenderingEngine
      * 
      * a.k.a. STATE-MANAGEMENT
      */
+    
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#lookupPixels(long)
+     */
     public void lookupPixels(long pixelsId)
     {
         rwl.writeLock().lock();
@@ -215,7 +227,10 @@ public class RenderingEngineImpl implements RenderingEngine
 
     }
 
-
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#lookupRenderingDef(long)
+     */
     public void lookupRenderingDef(long pixelsId)
     {
         rwl.writeLock().lock();
@@ -236,6 +251,10 @@ public class RenderingEngineImpl implements RenderingEngine
         
     }
 
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#load()
+     */
     public void load()
     {
         rwl.writeLock().lock();
@@ -256,7 +275,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     } 
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#saveCurrentSettings()
+     */
     public void saveCurrentSettings()
     {
         rwl.writeLock().lock();
@@ -295,7 +317,10 @@ public class RenderingEngineImpl implements RenderingEngine
      *   
      */
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#render(PlaneDef)
+     */
     public RGBBuffer render(PlaneDef pd)
             throws ResourceError, ValidationException
     {
@@ -319,7 +344,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setModel(RenderingModel)
+     */
     public void setModel(RenderingModel model)
     {
         rwl.writeLock().lock();
@@ -332,7 +360,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setDefaultZ(int)
+     */
     public void setDefaultZ(int z)
     {
         rwl.writeLock().lock();
@@ -345,7 +376,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setDefaultT(int)
+     */
     public void setDefaultT(int t)
     {
         rwl.writeLock().lock();
@@ -358,7 +392,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setQuantumStrategy(int)
+     */
     public void setQuantumStrategy(int bitResolution)
     {
         rwl.writeLock().lock();
@@ -371,11 +408,13 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setCodomainInterval(int, int)
+     */
     public void setCodomainInterval(int start, int end)
     {
         rwl.writeLock().lock();
-        
         try {
             errorIfInvalidState();
             renderer.setCodomainInterval(start, end);
@@ -384,7 +423,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setChannelWindow(int, double, double)
+     */
     public void setChannelWindow(int w, double start, double end)
     {
         rwl.writeLock().lock();
@@ -397,7 +439,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * @see RenderingEngine#setQuantizationMap(int, Family, double, boolean) 
+     */
     public void setQuantizationMap(int w, Family family,
             double coefficient, boolean noiseReduction)
     {
@@ -430,7 +475,10 @@ public class RenderingEngineImpl implements RenderingEngine
         // copy to be on the safe side.
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getChannelNoiseReduction(int)
+     */
     public boolean getChannelNoiseReduction(int w)
     {
         rwl.readLock().lock();
@@ -444,7 +492,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * @see RenderingEngine#getChannelFamily(int)
+     */
     public Family getChannelFamily(int w)
     {
         rwl.readLock().lock();
@@ -458,7 +509,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getChannelCurveCoefficient(int)
+     */
     public double getChannelCurveCoefficient(int w)
     {
         rwl.readLock().lock();
@@ -472,7 +526,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getChannelWindowStart(int)
+     */
     public double getChannelWindowStart(int w)
     {
         rwl.readLock().lock();
@@ -486,7 +543,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getChannelWindowEnd(int)
+     */
     public double getChannelWindowEnd(int w)
     {
         rwl.readLock().lock();
@@ -500,7 +560,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * @see RenderingEngine#setRGBA(int, int, int, int, int)
+     */
     public void setRGBA(int w, int red, int green, int blue, int alpha)
     {
         rwl.writeLock().lock();
@@ -513,7 +576,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getRGBA(int)
+     */
     public int[] getRGBA(int w)
     {
 
@@ -535,7 +601,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#setActive(int, boolean)
+     */
     public void setActive(int w, boolean active)
     {
         try {
@@ -548,7 +617,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#isActive(int)
+     */
     public boolean isActive(int w)
     {
         rwl.readLock().lock();
@@ -600,7 +672,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#resetDefaults()
+     */
     public void resetDefaults()
     {
         rwl.writeLock().lock();
@@ -616,7 +691,10 @@ public class RenderingEngineImpl implements RenderingEngine
     //  ~ RendDefObj Delegation
     // =========================================================================
     
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getModel()
+     */
     public RenderingModel getModel()
     {
         rwl.readLock().lock();
@@ -629,7 +707,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getDefaultZ()
+     */
     public int getDefaultZ()
     {
         rwl.readLock().lock();
@@ -642,7 +723,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getDefaultT()
+     */
     public int getDefaultT()
     {
         rwl.readLock().lock();
@@ -656,7 +740,10 @@ public class RenderingEngineImpl implements RenderingEngine
     }
 
     
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getQuantumDef()
+     */
     public QuantumDef getQuantumDef()
     {
         rwl.readLock().lock();
@@ -669,7 +756,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getPixels()
+     */
     public Pixels getPixels()
     {
         rwl.readLock().lock();
@@ -682,7 +772,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
     
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getAvailableModels()
+     */
     public List getAvailableModels()
     {
         rwl.readLock().lock();
@@ -694,7 +787,10 @@ public class RenderingEngineImpl implements RenderingEngine
         }
     }
     
-    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#getAvailableFamilies()
+     */
     public List getAvailableFamilies()
     {
         rwl.readLock().lock();
