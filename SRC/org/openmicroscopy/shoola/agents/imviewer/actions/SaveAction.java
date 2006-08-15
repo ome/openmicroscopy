@@ -38,11 +38,12 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.util.ImgSaver;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up the widget to save the displayed image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -87,6 +88,8 @@ public class SaveAction
      */
     public void actionPerformed(ActionEvent e)
     {
+        ImgSaver saver = new ImgSaver(model.getUI(), model);
+        UIUtilities.centerAndShow(saver);
     }
     
 }

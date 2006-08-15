@@ -43,6 +43,7 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.imviewer.util.HistogramDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -92,7 +93,9 @@ public class HistogramAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        
+        HistogramDialog dialog = new HistogramDialog(
+                model.getParentModel().getUI(), model);
+        UIUtilities.centerAndShow(dialog);
     }
     
 }
