@@ -35,12 +35,20 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
+import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.awt.image.Kernel;
+import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
 
 //Third-party libraries
@@ -191,6 +199,41 @@ public class Factory
             g2.drawString(text, xTxt, yTxt);
         }
         return newImage;
+    }
+    
+    /**
+     * Creates a {@link BufferedImage} with a <code>Raster</code> from a
+     * <code>BufferedImage</code> built from a graphics context.
+     * 
+     * @param img The image to transform.
+     * @return See above.
+     */
+    public static BufferedImage createImage(BufferedImage img)
+    {
+        int sizeY = img.getWidth();
+        int sizeX = img.getHeight();
+        DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
+        DataBuffer dataBuf = img.getRaster().getDataBuffer();
+        ColorModel cm = img.getColorModel();
+        int pos = 0;
+        int v = 0;
+        for (int y = 0; y < sizeY; ++y) {
+            for (int x = 0; x < sizeX; ++x) {
+                pos = sizeX*y+x;
+                v = dataBuf.getElem(0, pos);
+                buffer.setElem(0, pos, cm.getRed(v));
+                buffer.setElem(1, pos, cm.getGreen(v));
+                buffer.setElem(2, pos, cm.getBlue(v));
+            }
+        }
+        ComponentColorModel ccm = new ComponentColorModel(
+                ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+                null, false, false, Transparency.OPAQUE, 
+                DataBuffer.TYPE_BYTE);
+        BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
+                sizeX, sizeY, 3);
+        return new BufferedImage(ccm, 
+                Raster.createWritableRaster(csm, buffer, null), false, null);
     }
     
 }
