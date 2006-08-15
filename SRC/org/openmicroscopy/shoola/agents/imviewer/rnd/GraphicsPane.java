@@ -54,7 +54,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 /** 
- * 
+ * Component hosting the diagram and the controls to select the pixels intensity 
+ * interval and the codomain interval.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -97,12 +98,6 @@ class GraphicsPane
     /** The label displaying the global min. */
     private JLabel              minLabel;
     
-    /** The currently selected start value. */
-    private int                 currentStart;
-    
-    /** The currently selected end value. */
-    private int                 currentEnd;
-    
     /** The component displaying the plane histogram. */
     private GraphicsPaneUI      uiDelegate;
     
@@ -127,8 +122,6 @@ class GraphicsPane
         codomainSlider.addPropertyChangeListener(this);
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();
-        currentStart = s;
-        currentEnd = e;
         domainSlider = new TwoKnobsSlider((int) model.getGlobalMin(), 
                             (int) model.getGlobalMax(), s, e);
         domainSlider.setPaintLabels(false);
@@ -177,9 +170,8 @@ class GraphicsPane
     private JPanel buildFielsControls()
     {
         JPanel p = new JPanel();
-        GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(gridbag);
+        p.setLayout(new GridBagLayout());
         p.add(buildFielsPanel("Min", minLabel, "Start", startField), c);
         c.gridx = 1;
         p.add(buildFielsPanel("Max", maxLabel, "End", endField), c);
@@ -199,9 +191,8 @@ class GraphicsPane
                                 JTextField f)
     {
         JPanel p = new JPanel();
-        GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(gridbag);
+        p.setLayout(new GridBagLayout());
         JLabel label = new JLabel(txt1);
         p.add(label, c);
         c.gridx = 1;
@@ -231,13 +222,12 @@ class GraphicsPane
                 valid = true;
         } catch(NumberFormatException nfe) {}
         if (valid) {
-            currentStart = val;
-            domainSlider.setStartValue(currentStart);
-            controller.setInputInterval(currentStart, currentEnd, true);
+            controller.setInputInterval(val, model.getWindowEnd(), true);
         } else {
             startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid start value", "");
+            un.notifyInfo("Invalid pixels intensity interval", 
+                    "["+val+","+model.getWindowEnd()+"]");
         }
     }
     
@@ -257,13 +247,12 @@ class GraphicsPane
                 valid = true;
         } catch(NumberFormatException nfe) {}
         if (valid) {
-            currentEnd = val;
-            domainSlider.setEndValue(currentEnd);
-            controller.setInputInterval(currentStart, currentEnd, true);
+            controller.setInputInterval(model.getWindowStart(), val, true);
         } else {
             endField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid start value", "");
+            un.notifyInfo("Invalid pixels intensity interval", 
+                    "["+model.getWindowStart()+","+val+"]");
         }
     }
     
@@ -304,6 +293,17 @@ class GraphicsPane
         domainSlider.setValues(max, min, s, e);
     }
     
+    /** Sets the pixels intensity interval. */
+    void setInputInterval()
+    {
+        int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+        endField.setText(""+e);
+        startField.setText(""+s);
+        domainSlider.setStartValue(s);
+        domainSlider.setEndValue(e);
+    }
+    
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -314,11 +314,8 @@ class GraphicsPane
         Object source = evt.getSource();
         if (name.equals(TwoKnobsSlider.KNOB_RELEASED_PROPERTY)) {
             if (source.equals(domainSlider)) {
-                int s = domainSlider.getStartValue();
-                int e = domainSlider.getEndValue();
-                startField.setText(""+s);
-                endField.setText(""+e);
-                controller.setInputInterval(s, e, true);
+                controller.setInputInterval(domainSlider.getStartValue(), 
+                        domainSlider.getEndValue(), true);
             } else if (source.equals(codomainSlider)) {
                 int s = codomainSlider.getStartValue();
                 int e = codomainSlider.getEndValue();
@@ -357,8 +354,8 @@ class GraphicsPane
      */
     public void focusLost(FocusEvent fe)
     {
-        String sVal = startField.getText(), s = ""+currentStart;
-        String eVal = endField.getText(), e = ""+currentEnd;
+        String sVal = startField.getText(), s = ""+model.getWindowStart();
+        String eVal = endField.getText(), e = ""+model.getWindowEnd();
         if (sVal == null || !sVal.equals(s)) startField.setText(s);
         if (eVal == null || !eVal.equals(e)) endField.setText(e);
     }

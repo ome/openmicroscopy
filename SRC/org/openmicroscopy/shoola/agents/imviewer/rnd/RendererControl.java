@@ -58,7 +58,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
- * 
+ * The Renderer's controller.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -134,10 +134,12 @@ class RendererControl
     }
     
     /** 
-     * Attaches a window listener to the view.
+     * Attaches a window listener to the view and a property listener to the 
+     * model.
      */
-    private void attachWindowListeners()
+    private void attachListeners()
     {
+        model.addPropertyChangeListener(this);
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e)
@@ -174,7 +176,7 @@ class RendererControl
         this.view = view;
         model.getParentModel().addPropertyChangeListener(this);
         createActions();
-        attachWindowListeners();
+        attachListeners();
     }
     
     /**
@@ -268,13 +270,15 @@ class RendererControl
             model.setBitResolution(newValue.intValue());
         } else if (name.equals(ControlPane.CHANNEL_SELECTION_PROPERTY)) {
             int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v, true);
+            model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
             int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v, false);
+            model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
             if (((Boolean) evt.getNewValue()).booleanValue()) view.iconify();
             else view.deIconify();
+        } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
+            view.setInputInterval();
         }
     }
     

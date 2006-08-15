@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 
 /** 
- * 
+ * The Model component in the <code>Renderer</code> MVC triad.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -205,8 +205,8 @@ class RendererModel
     /**
      * Sets the sub-interval of the device space. 
      * 
-     * @param s         The lower bound of the interval.
-     * @param e         The upper bound of the interval.
+     * @param s The lower bound of the interval.
+     * @param e The upper bound of the interval.
      */
     void setCodomainInterval(int s, int e)
     {
@@ -226,7 +226,7 @@ class RendererModel
     /**
      * Sets the selected channel.
      * 
-     * @param index     The index of the selected channel.
+     * @param index The index of the selected channel.
      */
     void setSelectedChannel(int index) { selectedChannelIndex = index; }
 
@@ -234,7 +234,7 @@ class RendererModel
      * Sets, for the currently selected channel, the family used during 
      * the mapping process.
      * 
-     * @param family    The family to set.
+     * @param family The family to set.
      */
     void setFamily(String family)
     {
@@ -278,6 +278,14 @@ class RendererModel
         rndControl.updateCodomainMap(ctx);
     }
 
+    /**
+     * Returns the codomain map context corresponding to the specified 
+     * <code>codomain</code> class. Returns <code>null</code> if there is no
+     * context matching the class.
+     * 
+     * @param mapType The class corresponding to the context to retrieve.
+     * @return See above.
+     */
     CodomainMapContext getCodomainMap(Class mapType)
     {
         List maps = getCodomainMaps();
@@ -402,21 +410,43 @@ class RendererModel
         return rndControl.getChannelData();
     }
     
+    /**
+     * Returns the global minimum of the currently selected channel.
+     * 
+     * @return See above.
+     */
     double getGlobalMin()
     {
         return getWindowStart()-5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMin();
     }
     
+    /**
+     * Returns the global maximum of the currently selected channel.
+     * 
+     * @return See above.
+     */
     double getGlobalMax()
     {
         return getWindowEnd()+5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
     }
     
+    /**
+     * Returns the lower bound of the pixels intensity interval of the 
+     * currently selected channel.
+     * 
+     * @return See above.
+     */
     double getWindowStart()
     {
         return rndControl.getChannelWindowStart(selectedChannelIndex);
     }
     
+    /**
+     * Returns the upper bound of the pixels intensity interval of the 
+     * currently selected channel.
+     * 
+     * @return See above.
+     */
     double getWindowEnd()
     {
         return rndControl.getChannelWindowEnd(selectedChannelIndex);

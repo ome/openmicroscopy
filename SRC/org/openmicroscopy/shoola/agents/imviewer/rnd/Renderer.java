@@ -31,18 +31,17 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
- * 
+ * Defines the interface provided by the renderer component. 
+ * The Renderer provides a top-level window hosting the rendering controls.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,6 +81,18 @@ public interface Renderer
     /** Bound property name indicating that a new channel is selected. */
     public final static String  SELECTED_CHANNEL_PROPERTY = "selectedChannel";
     
+    /** 
+     * Bound property indicating that the channel bindings of a new 
+     * channel has to be displayed.
+     */
+   // public final static String  CHANNEL_SELECTION_PROPERTY = "channelSelection";
+    
+    /** 
+     * Bound property indicating that the pixels intensiy interval is 
+     * modified.
+     */
+    public final static String  INPUT_INTERVAL_PROPERTY = "inputInterval";
+    
     /**
      * Returns the current state.
      * 
@@ -95,6 +106,36 @@ public interface Renderer
     /** Moves the window to front and de-iconifies it necessary. */
     public void moveToFront();
 
+    /**
+     * Returns the lower bound of the pixels intensity interval for the
+     * currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getWindowStart();
+    
+    /**
+     * Returns the upper bound of the pixels intensity interval for the
+     * currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getWindowEnd();
+    
+    /**
+     * Returns the global minimum for the currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getGlobalMin();
+    
+    /**
+     * Returns the global maximum for the currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getGlobalMax();
+    
     /**
      * Updates the codomain map corresponding to the specified 
      * {@link CodomainMapContext}.
@@ -152,10 +193,8 @@ public interface Renderer
      * Sets the selected channel.
      * 
      * @param c The new selected channel.
-     * @param b Flag to fire a property change. Pass <code>true</code> to fire
-     *          a property change, <code>false</code> otherwise.
      */
-    void setSelectedChannel(int c, boolean b);
+    void setSelectedChannel(int c);
     
     /**
      * Sets the family and updates the image.
@@ -187,6 +226,11 @@ public interface Renderer
      */
     ImViewer getParentModel();
     
+    /**
+     * 
+     * @param mapType
+     * @return See above.
+     */
     CodomainMapContext getCodomainMapContext(Class mapType);
     
 }

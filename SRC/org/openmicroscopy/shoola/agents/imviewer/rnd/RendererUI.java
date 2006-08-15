@@ -69,8 +69,10 @@ class RendererUI
     extends TopWindow
 {
     
+    /** Identifies the {@link DomainPane}. */
     static final Integer        DOMAIN = new Integer(0);
     
+    /** Identifies the {@link CodomainPane}. */
     static final Integer        CODOMAIN = new Integer(1);
     
     /** Reference to the control. */
@@ -220,6 +222,14 @@ class RendererUI
     {
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         pane.setSelectedChannel(c);
+    }
+
+    /** Sets the pixels intensity interval. */
+    void setInputInterval()
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.setInputInterval();
+        
     }
     
 }

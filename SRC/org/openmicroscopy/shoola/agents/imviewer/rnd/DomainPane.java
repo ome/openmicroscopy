@@ -37,9 +37,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -57,7 +54,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.env.data.model.ChannelData;
 import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -181,7 +177,7 @@ class DomainPane
         ChannelMetadata[] l = model.getChannelData();
         String[] channels = new String[l.length];
         for (int j = 0; j < channels.length; j++) 
-            channels[j] = ""+l[j].getEmissionWavelength();
+            channels[j] = ""+(l[j].getEmissionWavelength()+j);
         channelBox = new JComboBox(channels);
         channelBox.setSelectedIndex(model.getSelectedChannel());
         channelBox.addActionListener(this);
@@ -211,9 +207,8 @@ class DomainPane
     private JPanel buildControlsPane()
     {
         JPanel p = new JPanel();
-        GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(gridbag);
+        p.setLayout(new GridBagLayout());
         c.ipadx = 10;
         c.weightx = 0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -398,6 +393,14 @@ class DomainPane
         // histogram.
     }
     
+    /** Sets the pixels intensity interval. */
+    void setInputInterval() { graphicsPane.setInputInterval(); }
+    
+    /**
+     * Depending on the source of the event. Sets the gamma value or
+     * the bit resolution.
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent e)
     {
         Object source = e.getSource();
@@ -435,7 +438,6 @@ class DomainPane
                     break;
                 case CHANNEL:
                     int i = ((JComboBox) e.getSource()).getSelectedIndex();
-                    setSelectedChannel(i);
                     firePropertyChange(CHANNEL_SELECTION_PROPERTY, 
                             new Integer(model.getSelectedChannel()), 
                             new Integer(i));
@@ -445,7 +447,5 @@ class DomainPane
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
-
-
     
 }

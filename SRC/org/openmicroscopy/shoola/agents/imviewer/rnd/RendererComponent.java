@@ -41,8 +41,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
+ * Implements the {@link Renderer} interface to provide the functionality
+ * required of the renderer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
  * 
- *
+ * @see org.openmicroscopy.shoola.agents.imviewer.rnd.RendererModel
+ * @see org.openmicroscopy.shoola.agents.imviewer.rnd.RendererUI
+ * @see org.openmicroscopy.shoola.agents.imviewer.rnd.RendererControl
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
@@ -134,6 +143,8 @@ class RendererComponent
         //if (model.getState() != DISCARDED) return;
         model.setInputInterval(s, e);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
+                            Boolean.TRUE);
     }
 
     /** 
@@ -162,17 +173,17 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setSelectedChannel(int, boolean)
+     * @see Renderer#setSelectedChannel(int)
      */
-    public void setSelectedChannel(int c, boolean b)
+    public void setSelectedChannel(int c)
     {
         //if (model.getState() != DISCARDED) return;
         int selectedChannel  = model.getSelectedChannel();
         if (selectedChannel == c) return;
         model.setSelectedChannel(c);
         view.setSelectedChannel(c);
-        
-        if (b)
+        //if (model.getParentModel().getColorModel().equals(
+        //        ImViewer.GREY_SCALE_MODEL))
             firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
                     new Integer(selectedChannel), new Integer(c));
     }
@@ -253,6 +264,46 @@ class RendererComponent
         model.addCodomainMap(mapType);
         view.addCodomainMap(mapType);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getWindowStart()
+     */
+    public double getWindowStart()
+    {
+        // TODO Auto-generated method stub
+        return model.getWindowStart();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getWindowEnd()
+     */
+    public double getWindowEnd()
+    {
+        // TODO Auto-generated method stub
+        return model.getWindowEnd();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getGlobalMin()
+     */
+    public double getGlobalMin()
+    {
+        // TODO Auto-generated method stub
+        return model.getGlobalMin();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getGlobalMax()
+     */
+    public double getGlobalMax()
+    {
+        // TODO Auto-generated method stub
+        return model.getGlobalMax();
     }
 
 }
