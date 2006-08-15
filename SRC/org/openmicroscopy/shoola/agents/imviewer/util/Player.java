@@ -151,6 +151,13 @@ public abstract class Player
         timer.setInitialDelay(delay*10);//to check if that's correct.
     }
     
+    /**
+     * Returns the state of the timer.
+     * 
+     * @return See above.
+     */
+    public int getState() { return state; }
+    
     /** 
      * Reacts to change event from the {@link ImViewer}.
      * @see ChangeListener#stateChanged(ChangeEvent)

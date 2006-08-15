@@ -51,7 +51,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.Border;
 
 
 //Third-party libraries
@@ -79,9 +78,6 @@ import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 class MoviePlayerUI
     extends JPanel
 {
-
-    /** Dimension of the horizontal box added between two buttons. */
-    private static final Dimension  HBOX = new Dimension(10, 0);
     
     /** Vertical space between the panes. */
     private static final Dimension  VSPACE = new Dimension(0, 20);
@@ -98,10 +94,6 @@ class MoviePlayerUI
     /** UI identifier corresponding to {@link MoviePlayer#PINGPONG}. */
     private static final int        PINGPONG_CMD = 3;
     
-    /** Border of a pressed button. */
-    private static final Border     PRESSED_BORDER = 
-                                BorderFactory.createLoweredBevelBorder();
-    
     /** Movie type selections. */
     private static final String[]   selections;
     
@@ -110,6 +102,9 @@ class MoviePlayerUI
     
     /** Reference to the model. */
     private MoviePlayer model;
+    
+    /** Tool bar hosting the buttons. */
+    private JToolBar    toolBar;
     
     /** The button to play the movie. */
     JButton             play;
@@ -166,17 +161,6 @@ class MoviePlayerUI
     }
     
     /**
-     * Sets a LoweredBevelBorder to the specified button but doesn't paint it.
-     * 
-     * @param button The specified button.
-     */
-    private void setButtonBorder(JButton button) 
-    {
-        //button.setBorder(BorderFactory.createEmptyBorder());
-        //button.setBorderPainted(false);
-    }
-     
-    /**
      * Returns the UI index corresponding to the specified movie type.
      * 
      * @param v The movie type
@@ -204,10 +188,7 @@ class MoviePlayerUI
         pause.setToolTipText(UIUtilities.formatToolTipText("Pause."));
         stop = new JButton(icons.getIcon(IconManager.STOP));
         stop.setToolTipText(UIUtilities.formatToolTipText("Stop movie."));
-        //defaultBor
-        setButtonBorder(play);
-        setButtonBorder(pause);
-        setButtonBorder(stop);
+        
         movieTypes = new JComboBox(selections);
         movieTypes.setSelectedIndex(getMovieTypeIndex(model.getMovieType()));
         
@@ -261,16 +242,16 @@ class MoviePlayerUI
      */
     private JToolBar buildToolBar()
     {
-        JToolBar bar = new JToolBar();
-        bar.setBorder(BorderFactory.createEtchedBorder());
-        bar.setFloatable(true);
-        bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        bar.add(play);
+        toolBar = new JToolBar();
+        toolBar.setBorder(BorderFactory.createEtchedBorder());
+        toolBar.setFloatable(true);
+        toolBar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+        toolBar.add(play);
         //bar.add(Box.createRigidArea(HBOX));
-        bar.add(pause);
+        //bar.add(pause);
         //bar.add(Box.createRigidArea(HBOX));
-        bar.add(stop);
-        return bar;
+        toolBar.add(stop);
+        return toolBar;
     }
     
     /** 
@@ -283,7 +264,7 @@ class MoviePlayerUI
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
-        JLabel l = new JLabel(" Rate");
+        JLabel l = new JLabel("Rate");
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.WEST;
         p.add(l, c);
@@ -292,7 +273,7 @@ class MoviePlayerUI
         p.add(contain, c);
         c.gridx = 0;
         c.gridy = 1;
-        l = new JLabel(" Play");
+        l = new JLabel("Play");
         p.add(l, c);
         c.gridx = 1;
         contain = UIUtilities.buildComponentPanel(movieTypes);
@@ -492,18 +473,19 @@ class MoviePlayerUI
     }
     
     /**
-     * Sets the border of the {@link #play} button when the movie is playing,
-     * resets the border when the movie is stopped.
+     * Swaps the {@link #play} and {@link #pause} depending on the 
+     * specified flag.
      * 
-     * @param b Pass <code>true</code> to set the {@link #PRESSED_BORDER},
-     *          <code>false</code> to reset the original border.
+     * @param b Pass <code>true</code> to set the {@link #pause} button
+     *          <code>false</code> otherwise.
      */
-    void setBorderPressed(boolean b)
+    void setMoviePlay(boolean b)
     {
-        
-        if (b) {
-            play.setBorder(PRESSED_BORDER);
-        }else play.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        toolBar.removeAll();
+        if (b) toolBar.add(pause);
+        else toolBar.add(play);
+        toolBar.add(stop);
+        toolBar.repaint();
     }
 
     /**
