@@ -113,17 +113,29 @@ public class IconManager
     /** The <code>Play</code> icon. */
     public static  int          PLAY = 15;
     
-    /** The <code>Pause</code> icon. */
+    /** The <code>Stop</code> icon. */
     public static  int          STOP = 16;
     
-    /** The <code>Stop</code> icon. */
+    /** The <code>Pause</code> icon. */
     public static  int          PAUSE = 17;
+    
+    /** The <code>Histogram big</code> icon. */
+    public static  int          HISTOGRAM_BIG = 18;
+    
+    /** The <code>Save As big</code> icon. */
+    public static  int          SAVE_BIG = 19;
+    
+    /** The <code>Question</code> icon. */
+    public static  int          QUESTION = 20;
+    
+    /** The <code>Cancel</code> icon. */
+    public static  int          CANCEL = 21;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 17;
+    private static int          MAX_ID = 21;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -148,6 +160,10 @@ public class IconManager
         relPaths[PLAY] = "nuvola_player_play16.png";
         relPaths[PAUSE] = "nuvola_player_pause16.png";
         relPaths[STOP] = "nuvola_player_stop16.png";
+        relPaths[HISTOGRAM_BIG] = "histogram16.png";
+        relPaths[SAVE_BIG] = "histogram16.png";
+        relPaths[QUESTION] = "nuvola_filetypes32.png";
+        relPaths[CANCEL] = "eclipse_delete_edit16.png";
     }
     
     /** The sole instance. */
