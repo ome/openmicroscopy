@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.util.image.io;
 //Java imports
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
@@ -59,10 +61,7 @@ import java.io.IOException;
 public class TIFFEncoder 
 	extends Encoder
 {
-    
-    /** The image's color type. */
-	private int					colorType;
-	
+
     /** The number of bits per sample. */
 	private int 				bitsPerSample;
     
@@ -143,7 +142,7 @@ public class TIFFEncoder
      * @throws IOException Exception thrown if an error occured during the
      * encoding process.
      */
-    void writeEntry(int tag, int fieldType, int count, int value) 
+    private void writeEntry(int tag, int fieldType, int count, int value) 
         throws IOException
     {
         output.writeShort(tag);
@@ -156,11 +155,42 @@ public class TIFFEncoder
     
     /**
      * Writes the pixel value, band model. 
-     * 
      * @throws IOException Exception thrown if an error occured during the
      * encoding process.
      */
     private void writeRGBPixels()
+        throws IOException
+    {
+        DataBuffer db = image.getRaster().getDataBuffer();
+        if (db instanceof DataBufferByte)
+            writeRGBDataBufferByte((DataBufferByte) db);
+        else if (db instanceof DataBufferInt) 
+            writeRGBDataBufferInt((DataBufferInt) db);
+        
+    }    
+    
+    private void writeRGBDataBufferInt(DataBufferInt dbi)
+        throws IOException
+    {
+        int xres = image.getWidth();
+        int yres = image.getHeight();
+        int[] pixels = dbi.getData();
+        byte[] bank = new byte[pixels.length];
+        for (int iy = 0; iy < yres; iy++) {
+            for (int ix = 0; ix < xres; ix++) {
+                  int off = iy*xres+ix;
+                  int pixel = pixels[off];
+                  int r = (pixel>>16) & 0xff;
+                  int g = (pixel>>8) & 0xff;
+                  int b = pixel & 0xff;
+                  pixel = (0xff<<24)|(r<<16)|(g<<8)|b;
+                  bank[off] = (byte) pixel;
+                }
+        }
+        output.write(bank, 0, bank.length);
+    }
+    
+    private void writeRGBDataBufferByte(DataBufferByte bufferByte)
         throws IOException
     {
         int bytesWritten = 0;
@@ -168,15 +198,12 @@ public class TIFFEncoder
         int count = imageWidth*24;      //3*8
         byte[] buffer = new byte[count];
         int i, j;
-        DataBufferByte 
-        bufferByte = (DataBufferByte) image.getRaster().getDataBuffer();
-        //model chosen          
         byte[] red = bufferByte.getData(Encoder.RED_BAND);
         byte[] green = bufferByte.getData(Encoder.GREEN_BAND);
         byte[] blue = bufferByte.getData(Encoder.BLUE_BAND);
         while (bytesWritten < size) {
             if ((bytesWritten+count) > size)
-                count = size - bytesWritten;
+                count = size-bytesWritten;
             j = bytesWritten/3;
             //TIFF save as BRG and not RGB.
             for (i = 0; i < count; i += 3) {
@@ -189,8 +216,8 @@ public class TIFFEncoder
             bytesWritten += count;
         }
         writeColorMap(red, green, blue);
-    }    
-    
+    }
+
     /**
      * Writes the color palette following the image. 
      * 
@@ -229,10 +256,10 @@ public class TIFFEncoder
         double yscale = 1.0/imageHeight;
         double scale = 1000000.0;
         if (xscale > 1000.0) scale = 1000.0;
-        output.writeInt((int)(xscale*scale));
-        output.writeInt((int)scale);
-        output.writeInt((int)(yscale*scale));
-        output.writeInt((int)scale);
+        output.writeInt((int) (xscale*scale));
+        output.writeInt((int) scale);
+        output.writeInt((int) (yscale*scale));
+        output.writeInt((int) scale);
     }
     
     /**
