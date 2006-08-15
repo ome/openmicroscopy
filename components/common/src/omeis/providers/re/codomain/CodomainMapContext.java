@@ -63,7 +63,7 @@ public abstract class CodomainMapContext
 	/** 
 	 * Sets the codomain interval.
 	 * No checks are needed as this method is controlled by the
-	 * {@link CodomainChain}, which passes in consistent values.
+	 * <code>codomainChain</code>, which passes in consistent values.
 	 * 
 	 * @param intervalStart	The lower bound of the codomain interval.
 	 * @param intervalEnd	The upper bound of the codomain interval.
@@ -89,7 +89,7 @@ public abstract class CodomainMapContext
 
 	/**
 	 * Computes any parameter that depends on the codomain interval.
-	 * The {@link CodomainChain} always calls this method after setting the
+	 * The <code>codomainChain</code> always calls this method after setting the
 	 * interval via {@link #setCodomain(int, int) setCodomain()}.
 	 */
 	abstract void buildContext();
