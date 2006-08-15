@@ -99,6 +99,13 @@ class BrowserUI
         getViewport().add(contentPane);
     }
     
+    /**
+     * Sets the size of the components b/c a layeredPane doesn't have a layout
+     * manager.
+     * 
+     * @param w The width to set.
+     * @param h The height to set.
+     */
     private void setComponentsSize(int w, int h)
     {
         Dimension d = new Dimension(w, h);
