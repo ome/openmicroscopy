@@ -50,9 +50,9 @@ import omeis.providers.re.quantum.QuantizationException;
  * {@link #render(Renderer, PlaneDef) render} method.  The image is rendered
  * according to the current settings in the rendering context which is accessed
  * through a {@link Renderer} object representing the rendering environment.</p>
- * <p>The {@link #makeNew(int) makeNew} factory method allows to select a
- * concrete strategy depending on on how transformed data is to be mapped into
- * a color space.</p>
+ * <p>The {@link #makeNew(RenderingModel) makeNew} factory method allows to 
+ * select a concrete strategy depending on on how transformed data is to be 
+ * mapped into a color space.</p>
  *
  * @see Renderer
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -68,6 +68,7 @@ import omeis.providers.re.quantum.QuantizationException;
  */
 abstract class RenderingStrategy
 {
+    
 	/** The logger for this particular class */
     private static Log log = LogFactory.getLog(RenderingStrategy.class);
     
@@ -92,8 +93,7 @@ abstract class RenderingStrategy
 		log.warn("WARNING: Unknown model '" + value + "' using greyscale.");
 		return new GreyScaleStrategy();
 	}
-	
-    
+
     /**
      * Encapsulates a specific rendering algorithm. 
      * The image is rendered according to the current settings hold by the
