@@ -15,9 +15,9 @@
  *
  *
  * Note that the only entry that needs to be edited *before* launching Shoola
- * is the URL of the OME Data Server (OMEDS) in the Services group.  All other
- * entries can optionally be edited to tweak runtime behavior, but can in most
- * cases be safely ignored.
+ * is the URL of the OMERO Data Server (OMERODS) in the Services group.  
+ * All other entries can optionally be edited to tweak runtime behavior, 
+ * but can in most cases be safely ignored.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <container>
@@ -28,14 +28,15 @@
    *
    * The runtime services provided by the Container.
    * The only entry that needs to be edited *before* launching Shoola is the
-   * URL of the OME Data Server (OMEDS).  All the other entries can optionally
-   * be edited to tweak runtime behavior.
+   * URL of the OMERO Data Server (OMERODS).  All the other entries can 
+   * optionally be edited to tweak runtime behavior.
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <services>
  
    <!-- OMERO Data Server (OMERO) configuration.
-         This entry specifies the hostname and the port to use to connect to OMERO.
+         This entry specifies the hostname and the port to use to connect to 
+         OMERO.
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
       <hostName>yourhost</hostName>
@@ -45,7 +46,7 @@
     <!-- Login Service configuration.
     -->
     <!-- The maximum number of times that the Login Service should attempt
-         to restore a valid link to OMEDS in the background. 
+         to restore a valid link to OMERO server in the background. 
          Non-positive values will be ignored and the internal default will
          be used instead. -->
     <entry name="/services/LOGIN/omeds/max-retry" type="integer">3</entry>
