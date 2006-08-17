@@ -30,12 +30,10 @@
 package omeis.providers.re.data;
 
 //Java imports
-
-//Third-party libraries
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
+//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -61,8 +59,7 @@ import omeis.providers.re.Renderer;
  * plane.  This array contains just the plane data in the case of an <i>XY</i>
  * plane, but the whole stack in which that plane belongs in the case of an 
  * <i>ZY</i> or <i>XZ</i> plane.  For this reason we have three concrete sub-
- * classes (one per plane type) that know how to calculate the offset.  The
- * value conversion is delegated to a {@link BytesConverter} Strategy.</p>
+ * classes (one per plane type) that know how to calculate the offset.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,25 +79,25 @@ public abstract class Plane2D
     private static Log log = LogFactory.getLog(Renderer.class);
     
     /** Contains the plane data. */
-    private MappedByteBuffer data;
+    private MappedByteBuffer    data;
     
     /** The type of plane. */
-	protected PlaneDef	   planeDef;
+	protected PlaneDef	        planeDef;
 	
     /** How many bytes make up a pixel value. */
-    protected int          bytesPerPixel;
+    protected int               bytesPerPixel;
 	
     /** Number of pixels along the <i>X</i>-axis. */
-    protected int          sizeX;
+    protected int               sizeX;
     
     /** Number of pixels along the <i>Y</i>-axis. */
-    protected int          sizeY;
+    protected int               sizeY;
     
     /** The Java type that we're using for pixel value retrieval */
-    protected int          javaType;
+    protected int               javaType;
     
     /** The sign of the type **/
-    protected boolean      signed;
+    protected boolean           signed;
 	
 
     /**
@@ -161,10 +158,8 @@ public abstract class Plane2D
 	{
 		int offset = calculateOffset(x1, x2);
 
-		if (signed)
-		{
-		    switch(javaType)
-		    {
+		if (signed) {
+		    switch(javaType) {
 		        case PlaneFactory.BYTE:
 		            return data.get(offset);
 		        case PlaneFactory.SHORT:
@@ -176,18 +171,17 @@ public abstract class Plane2D
 		        case PlaneFactory.DOUBLE:
 		            return data.getDouble(offset);
 		    }
-		} else
-        {
-            switch(javaType)
-            {
+		} else {
+            switch(javaType) {
                 case PlaneFactory.BYTE:
                     return (short) (data.get(offset) & 0xff);
                 case PlaneFactory.SHORT:
-                    return (int) (data.getShort(offset) & 0xffff);
+                    return (data.getShort(offset) & 0xffff);
                 case PlaneFactory.INT:
-                    return (long) (data.getInt(offset) & 0xffffffffL);
+                    return (data.getInt(offset) & 0xffffffffL);
             }            
         }       
 		throw new RuntimeException("Unknown pixel type.");
 	}
+    
 }
