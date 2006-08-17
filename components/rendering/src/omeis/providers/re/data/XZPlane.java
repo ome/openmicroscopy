@@ -29,15 +29,15 @@
 
 package omeis.providers.re.data;
 
-import java.nio.MappedByteBuffer;
 
-import ome.model.core.Pixels;
 
 //Java imports
+import java.nio.MappedByteBuffer;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 
 /** 
  * Provides the {@link Plane2D} implementation for <i>XZ</i> planes.
