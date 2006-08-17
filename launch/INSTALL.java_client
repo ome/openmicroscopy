@@ -6,7 +6,8 @@
   Preamble
 
   The client software requires a J2SE Java Runtime Environment (JRE) to
-  run (version 1.4 or later).  If you don't have one already, you can
+  run (version 1.5). Note that the client doesn't use features of Java 1.5.
+  If you don't have one already, you can
   download the J2SE JRE install bundle from:
 
     http://java.sun.com/j2se/downloads/
@@ -30,15 +31,16 @@
     * This install file.
 
   Locate the "container.xml" file within the "config" directory and edit this
-  file to specify the URL to the OME Data Server (OMEDS).  All you have to do
-  is to modify the content of the url tag within the following entry:
+  file to specify the URL to the OMERO Data Server (OMERODS).  All you have to 
+  do is to modify the content of the url tag within the following entry:
 
-    <structuredEntry name="/services/OMEDS" type = "OMEDS">
-	  <url>http://valewalker.openmicroscopy.org.uk/shoola</url>
+    <structuredEntry name="/services/OMERODS" type="OMERODS">
+      <hostName>valewalker.openmicroscopy.org.uk</hostName>
+      <port>1099</port>
     </structuredEntry>
 
-  You have to replace "http://valewalker.openmicroscopy.org.uk/shoola" with
-  the actual OMEDS URL in use at your site.
+  You have to replace "valewalker.openmicroscopy.org.uk" with
+  the actual OMERODS URL in use at your site.
   
   If you're running on Unix or Mac OS X, make sure the provided startup script
   is executable.
