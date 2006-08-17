@@ -156,16 +156,13 @@ public class Renderer
     private IPixels             iPixels;
      
     /**
-     * Creates a new instance to render the specified pixels set.
-     * The {@link #initialize() initialize} method has to be called straight
-     * after in order to get this new instance ready for rendering.
+     * Creates a new instance to render the specified pixels set
+     * and get this new instance ready for rendering.
      * 
      * @param iPixels An IPixels service.
      * @param pixelsObj Pixels object.
      * @param renderingDefObj Rendering definition object.
      * @param bufferObj PixelBuffer object.
-     * @param metadata The service to access the metadata of the pixels
-     *                 set bound to this <code>Renderer</code>.
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(IPixels iPixels, Pixels pixelsObj,
@@ -298,10 +295,11 @@ public class Renderer
      * Returns the size, in bytes, of the {@link RGBBuffer} that would be
      * rendered from the plane selected by <code>pd</code>.
      * Note that the returned value also depends on the current rendering
-     * strategy which is selected by the {@link #setModel(int) setModel} method.
+     * strategy which is selected by the 
+     * {@link #setModel(RenderingModel) setModel} method.
      * So a subsequent invocation of this method may return a different value
-     * if the {@link #setModel(int) setModel} method has been called since the
-     * first call to this method.
+     * if the {@link #setModel(RenderingModel) setModel} method has been 
+     * called since the first call to this method.
      * 
      * @param pd Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *           or <i>Z</i> axes.
@@ -339,6 +337,12 @@ public class Renderer
         return renderingStrategy.getPlaneDimsAsString(pd, metadata);
     }
         
+    /**
+     * Returns an array containing the channel bindings. The dimension of 
+     * the array equals the number of channels.
+     * 
+     * @return See above.
+     */
     public ChannelBinding[] getChannelBindings()
     {
         List bindings = rndDef.getWaveRendering();
@@ -444,6 +448,12 @@ public class Renderer
     //
     // Methods pushed down from RenderingBean
     //
+    
+    /**
+     * Sets the bit resolution.
+     * 
+     * @param bitResolution The value to set.
+     */
     public void setQuantumStrategy(int bitResolution)
     {
         RenderingDef rd = getRenderingDef();
@@ -456,6 +466,12 @@ public class Renderer
         updateQuantumManager();
     }
     
+    /**
+     * Sets the codomain interval i.e. a sub-interval of [0, 255].
+     * 
+     * @param start The lower bound of the interval.
+     * @param end   The upper bound of the interval.
+     */
     public void setCodomainInterval(int start, int end)
     {
         CodomainChain chain = getCodomainChain();
@@ -477,6 +493,13 @@ public class Renderer
 
     }
     
+    /**
+     * Sets the pixels intensity interval for the specified channel.
+     * 
+     * @param w     The channel index.
+     * @param start The lower bound of the interval.
+     * @param end   The upper bound of the interval.
+     */
     public void setChannelWindow(int w, double start, double end)
     {
         QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
@@ -486,6 +509,17 @@ public class Renderer
         cb[w].setInputEnd(new Float(end)); // TODO double / Float
     }
     
+    /**
+     * Sets the mapping strategy for the specified channel.
+     * 
+     * @param w                 The channel index.
+     * @param family            The mapping family.
+     * @param coefficient       The coefficient identifying a curve in the 
+     *                          family.
+     * @param noiseReduction    Pass <code>true</code> to select the
+     *                          noiseReduction algorithm, <code>false</code>
+     *                          otherwise.
+     */
     public void setQuantizationMap(int w, Family family,
             double coefficient, boolean noiseReduction)
     {
@@ -497,6 +531,14 @@ public class Renderer
         cb[w].setNoiseReduction(noiseReduction);
     }
 
+    /**
+     * Sets the color associated to the specified channel.
+     * @param w     The channel index.
+     * @param red   The red component of the color.
+     * @param green The green component of the color.
+     * @param blue  The blue component of the color.
+     * @param alpha The alpha component of the color.
+     */
     public void setRGBA(int w, int red, int green, int blue, int alpha)
     {
         ChannelBinding[] cb = getChannelBindings();
@@ -507,6 +549,7 @@ public class Renderer
         c.setAlpha(Integer.valueOf(alpha));
     }
     
+    /** Resets the rendering engine defaults. */
     public void resetDefaults()
     {
         // Reset the bit resolution.
