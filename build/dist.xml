@@ -53,8 +53,8 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="shoola.jar"/>
-  <property name="dist.bundle.name" value="ome-shoola"/> 
-  <property name="dist.bundle.version" value="2.5.0-rc2"/>
+  <property name="dist.bundle.name" value="omero-shoola"/> 
+  <property name="dist.bundle.version" value="3-M2.1"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -157,8 +157,8 @@
                 name="Shoola"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
-                infostring="OME-Shoola Java Client, ${dist.bundle.version}"
-                aboutmenuname="OME-Shoola Java Client"
+                infostring="OMERO-Shoola Java Client, ${dist.bundle.version}"
+                aboutmenuname="OMERO-Shoola Java Client"
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
