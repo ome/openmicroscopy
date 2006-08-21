@@ -201,13 +201,16 @@ abstract class HiViewerModel
      * The original hierarchy trees are mapped onto visualization trees.
      * 
      * @param roots The root nodes.
+     * @param flat  Pass <code>false</code> if it's a true hierarchy, 
+     *              <code>true</code> if it's a collection of images to browse.
      */
-    void createBrowser(Set roots)
+    void createBrowser(Set roots, boolean flat)
     {
         if (roots == null) throw new NullPointerException("No roots.");
         //Translate.
-        Set visTrees = HiTranslator.transformHierarchy(roots);
-
+        Set visTrees; 
+        if (flat) visTrees = HiTranslator.transformImages(roots);
+        else visTrees = HiTranslator.transformHierarchy(roots);
         //Make the browser.
         browser = BrowserFactory.createBrowser(visTrees);
         
