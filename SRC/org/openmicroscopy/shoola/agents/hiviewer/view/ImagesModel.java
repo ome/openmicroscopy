@@ -90,7 +90,18 @@ class ImagesModel
         if (other == null || !(other instanceof ImagesModel)) return false;
         ImagesModel im = (ImagesModel) other;
         if (im.getHierarchyType() != getHierarchyType()) return false;
-        return false;
+        if (im.imagesID.size() != imagesID.size()) return false;
+        Iterator i = im.imagesID.iterator(), j;
+        Long id;
+        int index = imagesID.size();
+        while (i.hasNext()) {
+            id = (Long) i.next();
+            j = imagesID.iterator();
+            while (j.hasNext()) {
+                if (id.longValue() == ((Long) j.next()).longValue()) index--;
+            }
+        }
+        return (index == 0);
     }
 
     /** 
