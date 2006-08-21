@@ -76,6 +76,9 @@ public class HiTranslator
     /** Message for unclassified images. */
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
         
+    /** Message for browse images. */
+    private static final String IMAGES = "";
+    
     /** 
      * The left element displayed before the number of items contained in a 
      * given container. 
@@ -438,6 +441,33 @@ public class HiTranslator
             }
         }
         if (unclassified != null) results.add(unclassified);
+        return results;
+    }
+    
+    /** 
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set only be {@link ImageData}.
+     * The {@link ImageData}s are added to a {@link ImageSet}.
+     * 
+     * @param dataObjects   The {@link DataObject}s to transform.
+     *                      Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    public static Set transformImages(Set dataObjects)
+    {
+        if (dataObjects == null)
+            throw new IllegalArgumentException("No objects.");
+        Set results = new HashSet(dataObjects.size());
+        DataObject ho;
+        Iterator i = dataObjects.iterator();
+        ImageSet images = new ImageSet(IMAGES, new Object());
+        formatToolTipFor(images);
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (ho instanceof ImageData)
+                linkImageTo((ImageData) ho, images);
+        }
+        results.add(images);
         return results;
     }
     
