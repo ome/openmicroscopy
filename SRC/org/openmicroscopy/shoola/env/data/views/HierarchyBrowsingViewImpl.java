@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -208,6 +209,19 @@ class HierarchyBrowsingViewImpl
     {
         BatchCallTree cmd = new AnnotationSaver(annotatedObject, data,
                                                 AnnotationSaver.DELETE);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#loadImages(Set, Class, long,
+     *                                      AgentEventListener)
+     */
+    public CallHandle loadImages(Set imagesID, Class rootLevel, 
+                                long rootLevelID, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new HierarchyLoader(ImageData.class, imagesID, 
+                                        rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
     

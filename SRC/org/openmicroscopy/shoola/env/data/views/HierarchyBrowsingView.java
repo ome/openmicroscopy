@@ -328,4 +328,22 @@ public interface HierarchyBrowsingView
                                         AnnotationData data,
                                         AgentEventListener observer);
     
+    /**
+     * Loads the images corresponding to the given collection of ids.
+     * <p>Image items are retrieved with annotations.
+     * The final <code>DSCallOutcomeEvent</code> will contain the requested node
+     * as root and all of its descendants.</p>
+     * <p>An Image will be represented by <code>ImageData</code> objects. </p>
+     * 
+     * @param imagesID      The id of the images nodes.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadImages(Set imagesID, Class rootLevel,
+                                long rootLevelID, AgentEventListener observer);
+    
 }
