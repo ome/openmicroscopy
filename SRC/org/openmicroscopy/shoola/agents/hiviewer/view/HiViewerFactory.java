@@ -77,6 +77,24 @@ public class HiViewerFactory
     static Set getViewers() { return singleton.viewers; }
     
     /**
+     * Returns a viewer to display the images.
+     * 
+     * @param ids       The images' ids.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
+     * @param rootID    The Id of the root.
+     * @return A {@link HiViewer} component for the collection of images.
+     */
+    public static HiViewer getImagesViewer(Set ids, Class rootLevel,
+                                            long rootID)
+    {
+        HiViewerModel model = new ImagesModel(ids);
+        model.setRootLevel(rootLevel, rootID);
+        return singleton.getViewer(model);
+    }
+    
+    /**
      * Returns a viewer to display the Project/Dataset/Image hierarchy
      * rooted by the specified Project.
      * 
