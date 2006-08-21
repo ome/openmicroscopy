@@ -44,7 +44,6 @@ import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryImageLink;
 import ome.model.core.Image;
-import ome.model.core.Pixels;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -206,16 +205,29 @@ class OmeroServiceImpl
     
     /** 
      * Implemented as specified by {@link OmeroService}. 
-     * @see OmeroService#getImages(Class, Set, Class, long)
+     * @see OmeroService#getContainerImages(Class, Set, Class, long)
      */
-    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
+    public Set getContainerImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             			long rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
         setRootOptions(po, rootLevel, rootLevelID);
         po.countsFor(new Long(getUserDetails().getId()));
-        return gateway.getImages(nodeType, nodeIDs, po.map());
+        return gateway.getContainerImages(nodeType, nodeIDs, po.map());
+    }
+    
+    /** 
+     * Implemented as specified by {@link OmeroService}. 
+     * @see OmeroService#getImages(Set, Class, long)
+     */
+    public Set getImages(Set imageIDs, Class rootLevel, 
+            long rootLevelID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        PojoOptions po = new PojoOptions();
+        setRootOptions(po, rootLevel, rootLevelID);
+        return gateway.getImages(imageIDs, po.map());
     }
     
     /** 
