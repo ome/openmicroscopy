@@ -82,8 +82,15 @@ public class HiViewerAgent
     private void handleBrowse(Browse evt)
     {
         if (evt == null) return;
-        browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
+        if (evt.getEventIndex() != Browse.IMAGES)
+            browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
                 evt.getRootLevel(), evt.getRootID());
+        else  {
+            HiViewer viewer = null;
+            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
+                evt.getRootLevel(), evt.getRootID());
+            if (viewer != null) viewer.activate();
+        }
     }
     
     /** Creates a new instance. */
