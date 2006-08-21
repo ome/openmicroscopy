@@ -45,6 +45,7 @@ import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -159,6 +160,23 @@ public class HierarchyLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve the images.
+     * 
+     * @param imageIDs Collection of images' id. 
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final Set imageIDs)
+    {
+        return new BatchCall("Loading container tree: ") {
+            public void doCall() throws Exception
+            {
+                OmeroService os = context.getOmeroService();
+                rootNodes = os.getImages(imageIDs, rootLevel, rootLevelID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * 
      * @see BatchCallTree#buildTree()
@@ -196,6 +214,43 @@ public class HierarchyLoader
         HashSet set = new HashSet(1);
         set.add(new Long(rootNodeID));
         validate(rootNodeType, set);
+    }
+    
+    /**
+     * Creates a new instance to load a tree rooted by the object having the
+     * specified type and id.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param rootNodeType  The type of the root node. Can only be one out of:
+     *                      {@link ProjectData}, {@link DatasetData},
+     *                      {@link CategoryGroupData}, {@link CategoryData} or
+     *                      {@link ImageData}.
+     * @param rootNodeIDs   The ids of the root nodes.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The id of the root's level.
+     */
+    public HierarchyLoader(Class rootNodeType, Set rootNodeIDs, Class rootLevel,
+                            long rootLevelID)
+    {
+        checkRootLevel(rootLevel);
+        this.rootLevel = rootLevel;
+        this.rootLevelID = rootLevelID;
+        if (rootNodeType.equals(ImageData.class)) {
+            if (rootNodeType == null) 
+                throw new IllegalArgumentException("No root node type.");
+            if (rootNodeIDs == null && rootNodeIDs.size() == 0)
+                throw new IllegalArgumentException("No root node ids.");
+            try {
+                rootNodeIDs.toArray(new Long[] {});
+            } catch (ArrayStoreException ase) {
+                throw new IllegalArgumentException("rootNodeIDs only contain " +
+                                                    "Long.");
+            }  
+            loadCall = makeBatchCall(rootNodeIDs);
+        } else validate(rootNodeType, rootNodeIDs);
     }
     
 }
