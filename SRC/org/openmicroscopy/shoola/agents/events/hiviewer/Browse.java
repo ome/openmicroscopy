@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.events.hiviewer;
 
 
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
@@ -69,9 +70,14 @@ public class Browse
     /** Event ID corresponding to a browse category event. */
     public static final int CATEGORY = 3;
     
-
+    /** Event ID corresponding to a browse images event. */
+    public static final int IMAGES = 4;
+    
     /** ID of the top element in the hierarchy. */
     private long    hierarchyObjectID;
+    
+    /** List of IDs object to browse. */
+    private Set    objectsIDs;
     
     /** 
      * Index of the top element in the hierarchy e.g.
@@ -145,6 +151,31 @@ public class Browse
     }
 
     /**
+     * Creates a new instance. This contructor should only be invoked to 
+     * browse a list of images.
+     * 
+     * @param ids       The list of objects ids.
+     * @param index     The index of the browser. One of the constants
+     *                  defined by this class.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
+     * @param rootID    The id of the root level. The value is taken
+     *                  into account if only if the root level is a 
+     *                  group.
+     */
+    public Browse(Set ids, int index, Class rootLevel, long rootID)
+    {
+        if (index != IMAGES) 
+            throw new IllegalArgumentException("This constructor should " +
+                    "only be invoked to browse images.");
+        eventIndex = index;
+        this.rootLevel = rootLevel;
+        this.rootID = rootID;
+        objectsIDs = ids;
+    }
+    
+    /**
      * Returns the browse event index. 
      * 
      * @return See above.
@@ -171,5 +202,13 @@ public class Browse
      * @return See above.
      */
     public long getRootID() { return rootID; }
+    
+    /**
+     * Returns the list of the objects to browse.
+     * 
+     * @return See above.
+     */
+    public Set getObjectIDs() { return objectsIDs; }
+    
     
 }
