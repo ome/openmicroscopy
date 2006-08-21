@@ -168,24 +168,7 @@ class BrowserCanvas
         addMouseListener(this);
         addMouseMotionListener(this);
     }
-    
-    /** Paints the image. */
-    void paintImage()
-    {
-        repaint();
-    }
-    
-    /**
-     * Zooms the displayed image depending on the previous zoom level. 
-     * The size of the displayed image depends on it.
-     * 
-     * @param oldZoomFactor The zoom level used to paint the displayed image.
-     */
-    void zoom(double oldZoomFactor)
-    {
-        
-    }
-    
+
     /**
      * Determines the location of the mouse and paints a lens image if the
      * <code>Magnifier</code> is on screen.

@@ -175,7 +175,7 @@ class BrowserUI
             setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
                                 img.getHeight()+2*TOP_LEFT_IMAGE);
         }
-        browserCanvas.paintImage();
+        browserCanvas.repaint();
     }
     
 }

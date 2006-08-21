@@ -181,7 +181,6 @@ class BrowserComponent
      */
     public BufferedImage getLensImage(double lensFactor)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
