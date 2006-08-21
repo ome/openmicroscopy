@@ -151,16 +151,16 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setHierarchyRoots(java.util.Set)
+     * @see HiViewer#setHierarchyRoots(Set, boolean)
      */
-    public void setHierarchyRoots(Set roots)
+    public void setHierarchyRoots(Set roots, boolean flat)
     {
         if (model.getState() != LOADING_HIERARCHY)
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_HIERARCHY "+
                     "state.");
         
-        model.createBrowser(roots);
+        model.createBrowser(roots, flat);
         model.createClipBoard();
         model.fireThumbnailLoading();
         //b/c fireThumbnailLoading() sets the state to READY if there is no
@@ -172,7 +172,7 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setThumbnail(long, java.awt.image.BufferedImage)
+     * @see HiViewer#setThumbnail(long, BufferedImage)
      */
     public void setThumbnail(long imageID, BufferedImage thumb)
     {
@@ -409,9 +409,11 @@ class HiViewerComponent
      */
     public void scrollToNode(ImageDisplay node)
     {
-        //TODO: check state.
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
         if (node == null) throw new IllegalArgumentException("No node.");
         controller.scrollToNode(node);
     }
-
+    
 }

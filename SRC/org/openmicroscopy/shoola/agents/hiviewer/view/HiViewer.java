@@ -143,6 +143,12 @@ public interface HiViewer
     public static final int     	CGCI_HIERARCHY = 106;
     
     /** 
+     * Flag to describes a set of images to browse. We can see that as 'flat'
+     * hierarchy.
+     */
+    public static final int         IMAGES_HIERARCHY = 107;
+    
+    /** 
      * Bound property name indicating to bring up on screen the currently 
      * selected node.
      */
@@ -184,11 +190,13 @@ public interface HiViewer
      * hierarchy.
      * 
      * @param roots The root nodes.
+     * @param flat  Pass <code>false</code> if it's a true hierarchy, 
+     *              <code>true</code> if it's a collection of images to browse.
      * @throws IllegalStateException If the current state is not
      *                               {@link #LOADING_HIERARCHY}.
      * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
-    public void setHierarchyRoots(Set roots);
+    public void setHierarchyRoots(Set roots, boolean flat);
     
     /**
      * Callback used by a data loader to set thumbnails as they are retrieved.
