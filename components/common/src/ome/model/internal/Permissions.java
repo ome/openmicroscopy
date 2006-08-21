@@ -227,7 +227,7 @@ public class Permissions implements Serializable
     	return this;
     }
 
-    // ~ ToString
+    // ~ Overrides
 	// =========================================================================
     
     /** produces a String representation of the {@link Permissions} similar to
@@ -237,6 +237,7 @@ public class Permissions implements Serializable
      * granted to all but WORLD {@link Role roles} would look like:
      *   rwurwu---
      */
+    @Override
     public String toString()
     {
     	StringBuilder sb = new StringBuilder(16);
@@ -251,6 +252,35 @@ public class Permissions implements Serializable
     	sb.append( isGranted(WORLD,USE)   ? "u" : "-" ); 
     	return sb.toString();
     }
+    
+    /** two {@link Permissions} instances are <code>equal</code> if they have the
+     * same bit representation.
+     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/291">ticket:291</a>
+     */
+//    @Override
+    public boolean identical(Permissions p) 
+    {
+//    	if (!(obj instanceof Permissions)) return false;
+//    	
+//    	Permissions p = (Permissions) obj;
+    	
+    	if ( p == this ) return true;
+    
+    	if ( p.perm1 == this.perm1 ) return true;
+    	
+    	return false;
+    
+    }
+    
+//    /** hashCode based on the bit representation of this {@link Permissions} 
+//     * instance.
+//     */
+//    @Override
+//    public int hashCode() {
+//        int result = 11;
+//        result = 17 * result + (int)(perm1^(perm1>>>32));
+//        return result;
+//    }
     
     // ~ Property accessors : used primarily by Hibernate
     // =========================================================================

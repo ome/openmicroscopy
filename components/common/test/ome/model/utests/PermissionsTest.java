@@ -180,6 +180,35 @@ public class PermissionsTest extends TestCase {
 		bitCompare(WORLD, USE);
 	}
 
+	// ~ Equals && HashCode
+	// =========================================================================
+	// see https://trac.openmicroscopy.org.uk/omero/ticket/291
+	
+	@Test( groups = "ticket:291" )
+	public void testEquals() throws Exception {
+		Permissions t = new Permissions();
+//		assertEquals(p,t);
+		assertTrue(p.identical(t));
+		
+		p.revoke(GROUP, READ);
+		t.revoke(GROUP, READ);
+//		assertEquals(p,t);
+		assertTrue(p.identical(t));
+	}
+	
+	@Test( groups = "ticket:291" )
+	public void testHashCode() throws Exception {
+		Permissions t = new Permissions();
+//		assertEquals(p.hashCode(),t.hashCode());
+		assertFalse(p.hashCode() == t.hashCode());
+		
+		p.revoke(GROUP, WRITE);
+		t.revoke(GROUP, WRITE);
+//		assertEquals(p.hashCode(),t.hashCode());
+		assertFalse(p.hashCode() == t.hashCode());
+	}
+
+	
 	// ~ Private helpers
 	// ===========================================================================
 
@@ -200,5 +229,5 @@ public class PermissionsTest extends TestCase {
 		assertTrue( (l ^ bit) == -1L);
 
 	}
-
+		
 }
