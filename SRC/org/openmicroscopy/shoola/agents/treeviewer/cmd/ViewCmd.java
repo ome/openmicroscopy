@@ -127,14 +127,23 @@ public class ViewCmd
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         Object ho;
+        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        Class root = convertRootLevel(browser.getRootLevel());
         if (hierarchyObject != null) ho = hierarchyObject;
         else {
             TreeImageDisplay display = browser.getSelectedDisplay();
             if (display == null) return;
+            if (display.getParentDisplay() == null &&
+                browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
+                bus = TreeViewerAgent.getRegistry().getEventBus();
+                bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
+                        root, browser.getRootID())); 
+                System.out.println("here");
+                
+            }
             ho = display.getUserObject();
         }
-        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        Class root = convertRootLevel(browser.getRootLevel());
+
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
             bus.post(new ViewImage(data.getId(), 
