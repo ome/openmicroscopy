@@ -122,7 +122,10 @@ public class ViewerAction
      */
     public void stateChanged(ChangeEvent e)
     {
-        setEnabled(model.getState() == ImViewer.READY);
+        if (model.getState()  == ImViewer.READY) {
+            setEnabled(true);
+            onStateChange(e);
+        }
     }
 
     /** 
