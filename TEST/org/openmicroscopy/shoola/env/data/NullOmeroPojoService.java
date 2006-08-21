@@ -35,13 +35,14 @@ package org.openmicroscopy.shoola.env.data;
 import java.util.Map;
 import java.util.Set;
 
-import ome.model.core.Pixels;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.AnnotationData;
 import pojos.DataObject;
+
 /** 
  * 
  *
@@ -126,9 +127,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#getImages(Class, Set, Class, long)
+     * @see OmeroService#getContainerImages(Class, Set, Class, long)
      */
-    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel,
+    public Set getContainerImages(Class nodeType, Set nodeIDs, Class rootLevel,
                         long rootLevelID)
             throws DSOutOfServiceException, DSAccessException
     {
@@ -216,7 +217,11 @@ public class NullOmeroPojoService
         return null;
     }
 
-    public Pixels getChannelMetadata(long pixelsID)
+    /**
+     * No-op implementation
+     * @see OmeroService#getImages(Set, Class, long)
+     */
+    public Set getImages(Set imageIDs, Class rootLevel, long rootLevelID)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
