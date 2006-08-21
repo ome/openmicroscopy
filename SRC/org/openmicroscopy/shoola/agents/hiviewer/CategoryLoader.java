@@ -120,7 +120,7 @@ public class CategoryLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        viewer.setHierarchyRoots((Set) result);
+        viewer.setHierarchyRoots((Set) result, false);
     }
     
 }

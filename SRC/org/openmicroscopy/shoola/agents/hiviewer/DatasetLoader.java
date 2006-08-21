@@ -116,7 +116,7 @@ public class DatasetLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;
-        viewer.setHierarchyRoots((Set) result);
+        viewer.setHierarchyRoots((Set) result, false);
     }
     
 }
