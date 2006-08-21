@@ -83,9 +83,9 @@ public class ViewAction
             setEnabled(false);
             return;
         }
-        if (model.getSelectedBrowser().getBrowserType() == 
-            Browser.IMAGES_EXPLORER && 
-            selectedDisplay.getParentDisplay() == null) { //root
+        //if (model.getSelectedBrowser().getBrowserType() == 
+            //Browser.IMAGES_EXPLORER && 
+        if (selectedDisplay.getParentDisplay() == null) { //root
             setEnabled(true);
             return;
         }
