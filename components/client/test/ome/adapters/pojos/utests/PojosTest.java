@@ -15,6 +15,9 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -22,6 +25,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.ProjectData;
 
 
@@ -239,4 +243,50 @@ public class PojosTest extends TestCase
         assertTrue( id.getCategories().size() > ref_cats.size() );
         
     }
+  
+	  @Test( groups = {"ticket:295"} )
+	  public void testPermissionsData() throws Exception {
+		  PermissionData pd = new PermissionData();
+		  assertTrue(pd.isGroupRead());
+		  assertTrue(pd.isGroupUse());
+		  assertTrue(pd.isGroupWrite());
+		  assertTrue(pd.isUserRead());
+		  assertTrue(pd.isUserUse());
+		  assertTrue(pd.isUserWrite());
+		  assertTrue(pd.isWorldRead());
+		  assertTrue(pd.isWorldUse());
+		  assertTrue(pd.isWorldWrite());
+
+		  pd = new PermissionData( new Permissions( Permissions.GROUP_PRIVATE ));
+		  assertTrue(pd.isGroupRead());
+		  assertTrue(pd.isGroupUse());
+		  assertTrue(pd.isGroupWrite());
+		  assertTrue(pd.isUserRead());
+		  assertTrue(pd.isUserUse());
+		  assertTrue(pd.isUserWrite());
+		  assertFalse(pd.isWorldRead());
+		  assertFalse(pd.isWorldUse());
+		  assertFalse(pd.isWorldWrite());
+		  
+		  ImageData id = new ImageData();
+		  pd = id.getPermissions();
+		  assertTrue(pd.isGroupRead());
+		  assertTrue(pd.isGroupUse());
+		  assertTrue(pd.isGroupWrite());
+		  assertTrue(pd.isUserRead());
+		  assertTrue(pd.isUserUse());
+		  assertTrue(pd.isUserWrite());
+		  assertTrue(pd.isWorldRead());
+		  assertTrue(pd.isWorldUse());
+		  assertTrue(pd.isWorldWrite());
+
+		  Permissions p = id.asImage().getDetails().getPermissions();
+		  p.revoke(Role.GROUP, Right.WRITE);
+		  assertFalse(pd.isGroupWrite());
+		  
+		  pd.setUserRead(false);
+		  assertFalse(pd.isUserRead());
+		  assertFalse(p.isGranted(Role.USER, Right.READ));
+	  
+	  }
 }

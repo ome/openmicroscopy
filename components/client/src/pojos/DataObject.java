@@ -150,6 +150,9 @@ public abstract class DataObject
     /** lazily-loaded owner */
     private ExperimenterData owner = null;
 
+    /** lazily-loaded permissions */
+    private PermissionData permissions = null;
+    
     /** NOTE: IObject-views are mutable. we can't ensure non-dirtiness, 
      * only non-cleanness
      */
@@ -235,6 +238,15 @@ public abstract class DataObject
             owner = new ExperimenterData( asIObject().getDetails().getOwner() );
         }
         return owner;
+    }
+    
+    public PermissionData getPermissions()
+    {
+    	if ( permissions == null )
+    	{
+    		permissions = new PermissionData( getDetails().getPermissions() );
+    	}
+    	return permissions;
     }
 
     public String toString() {
