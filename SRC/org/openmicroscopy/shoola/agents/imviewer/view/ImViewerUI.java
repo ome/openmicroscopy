@@ -462,12 +462,24 @@ class ImViewerUI
         controlPane.onStateChange(b);
     }
 
+    /**
+     * Updates status bar.
+     * 
+     * @param description   The text to display.
+     * @param perc          The precentage to display.
+     * @param hide          Pass <code>true</code> to hide the bar,
+     *                      <code>false</code> otherwise.
+     */
     void setStatus(String description, int perc, boolean hide)
     {
         statusBar.setStatus(description);
         statusBar.setProgress(hide, perc);
     }
 
+    /**
+     * Updates the buttons' selection when a new button is selected or 
+     * deselected.
+     */
     void setChannelsSelection()
     {
         controlPane.setChannelsSelection();
