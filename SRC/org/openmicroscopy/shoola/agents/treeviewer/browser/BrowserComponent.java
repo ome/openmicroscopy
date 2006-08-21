@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.SortCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
@@ -917,6 +918,20 @@ class BrowserComponent
         if (model.getFilterType() == type) return;
         model.setFilterType(type);
         refreshTree();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getLeaves()
+     */
+    public Set getLeaves()
+    {
+        if (model.getBrowserType() != IMAGES_EXPLORER) 
+            throw new IllegalArgumentException("This method sould only " +
+                    "be invoked for the Images Explorer.");
+        LeavesVisitor visitor = new LeavesVisitor(this);
+        accept(visitor);
+        return visitor.getNodeIDs();
     }
     
 }

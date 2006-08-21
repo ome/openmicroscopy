@@ -474,4 +474,12 @@ public interface Browser
     public void refreshClassification(ImageData image, Set categories,
                                         int op);
 
+    /**
+     * Returns the images objects. This method should be invoked
+     * when the brower's type is {@link #IMAGES_EXPLORER}
+     * 
+     * @return See above.
+     */
+    public Set getLeaves();
+    
 }
