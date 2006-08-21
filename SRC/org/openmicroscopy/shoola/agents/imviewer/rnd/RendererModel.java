@@ -417,7 +417,7 @@ class RendererModel
      */
     double getGlobalMin()
     {
-        return getWindowStart()-5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMin();
+        return getWindowStart();//-5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMin();
     }
     
     /**
@@ -427,7 +427,7 @@ class RendererModel
      */
     double getGlobalMax()
     {
-        return getWindowEnd()+5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
+        return getWindowEnd();//+5;//rndControl.getChannelData(selectedChannelIndex).getGlobalMax();
     }
     
     /**

@@ -228,14 +228,12 @@ class DomainPane
         p.add(label, c);
         c.gridx = 1;
         p.add(buildSliderPane(gammaSlider, gammaLabel), c);
-        /*
         label = new JLabel("Bit Depth");
         c.gridx = 0;
         c.gridy = 3;
         p.add(label, c);
         c.gridx = 1;
         p.add(buildSliderPane(bitDepthSlider, bitDepthLabel), c);
-        */
         return p;
     }
     
@@ -260,7 +258,6 @@ class DomainPane
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-        JPanel p = new JPanel();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(graphicsPane);
         add(new JSeparator());

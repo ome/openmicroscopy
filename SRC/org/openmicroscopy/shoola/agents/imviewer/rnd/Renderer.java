@@ -82,12 +82,6 @@ public interface Renderer
     public final static String  SELECTED_CHANNEL_PROPERTY = "selectedChannel";
     
     /** 
-     * Bound property indicating that the channel bindings of a new 
-     * channel has to be displayed.
-     */
-   // public final static String  CHANNEL_SELECTION_PROPERTY = "channelSelection";
-    
-    /** 
      * Bound property indicating that the pixels intensiy interval is 
      * modified.
      */
@@ -170,7 +164,6 @@ public interface Renderer
      *                  to render a new plane.
      */
     void setInputInterval(double s, double e, boolean released);
-
     
     /** 
      * Sets the sub-interval of the device space. 
@@ -227,8 +220,10 @@ public interface Renderer
     ImViewer getParentModel();
     
     /**
+     * Returns the <code>Codomain map context</code> corresponding to
+     * the specifed class.
      * 
-     * @param mapType
+     * @param mapType       The class identifying the context.
      * @return See above.
      */
     CodomainMapContext getCodomainMapContext(Class mapType);

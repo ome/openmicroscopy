@@ -155,7 +155,7 @@ class RendererComponent
     {
         //if (model.getState() != DISCARDED) return;
         //TODO: remove comments when server problem is fixed
-        //model.setCodomainInterval(s, e);
+        model.setCodomainInterval(s, e);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
