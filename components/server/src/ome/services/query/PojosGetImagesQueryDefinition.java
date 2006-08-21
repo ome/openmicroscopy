@@ -32,10 +32,21 @@ public class PojosGetImagesQueryDefinition
         pix.createCriteria("pixelsType",LEFT_JOIN);
         pix.createCriteria("pixelsDimensions",LEFT_JOIN);
         
-        // Add restrictions to the most distant criteria
-        Criteria[] hy = 
-            Hierarchy.fetchParents(c,(Class) value(CLASS),Integer.MAX_VALUE);
-        hy[hy.length-1].add(Restrictions.in("id",(Collection) value(IDS)));
+        
+        Class klass = (Class) value(CLASS);
+        Collection ids = (Collection) value(IDS);
+        
+        // see https://trac.openmicroscopy.org.uk/omero/ticket/296
+        if (Image.class.isAssignableFrom(klass))
+        {
+        	c.add(Restrictions.in("id",ids));
+        } else {
+	        // Add restrictions to the most distant criteria
+	        Criteria[] hy = 
+	            Hierarchy.fetchParents(c,klass,Integer.MAX_VALUE);
+	        hy[hy.length-1].add(Restrictions.in("id",ids));
+        }
+	    
         setCriteria( c );
     }
     
