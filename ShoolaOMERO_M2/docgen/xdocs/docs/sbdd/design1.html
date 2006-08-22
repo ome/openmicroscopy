@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>Build Files</title>
+</head>
+<body>
+<p>The various build targets have been grouped in several categories -- this has 
+  already been discussed in a previous <a href="build2.html">section</a>. All the 
+  targets within a category are in the same build file which is a child to a master 
+  build file that is used as an entry point to the build. All these build files are 
+  kept under the <i>build</i> directory:</p>
+<ul>
+  <li><i>app.xml</i>: Contains the application targets to compile and run Shoola.</li>
+  <li><i>test.xml</i>: Contains the test targets to test the application and generate 
+    test reports.</li>
+  <li><i>docs.xml</i>: Contains the documentation targets to generate the project 
+    documentation.</li>
+  <li><i>dist.xml</i>: Contains the distribution targets to create the deliverables.</li>
+  <li><i>build.xml</i>: Contains the shortcut targets.</li>
+</ul>
+<p>&#160;</p>
+<p>Finally, there's another Ant file under the <i>build</i> directory: <i>lib.xml</i>. 
+  This is an <i>antlib</i> file which contains the definitions of custom tasks that 
+  are used by the various build files. It also acts as a centralized place where all 
+  the dependencies to external libraries are documented -- by external library 
+  we mean a library that doesn't ship with Ant and thus has to be made available to 
+  the Ant runtime in order to run a build.</p>
+<p>The <i>build.xml</i> file is the master build file on which Ant is invoked. It 
+  is responsible for pulling the child files together at runtime -- this is done 
+  through <code>import</code> statements. The result is that the Ant runtime treats 
+  all the imported targets and properties as if they belonged to a single build file, 
+  which avoids the overhead of running sub-builds. The <i>lib.xml</i> file is the 
+  first one to be imported, followed by the child build files in the same order in 
+  which they depend on each other -- because all those files are treated just 
+  as one at runtime, it's perfectly legal for a file to reference properties and targets 
+  defined in another file as long a this latter file is imported first.</p>
+<p>All the child build files are required to follow the same conventions. Specifically, 
+  a child file is required to:</p>
+<ul>
+  <li>Define a project name after the file name. For example the project name of the 
+    child build in <i>app.xml</i> is <i>app</i>.</li>
+  <li>Define a properties namespace. This is done by prefixing all properties defined 
+    within the child file with the child project's name. This is important to avoid 
+    collisions, as Ant properties are global.</li>
+  <li>Check for availability of external properties. If a child depends on properties 
+    defined elsewhere (another child file/master file), then it has to explicitly 
+    check that those properties have been defined and error if some is missing. The 
+    checks are performed through <code>checkdef</code> custom tasks placed at the 
+    beginning of the file and outside of any target. This way, a broken dependency 
+    graph is likely to show up at import time in the master build file.</li>
+  <li>Have a <code>clean</code> target. This target has to remove all output generated 
+    by the child's targets.</li>
+  <li>Have a <code>usage</code> target. This target echoes the list of available targets. 
+    That is, the list of all public targets within the child build.</li>
+  <li>Use the same conventions to denote public targets. The conventions are simple: 
+    public targets have a description attribute (private targets do not) and are listed 
+    by the usage target.
+  </li>
+</ul>
+<p>&#160;</p>
+<p>A final note. The master build file exposes <code>clean</code> and <code>usage</code> 
+  targets that simply forward to each <code>clean</code>/<code>usage</code> target 
+  in the child files. So if a new child file is added, then the <code>clean</code> 
+  and <code>usage</code> targets in the master file have to be updated. (Obviously 
+  enough, an <code>import</code> statement has to be added as well.)</p>
+</body>
+</html>
+

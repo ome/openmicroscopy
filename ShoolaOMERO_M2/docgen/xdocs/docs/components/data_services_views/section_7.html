@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Initialization</title>
+</head>
+<body>
+<p>The <code>DataViewsFactory</code> needs to be initialized before any concrete <code>BatchCallTree</code> 
+  is created. The reason for this is that <code>BatchCallTree</code>'s constructor 
+  needs to cache a reference to the registry so that concrete subclasses can access 
+  it later.</p>
+<p>The <code>DataServicesFactory</code> (in <code>env.data</code>) takes care of this 
+  initialization task during the container's start-up procedure by calling 
+  <code>DataViewsFactory.initialize(Container)</code>.</p>
+<p>The following diagram summarizes all this.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center"><img src="images/initialization.gif" width="580" height="300" /></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_7-1"><b>Fig 7-1</b></a>: Initialization.</td>
+  </tr>
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td></tr>
+</table> 
+</body>
+</html>
