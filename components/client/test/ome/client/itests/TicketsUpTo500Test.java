@@ -8,6 +8,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.containers.Dataset;
@@ -15,6 +16,7 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
@@ -27,8 +29,9 @@ public class TicketsUpTo500Test extends TestCase
 {
 
     ServiceFactory sf = new ServiceFactory();
-    IUpdate iUpdate = sf.getUpdateService();
-    IQuery iQuery = sf.getQueryService();
+    IUpdate iUpdate   = sf.getUpdateService();
+    IQuery iQuery     = sf.getQueryService();
+    IAdmin iAdmin     = sf.getAdminService();
 
     // ~ Ticket 168
     // =========================================================================
@@ -108,6 +111,15 @@ public class TicketsUpTo500Test extends TestCase
   		assertNotNull(test.getDefaultPixels().getSizeY());
   		assertNotNull(test.getDefaultPixels().getSizeX());
   	}
+    
+    @Test( groups = {"ticket:293"})
+    public void testChangingUnreadablePermissions() throws Exception {
+		Project p = new Project();
+		p.setName("ticket:293");
+		p = iUpdate.saveAndReturnObject(p);
+		iAdmin.changePermissions(p, Permissions.EMPTY);
+		iAdmin.changePermissions(p, Permissions.DEFAULT);
+	}
 
     // ~ Helpers
     // =========================================================================

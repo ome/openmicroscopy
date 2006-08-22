@@ -26,6 +26,7 @@ import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.AdminAction;
 import ome.security.BasicSecuritySystem;
 import ome.security.JBossLoginModule;
 import ome.security.SecureAction;
@@ -50,6 +51,7 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
+@Test
 public class SecuritySystemTest extends MockObjectTestCase {
 
 	MockServiceFactory sf;
@@ -658,11 +660,25 @@ public class SecuritySystemTest extends MockObjectTestCase {
 
 	}
 
+	@Test
+	public void testRunAsAdmin(){
+		prepareMocksWithUserDetails();
+		sec.setCurrentDetails();
+		
+		assertFalse(sec.currentUserIsAdmin());
+		
+		AdminAction action = new AdminAction(){
+			public void runAsAdmin() {
+				assertTrue(sec.currentUserIsAdmin());
+			}
+		};		
+		sec.runAsAdmin(action);
+		
+		assertFalse(sec.currentUserIsAdmin());
 	
-	/*
-	 * Test method for 'ome.security.SecuritySystem.doAction(T, SecureAction)
-	 * <T>'
-	 */
+	}
+
+	@Test
 	public void testDoAction() {
 		fail("implement");
 	}

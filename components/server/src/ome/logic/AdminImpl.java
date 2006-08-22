@@ -69,6 +69,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
@@ -500,13 +501,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	});
     }
 
-    public void changePermissions(IObject iObject, Permissions perms)
+    public void changePermissions(final IObject iObject, final Permissions perms)
     {
-    	// should take a group
-    	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-    	Permissions p = new Permissions(perms); // FIXME ticket:215
-    	copy.getDetails().setPermissions(p);
-    	iUpdate.saveObject(copy);    
+    	AdminAction action = new AdminAction(){
+    		public void runAsAdmin() {
+    	    	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
+    	    	Permissions p = new Permissions(perms); // FIXME ticket:215
+    	    	copy.getDetails().setPermissions(p);
+    	    	iUpdate.saveObject(copy);    
+    		}
+    	};
     }
 
     // ~ Passwords

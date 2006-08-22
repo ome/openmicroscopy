@@ -255,6 +255,7 @@ public interface SecuritySystem
 	
 	// ~ Actions
 	// =========================================================================
+	void runAsAdmin( AdminAction action );
 	<T extends IObject> T doAction( T obj, SecureAction action );
 	void copyToken( IObject source, IObject copy );
 }

@@ -896,9 +896,27 @@ public class BasicSecuritySystem implements SecuritySystem
 //		Token oneTimeToken = new Token();
 //		oneTimeTokens.put(oneTimeToken);
 		obj.getGraphHolder().setToken(token,token);//oneTimeToken);
-		T retVal = action.updateObject(obj);
-		obj.getGraphHolder().setToken(token,null);
+		
+		T retVal;
+		try 
+		{
+			retVal = action.updateObject(obj);
+		} finally {
+			obj.getGraphHolder().setToken(token,null);	
+		}
 		return retVal;
+	}
+	
+	public void runAsAdmin( AdminAction action )
+	{
+		Assert.notNull(action);
+		CurrentDetails.setAdmin(true);
+		try
+		{
+			action.runAsAdmin();
+		} finally {
+			CurrentDetails.setAdmin(false);
+		}
 	}
 	
 	/**
