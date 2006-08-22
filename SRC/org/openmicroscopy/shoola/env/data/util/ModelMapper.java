@@ -221,8 +221,8 @@ public class ModelMapper
                 if (p.getId().equals(link.parent().getId()))
                     p.addCategoryImageLink(link, false);
             }
-        }
-        throw new IllegalArgumentException("DataObject not supported.");
+        } else
+            throw new IllegalArgumentException("DataObject not supported.");
     }
     
     /**
@@ -281,8 +281,9 @@ public class ModelMapper
                 model.linkDataset(new Dataset(new Long(parent.getId()), 
                                             false));
             return model; 
-        }
-        throw new IllegalArgumentException("DataObject not supported.");
+        } else 
+            throw new IllegalArgumentException("Child and parent are not" +
+                    " compatible.");
     }
     
     /**
