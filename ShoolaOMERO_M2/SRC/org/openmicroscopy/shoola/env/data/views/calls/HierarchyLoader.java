@@ -45,7 +45,6 @@ import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -100,8 +99,7 @@ public class HierarchyLoader
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData}, {@link CategoryData} or
-     *                      {@link ImageData}.
+     *                      {@link CategoryGroupData}, {@link CategoryData}.
      * @param rootNodeIDs   Collection of root node ids.
      */
     private void validate(Class rootNodeType, Set rootNodeIDs)
@@ -119,8 +117,7 @@ public class HierarchyLoader
         if (rootNodeType.equals(ProjectData.class) ||
             rootNodeType.equals(DatasetData.class) ||
             rootNodeType.equals(CategoryGroupData.class) ||
-            rootNodeType.equals(CategoryData.class) ||
-            rootNodeType.equals(ImageData.class))
+            rootNodeType.equals(CategoryData.class))
             loadCall = makeBatchCall(rootNodeType, rootNodeIDs);
         else
             throw new IllegalArgumentException("Unsupported type: "+
@@ -209,8 +206,7 @@ public class HierarchyLoader
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData}, {@link CategoryData} or
-     *                      {@link ImageData}.
+     *                      {@link CategoryGroupData}, {@link CategoryData}.
      * @param rootNodeIDs   The ids of the root nodes.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
