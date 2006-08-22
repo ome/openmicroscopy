@@ -39,6 +39,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -108,6 +109,9 @@ class BrowserCanvas
     /** Reference to the Model. */
     private BrowserModel    model;
     
+    /** Reference to the component hosting the canvas. */
+    private BrowserUI       view;
+    
     /**
      * Paints the XY-frame.
      * 
@@ -155,15 +159,36 @@ class BrowserCanvas
     }
     
     /**
+     * Sets the location of the canvas.
+     * 
+     * @param w The width of the canvas.
+     * @param h The height of the canvas.
+     */
+    private void setCanvasLocation(int w, int h)
+    {
+        Rectangle r = view.getViewportBorderBounds();
+        int x = ((r.width-w)/2);
+        int y = ((r.height-h)/2);
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        view.setComponentsSize(w, h);
+        setBounds(x, y, w, h);
+    }
+    
+    /**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param view  Reference to the View. Mustn't be <code>null</code>.
      */
-    BrowserCanvas(BrowserModel model)
+    BrowserCanvas(BrowserModel model, BrowserUI view)
     {
         if (model == null) throw new NullPointerException("No model.");
+        if (view == null) throw new NullPointerException("No view.");
         this.model = model;
+        this.view = view;
         setDoubleBuffered(true);
+        charWidth = getFontMetrics(getFont()).charWidth('m');
         dragging = false;
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -216,15 +241,18 @@ class BrowserCanvas
         g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         BufferedImage image = model.getDisplayedImage();
-        if (image != null) {
-            paintXYFrame(g2D);
-            if (unitBarValue > 0) {
-                // paintScaleBar(g2D, START, yLocBar, LENGTH_2, 
-                //          ""+(int) unitBarValue+NANOMETER);
-            }
-            g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
-                            BrowserUI.TOP_LEFT_IMAGE);    
+        if (image == null) return;
+        paintXYFrame(g2D);
+        setCanvasLocation(image.getWidth()+2*BrowserUI.TOP_LEFT_IMAGE,
+                            image.getHeight()+2*BrowserUI.TOP_LEFT_IMAGE);
+        double v = 1;//model.getPixelsSizeX()/model.getZoomFactor();
+        if (v > 0) {
+            int h = image.getHeight()+3*BrowserUI.TOP_LEFT_IMAGE/2;
+            paintScaleBar(g2D, BrowserUI.TOP_LEFT_IMAGE, h, 2*LENGTH, 
+                      ""+(int) v+NANOMETER);
         }
+        g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
+                BrowserUI.TOP_LEFT_IMAGE);  
     }
 
     /** 

@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
@@ -83,13 +84,20 @@ class BrowserModel
     /** The title of the {@link Browser}. */
     private String          title;
     
+    /** Reference to the {@link ImViewer}. */
+    private ImViewer        parent;
+    
     /** 
      * Creates a new instance.
      * 
-     * @param title The title of the  {@link Browser}.
+     * @param title     The title of the  {@link Browser}.
+     * @param parent    The parent of this component.
+     *                  Mustn't be <code>null</code>.
      */
-    BrowserModel(String title)
+    BrowserModel(String title, ImViewer parent)
     {
+        if (parent == null) throw new IllegalArgumentException("No parent.");
+        this.parent = parent;
         this.title = title;
     }
     
@@ -172,6 +180,13 @@ class BrowserModel
         if (lensImage == null)
             lensImage = Factory.magnifyImage(displayedImage, f, 0);
     }
+    
+    /**
+     * The size in microns of a pixel along the X-axis.
+     * 
+     * @return See above.
+     */
+    float getPixelsSizeX() { return parent.getPixelsSizeX(); }
     
     Magnifier getMagnifier() { return magnifier; }
     

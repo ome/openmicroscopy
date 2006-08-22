@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+
 
 //Java imports
 
@@ -57,11 +59,13 @@ public class BrowserFactory
     /**
      * Creates a new {@link Browser}.
      * 
+     * @param parent    The component's parent. Mustn't be <code>null</code>.
      * @return See above.
      */
-    public static Browser createBrowser()
+    public static Browser createBrowser(ImViewer parent)
     {
-        BrowserModel model = new BrowserModel("View Image");
+        if (parent == null) throw new IllegalArgumentException("No parent.");
+        BrowserModel model = new BrowserModel("View Image", parent);
         BrowserComponent browser = new BrowserComponent(model);
         browser.initialize();
         return browser;
