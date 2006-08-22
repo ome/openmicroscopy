@@ -238,8 +238,8 @@ public interface OmeroService
      * node type.
      * 
      * @param nodeType  	The type of container. Can either be Project, 
-     * 						Dataset, CategoryGroup, Category.
-     * @param nodeIDs   	Set of containers' IDS.
+     * 						Dataset, CategoryGroup, Category or Image.
+     * @param nodeIDs   	Set of node ids..
      * @param rootLevel		The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.
@@ -249,26 +249,10 @@ public interface OmeroService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set getContainerImages(Class nodeType, Set nodeIDs, Class rootLevel, 
+    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             			long rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
-    /**
-     * Retrieves the images specified by the passed collection of images' id.
-     * 
-     * @param imageIDs      The images' id.
-     * @param rootLevel     The level of the hierarchy either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootLevelID   The Id of the root.
-     * @return A <code>Set</code> of retrieved images.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
-     */
-    public Set getImages(Set imageIDs, Class rootLevel, 
-                        long rootLevelID)
-        throws DSOutOfServiceException, DSAccessException;
     /**
      * Retrieves the images imported by the current user.
      * 

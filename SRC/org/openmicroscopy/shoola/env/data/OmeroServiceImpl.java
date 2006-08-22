@@ -205,9 +205,9 @@ class OmeroServiceImpl
     
     /** 
      * Implemented as specified by {@link OmeroService}. 
-     * @see OmeroService#getContainerImages(Class, Set, Class, long)
+     * @see OmeroService#getImages(Class, Set, Class, long)
      */
-    public Set getContainerImages(Class nodeType, Set nodeIDs, Class rootLevel, 
+    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             			long rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -215,19 +215,6 @@ class OmeroServiceImpl
         setRootOptions(po, rootLevel, rootLevelID);
         po.countsFor(new Long(getUserDetails().getId()));
         return gateway.getContainerImages(nodeType, nodeIDs, po.map());
-    }
-    
-    /** 
-     * Implemented as specified by {@link OmeroService}. 
-     * @see OmeroService#getImages(Set, Class, long)
-     */
-    public Set getImages(Set imageIDs, Class rootLevel, 
-            long rootLevelID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        PojoOptions po = new PojoOptions();
-        setRootOptions(po, rootLevel, rootLevelID);
-        return gateway.getImages(imageIDs, po.map());
     }
     
     /** 
