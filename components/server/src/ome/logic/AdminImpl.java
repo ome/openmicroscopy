@@ -511,6 +511,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	    	iUpdate.saveObject(copy);    
     		}
     	};
+    	securitySystem.runAsAdmin(action);
     }
 
     // ~ Passwords

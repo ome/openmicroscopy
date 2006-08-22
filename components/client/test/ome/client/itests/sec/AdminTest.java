@@ -35,5 +35,9 @@ public class AdminTest extends AbstractAccountTest {
 		assertEquals(test.getDetails().getOwner().getId(),target.getId());
 	}
 	
+	@Test
+	public void testChangePermissionsCantMisuseAdminAction() throws Exception {
+		fail("implement");
+	}
 	
 }
