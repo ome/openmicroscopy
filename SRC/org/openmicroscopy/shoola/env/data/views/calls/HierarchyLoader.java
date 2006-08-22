@@ -100,7 +100,8 @@ public class HierarchyLoader
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     *                      {@link CategoryGroupData}, {@link CategoryData} or
+     *                      {@link ImageData}.
      * @param rootNodeIDs   Collection of root node ids.
      */
     private void validate(Class rootNodeType, Set rootNodeIDs)
@@ -118,7 +119,8 @@ public class HierarchyLoader
         if (rootNodeType.equals(ProjectData.class) ||
             rootNodeType.equals(DatasetData.class) ||
             rootNodeType.equals(CategoryGroupData.class) ||
-            rootNodeType.equals(CategoryData.class))
+            rootNodeType.equals(CategoryData.class) ||
+            rootNodeType.equals(ImageData.class))
             loadCall = makeBatchCall(rootNodeType, rootNodeIDs);
         else
             throw new IllegalArgumentException("Unsupported type: "+
@@ -155,23 +157,6 @@ public class HierarchyLoader
                 rootNodes = os.loadContainerHierarchy(rootNodeType,
                                                     rootNodeIDs, true,
                                                     rootLevel, rootLevelID);
-            }
-        };
-    }
-    
-    /**
-     * Creates a {@link BatchCall} to retrieve the images.
-     * 
-     * @param imageIDs Collection of images' id. 
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final Set imageIDs)
-    {
-        return new BatchCall("Loading container tree: ") {
-            public void doCall() throws Exception
-            {
-                OmeroService os = context.getOmeroService();
-                rootNodes = os.getImages(imageIDs, rootLevel, rootLevelID);
             }
         };
     }
@@ -238,19 +223,7 @@ public class HierarchyLoader
         checkRootLevel(rootLevel);
         this.rootLevel = rootLevel;
         this.rootLevelID = rootLevelID;
-        if (rootNodeType.equals(ImageData.class)) {
-            if (rootNodeType == null) 
-                throw new IllegalArgumentException("No root node type.");
-            if (rootNodeIDs == null && rootNodeIDs.size() == 0)
-                throw new IllegalArgumentException("No root node ids.");
-            try {
-                rootNodeIDs.toArray(new Long[] {});
-            } catch (ArrayStoreException ase) {
-                throw new IllegalArgumentException("rootNodeIDs only contain " +
-                                                    "Long.");
-            }  
-            loadCall = makeBatchCall(rootNodeIDs);
-        } else validate(rootNodeType, rootNodeIDs);
+        validate(rootNodeType, rootNodeIDs);
     }
     
 }

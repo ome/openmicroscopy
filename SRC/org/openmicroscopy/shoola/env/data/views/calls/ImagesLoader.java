@@ -118,7 +118,7 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroService os = context.getOmeroService();
-                results = os.getContainerImages(nodeType, nodeIDs, rootLevel, 
+                results = os.getImages(nodeType, nodeIDs, rootLevel, 
                                         rootLevelID);
             }
         };
