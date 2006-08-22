@@ -35,10 +35,12 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -108,6 +110,9 @@ class BrowserCanvas
     /** Reference to the Model. */
     private BrowserModel    model;
     
+    /** Reference to the component hosting the canvas. */
+    private BrowserUI       view;
+    
     /**
      * Paints the XY-frame.
      * 
@@ -153,16 +158,19 @@ class BrowserCanvas
         g2D.setStroke(UNIT_BAR_STROKE);
         g2D.drawLine(x, y, x+l, y);
     }
-    
+ 
     /**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param view  Reference to the View. Mustn't be <code>null</code>.
      */
-    BrowserCanvas(BrowserModel model)
+    BrowserCanvas(BrowserModel model, BrowserUI view)
     {
         if (model == null) throw new NullPointerException("No model.");
+        if (view == null) throw new NullPointerException("No view.");
         this.model = model;
+        this.view = view;
         setDoubleBuffered(true);
         dragging = false;
         addMouseListener(this);
@@ -216,15 +224,14 @@ class BrowserCanvas
         g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         BufferedImage image = model.getDisplayedImage();
-        if (image != null) {
-            paintXYFrame(g2D);
-            if (unitBarValue > 0) {
-                // paintScaleBar(g2D, START, yLocBar, LENGTH_2, 
-                //          ""+(int) unitBarValue+NANOMETER);
-            }
-            g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
-                            BrowserUI.TOP_LEFT_IMAGE);    
+        if (image == null) return;
+        paintXYFrame(g2D);
+        if (unitBarValue > 0) {
+            // paintScaleBar(g2D, START, yLocBar, LENGTH_2, 
+            //          ""+(int) unitBarValue+NANOMETER);
         }
+        g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
+                        BrowserUI.TOP_LEFT_IMAGE);  
     }
 
     /** 

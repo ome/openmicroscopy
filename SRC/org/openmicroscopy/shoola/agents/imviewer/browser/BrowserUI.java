@@ -31,11 +31,11 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
@@ -64,15 +64,15 @@ class BrowserUI
     /** Location of the top left corner of the image. */
     static final int            TOP_LEFT_IMAGE = 35;
     
+    /** Color of the background. */
+    private static final Color  BACKGROUND = new Color(204, 204, 255);
+    
     /**
      * The Layered pane hosting the {@link BrowserCanvas} and any other 
      * UI components added on top of it.
      */
     private JLayeredPane        layeredPane;
-    
-    /** Panel hosting the {@link #layeredPane}. */
-    private JPanel              contentPane;
-    
+
     /** The canvas hosting the image. */
     private BrowserCanvas       browserCanvas;
     
@@ -86,7 +86,7 @@ class BrowserUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        browserCanvas = new BrowserCanvas(model);
+        browserCanvas = new BrowserCanvas(model, this);
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(browserCanvas, new Integer(0));
     }
@@ -94,9 +94,8 @@ class BrowserUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        contentPane = new JPanel();
-        contentPane.add(layeredPane);
-        getViewport().add(contentPane);
+        getViewport().add(layeredPane);
+        getViewport().setBackground(BACKGROUND);
     }
     
     /**
@@ -113,8 +112,6 @@ class BrowserUI
         layeredPane.setSize(d);
         browserCanvas.setPreferredSize(d);
         browserCanvas.setSize(d);
-        contentPane.setSize(d);
-        contentPane.setPreferredSize(d);
     }
     
     /** Creates a new instance. */
@@ -175,6 +172,17 @@ class BrowserUI
             setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
                                 img.getHeight()+2*TOP_LEFT_IMAGE);
         }
+        browserCanvas.repaint();
+    }
+    
+    /** Displays the zoomed image. */
+    void zoomImage()
+    {
+        if (model.getRenderedImage() == null) return;
+        model.createDisplayedImage();
+        BufferedImage img = model.getDisplayedImage();
+        setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
+                            img.getHeight()+2*TOP_LEFT_IMAGE);
         browserCanvas.repaint();
     }
     
