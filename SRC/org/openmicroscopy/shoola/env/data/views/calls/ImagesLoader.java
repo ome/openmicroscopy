@@ -45,6 +45,7 @@ import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
 
 
 /** 
@@ -170,7 +171,8 @@ public class ImagesLoader
         }  
         checkRootLevel(rootLevel);
         if (nodeType.equals(DatasetData.class) || 
-            nodeType.equals(CategoryData.class))
+            nodeType.equals(CategoryData.class) ||
+            nodeType.equals(ImageData.class))
             loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
                     								rootLevel, rootLevelID);
         else throw new IllegalArgumentException("Unsupported type: "+
