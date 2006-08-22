@@ -60,6 +60,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
+import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
@@ -374,7 +375,8 @@ class OMEROGateway
         System.getProperties().setProperty("omero.pass", "ome");
         //System.getProperties().setProperty("omero.pass", password);
         try {
-            entry = new ServiceFactory(); 
+            //entry = new ServiceFactory(); 
+            entry = new ServiceFactory(new Login(userName, "ome")); 
             connected = true;
             return getUserDetails(userName);
         } catch (Exception e) {
@@ -835,7 +837,7 @@ class OMEROGateway
             IQuery query = getIQueryService();
             Pixels pixs = (Pixels) query.get(Pixels.class, pixelsID);
             return (PixelsDimensions) query.get(PixelsDimensions.class,
-                                                pixelsID);
+                    pixs.getPixelsDimensions().getId().longValue());
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the dimension of "+
                                 "the pixels set.");
