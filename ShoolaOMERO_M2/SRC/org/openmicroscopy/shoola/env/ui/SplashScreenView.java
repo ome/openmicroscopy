@@ -143,7 +143,7 @@ class SplashScreenView
     private static final String     VERSION = "3.0_M2 ";
     
     /** The server's version. For developers' purpose only. */
-    private static final String     OMERO_VERSION = " server: OMERO 3";
+    private static final String     OMERO_VERSION = " server: OMERO M2";
     
 	/** Text field to enter the login user name. */
 	JTextField     user;
