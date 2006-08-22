@@ -30,12 +30,9 @@
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
-
-
 //Java imports
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -46,6 +43,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -93,10 +91,6 @@ class BrowserCanvas
     
     /** Length of the arrow. */
     private static final int            ARROW = 3;
-    
-    
-    /** The unit bar value. */
-    private double          unitBarValue;
     
     /** Width of a character w.r.t. the font metrics. */
     private int             charWidth;
@@ -160,6 +154,23 @@ class BrowserCanvas
     }
  
     /**
+     * Sets the location of the canvas.
+     * 
+     * @param w The width of the canvas.
+     * @param h The height of the canvas.
+     */
+    private void setCanvasLocation(int w, int h)
+    {
+        Rectangle r = view.getViewportBorderBounds();
+        int x = ((r.width-w)/2);
+        int y = ((r.height-h)/2);
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        view.setComponentsSize(w, h);
+        setBounds(x, y, w, h);
+    }
+    
+    /**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -171,7 +182,9 @@ class BrowserCanvas
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
+        charWidth = getFontMetrics(getFont()).charWidth('m');
         setDoubleBuffered(true);
+        setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         dragging = false;
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -226,9 +239,13 @@ class BrowserCanvas
         BufferedImage image = model.getDisplayedImage();
         if (image == null) return;
         paintXYFrame(g2D);
-        if (unitBarValue > 0) {
-            // paintScaleBar(g2D, START, yLocBar, LENGTH_2, 
-            //          ""+(int) unitBarValue+NANOMETER);
+        setCanvasLocation(image.getWidth()+2*BrowserUI.TOP_LEFT_IMAGE,
+                            image.getHeight()+2*BrowserUI.TOP_LEFT_IMAGE);
+        double v = 1;//model.getPixelsSizeX()/model.getZoomFactor();
+        if (v > 0) {
+            int h = image.getHeight()+3*BrowserUI.TOP_LEFT_IMAGE/2;
+            paintScaleBar(g2D, BrowserUI.TOP_LEFT_IMAGE, h, 2*LENGTH, 
+                      ""+(int) v+NANOMETER);
         }
         g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
                         BrowserUI.TOP_LEFT_IMAGE);  

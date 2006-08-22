@@ -98,22 +98,6 @@ class BrowserUI
         getViewport().setBackground(BACKGROUND);
     }
     
-    /**
-     * Sets the size of the components b/c a layeredPane doesn't have a layout
-     * manager.
-     * 
-     * @param w The width to set.
-     * @param h The height to set.
-     */
-    private void setComponentsSize(int w, int h)
-    {
-        Dimension d = new Dimension(w, h);
-        layeredPane.setPreferredSize(d);
-        layeredPane.setSize(d);
-        browserCanvas.setPreferredSize(d);
-        browserCanvas.setSize(d);
-    }
-    
     /** Creates a new instance. */
     BrowserUI() {}
     
@@ -133,6 +117,22 @@ class BrowserUI
         this.controller = controller;
         initComponents();
         buildGUI();
+    }
+    
+    /**
+     * Sets the size of the components b/c a layeredPane doesn't have a layout
+     * manager.
+     * 
+     * @param w The width to set.
+     * @param h The height to set.
+     */
+    void setComponentsSize(int w, int h)
+    {
+        Dimension d = new Dimension(w, h);
+        layeredPane.setPreferredSize(d);
+        layeredPane.setSize(d);
+        browserCanvas.setPreferredSize(d);
+        browserCanvas.setSize(d);
     }
     
     /**
