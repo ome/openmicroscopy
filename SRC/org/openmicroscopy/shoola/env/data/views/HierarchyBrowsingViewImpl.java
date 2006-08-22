@@ -217,10 +217,10 @@ class HierarchyBrowsingViewImpl
      * @see HierarchyBrowsingView#loadImages(Set, Class, long,
      *                                      AgentEventListener)
      */
-    public CallHandle loadImages(Set imagesID, Class rootLevel, 
+    public CallHandle loadImages(Set imageIDs, Class rootLevel, 
                                 long rootLevelID, AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyLoader(ImageData.class, imagesID, 
+        BatchCallTree cmd = new HierarchyLoader(ImageData.class, imageIDs, 
                                         rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
