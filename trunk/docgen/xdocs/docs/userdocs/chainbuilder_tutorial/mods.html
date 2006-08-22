@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>Chainbuilder Module Palette</title>
+</head>
+<body>
+
+<p>OME's module palette presents a graphical display of widgets
+representing the modules in an OME configuration. The modules are
+arranged by category, with each category taking the form of a
+bordered box that surrounds all modules in that
+category. Subcategories are contained within categories, alongside of
+  modules.</p>
+
+<p>Each module is initially shown in its &quot;overview&quot; mode. in
+this view, the module is shown simply with its name and a summary
+representation of all inputs and ouputs.</p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/modulepalette.jpg">
+    <img src="images/modulepalette-small.jpg" 
+    alt="Small view of chainbuilder module palette"></img></a></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_2-1"><b>Fig 2-1</b></a>: The
+  Chain module palette.</td>
+  </tr>
+</table>
+
+<div class="noteFrame">
+  <div class="noteLabel">Tip</div>
+  <div class="noteContent">When the chain builder starts, the module
+  palette is intentionally drawn very small, in order to conserve
+  screen space. You'll almost certainly want to move and resize it to
+  suit your needs.</div>
+</div>
+
+<p>There are two strategies that can be used in combination to see
+ more details about individual modules:</p>
+<UL>
+  <LI><em>Zooming:</em>Clicking on a module will cause the display to
+  zoom to be centered around that module. Similarly, clicking in a
+  category box (on its border or anywhere inside the box that is not
+  also inside a module) will zoom the display to focus on a category
+  box. Clicking on the background, or right-clicking on a
+  module/category box, will cause the display to zoom out to a
+  higher-level overview.</LI>
+  <LI><em>Mouse-over</em>: Mousing over a module will make it expand,
+  showing detailed descriptions of inputs and outputs.</LI>
+</UL>
+<p>These techniques can, of course, be used in combination. </p>
+  
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/mod-palette-zoomed.jpg"> 
+    <img src="images/mod-palette-zoomed-small.jpg" 
+    alt="The module palette, zoomed in, showing module detail."></img></a></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_2-2"><b>Fig 2-2</b></a>: The
+  Chain module palette, after zooming into a module category and
+  mousing over a module.</td>
+  </tr>
+</table>
+
+<p> 
+The module library can also be navigated via a tree view. To access the tree view, click on the right arrow on the bottom-left corner of the window. This will open a sub-window containing a categorized list of modules, using a tree view similar to those used in file-system browsers.  This view is coordinated with the palette view: selecting a module or category in the tree will cause it to be highlighted in the palette. The amount of space given to the tree view can be adjusted by dragging the bar that separates the tree view from the palette view. To hide the tree view, click the left-arrow at the bottom of the separating bar.</p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/mod-palette-with-tree.jpg">
+    <img src="images/mod-palette-with-tree-small.jpg" 
+    alt="The tree view of the module palette."></img></a></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_2-3"><b>Fig 2-3</b></a>: The
+  Chain module palette, with the tree.</td>
+  </tr>
+</table>
+
+<p>
+The module palette provides interactive feedback regarding possible connections between modules. When the mouse is moved over a module, all modules that can link to that module (i.e., those that have inputs/outputs with semantic types that match a corresponding output/input on the selected module) are highlighted in dark blue. This highlighting provides some guidance that might be useful in selecting modules for chain creation. This higlighting will be discussed in more detail in the chapter on <A HREf="creation.html">chain creation</A>.</p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/mod-palette-highlights.jpg">
+    <img src="images/mod-palette-highlights-small.jpg" 
+    alt="Mouse-over highlights of moudules that might be linked.">
+    </img></a></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_2-4"><b>Fig 2-4</b></a>: Mousing over a module leads to higlighting (in dark blue) of all modules that might be linked to the selected module.</td>
+  </tr>
+</table>
+
+</body>
+</html>
