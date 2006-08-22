@@ -118,6 +118,14 @@ public interface ImViewer
     public static final String  HSB_MODEL = RenderingControl.HSB;
     
     /**
+     * Iconified if the specified value is <code>true</code>, deiconified
+     * otherwise.
+     * 
+     * @param b Pass <code>true</code> to iconify, <code>false</code> otherwise.
+     */
+    void iconified(boolean b);
+    
+    /**
      * Starts the data loading process when the current state is {@link #NEW} 
      * and puts the window on screen.
      * If the state is not {@link #NEW}, then this method simply moves the
@@ -319,10 +327,12 @@ public interface ImViewer
      * @return See above.
      */
     public int getDefaultT();
-    
+
     /**
+     * The size in microns of a pixel along the X-axis.
      * 
-     * @param b
+     * @return See above.
      */
-    void iconified(boolean b);
+    public float getPixelsSizeX();
+    
 }

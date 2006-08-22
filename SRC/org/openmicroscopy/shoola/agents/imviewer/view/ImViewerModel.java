@@ -153,7 +153,7 @@ class ImViewerModel
     void initialize(ImViewer component)
     { 
         this.component = component;
-        browser = BrowserFactory.createBrowser();
+        browser = BrowserFactory.createBrowser(component);
     }
     
     /**
@@ -490,9 +490,18 @@ class ImViewerModel
         return 0;
     }
 
-    BufferedImage getDisplayedImage()
-    {
-        return browser.getDisplayedImage();
-    }
+    /**
+     * Returned the displayed image.
+     * 
+     * @return See above.
+     */
+    BufferedImage getDisplayedImage() { return browser.getDisplayedImage(); }
+
+    /**
+     * The size in microns of a pixel along the X-axis.
+     * 
+     * @return See above.
+     */
+    float getPixelsSizeX() { return rndControl.getPixelsSizeX(); }
     
 }

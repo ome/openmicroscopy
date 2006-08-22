@@ -651,5 +651,22 @@ class ImViewerComponent
         }
         return model.getDisplayedImage();
     }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getPixelsSizeX()
+     */
+    public float getPixelsSizeX()
+    {
+        switch (model.getState()) {
+            case NEW:
+            case LOADING_RENDERING_CONTROL:
+            case DISCARDED:
+                throw new IllegalStateException(
+                "This method can't be invoked in the DISCARDED, NEW or" +
+                "LOADING_RENDERING_CONTROL state.");
+        }
+        return model.getPixelsSizeX();
+    }
    
 }
