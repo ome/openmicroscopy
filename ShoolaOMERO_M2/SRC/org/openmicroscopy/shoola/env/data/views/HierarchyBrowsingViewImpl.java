@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -220,7 +221,7 @@ class HierarchyBrowsingViewImpl
     public CallHandle loadImages(Set imageIDs, Class rootLevel, 
                                 long rootLevelID, AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyLoader(ImageData.class, imageIDs, 
+        BatchCallTree cmd = new ImagesLoader(ImageData.class, imageIDs, 
                                         rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
