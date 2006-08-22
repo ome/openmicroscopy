@@ -127,9 +127,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#getContainerImages(Class, Set, Class, long)
+     * @see OmeroService#getImages(Class, Set, Class, long)
      */
-    public Set getContainerImages(Class nodeType, Set nodeIDs, Class rootLevel,
+    public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel,
                         long rootLevelID)
             throws DSOutOfServiceException, DSAccessException
     {
