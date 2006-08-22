@@ -43,8 +43,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
-
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -54,12 +52,9 @@ import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
-import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
-import ome.model.display.ChannelBinding;
-import ome.model.display.RenderingDef;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
