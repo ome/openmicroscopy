@@ -166,7 +166,7 @@ class BrowserComponent
                     "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
                     ZoomAction.MAX_ZOOM_FACTOR);
         model.setZoomFactor(factor);
-        view.paintImage();
+        view.zoomImage();
     }
 
     /** 
