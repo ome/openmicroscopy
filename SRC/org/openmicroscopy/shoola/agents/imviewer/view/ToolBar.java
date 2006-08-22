@@ -347,7 +347,7 @@ class ToolBar
     {
         if (b) {
             tSelectionField.setEditable(model.getMaxT() != 0);
-            tSelectionField.setEditable(model.getMaxZ() != 0);
+            zSelectionField.setEditable(model.getMaxZ() != 0);
         } else {
             tSelectionField.setEditable(b);
             zSelectionField.setEditable(b);
