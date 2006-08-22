@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
@@ -52,6 +54,7 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -483,6 +486,19 @@ class ImViewerUI
     void setChannelsSelection()
     {
         controlPane.setChannelsSelection();
+    }
+    
+    /** 
+     * Overriden to set the size of the window. 
+     * @see TopWindow#setOnScreen()
+     */
+    public void setOnScreen()
+    {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int width = 7*(screenSize.width/10);
+        int height = 7*(screenSize.height/10);
+        setSize(width, height);
+        UIUtilities.centerAndShow(this);
     }
     
 }
