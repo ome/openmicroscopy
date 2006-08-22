@@ -569,7 +569,7 @@ class RenderingControlProxy
     public float getPixelsSizeZ()
     {
         if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeY().floatValue();
+        return pixDims.getSizeZ().floatValue();
     }
 
     /** 
