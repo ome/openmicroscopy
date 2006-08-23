@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
@@ -64,9 +63,6 @@ class BrowserUI
     /** Location of the top left corner of the image. */
     static final int            TOP_LEFT_IMAGE = 35;
     
-    /** Color of the background. */
-    private static final Color  BACKGROUND = new Color(204, 204, 255);
-    
     /**
      * The Layered pane hosting the {@link BrowserCanvas} and any other 
      * UI components added on top of it.
@@ -95,7 +91,6 @@ class BrowserUI
     private void buildGUI()
     {
         getViewport().add(layeredPane);
-        getViewport().setBackground(BACKGROUND);
     }
     
     /** Creates a new instance. */

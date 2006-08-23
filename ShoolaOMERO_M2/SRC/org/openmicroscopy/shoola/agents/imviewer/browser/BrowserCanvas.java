@@ -233,6 +233,7 @@ class BrowserCanvas
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
+        System.out.print("painting \n");
         Graphics2D g2D = (Graphics2D) g;
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
