@@ -110,9 +110,9 @@ class EditorPaneUtil
             NumberFormat    nf = NumberFormat.getInstance();
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
-            details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-            details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-            details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+            //details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
+            //details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
+            //details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             //details.put("Emission wavelength", "");
