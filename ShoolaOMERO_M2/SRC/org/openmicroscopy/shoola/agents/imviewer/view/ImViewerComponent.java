@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -369,7 +371,6 @@ class ImViewerComponent
         window.setStatus("rendering settings. Loading: metadata");
         window.setProgress(50);
         view.buildComponents();
-        view.setSize(500, 500);
         view.setOnScreen();
         view.setStatus(RENDERING_MSG, -1, false);
         renderXYPlane();

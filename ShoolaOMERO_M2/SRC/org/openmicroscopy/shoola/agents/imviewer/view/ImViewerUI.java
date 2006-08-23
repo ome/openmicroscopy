@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
@@ -52,10 +54,13 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
+ * The {@link ImViewer} view.
+ * Embeds the {@link Browser}. Also provides a menu bar, a status bar and a 
+ * panel hosting various controls.
  * 
- *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
