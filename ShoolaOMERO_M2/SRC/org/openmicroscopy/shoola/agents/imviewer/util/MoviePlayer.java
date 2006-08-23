@@ -276,6 +276,37 @@ class MoviePlayer
     }
     
     /**
+     * Plays movie.
+     * @see Player#onPlayerStateChange()
+     */
+    protected void onPlayerStateChange()
+    {
+        switch (state) {
+            case START:
+                if (historyState == Player.PAUSE) {
+                    switch (index) {
+                        case ACROSS_Z:
+                            //if (movieType == BACKWARD) frameNumberZ = endZ;
+                            //else frameNumberZ = startZ;
+                            break;
+                        case ACROSS_T:
+                            //if (movieType == BACKWARD) frameNumberT = endT;
+                            //else frameNumberT = startT;
+                            break;
+                    }
+                }
+                parent.setMoviePlay(true);
+                timer.start();
+                break;
+            case STOP:
+                parent.setMoviePlay(false);
+                timer.stop();
+                setFrameNumbers();
+                up = true;
+        }  
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model     Reference to the {@link ImViewer}.
@@ -472,30 +503,7 @@ class MoviePlayer
      */
     int getFrameNumberT() { return frameNumberT; }
     
-    protected void onPlayerStateChange()
-    {
-        switch (state) {
-            case START:
-                if (historyState == Player.PAUSE) {
-                    switch (index) {
-                        case ACROSS_Z:
-                            //if (movieType == BACKWARD) frameNumberZ = endZ;
-                            //else frameNumberZ = startZ;
-                            break;
-                        case ACROSS_T:
-                            //if (movieType == BACKWARD) frameNumberT = endT;
-                            //else frameNumberT = startT;
-                            break;
-                    }
-                }
-                timer.start();
-                break;
-            case STOP:
-                timer.stop();
-                setFrameNumbers();
-                up = true;
-        }  
-    }
+
     
     
     /**

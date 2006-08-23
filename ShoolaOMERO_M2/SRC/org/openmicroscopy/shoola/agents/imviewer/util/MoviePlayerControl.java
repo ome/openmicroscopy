@@ -333,13 +333,10 @@ class MoviePlayerControl
                     model.setMovieIndex(MoviePlayer.ACROSS_ZT);
                     break;
                 case PLAY_CMD:
-                    view.setMoviePlay(true);
                     model.setPlayerState(Player.START); break;
                 case PAUSE_CMD:
-                    view.setMoviePlay(false);
                     model.setPlayerState(Player.PAUSE); break;    
                 case STOP_CMD:
-                    view.setMoviePlay(false);
                     model.setPlayerState(Player.STOP); 
                     break;
                 case EDITOR_CMD:
