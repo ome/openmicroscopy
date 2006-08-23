@@ -490,4 +490,17 @@ class ImViewerUI
         controlPane.setChannelsSelection();
     }
     
+    /** 
+     * Overriden to set the size of the window. 
+     * @see TopWindow#setOnScreen()
+     */
+    public void setOnScreen()
+    {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int width = 7*(screenSize.width/10);
+        int height = 7*(screenSize.height/10);
+        setSize(width, height);
+        UIUtilities.centerAndShow(this);
+    }
+    
 }
