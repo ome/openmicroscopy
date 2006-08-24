@@ -30,7 +30,6 @@
 package ome.security;
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -325,11 +324,13 @@ public class BasicSecuritySystem implements SecuritySystem
 		if ( g != null && leaderOfGroups().contains(g)) return true;
 		
 		Permissions p = d.getPermissions();
-		if ( p.isGranted(USER, WRITE) && o!=null && o.equals(currentUserId()))
-			return true;
-		if ( p.isGranted(GROUP, WRITE) && g!=null && g.equals(currentGroupId()))
-			return true;
 		if ( p.isGranted(WORLD,WRITE)) return true;
+		if ( p.isGranted(USER, WRITE) 
+				&& o!=null 
+				&& o.equals(currentUserId())) return true;
+		if ( p.isGranted(GROUP, WRITE) 
+				&& g!=null 
+				&& memberOfGroups().contains(g)) return true;
 		
 		return false;
 	}
