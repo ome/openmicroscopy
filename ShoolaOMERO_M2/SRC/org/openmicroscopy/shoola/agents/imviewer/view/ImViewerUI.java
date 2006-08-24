@@ -110,6 +110,9 @@ class ImViewerUI
     /** The loading window. */
     private LoadingWindow   loadingWindow;
     
+    /** The windows menu. */
+    private JMenu           windowsMenu;
+    
     /** 
      * Creates the menu bar.
      * 
@@ -121,6 +124,7 @@ class ImViewerUI
         menuBar.add(createControlsMenu());
         menuBar.add(createZoomMenu());
         menuBar.add(createRatingMenu());
+        menuBar.add(windowsMenu);
         return menuBar;
     }
     
@@ -304,6 +308,13 @@ class ImViewerUI
         return menu;
     }
     
+    /** Helper method to create the Windows menu. */
+    private void createWindowsMenu()
+    {
+        windowsMenu = new JMenu("Window");
+        windowsMenu.setMnemonic(KeyEvent.VK_W);
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -331,6 +342,7 @@ class ImViewerUI
     {
         super(title);
         loadingWindow = new LoadingWindow(this);
+        createWindowsMenu();
     }
     
     /**
@@ -450,10 +462,19 @@ class ImViewerUI
         controlPane.setTimepoint(t);
     }
 
-    LoadingWindow getLoadingWindow()
-    {
-        return loadingWindow;
-    }
+    /** 
+     * Returns the <code>windows</code> menu. 
+     * 
+     * @return See above.
+     */
+    JMenu getWindowsMenu() { return windowsMenu; }
+    
+    /**
+     * Returns the {@link #loadingWindow}.
+     * 
+     * @return See above.
+     */
+    LoadingWindow getLoadingWindow() { return loadingWindow; }
 
     /** 
      * Reacts to {@link ImViewer} change events.

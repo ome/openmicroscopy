@@ -33,20 +33,16 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -139,6 +135,7 @@ class ImViewerComponent
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
             default:
+                view.deIconify();
         }
     }
 
@@ -668,6 +665,18 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         return model.getPixelsSizeX();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getViewTitle()
+     */
+    public String getViewTitle()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED state.");
+        return view.getTitle();
     }
     
 }

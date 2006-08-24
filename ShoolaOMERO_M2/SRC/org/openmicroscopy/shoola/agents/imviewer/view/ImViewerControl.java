@@ -40,13 +40,22 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MenuListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
@@ -266,6 +275,52 @@ class ImViewerControl
      */
     private void attachWindowListeners()
     {
+        JMenu menu = view.getWindowsMenu();
+        menu.addMenuListener(new MenuListener() {
+
+            public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }
+            
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no op implementation.
+             * @see MenuListener#menuCanceled(MenuEvent)
+             */ 
+            public void menuCanceled(MenuEvent e) {}
+
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no op implementation.
+             * @see MenuListener#menuDeselected(MenuEvent)
+             */ 
+            public void menuDeselected(MenuEvent e) {}
+            
+        });
+        
+        //Listen to keyboard selection
+        menu.addMenuKeyListener(new MenuKeyListener() {
+
+            
+            public void menuKeyReleased(MenuKeyEvent e)
+            {
+                createWindowsMenuItems();
+            }
+            
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no op implementation.
+             * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
+             */
+            public void menuKeyPressed(MenuKeyEvent e) {}
+  
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no op implementation.
+             * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
+             */
+            public void menuKeyTyped(MenuKeyEvent e) {}
+            
+        });
+        
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.discard(); }
@@ -284,6 +339,21 @@ class ImViewerControl
                 LoadingWindow.CLOSED_PROPERTY, this);
     }
 
+    /** Creates the windowsMenuItems. */
+    private void createWindowsMenuItems()
+    {
+        Set viewers = ImViewerFactory.getViewers();
+        Iterator i = viewers.iterator();
+        JMenu menu = view.getWindowsMenu();
+        menu.removeAll();
+        ImViewer viewer;
+        while (i.hasNext()) {
+            viewer = (ImViewer) i.next();
+            if (!(viewer == model))
+                menu.add(new JMenuItem(new ActivationAction(viewer)));
+        }
+    }
+    
     /**
      * Creates a new instance.
      * The {@link #initialize(ImViewerComponent, ImViewerUI) initialize} 

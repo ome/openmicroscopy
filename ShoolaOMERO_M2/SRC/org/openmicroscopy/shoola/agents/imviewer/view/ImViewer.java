@@ -334,5 +334,12 @@ public interface ImViewer
      * @return See above.
      */
     public float getPixelsSizeX();
+
+    /**
+     * Returns the title of the viewer.
+     * 
+     * @return See above.
+     */
+    public String getViewTitle();
     
 }
