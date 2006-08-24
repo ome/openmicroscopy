@@ -72,7 +72,6 @@ public class AbstractInternalContextTest
     protected OMEData                       data;
 
     protected SecuritySystem				securitySystem;
-    protected EventContext					eventContext;
     
     @Override
     protected void onSetUpBeforeTransaction() throws Exception
@@ -91,7 +90,6 @@ public class AbstractInternalContextTest
         data = new OMEData();
         data.setDataSource(dataSource);
 
-        eventContext = (EventContext) applicationContext.getBean("eventContext");
         securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
     }
 
@@ -113,7 +111,7 @@ public class AbstractInternalContextTest
     
     protected void login( Principal p )
     {
-    	eventContext.setPrincipal( p );
+    	securitySystem.login(p);
     	securitySystem.setCurrentDetails();
     }
 

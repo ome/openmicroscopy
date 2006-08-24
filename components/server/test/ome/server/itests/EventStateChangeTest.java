@@ -1,6 +1,7 @@
 package ome.server.itests;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.testng.annotations.Test;
 
@@ -38,10 +39,17 @@ public class EventStateChangeTest extends AbstractManagedContextTest
     public void test_experimenter_shouldnt_increment_on_update()
             throws Exception
     {
-        expName = eContext.getPrincipal().getName();
+    	Experimenter e = new Experimenter();
+    	e.setOmeName(UUID.randomUUID().toString());
+    	e.setFirstName("EventState");
+    	e.setLastName("ChangeTest");
+    	iAdmin.createUser(e);
+    	loginUser(e.getOmeName());
+    	securitySystem.setCurrentDetails(); // needed because not done within AOP
+    	
+        e = getExperimenter(e.getOmeName());
         
-        Experimenter e = getExperimenter(expName);
-        expId = e.getId();
+        expId = securitySystem.currentUserId();
         expVersion = e.getVersion();
 
         p.setName(name);

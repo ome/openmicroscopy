@@ -135,7 +135,19 @@ public class BasicSecuritySystem implements SecuritySystem
 		this.ec = eventContext;
 	}
 	
+	// ~ Login/logout
+	// =========================================================================
 	
+	public void login(Principal principal) {
+		ec.setPrincipal(principal);
+	}
+	
+	public void logout() {
+		ec.setPrincipal(null);
+	}
+	
+	// ~ Checks
+	// =========================================================================
 	/** implements {@link SecuritySystem#isReady()}. Simply checks for null
 	 * values in all the relevant fields of {@link CurrentDetails}
 	 */

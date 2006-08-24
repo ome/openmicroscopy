@@ -27,8 +27,9 @@ public class UpdateTest extends AbstractUpdateTest
         Pixels p = ObjectFactory.createPixelGraph(null);
         p = (Pixels) iUpdate.saveAndReturnObject(p); 
 
-        List logs = securitySystem.getCurrentEvent().collectLogs(null);
-        assertTrue(logs.size() > 0);
+//        FIXME This can no longer be done this way.
+//        List logs = securitySystem.getCurrentEvent().collectLogs(null);
+//        assertTrue(logs.size() > 0);
 
         Pixels check = (Pixels) iQuery.findByQuery(
                 "select p from Pixels p " +

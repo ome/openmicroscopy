@@ -46,6 +46,7 @@ import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.system.Principal;
 import ome.tools.hibernate.EventHandler;
 import ome.tools.hibernate.MergeEventListener;
 
@@ -68,6 +69,19 @@ import ome.tools.hibernate.MergeEventListener;
 public interface SecuritySystem
 {
 
+	// ~ Login/logout
+	// =========================================================================
+	
+	/** stores this {@link Principal} instance in the current thread context 
+	 * for authenticating and authorizing all actions. This method does 
+	 * <em>not</em> make any queries.
+	 */
+	void login( Principal principal );
+	
+	/** clears any {@link Principal} instances from the current thread context.
+	 */
+	void logout( );
+	
 	// ~ Checks
 	// =========================================================================
 	/** checks if this {@link SecuritySystem} instance is in a valid state. This

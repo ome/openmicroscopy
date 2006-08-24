@@ -8,7 +8,6 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.meta.Experimenter;
 import ome.security.SecuritySystem;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -22,14 +21,13 @@ public class LoginTest extends TestCase
 
     protected void login(String user, String group, String eventType)
     {
-        ec.setPrincipal( new Principal( user, group, eventType ));
+        sec.login( new Principal( user, group, eventType ));
     }
     
     protected OmeroContext ctx;
     protected ServiceFactory sf;
     protected IQuery q;
     protected IUpdate u;
-    protected EventContext ec;
     protected SecuritySystem sec;
 
     @Configuration( beforeTestClass = true )
@@ -38,14 +36,13 @@ public class LoginTest extends TestCase
         sf = new ServiceFactory( ctx );
         q = sf.getQueryService();
         u = sf.getUpdateService();
-        ec = (EventContext) ctx.getBean("eventContext");
         sec = (SecuritySystem) ctx.getBean("securitySystem");
     }
     
   @Test
     public void testNoLoginThrowsException() throws Exception
     {
-      ec.setPrincipal( null );
+      sec.logout();
         try {
             q.find(Experimenter.class,0l);
             fail("Non-logged-in call allowed!");

@@ -91,7 +91,6 @@ public class AbstractLoginMockTest extends MockObjectTestCase
     
     protected SecuritySystem sec;
     protected MockServiceFactory sf;
-    protected EventContext ec;
     
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
@@ -99,8 +98,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         super.setUp();
         
         sf = new MockServiceFactory();
-        ec = new ThreadLocalEventContext();
-        sec = new BasicSecuritySystem (sf,ec );
+        sec = new BasicSecuritySystem (sf,new ThreadLocalEventContext() ); // hiding Ectx
         
         sf.mockAdmin = mock(IAdmin.class);
         sf.mockQuery = mock(LocalQuery.class);
@@ -123,7 +121,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         sf.mockTypes.expects( atLeastOnce() ).method( "getEnumeration" )
     		.with(eq(EventType.class),eq("Bootstrap"))
         	.will( returnValue( BOOTSTRAP ));
-    	ec.setPrincipal( new Principal("root","system","Bootstrap") );
+        sec.login( new Principal("root","system","Bootstrap") );
     	sec.setCurrentDetails();
     }
 
@@ -138,7 +136,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
     	sf.mockTypes.expects( atLeastOnce() ).method( "getEnumeration" )
 			.with(eq(EventType.class), eq("User"))
 			.will( returnValue( USEREVENT ));
-    	ec.setPrincipal( new Principal("user1","user","User") );
+    	sec.login( new Principal("user1","user","User") );
     	sec.setCurrentDetails();
     }
 

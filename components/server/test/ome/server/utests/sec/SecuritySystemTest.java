@@ -55,7 +55,6 @@ import org.testng.annotations.Test;
 public class SecuritySystemTest extends MockObjectTestCase {
 
 	MockServiceFactory sf;
-	EventContext ec;
 	SecuritySystem sec; 
 	
 	// login information
@@ -73,9 +72,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
     {
         super.setUp();
         
-        ec = new SimpleEventContext();
         sf = new MockServiceFactory();
-        sec = new BasicSecuritySystem(sf,ec);
+        sec = new BasicSecuritySystem(sf,new SimpleEventContext()); // hiding EvtCtx
            
     }
     
@@ -83,7 +81,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
     {
         // login
     	p = new Principal("test","test","test");
-        ec.setPrincipal(p);
+        sec.login(p);
         
         // context 
 		user = new Experimenter(1L);
@@ -101,8 +99,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
     {
         // login
     	p = new Principal("root","system","internal");
-        ec.setPrincipal(p);
-        
+    	sec.login(p);
+    	
         // context 
 		user = new Experimenter(0L);
 		group = new ExperimenterGroup(0L);

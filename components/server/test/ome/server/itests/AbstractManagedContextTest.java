@@ -18,7 +18,6 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.security.SecuritySystem;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -54,8 +53,6 @@ public class AbstractManagedContextTest
     
     protected IPixels iPixels;
     
-    protected EventContext eContext;
-    
     protected OMEData data;
     
     protected JdbcTemplate jdbcTemplate;
@@ -73,8 +70,6 @@ public class AbstractManagedContextTest
         iAnalysis = factory.getAnalysisService();
         iPojos = factory.getPojosService();
         iPixels = factory.getPixelsService();
-        eContext = (EventContext) applicationContext.getBean("eventContext");
-        loginRoot();
         
         data = new OMEData();
         data.setDataSource((DataSource) applicationContext.getBean("dataSource"));
@@ -83,7 +78,8 @@ public class AbstractManagedContextTest
         jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
         
         securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
-    
+        loginRoot();
+        
     }
     
     protected void loginRoot()
@@ -105,7 +101,7 @@ public class AbstractManagedContextTest
     
     protected void login(String userName, String groupName, String eventType)
     {
-        eContext.setPrincipal( 
+        securitySystem.login( 
                 new Principal( userName, groupName, eventType ));
     }
 
