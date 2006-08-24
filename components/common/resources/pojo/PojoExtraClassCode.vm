@@ -166,27 +166,22 @@ $pojo.getExtraClassCode()
 	}
 	
 #if(!$pojo.isSubclass())
-	private transient ome.model.internal.GraphHolder _graphHolder
-	 	= new ome.model.internal.GraphHolder();
+	private transient ome.model.internal.GraphHolder _graphHolder;
 	
 	public final ome.model.internal.GraphHolder getGraphHolder()
 	{
+		if (_graphHolder == null)
+			_graphHolder = new ome.model.internal.GraphHolder();
 		return _graphHolder;
 	}
 #end
 
 	// SERIALIZATION
-	// the creation_time constant is set by mapping.vm and is initialized
-	// in SemanticType.
-	private static final long serialVersionUID = creation_time;
+	/** the serialVersionID constant is set by mapping.vm */
 	private void readObject(java.io.ObjectInputStream s)
     throws java.io.IOException, ClassNotFoundException
     {
-        s.defaultReadObject();
-#if(!$pojo.isSubclass())
-		_graphHolder = new ome.model.internal.GraphHolder();
-#end
-        
+        s.defaultReadObject();  
     }
 
 ##parse( "$clazz.vm" ) TODO
