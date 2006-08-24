@@ -60,7 +60,7 @@
     <include name="*.bat"/> 
   </fileset> 
   <property name="dist.installfile" 
-            location="${base.launch.dir}/INSTALL.java_client"/> 
+            location="${base.launch.dir}/INSTALL.txt"/> 
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/> 
   <property name="dist.osx.icon" 
@@ -70,8 +70,6 @@
   <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
   <property name="dist.osx.installfile" 
             location="${base.launch.dir}/osx/INSTALL"/>
-
-
 
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
