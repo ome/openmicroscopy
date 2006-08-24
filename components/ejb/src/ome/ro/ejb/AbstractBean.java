@@ -47,7 +47,7 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
-import ome.system.EventContext;
+import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -62,25 +62,22 @@ public class AbstractBean
 
     protected transient ServiceFactory serviceFactory;
     
-    protected transient EventContext  eventContext;
+    protected transient SecuritySystem securitySystem;
     
     protected transient LocalQuery localQuery;
     
     protected transient LocalUpdate localUpdate;
     
-    // java:comp.ejb3/EJBContext
     protected @Resource SessionContext sessionContext;
-    //protected @Resource(mappedName="security/subject") Subject subject;
 
     public void create()
     {
         applicationContext = OmeroContext.getManagedServerContext();
+        securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
         serviceFactory = new InternalServiceFactory( applicationContext );
         localQuery = (LocalQuery) serviceFactory.getQueryService();
         localUpdate = (LocalUpdate) serviceFactory.getUpdateService();
-
-        eventContext = (EventContext) applicationContext.getBean("eventContext");
-
+ 
         log.debug("Created:\n"+getLogString());
     }
     
@@ -103,7 +100,7 @@ public class AbstractBean
         if ( sessionContext.getCallerPrincipal() instanceof Principal )
         {
             p = (Principal) sessionContext.getCallerPrincipal();
-            eventContext.setPrincipal( p );
+            securitySystem.login(p);
             if ( log.isDebugEnabled() )
                 log.debug( "Running with user: "+p.getName() );
         }
@@ -117,7 +114,7 @@ public class AbstractBean
     
     protected void logout( )
     {
-        eventContext.setPrincipal( null );
+        securitySystem.logout();
     }
     
     protected Object wrap( 
