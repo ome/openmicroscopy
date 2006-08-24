@@ -31,8 +31,20 @@
           public final static String OWNER_FILTER = "${ofilter}";
           public final static String GROUP_FILTER = "${gfilter}";
           public final static String EVENT_FILTER = "${efilter}";
-          public final static String PERMS_FILTER = "${pfilter}";    
-          private final static long creation_time = ${type.time}L;                     
+          public final static String PERMS_FILTER = "${pfilter}";  
+           
+/* These values are defined in dsl/resources/ome/dsl/mapping.vm:
+ * -------------------------------------------------------------
+ * Explanation of serialVersionUID ex 0000000 03 00 00 01 03 01 L;
+ * 1-7   : currently unused
+ * 8-9   : major part (3.x.x)
+ * 10-11 : minor part (x.0.x)
+ * 12-13 : patch part (x.x.0)
+ * 14-15 : release type   (M)
+ * 16-17 : release number (2)
+ * 18-19 : increment per delta // any changes to the dsl or mapping files
+ */ 
+          private static final long serialVersionUID = 0000000030000010301L;                     
         </meta>
 ##
 ## INTERFACES:
