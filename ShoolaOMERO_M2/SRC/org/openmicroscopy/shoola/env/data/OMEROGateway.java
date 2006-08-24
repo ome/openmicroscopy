@@ -372,11 +372,11 @@ class OMEROGateway
     {
         System.getProperties().setProperty("omero.user", userName);
         //TODO: Remove it asap
-        System.getProperties().setProperty("omero.pass", "ome");
-        //System.getProperties().setProperty("omero.pass", password);
+        //System.getProperties().setProperty("omero.pass", "ome");
+        System.getProperties().setProperty("omero.pass", password);
         try {
             //entry = new ServiceFactory(); 
-            entry = new ServiceFactory(new Login(userName, "ome")); 
+            entry = new ServiceFactory(new Login(userName, password)); 
             connected = true;
             return getUserDetails(userName);
         } catch (Exception e) {
