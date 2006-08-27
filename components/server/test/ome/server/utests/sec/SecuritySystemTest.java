@@ -589,6 +589,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		Details d = new Details();
 		d.setOwner(new Experimenter(2L));
 		d.setGroup(new ExperimenterGroup(2L));
+		d.setPermissions( new Permissions() );
 		
 		sec.setCurrentDetails();
 		assertTrue(sec.allowLoad(Image.class,d));

@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="client.development" >
+  
+  <test name="client.development.all">
+    <packages>
+      <package name="ome.*"/>
+    </packages>
+  </test>
+
+</suite>
