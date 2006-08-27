@@ -70,7 +70,10 @@ public class ApiConstraintChecker
                     "arguments.");
         }
         
-        log.info("Checking: " + mthd);
+        if (log.isDebugEnabled())
+        {
+        	log.debug("Checking: " + mthd);
+        }
         
         /* get arrays of arguments with parameters */
         if ( args == null )
