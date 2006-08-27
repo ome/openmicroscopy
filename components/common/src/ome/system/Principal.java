@@ -35,24 +35,31 @@ import java.io.Serializable;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.enums.EventType;
+import ome.model.internal.Permissions;
+import ome.model.meta.ExperimenterGroup;
 
 /**
-* implementation of {@link java.security.Principal}. Specialized for Omero
-* to carry a <code>group</code> and <code>eventType</code> string value. 
-* 
-* @author <br>
-*         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
-*         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
-* @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
-*          </small>
-* @since OME3.0
-*/
+ * implementation of {@link java.security.Principal}. Specialized for Omero
+ * to carry a {@link ExperimenterGroup group}, an {@link EventType event type}
+ * and a {@link Permissions umask}.  
+ * 
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see     EventType
+ * @see 	ExperimenterGroup
+ * @see     Permissions
+ * @since   3.0
+ */
 public class Principal implements java.security.Principal, Serializable
 {
     
-    protected String name;
+	private static final long serialVersionUID = 3761954018296933085L;
+	
+	protected String name;
     protected String group;
     protected String type;
+    protected Permissions umask;
     
     public Principal(String name, String group, String eventType ) 
     {
@@ -61,6 +68,8 @@ public class Principal implements java.security.Principal, Serializable
         this.type = eventType;
     }
 
+    // IMMUTABLE
+    
     public String getName()
     {
         return this.name;
@@ -76,40 +85,33 @@ public class Principal implements java.security.Principal, Serializable
         return this.type;
     }
     
+    // MUTABLE
+    
+    public boolean hasUmask()
+    {
+    	return this.umask != null;
+    }
+    
+    public Permissions getUmask()
+    {
+    	return this.umask;
+    }
+    
+    public void setUmask( Permissions mask )
+    {
+    	this.umask = mask;
+    }
+    
+    /** returns only the name of the instance because
+     * that is the expected behavior of {@link java.security.Principal} 
+     * implementations
+     * 
+     * @return value of {@link #name} 
+     */
+    @Override
     public String toString()
     {
         return this.name;
-    }
-
-    public boolean equals(Object obj)
-    {
-        if ( ! (obj instanceof Principal))
-            return false;
-        
-        Principal p = (Principal) obj;
-        
-        if ( this == p )
-            return true;
-        
-        if ( p.name == null || ! p.name.equals( this.name ) )
-            return false;
-        
-        if ( p.group == null || ! p.group.equals( this.group ) )
-            return false;
-        
-        if ( p.type == null || ! p.type.equals( this.type) )
-            return false;
-        
-        return true;
-    }
-    
-    public int hashCode()
-    {
-        int result = 11;
-        result = 17 * result + name.hashCode();
-        result = 19 * result + group.hashCode();
-        result = 23 * result + type.hashCode();
-        return result;
     }
     
 }

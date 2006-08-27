@@ -3,6 +3,7 @@ package ome.model.utests;
 import org.testng.annotations.*;
 
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 
@@ -10,6 +11,7 @@ import junit.framework.TestCase;
 
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
+import static ome.model.internal.Permissions.Flag.*;
 
 public class PermissionsTest extends TestCase {
 
@@ -208,6 +210,19 @@ public class PermissionsTest extends TestCase {
 		assertFalse(p.hashCode() == t.hashCode());
 	}
 
+	// ~ Flags
+	// =========================================================================
+	
+	@Test( groups = "ticket:182" )
+	public void testFlags() throws Exception {
+		Permissions t = new Permissions();
+		assertFalse( t.isSet( SOFT ));
+		assertFalse( t.isSet( LOCKED ));
+		t.set( SOFT );
+		t.set( LOCKED );
+		assertTrue( t.isSet( SOFT ));
+		assertTrue( t.isSet( LOCKED ));
+	}
 	
 	// ~ Private helpers
 	// ===========================================================================

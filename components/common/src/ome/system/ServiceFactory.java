@@ -44,6 +44,7 @@ import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
+import ome.model.internal.Permissions;
 import ome.system.OmeroContext;
 
 import omeis.providers.re.RenderingEngine;
@@ -52,27 +53,17 @@ import omeis.providers.re.RenderingEngine;
  * Entry point for all client calls. Provides methods to 
  * obtain proxies for all remote facades. 
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
- * @since 1.0
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see     OmeroContext
+ * @since   3.0
  */
 public class ServiceFactory {
 
+	/** the {@link OmeroContext context instance} which this 
+	 * {@link ServiceFactory} uses to look up all of its state.
+	 */
     protected OmeroContext ctx;
-
-    protected String getPrefix()
-    {
-    	return "managed:";
-    }
-    
-    protected String getDefaultContext()
-    {
-    	return OmeroContext.CLIENT_CONTEXT;
-    }
     
     /** public access to the context. This may not always be available, but
      * for this initial phase, it makes some sense. Completely non-dangerous on
@@ -167,6 +158,24 @@ public class ServiceFactory {
         this.ctx = OmeroContext.getInstance(contextName);
     }
 
+    // ~ Accessors
+	// =========================================================================
+    
+    /** sets the umask on the {@link Principal} instance which will be passed
+     * to the server-side on each invocation. 
+     */
+    public void setUmask( Permissions mask )
+    {
+    	if (!ctx.containsBean("principal"))
+    	{
+    		throw new UnsupportedOperationException("The context for this " +
+    				"ServiceFactory does not contain a Principal on which " +
+    				"the umask can be set.");
+    	}
+    	Principal p = (Principal) ctx.getBean("principal");
+    	p.setUmask(mask);
+    }
+    
     // ~ Stateless services
     // =========================================================================
     
@@ -201,10 +210,17 @@ public class ServiceFactory {
     // ~ Stateful services
     // =========================================================================
 
+    /** create a new {@link RawPixelsStore} proxy. This proxy will have to be
+     * initialized using {@link RawPixelsStore#setPixelsId(long)}
+     */
     public RawPixelsStore createRawPixelsStore(){
         return getServiceByClass(RawPixelsStore.class);
     }
     
+    /** create a new {@link RenderingEngine} proxy. This proxy will have to be 
+     * initialized using {@link RenderingEngine#lookupPixels(long)} and
+     * {@link RenderingEngine#load()}
+     */
     public RenderingEngine createRenderingEngine(){
         return getServiceByClass(RenderingEngine.class);
     }
@@ -212,8 +228,31 @@ public class ServiceFactory {
     // ~ Helpers
 	// =========================================================================
 
+    /** looks up services based on the current {@link #getPrefix() prefix} 
+     * and the class name of the service type.
+     */
     protected <T extends ServiceInterface> T getServiceByClass(Class<T> klass)
     {
     	return klass.cast(this.ctx.getBean(getPrefix()+klass.getName()));
+    }
+    
+    /** used by {@link #getServiceByClass(Class)} to find the correct service
+     * proxy in the {@link #ctx}
+     * 
+     * @return a {@link String}, usually "internal:" or "managed:"
+     */
+    protected String getPrefix()
+    {
+    	return "managed:";
+    }
+    
+    /** used when no {@link OmeroContext context} name is provided to the 
+     * constructor. Subclasses can override to allow for easier creation. 
+     * 
+     * @return name of default context as found in beanRefContext.xml.
+     */
+    protected String getDefaultContext()
+    {
+    	return OmeroContext.CLIENT_CONTEXT;
     }
 }

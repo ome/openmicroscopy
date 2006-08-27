@@ -137,6 +137,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
     protected void tearDown() throws Exception
     {
         super.verify();
+        sec.clearCurrentDetails();
         super.tearDown();
     }
 	
@@ -474,6 +475,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		Experimenter e = new Experimenter();
 		Image i = new Image();
+		Details d = new Details();
+		d.setPermissions( new Permissions() );
 		
 		prepareMocksWithUserDetails();
 		
@@ -481,8 +484,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		// 1. not system type
 		sec.setCurrentDetails();
-		assertFalse(sec.allowUpdate(e,e.getDetails()));
-		assertTrue(sec.allowUpdate(i,i.getDetails()));
+		assertFalse(sec.allowUpdate(e,d));
+		assertTrue(sec.allowUpdate(i,d));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
@@ -510,6 +513,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		i = new Image(2L);
 		i.getDetails().setOwner(new Experimenter(2L));
 		i.getDetails().setGroup(new ExperimenterGroup(2L));
+		i.getDetails().setPermissions(new Permissions());
 		assertTrue(sec.allowUpdate(i,i.getDetails()));
 		
 		// now lower permissions
@@ -529,13 +533,15 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	public void testAllowDelete() {
 		Experimenter e = new Experimenter();
 		Image i = new Image();
+		Details d = new Details();
+		d.setPermissions( new Permissions() );
 		
 		prepareMocksWithUserDetails();
 		
 		// 1. not system type
 		sec.setCurrentDetails();
-		assertFalse(sec.allowDelete(e,e.getDetails()));
-		assertTrue(sec.allowDelete(i,i.getDetails()));
+		assertFalse(sec.allowDelete(e,d));
+		assertTrue(sec.allowDelete(i,d));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
@@ -563,11 +569,14 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		i = new Image(2L);
 		i.getDetails().setOwner(new Experimenter(2L));
 		i.getDetails().setGroup(new ExperimenterGroup(2L));
+		i.getDetails().setPermissions(new Permissions());
 		assertTrue(sec.allowDelete(i,i.getDetails()));
 		
 		// now lower permissions
 		i.getDetails().setPermissions(Permissions.READ_ONLY);
 		assertFalse(sec.allowDelete(i,i.getDetails()));
+		
+		sec.clearCurrentDetails();
 	}
 	
 	/*

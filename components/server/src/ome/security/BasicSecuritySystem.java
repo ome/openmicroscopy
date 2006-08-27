@@ -64,6 +64,7 @@ import ome.model.internal.Permissions;
 import static ome.model.internal.Permissions.Right.*;
 import static ome.model.internal.Permissions.Role.*;
 import ome.model.internal.Token;
+import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Event;
 import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
@@ -315,6 +316,8 @@ public class BasicSecuritySystem implements SecuritySystem
 	private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails) 
 	{
 		Assert.notNull(iObject);
+		
+		// needs no details info
 		if ( isPrivileged( iObject ) || currentUserIsAdmin() ) return true;		
 		else if ( isSystemType( (Class<? extends IObject>) iObject.getClass()))
 		{
@@ -333,9 +336,20 @@ public class BasicSecuritySystem implements SecuritySystem
 		Long o = d.getOwner() == null ? null : d.getOwner().getId();
 		Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
+		// needs no permissions info
 		if ( g != null && leaderOfGroups().contains(g)) return true;
 		
 		Permissions p = d.getPermissions();
+		
+		// this should never occur. 
+		if (p == null)
+		{
+			throw new InternalException( "Permissions null! Security system " +
+					"failure -- refusing to continue. The Permissions should " +
+					"be set to a default value.");
+		}
+		
+		// standard
 		if ( p.isGranted(WORLD,WRITE)) return true;
 		if ( p.isGranted(USER, WRITE) 
 				&& o!=null 
@@ -376,15 +390,13 @@ public class BasicSecuritySystem implements SecuritySystem
     	
         Details source = obj.getDetails();
         Details newDetails = CurrentDetails.createDetails();
-        
+         
         if ( source != null )
         {
-            // TODO everyone is allowed to set the umask if desired.
-            if (source.getPermissions() != null)
-            {
-                newDetails.setPermissions( source.getPermissions() );
-            }
-            
+
+        	copyNonNullPermissions( newDetails, source.getPermissions() );
+        	applyUmaskIfNecessary( newDetails );
+                        
             // users *aren't* allowed to set the owner of an item.
             if (source.getOwner() != null 
                     && ! source.getOwner().getId().equals( 
@@ -490,13 +502,21 @@ public class BasicSecuritySystem implements SecuritySystem
         // Now we have to make sure certain things do not happen:
         } else {
             
-            // TODO everyone is allowed to set the umask if desired.
-            if (currentDetails.getPermissions() != null)
-            {
-                newDetails.setPermissions( currentDetails.getPermissions() );
-                altered = true;
-            }
+        	// WORKAROUND for ticket:307
+        	// see https://trac.openmicroscopy.org.uk/omero/ticket/307
+        	// see http://opensource.atlassian.com/projects/hibernate/browse/HHH-2027
+//        	altered |=
+//        		copyNonNullPermissions(
+//        				newDetails, 
+//        				currentDetails.getPermissions());
         	
+        	if ( newDetails.getPermissions() != null &&
+        			newDetails.getPermissions().isSet( Flag.SOFT ))
+        	{
+        		altered |= copyNonNullPermissions(newDetails,
+        				currentDetails.getPermissions());
+        	}
+                    	
             if ( ! isGlobal( iobj.getClass() )) // implies that owner doesn't matter 
             {
             	altered |= managedOwner( 
@@ -1064,4 +1084,32 @@ public class BasicSecuritySystem implements SecuritySystem
         else return arg1_id.equals( arg2_id );
     }
     
+    /** everyone is allowed to set the umask if desired.
+	 * if the user does not set a permissions, then the DEFAULT value
+	 * as defined in the Permissions class is used. if there's a umask 
+	 * for this session then that will be AND'd against the given
+	 * permissions.
+	 */
+    boolean copyNonNullPermissions( Details target, Permissions p )
+    {  
+    	if (p != null )
+        {
+            target.setPermissions( p );
+            return true;
+        }
+    	return false;
+    }
+
+    /** transient details should be have the umask applied to them if soft.
+     */
+    void applyUmaskIfNecessary( Details d )
+    {
+    	Permissions p = d.getPermissions();
+	    if ( p.isSet( Flag.SOFT) && ec.getPrincipal().hasUmask() )
+	    {    	
+    		p.grantAll( ec.getPrincipal().getUmask() );
+	    	p.revokeAll( ec.getPrincipal().getUmask() );
+	    }
+    }
+
 }

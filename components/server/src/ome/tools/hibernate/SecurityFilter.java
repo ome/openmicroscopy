@@ -38,6 +38,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 // Application-internal dependencies
+import ome.conditions.InternalException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -120,9 +121,15 @@ extends FilterDefinitionFactoryBean
 	 */
 	public static boolean passesFilter( SecuritySystem secSys, Details d )
 	{
-		if ( d == null || d.getPermissions() == null ) return false;
+		if ( d == null || d.getPermissions() == null )
+		{
+			throw new InternalException( "Details/Permissions null! " +
+					"Security system failure -- refusing to continue. " +
+					"The Permissions should be set to a default value.");			
+		}
 		
 		Permissions p = d.getPermissions();
+				
 		Long o = d.getOwner().getId();
 		Long g = d.getGroup().getId();
 	

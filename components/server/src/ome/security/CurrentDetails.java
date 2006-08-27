@@ -119,6 +119,7 @@ abstract class CurrentDetails
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
         e.getGraphHolder().setToken(token, token);
+        e.getDetails().setPermissions( Permissions.IMMUTABLE );
         setCreationEvent(e);
     }
     
@@ -149,6 +150,8 @@ abstract class CurrentDetails
         }
         return umask; 
         /* FIXME
+         * should be configurable
+         * see https://trac.openmicroscopy.org.uk/omero/ticket/179
          * getOwner().getProfile().getUmask
          * object.getDetails().getUmask()
          * CurrentDetails.getDetails().getUmask();

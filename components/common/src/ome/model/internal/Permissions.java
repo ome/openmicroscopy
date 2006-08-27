@@ -31,27 +31,30 @@ package ome.model.internal;
 //Java imports
 import java.io.Serializable;
 
+import ome.model.IObject;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 
-/** class responsible for storing all Right/Role-based information for entities.
+/** class responsible for storing all Right/Role-based information for entities
+ * as well as various flags for the containing {@link Details} instance.
  * It is strongly encouraged to <em>not</em> base any code on the implementation
- * of the rights and roles but rather to rely on the public methods.
+ * of the rights, roles, and flag but rather to rely on the public methods.
  * <p>
  * In the future, further roles, rights, and flags may be added to this class. 
  * This will change the representation in the database, but the simple 
- * grant/revoke logic will remain the same.
+ * grant/revoke/isSet logic will remain the same.
  * </p>
  * 
- * @see https://trac.openmicroscopy.org.uk/omero/ticket/180
+ * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/180">ticket:180</a>
  */
 public class Permissions implements Serializable
 {
 
-	private static final long serialVersionUID = 7089149309186580236L;
+	private static final long serialVersionUID = 7089149309186580237L;
 
 	/** enumeration of currently active roles. The {@link #USER} role is active 
 	 * when the contents of {@link Details#getOwner()} equals the current user
@@ -60,8 +63,8 @@ public class Permissions implements Serializable
 	 * {@link Details#getGroup()} matches the current group. {@link #WORLD} is
 	 * used for any non-USER, non-GROUP user.
 	 * 
-	 * For more advanced, ACL, methods taking {@link Experimenter} references
-	 * can be implemented. 
+	 * For more advanced, ACL, methods taking {@link ome.model.meta.Experimenter}
+	 * references can be implemented. 
 	 */
 	public enum Role {
 		USER(8),
@@ -86,7 +89,7 @@ public class Permissions implements Serializable
 	 * data in the future.
 	 */ 
 	public enum Right {
-		USE(1),
+		@Deprecated USE(1),
 		WRITE(2),
 		READ(4),
 		/* UNUSED(8) */ ;
@@ -94,6 +97,29 @@ public class Permissions implements Serializable
 		private final int mask;
 		Right(int mask){ this.mask = mask; }
 		int mask(){ return this.mask; }
+	}
+	
+	/** enumeration of flags which can be set on a {@link Permissions} instance.
+	 * A {@link Flag#LOCKED} flag implies that the 
+	 * {@link Details#getOwner() owner}, {@link Details#getGroup() group}, and
+	 * {@link Details#getPermissions() permissions} for an {@link IObject} 
+	 * instance may not be changed. {@link Flag#SOFT} implies that the given
+	 * {@link Permissions} value is intended as a suggestion, and that other 
+	 * sources may override.
+	 */
+	public enum Flag {
+		LOCKED(1<<18),
+		SOFT(1<<17);
+		
+		/* Implementation note:
+		 * --------------------
+		 * Flags work with reverse logic such that the default permissions can 
+		 * remain -1L (all 1s), a flag is "set" when it's bit is set to 0. This
+		 * holds for everything over 16.
+		 */
+		private final int bit;
+		Flag(int bit){ this.bit = bit; }
+		int bit(){ return this.bit; }
 	}
 	
 	// ~ Constructors
@@ -131,6 +157,12 @@ public class Permissions implements Serializable
     {
     	return ( perm1 & right.mask() << role.shift() ) 
     		== ( right.mask() << role.shift() );
+    }
+    
+    /** tests that a given {@link Flag} is set. */
+    public boolean isSet( Flag flag )
+    {
+    	return ( perm1 & flag.bit() ) != flag.bit();
     }
     
     /** returns the order of the bit representing the given {@link Role} and 
@@ -227,6 +259,14 @@ public class Permissions implements Serializable
     	return this;
     }
 
+    /** turn a given {@link Flag} on. A null {@link Flag} will be ignored. */
+    public Permissions set( Flag flag )
+    {
+    	if ( flag == null ) return this;
+    	this.perm1 &= (-1L ^ flag.bit() );
+    	return this;
+    }
+    
     // ~ Overrides
 	// =========================================================================
     
@@ -442,5 +482,5 @@ public class Permissions implements Serializable
 	public final static Permissions GROUP_PRIVATE = new ImmutablePermissions(
 			new Permissions()
 				.revoke(WORLD, READ, WRITE, USE));
-	
+
 }

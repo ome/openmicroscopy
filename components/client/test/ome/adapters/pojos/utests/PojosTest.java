@@ -268,7 +268,9 @@ public class PojosTest extends TestCase
 		  assertFalse(pd.isWorldUse());
 		  assertFalse(pd.isWorldWrite());
 		  
-		  ImageData id = new ImageData();
+		  Image i = new Image();
+		  i.getDetails().setPermissions( new Permissions() );
+		  ImageData id = new ImageData( i );
 		  pd = id.getPermissions();
 		  assertTrue(pd.isGroupRead());
 		  assertTrue(pd.isGroupUse());
