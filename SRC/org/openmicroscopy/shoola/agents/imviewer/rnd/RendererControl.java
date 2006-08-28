@@ -276,7 +276,7 @@ class RendererControl
             model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
             if (((Boolean) evt.getNewValue()).booleanValue()) view.iconify();
-            else view.deIconify();
+            //else view.deIconify();
         } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
             view.setInputInterval();
         }
