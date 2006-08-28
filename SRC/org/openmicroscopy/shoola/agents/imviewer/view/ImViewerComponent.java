@@ -48,6 +48,7 @@ import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -137,7 +138,8 @@ class ImViewerComponent
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
             default:
-                iconified(false);
+                view.deIconify();
+                UIUtilities.centerOnScreen(view);
         }
     }
 
