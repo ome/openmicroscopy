@@ -68,6 +68,7 @@ import javax.swing.JPanel;
 public class TwoKnobsSlider
     extends JPanel
 {
+    
     /** Bound property name indicating if the dragged knob is released. */
     public final static String          KNOB_RELEASED_PROPERTY = 
                                                         "knobReleased";
