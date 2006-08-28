@@ -108,7 +108,7 @@ public interface Browser
      * @return The currently selected node or <code>null</code> if no node
      *          is currently selected.
      */
-    public ImageDisplay getSelectedDisplay();
+    public ImageDisplay getLastSelectedDisplay();
     
     /**
      * Sets a flag to indicate if a {@link Thumbnail} has been selected
@@ -225,5 +225,20 @@ public interface Browser
      */
     public int getSelectedLayout();
 
+    /**
+     * Returns <code>true</code> if more than one {@link ImageNode}s are
+     * selected, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isMultiSelection();
+    
+    /**
+     * Returns the collection of selected nodes.
+     * 
+     * @return See above.
+     */
+    public Set getSelectedDisplays();
+    
     
 }

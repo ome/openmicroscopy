@@ -31,12 +31,17 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.JComponent;
+
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 
 //Third-party libraries
 
@@ -150,6 +155,20 @@ class BrowserControl
     public void propertyChange(PropertyChangeEvent evt)
     {
         view.setTitle(model.currentPathString());
+        //paint the nodes
+        ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
+        Colors colors = Colors.getInstance();
+        newNode.setHighlight(colors.getSelectedHighLight(newNode));
+        Set nodes = (Set) evt.getOldValue();
+        if (nodes != null && !model.isMultiSelection()) {
+            Iterator i = nodes.iterator();
+            ImageDisplay n;
+            while (i.hasNext()) {
+                n = (ImageDisplay) i.next();
+                    n.setHighlight(colors.getDeselectedHighLight(n));
+            }
+        }
+        
     }
     
     /**
@@ -160,7 +179,12 @@ class BrowserControl
     {
         ImageDisplay d = findParentDisplay(me.getSource());
         d.moveToFront();
-        model.setSelectedDisplay(d);
+        if (d instanceof ImageNode) {
+            if ((me.getModifiers() & InputEvent.SHIFT_MASK) == 
+                InputEvent.SHIFT_MASK)
+                model.setSelectedDisplay(d, true);
+            else model.setSelectedDisplay(d);
+        } else model.setSelectedDisplay(d);
         if (me.isPopupTrigger()) popupTrigger = true;
     }
 

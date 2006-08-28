@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Point;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JComponent;
 
@@ -65,11 +67,11 @@ class BrowserModel
 {
     
     /** The currently selected node in the visualization tree. */
-    private ImageDisplay    selectedDisplay;
+    //private ImageDisplay    selectedDisplay;
     
     /** 
      * Tells if a thumbnail has been selected in the case the 
-     * {@link #selectedDisplay} is an {@link ImageNode}. 
+     * last selected display is an {@link ImageNode}. 
      */
     private boolean         thumbSelected;
     
@@ -83,6 +85,15 @@ class BrowserModel
     private int             selectedLayout;
     
     /**
+     * Tells if more than one {@link ImageNode}s are selected.
+     * Doesn't really make sense to select other type of data objects.
+     */
+    private boolean         multiSelection;
+    
+    /** The selected nodes. */
+    private Set             selectedDisplays;
+    
+    /**
      * Creates a new instance.
      * 
      * @param view The root display of the visualization trees. Each child node
@@ -94,6 +105,7 @@ class BrowserModel
         super();
         if (view == null) throw new NullPointerException("No view.");
         rootDisplay = view;
+        selectedDisplays = new HashSet();
     }
     
     /** 
@@ -104,7 +116,7 @@ class BrowserModel
     public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
     
     /**
-     * String-ifies the path from the {@link #selectedDisplay} to the
+     * String-ifies the path from the last selected ndoe to the
      * {@link #rootDisplay}.
      * 
      * @return The above described string.
@@ -113,7 +125,7 @@ class BrowserModel
     {
         StringBuffer buf = new StringBuffer();
         String title;
-        ImageDisplay parent = selectedDisplay;
+        ImageDisplay parent = getLastSelectedDisplay();//selectedDisplay;
         while (parent != null && !(parent instanceof RootDisplay)) {
             title = parent.getTitle();
             if (title == null || title.length() == 0) title = "[..]";
@@ -126,22 +138,54 @@ class BrowserModel
     
     /**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedDisplays()
+     */
+    public Set getSelectedDisplays() { return selectedDisplays; }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setSelectedDisplay(ImageDisplay)
      */
     public void setSelectedDisplay(ImageDisplay node)
     {
+        setSelectedDisplay(node, false);
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelectedDisplay(ImageDisplay, boolean)
+     */
+    public void setSelectedDisplay(ImageDisplay node, boolean multiSelection)
+    {
         thumbSelected = false;
         popupPoint = null;
-        Object oldValue = selectedDisplay;
-        selectedDisplay = node;
+        this.multiSelection = multiSelection;
+        Set oldValue = new HashSet(selectedDisplays.size());
+        Iterator i = selectedDisplays.iterator();
+        while (i.hasNext()) {
+            oldValue.add(i.next());
+        }
+        if (!multiSelection)
+            selectedDisplays.removeAll(selectedDisplays);
+        selectedDisplays.add(node);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
     }
     
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getSelectedDisplay()
+     * @see Browser#getLastSelectedDisplay()
      */
-    public ImageDisplay getSelectedDisplay() { return selectedDisplay; }
+    public ImageDisplay getLastSelectedDisplay()
+    { 
+        Iterator  i = selectedDisplays.iterator();
+        int index = 0;
+        while (i.hasNext()) {
+            if (index == (selectedDisplays.size()-1)) 
+                return (ImageDisplay) i.next();
+            index++;
+        }
+        return null;  
+    }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -149,7 +193,7 @@ class BrowserModel
      */
     public void setThumbSelected(boolean selected)
     {
-        if (!(selectedDisplay instanceof ImageNode) && selected)
+        if (!(getLastSelectedDisplay() instanceof ImageNode) && selected)
             throw new IllegalArgumentException(
                 "Can only select a thumbnail on an ImageNode.");
         popupPoint = null;
@@ -259,4 +303,10 @@ class BrowserModel
      */
     public int getSelectedLayout() { return selectedLayout; }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isMultiSelection()
+     */
+    public boolean isMultiSelection() { return multiSelection; }
+    
 }
