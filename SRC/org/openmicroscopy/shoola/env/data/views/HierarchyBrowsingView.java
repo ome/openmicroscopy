@@ -232,7 +232,7 @@ public interface HierarchyBrowsingView
      * (and again the id of Image <code>i1</code>), then you will get <code>
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
-     * @param imageID   The id of the Image.
+     * @param imageIDs  The id of the images.
      * @param algorithm  One of the following constants:
      *                  {@link OmeroService#DECLASSIFICATION},
      *                  {@link OmeroService#CLASSIFICATION_ME},
@@ -240,7 +240,7 @@ public interface HierarchyBrowsingView
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadClassificationPaths(long imageID, int algorithm,
+    public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
                                               AgentEventListener observer);
     
     /**
