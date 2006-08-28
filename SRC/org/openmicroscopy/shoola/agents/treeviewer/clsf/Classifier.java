@@ -143,13 +143,13 @@ public interface Classifier
     /**
      * Sets the categories in which the image has been added to or removed from.
      * 
-     * @param image         The image classified or declassified.
+     * @param images        The image classified or declassified.
      * @param categories    The categories. 
-     * @param mode          The type of operation. one of the following
+     * @param m             The type of operation. one of the following
      *                      constants: {@link #CLASSIFY_MODE} or
      *                      {@link #DECLASSIFY_MODE}.
      */
-    public void saveClassification(ImageData image, Set categories, int mode);
+    public void saveClassification(ImageData[] images, Set categories, int m);
     
     /** 
      * Closes the {@link Classifier}. 

@@ -179,27 +179,30 @@ class ClassifierComponent
         model.setPaths(nodes);
         view.showClassifications();
         fireStateChange();
-        firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, null,
+        if (model.getDataObjects().length == 1)
+            firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, null,
                                 model.getDataObject());
     }
 
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Classifier#saveClassification(ImageData, Set, int)
+     * @see Classifier#saveClassification(ImageData[], Set, int)
      */
-    public void saveClassification(ImageData image, Set categories, int mode)
+    public void saveClassification(ImageData[] images, Set categories, int mode)
     {
         if (model.getState() != SAVING_CLASSIFICATION)
             throw new IllegalStateException("This method should only be " +
                     "invoked in the SAVE_CLASSIFICATION state.");
         if (categories == null)
             throw new IllegalArgumentException("Categories shouln't be null.");
-        if (image == null)
+        if (images == null)
+            throw new IllegalArgumentException("No image.");
+        if (images.length == 0)
             throw new IllegalArgumentException("No image.");
         if (mode != CLASSIFY_MODE && mode != DECLASSIFY_MODE)
             throw new IllegalArgumentException("Classification mode not " +
                     "supported.");
-        model.saveClassification(image, categories, mode);
+        model.saveClassification(images, categories, mode);
         fireStateChange();
     }
 

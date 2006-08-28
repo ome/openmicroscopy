@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.clsf;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -68,8 +69,8 @@ class ClassifierModel
     /** One of the constants defined by this {@link Classifier}. */
     private int                 mode;
     
-    /** The image to classify or declassify. */
-    private ImageData           image;
+    /** The images to classify or declassify. */
+    private ImageData[]         images;
     
     private int                 state;
     
@@ -99,20 +100,22 @@ class ClassifierModel
      * @param mode          One of the following constants: 
      *                      {@link Classifier#CLASSIFY_MODE} or
      *                      {@link Classifier#DECLASSIFY_MODE}.
-     * @param image         The image to handle. Mustn't be <code>null</code>.
+     * @param images        The image to handle. Mustn't be <code>null</code>.
      */
-    ClassifierModel(TreeViewer parentModel, int mode, ImageData image)
+    ClassifierModel(TreeViewer parentModel, int mode, ImageData[] images)
     {
         if (parentModel == null)
             throw new IllegalArgumentException("No parent model.");
-        if (image == null)
+        if (images == null)
+            throw new IllegalArgumentException("No image.");
+        if (images.length == 0)
             throw new IllegalArgumentException("No image.");
         if (mode != Classifier.CLASSIFY_MODE &&
                 mode != Classifier.DECLASSIFY_MODE)
             throw new IllegalArgumentException("Classification mode not " +
                     "supported.");
         this.parentModel = parentModel;
-        this.image = image;
+        this.images = images;
         this.mode = mode;
         state = Classifier.NEW;
     }
@@ -167,7 +170,14 @@ class ClassifierModel
      * 
      * @return See above.
      */
-    ImageData getDataObject() { return image; }
+    ImageData getDataObject() { return images[0]; }
+    
+    /**
+     * Returns the images this classifier is for.
+     * 
+     * @return See above.
+     */
+    ImageData[] getDataObjects() { return images; }
     
     /**
      * Fires an asynchronous retrieval of the CategoryGroup/Category paths.
@@ -175,8 +185,10 @@ class ClassifierModel
     void fireClassificationLoading()
     {
         state = Classifier.LOADING_CLASSIFICATION;
-        currentLoader = new ClassifierPathsLoader(component, image.getId(), 
-                                                mode);
+        Set ids = new HashSet(images.length);
+        for (int i = 0; i < images.length; i++)
+            ids.add(new Long(images[i].getId()));
+        currentLoader = new ClassifierPathsLoader(component, ids, mode);
         currentLoader.load();
     }
     
@@ -190,7 +202,7 @@ class ClassifierModel
     {
         state = Classifier.SAVING_CLASSIFICATION;
         currentLoader = new ClassificationSaver(component, 
-                ClassificationSaver.CLASSIFY, image, categories);
+                ClassificationSaver.CLASSIFY, images, categories);
         currentLoader.load();  
     }
     
@@ -204,7 +216,7 @@ class ClassifierModel
     {
         state = Classifier.SAVING_CLASSIFICATION;
         currentLoader = new ClassificationSaver(component, 
-                ClassificationSaver.DECLASSIFY, image, categories);
+                ClassificationSaver.DECLASSIFY, images, categories);
         currentLoader.load();  
     }
 
@@ -248,16 +260,16 @@ class ClassifierModel
      * Updates the different views when the image has been classified or 
      * declassified.
      * 
-     * @param image         The classified or declassified image.
+     * @param images        The classified or declassified image.
      * @param categories    The categories in which the image was added to or
      *                      removed from.
      * @param mode          The type of operation i.e. classification or 
      *                      declassification.
      */
-    void saveClassification(ImageData image, Set categories, int mode)
+    void saveClassification(ImageData[] images, Set categories, int mode)
     {
         state = Classifier.READY;
-        parentModel.onImageClassified(image, categories, mode);
+        parentModel.onImageClassified(images, categories, mode);
     }
     
 }

@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.clsf;
 
 
-
-
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -64,18 +62,18 @@ public class ClassifierFactory
     /**
      * Creates a classifier depending on the specified mode.
      * 
-     * @param model Reference to {@link TreeViewer}.
-     *              Mustn't be <code>null</code>.
-     * @param m     The type of classifier. One of the following constants:
-     *              {@link Classifier#CLASSIFY_MODE}, 
-     *              {@link Classifier#DECLASSIFY_MODE}.
-     * @param image The image to classify or declassify.
+     * @param model     Reference to {@link TreeViewer}.
+     *                  Mustn't be <code>null</code>.
+     * @param m         The type of classifier. One of the following constants:
+     *                  {@link Classifier#CLASSIFY_MODE}, 
+     *                  {@link Classifier#DECLASSIFY_MODE}.
+     * @param images    The images to classify or declassify.
      * @return See above.
      */
     public static Classifier getClassifier(TreeViewer model, int m,
-                                            ImageData image)
+                                            ImageData[] images)
     {
-        return singleton.createClassifier(model, m, image);
+        return singleton.createClassifier(model, m, images);
     }
     
     /** The tracked component. */
@@ -90,16 +88,16 @@ public class ClassifierFactory
     /**
      * Creates a classifier depending on the specified mode.
      * 
-     * @param model Reference to {@link TreeViewer}.
-     *              Mustn't be <code>null</code>
-     * @param mode  The type of classifier. One of the following constants:
-     *              {@link Classifier#CLASSIFY_MODE}, 
-     *              {@link Classifier#DECLASSIFY_MODE}.
-     * @param image The image to classify or declassify.
+     * @param model     Reference to {@link TreeViewer}.
+     *                  Mustn't be <code>null</code>
+     * @param mode      The type of classifier. One of the following constants:
+     *                  {@link Classifier#CLASSIFY_MODE}, 
+     *                  {@link Classifier#DECLASSIFY_MODE}.
+     * @param images    The image to classify or declassify.
      * @return See above.
      */
     private Classifier createClassifier(TreeViewer model, int mode,
-                                        ImageData image)
+                                        ImageData[] images)
     {
         if (classifier != null) {
             if (mode == classifier.getMode()) return classifier;
@@ -107,7 +105,7 @@ public class ClassifierFactory
             classifier = null;
         }
         model.addPropertyChangeListener(this);
-        ClassifierModel m = new ClassifierModel(model, mode, image);
+        ClassifierModel m = new ClassifierModel(model, mode, images);
         ClassifierComponent component = new ClassifierComponent(m);
         m.initialize(component);
         component.initialize();
