@@ -62,6 +62,7 @@ public class InfoButton
     extends JButton
     implements ActionListener
 {
+    
     /** The channel data hosted by this component. */
     private Object infoObject;
     
