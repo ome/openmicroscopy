@@ -380,7 +380,7 @@ class HiViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
-        ImageDisplay node = model.getBrowser().getSelectedDisplay();
+        ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
         if (node == null) return null;
         return node.getHierarchyObject();
     }
