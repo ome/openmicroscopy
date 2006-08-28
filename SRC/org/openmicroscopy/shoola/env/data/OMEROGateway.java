@@ -577,32 +577,6 @@ class OMEROGateway
     }
     
     /**
-     * Retrieves the images specified by the given collection of images' id.
-     * Wraps the call to the {@link IPojos#getImages(Set, Map)}
-     * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-     * 
-     * @param imageIDs  Set of images' IDS.
-     * @param options   Options to retrieve the data.
-     * @return A <code>Set</code> of retrieved images.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
-     */
-    Set getImages(Set imageIDs, Map options)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        try {
-            IPojos service = getIPojosService();
-            return new HashSet();
-            //return PojoMapper.asDataObjects(
-             //      service.getImages(imageIDs, options));
-        } catch (Exception e) {
-            handleException(e, "Cannot find images specified by ids.");
-        }
-        return new HashSet();
-    }
-    
-    /**
      * Retrieves the images imported by the current user.
      * Wraps the call to the {@link IPojos#getUserImages(Map)}
      * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
