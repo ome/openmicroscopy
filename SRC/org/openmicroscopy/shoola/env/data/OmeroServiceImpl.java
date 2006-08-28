@@ -151,6 +151,7 @@ class OmeroServiceImpl
         throws DSOutOfServiceException, DSAccessException 
     {
         PojoOptions po = new PojoOptions();
+        po.allCounts();
         setRootOptions(po, rootLevel, rootLevelID);
         if (!withLeaves) po.noLeaves();
         po.countsFor(new Long(getUserDetails().getId()));
@@ -212,6 +213,7 @@ class OmeroServiceImpl
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
+        po.allCounts();
         setRootOptions(po, rootLevel, rootLevelID);
         po.countsFor(new Long(getUserDetails().getId()));
         return gateway.getContainerImages(nodeType, nodeIDs, po.map());
