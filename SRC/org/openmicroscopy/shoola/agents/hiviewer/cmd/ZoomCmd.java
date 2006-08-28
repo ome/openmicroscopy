@@ -144,7 +144,7 @@ public class ZoomCmd
     {
         ZoomVisitor visitor = new ZoomVisitor(model);
         Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getSelectedDisplay();
+        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
         if (selectedDisplay.getParentDisplay() == null) return;
         selectedDisplay.accept(visitor);
         if (selectedDisplay instanceof ImageSet) {

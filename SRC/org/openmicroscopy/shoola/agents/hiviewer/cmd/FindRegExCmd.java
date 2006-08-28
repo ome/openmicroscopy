@@ -96,7 +96,7 @@ public class FindRegExCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getSelectedDisplay();
+        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
         if (selectedDisplay == null) return; 
         FindRegExVisitor visitor = new FindRegExVisitor(model, pattern, 
                 findContext);

@@ -32,16 +32,18 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.rnd.events.LoadImage;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -123,7 +125,7 @@ public class ViewCmd
     {
         if (model != null && hierarchyObject == null) {
             ImageDisplay selectedDisplay = model.getBrowser().
-                                                    getSelectedDisplay();
+                                                    getLastSelectedDisplay();
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;
@@ -146,8 +148,13 @@ public class ViewCmd
         else if (hierarchyObject instanceof ImageData) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
             ImageData is = (ImageData) hierarchyObject;
-            eventBus.post(new LoadImage(is.getId(), 
-                    is.getDefaultPixels().getId(), is.getName()));   
+            Set images = model.getBrowser().getSelectedDisplays();
+            Iterator i = images.iterator();
+            while (i.hasNext()) {
+                is = (ImageData) ((ImageDisplay) i.next()).getHierarchyObject();
+                eventBus.post(new ViewImage(is.getId(), 
+                        is.getDefaultPixels().getId(), is.getName())); 
+            }
         }
     }
 

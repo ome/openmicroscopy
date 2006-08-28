@@ -84,7 +84,7 @@ public class AnnotateCmd
     {
         boolean b = false;
         if (node == null) {
-            node = model.getBrowser().getSelectedDisplay();
+            node = model.getBrowser().getLastSelectedDisplay();
             b = true;
         }     
         if (node == null) return;

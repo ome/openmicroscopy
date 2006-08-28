@@ -75,7 +75,7 @@ public class FindCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay node = model.getBrowser().getSelectedDisplay();
+        ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
         if (node == null) return;
         if (node.getHierarchyObject() == null) return;
         DataObject ho = (DataObject) node.getHierarchyObject();

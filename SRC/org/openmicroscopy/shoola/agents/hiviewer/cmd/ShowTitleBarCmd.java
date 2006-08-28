@@ -86,7 +86,7 @@ public class ShowTitleBarCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getSelectedDisplay();
+        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
         ShowTitleBarVisitor visitor = new ShowTitleBarVisitor(model, show);
         selectedDisplay.accept(visitor);
     }

@@ -110,7 +110,7 @@ public class PropertiesCmd
     {
         if (model != null && hierarchyObject == null) {
             ImageDisplay selectedDisplay = model.getBrowser().
-                                                    getSelectedDisplay();
+                                                    getLastSelectedDisplay();
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;

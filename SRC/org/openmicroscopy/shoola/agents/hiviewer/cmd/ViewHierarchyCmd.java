@@ -107,7 +107,7 @@ public class ViewHierarchyCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay selectedDisplay = model.getBrowser().getSelectedDisplay();
+        ImageDisplay selectedDisplay = model.getBrowser().getLastSelectedDisplay();
         Set images;
         if (selectedDisplay == null)
             images = model.getBrowser().getImages();

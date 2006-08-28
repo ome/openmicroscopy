@@ -67,7 +67,7 @@ class ClearVisitor
      */
     private void setHighlight(ImageDisplay node)
     {
-        if (node.equals(model.getBrowser().getSelectedDisplay())) {
+        if (node.equals(model.getBrowser().getLastSelectedDisplay())) {
             Colors colors = Colors.getInstance();
             node.setHighlight(colors.getColor(Colors.TITLE_BAR_HIGHLIGHT));
         } else node.setHighlight(null);

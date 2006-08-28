@@ -31,6 +31,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -44,7 +47,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import pojos.ImageData;
 
 /** 
- * Command to classify/declassify a given Image.
+ * Command to classify/declassify a collection of images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,15 +73,27 @@ public class ClassifyCmd
      *         current Image node or <code>null</code> if the browser's
      *         current display is not an Image node. 
      */
-    private static ImageData getImage(HiViewer model)
+    private static ImageData[] getImages(HiViewer model)
     {
-        ImageData img = null;
+        ImageData[] images = null;
         if (model != null) {
-            ImageDisplay selDispl = model.getBrowser().getSelectedDisplay();
-            Object x = selDispl.getHierarchyObject();
-            if (x instanceof ImageData) img = (ImageData) x;
+            Set nodes = model.getBrowser().getSelectedDisplays();
+            if (nodes != null) {
+                Iterator i = nodes.iterator();
+                Object x;
+                images = new ImageData[nodes.size()];
+                int index = 0;
+                while (i.hasNext()) {
+                    x = ((ImageDisplay) i.next()).getHierarchyObject();
+                    if (x instanceof ImageData) {
+                        images[index] = (ImageData) x;
+                        index++;
+                    }
+                    index++;
+                }
+            }
         }
-        return img;
+        return images;
     }
     
     
@@ -89,35 +104,52 @@ public class ClassifyCmd
      */
     private int                 mode;
     
-    /** 
-     * Represents the Image to classify/declassify.
-     * If <code>null</code>, no action is taken.
-     */
-    private ImageData           img;
+    /** The images to classify/declassify. */
+    private ImageData[]         images;
     
     /** The window from which this command was invoked. */
     private JFrame              owner;
     
-    
     /**
      * Creates a new command to classify/declassify the specified Image.
      * 
-     * @param img   Represents the Image to classify/declassify.
-     *              If <code>null</code>, no acion is taken.
-     * @param mode  The classification mode.  This is one of the constants 
-     *              defined by the {@link Classifier} interface and tells 
-     *              whether we're classifying or declassifying.
-     * @param owner The window from which this command was invoked.
-     *              Mustn't be <code>null</code>.
+     * @param images    Represents the Image to classify/declassify.
+     *                  If <code>null</code>, no acion is taken.
+     * @param mode      The classification mode.  This is one of the constants 
+     *                  defined by the {@link Classifier} interface and tells 
+     *                  whether we're classifying or declassifying.
+     * @param owner     The window from which this command was invoked.
+     *                  Mustn't be <code>null</code>.
      */
-    public ClassifyCmd(ImageData img, int mode, JFrame owner)
+    public ClassifyCmd(ImageData[] images, int mode, JFrame owner)
     {
         if (owner == null) throw new NullPointerException("No owner.");
-        this.img = img;
+        this.images = images;
         this.mode = mode;
         this.owner = owner;
     }
      
+    /**
+     * Creates a new command to classify/declassify the specified Image.
+     * 
+     * @param image    Represents the Image to classify/declassify.
+     *                  If <code>null</code>, no acion is taken.
+     * @param mode      The classification mode.  This is one of the constants 
+     *                  defined by the {@link Classifier} interface and tells 
+     *                  whether we're classifying or declassifying.
+     * @param owner     The window from which this command was invoked.
+     *                  Mustn't be <code>null</code>.
+     */
+    public ClassifyCmd(ImageData image, int mode, JFrame owner)
+    {
+        if (owner == null) throw new NullPointerException("No owner.");
+        if (image != null) {
+            images = new ImageData[1];
+            images[0] = image;
+        }
+        this.mode = mode;
+        this.owner = owner;
+    }
     /**
      * Creates a new command to classify/declassify the Image in the browser's
      * currently selected node, if the node is an Image node.
@@ -131,7 +163,7 @@ public class ClassifyCmd
      */
     public ClassifyCmd(HiViewer model, int mode) 
     { 
-        this(getImage(model), mode, model.getUI()); 
+        this(getImages(model), mode, model.getUI()); 
     }
     
     /** 
@@ -141,9 +173,9 @@ public class ClassifyCmd
      */
     public void execute()
     {
-        if (img == null) return;
+        if (images == null) return;
         Classifier classifier = ClassifierFactory.createComponent(
-                                                    mode, img, owner);
+                                                    mode, images, owner);
         classifier.activate();
     }
 
