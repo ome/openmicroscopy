@@ -92,6 +92,14 @@ public class ViewAction
         Object ho = selectedDisplay.getUserObject();
         if (ho == null || !(ho instanceof DataObject)) setEnabled(false);
         else {
+            Browser browser = model.getSelectedBrowser();
+            if (browser != null) {
+                if (browser.getSelectedDisplays().length > 1) {
+                    setEnabled(true);
+                    putValue(Action.NAME, BROWSE);
+                    return;
+                }
+            }
             if ((ho instanceof ImageData)) putValue(Action.NAME, VIEW);   
             else putValue(Action.NAME, BROWSE);
             setEnabled(true);

@@ -31,9 +31,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 
-
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -42,6 +39,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -82,6 +80,13 @@ public class AnnotateAction
         if (selectedDisplay == null) {
             setEnabled(false);
             return;
+        }
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+            if (browser.getSelectedDisplays().length > 1) {
+                setEnabled(false);
+                return;
+            }
         }
         Object ho = selectedDisplay.getUserObject();
         setEnabled((ho instanceof ImageData) || (ho instanceof DatasetData));
