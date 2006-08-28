@@ -65,10 +65,7 @@ class BrowserModel
     extends AbstractComponent
     implements Browser
 {
-    
-    /** The currently selected node in the visualization tree. */
-    //private ImageDisplay    selectedDisplay;
-    
+
     /** 
      * Tells if a thumbnail has been selected in the case the 
      * last selected display is an {@link ImageNode}. 
@@ -162,9 +159,9 @@ class BrowserModel
         this.multiSelection = multiSelection;
         Set oldValue = new HashSet(selectedDisplays.size());
         Iterator i = selectedDisplays.iterator();
-        while (i.hasNext()) {
+        while (i.hasNext())
             oldValue.add(i.next());
-        }
+        
         if (!multiSelection)
             selectedDisplays.removeAll(selectedDisplays);
         selectedDisplays.add(node);

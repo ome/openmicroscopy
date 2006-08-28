@@ -179,11 +179,13 @@ class BrowserControl
     {
         ImageDisplay d = findParentDisplay(me.getSource());
         d.moveToFront();
+        ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+        boolean b = (me.getModifiers() & InputEvent.SHIFT_MASK) == 
+                    InputEvent.SHIFT_MASK;
+        
         if (d instanceof ImageNode) {
-            if ((me.getModifiers() & InputEvent.SHIFT_MASK) == 
-                InputEvent.SHIFT_MASK)
-                model.setSelectedDisplay(d, true);
-            else model.setSelectedDisplay(d);
+            if (!(previousDisplay instanceof ImageNode)) b = false;
+            model.setSelectedDisplay(d, b);
         } else model.setSelectedDisplay(d);
         if (me.isPopupTrigger()) popupTrigger = true;
     }
