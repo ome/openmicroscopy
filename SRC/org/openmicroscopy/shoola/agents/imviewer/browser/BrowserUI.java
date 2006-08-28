@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
@@ -64,9 +63,6 @@ class BrowserUI
     /** Location of the top left corner of the image. */
     static final int            TOP_LEFT_IMAGE = 35;
     
-    /** Color of the background. */
-    private static final Color  BACKGROUND = new Color(204, 204, 255);
-    
     /**
      * The Layered pane hosting the {@link BrowserCanvas} and any other 
      * UI components added on top of it.
@@ -95,7 +91,22 @@ class BrowserUI
     private void buildGUI()
     {
         getViewport().add(layeredPane);
-        getViewport().setBackground(BACKGROUND);
+    }
+    
+    /**
+     * Sets the size of the components b/c a layeredPane doesn't have a layout
+     * manager.
+     * 
+     * @param w The width to set.
+     * @param h The height to set.
+     */
+    private void setComponentsSize(int w, int h)
+    {
+        Dimension d = new Dimension(w, h);
+        layeredPane.setPreferredSize(d);
+        layeredPane.setSize(d);
+        browserCanvas.setPreferredSize(d);
+        browserCanvas.setSize(d);
     }
     
     /** Creates a new instance. */
@@ -118,23 +129,7 @@ class BrowserUI
         initComponents();
         buildGUI();
     }
-    
-    /**
-     * Sets the size of the components b/c a layeredPane doesn't have a layout
-     * manager.
-     * 
-     * @param w The width to set.
-     * @param h The height to set.
-     */
-    void setComponentsSize(int w, int h)
-    {
-        Dimension d = new Dimension(w, h);
-        layeredPane.setPreferredSize(d);
-        layeredPane.setSize(d);
-        browserCanvas.setPreferredSize(d);
-        browserCanvas.setSize(d);
-    }
-    
+
     /**
      * Adds the component to the {@link #layeredPane}. The component will
      * be added to the top of the pile

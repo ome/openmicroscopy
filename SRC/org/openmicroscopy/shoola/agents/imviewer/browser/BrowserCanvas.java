@@ -43,7 +43,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -80,7 +79,7 @@ class BrowserCanvas
     private static final Color          UNIT_BAR_COLOR = Color.GRAY;
     
     /** Color of the axis. */
-    private static final Color          AXIS_COLOR = Color.BLACK;
+    private static final Color          AXIS_COLOR = Color.GRAY;
     
     /** Location to the origin of the frame. */
     private static final int            ORIGIN_FRAME = 
@@ -152,23 +151,6 @@ class BrowserCanvas
         g2D.setStroke(UNIT_BAR_STROKE);
         g2D.drawLine(x, y, x+l, y);
     }
- 
-    /**
-     * Sets the location of the canvas.
-     * 
-     * @param w The width of the canvas.
-     * @param h The height of the canvas.
-     */
-    private void setCanvasLocation(int w, int h)
-    {
-        Rectangle r = view.getViewportBorderBounds();
-        int x = ((r.width-w)/2);
-        int y = ((r.height-h)/2);
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        view.setComponentsSize(w, h);
-        setBounds(x, y, w, h);
-    }
     
     /**
      * Creates a new instance.
@@ -184,7 +166,6 @@ class BrowserCanvas
         this.view = view;
         charWidth = getFontMetrics(getFont()).charWidth('m');
         setDoubleBuffered(true);
-        setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
         dragging = false;
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -230,6 +211,7 @@ class BrowserCanvas
     {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
+        
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             RenderingHints.VALUE_ANTIALIAS_ON);
         g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -239,8 +221,7 @@ class BrowserCanvas
         BufferedImage image = model.getDisplayedImage();
         if (image == null) return;
         paintXYFrame(g2D);
-        setCanvasLocation(image.getWidth()+2*BrowserUI.TOP_LEFT_IMAGE,
-                            image.getHeight()+2*BrowserUI.TOP_LEFT_IMAGE);
+        System.out.println(model.getPixelsSizeX());
         double v = 1;//model.getPixelsSizeX()/model.getZoomFactor();
         if (v > 0) {
             int h = image.getHeight()+3*BrowserUI.TOP_LEFT_IMAGE/2;
