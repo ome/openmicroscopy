@@ -34,6 +34,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -64,26 +67,6 @@ public abstract class HiViewerAction
     extends AbstractAction
     implements ChangeListener, PropertyChangeListener
 {
-    
-    /**
-     * Handles the selection of a node.
-     * 
-     * @param newValue The new value.
-     * @param oldValue The old value.
-     */
-    private void onSelectedDisplay(Object newValue, Object oldValue)
-    {
-        if (!(newValue.equals(oldValue)) && newValue != null) {
-            ImageDisplay oldNode, newNode;
-            Colors colors = Colors.getInstance();
-            newNode = (ImageDisplay) newValue;
-            newNode.setHighlight(colors.getSelectedHighLight(newNode));
-            if (oldValue != null) {
-                oldNode = (ImageDisplay) oldValue;
-                oldNode.setHighlight(colors.getDeselectedHighLight(oldNode));
-            }
-        }
-    }
     
     /** A reference to the Model. */
     protected HiViewer      model;
@@ -131,10 +114,7 @@ public abstract class HiViewerAction
     public void propertyChange(PropertyChangeEvent evt)
     {
         String propName = evt.getPropertyName();
-        if (propName.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
-            onSelectedDisplay(evt.getNewValue(), evt.getOldValue());
-        }
-        onDisplayChange(model.getBrowser().getSelectedDisplay());
+        onDisplayChange(model.getBrowser().getLastSelectedDisplay());
     }
 
     /** 

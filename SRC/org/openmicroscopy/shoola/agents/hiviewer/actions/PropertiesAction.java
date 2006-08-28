@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Set;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -75,7 +77,9 @@ public class PropertiesAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        setEnabled(!(selectedDisplay.getParentDisplay() == null));
+        Set nodes = model.getBrowser().getSelectedDisplays();
+        if (nodes.size() > 1) setEnabled(false);
+        else setEnabled(!(selectedDisplay.getParentDisplay() == null));
     }
     
     /**

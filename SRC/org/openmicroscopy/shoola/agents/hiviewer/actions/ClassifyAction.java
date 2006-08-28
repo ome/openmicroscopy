@@ -66,7 +66,7 @@ public class ClassifyAction
     private static final String NAME = "Add to category";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Classify the selected image " +
+    private static final String DESCRIPTION = "Classify the selected images " +
                                                 "in a category.";
     
     
