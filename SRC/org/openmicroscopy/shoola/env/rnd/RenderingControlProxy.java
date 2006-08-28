@@ -549,6 +549,7 @@ class RenderingControlProxy
     public float getPixelsSizeX()
     {
         if (pixDims.getSizeX() == null) return 1;
+        System.out.println("dim "+ pixDims.getSizeX().floatValue());
         return pixDims.getSizeX().floatValue();
     }
 
