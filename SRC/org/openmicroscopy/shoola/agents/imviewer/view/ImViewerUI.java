@@ -57,7 +57,9 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * The {@link ImViewer} view.
+ * Embeds the {@link Browser}. Also provides a menu bar, a status bar and a 
+ * panel hosting various controls.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -108,6 +110,9 @@ class ImViewerUI
     /** The loading window. */
     private LoadingWindow   loadingWindow;
     
+    /** The windows menu. */
+    private JMenu           windowsMenu;
+    
     /** 
      * Creates the menu bar.
      * 
@@ -119,6 +124,7 @@ class ImViewerUI
         menuBar.add(createControlsMenu());
         menuBar.add(createZoomMenu());
         menuBar.add(createRatingMenu());
+        menuBar.add(windowsMenu);
         return menuBar;
     }
     
@@ -302,6 +308,13 @@ class ImViewerUI
         return menu;
     }
     
+    /** Helper method to create the Windows menu. */
+    private void createWindowsMenu()
+    {
+        windowsMenu = new JMenu("Window");
+        windowsMenu.setMnemonic(KeyEvent.VK_W);
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -329,6 +342,7 @@ class ImViewerUI
     {
         super(title);
         loadingWindow = new LoadingWindow(this);
+        createWindowsMenu();
     }
     
     /**
@@ -350,6 +364,13 @@ class ImViewerUI
         IconManager im = IconManager.getInstance();
         statusBar = new StatusBar(im.getIcon(IconManager.STATUS_INFO));
     }
+    
+    /** 
+     * Returns the <code>windows</code> menu. 
+     * 
+     * @return See above.
+     */
+    JMenu getWindowsMenu() { return windowsMenu; }
     
     /** 
      * This method should be called straight after the metadata and the
@@ -448,10 +469,12 @@ class ImViewerUI
         controlPane.setTimepoint(t);
     }
 
-    LoadingWindow getLoadingWindow()
-    {
-        return loadingWindow;
-    }
+    /**
+     * Returns the {@link #loadingWindow}.
+     * 
+     * @return See above.
+     */
+    LoadingWindow getLoadingWindow() { return loadingWindow; }
 
     /** 
      * Reacts to {@link ImViewer} change events.
@@ -487,7 +510,7 @@ class ImViewerUI
     {
         controlPane.setChannelsSelection();
     }
-    
+
     /** 
      * Overriden to set the size of the window. 
      * @see TopWindow#setOnScreen()

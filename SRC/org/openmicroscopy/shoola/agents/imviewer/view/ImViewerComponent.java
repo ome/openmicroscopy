@@ -137,6 +137,7 @@ class ImViewerComponent
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
             default:
+                iconified(false);
         }
     }
 
@@ -667,6 +668,18 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         return model.getPixelsSizeX();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getViewTitle()
+     */
+    public String getViewTitle()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED state.");
+        return view.getTitle();
     }
    
 }
