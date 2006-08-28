@@ -208,7 +208,7 @@ class ClipBoardComponent
         view.setSelectedPane(index);
         if (node == null)
             view.onDisplayChange(
-                    model.getParentModel().getBrowser().getSelectedDisplay());
+                    model.getParentModel().getBrowser().getLastSelectedDisplay());
         if (index != ANNOTATION_PANE) discardAnnotation();
     }
 
@@ -328,5 +328,5 @@ class ClipBoardComponent
         // TODO Auto-generated method stub
         return model.getParentModel().getHierarchyObject();
     }
-    
+
 }

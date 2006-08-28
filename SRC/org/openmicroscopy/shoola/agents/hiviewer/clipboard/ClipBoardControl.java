@@ -33,6 +33,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -87,20 +90,8 @@ class ClipBoardControl
      */
     private void handleBrowserSelectedDisplay(PropertyChangeEvent pce)
     {
-        if (!(pce.getNewValue().equals(pce.getOldValue())) 
-                && pce.getNewValue() != null) {
-            ImageDisplay oldNode, newNode;
-            Colors colors = Colors.getInstance();
-            newNode = (ImageDisplay) pce.getNewValue();
-            newNode.setHighlight(colors.getSelectedHighLight(newNode));
-            if (pce.getOldValue() != null) {
-                oldNode = (ImageDisplay) pce.getOldValue();
-                oldNode.setHighlight(
-                        colors.getDeselectedHighLight(oldNode));
-            }
-        }
         ImageDisplay node = 
-            model.getParentModel().getBrowser().getSelectedDisplay();
+            model.getParentModel().getBrowser().getLastSelectedDisplay();
         view.onDisplayChange(node);
     }
     

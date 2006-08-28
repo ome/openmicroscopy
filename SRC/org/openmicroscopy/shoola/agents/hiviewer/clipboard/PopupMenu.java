@@ -30,19 +30,19 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -58,12 +57,8 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Pop-up menu for nodes in the clipboard display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
