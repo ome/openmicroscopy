@@ -89,15 +89,15 @@ class AddModel
     {
         state = Classifier.SAVING_METADATA;
         loader = new ClassificationSaver(component, 
-                    ClassificationSaver.CLASSIFY, image, categories);
+                    ClassificationSaver.CLASSIFY, images, categories);
         loader.load();
     }
 
     /**
      * Creates a new instance.
      * 
-     * @param image The image the component will be working with.
+     * @param images The images the component will be working with.
      */
-    AddModel(ImageData image) { super(image); }
+    AddModel(ImageData[] images) { super(images); }
 
 }

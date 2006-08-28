@@ -116,9 +116,9 @@ class ClassifierComponent
 
     /**
      * Implemented as specified by the {@link Classifier} interface.
-     * @see Classifier#getImage()
+     * @see Classifier#getImages()
      */
-    public ImageData getImage() { return model.getImage(); }
+    public ImageData[] getImages() { return model.getImages(); }
 
     /**
      * Implemented as specified by the {@link Classifier} interface.

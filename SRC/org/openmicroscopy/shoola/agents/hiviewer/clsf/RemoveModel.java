@@ -89,15 +89,15 @@ class RemoveModel
     {
         state = Classifier.SAVING_METADATA;
         loader = new ClassificationSaver(component, 
-                    ClassificationSaver.DECLASSIFY, image, categories);
+                    ClassificationSaver.DECLASSIFY, images, categories);
         loader.load();
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param image The image the component will be working with.
+     * @param images The images the component will be working with.
      */
-    RemoveModel(ImageData image) { super(image); }
+    RemoveModel(ImageData[] images) { super(images); }
 
 }

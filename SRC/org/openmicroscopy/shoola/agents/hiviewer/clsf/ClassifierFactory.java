@@ -58,17 +58,17 @@ public class ClassifierFactory
     
     /**
      * Creates a {@link Classifier} component to classify the specified
-     * Image.
+     * images.
      * 
-     * @param image The image to classify.
-     * @param owner The window from which the component is invoked.
-     *              Mustn't be <code>null</code>.
+     * @param images    The images to classify.
+     * @param owner     The window from which the component is invoked.
+     *                  Mustn't be <code>null</code>.
      * @return A {@link Classifier} to classify the given Image.
      */
-    public static Classifier createClassifComponent(ImageData image,
+    public static Classifier createClassifComponent(ImageData[] images,
                                                     JFrame owner)
     {
-        AddModel model = new AddModel(image);
+        AddModel model = new AddModel(images);
         ClassifierComponent comp = new ClassifierComponent(model);
         comp.initialize(owner);
         return comp;
@@ -76,17 +76,17 @@ public class ClassifierFactory
     
     /**
      * Creates a {@link Classifier} component to declassify the specified
-     * Image.
+     * images.
      * 
-     * @param image The image to declassify.
-     * @param owner The window from which the component is invoked.
-     *              Mustn't be <code>null</code>.
+     * @param images    The images to declassify.
+     * @param owner     The window from which the component is invoked.
+     *                  Mustn't be <code>null</code>.
      * @return A {@link Classifier} to declassify the given Image.
      */
-    public static Classifier createDeclassifComponent(ImageData image,
+    public static Classifier createDeclassifComponent(ImageData[] images,
                                                     JFrame owner)
     {
-        RemoveModel model = new RemoveModel(image);
+        RemoveModel model = new RemoveModel(images);
         ClassifierComponent comp = new ClassifierComponent(model);
         comp.initialize(owner);
         return comp;
@@ -96,23 +96,23 @@ public class ClassifierFactory
      * Creates a {@link Classifier} component to classify/declassify the
      * specified Image, depending on <code>mode</code>.
      * 
-     * @param mode  One of the classification mode constants defined by the 
-     *              {@link Classifier} interface.
-     * @param image The image to declassify.
-     * @param owner The window from which the component is invoked.
-     *              Mustn't be <code>null</code>.
-     * @return      A {@link Classifier} to classify or declassify the given 
-     *              Image, depending on the value of the <code>mode</code>
-     *              constant.
+     * @param mode      One of the classification mode constants defined by the 
+     *                  {@link Classifier} interface.
+     * @param images    The images to classify or declassify.
+     * @param owner     The window from which the component is invoked.
+     *                  Mustn't be <code>null</code>.
+     * @return          A {@link Classifier} to classify or declassify the given 
+     *                  images, depending on the value of the <code>mode</code>
+     *                  constant.
      */
-    public static Classifier createComponent(int mode, ImageData image,
+    public static Classifier createComponent(int mode, ImageData[] images,
                                              JFrame owner)
     {
         switch (mode) {
             case Classifier.CLASSIFICATION_MODE:
-                return createClassifComponent(image, owner);
+                return createClassifComponent(images, owner);
             case Classifier.DECLASSIFICATION_MODE:
-                return createDeclassifComponent(image, owner);
+                return createDeclassifComponent(images, owner);
             default:
                 throw new IllegalArgumentException(
                         "Unsupported classification mode: "+mode+".");

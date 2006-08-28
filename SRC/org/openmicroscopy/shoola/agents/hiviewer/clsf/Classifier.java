@@ -128,11 +128,11 @@ public interface Classifier
     public int getState();
     
     /**
-     * Returns the image this component is for.
+     * Returns the images this component is for.
      * 
      * @return See above.
      */
-    public ImageData getImage();
+    public ImageData[] getImages();
     
     /**
      * Starts the data loading process when the current state is {@link #NEW} 
@@ -196,7 +196,6 @@ public interface Classifier
      * Any ongoing data loading is cancelled.
      */
     public void discard();
-
     
     /**
      * Sets the categories in which the image has been added to or removed from.
@@ -204,7 +203,5 @@ public interface Classifier
      * @param categories The categories. 
      */
     public void saveClassification(Set categories);
-    
-    
     
 }

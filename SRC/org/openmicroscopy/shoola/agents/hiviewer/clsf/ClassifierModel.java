@@ -82,8 +82,8 @@ abstract class ClassifierModel
     /** Loads all the required metadata. */
     protected ClassifLoader     loader;
     
-    /** The image this Model is for. */
-    protected ImageData         image;
+    /** The images this Model is for. */
+    protected ImageData[]       images;
     
     /** Reference to the component that embeds this model. */
     protected Classifier        component;
@@ -94,11 +94,15 @@ abstract class ClassifierModel
      * The {@link #initialize(Classifier) initialize} method should be
      * called straight after creation to complete initialization.
      * 
-     * @param image The image this Model is for.
+     * @param images The images this Model is for.
      */
-    protected ClassifierModel(ImageData image) 
+    protected ClassifierModel(ImageData[] images) 
     { 
-        this.image = image;
+        if (images == null)
+            throw new IllegalArgumentException("No image.");
+        if (images.length == 0)
+            throw new IllegalArgumentException("No image.");
+        this.images = images;
         state = Classifier.NEW; 
     }
     
@@ -118,10 +122,11 @@ abstract class ClassifierModel
     int getState() { return state; }
     
     /**
-     * Returns the image this Model is working with.
+     * Returns the images this Model is working with.
+     * 
      * @return See above.
      */
-    ImageData getImage() { return image; }
+    ImageData[] getImages() { return images; }
     
     /**
      * Starts the asynchronous retrieval of the metadata needed by this
