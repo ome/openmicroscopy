@@ -109,6 +109,18 @@ public class MoviePlayerDialog
         buildGUI();
     }
 
+    /**
+     * Swaps the <code>Play</code> and <code>Pause</code> icons depending on the 
+     * specified flag.
+     * 
+     * @param b Pass <code>true</code> to set the <code>Pause</code> icon
+     *          <code>false</code> to set the <code>Play</code> icon.
+     */
+    void setMoviePlay(boolean b)
+    { 
+        if (uiDelegate != null) uiDelegate.setMoviePlay(b); 
+    }
+    
     /** 
      * Fires an event to render the plane specified by the z-section and 
      * timepoint.

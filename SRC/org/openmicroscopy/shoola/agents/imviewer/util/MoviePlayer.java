@@ -476,6 +476,7 @@ class MoviePlayer
     {
         switch (state) {
             case START:
+                /*
                 if (historyState == Player.PAUSE) {
                     switch (index) {
                         case ACROSS_Z:
@@ -484,16 +485,23 @@ class MoviePlayer
                             break;
                         case ACROSS_T:
                             //if (movieType == BACKWARD) frameNumberT = endT;
-                            //else frameNumberT = startT;
+                           // else frameNumberT = startT;
                             break;
                     }
                 }
+                */
+                parent.setMoviePlay(true);
                 timer.start();
                 break;
             case STOP:
+                parent.setMoviePlay(false);
                 timer.stop();
                 setFrameNumbers();
                 up = true;
+                break;
+            case PAUSE:
+                parent.setMoviePlay(false);
+                timer.stop();
         }  
     }
     

@@ -399,6 +399,7 @@ class MoviePlayerUI
         endT.setEnabled(maxT != 0);
         acrossZ.setEnabled(maxZ != 0);
         acrossT.setEnabled(maxT != 0);
+        acrossZT.setEnabled(!((maxZ == 0) || (maxT == 0)));
         int index = model.getMovieIndex();
 
         if (index == MoviePlayer.ACROSS_Z) {
@@ -406,8 +407,7 @@ class MoviePlayerUI
         } else if (index == MoviePlayer.ACROSS_T) {
             acrossT.setSelected(true);
         } else if (index == MoviePlayer.ACROSS_ZT) {
-            acrossT.setSelected(true);
-            acrossZ.setSelected(true);
+            acrossZT.setSelected(true);
         }
     }
     
