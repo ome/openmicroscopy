@@ -233,6 +233,12 @@ public class OmeroContext extends ClassPathXmlApplicationContext
         OmeroContext ctx = (OmeroContext) 
         ContextSingletonBeanFactoryLocator.getInstance()
             .useBeanFactory(beanFactoryName).getFactory();
+        try 
+        {
+        	ctx.getBeanFactory();
+        } catch (IllegalStateException ise) {
+        	ctx.refresh();
+        }
         return ctx;
     }
 

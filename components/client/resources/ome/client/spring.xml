@@ -56,21 +56,21 @@
   
 -->
 
-	<beans>	
+<beans>	
 
   <!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_FALLBACK"/>
-    <property name="ignoreResourceNotFound" value="true"/>
-    <property name="localOverride" value="true"/>
-    <property name="properties" ref="properties"/>
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="localOverride" value="true"/>
+		<property name="properties" ref="properties"/>
 		<property name="locations">
 		<list>
 			<value>classpath:omero.properties</value>
  			<value>classpath:hibernate.properties</value>      
  			<value>classpath:jndi.properties</value>
-      <value>classpath:local.properties</value>
+ 			<value>classpath:local.properties</value>
 		</list>
 		</property>
 	</bean>
@@ -83,7 +83,7 @@
 	</bean>
 
   <!-- properly configured principal for login -->
-	<bean id="rootLogin" class="ome.system.Login">
+	<bean id="rootLogin" class="ome.system.Login" lazy-init="true">
 		<constructor-arg index="0" value="root"/>
 		<constructor-arg index="1" value="${omero.rootpass}"/>     
 		<constructor-arg index="2" value="system"/>
@@ -127,6 +127,11 @@
   <bean id="managed:ome.api.IAnalysis" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IAnalysis"/>
     <property name="proxyInterface" value="ome.api.IAnalysis"/>
+  </bean>
+
+  <bean id="managed:ome.api.IConfig" parent="statelessJndi">
+    <property name="jndiName" value="omero/remote/ome.api.IConfig"/>
+    <property name="proxyInterface" value="ome.api.IConfig"/>
   </bean>
 
   <bean id="managed:ome.api.IPixels" parent="statelessJndi">

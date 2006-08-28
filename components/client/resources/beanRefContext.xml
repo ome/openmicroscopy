@@ -34,12 +34,33 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 <beans>
-  <description>
-  Client OmeroContext. This context can be created by calling 
-  OmeroContext.getClientContext() or OmeroContext.getInstance("ome.client")
-  methods. See ome/client/spring.xml for more information about what 
-  is available in this context.
-  </description>
+
+  <bean    id="ome.client"
+    	  class="ome.system.OmeroContext"
+    lazy-init="true">
+    <description>
+    Client OmeroContext. This context can be created by calling 
+    OmeroContext.getClientContext() or OmeroContext.getInstance("ome.client")
+    methods. See ome/client/spring.xml for more information about what 
+    is available in this context.
+  
+    Relies to a java.util.Properties instance specified
+    either in the "ome.client.internal" context or provided by the user via
+    ServiceFactory(Server,Login). In order to achieve this, this context is NOT
+    eagerly loaded (see ctor-arg index=1 below) unlike all other contexts in our
+    beanRefContext.xml files. For this to work, OmeroContext checks all contexts
+    for readiness and if not ready, calls "refresh()".
+
+    @see https://trac.openmicroscopy.org.uk/omero/ticket/313
+    </description>
+    <constructor-arg>
+    	<list>
+        <value>ome/client/spring.xml</value>
+      </list>
+    </constructor-arg>      
+    <constructor-arg index="1" value="false"/>
+    <constructor-arg index="2" ref="ome.client.internal"/>      
+  </bean>
 
   <bean    id="ome.client.internal"
     	  class="ome.system.OmeroContext"
@@ -49,18 +70,6 @@
         <value>ome/client/internal.xml</value>
       </list>
     </constructor-arg>
-  </bean>
-  
-  <bean    id="ome.client"
-    	  class="ome.system.OmeroContext"
-    lazy-init="true">
-    <constructor-arg>
-    	<list>
-        <value>ome/client/spring.xml</value>
-      </list>
-    </constructor-arg>      
-    <constructor-arg index="1" value="true"/>
-    <constructor-arg index="2" ref="ome.client.internal"/>      
   </bean>
 
   <bean    id="ome.client.test"

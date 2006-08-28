@@ -3,4 +3,15 @@
    
 	<import file="classpath.xml"/>
 	
+	<target name="package" depends="lifecycle.package">
+		<jar update="true"
+		  destfile="${target.dir}/${artifact.final.name}">
+			<fileset dir="${classes.dir}">
+				<include name="omero.properties"/>
+				<include name="hibernate.properties"/>
+				<include name="jndi.properties"/>
+			</fileset>
+		</jar>
+	</target>
+	
 </project>
