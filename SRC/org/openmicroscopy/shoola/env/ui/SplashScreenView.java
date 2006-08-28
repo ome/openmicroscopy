@@ -140,7 +140,7 @@ class SplashScreenView
 	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
     /** The client's version. */
-    private static final String     VERSION = "3.0_M2 ";
+    private static final String     VERSION = "3.0_M3 ";
     
     /** The server's version. For developers' purpose only. */
     private static final String     OMERO_VERSION = " server: OMERO M3";
