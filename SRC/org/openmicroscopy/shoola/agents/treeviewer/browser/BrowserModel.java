@@ -74,8 +74,11 @@ class BrowserModel
     /** The type of Browser. */
     private int                 browserType;
     
+    /** The collection of selected nodes in the visualization tree. */
+    private Set                selectedNodes;
+    
     /** The currently selected node in the visualization tree. */
-    private TreeImageDisplay    selectedDisplay;
+    //private TreeImageDisplay    selectedDisplay;
     
     /** Holds one of the state flags defined by {@link Browser}. */
     private int                 state;
@@ -153,6 +156,7 @@ class BrowserModel
         clickPoint = null;
         filterType = Browser.IN_DATASET_FILTER;
         foundNodeIndex = -1;
+        selectedNodes = new HashSet();
     }
 
     /**
@@ -183,7 +187,42 @@ class BrowserModel
      * 
      * @return See above.
      */
-    TreeImageDisplay getSelectedDisplay() { return selectedDisplay; }
+    TreeImageDisplay getLastSelectedDisplay()
+    { 
+        int n = selectedNodes.size();
+        if (n == 0) return null;
+        Iterator i = selectedNodes.iterator();
+        int index = 0;
+        while (i.hasNext()) {
+            if (index == (n-1)) return (TreeImageDisplay) i.next();
+            index++;
+        }
+        return null;
+    }
+    
+    /**
+     * Returns an array with all the selected nodes.
+     * 
+     * @return See above.
+     */
+    TreeImageDisplay[] getSelectedDisplays()
+    {
+        if (selectedNodes.size() == 0) return new TreeImageDisplay[0];
+        return (TreeImageDisplay[]) selectedNodes.toArray(
+                new TreeImageDisplay[selectedNodes.size()]);
+    }
+    
+    /**
+     * Sets the selected nodes.
+     * 
+     * @param nodes The nodes to set.
+     */
+    void setSelectedDisplays(TreeImageDisplay[] nodes) 
+    {
+        selectedNodes.removeAll(selectedNodes);
+        for (int i = 0; i < nodes.length; i++)
+            selectedNodes.add(nodes[i]);
+    }
     
     /**
      * Sets the currently selected node.
@@ -192,7 +231,10 @@ class BrowserModel
      */
     void setSelectedDisplay(TreeImageDisplay selectedDisplay)
     {
-        this.selectedDisplay = selectedDisplay;
+        selectedNodes.removeAll(selectedNodes);
+        if (selectedDisplay == null) return;
+        selectedNodes.add(selectedDisplay);
+        //this.selectedDisplay = selectedDisplay;
     }
     
     /**
@@ -265,7 +307,8 @@ class BrowserModel
      */
     void fireLeavesLoading()
     {
-        Object ho = selectedDisplay.getUserObject();
+        System.out.println(getLastSelectedDisplay());
+        Object ho = getLastSelectedDisplay().getUserObject();
         long id = 0;
         Class nodeType = null;
         if (ho instanceof DatasetData) {
@@ -305,6 +348,7 @@ class BrowserModel
      */
     void fireContainerLoading()
     {
+        TreeImageDisplay selectedDisplay = getLastSelectedDisplay();
         if (selectedDisplay == null) return;
         Object ho = selectedDisplay.getUserObject();
         long id = -1;
@@ -387,6 +431,7 @@ class BrowserModel
      */
     void refreshSelectedDisplay()
     {
+        TreeImageDisplay selectedDisplay = getLastSelectedDisplay();
         if (selectedDisplay == null) return;
         Object ho = selectedDisplay.getUserObject();
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData))

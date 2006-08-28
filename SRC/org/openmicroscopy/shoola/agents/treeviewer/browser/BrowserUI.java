@@ -37,6 +37,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
@@ -172,9 +173,19 @@ class BrowserUI
         Point p = me.getPoint();
         int row = treeDisplay.getRowForLocation(p.x, p.y);
         if (row != -1) {
-            treeDisplay.setSelectionRow(row);
+            //treeDisplay.setSelectionRow(row);
             model.setClickPoint(p);
-            controller.onClick(me.isPopupTrigger());
+            int ie = me.getModifiers();
+            boolean multiSelection = false;
+            multiSelection = 
+                (ie & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK;
+            if (!multiSelection) 
+                multiSelection = 
+                    (ie & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK;
+            if (!multiSelection) 
+                multiSelection = 
+                  (ie & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK;
+            controller.onClick(me.isPopupTrigger(), multiSelection);
         }
     }
     
@@ -187,7 +198,7 @@ class BrowserUI
         treeDisplay.setShowsRootHandles(true);
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.SINGLE_TREE_SELECTION);
+                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         TreeImageSet root = new TreeImageSet(getBrowserTitle());
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
@@ -349,7 +360,7 @@ class BrowserUI
      */
     void setLeavesViews(Set nodes)
     {
-        TreeImageDisplay node = model.getSelectedDisplay();
+        TreeImageDisplay node = model.getLastSelectedDisplay();
         if (node instanceof TreeImageNode) return;
         node.removeAllChildren();
         node.setChildrenLoaded(Boolean.TRUE);
@@ -509,7 +520,6 @@ class BrowserUI
         TreeImageDisplay node;
         while (i.hasNext()) {
             node = (TreeImageDisplay) i.next();
-            System.out.println("Node: "+node+" object "+object);
             node.setUserObject(object);
             dtm.nodeChanged(node);
         }

@@ -119,9 +119,9 @@ class BrowserComponent
     private void removeNodes(List nodes)
     {
         TreeImageDisplay parentDisplay;
-        if (getSelectedDisplay() == null) parentDisplay = view.getTreeRoot();
+        if (getLastSelectedDisplay() == null) parentDisplay = view.getTreeRoot();
         else {
-            parentDisplay = getSelectedDisplay().getParentDisplay();
+            parentDisplay = getLastSelectedDisplay().getParentDisplay();
         }   
         if (parentDisplay == null) parentDisplay = view.getTreeRoot();
         setSelectedDisplay(parentDisplay);
@@ -137,7 +137,7 @@ class BrowserComponent
      */
     private void createNodes(List nodes, TreeImageDisplay display)
     {
-        TreeImageDisplay parentDisplay = getSelectedDisplay();
+        TreeImageDisplay parentDisplay = getLastSelectedDisplay();
         if (parentDisplay == null) parentDisplay = view.getTreeRoot();
         setSelectedDisplay(display);
         view.createNodes(nodes, display, parentDisplay);
@@ -273,7 +273,7 @@ class BrowserComponent
              (state == COUNTING_ITEMS)) {
             model.cancel();
             if (state != COUNTING_ITEMS) 
-                view.cancel(model.getSelectedDisplay()); 
+                view.cancel(model.getLastSelectedDisplay()); 
             fireStateChange();
         }
     }
@@ -363,7 +363,7 @@ class BrowserComponent
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
-        TreeImageDisplay oldDisplay = model.getSelectedDisplay();
+        TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         if (oldDisplay != null && oldDisplay.equals(display)) return;
         model.setSelectedDisplay(display);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
@@ -395,11 +395,11 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getSelectedDisplay()
+     * @see Browser#getLastSelectedDisplay()
      */
-    public TreeImageDisplay getSelectedDisplay()
+    public TreeImageDisplay getLastSelectedDisplay()
     {
-        return model.getSelectedDisplay();
+        return model.getLastSelectedDisplay();
     }
 
     /**
@@ -578,7 +578,7 @@ class BrowserComponent
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
-        TreeImageDisplay display = model.getSelectedDisplay();
+        TreeImageDisplay display = model.getLastSelectedDisplay();
         if (display == null) return;
         if (!display.isChildrenLoaded()) return;
         TreeImageDisplay root = view.getTreeRoot();
@@ -630,7 +630,7 @@ class BrowserComponent
                     "This method can only be invoked in the LOADING_DATA "+
                     "state.");
         if (nodes == null) throw new NullPointerException("No nodes.");
-        TreeImageDisplay parentDisplay = model.getSelectedDisplay();
+        TreeImageDisplay parentDisplay = model.getLastSelectedDisplay();
         if (parent == null) { //root
             view.setViews(TreeViewerTranslator.transformHierarchy(nodes));
         }  else view.setViews(TreeViewerTranslator.transformContainers(nodes), 
@@ -843,7 +843,7 @@ class BrowserComponent
         }
         Object o = object;
         if (op == Editor.CREATE_OBJECT)
-            o = getSelectedDisplay().getUserObject();
+            o = getLastSelectedDisplay().getUserObject();
         EditVisitor visitor = new EditVisitor(this, o);
         accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
         List nodes = visitor.getFoundNodes();
@@ -856,9 +856,9 @@ class BrowserComponent
     
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#refreshClassification(ImageData, Set, int)
+     * @see Browser#refreshClassification(ImageData[], Set, int)
      */
-    public void refreshClassification(ImageData image, Set categories, int mode)
+    public void refreshClassification(ImageData[] images, Set categories, int m)
     {
         switch (model.getState()) {
             case NEW:
@@ -870,24 +870,30 @@ class BrowserComponent
         }
         if (categories == null)
             throw new IllegalArgumentException("Categories shouln't be null.");
-        if (image == null)
+        if (images == null)
             throw new IllegalArgumentException("No image.");
-        if (mode != Classifier.CLASSIFY_MODE && 
-            mode != Classifier.DECLASSIFY_MODE)
+        if (images.length == 0)
+            throw new IllegalArgumentException("No image.");
+        if (m != Classifier.CLASSIFY_MODE && 
+            m != Classifier.DECLASSIFY_MODE)
             throw new IllegalArgumentException("Classification mode not " +
                     "supported.");
-        ClassificationVisitor visitor = new ClassificationVisitor(this, image, 
-                                            categories);
-        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-        List nodes = visitor.getFoundNodes();
-        TreeImageDisplay d = TreeViewerTranslator.transformDataObject(image);
-        int editorType = model.getBrowserType();
-        if (editorType == CATEGORY_EXPLORER) {
-            if (mode == Classifier.CLASSIFY_MODE) createNodes(nodes, d);
-            else removeNodes(nodes);
-        } else if (editorType == HIERARCHY_EXPLORER || 
-                editorType == IMAGES_EXPLORER)
-            view.updateNodes(nodes, image);
+        for (int i = 0; i < images.length; i++) {
+            ImageData img = images[i];
+            ClassificationVisitor visitor = new ClassificationVisitor(this, 
+                                                    img, categories);
+            accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+            List nodes = visitor.getFoundNodes();
+            TreeImageDisplay d = TreeViewerTranslator.transformDataObject(img);
+            int editorType = model.getBrowserType();
+            if (editorType == CATEGORY_EXPLORER) {
+                if (m == Classifier.CLASSIFY_MODE) createNodes(nodes, d);
+                else removeNodes(nodes);
+            } else if (editorType == HIERARCHY_EXPLORER || 
+                    editorType == IMAGES_EXPLORER)
+                view.updateNodes(nodes, img);
+        }
+        
     }
 
     /**
@@ -932,6 +938,29 @@ class BrowserComponent
         LeavesVisitor visitor = new LeavesVisitor(this);
         accept(visitor);
         return visitor.getNodeIDs();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedDisplays()
+     */
+    public TreeImageDisplay[] getSelectedDisplays()
+    {
+        return model.getSelectedDisplays();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelectedDisplays(TreeImageDisplay[], boolean)
+     */
+    public void setSelectedDisplays(TreeImageDisplay[] nodes)
+    {
+        if (nodes.length == 0) return;
+        TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
+        TreeImageDisplay display = nodes[nodes.length-1];
+        if (oldDisplay != null && oldDisplay.equals(display)) return;
+        model.setSelectedDisplays(nodes);
+        firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
     }
     
 }

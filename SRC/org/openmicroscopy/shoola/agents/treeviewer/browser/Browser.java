@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -176,7 +178,7 @@ public interface Browser
     /**
      * Sets the selected {@link TreeImageDisplay node}.
      * 
-     * @param display The selected node.
+     * @param display           The selected node.
      */
     void setSelectedDisplay(TreeImageDisplay display);
     
@@ -254,7 +256,15 @@ public interface Browser
      * 
      * @return See above.
      */
-    public TreeImageDisplay getSelectedDisplay();
+    public TreeImageDisplay getLastSelectedDisplay();
+    
+    /**
+     * Returns an array containing the selected nodes. If there isn't a selected
+     * node. The array returned is of size <code>0</code>.
+     * 
+     * @return See above.
+     */
+    public TreeImageDisplay[] getSelectedDisplays();
     
     /** 
      * Collapses the specified node. 
@@ -464,14 +474,14 @@ public interface Browser
      *  
      * Refreshes the nodes hosting the specified <code>DataObject</code>.
      *
-     * @param image         The image classified or declassified. Mustn't 
+     * @param images        The image classified or declassified. Mustn't 
      *                      be <code>null</code>.
      * @param categories    The categories the image was added to or 
      *                      removed from. Mustn't be <code>null</code>.
      * @param op            The type of operation i.e. classification or 
      *                      declassification.
      */
-    public void refreshClassification(ImageData image, Set categories,
+    public void refreshClassification(ImageData[] images, Set categories,
                                         int op);
 
     /**
@@ -481,5 +491,13 @@ public interface Browser
      * @return See above.
      */
     public Set getLeaves();
+
+    /**
+     * Sets the nodes as the selected nodes. Should only be 
+     * <code>image</code> nodes.
+     * 
+     * @param nodes             The nodes to set.
+     */
+    public void setSelectedDisplays(TreeImageDisplay[] nodes);
     
 }

@@ -33,16 +33,19 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
@@ -51,6 +54,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.DatasetData;
@@ -191,15 +195,49 @@ class BrowserControl
     /**
      * Reacts to click events on the tree.
      * 
-     * @param popupTrigger  <code>true</code> is the event is the popup menu
-     *                      trigger event for the platform, <code>false</code>
-     *                      otherwise.
+     * @param popupTrigger      Pass <code>true</code> is the event is the popup
+     *                          menu trigger event for the platform, 
+     *                          <code>false</code> otherwise.
+     * @param multiSelection    Pass <code>true</code> if more than one node
+     *                          is selected, <code>false</code> otherwise.
+     *                          Note that node of the same type will be taken 
+     *                          into account.             
      */
-    void onClick(boolean popupTrigger)
+    void onClick(boolean popupTrigger, boolean multiSelection)
     {
-        Object node = view.getTreeDisplay().getLastSelectedPathComponent();
-        if (!(node instanceof TreeImageDisplay)) return;
-        model.setSelectedDisplay((TreeImageDisplay) node);
+        Object pathComponent;
+        TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
+        int n = paths.length;
+        if (n == 0) return;
+        pathComponent = paths[0].getLastPathComponent();
+        //Check if alls node are of the same type.
+        if (!(pathComponent instanceof TreeImageDisplay)) return;
+        TreeImageDisplay node = (TreeImageDisplay) pathComponent;
+        TreeImageDisplay no;
+        Object o;
+        ArrayList l = new ArrayList();
+        l.add(node);
+        for (int i = 1; i < n; i++) {
+            o = paths[i].getLastPathComponent();
+            if (o instanceof TreeImageDisplay) {
+                no = (TreeImageDisplay) o;
+                if (no.getUserObject().getClass().equals(
+                        node.getUserObject().getClass())) {
+                    l.add(no);
+                }
+            }
+        }
+        if (l.size() != n) {
+            UserNotifier un = 
+                TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Node selection", "You can only select " +
+                    "node of the same type e.g. images.");
+            return;
+        }
+        //Pass TreeImageDisplay array
+        TreeImageDisplay[] nodes = (TreeImageDisplay[]) l.toArray(
+                                    new TreeImageDisplay[l.size()]);
+        model.setSelectedDisplays(nodes);
         if (popupTrigger) model.showPopupMenu();
     }
     
@@ -254,7 +292,7 @@ class BrowserControl
         else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
             model.refreshTree();
         else if (name.equals(FilterWindow.CLOSE_PROPERTY))
-            model.collapse(model.getSelectedDisplay());
+            model.collapse(model.getLastSelectedDisplay());
     }
     
 }
