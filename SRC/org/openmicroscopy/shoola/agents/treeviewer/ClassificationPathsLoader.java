@@ -57,8 +57,8 @@ public class ClassificationPathsLoader
     extends EditorLoader
 {
     
-    /** The id of the image. */
-    private long        imageID;
+    /** The id of the images. */
+    private Set        imageIDs;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -68,14 +68,16 @@ public class ClassificationPathsLoader
      * 
      * @param viewer    The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param imageID   The id of the image. 
+     * @param imageIDs  The id of the image. 
      */
-    public ClassificationPathsLoader(Editor viewer, long imageID)
+    public ClassificationPathsLoader(Editor viewer, Set imageIDs)
     {
         super(viewer);
-        if (imageID < 0) 
-            throw new IllegalArgumentException("Image Id not valid.");
-        this.imageID = imageID;
+        if (imageIDs == null) 
+            throw new IllegalArgumentException("No image.");
+        if (imageIDs.size() == 0) 
+            throw new IllegalArgumentException("No image.");
+        this.imageIDs = imageIDs;
     }
 
     /** 
@@ -84,7 +86,7 @@ public class ClassificationPathsLoader
      */
     public void load()
     {
-        handle = dmView.loadClassificationPaths(imageID,
+        handle = dmView.loadClassificationPaths(imageIDs,
                                     OmeroService.DECLASSIFICATION, this);
     }
 

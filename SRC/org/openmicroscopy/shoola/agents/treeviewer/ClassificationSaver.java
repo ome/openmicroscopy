@@ -69,8 +69,8 @@ public class ClassificationSaver
     /** Indicates to declassify the specified image. */
     public static final int DECLASSIFY = 1;
     
-    /** The image to classify or declassify. */
-    private ImageData   image;
+    /** The images to classify or declassify. */
+    private ImageData[] images;
     
     /** The type of classifier. */
     private int         mode;
@@ -125,20 +125,22 @@ public class ClassificationSaver
      *                      Mustn't be <code>null</code>.
      * @param mode          The classification's mode.
      *                      One of the constants defined by this class.
-     * @param image         The image to classify or declassify.
+     * @param images        The images to classify or declassify.
      * @param categories    The categories to add to or remove from.
      *                      Mustn't be <code>null</code>.
      */
-    public ClassificationSaver(Classifier viewer, int mode, ImageData image, 
+    public ClassificationSaver(Classifier viewer, int mode, ImageData[] images, 
                             Set categories)
     {
         super(viewer);
         checkMode(mode);
-        if (image == null) 
-            throw new IllegalArgumentException("Image not valid.");
+        if (images == null) 
+            throw new IllegalArgumentException("No Image.");
+        if (images.length == 0) 
+            throw new IllegalArgumentException("No Image.");
         if (categories == null || categories.size() == 0) 
             throw new IllegalArgumentException("No category selected.");
-        this.image = image; 
+        this.images = images; 
         this.mode = mode;
         this.categories = categories;
     }
@@ -149,14 +151,15 @@ public class ClassificationSaver
      */
     public void load()
     {
-        Set images = new HashSet(1);
-        images.add(image);
+        Set objects = new HashSet(images.length);
+        for (int i = 0; i < images.length; i++)
+            objects.add(images[i]);
         switch (mode) {
             case CLASSIFY:
-                handle = dmView.classify(images, categories, this);
+                handle = dmView.classify(objects, categories, this);
                 break;
             case DECLASSIFY:
-                handle = dmView.declassify(images, categories, this);
+                handle = dmView.declassify(objects, categories, this);
         }       
     }
 
@@ -173,7 +176,7 @@ public class ClassificationSaver
     public void handleResult(Object result)
     {
         if (viewer.getState() == Classifier.DISCARDED) return; 
-        viewer.saveClassification(image, ((Set) result), convertMode());
+        viewer.saveClassification(images, ((Set) result), convertMode());
     }
 
 }

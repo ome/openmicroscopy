@@ -60,8 +60,8 @@ public class ClassifierPathsLoader
     extends ClassifierLoader
 {
 
-    /** The id of the image to classify or declassify. */
-    private long        imageID;
+    /** The id of the images to classify or declassify. */
+    private Set        imageIDs;
     
     /** The type of classifier. */
     private int         mode;
@@ -90,18 +90,20 @@ public class ClassifierPathsLoader
      * 
      * @param viewer    The TreeViewer this data loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param imageID   The id of the image. 
+     * @param imageIDs  The id of the images. 
      * @param mode      The type of classifier. One of the following constants:
      *                  {@link Classifier#DECLASSIFY_MODE} or 
      *                  {@link Classifier#CLASSIFY_MODE}.
      */
-    public ClassifierPathsLoader(Classifier viewer, long imageID, int mode)
+    public ClassifierPathsLoader(Classifier viewer, Set imageIDs, int mode)
     {
         super(viewer);
-        if (imageID < 0) 
-            throw new IllegalArgumentException("Image Id not valid.");
+        if (imageIDs == null) 
+            throw new IllegalArgumentException("No images.");
+        if (imageIDs.size() == 0) 
+            throw new IllegalArgumentException("No images.");
         checkMode(mode);
-        this.imageID = imageID;
+        this.imageIDs = imageIDs;
         this.mode = mode;
     }
     
@@ -116,11 +118,11 @@ public class ClassifierPathsLoader
     {
         switch (mode) {
             case Classifier.DECLASSIFY_MODE:
-                handle = dmView.loadClassificationPaths(imageID,
+                handle = dmView.loadClassificationPaths(imageIDs,
                         DataManagerView.DECLASSIFICATION, this);
                 break;
             case Classifier.CLASSIFY_MODE:
-                handle = dmView.loadClassificationPaths(imageID,
+                handle = dmView.loadClassificationPaths(imageIDs,
                         DataManagerView.CLASSIFICATION_ME, this);
         } 
     }

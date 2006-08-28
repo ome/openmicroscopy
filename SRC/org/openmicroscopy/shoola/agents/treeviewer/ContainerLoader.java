@@ -122,7 +122,7 @@ public class ContainerLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setContainerNodes((Set) result, viewer.getSelectedDisplay());
+        viewer.setContainerNodes((Set) result, viewer.getLastSelectedDisplay());
     }
     
 }
