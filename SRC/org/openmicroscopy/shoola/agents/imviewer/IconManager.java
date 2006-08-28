@@ -131,11 +131,14 @@ public class IconManager
     /** The <code>Cancel</code> icon. */
     public static  int          CANCEL = 21;
     
+    /** The <code>Cancel</code> icon. */
+    public static  int          VIEWER = 22;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 21;
+    private static int          MAX_ID = 22;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -164,6 +167,7 @@ public class IconManager
         relPaths[SAVE_BIG] = "histogram16.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[CANCEL] = "eclipse_delete_edit16.png";
+        relPaths[VIEWER] = "viewer16.png";
     }
     
     /** The sole instance. */
