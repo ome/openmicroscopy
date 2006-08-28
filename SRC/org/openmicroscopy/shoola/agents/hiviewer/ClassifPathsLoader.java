@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -39,6 +40,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
+import pojos.ImageData;
 
 /** 
  * Loads, asynchronously, the metadata needed by a given {@link Classifier} to
@@ -81,8 +83,11 @@ public class ClassifPathsLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadClassificationPaths(
-                        classifier.getImage().getId(),
+        ImageData[] images = classifier.getImages();
+        Set ids = new HashSet(images.length);
+        for (int i = 0; i < images.length; i++)
+            ids.add(new Long(images[i].getId()));
+        handle = hiBrwView.loadClassificationPaths(ids,
                 		HierarchyBrowsingView.CLASSIFICATION_ME, this);
     }
     

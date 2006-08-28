@@ -68,8 +68,8 @@ public class ClassificationSaver
     /** Indicates to declassify the specified image. */
     public static final int DECLASSIFY = 1;
     
-    /** The image to classify or declassify. */
-    private ImageData   image;
+    /** The images to classify or declassify. */
+    private ImageData[] images;
     
     /** The type of classifier. */
     private int         mode;
@@ -105,24 +105,26 @@ public class ClassificationSaver
      * 
      * @param classifier    The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
-     * @param mode          The classification's mode.
+     * @param m             The classification's mode.
      *                      One of the constants defined by this class.
-     * @param image         The image to classify or declassify.
+     * @param images        The image to classify or declassify.
      *                      Mustn't be <code>null</code>.
      * @param categories    The categories to add to or remove from.
      *                      Mustn't be <code>null</code>.
      */
-    public ClassificationSaver(Classifier classifier, int mode, ImageData image,
+    public ClassificationSaver(Classifier classifier, int m, ImageData[] images,
                                 Set categories)
     {
         super(classifier);
         checkMode(mode);
-        if (image ==  null) 
+        if (images ==  null) 
+            throw new IllegalArgumentException("No image to handle.");
+        if (images.length == 0) 
             throw new IllegalArgumentException("No image to handle.");
         if (categories == null || categories.size() == 0) 
             throw new IllegalArgumentException("No category selected.");
-        this.image = image; 
-        this.mode = mode;
+        this.images = images; 
+        this.mode = m;
         this.categories = categories;
     }
 
@@ -132,14 +134,15 @@ public class ClassificationSaver
      */
     public void load()
     {
-        Set images = new HashSet(1);
-        images.add(image);
+        Set objects = new HashSet(images.length);
+        for (int i = 0; i < images.length; i++)
+            objects.add(images[i]);
         switch (mode) {
             case CLASSIFY:
-                handle = hiBrwView.classify(images, categories, this);
+                handle = hiBrwView.classify(objects, categories, this);
                 break;
             case DECLASSIFY:
-                handle = hiBrwView.declassify(images, categories, this);
+                handle = hiBrwView.declassify(objects, categories, this);
         } 
     }
 
