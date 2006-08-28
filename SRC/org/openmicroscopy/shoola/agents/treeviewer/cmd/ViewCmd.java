@@ -37,6 +37,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -45,6 +48,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.OmeroService;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -126,22 +131,39 @@ public class ViewCmd
     {
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
-        Object ho;
+        Object ho = null;
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
         Class root = convertRootLevel(browser.getRootLevel());
         if (hierarchyObject != null) ho = hierarchyObject;
         else {
-            TreeImageDisplay display = browser.getSelectedDisplay();
-            if (display == null) return;
-            if (display.getParentDisplay() == null &&
-                browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
-                bus = TreeViewerAgent.getRegistry().getEventBus();
-                bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
-                        root, browser.getRootID())); 
-                System.out.println("here");
-                
+            TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+            if (nodes.length > 1) {
+                TreeImageDisplay n = nodes[0];
+                if (n.getUserObject() instanceof ImageData) {
+                    Set ids = new HashSet(nodes.length);
+                    ImageData data;
+                    for (int i = 0; i < nodes.length; i++) {
+                        data = (ImageData) nodes[i].getUserObject();
+                        ids.add(new Long(data.getId()));
+                    }
+                    bus.post(new Browse(ids, Browse.IMAGES, root, 
+                            browser.getRootID()));   
+                    return;
+                }
+                UserNotifier un = 
+                    TreeViewerAgent.getRegistry().getUserNotifier();  
+                un.notifyInfo("Browse", "Can only browse images.");
+            } else {
+                TreeImageDisplay display = browser.getLastSelectedDisplay();
+                if (display == null) return;
+                if (display.getParentDisplay() == null &&
+                    browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
+                    bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
+                            root, browser.getRootID()));   
+                    return;
+                }
+                ho = display.getUserObject(); 
             }
-            ho = display.getUserObject();
         }
 
         if (ho instanceof ImageData) {

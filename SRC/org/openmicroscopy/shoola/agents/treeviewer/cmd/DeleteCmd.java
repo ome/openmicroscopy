@@ -74,7 +74,7 @@ public class DeleteCmd
     {
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
-        Object userObject = browser.getSelectedDisplay().getUserObject();
+        Object userObject = browser.getLastSelectedDisplay().getUserObject();
         if (userObject instanceof DataObject)
             model.removeObject((DataObject) userObject);
     }

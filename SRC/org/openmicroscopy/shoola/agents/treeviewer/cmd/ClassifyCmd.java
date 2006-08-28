@@ -44,7 +44,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.ImageData;
 
 /** 
- * 
+ * Classifies or declassifies the selected nodes depending on the specified
+ * mode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -105,11 +106,16 @@ public class ClassifyCmd
     {
         Browser browser = viewer.getSelectedBrowser();
         if (browser == null) return;
-        TreeImageDisplay node = browser.getSelectedDisplay();
+        TreeImageDisplay node = browser.getLastSelectedDisplay();
         if (node == null) return;
         Object data = node.getUserObject();
-        if (data instanceof ImageData)
-            viewer.showClassifier((ImageData) data, mode);
+        if (data instanceof ImageData) {
+            TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+            ImageData[] images = new ImageData[nodes.length];
+            for (int i = 0; i < nodes.length; i++)
+                images[i] = (ImageData) nodes[i].getUserObject();
+            viewer.showClassifier(images, mode);
+        }
     }
 
 }

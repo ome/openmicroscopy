@@ -80,7 +80,7 @@ public class PropertiesCmd
     {
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
-        TreeImageDisplay display = browser.getSelectedDisplay();
+        TreeImageDisplay display = browser.getLastSelectedDisplay();
         if (display == null) return;
         Object ho = display.getUserObject();
         if (ho instanceof DataObject) {
