@@ -197,7 +197,7 @@ class TreeViewerModel
    {
        state = TreeViewer.SAVE;
        TreeImageDisplay parent = 
-           selectedBrowser.getSelectedDisplay().getParentDisplay();
+           selectedBrowser.getLastSelectedDisplay().getParentDisplay();
        Object po = parent.getUserObject();
        if (po instanceof String) //root.
            currentLoader = new DataObjectRemover(component, userObject, null);

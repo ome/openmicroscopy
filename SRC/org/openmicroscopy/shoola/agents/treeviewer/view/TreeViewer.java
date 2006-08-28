@@ -34,13 +34,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -275,10 +275,13 @@ public interface TreeViewer
     /**
      * Brings up the classifier corresponding to the specified mode.
      * 
-     * @param object The image object to classify or declassify.
-     * @param mode The type of classifier. 
+     * @param images    The images to classify or declassify depending on the
+     *                  given mode.
+     * @param mode      The type of classifier. One of the following constants:
+     *                  {@link Classifier#CLASSIFY_MODE} or
+     *                  {@link Classifier#DECLASSIFY_MODE}.
      */
-    public void showClassifier(ImageData object, int mode);
+    public void showClassifier(ImageData[] images, int mode);
 
     /**
      * Returns the dialog indicating a data retrieval.
@@ -319,14 +322,14 @@ public interface TreeViewer
      * 
      * Updates the view when the image has been classified or declassified.
      * 
-     * @param image         The image classified or declassified. Mustn't 
+     * @param images        The image classified or declassified. Mustn't 
      *                      be <code>null</code>.
      * @param categories    The categories the image was added to or 
      *                      removed from. Mustn't be <code>null</code>.
      * @param mode          The type of operation i.e. classification or 
      *                      declassification.
      */
-    public void onImageClassified(ImageData image, Set categories, int mode);
+    public void onImageClassified(ImageData[] images, Set categories, int mode);
     
     /** Clears the result of a previous find action. */
     public void clearFoundResults();

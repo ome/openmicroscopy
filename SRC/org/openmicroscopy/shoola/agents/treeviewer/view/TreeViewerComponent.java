@@ -321,9 +321,9 @@ class TreeViewerComponent
     
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#showClassifier(ImageData, int)
+     * @see TreeViewer#showClassifier(ImageData[], int)
      */
-    public void showClassifier(ImageData object, int mode)
+    public void showClassifier(ImageData[] images, int mode)
     {
         switch (model.getState()) {
             case READY:
@@ -333,12 +333,15 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method should only be " +
                 "invoked in the READY or NEW state.");
         }
-        if (object == null) 
+        if (images == null) 
             throw new IllegalArgumentException("Object cannot be null.");
+        if (images.length == 0)
+            throw new IllegalArgumentException("No images to classify or " +
+                    "declassify.");
         removeEditor();
         model.setEditorType(CLASSIFIER_EDITOR);
         Classifier classifier = ClassifierFactory.getClassifier(this, mode, 
-                                                    object);
+                                                    images);
         classifier.addPropertyChangeListener(controller);
         classifier.activate();
         view.addComponent(classifier.getUI());
@@ -484,9 +487,9 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#onImageClassified(ImageData, Set, int)
+     * @see TreeViewer#onImageClassified(ImageData[], Set, int)
      */
-    public void onImageClassified(ImageData image, Set categories, int mode)
+    public void onImageClassified(ImageData[] images, Set categories, int mode)
     {
         switch (model.getState()) {
             case DISCARDED:
@@ -496,7 +499,9 @@ class TreeViewerComponent
         }
         if (categories == null)
             throw new IllegalArgumentException("Categories shouln't be null.");
-        if (image == null)
+        if (images == null)
+            throw new IllegalArgumentException("No image.");
+        if (images.length == 0)
             throw new IllegalArgumentException("No image.");
         if (mode != Classifier.CLASSIFY_MODE && 
             mode != Classifier.DECLASSIFY_MODE)
@@ -508,7 +513,7 @@ class TreeViewerComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         while (b.hasNext()) {
             browser = (Browser) browsers.get(b.next());
-            browser.refreshClassification(image, categories, mode);
+            browser.refreshClassification(images, categories, mode);
         }
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
