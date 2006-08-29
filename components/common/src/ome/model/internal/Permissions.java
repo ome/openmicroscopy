@@ -266,6 +266,14 @@ public class Permissions implements Serializable
     	this.perm1 &= (-1L ^ flag.bit() );
     	return this;
     }
+
+    /** turn a given {@link Flag} off. A null {@link Flag} will be ignored. */
+    public Permissions unSet( Flag flag )
+    {
+    	if ( flag == null ) return this;
+    	this.perm1 |= (0L ^ flag.bit() );
+    	return this;
+    }
     
     // ~ Overrides
 	// =========================================================================
