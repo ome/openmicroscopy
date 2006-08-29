@@ -101,6 +101,10 @@
 	<target name="install" depends="multiproject"
 		description="Lifecycle target: calls 'install' on all components">
 		<iterate target="install"/>
+		<!-- WORKAROUND until cc configuration is changed -->
+		<mkdir dir="${components.dir}/ejb/target/"/>
+		<touch file="${components.dir}/ejb/target/ejb-3.0-TRUNK.jar"/>
+		<!-- END WORKAROUND -->
 	</target>
 
 	<target name="integration" depends="multiproject"
