@@ -129,11 +129,6 @@
     <property name="proxyInterface" value="ome.api.IAnalysis"/>
   </bean>
 
-  <bean id="managed:ome.api.IConfig" parent="statelessJndi">
-    <property name="jndiName" value="omero/remote/ome.api.IConfig"/>
-    <property name="proxyInterface" value="ome.api.IConfig"/>
-  </bean>
-
   <bean id="managed:ome.api.IPixels" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IPixels"/>
     <property name="proxyInterface" value="ome.api.IPixels"/>
