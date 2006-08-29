@@ -6,7 +6,7 @@
     <description>Open Microscopy Environment - RemoteObjects Server</description>
 
     <module>
-      <ejb>ejb-3.0-TRUNK.jar</ejb>
+      <ejb>server-3.0-TRUNK.jar</ejb>
     </module>
 
 </application>

@@ -134,8 +134,8 @@ public class QuantumFactory
      */
     public static Family getFamily(String value)
     {
-        OmeroContext ctx = OmeroContext.getInternalServerContext();
-        IQuery iQuery = (IQuery) ctx.getBean("queryService");
+        OmeroContext ctx = OmeroContext.getManagedServerContext();
+        IQuery iQuery = (IQuery) ctx.getBean("internal:ome.api.IQuery");
     	return (Family) iQuery.findByString(Family.class, "value", value);
     }
 

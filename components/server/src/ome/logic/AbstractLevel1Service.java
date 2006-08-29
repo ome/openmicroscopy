@@ -39,16 +39,11 @@ package ome.logic;
 //Java imports
 
 //Third-party libraries
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
+import org.hibernate.SessionFactory;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 //Application-internal dependencies
-import ome.api.ServiceInterface;
-import ome.security.SecuritySystem;
-import ome.services.query.QueryFactory;
-import ome.system.OmeroContext;
-import ome.system.SelfConfigurableService;
 
 
 /**
@@ -61,35 +56,49 @@ import ome.system.SelfConfigurableService;
  * </small>
  * @since OMERO 3.0
  */
-public abstract class AbstractLevel1Service extends HibernateDaoSupport 
-    implements SelfConfigurableService {
+public abstract class AbstractLevel1Service extends AbstractBean 
+{
 
-    protected OmeroContext ctx;
+    // ~ HibernateDaoSupport methods
+	// =========================================================================
+	
+	private HibernateDaoSupport support = new HibernateDaoSupport(){ /* ez */ };
+	
+    /**
+     * delegates to {@link HibernateDaoSupport}. Used during initialization to
+     * create a {@link HibernateTemplate}
+     * @see HibernateDaoSupport#setSessionFactory(SessionFactory)
+     */
+	public final void setSessionFactory(SessionFactory sessionFactory) {
+		  support.setSessionFactory(sessionFactory);
+	}
+	
+	/**
+	 * delegates to {@link HibernateDaoSupport} to get the current
+	 * {@link SessionFactory}
+	 * @see HibernateDaoSupport#getSessionFactory()
+	 */
+	public final SessionFactory getSessionFactory() {
+		return support.getSessionFactory();
+	}
 
-    protected abstract Class<? extends ServiceInterface> getServiceInterface();
+	/**
+	 * delegates to {@link HibernateDaoSupport}. Used during initialization to
+	 * set the current {@link HibernateTemplate}
+	 * @see HibernateDaoSupport#setHibernateTemplate(HibernateTemplate)
+	 */
+	public final void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
+		support.setHibernateTemplate(hibernateTemplate);
+	}
 
-    protected QueryFactory queryFactory;
-    
-    protected SecuritySystem securitySystem;
-    
-    public void setQueryFactory(QueryFactory factory){
-        this.queryFactory = factory;
-    }
-    
-    public void setSecuritySystem(SecuritySystem securitySystem)
-    {
-    	this.securitySystem = securitySystem;
-    }
-    
-    public void setApplicationContext(ApplicationContext appCtx) throws BeansException
-    {
-        this.ctx = (OmeroContext) appCtx;
-    }
+	/**
+	 * delegates to {@link HibernateDaoSupport} to get the current 
+	 * {@link HibernateTemplate} 
+	 * @see HibernateDaoSupport#getHibernateTemplate()
+	 */
+	public final HibernateTemplate getHibernateTemplate() {
+	  return support.getHibernateTemplate();
+	}
 
-    public void selfConfigure()
-    {
-        this.ctx = OmeroContext.getInternalServerContext();
-        this.ctx.applyBeanPropertyValues(this,getServiceInterface());
-    }
 }
 

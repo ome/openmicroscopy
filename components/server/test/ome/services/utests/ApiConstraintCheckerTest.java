@@ -1,5 +1,5 @@
 /*
- * ome.ejb.utests.ApiConstraintCheckerTest
+ * ome.services.utests.ApiConstraintCheckerTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.ejb.utests;
+package ome.services.utests;
 
 //Java imports
 
@@ -40,14 +40,10 @@ import javax.interceptor.InvocationContext;
 import org.testng.annotations.*;
 
 import ome.annotations.ApiConstraintChecker;
-import ome.annotations.NotNull;
-import ome.annotations.Validate;
 import ome.conditions.ApiUsageException;
-import ome.conditions.ValidationException;
 import ome.logic.PojosImpl;
 import ome.model.IObject;
 import ome.model.containers.Project;
-import ome.ro.ejb.RenderingBean;
 
 import omeis.providers.re.RenderingEngineImpl;
 
@@ -106,25 +102,17 @@ public class ApiConstraintCheckerTest extends TestCase {
     }
 
     @Test
-    public void testRenderingBeanCreate() throws Exception {
-        c = RenderingBean.class;
-        m = RenderingBean.class.getMethod("create");
+    public void testRenderingEngineImplCreate() throws Exception {
+        c = RenderingEngineImpl.class;
+        m = RenderingEngineImpl.class.getMethod("create");
         args = null;
         ApiConstraintChecker.errorOnViolation(c,m,args);
     }
 
     @Test
-    public void testRenderingBeanGetModel() throws Exception {
-        c = RenderingBean.class;
-        m = RenderingBean.class.getMethod("getModel");
-        args = null;
-        ApiConstraintChecker.errorOnViolation(c,m,args);
-    }
-
-    @Test
-    public void testRenderingBeanInvoke() throws Exception {
-        c = RenderingBean.class;
-        m = RenderingBean.class.getMethod("invoke",InvocationContext.class);
+    public void testRenderingEngineImplGetModel() throws Exception {
+        c = RenderingEngineImpl.class;
+        m = RenderingEngineImpl.class.getMethod("getModel");
         args = null;
         ApiConstraintChecker.errorOnViolation(c,m,args);
     }

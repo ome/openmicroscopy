@@ -82,17 +82,8 @@ public class OmeroContext extends ClassPathXmlApplicationContext
      * are in a state for immediate use.
      */
     public final static String MANAGED_CONTEXT = "ome.server";
-    
-    /**
-     * identifier for an OmeroContext configured in classpath*:beanRefContext.xml
-     * for internal use only. Transactions, security, and other container 
-     * aspects may not be configured properly. If needed, use the 
-     * {@link #MANAGED_CONTEXT} identifier.  
-     */
-    public final static String INTERNAL_CONTEXT = "ome.internal";
 
     private static OmeroContext _client;
-    private static OmeroContext _internal;
     private static OmeroContext _managed;;
     
     // ~ Constructors
@@ -177,25 +168,6 @@ public class OmeroContext extends ClassPathXmlApplicationContext
         ctx.setParent( staticContext );
         ctx.refresh();
         return ctx;
-    }
-
-    /** 
-     * create (if necessary) and return the single default internal OmeroContext.
-     * Any two calls to this method will return the same (==) context instance.
-     * In general, internal means that the services are less wrapped by
-     * interceptors.
-     * 
-     * @see #INTERNAL_CONTEXT
-     */
-    public static OmeroContext getInternalServerContext()
-    {
-        synchronized (mutex)
-        {
-            if (_internal== null) 
-                _internal = getInstance(INTERNAL_CONTEXT); 
-            
-            return _internal; 
-        }
     }
 
     /** 

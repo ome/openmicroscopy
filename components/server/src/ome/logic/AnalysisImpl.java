@@ -41,8 +41,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
@@ -52,8 +50,6 @@ import ome.model.containers.Dataset;
 import ome.model.meta.Experimenter;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
-import ome.system.SelfConfigurableService;
-
 
 /**
  * implementation of the Analysis service. 
@@ -67,8 +63,6 @@ import ome.system.SelfConfigurableService;
  */
 @Transactional(readOnly=true)
 public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
-
-    private static Log log = LogFactory.getLog(AnalysisImpl.class);
 
     @Override
     protected Class<? extends ServiceInterface> getServiceInterface()

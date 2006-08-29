@@ -1,9 +1,11 @@
-package ome.ejb.utests;
+package ome.services.utests;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 
 import javax.interceptor.InvocationContext;
+
+import ome.tools.spring.AOPAdapter;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -16,8 +18,6 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.support.StaticApplicationContext;
 import org.testng.annotations.*;
-
-import ome.ro.ejb.AOPAdapter;
 
 @Test(
         groups = {"integration","aop","ejb"}

@@ -59,13 +59,6 @@ public class ContextTest extends TestCase
         OmeroContext ctx = OmeroContext.getManagedServerContext();
         onContext(ctx);
     }
-    
-  @Test
-    public void testInternalContext() throws Exception
-    {
-        OmeroContext ctx = OmeroContext.getInternalServerContext();
-        onContext(ctx);
-    }
   
    protected void onContext(OmeroContext ctx)
    {
@@ -78,7 +71,7 @@ public class ContextTest extends TestCase
     public void testConfigureBean() throws Exception
     {
         
-        OmeroContext ctx = OmeroContext.getInternalServerContext();
+        OmeroContext ctx = OmeroContext.getManagedServerContext();
         ctx.applyBeanPropertyValues(re,RenderingEngine.class);
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);
@@ -91,12 +84,5 @@ public class ContextTest extends TestCase
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);
     }
-    
-  @Test
-    public void testReferentialIntegrity() throws Exception
-    {
-        OmeroContext mCtx = OmeroContext.getManagedServerContext();
-        OmeroContext iCtx = OmeroContext.getInternalServerContext();
-        assertTrue(mCtx.getParent() == iCtx);
-    }
+
 }

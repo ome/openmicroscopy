@@ -39,17 +39,11 @@ package ome.logic;
 //Java imports
 
 //Third-party libraries
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 
 //Application-internal dependencies
-import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
-import ome.security.SecuritySystem;
-import ome.services.query.QueryFactory;
 import ome.system.OmeroContext;
-import ome.system.SelfConfigurableService;
 
 /**
  * service level 2
@@ -61,50 +55,26 @@ import ome.system.SelfConfigurableService;
  * </small>
  * @since OMERO 3.0
  */
-public abstract class AbstractLevel2Service implements SelfConfigurableService{
+public abstract class AbstractLevel2Service extends AbstractBean 
+{
 
-    protected OmeroContext ctx;
+    protected transient LocalUpdate iUpdate;
     
-    protected LocalUpdate iUpdate;
+    protected transient LocalQuery iQuery;
     
-    protected LocalQuery iQuery;
-
-    protected QueryFactory queryFactory;
+    // ~ Selfconfiguration (injection) for Non-JavaEE
+	// =========================================================================
     
-    protected SecuritySystem securitySystem;
-    
-    protected abstract Class<? extends ServiceInterface> getServiceInterface();
-    
-    public void setUpdateService(LocalUpdate update)
+    public final void setUpdateService(LocalUpdate update)
     {
+    	throwIfAlreadySet(this.iUpdate, update);
         this.iUpdate = update;
     }
     
-    public void setQueryService(LocalQuery query)
+    public final void setQueryService(LocalQuery query)
     {
+    	throwIfAlreadySet(this.iQuery, query);
         this.iQuery = query;
-    }
-
-    public void setQueryFactory(QueryFactory factory)
-    {
-        this.queryFactory = factory;
-    }
-    
-    public void setSecuritySystem(SecuritySystem securitySystem)
-    {
-    	this.securitySystem = securitySystem;
-    }
-    
-    public void setApplicationContext(ApplicationContext applicationContext) 
-        throws BeansException
-    {
-        this.ctx = (OmeroContext) applicationContext;
-    }
-    
-    public void selfConfigure()
-    {
-        this.ctx = OmeroContext.getInternalServerContext();
-        this.ctx.applyBeanPropertyValues(this,getServiceInterface());
     }
 
 }

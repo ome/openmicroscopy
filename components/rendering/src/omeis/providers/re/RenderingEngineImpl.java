@@ -155,7 +155,7 @@ public class RenderingEngineImpl
     
     public void selfConfigure()
     {
-        this.ctx = OmeroContext.getInternalServerContext();
+        this.ctx = OmeroContext.getManagedServerContext();
         this.ctx.applyBeanPropertyValues(this,RenderingEngine.class);
     }
     

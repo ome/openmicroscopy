@@ -37,64 +37,31 @@
 package ome.logic;
 
 //Java imports
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Criteria;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
-import ome.annotations.NotNull;
-import ome.annotations.Validate;
-import ome.api.IPojos;
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.model.IEnum;
-import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
-import ome.model.core.Image;
-import ome.model.containers.Project;
-import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
 import ome.security.SecureAction;
-import ome.services.query.CollectionCountQueryDefinition;
-import ome.services.query.Definitions;
-import ome.services.query.PojosCGCPathsQueryDefinition;
-import ome.services.query.PojosFindAnnotationsQueryDefinition;
-import ome.services.query.PojosFindHierarchiesQueryDefinition;
-import ome.services.query.PojosGetImagesQueryDefinition;
-import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.Query;
-import ome.services.query.QueryParameterDef;
-import ome.services.util.CountCollector;
-import ome.tools.AnnotationTransformations;
-import ome.tools.HierarchyTransformations;
-import ome.tools.lsid.LsidUtils;
-import ome.util.builders.PojoOptions;
-
 
 /**
  * implementation of the ITypes service interface.
@@ -107,10 +74,15 @@ import ome.util.builders.PojoOptions;
  * @since OMERO 3.0
  */
 @Transactional
+@Stateless
+@Remote(ITypes.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.ITypes")
+@Local(ITypes.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.ITypes")
+@SecurityDomain("OmeroSecurity")
+@Interceptors({SimpleLifecycle.class})
 public class TypesImpl extends AbstractLevel2Service implements ITypes
 {
-
-    private static Log log = LogFactory.getLog(TypesImpl.class);
 
     @Override
     protected final Class<? extends ServiceInterface> getServiceInterface()
@@ -121,21 +93,24 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
     // ~ Service methods
     // =========================================================================
     
+    @RolesAllowed("user")
     public <T extends IEnum> T createEnumeration( T newEnum )
     {
     	final LocalUpdate up = iUpdate;
-    	return securitySystem.doAction(newEnum, new SecureAction(){
+    	return getSecuritySystem().doAction(newEnum, new SecureAction(){
     		public IObject updateObject(IObject iObject) {
     			return up.saveAndReturnObject(iObject);
     		}
     	});
     }
     
+    @RolesAllowed("user")
     public <T extends IEnum> List<T> allEnumerations(Class<T> k)
     {
         return iQuery.findAll(k,null);
     }
 
+    @RolesAllowed("user")
     public <T extends IEnum> T getEnumeration(Class<T> k, String string)
     {
         IEnum e = iQuery.findByString(k,"value",string);
@@ -149,6 +124,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
         return k.cast(e);
     }
 
+    @RolesAllowed("user")
     public <T extends IObject> List<Class<T>> getResultTypes()
     {
         // TODO Auto-generated method stub
@@ -156,6 +132,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
         
     }
 
+    @RolesAllowed("user")
     public <T extends IObject> List<Class<T>> getAnnotationTypes()
     {
         // TODO Auto-generated method stub
@@ -163,6 +140,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
         
     }
 
+    @RolesAllowed("user")
     public <T extends IObject> List<Class<T>> getContainerTypes()
     {
         // TODO Auto-generated method stub
@@ -170,6 +148,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
         
     }
 
+    @RolesAllowed("user")
     public <T extends IObject> List<Class<T>> getPojoTypes()
     {
         // TODO Auto-generated method stub
@@ -177,6 +156,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
         
     }
 
+    @RolesAllowed("user")
     public <T extends IObject> List<Class<T>> getImportTypes()
     {
         // TODO Auto-generated method stub
@@ -184,6 +164,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
         
     }
 
+    @RolesAllowed("user")
     public <T extends IObject> Permissions permissions(Class<T> k)
     {
         // TODO Auto-generated method stub
@@ -192,4 +173,3 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
     }
 
 }
-

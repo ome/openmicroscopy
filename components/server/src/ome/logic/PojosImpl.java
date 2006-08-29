@@ -45,9 +45,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 //Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
 //Application-internal dependencies
@@ -89,10 +98,15 @@ import ome.util.builders.PojoOptions;
  * @since OMERO 2.0
  */
 @Transactional
+@Stateless
+@Remote(IPojos.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IPojos")
+@Local(IPojos.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.IPojos")
+@SecurityDomain("OmeroSecurity")
+@Interceptors({SimpleLifecycle.class})
 public class PojosImpl extends AbstractLevel2Service implements IPojos 
 {
-
-    private static Log log = LogFactory.getLog(PojosImpl.class);
 
     @Override
     protected final Class<? extends ServiceInterface> getServiceInterface()
@@ -103,6 +117,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     // ~ READ
     // =========================================================================
     
+    @RolesAllowed("user") 
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, 
             Set rootNodeIds, Map options) {
@@ -124,7 +139,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                 "{Project,Dataset,Category,CategoryGroup}, not "
                         + rootNodeType);
 
-        Query<List<IObject>> q = queryFactory.lookup(
+        Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
                 new Parameters()
                     .addClass(rootNodeType)
@@ -138,6 +153,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         
 	}
     
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
 	public Set findContainerHierarchies(
             final Class rootNodeType, 
@@ -156,7 +172,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         }
         
         
-        Query<List<IObject>> q = queryFactory.lookup(
+        Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
                 new Parameters()
                     .addClass(rootNodeType)
@@ -201,6 +217,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 	}
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
 	public Map findAnnotations(
             Class rootNodeType, 
@@ -212,7 +229,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
 		PojoOptions po = new PojoOptions(options);
 		
-        Query<List<IObject>> q = queryFactory.lookup(
+        Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosFindAnnotationsQueryDefinition.class.getName(),
                 new Parameters()
                     .addIds(rootNodeIds)
@@ -250,6 +267,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
 	}
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
 	public Set findCGCPaths(Set imgIds, 
             String algorithm, Map options) {
@@ -265,7 +283,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 		PojoOptions po = new PojoOptions(options);
 
-        Query<List<Map<String,IObject>>> q = queryFactory.lookup(
+        Query<List<Map<String,IObject>>> q = getQueryFactory().lookup(
                 PojosCGCPathsQueryDefinition.class.getName(),
                 new Parameters()
                     .addIds(imgIds)
@@ -315,6 +333,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 	}
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
 	public Set getImages(Class rootNodeType, 
             Set rootNodeIds, Map options) {
@@ -325,7 +344,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
 		PojoOptions po = new PojoOptions(options);
 
-        Query<List<IObject>> q = queryFactory.lookup(
+        Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
                 new Parameters()
                     .addIds(rootNodeIds)
@@ -338,6 +357,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 	}
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
 	public Set getUserImages(Map options) {
 		
@@ -350,7 +370,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		}
 	
         
-        Query<List<Image>> q = queryFactory.lookup(" select i from Image i " +
+        Query<List<Image>> q = getQueryFactory().lookup(" select i from Image i " +
                 "where i.details.owner.id = :id ",
                 new Parameters()
                     .addId( po.getExperimenter()));
@@ -361,6 +381,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 	}
     
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
     public Map getUserDetails(Set names, 
             Map options)
@@ -401,6 +422,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         
     }
     
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
     public Map getCollectionCount(String type, String property, 
             Set ids, Map options)
@@ -418,7 +440,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         for (Iterator iter = ids.iterator(); iter.hasNext();)
         {
             Long id = (Long) iter.next();
-            Query<List<Integer>> q = queryFactory.lookup(query,new Parameters().addId(id));
+            Query<List<Integer>> q = getQueryFactory().lookup(query,new Parameters().addId(id));
             Integer count = iQuery.execute(q).get(0);
             results.put(id,count);
         }
@@ -426,6 +448,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         return results;
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=true)
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
     {
@@ -438,6 +461,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     // ~ WRITE
     // =========================================================================
     
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public IObject createDataObject(IObject arg0, Map arg1)
     {
@@ -446,6 +470,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
        return retVal;
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public IObject[] createDataObjects(IObject[] arg0, Map arg1)
     {
@@ -455,12 +480,14 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public void unlink(ILink[] arg0, Map arg1)
     {
         deleteDataObjects(arg0,arg1);
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public ILink[] link(ILink[] arg0, Map arg1)
     {
@@ -470,6 +497,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public IObject updateDataObject(IObject arg0, Map arg1)
     {
@@ -479,6 +507,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public IObject[] updateDataObjects(IObject[] arg0, Map arg1)
     {
@@ -487,12 +516,14 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         return retVal;
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public void deleteDataObject(IObject row, Map arg1)
     {
         iUpdate.deleteObject(row);
     }
 
+    @RolesAllowed("user") 
     @Transactional(readOnly=false)
     public void deleteDataObjects(IObject[] rows, Map options)
     {
@@ -526,11 +557,11 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                         || c.getIds( key ) == null 
                         || c.getIds( key ).size() == 0)
                 {
-                    log.warn( " Skipping "+key+" in collection counts.");
+                    getLogger().warn( " Skipping "+key+" in collection counts.");
                     continue;
                 }
                 
-                Query<List<Object[]>> q_c = queryFactory.lookup(
+                Query<List<Object[]>> q_c = getQueryFactory().lookup(
                         /* TODO po.map() here */
                         CollectionCountQueryDefinition.class.getName(),
                         new Parameters()

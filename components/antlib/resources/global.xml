@@ -237,7 +237,6 @@ ${msg.global.old.files}
 	</target>
 
 	<target name="deploy" depends="check-system,build-server">
-		<antRun component="ejb"><target name="install"/></antRun>
 		<antRun component="app">
 			<target name="package"/>
 			<target name="deploy-ear-jboss"/>

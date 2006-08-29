@@ -39,19 +39,21 @@ package ome.logic;
 // Java imports
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Criteria;
-import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
@@ -60,7 +62,6 @@ import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.IObject;
-import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
@@ -74,15 +75,20 @@ import ome.util.Utils;
  * @since OMERO 3.0
  */
 @Transactional(readOnly=false)
+@Stateless
+@Remote(IUpdate.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IUpdate")
+@Local(LocalUpdate.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.local.LocalUpdate")
+@SecurityDomain("OmeroSecurity")
+@Interceptors({SimpleLifecycle.class})
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 {
-
-    private static Log log = LogFactory.getLog(UpdateImpl.class);
-
-    protected LocalQuery localQuery;
+    protected transient LocalQuery localQuery;
     
-    public void setQueryService( LocalQuery query )
+    public final void setQueryService( LocalQuery query )
     {
+    	throwIfAlreadySet(this.localQuery, query);
     	this.localQuery = query;
     }
     
@@ -91,10 +97,11 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     {
         return IUpdate.class;
     };
-
+    
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
+    @RolesAllowed("user")
     public void rollback()
     {
         getHibernateTemplate().execute( new HibernateCallback() {
@@ -106,6 +113,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
          });
     }
 
+    @RolesAllowed("user")
     public void flush()
     {
         getHibernateTemplate().execute( new HibernateCallback() {
@@ -117,6 +125,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         });
     }
 
+    @RolesAllowed("user")
     public void commit()
     {
         getHibernateTemplate().execute( new HibernateCallback() {
@@ -132,6 +141,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     // ~ INTERFACE METHODS
     // =========================================================================
     
+    @RolesAllowed("user")
     public void saveObject(IObject graph)
     {
     	doAction(graph,new UpdateAction<IObject>()
@@ -143,6 +153,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	});
     }
     
+    @RolesAllowed("user")
     public IObject saveAndReturnObject( IObject graph )
     {
     	return doAction( graph, new UpdateAction<IObject>()
@@ -154,6 +165,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	});
     }
 
+    @RolesAllowed("user")
     public void saveCollection(Collection graph)
     {
     	doAction( graph, new UpdateAction<Collection>()
@@ -170,16 +182,19 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	});
     }
     
+    @RolesAllowed("user")
     public Collection saveAndReturnCollection( Collection graph)
     {
         throw new RuntimeException("Not implemented yet.");
     }
     
+    @RolesAllowed("user")
     public void saveMap(Map graph)
     {
         throw new RuntimeException("Not implemented yet.");
     }
 
+    @RolesAllowed("user")
     public IObject[] saveAndReturnArray(IObject[] graph)
     {
     	return doAction( graph, new UpdateAction<IObject[]>(){
@@ -195,6 +210,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	});
     }
     
+    @RolesAllowed("user")
     public void saveArray(IObject[] graph)
     {
     	doAction( graph, new UpdateAction<IObject[]>(){
@@ -210,6 +226,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	});
     }
 
+    @RolesAllowed("user")
     public Map saveAndReturnMap( Map map )
     {
         // TODO Auto-generated method stub
@@ -217,6 +234,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         throw new RuntimeException("Not implemented yet.");
     }
 
+    @RolesAllowed("user")
     public void deleteObject( IObject row )
     {
     	doAction( row, new UpdateAction<IObject>()
@@ -238,8 +256,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
             throw new IllegalArgumentException( 
                     "Argument to save cannot be null.");
 
-        if ( logger.isDebugEnabled() )
-            logger.debug( " Saving event before merge. " );
+        if ( getLogger().isDebugEnabled() )
+            getLogger().debug( " Saving event before merge. " );
 
     }
 
@@ -250,8 +268,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
      */
     protected IObject internalSave (IObject obj, UpdateFilter filter )
     {
-        if ( logger.isDebugEnabled() )
-            logger.debug( " Internal save. " );
+        if ( getLogger().isDebugEnabled() )
+            getLogger().debug( " Internal save. " );
         
         IObject result = (IObject) filter.filter(null,obj); 
         result = (IObject) getHibernateTemplate().merge(result);
@@ -260,8 +278,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
 
     protected void internalDelete(IObject obj, UpdateFilter filter )
     {
-        if ( logger.isDebugEnabled() )
-            logger.debug( " Internal delete. " );
+        if ( getLogger().isDebugEnabled() )
+            getLogger().debug( " Internal delete. " );
         
         getHibernateTemplate().delete(
                 getHibernateTemplate().load(
@@ -273,8 +291,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     private void afterUpdate( Event currentEvent, UpdateFilter filter)
     {
         
-        if ( logger.isDebugEnabled() )
-            logger.debug( " Post-save cleanup. " );
+        if ( getLogger().isDebugEnabled() )
+            getLogger().debug( " Post-save cleanup. " );
            
         // Clean up
         getHibernateTemplate().flush();
@@ -286,7 +304,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     {
     	T retVal;
         UpdateFilter filter = new UpdateFilter( );
-        Event currentEvent = securitySystem.getCurrentEvent();
+        Event currentEvent = getSecuritySystem().getCurrentEvent();
         try 
         {
         	beforeUpdate( graph, filter );
@@ -294,7 +312,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
         	afterUpdate( currentEvent, filter );
         } finally {
             // Return the previous event.
-            securitySystem.setCurrentEvent( currentEvent );
+            getSecuritySystem().setCurrentEvent( currentEvent );
         }
         return retVal;
     }

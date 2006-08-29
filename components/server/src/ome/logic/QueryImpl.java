@@ -33,13 +33,19 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 //Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -50,6 +56,9 @@ import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.metadata.ClassMetadata;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
 
 //Application-internal dependencies
 import ome.api.IQuery;
@@ -75,9 +84,14 @@ import ome.services.query.Query;
  * 
  */
 @Transactional(readOnly=true)
+@Stateless
+@Remote(IQuery.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IQuery")
+@Local(LocalQuery.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.local.LocalQuery")
+@SecurityDomain("OmeroSecurity")
+@Interceptors({SimpleLifecycle.class})
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
-
-    private static Log log = LogFactory.getLog(QueryImpl.class);
 
     @Override
     protected Class<? extends ServiceInterface> getServiceInterface()
@@ -88,26 +102,31 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
+    @RolesAllowed("user")
     public <T extends IObject> Dao<T> getDao()
     {
         return new Dao<T>(this);
     }
     
+    @RolesAllowed("user")
     @Transactional(readOnly=false)
     public void evict(Object obj){
         getHibernateTemplate().evict(obj);
     }
     
+    @RolesAllowed("user")
     public void initialize(Object obj){
         Hibernate.initialize(obj);
     }
     
+    @RolesAllowed("user")
     @Transactional(propagation=Propagation.SUPPORTS)
     public boolean checkType(String type) {
         ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
         return meta == null ? false : true;
     }
     
+    @RolesAllowed("user")
     @Transactional(propagation=Propagation.SUPPORTS)
     public boolean checkProperty(String type, String property) {
         ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
@@ -123,6 +142,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see LocalQuery#execute(HibernateCallback)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T> T execute(HibernateCallback callback)
     {
@@ -132,6 +152,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.local.LocalQuery#execute(Query)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T> T execute(ome.services.query.Query<T> query)
     {
@@ -146,6 +167,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * @see org.hibernate.Session#load(java.lang.Class, java.io.Serializable)
      * @DEV.TODO weirdness here; learn more about CGLIB initialization.
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public IObject get(final Class klass, final long id) 
     throws ValidationException
@@ -179,6 +201,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      * @see org.hibernate.Session#get(java.lang.Class, java.io.Serializable)
      * @DEV.TODO weirdness here; learn more about CGLIB initialization.
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public IObject find(final Class klass, final long id)
     {
@@ -198,6 +221,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#getByClass(java.lang.Class)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAll(final Class<T> klass, final Filter filter)
     {
@@ -218,6 +242,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findByExample(ome.model.IObject)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> T findByExample(final T example) throws ApiUsageException
     {
@@ -236,6 +261,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAllByExample(final T example, final Filter filter)
     {
@@ -255,6 +281,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String, java.lang.String)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> T findByString(
     final Class<T> klass, 
@@ -277,6 +304,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /**
      * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String, java.lang.String, boolean, ome.parameters.Filter)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAllByString(
             final Class<T> klass, 
@@ -307,6 +335,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /** 
      * @see ome.api.IQuery#findByQuery(java.lang.String, ome.parameters.Parameters)
      */
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> T findByQuery(String queryName, Parameters params) 
     throws ValidationException
@@ -320,7 +349,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         // specify that we should only return a single value if possible
         params.getFilter().unique();
         
-        Query<T> q = queryFactory.lookup( queryName, params );
+        Query<T> q = getQueryFactory().lookup( queryName, params );
         T result = null;
         try { 
             result = execute(q);
@@ -346,9 +375,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     /** 
      * @see ome.api.IQuery#findAllByQuery(java.lang.String, ome.parameters.Parameters)
      */
+    @RolesAllowed("user")
     public <T extends IObject> List<T> findAllByQuery(String queryName, Parameters params)
     {
-        Query<List<T>> q = queryFactory.lookup( queryName, params );
+        Query<List<T>> q = getQueryFactory().lookup( queryName, params );
         return execute(q);
     }
 

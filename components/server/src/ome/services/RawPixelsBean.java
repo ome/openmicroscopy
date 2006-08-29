@@ -1,5 +1,5 @@
 /*
- * ome.ro.ejb.RawPixelsBean
+ * ome.services.RawPixelsBean
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.ro.ejb;
+package ome.services;
 
 // Java imports
 import java.io.IOException;
@@ -43,8 +43,6 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
 
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
@@ -54,11 +52,12 @@ import org.jboss.annotation.security.SecurityDomain;
 // Application-internal dependencies
 import ome.api.IPixels;
 import ome.api.RawPixelsStore;
+import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
-import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.logic.AbstractBean;
 import ome.model.core.Pixels;
 
 import omeis.providers.re.RenderingEngine;
@@ -87,9 +86,33 @@ public class RawPixelsBean extends AbstractBean
 
     private Long id; 
     
-    private Pixels pixelsInstance;
+    private transient Pixels pixelsInstance;
     
-    private PixelBuffer buffer;
+    private transient PixelBuffer buffer;
+    
+    private transient PixelsService dataService;
+    
+    private transient IPixels metadataService;
+    
+    @Override
+    protected Class<? extends ServiceInterface> getServiceInterface() {
+    	return RawPixelsStore.class;
+    }
+    
+    public final void setPixelsMetadata(IPixels metaService)
+    {
+    	throwIfAlreadySet(this.metadataService, metaService);
+        metadataService = metaService;
+    }
+    
+    public final void setPixelsData(PixelsService dataService)
+    {
+    	throwIfAlreadySet(this.dataService, dataService);
+        this.dataService = dataService;
+    }
+    
+    // ~ Lifecycle methods
+	// =========================================================================
     
     @PostConstruct
     @PostActivate
@@ -103,19 +126,14 @@ public class RawPixelsBean extends AbstractBean
             setPixelsId( reset );
         }
     }
-    
-    @AroundInvoke
-    public Object invoke( InvocationContext context ) throws Exception
-    {
-        return wrap( context, IPixels.class ); // FIXME
-    }
-    
+
     @PrePassivate
     @PreDestroy
     public void destroy()
     {
         super.destroy();
         // id is the only thing passivated.
+        dataService = null;
         pixelsInstance = null;
         buffer = null;
     }
@@ -132,9 +150,6 @@ public class RawPixelsBean extends AbstractBean
             pixelsInstance = null;
             buffer = null;
 
-            IPixels metadataService = serviceFactory.getPixelsService();
-            PixelsService dataService = (PixelsService) 
-            applicationContext.getBean("/OME/OMEIS/Pixels"); // FIXME in SFactory.
             pixelsInstance = metadataService.retrievePixDescription( id );
         	buffer = dataService.getPixelBuffer( pixelsInstance );
 		}

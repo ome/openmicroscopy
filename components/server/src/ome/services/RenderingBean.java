@@ -1,5 +1,5 @@
 /*
- * ome.ro.ejb.RenderingBean
+ * ome.services.RenderingBean
  *
  *------------------------------------------------------------------------------
  *
@@ -27,16 +27,12 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.ro.ejb;
+package ome.services;
 
 // Java imports
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -47,8 +43,6 @@ import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionAttribute;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
 
 import static javax.ejb.TransactionAttributeType.*;
 
@@ -58,13 +52,12 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.cache.Cache;
 import org.jboss.annotation.security.SecurityDomain;
 import org.jboss.ejb3.cache.NoPassivationCache;
-import org.springframework.aop.framework.ProxyFactoryBean;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
-import ome.api.local.LocalUpdate;
-import ome.conditions.InternalException;
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.api.ServiceInterface;
+import ome.logic.AbstractLevel2Service;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
@@ -74,38 +67,22 @@ import ome.util.ShallowCopy;
 
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.Renderer;
+import omeis.providers.re.RenderingEngineImpl;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 
-
+interface RenderingWrapper extends RenderingEngine {}
 
 /**
- * Provides the {@link RenderingEngine} service. This class is an Adapter to
- * wrap the {@link Renderer} so to make it thread-safe.
- * <p>
- * The multi-threaded design of this component is based on dynamic locking and
- * confinement techiniques. All access to the component's internal parts happens
- * through a <code>RenderingEngineImpl</code> object, which is fully
- * synchronized. Internal parts are either never leaked out or given away only
- * if read-only objects. (The only exception are the {@link CodomainMapContext}
- * objects which are not read-only but are copied upon every method invocation
- * so to maintain safety.)
- * </p>
- * <p>
- * Finally the {@link RenderingEngine} component doesn't make use of constructs
- * that could compromise liveness.
- * </p>
+ * Provides the {@link RenderingEngine} service. This class is a serializable 
+ * wrapper around {@link RenderingEngineImpl}.
  * 
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author <br>
- *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.4 $ $Date:
- *          2005/07/05 16:13:52 $) </small>
- * @since OME2.2
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @since   3.0-M3
  */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 @Stateful
 @Remote(RenderingEngine.class)
 @RemoteBinding(jndiBinding="omero/remote/omeis.providers.re.RenderingEngine")
@@ -113,28 +90,34 @@ import omeis.providers.re.data.PlaneDef;
 @LocalBinding (jndiBinding="omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")
 @Cache(NoPassivationCache.class)
-public class RenderingBean extends AbstractBean 
-    implements RenderingEngine, Serializable
+public class RenderingBean extends AbstractLevel2Service 
+    implements RenderingWrapper, Serializable
 {
 
-    private static final long serialVersionUID = -4383698215540637032L;
+    private static final long serialVersionUID = -4383698215540637038L;
 
-    private RenderingEngine delegate;
+    private transient RenderingEngine delegate;
 
+    public final void setDelegate(RenderingEngine delegate) {
+    	throwIfAlreadySet(this.delegate, delegate);
+		this.delegate = delegate;
+	}
+    
+    @Override
+    protected Class<? extends ServiceInterface> getServiceInterface() {
+    	return RenderingWrapper.class;
+    }
+    
+    // ~ Lifecycle methods
+	// =========================================================================
+    
     @PostActivate
     @PostConstruct
     public void create()
     {
-        super.create();
-        delegate = serviceFactory.createRenderingEngine();
+    	super.create();
     }
-    
-    @AroundInvoke
-    public Object invoke( InvocationContext context ) throws Exception
-    {
-        return wrap( context, RenderingEngine.class );
-    }
-    
+
     @PrePassivate
     public void passivate()
     {
@@ -171,19 +154,6 @@ public class RenderingBean extends AbstractBean
     {
         delegate.load();
     }
-
-    @RolesAllowed("user") 
-    public void selfConfigure()
-    {
-        delegate.selfConfigure();
-    }
-    
-
-    @RolesAllowed("user") 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
-    {
-        delegate.setApplicationContext(applicationContext);
-    }
     
     // -------------------------------------------------------------------------
     
@@ -205,8 +175,8 @@ public class RenderingBean extends AbstractBean
     public void saveCurrentSettings()
     {
         delegate.saveCurrentSettings();
-        localUpdate.flush();
-        localUpdate.commit();
+        iUpdate.flush();
+        iUpdate.commit();
     }
 
     // -------------------------------------------------------------------------
@@ -400,7 +370,7 @@ public class RenderingBean extends AbstractBean
     {
     		if ( argument == null ) return null;
     		if ( argument.getId() == null ) return argument;
-    		return (T) localQuery.get(
+    		return (T) iQuery.get(
     				argument.getClass(),
     				argument.getId());
     }

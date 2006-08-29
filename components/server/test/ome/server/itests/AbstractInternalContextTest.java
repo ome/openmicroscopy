@@ -56,7 +56,7 @@ public class AbstractInternalContextTest
     
     protected ConfigurableApplicationContext getContext(Object key)
     {
-        return OmeroContext.getInternalServerContext();
+        return OmeroContext.getManagedServerContext();
     }
 
     protected Session                       session;

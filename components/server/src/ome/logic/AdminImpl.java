@@ -34,6 +34,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -44,13 +49,13 @@ import org.springframework.jmx.support.JmxUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
 import org.jboss.security.Util;
 
 //Application-internal dependencies
@@ -88,11 +93,22 @@ import ome.services.query.QueryParameterDef;
  * 
  */
 @Transactional
+@Stateless
+@Remote(IAdmin.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.IAdmin")
+@Local(IAdmin.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.IAdmin")
+@SecurityDomain("OmeroSecurity")
+@Interceptors({SimpleLifecycle.class})
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
-    private static Log log = LogFactory.getLog(AdminImpl.class);
-
-    protected SimpleJdbcTemplate jdbc;
+    protected transient SimpleJdbcTemplate jdbc;
+    
+    public final void setJdbcTemplate( SimpleJdbcTemplate jdbcTemplate )
+    {
+    	throwIfAlreadySet(this.jdbc, jdbcTemplate);
+    	jdbc = jdbcTemplate;
+    }
     
     @Override
     protected Class<? extends ServiceInterface> getServiceInterface()
@@ -100,19 +116,17 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         return IAdmin.class;
     }
     
-    public void setJdbcTemplate( SimpleJdbcTemplate jdbcTemplate )
-    {
-    	jdbc = jdbcTemplate;
-    }
-    
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
+    
+    @RolesAllowed("user")
     public Experimenter userProxy(final Long id)
     {
     	Experimenter e = iQuery.get(Experimenter.class, id);
     	return e;
     }
 
+    @RolesAllowed("user")
     public Experimenter userProxy(final String omeName)
     {
     	Experimenter e = iQuery.findByString(Experimenter.class,"omeName",omeName);
@@ -124,13 +138,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     	return e;
     }
-            
+
+    @RolesAllowed("user")
     public ExperimenterGroup groupProxy(Long id)
     {
     	ExperimenterGroup g = iQuery.get(ExperimenterGroup.class,id);
     	return g;
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup groupProxy(final String groupName)
     {
     	ExperimenterGroup g = iQuery.findByString(
@@ -143,7 +159,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     	return g;
     }
-    
+
+    @RolesAllowed("user")
     public List<Long> getLeaderOfGroupIds( final Experimenter e )
     {
     	Assert.notNull(e);
@@ -161,32 +178,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	return groupIds;
     }
     
-    // ~ INTERFACE METHODS
+    // ~ User accessible interface methods
     // =========================================================================
 
-    public void synchronizeLoginCache()
-    {
-    	String string = "omero:service=LoginConfig";
-    	// using Spring utilities to get MBeanServer
-        MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
-        log.debug("Acquired MBeanServer.");
-        ObjectName name;
-        try
-        {
-        	// defined in app/resources/jboss-service.xml
-            name = new ObjectName(string);
-            mbeanServer.invoke(
-            name, "flushAuthenticationCaches", new Object[]{}, new String[]{});       
-            log.debug("Flushed authentication caches.");
-        } catch (InstanceNotFoundException infe) {
-        	log.warn(string+" not found. Won't synchronize login cache.");
-        } catch (Exception e) {
-        	InternalException ie = new InternalException(e.getMessage());
-        	ie.setStackTrace(e.getStackTrace());
-        	throw ie;
-        }
-    }
-
+    @RolesAllowed("user")
     public Experimenter getExperimenter(final Long id)
     {
     	Experimenter e = iQuery.execute(
@@ -200,6 +195,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	return e;
     }
 
+    @RolesAllowed("user")
     public Experimenter lookupExperimenter(final String omeName)
     {
     	Experimenter e = iQuery.execute(
@@ -213,7 +209,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     	return e;
     }
-            
+
+    @RolesAllowed("user")
     public ExperimenterGroup getGroup(Long id)
     {
     	ExperimenterGroup g = iQuery.execute(
@@ -227,6 +224,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	return g;
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup lookupGroup(final String groupName)
     {
     	ExperimenterGroup g = iQuery.execute(
@@ -240,6 +238,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	return g;
     }
 
+    @RolesAllowed("user")
     public Experimenter[] containedExperimenters(Long groupId)
     {
     	ExperimenterGroup g = iQuery.execute(
@@ -260,6 +259,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     		.toArray(new Experimenter[count]);
     }
 
+    @RolesAllowed("user")
     public ExperimenterGroup[] containedGroups(Long experimenterId)
     {
     	Experimenter e = iQuery.execute(
@@ -279,12 +279,41 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     		.toArray(new ExperimenterGroup[count]);
     }
 
+    // ~ System-only interface methods
+	// =========================================================================
+    
+    @RolesAllowed("system")
+    public void synchronizeLoginCache()
+    {
+    	String string = "omero:service=LoginConfig";
+    	// using Spring utilities to get MBeanServer
+        MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
+        getLogger().debug("Acquired MBeanServer.");
+        ObjectName name;
+        try
+        {
+        	// defined in app/resources/jboss-service.xml
+            name = new ObjectName(string);
+            mbeanServer.invoke(
+            name, "flushAuthenticationCaches", new Object[]{}, new String[]{});       
+            getLogger().debug("Flushed authentication caches.");
+        } catch (InstanceNotFoundException infe) {
+        	getLogger().warn(string+" not found. Won't synchronize login cache.");
+        } catch (Exception e) {
+        	InternalException ie = new InternalException(e.getMessage());
+        	ie.setStackTrace(e.getStackTrace());
+        	throw ie;
+        }
+    }
+    
+    @RolesAllowed("system")
     public long createUser(Experimenter newUser)
     {
     	return createExperimenter(
     			newUser, groupProxy("user"),null);
     }
 
+    @RolesAllowed("system")
     public long createSystemUser(Experimenter newSystemUser)
     {
     	return createExperimenter(
@@ -293,6 +322,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     			new ExperimenterGroup[]{ groupProxy("user") } );
     }
 
+    @RolesAllowed("system")
     public long createExperimenter(
     		Experimenter experimenter, 
     		ExperimenterGroup defaultGroup, 
@@ -313,13 +343,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     		}
     	};
     	
-    	e = securitySystem.doAction(e, action);
+    	e = getSecuritySystem().doAction(e, action);
     	
     	final GroupExperimenterMap defaultGroupMap = new GroupExperimenterMap();
 		defaultGroupMap.link( groupProxy(defaultGroup.getId()), userProxy(e.getId()));
 		defaultGroupMap.setDefaultGroupLink(Boolean.TRUE);
-		defaultGroupMap.setDetails( securitySystem.transientDetails( defaultGroupMap ));
-		securitySystem.doAction(defaultGroupMap,action);
+		defaultGroupMap.setDetails( getSecuritySystem().transientDetails( defaultGroupMap ));
+		getSecuritySystem().doAction(defaultGroupMap,action);
 		
     	if ( null != otherGroups )
     	{
@@ -334,8 +364,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     			GroupExperimenterMap groupMap = new GroupExperimenterMap();
     			groupMap.link( groupProxy(group.getId()), userProxy(e.getId()));
     			groupMap.setDefaultGroupLink(Boolean.FALSE);
-    			groupMap.setDetails( securitySystem.transientDetails( groupMap ));
-    			securitySystem.doAction(groupMap, action);
+    			groupMap.setDetails( getSecuritySystem().transientDetails( groupMap ));
+    			getSecuritySystem().doAction(groupMap, action);
     		}
     	}
     	
@@ -343,10 +373,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	return e.getId();
     }
 
+    @RolesAllowed("system")
     public long createGroup(ExperimenterGroup group)
     {
     	group = copyGroup( group );
-    	ExperimenterGroup g = securitySystem.doAction(group, new SecureAction(){
+    	ExperimenterGroup g = getSecuritySystem().doAction(group, new SecureAction(){
     		public <T extends IObject> T updateObject(T obj) {
     			return iUpdate.saveAndReturnObject( obj );
     		}
@@ -354,6 +385,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	return g.getId();
     }
 
+    @RolesAllowed("system")
     public void addGroups(Experimenter user, ExperimenterGroup... groups)
     {
     	if (user == null) return; // Handled by annotations
@@ -365,8 +397,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         		groupProxy(group.getId());
         	GroupExperimenterMap map = new GroupExperimenterMap();
         	map.link(foundGroup,foundUser);
-        	map.setDetails( securitySystem.transientDetails(map));
-        	securitySystem.doAction(map,new SecureAction(){
+        	map.setDetails( getSecuritySystem().transientDetails(map));
+        	getSecuritySystem().doAction(map,new SecureAction(){
         		public <T extends IObject> T updateObject(T obj) {
         			return iUpdate.saveAndReturnObject( obj );
         		}
@@ -375,6 +407,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	iUpdate.flush();
     }
 
+    @RolesAllowed("system")
     public void removeGroups(Experimenter user, ExperimenterGroup... groups)
     {
     	if (user == null) return;
@@ -393,7 +426,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 			{
 				map.child().removeGroupExperimenterMap(map, false);
 				map.parent().removeGroupExperimenterMap(map, false);
-	        	securitySystem.doAction(map,new SecureAction(){
+	        	getSecuritySystem().doAction(map,new SecureAction(){
 	        		public <T extends IObject> T updateObject(T obj) {
 	        			iUpdate.deleteObject( obj );
 	        			return null;
@@ -404,6 +437,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         iUpdate.flush();
     }
 
+    @RolesAllowed("system")
     public void setDefaultGroup(Experimenter user, ExperimenterGroup group)
     {
         if (user == null) return;
@@ -440,6 +474,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         iUpdate.flush();
     }
 
+    @RolesAllowed("system")
     public ExperimenterGroup getDefaultGroup( @NotNull Long experimenterId )
     {
     	ExperimenterGroup g = 
@@ -457,7 +492,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	}
     	return g;
     }
-        
+
+    @RolesAllowed("system")
     public void deleteExperimenter( Experimenter user )
     {
     	Experimenter e = userProxy(user.getId());
@@ -466,7 +502,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	
     	if ( count == 0 )
     	{
-    		log.info("No password found for user "
+    		getLogger().info("No password found for user "
     				+e.getOmeName()
     				+". Cannot delete.");
     	}
@@ -477,6 +513,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     // ~ chown / chgrp / chmod
 	// =========================================================================
 
+    @RolesAllowed("user")
     public void changeOwner(IObject iObject, String omeName)
     {
     	// should take an Owner
@@ -486,6 +523,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	iUpdate.saveObject(copy);
     }
 
+    @RolesAllowed("user")
     public void changeGroup(IObject iObject, String groupName)
     {
     	final LocalUpdate update = iUpdate;
@@ -493,7 +531,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
     	ExperimenterGroup group = groupProxy(groupName);
     	copy.getDetails().setGroup(group);
-    	securitySystem.doAction(copy, new SecureAction(){
+    	getSecuritySystem().doAction(copy, new SecureAction(){
     		public IObject updateObject(IObject obj)
     		{
     			update.flush(); return null;
@@ -501,6 +539,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	});
     }
 
+    @RolesAllowed("user")
     public void changePermissions(final IObject iObject, final Permissions perms)
     {
     	AdminAction action = new AdminAction(){
@@ -511,20 +550,22 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	    	iUpdate.saveObject(copy);    
     		}
     	};
-    	securitySystem.runAsAdmin(action);
+    	getSecuritySystem().runAsAdmin(action);
     }
 
     // ~ Passwords
 	// =========================================================================
     
+    @RolesAllowed("user")
     public void changePassword(String newPassword)
     {
     	internalChangeUserPasswordById(
     			//  TODO when AdminBean+AdminImpl then use EventContext.
-    			securitySystem.currentUserId(),
+    			getSecuritySystem().currentUserId(),
     			newPassword);
     }
 
+    @RolesAllowed("system")
     public void changeUserPassword(String omeName, String newPassword)
     {
     	Experimenter e = lookupExperimenter(omeName);
@@ -564,7 +605,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	ExperimenterGroup copy = new ExperimenterGroup();
     	copy.setDescription( g.getDescription() );
     	copy.setName( g.getName() );
-    	copy.setDetails( securitySystem.transientDetails(g));
+    	copy.setDetails( getSecuritySystem().transientDetails(g));
     	// TODO see shallow copy comment on copy user
     	return copy;
     }

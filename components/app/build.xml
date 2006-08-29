@@ -48,6 +48,9 @@
             <include name="jboss-app.xml" />
             <include name="jboss-login.xml" />
          </metainf>
+         <fileset dir="${etc.dir}" includes="omero.properties"/>
+         <fileset dir="${etc.dir}" includes="hibernate.properties"/>
+         <fileset dir="${resrc.dir}" includes="ejb.properties"/>
          <fileset dir="${resrc.dir}" includes="jboss-service.xml"/>
          <fileset dir="${target.dir}" includes="omero-ds.xml" />
          <fileset dir="${target.dir}/libs" includes="*.jar" />

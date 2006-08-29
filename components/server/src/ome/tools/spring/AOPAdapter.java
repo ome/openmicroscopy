@@ -1,4 +1,4 @@
-/* ome.ro.ejb.AOPAdapter
+/* ome.tools.spring.AOPAdapter
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.ro.ejb;
+package ome.tools.spring;
 
 //Java imports
 import java.lang.reflect.Method;
@@ -38,15 +38,16 @@ import javax.interceptor.InvocationContext;
 //Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.framework.AdvisorChainFactory;
 import org.springframework.aop.framework.AdvisorChainFactoryUtils;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.framework.ReflectiveMethodInvocation;
 
 //Application-internal dependencies
 
-/** adapts between Spring AOP and JEE AOP.
- * 
+/** adapts between Spring AOP and JEE AOP. AOPadapter can be used to share a 
+ * single service implementation between both Spring and JavaEE. This is
+ * achieved by applying the stack of AOP interceptors defined in Spring and 
+ * having them applied during the {@link AroundInvoke} JavaEE interceptor.
  */
 public class AOPAdapter extends ReflectiveMethodInvocation
 {
@@ -58,11 +59,6 @@ public class AOPAdapter extends ReflectiveMethodInvocation
      */ 
     private InvocationContext invocation;
     
-    /** The {@link ProxyFactoryBean} which is passed in. Acquired from the 
-     * {@link org.springframework.context.ApplicationContext}
-     */
-    private ProxyFactoryBean factory;
-    
     @Override
     /** invokes {@link javax.interceptor.InvocationContext#proceed() proceed} on
      * the {@link InvocationContext} passed into this instance.
@@ -70,7 +66,6 @@ public class AOPAdapter extends ReflectiveMethodInvocation
     protected Object invokeJoinpoint() throws Throwable
     {
         return invocation.proceed();
-        
     }
 
     /** 
@@ -81,7 +76,6 @@ public class AOPAdapter extends ReflectiveMethodInvocation
             ProxyFactoryBean factory, InvocationContext context )
     {
         return new AOPAdapter(
-                factory, 
                 context, 
                 proxy( factory ),
                 target( context ),
@@ -95,14 +89,12 @@ public class AOPAdapter extends ReflectiveMethodInvocation
      * {@link org.springframework.aop.framework.ReflectiveMethodInvocation}
      * contructor which initializes the two fields on AOPAdapter.
      */
-    public AOPAdapter( ProxyFactoryBean factory, InvocationContext context, 
+    public AOPAdapter( InvocationContext context, 
             Object proxy, Object target, Method method, Object[] arguments,
             Class targetClass, List interceptorsAndDynamicMethodMatchers )
     {
-        //      Object proxy, Object target, Method method, Object[] arguments,
-        //      Class targetClass, List interceptorsAndDynamicMethodMatchers
-        super(proxy,target,method,arguments,targetClass,interceptorsAndDynamicMethodMatchers);  
-        this.factory = factory;
+        super(proxy,target,method,arguments,targetClass,
+        		interceptorsAndDynamicMethodMatchers);  
         this.invocation = context;
     }
 
