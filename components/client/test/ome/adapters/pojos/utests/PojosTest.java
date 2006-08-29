@@ -1,6 +1,8 @@
 package ome.adapters.pojos.utests;
 
 import org.testng.annotations.*;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -291,4 +293,20 @@ public class PojosTest extends TestCase
 		  assertFalse(p.isGranted(Role.USER, Right.READ));
 	  
 	  }
+	  
+	  @Test( groups = "ticket:308" )
+	  public void testLongValuedCounts() throws Exception {
+		  Image i = new Image();
+		  i.getDetails().setCounts( new HashMap() );
+		  i.getDetails().getCounts().put( Image.ANNOTATIONS, new Long( 1L ) );
+		  ImageData id = new ImageData( i );
+		  assertNotNull( id.getAnnotationCount() );
+		  
+		  // we check for a Long value. non-Long --> null.
+		  i.getDetails().setCounts( new HashMap() );
+		  i.getDetails().getCounts().put( Image.ANNOTATIONS, new Integer( 1 ));
+		  id = new ImageData( i );
+		  assertNull( id.getAnnotationCount() );
+	}
+	  
 }

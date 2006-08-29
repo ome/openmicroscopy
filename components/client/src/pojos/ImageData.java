@@ -131,14 +131,14 @@ public class ImageData
      * This field may be <code>null</code> meaning no count retrieved,
      * and it may be less than the actual number if filtered by user.
      */
-    private Integer annotationCount;
+    private Long annotationCount;
     
     /** 
      * The number of categories attached to this Imaget.
      * This field may be <code>null</code> meaning no count retrieved,
      * and it may be less than the actual number if filtered by user.
      */
-    private Integer classificationCount;
+    private Long classificationCount;
 
     /** Creates a new instance. */
     public ImageData()
@@ -375,7 +375,7 @@ public class ImageData
             setDirty(true);
             asImage().unlinkCategory(m.nextDeletion().asCategory());
             classificationCount = classificationCount == null ? null :
-                    new Integer(classificationCount.intValue()-1);
+                    new Long(classificationCount.longValue()-1);
         }
         
         while (m.moreAdditions())
@@ -383,7 +383,7 @@ public class ImageData
             setDirty(true);
             asImage().linkCategory(m.nextAddition().asCategory());
             classificationCount = classificationCount == null ? null :
-                new Integer(classificationCount.intValue()+1);
+                new Long(classificationCount.longValue()+1);
         }
 
         categories = m.result();    
@@ -423,14 +423,14 @@ public class ImageData
             asImage().removeImageAnnotation(
                         m.nextDeletion().asImageAnnotation());
             annotationCount = annotationCount == null ? null :
-                    new Integer(annotationCount.intValue()-1);
+                    new Long(annotationCount.longValue()-1);
         }
         
         while (m.moreAdditions()) {
             setDirty(true);
             asImage().addImageAnnotation(m.nextAddition().asImageAnnotation());
             annotationCount =  annotationCount == null ? null :
-                new Integer(annotationCount.intValue()+1);
+                new Long(annotationCount.longValue()+1);
         }
 
         annotations = m.result();
@@ -443,7 +443,7 @@ public class ImageData
      * 
      * @return See above.
      */
-    public Integer getAnnotationCount()
+    public Long getAnnotationCount()
     {
         if (annotationCount == null)
             annotationCount = getCount(Image.ANNOTATIONS);
@@ -455,7 +455,7 @@ public class ImageData
      * 
      * @return See above.
      */
-    public Integer getClassificationCount()
+    public Long getClassificationCount()
     {
         if (classificationCount == null)
             classificationCount = getCount(Image.CATEGORYLINKS);

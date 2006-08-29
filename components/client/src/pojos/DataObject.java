@@ -296,7 +296,7 @@ public abstract class DataObject
         return asIObject().getDetails();
     }
     
-    protected Integer getCount( String countName )
+    protected Long getCount( String countName )
     {
         Object count = null;
         
@@ -304,8 +304,8 @@ public abstract class DataObject
                 && getDetails().getCounts() != null)
             count = getDetails().getCounts().get( countName );
     
-        if ( count instanceof Integer )
-            return (Integer) count;
+        if ( count instanceof Long )
+            return (Long) count;
 
         return null;
  

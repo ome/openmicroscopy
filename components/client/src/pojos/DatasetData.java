@@ -108,7 +108,7 @@ public class DatasetData
      * This field may be <code>null</code> meaning no count retrieved,
      * and it may be less than the actual number if filtered by user.
      */
-    private Integer annotationCount;
+    private Long annotationCount;
 
     /** Creates a new instance. */
     public DatasetData()
@@ -301,7 +301,7 @@ public class DatasetData
             asDataset().removeDatasetAnnotation(
                         m.nextDeletion().asDatasetAnnotation());
             annotationCount = annotationCount == null ? null :
-                new Integer(annotationCount.intValue()-1);
+                new Long(annotationCount.longValue()-1);
         }
         
         while (m.moreAdditions()) {
@@ -309,7 +309,7 @@ public class DatasetData
             asDataset().removeDatasetAnnotation(
                         m.nextAddition().asDatasetAnnotation());
             annotationCount = annotationCount == null ? null :
-                new Integer(annotationCount.intValue()+1);
+                new Long(annotationCount.longValue()+1);
         }
 
         annotations = m.result();
@@ -320,7 +320,7 @@ public class DatasetData
      * 
      * @return See above.
      */
-    public Integer getAnnotationCount()
+    public Long getAnnotationCount()
     {
         if (annotationCount == null)
             annotationCount = getCount(Dataset.ANNOTATIONS);
