@@ -1105,10 +1105,15 @@ public class BasicSecuritySystem implements SecuritySystem
     void applyUmaskIfNecessary( Details d )
     {
     	Permissions p = d.getPermissions();
-	    if ( p.isSet( Flag.SOFT) && ec.getPrincipal().hasUmask() )
+	    if ( p.isSet( Flag.SOFT) )
 	    {    	
-    		p.grantAll( ec.getPrincipal().getUmask() );
-	    	p.revokeAll( ec.getPrincipal().getUmask() );
+	    	if ( ec.getPrincipal().hasUmask() )
+	    	{
+	    		p.grantAll( ec.getPrincipal().getUmask() );
+		    	p.revokeAll( ec.getPrincipal().getUmask() );
+	    	}
+	    	// don't store it in the DB.
+	    	p.unSet( Flag.SOFT );
 	    }
     }
 
