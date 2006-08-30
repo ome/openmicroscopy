@@ -37,6 +37,7 @@ import java.util.Properties;
 //Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
+import ome.api.IConfig;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -185,6 +186,10 @@ public class ServiceFactory {
     
     public IAnalysis getAnalysisService(){
     	return getServiceByClass(IAnalysis.class);
+    }
+
+    public IConfig getConfigService(){
+    	return getServiceByClass(IConfig.class);
     }
     
     public IPixels getPixelsService(){

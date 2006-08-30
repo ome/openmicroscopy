@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2005 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!-- 
+  Developer notes:
+  ===============
+  The name of this file is not critical but convention. In fact, you do not even
+  need to create a separate file for your service, but can add the definitions
+  to other spring files. To see what files Spring considers, look at the
+  resources/beanRefContext.xml file. This file is covered by the value:
+
+    classpath*:service-*.xml
+  
+-->
+
+<beans>	
+
+  <description>
+  Service implementation ("internal:") and wrapper ("managed:") for the 
+  ome.api.IConfig interface. 
+  </description>
+
+  <bean parent="level2" id="internal:ome.api.IConfig" class="ome.logic.ConfigImpl">
+    <description>
+    The implementation of our interface. Provided with a JDBC template for 
+    accessing the database time. Save to use ONLY from within another service!
+    </description>
+    <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
+  </bean>
+  
+  <bean id="managed:ome.api.IConfig" parent="managedService">
+    <description>
+    An AOP-wrapped proxy for our implementation. Enforces all server policies.
+    </description>
+    <property name="proxyInterfaces" value="ome.api.IConfig"/>
+    <property name="target" ref="internal:ome.api.IConfig"/>
+  </bean>
+  
+<!--
+  "Private" resources
+  =======================================================================
+  These are not really private in the sense that they are scoped and truly
+  inaccessible, but more by convention that other services should probably
+  not access them since they may change at any time, e.g.:
+  
+  <bean id="ome.api.IConfig:configDefaults" class="java.util.HashMap">
+    <property name="db.hash" value="CAFEBABE"/>
+  </bean>
+
+-->  
+  
+</beans>

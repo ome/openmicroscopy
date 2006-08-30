@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
+import ome.api.IConfig;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.local.LocalAdmin;
@@ -47,6 +48,8 @@ public class AbstractManagedContextTest
     
     protected LocalAdmin iAdmin;
     
+    protected IConfig iConfig;
+    
     protected IAnalysis iAnalysis;
     
     protected IPojos iPojos;
@@ -68,6 +71,7 @@ public class AbstractManagedContextTest
         iUpdate = (LocalUpdate) factory.getUpdateService();
         iAdmin = (LocalAdmin) factory.getAdminService();
         iAnalysis = factory.getAnalysisService();
+        iConfig = factory.getConfigService();
         iPojos = factory.getPojosService();
         iPixels = factory.getPixelsService();
         
