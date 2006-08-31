@@ -31,6 +31,8 @@ package ome.adapters.pojos.itests;
 
 //Java imports
 import org.testng.annotations.*;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,6 +71,7 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.testing.CreatePojosFixture;
 import ome.testing.OMEData;
 import ome.testing.Paths;
@@ -355,8 +358,6 @@ public class PojosServiceTest extends TestCase {
     //
     // READ API
     // 
-    
-    public final static String TESTER = "tester"; // Defined in create_pojos.sql
 
   @Test
     public void test_loadContainerHierarchy() throws Exception
@@ -636,8 +637,15 @@ public class PojosServiceTest extends TestCase {
   @Test
     public void test_getUserDetails() throws Exception
     {
-        Map m = iPojos.getUserDetails(Collections.singleton(TESTER),null);
-        Experimenter e = (Experimenter) m.get(TESTER);
+        Map m = iPojos.getUserDetails(Collections.singleton(fixture.TESTER),null);
+        Experimenter e = (Experimenter) m.get(fixture.TESTER);
+        ExperimenterGroup g;
+        assertNotNull( g = e.getDefaultGroupLink().parent() );
+        assertNotNull( g.getName() );
+        for (ExperimenterGroup gg : 
+        	(Collection<ExperimenterGroup>) e.linkedExperimenterGroupList()) {
+			assertNotNull( gg.getName() );
+		}
     }
 
   @Test( groups = "EJBExceptions" )

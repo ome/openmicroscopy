@@ -80,8 +80,9 @@ public class CreatePojosFixture
 //		group.setName("foo");
 //		group = push(iAdmin.createGroup(group));
 //		
+			TESTER = UUID.randomUUID().toString();
 			e = new Experimenter();
-			e.setOmeName(UUID.randomUUID().toString());
+			e.setOmeName(TESTER);
 			e.setFirstName("Mr.");
 			e.setLastName("Allen");
 			e = new Experimenter( iAdmin.createUser(e), false );
@@ -414,6 +415,7 @@ public class CreatePojosFixture
 	}
 	
 	//static class Data {
+		public String TESTER;
 		public Experimenter e;
 		public Project pr9090, pr9091, pr9092, pu9990, pu9991, pu9992;
 		public Dataset dr7070, dr7071, dr7072, du7770, du7771, du7772;

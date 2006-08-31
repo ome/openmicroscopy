@@ -396,6 +396,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
             Parameters params = new Parameters().addSet("name_list",names);
             results = iQuery.findAllByQuery(
                     "select e from Experimenter e " +
+                    "left outer join fetch e.defaultGroupLink dgl " +
+                    "left outer join fetch dgl.child dg " +
                     "left outer join fetch e.groupExperimenterMap gs " +
                     "left outer join fetch gs.child g " +
                     "where e.omeName in ( :name_list )",
