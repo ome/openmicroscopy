@@ -39,6 +39,7 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.util.CBlock;
 
 /** 
@@ -81,6 +82,9 @@ public class ExperimenterData
     /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
     public final static String GROUP_EXPERIMENTER_MAP = 
                                 Experimenter.GROUPEXPERIMENTERMAP;
+    
+    /** The default Group this Experimenter belongs in. */
+    private GroupData   defaultGroup;
     
     /** The other Groups this Experimenter belongs in. */
     private Set         groups;
@@ -229,4 +233,43 @@ public class ExperimenterData
         groups = m.result();
     }
 
+    /**
+     * Returns the default Group for this Experimenter
+     * 
+     * @return See above.
+     */
+    public GroupData getDefaultGroup()
+    {
+        if (defaultGroup == null && asExperimenter().getDefaultGroupLink() != null)
+            defaultGroup = new GroupData(
+            		asExperimenter().getDefaultGroupLink().parent());
+        return defaultGroup;
+    }
+
+    /**
+     * Sets the default Group.
+     */
+    public void setDefaultGroup(GroupData group)
+    {
+        if (getDefaultGroup() == group ) return;
+        setDirty(true);
+        this.defaultGroup = group;
+        if (this.defaultGroup != null) 
+        {
+        	final ExperimenterGroup g = group.asGroup();
+        	asExperimenter().collectGroupExperimenterMap(new CBlock(){
+        		public Object call(IObject object) {
+        			GroupExperimenterMap map = (GroupExperimenterMap) object;
+        			if ( map.parent() == g )
+        			{
+        				map.setDefaultGroupLink(Boolean.TRUE);
+        			} else {
+        				map.setDefaultGroupLink(Boolean.FALSE);
+        			}
+        			return null;
+        		}
+        	});
+        }
+    }
+    
 }

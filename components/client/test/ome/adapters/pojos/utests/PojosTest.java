@@ -22,10 +22,13 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
@@ -307,6 +310,33 @@ public class PojosTest extends TestCase
 		  i.getDetails().getCounts().put( Image.ANNOTATIONS, new Integer( 1 ));
 		  id = new ImageData( i );
 		  assertNull( id.getAnnotationCount() );
+	}
+	  
+	  @Test( groups = "ticket:316" )
+	  public void testDefaultGroupIsAvailable() throws Exception {
+		
+		  class MyExperimenter extends Experimenter {
+			  void setDefLink(GroupExperimenterMap map) { this.setDefaultGroupLink(map); }			  
+		  }
+		  
+		  ExperimenterGroup g1 = new ExperimenterGroup();
+		  ExperimenterGroup g2 = new ExperimenterGroup();
+		  
+		  MyExperimenter exp = new MyExperimenter();
+		
+		  GroupExperimenterMap link = new GroupExperimenterMap();
+		  link.setDefaultGroupLink(Boolean.TRUE);
+		  link.link(g1,exp);
+		  exp.setDefLink(link);
+		
+		  exp.linkExperimenterGroup(g2);
+		
+		  ExperimenterData ed = new ExperimenterData( exp );
+		  assertNotNull(ed.getDefaultGroup());
+		  assertTrue(ed.getDefaultGroup().asGroup()==g1);
+		  assertTrue(ed.getGroups().size()==1);
+		  assertTrue(g2 == 
+			  ((GroupData)ed.getGroups().iterator().next()).asGroup());
 	}
 	  
 }
