@@ -31,8 +31,12 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.util.ArrayList;
@@ -525,10 +529,12 @@ class RenderingControlProxy
             //Now we only need to tell Java2D how to handle the RGB buffer. 
             BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
                                         buf.getSizeX1(), buf.getSizeX2(), 3);
-            
-            img = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
-                                      BufferedImage.TYPE_INT_RGB);
-            img.setData(Raster.createWritableRaster(csm, j2DBuf, null));
+            ColorModel cm = new ComponentColorModel(
+                    ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+                    null, false, false, Transparency.OPAQUE, 
+                    DataBuffer.TYPE_BYTE);
+            img = new BufferedImage(cm, 
+                   Raster.createWritableRaster(csm, j2DBuf, null), false, null);
             
             //Finally add to cache.
             cache(pDef, img);
@@ -549,7 +555,6 @@ class RenderingControlProxy
     public float getPixelsSizeX()
     {
         if (pixDims.getSizeX() == null) return 1;
-        System.out.println("dim "+ pixDims.getSizeX().floatValue());
         return pixDims.getSizeX().floatValue();
     }
 
