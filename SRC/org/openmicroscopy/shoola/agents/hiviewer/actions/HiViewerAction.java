@@ -113,8 +113,9 @@ public abstract class HiViewerAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        String propName = evt.getPropertyName();
-        onDisplayChange(model.getBrowser().getLastSelectedDisplay());
+        Browser browser = model.getBrowser();
+        if (browser != null) onDisplayChange(browser.getLastSelectedDisplay());
+        else onDisplayChange(null);
     }
 
     /** 
@@ -123,13 +124,16 @@ public abstract class HiViewerAction
      */
     public void stateChanged(ChangeEvent e)
     {
-        if (model.getState() == HiViewer.LOADING_THUMBNAILS) {
+        int state = model.getState();
+        if ((state == HiViewer.LOADING_THUMBNAILS) || 
+            (state == HiViewer.READY && model.getBrowser().getImages().size()
+                        == 0)) {
             model.getBrowser().addPropertyChangeListener(
                     Browser.SELECTED_DISPLAY_PROPERTY, this);
             model.getBrowser().addPropertyChangeListener(
                     Browser.LAYOUT_PROPERTY, this);
             onStateChange();
-        } 
+        }
     }
     
 }
