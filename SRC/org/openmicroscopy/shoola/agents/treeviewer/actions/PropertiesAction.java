@@ -87,7 +87,7 @@ public class PropertiesAction
             }
         }
         Object ho = selectedDisplay.getUserObject();
-        setEnabled(!((ho == null || !(ho instanceof DataObject))));
+        setEnabled(!((ho == null) || !(ho instanceof DataObject)));
     }
     
     /**

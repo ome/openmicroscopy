@@ -95,6 +95,7 @@ public abstract class TreeViewerAction
         if (model == null) throw new IllegalArgumentException("no hiViewer");
         this.model = model;
         //Attaches listener property change listener to each browser.
+       
         Map browsers = model.getBrowsers();
         Iterator i = browsers.values().iterator();
         Browser browser;

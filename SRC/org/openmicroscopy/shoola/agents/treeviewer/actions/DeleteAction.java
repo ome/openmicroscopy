@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -83,21 +84,10 @@ public class DeleteAction
             return;
         }
         Object ho = selectedDisplay.getUserObject(); 
-        if (ho instanceof ProjectData)
-            setEnabled(((ProjectData) ho).getOwner().getId() == 
-        		model.getUserDetails().getId()); 
-        else if (ho instanceof DatasetData) 
-            setEnabled(((DatasetData) ho).getOwner().getId() == 
-        		model.getUserDetails().getId());
-        else if (ho instanceof ImageData) 
-            setEnabled(((ImageData) ho).getOwner().getId() == 
-        		model.getUserDetails().getId());
-        else if (ho instanceof CategoryData) 
-            setEnabled(((CategoryData) ho).getOwner().getId() == 
-                model.getUserDetails().getId());
-        else if (ho instanceof CategoryGroupData) 
-            setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
-                model.getUserDetails().getId());
+        if ((ho instanceof ProjectData) || (ho instanceof DatasetData) ||
+            (ho instanceof ImageData) || (ho instanceof CategoryData) ||
+            (ho instanceof CategoryGroupData))
+            setEnabled(model.isObjectWritable((DataObject) ho));
         else setEnabled(false);
     }
     

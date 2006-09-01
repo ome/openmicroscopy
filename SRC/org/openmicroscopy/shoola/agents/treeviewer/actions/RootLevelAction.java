@@ -122,8 +122,8 @@ public class RootLevelAction
     public RootLevelAction(TreeViewer model)
     {
         super(model);
-        this.rootLevel = TreeViewer.USER_ROOT;
-        rootID = -1;
+        this.rootLevel = model.getRootLevel();
+        rootID = model.getRootGroupID();
         setValues(null);
         setEnabled(true);
     }

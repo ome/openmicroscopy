@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
@@ -152,23 +153,19 @@ public class CreateAction
                 }
             } 
         } else if (ho instanceof ProjectData) {
-            setEnabled(((ProjectData) ho).getOwner().getId() == 
-                		model.getUserDetails().getId());
+            setEnabled(model.isObjectWritable((DataObject) ho));
             putValue(Action.NAME, NAME_DATASET); 
             nodeType = CreateCmd.DATASET;
         } else if (ho instanceof CategoryGroupData) {
-            setEnabled(((CategoryGroupData) ho).getOwner().getId() == 
-        		model.getUserDetails().getId());
+            setEnabled(model.isObjectWritable((DataObject) ho));
             putValue(Action.NAME, NAME_CATEGORY);
             nodeType = CreateCmd.CATEGORY;
         } else if (ho instanceof CategoryData) {
-            //setEnabled(((CategoryData) ho).getOwner().getId() == 
-            //    model.getUserDetails().getId());
-            setEnabled(false);
+            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(false); //TODO: remove when import
             putValue(Action.NAME, NAME_IMAGE);
         } else if (ho instanceof DatasetData) {
-            //setEnabled(((DatasetData) ho).getOwner().getId() == 
-            //    model.getUserDetails().getId());
+            setEnabled(model.isObjectWritable((DataObject) ho));
             setEnabled(false);
             putValue(Action.NAME, NAME_IMAGE);
         } else {
