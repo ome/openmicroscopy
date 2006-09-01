@@ -195,15 +195,11 @@ class BrowserControl
     /**
      * Reacts to click events on the tree.
      * 
-     * @param popupTrigger      Pass <code>true</code> is the event is the popup
-     *                          menu trigger event for the platform, 
-     *                          <code>false</code> otherwise.
-     * @param multiSelection    Pass <code>true</code> if more than one node
-     *                          is selected, <code>false</code> otherwise.
-     *                          Note that node of the same type will be taken 
-     *                          into account.             
+     * @param popupTrigger  Pass <code>true</code> is the event is the popup
+     *                      menu trigger event for the platform, 
+     *                      <code>false</code> otherwise.           
      */
-    void onClick(boolean popupTrigger, boolean multiSelection)
+    void onClick(boolean popupTrigger)
     {
         Object pathComponent;
         TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
@@ -289,8 +285,8 @@ class BrowserControl
                 filterNodes((Set) map.get(model));
         } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY))
             model.setFilterType(((Integer) pce.getNewValue()).intValue());
-        else if (name.equals(Browser.HIERARCHY_ROOT_PROPERTY))
-            model.refreshTree();
+        //else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY))
+        //    model.refreshTree();
         else if (name.equals(FilterWindow.CLOSE_PROPERTY))
             model.collapse(model.getLastSelectedDisplay());
     }

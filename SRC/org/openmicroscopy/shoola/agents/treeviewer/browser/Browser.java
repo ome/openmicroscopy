@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -147,9 +145,6 @@ public interface Browser
     
     /** Bound property name indicating to bring up the popup menu.  */
     public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
-    
-    /** Bound property indicating to change the root of the hierarchy. */
-    public static final String		HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
   
     /** 
      * The browser's title corresponding to {@link #HIERARCHY_EXPLORER} type.
@@ -388,18 +383,6 @@ public interface Browser
      * 					nodes will be added to the root node.
      */
     public void setContainerNodes(Set nodes, TreeImageDisplay parent);
-    
-    /**
-     * Sets the root of the retrieved hierarchies. 
-     * The rootID is taken into account if and only if the passed 
-     * <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
-     * 
-     * @param rootLevel The level of the root. One of the following constants:
-     * 					{@link TreeViewer#GROUP_ROOT} and
-     * 					{@link TreeViewer#USER_ROOT}.
-     * @param rootID	The Id of the root.
-     */
-    public void setHierarchyRoot(int rootLevel, long rootID);
     
     /**
      * Returns the level of the root. One of the following constants:

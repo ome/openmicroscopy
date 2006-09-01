@@ -249,7 +249,10 @@ class BrowserComponent
                     "This method can only be invoked in the LOADING_DATA "+
                     "state.");
         if (nodes == null) throw new NullPointerException("No nodes.");
-        Set visNodes = TreeViewerTranslator.transformHierarchy(nodes);
+        long userID = model.getUserID();
+        long groupID = model.getRootGroupID();
+        Set visNodes = TreeViewerTranslator.transformHierarchy(nodes, userID,
+                                                            groupID);
         view.setViews(visNodes);
         model.setState(READY);
         fireStateChange();
@@ -343,7 +346,10 @@ class BrowserComponent
                     "This method can only be invoked in the LOADING_LEAVES "+
                     "state.");
         if (leaves == null) throw new NullPointerException("No leaves.");
-        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves);
+        long userID = model.getUserID();
+        long groupID = model.getRootGroupID();
+        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
+                                                                groupID);
         view.setLeavesViews(visLeaves);
         model.setState(READY);
         fireStateChange();
@@ -524,7 +530,10 @@ class BrowserComponent
         model.setState(READY);
         fireStateChange();
         JFrame frame = getViewParent(view.getParent());
-        Set n = TreeViewerTranslator.transformDataObjectsCheckNode(nodes);
+        long userID = model.getUserID();
+        long groupID = model.getRootGroupID();
+        Set n = TreeViewerTranslator.transformDataObjectsCheckNode(nodes, 
+                                            userID, groupID);
         FilterWindow window = new FilterWindow(this, frame, index, n);
         window.addPropertyChangeListener(TreeViewer.FILTER_NODES_PROPERTY, 
                                         controller);
@@ -631,31 +640,19 @@ class BrowserComponent
                     "state.");
         if (nodes == null) throw new NullPointerException("No nodes.");
         TreeImageDisplay parentDisplay = model.getLastSelectedDisplay();
+        long userID = model.getUserID();
+        long groupID = model.getRootGroupID();
         if (parent == null) { //root
-            view.setViews(TreeViewerTranslator.transformHierarchy(nodes));
-        }  else view.setViews(TreeViewerTranslator.transformContainers(nodes), 
+            view.setViews(TreeViewerTranslator.transformHierarchy(nodes, userID,
+                                                            groupID));
+        }  else view.setViews(TreeViewerTranslator.transformContainers(nodes, 
+                                        userID, groupID), 
                             parentDisplay);
         if (parentDisplay != null)
             parentDisplay.setChildrenLoaded(Boolean.TRUE);
         model.fireContainerCountLoading();
         fireStateChange();
     }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setHierarchyRoot(int, int)
-     */
-	public void setHierarchyRoot(int rootLevel, long rootID)
-	{
-	    int state = model.getState();
-		if (state != READY && state != NEW)
-		    throw new IllegalStateException(
-                    "This method can only be invoked in the READY state.");
-		int oldLevel = model.getRootLevel();
-		model.setHierarchyRoot(rootLevel, rootID);
-		firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
-		        				new Integer(rootLevel));
-	}
 
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -680,7 +677,7 @@ class BrowserComponent
 		    throw new IllegalStateException(
                     "This method can't only be invoked in the DISCARDED " +
                     "state.");
-        return model.getRootID();
+        return model.getRootGroupID();
     }
 
     /**
@@ -849,9 +846,14 @@ class BrowserComponent
         List nodes = visitor.getFoundNodes();
         if (op == Editor.UPDATE_OBJECT) view.updateNodes(nodes, object);
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
-        else if (op == Editor.CREATE_OBJECT)
+        else if (op == Editor.CREATE_OBJECT) {
+            long userID = model.getUserID();
+            long groupID = model.getRootGroupID();
             createNodes(nodes, 
-                    TreeViewerTranslator.transformDataObject(object));
+                    TreeViewerTranslator.transformDataObject(object, userID, 
+                            groupID));
+        }
+            
     }
     
     /**
@@ -884,7 +886,10 @@ class BrowserComponent
                                                     img, categories);
             accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
             List nodes = visitor.getFoundNodes();
-            TreeImageDisplay d = TreeViewerTranslator.transformDataObject(img);
+            long userID = model.getUserID();
+            long groupID = model.getRootGroupID();
+            TreeImageDisplay d = TreeViewerTranslator.transformDataObject(img, 
+                                                userID, groupID);
             int editorType = model.getBrowserType();
             if (editorType == CATEGORY_EXPLORER) {
                 if (m == Classifier.CLASSIFY_MODE) createNodes(nodes, d);
@@ -951,7 +956,7 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setSelectedDisplays(TreeImageDisplay[], boolean)
+     * @see Browser#setSelectedDisplays(TreeImageDisplay[])
      */
     public void setSelectedDisplays(TreeImageDisplay[] nodes)
     {

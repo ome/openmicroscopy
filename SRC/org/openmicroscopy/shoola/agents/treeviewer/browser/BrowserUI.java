@@ -30,14 +30,11 @@
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
-
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Point;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
@@ -175,17 +172,7 @@ class BrowserUI
         if (row != -1) {
             //treeDisplay.setSelectionRow(row);
             model.setClickPoint(p);
-            int ie = me.getModifiers();
-            boolean multiSelection = false;
-            multiSelection = 
-                (ie & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK;
-            if (!multiSelection) 
-                multiSelection = 
-                    (ie & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK;
-            if (!multiSelection) 
-                multiSelection = 
-                  (ie & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK;
-            controller.onClick(me.isPopupTrigger(), multiSelection);
+            controller.onClick(me.isPopupTrigger());
         }
     }
     
@@ -233,9 +220,11 @@ class BrowserUI
                 children = display.getChildrenDisplay();
                 if (children.size() != 0)
                     buildTreeNode(display, sorter.sort(children));
-                else 
-                    tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
-                                   display, display.getChildCount());
+                else {
+                    if (((TreeImageSet) display).getNumberItems() > 0)
+                        tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                            display, display.getChildCount());
+                }    
             }
         } 
     }

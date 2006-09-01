@@ -77,9 +77,6 @@ class BrowserModel
     /** The collection of selected nodes in the visualization tree. */
     private Set                selectedNodes;
     
-    /** The currently selected node in the visualization tree. */
-    //private TreeImageDisplay    selectedDisplay;
-    
     /** Holds one of the state flags defined by {@link Browser}. */
     private int                 state;
      
@@ -95,18 +92,6 @@ class BrowserModel
     /** The type of filter. */
     private int                 filterType;
     
-    /** 
-     * The level of the hierarchy root. One of the following constants:
-     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
-     */
-    private int 				rootLevel;
-    
-    /** 
-     * The ID of the root. This parameter will be used only when the 
-     * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
-     */
-    private long                rootID;
-    
     /** List of founds nodes. */
     private List				foundNodes;
     
@@ -121,6 +106,9 @@ class BrowserModel
     
     /** Indicates if the browser is currently selected. */
     private boolean				selected;
+    
+    /** Reference to the parent. */
+    private TreeViewer          parent;
     
     /** Reference to the component that embeds this model. */
     protected Browser           component; 
@@ -147,10 +135,12 @@ class BrowserModel
      * 
      * @param browserType   The browser's type. One of the type defined by
      *                      the {@link Browser}.
+     * @param parent        Reference to the parent.                  
      */
-    protected BrowserModel(int browserType)
+    protected BrowserModel(int browserType, TreeViewer parent)
     { 
         state = Browser.NEW;
+        this.parent = parent;
         checkBrowserType(browserType);
         this.browserType = browserType;
         clickPoint = null;
@@ -181,6 +171,22 @@ class BrowserModel
      *              One of the state constants defined by the {@link Browser}.
      */
     void setState(int state) { this.state = state; }
+    
+    /**
+     * Returns the level of the root. 
+     * One of the following constants: 
+     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
+     * 
+     * @return See above.
+     */
+    int getRootLevel() { return parent.getRootLevel(); }
+    
+    /** 
+     * Returns the root ID.
+     * 
+     * @return See above.
+     */
+    long getRootGroupID() { return parent.getRootGroupID(); }
     
     /**
      * Returns the currently selected node.
@@ -234,7 +240,6 @@ class BrowserModel
         selectedNodes.removeAll(selectedNodes);
         if (selectedDisplay == null) return;
         selectedNodes.add(selectedDisplay);
-        //this.selectedDisplay = selectedDisplay;
     }
     
     /**
@@ -438,38 +443,6 @@ class BrowserModel
             fireLeavesLoading();
         else fireContainerLoading();
     }
-    
-    /**
-     * Sets the root of the retrieved hierarchies. 
-     * The rootID is taken into account if and only if 
-     * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
-     * 
-     * @param rootLevel The level of the root. One of the following constants:
-     * 					{@link TreeViewer#GROUP_ROOT} or
-     * 					{@link TreeViewer#USER_ROOT}.
-     * @param rootID	The Id of the root.
-     */
-    void setHierarchyRoot(int rootLevel, long rootID)
-    {
-    	this.rootLevel = rootLevel;
-    	this.rootID = rootID;
-    }
-    
-    /**
-     * Returns the level of the root. 
-     * One of the following constants: 
-     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
-     * 
-     * @return See above.
-     */
-    int getRootLevel() { return rootLevel; }
-    
-    /** 
-     * Returns the root ID.
-     * 
-     * @return See above.
-     */
-    long getRootID() { return rootID; }
 
     /**
      * Sets the number of items contained in the specified container.
@@ -533,5 +506,12 @@ class BrowserModel
      * @return See above.
      */
     List getFoundNodes() { return foundNodes; }
+    
+    /**
+     * Returns the user's id. Helper method
+     * 
+     * @return See above.
+     */
+    long getUserID() { return parent.getUserDetails().getId(); }
     
 }
