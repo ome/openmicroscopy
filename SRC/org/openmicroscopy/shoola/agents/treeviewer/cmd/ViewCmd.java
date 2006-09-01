@@ -133,7 +133,7 @@ public class ViewCmd
         if (browser == null) return;
         Object ho = null;
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        Class root = convertRootLevel(browser.getRootLevel());
+        Class root = convertRootLevel(model.getRootLevel());
         if (hierarchyObject != null) ho = hierarchyObject;
         else {
             TreeImageDisplay[] nodes = browser.getSelectedDisplays();
@@ -147,7 +147,7 @@ public class ViewCmd
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.IMAGES, root, 
-                            browser.getRootID()));   
+                            model.getRootGroupID()));   
                     return;
                 }
                 UserNotifier un = 
@@ -159,7 +159,7 @@ public class ViewCmd
                 if (display.getParentDisplay() == null &&
                     browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
                     bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
-                            root, browser.getRootID()));   
+                            root, model.getRootGroupID()));   
                     return;
                 }
                 ho = display.getUserObject(); 
@@ -172,16 +172,16 @@ public class ViewCmd
                     data.getDefaultPixels().getId() , data.getName()));
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
-                     root, browser.getRootID())); 
+                     root, model.getRootGroupID())); 
         else if (ho instanceof ProjectData)
             bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
-                    root, browser.getRootID())); 
+                    root, model.getRootGroupID())); 
         else if (ho instanceof CategoryData)
             bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
-                    root, browser.getRootID())); 
+                    root, model.getRootGroupID())); 
         else if (ho instanceof CategoryGroupData)
             bus.post(new Browse(((CategoryGroupData) ho).getId(),
-                          Browse.CATEGORY_GROUP, root, browser.getRootID())); 
+                          Browse.CATEGORY_GROUP, root, model.getRootGroupID())); 
     }
     
 }

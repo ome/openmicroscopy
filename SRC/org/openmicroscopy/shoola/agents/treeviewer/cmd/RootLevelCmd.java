@@ -33,13 +33,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
-import java.util.Iterator;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 
@@ -112,10 +109,7 @@ public class RootLevelCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        Map browsers = model.getBrowsers();
-        Iterator i = browsers.values().iterator();
-        while (i.hasNext())
-            ((Browser) i.next()).setHierarchyRoot(rootLevel, rootID);
+        model.setHierarchyRoot(rootLevel, rootID);
     }
 
 }
