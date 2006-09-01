@@ -96,7 +96,6 @@ public class ClassifyCmd
         return images;
     }
     
-    
     /** 
      * The classification mode.
      * This is one of the constants defined by the {@link Classifier} interface
@@ -110,6 +109,12 @@ public class ClassifyCmd
     /** The window from which this command was invoked. */
     private JFrame              owner;
     
+    /** The id of the current user. */
+    private long                userID;
+    
+    /** The id of the user's group used for data retrieval. */
+    private long                groupID;
+        
     /**
      * Creates a new command to classify/declassify the specified Image.
      * 
@@ -120,13 +125,18 @@ public class ClassifyCmd
      *                  whether we're classifying or declassifying.
      * @param owner     The window from which this command was invoked.
      *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the user's group used for data retrieval.              
      */
-    public ClassifyCmd(ImageData[] images, int mode, JFrame owner)
+    public ClassifyCmd(ImageData[] images, int mode, JFrame owner, long userID, 
+                       long groupID)
     {
         if (owner == null) throw new NullPointerException("No owner.");
         this.images = images;
         this.mode = mode;
         this.owner = owner;
+        this.userID = userID;
+        this.groupID = groupID;
     }
      
     /**
@@ -139,8 +149,11 @@ public class ClassifyCmd
      *                  whether we're classifying or declassifying.
      * @param owner     The window from which this command was invoked.
      *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the user's group used for data retrieval.                
      */
-    public ClassifyCmd(ImageData image, int mode, JFrame owner)
+    public ClassifyCmd(ImageData image, int mode, JFrame owner, long userID, 
+                        long groupID)
     {
         if (owner == null) throw new NullPointerException("No owner.");
         if (image != null) {
@@ -149,6 +162,8 @@ public class ClassifyCmd
         }
         this.mode = mode;
         this.owner = owner;
+        this.userID = userID;
+        this.groupID = groupID;
     }
     /**
      * Creates a new command to classify/declassify the Image in the browser's
@@ -163,7 +178,8 @@ public class ClassifyCmd
      */
     public ClassifyCmd(HiViewer model, int mode) 
     { 
-        this(getImages(model), mode, model.getUI()); 
+        this(getImages(model), mode, model.getUI(), 
+                model.getUserDetails().getId(), model.getRootID()); 
     }
     
     /** 
@@ -174,8 +190,8 @@ public class ClassifyCmd
     public void execute()
     {
         if (images == null) return;
-        Classifier classifier = ClassifierFactory.createComponent(
-                                                    mode, images, owner);
+        Classifier classifier = ClassifierFactory.createComponent(mode, images, 
+                                            owner, userID, groupID);
         classifier.activate();
     }
 

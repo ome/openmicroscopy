@@ -78,8 +78,8 @@ public class IconsVisitor
             node.setFrameIcon(icons.getIcon(IconManager.PROJECT));
         else if (ho instanceof DatasetData) {
             DatasetData data = (DatasetData) ho;
-            Integer n = data.getAnnotationCount();
-            if (n != null && n.intValue() > 0 )
+            Long n = data.getAnnotationCount();
+            if (n != null && n.longValue() > 0 )
                 node.setFrameIcon(icons.getIcon(IconManager.ANNOTATED_DATASET));
             else 
                 node.setFrameIcon(icons.getIcon(IconManager.DATASET));

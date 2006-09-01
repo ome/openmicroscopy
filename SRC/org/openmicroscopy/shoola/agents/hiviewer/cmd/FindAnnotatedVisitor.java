@@ -33,14 +33,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
-import java.awt.Color;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -108,9 +106,9 @@ public class FindAnnotatedVisitor
         if (object instanceof DatasetData) {
             if (((DatasetData) object).getId() == ho.getId()) {
                 DatasetData data = (DatasetData) ho;
-                Integer n = data.getAnnotationCount();
+                Long n = data.getAnnotationCount();
                 IconManager im = IconManager.getInstance();
-                if (n != null && n.intValue() > 0 )
+                if (n != null && n.longValue() > 0 )
                     node.setFrameIcon(im.getIcon(
                             IconManager.ANNOTATED_DATASET));
                 else 
