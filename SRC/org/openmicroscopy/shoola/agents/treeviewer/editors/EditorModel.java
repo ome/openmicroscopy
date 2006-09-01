@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.ProjectData;
 
 /** 
@@ -108,9 +110,6 @@ class EditorModel
     
     /** The annotations related to the currently edited {@link DataObject}. */ 
     private Map                 annotations;
-    
-    /** The images' annotations. */
-    private Map                 leavesAnnotations;
     
     /** The set of retrieved classifications */
     private Set                 classifications;
@@ -258,22 +257,8 @@ class EditorModel
     {
         if (hierarchyObject == null || !(hierarchyObject instanceof ImageData))
                 return false;
-        Integer i = ((ImageData) hierarchyObject).getClassificationCount();
-        if (i == null || i.intValue() == 0) return false;
-        return true;
-    }
-    
-    /**
-     * Returns <code>true</code> if the current user can modify the 
-     * currently edited object, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isEditable()
-    {
-        ExperimenterData owner = getExperimenterData();
-        if (owner == null) return false;
-        return (owner.getId() == parentModel.getUserDetails().getId());
+        Long i = ((ImageData) hierarchyObject).getClassificationCount();
+        return (!(i == null || i.longValue() == 0));
     }
     
     /**
@@ -522,7 +507,9 @@ class EditorModel
     {
         state = Editor.LOADING_CLASSIFICATION;
         long imageID = ((ImageData) hierarchyObject).getId();
-        currentLoader = new ClassificationPathsLoader(component, imageID);
+        Set ids = new HashSet(1);
+        ids.add(new Long(imageID));
+        currentLoader = new ClassificationPathsLoader(component, ids);
         currentLoader.load();
     }
 
@@ -536,7 +523,7 @@ class EditorModel
         Browser b = parentModel.getSelectedBrowser();
         if (b == null) return;
         state = Editor.SAVE_EDITION;
-        Object p =  b.getSelectedDisplay().getUserObject();
+        Object p =  b.getLastSelectedDisplay().getUserObject();
         if (p instanceof String) //root
             currentLoader = new DataObjectCreator(component, object, null);
         else currentLoader = new DataObjectCreator(component, object,
@@ -629,5 +616,41 @@ class EditorModel
      * @return See above.
      */
     boolean isAnnotated() { return annotated; }
+    
+    /**
+     * Returns <code>true</code> if the current user is the owner of the
+     * edited object, <code>false</code> otherwise.
+     * If the returned value is <code>false</code>, the user cannot modify
+     * the permission of the edited object.
+     *  
+     * @return See above.
+     */
+    boolean isObjectOwner()
+    {
+        return (hierarchyObject.getOwner().getId() != getUserDetails().getId());
+    }
+
+    /**
+     * Returns <code>true</code> if the edited object is writable
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isWritable()
+    {
+        return parentModel.isObjectWritable(hierarchyObject);
+    }
+    
+    /**
+     * Returns the permission of the currently edited object. 
+     * Returns <code>null</code> if no permission associated. (This should never
+     * happens).
+     * 
+     * @return See above.
+     */
+    PermissionData getObjectPermissions()
+    {
+        return hierarchyObject.getPermissions();
+    }
     
 }

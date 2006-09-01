@@ -87,6 +87,13 @@ public class EditorUI
     /** The default height of the <code>TitlePanel</code>. */
     public static final int    	    TITLE_HEIGHT = 80;
     
+    /**
+     * A reduced size for the invisible components used to separate widgets
+     * vertically.
+     */
+    static final Dimension          SMALL_V_SPACER_SIZE = 
+                                                new Dimension(1, 6);
+    
     /** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -128,12 +135,11 @@ public class EditorUI
      * The title of the tabbed pane hosting the details of the owner of the
      * edited <code>DataObject</code>.
      */
-    private static final String     OWNER_TITLE = "Owner";
+    private static final String     OWNER_TITLE = "Permissions";
     
     /** The title of the tabbed pane hosting the details on the image. */
     private static final String     INFO_TITLE = "Info";
 
-    
     /** Button to finish the operation e.g. create, edit, etc. */
     private JButton         finishButton;
     
@@ -216,7 +222,6 @@ public class EditorUI
     /**
      * Builds the panel hosting the title according to the 
      * <code>DataObject</code> and the editorType.
-     *
      */
     private void buildTitlePanel()
     {
@@ -299,13 +304,13 @@ public class EditorUI
                 ExperimenterData exp = model.getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
-                            new DOInfo(details));
+                            new DOInfo(details, model));
                 DataObject hierarchyObject = model.getHierarchyObject();
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE),
-                               new DOInfo(details));
+                               new DOInfo(details, null));
                 }
                 return tabs;
         }

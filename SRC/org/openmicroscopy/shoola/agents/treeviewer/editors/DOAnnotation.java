@@ -87,13 +87,6 @@ class DOAnnotation
     private static final String         DELETE_ANNOTATION = "Delete " +
                                                         "the annotation";
     
-    /**
-     * A reduced size for the invisible components used to separate widgets
-     * vertically.
-     */
-    private static final Dimension      SMALL_V_SPACER_SIZE = 
-                                                new Dimension(1, 6);
-    
     /** Area where to annotate the <code>DataObject</code>. */
     private JTextArea           annotationArea;
     
@@ -222,7 +215,7 @@ class DOAnnotation
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(UIUtilities.buildComponentPanel(deleteBox));
         add(new JSeparator());
-        add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
+        add(Box.createRigidArea(EditorUI.SMALL_V_SPACER_SIZE));
         add(buildAnnotationPanel());
         add(Box.createVerticalGlue());
     }

@@ -146,6 +146,9 @@ class DOBasic
         if (model.getEditorType() == Editor.PROPERTIES_EDITOR) {
             nameArea.setText(model.getDataObjectName());
             descriptionArea.setText(model.getDataObjectDescription());
+            boolean b = model.isWritable();
+            nameArea.setEnabled(b);
+            descriptionArea.setEnabled(b);
             descriptionArea.getDocument().addDocumentListener(
                     new DocumentListener() {
 
@@ -168,10 +171,6 @@ class DOBasic
                 public void changedUpdate(DocumentEvent de) {}
                 
             });
-            if (!(model.isEditable())) {
-                nameArea.setEditable(false);
-                descriptionArea.setEditable(false);
-            }
             if (model.isAnnotatable()) {
                 annotator = new DOAnnotation(view, model);
                 IconManager im = IconManager.getInstance();

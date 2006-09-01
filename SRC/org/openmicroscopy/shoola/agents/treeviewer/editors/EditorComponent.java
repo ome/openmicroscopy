@@ -222,7 +222,10 @@ class EditorComponent
                     "invoked in the LOADING_CLASSIFICATION state.");
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
-        Set set = TreeViewerTranslator.transformHierarchy(paths);
+        long userID = model.getUserDetails().getId();
+        long groupID = model.getParentModel().getRootGroupID();
+        Set set = TreeViewerTranslator.transformHierarchy(paths, userID,
+                                                        groupID);
         model.setClassifications(set);
         view.showClassifications();
         fireStateChange();

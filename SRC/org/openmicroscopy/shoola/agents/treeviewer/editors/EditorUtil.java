@@ -60,8 +60,8 @@ class EditorUtil
 {
     
     /** Text displayed before the list of existing groups. */
-    static final String GROUPS = "Belongs to the following groups: ";
-
+    static final String         GROUPS = "Belongs to the following groups: ";
+    
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
     
@@ -101,6 +101,9 @@ class EditorUtil
     /** Identifies the <code>Institution</code> field. */
     private static final String INSTITUTION = "Institution";
     
+
+    
+    
     /**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
@@ -115,12 +118,12 @@ class EditorUtil
         if (data == null) {
             details.put(NAME, "");
             details.put(EMAIL, "");
-            details.put(INSTITUTION, "");
+            //details.put(INSTITUTION, "");
             
         } else {
             details.put(NAME, data.getFirstName()+" "+data.getLastName());
             details.put(EMAIL, data.getEmail());
-            details.put(INSTITUTION, data.getInstitution());
+            //details.put(INSTITUTION, data.getInstitution());
         }
         return details;
     }

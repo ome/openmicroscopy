@@ -37,12 +37,15 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,6 +58,7 @@ import javax.swing.border.EtchedBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
+import pojos.PermissionData;
 
 /** 
  * A UI component displaying owner's information, image's information etc.
@@ -71,6 +75,21 @@ class DOInfo
     extends JPanel
 {
 
+    /** Text displaying before the owner's permissions. */
+    private static final String    OWNER = "Owner: ";
+    
+    /** Text displaying before the group's permissions. */
+    private static final String     GROUP = "Group: ";
+    
+    /** Text displaying before the world's permissions. */
+    private static final String     WORLD = "Others: ";
+    
+    /** Text describing the <code>Read</code> permission. */
+    private static final String     READ = "Read";
+    
+    /** Text describing the <code>Write</code> permission. */
+    private static final String     WRITE = "Write";
+    
     /** The text displayed before the group's details. */
     private static final String		GROUP_TEXT = "Group's information: ";
     
@@ -81,7 +100,10 @@ class DOInfo
     private static final Dimension  SMALL_V_SPACER_SIZE = new Dimension(1, 6);
     
     /** The panel hosting the group's details. */
-    private JPanel groupPanel;
+    private JPanel          groupPanel;
+    
+    /** Reference to the Model. */
+    private EditorModel     model;
     
     /**
      * Builds the panel hosting the information
@@ -148,11 +170,147 @@ class DOInfo
        return content;
     }
     
+    /**
+     * Builds and lays out the panel displaying the permissions of the edited
+     * file.
+     * 
+     * @param permissions   The permissions of the edited object.
+     * @return See above.
+     */
+    private JPanel buildPermissions(final PermissionData permissions)
+    {
+        JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
+        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+        //The owner is the only person allowed to modify the permissions.
+        boolean isOwner = model.isObjectOwner();
+        //Owner
+        JLabel label = UIUtilities.setTextFont(OWNER);
+        JPanel p = new JPanel();
+        JCheckBox box =  new JCheckBox(READ);
+        box.setSelected(permissions.isUserRead());
+        box.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+               JCheckBox source = (JCheckBox) e.getSource();
+               permissions.setUserRead(source.isSelected());
+            }
+        });
+        box.setEnabled(isOwner);
+        p.add(box);
+        box =  new JCheckBox(WRITE);
+        box.setSelected(permissions.isUserWrite());
+        box.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+               JCheckBox source = (JCheckBox) e.getSource();
+               permissions.setUserWrite(source.isSelected());
+            }
+        
+        });
+        box.setEnabled(isOwner);
+        p.add(box);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        label.setLabelFor(p);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(UIUtilities.buildComponentPanel(p), c);  
+        //Group
+        label = UIUtilities.setTextFont(GROUP);
+        p = new JPanel();
+        box =  new JCheckBox(READ);
+        box.setSelected(permissions.isGroupRead());
+        box.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+               JCheckBox source = (JCheckBox) e.getSource();
+               permissions.setGroupRead(source.isSelected());
+            }
+        });
+        box.setEnabled(isOwner);
+        p.add(box);
+        box =  new JCheckBox(WRITE);
+        box.setSelected(permissions.isGroupWrite());
+        box.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+               JCheckBox source = (JCheckBox) e.getSource();
+               permissions.setGroupWrite(source.isSelected());
+            }
+        
+        });
+        box.setEnabled(isOwner);
+        p.add(box);
+        c.gridy = 1;
+        c.gridx = 0;
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        label.setLabelFor(p);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(UIUtilities.buildComponentPanel(p), c);  
+        //OTHER
+        label = UIUtilities.setTextFont(WORLD);
+        p = new JPanel();
+        box =  new JCheckBox(READ);
+        box.setSelected(permissions.isWorldRead());
+        box.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+               JCheckBox source = (JCheckBox) e.getSource();
+               permissions.setWorldRead(source.isSelected());
+            }
+        });
+        box.setEnabled(isOwner);
+        p.add(box);
+        box =  new JCheckBox(WRITE);
+        box.setSelected(permissions.isWorldWrite());
+        box.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+               JCheckBox source = (JCheckBox) e.getSource();
+               permissions.setWorldWrite(source.isSelected());
+            }
+        
+        });
+        box.setEnabled(isOwner);
+        p.add(box);
+        c.gridy = 2;
+        c.gridx = 0;
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        label.setLabelFor(p);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(UIUtilities.buildComponentPanel(p), c);  
+        return content;
+    }
+    
     /** 
      * Builds and lays out the GUI.
      *
-     * @param details The visualization map.
-     * @param groups	Collection of groups.
+     * @param details       The visualization map.
+     * @param groups	    Collection of groups.
      */
     private void buildGUI(Map details, Set groups)
     {
@@ -164,19 +322,34 @@ class DOInfo
         setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
         add(contentPanel, BorderLayout.NORTH);
-        add(groupPanel, BorderLayout.CENTER);
+        if (model.getObjectPermissions() != null) {
+            JPanel p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+            p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+            p.add(new JSeparator());
+            p.add(Box.createRigidArea(EditorUI.SMALL_V_SPACER_SIZE));
+            p.add(buildPermissions(model.getObjectPermissions()));
+            p.add(Box.createVerticalGlue());
+            add(p);
+        }
+        //add(groupPanel, BorderLayout.CENTER);
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param details The visualization map. Mustn't be <code>null</code>.
+     * @param details   The visualization map. Mustn't be <code>null</code>.
+     * @param model     Reference to the Model. Mustn't be <code>null</code>.
      */
-    DOInfo(Map details)
+    DOInfo(Map details, EditorModel model)
     {
         if (details == null) 
             throw new IllegalArgumentException("Visualization map cannot be" +
                     " null");
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
+        this.model = model;
+        
         buildGUI(details, null);
     }
     
