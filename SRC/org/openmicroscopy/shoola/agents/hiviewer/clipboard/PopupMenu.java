@@ -147,7 +147,9 @@ class PopupMenu
                 if (object instanceof ImageData) {
                     ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
                                             Classifier.CLASSIFICATION_MODE, 
-                                            model.getParentModel().getUI());
+                                            model.getParentModel().getUI(),
+                                            model.getUserID(),
+                                            model.getGroupID());
                     cmd.execute();
                 }
             }
@@ -160,7 +162,9 @@ class PopupMenu
                 if (object instanceof ImageData) {
                     ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
                                             Classifier.DECLASSIFICATION_MODE, 
-                                            model.getParentModel().getUI());
+                                            model.getParentModel().getUI(),
+                                            model.getUserID(),
+                                            model.getGroupID());
                     cmd.execute();
                 }
             }

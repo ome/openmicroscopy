@@ -33,16 +33,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Iterator;
-import java.util.Set;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
@@ -82,18 +78,6 @@ class ClipBoardControl
     
     /** The {@link ClipBoard} Component. */
     private ClipBoard           component;
-    
-    /**
-     * Handles the selection of a new node in the {@link Browser} component.
-     * 
-     * @param pce The event.
-     */
-    private void handleBrowserSelectedDisplay(PropertyChangeEvent pce)
-    {
-        ImageDisplay node = 
-            model.getParentModel().getBrowser().getLastSelectedDisplay();
-        view.onDisplayChange(node);
-    }
     
     /**
      * Creates a new instance.
@@ -143,9 +127,11 @@ class ClipBoardControl
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
-        if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY))
-            handleBrowserSelectedDisplay(pce); 
-        else if (name.equals(FindPane.SELECTED_PROPERTY)) {
+        if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+            ImageDisplay node = 
+                model.getParentModel().getBrowser().getLastSelectedDisplay();
+            view.onDisplayChange(node);
+        } else if (name.equals(FindPane.SELECTED_PROPERTY)) {
             model.getParentModel().scrollToNode(
                     (ImageDisplay) pce.getNewValue());
         }

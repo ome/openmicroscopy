@@ -403,4 +403,18 @@ class ClipBoardModel
         return null;
     }
     
+    /** 
+     * Returns the id of the current user. 
+     * 
+     * @return See above.
+     */
+    long getUserID() { return parentModel.getUserDetails().getId(); }
+    
+    /** 
+     * Returns the id of the user's group used for data retrieval. 
+     * 
+     * @return See above.
+     */
+    long getGroupID() { return parentModel.getRootID(); }
+    
 }

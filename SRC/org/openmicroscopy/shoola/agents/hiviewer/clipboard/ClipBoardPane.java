@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
