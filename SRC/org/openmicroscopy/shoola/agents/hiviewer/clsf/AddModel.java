@@ -96,8 +96,14 @@ class AddModel
     /**
      * Creates a new instance.
      * 
-     * @param images The images the component will be working with.
+     * @param images    The images the component will be working with.
+     *                  Mustn't be <code>null</code> or of size <code>0</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the user's group when loading the window.
      */
-    AddModel(ImageData[] images) { super(images); }
+    AddModel(ImageData[] images, long userID, long groupID)
+    { 
+        super(images, userID, groupID);
+    }
 
 }

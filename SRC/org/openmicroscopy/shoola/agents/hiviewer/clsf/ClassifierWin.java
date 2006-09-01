@@ -72,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
 import pojos.CategoryData;
 
 /** 
- * The top container.
+ * A modal dialog to classify or declassify the selected images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

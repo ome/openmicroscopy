@@ -88,21 +88,31 @@ abstract class ClassifierModel
     /** Reference to the component that embeds this model. */
     protected Classifier        component;
     
+    /** The id of the current user. */
+    private long                userID;
+    
+    /** The id of the user's group when loading the window. */
+    private long                groupID;
     
     /**
      * Creates a new object and sets its state to {@link Classifier#NEW}.
      * The {@link #initialize(Classifier) initialize} method should be
      * called straight after creation to complete initialization.
      * 
-     * @param images The images this Model is for.
+     * @param images    The images this Model is for. 
+     *                  Mustn't be <code>null</code> or of size <code>0</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the user's group when loading the window.
      */
-    protected ClassifierModel(ImageData[] images) 
+    protected ClassifierModel(ImageData[] images, long userID, long groupID) 
     { 
         if (images == null)
             throw new IllegalArgumentException("No image.");
         if (images.length == 0)
             throw new IllegalArgumentException("No image.");
         this.images = images;
+        this.userID = userID;
+        this.groupID = groupID;
         state = Classifier.NEW; 
     }
     
@@ -127,6 +137,20 @@ abstract class ClassifierModel
      * @return See above.
      */
     ImageData[] getImages() { return images; }
+    
+    /**
+     * Returns the id of the current user.
+     * 
+     * @return See above.
+     */
+    long getUserID() { return userID; }
+    
+    /**
+     * Returns the id of the user's group when loading the window. 
+     * 
+     * @return See above.
+     */
+    long getGroupID() { return groupID; }
     
     /**
      * Starts the asynchronous retrieval of the metadata needed by this

@@ -146,7 +146,8 @@ class ClassifierComponent
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_METADATA "+
                     "state.");
-        Set paths = HiTranslator.transformClassificationPaths(availablePaths);
+        Set paths = HiTranslator.transformClassificationPaths(availablePaths, 
+                            model.getUserID(), model.getGroupID());
         model.setMetadata(paths);
         fireStateChange();
     }
