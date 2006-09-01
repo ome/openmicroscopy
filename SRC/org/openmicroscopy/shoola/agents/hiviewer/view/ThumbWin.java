@@ -161,6 +161,13 @@ class ThumbWin
     JFrame getParentFrame() { return parentFrame; }
     
     /**
+     * Returns the id of the current user.
+     * 
+     * @return See above.
+     */
+    long getUserID() { return model.getUserDetails().getId(); }
+    
+    /**
      * Intercepts popup triggers on this window.
      * If the mouse event is a popup trigger, then we register the popup point
      * and display the popup menu.

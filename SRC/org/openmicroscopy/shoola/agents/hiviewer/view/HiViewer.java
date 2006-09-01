@@ -335,4 +335,22 @@ public interface HiViewer
      */
     public void scrollToNode(ImageDisplay node);
     
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho    The data object to check.
+     * @return See above.
+     */
+    public boolean isObjectReadable(DataObject ho);
+    
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho    The data object to check.
+     * @return See above.
+     */
+    public boolean isObjectWritable(DataObject ho);
+    
 }

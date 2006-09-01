@@ -40,7 +40,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
@@ -157,7 +156,8 @@ class ThumbWinPopupMenu
                 ClassifyCmd cmd = new ClassifyCmd(
                         (ImageData) currentWin.getDataObject(), 
                         Classifier.CLASSIFICATION_MODE, 
-                        currentWin.getParentFrame());
+                        currentWin.getParentFrame(), currentWin.getUserID(),
+                        currentWin.getModel().getRootID());
                 cmd.execute();
             }
         });
@@ -167,7 +167,8 @@ class ThumbWinPopupMenu
                 ClassifyCmd cmd = new ClassifyCmd(
                         (ImageData) currentWin.getDataObject(), 
                         Classifier.DECLASSIFICATION_MODE,
-                        currentWin.getParentFrame());
+                        currentWin.getParentFrame(), currentWin.getUserID(),
+                        currentWin.getModel().getRootID());
                 cmd.execute();
             }
         });

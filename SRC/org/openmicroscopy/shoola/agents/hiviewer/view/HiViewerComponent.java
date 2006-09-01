@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JFrame;
 
@@ -47,7 +48,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 
 /** 
  * Implements the {@link HiViewer} interface to provide the functionality
@@ -414,6 +417,64 @@ class HiViewerComponent
                     "This method cannot be invoked in the DISCARDED state.");
         if (node == null) throw new IllegalArgumentException("No node.");
         controller.scrollToNode(node);
+    }
+    
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#isObjectReadable(DataObject)
+     */
+    public boolean isObjectReadable(DataObject ho)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
+        //logic here to read the object.
+        long userID = model.getUserDetails().getId();
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserRead();
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (model.getRootID() == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupRead();
+        return permissions.isWorldRead();
+    }
+    
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#isObjectWritable(DataObject)
+     */
+    public boolean isObjectWritable(DataObject ho)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
+        //logic here to read the object.
+        long userID = model.getUserDetails().getId();
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserWrite();
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (model.getRootID() == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupWrite();
+        return permissions.isWorldWrite();
     }
     
 }

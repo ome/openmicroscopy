@@ -445,8 +445,13 @@ class HiViewerControl
         } else if (TreeView.TREE_SELECTED_DISPLAY_PROPERTY.equals(propName)) {
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; //tree shouldn't be null
-            model.getBrowser().setSelectedDisplay(
-                    (ImageDisplay) pce.getNewValue());
+            Browser browser = model.getBrowser();
+            ImageDisplay img = (ImageDisplay) pce.getNewValue();
+            if (img != null) {
+                if (!(img.equals(browser.getLastSelectedDisplay())))
+                    model.getBrowser().setSelectedDisplay(img);
+            } else model.getBrowser().setSelectedDisplay(img);
+            
         } else if (HiViewer.SCROLL_TO_NODE_PROPERTY.equals(propName)) {
             scrollToNode((ImageDisplay) pce.getNewValue());
         }

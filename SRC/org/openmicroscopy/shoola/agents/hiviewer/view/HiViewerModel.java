@@ -84,8 +84,8 @@ abstract class HiViewerModel
      */
     private Class               rootLevel;
     
-    /** The id of the root. */
-    private long                rootID;
+    /** The id of the group the user selects before data retrieval. */
+    private long                groupID;
 
     /** Holds one of the state flags defined by {@link HiViewer}. */
     private int                 state;
@@ -149,7 +149,7 @@ abstract class HiViewerModel
     void setRootLevel(Class rootLevel, long rootID)
     {
         this.rootLevel = rootLevel;
-        this.rootID = rootID;
+        this.groupID = rootID;
     }
     
     /**
@@ -164,7 +164,7 @@ abstract class HiViewerModel
      * 
      * @return See above.
      */
-    long getRootID() { return rootID; }
+    long getRootID() { return groupID; }
     
     /**
      * Returns the current user's details.
@@ -209,8 +209,11 @@ abstract class HiViewerModel
         if (roots == null) throw new NullPointerException("No roots.");
         //Translate.
         Set visTrees; 
-        if (flat) visTrees = HiTranslator.transformImages(roots);
-        else visTrees = HiTranslator.transformHierarchy(roots);
+        //Check if the objects are readable.
+        long userID = getUserDetails().getId();
+        if (flat) visTrees = HiTranslator.transformImages(roots, userID, 
+                                                        groupID);
+        else visTrees = HiTranslator.transformHierarchy(roots, userID, groupID);
         //Make the browser.
         browser = BrowserFactory.createBrowser(visTrees);
         
