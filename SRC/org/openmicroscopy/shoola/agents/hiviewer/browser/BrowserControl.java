@@ -38,14 +38,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.swing.JComponent;
-
-import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 
 /** 
  * Handles input events originating from the {@link Browser}'s View.
@@ -182,11 +180,12 @@ class BrowserControl
         ImageDisplay previousDisplay = model.getLastSelectedDisplay();
         boolean b = (me.getModifiers() & InputEvent.SHIFT_MASK) == 
                     InputEvent.SHIFT_MASK;
-        
-        if (d instanceof ImageNode) {
-            if (!(previousDisplay instanceof ImageNode)) b = false;
-            model.setSelectedDisplay(d, b);
-        } else model.setSelectedDisplay(d);
+        if (!(d.equals(previousDisplay))) {
+            if (d instanceof ImageNode) {
+                if (!(previousDisplay instanceof ImageNode)) b = false;
+                model.setSelectedDisplay(d, b);
+            } else model.setSelectedDisplay(d);
+        }
         if (me.isPopupTrigger()) popupTrigger = true;
     }
 

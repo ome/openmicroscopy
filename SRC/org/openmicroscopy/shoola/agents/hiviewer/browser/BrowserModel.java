@@ -149,10 +149,15 @@ class BrowserModel
     }
     
     /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setSelectedDisplay(ImageDisplay, boolean)
+     * Sets the specified <code>node</code> to be the currently selected
+     * node in the visualization tree.
+     * Sets it to <code>null</code> to indicate no node is currently selected.
+     *  
+     * @param node           The node to become the currently selected node.
+     * @param multiSelection Pass <code>false</code>  to indicate that only one
+     *                       node is selected, <code>true</code> otherwise.
      */
-    public void setSelectedDisplay(ImageDisplay node, boolean multiSelection)
+    void setSelectedDisplay(ImageDisplay node, boolean multiSelection)
     {
         thumbSelected = false;
         popupPoint = null;

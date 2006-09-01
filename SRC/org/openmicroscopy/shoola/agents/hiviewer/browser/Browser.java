@@ -95,7 +95,7 @@ public interface Browser
     /**
      * Sets the specified <code>node</code> to be the currently selected
      * node in the visualization tree.
-     * Set it to <code>null</code> to indicate no node is currently selected.
+     * Sets it to <code>null</code> to indicate no node is currently selected.
      *  
      * @param node The node to become the currently selected node.
      */
