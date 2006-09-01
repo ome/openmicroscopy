@@ -56,6 +56,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.system.Login;
+import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
@@ -116,6 +117,9 @@ class OMEROGateway
      * try reestabishing a valid link to <i>OMEDS</i>. 
      */
     private DataServicesFactory     dsFactory;
+    
+    /** Server instance to log in. */
+    private Server                  server;
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
@@ -304,8 +308,6 @@ class OMEROGateway
      */
     private IUpdate getIUPdateService() { return entry.getUpdateService(); }
     
-    private IPixels getIPixels() { return entry.getPixelsService(); }
-    
     /**
      * Returns the {@link RenderingEngine Rendering service}.
      * 
@@ -330,6 +332,7 @@ class OMEROGateway
     {
         if (dsFactory == null) 
             throw new IllegalArgumentException("No Data service factory.");
+        server = new Server(hostName, port);
         System.getProperties().setProperty("server.host", hostName);
         System.getProperties().setProperty("server.port", ""+port);
         //TODO: find a cleaner solution
@@ -368,10 +371,10 @@ class OMEROGateway
         System.getProperties().setProperty("omero.user", userName);
         //TODO: Remove it asap
         System.getProperties().setProperty("omero.pass", "ome");
+        System.getProperties().setProperty("omero.rootpass", "ome");
         //System.getProperties().setProperty("omero.pass", password);
         try {
-            //entry = new ServiceFactory(); 
-            entry = new ServiceFactory(new Login(userName, "ome")); 
+            entry = new ServiceFactory(server, new Login(userName, "ome")); 
             connected = true;
             return getUserDetails(userName);
         } catch (Exception e) {
