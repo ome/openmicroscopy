@@ -272,4 +272,11 @@ class ClassifierModel
         parentModel.onImageClassified(images, categories, mode);
     }
     
+    /**
+     * Returns the user's id. Helper method
+     * 
+     * @return See above.
+     */
+    long getUserID() { return parentModel.getUserDetails().getId(); }
+    
 }

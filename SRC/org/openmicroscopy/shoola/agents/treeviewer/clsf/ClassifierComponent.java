@@ -175,7 +175,11 @@ class ClassifierComponent
                     "invoked in the LOADING_CLASSIFICATION state.");
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
-        Set nodes = TreeViewerTranslator.transformDataObjectsCheckNode(paths);
+
+        long userID = model.getUserID();
+        long groupID = model.getParentModel().getRootGroupID();
+        Set nodes = TreeViewerTranslator.transformDataObjectsCheckNode(paths,
+                                                    userID, groupID);
         model.setPaths(nodes);
         view.showClassifications();
         fireStateChange();
