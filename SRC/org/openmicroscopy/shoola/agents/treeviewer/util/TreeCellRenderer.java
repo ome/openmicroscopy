@@ -84,17 +84,17 @@ public class TreeCellRenderer
         if (usrObject instanceof ProjectData)
             icon = icons.getIcon(IconManager.PROJECT);
         else if (usrObject instanceof DatasetData) {
-            Integer i = ((DatasetData) usrObject).getAnnotationCount();
-            if (i == null || i.intValue() == 0)
+            Long i = ((DatasetData) usrObject).getAnnotationCount();
+            if (i == null || i.longValue() == 0)
                 icon = icons.getIcon(IconManager.DATASET);
             else icon = icons.getIcon(IconManager.ANNOTATED_DATASET);
         } else if (usrObject instanceof ImageData) {
             ImageData img = (ImageData) usrObject;
-            Integer a = img.getAnnotationCount();
-            Integer c = img.getClassificationCount();
-            int n = 0, m = 0;
-            if (a != null) n = a.intValue();
-            if (c != null) m = c.intValue();
+            Long a = img.getAnnotationCount();
+            Long c = img.getClassificationCount();
+            long n = 0, m = 0;
+            if (a != null) n = a.longValue();
+            if (c != null) m = c.longValue();
             if (n == 0 && m == 0) icon = icons.getIcon(IconManager.IMAGE);
             else if (n == 0 && m != 0)
                 icon = icons.getIcon(IconManager.CLASSIFIED_IMAGE);
