@@ -169,6 +169,13 @@ public class TIFFEncoder
         
     }    
     
+    /**
+     * Writes the data for <code>int</code> values.
+     * 
+     * @param dbi   The buffer containing the data.
+     * @throws IOException Exception thrown if an error occured during the
+     * encoding process.
+     */
     private void writeRGBDataBufferInt(DataBufferInt dbi)
         throws IOException
     {
@@ -190,6 +197,13 @@ public class TIFFEncoder
         output.write(bank, 0, bank.length);
     }
     
+    /**
+     * Writes the data for <code>byte</code> values.
+     * 
+     * @param bufferByte   The buffer containing the data.
+     * @throws IOException Exception thrown if an error occured during the
+     * encoding process.
+     */
     private void writeRGBDataBufferByte(DataBufferByte bufferByte)
         throws IOException
     {
