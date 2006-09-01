@@ -78,8 +78,6 @@
   file under the build directory.  However, there are some dependencies to
   satisfy before; these are clearly documented in the build.xml file itself.  
 
-
-
   Licensing
   ---------
 
