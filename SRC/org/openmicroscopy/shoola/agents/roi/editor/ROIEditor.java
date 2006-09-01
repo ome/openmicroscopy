@@ -136,7 +136,7 @@ public class ROIEditor
     public ROIEditor(ROIAgtCtrl control, String name, String annotation, 
                     int index)
     {
-        super(control.getReferenceFrame(), "ROI Editor", true);
+        //super(control.getReferenceFrame(), "ROI Editor", true);
         IconManager im = IconManager.getInstance(control.getRegistry());
         initComponents(annotation, name, im);
         new ROIEditorMng(this, control, index);
