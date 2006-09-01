@@ -189,11 +189,13 @@ public class ToolBarMng
     {
         //Bring up a notification dialog.
         //TO BE MODIFIED
+        /*
         IconManager im = IconManager.getInstance(control.getRegistry());
         EraseDialog dialog = new EraseDialog(this, control.getReferenceFrame(), 
                             im.getIcon(IconManager.QUESTION));
         dialog.pack();  
         UIUtilities.centerAndShow(dialog);
+        */
     }
     
     void eraseROI()

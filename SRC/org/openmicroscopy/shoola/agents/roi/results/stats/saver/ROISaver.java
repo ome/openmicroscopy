@@ -79,7 +79,7 @@ public class ROISaver
     
     public ROISaver(StatsResultsPaneMng mng, int resultIndex)
     {
-        super(mng.getReferenceFrame(), "Save ROI results", true);
+        //super(mng.getReferenceFrame(), "Save ROI results", true);
         manager = new ROISaverMng(this, mng);
         buildGUI(IconManager.getInstance(mng.getRegistry()), resultIndex);
         pack();

@@ -70,7 +70,7 @@ class ROISelector
     
     ROISelector(StatsResultsPaneMng mng, String s)
     {
-        super(mng.getReferenceFrame(), "ROI selector", true);
+        //super(mng.getReferenceFrame(), "ROI selector", true);
         initComponents(mng.getListROIs());
         new ROISelectorMng(this, mng);
         buildGUI(s);

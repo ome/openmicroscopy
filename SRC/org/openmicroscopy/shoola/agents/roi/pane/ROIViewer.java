@@ -117,7 +117,7 @@ public class ROIViewer
 
     public ROIViewer(ROIAgtCtrl control, int index)
     {
-        super(control.getReferenceFrame(), "Inspector - ROI #"+index);
+        //super(control.getReferenceFrame(), "Inspector - ROI #"+index);
         initComponents(IconManager.getInstance(control.getRegistry()));
         unitFactor = 1;
         mng = new ROIViewerMng(this, control);

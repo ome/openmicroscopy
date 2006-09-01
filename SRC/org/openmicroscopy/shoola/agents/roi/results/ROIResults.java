@@ -83,7 +83,7 @@ public class ROIResults
     
     public ROIResults(ROIAgtCtrl control, int sizeT, int sizeZ)
     {
-        super(control.getReferenceFrame(), "ROI Results");
+        //super(control.getReferenceFrame(), "ROI Results");
         init();
         manager = new ROIResultsMng(this, control);
         IconManager im = IconManager.getInstance(control.getRegistry());

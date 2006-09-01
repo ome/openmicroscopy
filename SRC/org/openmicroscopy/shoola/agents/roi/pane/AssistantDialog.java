@@ -122,7 +122,7 @@ public class AssistantDialog
     public AssistantDialog(ROIAgtCtrl control, int numRows, int numColumns,
                            ScreenROI roi)
     {
-        super(control.getReferenceFrame());
+        //super(control.getReferenceFrame());
         manager = new AssistantDialogMng(this, control, numColumns-1);
         manager.setSelectedColor(roi.getAreaColor());
         initComponents(IconManager.getInstance(control.getRegistry()), numRows, 
