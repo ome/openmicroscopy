@@ -105,10 +105,10 @@ public class ImageNode
         if (hierarchyObject instanceof ImageData) { 
             ImageData data = (ImageData) hierarchyObject;
             HashSet nodes = new HashSet();
-            Integer n = data.getAnnotationCount();
-            if (n != null && n.intValue() > 0) nodes.add(new AnnotatedButton());
-            Integer m = data.getClassificationCount();
-            if (m != null && m.intValue() > 0) 
+            Long n = data.getAnnotationCount();
+            if (n != null && n.longValue() > 0) nodes.add(new AnnotatedButton());
+            Long m = data.getClassificationCount();
+            if (m != null && m.longValue() > 0) 
                 nodes.add(new ClassifiedButton());
             if (nodes.size() > 0) setDecoration(nodes);
         }
