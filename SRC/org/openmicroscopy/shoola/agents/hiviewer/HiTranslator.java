@@ -48,7 +48,9 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.ProjectData;
 
 /** 
@@ -56,8 +58,8 @@ import pojos.ProjectData;
  * an hierarchy of {@link DataObject}s into a visualisation tree.
  * The tree is then displayed in the HiViewer. For example,
  * A list of Projects-Datasets-Images is passed to the 
- * {@link #transformProjects(Set)} method and transforms into a set of 
- * ImageSet-ImageSet-ImageNode.
+ * {@link #transformProjects(Set, long, long)} method and transforms into a set
+ * of ImageSet-ImageSet-ImageNode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,6 +93,78 @@ public class HiTranslator
      */
     private static final String RIGHT = "]";
   
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.
+     * @return See above.
+     */
+    private static boolean isReadable(DataObject ho, long userID, long groupID)
+    {
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserRead();
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (groupID == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupRead();
+        return permissions.isWorldRead();
+    }
+    
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.
+     * @return See above.
+     */
+    private static boolean isWritable(DataObject ho, long userID, long groupID)
+    {
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserWrite();
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (groupID == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupWrite();
+        return permissions.isWorldWrite();
+    }
+    
+    /**
+     * Formats the toolTip of the specified {@link ImageDisplay} node.
+     * 
+     * @param node The specified node. Mustn't be <code>null</code>.
+     */
+    private static void formatToolTipFor(ImageDisplay node)
+    {
+        if (node == null) throw new IllegalArgumentException("No node");
+        String toolTip = UIUtilities.formatToolTipText(node.getTitle());  
+        node.getTitleBar().setToolTipText(toolTip);
+    }
+    
     /** 
      * Returns the first element of the specified set. 
      * Returns <code>null</code> if the set is empty or <code>null</code>.
@@ -134,27 +208,39 @@ public class HiTranslator
      * Then adds the newly created {@link ImageNode} to the specified 
      * {@link ImageSet parent}. 
      * 
-     * @param images Collection of {@link ImageData}s.
-     * @param parent The {@link ImageSet} corresponding to the
-     *              {@link DataObject} containing the images.
+     * @param images    Collection of {@link ImageData}s.
+     * @param parent    The {@link ImageSet} corresponding to the
+     *                  {@link DataObject} containing the images.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.             
      */
-    private static void linkImagesTo(Set images, ImageSet parent)
+    private static void linkImagesTo(Set images, ImageSet parent, long userID,
+                                    long groupID)
     {
         if (images == null || parent == null) return;
         Iterator i = images.iterator();
-        while (i.hasNext()) 
-            linkImageTo((ImageData) i.next(), parent);
+        ImageData child;
+        while (i.hasNext()) {
+            child = (ImageData) i.next();
+            if (isReadable(child, userID, groupID))
+                linkImageTo(child, parent);
+        }  
     }
     
     /** 
      * Links the images contained into the specified {@link DataObject} 
      * to {@link ImageSet} corresponding to the {@link DataObject}.
      * 
-     * @param uo Must be instance of {@link DatasetData} or 
-     *          {@link CategoryData}.
+     * @param uo        Parent object. Either an instance of {@link DatasetData}
+     *                  or {@link CategoryData}.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.        
      * @return  The corresponding {@link ImageDisplay} or <code>null</code>.
      */
-    private static ImageDisplay linkImages(DataObject uo)
+    private static ImageDisplay linkImages(DataObject uo, long userID,
+                                        long groupID)
     {
         ImageSet node = null;
         Set images;
@@ -165,7 +251,7 @@ public class HiTranslator
             if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(ds.getName(), note, ds);
             formatToolTipFor(node);
-            linkImagesTo(images, node);
+            linkImagesTo(images, node, userID, groupID);
         } else if (uo instanceof CategoryData) {
             CategoryData data = (CategoryData) uo;
             String note = "";
@@ -173,7 +259,7 @@ public class HiTranslator
             if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(data.getName(), note, data);
             formatToolTipFor(node);
-            linkImagesTo(images, node);
+            linkImagesTo(images, node, userID, groupID);
         }
         return node;
     }
@@ -184,32 +270,44 @@ public class HiTranslator
      * 
      * @param projects  Collection of {@link ProjectData}s to transform.
      *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.                   
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
-    private static Set transformProjects(Set projects)
+    private static Set transformProjects(Set projects, long userID,
+                                        long groupID)
     {
         if (projects == null) 
             throw new IllegalArgumentException("No projects.");
-        Set results = new HashSet(projects.size());
+        Set results = new HashSet();
         Iterator i = projects.iterator(), j;
         //DataObject
         ProjectData ps;
+        DataObject child;
         //Visualisation object.
         ImageSet project;  
         Set datasets;
         String note = "";
         while (i.hasNext()) {
             ps = (ProjectData) i.next();
-            datasets = ps.getDatasets();
-            if (datasets != null) note += LEFT+datasets.size()+RIGHT;
-            project = new ImageSet(ps.getName(), note, ps);
-            formatToolTipFor(project);
-            if (datasets != null) {
-                j = datasets.iterator();
-                while (j.hasNext())
-                    project.addChildDisplay(linkImages((DataObject) j.next()));
+            if (isReadable(ps, userID, groupID)) {
+                datasets = ps.getDatasets();
+                if (datasets != null) note += LEFT+datasets.size()+RIGHT;
+                project = new ImageSet(ps.getName(), note, ps);
+                formatToolTipFor(project);
+                if (datasets != null) {
+                    j = datasets.iterator();
+                    while (j.hasNext()) {
+                        child = (DataObject) j.next();
+                        if (isReadable(child, userID, groupID)) 
+                            project.addChildDisplay(linkImages(child, userID, 
+                                                                groupID));
+                    }     
+                }
+                results.add(project);
             }
-            results.add(project);
+            
         }
         return results;
     }
@@ -220,13 +318,17 @@ public class HiTranslator
      * 
      * @param project   The {@link DataObject} to transform. 
      *                  Must be an instance of {@link ProjectData}.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.                  
      * @return See below.
      */
-    private static Set transformProject(DataObject project)
+    private static Set transformProject(DataObject project, long userID,
+                                        long groupID)
     {
         Set set = new HashSet(1);
         set.add(project);
-        return transformProjects(set);
+        return transformProjects(set, userID, groupID);
     }
     
     /**
@@ -235,16 +337,25 @@ public class HiTranslator
      * 
      * @param datasets  Collection of {@link DatasetData}s to transform.
      *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.                
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
-    private static Set transformDatasets(Set datasets)
+    private static Set transformDatasets(Set datasets, long userID,
+                                        long groupID)
     {
         if (datasets == null) 
             throw new IllegalArgumentException("No datasets.");
-        Set results = new HashSet(datasets.size());
+        Set results = new HashSet();
         Iterator i = datasets.iterator();
-        while (i.hasNext()) //create datasetNode.
-            results.add(linkImages((DataObject) i.next()));
+        DataObject ho;
+        while (i.hasNext()) {
+            //create datasetNode.
+            ho = (DataObject) i.next();
+            if (isReadable(ho, userID, groupID))
+                results.add(linkImages(ho, userID, groupID));
+        }  
         return results;
     }
     
@@ -252,32 +363,41 @@ public class HiTranslator
      * Transforms the specified {@link DataObject} into its corresponding
      * visualisation element.
      * 
-     * @param dataset The {@link DataObject} to transform.
-     *                Must be an instance of {@link DatasetData}.
+     * @param dataset   The {@link DataObject} to transform.
+     *                  Must be an instance of {@link DatasetData}.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.               
      * @return See below.
      */
-    private static Set transformDataset(DataObject dataset)
+    private static Set transformDataset(DataObject dataset, long userID,
+                                        long groupID)
     {
         Set set = new HashSet(1);
         set.add(dataset);
-        return transformDatasets(set);
+        return transformDatasets(set, userID, groupID);
     }
     
     /**
      * Transforms a CategoryGroup/Category/Images hierarchy into a visualisation
      * tree. 
      * 
-     * @param groups  Collection of {@link CategoryGroupData}s to transform.
-     *                Mustn't be <code>null</code>.
+     * @param groups    Collection of {@link CategoryGroupData}s to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.                
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
-    private static Set transformCategoryGroups(Set groups)
+    private static Set transformCategoryGroups(Set groups, long userID,
+                                            long groupID)
     {
         if (groups == null) throw new IllegalArgumentException("No groups.");
-        Set results = new HashSet(groups.size());
+        Set results = new HashSet();
         Iterator i = groups.iterator(), j;
         //DataObject
         CategoryGroupData  cgData;
+        DataObject child;
         //Visualisation object.
         ImageSet group;  
         Set categories;
@@ -291,8 +411,12 @@ public class HiTranslator
             
             if (categories != null) {
                 j = categories.iterator();
-                while (j.hasNext())
-                    group.addChildDisplay(linkImages((DataObject) j.next()));
+                while (j.hasNext()) {
+                    child = (DataObject) j.next();
+                    if (isReadable(child, userID, groupID))
+                        group.addChildDisplay(linkImages(child, userID, 
+                                                groupID));
+                }     
             }
             results.add(group); //add the group ImageSet 
         }
@@ -303,27 +427,35 @@ public class HiTranslator
      * Transforms the specified {@link CategoryGroupData} into its corresponding 
      * visualisation element.
      * 
-     * @param data The {@link CategoryGroupData} to transform.
+     * @param data      The {@link CategoryGroupData} to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data. 
      * @return See below.
      */
-    private static Set transformCategoryGroup(CategoryGroupData data)
+    private static Set transformCategoryGroup(CategoryGroupData data, 
+                                        long userID, long groupID)
     {
         Set set = new HashSet(1);
         set.add(data);
-        return transformCategoryGroups(set);
+        return transformCategoryGroups(set, userID, groupID);
     }
     
     /**
      * Transforms a Category/Images hierarchy into a visualisation tree. 
      * 
-     * @param categories The collection of {@link CategoryData}s to transform.
+     * @param categories    Collection of {@link CategoryData}s to transform.
+     * @param userID        The id of the current user.
+     * @param groupID       The id of the group the current user selects when 
+     *                      retrieving the data. 
      * @return Set of corresponding {@link ImageDisplay}s.
      */
-    private static Set transformCategories(Set categories)
+    private static Set transformCategories(Set categories, long userID, 
+                                            long groupID)
     {
         if (categories == null) 
             throw new IllegalArgumentException("No categories.");
-        Set results = new HashSet(categories.size());
+        Set results = new HashSet();
         Iterator i = categories.iterator();
         CategoryData data;
         ImageSet parent;
@@ -331,12 +463,14 @@ public class HiTranslator
         String note = "";
         while (i.hasNext()) {
             data = (CategoryData) i.next();
-            images = data.getImages();
-            if (images != null) note = LEFT+images.size()+RIGHT;
-            parent = new ImageSet(data.getName(), note, data);
-            formatToolTipFor(parent);
-            linkImagesTo(images, parent);
-            results.add(parent);
+            if (isReadable(data, userID, groupID)) {
+                images = data.getImages();
+                if (images != null) note = LEFT+images.size()+RIGHT;
+                parent = new ImageSet(data.getName(), note, data);
+                formatToolTipFor(parent);
+                linkImagesTo(images, parent, userID, groupID);
+                results.add(parent);
+            } 
         }
         return results;
     }
@@ -345,14 +479,18 @@ public class HiTranslator
      * Transforms the specified {@link CategoryData} into its corresponding 
      * visualisation element.
      * 
-     * @param data The {@link CategoryData} to transform.
+     * @param data      The {@link CategoryData} to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data. 
      * @return See below.
      */
-    private static Set transformCategory(CategoryData data)
+    private static Set transformCategory(CategoryData data, long userID, 
+                                        long groupID)
     {
         Set set = new HashSet(1);
         set.add(data);
-        return transformCategories(set);
+        return transformCategories(set, userID, groupID);
     }
     
     
@@ -380,12 +518,15 @@ public class HiTranslator
      * a {@link TreeCheckNode}. The {@link CategoryData categories} are also
      * transformed and linked to the newly created {@link TreeCheckNode}.
      * 
-     * @param data  The {@link CategoryGroupData} to transform.
-     *              Mustn't be <code>null</code>.
+     * @param data      The {@link CategoryGroupData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.            
      * @return See above.
      */
-    private static TreeCheckNode transformCategoryGroupPath(CategoryGroupData
-                                                            data)
+    private static TreeCheckNode transformCategoryGroupPath(
+            CategoryGroupData data, long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
@@ -395,9 +536,12 @@ public class HiTranslator
                                 data.getName(), false);
         Set categories = data.getCategories();
         Iterator i = categories.iterator();
-        while (i.hasNext())
-            group.addChildDisplay(
-                    transformCategoryPath((CategoryData) i.next()));
+        CategoryData child;
+        while (i.hasNext()) {
+            child = (CategoryData) i.next();
+            if (isWritable(child, userID, groupID))
+                group.addChildDisplay(transformCategoryPath(child));
+        }
         return group;
     }
     
@@ -410,34 +554,44 @@ public class HiTranslator
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
      *                      Mustn't be <code>null</code>.
+     * @param userID        The id of the current user.
+     * @param groupID       The id of the group the current user selects when 
+     *                      retrieving the data.                      
      * @return See above.
      */
-    public static Set transformHierarchy(Set dataObjects)
+    public static Set transformHierarchy(Set dataObjects, long userID, 
+                                        long groupID)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(dataObjects.size());
+        Set results = new HashSet();
         Iterator i = dataObjects.iterator();
         DataObject ho;
         ImageSet unclassified = null;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (ho instanceof ProjectData)
-                results.add(getFirstElement(transformProject(ho)));
+                results.add(getFirstElement(transformProject(ho, userID, 
+                                        groupID)));
             else if (ho instanceof DatasetData)
-                results.add(getFirstElement(transformDataset(ho)));
+                results.add(getFirstElement(transformDataset(ho, userID, 
+                                            groupID)));
             else if (ho instanceof CategoryGroupData)
                 results.add(getFirstElement(
-                        transformCategoryGroup((CategoryGroupData) ho)));
+                        transformCategoryGroup((CategoryGroupData) ho, userID, 
+                                                groupID)));
             else if (ho instanceof CategoryData)
                 results.add(getFirstElement(
-                        transformCategory((CategoryData) ho)));
+                        transformCategory((CategoryData) ho, userID, 
+                                            groupID)));
             else if (ho instanceof ImageData) {
-                if (unclassified == null) {
-                    unclassified = new ImageSet(UNCLASSIFIED, new Object());
-                    formatToolTipFor(unclassified);
+                if (isReadable(ho, userID, groupID)) {
+                    if (unclassified == null) {
+                        unclassified = new ImageSet(UNCLASSIFIED, new Object());
+                        formatToolTipFor(unclassified);
+                    }
+                    linkImageTo((ImageData) ho, unclassified);
                 }
-                linkImageTo((ImageData) ho, unclassified);
             }
         }
         if (unclassified != null) results.add(unclassified);
@@ -451,20 +605,24 @@ public class HiTranslator
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
      *                      Mustn't be <code>null</code>.
+     * @param userID        The id of the current user.
+     * @param groupID       The id of the group the current user selects when 
+     *                      retrieving the data.                   
      * @return See above.
      */
-    public static Set transformImages(Set dataObjects)
+    public static Set transformImages(Set dataObjects, long userID,
+                                    long groupID)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(dataObjects.size());
+        Set results = new HashSet();
         DataObject ho;
         Iterator i = dataObjects.iterator();
         ImageSet images = new ImageSet(IMAGES, new Object());
         formatToolTipFor(images);
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (ho instanceof ImageData)
+            if (isReadable(ho, userID, groupID) && ho instanceof ImageData)
                 linkImageTo((ImageData) ho, images);
         }
         results.add(images);
@@ -478,16 +636,19 @@ public class HiTranslator
      * {@link CategoryData} or {@link ImageData}.
      * The {@link ImageData}s are added to an unclassified {@link ImageSet}.
      * 
-     * @param ho    The {@link DataObject} to transform.
-     *              Mustn't be <code>null</code>.
+     * @param ho        The {@link DataObject} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.              
      * @return See above.
      */
-    public static Set transform(DataObject ho)
+    public static Set transform(DataObject ho, long userID, long groupID)
     {
         if (ho == null) throw new IllegalArgumentException("No objects.");
         Set s = new HashSet(1);
         s.add(ho);
-        return transformHierarchy(s);
+        return transformHierarchy(s, userID, groupID);
     }
      
     /**
@@ -495,39 +656,33 @@ public class HiTranslator
      * visualization objects. The elements of the set can either be
      * {@link CategoryGroupData} or {@link CategoryData}.
      * 
-     * @param paths The collection of {@link DataObject}s to transform.
+     * @param paths     Collection of {@link DataObject}s to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data. 
      * @return A set of visualization objects.
      */
-    public static Set transformClassificationPaths(Set paths)
+    public static Set transformClassificationPaths(Set paths, long userID, 
+                                                long groupID)
     {
         if (paths == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(paths.size());
+        Set results = new HashSet();
         Iterator i = paths.iterator();
         DataObject ho;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (ho instanceof CategoryGroupData) {
-                Set categories = ((CategoryGroupData) ho).getCategories();
-                if (categories != null && categories.size() != 0)
-                    results.add(transformCategoryGroupPath(
-                            (CategoryGroupData) ho));
-            } else if (ho instanceof CategoryData)
-                results.add(transformCategoryPath((CategoryData) ho));
+            if (isWritable(ho, userID, groupID)) {
+                if (ho instanceof CategoryGroupData) {
+                    Set categories = ((CategoryGroupData) ho).getCategories();
+                    if (categories != null && categories.size() != 0)
+                        results.add(transformCategoryGroupPath(
+                                (CategoryGroupData) ho, userID, groupID));
+                } else if (ho instanceof CategoryData)
+                    results.add(transformCategoryPath((CategoryData) ho));
+            }
         }
         return results;
-    }
-    
-    /**
-     * Formats the toolTip of the specified {@link ImageDisplay} node.
-     * 
-     * @param node The specified node. Mustn't be <code>null</code>.
-     */
-    public static void formatToolTipFor(ImageDisplay node)
-    {
-        if (node == null) throw new IllegalArgumentException("No node");
-        String toolTip = UIUtilities.formatToolTipText(node.getTitle());  
-        node.getTitleBar().setToolTipText(toolTip);
     }
    
 }

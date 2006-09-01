@@ -35,9 +35,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -90,14 +87,9 @@ public class HiViewerAgent
                 evt.getRootLevel(), evt.getRootID());
         else  {
             HiViewer viewer = null;
-            Set set = evt.getObjectIDs();
-            Iterator i = set.iterator();
-            while (i.hasNext()) {
-                System.out.println("id: "+i.next());
-            }
-            //viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
-             //   evt.getRootLevel(), evt.getRootID());
-            //if (viewer != null) viewer.activate();
+            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
+                evt.getRootLevel(), evt.getRootID());
+            if (viewer != null) viewer.activate();
         }
     }
     
