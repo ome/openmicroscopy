@@ -627,7 +627,7 @@ class EditorModel
      */
     boolean isObjectOwner()
     {
-        return (hierarchyObject.getOwner().getId() != getUserDetails().getId());
+        return (hierarchyObject.getOwner().getId() == getUserDetails().getId());
     }
 
     /**
