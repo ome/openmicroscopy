@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.util.HashMap;
 import java.util.Map;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -91,6 +92,19 @@ class TreeViewerModel
      */
     private int                 	editorType;
     
+    
+    /** 
+     * The level of the hierarchy root. One of the following constants:
+     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
+     */
+    private int                 rootLevel;
+    
+    /** 
+     * The ID of the root. This parameter will be used only when the 
+     * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
+     */
+    private long                rootGroupID;
+    
     /**
      * The component to find a given phrase in the currently selected
      * {@link Browser}.
@@ -104,16 +118,16 @@ class TreeViewerModel
     private void createBrowsers()
     {
         Browser browser = 
-                BrowserFactory.createBrowser(Browser.HIERARCHY_EXPLORER);
+                BrowserFactory.createBrowser(Browser.HIERARCHY_EXPLORER, 
+                        component);
         selectedBrowser = browser;
         browser.setSelected(true);
-        browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
         browsers.put(new Integer(Browser.HIERARCHY_EXPLORER), browser);
-        browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER);
-        browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
+        browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
+                                                component);
         browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
-        browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER);
-        browser.setHierarchyRoot(TreeViewer.USER_ROOT, -1);
+        browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER,
+                                                component);
         browsers.put(new Integer(Browser.IMAGES_EXPLORER), browser);
     }
     
@@ -124,8 +138,8 @@ class TreeViewerModel
     {
         state = TreeViewer.NEW;
         editorType = TreeViewer.NO_EDITOR;
+        rootLevel = TreeViewer.USER_ROOT;
         browsers = new HashMap();
-        createBrowsers();
     }
     
     /**
@@ -134,7 +148,44 @@ class TreeViewerModel
      * 
      * @param component The embedding component.
      */
-    void initialize(TreeViewer component) { this.component = component; }
+    void initialize(TreeViewer component)
+    { 
+        this.component = component; 
+        createBrowsers();
+    }
+    
+    
+    /**
+     * Sets the root of the retrieved hierarchies. 
+     * The rootID is taken into account if and only if 
+     * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
+     * 
+     * @param rootLevel The level of the root. One of the following constants:
+     *                  {@link TreeViewer#GROUP_ROOT} or
+     *                  {@link TreeViewer#USER_ROOT}.
+     * @param rootID    The Id of the root.
+     */
+    void setHierarchyRoot(int rootLevel, long rootID)
+    {
+        this.rootLevel = rootLevel;
+        this.rootGroupID = rootID;
+    }
+    
+    /**
+     * Returns the level of the root. 
+     * One of the following constants: 
+     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
+     * 
+     * @return See above.
+     */
+    int getRootLevel() { return rootLevel; }
+    
+    /** 
+     * Returns the root ID.
+     * 
+     * @return See above.
+     */
+    long getRootGroupID() { return rootGroupID; }
     
     /**
      * Sets the currently selected {@link Browser}.

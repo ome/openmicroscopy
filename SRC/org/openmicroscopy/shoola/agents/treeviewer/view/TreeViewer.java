@@ -164,6 +164,10 @@ public interface TreeViewer
      */
     public static final String      FINDER_VISIBLE_PROPERTY = "finderVisible";
     
+    
+    /** Bound property indicating to change the root of the hierarchy. */
+    public static final String      HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
+    
     /** 
      * The title displayed in the {@link LoadingWindow} during the saving 
      * process.
@@ -347,5 +351,43 @@ public interface TreeViewer
      *                               {@link #DISCARDED}.
      */
     public void moveToFront();
+    
+    /**
+     * Returns the id of the group, the current user is using as the logging
+     * group. By default, the method returns the default group. If the
+     * user belongs to more than one group, the method returns the 
+     * currently selected group.
+     * 
+     * @return See above.
+     */
+    public long getRootGroupID();
+
+    /**
+     * Returns of the following constants: 
+     * {@link #GROUP_ROOT} or {@link #USER_ROOT}.
+     * 
+     * @return See above.
+     */
+    public int getRootLevel();
+    
+    /**
+     * Sets the root of the retrieved hierarchies. 
+     * The rootID is taken into account if and only if the passed 
+     * <code>rootLevel</code> is {@link #GROUP_ROOT}.
+     * 
+     * @param rootLevel The level of the root. One of the following constants:
+     *                  {@link #GROUP_ROOT} and {@link #USER_ROOT}.
+     * @param rootID    The Id of the root.
+     */
+    public void setHierarchyRoot(int rootLevel, long rootID);
+    
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho    The data object to check.
+     * @return See above.
+     */
+    public boolean isObjectWritable(DataObject ho);
     
 }

@@ -193,14 +193,12 @@ class TreeViewerControl
         Set groups = model.getUserDetails().getGroups();
         Iterator i = groups.iterator();
         GroupData group;
-        /*
         while (i.hasNext()) {
             group = (GroupData) i.next();
             groupLevelActionsMap.put(new Long(group.getId()), 
                     new RootLevelAction(model, TreeViewer.GROUP_ROOT, 
                             group.getId(), group.getName()));
         }
-        */
     }
     
     /** 
@@ -240,9 +238,24 @@ class TreeViewerControl
         this.model = model;
         actionsMap = new HashMap();
         groupLevelActionsMap = new HashMap();
+        //createActions();
+        //createGroupLevelActions();
+        //model.addChangeListener(this);
+    }
+    
+    /**
+     * Links this Controller to its View.
+     * 
+     * @param view   Reference to the View. Mustn't be <code>null</code>.
+     */
+    void initialize(TreeViewerWin view)
+    {
+        if (view == null) throw new NullPointerException("No view.");
+        this.view = view;
         createActions();
         createGroupLevelActions();
         model.addChangeListener(this);
+        attachListeners();
     }
     
     /**
@@ -280,17 +293,7 @@ class TreeViewerControl
         });
     }
     
-    /**
-     * Links this Controller to its View.
-     * 
-     * @param view   Reference to the View. Mustn't be <code>null</code>.
-     */
-    void initialize(TreeViewerWin view)
-    {
-        if (view == null) throw new NullPointerException("No view.");
-        this.view = view;
-        attachListeners();
-    }
+
 
     /**
      * Returns the action corresponding to the specified id.
@@ -347,7 +350,12 @@ class TreeViewerControl
             model.retrieveThumbnail((ImageData) pce.getNewValue());
         } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
             model.onSelectedDisplay();
-        } 
+        } else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
+            Map browsers = model.getBrowsers();
+            Iterator i = browsers.values().iterator();
+            while (i.hasNext())
+                ((Browser) i.next()).refreshTree();
+        }
     }
 
     /**

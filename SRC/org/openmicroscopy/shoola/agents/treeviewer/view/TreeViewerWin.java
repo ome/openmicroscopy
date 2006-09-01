@@ -266,12 +266,6 @@ class TreeViewerWin
         rootLevelMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         ButtonGroup bGroup = new ButtonGroup();
         JRadioButtonMenuItem item;
-        /*
-        JRadioButtonMenuItem item = new JRadioButtonMenuItem(
-                controller.getAction(TreeViewerControl.WORLD_ROOT_LEVEL));
-        rootLevel.add(item);
-        bGroup.add(item);
-        */
         ExperimenterData details = model.getUserDetails();
         Set groups = details.getGroups();
         Iterator i = groups.iterator();

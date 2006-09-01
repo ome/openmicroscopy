@@ -54,7 +54,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -112,8 +114,11 @@ class TreeViewerComponent
     /** Links up the MVC triad. */
     void initialize()
     {
+        ExperimenterData user = model.getUserDetails();
+        model.setHierarchyRoot(USER_ROOT, user.getDefaultGroup().getId());
         controller.initialize(view);
         view.initialize(controller, model);
+
     }
 
     /**
@@ -541,6 +546,75 @@ class TreeViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
         view.toFront();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see TreeViewer#getRootGroupID()
+     */
+    public long getRootGroupID()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        return model.getRootGroupID();
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setHierarchyRoot(int, int)
+     */
+    public void setHierarchyRoot(int rootLevel, long rootID)
+    {
+        int state = model.getState();
+        if (state != READY && state != NEW)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the READY state.");
+        int oldLevel = model.getRootLevel();
+        model.setHierarchyRoot(rootLevel, rootID);
+        firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
+                               new Integer(rootLevel));
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#getRootLevel()
+     */
+    public int getRootLevel()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
+        return model.getRootLevel();
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#isObjectWritable(DataObject)
+     */
+    public boolean isObjectWritable(DataObject ho)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
+        //logic here to see if the object has write access
+        long userID = model.getUserDetails().getId();
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserWrite();
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (model.getRootGroupID() == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupWrite();
+        return permissions.isWorldWrite();
     }
     
 }
