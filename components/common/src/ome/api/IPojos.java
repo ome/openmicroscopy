@@ -493,7 +493,7 @@ public interface IPojos extends ServiceInterface {
      * @param options
      *      Map as above.
      * @return created data objects.
-     * @see updateDataObject
+     * @see #updateDataObject(IObject, Map)
      */
     public IObject[] updateDataObjects(
             @NotNull IObject[] dataObjects, 

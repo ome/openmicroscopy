@@ -66,7 +66,7 @@ import ome.util.builders.PojoOptions;
  * during lookup.
  * <p>
  *  Queries can optionally define a {@link #enableFilters(Session)} method
- *  (perhaps using pre-defined filters like {@link #ownerFilter(Session, String[])}
+ *  (perhaps using pre-defined filters like {@link #ownerOrGroupFilters(Session, String[])}
  *  to limit the entities returned.
  * </p>
  * 
@@ -335,27 +335,43 @@ public abstract class Query<T> implements HibernateCallback
 
     /**
      * standard filter used by many subclasses which uses the 
-     * {@link PojoOptions#isExperimenter()} boolean and the 
-     * {@link Parameters#OWNER_ID} constant for defining a filter.
+     * {@link PojoOptions#isExperimenter()} and {@link PojoOptions#isGroup()}
+     * booleans to see if a filter should be turned on. If both booleans are 
+     * active, group wins. The constant {@link Parameters#OWNER_ID} or 
+     * {@link Parameters#GROUP_ID} is then used to define a filter.
      */
-    protected void ownerFilter(Session session, String...filters)
+    protected void ownerOrGroupFilters(Session session, 
+    		String[] ownerFilters,
+    		String[] groupFilters)
     {
     
         if (check(OPTIONS) )
         {
             PojoOptions po = new PojoOptions( (Map)value( OPTIONS ) );
-            if ( po.isExperimenter() ) // TODO || is Group();
-            {
-                for (String filter : filters)
-                {
-                    if (session.getEnabledFilter( filter ) != null) 
-                        newlyEnabledFilters.add(  filter );
-                
-                    session.enableFilter( filter )
-                        .setParameter( OWNER_ID, po.getExperimenter() );
-                }
             
+            if ( po.isGroup() )
+            {
+	            for (String filter : groupFilters)
+	            {
+	                if (session.getEnabledFilter( filter ) != null) 
+	                    newlyEnabledFilters.add(  filter );
+	            
+	                session.enableFilter( filter )
+	                    .setParameter( GROUP_ID, po.getGroup() );
+	            }
             }
+            else if ( po.isExperimenter() )
+            {
+	            for (String filter : ownerFilters)
+	            {
+	                if (session.getEnabledFilter( filter ) != null) 
+	                    newlyEnabledFilters.add(  filter );
+	            
+	                session.enableFilter( filter )
+	                    .setParameter( OWNER_ID, po.getExperimenter() );
+	            }
+            }
+            
         }
     }
     

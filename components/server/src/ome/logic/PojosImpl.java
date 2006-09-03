@@ -45,8 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -78,12 +76,14 @@ import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesQueryDefinition;
+import ome.services.query.PojosGetUserImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
 import ome.services.util.CountCollector;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
+import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 
 
@@ -124,7 +124,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         
         PojoOptions po = new PojoOptions(options);
         
-        if (null==rootNodeIds && !po.isExperimenter()) 
+        if (null==rootNodeIds && !po.isExperimenter() && !po.isGroup()) 
         	throw new IllegalArgumentException(
         			"Set of ids for loadContainerHierarchy() may not be null " +
                     "if experimenter and group options are null.");
@@ -172,22 +172,25 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         }
         
         
-        Query<List<IObject>> q = getQueryFactory().lookup(
+        Query<List<Image>> q = getQueryFactory().lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
                 new Parameters()
                     .addClass(rootNodeType)
                     .addIds(imageIds)
                     .addOptions(po.map()));
-        List<IObject> l = iQuery.execute(q);
+        List<Image> l = iQuery.execute(q);
         collectCounts(l,po);
 
 
         //
         // Destructive changes below this point.
         //
-        for (IObject object : l)
-        {
-            iQuery.evict(object);    
+        @SuppressWarnings("unchecked")
+        class EvictBlock<E extends IObject> implements CBlock {
+        	public E call(IObject object) {
+        		iQuery.evict(object);
+        		return (E) object;
+        	};
         }
 
         // TODO; this if-else statement could be removed if Transformations 
@@ -199,7 +202,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 				return new HashSet();
 			}
             
-			return HierarchyTransformations.invertPDI(new HashSet<IObject>(l)); 
+			return HierarchyTransformations.invertPDI(new HashSet<Image>(l),
+					new EvictBlock<IObject>());
 			
 		}
 
@@ -208,7 +212,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 				return new HashSet();
 			}
 			
-			return HierarchyTransformations.invertCGCI(new HashSet<IObject>(l)); 
+			return HierarchyTransformations.invertCGCI(new HashSet<Image>(l),
+					new EvictBlock<IObject>()); 
 		}
 		
 		else {
@@ -363,17 +368,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 		
 		PojoOptions po = new PojoOptions(options);
 		
-		if (!po.isExperimenter() ) { // FIXME && !po.isGroup()){
+		if (!po.isExperimenter() && !po.isGroup()){
 			throw new IllegalArgumentException(
 					"experimenter or group option " +
                     "is required for getUserImages().");
 		}
-	
         
-        Query<List<Image>> q = getQueryFactory().lookup(" select i from Image i " +
-                "where i.details.owner.id = :id ",
-                new Parameters()
-                    .addId( po.getExperimenter()));
+        Query<List<Image>> q = getQueryFactory().lookup(
+        		PojosGetUserImagesQueryDefinition.class.getName(),
+        		new Parameters()
+        			.addOptions(options));
 
         List<Image> l = iQuery.execute(q);
         collectCounts(l,po);
@@ -397,7 +401,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
             results = iQuery.findAllByQuery(
                     "select e from Experimenter e " +
                     "left outer join fetch e.defaultGroupLink dgl " +
-                    "left outer join fetch dgl.child dg " +
+                    "left outer join fetch dgl.parent dg " +
                     "left outer join fetch e.groupExperimenterMap gs " +
                     "left outer join fetch gs.child g " +
                     "where e.omeName in ( :name_list )",
@@ -620,4 +624,3 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     }
     
 }
-

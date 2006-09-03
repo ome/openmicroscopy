@@ -27,12 +27,21 @@
 	<meta attribute="extra-import">ome.model.IObject</meta>
 	<meta attribute="extra-import">java.util.*</meta>
 	<meta attribute="implement-equals">false</meta>
-        <meta attribute="class-code">
+	<meta attribute="class-code">
           public final static String OWNER_FILTER = "${ofilter}";
           public final static String GROUP_FILTER = "${gfilter}";
           public final static String EVENT_FILTER = "${efilter}";
           public final static String PERMS_FILTER = "${pfilter}";  
-           
+#foreach( $prop in $type.properties)
+#if($prop.one2Many)
+#set( $UC_NAME = "${prop.name.toUpperCase()}")
+          public final static String OWNER_FILTER_${UC_NAME} = "${ofilter}_${UC_NAME}";
+          public final static String GROUP_FILTER_${UC_NAME} = "${gfilter}_${UC_NAME}";
+          public final static String EVENT_FILTER_${UC_NAME} = "${efilter}_${UC_NAME}";
+          public final static String PERMS_FILTER_${UC_NAME} = "${pfilter}_${UC_NAME}";  
+#end
+#end
+       
 /* These values are defined in dsl/resources/ome/dsl/mapping.vm:
  * -------------------------------------------------------------
  * Explanation of serialVersionUID ex 0000000 03 00 00 01 03 01 L;
@@ -45,7 +54,7 @@
  * 18-19 : increment per delta // any changes to the dsl or mapping files
  */ 
           private static final long serialVersionUID = 0000000030000010301L;                     
-        </meta>
+	</meta>
 ##
 ## INTERFACES:
 ## -----------
@@ -182,6 +191,7 @@
 
 ###########################################################################TYPE
 #elseif($prop.one2Many)
+#set( $UC_NAME = "${prop.name.toUpperCase()}")
 #if($prop.ordered) ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ORDERED
 
     <list
@@ -191,7 +201,11 @@
         <key column="${prop.foreignKey}" not-null="${prop.required}"/>
         <list-index column="index"/>
         <one-to-many class="${prop.type}"/>      
-        <filter name="securityFilter"/>  
+        <filter name="securityFilter"/>
+        <filter name="${ofilter}_${UC_NAME}" condition=":ownerId = owner_id"/>
+        <filter name="${gfilter}_${UC_NAME}" condition=":groupId = group_id"/>
+        <filter name="${efilter}_${UC_NAME}" condition=":eventId = event_id"/>
+        <filter name="${pfilter}_${UC_NAME}" condition=":permsStr = permissions"/>
     </list>
 
 #else ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ORDERED
@@ -219,6 +233,10 @@
         <key column="${prop.foreignKey}" not-null="${prop.required}"/>
         <one-to-many class="${prop.type}"/>
         <filter name="securityFilter"/>
+        <filter name="${ofilter}_${UC_NAME}" condition=":ownerId = owner_id"/>
+        <filter name="${gfilter}_${UC_NAME}" condition=":groupId = group_id"/>
+        <filter name="${efilter}_${UC_NAME}" condition=":eventId = event_id"/>
+        <filter name="${pfilter}_${UC_NAME}" condition=":permsStr = permissions"/>
     </set>
     
 #end ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ORDERED

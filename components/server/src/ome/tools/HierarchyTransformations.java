@@ -28,69 +28,77 @@
 
 package ome.tools;
 
+//Java imports
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
-import ome.model.containers.CategoryImageLink;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Image;
-import ome.model.containers.Project;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+import ome.model.containers.Project;
+import ome.util.CBlock;
+
+
 public class HierarchyTransformations {
 
-	public static Set invertPDI(Set imagesAll) {
+	/**
+	 * 
+	 * @param imagesAll
+	 * @param block
+	 * @return a Set with {@link Image}, {@link Dataset}, and {@link Project},
+	 * 		instances.
+	 */
+	public static <T extends IObject> Set<T> invertPDI(Set<Image> imagesAll, 
+			CBlock<T> block) {
 
-        Set cleared = new HashSet();
-		Set hierarchies = new HashSet();
-        Iterator i = imagesAll.iterator();
+        Set<T> cleared = new HashSet<T>();
+		Set<T> hierarchies = new HashSet<T>();
+        Iterator<Image> i = imagesAll.iterator();
         while (i.hasNext()) {
-            Image img = (Image) i.next();
+            Image img = (Image) block.call( i.next() );
 
             // Copy needed to prevent ConcurrentModificationExceptions
             List<Dataset> d_list = img.linkedDatasetList();
-            Iterator d = d_list.iterator();
+            Iterator<Dataset> d = d_list.iterator();
             if ( ! d.hasNext() ) {
-                hierarchies.add(img);
+                hierarchies.add((T)img);
             } else {
                 while (d.hasNext()) {
-                    Dataset ds = (Dataset) d.next();
+                    Dataset ds = (Dataset) block.call(d.next());
                     
                     if ( ! cleared.contains( ds ))
                     {
-                        ds.clearImageLinks();
-                        cleared.add( ds );
+                        //ds.clearImageLinks();
+                    	ds.putAt(Dataset.IMAGELINKS, new HashSet());
+                        cleared.add( (T)ds );
                     }
                     ds.linkImage( img );
 
                     // Copy needed to prevent ConcurrentModificationExceptions
                     List<Project> p_list = ds.linkedProjectList();
-                    Iterator p = p_list.iterator();
+                    Iterator<Project> p = p_list.iterator();
                     if ( ! p.hasNext() ) {
-                        hierarchies.add( ds );
+                        hierarchies.add( (T)ds );
                     } else {
                         while (p.hasNext()) {
-                            Project prj = (Project) p.next();
+                            Project prj = (Project) block.call(p.next());
 
                             if ( ! cleared.contains( p ))
                             {
-                                prj.clearDatasetLinks();
-                                cleared.add( prj );
+                                //prj.clearDatasetLinks();
+                            	prj.putAt(Project.DATASETLINKS, new HashSet());
+                                cleared.add( (T)prj );
                             }
                             prj.linkDataset( ds );
 
-                            hierarchies.add(prj);
+                            hierarchies.add( (T)prj);
                         }
                     }
 
@@ -100,47 +108,50 @@ public class HierarchyTransformations {
 		return hierarchies;
 	}
 	
-	public static Set invertCGCI(Set imagesAll) {
+	public static <T extends IObject> Set<T> invertCGCI(Set<Image> imagesAll, 
+			CBlock<T> block) {
 
-        Set cleared = new HashSet();
-        Set hierarchies = new HashSet();
-        Iterator i = imagesAll.iterator();
+        Set<T> cleared = new HashSet<T>();
+        Set<T> hierarchies = new HashSet<T>();
+        Iterator<Image> i = imagesAll.iterator();
         while (i.hasNext()) {
-            Image img = (Image) i.next();
+            Image img = (Image) block.call(i.next());
             
             // Copy needed to prevent ConcurrentModificationExceptions
             List<Category> c_list = img.linkedCategoryList();
-            Iterator c = c_list.iterator();
+            Iterator<Category> c = c_list.iterator();
             if ( ! c.hasNext() ) {
-                hierarchies.add(img);
+                hierarchies.add( (T)img);
             } else {
                 while (c.hasNext()) {
-                    Category ca = (Category) c.next();
+                    Category ca = (Category) block.call(c.next());
 
                     if ( ! cleared.contains( ca ))
                     {
-                        ca.clearImageLinks();
-                        cleared.add( ca );
+                        //ca.clearImageLinks();
+                    	ca.putAt(Category.IMAGELINKS, new HashSet());
+                        cleared.add( (T)ca );
                     }
                     ca.linkImage( img );
 
                     // Copy needed to prevent ConcurrentModificationExceptions
                     List<CategoryGroup> cg_list = ca.linkedCategoryGroupList();
-                    Iterator g = cg_list.iterator();
+                    Iterator<CategoryGroup> g = cg_list.iterator();
                     if ( ! g.hasNext() ) {
-                        hierarchies.add(ca);
+                        hierarchies.add( (T)ca);
                     } else {
                         while (g.hasNext()){
-                            CategoryGroup cg = (CategoryGroup) g.next();
+                            CategoryGroup cg = (CategoryGroup) block.call(g.next());
                             
                             if ( ! cleared.contains( cg ))
                             {
-                                cg.clearCategoryLinks();
-                                cleared.add( cg );
+                                //cg.clearCategoryLinks();
+                            	cg.putAt(CategoryGroup.CATEGORYLINKS, new HashSet());
+                                cleared.add( (T)cg );
                             }
                             cg.linkCategory( ca );
                             
-                            hierarchies.add( cg );
+                            hierarchies.add( (T)cg );
                         }
                     }
                 }

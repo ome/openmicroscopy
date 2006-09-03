@@ -31,11 +31,8 @@ package ome.annotations;
 // Java imports
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
@@ -79,7 +76,11 @@ public class ApiConstraintChecker
         if ( args == null )
             args = new Object[]{};
 
-        Object[] allAnnotations = findAnnotations(implClass, mthd);
+        boolean[] validated = new boolean[args.length];
+        
+        Object[] allAnnotations = AnnotationUtils
+        	.findParameterAnnotations(implClass, mthd);
+        
         for (int j = 0; j < allAnnotations.length; j++)
         {
             Annotation[][] anns = (Annotation[][]) allAnnotations[j];            
@@ -90,7 +91,7 @@ public class ApiConstraintChecker
                 Object arg = args[i];
                 Annotation[] annotations = anns[i];
     
-                boolean validated = false;
+                validated[i] |= false;
     
                 for (Annotation annotation : annotations)
                 {
@@ -108,7 +109,7 @@ public class ApiConstraintChecker
     
                     else if (Validate.class.equals(annotation.annotationType()))
                     {
-                        validated = true;
+                        validated[i] = true;
                         Validate validator = (Validate) annotation;
                         Class[] validClasses = validator.value();
                         ValidSet validSet = new ValidSet( validClasses );
@@ -140,66 +141,21 @@ public class ApiConstraintChecker
                         }
                     }
                 }
-    
+            }
+            
+            for (int i = 0; i < validated.length; i++) {
                 /* warn if someone's forgotten to annotate a method */
-                if (arg instanceof Collection && !validated)
+                if (args[i] instanceof Collection && !validated[i])
                     throw new ValidationException(mthd
                             + " is missing a required @" + Validate.class.getName()
                             + " annotation. This should be added to one of the " 
                             + " implemented interfaces. Refusing to proceed...");
-    
-            }
+
+			}
         }
 
     }
 
-    /** finds the concrete method to use for checking. Because of the inverted 
-     * AOP done on EJBs, the actual implClass used may need to be the EJB 
-     * delegate. 
-     */
-    @SuppressWarnings("unchecked")
-    private static Object[] findAnnotations(
-            Class implClass, Method mthd) 
-    throws InternalException
-    {
-        
-        Class[] interfaces = implClass.getInterfaces();
-        Object[] annotations = new Object[interfaces.length];
-        
-        for (int i = 0; i < annotations.length; i++)
-        {
-            Method m = findMethod(interfaces[i],mthd);
-            annotations[i] = m == null ? null : m.getParameterAnnotations();
-        }
-        
-        return annotations;
-        
-    }
-
-    /* find concrete method */
-    @SuppressWarnings("unchecked")
-    private static Method findMethod(
-            Class implClass, Method mthd) 
-    throws InternalException
-    {
-
-        // Get the method.
-        Method implMethod;
-        try
-        {
-            implMethod = implClass.getMethod(mthd.getName(), (Class[]) mthd
-                    .getParameterTypes());
-        } catch (SecurityException e)
-        {
-            throw new InternalException(
-                    "Not allowed to perform reflection for testing API.\n" +
-                    String.format("Class:%s Method:%s",implClass.getName(),mthd));
-        } catch (NoSuchMethodException e)
-        {
-            implMethod = null; // TODO No method == no violation. 
-        }
-        return implMethod;
-    }
 }
 
 class ValidSet {

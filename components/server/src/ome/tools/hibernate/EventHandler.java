@@ -39,11 +39,13 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
@@ -106,36 +108,69 @@ public class EventHandler implements MethodInterceptor
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
         secSys.setCurrentDetails();
-        Boolean readOnly = (Boolean) ht.execute(new CheckReadOnlyAction(secSys));
-        if ( readOnly != null && readOnly.booleanValue())
+        boolean readOnly = checkReadOnly(arg0);
+
+        // If read-only, we don't save the new current event, which should 
+        // allow us to clear the session.
+        if ( readOnly )
         {
         	if (log.isDebugEnabled())
         	{
         		log.debug("Tx readonly. Not saving current event.");
         	}
+        // write operations are to be expected, prepare the current details
+        // by saving the current event.
         } else {
         	secSys.setCurrentEvent((Event)ht.merge(secSys.getCurrentEvent()));
         }
-        log.info(String.format("Auth:\tuser=%s,group=%s,event=%s(%s)",
+
+        // now the user can be considered to be logged in.
+        log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)",
         		secSys.currentUserId(),secSys.currentGroup().getId(),
         		secSys.currentEvent().getId(),secSys.currentEvent().getType()));
         
         boolean failure = false;
+        Object retVal = null;
         try {
         	ht.execute(new EnableFilterAction(secSys));
-            Object retVal = arg0.proceed();
+            retVal = arg0.proceed();
             return retVal;
         } catch (Exception ex){
         	failure = true;
         	throw ex;
         } finally {
         	try {
-	        	if (!failure && !(arg0.getThis() instanceof StatefulServiceInterface) )
+        		
+        		boolean stateful = (arg0.getThis() instanceof StatefulServiceInterface);
+
+        		// stateful services should NOT be flushed, because that's part 
+        		// of the state that should hang around.
+        		if ( stateful ) 
+        		{
+        			// we don't want to do anything, really.
+        		}
+        		
+        		// read-only sessions should not have anything changed.
+        		else if ( readOnly )
 	        	{
+	        		ht.execute(new ClearIfDirtyAction(secSys));
+	        	}
+        		
+        		// on failure, we want to make sure that no one attempts 
+        		// any further changes.
+        		else if ( failure )
+	        	{
+        			// TODO we should probably do some forced clean up here.
+	        	}
+        		
+        		// stateless services, don't keep their sesssions about.
+        		else
+        		{
 	        		ht.flush();
 	        		ht.execute(new CheckDirtyAction(secSys));
 	        		ht.execute(new DisableFilterAction(secSys));
-	        	}
+	        	} 
+        		
         	} finally {
         		secSys.clearCurrentDetails();
         	}
@@ -143,6 +178,25 @@ public class EventHandler implements MethodInterceptor
 
     }
 
+    /** checks method (and as a fallback the class) for the Spring
+     * {@link Transactional} annotation.  
+     * 
+     * @param mi Non-null method invocation.
+     * @return true if the {@link Transactional} annotation lists this method
+     * 	as read-only, or if no annotation is found. 
+     */
+    boolean checkReadOnly(MethodInvocation mi)
+    {
+    	AnnotationTransactionAttributeSource txSource = new 
+    	AnnotationTransactionAttributeSource();
+    	
+    	TransactionAttribute ta =
+    	txSource.getTransactionAttribute(mi.getMethod(), mi.getThis().getClass());
+    	
+    	return ta == null ? true : ta.isReadOnly();
+    	
+    }
+    
 }
 
 // ~ Actions
@@ -183,20 +237,30 @@ class DisableFilterAction implements HibernateCallback
 }
 
 /**
- * {@link HibernateCallback} which checks the session for ready only status
+ * {@link HibernateCallback} which checks whether or not the session is dirty.
+ * If so, an exception will be thrown.
  */
-class CheckReadOnlyAction implements HibernateCallback
+class ClearIfDirtyAction implements HibernateCallback
 {
+	private static Log log = LogFactory.getLog(ClearIfDirtyAction.class); 
+	
 	private SecuritySystem secSys;
-	public CheckReadOnlyAction( SecuritySystem sec )
+	public ClearIfDirtyAction( SecuritySystem sec )
 	{
 		this.secSys = sec;
 	}
-	public Boolean doInHibernate(Session session) 
+	public Object doInHibernate(Session session) 
 	throws HibernateException, SQLException {
-		return new Boolean(session.connection().isReadOnly());
+		if (session.isDirty())
+		{
+			if (log.isDebugEnabled())
+			{
+				log.debug("Clearing dirty session.");
+			}
+			session.clear();
+		}
+		return null;
 	}
-	
 }
 
 /**

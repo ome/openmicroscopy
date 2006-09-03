@@ -100,7 +100,12 @@ public class Parameters implements Serializable
     /**
      * named parameter "ownerId". Used in query strings as ":ownerId"
      */
-    public final static String OWNER_ID = "ownerId"; // TODO from Fitlers I/F
+    public final static String OWNER_ID = "ownerId";
+    
+    /**
+     * named parameter "groupId". Used in query strings as ":groupId"
+     */
+    public final static String GROUP_ID = "groupId";
     
     /**
      * single {@link Filter} instance for this Parameters. Is lazily-loaded by

@@ -47,6 +47,10 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 // Application-internal dependencies
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import static ome.parameters.Parameters.*;
@@ -81,6 +85,36 @@ public class PojosFindHierarchiesQueryDefinition
         setCriteria( c );
     }
 
+    @Override
+    protected void enableFilters(Session session)
+    {
+        ownerOrGroupFilters(session, 
+//              TODO this needs to be moved to Hierarchy.
+                new String[]{
+        			CategoryGroup.OWNER_FILTER,
+        			CategoryGroup.OWNER_FILTER_CATEGORYLINKS,
+        			Category.OWNER_FILTER,
+        			Category.OWNER_FILTER_CATEGORYGROUPLINKS,
+        			Category.OWNER_FILTER_IMAGELINKS,
+        			Project.OWNER_FILTER,
+        			Project.OWNER_FILTER_DATASETLINKS,
+        			Dataset.OWNER_FILTER,
+        			Dataset.OWNER_FILTER_IMAGELINKS,
+        			Dataset.OWNER_FILTER_PROJECTLINKS },
+        		new String[]{
+    				CategoryGroup.GROUP_FILTER,
+    				CategoryGroup.GROUP_FILTER_CATEGORYLINKS,
+    				Category.GROUP_FILTER,
+    				Category.GROUP_FILTER_CATEGORYGROUPLINKS,
+    				Category.GROUP_FILTER_IMAGELINKS,
+    				Project.GROUP_FILTER,
+    				Project.GROUP_FILTER_DATASETLINKS,
+    				Dataset.GROUP_FILTER,
+    				Dataset.GROUP_FILTER_IMAGELINKS,
+    				Dataset.GROUP_FILTER_PROJECTLINKS }
+                );
+    }
+    
 }
 //select i from Image i
 //#bottomUpHierarchy()

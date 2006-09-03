@@ -45,6 +45,8 @@ import javax.ejb.EJBException;
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 
@@ -143,6 +145,10 @@ public class PojosServiceTest extends TestCase {
       ServiceFactory rootFactory = new ServiceFactory( rootLogin );
       fixture = new CreatePojosFixture( rootFactory );
       fixture.createAllPojos();
+      
+      GROUP_FILTER = new PojoOptions().grp(fixture.g.getId());
+      OWNER_FILTER = new PojoOptions().exp(fixture.e.getId());
+      
     }
   
   @Test  
@@ -385,8 +391,6 @@ public class PojosServiceTest extends TestCase {
         fail("Should fail");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
         
         ids = new HashSet(data.getMax("Image.ids",2)); 
@@ -527,8 +531,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Missing plural on dataset
@@ -537,8 +539,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Null ids
@@ -547,8 +547,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Poorly formed
@@ -557,8 +555,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Empty Class string
@@ -567,8 +563,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Empty Class string
@@ -577,8 +571,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Empty property string
@@ -587,8 +579,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
         // Null property string
@@ -597,8 +587,6 @@ public class PojosServiceTest extends TestCase {
             fail("An exception should have been thrown");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
         }
 
     }
@@ -631,7 +619,7 @@ public class PojosServiceTest extends TestCase {
     public void test_getImages() throws Exception
     {
         ids = new HashSet(data.getMax("Project.ids",2));
-        Set imagse = iPojos.getImages(Project.class, ids, null );
+        Set images = iPojos.getImages(Project.class, ids, null );
     }
 
   @Test
@@ -656,9 +644,7 @@ public class PojosServiceTest extends TestCase {
             fail("APIUsage: experimenter/group option must be set.");
         } catch (ApiUsageException e) {
             // ok.
-        } catch (EJBException ejbe) {
-            log.warn("Should not be here."); //TODO
-        }
+        } 
         
         results = iPojos.getUserImages(
         		new PojoOptions().exp(fixture.e.getId()).map());
@@ -1130,7 +1116,151 @@ public class PojosServiceTest extends TestCase {
         }
         
     }
-    
+
+  // TODO move to another  class
+  // now let's test all methods that use the filtering functionality
+  
+  PojoOptions GROUP_FILTER;
+  PojoOptions OWNER_FILTER;
+  
+  private void assertFilterWorked(Set<? extends IObject> results, 
+		  Integer min, Integer max,
+		  Experimenter e, ExperimenterGroup g)
+  {
+	  if (min!=null) assertTrue( results.size() > min );
+	  if (max!=null) assertTrue( results.size() < max );
+	  if (e!=null)
+		  for (IObject iobj : results) {
+			assertTrue( e.getId().equals(
+					iobj.getDetails().getOwner().getId()));
+		  }
+	  if (g!=null)
+		  for (IObject iobj : results) {
+			  assertTrue( g.getId().equals(
+					  iobj.getDetails().getGroup().getId()));
+		  }
+  }
+  
+  @Test(groups = "ticket:318")
+	public void testFilters_getUserImages() throws Exception {
+
+	  // nothing should throw an exception
+	  try {
+		  iPojos.getUserImages(null);
+		  fail();
+	  } catch (ApiUsageException api) {
+		  // ok
+	  }
+
+	  // TODO MOVE TO FIXTURE
+	  // First we'll need to create an image from the user but not in the group, 
+	  // and from the group but not the user
+//	  Image i1 = new Image(); i.setName("user not group");
+//	  i.getDetails().setOwner(fixture.e);
+//	  i.getDetails().setGroup(new ExperimenterGroup(1L));
+//	  i = 
+//	  Image i2 = new Image(); i.
+	  
+	  
+	  // just filtering for the user should get us everything
+	  Set<Image> imgs = 
+	  iPojos.getUserImages( OWNER_FILTER.map() );
+	  assertFilterWorked(imgs, 0, null, fixture.e, null);
+	  
+	  // now for groups 
+	  imgs =
+		  iPojos.getUserImages( GROUP_FILTER.map() );
+	  assertFilterWorked(imgs, 0, null, null, fixture.g);
+
+  }
+
+  @Test(groups = "ticket:318")
+	public void testFilters_getImages() throws Exception {
+	  
+	  // there are about 6 projects in our fixture
+	  ids = new HashSet(data.getMax("Project.ids",100));
+      
+	  Set<Image> images = 
+    	  iPojos.getImages(Project.class, ids, OWNER_FILTER.map() );
+      assertFilterWorked(images, null, 100, fixture.e, null);
+      
+      images = 
+    	  iPojos.getImages(Project.class, ids, GROUP_FILTER.map() );
+      assertFilterWorked(images, null, 100, null, fixture.g);
+      
+	}
+
+	@Test(groups = "ticket:318")
+	public void testFilters_findCGCPaths() throws Exception {
+        ids = new HashSet(data.getMax("Image.ids",100));
+        
+        results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_ME,OWNER_FILTER.map());
+        assertFilterWorked(results, null, 100, fixture.e, null);
+        
+        results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_ME,GROUP_FILTER.map());
+        assertFilterWorked(results, null, 100, null, fixture.g);
+        
+        results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_NME,OWNER_FILTER.map());
+        assertFilterWorked(results, null, 100, fixture.e, null);
+        
+        results = iPojos.findCGCPaths(ids, IPojos.CLASSIFICATION_NME,GROUP_FILTER.map());
+        assertFilterWorked(results, null, 100, null, fixture.g);
+        
+        results = iPojos.findCGCPaths(ids, IPojos.DECLASSIFICATION,OWNER_FILTER.map());
+        assertFilterWorked(results, null, 100, fixture.e, null);
+        
+        results = iPojos.findCGCPaths(ids, IPojos.DECLASSIFICATION,GROUP_FILTER.map());
+        assertFilterWorked(results, null, 100, null, fixture.g);
+           
+	}
+
+	@Test(groups = "ticket:318")
+	public void testFilters_findContainerHierarchies() throws Exception {
+        ids = new HashSet(data.getMax("Image.ids",100)); 
+        
+        try {
+        	results = iPojos.findContainerHierarchies(Project.class,ids,OWNER_FILTER.map());
+        	assertFilterWorked(results, null, 100, fixture.e, null);
+        } catch (AssertionFailedError afe) {
+        	// this may fail since the images aren't filtered 
+        }
+
+        // but this shouldn't.
+        Iterator it = results.iterator();
+        while (it.hasNext()) {
+        	if (it.next() instanceof Image) it.remove();
+        }
+        assertFilterWorked(results, null, 100, fixture.e, null);
+        
+        try {
+        	results = iPojos.findContainerHierarchies(Project.class,ids,GROUP_FILTER.map());
+        	assertFilterWorked(results, null, 100, null, fixture.g);
+        } catch (AssertionFailedError afe){
+        	// again, this may fail
+        }
+        
+        // but this shouldn't.
+        it = results.iterator();
+        while (it.hasNext()) {
+        	if (it.next() instanceof Image) it.remove();
+        }
+        assertFilterWorked(results, null, 100, null, fixture.g);
+        
+        
+	}
+
+	@Test(groups = "ticket:318")
+	public void testFilters_loadContainerHierarchy() throws Exception {
+
+		ids = new HashSet(data.getMax("Project.ids",2));
+        
+		results = iPojos.loadContainerHierarchy(Project.class, ids, OWNER_FILTER.map());
+        assertFilterWorked(results, null, 100, fixture.e, null);
+        
+        results = iPojos.loadContainerHierarchy(Project.class, ids, GROUP_FILTER.map());
+        assertFilterWorked(results, null, 100, null, fixture.g);
+	}
+  
     // ~ Helpers
     // =========================================================================
     

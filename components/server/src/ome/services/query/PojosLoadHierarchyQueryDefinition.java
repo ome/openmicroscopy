@@ -56,12 +56,18 @@ public class PojosLoadHierarchyQueryDefinition
     @Override
     protected void enableFilters(Session session)
     {
-        ownerFilter(session, 
+        ownerOrGroupFilters(session, 
 //              TODO this needs to be moved to Hierarchy.
-                CategoryGroup.OWNER_FILTER, 
-                Category.OWNER_FILTER,
-                Project.OWNER_FILTER,
-                Dataset.OWNER_FILTER
+                new String[]{
+        			CategoryGroup.OWNER_FILTER, 
+        			Category.OWNER_FILTER,
+        			Project.OWNER_FILTER,
+        			Dataset.OWNER_FILTER},
+        		new String[]{
+        			CategoryGroup.GROUP_FILTER,
+        			Category.GROUP_FILTER,
+        			Project.GROUP_FILTER,
+        			Dataset.GROUP_FILTER}
                 );
     }
 

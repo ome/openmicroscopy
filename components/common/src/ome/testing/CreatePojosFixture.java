@@ -20,6 +20,8 @@ import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
+import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.util.ShallowCopy;
 
@@ -31,8 +33,28 @@ import ome.util.ShallowCopy;
  */
 public class CreatePojosFixture
 {
-	public CreatePojosFixture( ServiceFactory factory )
+	/** requires an admin service factory in order to create user. */
+	public CreatePojosFixture( ServiceFactory rootFactory )
 	{
+		IAdmin rootAdmin = rootFactory.getAdminService();
+		String G_NAME = UUID.randomUUID().toString();
+		g = new ExperimenterGroup();
+		g.setName(G_NAME);
+		g = new ExperimenterGroup( rootAdmin.createGroup(g), false );
+
+		TESTER = "TESTER-"+UUID.randomUUID().toString();
+		e = new Experimenter();
+		e.setOmeName(TESTER);
+		e.setFirstName("Mr.");
+		e.setLastName("Allen");
+		e = new Experimenter( rootAdmin.createUser(e), false );
+		rootAdmin.addGroups(e, g);
+		rootAdmin.setDefaultGroup(e, g);
+		init = true;
+		
+		Login testLogin = new Login(TESTER,"ome",G_NAME,"Test");
+		ServiceFactory factory = new ServiceFactory(testLogin);
+		
 		iAdmin = factory.getAdminService();
 		iQuery = factory.getQueryService();
 		iUpdate = factory.getUpdateService();
@@ -71,22 +93,13 @@ public class CreatePojosFixture
 			iUpdate.deleteObject(toAdd.get(i));
 		}
 		iAdmin.deleteExperimenter(e);
+		// TODO iAdmin.deleteGroup(g);
 	}
 	
 	public void init() {
 		if (!init)
 		{
-//		ExperimenterGroup group = new ExperimenterGroup();
-//		group.setName("foo");
-//		group = push(iAdmin.createGroup(group));
-//		
-			TESTER = UUID.randomUUID().toString();
-			e = new Experimenter();
-			e.setOmeName(TESTER);
-			e.setFirstName("Mr.");
-			e.setLastName("Allen");
-			e = new Experimenter( iAdmin.createUser(e), false );
-			init = true;
+			// moved to ctor
 		}
 	}
 	
@@ -417,6 +430,7 @@ public class CreatePojosFixture
 	//static class Data {
 		public String TESTER;
 		public Experimenter e;
+		public ExperimenterGroup g;
 		public Project pr9090, pr9091, pr9092, pu9990, pu9991, pu9992;
 		public Dataset dr7070, dr7071, dr7072, du7770, du7771, du7772;
 		public Image

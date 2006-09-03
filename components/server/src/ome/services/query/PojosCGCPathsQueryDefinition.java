@@ -81,7 +81,9 @@ public class PojosCGCPathsQueryDefinition extends Query
     @Override
     protected void enableFilters(Session session)
     {
-        ownerFilter(session, CategoryGroup.OWNER_FILTER, Category.OWNER_FILTER);
+        ownerOrGroupFilters(session, 
+        		new String[]{CategoryGroup.OWNER_FILTER, Category.OWNER_FILTER},
+        		new String[]{CategoryGroup.GROUP_FILTER, Category.GROUP_FILTER});
     }
     
 }

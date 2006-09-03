@@ -43,7 +43,6 @@ package ome.logic;
 //Application-internal dependencies
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
-import ome.system.OmeroContext;
 
 /**
  * service level 2
