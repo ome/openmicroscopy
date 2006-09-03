@@ -176,6 +176,9 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sec.newEvent(type);
 		sec.setCurrentEvent(event);
 		sec.emptyDetails();
+		sec.disable();
+		sec.enable();
+		sec.isDisabled("");
 		
 		// need ready sec.sys
 		try { sec.enableReadFilter( null ); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
@@ -393,6 +396,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sec.copyToken( null,null);
 		sec.newEvent( null );
 		sec.setCurrentEvent( null );
+		sec.enable(null);
 		
 		// uses Springs assert
 		try { sec.allowLoad( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
@@ -411,6 +415,8 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		try { sec.disableReadFilter( null ); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
 		try { sec.transientDetails( null ); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
 		try { sec.managedDetails( null, null ); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
+		try { sec.isDisabled(null); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
+		try { sec.disable(null); fail("Should throw ApiUSage"); } catch (ApiUsageException api) {};
 		
 	}
 	
@@ -430,6 +436,19 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sec.clearCurrentDetails();
 	}
 
+	@Test
+	public void testDisblingSubSystems() throws Exception {
+		assertFalse( sec.isDisabled("foo") );
+		sec.disable( "foo" );
+		assertTrue( sec.isDisabled("foo"));
+		sec.enable( "foo" );
+		assertFalse( sec.isDisabled("foo") );
+		sec.disable( "foo" );
+		assertTrue( sec.isDisabled("foo") );
+		sec.enable();
+		assertFalse( sec.isDisabled("foo") );		
+	}
+	
 	// ~ CAN USE MORE WORK
 	// =========================================================================
 	

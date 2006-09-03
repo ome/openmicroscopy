@@ -361,6 +361,25 @@ public class BasicSecuritySystem implements SecuritySystem
 		return false;
 	}
 	
+	// ~ Subsystem disabling
+	// =========================================================================
+	
+	public void disable(String...ids) {
+		if (ids==null || ids.length==0) 
+			throw new ApiUsageException("Ids should not be empty.");
+		CurrentDetails.addAllDisabled(ids);
+	}
+	
+	public void enable(String... ids) {
+		if (ids==null || ids.length==0 ) CurrentDetails.clearDisabled();
+		CurrentDetails.removeAllDisabled(ids);
+	}
+	
+	public boolean isDisabled(String id) {
+		if (id==null) throw new ApiUsageException("Id should not be null.");
+		return CurrentDetails.isDisabled(id);
+	}
+	
 	// ~ Details (for UpdateFilter)
 	// =========================================================================
 	   /*

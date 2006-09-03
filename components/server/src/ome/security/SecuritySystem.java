@@ -232,6 +232,34 @@ public interface SecuritySystem
 	 */
 	void throwDeleteViolation( IObject iObject ) throws SecurityViolation;
 	
+	// ~ Subsystem disabling
+	// =========================================================================
+	
+	/** disables components of the backend for the current Thread. Further checks
+	 * to {@link #isDisabled(String)} will return false. It is the responsibility 
+	 * of various security system components to then throw exceptions.
+	 * 
+	 * @param ids Non-null, non-empty array of String ids to disable.
+	 */
+	void disable( String... ids );
+	
+	/** enables components of the backend for the current Thread. Further checks
+	 * to {@link #isDisabled(String)} will return true.
+	 * 
+	 * @param ids possibly null array of String ids. A null array specifies
+	 *   that all subsystems are to be enabled. Otherwise, only those subsystems
+	 *   specified by the ids.
+	 */
+	void enable( String... ids );
+	
+	/** checks if the listed id is disabled for the current Thread.
+	 * 
+	 * @param id non-null String representing a backend subsystem. 
+	 * @return true if the backend subsystem has been previously disabled by 
+	 *   calls to {@link #disable(String[])}
+	 */
+	boolean isDisabled( String id );
+	
 	// ~ Privileged accounts
 	// =========================================================================
 	long getRootId();

@@ -29,21 +29,23 @@
 
 package ome.security;
 
+//Java imports
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jmock.core.constraint.IsLessThan;
 
+//Application-internal dependencies
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.model.meta.Event;
-import ome.model.meta.EventDiff;
-import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -80,6 +82,9 @@ abstract class CurrentDetails
     private static ThreadLocal<Collection<Long>> leaderOfGroupsHolder =
     	new ThreadLocal<Collection<Long>>();
     
+    private static ThreadLocal<Set<String>> disabledSubsystemsHolder =
+    	new ThreadLocal<Set<String>>();
+    
     /** removes all current context. This must stay in sync with the instance
      * fields. If a new {@link ThreadLocal} is added, {@link ThreadLocal#remove()}
      * <em>must</em> be called.
@@ -90,6 +95,7 @@ abstract class CurrentDetails
         umaskHolder.remove();
         leaderOfGroupsHolder.remove();
         memberOfGroupsHolder.remove();
+        disabledSubsystemsHolder.remove();
     }
     
     // ~ Internals
@@ -257,4 +263,70 @@ abstract class CurrentDetails
     	}
     	return c;
     }
-}
+    
+    public static boolean addDisabled(String id)
+    {
+    	Set<String> s = disabledSubsystemsHolder.get( );
+    	if ( s == null )
+    	{
+    		s = new HashSet<String>();
+    		disabledSubsystemsHolder.set( s );
+    		return s.add(id);
+    	}
+    	return false;	
+
+    }
+    
+    public static boolean addAllDisabled(String...ids)
+    {
+    	Set<String> s = disabledSubsystemsHolder.get( );
+    	if ( s == null )
+    	{
+    		s = new HashSet<String>();
+    		disabledSubsystemsHolder.set( s );
+    	}
+    	if (ids != null )
+    	{
+    		return Collections.addAll(s, ids);
+    	}
+    	return false;	
+
+    }
+    
+    public static boolean removeDisabled(String id)
+    {
+    	Set<String> s = disabledSubsystemsHolder.get( );
+    	if ( s != null && id != null )
+    	{
+    		return s.remove(id);
+    	}
+    	return false;	
+    }
+    
+    public static boolean removeAllDisabled(String...ids)
+    {
+    	Set<String> s = disabledSubsystemsHolder.get( );
+    	if ( s != null && ids != null )
+    	{
+    		boolean changed = false;
+    		for (String string : ids) {
+				changed |= s.remove(string);
+			}
+    	}
+    	return false;	
+    }
+    
+    public static void clearDisabled()
+    {
+    	disabledSubsystemsHolder.remove();
+    }
+    
+    public static boolean isDisabled(String id)
+    {
+    	Set<String> s = disabledSubsystemsHolder.get( );
+    	if ( s == null || id == null || ! s.contains(id)) return false;
+    	return true;
+    	
+    }
+    
+} 

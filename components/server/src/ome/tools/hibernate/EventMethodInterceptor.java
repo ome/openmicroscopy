@@ -29,16 +29,14 @@
 package ome.tools.hibernate;
 
 //Java imports
-
-//Third-party imports
 import java.lang.reflect.Method;
 
+//Third-party imports
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.event.AbstractEvent;
-import org.springframework.aop.MethodBeforeAdvice;
 
 // Application-internal dependencies
 import ome.conditions.InternalException;
@@ -49,19 +47,72 @@ import ome.conditions.InternalException;
 public class EventMethodInterceptor implements MethodInterceptor
 {
 
+	public static class Action 
+	{
+		public Object call(MethodInvocation mi)
+		{
+			if ( mi.getMethod().getReturnType().equals( boolean.class ))
+			{
+				return Boolean.FALSE;
+			}
+			return null;
+		}
+	}
+	
+	public static class DisableAction extends Action
+	{
+		@Override
+		public Object call(MethodInvocation mi) {
+			if (disabled(mi)) throw createException(mi);
+			return super.call(mi);
+		}
+
+		protected boolean disabled(MethodInvocation mi)
+		{
+			return true;
+		}
+		
+		protected InternalException createException(MethodInvocation mi)
+		{
+			return new InternalException(String.format(
+					"\nHibernate %s events have been disabled.",
+					getType(mi)));
+		}
+		
+		protected String getType(MethodInvocation mi)
+		{
+			Object event = mi.getArguments()[0];
+			String type = "(unknown)";
+			if (AbstractEvent.class.isAssignableFrom(event.getClass()))
+			{
+				type = event.getClass().getName();
+			}
+			return type;
+		}
+
+	}
+	
 	static volatile String last = null;
 	static volatile int count = 1;
 	
 	private static Log log = LogFactory.getLog(EventMethodInterceptor.class);
 
-	protected boolean disableAll = false;
-	
 	protected boolean verbose = false;
 	
-	public void setDisableAll( boolean disable )
+	protected Action action;
+	
+	public EventMethodInterceptor()
 	{
-		this.disableAll = disable;
+		this.action = new Action();
 	}
+	
+	public EventMethodInterceptor( Action action )
+	{
+		this.action = action;
+	}
+
+	// ~ Injectors
+	// =========================================================================
 	
 	public void setDebug( boolean debug )
 	{
@@ -73,7 +124,6 @@ public class EventMethodInterceptor implements MethodInterceptor
 		Object[] args = arg0.getArguments();
 		Method method = arg0.getMethod();
 		
-		if (disableAll) throw createException(args[0]);
 		if (verbose && method.getName().startsWith("on")) 
 		{
 			log(String.format("%s.%s called.",
@@ -81,30 +131,11 @@ public class EventMethodInterceptor implements MethodInterceptor
 					method.getName()));
 		}
 
-		if ( method.getReturnType().equals( boolean.class ))
-		{
-			return Boolean.FALSE;
-		}
-		return null;
-	}
-	
-	protected InternalException createException(Object event)
-	{
-		return new InternalException(String.format(
-				"\nThe SessionFactory has been configured \n" +
-				"so that %s events \nwill not be tolerated.",
-				getType(event)));
+		return action.call(arg0);
 	}
 
-	protected String getType(Object event)
-	{
-		String type = "Hibernate event";
-		if (AbstractEvent.class.isAssignableFrom(event.getClass()))
-		{
-			type = event.getClass().getName();
-		}
-		return type;
-	}
+	// ~ Helpers
+	// =========================================================================
 	
 	protected void log(String msg)
 	{

@@ -29,24 +29,22 @@
 package ome.tools.hibernate;
 
 // Java imports
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //Third-party imports
 import org.aopalliance.aop.Advice;
-import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.event.EventListeners;
 
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.aop.interceptor.CustomizableTraceInterceptor;
-import org.springframework.aop.target.EmptyTargetSource;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.util.Assert;
 
@@ -66,42 +64,48 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 
 	private Map<String,Collection> map = new HashMap<String, Collection>();
 	
+	private Set<String> keys;
+	
 	// ~ FactoryBean
 	// =========================================================================
-	
+
+	/** adds all default listeners. These will be overwritten during 
+	 * {@link #createInstance()}. Do not configure listeners here.
+	 */
 	public EventListenersFactoryBean( SecuritySystem securitySystem )
 	{
 		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;
-		add("auto-flush", eventListeners.getAutoFlushEventListeners());
-		add("merge", eventListeners.getMergeEventListeners());
-		add("create", eventListeners.getPersistEventListeners());
-		add("create-onflush", eventListeners.getPersistOnFlushEventListeners());
-		add("delete", eventListeners.getDeleteEventListeners());
-		add("dirty-check", eventListeners.getDirtyCheckEventListeners());
-		add("evict", eventListeners.getEvictEventListeners());
-		add("flush", eventListeners.getFlushEventListeners());
-		add("flush-entity", eventListeners.getFlushEntityEventListeners());
-		add("load", eventListeners.getLoadEventListeners());
-		add("load-collection", eventListeners.getInitializeCollectionEventListeners());
-		add("lock", eventListeners.getLockEventListeners());
-		add("refresh", eventListeners.getRefreshEventListeners());
-		add("replicate", eventListeners.getReplicateEventListeners());
-		add("save-update", eventListeners.getSaveOrUpdateEventListeners());
-		add("save", eventListeners.getSaveEventListeners());
-		add("update", eventListeners.getUpdateEventListeners());
-		add("pre-load", eventListeners.getPreLoadEventListeners());
-		add("pre-update", eventListeners.getPreUpdateEventListeners());
-		add("pre-delete", eventListeners.getPreDeleteEventListeners());
-		add("pre-insert", eventListeners.getPreInsertEventListeners());
-		add("post-load", eventListeners.getPostLoadEventListeners());
-		add("post-update", eventListeners.getPostUpdateEventListeners());
-		add("post-delete", eventListeners.getPostDeleteEventListeners());
-		add("post-insert", eventListeners.getPostInsertEventListeners());
-		add("post-commit-update", eventListeners.getPostCommitUpdateEventListeners());
-		add("post-commit-delete", eventListeners.getPostCommitDeleteEventListeners());
-		add("post-commit-insert", eventListeners.getPostCommitInsertEventListeners());
-		assertHasAllKeys(map);
+		put("auto-flush", eventListeners.getAutoFlushEventListeners());
+		put("merge", eventListeners.getMergeEventListeners());
+		put("create", eventListeners.getPersistEventListeners());
+		put("create-onflush", eventListeners.getPersistOnFlushEventListeners());
+		put("delete", eventListeners.getDeleteEventListeners());
+		put("dirty-check", eventListeners.getDirtyCheckEventListeners());
+		put("evict", eventListeners.getEvictEventListeners());
+		put("flush", eventListeners.getFlushEventListeners());
+		put("flush-entity", eventListeners.getFlushEntityEventListeners());
+		put("load", eventListeners.getLoadEventListeners());
+		put("load-collection", eventListeners.getInitializeCollectionEventListeners());
+		put("lock", eventListeners.getLockEventListeners());
+		put("refresh", eventListeners.getRefreshEventListeners());
+		put("replicate", eventListeners.getReplicateEventListeners());
+		put("save-update", eventListeners.getSaveOrUpdateEventListeners());
+		put("save", eventListeners.getSaveEventListeners());
+		put("update", eventListeners.getUpdateEventListeners());
+		put("pre-load", eventListeners.getPreLoadEventListeners());
+		put("pre-update", eventListeners.getPreUpdateEventListeners());
+		put("pre-delete", eventListeners.getPreDeleteEventListeners());
+		put("pre-insert", eventListeners.getPreInsertEventListeners());
+		put("post-load", eventListeners.getPostLoadEventListeners());
+		put("post-update", eventListeners.getPostUpdateEventListeners());
+		put("post-delete", eventListeners.getPostDeleteEventListeners());
+		put("post-insert", eventListeners.getPostInsertEventListeners());
+		put("post-commit-update", eventListeners.getPostCommitUpdateEventListeners());
+		put("post-commit-delete", eventListeners.getPostCommitDeleteEventListeners());
+		put("post-commit-insert", eventListeners.getPostCommitInsertEventListeners());
+		keys = new HashSet<String>( map.keySet() );
+		assertHasAllKeys(keys);
 	}
 
 	public Class getObjectType() {
@@ -115,18 +119,19 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	@Override
 	protected Object createInstance() throws Exception {
 		overrides();
-		if (debugAll)
-		{
-			Object debug = getDebuggingProxy();
-			for (String key : map.keySet()) {
-				map.get(key).add(debug);
-			}
-		}
+		additions();
 		return map;
 	}
 	// ~ Configuration
 	// =========================================================================
 
+	protected boolean debugAll = false;
+	
+	public void setDebugAll( boolean debug )
+	{
+		this.debugAll = debug;
+	}
+	
 	protected void overrides()
 	{
 		override("merge", 
@@ -137,25 +142,41 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 						new EventDiffHolder(secSys)));
 		override(new String[]{"replicate","save","update"},
 				getDisablingProxy());
+	}
+	
+	protected void additions()
+	{
+		for (String key : keys) {
+			final String k = key;
+			EventMethodInterceptor emi = new EventMethodInterceptor(
+					new EventMethodInterceptor.DisableAction(){
+						@Override
+						protected boolean disabled(MethodInvocation mi) {
+							return secSys.isDisabled(k);//getType(mi));
+						}
+					}
+			);
+			add(key,getProxy(emi));
+		}
 		
 		ACLEventListener acl = new ACLEventListener(secSys);
-		map.get("post-load").add(acl);
-		map.get("pre-insert").add(acl);
-		map.get("pre-update").add(acl);
-		map.get("pre-delete").add(acl);
-	}
+		add("post-load", acl);
+		add("pre-insert", acl);
+		add("pre-update", acl);
+		add("pre-delete", acl);
 		
-	
-	protected boolean debugAll = false;
-	
-	public void setDebugAll( boolean debug )
-	{
-		this.debugAll = debug;
+		if (debugAll)
+		{
+			Object debug = getDebuggingProxy();
+			for (String key : map.keySet()) {
+				map.get(key).add(debug);
+			}
+		}
 	}
 	
 	// ~ Helpers
 	// =========================================================================
-	private void assertHasAllKeys(Map<String,?> map)
+	private void assertHasAllKeys(Set<String> keys)
 	{
 		// eventListeners has only private state. :(
 	}
@@ -180,8 +201,8 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	
 	private Object getDisablingProxy()
 	{
-		EventMethodInterceptor disable = new EventMethodInterceptor();
-		disable.setDisableAll(true);
+		EventMethodInterceptor disable = new EventMethodInterceptor(
+				new EventMethodInterceptor.DisableAction());
 		return getProxy(disable);
 	}
 	
@@ -202,22 +223,57 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 		return factory.getProxy();		
 	}
 	
+	// ~ Collection methods
+	// =========================================================================
+	
+	/** calls override for each key */
 	private void override(String[] keys, Object object){
 		for (String key : keys) {
 			override(key, object);
 		}
 	}
-	
+
+	/** first re-initializes the list for key, and then adds object */
 	private void override(String key, Object object)
 	{
-		map.remove(key);
-		map.put(key, new ArrayList());
-		map.get(key).add(object);
+		put(key,null);
+		add(key,object);
+	}
+
+	/** calls add for each key */
+	private void add(Iterable<String> keys, Object... objs)
+	{
+		for (String key : keys) {
+			add(key,objs);
+		}
 	}
 	
-	private void add(String key, Object[] objs)
+	/** adds the objects to the existing list identified by key. If no list is 
+	 * found, initializes. If there are no objects, just initializes if necessary.
+	 */
+	private void add(String key, Object... objs)
 	{
-		map.put(key,new ArrayList(Arrays.asList(objs)));
+		Collection c = map.get(key);
+		if ( c == null ) put(key,null);
+		if( objs == null ) return;
+		if ( objs != null )
+			for (Object object : objs) {
+				c.add( object );
+			}
+	}
+
+	
+	/** replaces the key with the provided objects or an empty list if 
+	 * none provided
+	 */
+	private void put(String key, Object[] objs)
+	{
+		List list = new ArrayList();
+		if ( objs != null )
+		{
+			Collections.addAll(list, objs);
+		}
+		map.put(key,list);
 	}
 
 }
