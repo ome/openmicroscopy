@@ -306,6 +306,27 @@
   <filter-def name="${pfilter}">
     <filter-param type="java.lang.String" name="permsStr"/>
   </filter-def>
+  
+#foreach( $prop in $type.properties )
+#if($prop.one2Many)
+#set( $UC_NAME = "${prop.name.toUpperCase()}")
+  <filter-def name="${ofilter}_${UC_NAME}">
+    <filter-param type="java.lang.Long" name="ownerId"/>
+  </filter-def>
+  
+  <filter-def name="${gfilter}_${UC_NAME}">
+    <filter-param type="java.lang.Long" name="groupId"/>
+  </filter-def>
+  
+  <filter-def name="${efilter}_${UC_NAME}">
+  	<filter-param type="java.lang.Long" name="eventId"/>  
+  </filter-def>
+  
+  <filter-def name="${pfilter}_${UC_NAME}">
+    <filter-param type="java.lang.String" name="permsStr"/>
+  </filter-def>
+#end
+#end
 #end
 
 </hibernate-mapping>

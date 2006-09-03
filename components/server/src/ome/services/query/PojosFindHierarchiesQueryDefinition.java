@@ -90,6 +90,7 @@ public class PojosFindHierarchiesQueryDefinition
     {
         ownerOrGroupFilters(session, 
 //              TODO this needs to be moved to Hierarchy.
+//				TODO these are also not all needed. Need to simplify.        		
                 new String[]{
         			CategoryGroup.OWNER_FILTER,
         			CategoryGroup.OWNER_FILTER_CATEGORYLINKS,
@@ -100,7 +101,9 @@ public class PojosFindHierarchiesQueryDefinition
         			Project.OWNER_FILTER_DATASETLINKS,
         			Dataset.OWNER_FILTER,
         			Dataset.OWNER_FILTER_IMAGELINKS,
-        			Dataset.OWNER_FILTER_PROJECTLINKS },
+        			Dataset.OWNER_FILTER_PROJECTLINKS,
+        			Image.OWNER_FILTER_DATASETLINKS,
+        			Image.OWNER_FILTER_CATEGORYLINKS},
         		new String[]{
     				CategoryGroup.GROUP_FILTER,
     				CategoryGroup.GROUP_FILTER_CATEGORYLINKS,
@@ -111,7 +114,9 @@ public class PojosFindHierarchiesQueryDefinition
     				Project.GROUP_FILTER_DATASETLINKS,
     				Dataset.GROUP_FILTER,
     				Dataset.GROUP_FILTER_IMAGELINKS,
-    				Dataset.GROUP_FILTER_PROJECTLINKS }
+    				Dataset.GROUP_FILTER_PROJECTLINKS,
+    				Image.GROUP_FILTER_DATASETLINKS,
+        			Image.GROUP_FILTER_CATEGORYLINKS}
                 );
     }
     
