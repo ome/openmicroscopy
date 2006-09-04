@@ -41,10 +41,12 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.api.IPojos;
+import ome.conditions.ApiUsageException;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.testing.OMEData;
+import ome.util.builders.PojoOptions;
 
 /** 
  * 
@@ -92,6 +94,24 @@ public class PojosServiceTest
                         null);
     }
 
+    @Test( groups = "ticket:318")
+    public void testLoadHiearchiesHandlesNullRootNodeIds() throws Exception {
+    	PojoOptions po;
+    	
+    	try {
+    		iPojos.loadContainerHierarchy(Project.class, null, null);
+    		fail("Should throw ApiUsage.");
+    	} catch (ApiUsageException aue) {
+    		//ok
+    	}
+    	po = new PojoOptions().exp(0L);
+		iPojos.loadContainerHierarchy(Project.class,null,po.map());
+	
+		po = new PojoOptions().grp(0L);
+		iPojos.loadContainerHierarchy(Project.class,null,po.map());
+		
+    }
+    
     // ~ Helpers
     // =========================================================================
 
