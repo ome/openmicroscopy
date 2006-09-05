@@ -106,7 +106,6 @@ public class ContainerCounterLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return; //Async cancel
         Map map = (Map) fe.getPartialResult();
-        System.out.println("containerID: "+map);
         if (map == null) return; //Last fe has null object.
         //map should be only size == 1
         if (map.size() == 1) {
@@ -116,7 +115,6 @@ public class ContainerCounterLoader
             while (i.hasNext()) {
                 containerID = (Long) i.next();
                 value = (Integer) map.get(containerID);
-                System.out.println("containerID: "+containerID+" "+value);
                 viewer.setContainerCountValue(containerID.longValue(),
                         						value.intValue());
             }
