@@ -29,9 +29,12 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.util;
 
+
+
+
+//Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -40,19 +43,15 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * The UI delegate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -142,6 +141,11 @@ class ImgSaverUI
         }
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     ImgSaverUI(ImgSaver model)
     { 
         if (model == null) throw new IllegalArgumentException("No model.");
