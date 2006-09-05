@@ -118,8 +118,16 @@ public class Factory
         BufferedImage rescaleBuff = new BufferedImage(
                 (int) (img.getWidth()*level)+w, (int) (img.getHeight()*level)+w,
                 BufferedImage.TYPE_INT_RGB);
-
-        biop.filter(img, rescaleBuff);
+        BufferedImage bimg = new BufferedImage(img.getWidth(), img.getHeight(), 
+                BufferedImage.TYPE_INT_RGB);
+        RescaleOp rop = new RescaleOp(1, 0.0f, null);
+        rop.filter(img, bimg);
+        Graphics2D g = rescaleBuff.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                                RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
+                            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(bimg, biop, 0, 0);
         return rescaleBuff;
     }   
     
