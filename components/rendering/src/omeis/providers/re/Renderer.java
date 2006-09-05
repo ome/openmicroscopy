@@ -456,13 +456,20 @@ public class Renderer
      */
     public void setQuantumStrategy(int bitResolution)
     {
+        /*
         RenderingDef rd = getRenderingDef();
+        
         QuantumDef qd = rd.getQuantization(), newQd;
         newQd = new QuantumDef();
         newQd.setBitResolution(Integer.valueOf(bitResolution));
         newQd.setCdStart(qd.getCdStart());
         newQd.setCdEnd(qd.getCdEnd());
         rd.setQuantization(newQd);
+        updateQuantumManager();
+        */
+        RenderingDef rd = getRenderingDef();
+        QuantumDef qd = rd.getQuantization();
+        qd.setBitResolution(Integer.valueOf(bitResolution));
         updateQuantumManager();
     }
     
@@ -476,6 +483,7 @@ public class Renderer
     {
         CodomainChain chain = getCodomainChain();
         chain.setInterval(start, end);
+        /*
         RenderingDef rd = getRenderingDef();
         QuantumDef qd = rd.getQuantization(), newQd;
         newQd = new QuantumDef();
@@ -483,6 +491,11 @@ public class Renderer
         newQd.setCdStart(Integer.valueOf(start));
         newQd.setCdEnd(Integer.valueOf(end));
         rd.setQuantization(newQd);
+        */
+        RenderingDef rd = getRenderingDef();
+        QuantumDef qd = rd.getQuantization();
+        qd.setCdStart(Integer.valueOf(start));
+        qd.setCdEnd(Integer.valueOf(end));
         CodomainMapContext mapCtx;
         Iterator i = rd.getSpatialDomainEnhancement().iterator();
         while (i.hasNext())
