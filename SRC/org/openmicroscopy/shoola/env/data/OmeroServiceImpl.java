@@ -102,8 +102,8 @@ class OmeroServiceImpl
     {
         if (rootLevel.equals(GroupData.class))
             po.grp(new Long(rootID));
-        else if (rootLevel.equals(ExperimenterData.class))           
-            po.exp(new Long(rootID));
+        else if (rootLevel.equals(ExperimenterData.class))
+            po.exp(new Long(getUserDetails().getId()));
     }
     
     /**
