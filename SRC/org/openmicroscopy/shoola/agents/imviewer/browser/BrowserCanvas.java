@@ -37,7 +37,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -221,8 +220,8 @@ class BrowserCanvas
         BufferedImage image = model.getDisplayedImage();
         if (image == null) return;
         paintXYFrame(g2D);
-        System.out.println(model.getPixelsSizeX());
-        double v = 1;//model.getPixelsSizeX()/model.getZoomFactor();
+        double v = model.getPixelsSizeX()/model.getZoomFactor();
+        v = v*2*LENGTH;
         if (v > 0) {
             int h = image.getHeight()+3*BrowserUI.TOP_LEFT_IMAGE/2;
             paintScaleBar(g2D, BrowserUI.TOP_LEFT_IMAGE, h, 2*LENGTH, 
