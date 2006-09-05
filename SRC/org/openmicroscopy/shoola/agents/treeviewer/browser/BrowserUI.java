@@ -221,11 +221,8 @@ class BrowserUI
                 if (children.size() != 0)
                     buildTreeNode(display, sorter.sort(children));
                 else {
-                    
-                    System.out.println("Number: "+((TreeImageSet) display).getNumberItems());
-                    //if (((TreeImageSet) display).getNumberItems() > 0)
-                        tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
-                            display, display.getChildCount());
+                    tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                        display, display.getChildCount());
                 }    
             }
         } 
