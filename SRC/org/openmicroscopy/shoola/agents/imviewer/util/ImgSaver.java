@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -115,6 +116,7 @@ public class ImgSaver
     private void showPreview(int savingType)
     {
         ImgSaverPreviewer preview = new ImgSaverPreviewer(this);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         switch (savingType) {
             default:
             case ImgSaverUI.IMAGE:
@@ -126,6 +128,7 @@ public class ImgSaver
                 imageComponents = model.getImageComponents();
                 break;
         }
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         preview.initialize();
         UIUtilities.centerAndShow(preview);
     }
