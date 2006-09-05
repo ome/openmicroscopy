@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 //Third-party libraries
@@ -134,6 +135,10 @@ public class ContainersManager
             while (i.hasNext()) {
                 node = (TreeImageSet) i.next();
                 node.setNumberItems(value);
+                //remove the empty node if the container is empty.
+                if (value == 0 && dtm.getChildCount(node) == 1) 
+                    dtm.removeNodeFromParent(
+                            (DefaultMutableTreeNode) dtm.getChild(node, 0));
                 dtm.reload(node);
             }    
             processedIDs.add(id);
