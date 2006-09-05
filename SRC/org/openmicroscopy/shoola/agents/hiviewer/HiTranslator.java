@@ -77,9 +77,6 @@ public class HiTranslator
     
     /** Message for unclassified images. */
     private static final String UNCLASSIFIED = "Wild at heart and free images.";
-        
-    /** Message for browse images. */
-    private static final String IMAGES = "";
     
     /** 
      * The left element displayed before the number of items contained in a 
@@ -192,14 +189,16 @@ public class HiTranslator
      * 
      * @param is        The {@link ImageData} to transform.
      * @param parent    The {@link ImageSet parent} of the image node.
+     * @return  The new created {@link ImageNode}.
      */
-    private static void linkImageTo(ImageData is, ImageSet parent)
+    private static ImageNode linkImageTo(ImageData is, ImageSet parent)
     {
         ThumbnailProvider provider = new ThumbnailProvider(is);
         ImageNode node = new ImageNode(is.getName(), is, provider);
-        provider.setImageNode(node);
         formatToolTipFor(node);  
-        parent.addChildDisplay(node);
+        provider.setImageNode(node);
+        if (parent != null) parent.addChildDisplay(node);
+        return node;
     }
     
     /** 
@@ -618,14 +617,11 @@ public class HiTranslator
         Set results = new HashSet();
         DataObject ho;
         Iterator i = dataObjects.iterator();
-        ImageSet images = new ImageSet(IMAGES, new Object());
-        formatToolTipFor(images);
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID) && ho instanceof ImageData)
-                linkImageTo((ImageData) ho, images);
+                results.add(linkImageTo((ImageData) ho, null));
         }
-        results.add(images);
         return results;
     }
     
