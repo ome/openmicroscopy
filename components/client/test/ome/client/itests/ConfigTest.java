@@ -113,7 +113,7 @@ public class ConfigTest extends TestCase
 	 */
 	@Test 
 	public void testAsOtherUsers() throws Exception {
-		ServiceFactory sf = new ServiceFactory(); // get default service factory
+		ServiceFactory sf = new ServiceFactory("ome.client.test"); // get default service factory
 		Login rootLogin = (Login) sf.getContext().getBean("rootLogin");
 		
 		ServiceFactory rootSf = new ServiceFactory( rootLogin );

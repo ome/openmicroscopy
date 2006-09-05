@@ -82,14 +82,6 @@
 		<constructor-arg index="2" value="${omero.event}"/>        
 	</bean>
 
-  <!-- properly configured principal for login -->
-	<bean id="rootLogin" class="ome.system.Login" lazy-init="true">
-		<constructor-arg index="0" value="root"/>
-		<constructor-arg index="1" value="${omero.rootpass}"/>     
-		<constructor-arg index="2" value="system"/>
-		<constructor-arg index="3" value="Test"/>
-	</bean>
-
   <!-- hashtable for InitialContext constructor -->
   <bean id="env" class="java.util.Hashtable">
     <constructor-arg>
