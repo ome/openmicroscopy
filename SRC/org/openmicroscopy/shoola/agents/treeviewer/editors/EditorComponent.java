@@ -184,13 +184,13 @@ class EditorComponent
     public void setAnnotations(Map map)
     {
         if (model.getState() == LOADING_ANNOTATION) {
-            if (map == null) 
-                throw new IllegalArgumentException("No annotations.");
-            model.setAnnotations(map);
-            view.showAnnotations();
-            if (model.hasThumbnail())
-                firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, null, 
-                                    model.getHierarchyObject());
+            if (map != null) {
+                model.setAnnotations(map);
+                view.showAnnotations();
+                if (model.hasThumbnail())
+                    firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, 
+                                        null, model.getHierarchyObject());
+            }
             model.setState(READY);
             fireStateChange();
         }
