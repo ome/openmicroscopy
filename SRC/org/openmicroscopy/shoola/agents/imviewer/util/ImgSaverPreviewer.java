@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -140,7 +141,10 @@ class ImgSaverPreviewer
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             { 
+                model.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 model.saveImage();
+                model.setCursor(
+                        Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 onClose();
             }
         });
