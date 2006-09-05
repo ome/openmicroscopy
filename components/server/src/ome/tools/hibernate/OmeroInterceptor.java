@@ -263,36 +263,33 @@ public class OmeroInterceptor implements Interceptor
 	
 	public String onPrepareStatement(String sql) {
 		// start
-		StringBuilder sb = new StringBuilder();
-
-		String[] first  = sql.split("\\sfrom\\s");
-		sb.append(first[0]);
-		if (first.length == 1)
+		if ( ! log.isDebugEnabled() )
 		{
-			return sb.toString();
-		}
-		else if (first.length == 2)
-		{
-			// from
-			sb.append("\n from ");			
-			
-			String[] second = first[1].split("\\swhere\\s");
-			sb.append(second[0]);
-			if (second.length == 1)
-			{
-				return sb.toString();
-			}
-			else if (second.length == 2)
-			{
-				// where
-				sb.append("\n where ");
-				sb.append(second[1]);
-				return sb.toString();
-			}
+			return sql;
 		}
 		
-		throw new InternalException("Assumptions about the number of " +
-					"\"froms\" and \"wheres\" in sql query failed. ");
+		// from
+		StringBuilder sb = new StringBuilder();
+		String[] first  = sql.split("\\sfrom\\s");
+		sb.append(first[0]);
+
+		for (int i = 1; i < first.length; i++) {
+			sb.append("\n from ");			
+			sb.append(first[i]);
+		}
+		
+		// where
+		String[] second = sb.toString().split("\\swhere\\s");
+		sb = new StringBuilder();
+		sb.append(second[0]);
+
+		for (int j = 1; j < second.length; j++) {
+			sb.append("\n where ");
+			sb.append(second[j]);
+		}					
+		
+		return sb.toString();
+		
 	}
 	
 	// ~ Helpers
