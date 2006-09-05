@@ -203,6 +203,7 @@ class BrowserControl
     {
         Object pathComponent;
         TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
+        if (paths == null) return;
         int n = paths.length;
         if (n == 0) return;
         pathComponent = paths[0].getLastPathComponent();
