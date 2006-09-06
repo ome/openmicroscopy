@@ -176,7 +176,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sec.newEvent(type);
 		sec.setCurrentEvent(event);
 		sec.emptyDetails();
-		sec.disable();
+		sec.disable("foo");
 		sec.enable();
 		sec.isDisabled("");
 		
