@@ -76,6 +76,23 @@ public class Login {
      */
     public final static String OMERO_EVENT = "omero.event";
     
+    /**
+     * {@link CopyOfLogin} constant which has username and password values set to null
+     * and other values set to their default. This will permit logging in as an
+     * anonymous user.  
+     */
+    public final static Login GUEST = new Login() {
+    	@Override
+    	public Properties asProperties() {
+    		Properties p = super.asProperties();
+    		p.setProperty(OMERO_USER, null);
+    		p.setProperty(OMERO_PASS, null);
+    		p.setProperty(OMERO_GROUP, null);
+    		p.setProperty(OMERO_EVENT, null);
+    		return p;
+    	}
+    };
+    
     private String _user, _group, _pass, _event;
     
     // Need at least user and password
@@ -83,7 +100,7 @@ public class Login {
     
     /** standard constructor which leaves OMERO_GROUP and OMERO_EVENT null.
      * 
-     * @param user {@link ome.model.meta.Experimenter#omeName}. Not null.
+     * @param user {@link ome.model.meta.Experimenter#getOmeName()}. Not null.
      * @param password Cleartext password. Not null.
      */
     public Login(String user, String password)
@@ -101,7 +118,7 @@ public class Login {
     
     /** extended constructor. As with {@link #Login(String, String)}, 
      * user and password may not be null.
-     * @param user {@link ome.model.meta.Experimenter#omeName}. Not null.
+     * @param user {@link ome.model.meta.Experimenter#getOmeName()}. Not null.
      * @param password Cleartext password. Not null.
      * @param group Group name. May be null.
      * @param event Enumeration value of the EventType. May be null.
@@ -133,7 +150,7 @@ public class Login {
     /** 
      * simple getter for the user name passed into the constructor 
      * @return {@link ome.model.meta.Experimenter#getOmeName() user name}. 
-     *      Not null. 
+     *      Not null unless Login == {@link Login#GUEST}. 
      */
     public String getName()
     {
@@ -142,7 +159,7 @@ public class Login {
     
     /** 
      * simple getter for the password passed into the constructor
-     * @return password. Not null. 
+     * @return password. Not null unless Login == {@link Login#GUEST} 
      */
     public String getPassword()
     {

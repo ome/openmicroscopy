@@ -69,4 +69,10 @@ public class LoginTest extends TestCase {
 		assertFalse(test.getDetails().getPermissions().isGranted(Role.USER, Right.WRITE));
 	}
 
+	@Test( groups = {"ticket:297","broken"})
+	public void testLoginWithGUEST() throws Exception {
+		ServiceFactory factory = new ServiceFactory( Login.GUEST );
+		factory.getQueryService().findAll( Image.class, null );
+	}
+	
 }
