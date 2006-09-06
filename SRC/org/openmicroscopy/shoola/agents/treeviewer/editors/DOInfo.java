@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -41,12 +40,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -57,7 +54,6 @@ import javax.swing.border.EtchedBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.GroupData;
 import pojos.PermissionData;
 
 /** 
@@ -109,10 +105,9 @@ class DOInfo
      * Builds the panel hosting the information
      * 
      * @param details The information to display.
-     * @param groups Collection of groups. if <code>null</code>, ignore.
      * @return See above.
      */
-    private JPanel buildContentPanel(Map details, Set groups)
+    private JPanel buildContentPanel(Map details)
     {
         JPanel content = new JPanel();
         content.setLayout(new GridBagLayout());
@@ -144,6 +139,7 @@ class DOInfo
             c.weightx = 1.0;
             content.add(area, c);  
         }
+        /*
         if (groups != null) {
            ++c.gridy;
            c.gridx = 0;
@@ -167,6 +163,7 @@ class DOInfo
            c.weightx = 1.0;
            content.add(bar, c); 
        }
+       */
        return content;
     }
     
@@ -310,19 +307,20 @@ class DOInfo
      * Builds and lays out the GUI.
      *
      * @param details       The visualization map.
-     * @param groups	    Collection of groups.
+     * @param permission    Pass <code>true</code> to display the permission,
+     *                      <code>false</code> otherwise.
      */
-    private void buildGUI(Map details, Set groups)
+    private void buildGUI(Map details, boolean permission)
     {
         groupPanel = new JPanel();
         groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
         groupPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-        JPanel contentPanel = buildContentPanel(details, groups);
+        JPanel contentPanel = buildContentPanel(details);
         setLayout(new BorderLayout());
         setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
         add(contentPanel, BorderLayout.NORTH);
-        if (model.getObjectPermissions() != null) {
+        if (model.getObjectPermissions() != null && permission) {
             JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
             p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -338,10 +336,13 @@ class DOInfo
     /**
      * Creates a new instance.
      * 
-     * @param details   The visualization map. Mustn't be <code>null</code>.
-     * @param model     Reference to the Model. Mustn't be <code>null</code>.
+     * @param details       The visualization map. Mustn't be <code>null</code>.
+     * @param model         Reference to the Model. 
+     *                      Mustn't be <code>null</code>.
+     * @param permission    Pass <code>true</code> to display the permission,
+     *                      <code>false</code> otherwise.
      */
-    DOInfo(Map details, EditorModel model)
+    DOInfo(Map details, EditorModel model, boolean permission)
     {
         if (details == null) 
             throw new IllegalArgumentException("Visualization map cannot be" +
@@ -349,10 +350,9 @@ class DOInfo
         if (model == null)
             throw new IllegalArgumentException("No model.");
         this.model = model;
-        
-        buildGUI(details, null);
+        buildGUI(details, permission);
     }
-    
+
     /**
      * Shows the specified group's details.
      * 

@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -317,6 +316,7 @@ class DOAnnotation
         ExperimenterData userDetails = model.getUserDetails();
         if (userDetails == null) return;
         Map annotations = model.getAnnotations();
+        if (annotations == null) return;
         String[] owners = new String[annotations.size()];
         Iterator i = annotations.keySet().iterator();
         Long id;

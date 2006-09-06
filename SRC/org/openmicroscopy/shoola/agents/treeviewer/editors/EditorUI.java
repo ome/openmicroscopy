@@ -304,13 +304,13 @@ public class EditorUI
                 ExperimenterData exp = model.getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
-                            new DOInfo(details, model));
+                            new DOInfo(details, model, true));
                 DataObject hierarchyObject = model.getHierarchyObject();
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE),
-                               new DOInfo(details, null));
+                               new DOInfo(details, model, false));
                 }
                 return tabs;
         }
@@ -460,9 +460,10 @@ public class EditorUI
     }
     
     /**
+     * Links MVC.
      * 
-     * @param controller
-     * @param model
+     * @param controller Reference to the control. Mustn't be <code>null</code>.   
+     * @param model Reference to the control. Mustn't be <code>null</code>.   
      */
     void initialize(EditorControl controller, EditorModel model)
     {
