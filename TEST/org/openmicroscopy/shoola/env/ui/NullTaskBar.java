@@ -33,7 +33,9 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.AbstractButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -93,5 +95,17 @@ public class NullTaskBar
      * @see TaskBar#iconify()
      */
     public void iconify() {}
+
+    public JMenu getMenu(int menuID)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public JToolBar getToolBar(int toolBarID)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

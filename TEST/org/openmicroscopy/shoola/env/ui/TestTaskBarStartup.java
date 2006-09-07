@@ -111,7 +111,7 @@ public class TestTaskBarStartup
     public void test()
     {
         //Set up expexted calls on the mock.
-        taskBar.open();
+        //taskBar.open();
         
         //Transition the mock to verification mode.
         taskBar.activate();
