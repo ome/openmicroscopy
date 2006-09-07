@@ -86,23 +86,20 @@ class EditorUtil
     /** Identifies the <code>Timepoints</code> field. */
     private static final String TIMEPOINTS = "Number of timepoints";
     
+    /** Identifies the <code>Timepoints</code> field. */
+    private static final String WAVELENGTHS = "Emissions wavelengths";
+    
     /** Identifies the <code>PixelType</code> field. */
     private static final String PIXEL_TYPE = "Pixel Type";
 
     /** Identifies the <code>Name</code> field. */
-    private static final String NAME = "Name";
+    private static final String NAME = "Owner";
     
     /** Identifies the <code>Leader</code> field. */
     private static final String LEADER = "Leader";
     
     /** Identifies the <code>Email</code> field. */
     private static final String EMAIL = "Email";
-    
-    /** Identifies the <code>Institution</code> field. */
-    private static final String INSTITUTION = "Institution";
-    
-
-    
     
     /**
      * Transforms the specified {@link ExperimenterData} object into 
@@ -142,24 +139,29 @@ class EditorUtil
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");
+            details.put(SECTIONS, "");
+            details.put(TIMEPOINTS, "");
             details.put(PIXEL_SIZE_X, "");
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
-            details.put(SECTIONS, "");
-            details.put(TIMEPOINTS, "");
-            //details.put("Emission wavelength", "");
             details.put(PIXEL_TYPE, "");  
         } else {
             NumberFormat    nf = NumberFormat.getInstance();
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
-            details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-            details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-            details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
-            //details.put("Emission wavelength", "");
-            details.put(PIXEL_TYPE, ""+data.getPixelType());  
+            try {
+                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
+                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
+                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+                details.put(PIXEL_TYPE, ""+data.getPixelType()); 
+            } catch (Exception e) {
+                details.put(PIXEL_SIZE_X, "");
+                details.put(PIXEL_SIZE_Y, "");
+                details.put(PIXEL_SIZE_Z, "");
+                details.put(PIXEL_TYPE, ""); 
+            }
         }
         return details;
     }
