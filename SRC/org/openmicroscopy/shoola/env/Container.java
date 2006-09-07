@@ -44,8 +44,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
-import org.openmicroscopy.shoola.env.rnd.RenderingEngine;
-import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
  * Oversees the functioning of the whole container, holds the container's
@@ -290,8 +288,8 @@ public final class Container
 		//TODO: RE threads should be spawn during an init task.
 			
 		//Get ready to interact with the user.
-		TaskBar tb = singleton.registry.getTaskBar();
-		tb.open();	
+		//TaskBar tb = singleton.registry.getTaskBar();
+		//tb.open();	
 	}
 	
 	/**
