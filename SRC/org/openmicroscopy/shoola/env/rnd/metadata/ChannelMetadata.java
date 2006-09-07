@@ -38,7 +38,6 @@ package org.openmicroscopy.shoola.env.rnd.metadata;
 
 //Application-internal dependencies
 import ome.model.core.Channel;
-import ome.model.core.LogicalChannel;
 
 /** 
  * 
@@ -63,8 +62,18 @@ public class ChannelMetadata
     
     private PixelsStatsEntry[]      stats;
     
-    public ChannelMetadata(int index, Channel channel, PixelsStatsEntry[] stats)
+    /**
+     * Creates a new instance.
+     * 
+     * @param index     The index of the channel.
+     * @param channel
+     * @param stats
+     */
+    public ChannelMetadata(final int index, final Channel channel,
+                        PixelsStatsEntry[] stats)
     {
+        if (channel == null) 
+            throw new IllegalArgumentException("Channel cannot be null.");
         this.index = index;
         this.channel = channel;
         this.stats = stats;
@@ -77,7 +86,9 @@ public class ChannelMetadata
      */
     public int getEmissionWavelength()
     {
-        return 400;//channel.getLogicalChannel().getEmissionWave().intValue();
+        Integer wave = channel.getLogicalChannel().getEmissionWave();
+        if (wave == null) return index;
+        return wave.intValue();
     }
     
     /** 
@@ -85,19 +96,19 @@ public class ChannelMetadata
      * 
      * @return See above.
      */
-    public int getGlobalMin()
+    public double getGlobalMin()
     {
-        return 0;//channel.getStatsInfo().getGlobalMin().intValue();
+        return channel.getStatsInfo().getGlobalMin().doubleValue();
     }
     
     /** 
-     * Returns the global maximum of the channel i.e. the minimum of all minima.
+     * Returns the global maximum of the channel i.e. the maximum of all maxima.
      * 
      * @return See above.
      */
-    public int getGlobalMax()
+    public double getGlobalMax()
     {
-        return 700;//channel.getStatsInfo().getGlobalMax().intValue();
+        return channel.getStatsInfo().getGlobalMax().doubleValue();
     }
     
     /**
