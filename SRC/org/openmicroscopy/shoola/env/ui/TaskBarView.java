@@ -153,8 +153,13 @@ class TaskBarView
 	 * We do direct indexing on this array by using the constants specified by
 	 * {@link TaskBar}.
 	 */
-	private JToolBar[]		   toolbars;
+	private JToolBar[]		    toolbars;
 	
+    /**
+     * The panel hosting the tool bars.
+     */
+    private JPanel              toolBarsPanel;
+    
 	/** Cached reference to the {@link IconManager} singleton.*/
 	private IconManager        iconManager;
 	
@@ -340,7 +345,8 @@ class TaskBarView
 	{
 		setIconImage(IconManager.getOMEImageIcon());
 		setJMenuBar(createMenuBar());
-		getContentPane().add(createToolBarsPanel());
+        toolBarsPanel = createToolBarsPanel();
+		//getContentPane().add(createToolBarsPanel());
 	}
 	
 	/**
@@ -424,10 +430,20 @@ class TaskBarView
 		toolbars[toolBarID].remove(entry);
 	}
 
+    /**
+     * Overriden so that the task bar is never brought up on screen.
+     * @see JFrame#setVisible(boolean)
+     */
+    public void setVisible(boolean b)
+    {
+        super.setVisible(false);
+    }
+    
 	/** 
 	 * Implemented as specifed by {@link TaskBar}.
 	 * @see TaskBar#open()
 	 */
+    /*
 	public void open() 
 	{
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -435,17 +451,45 @@ class TaskBarView
         UIUtilities.centerAndShow(this);
         iconify();
 	}
-
+*/
+    
     /**
      * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#getFrame()
      */
     public JFrame getFrame() { return this; }
 
+    public JPanel getToolBarsPanel()
+    {
+        // TODO Auto-generated method stub
+        return toolBarsPanel;
+    }
+
+    public JMenuBar getMenuTaskBar()
+    {
+        // TODO Auto-generated method stub
+        return getJMenuBar();
+    }
+
+    public JMenu getMenu(int menuID)
+    {
+        if (menuID < 0 || menus.length <= menuID)
+            throw new IllegalArgumentException("Invalid menu id: "+menuID+".");
+        return menus[menuID];
+    }
+
+    public JToolBar getToolBar(int toolBarID)
+    {
+        if (toolBarID < 0 || toolbars.length <= toolBarID)
+            throw new IllegalArgumentException(
+                "Invalid menu id: "+toolBarID+".");
+        return toolbars[toolBarID];
+    }
+
     /**
      * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#iconify()
      */
-    public void iconify() { setExtendedState(Frame.ICONIFIED); }
+    //public void iconify() { setExtendedState(Frame.ICONIFIED); }
 
 }

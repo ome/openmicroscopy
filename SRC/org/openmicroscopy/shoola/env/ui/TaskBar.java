@@ -32,7 +32,11 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.AbstractButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -80,7 +84,7 @@ public interface TaskBar
 	
 	/** Identifies the file menu within the menu bar. */
 	public static final int		FILE_MENU = 0;
-	
+    
 	/** 
 	 * Identifies the connect menu within the menu bar.
 	 * Entries in this menu trigger actions to connect/disconnect to/from
@@ -169,10 +173,10 @@ public interface TaskBar
 	/**
 	 * Brings up the task bar window.
 	 */
-	public void open();
+	//public void open();
     
     /** Iconifies the task bar window. */
-    public void iconify();
+    //public void iconify();
     
     /**
      * Returns a reference to the task bar window.
@@ -180,5 +184,7 @@ public interface TaskBar
      * @return See above.
      */
     public JFrame getFrame();
+
+    public JMenu getMenu(int menuID);
 
 }

@@ -209,7 +209,7 @@ class TaskBarManager
 	}
 	
 	/**
-	 * Retruns the view component.
+	 * Returns the view component.
 	 * 
 	 * @return	See above.
 	 */
