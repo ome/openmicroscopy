@@ -346,4 +346,14 @@ public interface HierarchyBrowsingView
     public CallHandle loadImages(Set imagesID, Class rootLevel,
                                 long rootLevelID, AgentEventListener observer);
     
+    /**
+     * Updates the specified <code>DataObject</code>.
+     * 
+     * @param userObject    The <code>DataObject</code> to save.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle updateDataObject(DataObject userObject,
+                                        AgentEventListener observer);
+    
 }
