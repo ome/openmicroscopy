@@ -347,7 +347,7 @@ class ImViewerControl
         ImViewer viewer;
         while (i.hasNext()) {
             viewer = (ImViewer) i.next();
-            if (!(viewer == model))
+            //if (!(viewer == model))
                 menu.add(new JMenuItem(new ActivationAction(viewer)));
         }
     }

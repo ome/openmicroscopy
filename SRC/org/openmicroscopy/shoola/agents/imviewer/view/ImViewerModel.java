@@ -41,7 +41,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
@@ -123,11 +122,6 @@ class ImViewerModel
     
     /** Reference to the current player. */
     private ChannelPlayer       player;
-    
-    /** The set of pixels. */
-    private Pixels              metadata;
-    
-    private List                channelData;
     
     /**
      * Creates a new object and sets its state to {@link ImViewer#NEW}.
@@ -338,15 +332,6 @@ class ImViewerModel
         renderer = RendererFactory.createRenderer(component, rndControl);
     }
     
-    /**
-     * Sets the channel metadata.
-     * 
-     * @param metadata
-     */
-    void setChannelMetadata(Pixels metadata)
-    {
-        this.metadata = metadata;
-    }
 
     /**
      * Returns the {@link Browser}.
@@ -478,16 +463,26 @@ class ImViewerModel
      */
     Renderer getRenderer() { return renderer; }
 
+    /** 
+     * Returns the global minimum of the channel i.e. the minimum of all minima.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
     double getGlobalMinimum(int index)
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return rndControl.getChannelData(index).getGlobalMin();
     }
     
+    /** 
+     * Returns the global maximum of the channel i.e. the maximum of all maxima.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
     double getGlobalMaximum(int index)
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return rndControl.getChannelData(index).getGlobalMax();
     }
 
     /**

@@ -34,13 +34,11 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -251,13 +249,6 @@ public interface ImViewer
      * @return See above.
      */
     public int getMaxZ();
-    
-    /**
-     * Sets the metadata related to the pixels set.
-     * 
-     * @param metadata  The metadata to set.
-     */
-    public void setChannelMetadata(Pixels metadata);
 
     /**
      * Sets the {@link RenderingControl}.

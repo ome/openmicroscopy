@@ -37,14 +37,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -344,20 +341,6 @@ class ImViewerComponent
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setChannelMetadata(Pixels)
-     */
-    public void setChannelMetadata(Pixels metadata)
-    {
-        model.setChannelMetadata(metadata);
-        view.buildComponents();
-        view.setSize(500, 500);
-        view.setOnScreen();
-        view.setStatus(RENDERING_MSG, -1, false);
-        renderXYPlane();
-    }
-
-    /** 
-     * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#setRenderingControl(RenderingControl)
      */
     public void setRenderingControl(RenderingControl result)
@@ -372,7 +355,6 @@ class ImViewerComponent
         window.setStatus("rendering settings. Loading: metadata");
         window.setProgress(50);
         view.buildComponents();
-        view.setSize(500, 500);
         view.setOnScreen();
         view.setStatus(RENDERING_MSG, -1, false);
         renderXYPlane();
