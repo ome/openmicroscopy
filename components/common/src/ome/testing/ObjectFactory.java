@@ -6,8 +6,10 @@ import java.util.List;
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.Image;
+import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.core.PlaneInfo;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.PlaneSlicingContext;
@@ -21,6 +23,7 @@ import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import ome.model.internal.Details;
+import ome.model.stats.StatsInfo;
 
 
 /** these method serve as a both client and test data store.
@@ -52,6 +55,9 @@ public class ObjectFactory
         PixelsDimensions pd = new PixelsDimensions();
         Image i = new Image();
         Channel c = new Channel();
+        LogicalChannel lc = new LogicalChannel();
+        StatsInfo si = new StatsInfo();
+        PlaneInfo pl = new PlaneInfo();
         
         if (example != null)
         {
@@ -71,6 +77,9 @@ public class ObjectFactory
             i.unload();
             c.setId(((Channel)example.getChannels().get(0)).getId());
             c.unload();
+            // Not needed but useful
+            p.addPlaneInfo((PlaneInfo)example.iteratePlaneInfo().next());
+            ((PlaneInfo)p.iteratePlaneInfo().next()).unload();
         }
         
         else
@@ -89,7 +98,17 @@ public class ObjectFactory
             pd.setSizeY(new Float(1.0));
             pd.setSizeZ(new Float(1.0));
             c.setPixels(p);
-            
+        
+            // Not required but useful
+            si.setGlobalMax(new Double(0.0));
+            si.setGlobalMin(new Double(0.0));
+            c.setLogicalChannel(lc);
+            c.setStatsInfo(si);
+            pl.setTheC(new Integer(0));
+            pl.setTheZ(new Integer(0));
+            pl.setTheT(new Integer(0));
+            pl.setTimestamp(new Float(0.0));
+            p.addPlaneInfo(pl);
             i.setName("test");
         
         }

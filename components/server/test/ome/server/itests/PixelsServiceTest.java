@@ -31,6 +31,8 @@ package ome.server.itests;
 //Java imports
 
 //Third-party libraries
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Configuration;
@@ -38,13 +40,17 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.api.IPixels;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.RenderingModel;import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
+import ome.testing.ObjectFactory;
+import omeis.providers.re.RenderingEngine;
 ;
 
 /** 
@@ -135,6 +141,37 @@ public class PixelsServiceTest
         return r;
     }
     
+    @Test( groups = "ticket:330" )
+    public void testPixelsIsFilled() throws Exception {
+    	Pixels p = ObjectFactory.createPixelGraph(null);
+    	p = factory.getUpdateService().saveAndReturnObject( p );
+    	
+    	IPixels pix = factory.getPixelsService();
+    	Pixels t = pix.retrievePixDescription(p.getId());
+    	testPixelsFilled(t);
+    	
+    	RenderingEngine re = factory.createRenderingEngine();
+    	re.lookupPixels(p.getId());
+    	t = re.getPixels();
+    	testPixelsFilled(t);
+    }
+
+	private void testPixelsFilled(Pixels t) {
+		//assertTrue( t.sizeOfPlaneInfo() >= 0 );
+    	
+    	PixelsDimensions pd = t.getPixelsDimensions();
+    	assertNotNull( pd );
+    	assertNotNull( pd.getSizeX() );
+    	
+    	List c = t.getChannels();
+    	assertNotNull( c );
+    	assertTrue( c.size() > 0 );
+    	
+    	for (Object object : c) {
+			Channel ch = (Channel) object;
+			assertNotNull( ch.getLogicalChannel() );
+		}
+	}
 
     
 }

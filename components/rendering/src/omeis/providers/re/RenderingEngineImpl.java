@@ -765,7 +765,7 @@ public class RenderingEngineImpl
         rwl.readLock().lock();
 
         try {
-            errorIfNullRenderingDef();
+            errorIfNullPixels();
             return pixelsObj;
         } finally {
             rwl.readLock().unlock();
