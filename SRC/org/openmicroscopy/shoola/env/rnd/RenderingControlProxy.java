@@ -43,12 +43,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -236,20 +236,15 @@ class RenderingControlProxy
         pixs = servant.getPixels();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
-        //Channel[] channels = (Channel[])
-       //     l.toArray(new Channel[l.size()]);
-        metadata = new ChannelMetadata[getPixelsDimensionsC()];
-        /*
-        Iterator j = pixs.getChannels().iterator();
+        List l = pixs.getChannels();
+        metadata = new ChannelMetadata[l.size()];
+        Iterator i = l.iterator();
         int k = 0;
-        while (j.hasNext()) {
-            metadata[k] = new ChannelMetadata((Channel) j.next(), null);
-            k++;
+        while (i.hasNext()) {
+            metadata[k] = new ChannelMetadata(k, (Channel) i.next(), null);
+            k++;  
         }
-        */
-        for (int i = 0; i < metadata.length; i++) {
-            metadata[i] = new ChannelMetadata(i, null, null);
-        }
+ 
         setDefaultPlane();
     }
 
@@ -515,7 +510,7 @@ class RenderingControlProxy
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
         //See if the requested image is in cache.
-        BufferedImage img = getFromCache(pDef);
+        BufferedImage img = null;//getFromCache(pDef);
         if (img == null) {  //If not, ask the server to render the plane.
             RGBBuffer buf = servant.render(pDef);   //TO BE modified.
             
@@ -621,11 +616,16 @@ class RenderingControlProxy
         return l;
     }
     
-    public ChannelMetadata getChannelData(int w)
-    {
-        return metadata[w];
-    }
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelData(int)
+     */
+    public ChannelMetadata getChannelData(int w) { return metadata[w]; }
     
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getChannelData()
+     */
     public ChannelMetadata[] getChannelData() { return metadata; }
     
 }

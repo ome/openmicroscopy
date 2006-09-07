@@ -402,8 +402,20 @@ public interface RenderingControl
      */
     public BufferedImage render(PlaneDef pDef);
 	
+    /**
+     * Returns the <code>ChannelMetadata</code> object specified
+     * by the passed index.
+     * 
+     * @param w The channel index.
+     * @return See above.
+     */
     public ChannelMetadata getChannelData(int w);
     
+    /**
+     * Returns an array of <code>ChannelMetadata</code> objects.
+     * 
+     * @return See above.
+     */
     public ChannelMetadata[] getChannelData();
     
     /** Shuts down the service. */
