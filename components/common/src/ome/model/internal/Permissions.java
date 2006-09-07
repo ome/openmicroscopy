@@ -38,6 +38,7 @@ import ome.model.IObject;
 //Application-internal dependencies
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
+import static ome.model.internal.Permissions.Flag.*;
 
 /** class responsible for storing all Right/Role-based information for entities
  * as well as various flags for the containing {@link Details} instance.
@@ -289,19 +290,34 @@ public class Permissions implements Serializable
     public String toString()
     {
     	StringBuilder sb = new StringBuilder(16);
+    	sb.append(     isSet(LOCKED)      ? "L" : ""  );
     	sb.append( isGranted(USER,READ)   ? "r" : "-" ); 
     	sb.append( isGranted(USER,WRITE)  ? "w" : "-" ); 
-    	sb.append( isGranted(USER,USE)    ? "u" : "-" ); 
     	sb.append( isGranted(GROUP,READ)  ? "r" : "-" ); 
     	sb.append( isGranted(GROUP,WRITE) ? "w" : "-" ); 
-    	sb.append( isGranted(GROUP,USE)   ? "u" : "-" ); 
     	sb.append( isGranted(WORLD,READ)  ? "r" : "-" ); 
     	sb.append( isGranted(WORLD,WRITE) ? "w" : "-" ); 
-    	sb.append( isGranted(WORLD,USE)   ? "u" : "-" ); 
     	return sb.toString();
     }
     
-    /** two {@link Permissions} instances are <code>equal</code> if they have the
+    /** returns true if two {@link Permissions} instances have all the same
+     * {@link Right} / {@link Role} pairs granted.
+	 */
+    public boolean sameRights(Permissions p)
+    {
+    	if ( p == this ) return true;
+    	
+		for (Role ro : Role.values()) {
+			for (Right rt : Right.values()) {
+				if (isGranted(ro, rt) != p.isGranted(ro, rt))
+					return false;
+			}
+		}
+		
+		return true;
+    }
+    
+    /** two {@link Permissions} instances are <code>identical</code> if they have the
      * same bit representation.
      * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/291">ticket:291</a>
      */

@@ -209,6 +209,14 @@ public class PermissionsTest extends TestCase {
 //		assertEquals(p.hashCode(),t.hashCode());
 		assertFalse(p.hashCode() == t.hashCode());
 	}
+	
+	@Test( groups = "ticket:291" )
+	public void testSameRights() throws Exception {
+		Permissions t = new Permissions();
+		p.revoke(GROUP, WRITE);
+		t.revoke(GROUP, WRITE);
+		assertTrue(p.sameRights(t));
+	}
 
 	// ~ Flags
 	// =========================================================================
@@ -222,6 +230,19 @@ public class PermissionsTest extends TestCase {
 		t.set( LOCKED );
 		assertTrue( t.isSet( SOFT ));
 		assertTrue( t.isSet( LOCKED ));
+	}
+	
+	@Test( groups = "ticket:215" )
+	public void testCopyCtorCopiesFlags() throws Exception {
+		p = new Permissions();
+		assertFalse( p.isSet(LOCKED) );
+		assertFalse( p.isSet(SOFT) );
+		p.set( LOCKED );
+		p.set( SOFT );
+		Permissions t = new Permissions( p );
+		assertTrue( t.isSet(LOCKED) );
+		assertTrue( t.isSet(SOFT) );
+		
 	}
 	
 	// ~ Private helpers
