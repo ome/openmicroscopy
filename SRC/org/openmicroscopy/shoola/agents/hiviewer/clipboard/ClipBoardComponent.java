@@ -199,6 +199,7 @@ class ClipBoardComponent
             case FIND_PANE:
             case ANNOTATION_PANE:
             case INFO_PANE:
+            case EDITOR_PANE:
                 break;
             default:
                 throw new IllegalArgumentException("Pane index not valid.");
@@ -325,8 +326,28 @@ class ClipBoardComponent
      */
     public Object getHierarchyObject()
     {
-        // TODO Auto-generated method stub
         return model.getParentModel().getHierarchyObject();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#isObjectWritable(DataObject)
+     */
+    public boolean isObjectWritable(DataObject ho)
+    {
+        // TODO Auto-generated method stub
+        return model.getParentModel().isObjectWritable(ho);
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#saveObject(DataObject)
+     */
+    public void saveObject(DataObject object)
+    {
+        if (object == null)
+            throw new IllegalArgumentException("No object to save.");
+        model.getParentModel().saveObject(object);
     }
 
 }

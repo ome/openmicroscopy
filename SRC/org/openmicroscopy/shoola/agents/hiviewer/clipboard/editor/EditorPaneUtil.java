@@ -31,14 +31,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor;
 
 
 //Java imports
-import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.PixelsData;
+import pojos.ExperimenterData;
 
 /** 
  * Helper class to transform a <code>DataObject</code> into a visualization
@@ -55,70 +54,31 @@ import pojos.PixelsData;
 class EditorPaneUtil
 {
     
-    /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in \u00B5)";
+    /** Identifies the <code>Name</code> field. */
+    private static final String NAME = "Owner";
     
-    /** Identifies the <code>SizeX</code> field. */
-    private static final String SIZE_X = "Size X";
-    
-    /** Identifies the <code>SizeY</code> field. */
-    private static final String SIZE_Y = "Size Y";
-    
-    /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+MICRONS;
-    
-    /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+MICRONS;
-    
-    /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+MICRONS;
-    
-    /** Identifies the <code>Sections</code> field. */
-    private static final String SECTIONS = "Number of sections";
-    
-    /** Identifies the <code>Timepoints</code> field. */
-    private static final String TIMEPOINTS = "Number of timepoints";
-    
-    /** Identifies the <code>PixelType</code> field. */
-    private static final String PIXEL_TYPE = "Pixel Type";
-    
-    /** Identifies the <code>EmissionWavelength</code> field. */
-    //private static final String EMISSION_WAVELENGTH = "Emission wavelength";
+    /** Identifies the <code>Email</code> field. */
+    private static final String EMAIL = "Email";
     
     /**
-     * Transforms the specified {@link PixelsData} object into 
+     * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
      * 
-     * @param data The {@link PixelsData} object to transform.
+     * @param data The {@link ExperimenterData} object to transform.
      * @return The map whose keys are the field names, and the values 
      *          the corresponding fields' values.
      */
-    static Map transformPixelsData(PixelsData data)
+    static Map transformExperimenterData(ExperimenterData data)
     {
-        LinkedHashMap details = new LinkedHashMap(8);
+        LinkedHashMap details = new LinkedHashMap(3);
         if (data == null) {
-            details.put(SIZE_X, "");
-            details.put(SIZE_Y, "");
-            details.put(PIXEL_SIZE_X, "");
-            details.put(PIXEL_SIZE_Y, "");
-            details.put(PIXEL_SIZE_Z, "");
-            details.put(SECTIONS, "");
-            details.put(TIMEPOINTS, "");
-            //details.put("Emission wavelength", "");
-            details.put(PIXEL_TYPE, "");  
+            details.put(NAME, "");
+            details.put(EMAIL, "");  
         } else {
-            NumberFormat    nf = NumberFormat.getInstance();
-            details.put(SIZE_X, ""+data.getSizeX());
-            details.put(SIZE_Y, ""+data.getSizeY());
-            //details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-            //details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-            //details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
-            details.put(SECTIONS, ""+data.getSizeZ());
-            details.put(TIMEPOINTS, ""+data.getSizeT());
-            //details.put("Emission wavelength", "");
-            details.put(PIXEL_TYPE, ""+data.getPixelType());  
+            details.put(NAME, data.getFirstName()+" "+data.getLastName());
+            details.put(EMAIL, data.getEmail());
         }
         return details;
     }
-    
+
 }

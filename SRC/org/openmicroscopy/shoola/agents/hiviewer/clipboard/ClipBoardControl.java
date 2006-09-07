@@ -114,6 +114,7 @@ class ClipBoardControl
      * @param index The index of the selected pane.
      */
     void setSelectedPane(int index) { component.setSelectedPane(index, null); }
+    
     /**
      * Discards any on-going annotation retrieval.
      */

@@ -76,7 +76,10 @@ public interface ClipBoard
     public static final int     ANNOTATION_PANE = 1;
     
     /** Identifies the index of the <code>Information</code> pane. */
-    public static final int     INFO_PANE = 2;
+    public static final int     EDITOR_PANE = 2;
+    
+    /** Identifies the index of the <code>Information</code> pane. */
+    public static final int     INFO_PANE = 3;
     
     /** Identifies the <i>Loading annotations</i> state. */
     public static final int     LOADING_ANNOTATIONS = 200;
@@ -235,6 +238,22 @@ public interface ClipBoard
      * @return See above.
      */
     public Object getHierarchyObject();
+
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho    The data object to check.
+     * @return See above.
+     */
+    public boolean isObjectWritable(DataObject ho);
+
+    /** 
+     * Saves the specified data object.
+     * 
+     * @param object The object to save.
+     */
+    public void saveObject(DataObject object);
     
 }
 

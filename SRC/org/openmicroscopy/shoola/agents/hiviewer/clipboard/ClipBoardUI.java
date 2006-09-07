@@ -75,8 +75,11 @@ class ClipBoardUI
     /** The position of the <code>Annotate</code>  pane. */
     private static final int    ANNOTATE_TAB = 1;
     
+    /** The position of the <code>Editor</code>  pane. */
+    private static final int    EDITOR_TAB = 2;
+    
     /** The position of the <code>Info</code>  pane. */
-    private static final int    INFO_TAB = 2;
+    private static final int    INFO_TAB = 3;
     
     /** Reference to the Control. */
     private ClipBoardControl    controller;
@@ -105,6 +108,9 @@ class ClipBoardUI
         tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
                         pane, pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
+                        pane, pane.getPaneDescription());
+        pane = model.getClipboardPane(ClipBoard.EDITOR_PANE);
         tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
                         pane, pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.INFO_PANE);
@@ -145,6 +151,9 @@ class ClipBoardUI
                         break;
                     case INFO_TAB:
                         controller.setSelectedPane(ClipBoard.INFO_PANE);
+                        break;
+                    case EDITOR_TAB:
+                        controller.setSelectedPane(ClipBoard.EDITOR_PANE);
                         break;
                 };
                 
