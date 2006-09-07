@@ -31,13 +31,10 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -105,7 +102,7 @@ public class ChannelMetadataLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        viewer.setChannelMetadata((Pixels) result);
+        //viewer.setChannelMetadata((Pixels) result);
     }
     
 }
