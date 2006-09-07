@@ -52,6 +52,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -283,6 +285,17 @@ abstract class HiViewerModel
     }
     
     /**
+     * Starts the asynchronous update of the specified object.
+     * 
+     * @param object The object to update.
+     */
+    void fireDataObjectUpdate(DataObject object)
+    {
+        state = HiViewer.SAVING_DATA_OBJECT;
+        currentLoader.load();
+    }
+    
+    /**
      * Sets the specified thumbnail for all image nodes in the display that
      * map to the same image hierarchy object.
      * When every image object has a thumbnail, this method sets the state
@@ -353,5 +366,7 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
+
+
     
 }

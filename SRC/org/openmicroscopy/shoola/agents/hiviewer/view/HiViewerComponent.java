@@ -476,5 +476,17 @@ class HiViewerComponent
         if (groupRead) return permissions.isGroupWrite();
         return permissions.isWorldWrite();
     }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#saveObject(DataObject)
+     */
+    public void saveObject(DataObject object)
+    {
+        if (object == null)
+            throw new IllegalArgumentException("No object to update");
+        //TODO check state.
+        model.fireDataObjectUpdate(object);
+    }
     
 }

@@ -98,13 +98,16 @@ public interface HiViewer
     public static final int     	LOADING_HIERARCHY = 2;
     
     /** Flag to denote the <i>Loading Thumbnails</i> state. */
-    public static final int     	LOADING_THUMBNAILS = 43;
+    public static final int     	LOADING_THUMBNAILS = 3;
+    
+    /** Flag to denote the <i>Saving of a data object</i> state. */
+    public static final int         SAVING_DATA_OBJECT = 4;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     	READY = 4;
+    public static final int     	READY = 5;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     	DISCARDED = 5;
+    public static final int     	DISCARDED = 6;
     
     /** 
      * Flag to denote a Project/Dataset/Image hierarchy rooted by a given
@@ -352,5 +355,12 @@ public interface HiViewer
      * @return See above.
      */
     public boolean isObjectWritable(DataObject ho);
+
+    /**
+     * Saves the specified data object.
+     * 
+     * @param object The object to save
+     */
+    public void saveObject(DataObject object);
     
 }

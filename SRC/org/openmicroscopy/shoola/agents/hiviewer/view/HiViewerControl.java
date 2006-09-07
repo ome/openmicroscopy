@@ -227,7 +227,7 @@ class HiViewerControl
         HiViewer viewer;
         while (i.hasNext()) {
             viewer = (HiViewer) i.next();
-            if (!(viewer == model))
+            //if (!(viewer == model))
                 menu.add(new JMenuItem(new ActivationAction(viewer)));
         }
     }

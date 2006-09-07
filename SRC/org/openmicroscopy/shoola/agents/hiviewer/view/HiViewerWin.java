@@ -54,6 +54,8 @@ import javax.swing.JSplitPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -157,8 +159,10 @@ class HiViewerWin
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
         menuBar.add(createViewMenu());
-        menuBar.add(windowsMenu);
+        //menuBar.add(windowsMenu);
         menuBar.add(createHelpMenu());
+        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
         return menuBar;
     }
     
@@ -249,7 +253,7 @@ class HiViewerWin
     /** Helper method to create the Windows menu. */
     private void createWindowsMenu()
     {
-        windowsMenu = new JMenu("Window");
+        windowsMenu = new JMenu("HiViewer Window");
         windowsMenu.setMnemonic(KeyEvent.VK_W);
     }
     
