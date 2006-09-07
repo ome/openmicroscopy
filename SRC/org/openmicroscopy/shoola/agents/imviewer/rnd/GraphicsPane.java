@@ -275,12 +275,8 @@ class GraphicsPane
         buildGUI();
     }
 
-    /**
-     * Updates the controls when a new channel is selected.
-     * 
-     * @param c The index of the channel.
-     */
-    void setSelectedChannel(int c)
+    /** Updates the controls when a new channel is selected. */
+    void setSelectedChannel()
     {
         int s = (int) model.getWindowStart();
         int e = (int) model.getWindowEnd();

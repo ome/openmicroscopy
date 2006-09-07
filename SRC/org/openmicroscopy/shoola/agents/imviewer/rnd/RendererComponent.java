@@ -167,7 +167,7 @@ class RendererComponent
     {
         //if (model.getState() != DISCARDED) return;
 //      TODO: remove comments when server problem is fixed
-        //model.setBitResolution(v);
+        model.setBitResolution(v);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 

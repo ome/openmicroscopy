@@ -177,7 +177,7 @@ class DomainPane
         ChannelMetadata[] l = model.getChannelData();
         String[] channels = new String[l.length];
         for (int j = 0; j < channels.length; j++) 
-            channels[j] = ""+(l[j].getEmissionWavelength()+j);
+            channels[j] = ""+l[j].getEmissionWavelength();
         channelBox = new JComboBox(channels);
         channelBox.setSelectedIndex(model.getSelectedChannel());
         channelBox.addActionListener(this);
@@ -370,7 +370,7 @@ class DomainPane
      */
     void setSelectedChannel(int c)
     {
-        graphicsPane.setSelectedChannel(c);
+        graphicsPane.setSelectedChannel();
         channelBox.removeActionListener(this);
         channelBox.setSelectedIndex(c);
         channelBox.addActionListener(this);
