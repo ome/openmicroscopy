@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -164,20 +165,11 @@ class TreeViewerWin
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
         menuBar.add(createViewMenu());
-        menuBar.add(createHelpMenu());
+        TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+        menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
+        menuBar.add(tb.getMenu(TaskBar.CONNECT_MENU));
+        menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
         return menuBar;
-    }
-
-    /**
-     * Helper method to create the <code>Help</code> menu.
-     * 
-     * @return See above.
-     */
-    private JMenu createHelpMenu()
-    {
-        JMenu menu = new JMenu("Help");
-        menu.setMnemonic(KeyEvent.VK_H);
-        return menu;
     }
     
     /**
@@ -187,8 +179,10 @@ class TreeViewerWin
      */
     private JMenu createFileMenu()
     {
-        JMenu menu = new JMenu("File");
+        TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
+        JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
         menu.setMnemonic(KeyEvent.VK_F);
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
         menu.add(createRootMenu());
@@ -199,8 +193,6 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.EXIT)));
         return menu;
     }
     
@@ -338,9 +330,9 @@ class TreeViewerWin
      */
     private void configureDisplayButtons()
     {
-        IconManager im = IconManager.getInstance();
-        configureQuickLaunchBtn(im.getIcon(IconManager.MANAGER), DESCRIPTION);
-        configureWinMenuEntry(TITLE, im.getIcon(IconManager.MANAGER));
+        //IconManager im = IconManager.getInstance();
+        //configureQuickLaunchBtn(im.getIcon(IconManager.MANAGER), DESCRIPTION);
+        //configureWinMenuEntry(TITLE, im.getIcon(IconManager.MANAGER));
     }
 
     /**
