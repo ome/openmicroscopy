@@ -87,7 +87,7 @@ class EditorUtil
     private static final String TIMEPOINTS = "Number of timepoints";
     
     /** Identifies the <code>Timepoints</code> field. */
-    private static final String WAVELENGTHS = "Emissions wavelengths";
+    //private static final String WAVELENGTHS = "Emissions wavelengths";
     
     /** Identifies the <code>PixelType</code> field. */
     private static final String PIXEL_TYPE = "Pixel Type";

@@ -304,13 +304,13 @@ public class EditorUI
                 ExperimenterData exp = model.getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
-                            new DOInfo(details, model, true));
+                            new DOInfo(this, model, details, true));
                 DataObject hierarchyObject = model.getHierarchyObject();
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE),
-                               new DOInfo(details, model, false));
+                               new DOInfo(this, model, details, false));
                 }
                 return tabs;
         }
@@ -562,6 +562,13 @@ public class EditorUI
         if (doBasic != null) doBasic.showAnnotations();
     }
     
+    /**
+     * Sets the value of the {@link #edit} flag.
+     * 
+     * @param b The value to set.
+     */
+    void setEdit(boolean b) { edit = b; }
+    
     /** Displays the classifications. */ 
     void showClassifications()
     { 
@@ -581,5 +588,7 @@ public class EditorUI
         titleLayer.setSize(d);
         titleLayer.setPreferredSize(d);
     }
+
+
     
 }

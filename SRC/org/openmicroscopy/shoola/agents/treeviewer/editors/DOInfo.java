@@ -101,6 +101,9 @@ class DOInfo
     /** Reference to the Model. */
     private EditorModel     model;
     
+    /** Reference to the Model. */
+    private EditorUI        view;
+    
     /**
      * Builds the panel hosting the information
      * 
@@ -195,6 +198,7 @@ class DOInfo
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setUserRead(source.isSelected());
+               view.setEdit(true);
             }
         });
         box.setEnabled(isOwner);
@@ -207,6 +211,7 @@ class DOInfo
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setUserWrite(source.isSelected());
+               view.setEdit(true);
             }
         
         });
@@ -232,6 +237,7 @@ class DOInfo
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setGroupRead(source.isSelected());
+               view.setEdit(true);
             }
         });
         box.setEnabled(isOwner);
@@ -244,8 +250,8 @@ class DOInfo
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setGroupWrite(source.isSelected());
+               view.setEdit(true);
             }
-        
         });
         box.setEnabled(isOwner);
         p.add(box);
@@ -271,6 +277,7 @@ class DOInfo
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setWorldRead(source.isSelected());
+               view.setEdit(true);
             }
         });
         box.setEnabled(isOwner);
@@ -283,8 +290,8 @@ class DOInfo
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setWorldWrite(source.isSelected());
+               view.setEdit(true);
             }
-        
         });
         box.setEnabled(isOwner);
         p.add(box);
@@ -336,19 +343,23 @@ class DOInfo
     /**
      * Creates a new instance.
      * 
-     * @param details       The visualization map. Mustn't be <code>null</code>.
+     * @param view          Reference to the View. Mustn't be <code>null</code>.
      * @param model         Reference to the Model. 
      *                      Mustn't be <code>null</code>.
+     * @param details       The visualization map. Mustn't be <code>null</code>.                
      * @param permission    Pass <code>true</code> to display the permission,
      *                      <code>false</code> otherwise.
      */
-    DOInfo(Map details, EditorModel model, boolean permission)
+    DOInfo(EditorUI view, EditorModel model, Map details, boolean permission)
     {
+        if (view == null)
+            throw new IllegalArgumentException("No model.");
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
         if (details == null) 
             throw new IllegalArgumentException("Visualization map cannot be" +
                     " null");
-        if (model == null)
-            throw new IllegalArgumentException("No model.");
+        this.view = view;
         this.model = model;
         buildGUI(details, permission);
     }
