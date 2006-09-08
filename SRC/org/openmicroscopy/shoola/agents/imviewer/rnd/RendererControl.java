@@ -224,6 +224,10 @@ class RendererControl
         model.setCodomainInterval(s, e, released);
     }
     
+    /**
+     * Reacts to state changes in the <code>ImViewer</code>
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
     public void stateChanged(ChangeEvent e)
     {
         switch (model.getParentModel().getState()) {

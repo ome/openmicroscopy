@@ -114,7 +114,11 @@ abstract class ControlPane
      */
     protected abstract int getPaneIndex();
     
-    /** Reacts to change in the <code>ImViewer</code>. */
+    /** 
+     * Reacts to change in the <code>ImViewer</code>. 
+     * @param b Pass <code>true</code> if the controls are enabled, 
+     *          <code>false</code> otherwise.
+     */
     protected abstract void onStateChange(boolean b);
     
     /**
