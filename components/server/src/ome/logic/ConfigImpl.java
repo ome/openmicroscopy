@@ -90,9 +90,12 @@ import ome.api.ServiceInterface;
 // =============================================================================
 
 /* Source: Spring
- * Purpose: only non-container annotation, used by Spring for transaction
- * handling. Duplicates the logic of @TransactionAttribute from the EJB3 spec, 
- * but is used by Spring. Currently, suffices for our TX needs, but we may 
+ * Purpose:  Used by EventHandler#checkReadyOnly(MethodInvocation) to deteremine
+ * if  a method is read-only. No annotation implies ready-only, so it is 
+ * essential to have this annotation on all write methods. 
+ * 
+ * Only non-container annotation and is a superset of EJB3's 
+ * @TransactionAttribute. Currently, suffices for our TX needs, but we may 
  * eventually have to provide both annotations or to switch to the EJB3 spec
  * annotations and write a new TX-interceptor for Spring.
  * @see http://www.interface21.com/pitchfork Project Pitchfork. 
@@ -127,7 +130,8 @@ import ome.api.ServiceInterface;
 /* Source: EJB3 Specification
  * Purpose: Defines which interface will be represented to remote clients of 
  *  this service. There need be no relationship between this interface and the
- *  @Remote interface.
+ *  @Remote interface. Currently unused, since services don't look up 
+ *  dependencies from JNDI but rather have them injected by Spring.
  */
 @Local(IConfig.class)
 
