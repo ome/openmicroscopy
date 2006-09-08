@@ -57,7 +57,10 @@ public class ColoredButton
 	extends JButton
 {
 
-	/** Overrides the paintComponent method. */
+	/** 
+     * Overrides the paintComponent method. 
+     * @see JButton#paintComponent(Graphics)
+     */
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
