@@ -83,23 +83,6 @@ import pojos.ProjectData;
  */
 class OMEROGateway
 {
-    
-
-    /** System property key for JBoss security package. */
-    private static final String  JBOSS_SECURITY_KEY = 
-                                    "java.naming.factory.initial";
-    
-    /** System property value for JBoss security package. */
-    private static final String  JBOSS_SECURITY_VALUE =
-                    "org.jboss.security.jndi.JndiLoginInitialContextFactory";
-    
-    /** System property key for JBoss naming package. */
-    private static final String JBOSS_NAMING_KEY = 
-                                    "java.naming.factory.url.pkgs";
-    
-    /** System property value for JBoss naming package. */
-    private static final String JBOSS_NAMING_VALUE = 
-                                    "org.jboss.naming:org.jnp.interfaces";
 
     /**
      * The entry point provided by the connection library to access the various
@@ -333,15 +316,6 @@ class OMEROGateway
         if (dsFactory == null) 
             throw new IllegalArgumentException("No Data service factory.");
         server = new Server(hostName, port);
-        System.getProperties().setProperty("server.host", hostName);
-        System.getProperties().setProperty("server.port", ""+port);
-        //TODO: find a cleaner solution
-        System.getProperties().setProperty("omero.group", "user");
-        System.getProperties().setProperty("omero.event", "User");
-        System.getProperties().setProperty(JBOSS_NAMING_KEY, 
-                                            JBOSS_NAMING_VALUE);
-        System.getProperties().setProperty(JBOSS_SECURITY_KEY, 
-                                            JBOSS_SECURITY_VALUE);
         this.dsFactory = dsFactory;
     }
     
@@ -368,11 +342,6 @@ class OMEROGateway
     ExperimenterData login(String userName, String password)
         throws DSOutOfServiceException
     {
-        System.getProperties().setProperty("omero.user", userName);
-        //TODO: Remove it asap
-        System.getProperties().setProperty("omero.pass", "ome");
-        System.getProperties().setProperty("omero.rootpass", "ome");
-        //System.getProperties().setProperty("omero.pass", password);
         try {
             entry = new ServiceFactory(server, new Login(userName, "ome")); 
             connected = true;
