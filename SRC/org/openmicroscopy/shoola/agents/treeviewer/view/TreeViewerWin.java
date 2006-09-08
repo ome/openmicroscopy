@@ -161,15 +161,13 @@ class TreeViewerWin
      */
     private JMenuBar createMenuBar()
     {
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.add(createFileMenu());
-        menuBar.add(createEditMenu());
-        menuBar.add(createViewMenu());
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
-        menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
-        menuBar.add(tb.getMenu(TaskBar.CONNECT_MENU));
-        menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
-        return menuBar;
+        JMenu[] menus = new JMenu[3];
+        menus[0] = createFileMenu();
+        menus[1] = createEditMenu();
+        menus[2] = createViewMenu();
+        tb.addToMenuBar(menus, true);
+        return tb.getTaskBarMenu();
     }
     
     /**
@@ -179,10 +177,8 @@ class TreeViewerWin
      */
     private JMenu createFileMenu()
     {
-        TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
-        JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
+        JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
         menu.add(createRootMenu());
@@ -193,6 +189,8 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.EXIT)));
         return menu;
     }
     
