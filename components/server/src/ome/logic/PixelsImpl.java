@@ -101,10 +101,17 @@ class PixelsImpl extends AbstractLevel2Service
 	// =========================================================================
     
     @RolesAllowed("user") 
-	public Pixels retrievePixDescription(long pixId) {
-		Pixels p = (Pixels) iQuery.get(Pixels.class, pixId);
-		return p;
-	}
+    public Pixels retrievePixDescription(long pixId) {
+        Pixels p = iQuery.findByQuery(
+                "select p from Pixels as p " +
+                "left outer join fetch p.pixelsType as pt " +
+                "left outer join fetch p.channels as c " +
+                "left outer join fetch p.pixelsDimensions " +
+                "left outer join fetch c.logicalChannel as lc " +
+                "left outer join fetch c.statsInfo where p.id = :id",
+                new Parameters().addId(pixId));
+        return p;
+    }
 
     //TODO we need to validate and make sure only one RndDef per user. 
     @RolesAllowed("user") 

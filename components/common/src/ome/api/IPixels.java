@@ -63,7 +63,14 @@ import ome.model.enums.PixelsType;
 public interface IPixels extends ServiceInterface
 {
     /**
-     * Retrieves the pixels metadata (description).
+     * Retrieves the pixels metadata (description). With the following objects
+	 * prelinked:
+	 * <ul>
+	 *   <li>pixels.pixelsDimensions</li>
+	 *   <li>pixels.channels</li>
+	 *   <li>pixels.channnels.logicalChannel</li>
+	 *   <li>pixels.channnels.statsInfo</li>
+	 * </ul>
      * @param pixId Pixels id.
      * @return Pixels object which matches <i>id</i>.
      */

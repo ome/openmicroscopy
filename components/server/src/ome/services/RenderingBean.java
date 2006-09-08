@@ -59,6 +59,7 @@ import ome.annotations.RevisionNumber;
 import ome.api.ServiceInterface;
 import ome.logic.AbstractLevel2Service;
 import ome.model.IObject;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
@@ -239,8 +240,7 @@ public class RenderingBean extends AbstractLevel2Service
     @RolesAllowed("user") 
     public Pixels getPixels()
     {
-        Pixels pix = delegate.getPixels();
-        return (Pixels) new ShallowCopy().copy(pix);
+    	return copyPixels(delegate.getPixels());
     }
     
     @RolesAllowed("user") 
@@ -375,6 +375,37 @@ public class RenderingBean extends AbstractLevel2Service
     				argument.getId());
     }
     
+	@SuppressWarnings("unchecked")
+	private Pixels copyPixels(Pixels pixels)
+    {
+    	if (pixels == null) return null;
+    	Pixels newPixels = new ShallowCopy().copy(pixels);
+    	newPixels.setChannels(copyChannels(pixels.getChannels()));
+    	newPixels.setPixelsDimensions(
+    			new ShallowCopy().copy(pixels.getPixelsDimensions()));
+    	newPixels.setPixelsType(
+    			new ShallowCopy().copy(pixels.getPixelsType()));
+    	return newPixels;
+    }
+    
+    private List<Channel> copyChannels(List<Channel> channels)
+    {
+    	List<Channel> newChannels = new ArrayList<Channel>();
+    	for (Channel c : channels)
+    		newChannels.add(copyChannel(c));
+    	return newChannels;
+    }
+    
+    private Channel copyChannel(Channel channel)
+    {
+    	Channel newChannel = new ShallowCopy().copy(channel);
+    	newChannel.setLogicalChannel(
+    			new ShallowCopy().copy(channel.getLogicalChannel()));
+    	newChannel.setStatsInfo(
+    			new ShallowCopy().copy(channel.getStatsInfo()));
+    	return newChannel;
+    }
+    
     private RenderingModel copyRenderingModel(RenderingModel model)
     {
         if (model == null) return null;
@@ -399,3 +430,4 @@ public class RenderingBean extends AbstractLevel2Service
     }
 
 }
+
