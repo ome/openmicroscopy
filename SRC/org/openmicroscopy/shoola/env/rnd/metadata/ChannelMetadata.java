@@ -91,6 +91,42 @@ public class ChannelMetadata
         return wave.intValue();
     }
     
+    /**
+     * Returns the excitation wavelength of the channel.
+     * 
+     * @return See above
+     */
+    public int getExcitationWavelength()
+    {
+        Integer wave = channel.getLogicalChannel().getExcitationWave();
+        if (wave == null) return getEmissionWavelength();
+        return wave.intValue();
+    }
+    
+    /**
+     * Returns the excitation wavelength of the channel.
+     * 
+     * @return See above
+     */
+    public int getPinholeSize()
+    {
+        Integer v = channel.getLogicalChannel().getPinHoleSize();
+        if (v == null) return 0;
+        return v.intValue();
+    }
+    
+    /**
+     * Returns the excitation wavelength of the channel.
+     * 
+     * @return See above
+     */
+    public float getNDFilter()
+    {
+        Float v = channel.getLogicalChannel().getNdFilter();
+        if (v == null) return 0;
+        return v.floatValue();
+    }
+    
     /** 
      * Returns the global minimum of the channel i.e. the minimum of all minima.
      * 
