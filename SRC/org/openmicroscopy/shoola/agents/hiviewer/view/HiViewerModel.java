@@ -38,6 +38,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.DataObjectSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailLoader;
@@ -292,6 +293,7 @@ abstract class HiViewerModel
     void fireDataObjectUpdate(DataObject object)
     {
         state = HiViewer.SAVING_DATA_OBJECT;
+        currentLoader = new DataObjectSaver(component, object);
         currentLoader.load();
     }
     
