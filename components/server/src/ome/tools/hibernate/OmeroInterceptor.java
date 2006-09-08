@@ -135,9 +135,7 @@ public class OmeroInterceptor implements Interceptor
     		IObject iobj = (IObject) entity;
     		int idx = detailsIndex( propertyNames );
 
-    		// New instances don't inherently need to be locked
-    		// as they have no trustedDetails
-    		markLockedIfNecessary( iobj, null );
+    		secSys.markLockedIfNecessary( iobj );
 
     		// Get a new details based on the current context
     		Details d = secSys.transientDetails( iobj );
@@ -162,9 +160,7 @@ public class OmeroInterceptor implements Interceptor
     		IObject iobj = (IObject) entity;		
     		int idx = detailsIndex( propertyNames );
     		
-    		// If this instance was formerly locked, relock it regardless.
-    		Details trustedDetails = (Details) previousState[idx];
-    		markLockedIfNecessary( iobj, trustedDetails);
+    		secSys.markLockedIfNecessary( iobj );
     		
     		altered |= resetDetails( iobj, currentState, previousState, idx );
     	}
@@ -292,10 +288,6 @@ public class OmeroInterceptor implements Interceptor
 		return false;
 	}
 	
-	private void markLockedIfNecessary( IObject iobj, Details trustedDetails ) {
-		secSys.markLockedIfNecessary( iobj, trustedDetails );
-	}
-			
 	protected void log(String msg)
 	{
 		if ( msg.equals(last))

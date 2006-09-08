@@ -299,7 +299,7 @@ public interface SecuritySystem
 	 * 		to be valid. Most likely represent database state. If null, then
 	 * 		nothing is known about this new entity.
 	 */
-	void markLockedIfNecessary( IObject iObject, Details trustedDetails );
+	void markLockedIfNecessary( IObject iObject );
 	
 	/** sets the {@link Flag#LOCKED LOCKED flag} on the entities stored in the 
 	 * context from the {@link #markLockedIfNecessary(IObject)} method. Called
