@@ -181,6 +181,24 @@ public class LockingTest extends AbstractManagedContextTest
 		
 	}
 	
+	@Test( groups = "ticket:339" )
+	public void test_HandlesExplicitPermissionReduction() throws Exception
+	{
+		login( uname, gname, "Test" );
+
+		p = new Project();
+		p.setName( "ticket:339" );
+		Dataset d = new Dataset();
+		d.setName( "ticket:339" );
+		p.linkDataset( d );
+		
+		Permissions perms = Permissions.IMMUTABLE; // relatively common use-case		
+		p.getDetails().setPermissions( perms );
+		
+		Project t = iUpdate.saveAndReturnObject( p );
+		
+	}
+	
 	// ~ Helpers
 	// =========================================================================
 
