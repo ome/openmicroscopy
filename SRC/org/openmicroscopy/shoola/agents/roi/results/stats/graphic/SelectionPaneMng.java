@@ -41,7 +41,7 @@ import javax.swing.JButton;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ColorChooser;
+//import org.openmicroscopy.shoola.util.ui.ColorChooser;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
@@ -91,8 +91,8 @@ class SelectionPaneMng
             if (component instanceof ColoredButton) {
                 ColoredButton b = (ColoredButton) component;
                 coloredButtons.put(new Integer(index), b);
-                UIUtilities.centerAndShow(new ColorChooser(view, 
-                                    b.getBackground(), index)); 
+                //UIUtilities.centerAndShow(new ColorChooser(view, 
+                   //                 b.getBackground(), index)); 
             } else {
                 switch (index) {
                     case SELECT_ALL:

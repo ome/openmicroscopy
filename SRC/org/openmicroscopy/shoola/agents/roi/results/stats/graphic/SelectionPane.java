@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.roi.ROIAgtUIF;
 import org.openmicroscopy.shoola.agents.roi.results.stats.StatsResultsPaneMng;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.ColoredButton;
-import org.openmicroscopy.shoola.util.ui.IColorChooser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.table.TableComponent;
 import org.openmicroscopy.shoola.util.ui.table.TableComponentCellEditor;
@@ -82,7 +81,7 @@ import org.openmicroscopy.shoola.util.ui.table.TableSorter;
  */
 class SelectionPane
     extends JPanel
-    implements IColorChooser
+    //implements IColorChooser
 {
     
     private static final Dimension      SCROLLPANE_DIM = new Dimension(130, 70);
