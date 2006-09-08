@@ -28,6 +28,10 @@
  *        with the FOP distribution.  Version: unknown.
  *  + batik.jar: The Apache Batik SVG Toolkit, bundled wiht the FOP 
  *        distribution.  Version: unknown.
+ *  + xerces-2.6.2.jar: The Apache Xerces Parser 
+ * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
+ *  + xerces-xml-apis-2.6.2.jar. The Apache Xerces Parser 
+ * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <antlib>
   
@@ -136,10 +140,14 @@
    *
    * EXTERNAL DEPENDENCIES:
    *  + fop-0.20.5.jar: The FOP jar.  Version: 0.20.5.
-   *  + avalon-framework-cvs-20020806.jar: The Apache Avalon Framework, bunlded
+   *  + avalon-framework-cvs-20020806.jar: The Apache Avalon Framework, bundled
    *        with the FOP distribution.  Version: unknown.
    *  + batik.jar: The Apache Batik SVG Toolkit, bundled wiht the FOP 
    *        distribution.  Version: unknown. 
+   *  + xerces-2.6.2.jar: The Apache Xerces Parser 
+   * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
+   *  + xerces-xml-apis-2.6.2.jar. The Apache Xerces Parser 
+   * 					(http://xerces.apache.org/xerces-j/). Version: 2.6.2.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" /> 
  
@@ -190,9 +198,7 @@
     <sequential>
 
       <!-- Convert our 'doc.xml' file into an AurigaDoc file. -->
-      <xslt style="@{auriga}" 
-            in="@{srcdir}/doc.xml" 
-            out="@{destdir}/auriga.doc"> 
+      <xslt style="@{auriga}" in="@{srcdir}/doc.xml" out="@{destdir}/auriga.doc"> 
         <outputproperty name="method" value="xml" /> 
       </xslt>
       
@@ -207,7 +213,7 @@
            outfile="@{destdir}/doc.pdf"
            messagelevel="warn" /> 
       <delete file="@{destdir}/doc.fo" />  <!-- Get rid of tmp file. -->
-      
+
       <!-- Do multi-page HTML. --> 
       <xslt style="@{mhtml}" 
             in="@{destdir}/auriga.doc" 
