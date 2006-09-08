@@ -35,8 +35,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -83,7 +81,14 @@ public interface TaskBar
 	//So changing these values requires a review of TaskBarView as well.  
 	
 	/** Identifies the file menu within the menu bar. */
-	public static final int		FILE_MENU = 0;
+	//public static final int		FILE_MENU = 0;
+    
+    /** 
+     * Identifies the tasks menu within the menu bar.
+     * Entries in this menu trigger actions related to the application
+     * workflow.
+     */
+    public static final int     TASKS_MENU = 0;
     
 	/** 
 	 * Identifies the connect menu within the menu bar.
@@ -91,23 +96,15 @@ public interface TaskBar
 	 * remote services.
 	 */
 	public static final int		CONNECT_MENU = 1;
-
-	/** 
-	 * Identifies the tasks menu within the menu bar.
-	 * Entries in this menu trigger actions related to the application
-	 * workflow.
-	 */
-	public static final int		TASKS_MENU = 2;
-		
+	
 	/** 
 	 * Identifies the window menu within the menu bar.
 	 * Entries in this menu trigger actions to bring up top level windows.
 	 */
-	public static final int		WINDOW_MENU = 3;
+	public static final int		WINDOW_MENU = 2;
 	
 	/** Identifies the help menu within the menu bar. */
-	public static final int		HELP_MENU = 4;
-	
+	public static final int		HELP_MENU = 3;
 	
 	/**
 	 * Identifies the tasks toolbar.
@@ -170,6 +167,17 @@ public interface TaskBar
 	 */
 	public void removeFromToolBar(int toolBarID, AbstractButton entry);
 	
+    /** 
+     * Adds the specified menu to the menu bar, before the existing menus
+     * if passed flag is <code>true</code>, after otherwise.
+     * 
+     * @param menus      The menus to add.
+     * @param before    Pass <code>true</code> to add the menu before the 
+     *                  existing menus, pass <code>false</code> to add if after
+     *                  the existing ones.
+     */
+    public void addToMenuBar(JMenu[] menus, boolean before);
+    
 	/**
 	 * Brings up the task bar window.
 	 */
@@ -185,6 +193,11 @@ public interface TaskBar
      */
     public JFrame getFrame();
 
-    public JMenu getMenu(int menuID);
+    /**
+     * Returns the <code>JMenuBar</code> of the task bar.
+     * 
+     * @return See above.
+     */
+    public JMenuBar getTaskBarMenu();
 
 }

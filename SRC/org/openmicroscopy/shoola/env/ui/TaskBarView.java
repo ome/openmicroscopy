@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -154,12 +153,7 @@ class TaskBarView
 	 * {@link TaskBar}.
 	 */
 	private JToolBar[]		    toolbars;
-	
-    /**
-     * The panel hosting the tool bars.
-     */
-    private JPanel              toolBarsPanel;
-    
+
 	/** Cached reference to the {@link IconManager} singleton.*/
 	private IconManager        iconManager;
 	
@@ -264,7 +258,7 @@ class TaskBarView
 	private JMenuBar createMenuBar()
 	{
 		createMenuItems();
-		menus[FILE_MENU] = createFileMenu();
+		///menus[FILE_MENU] = createFileMenu();
 		menus[CONNECT_MENU] = createConnectMenu();
 		menus[TASKS_MENU] = createTasksMenu();
 		menus[WINDOW_MENU] = createWindowMenu();
@@ -345,7 +339,7 @@ class TaskBarView
 	{
 		setIconImage(IconManager.getOMEImageIcon());
 		setJMenuBar(createMenuBar());
-        toolBarsPanel = createToolBarsPanel();
+        createToolBarsPanel();
 		//getContentPane().add(createToolBarsPanel());
 	}
 	
@@ -359,7 +353,7 @@ class TaskBarView
 	{
 		super("Open Microscopy Environment");
 		buttons = new AbstractButton[MAX_ID+1];
-		menus = new JMenu[5];
+		menus = new JMenu[4];
 		toolbars = new JToolBar[2];
 		toolbars[QUICK_LAUNCH_TOOLBAR] = createToolBar();
 		toolbars[TASKS_TOOLBAR] = createToolBar();
@@ -459,31 +453,36 @@ class TaskBarView
      */
     public JFrame getFrame() { return this; }
 
-    public JPanel getToolBarsPanel()
-    {
-        // TODO Auto-generated method stub
-        return toolBarsPanel;
-    }
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#getTaskBarMenu()
+     */
+    public JMenuBar getTaskBarMenu() { return getJMenuBar(); }
 
-    public JMenuBar getMenuTaskBar()
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#addToMenuBar(JMenu[], boolean)
+     */
+    public void addToMenuBar(JMenu[] menus, boolean before)
     {
-        // TODO Auto-generated method stub
-        return getJMenuBar();
-    }
-
-    public JMenu getMenu(int menuID)
-    {
-        if (menuID < 0 || menus.length <= menuID)
-            throw new IllegalArgumentException("Invalid menu id: "+menuID+".");
-        return menus[menuID];
-    }
-
-    public JToolBar getToolBar(int toolBarID)
-    {
-        if (toolBarID < 0 || toolbars.length <= toolBarID)
-            throw new IllegalArgumentException(
-                "Invalid menu id: "+toolBarID+".");
-        return toolbars[toolBarID];
+        JMenuBar bar = getJMenuBar();
+        if (before) {
+            JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
+            for (int i = 0; i < existingMenus.length; i++) {
+                existingMenus[i] = bar.getMenu(i);
+            }
+            bar.removeAll();
+            for (int j = 0; j < menus.length; j++) {
+                bar.add(menus[j]);
+            }
+            for (int i = 0; i < existingMenus.length; i++) {
+                bar.add(existingMenus[i]);
+            }
+        } else {
+            for (int j = 0; j < menus.length; j++) {
+                bar.add(menus[j]);
+            }
+        }
     }
 
     /**
