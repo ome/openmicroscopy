@@ -34,8 +34,8 @@ package org.openmicroscopy.shoola.env.ui;
 import javax.swing.AbstractButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -82,30 +82,18 @@ public class NullTaskBar
     public void removeFromToolBar(int toolBarID, AbstractButton entry) {}
 
     /**
-     * @see TaskBar#open()
-     */
-    public void open() {}
-
-    /**
      * @see TaskBar#getFrame()
      */
     public JFrame getFrame() { return null; }
 
     /**
-     * @see TaskBar#iconify()
+     * @see TaskBar#addToMenuBar(JMenu[], boolean)
      */
-    public void iconify() {}
+    public void addToMenuBar(JMenu[] menus, boolean before) {}
 
-    public JMenu getMenu(int menuID)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public JToolBar getToolBar(int toolBarID)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    /**
+     * @see TaskBar#getTaskBarMenu()
+     */
+    public JMenuBar getTaskBarMenu() { return null; }
 
 }
