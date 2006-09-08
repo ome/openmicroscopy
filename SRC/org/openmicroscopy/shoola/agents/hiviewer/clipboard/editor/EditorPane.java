@@ -214,6 +214,7 @@ public class EditorPane
     /** Save the currently edited data object. */
     void finish()
     {
+        if (!(uiDelegate.isEdit())) return;
         String name = uiDelegate.getObjectName();
         if (name == null || name.length() == 0) return;
         DataObject object = fillDataObject();

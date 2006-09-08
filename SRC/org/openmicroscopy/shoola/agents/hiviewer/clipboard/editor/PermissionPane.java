@@ -95,7 +95,11 @@ class PermissionPane
      */
     private static final Dimension  SMALL_V_SPACER_SIZE = new Dimension(1, 6);
     
-    private EditorPane  model;
+    /** Reference to the Model. */
+    private EditorPane      model;
+    
+    /** Reference to the View. */
+    private EditorPaneUI    view;
     
     /**
      * Builds and lays out the panel displaying the permissions of the edited
@@ -125,6 +129,7 @@ class PermissionPane
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setUserRead(source.isSelected());
+               view.setEdit(true);
             }
         });
         box.setEnabled(isOwner);
@@ -137,6 +142,7 @@ class PermissionPane
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setUserWrite(source.isSelected());
+               view.setEdit(true);
             }
         
         });
@@ -162,6 +168,7 @@ class PermissionPane
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setGroupRead(source.isSelected());
+               view.setEdit(true);
             }
         });
         box.setEnabled(isOwner);
@@ -174,6 +181,7 @@ class PermissionPane
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setGroupWrite(source.isSelected());
+               view.setEdit(true);
             }
         
         });
@@ -201,6 +209,7 @@ class PermissionPane
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setWorldRead(source.isSelected());
+               view.setEdit(true);
             }
         });
         box.setEnabled(isOwner);
@@ -213,6 +222,7 @@ class PermissionPane
             {
                JCheckBox source = (JCheckBox) e.getSource();
                permissions.setWorldWrite(source.isSelected());
+               view.setEdit(true);
             }
         
         });
@@ -302,6 +312,7 @@ class PermissionPane
     /**
      * Creates a new instance.
      * 
+     * @param view          Reference to the View. Mustn't be <code>null</code>.
      * @param model         Reference to the Model. 
      *                      Mustn't be <code>null</code>.
      * @param details       The visualization map. Mustn't be <code>null</code>.
@@ -309,11 +320,14 @@ class PermissionPane
      * @param permission    Pass <code>true</code> to display the permission,
      *                      <code>false</code> otherwise.
      */
-    PermissionPane(EditorPane model, Map details, PermissionData permission)
+    PermissionPane(EditorPaneUI view, EditorPane model, Map details,
+            PermissionData permission)
     {
         if (details == null) 
             throw new IllegalArgumentException("Visualization map cannot be" +
                     " null");
+        if (view == null)
+            throw new IllegalArgumentException("No view.");
         if (model == null)
             throw new IllegalArgumentException("No model.");
         this.model = model;

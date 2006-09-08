@@ -329,6 +329,11 @@ class EditorPaneUI
         return bar;
     }
     
+    /**
+     * Builds and lays out a panel hosting the permission.
+     * 
+     * @return See above.
+     */
     private JPanel builPermissionPanel()
     {
         permissionPanel = new JPanel(); 
@@ -432,7 +437,7 @@ class EditorPaneUI
            c.fill = GridBagConstraints.HORIZONTAL;
            c.weightx = 1.0;
            permissionPanel.add(
-                   new PermissionPane(model, details, permission), c);
+                   new PermissionPane(this, model, details, permission), c);
        }
     }
 
@@ -449,5 +454,19 @@ class EditorPaneUI
      * @return See above.
      */
     String getObjectDescription() { return descriptionArea.getText(); }
+
+    /**
+     * Returns the value of the edit flag.
+     * 
+     * @return See above.
+     */
+    boolean isEdit() { return edit; }
+    
+    /**
+     * Sets the value of the {@link #edit} flag.
+     * 
+     * @param edit The value to set.
+     */
+    void setEdit(boolean edit) { this.edit = edit; }
     
 }
