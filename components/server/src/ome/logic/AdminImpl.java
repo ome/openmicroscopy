@@ -32,7 +32,9 @@ package ome.logic;
 //Java imports
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -47,11 +49,16 @@ import javax.management.ObjectName;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jmx.support.JmxUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.hibernate.Criteria;
+import org.hibernate.EmptyInterceptor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
@@ -60,6 +67,8 @@ import org.jboss.security.Util;
 
 //Application-internal dependencies
 import ome.annotations.NotNull;
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
 import ome.api.IAdmin;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
@@ -69,6 +78,7 @@ import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -76,22 +86,29 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
+import ome.security.SecuritySystem;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.tools.hibernate.ExtendedMetadata;
+import ome.util.Utils;
 
 
-/**  Provides methods for directly querying object graphs.
+/**  Provides methods for administering user accounts, passwords, as well as 
+ * methods which require special privileges. 
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
- * @since 3.0
+ * Developer note: As can be expected, to perform these privileged the Admin
+ * service has access to several resources that should not be generally used
+ * while developing services. Misuse could circumvent security or auditing.
  * 
+ * @author  Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see     SecuritySystem
+ * @see     Permissions
+ * @since   3.0-M3
  */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 @Transactional
 @Stateless
 @Remote(IAdmin.class)
@@ -101,13 +118,32 @@ import ome.services.query.QueryParameterDef;
 @SecurityDomain("OmeroSecurity")
 @Interceptors({SimpleLifecycle.class})
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
-
+	
     protected transient SimpleJdbcTemplate jdbc;
     
+    protected transient ExtendedMetadata em;
+    
+    protected transient SessionFactory sf;
+    
+    /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate( SimpleJdbcTemplate jdbcTemplate )
     {
     	throwIfAlreadySet(this.jdbc, jdbcTemplate);
     	jdbc = jdbcTemplate;
+    }
+
+    /** injector for usage by the container. Not for general use */
+    public final void setExtendedMetadata( ExtendedMetadata extMetadata )
+    {
+    	throwIfAlreadySet(this.em, extMetadata);
+    	em = extMetadata;
+    }
+
+    /** injector for usage by the container. Not for general use */
+    public final void setSessionFactory( SessionFactory sessionFactory )
+    {
+    	throwIfAlreadySet(this.sf, sessionFactory);
+    	sf = sessionFactory;
     }
     
     @Override
@@ -553,6 +589,91 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	getSecuritySystem().runAsAdmin(action);
     }
 
+    @RolesAllowed("system")
+    public void unlock(final IObject...iObjects )
+    {
+    	// do nothing if possible
+    	if ( iObjects == null | iObjects.length < 1 )
+    		return;
+    	
+    	// create a new session. It's important that we pass in the empty
+    	// interceptor here, otherwise even root wouldn't be allowed to unlock
+    	// the instance.
+    	Session s = 
+    	SessionFactoryUtils.getNewSession( sf, EmptyInterceptor.INSTANCE );
+    	
+    	Transaction tx 
+    	= s.beginTransaction();
+    	
+    	try 
+    	{
+	    	for (IObject orig : iObjects) {
+				
+	    		// do nothing if possible again.
+	    		if ( orig == null || orig.getId() == null ) continue;
+	    		
+	    		// get the original to operate on
+	    		final IObject object = (IObject) 
+	    			s.load( orig.getClass(), orig.getId() );
+	    		
+	    		// if it's not locked, we don't need to look further.
+	    		if ( ! object.getDetails().getPermissions().isSet(Flag.LOCKED) )
+					continue;
+				
+	    		// since it's a managed entity it's class.getName() will contain
+	    		// some byte-code generation string
+	    		final Class<? extends IObject> klass = 
+	    			Utils.trueClass( object.getClass() );
+	    		
+	    		final long  id    = object.getId().longValue();
+	    		
+	    		// the values that could possibly link to this instance.
+	    		String[][] checks = em.getLockChecks( klass );
+				
+	    		// reporting
+	    		long total = 0L;
+	    		Map<String,Long> counts = new HashMap<String,Long>();
+	    		
+	    		// run the individual queries
+	    		for (String[] check : checks) {
+	    			final String hql = String.format(
+	    					"select count(*) from %s where %s%s = :id ",
+	    					check[0],check[1],".id");
+	    			org.hibernate.Query q = s.createQuery(hql);
+	    			q.setLong("id",id);
+	    			Long count = (Long) q.iterate().next();
+	
+	    			if ( count != null && count.longValue() > 0 )
+	    			{
+	    				total += count.longValue();
+	    				counts.put( hql, count );
+	    			}
+				}
+	    		
+	    		// reporting
+	    		if ( getLogger().isDebugEnabled() )
+	    		{
+	    			getLogger().debug( counts );
+	    		}
+	    		
+	    		// if there are no links, the we can unlock
+	    		// the actual unlocking happens on flush below.
+	    		if ( total == 0 )
+	    		{
+	    			object.getDetails().getPermissions().unSet( Flag.LOCKED );
+	    		}
+	    		
+			}
+	    } 
+    	
+    	finally
+	    {
+			s.flush();
+			tx.commit();
+			s.close();
+	    }
+    }
+    
     // ~ Passwords
 	// =========================================================================
     

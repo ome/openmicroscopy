@@ -33,15 +33,20 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<!--
-
-	Only data source for all other activities
- 
--->
-
 <beans>	
 
+  <description>
+    Configuration for standalone properties and general database access. 
+    The beans in this configuration file should NOT be generally accessed. 
+    In general, this entire file should be considered to have a "private" scope. 
+  </description>
+
+  <!--  Scope: private -->
+
   <bean id="hibernateProperties" class="java.util.Properties">
+    <description>
+    Scope: private
+    </description>
     <constructor-arg>
       <props>
         <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
@@ -54,12 +59,18 @@
   
   <bean id="transactionManager" lazy-init="true"
         class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <description>
+    Scope: private
+    </description>
     <property name="dataSource" ref="dataSource"/>
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
   <bean id="transactionHandler" 
         class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <description>
+    Scope: private
+    </description>
     <property name="transactionManager" ref="transactionManager"/>
     <property name="transactionAttributeSource">
       <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
@@ -67,15 +78,24 @@
   </bean>
 
   <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+    <description>
+    Scope: private
+    </description>
     <constructor-arg ref="dataSource"/>
   </bean>
   
   <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    <description>
+    Scope: private
+    </description>
     <property name="dataSource" ref="dataSource"/>
   </bean>
   
   <bean id="dataSource" lazy-init="true"
         class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <description>
+    Scope: private
+    </description>
     <property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
     <property name="url"><value>${hibernate.connection.url}</value></property>
     <property name="username"><value>${hibernate.connection.username}</value></property>

@@ -33,42 +33,69 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<!--
-
-	Configuration of all things dao. It should be possible to drop in
-	a new dao.xml for JDOs or whatever, and have things work seamlessly.
- 
--->
-
-
 <beans>	
 
+  <description>
+    Configuration for Hibernate data access. The beans in this configuration file
+    should NOT be generally accessed. In general, this entire file should be
+    considered to have a "private" scope. 
+  </description>
+
+  <bean id="extendedMetadata" class="ome.tools.hibernate.ExtendedMetadata">
+    <description>
+    Simple cache for metadata needed throughout the server. Uses the Hibernate
+    metamodel to fill the cache during creation.
+    </description>
+    <constructor-arg ref="sessionFactory"/>
+  </bean>
+
+  <!-- Scope: private -->
+
   <bean id="eventHandler" class="ome.tools.hibernate.EventHandler">
+    <description>
+    Scope: private
+    </description>
   	<constructor-arg ref="securitySystem"/>
   	<constructor-arg ref="hibernateTemplate"/>
   </bean>
   
-  <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor"/>
+  <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor">
+    <description>
+    Scope: private
+    </description>
+  </bean>
   
   <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">
+    <description>
+    Scope: private
+    </description>
     <constructor-arg ref="dataSource"/>
     <constructor-arg ref="sessionFactory"/>    
   </bean>
     
   <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+    <description>
+    Scope: private
+    </description>
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="allowCreate" value="false"/>
   </bean>
   
+  <bean id="omeroInterceptor" class="ome.tools.hibernate.OmeroInterceptor">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="securitySystem"/>
+  </bean>
+ 
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <description>
+    Scope: private
+    </description>
     <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
     <property name="hibernateProperties" ref="hibernateProperties"/>
     <property name="dataSource" ref="dataSource"/>
-    <property name="entityInterceptor">
-      	<bean id="interceptor" class="ome.tools.hibernate.OmeroInterceptor">
-    		<constructor-arg ref="securitySystem"/>
-  		</bean>
-    </property>
+    <property name="entityInterceptor" ref="omeroInterceptor"/>
     <property name="eventListeners">
 		<bean class="ome.tools.hibernate.EventListenersFactoryBean">
 			<constructor-arg ref="securitySystem"/>

@@ -33,9 +33,7 @@ package ome.tools.hibernate;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
@@ -45,7 +43,6 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
-import org.hibernate.collection.PersistentCollection;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
@@ -55,10 +52,8 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions.Flag;
 import ome.security.SecuritySystem;
-import ome.tools.lsid.LsidUtils;
-
-
 
 /** 
  * implements {@link org.hibernate.Interceptor} for controlling various
@@ -87,7 +82,7 @@ public class OmeroInterceptor implements Interceptor
 	private Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 	
 	protected SecuritySystem secSys;
-
+		
 	/** only public ctor, requires a non-null {@link SecuritySystem} */
 	public OmeroInterceptor( SecuritySystem securitySystem )
 	{
@@ -138,19 +133,22 @@ public class OmeroInterceptor implements Interceptor
     	if ( entity instanceof IObject )
     	{
     		IObject iobj = (IObject) entity;
-    		int idx = detailsIndex(propertyNames);
+    		int idx = detailsIndex( propertyNames );
+
+    		// New instances don't inherently need to be locked
+    		// as they have no trustedDetails
+    		markLockedIfNecessary( iobj, null );
+
+    		// Get a new details based on the current context
     		Details d = secSys.transientDetails( iobj );
-    		state[idx] = d;
+    		state[idx] = d;    		
     	}
     	
         return true; // transferDetails ALWAYS edits the new entity.
     }
 
     /** callsback to {@link SecuritySystem#managedDetails(IObject, Details)} for 
-     * properly setting {@link IObject#getDetails() Details}. Also checks
-     * if any collections have been left null or 
-     * {@link Details#filteredSet() filtered} and throws an exception if 
-     * necessary.
+     * properly setting {@link IObject#getDetails() Details}.
      */
     public boolean onFlushDirty(Object entity, Serializable id, 
     		Object[] currentState, Object[] previousState, 
@@ -161,12 +159,14 @@ public class OmeroInterceptor implements Interceptor
     	boolean altered = false;
     	if ( entity instanceof IObject)
     	{
-    		IObject obj = (IObject) entity;		
-    		int idx = detailsIndex(propertyNames);
-//        	checkCollections(obj,(Long)id,
-//        			currentState, previousState, 
-//        			propertyNames, types, idx);
-    		altered |= resetDetails(obj,currentState,previousState,idx);
+    		IObject iobj = (IObject) entity;		
+    		int idx = detailsIndex( propertyNames );
+    		
+    		// If this instance was formerly locked, relock it regardless.
+    		Details trustedDetails = (Details) previousState[idx];
+    		markLockedIfNecessary( iobj, trustedDetails);
+    		
+    		altered |= resetDetails( iobj, currentState, previousState, idx );
     	}
         return altered;
     }
@@ -204,32 +204,6 @@ public class OmeroInterceptor implements Interceptor
     	debug("Intercepted postFlush.");
 		EMPTY.postFlush(entities);	
 	}
-    
-    // ~ Helpers
-	// =========================================================================
-// TODO move somewhere sensible.
-    public static int detailsIndex( String[] propertyNames )
-    {
-    	return index( "details", propertyNames );
-    }
-    
-    public static int index( String str, String[] propertyNames )
-    {
-        for (int i = 0; i < propertyNames.length; i++)
-        {
-            if ( propertyNames[i].equals( str ))
-                return i;
-        }
-        throw new InternalException( "No \""+str+"\" property found." );
-    }
-    
-    private void debug(String msg)
-    {
-    	if (log.isInfoEnabled())
-    	{
-    		log(msg);
-    	}
-    }
     
     // ~ Serialization
     // =========================================================================
@@ -317,6 +291,10 @@ public class OmeroInterceptor implements Interceptor
 		
 		return false;
 	}
+	
+	private void markLockedIfNecessary( IObject iobj, Details trustedDetails ) {
+		secSys.markLockedIfNecessary( iobj, trustedDetails );
+	}
 			
 	protected void log(String msg)
 	{
@@ -333,5 +311,29 @@ public class OmeroInterceptor implements Interceptor
 			count = 1;
 		}
 	}
+	
+//	 TODO move somewhere sensible.
+    public static int detailsIndex( String[] propertyNames )
+    {
+    	return index( "details", propertyNames );
+    }
+    
+    public static int index( String str, String[] propertyNames )
+    {
+        for (int i = 0; i < propertyNames.length; i++)
+        {
+            if ( propertyNames[i].equals( str ))
+                return i;
+        }
+        throw new InternalException( "No \""+str+"\" property found." );
+    }
+    
+    private void debug(String msg)
+    {
+    	if (log.isDebugEnabled())
+    	{
+    		log(msg);
+    	}
+    }
      
 }

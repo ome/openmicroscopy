@@ -32,6 +32,7 @@ package ome.security;
 //Java imports
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -74,8 +75,10 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.MergeEventListener;
 import ome.tools.hibernate.SecurityFilter;
+import ome.tools.spring.PostProcessInjector;
 import ome.util.IdBlock;
 
 /** 
@@ -121,6 +124,9 @@ public class BasicSecuritySystem implements SecuritySystem
 	 */
 	private EventContext ec;
 
+	/** metadata for calculating certain walks */ 
+	protected ExtendedMetadata em;
+	
 	/** only public constructor for this {@link SecuritySystem} implementation.
 	 * 
 	 * @param factory Not null. 
@@ -134,6 +140,18 @@ public class BasicSecuritySystem implements SecuritySystem
 		Assert.notNull(eventContext);
 		this.sf = factory;
 		this.ec = eventContext;
+	}
+	
+	/** injector for {@link ExtendedMetadata}. Needed to overcome a cyclical
+	 * dependency in the Hibernate beans. Used by {@link PostProcessInjector}
+	 * to fulfill this requirement.
+	 */
+	public final void setExtendedMetadata( ExtendedMetadata metadata )
+	{
+		if ( this.em != null ) 
+			throw new InternalException( "Cannot reset metadata." );
+		
+		this.em = metadata;
 	}
 	
 	// ~ Login/logout
@@ -269,7 +287,7 @@ public class BasicSecuritySystem implements SecuritySystem
 		Assert.notNull(iObject);
 		Class cls = iObject.getClass();
 		
-		if ( isPrivileged( iObject ) || currentUserIsAdmin() )
+		if ( hasPrivilegedToken( iObject ) || currentUserIsAdmin() )
 		{
 			return true;
 		}
@@ -318,7 +336,7 @@ public class BasicSecuritySystem implements SecuritySystem
 		Assert.notNull(iObject);
 		
 		// needs no details info
-		if ( isPrivileged( iObject ) || currentUserIsAdmin() ) return true;		
+		if ( hasPrivilegedToken( iObject ) || currentUserIsAdmin() ) return true;		
 		else if ( isSystemType( (Class<? extends IObject>) iObject.getClass()))
 		{
 			return false;
@@ -380,13 +398,42 @@ public class BasicSecuritySystem implements SecuritySystem
 		return CurrentDetails.isDisabled(id);
 	}
 	
-	// ~ Details (for UpdateFilter)
+	// ~ Details (for OmeroInterceptor)
 	// =========================================================================
-	   /*
-     * FIXME check for valid type creation i.e. no creating types, users,
-     * etc.
-     */
 
+	public void markLockedIfNecessary( IObject iObject, Details trustedDetails )
+	{
+		if ( iObject == null ) return;
+		
+		Set<IObject> s = new HashSet<IObject>();
+		
+		if ( trustedDetails != null && trustedDetails.getPermissions().isSet( Flag.LOCKED ) )
+			s.add( iObject );
+		
+		IObject[] candidates = em.getLockCandidates( iObject );
+		for (IObject object : candidates) 
+		{
+			s.add(object);
+			// TODO NEED TO CHECK FOR OWNERSHIP etc. etc.
+		}
+		
+		CurrentDetails.appendLockCandidates( s );
+	}
+	
+	public void lockMarked( )
+	{
+		Set<IObject> c = CurrentDetails.getLockCandidates();
+		
+		for (IObject i : c) {
+			
+			Details d = i.getDetails();
+			Permissions p = new Permissions( d.getPermissions() );
+			p.set( Flag.LOCKED );
+			d.setPermissions( p );
+			
+		}
+	}
+	
     // TODO is this natural? perhaps permissions don't belong in details
     // details are the only thing that users can change the rest is
     // read only...
@@ -405,11 +452,11 @@ public class BasicSecuritySystem implements SecuritySystem
     	
     	checkReady("transientDetails");
     	
-    	if ( isPrivileged( obj ) ) return obj.getDetails(); // EARLY EXIT
+    	if ( hasPrivilegedToken( obj ) ) return obj.getDetails(); // EARLY EXIT
     	
         Details source = obj.getDetails();
         Details newDetails = CurrentDetails.createDetails();
-         
+
         if ( source != null )
         {
 
@@ -464,9 +511,6 @@ public class BasicSecuritySystem implements SecuritySystem
 
     }
 
-    /* TODO what else should be preserved?
-     * TODO should move to @Validation.
-     * should be able to switch group if member, e.g. */
     /** checks that a non-privileged user has not attempted to edit the 
      * entity's {@link IObject#getDetails() security details}. Privileged 
      * users can set fields on {@link Details} as a single-step 
@@ -477,7 +521,7 @@ public class BasicSecuritySystem implements SecuritySystem
      * Details is not equivalent (==) to the argument Details, then values
      * have been changed.
      */
-    public Details managedDetails( IObject iobj, Details previousDetails )
+    public Details managedDetails( final IObject iobj, final Details previousDetails )
     {
     	checkReady("managedDetails");
     	
@@ -485,14 +529,20 @@ public class BasicSecuritySystem implements SecuritySystem
             throw new ValidationException(
                     "Id required on all detached instances.");
 
-    	if ( isPrivileged( iobj )) return iobj.getDetails(); // EARLY EXIT
+    	// Note: privileged check moved into the if statement below.
     	
+    	// check if the newDetails variable has been reset or if the instance
+    	// has been changed.
     	boolean altered = false;
 
-    	Details currentDetails = iobj.getDetails();
-        Details newDetails = CurrentDetails.createDetails();
-        
-        // This happens if all fields of details are null.
+    	
+    	final            Details currentDetails = iobj.getDetails();
+    	/* not final! */ Details newDetails = CurrentDetails.createDetails(); 
+     
+    	
+        // This happens if all fields of details are null (which can't happen)
+        // And is so uninteresting for all of our checks. The object can't be 
+        // locked and nothing can be edited. Just return null.
         if ( previousDetails == null ) 
         {
             if ( currentDetails != null )
@@ -507,6 +557,7 @@ public class BasicSecuritySystem implements SecuritySystem
             }
         }
 
+        // Also uninteresting. If the users say nothing, then the originals.
         // Probably common since users don't worry about this information.
         else if ( currentDetails == null )
         {
@@ -518,39 +569,40 @@ public class BasicSecuritySystem implements SecuritySystem
                         iobj+" to copy of original details.");
             }
             
-        // Now we have to make sure certain things do not happen:
+        // Now we have to make sure certain things do not happen. The following
+        // take into account whether or not the entity is privileged (has a token),
+        // is locked in the database, and who the current user and group are.
         } else {
             
-        	// WORKAROUND for ticket:307
-        	// see https://trac.openmicroscopy.org.uk/omero/ticket/307
-        	// see http://opensource.atlassian.com/projects/hibernate/browse/HHH-2027
-//        	altered |=
-//        		copyNonNullPermissions(
-//        				newDetails, 
-//        				currentDetails.getPermissions());
+        	boolean locked = false;
+        	boolean privileged = false;
         	
-        	if ( newDetails.getPermissions() != null &&
-        			newDetails.getPermissions().isSet( Flag.SOFT ))
-        	{
-        		altered |= copyNonNullPermissions(newDetails,
-        				currentDetails.getPermissions());
-        	}
-                    	
+        	if ( previousDetails.getPermissions().isSet( Flag.LOCKED ))
+        		locked = true;
+        	
+        	if ( hasPrivilegedToken( iobj ))
+        		privileged = true;
+        	
+        	// isGlobal implies nothing (currently) about permissions
+        	// see mapping.vm for more.
+        	altered |= managedPermissions( locked, privileged,
+        			iobj, previousDetails, currentDetails, newDetails);
+        	
             if ( ! isGlobal( iobj.getClass() )) // implies that owner doesn't matter 
             {
-            	altered |= managedOwner( 
+            	altered |= managedOwner( locked, privileged,
             			iobj, previousDetails, currentDetails, newDetails);
             }
 
             if ( ! isGlobal( iobj.getClass() )) // implies that group doesn't matter
             {
-            	altered |= managedGroup( 
+            	altered |= managedGroup( locked, privileged,
             			iobj, previousDetails, currentDetails, newDetails);
             }
             
             if ( ! isGlobal( iobj.getClass() )) // implies that event doesn't matter
     		{
-            	altered |= managedEvent( 
+            	altered |= managedEvent( locked, privileged,
             			iobj, previousDetails, currentDetails, newDetails);
     		}
             
@@ -571,7 +623,114 @@ public class BasicSecuritySystem implements SecuritySystem
             
     }
     
-    protected boolean managedOwner( IObject obj, 
+    /** responsible for properly copying user-requested permissions taking into
+     * account the {@link Flag#LOCKED} status. This method does not need to
+     * (like {@link #transientDetails(IObject)} take into account the session
+     * umask available from {@link CurrentDetails#createDetails()}
+     * 
+     * @param locked
+     * @param privileged
+     * @param obj
+     * @param previousDetails details representing the known DB state
+     * @param currentDetails details representing the user request (UNTRUSTED)
+     * @param newDetails details from the current context. Holder for the merged
+     * 		{@link Permissions}
+     * @return true if the {@link Permissions} of newDetails are changed.
+     */
+    protected boolean managedPermissions( boolean locked, boolean privileged, 
+    		IObject obj,
+    		Details previousDetails, Details currentDetails, Details newDetails)
+    {
+
+    	// setup
+    	
+    	boolean altered = false;
+    	
+    	Permissions previousP = previousDetails == null ? null : 
+    		previousDetails.getPermissions();
+    	
+    	Permissions currentP = currentDetails == null ? null :
+    		currentDetails.getPermissions();
+
+    	// ignore newDetails permissions.
+    	
+    	// If the stored perms are null, then we can't validate anything
+    	if ( previousP == null ) 
+    	{
+    		if ( currentP == null )
+    		{
+    			newDetails.setPermissions( null );
+    			altered |= false; // don't need to update
+    		} else {
+    			newDetails.setPermissions( currentP );
+    			altered = true;
+    		}
+    	} 
+    	
+//   	 WORKAROUND for ticket:307 by checking for SOFT below
+//   	 see https://trac.openmicroscopy.org.uk/omero/ticket/307
+//   	 see http://opensource.atlassian.com/projects/hibernate/browse/HHH-2027
+   	
+    	// Users did not enter permission (normal case) so is null OR
+    	// in the workaround permissions is SOFT, then
+    	// need to copy whole sale those from database.
+    	else if ( currentP == null || currentP.isSet( Flag.SOFT ))
+    	{
+    		newDetails.setPermissions( previousP );
+    		altered = true;
+    	}
+
+    	// if the user has set the permissions (currentDetails), then we should
+    	// try to allow that. if it's identical to the current, then there
+    	// is no reason to hit the DB.
+    	else 
+    	{
+    		
+    		// if we need to filter any permissions, do it here!
+    		
+    		newDetails.setPermissions( currentP );
+	    	if ( ! currentP.identical( previousP ) )
+	    	{
+	    		altered = true;
+	    	}
+    	}    	
+    	
+    	// now we've calculated the desired permissions, throw
+    	// a security violation if this instance was locked AND
+    	// the read permissions have been lowered or if the lock 
+    	// was removed.
+    	if ( locked ) {
+
+			if (previousP == null) // if null it can't have been locked.
+				throw new InternalException("Null permissions cannot be locked");
+    		
+    		Permissions newP = newDetails.getPermissions();
+    		
+    		if ( newP != null )
+    		{
+    		
+    			// can't override
+    			newP.set( Flag.LOCKED );
+    			
+				if ((previousP.isGranted(USER, READ) && !newP.isGranted(USER, READ))
+						|| (previousP.isGranted(GROUP, READ) && !newP.isGranted(
+								GROUP, READ))
+						|| (previousP.isGranted(WORLD, READ) && !newP.isGranted(
+								WORLD, READ)))
+					throw new SecurityViolation(
+							"Cannot remove READ from locked entity:" + obj) ;
+    		}
+    	}
+    	
+    	// privileged plays no role since everyone can alter their permissions
+    	// (within bounds)
+    	        	
+    	return altered;
+    	        	
+    }
+    
+    protected boolean managedOwner( boolean locked, boolean privileged, 
+    		IObject obj, 
     		Details previousDetails, Details currentDetails, Details newDetails)
     {
     	
@@ -580,7 +739,15 @@ public class BasicSecuritySystem implements SecuritySystem
                 currentDetails.getOwner() ))
         {
             
-            if ( currentUserIsAdmin() )
+   			if ( locked )
+   			{
+   				throw new SecurityViolation(
+   						"Cannot change owner for:" + obj );
+   			}
+   			
+   			// if the current user is an admin or if the entity has been 
+   			// marked privileged, then use the current owner.
+   			else if ( currentUserIsAdmin() || privileged )
             {
                 // even root can't set them to null.
                 if ( currentDetails.getOwner() == null )
@@ -611,7 +778,8 @@ public class BasicSecuritySystem implements SecuritySystem
    		return false;
     }
     
-    protected boolean managedGroup( IObject obj, 
+    protected boolean managedGroup( boolean locked, boolean privileged, 
+    		IObject obj,
     		Details previousDetails, Details currentDetails, Details newDetails)
     {
     	// previous and current have different ids. either change it and return
@@ -621,18 +789,26 @@ public class BasicSecuritySystem implements SecuritySystem
                 currentDetails.getGroup() ))
         {
 
+   			if ( locked )
+   			{
+   				throw new SecurityViolation(
+   						"Cannot change group for entity:" + obj );
+   			}
+			
 			// even root can't set them to null.
-			if ( currentDetails.getGroup() == null )
+   			else if ( currentDetails.getGroup() == null )
             {
                     newDetails.setGroup( previousDetails.getGroup() );
                     return true;
             }
 
 			// if user is a member of the group or the current user is an admin
-			// then use the current group.
+			// or if the entity has been marked as privileged, then use the 
+   			// current group.
 			else if ( memberOfGroups().contains(
 						currentDetails.getGroup().getId())
-					|| currentUserIsAdmin() ) 
+					|| currentUserIsAdmin() 
+					|| privileged ) 
 			{
 				newDetails.setGroup( currentDetails.getGroup());
 				return true;
@@ -664,31 +840,23 @@ public class BasicSecuritySystem implements SecuritySystem
 		return false;
     }
     
-    protected boolean managedEvent( IObject obj, 
+    protected boolean managedEvent( boolean locked, boolean privileged, 
+    		IObject obj,
     		Details previousDetails, Details currentDetails, Details newDetails)
     {
    		if ( ! idEqual( 
                 previousDetails.getCreationEvent(), 
                 currentDetails.getCreationEvent()))
         {
-            // even root can't set them to null.
-            if ( currentDetails.getCreationEvent() == null )
-            {
-                newDetails.setCreationEvent( 
-                        previousDetails.getCreationEvent() );
-                return true;
-            }
-            
-            // everyone else can't change them at all.
-            else                 {
-                throw new SecurityViolation(String.format(
-                    	"You are not authorized to change " +
-                    	"the creation event for %s from %s to %s", 
-                      obj,
-                      previousDetails.getCreationEvent(),
-                      currentDetails.getCreationEvent()
-                    ));
-            }
+        
+   			// no one change them.
+	        throw new SecurityViolation(String.format(
+	            	"You are not authorized to change " +
+	            	"the creation event for %s from %s to %s", 
+	              obj,
+	              previousDetails.getCreationEvent(),
+	              currentDetails.getCreationEvent()
+	            ));
         }
    		
    		// they are equal meaning no change was intended but in case other
@@ -938,7 +1106,7 @@ public class BasicSecuritySystem implements SecuritySystem
 	 * It would be better to catch the {@link SecureAction#updateObject(IObject)}
 	 * method in a try/finally block, but since flush can be so poorly controlled
 	 * that's not possible. instead, we use the one time token which is removed
-	 * this Object is checked for {@link #isPrivileged(IObject) privileges}. 
+	 * this Object is checked for {@link #hasPrivilegedToken(IObject) privileges}. 
 	 */
 	public <T extends IObject> T doAction(T obj, SecureAction action) {
 		Assert.notNull(obj);
@@ -1003,7 +1171,7 @@ public class BasicSecuritySystem implements SecuritySystem
     /** checks that the {@link IObject} argument has been granted a 
      * {@link Token} by the {@link SecuritySystem}. 
      */
-	private boolean isPrivileged( IObject obj )
+	private boolean hasPrivilegedToken( IObject obj )
 	{
 		GraphHolder gh = obj.getGraphHolder();
 		

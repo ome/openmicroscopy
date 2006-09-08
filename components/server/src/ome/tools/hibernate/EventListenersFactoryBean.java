@@ -142,6 +142,8 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 						new EventDiffHolder(secSys)));
 		override(new String[]{"replicate","save","update"},
 				getDisablingProxy());
+		// TODO this could be a prepend.
+		override("flush-entity",new FlushEntityEventListener(secSys));
 	}
 	
 	protected void additions()

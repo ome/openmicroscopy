@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -85,6 +86,9 @@ abstract class CurrentDetails
     private static ThreadLocal<Set<String>> disabledSubsystemsHolder =
     	new ThreadLocal<Set<String>>();
     
+    private static ThreadLocal<Set<IObject>> lockCandidatesHolder = 
+    	new ThreadLocal<Set<IObject>>();
+    
     /** removes all current context. This must stay in sync with the instance
      * fields. If a new {@link ThreadLocal} is added, {@link ThreadLocal#remove()}
      * <em>must</em> be called.
@@ -96,6 +100,7 @@ abstract class CurrentDetails
         leaderOfGroupsHolder.remove();
         memberOfGroupsHolder.remove();
         disabledSubsystemsHolder.remove();
+        lockCandidatesHolder.remove();
     }
     
     // ~ Internals
@@ -327,6 +332,24 @@ abstract class CurrentDetails
     	if ( s == null || id == null || ! s.contains(id)) return false;
     	return true;
     	
+    }
+    
+    public static Set<IObject> getLockCandidates()
+    {
+    	Set<IObject> s = lockCandidatesHolder.get();
+    	if ( s == null ) return new HashSet<IObject>();
+    	return s;
+    }
+    
+    public static void appendLockCandidates( Set<IObject> set )
+    {
+    	Set<IObject> s = lockCandidatesHolder.get();
+    	if ( s == null ) 
+    	{
+    		s = new HashSet<IObject>( );
+    		lockCandidatesHolder.set( s );
+    	}
+    	s.addAll( set );
     }
     
 } 

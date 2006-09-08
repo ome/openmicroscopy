@@ -1,11 +1,14 @@
 package ome.server.itests;
 
+import java.util.UUID;
+
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -60,6 +63,8 @@ public class AbstractManagedContextTest
     
     protected JdbcTemplate jdbcTemplate;
     
+    protected HibernateTemplate hibernateTemplate;
+    
     protected SecuritySystem securitySystem;
     
     /**
@@ -74,12 +79,14 @@ public class AbstractManagedContextTest
         iConfig = factory.getConfigService();
         iPojos = factory.getPojosService();
         iPixels = factory.getPixelsService();
-        
-        data = new OMEData();
-        data.setDataSource((DataSource) applicationContext.getBean("dataSource"));
-    
+
         DataSource dataSource = (DataSource) applicationContext.getBean("dataSource");
         jdbcTemplate = (JdbcTemplate) applicationContext.getBean("jdbcTemplate");
+        
+        data = new OMEData();
+        data.setDataSource( dataSource );
+        
+        hibernateTemplate = (HibernateTemplate) applicationContext.getBean("hibernateTemplate");
         
         securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
         loginRoot();
@@ -107,6 +114,11 @@ public class AbstractManagedContextTest
     {
         securitySystem.login( 
                 new Principal( userName, groupName, eventType ));
+    }
+    
+    protected String uuid()
+    {
+    	return UUID.randomUUID().toString();
     }
 
 }

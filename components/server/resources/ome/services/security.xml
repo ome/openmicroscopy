@@ -44,15 +44,20 @@
 
 -->
 
-<beans default-lazy-init="true">
+<beans>
 
   <bean id="eventContext" class="ome.system.ThreadLocalEventContext"/>
 
   <bean id="securitySystem" class="ome.security.BasicSecuritySystem">
     <constructor-arg>
       <bean class="ome.tools.spring.InternalServiceFactory"/>
-    </constructor-arg>
+  	</constructor-arg>
   	<constructor-arg ref="eventContext"/>
   </bean>
- 
+  
+  <bean class="ome.tools.spring.PostProcessInjector">
+    <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="extendedMetadata"/>
+  </bean>
+
 </beans>

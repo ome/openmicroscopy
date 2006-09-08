@@ -37,6 +37,7 @@ package ome.api;
 import ome.annotations.NotNull;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -217,6 +218,12 @@ public interface IAdmin extends ServiceInterface{
      * @param perms. The permissions value for this entity. Not null.
      */
     void changePermissions( @NotNull IObject iObject, @NotNull Permissions perms );
+    
+    /** checks an entity for any in-bound references and if none are present,
+     * will remove the {@link Flag#LOCKED} status. This method is backend-
+     * intensive and should not be used in a tight loop.
+     */
+    void unlock( IObject...iObjects );
     
     // ~ Authentication and Authorization
     // =========================================================================

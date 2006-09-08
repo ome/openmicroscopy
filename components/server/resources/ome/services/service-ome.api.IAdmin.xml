@@ -38,7 +38,13 @@
   <alias name="internal:ome.api.IAdmin" alias="internal:ome.api.LocalAdmin"/>
   
   <bean parent="level2" name="internal:ome.api.IAdmin" class="ome.logic.AdminImpl">
+    <description>
+    Privileged bean which has several "private" references injected. This is not
+    an example of what should be done.
+    </description>
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
+    <property name="extendedMetadata" ref="extendedMetadata"/>
+    <property name="sessionFactory" ref="sessionFactory"/>
   </bean> 
  
   <bean name="managed:ome.api.IAdmin" parent="managedService">

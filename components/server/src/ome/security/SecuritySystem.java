@@ -43,12 +43,15 @@ import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
+import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Principal;
 import ome.tools.hibernate.EventHandler;
+import ome.tools.hibernate.FlushEntityEventListener;
 import ome.tools.hibernate.MergeEventListener;
+import ome.tools.hibernate.OmeroInterceptor;
 
 
 /** 
@@ -272,6 +275,38 @@ public interface SecuritySystem
 	
 	// ~ Details (for OmeroInterceptor)
 	// =========================================================================
+	
+	/** checks, and if necessary, stores argument and entities attached to the 
+	 * argument entity in the current context for later modification 
+	 * (see {@link #lockMarked()} 
+	 * 
+	 * These modifications cannot be done during save and update because not just
+	 * the entity itself but entities 1-step down the graph are to be edited, 
+	 * and it cannot be guaranteed that the graph walk will not subsequently
+	 * re-write the changes. Instead, changes are all made during the flush
+	 * procedure of {@link FlushEntityEventListener}. This also prevents 
+	 * accidental changes by administrative users by making the locking of an
+	 * element the very last action.
+	 * 
+	 * This method is called during 
+	 * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[]) save}
+	 * and {@link OmeroInterceptor#onFlushDirty(Object, java.io.Serializable, Object[], Object[], String[], org.hibernate.type.Type[]) update}
+	 * since this is the only time that new entity references can be created.  
+	 * 
+	 * @param iObject new or updated entity which may reference other entities
+	 * 		which then require locking. Nulls are tolerated but do nothing.
+	 * @param trustedDetails {@link Details} for this entity which are known
+	 * 		to be valid. Most likely represent database state. If null, then
+	 * 		nothing is known about this new entity.
+	 */
+	void markLockedIfNecessary( IObject iObject, Details trustedDetails );
+	
+	/** sets the {@link Flag#LOCKED LOCKED flag} on the entities stored in the 
+	 * context from the {@link #markLockedIfNecessary(IObject)} method. Called
+	 * from {@link FlushEntityEventListener#onFlushEntity(org.hibernate.event.FlushEntityEvent)}
+	 */
+	void lockMarked( );
+	
 	Details transientDetails( IObject iObject );
 	Details managedDetails( IObject iObject, Details previousDetails );
 	
