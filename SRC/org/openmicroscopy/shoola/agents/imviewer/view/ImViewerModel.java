@@ -53,9 +53,8 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.Player;
 import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
-
 
 /** 
  * The Model component in the <code>ImViewer</code> MVC triad.
@@ -248,6 +247,18 @@ class ImViewerModel
     ChannelMetadata[] getChannelData()
     {
         return rndControl.getChannelData();
+    }
+    
+    /**
+     * Returns the <code>ChannelData</code> object corresponding to the
+     * given index.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
+    ChannelMetadata getChannelData(int index)
+    {
+        return rndControl.getChannelData(index);
     }
     
     /**

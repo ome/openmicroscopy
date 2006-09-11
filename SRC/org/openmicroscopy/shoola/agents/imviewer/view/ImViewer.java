@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -332,5 +333,7 @@ public interface ImViewer
      * @return See above.
      */
     public String getViewTitle();
+
+    ChannelMetadata getChannelMetadata(int index);
     
 }

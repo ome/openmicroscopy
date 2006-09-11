@@ -44,6 +44,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -664,6 +665,15 @@ class ImViewerComponent
             throw new IllegalStateException(
                     "This method can't be invoked in the DISCARDED state.");
         return view.getTitle();
+    }
+
+    public ChannelMetadata getChannelMetadata(int index)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED state.");
+        return model.getChannelData(index);
+        
     }
    
 }

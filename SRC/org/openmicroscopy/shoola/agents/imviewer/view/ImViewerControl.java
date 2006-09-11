@@ -65,6 +65,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.imviewer.util.InfoButton;
+import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -484,6 +487,14 @@ class ImViewerControl
                     model.setChannelActive(i, i == c);
                 model.displayChannelMovie();
             }
+        } else if (InfoButton.INFO_PROPERTY.equals(propName)) {
+            int index = ((Integer) pce.getNewValue()).intValue();
+            ChannelMetadata data = model.getChannelMetadata(index);
+            InfoDialog dialog = new InfoDialog(model.getUI(), data);
+            dialog.addPropertyChangeListener(this);
+            UIUtilities.centerAndShow(dialog);
+        } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
+            
         }
     }
 

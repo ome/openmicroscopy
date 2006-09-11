@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoButton;
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -289,15 +289,16 @@ class ControlPane
      * {@link InfoButton}.
      * 
      * @param b The {@link ChannelButton} to display.
-     * @param d The metadata associated.
+     * @param i The channel index.
      * @return See above.
      */
-    private JPanel createButtonPane(ChannelButton b, ChannelMetadata d)
+    private JPanel createButtonPane(ChannelButton b, int i)
     {
         JPanel p = new JPanel();
         IconManager im = IconManager.getInstance();
-        JButton button = new InfoButton(im.getIcon(IconManager.TINY_INFO), 
-                                d);
+        InfoButton button = new InfoButton(im.getIcon(IconManager.TINY_INFO),
+                                            i);
+        button.addPropertyChangeListener(controller);
         GridBagConstraints c = new GridBagConstraints();  
         p.setLayout(new GridBagLayout());
         c.anchor = GridBagConstraints.NORTHWEST;
@@ -328,7 +329,7 @@ class ControlPane
                     model.getChannelColor(k), k, model.isChannelActive(k));
             button.addPropertyChangeListener(controller);
             channelButtons.add(button);
-            p.add(createButtonPane(button, d));
+            p.add(createButtonPane(button, k));
         }
         p.add(channelMovie);
         return p;
