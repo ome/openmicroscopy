@@ -494,7 +494,7 @@ class ImViewerControl
             dialog.addPropertyChangeListener(this);
             UIUtilities.centerAndShow(dialog);
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
-            
+            //TODO: implement method
         }
     }
 
