@@ -34,7 +34,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 
 //Third-party libraries
 
@@ -42,6 +41,8 @@ import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+
 
 /** 
  * A facade to a given rendering environment for the UI benefit.

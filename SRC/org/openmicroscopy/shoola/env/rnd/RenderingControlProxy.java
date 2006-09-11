@@ -48,7 +48,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -59,7 +58,7 @@ import ome.model.enums.RenderingModel;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
@@ -241,7 +240,7 @@ class RenderingControlProxy
         Iterator i = l.iterator();
         int k = 0;
         while (i.hasNext()) {
-            metadata[k] = new ChannelMetadata(k, (Channel) i.next(), null);
+            metadata[k] = new ChannelMetadata(k, (Channel) i.next());
             k++;  
         }
  
