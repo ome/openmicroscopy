@@ -43,8 +43,9 @@ import ome.model.display.ContrastStretchingContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.metadata.ChannelMetadata;
+
 
 /** 
  * The Model component in the <code>Renderer</code> MVC triad.
