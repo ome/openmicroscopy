@@ -31,13 +31,11 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 
 //Third-party libraries
 
@@ -63,37 +61,38 @@ public class InfoButton
     implements ActionListener
 {
     
-    /** The channel data hosted by this component. */
-    private Object infoObject;
+    /** Bound property indicating to bring up the info dialog. */
+    public static final String  INFO_PROPERTY = "info";
+    
+    /** The index of the channel this button is for. */
+    private final int index;
     
     /**
      * Creates a new instance.
      * 
-     * @param icon          The icon associated to this button.
-     * @param infoObject    The channel data information.
+     * @param icon  The icon associated to this button.
+     * @param index The index of the channel this button is for.
      */
-    public InfoButton(Icon icon, Object infoObject)
+    public InfoButton(Icon icon, int index)
     {
         super(icon);
-        this.infoObject = infoObject;
+        this.index = index;
         setBorder(BorderFactory.createEmptyBorder());
         setBorderPainted(false);
         addActionListener(this);
+        
     }
 
     /**
-     * Brings up on screen the widget with the channel information.
+     * Fires a property change to bring up on screen the widget with the 
+     * corresponding channel information.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
         //Display logical channel info if infoObject != null
         if (isEnabled()) return;
-        JDialog dialog = new JDialog();
-        dialog.setModal(true);
-        dialog.setTitle("CHANNEL INFO");
-        dialog.setSize(new Dimension(100, 100));
-        dialog.setVisible(true);
+        firePropertyChange(INFO_PROPERTY, null, new Integer(index));
     }
     
 }
