@@ -492,7 +492,6 @@ public class HiTranslator
         return transformCategories(set, userID, groupID);
     }
     
-    
     /**
      * Transforms a {@link CategoryData} into a visualisation object i.e.
      * a {@link TreeCheckNode}.
