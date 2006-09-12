@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 //Third-party libraries
 
@@ -40,7 +41,7 @@ import java.awt.event.ActionListener;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
- * Basic timer to play a movie across channel.
+ * Basic timer to play a movie across channels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,6 +62,12 @@ public class ChannelPlayer
     /** The index of the channel. */
     private int         index;
     
+    /** The list of active channels. */
+    private List        activeChannels;
+    
+    /** The index of the played channel. */
+    private int         n;
+    
     /**
      * Creates a new instance.
      * 
@@ -70,9 +77,19 @@ public class ChannelPlayer
     public ChannelPlayer(ImViewer model)
     {
         super(model);
-        index = 0;
+        activeChannels = model.getActiveChannels();
+        n = 0;
+        if (activeChannels != null)
+            index = ((Integer) activeChannels.get(n)).intValue();
     }
      
+    /**
+     * Returns the list of channels used to play this movie.
+     * 
+     * @return See above.
+     */
+    public List getChannels() { return activeChannels; }
+    
     /** Starts/Stops the timer. */
     protected void onPlayerStateChange()
     {
@@ -81,7 +98,8 @@ public class ChannelPlayer
                 timer.start();
                 break;
             case STOP:
-                timer.stop();
+                timer.stop();  
+                break;
         }  
     }
     
@@ -91,11 +109,13 @@ public class ChannelPlayer
      */
     public void actionPerformed(ActionEvent e)
     {
-        for (int i = 0; i < model.getMaxC(); i++)
-            model.setChannelActive(i, i == index);
-        index++;
+        if (activeChannels == null) return;
+        for (int j = 0; j < model.getMaxC(); j++)
+            model.setChannelActive(j, j == index);
         model.displayChannelMovie();
-        if (index == model.getMaxC()) setPlayerState(STOP);
+        n++;
+        if (n == activeChannels.size()) n = 0;
+        index = ((Integer) activeChannels.get(n)).intValue();
     }
   
 }
