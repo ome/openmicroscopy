@@ -2,16 +2,20 @@ package ome.server.itests.update;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -166,4 +170,43 @@ public class UpdateTest extends AbstractUpdateTest
         
     }
     
+    @Test
+    /** attempt to reproduce an error seen on the client side */
+    public void testSaveArray() throws Exception {
+    	
+    	loginRoot();
+ 
+    	Long e = -1L;
+    	List<Experimenter> es = iQuery.findAll(Experimenter.class, null);
+    	for (Experimenter experimenter : es) {
+			Long l = experimenter.getId();
+			if ( ! l.equals( new Long(0L)  ))
+					e = l;
+    	}
+    	
+		Project[] ps = new Project[]{
+			new Project(), new Project(), new Project()	
+		};
+		for (Project project : ps) {
+			project.setName("save-array");
+		}
+		ps[0].getDetails().setOwner( new Experimenter( e, false ));
+		ps[1].getDetails().setOwner( new Experimenter( e, false ));
+		
+		Dataset[] ds = new Dataset[]{
+				new Dataset(), new Dataset()
+		};
+		for (Dataset dataset : ds) {
+			dataset.setName("save-array");
+		}
+		
+		for (Dataset dataset : ds) {
+			for (Project project : ps) {
+				project.linkDataset(dataset);
+			}
+		}
+		
+		iUpdate.saveAndReturnArray(ps);
+	}
+   
 }
