@@ -208,5 +208,81 @@ public class UpdateTest extends AbstractUpdateTest
 		
 		iUpdate.saveAndReturnArray(ps);
 	}
-   
+    
+    // ~ Problems with values returned by update
+	// =========================================================================
+    
+	String err = "obj is loaded, set is not null AND not filled!";
+
+    @Test( groups = "ticket:346")
+    public void testAddingReturnsNonEmptySets() throws Exception 
+    {
+    	// using the add method works
+    	Pixels p = ObjectFactory.createPixelGraph(null);
+    	Thumbnail tb = new Thumbnail(); tb.setMimeType(1);
+    	p.addThumbnail(tb);
+    	assertPixels(tb);
+    	
+    	// passing it in as a proxy is ok.
+    	p = ObjectFactory.createPixelGraph(null);
+    	p = iUpdate.saveAndReturnObject(p);
+    	p = new Pixels( p.getId(), false );
+    	tb = new Thumbnail(); tb.setMimeType(1);
+    	tb.setPixels(p);
+    	assertPixels(tb);
+    	
+    	// issues with using the setter with a non-proxy
+    	p = ObjectFactory.createPixelGraph(null);
+    	tb = new Thumbnail(); tb.setMimeType(1);
+    	tb.setPixels(p);
+    	assertPixels(tb);
+    	
+    }
+    	
+    protected void assertPixels(Thumbnail tb)
+    {
+    	Thumbnail test = iUpdate.saveAndReturnObject(tb);
+    	Thumbnail copy = iQuery.get(test.getClass(), test.getId());
+    	assertFalse(err,copy.getPixels().isLoaded() && copy.getPixels().sizeOfThumbnails()==0);
+    	assertFalse(err,test.getPixels().isLoaded() && test.getPixels().sizeOfThumbnails()==0);
+    }
+    
+    @Test( groups = "ticket:346")
+    public void testLinkingReturnsNonEmptySets() throws Exception {
+    	
+    	// using the link methods does what it's supposed to
+    	Project p = new Project(); p.setName("test");
+		Dataset d = new Dataset(); d.setName("test");
+		p.linkDataset(d);
+		ProjectDatasetLink link = (ProjectDatasetLink) p.collectDatasetLinks(null).get(0);
+		assertLink(link);
+
+		// and using proxies works
+		p = iUpdate.saveAndReturnObject(p);
+		p = new Project( p.getId(), false );
+		d = iUpdate.saveAndReturnObject(d);
+		d = new Dataset( d.getId(), false );
+		link = new ProjectDatasetLink();
+		link.link(p,d);
+		assertLink(link);
+		
+		// but there are issues with passing in non-proxies when not using the
+		// reverse methods.
+		p = new Project(); p.setName("test");
+		d = new Dataset(); d.setName("test");
+		link = new ProjectDatasetLink();
+		link.link(p,d);
+		assertLink(link);
+    }
+		
+	protected void assertLink(ProjectDatasetLink link)
+	{
+		ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);
+		ProjectDatasetLink copy = iQuery.get(test.getClass(), test.getId());
+		assertFalse(err,copy.parent().isLoaded() && copy.parent().sizeOfDatasetLinks()==0);
+		assertFalse(err,copy.child().isLoaded() && copy.child().sizeOfProjectLinks()==0);
+		assertFalse(err,test.parent().isLoaded() && test.parent().sizeOfDatasetLinks()==0);
+		assertFalse(err,test.child().isLoaded() && test.child().sizeOfProjectLinks()==0);
+    }
+    
 }
