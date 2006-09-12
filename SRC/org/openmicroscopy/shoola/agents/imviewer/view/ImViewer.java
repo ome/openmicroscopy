@@ -196,8 +196,11 @@ public interface ImViewer
 
     /**
      * Plays a movie across channel i.e. one channel is selected at a time.
+     * 
+     * @param play  Pass <code>true</code> to play the movie, 
+     *              <code>false</code> otherwise.
      */
-    public void playChannelMovie();
+    public void playChannelMovie(boolean play);
     
     /**
      * Sets the color of the specified channel depending on the current color
@@ -334,6 +337,20 @@ public interface ImViewer
      */
     public String getViewTitle();
 
+    /**
+     * Returns a list with the index of the active channels. Returns
+     * <code>null</code> if no active channel.
+     * 
+     * @return See above.
+     */
+    public List getActiveChannels();
+    
+    /**
+     * Returns the channel metadata.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
     ChannelMetadata getChannelMetadata(int index);
     
 }

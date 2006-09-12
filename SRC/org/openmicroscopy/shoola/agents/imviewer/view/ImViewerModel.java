@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -453,10 +454,26 @@ class ImViewerModel
      * Starts the channels movie player, invokes in the event-dispatcher 
      * thread for safety reason.
      * 
-     * @return The newly created player.
+     * @param play  Pass <code>true</code> to play the movie, <code>false</code>
+     *              to stop it.
      */
-    Player playMovie()
+    void playMovie(boolean play)
     {
+        if (player != null && !play) {
+            player.setPlayerState(Player.STOP);
+            List l = player.getChannels();
+            if (l != null) {
+                Iterator i = l.iterator();
+                int index;
+                while (i.hasNext()) { //reset values.
+                    index = ((Integer) i.next()).intValue();
+                    setChannelActive(index, true);
+                }
+            }
+            player = null;
+            state = ImViewer.READY;
+            return;
+        }
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 player = new ChannelPlayer(component);
@@ -464,7 +481,6 @@ class ImViewerModel
             }
         });
         state = ImViewer.CHANNEL_MOVIE;
-        return player;
     }
     
     /**

@@ -270,9 +270,9 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#playChannelMovie()
+     * @see ImViewer#playChannelMovie(boolean)
      */
-    public void playChannelMovie()
+    public void playChannelMovie(boolean play)
     {
         switch (model.getState()) {
             case NEW:
@@ -283,7 +283,10 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         if (model.getState() == READY) {
-            model.playMovie();
+            model.playMovie(play);
+            if (!play) {
+                displayChannelMovie();
+            }
             fireStateChange();
         }    
     }
@@ -667,6 +670,10 @@ class ImViewerComponent
         return view.getTitle();
     }
 
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getChannelMetadata(int)
+     */
     public ChannelMetadata getChannelMetadata(int index)
     {
         if (model.getState() == DISCARDED)
@@ -674,6 +681,23 @@ class ImViewerComponent
                     "This method can't be invoked in the DISCARDED state.");
         return model.getChannelData(index);
         
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getActiveChannels()
+     */
+    public List getActiveChannels()
+    {
+        switch (model.getState()) {
+            case NEW:
+            case LOADING_RENDERING_CONTROL:
+            case DISCARDED:
+                throw new IllegalStateException(
+                "This method can't be invoked in the DISCARDED, NEW or" +
+                "LOADING_RENDERING_CONTROL state.");
+        }
+        return model.getActiveChannels();
     }
    
 }
