@@ -276,7 +276,7 @@ class ImViewerControl
      */
     private void attachWindowListeners()
     {
-        JMenu menu = view.getWindowsMenu();
+        JMenu menu = ImViewerFactory.getWindowsMenu();
         menu.addMenuListener(new MenuListener() {
 
             public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }
@@ -345,7 +345,7 @@ class ImViewerControl
     {
         Set viewers = ImViewerFactory.getViewers();
         Iterator i = viewers.iterator();
-        JMenu menu = view.getWindowsMenu();
+        JMenu menu = ImViewerFactory.getWindowsMenu();
         menu.removeAll();
         ImViewer viewer;
         while (i.hasNext()) {

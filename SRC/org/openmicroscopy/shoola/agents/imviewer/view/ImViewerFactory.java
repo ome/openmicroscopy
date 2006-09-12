@@ -36,8 +36,13 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 //Third-party libraries
 
@@ -78,7 +83,13 @@ public class ImViewerFactory
      */
     static Set getViewers() { return singleton.viewers; }
     
-
+    /** 
+     * Returns the <code>windows</code> menu. 
+     * 
+     * @return See above.
+     */
+    static JMenu getWindowsMenu() { return singleton.windowsMenu; }
+    
     /**
      * Returns a viewer to display the image corresponding to the specified id.
      * 
@@ -93,14 +104,21 @@ public class ImViewerFactory
         ImViewerModel model = new ImViewerModel(pixelsID, imageID, name);
         return singleton.getViewer(model);
     }
-    
+
     /** All the tracked components. */
     private Set     viewers;
+    
+    
+    /** The windows menu. */
+    private JMenu   windowsMenu;
     
     /** Creates a new instance. */
     private ImViewerFactory()
     {
         viewers = new HashSet();
+        windowsMenu = new JMenu("Viewer Window");
+        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
     }
     
     /**

@@ -51,10 +51,8 @@ import javax.swing.JRadioButtonMenuItem;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -112,9 +110,6 @@ class ImViewerUI
     /** The loading window. */
     private LoadingWindow   loadingWindow;
     
-    /** The windows menu. */
-    private JMenu           windowsMenu;
-    
     /** 
      * Creates the menu bar.
      * 
@@ -126,10 +121,6 @@ class ImViewerUI
         menuBar.add(createControlsMenu());
         menuBar.add(createZoomMenu());
         menuBar.add(createRatingMenu());
-        //menuBar.add(windowsMenu);
-        //Adds windows menu to the task bar menu.
-        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
-        tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
         return menuBar;
     }
     
@@ -313,13 +304,6 @@ class ImViewerUI
         return menu;
     }
     
-    /** Helper method to create the Windows menu. */
-    private void createWindowsMenu()
-    {
-        windowsMenu = new JMenu("Viewer Window");
-        //windowsMenu.setMnemonic(KeyEvent.VK_W);
-    }
-    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -347,7 +331,6 @@ class ImViewerUI
     {
         super(title);
         loadingWindow = new LoadingWindow(this);
-        createWindowsMenu();
     }
     
     /**
@@ -369,13 +352,6 @@ class ImViewerUI
         IconManager im = IconManager.getInstance();
         statusBar = new StatusBar(im.getIcon(IconManager.STATUS_INFO));
     }
-    
-    /** 
-     * Returns the <code>windows</code> menu. 
-     * 
-     * @return See above.
-     */
-    JMenu getWindowsMenu() { return windowsMenu; }
     
     /** 
      * This method should be called straight after the metadata and the
