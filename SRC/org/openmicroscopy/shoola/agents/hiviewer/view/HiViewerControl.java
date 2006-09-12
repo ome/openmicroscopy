@@ -222,7 +222,7 @@ class HiViewerControl
     {
         Set viewers = HiViewerFactory.getViewers();
         Iterator i = viewers.iterator();
-        JMenu menu = view.getWindowsMenu();
+        JMenu menu = HiViewerFactory.getWindowsMenu();
         menu.removeAll();
         HiViewer viewer;
         while (i.hasNext()) {
@@ -238,7 +238,7 @@ class HiViewerControl
      */
     private void attachListeners()
     {
-        JMenu menu = view.getWindowsMenu();
+        JMenu menu = HiViewerFactory.getWindowsMenu();
         menu.addMenuListener(new MenuListener() {
 
             public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }

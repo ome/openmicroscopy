@@ -100,9 +100,6 @@ class HiViewerWin
     /** The popup menu. */
     private PopupMenu           popupMenu;
     
-    /** The windows menu. */
-    private JMenu               windowsMenu;
-    
     /** 
      * The main pane hosting the <code>Browser</code> and 
      * the <code>ClipBoard</code>
@@ -159,10 +156,7 @@ class HiViewerWin
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
         menuBar.add(createViewMenu());
-        //menuBar.add(windowsMenu);
         menuBar.add(createHelpMenu());
-        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
-        tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
         return menuBar;
     }
     
@@ -249,13 +243,6 @@ class HiViewerWin
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT)));
         return menu;
     }
-
-    /** Helper method to create the Windows menu. */
-    private void createWindowsMenu()
-    {
-        windowsMenu = new JMenu("HiViewer Window");
-        windowsMenu.setMnemonic(KeyEvent.VK_W);
-    }
     
     /**
      * Helper method to create the <code>Help</code> menu.
@@ -279,7 +266,6 @@ class HiViewerWin
         super(DEFAULT_TITLE);
         IconManager iconMng = IconManager.getInstance();
         statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
-        createWindowsMenu();
     }
 
     /**
@@ -296,13 +282,6 @@ class HiViewerWin
         setJMenuBar(createMenuBar());
         buildUI();
     }
-
-    /** 
-     * Returns the <code>windows</code> menu. 
-     * 
-     * @return See above.
-     */
-    JMenu getWindowsMenu() { return windowsMenu; }
     
     /** 
      * Sets the <code>Browser</code>'s UI and the <code>ClipBoard</code>'s UI
