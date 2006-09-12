@@ -190,6 +190,7 @@ class ImViewerModel
             currentLoader = null;
         }
         if (renderer != null) renderer.discard();
+        if (player != null) player.setPlayerState(Player.STOP);
         //Shut down the service
         ImViewerAgent.getRegistry().getRenderingService().shutDown(pixelsID);
         state = ImViewer.DISCARDED;
