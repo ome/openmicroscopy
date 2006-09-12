@@ -243,7 +243,7 @@ class RenderingControlProxy
             metadata[k] = new ChannelMetadata(k, (Channel) i.next());
             k++;  
         }
- 
+        setModel(RGB);
         setDefaultPlane();
     }
 
