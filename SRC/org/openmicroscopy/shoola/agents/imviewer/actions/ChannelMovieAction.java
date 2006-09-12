@@ -35,12 +35,14 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -64,10 +66,13 @@ public class ChannelMovieAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Channel Movie";
+    //private static final String NAME = "Channel Movie";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Play movie across channels";
+    
+    /** Helper reference to the icon manager. */
+    private IconManager icons;
     
     /** 
      * Overriden to make sure that the movie player is not enabled when 
@@ -87,9 +92,12 @@ public class ChannelMovieAction
     public ChannelMovieAction(ImViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        icons = IconManager.getInstance();
+        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
     }
 
     /** 
@@ -98,7 +106,17 @@ public class ChannelMovieAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.playChannelMovie();
+        Icon icon = (Icon) getValue(Action.SMALL_ICON);
+        boolean play = true;
+        if (icon.toString().equals(
+            icons.getIcon(IconManager.PAUSE).toString())) {
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+        } else {
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
+            play = false;
+        }
+            
+        model.playChannelMovie(play);
     }
     
 }
