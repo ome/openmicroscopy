@@ -76,7 +76,6 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.MergeEventListener;
 import ome.tools.hibernate.SecurityFilter;
 import ome.tools.spring.PostProcessInjector;
 import ome.util.IdBlock;
@@ -428,7 +427,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 			Permissions p = new Permissions(d.getPermissions());
 			p.set(Flag.LOCKED);
 			d.setPermissions(p);
-
 		}
 	}
 

@@ -34,6 +34,7 @@ package ome.security;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.hibernate.EntityMode;
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -58,6 +59,8 @@ import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.tools.hibernate.EventListenersFactoryBean;
 
 
@@ -151,7 +154,9 @@ public class ACLEventListener
 		if ( entity instanceof IObject )
 		{
 			IObject obj = (IObject) entity;
-	        if ( ! secSys.allowUpdate(obj, getDetails(state, names)) )
+			
+	        if ( ! onlyLockChanged( event, obj, state, names ) && 
+	        		! secSys.allowUpdate(obj, getDetails(state, names)) )
 	        {
 	        	secSys.throwUpdateViolation(obj);
 	        }
@@ -189,4 +194,40 @@ public class ACLEventListener
     	throw new InternalException("No details found in state argument.");
     }
     
+    /** calculates if only the {@link Flag#LOCKED} marker has 
+     * been changed. If not, the normal criteria apply.
+     */
+    private boolean onlyLockChanged( PreUpdateEvent event, IObject entity, 
+    		Object[] state, String[] names )
+    {
+    	
+    	Object[] current = 
+    		event.getPersister().getPropertyValues(entity, EntityMode.POJO);
+		
+    	int[] dirty = 
+			event.getPersister().findDirty(
+					state, 
+					current, 
+					entity, 
+					event.getSource());
+
+		if ( dirty != null ) 
+		{
+			if ( dirty.length > 1 ) return false;
+			if ( ! "details".equals( names[dirty[0]] )) return false;
+			Details new_d = getDetails(current, names);
+			Details old_d = getDetails(state, names);
+			if ( new_d.getOwner() != old_d.getOwner() ||
+					new_d.getGroup() != old_d.getGroup() ||
+					new_d.getCreationEvent() != old_d.getCreationEvent() ||
+					new_d.getUpdateEvent() != old_d.getUpdateEvent() )
+				return false;
+			Permissions new_p = new Permissions( new_d.getPermissions() );
+			Permissions old_p = new Permissions( old_d.getPermissions() );
+			old_p.set( Flag.LOCKED );
+			return new_p.identical( old_p );
+		}
+		return false;
+		
+    }
 }
