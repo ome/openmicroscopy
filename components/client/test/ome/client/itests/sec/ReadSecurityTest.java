@@ -1,52 +1,48 @@
 package ome.client.itests.sec;
 
-import java.util.UUID;
-
-import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
-import ome.model.IObject;
-import ome.model.acquisition.ImagingEnvironment;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
-import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
-import ome.system.Login;
 import ome.system.ServiceFactory;
-
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-import junit.framework.TestCase;
-
 @Test(groups = { "ticket:200", "security", "integration" })
 public class ReadSecurityTest extends AbstractPermissionsTest 
 {
-
+	/** due to permission restrictions, certain user combinations will not be
+	 * able to even create the needed test instances. this provides a check for 
+	 * that.
+	 */
+	boolean canCreate;
+	
 	// ~ single
 	// =========================================================================
 	
 	public void testSingleProject_U() throws Exception {
-		createProject(u,RWU_xxx_xxx,user_other_group);
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
+		
 
-		// RWU_xxx_xxx : should not be readable by anyone but user.
-		verifyDetails(prj,user,user_other_group,RWU_xxx_xxx);
+		// RW_xx_xx : should not be readable by anyone but user.
+		permsA = RW_xx_xx;
+		canCreate = true;
 		single(u,true);
 		single(o,false);
 		single(w,false);
 		single(p,true);
 		single(r,true);
 		
-		// RWU_RWU_xxx : now let's up the readability
-		prj.getDetails().setPermissions(RWU_RWU_xxx);
-		prj = u.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj, user, user_other_group, RWU_RWU_xxx);
+		// RW_RW_xx : now let's up the readability
+		permsA = RW_RW_xx;
+		canCreate = true;
 		single(u,true);
 		single(o,true);
 		single(w,false);
@@ -54,20 +50,18 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 		single(r,true);
 		
 		
-		// RWU_RWU_RWU : now let's up the readability one more time
-		prj.getDetails().setPermissions(RWU_RWU_RWU);
-		prj = u.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj,user,user_other_group,RWU_RWU_RWU);
+		// RW_RW_RW : now let's up the readability one more time
+		permsA = RW_RW_RW;
+		canCreate = true;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 		
-		// xxx_xxx_xxx : and if we make it invisible
-		prj.getDetails().setPermissions(xxx_xxx_xxx);
-		prj = u.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj, user, user_other_group, xxx_xxx_xxx);
+		// xx_xx_xx : and if we make it invisible
+		permsA = xx_xx_xx;
+		canCreate = true;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -78,40 +72,40 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 	// don't need to test for OTHER because OTHER and USER are symmetric.
 	
 	public void testSingleProject_W() throws Exception {
-		createProject(w,RWU_xxx_xxx,common_group);
+		ownsfA = w;
+		ownerA = world;
+		groupA = common_group;
 		
-		// RWU_xxx_xxx : should not be readable by anyone but world.
-		verifyDetails(prj,world,common_group,RWU_xxx_xxx);
+		// RW_xx_xx : should not be readable by anyone but world.
+		permsA = RW_xx_xx;
+		canCreate = true;
 		single(u,false);
 		single(o,false);
 		single(w,true);
 		single(p,false);
 		single(r,true);
 
-		// RWU_RWU_xxx : now let's up the readability
-		prj.getDetails().setPermissions(RWU_RWU_xxx);
-		prj = w.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj, world, common_group, RWU_RWU_xxx);
+		// RW_RW_xx : now let's up the readability
+		permsA = RW_RW_xx;
+		canCreate = true;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// RWU_RWU_RWU : now let's up the readability one more time
-		prj.getDetails().setPermissions(RWU_RWU_RWU);
-		prj = w.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj,world,common_group,RWU_RWU_RWU);
+		// RW_RW_RW : now let's up the readability one more time
+		permsA = RW_RW_RW;
+		canCreate = true;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// xxx_xxx_xxx : and if we make it invisible
-		prj.getDetails().setPermissions(xxx_xxx_xxx);
-		prj = w.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj, world, common_group, xxx_xxx_xxx);
+		// xx_xx_xx : and if we make it invisible
+		permsA = xx_xx_xx;
+		canCreate = true;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -123,40 +117,40 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 	// don't need to test PI because acts just like a group member
 	
 	public void testSingleProject_R() throws Exception {
-		createProject(r,RWU_xxx_xxx,system_group);
+		ownsfA = r;
+		ownerA = root;
+		groupA = system_group;
 		
-		// RWU_xxx_xxx : should not be readable by anyone but world.
-		verifyDetails(prj,root,system_group,RWU_xxx_xxx);
+		// RW_xx_xx : should not be readable by anyone but world.
+		permsA = RW_xx_xx;
+		canCreate = true;
 		single(u,false);
 		single(o,false);
 		single(w,false);
 		single(p,false);
 		single(r,true);
 
-		// RWU_RWU_xxx : now let's up the readability
-		prj.getDetails().setPermissions(RWU_RWU_xxx);
-		prj = r.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj,root,system_group,RWU_RWU_xxx);
+		// RW_RW_xx : now let's up the readability
+		permsA = RW_RW_xx;
+		canCreate = true;
 		single(u,false);
 		single(o,false);
 		single(w,false);
 		single(p,false);
 		single(r,true);
 
-		// RWU_RWU_RWU : now let's up the readability one more time
-		prj.getDetails().setPermissions(RWU_RWU_RWU);
-		prj = r.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj,root,system_group,RWU_RWU_RWU);
+		// RW_RW_RW : now let's up the readability one more time
+		permsA = RW_RW_RW;
+		canCreate = true;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// xxx_xxx_xxx : and if we make it invisible
-		prj.getDetails().setPermissions(xxx_xxx_xxx);
-		prj = w.getUpdateService().saveAndReturnObject(prj);
-		verifyDetails(prj,root,system_group,xxx_xxx_xxx);
+		// xx_xx_xx : and if we make it invisible
+		permsA = xx_xx_xx;
+		canCreate = true;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -171,6 +165,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 	 */
 	protected void single(ServiceFactory sf, boolean ok)
 	{
+		createProject(ownsfA,permsA,groupA);
+		verifyDetails(prj,ownerA,groupA,permsA);
+
 		Project t;
 		try {
 			t = sf.getQueryService().find(Project.class, prj.getId());
@@ -196,77 +193,75 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 	// =========================================================================
 	
 	public void test_U_Pixels_And_U_Thumbnails() throws Exception {
-		createPixels(u,user_other_group,RWU_RWU_RWU);
-		createThumbnail(u,user_other_group,RWU_RWU_RWU,pix);
-		pix = tb.getPixels();
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
 
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		verifyDetails(tb, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, true);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx : now lets lower visibility
+		// RW_RW_RW / RW_RW_xx : now lets lower visibility
 		// thumbnail readable by other but not by world
-		u.getAdminService().changePermissions(tb, RWU_RWU_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_RWU_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		u.getAdminService().changePermissions(tb, RWU_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_xxx_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_RWU / RWU_xxx_xxx		
-		u.getAdminService().changePermissions(tb, xxx_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, xxx_xxx_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
+		// RW_RW_RW / xx_xx_xx		
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_xxx / RWU_RWU_xxx
-		u.getAdminService().changePermissions(tb, RWU_RWU_xxx);
-		u.getAdminService().changePermissions(pix, RWU_RWU_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_RWU_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_xxx);
+		// RW_RW_xx / RW_RW_xx
+		permsA = RW_RW_xx;
+		permsB = RW_RW_xx;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_xxx_xxx / RWU_xxx_xxx
-		u.getAdminService().changePermissions(tb, RWU_xxx_xxx);
-		u.getAdminService().changePermissions(pix, RWU_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_xxx_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_xxx_xxx);
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_xx_xx;
+		permsB = RW_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		u.getAdminService().changePermissions(tb, xxx_xxx_xxx);
-		u.getAdminService().changePermissions(pix, xxx_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, xxx_xxx_xxx);
-		verifyDetails(pix, user, user_other_group, xxx_xxx_xxx);
+		// xx_xx_xx / xx_xx_xx
+		permsA = xx_xx_xx;
+		permsB = xx_xx_xx;
+		canCreate = false;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -278,66 +273,69 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 
 
 	public void test_O_Pixels_And_U_Thumbnails() throws Exception {
-		createPixels(o,user_other_group,RWU_RWU_RWU);
-		createThumbnail(u,user_other_group,RWU_RWU_RWU, pix);
-		pix = tb.getPixels();
+		ownsfA = o;
+		ownerA = other;
+		groupA = user_other_group;
 
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		verifyDetails(tb, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(pix, other, user_other_group, RWU_RWU_RWU);
+		ownsfB = u;
+		ownerB = user;
+		groupB = user_other_group;
+
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, true);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx : now lets lower visibility
+		// RW_RW_RW / RW_RW_xx : now lets lower visibility
 		// thumbnail readable by other but not by world
-		u.getAdminService().changePermissions(tb, RWU_RWU_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_RWU_xxx);
-		verifyDetails(pix, other, user_other_group, RWU_RWU_RWU);
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		u.getAdminService().changePermissions(tb, RWU_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_xxx_xxx);
-		verifyDetails(pix, other, user_other_group, RWU_RWU_RWU);
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_RWU / xxx_xxx_xxx		
-		u.getAdminService().changePermissions(tb, xxx_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, xxx_xxx_xxx);
-		verifyDetails(pix, other, user_other_group, RWU_RWU_RWU);
+		// RW_RW_RW / xx_xx_xx		
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_xxx_xxx / RWU_xxx_xxx
-		o.getAdminService().changePermissions(pix, RWU_xxx_xxx);
-		u.getAdminService().changePermissions(tb, RWU_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_xxx_xxx);
-		verifyDetails(pix, other, user_other_group, RWU_xxx_xxx);
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_xx_xx;
+		permsB = RW_xx_xx;
+		canCreate = false;
 		oneToMany(u, false, false);
 		oneToMany(o, true, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		o.getAdminService().changePermissions(pix, xxx_xxx_xxx);
-		u.getAdminService().changePermissions(tb, xxx_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, xxx_xxx_xxx);
-		verifyDetails(pix, other, user_other_group, xxx_xxx_xxx);
+		// xx_xx_xx / xx_xx_xx
+		permsA = xx_xx_xx;
+		permsB = xx_xx_xx;
+		canCreate = false;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -347,54 +345,58 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 	}
 	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
-		createPixels(u,user_other_group,RWU_RWU_RWU);
-		createThumbnail(r,system_group,RWU_RWU_RWU, pix);
-		pix = tb.getPixels();
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
+		
+		ownsfB = r;
+		ownerB = root;
+		groupB = system_group;
 
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(tb,  root, system_group, RWU_RWU_RWU);
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, true);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx 
-		r.getAdminService().changePermissions(tb, RWU_RWU_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(tb,  root, system_group, RWU_RWU_xxx);
+		// RW_RW_RW / RW_RW_xx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		canCreate = true;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		r.getAdminService().changePermissions(tb, RWU_xxx_xxx);
-		verifyDetails(tb,  root, system_group, RWU_xxx_xxx);
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 				
-		// RWU_xxx_xxx / RWU_xxx_xxx
-		u.getAdminService().changePermissions(pix, RWU_xxx_xxx);
-		r.getAdminService().changePermissions(tb, RWU_xxx_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_xxx_xxx);
-		verifyDetails(tb,  root, system_group, RWU_xxx_xxx);
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_xx_xx;
+		permsB = RW_xx_xx;
+		canCreate = true;
 		oneToMany(u, true, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		r.getAdminService().changePermissions(tb, xxx_xxx_xxx);
-		u.getAdminService().changePermissions(pix, xxx_xxx_xxx);
-		verifyDetails(pix, user, user_other_group, xxx_xxx_xxx);
-		verifyDetails(tb,  root, system_group, xxx_xxx_xxx);
+		// xx_xx_xx / xx_xx_xx
+		permsA = xx_xx_xx;
+		permsB = xx_xx_xx;
+		canCreate = true;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -412,60 +414,133 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 			boolean pix_ok, 
 			boolean tb_ok)
 	{
-		String outerJoin = "select p from Pixels p left outer join fetch p.thumbnails where p.id = :id";
-		String innerJoin = "select p from Pixels p join fetch p.thumbnails where p.id = :id";
-		Parameters params = new Parameters().addId(pix.getId());
+		createPixels(ownsfA,groupA,permsA);
+		verifyDetails(pix,ownerA, groupA, permsA);
 
-		Pixels test = sf.getQueryService().findByQuery(outerJoin, params);
-		if (pix_ok)
-		{		
-			assertNotNull(test);
-			if (tb_ok)
-			{
-				assertTrue(test.sizeOfThumbnails() > 0);
-			} else {
-				assertTrue(test.sizeOfThumbnails() == 0); // TODO should it be null?
-			}
-			
-		} else {
-			assertNull(test);
-		}
+		try
+		{
+			createThumbnail(ownsfB,groupB,permsB,pix);
+			verifyDetails(tb, ownerB, groupB, permsB);
+			if (!canCreate) fail("secvio!");
 		
+			pix = tb.getPixels();
+	
+			String outerJoin = "select p from Pixels p left outer join fetch p.thumbnails where p.id = :id";
+			String innerJoin = "select p from Pixels p join fetch p.thumbnails where p.id = :id";
+			Parameters params = new Parameters().addId(pix.getId());
+	
+			Pixels test = sf.getQueryService().findByQuery(outerJoin, params);
+			if (pix_ok)
+			{		
+				assertNotNull(test);
+				if (tb_ok)
+				{
+					assertTrue(test.sizeOfThumbnails() > 0);
+				} else {
+					assertTrue(test.sizeOfThumbnails() == 0); // TODO should it be null?
+				}
+				
+			} else {
+				assertNull(test);
+			}
+		
+		} catch (SecurityViolation sv) {
+			if (canCreate) throw sv;
+		}
 	}
 	
 	// ~ many-to-one
 	// =========================================================================
 	public void test_U_Thumbnails_And_U_Pixels() throws Exception {
-		createPixels(u,user_other_group,RWU_RWU_RWU);
-		createThumbnail(u,user_other_group,RWU_RWU_RWU,pix);
-		pix = tb.getPixels();
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
 
-		// RWU_RWU_RWU / RWU_RWU_RWU : readable by all
-		verifyDetails(tb, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
+		// RW_RW_RW / RW_RW_RW : readable by all
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
 		manyToOne(u, true, true);
 		manyToOne(o, true, true);
 		manyToOne(w, true, true);
 		manyToOne(p, true, true);
 		manyToOne(r, true, true);
 		
-		// RWU_RWU_xxx / RWU_RWU_RWU
-		// lower visibility of thumbnail
-		u.getAdminService().changePermissions(tb, RWU_RWU_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_RWU_xxx);
-		verifyDetails(pix, user, user_other_group, RWU_RWU_RWU);
+		// RW_RW_xx / RW_RW_RW
+		permsA = RW_RW_xx;
+		permsB = RW_RW_RW;
+		canCreate = true;
 		manyToOne(u, true, true);
 		manyToOne(o, true, true);
 		manyToOne(w, false, false);
 		manyToOne(p, true, true);
 		manyToOne(r, true, true);
 		
-		// RWU_RWU_RWU / xxx_xxx_xxx
-		// try to make the pixels disappear ... 
-		u.getAdminService().changePermissions(pix, xxx_xxx_xxx);
-		u.getAdminService().changePermissions(tb, RWU_RWU_RWU);
-		verifyDetails(pix, user, user_other_group, xxx_xxx_xxx);
-		verifyDetails(tb, user, user_other_group, RWU_RWU_RWU);
+		// RW_xx_xx / RW_RW_RW
+		permsA = RW_xx_xx;
+		permsB = RW_RW_RW;
+		canCreate = true;
+		manyToOne(u, true, true);
+		manyToOne(o, false, true);
+		manyToOne(w, false, false);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_xx_xx;
+		permsB = RW_RW_RW;
+		canCreate = true;
+		manyToOne(u, true, true);
+		manyToOne(o, false, true);
+		manyToOne(w, false, false);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+
+		// RW_RW_RW / xx_xx_xx
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		canCreate = false;
+		manyToOne(u, true, false);
+		manyToOne(o, true, false);
+		manyToOne(w, true, false);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+
+	}
+	
+	public void test_O_Thumbnails_And_U_Pixels() throws Exception {
+		ownsfA = o;
+		ownerA = other;
+		groupA = user_other_group;
+
+		ownsfB = u;
+		ownerB = user;
+		groupB = user_other_group;
+		
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
+		manyToOne(u, true, true);
+		manyToOne(o, true, true);
+		manyToOne(w, true, true);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+		
+		// RW_RW_xx / RW_RW_RW
+		permsA = RW_RW_xx;
+		permsB = RW_RW_RW;
+		canCreate = true;
+		manyToOne(u, true, true);
+		manyToOne(o, true, true);
+		manyToOne(w, false, false);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+		
+		// RW_RW_RW / xx_xx_xx
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		canCreate = false;
 		manyToOne(u, true, false);
 		manyToOne(o, true, false);
 		manyToOne(w, true, false);
@@ -483,76 +558,81 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 			boolean tb_ok, 
 			boolean pix_ok)
 	{
-		String outerJoin = "select t from Thumbnail t left outer join fetch t.pixels where t.id = :id";
-		String innerJoin = "select t from Thumbnail t join fetch t.pixels where t.id = :id";
-		Parameters params = new Parameters().addId(tb.getId());
+		createPixels(ownsfB,groupB,permsB);
+		verifyDetails(pix,ownerB, groupB, permsB);
 		
-		try 
+		
+		try
 		{
-			Thumbnail test = sf.getQueryService().findByQuery(outerJoin, params);
-			if (tb_ok)
-			{		
-				assertNotNull(test);
-				if (pix_ok)
-				{
-					assertNotNull(test.getPixels());
-				} else {
-					assertNull(test.getPixels()); // TODO should it be null?
-				}
-				
-			} else {
-				assertNull(test);
-			}
-		} catch (SecurityViolation sv) {
-			if (tb_ok && pix_ok) throw sv;
-		}
+
+			createThumbnail(ownsfA,groupA,permsA,pix);
+			verifyDetails(tb, ownerA, groupA, permsA);
+			if (!canCreate) fail("secvio!");
+
+			pix = tb.getPixels();
 		
+			String outerJoin = "select t from Thumbnail t left outer join fetch t.pixels where t.id = :id";
+			String innerJoin = "select t from Thumbnail t join fetch t.pixels where t.id = :id";
+			Parameters params = new Parameters().addId(tb.getId());
+			
+			try 
+			{
+				Thumbnail test = sf.getQueryService().findByQuery(outerJoin, params);
+				if (tb_ok)
+				{		
+					assertNotNull(test);
+					if (pix_ok)
+					{
+						assertNotNull(test.getPixels());
+					} else {
+						assertNull(test.getPixels()); // TODO should it be null?
+					}
+					
+				} else {
+					assertNull(test);
+				}
+			} catch (SecurityViolation sv) {
+				if (tb_ok && pix_ok) throw sv;
+			}
+
+		} catch (SecurityViolation sv) {
+			if (canCreate) throw sv;
+		}
 	}
 
 	// ~ many-to-many
 	// =========================================================================
 
-	public void test_U_Projects_And_U_Datasets() throws Exception {
-		// create
-		prj = new Project();
-		prj.setName("links");
-		prj.getDetails().setPermissions(RWU_RWU_RWU);
-		prj.getDetails().setGroup(user_other_group);
-
-		Dataset ds = new Dataset();
-		ds.setName("links");
-		ds.getDetails().setPermissions(RWU_RWU_RWU);
-		ds.getDetails().setGroup(user_other_group);
-		
-		prj = u.getUpdateService().saveAndReturnObject(prj);
-		ds  = u.getUpdateService().saveAndReturnObject(ds);
-		ProjectDatasetLink link = new ProjectDatasetLink();
-		link.link(prj, ds);
-		u.getUpdateService().saveObject(link);
-		
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		verifyDetails(prj, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(ds, user, user_other_group, RWU_RWU_RWU);
+	public void test_U_Projects_U_Datasets_U_Link() throws Exception {
+		ownsfA = ownsfB = ownsfC = u;
+		ownerA = ownerB = ownerC = user;
+		groupA = groupB = groupC = user_other_group;
+				
+		// RW_RW_RW / RW_RW_RW / RW_RW_RW
+		permsA = permsB = permsC = RW_RW_RW;
+		canCreate = true;
 		manyToMany(u,true,true);
 		manyToMany(o,true,true);
 		manyToMany(w,true,true);
 		manyToMany(p,true,true);
 		manyToMany(r,true,true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx
-		u.getAdminService().changePermissions(ds, RWU_RWU_xxx);
-		verifyDetails(prj, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(ds, user, user_other_group, RWU_RWU_xxx);
+		// RW_RW_RW / RW_RW_xx / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		permsC = RW_RW_RW;
+		canCreate = true;
 		manyToMany(u,true,true);
 		manyToMany(o,true,true);
 		manyToMany(w,true,false);
 		manyToMany(p,true,true);
 		manyToMany(r,true,true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		u.getAdminService().changePermissions(ds, RWU_xxx_xxx);
-		verifyDetails(prj, user, user_other_group, RWU_RWU_RWU);
-		verifyDetails(ds, user, user_other_group, RWU_xxx_xxx);
+		// RW_RW_RW / RW_xx_xx / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		permsC = RW_RW_RW;
+		canCreate = true;
 		manyToMany(u,true,true);
 		manyToMany(o,true,false);
 		manyToMany(w,true,false);
@@ -571,6 +651,30 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 			boolean prj_ok, 
 			boolean ds_ok)
 	{
+		
+		prj = new Project();
+		prj.setName("links");
+		prj.getDetails().setPermissions(permsA);
+		prj.getDetails().setGroup(groupA);
+
+		Dataset ds = new Dataset();
+		ds.setName("links");
+		ds.getDetails().setPermissions(permsB);
+		ds.getDetails().setGroup(groupB);
+		
+		prj = ownsfA.getUpdateService().saveAndReturnObject(prj);
+		ds  = ownsfB.getUpdateService().saveAndReturnObject(ds);
+		link = new ProjectDatasetLink();
+		link.link(prj, ds);
+		link.getDetails().setPermissions(permsC);
+		link.getDetails().setGroup(groupC);
+		link = ownsfC.getUpdateService().saveAndReturnObject(link);
+		
+		// RW_RW_RW / RW_RW_RW
+		verifyDetails(prj, ownerA, groupA, permsA);
+		verifyDetails(ds,  ownerB, groupB, permsB);
+		verifyDetails(link,ownerC, groupC, permsC);
+		
 		String outerJoin = "select p from Project p " +
 				" left outer join fetch p.datasetLinks pdl " +
 				" left outer join fetch pdl.child ds " +
@@ -603,32 +707,31 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 	
 	@Test
 	public void test_U_Image_U_Pixels() throws Exception {
-		createPixels(u, user_other_group, RWU_RWU_RWU);
-		createImage(u, user_other_group, RWU_RWU_RWU, pix);
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
 		
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		verifyDetails(img,user,user_other_group,RWU_RWU_RWU);
-		verifyDetails(pix,user,user_other_group,RWU_RWU_RWU);
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
 		imagePixels(u,true,true);
 		imagePixels(o,true,true);
 		imagePixels(w,true,true);
 		imagePixels(p,true,true);
 		imagePixels(r,true,true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx
-		u.getAdminService().changePermissions(pix, RWU_RWU_xxx);
-		verifyDetails(img,user,user_other_group,RWU_RWU_RWU);
-		verifyDetails(pix,user,user_other_group,RWU_RWU_xxx);
+		// RW_RW_RW / RW_RW_xx
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
 		imagePixels(u,true,true);
 		imagePixels(o,true,true);
 		imagePixels(w,true,false);
 		imagePixels(p,true,true);
 		imagePixels(r,true,true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		u.getAdminService().changePermissions(pix, RWU_xxx_xxx);
-		verifyDetails(img,user,user_other_group,RWU_RWU_RWU);
-		verifyDetails(pix,user,user_other_group,RWU_xxx_xxx);
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
 		imagePixels(u,true,true);
 		imagePixels(o,true,false);
 		imagePixels(w,true,false);
@@ -641,6 +744,13 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 			boolean img_ok, 
 			boolean pix_ok)
 	{
+		createPixels(ownsfB, groupB, permsB);
+		createImage( ownsfA, groupA, permsA, pix);
+		
+		// RW_RW_RW / RW_RW_RW
+		verifyDetails(img,ownerA,groupA,permsA);
+		verifyDetails(pix,ownerB,groupB,permsB);
+		
 		String outerJoin = "select i from Image i " +
 				"left outer join fetch i.defaultPixels " +
 				"left outer join fetch i.pixels " +

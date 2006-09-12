@@ -1,6 +1,8 @@
 package ome.client.itests.sec;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
@@ -16,9 +18,6 @@ import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
-import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.ServiceFactory;
@@ -45,66 +44,45 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	 * TODO this could all be moved to an excel table!
 	 */
 	
-	/* these are needed because writing without reading throws a load exception
-	 * rather than a write exception. */
-	final static protected Permissions 
-		RWU_RWU_Rxx = new Permissions()
-			.revoke(WORLD, WRITE, USE),
-		RWU_Rxx_Rxx = new Permissions()
-			.revoke(WORLD, WRITE, USE)
-			.revoke(GROUP, WRITE, USE),
-		Rxx_Rxx_Rxx = new Permissions()
-			.revoke(WORLD, WRITE, USE)
-			.revoke(GROUP, WRITE, USE)
-			.revoke(USER,  WRITE, USE);
-	
-	ServiceFactory 		ownsf, ownsfB, ownsfC;
-	Permissions 		perms, permsB, permsC;
-	Experimenter 		owner, ownerB, ownerC;
-	ExperimenterGroup 	group, groupB, groupC;
-	
-	// ~ single
-	// =========================================================================
-	
 	public void testSingleProject_U() throws Exception {
-		ownsf = u;
-		owner = user;
-		group = user_other_group;
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
 
-		// RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
+		// RW_RW_RW
+		permsA = RW_RW_RW;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// RWU_RWU_Rxx
-		perms = RWU_RWU_Rxx;
+		// RW_RW_Rxx
+		permsA = RW_RW_Rx;
 		single(u,true);
 		single(o,true);
 		single(w,false);
 		single(p,true);
 		single(r,true);
 		
-		// RWU_RWU_xxx
-		perms = RWU_RWU_xxx;
+		// RW_RW_xx
+		permsA = RW_RW_xx;
 		single(u,true);
 		single(o,true);
 		single(w,false);
 		single(p,true);
 		single(r,true);
 		
-		// RWU_Rxx_Rxx
-		perms = RWU_Rxx_Rxx;
+		// RW_Rxx_Rxx
+		permsA = RW_Rx_Rx;
 		single(u,true);
 		single(o,false);
 		single(w,false);
 		single(p,true);
 		single(r,true);
 
-		// RWU_xxx_xxx
-		perms = RWU_xxx_xxx;
+		// RW_xx_xx
+		permsA = RW_xx_xx;
 		single(u,true);
 		single(o,false);
 		single(w,false);
@@ -112,15 +90,15 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		single(r,true);
 
 		// Rxx_Rxx_Rxx
-		perms = Rxx_Rxx_Rxx;
+		permsA = Rx_Rx_Rx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
 		single(p,true);
 		single(r,true);
 		
-		// xxx_xxx_xxx
-		perms = xxx_xxx_xxx;
+		// xx_xx_xx
+		permsA = xx_xx_xx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -132,60 +110,60 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	// don't need to test for OTHER because OTHER and USER are symmetric.
 	
 	public void testSingleProject_W() throws Exception {
-		ownsf = w;
-		owner = world;
-		group = common_group;
+		ownsfA = w;
+		ownerA = world;
+		groupA = common_group;
 		
-		// RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
+		// RW_RW_RW
+		permsA = RW_RW_RW;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// RWU_RWU_Rxx 
-		perms = RWU_RWU_Rxx;
+		// RW_RW_Rxx 
+		permsA = RW_RW_Rx;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 		
-		// RWU_RWU_xxx 
-		perms = RWU_RWU_xxx;
+		// RW_RW_xx 
+		permsA = RW_RW_xx;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// RWU_Rxx_Rxx 
-		perms = RWU_Rxx_Rxx;
+		// RW_Rxx_Rxx 
+		permsA = RW_Rx_Rx;
 		single(u,false);
 		single(o,false);
-		single(w,false);
+		single(w,true);
 		single(p,false);
 		single(r,true);
 
-		// RWU_xxx_xxx 
-		perms = RWU_xxx_xxx;
+		// RW_xx_xx 
+		permsA = RW_xx_xx;
 		single(u,false);
 		single(o,false);
-		single(w,false);
+		single(w,true);
 		single(p,false);
 		single(r,true);
 
 		// Rxx_Rxx_Rxx 
-		perms = Rxx_Rxx_Rxx;
+		permsA = Rx_Rx_Rx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
 		single(p,false);
 		single(r,true);
 
-		// xxx_xxx_xxx 
-		perms = xxx_xxx_xxx;
+		// xx_xx_xx 
+		permsA = xx_xx_xx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -197,28 +175,28 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	// don't need to test PI because acts just like a group member
 	
 	public void testSingleProject_R() throws Exception {
-		ownsf = r;
-		owner = root;
-		group = system_group;
+		ownsfA = r;
+		ownerA = root;
+		groupA = system_group;
 		
-		// RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
+		// RW_RW_RW
+		permsA = RW_RW_RW;
 		single(u,true);
 		single(o,true);
 		single(w,true);
 		single(p,true);
 		single(r,true);
 
-		// RWU_RWU_Rxx 
-		perms = RWU_RWU_Rxx;
+		// RW_RW_Rxx 
+		permsA = RW_RW_Rx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
 		single(p,false);
 		single(r,true);
 		
-		// RWU_RWU_xxx 
-		perms = RWU_RWU_xxx;
+		// RW_RW_xx 
+		permsA = RW_RW_xx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -226,15 +204,15 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		single(r,true);
 
 		// Rxx_Rxx_Rxx
-		perms = Rxx_Rxx_Rxx;
+		permsA = Rx_Rx_Rx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
 		single(p,false);
 		single(r,true);
 		
-		// xxx_xxx_xxx
-		perms = xxx_xxx_xxx;
+		// xx_xx_xx
+		permsA = xx_xx_xx;
 		single(u,false);
 		single(o,false);
 		single(w,false);
@@ -247,8 +225,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	 */
 	protected void single(ServiceFactory sf, boolean ok)
 	{
-		createProject(ownsf,perms,group);
-		verifyDetails(prj,owner,group,perms);
+		createProject(ownsfA,permsA,groupA);
+		verifyDetails(prj,ownerA,groupA,permsA);
 		
 		Project t = null;
 		String MSG = makeModifiedMessage();
@@ -276,89 +254,89 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	// =========================================================================
 	
 	public void test_U_Pixels_And_U_Thumbnails() throws Exception {
-		ownsf = u;
-		owner = user;
-		group = user_other_group;
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
 		
 		ownsfB = u;
 		ownerB = user;
 		groupB = user_other_group;
 		
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_RWU;
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, true);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_Rxx 
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_Rxx;
+		// RW_RW_RW / RW_RW_Rxx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_Rx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx 
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_xxx;
+		// RW_RW_RW / RW_RW_xx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_RWU / RWU_Rxx_Rxx
-		perms = RWU_RWU_RWU;
-		permsB = RWU_Rxx_Rxx;
+		// RW_RW_RW / RW_Rxx_Rxx
+		permsA = RW_RW_RW;
+		permsB = RW_Rx_Rx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx		
-		perms = RWU_RWU_RWU;
-		permsB = RWU_xxx_xxx;
-		oneToMany(u, true, false);
+		// RW_RW_RW / RW_xx_xx		
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		oneToMany(u, true, true);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_Rxx / RWU_RWU_Rxx
-		perms = RWU_RWU_Rxx;
-		permsB = RWU_RWU_Rxx;
+		// RW_RW_Rxx / RW_RW_Rxx
+		permsA = RW_RW_Rx;
+		permsB = RW_RW_Rx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_xxx / RWU_RWU_xxx
-		perms = RWU_RWU_xxx;
-		permsB = RWU_RWU_xxx;
+		// RW_RW_xx / RW_RW_xx
+		permsA = RW_RW_xx;
+		permsB = RW_RW_xx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_Rxx_Rxx / RWU_Rxx_Rxx
-		perms = RWU_Rxx_Rxx;
-		permsB = RWU_Rxx_Rxx;
+		// RW_Rxx_Rxx / RW_Rxx_Rxx
+		permsA = RW_Rx_Rx;
+		permsB = RW_Rx_Rx;
 		oneToMany(u, true, true);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_xxx_xxx / RWU_xxx_xxx
-		perms = RWU_xxx_xxx;
-		permsB = RWU_xxx_xxx;
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_xx_xx;
+		permsB = RW_xx_xx;
 		oneToMany(u, true, true);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -366,17 +344,17 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		oneToMany(r, true, true);
 
 		// Rxx_Rxx_Rxx / Rxx_Rxx_Rxx
-		perms = Rxx_Rxx_Rxx;
-		permsB = Rxx_Rxx_Rxx;
+		permsA = Rx_Rx_Rx;
+		permsB = Rx_Rx_Rx;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		perms = xxx_xxx_xxx;
-		permsB = xxx_xxx_xxx;
+		// Rx_xx_xx / xx_xx_xx
+		permsA = Rx_xx_xx;
+		permsB = xx_xx_xx;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -386,71 +364,71 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	}
 
 	public void test_O_Pixels_And_U_Thumbnails() throws Exception {
-		ownsf = o;
-		owner = other;
-		group = user_other_group;
+		ownsfA = o;
+		ownerA = other;
+		groupA = user_other_group;
 		
 		ownsfB = u;
 		ownerB = user;
 		groupB = user_other_group;
 
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_RWU;
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, true);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_RWU / RWU_RWU_Rxx 
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_Rxx;
+		// RW_RW_RW / RW_RW_Rxx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_Rx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx 
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_xxx;
-		oneToMany(u, false, false); // see NOTE below (U_pix_R_tb)
-		oneToMany(o, false, false);
-		oneToMany(w, false, false);
+		// RW_RW_RW / RW_RW_xx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		oneToMany(u, true, true);
+		oneToMany(o, true, true);
+		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		perms = RWU_RWU_RWU;
-		permsB = RWU_xxx_xxx;
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
 		oneToMany(u, true, true);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// RWU_RWU_RWU / xxx_xxx_xxx		
-		perms = RWU_RWU_RWU;
-		permsB = xxx_xxx_xxx;
+		// RW_RW_RW / xx_xx_xx		
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_xxx_xxx / RWU_xxx_xxx
-		perms = RWU_xxx_xxx;
-		permsB = RWU_xxx_xxx;
-		oneToMany(u, false, false);
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_Rx_Rx;
+		permsB = RW_xx_xx;
+		oneToMany(u, true, true);
 		oneToMany(o, true, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		perms = xxx_xxx_xxx;
-		permsB = xxx_xxx_xxx;
+		// xx_xx_xx / xx_xx_xx
+		permsA = Rx_Rx_Rx;
+		permsB = xx_xx_xx;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -460,62 +438,62 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	}
 	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
-		ownsf = u;
-		owner = user;
-		group = user_other_group;
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
 		
 		ownsfB = r;
 		ownerB = root;
 		groupB = system_group;
 		
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_RWU;
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
 		oneToMany(u, true, true);
 		oneToMany(o, true, true);
 		oneToMany(w, true, true);
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_Rxx 
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_Rxx;
+		// RW_RW_RW / RW_RW_Rxx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_Rx;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx 
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_xxx;
-		oneToMany(u, false, false); // NOTE: this fails on update(pix) because
-		oneToMany(o, false, false); // the thumbnail (detached) isn't loadable.
-		oneToMany(w, false, false); // a similar problem to trying to filter 
-		oneToMany(p, false, false); // many-to-ones.
+		// RW_RW_RW / RW_RW_xx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		oneToMany(u, true, false); 
+		oneToMany(o, true, false); 
+		oneToMany(w, true, false); 
+		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		perms = RWU_RWU_RWU;
-		permsB = RWU_xxx_xxx;
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
 		oneToMany(u, true, false);
 		oneToMany(o, true, false);
 		oneToMany(w, true, false);
 		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 				
-		// RWU_xxx_xxx / RWU_xxx_xxx
-		perms = RWU_xxx_xxx;
-		permsB = RWU_xxx_xxx;
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_xx_xx;
+		permsB = RW_xx_xx;
 		oneToMany(u, true, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, false);
 		oneToMany(r, true, true);
 
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		perms = xxx_xxx_xxx;
-		permsB = xxx_xxx_xxx;
+		// xx_xx_xx / xx_xx_xx
+		permsA = xx_xx_xx;
+		permsB = xx_xx_xx;
 		oneToMany(u, false, false);
 		oneToMany(o, false, false);
 		oneToMany(w, false, false);
@@ -532,10 +510,10 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 			boolean tb_ok)
 	{
 		
-		createPixels(ownsf,group,perms);
+		createPixels(ownsfA,groupA,permsA);
 		createThumbnail(ownsfB,groupB,permsB, pix);
 		pix = tb.getPixels();
-		verifyDetails(pix, owner, group, perms);
+		verifyDetails(pix, ownerA, groupA, permsA);
 		verifyDetails(tb,  ownerB,groupB,permsB);
 		
 		Pixels t = null;
@@ -544,6 +522,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		pix.setSha1(MSG);
 		
 		try {
+			pix.putAt( Pixels.THUMBNAILS,  
+					Collections.singleton( new Thumbnail( tb.getId(), false ) ));
 			t = sf.getUpdateService().saveAndReturnObject(pix);
 			if (!pix_ok) fail("secvio!");
 			assertTrue( MSG.equals( t.getSha1() ));
@@ -565,62 +545,65 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		{
 			sf.getUpdateService().deleteObject(tb);
 			if (!tb_ok) fail("secvio!");
+			
+			// done for later recursive delete.
+			pix.putAt( Pixels.THUMBNAILS, null );
+			// must be internal to try/catch otherwise, explodes
+			// since tb still references the pix.
+			try 
+			{
+				deleteRecurisvely( sf, pix );
+				if (!pix_ok) fail("secvio!");
+			} catch (SecurityViolation sv) { 
+				if (pix_ok) throw sv;
+			}
+			
 		} catch (SecurityViolation sv) { 
 			if (tb_ok) throw sv;
-		} finally {
-			pix.clearThumbnails(); // done for later recursive delete.
-		}
-		
-		try 
-		{
-			deleteRecurisvely( sf, pix );
-			if (!pix_ok) fail("secvio!");
-		} catch (SecurityViolation sv) { 
-			if (pix_ok) throw sv;
-		}
-		
+		} 
+				
 	}
 	
 	// ~ many-to-one
 	// =========================================================================
 	public void test_U_Thumbnails_And_U_Pixels() throws Exception {
-		ownsf = ownsfB = u;
-		owner = ownerB = user;
-		group = groupB = user_other_group;
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
 		
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_RWU;
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
 		manyToOne(u, true, true);
 		manyToOne(o, true, true);
 		manyToOne(w, true, true);
 		manyToOne(p, true, true);
 		manyToOne(r, true, true);
 		
-		// RWU_RWU_xxx / RWU_RWU_RWU
-		perms = RWU_RWU_xxx;
-		permsB = RWU_RWU_RWU;
+		// RW_RW_xx / RW_RW_RW
+		permsA = RW_RW_xx;
+		permsB = RW_RW_RW;
 		manyToOne(u, true, true);
 		manyToOne(o, true, true);
 		manyToOne(w, false, false);
 		manyToOne(p, true, true);
 		manyToOne(r, true, true);
 
-		// RWU_RWU_RWU / Rxx_Rxx_Rxx
-		perms = RWU_RWU_RWU;
-		permsB = Rxx_Rxx_Rxx;
+		// RW_RW_RW / Rxx_Rxx_Rxx
+		permsA = RW_RW_RW;
+		permsB = Rx_Rx_Rx;
 		manyToOne(u, true, false);
 		manyToOne(o, true, false);
 		manyToOne(w, true, false);
 		manyToOne(p, true, true);
 		manyToOne(r, true, true);
 
-		// RWU_RWU_RWU / xxx_xxx_xxx
-		perms = RWU_RWU_RWU;
-		permsB = xxx_xxx_xxx;
-		manyToOne(u, false, false); // see NOTE (U_pix_R_tb)
-		manyToOne(o, false, false);
-		manyToOne(w, false, false);
+		// RW_RW_RW / xx_xx_xx
+		permsA = RW_RW_RW;
+		permsB = Rx_Rx_Rx;
+		manyToOne(u, true, false);
+		manyToOne(o, true, false);
+		manyToOne(w, true, false);
 		manyToOne(p, true, true);
 		manyToOne(r, true, true);
 
@@ -637,10 +620,10 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	{
 		
 		createPixels(ownsfB,groupB,permsB);
-		createThumbnail(ownsf,group,perms, pix);
+		createThumbnail(ownsfA,groupA,permsA, pix);
 		pix = tb.getPixels();
 		verifyDetails(pix, ownerB, groupB, permsB);
-		verifyDetails(tb,  owner,  group,  perms);
+		verifyDetails(tb,  ownerA,  groupA,  permsA);
 		
 		// almost identical copy of oneToMany starting here. refactor.
 		
@@ -660,6 +643,10 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		tb.setRef(MSG);
 		
 		try {
+			
+			// must reload since we modified the SHA1 
+			// though it might have failed. 
+			tb.setPixels( sf.getQueryService().get(pix.getClass(),pix.getId()) );
 			test = sf.getUpdateService().saveAndReturnObject(tb);
 			if (!tb_ok) fail("secvio!");
 			assertTrue( MSG.equals( test.getRef() ));
@@ -671,19 +658,13 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		{
 			sf.getUpdateService().deleteObject(tb);
 			if (!tb_ok) fail("secvio!");
-		} catch (SecurityViolation sv) { 
-			if (tb_ok) throw sv;
-		} finally {
-			pix.clearThumbnails(); // done for later recursive delete.
-		}
-		
-		try 
-		{
+			pix.putAt( Pixels.THUMBNAILS, null );
 			deleteRecurisvely( sf, pix );
 			if (!pix_ok) fail("secvio!");
+
 		} catch (SecurityViolation sv) { 
-			if (pix_ok) throw sv;
-		}
+			if (tb_ok&&pix_ok) throw sv;
+		} 
 						
 	}
 
@@ -691,32 +672,32 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	// =========================================================================
 
 	public void test_U_Projects_U_Datasets_U_Link() throws Exception {
-		ownsf = ownsfB = ownsfC = u;
-		owner = ownerB = ownerC = user;
-		group = groupB = groupC = user_other_group;
+		ownsfA = ownsfB = ownsfC = u;
+		ownerA = ownerB = ownerC = user;
+		groupA = groupB = groupC = user_other_group;
 		
-		// RWU_RWU_RWU / RWU_RWU_RWU / RWU_RWU_RWU
-		perms = permsB = permsC = RWU_RWU_RWU;
+		// RW_RW_RW / RW_RW_RW / RW_RW_RW
+		permsA = permsB = permsC = RW_RW_RW;
 		manyToMany(u,true,true,true);
 		manyToMany(o,true,true,true);
 		manyToMany(w,true,true,true);
 		manyToMany(p,true,true,true);
 		manyToMany(r,true,true,true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx / RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
-		permsB = RWU_RWU_xxx;
-		permsC = RWU_RWU_RWU;
+		// RW_RW_RW / RW_RW_xx / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		permsC = RW_RW_RW;
 		manyToMany(u,true,true,true);
 		manyToMany(o,true,true,true);
 		manyToMany(w,true,false,true);
 		manyToMany(p,true,true,true);
 		manyToMany(r,true,true,true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx / RWU_RWU_RWU
-		perms = RWU_RWU_RWU;
-		permsB = RWU_xxx_xxx;
-		permsC = RWU_RWU_RWU;
+		// RW_RW_RW / RW_xx_xx / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		permsC = RW_RW_RW;
 		manyToMany(u,true,true,true);
 		manyToMany(o,true,false,true);
 		manyToMany(w,true,false,true);
@@ -733,11 +714,11 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 			boolean link_ok)
 	{
 		
-		createProject(ownsf, perms, group);
+		createProject(ownsfA, permsA, groupA);
 		createDataset(ownsfB, permsB, groupB);
 		createPDLink(ownsfC, permsC, groupC); 
 
-		verifyDetails(prj, owner, group, perms);
+		verifyDetails(prj, ownerA, groupA, permsA);
 		verifyDetails(ds,  ownerB,groupB,permsB);
 		verifyDetails(link,ownerC,groupC,permsC);
 		
@@ -758,6 +739,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		prj.setName(MSG);
 		
 		try {
+			prj.putAt( Project.DATASETLINKS, null );
 			test = sf.getUpdateService().saveAndReturnObject(prj);
 			if (!prj_ok) fail("secvio!");
 			assertTrue( MSG.equals( test.getName() ));
@@ -770,16 +752,16 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		
 		try 
 		{
-			sf.getUpdateService().deleteObject(link);
+			sf.getUpdateService().deleteObject( // proxy needed
+					new ProjectDatasetLink( link.getId(), false));
 			if (!link_ok) fail("secvio!");
+			prj.putAt( Project.DATASETLINKS, null );
+			ds.putAt( Dataset.PROJECTLINKS, null );
+
 		} catch (SecurityViolation sv) { 
 			if (link_ok) throw sv;
-		} finally {
-			prj.clearDatasetLinks(); // done for later recursive delete.
-			ds.clearProjectLinks();  // ditto;
-		}
-		
-		
+		}				
+
 		try 
 		{
 			deleteRecurisvely(sf, ds);
@@ -787,7 +769,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		} catch (SecurityViolation sv) { 
 			if (ds_ok) throw sv;
 		} 
-		
+
 		try 
 		{
 			deleteRecurisvely( sf, prj );
@@ -795,7 +777,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		} catch (SecurityViolation sv) { 
 			if (prj_ok) throw sv;
 		}
-		
+
 	}
 	
 	// ~ Special: "tag" (e.g. Image/Pixels)
@@ -803,32 +785,30 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 
 	@Test
 	public void test_U_Image_U_Pixels() throws Exception {
-		createPixels(u, user_other_group, RWU_RWU_RWU);
-		createImage(u, user_other_group, RWU_RWU_RWU, pix);
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
 		
-		// RWU_RWU_RWU / RWU_RWU_RWU
-		verifyDetails(img,user,user_other_group,RWU_RWU_RWU);
-		verifyDetails(pix,user,user_other_group,RWU_RWU_RWU);
+		// RW_RW_RW / RW_RW_RW
+		permsA = permsB = RW_RW_RW;
 		imagePixels(u,true,true);
 		imagePixels(o,true,true);
 		imagePixels(w,true,true);
 		imagePixels(p,true,true);
 		imagePixels(r,true,true);
 		
-		// RWU_RWU_RWU / RWU_RWU_xxx
-		u.getAdminService().changePermissions(pix, RWU_RWU_xxx);
-		verifyDetails(img,user,user_other_group,RWU_RWU_RWU);
-		verifyDetails(pix,user,user_other_group,RWU_RWU_xxx);
+		// RW_RW_RW / RW_RW_xx
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
 		imagePixels(u,true,true);
 		imagePixels(o,true,true);
 		imagePixels(w,true,false);
 		imagePixels(p,true,true);
 		imagePixels(r,true,true);
 		
-		// RWU_RWU_RWU / RWU_xxx_xxx
-		u.getAdminService().changePermissions(pix, RWU_xxx_xxx);
-		verifyDetails(img,user,user_other_group,RWU_RWU_RWU);
-		verifyDetails(pix,user,user_other_group,RWU_xxx_xxx);
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
 		imagePixels(u,true,true);
 		imagePixels(o,true,false);
 		imagePixels(w,true,false);
@@ -838,7 +818,9 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	}
 	
 	@Test
-	public void test_ImagesAndDefaultPixels() throws Exception {
+	public void test_ImagesAndDefaultPixels() throws Exception 
+	{
+		
 		fail("	see UpdateTest(server).test_experimenters_groups ");
 	}
 	
@@ -846,6 +828,12 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 			boolean img_ok, 
 			boolean pix_ok)
 	{
+		createPixels(     ownsfA, groupA, permsA);
+		verifyDetails(pix,ownerA, groupA, permsA);
+
+		createImage(      ownsfB, groupB, permsB, pix);
+		verifyDetails(img,ownerB, groupB ,permsB);
+		
 		String outerJoin = "select i from Image i " +
 				"left outer join fetch i.defaultPixels " +
 				"left outer join fetch i.pixels " +
@@ -870,17 +858,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		}
 		
 	}
-	
-	// ~ Other
-	// ========================================================================
-
-	@Test
-	public void testNoLoadOnNonReadableProxy() throws Exception {
-		fail("A user should not be able to pass in an unreadable, unloaded" +
-				" proxy and have it linked. This would allow RW to suffice" +
-				" for RW*U*");
-	}
-	
+		
 	// ~ Helpers
 	// =========================================================================
 	

@@ -14,6 +14,8 @@ import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -57,16 +59,33 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 	 */
 	
 	final static protected Permissions 
-			RWU_RWU_RWU = new Permissions(),
-			RWU_RWU_xxx = new Permissions()
-					.revoke(WORLD, READ, WRITE, USE),
-			RWU_xxx_xxx = new Permissions()
-					.revoke(WORLD, READ, WRITE, USE)
-					.revoke(GROUP, READ, WRITE, USE),
-			xxx_xxx_xxx = new Permissions()
-					.revoke(WORLD, READ, WRITE, USE)
-					.revoke(GROUP, READ, WRITE, USE)
-					.revoke(USER,  READ, WRITE, USE);
+			RW_RW_RW = new Permissions(),
+			RW_RW_xx = new Permissions()
+					.revoke(WORLD, READ, WRITE),
+			RW_xx_xx = new Permissions()
+					.revoke(WORLD, READ, WRITE)
+					.revoke(GROUP, READ, WRITE),
+			xx_xx_xx = new Permissions()
+					.revoke(WORLD, READ, WRITE)
+					.revoke(GROUP, READ, WRITE)
+					.revoke(USER,  READ, WRITE),
+			RW_RW_Rx = new Permissions()
+					.revoke(WORLD, WRITE),
+			RW_Rx_Rx = new Permissions()
+					.revoke(WORLD, WRITE)
+					.revoke(GROUP, WRITE),
+			Rx_Rx_Rx = new Permissions()
+					.revoke(WORLD, WRITE)
+					.revoke(GROUP, WRITE)
+					.revoke(USER,  WRITE),
+			Rx_Rx_xx = new Permissions()
+					.revoke(WORLD, READ, WRITE)
+					.revoke(GROUP, WRITE)
+					.revoke(USER,  WRITE),
+			Rx_xx_xx = new Permissions()
+					.revoke(WORLD, READ, WRITE)
+					.revoke(GROUP, READ, WRITE)
+					.revoke(USER,  WRITE);
 
 	protected ExperimenterGroup 
 		system_group = new ExperimenterGroup(0L,false),
@@ -80,6 +99,8 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		other = new Experimenter(),
 		world = new Experimenter();
 
+	protected String gname;
+	
 	protected ServiceFactory u, o, w, p, r;
 
 	protected Project prj;
@@ -94,16 +115,23 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 
 	protected Image img;
 
+	protected ServiceFactory 		ownsfA,ownsfB,ownsfC;
+	protected Permissions 			permsA,permsB,permsC;
+	protected Experimenter 			ownerA,ownerB,ownerC;
+	protected ExperimenterGroup 	groupA,groupB,groupC;
+
 	@Configuration(beforeTestClass = true)
 	public void createUsersAndGroups() throws Exception {
 		
 		init();
+		
+		gname = UUID.randomUUID().toString();
 
 		// shortcut for root service factory, created in super class
 		r = rootServices;
 		
 		// create the PI for a new group
-		Login piLogin = new Login(UUID.randomUUID().toString(),"empty");
+		Login piLogin = new Login(UUID.randomUUID().toString(),"empty",gname,"Test");
 		p = new ServiceFactory(piLogin);
 		pi.setOmeName(piLogin.getName());
 		pi.setFirstName("read");
@@ -111,7 +139,7 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		pi = new Experimenter(rootAdmin.createUser(pi), false);
 				
 		// create the new group with the PI as leader
-		user_other_group.setName(UUID.randomUUID().toString());
+		user_other_group.setName(gname);
 		user_other_group.getDetails().setOwner(pi);
 		user_other_group = new ExperimenterGroup(rootAdmin
 				.createGroup(user_other_group), false);
@@ -120,7 +148,7 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		rootAdmin.addGroups(pi, user_other_group);
 		
 		// create a new user in that group
-		Login userLogin = new Login(UUID.randomUUID().toString(), "empty");
+		Login userLogin = new Login(UUID.randomUUID().toString(), "empty",gname,"Test");
 		u = new ServiceFactory(userLogin);
 		user.setOmeName(userLogin.getName());
 		user.setFirstName("read");
@@ -129,7 +157,7 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		rootAdmin.addGroups(user, user_other_group);
 
 		// create another user in that group
-		Login otherLogin = new Login(UUID.randomUUID().toString(), "empty");
+		Login otherLogin = new Login(UUID.randomUUID().toString(), "empty",gname,"Test");
 		o = new ServiceFactory(otherLogin);
 		other.setOmeName(otherLogin.getName());
 		other.setFirstName("read");
@@ -138,7 +166,7 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		rootAdmin.addGroups(other, user_other_group);
 		
 		// create a third regular user not in that group
-		Login worldLogin = new Login(UUID.randomUUID().toString(), "empty");
+		Login worldLogin = new Login(UUID.randomUUID().toString(), "empty" /* not gname!*/);
 		w = new ServiceFactory(worldLogin);
 		world.setOmeName(worldLogin.getName());
 		world.setFirstName("read");
@@ -160,8 +188,7 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		Details d = v.getDetails();
 		assertEquals(d.getOwner().getId(), _user.getId());
 		assertEquals(d.getGroup().getId(), _group.getId());
-		assertTrue(v.getDetails().getPermissions().identical(_perms));
-	
+		assertTrue(_perms.sameRights(v.getDetails().getPermissions()));	
 	}
 
 	protected void createProject(ServiceFactory sf, Permissions perms, ExperimenterGroup group) {
@@ -192,9 +219,11 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 
 	protected void createPixels(ServiceFactory sf, ExperimenterGroup group, Permissions perms) {
 		pix = ObjectFactory.createPixelGraph(null);
-		pix.getDetails().setPermissions(perms);
 		pix.getDetails().setGroup(group);
+		// pix.getDetails().setPermissions(perms); must be done for whole graph
+		sf.setUmask( perms );
 		pix = sf.getUpdateService().saveAndReturnObject(pix);
+		sf.setUmask( null );
 	}
 
 	protected void createThumbnail(ServiceFactory sf, ExperimenterGroup group, Permissions perms, Pixels _p) {

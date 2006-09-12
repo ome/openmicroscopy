@@ -17,14 +17,14 @@ public class UmaskSecurityTest extends AbstractPermissionsTest
 	
 	@Test
 	public void testU() throws Exception {
-		assertUmaskWorks(u,RWU_RWU_RWU);
-		assertUmaskWorks(u,RWU_xxx_xxx);
+		assertUmaskWorks(u,RW_RW_RW);
+		assertUmaskWorks(u,RW_xx_xx);
 	}
 	
 	@Test
 	public void testR() throws Exception {
-		assertUmaskWorks(r,RWU_RWU_RWU);
-		assertUmaskWorks(r,RWU_xxx_xxx);
+		assertUmaskWorks(r,RW_RW_RW);
+		assertUmaskWorks(r,RW_xx_xx);
 	}
 
 	private void assertUmaskWorks(ServiceFactory sf, Permissions perms) {
