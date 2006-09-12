@@ -1,11 +1,13 @@
 package ome.client.itests;
 
 import org.testng.annotations.*;
+
 import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import ome.api.IPixels;
 import ome.api.IUpdate;
 import ome.model.acquisition.AcquisitionContext;
 import ome.model.containers.Project;
@@ -129,6 +131,43 @@ public class RenderingEngineTest extends TestCase
 		re.getModel();
 		re.setQuantumStrategy(1);
 	}
+    
+    // copied from server test
+    @Test( groups = "ticket:330" )
+    public void testPixelsIsFilled() throws Exception {
+    	Pixels p = ObjectFactory.createPixelGraph(null);
+    	p = sf.getUpdateService().saveAndReturnObject( p );
+    	
+    	IPixels pix = sf.getPixelsService();
+    	Pixels t = pix.retrievePixDescription(p.getId());
+    	testPixelsFilled(t);
+    	
+    	RenderingEngine re = sf.createRenderingEngine();
+    	re.lookupPixels(p.getId());
+    	t = re.getPixels();
+    	testPixelsFilled(t);
+    }
+
+	private void testPixelsFilled(Pixels t) {
+		//assertTrue( t.sizeOfPlaneInfo() >= 0 );
+    	
+    	PixelsDimensions pd = t.getPixelsDimensions();
+    	assertNotNull( pd );
+    	assertNotNull( pd.getSizeX() );
+    	
+    	List c = t.getChannels();
+    	assertNotNull( c );
+    	assertTrue( c.size() > 0 );
+    	
+    	for (Object object : c) {
+			Channel ch = (Channel) object;
+			assertNotNull( ch.getLogicalChannel() );
+		}
+	}
+    
+    // ~ Helpers
+	// =========================================================================
+    
     private void test( RenderingModel m, List<Family> families, Pixels pix)
     {
         assertNotNull(m);

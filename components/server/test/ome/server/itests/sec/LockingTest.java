@@ -188,7 +188,7 @@ public class LockingTest extends AbstractManagedContextTest
 
 		p = new Project();
 		p.setName( "ticket:339" );
-		Dataset d = new Dataset();
+		d = new Dataset();
 		d.setName( "ticket:339" );
 		p.linkDataset( d );
 		

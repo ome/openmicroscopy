@@ -11,6 +11,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.display.Thumbnail;
 import ome.model.meta.Event;
 import ome.util.ModelMapper;
 
@@ -58,6 +59,22 @@ public class LoadingUnloadingTest extends TestCase
         
     }
     
+  @Test
+  @ExpectedExceptions( IllegalStateException.class )
+  public void testAddingUnloadedToCollection() throws Exception {
+	
+	  // this needs to be unallowed, because hibernate only saves the non-inverse
+	  // (tb->pixels) side of this relation. sending an unloaded thumbnail 
+	  // attached to a Pixels is a waste of bandwidth.
+	  Pixels p = new Pixels();
+	  Thumbnail tb = new Thumbnail( 1L, false );
+	  p.addThumbnail( tb );
+	  
+  }
+  
+  // ~ Helpers
+// =========================================================================
+  
     private void try_and_fail( Set strings )
     {
         for (Iterator it = strings.iterator(); it.hasNext();)

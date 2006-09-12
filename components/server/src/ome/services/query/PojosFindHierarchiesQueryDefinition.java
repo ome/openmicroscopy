@@ -89,6 +89,7 @@ public class PojosFindHierarchiesQueryDefinition
     protected void enableFilters(Session session)
     {
         ownerOrGroupFilters(session, 
+// ticket:318        		
 //              TODO this needs to be moved to Hierarchy.
 //				TODO these are also not all needed. Need to simplify.        		
                 new String[]{
