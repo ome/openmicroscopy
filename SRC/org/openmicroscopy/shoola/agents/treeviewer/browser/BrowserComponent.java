@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.SortCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -589,7 +588,7 @@ class BrowserComponent
         }
         TreeImageDisplay display = model.getLastSelectedDisplay();
         if (display == null) return;
-        if (!display.isChildrenLoaded()) return;
+        if (!display.isChildrenLoaded() && display.numberItems != 0) return;
         TreeImageDisplay root = view.getTreeRoot();
         display.removeAllChildrenDisplay();
         if (root.equals(display)) {
@@ -839,14 +838,14 @@ class BrowserComponent
                         "in the NEW or READY state.");
         }
         Object o = object;
-        if (op == Editor.CREATE_OBJECT)
+        if (op == TreeViewer.CREATE_OBJECT)
             o = getLastSelectedDisplay().getUserObject();
         EditVisitor visitor = new EditVisitor(this, o);
         accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
         List nodes = visitor.getFoundNodes();
-        if (op == Editor.UPDATE_OBJECT) view.updateNodes(nodes, object);
+        if (op == TreeViewer.UPDATE_OBJECT) view.updateNodes(nodes, object);
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
-        else if (op == Editor.CREATE_OBJECT) {
+        else if (op == TreeViewer.CREATE_OBJECT) {
             long userID = model.getUserID();
             long groupID = model.getRootGroupID();
             createNodes(nodes, 
@@ -880,17 +879,19 @@ class BrowserComponent
             m != Classifier.DECLASSIFY_MODE)
             throw new IllegalArgumentException("Classification mode not " +
                     "supported.");
+        ImageData img;
+        ClassificationVisitor visitor;
+        List nodes;
+        long userID = model.getUserID();
+        long groupID = model.getRootGroupID();
+        TreeImageDisplay d;
+        int editorType = model.getBrowserType();
         for (int i = 0; i < images.length; i++) {
-            ImageData img = images[i];
-            ClassificationVisitor visitor = new ClassificationVisitor(this, 
-                                                    img, categories);
+            img = images[i];
+            visitor = new ClassificationVisitor(this, img, categories);
             accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-            List nodes = visitor.getFoundNodes();
-            long userID = model.getUserID();
-            long groupID = model.getRootGroupID();
-            TreeImageDisplay d = TreeViewerTranslator.transformDataObject(img, 
-                                                userID, groupID);
-            int editorType = model.getBrowserType();
+            nodes = visitor.getFoundNodes();
+            d = TreeViewerTranslator.transformDataObject(img, userID, groupID);
             if (editorType == CATEGORY_EXPLORER) {
                 if (m == Classifier.CLASSIFY_MODE) createNodes(nodes, d);
                 else removeNodes(nodes);
