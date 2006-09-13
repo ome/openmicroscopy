@@ -131,14 +131,23 @@ public class IconManager
     /** The <code>Cancel</code> icon. */
     public static  int          CANCEL = 21;
     
-    /** The <code>Cancel</code> icon. */
+    /** The <code>Viewer</code> icon. */
     public static  int          VIEWER = 22;
+    
+    /** The <code>GreyScale</code> icon. */
+    public static  int          GRAYSCALE = 23;
+    
+    /** The <code>RGB</code> icon. */
+    public static  int          RGB = 24;
+    
+    /** The <code>HSB</code> icon. */
+    public static  int          HSB = 25;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 22;
+    private static int          MAX_ID = 25;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -168,6 +177,9 @@ public class IconManager
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[CANCEL] = "eclipse_delete_edit16.png";
         relPaths[VIEWER] = "viewer16.png";
+        relPaths[GRAYSCALE] = "grayscale16.png";
+        relPaths[RGB] = "rgb16.png";
+        relPaths[HSB] = "hsb16.png";
     }
     
     /** The sole instance. */
