@@ -35,10 +35,12 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -117,6 +119,26 @@ public class ColorModelAction
     }
     
     /**
+     * Returns the icon corresponding to the specified index.
+     * 
+     * @param index The index. 
+     * @return See above.
+     */
+    private Icon getColorModelIcon(int index)
+    {
+        IconManager icons = IconManager.getInstance();
+        switch (index) {
+            case GREY_SCALE_MODEL:
+                default:
+                return icons.getIcon(IconManager.GRAYSCALE);
+            case RGB_MODEL:
+                return icons.getIcon(IconManager.RGB);
+            case HSB_MODEL:
+                return icons.getIcon(IconManager.HSB);
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model         Reference to the model.
@@ -132,6 +154,7 @@ public class ColorModelAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         this.modelIndex = modelIndex;
         putValue(Action.NAME, UIUtilities.formatToolTipText(names[modelIndex]));
+        putValue(Action.SMALL_ICON, getColorModelIcon(modelIndex));
         setName(names[modelIndex]);
     }
     
@@ -141,8 +164,8 @@ public class ColorModelAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        firePropertyChange(COLOR_MODEL_PROPERTY, null, this);
         model.setColorModel(modelIndex);
+        firePropertyChange(COLOR_MODEL_PROPERTY, null, this);
     }
     
 }
